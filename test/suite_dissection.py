@@ -44404,3 +44404,349 @@ class TestDissectDnp3:
                      if l.split() and l.split()[0].isdigit()}
         assert endpoints == {'1': '109', '1024': '102', '1025': '3', '1026': '3',
                              '2': '1', '10': '1', '20': '1'}
+
+
+class TestDissectDnsCoverage:
+    '''Synthetic DNS capture covering packet-dns.c: every record type the
+    dissector decodes, EDNS(0) options, SVCB/HTTPS parameters, name
+    compression, DNS over TCP, DSO, mDNS, LLMNR, DoH, the UDP heuristic
+    and the dns and dns_qr statistics trees.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, dfilter, fields, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('dns_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number']
+        if dfilter:
+            args += ['-Y', dfilter]
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def _stats_rows(text):
+        '''(label, count) for each row of a stats tree, with the leading
+        spaces of the label kept to show the depth.'''
+        rows = []
+        for line in text.splitlines():
+            parts = [p.strip() for p in line.split('  ') if p.strip()]
+            if len(parts) >= 2 and parts[1].isdigit():
+                indent = len(line) - len(line.lstrip(' '))
+                rows.append((' ' * indent + parts[0], int(parts[1])))
+        return rows
+
+    def test_dns_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol; no malformed packets and no error
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 330
+        assert protocols.count('DNS') == 288
+        assert protocols.count('MDNS') == 2
+        assert protocols.count('LLMNR') == 4
+        assert protocols.count('DoH') == 2
+        assert protocols.count('TCP') == 26
+        assert protocols.count('UDP') == 7
+        assert protocols.count('ICMP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dns_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dns_coverage_uri_target(self, cmd_tshark, capture_file, test_env):
+        '''A URI record decodes with the target length, not the owner name
+        length ("DNS: Fix the URI target length and the CAA tag match"):
+        frame 165 has an owner name longer than the target and was
+        malformed before the fix, frame 166 a shorter one.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'dns.srv.priority && !dns.srv.port',
+                            ('dns.resp.name', 'dns.srv.priority', 'dns.srv.weight',
+                             'dns.srv.target', '_ws.malformed'))
+        assert rows == [
+            ['148', '_sip.example.com', '10', '1', 'sip:info@example.com', ''],
+            ['165', 'averylongownername.test', '10', '20', 'http://x', ''],
+            ['166', 'a', '10', '20', 'http://x', ''],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_coverage.pcap.gz'),
+                '-Y', 'frame.number in {165,166}', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        sizes = [line.split(' size="')[1].split('"')[0] for line in stdout.splitlines()
+                 if '<field name="dns.srv.target"' in line]
+        assert sizes == ['8', '8']
+
+    def test_dns_coverage_caa(self, cmd_tshark, capture_file, test_env):
+        '''CAA tags: only "issue", "issuewild" and "iodef" themselves are
+        known; a prefix such as "iss" or an empty tag is not "issue" (the
+        CAA part of the fix).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'dns.caa.tag',
+                            ('dns.caa.tag', 'dns.caa.issue', 'dns.caa.issuewild',
+                             'dns.caa.iodef', 'dns.caa.unknown',
+                             'dns.caa.flags.issuer_critical'))
+        assert rows == [
+            ['150', 'issue,issuewild,iodef,tbs', 'ca.example.net', ';',
+             'mailto:security@example.com', 'Unknown', 'False,False,True,False'],
+            ['168', 'iss,,iodefx', '', '', '',
+             'ca.example.net,ca.example.net,mailto:x@example.com', 'False,False,False'],
+        ]
+
+    def test_dns_coverage_rr_types(self, cmd_tshark, capture_file, test_env):
+        '''Every record type of the main section is answered, and a few
+        decoded values of each kind of RDATA.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'dns.flags.response == 1 && frame.number <= 164',
+                            ('dns.qry.type',))
+        qtypes = sorted({int(r[1]) for r in rows})
+        assert qtypes == [1, 3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                          20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 33, 35, 36,
+                          37, 38, 39, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 55,
+                          59, 60, 61, 62, 63, 64, 65, 66, 99, 104, 105, 106, 107,
+                          108, 109, 256, 257, 260, 261, 65000, 65281, 65282, 65422]
+        checks = [
+            (4, 'dns.a.ch.domain', 'ch.example.com'), (4, 'dns.a.ch.addr', '127'),
+            (18, 'dns.soa.rname.name', 'host\\\\.master@example.com'),
+            (22, 'dns.wks.protocol', '6,17,1'),
+            (42, 'dns.dnscrypt.magic', 'DNSC'),
+            (50, 'dns.idsn.sa.address', '004'),
+            (60, 'dns.key.key_tag', '62933,1549,49928'),
+            (68, 'dns.loc.version', '0,0,0,1'),
+            (90, 'dns.a6.prefix_len', '0,64,128'),
+            (94, 'dns.apl.afdpart.ipv4', '192.168.32.0,0.0.0.0'),
+            (100, 'dns.ipseckey.gateway_dns', 'gw.example.com'),
+            (106, 'dns.dnskey.key_tag', '50584,47038,56277,2783'),
+            (110, 'dns.nsec3.hash_value', '3oiiocpq8544ulitchln4uc0gu79b753'),
+            (116, 'dns.hip.rendezvous_server', 'rvs1.example.com,rvs2.example.net'),
+            (132, 'dns.dsync.target.name', 'dsync-target.example.com'),
+            (152, 'dns.amtrelay.relay_dns', 'amtrelay.example.com'),
+            (156, 'dns.wins.wins_server', '192.0.2.81,192.0.2.82'),
+            (160, 'dns.xpf.source_ipv6', '2001:db8::1'),
+            (162, 'dns.data', 'c7ced5dce3ea'),
+        ]
+        for frame, field, value in checks:
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'frame.number == %d' % frame, (field,))
+            assert rows == [[str(frame), value]], field
+
+    def test_dns_coverage_svcb(self, cmd_tshark, capture_file, test_env):
+        '''SVCB and HTTPS parameters, including an ECHConfigList.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'dns.resp.type in {64,65}',
+                            ('dns.svcb.svcpriority', 'dns.svcb.targetname',
+                             'svc_params.key', 'svc_params.mandatory.key',
+                             'svc_params.alpn', 'svc_params.port',
+                             'svc_params.ipv4hint.ip', 'svc_params.ipv6hint.ip',
+                             'svc_params.dohpath', 'tls.ech.echconfigcontents.public_name',
+                             'svc_params.value'))
+        assert rows == [
+            ['128', '1,0', 'dns1.example.com,alias.example.com', '0,1,3,4,6,7', '1,3',
+             'dot,doq,h2', '853', '192.0.2.53,192.0.2.54', '2001:db8::53,2001:db8::54',
+             '/dns-query{?dns}', '', ''],
+            ['130', '1,2', '<Root>,svc2.example.com', '1,2,3,5,8,9,32769,65000,65001', '',
+             'h3', '8443', '', '', '', 'public.example.com', '78,6f70617175652d76616c7565'],
+        ]
+
+    def test_dns_coverage_edns(self, cmd_tshark, capture_file, test_env):
+        '''EDNS(0) options of a query and its response (the options with
+        tests of their own are only counted here).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {175,176}',
+                            ('dns.opt.code', 'dns.opt.client.addr4', 'dns.opt.client.addr6',
+                             'dns.opt.client.addr', 'dns.opt.cookie.server',
+                             'dns.opt.ext_error.info_code', 'dns.opt.ext_error.extra_text',
+                             'dns.opt.agent_domain', 'dns.opt.zoneversion.soa',
+                             'dns.opt.zoneversion.version', 'dns.opt.chain.fqdn',
+                             'dns.opt.dau', 'dns.depr.opc'))
+        assert rows == [
+            ['175', '3,5,6,7,8,9,10,11,12,13,14,20,65001', '198.51.100.0', '', '', '<MISSING>',
+             '', '', '', '', '', 'example.com.', '8,10,13,14,15', ''],
+            ['176', '3,8,8,9,10,11,13,15,15,18,19,19,19,21,20730,2,2,1', '198.51.0.0',
+             '2001:db8:1::', '11', 'eef5fc030a11181f262d343b42495057', '18,29',
+             'synthesized answer', 'agent.example.net', '2024010101', 'fb020910171e',
+             '', '', '1'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'dns.depr.opc', ())
+        assert rows == [['176']]
+
+    def test_dns_coverage_names(self, cmd_tshark, capture_file, test_env):
+        '''Compressed names, the root name, an escaped dot in the SOA
+        mailbox, a bitstring label (the whole name, which was cut short),
+        non-printable octets and the SRV owner name split into instance,
+        service, protocol and name. The root name has no labels (it had
+        the one label of the "<Root>" placeholder).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {170,172,174}',
+                            ('dns.resp.name', 'dns.ptr.domain_name', 'dns.cname', 'dns.ns',
+                             'dns.count.labels'))
+        assert rows == [
+            ['170', 'bits.example.com,bits.example.com',
+             '\\\\[xc0000201/32].ip6.arpa,we\\\\001ird.na me.example.com', '', '', '3'],
+            ['172', '<Root>,<Root>', '', '', 'a.root-servers.example,b.root-servers.example', '0'],
+            ['174', 'chain.example.com,c1.chain.example.com,c2.c1.chain.example.com', '',
+             'c1.chain.example.com,c2.c1.chain.example.com', '', '3'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'dns.srv.port',
+                            ('dns.srv.instance', 'dns.srv.service', 'dns.srv.proto',
+                             'dns.srv.name'))
+        assert rows == [
+            ['72', '', '_sip', '_tcp', 'example.com'],
+            ['74', 'printer', '_ipp', '_tcp', 'example.com'],
+            ['76', 'inst', '_http', '_tcp', ''],
+            ['78', '', '_ldap', '_tcp', 'dc'],
+            ['80', '', '_kerberos', '', ''],
+            ['82', '', '_x', '_udp', ''],
+            ['257', 'Printer', '_ipp', '_tcp', 'local'],
+        ]
+
+    def test_dns_coverage_tcp(self, cmd_tshark, capture_file, test_env):
+        '''DNS over TCP in two passes: two messages in one segment, a
+        response split over segments, one query split in two segments
+        (reassembled), and a zone transfer answered by several messages.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'tcp.port == 53 && dns && !(dns.flags.opcode == 6)',
+                            ('dns.length', 'dns.id', 'dns.response_in', 'dns.response_to',
+                             'dns.retransmission', 'dns.qry.type'), ('-2',))
+        assert rows == [
+            ['221', '34,34', '0x106a,0x106b', '223,223', '', '', '1,28'],
+            ['223', '50,62', '0x106a,0x106b', '', '221,221', '', '1,28'],
+            ['225', '25', '0x0001', '226', '', '', '1'],
+            ['226', '41', '0x0001', '', '225', '', '1'],
+            ['233', '29', '0x106c', '234', '', '', '252'],
+            ['234', '110', '0x106c', '', '233', '', '252'],
+            ['235', '64', '0x106c', '', '233', '', ''],
+            ['236', '74', '0x106c', '', '233', '', ''],
+            ['237', '80', '0x106d', '238', '', '', '251'],
+            ['238', '80', '0x106d', '', '237', '', '251'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {222,224}',
+                            ('tcp.reassembled_in',), ('-2',))
+        assert rows == [['222', '223'], ['224', '225']]
+
+    def test_dns_coverage_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Request/response tracking: retransmitted query and response, an
+        ID reused after the retransmission timer, an unsolicited response,
+        unanswered queries and a query quoted in an ICMP error.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 205 && frame.number <= 217',
+                            ('dns.response_in', 'dns.response_to', 'dns.retransmit_request_in',
+                             'dns.retransmit_response_in', 'dns.retransmission',
+                             'dns.unsolicited', 'dns.response_missing'), ('-2',))
+        assert rows == [
+            ['205', '207', '', '', '', '', '', ''],
+            ['206', '', '', '205', '', 'True', '', ''],
+            ['207', '', '205', '', '', '', '', ''],
+            ['208', '', '', '', '207', 'True', '', ''],
+            ['209', '210', '', '', '', '', '', ''],
+            ['210', '', '209', '', '', '', '', ''],
+            ['211', '', '', '', '', '', 'True', ''],
+            ['212', '', '', '', '', '', '', '1'],
+            ['213', '', '', '', '', '', '', '1'],
+            ['214', '215', '', '', '', '', '', ''],
+            ['215', '', '214', '', '', '', '', ''],
+            ['216', '', '', '', '', '', '', '1'],
+            ['217', '', '', '', '', '', '', '1'],
+        ]
+
+    def test_dns_coverage_dso(self, cmd_tshark, capture_file, test_env):
+        '''DNS Stateful Operations: keepalive, padding, subscribe, push,
+        reconfirm, unsubscribe, retry delay and unknown TLVs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'dns.flags.opcode == 6',
+                            ('dns.id', 'dns.flags.response', 'dns.dso.tlv.type',
+                             'dns.dso.tlv.keepalive.inactivity', 'dns.dso.tlv.retrydelay.retrydelay',
+                             'dns.dso.tlv.unsubscribe.id', 'dns.qry.name', 'dns.ptr.domain_name'))
+        assert rows == [
+            ['245', '0x106e', 'False', '1,3', '15000', '', '', '', ''],
+            ['246', '0x106e', 'True', '1', '15000', '', '', '', ''],
+            ['247', '0x106f', 'False', '64', '', '', '', '_ipp._tcp.example.com', ''],
+            ['248', '0x106f', 'True', '', '', '', '', '', ''],
+            ['249', '0x0000', 'False', '65', '', '', '', '', 'printer._ipp._tcp.example.com'],
+            ['250', '0x0000', 'False', '67', '', '', '', '', 'gone._ipp._tcp.example.com'],
+            ['251', '0x0000', 'False', '66', '', '', '0x106f', '', ''],
+            ['252', '0x0000', 'False', '2,256,63488', '', '60000', '', '', ''],
+        ]
+
+    def test_dns_coverage_transports(self, cmd_tshark, capture_file, test_env):
+        '''mDNS (QU question, cache flush), LLMNR (conflict, truncated and
+        tentative flags), the UDP heuristic, IPv6, SCTP and DoH.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'mdns || llmnr',
+                            ('_ws.col.protocol', 'dns.qry.qu', 'dns.resp.cache_flush',
+                             'dns.flags.conflict', 'dns.flags.truncated',
+                             'dns.flags.tentative', 'dns.response_to'))
+        assert rows == [
+            ['256', 'MDNS', 'False,True', 'False,False', '', 'False', '', ''],
+            ['257', 'MDNS', '', 'False,True,True,True,True,False', '', 'False', '', ''],
+            ['258', 'LLMNR', '', '', 'False', 'False', 'False', ''],
+            ['259', 'LLMNR', '', '', 'False', 'False', 'False', '258'],
+            ['260', 'LLMNR', '', '', 'True', 'False', 'True', ''],
+            ['261', 'LLMNR', '', '', 'True', 'True', 'True', '260'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'dns.qry.name in {"heur.example.com", "ipv6.example.com", '
+                            '"sctp.example.com", "doh.example.com"}',
+                            ('_ws.col.protocol', 'udp.dstport', 'ipv6.dst', 'sctp.dstport',
+                             'http.content_type', 'dns.response_to'))
+        assert rows == [
+            ['262', 'DNS', '40222', '', '', '', ''],
+            ['263', 'DNS', '40111', '', '', '', '262'],
+            ['271', 'DNS', '53', '2001:db8::53', '', '', ''],
+            ['272', 'DNS', '40333', '2001:db8::1', '', '', '271'],
+            ['273', 'DNS', '', '', '53', '', ''],
+            ['274', 'DNS', '', '', '40444', '', '273'],
+            ['278', 'DoH', '', '', '', 'application/dns-message', ''],
+            ['279', 'DoH', '', '', '', 'application/dns-message', '278'],
+        ]
+        # UDP payloads on other ports that the heuristic rejects
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'udp.srcport >= 40600 && udp.srcport <= 40606', ('_ws.col.protocol',))
+        assert [r[1] for r in rows] == ['UDP'] * 7
+
+    def test_dns_coverage_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The "dns" stats tree (counts only). A query for the root name or
+        with no question is not counted in a label level, and the response
+        averages are added once per response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_coverage.pcap.gz'),
+                '-q', '-z', 'dns,tree',
+            ), encoding='utf-8', env=test_env)
+        rows = self._stats_rows(stdout)
+        for row in [('Total Packets', 292), (' Query', 147), (' Response', 145),
+                    ('Query Type', 292), (' A', 75), (' AXFR', 2), (' IXFR', 2),
+                    (' Unknown packet type (65000)', 2), ('Answer Type', 416), (' OPT', 10),
+                    (' TSIG', 1), (' No such name', 1), (' Unknown rcode (12)', 1),
+                    (' DNS Stateful operations (DSO)', 8), (' Unknown opcode (3)', 2),
+                    (' Unknown class (0)', 17), ('Payload size', 292), (' Qname Len', 147),
+                    ('  1st Level', 2), ('  2nd Level', 19), ('  3rd Level', 96),
+                    ('  4th Level or more', 20), (' no. of questions', 145),
+                    (' no. of authorities', 145), (' no. of answers', 145),
+                    (' no. of additionals', 145), (' request-response time (msec)', 141),
+                    (' no. of unsolicited responses', 3), (' no. of retransmissions', 1)]:
+            assert row in rows
+
+    def test_dns_coverage_qr_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The "dns_qr" stats tree with the query names (counts only). A
+        query without labels is not counted under "9+ Level", and the
+        Kind rows follow the header flags (they were always "Iteration
+        Desired" and "Non-Authoritative").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_coverage.pcap.gz'),
+                '-q', '-z', 'dns_qr,tree',
+                '-o', 'dns.qr_qrn_enable_statistics:TRUE',
+            ), encoding='utf-8', env=test_env)
+        rows = self._stats_rows(stdout)
+        for row in [('Total', 292), (' Query', 147), (' Response', 145),
+                    ('  Answered (ms)', 141), ('  Unanswered', 5), ('  Retransmissions', 1),
+                    ('  Unsolicited', 3), ('  <= 16B', 2), ('  <= 2KB', 1),
+                    ('  9+ Level', 6), ('  1st Level', 2), ('  192.0.2.1', 144),
+                    ('  Recursion Desired', 130), ('  Iteration Desired', 17),
+                    ('  Non-Authoritative', 137), ('  Authoritative', 8), (' Labels', 137),
+                    ('  2001:db8::1', 1), ('  2001:db8::53', 1), ('  Unknown rcode (12)', 1),
+                    ('  Format error', 1), ('  zero', 137), ('  <= 64', 1),
+                    ('   > year', 1), ('   <= month', 1), ('   zero', 4)]:
+            assert row in rows
+        assert ('   retrans.example.com', 1) in rows
