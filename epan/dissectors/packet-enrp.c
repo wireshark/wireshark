@@ -203,7 +203,8 @@ static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_error_causes(tvbuff_t *error_causes_tvb, packet_info *pinfo, proto_tree *parameter_tree)
 {
-  uint16_t length, total_length;
+  uint16_t length;
+  unsigned total_length;
   int offset;
   tvbuff_t *error_cause_tvb;
 
@@ -848,6 +849,8 @@ dissect_enrp_main(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* dissect the message */
   dissect_enrp_message(message_tvb, pinfo, enrp_tree);
+
+  p_set_proto_depth(pinfo, proto_enrp, recursion_depth);
 }
 
 static int
@@ -855,6 +858,12 @@ dissect_enrp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ENRP");
 
+  /*
+   * This is the top-level entry; nested messages use dissect_enrp_main().
+   * Reset the depth in case an exception in an earlier message of this
+   * frame left it raised.
+   */
+  p_set_proto_depth(pinfo, proto_enrp, 0);
   dissect_enrp_main(message_tvb, pinfo, tree);
   return tvb_captured_length(message_tvb);
 }
@@ -875,11 +884,11 @@ typedef enum
 } enrp_stat_columns;
 
 static stat_tap_table_item enrp_stat_fields[] = {
-  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "NetPerfMeter Message Type", "%-25s" },
+  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ENRP Message Type",    "%-25s"    },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
   { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",            "%u"       },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)",       "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",        "%1.6f"    },
   { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",         "%1.6f"    },
@@ -889,7 +898,7 @@ static stat_tap_table_item enrp_stat_fields[] = {
 
 static void enrp_stat_init(stat_tap_table_ui* new_stat)
 {
-  const char *table_name = "NetPerfMeter Statistics";
+  const char *table_name = "ENRP Statistics";
   int num_fields = array_length(enrp_stat_fields);
   stat_tap_table *table;
   int i = 0;
