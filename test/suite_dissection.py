@@ -43379,3 +43379,92 @@ class TestDissectDistcc:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['15', '17']
+
+
+class TestDissectDjiUav:
+    def test_djiuav_protocols(self, cmd_tshark, capture_file, test_env):
+        '''17 of the 20 frames are DJI UAV, the others plain TCP; none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dji_uav_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        assert protocols.count('DJIUAV') == 17
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dji_uav_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_djiuav_fields(self, cmd_tshark, capture_file, test_env):
+        '''Commands and responses: Set Time with its BCD time and extra
+        data, unknown commands and responses, two PDUs in one segment and
+        a command reassembled from two segments (frame 12).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dji_uav_coverage.pcap.gz'),
+                '-Y', 'djiuav',
+                '-Tfields', '-eframe.number', '-edjiuav.length',
+                '-edjiuav.seqno', '-edjiuav.cmd04.bcdtime',
+                '-edjiuav.cmd.unknown', '-edjiuav.resp.unknown',
+                '-edjiuav.unexpected', '-edjiuav.checksum', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0f\t1\t23201114221320\t\t\t\t0xd7\tC: Set Time',
+            '2\t0x09\t1\t\t\t00\t\t0xc6\tR: Set Time',
+            '3\t0x0c\t2\t\t01020304\t\t\t0x85\tC: Type 0x21',
+            '4\t0x08\t2\t\t\t<MISSING>\t\t0xc5\tR: Type 0x21',
+            '5\t0x09\t2\t\t\taa\t\t0x6e\tR: Type 0x21',
+            '6\t0x0b\t0\t\t\t102030\t\t0xc1\tR: Type 0x24',
+            '7\t0x13\t3\t23201114221320\t\t\tdeadbeef\t0xeb\tC: Set Time',
+            '8\t0x09\t3\t\t\t00\t\t0xc4\tR: Set Time',
+            '9\t0x09,0x0a\t4,5\t\t11,2233\t\t\t0xf7,0xf6\tC: Type 0x06',
+            '10\t0x09,0x09\t4,5\t\t\t00,00\t\t0xe6,0xe4\tR: Type 0x06',
+            '12\t0x1e\t6\t\t000102030405060708090a0b0c0d0e0f101112131415\t\t\t0xc7\tC: Type 0x30',
+            '13\t0x0a\t6\t\t\t0001\t\t0xd3\tR: Type 0x30',
+            '14\t0x09\t7\t\t99\t\t\t0x39\tC: Type 0x40',
+            '16\t0x08\t5\t\t<MISSING>\t\t\t0xc2\tC: Type 0x21',
+            '17\t0x08\t5\t\t\t<MISSING>\t\t0xc2\tR: Type 0x21',
+            '18\t0x08\t5\t\t<MISSING>\t\t\t0xc2\tC: Type 0x21',
+            '19\t0x08\t5\t\t\t<MISSING>\t\t0xc2\tR: Type 0x21',
+        ]
+
+    def test_djiuav_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses point to their command in both passes: a second
+        response to the same command (frame 5), a response without a
+        command (frame 6), a command never answered (frame 14), and two
+        exchanges that reuse sequence number 5 (frames 16-19). Before
+        "DJI-UAV: Keep request/response matching stable across passes"
+        the second pass linked frame 17 to frame 18 with a negative
+        response time, and frame 16 to frame 19.'''
+        expected = {
+            2: '1', 4: '3', 5: '3', 8: '7', 10: '9,9', 13: '12',
+            17: '16', 19: '18',
+        }
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dji_uav_coverage.pcap.gz'),
+                    '-Y', 'djiuav',
+                    '-Tfields', '-eframe.number', '-edjiuav.response_to',
+                    '-edjiuav.response_time',
+                ), encoding='utf-8', env=test_env)
+            response_to = {}
+            for line in stdout.splitlines():
+                number, request, time = line.split('\t')
+                if request:
+                    response_to[int(number)] = request
+                    assert not time.startswith('-')
+            assert response_to == expected
+        # Response In is known in the second pass only
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('dji_uav_coverage.pcap.gz'),
+                '-Y', 'djiuav.response_in',
+                '-Tfields', '-eframe.number', '-edjiuav.response_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2', '3\t4', '7\t8', '9\t10,10', '12\t13', '16\t17', '18\t19',
+        ]
