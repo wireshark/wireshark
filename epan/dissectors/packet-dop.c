@@ -326,6 +326,9 @@ static void append_oid(packet_info *pinfo, const char *oid)
 {
   	const char *name = NULL;
 
+    if (oid == NULL)
+        return;
+
     name = oid_resolved_from_string(pinfo->pool, oid);
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name ? name : oid);
 }
@@ -1974,7 +1977,8 @@ call_dop_oid_callback(const char *base_string, tvbuff_t *tvb, int offset, packet
 
   binding_param = wmem_strdup_printf(pinfo->pool, "%s.%s", base_string, binding_type ? binding_type : "");
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
+  if (col_info)
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", col_info);
 
   if (dissector_try_string_with_data(dop_dissector_table, binding_param, tvb, pinfo, tree, true, data)) {
      offset = tvb_reported_length (tvb);
@@ -2012,6 +2016,9 @@ dissect_dop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	if (data == NULL)
 		return 0;
 	session = (struct SESSION_DATA_STRUCTURE*)data;
+
+	/* binding_type points into pinfo->pool: never use one from an earlier packet */
+	binding_type = NULL;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
