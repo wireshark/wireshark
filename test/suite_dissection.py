@@ -53429,3 +53429,141 @@ class TestDissectErf:
                 '-Eoccurrence=a',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['41\t3,4,5,6,14,15,16,19,99']
+
+
+class TestDissectErldpCoverage:
+    def test_erldp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Three EPMD lookups, each followed by an ErlDP connection on the
+        port it returned (no Decode As); no malformed packets or errors in
+        one and two passes. The two warnings are the unknown term tags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 118
+        assert protocols.count('EPMD') == 6
+        assert protocols.count('ErlDP') == 44
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('erldp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('erldp_coverage.pcap.gz'),
+                    '-Y', 'erldp.unknown_tag', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['33', '34']
+
+    def test_erldp_handshake(self, cmd_tshark, capture_file, test_env):
+        '''The version 6 and version 5 handshakes: names, status,
+        challenges (told apart from names by their content), complement.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'erldp.tag', '-Tfields', '-eframe.number', '-eerldp.tag',
+                '-eerldp.challenge', '-eerldp.name', '-eerldp.status',
+                '-eerldp.flags_v6', '-eerldp.flags_v5', '-eerldp.flags_high',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            "9\t'N'\t\talpha@host1\t\t0x0000017f0bfffffd\t\t\tSEND_NAME alpha@host1",
+            "10\t's'\t\t\tok\t\t\t\tSEND_STATUS ok",
+            "11\t'N'\t0x01020304\tbeta@host2\t\t0x0000017f0bfffffd\t\t\tSEND_CHALLENGE beta@host2",
+            "12\t'r'\t0x11223344\t\t\t\t\t\tSEND_CHALLENGE_REPLY",
+            "13\t'a'\t\t\t\t\t\t\tSEND_CHALLENGE_ACK",
+            "102\t'n'\t\tgamma@host3\t\t\t0x0003fffd\t\tSEND_NAME gamma@host3",
+            "103\t's'\t\t\tok_simultaneous\t\t\t\tSEND_STATUS ok_simultaneous",
+            "104\t'n'\t0x8899aabb\tbeta@host2\t\t\t0x0007fffd\t\tSEND_CHALLENGE beta@host2",
+            "105\t'c'\t\t\t\t\t\t0x0000007f\tSEND_COMPLEMENT",
+            "106\t'r'\t0x55667788\t\t\t\t\t\tSEND_CHALLENGE_REPLY",
+            "107\t'a'\t\t\t\t\t\t\tSEND_CHALLENGE_ACK",
+            "108\t'n'\t\tg@h\t\t\t0x00000004\t\tSEND_NAME g@h",
+        ]
+
+    def test_erldp_tag0_not_handshake(self, cmd_tshark, capture_file, test_env):
+        '''A PDU with tag 0 where a handshake tag would be is not a
+        handshake message (before "ErlDP: Check binary and bignum lengths,
+        and reject tag 0 handshakes" strchr() matched the NUL and it was
+        shown as one). It is the start of a long message that never
+        completes, so only TCP shows it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 118', '-Tfields', '-e_ws.col.protocol',
+                '-eerldp.tag', '-etcp.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['TCP\t\t5']
+
+    def test_erldp_control_messages(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the distribution messages named by their
+        control message operation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'erldp.etf_header_tag', '-Tfields', '-eframe.number',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        assert {k: info[k] for k in ('19', '20', '21', '22', '24', '26', '30', '33', '37', '39', '88', '109')} == {
+            '19': 'REG_SEND', '20': 'SEND', '21': 'SEND_SENDER', '22': 'MONITOR_P',
+            '24': 'SPAWN_REQUEST', '26': 'ALTACT_SIG_SEND',
+            '30': 'unknown ControlMessage operation (99)', '33': 'SEND',
+            '37': 'UNLINK', '39': 'SEND', '88': 'SEND', '109': 'EXIT2',
+        }
+
+    def test_erldp_altact_flags(self, cmd_tshark, capture_file, test_env):
+        '''The flags of ALTACT_SIG_SEND are decoded only when the second
+        element is a small integer of a tuple of arity 4 or more.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {26, 27, 28, 29}', '-Tfields',
+                '-eframe.number', '-eerldp.altact_flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['26\t0x1f', '27\t0x02', '28\t', '29\t']
+
+    def test_erldp_atom_cache(self, cmd_tshark, capture_file, test_env):
+        '''A DIST_HEADER with 255 new atom cache entries with long atoms.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 36', '-Tfields',
+                '-eerldp.num_atom_cache_refs', '-eerldp.atom_text',
+            ), encoding='utf-8', env=test_env)
+        refs, atoms = stdout.rstrip('\n').split('\t')
+        assert refs == '255'
+        assert atoms.split(',') == ['abc'] * 255
+
+    def test_erldp_terms(self, cmd_tshark, capture_file, test_env):
+        '''Small and large big integers of every length class.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19', '-V', '-O', 'erldp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for value in ('SMALL_BIG_EXT: 18', 'SMALL_BIG_EXT: -4660',
+                      'SMALL_BIG_EXT: -78187493530',
+                      'SMALL_BIG_EXT: 1311768467463790320',
+                      'SMALL_BIG_EXT: 0x10000000000000000000000005',
+                      'LARGE_BIG_EXT: 0x400000000000000001',
+                      'FLOAT_EXT: 1.50000000000000000000e+00',
+                      'Num bits in last byte: 1'):
+            assert value in lines
+        assert 'Int: 03' + '00' * 74 + '01' in lines
+
+    def test_erldp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message of more than 64 KiB over 49 TCP segments, and a
+        message in three distribution fragments.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('erldp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {88, 89, 90, 91, 92}', '-Tfields',
+                '-eframe.number', '-eerldp.len', '-etcp.segment.count',
+                '-eerldp.binary_ext.len', '-eerldp.dist.fragment',
+                '-eerldp.dist.reassembled.length', '-eerldp.dist.reassembled.in',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:4] == ['88', '70041', '49', '70000']
+        assert [l[4:7] for l in lines[1:]] == [
+            ['', '', '91'], ['', '', '91'], ['89,90,91', '184', ''], ['', '', ''],
+        ]
+        assert lines[3][7] == 'REG_SEND (Reassembled, Fragment ID: 1)'
+        assert lines[4][7] == 'SEND (Reassembled, Fragment ID: 1)'
