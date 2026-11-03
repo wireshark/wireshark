@@ -49138,3 +49138,55 @@ class TestDissectDvbTdt:
             '5\t1970-01-01T00:00:00.000000000Z',
             '6\t2026-11-03T12:35:00.000000000Z,2026-11-03T12:35:01.000000000Z',
         ]
+
+
+class TestDissectDvbTot:
+    def test_dvb_tot_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every TOT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes
+        and with the section CRC verified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_tot_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_tot'] * 4 + [
+            'mp2t:mpeg_sect:dvb_tdt:mpeg_sect:dvb_tot']
+        for opts in ((), ('-2',), ('-o', 'mpeg_sect.verify_crc:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvb_tot_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_tot_tables(self, cmd_tshark, capture_file, test_env):
+        '''The UTC time, descriptors loop length and local time offsets
+        of every section, and the CRC status with the CRC verified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'mpeg_sect.verify_crc:TRUE',
+                '-r', capture_file('dvb_tot_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_tot.utc_time',
+                '-edvb_tot.descr_loop_len', '-empeg_descr.tag',
+                '-empeg_descr.local_time_offset.country_code',
+                '-empeg_descr.local_time_offset.region_id',
+                '-empeg_descr.local_time_offset.polarity',
+                '-empeg_sect.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2026-11-03T12:34:56.000000000Z\t28\t0x58\tDEU,PRT\t0x00,0x02\t0x00,0x01\t1',
+            '2\t2026-11-03T12:35:26.000000000Z\t0\t\t\t\t\t1',
+            '3\t2026-11-03T00:00:00.000000000Z\t28\t0x58\tDEU,PRT\t0x00,0x02\t0x00,0x01\t1',
+            '4\t2026-11-03T12:35:56.000000000Z\t34\t0x5f,0x58\tDEU,PRT\t0x00,0x02\t0x00,0x01\t1',
+            '5\t2026-11-03T12:36:26.000000000Z\t28\t0x58\tDEU,PRT\t0x00,0x02\t0x00,0x01\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_tot_coverage.pcap.gz'),
+                '-V', '-O', 'dvb_tot',
+            ), encoding='utf-8', env=test_env)
+        assert [l for l in stdout.splitlines() if 'UTC Time' in l] == [
+            '    UTC Time: Nov  3, 2026 12:34:56.000000000 UTC',
+            '    UTC Time: Nov  3, 2026 12:35:26.000000000 UTC',
+            '    UTC Time: Unparseable time',
+            '    UTC Time: Nov  3, 2026 12:35:56.000000000 UTC',
+            '    UTC Time: Nov  3, 2026 12:36:26.000000000 UTC',
+        ]
