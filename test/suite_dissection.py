@@ -50588,3 +50588,113 @@ class TestDissectEcmp:
             '108\teth:ethertype:ip:tcp:ecmp:modbus\t3\t2020\t3\t',
             '109\teth:ethertype:ip:tcp:ecmp:modbus\t3\t\t\t12345,787,100',
         ]
+
+
+class TestDissectEcp:
+    def test_ecp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ECP21 on ethertype 0x8940 with VDP21 for subtype 1 and data for
+        other subtypes, with no malformed packets or expert infos in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('eth:ethertype:ecp21:vdp21') == 14
+        # frame 15 is only the ECP header: VDP adds nothing
+        assert protocols.count('eth:ethertype:ecp21') == 1
+        assert protocols.count('eth:ethertype:ecp21:data') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ecp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ecp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows version, operation and subtype, and the
+        sequence number for requests and ACKs only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,12,13,14,15,16}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'PDU Version = 1 OP = 0 Subtype = 1 SEQ = 0x1',
+            'PDU Version = 1 OP = 1 Subtype = 1 ACK = 0x1',
+            'PDU Version = 1 OP = 0 Subtype = 2 SEQ = 0x9',
+            'PDU Version = 0 OP = 2 Subtype = 1',
+            'PDU Version = f OP = 3 Subtype = 1',
+            'PDU Version = 1 OP = 1 Subtype = 1 ACK = 0xffff',
+            'PDU Version = 1 OP = 0 Subtype = 3ff SEQ = 0xc',
+        ]
+
+    def test_ecp_vdp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The VDP TLV types of every frame, and the VIDSTR PS, PCP and
+        VID of the VID and MAC/VID filters (PS and PCP had masks that
+        overlapped the VID before "ECP: Fix VDP VIDSTR masks and org TLV
+        length checks").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-evdp21.tlvtype',
+                '-evdp21.vidstr.ps', '-evdp21.vidstr.pcp', '-evdp21.vidstr.vid',
+                '-evdp21.assoc.mac_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1,3,5\t0x0001\t0x0003\t0x000a\t',
+            '2\t3\t0x0001\t0x0003\t0x000a\t',
+            '3\t2,3\t0x0000\t0x0007\t0x0fff\t52:54:00:00:00:02',
+            '4\t3\t0x0000\t0x0007\t0x0fff\t52:54:00:00:00:02',
+            '5\t4,4\t\t\t\t',
+            '6\t3,4,3\t0x0000\t0x0000\t0x000a\t',
+            '7\t127,127\t\t\t\t',
+            '8\t127,127\t\t\t\t',
+            '9\t6,100\t\t\t\t',
+            '10\t5\t\t\t\t',
+            '11\t3\t0x0000\t0x0000\t0x000a\t52:54:00:00:00:01',
+            '12\t\t\t\t\t',
+            '13\t5\t\t\t\t',
+            '14\t5\t\t\t\t',
+            '15\t\t\t\t\t',
+            '16\t\t\t\t\t',
+            '17\t3\t0x0001\t0x0007\t0x0fff\t',
+        ]
+
+    def test_ecp_vdp_assoc(self, cmd_tshark, capture_file, test_env):
+        '''Request reasons with the M and S bits, response errors with the
+        hard error and keep flags, VSIID formats and the Manager ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-Tfields', '-eframe.number', '-evdp21.assoc.reason',
+                '-evdp21.assoc.error', '-evdp21.assoc.flags.mbit',
+                '-evdp21.assoc.flags.sbit', '-evdp21.assoc.flags.hard_error',
+                '-evdp21.assoc.flags.keep', '-evdp21.assoc.flags.req_rsp',
+                '-evdp21.vsiidformat', '-evdp21.manager_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t\tFalse\tFalse\t\t\tFalse\t0x05\t2001:db8::1',
+            '2\t\t0x00\t\t\tFalse\tFalse\tTrue\t0x05\t',
+            '3\t0x02\t\tTrue\tTrue\t\t\tFalse\t0x03\t',
+            '4\t\t0x02\t\t\tTrue\tTrue\tTrue\t0x03\t',
+            '5\t0x01\t0x05\tFalse\tFalse\tFalse\tFalse\tFalse,True\t0x01,0x02\t',
+            '6\t\t0x03,0x04,0x0f\t\t\tFalse,False,False\tFalse,False,False\tTrue,True,True\t0x04,0x77,0x00\t',
+        ]
+
+    def test_ecp_vdp_org(self, cmd_tshark, capture_file, test_env):
+        '''Organizationally defined TLVs: the Oracle VSI manager encoding,
+        an unknown Oracle subtype and another OUI (00:03:ba is 954,
+        00:80:c2 is 32962).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ecp_coverage.pcap.gz'),
+                '-Y', 'vdp21.org_oui',
+                '-Tfields', '-eframe.number', '-evdp21.org_oui',
+                '-evdp21.org.oracle.subtype', '-evdp21.oracle.encoding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t954,954\t0x01,0x01\t0x01,0x07',
+            '8\t954,32962\t0x02\t',
+        ]
