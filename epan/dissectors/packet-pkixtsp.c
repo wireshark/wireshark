@@ -23,6 +23,7 @@
 #include "packet-ber.h"
 #include "packet-pkix1explicit.h"
 #include "packet-pkix1implicit.h"
+#include "packet-x509ce.h"
 #include "packet-cms.h"
 
 void proto_register_pkixtsp(void);
@@ -537,7 +538,7 @@ void proto_register_pkixtsp(void) {
         "BOOLEAN", HFILL }},
     { &hf_pkixtsp_tsa,
       { "tsa", "pkixtsp.tsa",
-        FT_UINT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(x509ce_GeneralName_vals), 0,
         "GeneralName", HFILL }},
     { &hf_pkixtsp_seconds,
       { "seconds", "pkixtsp.seconds",
