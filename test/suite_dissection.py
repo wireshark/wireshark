@@ -48514,3 +48514,94 @@ class TestDissectDvbci:
             '270\t0x00000006\tThe original PDU was encrypted, this exported PDU is in the clear\t'
             'CC SAC data confirm, message #6, Status: Ok (Authentication Step 4)',
         ]
+
+
+class TestDissectDvbNit:
+    def test_dvb_nit_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every NIT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes
+        and with the section CRC verified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_nit'] * 5 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_nit',
+            'mp2t:mpeg_sect:dvb_nit:mpeg_sect:dvb_nit']
+        for opts in ((), ('-2',), ('-o', 'mpeg_sect.verify_crc:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_nit_ts_loop(self, cmd_tshark, capture_file, test_env):
+        '''The transport stream entry of frame 1 is decoded and the CRC
+        after it is correct (the loop length was compared with the
+        absolute offset before "DVB-NIT: Fix the end of the transport
+        stream loop", so no entry was decoded and the CRC was read from
+        the entry).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'mpeg_sect.verify_crc:TRUE',
+                '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-edvb_nit.ts_loop_len', '-edvb_nit.ts.id',
+                '-edvb_nit.ts.original_network_id', '-edvb_nit.ts.desc_len',
+                '-empeg_sect.crc', '-empeg_sect.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t0x1234\t0x5678\t0\t0xd2088b89\t1']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-V', '-O', 'dvb_nit',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.rstrip().splitlines()
+        # The subtree of an entry covers its 6 octet header and the
+        # descriptors; the next entry follows it.
+        assert lines.count('    Stream ID=0x0011') == 1
+        assert lines.count('    Stream ID=0x0012') == 1
+        assert lines[-3:] == [
+            '    CRC 32: 0xdde69cb8 [unverified]',
+            '    [CRC 32 Status: Unverified]',
+            'Stuffing']
+
+    def test_dvb_nit_tables(self, cmd_tshark, capture_file, test_env):
+        '''Network IDs, versions, loop lengths and transport streams of
+        every section, including the NIT reassembled from two TS packets
+        (frame 7) and two sections in one TS packet (frame 8).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-empeg_sect.tid',
+                '-edvb_nit.sid', '-edvb_nit.version',
+                '-edvb_nit.cur_next_ind', '-edvb_nit.sect_num',
+                '-edvb_nit.network_desc_len', '-edvb_nit.ts_loop_len',
+                '-edvb_nit.ts.id', '-edvb_nit.ts.desc_len', '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x40\t0x0001\t0x00\tTrue\t0\t0\t6\t0x1234\t0\t',
+            '2\t0x40\t0x0002\t0x01\tTrue\t0\t34\t51\t0x0011,0x0012\t21,18\t'
+            '0x40,0x4a,0x5f,0x43,0x41,0x43,0x41',
+            '3\t0x40\t0x0002\t0x01\tTrue\t1\t0\t25\t0x0013,0x0014\t13,0\t0x44',
+            '4\t0x41\t0x0003\t0x02\tFalse\t0\t25\t19\t0x0021\t13\t0x5b,0x5a',
+            '5\t0x40\t0x0004\t0x1f\tTrue\t0\t0\t0\t\t\t',
+            '6\t\t\t\t\t\t\t\t\t\t',
+            '7\t0x40\t0x0005\t0x03\tTrue\t0\t19\t280\t' +
+            ','.join('0x%04x' % (0x100 + i) for i in range(20)) + '\t' +
+            ','.join(['8'] * 20) + '\t' + ','.join(['0x40'] + ['0x41'] * 20),
+            '8\t0x40,0x40\t0x0006,0x0006\t0x00,0x00\tTrue,True\t0,1\t19,0\t'
+            '0,12\t0x0031\t6\t0x40,0x5f',
+        ]
+
+    def test_dvb_nit_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The network name and the service lists of the transport
+        streams of frame 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_nit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-empeg_descr.net_name.name',
+                '-empeg_descr.svc_list.id', '-empeg_descr.svc_list.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Synthetic Network\t0x0101,0x0102,0x0201\t0x01,0x02,0x19']
