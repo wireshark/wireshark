@@ -47169,3 +47169,96 @@ class TestDissectDsi:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['19', '20']
+
+
+class TestDissectDsp:
+    def test_dsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes,
+        except the ROS warning for the IDMP bind (179).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 181
+        assert protocols.count('DSP') == 144
+        assert protocols.count('ACSE') == 12
+        assert protocols.count('COTP') == 6
+        assert protocols.count('IDMP') == 1
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['179\tROS: Dissector for OID [ unknown ] not implemented']
+
+    def test_dsp_protocol_column(self, cmd_tshark, capture_file, test_env):
+        '''Every DSP PDU, over ROS and over IDMP, has "DSP" in the Protocol
+        column (it was "DAP").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsp_coverage.pcap.gz'),
+                '-Y', 'dsp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['DSP'] * 144
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 180',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['DSP\tChained-Abandon-Argument', 'DSP\tChained-Abandon-Result']
+
+    def test_dsp_errors(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the binds, bind errors and errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsp_coverage.pcap.gz'),
+                '-Y', 'dsp && !(_ws.col.info contains "Chained")',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        alice = 'id-at-commonName=Alice Smith,id-at-organizationalUnitName=People,id-at-organizationName=Example Org,id-at-countryName=AU'
+        org = 'id-at-organizationName=Example Org,id-at-countryName=AU'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['8', 'System-Bind-Argument ' + alice],
+            ['9', 'System-Bind-Result id-at-commonName=dsa-1,' + org],
+            ['45', 'Service-Error unwillingToPerform'],
+            ['87', 'Abandoned'], ['89', 'Abandoned'],
+            ['91', 'Abandon-Failed-Error'], ['93', 'Abandon-Failed-Error'],
+            ['95', 'Attribute-Error ' + alice], ['97', 'Attribute-Error ' + alice],
+            ['99', 'Name-Error ' + org], ['101', 'Name-Error (root)'],
+            ['103', 'Referral'], ['105', 'Referral'],
+            ['107', 'Service-Error busy'], ['109', 'Service-Error saslBindInProgress'],
+            ['111', 'Service-Error ServiceProblem(99)'], ['113', 'Service-Error timeLimitExceeded'],
+            ['115', 'Update-Error entryAlreadyExists'], ['117', 'Update-Error familyRuleViolation'],
+            ['119', 'Update-Error UpdateProblem(99)'], ['121', 'Update-Error namingViolation'],
+            *[[str(f), 'DSA-Referral'] for f in range(123, 146, 2)],
+            ['158', 'System-Bind-Argument ' + alice],
+            ['159', 'System-Bind-Error unwillingToPerform'],
+            ['172', 'System-Bind-Argument ' + alice],
+            ['173', 'System-Bind-Error inappropriateAuthentication'],
+        ]
+
+    def test_dsp_values(self, cmd_tshark, capture_file, test_env):
+        '''Chaining arguments and results, unsigned and signed chained
+        operations, continuation references and the DSA knowledge
+        attributes.'''
+        def values(field, frames=''):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('dsp_coverage.pcap.gz'),
+                    '-Y', field + frames,
+                    '-Tfields', '-eframe.number', '-e' + field,
+                ), encoding='utf-8', env=test_env)
+            return ' '.join('='.join(l.split('\t')) for l in stdout.splitlines())
+        assert values('dsp.referenceType', ' && frame.number >= 123') == \
+            '123=2 124=2 125=9 127=9 129=1 130=2 131=2 132=2 133=3 135=4 137=5 138=2 139=6 140=2 141=7 143=8 145=9'
+        assert values('dsp.authenticationLevel', ' && frame.number <= 18') == '10=0 12=1 16=0 18=0'
+        assert values('dsp.nameResolutionPhase', ' && frame.number <= 18') == \
+            '10=3,2,1,2 12=2 14=2,1 16=3,2,1,2 18=3,2,1'
+        assert values('dsp.access_point_category', ' && frame.number == 123') == '123=0,1,0,1,0,1,0,1'
+        for op in ('Read', 'Compare', 'List', 'Search', 'AddEntry', 'RemoveEntry', 'ModifyEntry', 'ModifyDN'):
+            for kind in ('Argument', 'Result'):
+                for signed in ('unsigned', 'signed'):
+                    field = 'dsp.%sChained%s%s_element' % (signed, op, kind)
+                    assert values(field), field
