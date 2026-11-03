@@ -45359,3 +45359,364 @@ class TestDissectDocsisMacmgmt:
             ), encoding='utf-8', env=test_env)
         assert 'CMTS DOCSIS Version: DOCSIS 4.0 + FDD + FDX' in stdout
         assert 'CMTS DOCSIS Version: DOCSIS 3.1' in stdout
+
+
+class TestDissectDof:
+    '''DOF (Distributed Object Framework) over UDP 3567/5567, TCP 3567,
+    the tunnel on TCP 8567 and Exported PDU, from the synthetic capture
+    dof_coverage.pcapng.gz. Frames 304 on use the security modes; they
+    are decrypted with the made-up keys in DOF_KEYS.'''
+
+    DOF_KEYS = (
+        '-o', 'uat:custom_dof_seckey_list:'
+              '"000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f"',
+        '-o', 'uat:custom_dof_identsecret_list:"0706646f6d61696e","08056361726f6c",'
+              '"808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f"',
+    )
+
+    def test_dof_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-303 decode as DOF without malformed packets or error
+        expert infos, in one and two passes. Two frames carry a PDU that
+        starts 64 KiB into the frame; tshark looped forever on them
+        before "DOF: Fix TCP framing loop, SID learning cost and length
+        handling", hence the timeout.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 303',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 303
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['DPPs'] == 149
+        assert counts['OAPv1'] == 59
+        assert counts['DSPv2'] == 18
+        assert counts['TRP'] == 16
+        assert counts['TEPv1'] == 7
+        assert counts['DNPv0'] == 7
+        assert counts['DPPv2'] == 5
+        assert counts['DPPv0'] == 3
+        assert counts['TUNv1'] == 2
+        assert counts['SGMPv1'] == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number <= 303 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_dof_start_offset_64k(self, cmd_tshark, capture_file, test_env):
+        '''The second PDU of frames 296 (TCP 3567) and 300 (tunnel) starts
+        65536 octets into the frame and is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {296, 300}',
+                '-Tfields', '-eframe.number', '-edof.2009_9.dnp_1.length',
+                '-edof.2012_1.tunnel_1.length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '296\t65478,1\t',
+            '300\t\t65479,2',
+        ]
+
+    def test_dof_tunnel_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU that names dof.tunnel has no TCP framing
+        state; it is left to the data dissector instead of reaching a
+        dissector assertion. dof.oid decodes; dof.app has no tunnel
+        applications to call.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                '-edata.len', '-edof.oid.class', '-edof.app.v0.appid',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '301\tdof.tunnel\t7\t\t\t',
+            '302\tdof.oid\t\t144,4,5\t\t',
+            '303\tdof.app\t2\t\t\tAPP(5)',
+        ]
+
+    def test_dof_oap_advertise(self, cmd_tshark, capture_file, test_env):
+        '''OAP Advertise reads its command control after the opcode (it
+        was read from offset 0), then the binding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'dof.oap.opcode == 5',
+                '-Tfields', '-eframe.number', '-edof.oap.cmdcontrol',
+                '-edof.oap.cmdcontrol.heuristic', '-edof.oap.cmdcontrol.cache',
+                '-edof.oap.interface-id', '-edof.oap.object-id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '207\t0x00\t\t\t0122\t030461626364',
+            '208\t0x41\t0x03\t0x99\t021234\t01040a0b0c0d',
+            '209\t\t\t\t0122\t01040a0b0c0d',
+            '227\t0x00\t\t\t0122\t0103010203',
+        ]
+
+    def test_dof_oap_alias(self, cmd_tshark, capture_file, test_env):
+        '''An alias resolves to the binding of an earlier Provide; frame
+        228 uses alias 7 before frame 229 defines it and stays unresolved
+        in two passes too. The resolved binding shows the interface ID
+        of length code 0 with its 16 octets.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'dof.oap.alias',
+                    '-Tfields', '-eframe.number', '-edof.oap.alias',
+                    '-edof.oap.alias-frame',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            lines = stdout.splitlines()
+            assert '178\t8\t' in lines           # Provide of alias 8
+            assert '181\t8\t178' in lines        # Get, resolved
+            assert '182\t85\t' in lines          # alias never defined
+            assert '228\t7\t' in lines         # before the Provide
+            assert '229\t7\t' in lines
+            assert '230\t7\t229' in lines
+        # The interface ID of length code 0 that alias 8 resolves to is 16
+        # octets in the text too (it was "[{00}:{}]")
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 181',
+                '-V', '-O', 'dof.oap',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '    [Interface ID: [{00}:{000102030405060708090A0B0C0D0E0F}]]' in stdout.splitlines()
+
+    def test_dof_sid_learning(self, cmd_tshark, capture_file, test_env):
+        '''SIDs learned from DPP Source Lost and Query Response show on
+        later packets of the sender and as the RID; the provisional SID
+        ID of a sender that names a known SID is merged into the known
+        one, and a later packet from that sender keeps the merged SID ID
+        and shows the SID (frame 113; before "DOF: Fix TCP framing loop,
+        SID learning cost and length handling" it went back to the
+        provisional SID ID 75); a SID of 310 octets is not learned.'''
+        def sids(passes, frames):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {%s}' % ', '.join(str(f) for f in frames),
+                    '-V', '-O', 'dof.dpp',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            out = {}
+            for line in stdout.splitlines():
+                if line.startswith('Frame '):
+                    cur = out.setdefault(int(line.split()[1].rstrip(':')), [])
+                elif line.startswith('    [SID') or line.startswith('    [RID'):
+                    cur.append(line.strip())
+            return out
+        one = sids((), (39, 69, 99, 113, 148, 149))
+        assert one[39] == ['[SID ID: 15]', '[RID ID: 16]']
+        assert one[69] == ['[SID ID: 15]', '[SID: [{01}:node00]]', '[RID ID: 16]']
+        assert one[99] == ['[SID ID: 16]', '[RID ID: 15]', '[RID: [{01}:node00]]']
+        assert one[113] == ['[SID ID: 15]', '[SID: [{01}:node00]]', '[RID ID: 76]']
+        assert one[149] == ['[SID ID: 86]', '[RID ID: 87]']
+        two = sids(('-2',), (39, 100, 109, 110, 112, 113))
+        assert two[39] == ['[SID ID: 15]', '[SID: [{01}:node00]]',
+                           '[RID ID: 16]', '[RID: [{02}:server]]']
+        # The server's provisional SID ID in the second session became 16
+        assert two[100] == ['[SID ID: 16]', '[RID ID: 17]', '[RID: [{01}:node01]]']
+        # 10.1.1.1 named the SID of 10.1.0.1 in frame 112
+        assert [two[f][0] for f in (109, 110, 112)] == ['[SID ID: 15]'] * 3
+        assert two[113] == one[113]
+
+    def test_dof_object_ids(self, cmd_tshark, capture_file, test_env):
+        '''Object ID text: classes of 1, 2 and 4 octets, printable,
+        escaped and hex data, nested attribute OIDs, attributes that are
+        not OIDs, the broadcast OID and an illegal one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 150 && frame.number <= 159',
+                '-V', '-O', 'dof.dpp.v2s',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.strip() for l in stdout.splitlines() if l.startswith('    Object ID:')] == [
+            'Object ID: [{03}:abcd]',
+            'Object ID: [{22}:a\\(b\\)\\[c\\]\\{d\\}\\\\e\\|f]',
+            'Object ID: [{01}:{0102}({02}:[{03}:xyz]|{01}:{99}|{05}:zz)]',
+            'Object ID: [{90}:node({00}:[{04}:in({02}:[{05}:deep])])]',
+            'Object ID: [{123456}:{FE}({03}:{0005})]',
+            'Object ID: [{3A000000}:h]',
+            'Object ID: [{00}:]',
+            'Object ID: Illegal OID',
+            'Object ID: [{07}:({09}:)]',
+            'Object ID: [{0234}:m({03}:{C001}|{03}:{018141}|{03}:{01014199})]',
+        ]
+
+    def test_dof_dsp(self, cmd_tshark, capture_file, test_env):
+        '''DSP opcodes as commands and responses, the options of a
+        configuration request and the versions of an open response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 160 && frame.number <= 173',
+                '-Tfields', '-e_ws.col.info', '-edof.dsp.avp.attribute-code',
+                '-edof.dsp.avp.attribute-data', '-edof.app.v0.appid',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            'DSP [nop]\t\t\t0x0000',
+            'DSP Query\t\t\t0x0000',
+            'DSP Query Response\t\t\t0x0000',
+            'DSP Request\t0,1,3,255,9\t0x0080,0x0001,0x0081,0x1234,0x0005\t0x0000',
+            'DSP ACK Response\t\t\t0x0000',
+            'DSP NAK Response\t1\t0x0001\t0x0000',
+            'DSP REJ Response\t\t\t0x0000',
+            'DSP Terminate/Close Request\t\t\t0x0000',
+            'DSP Terminate/Close Response\t\t\t0x0000',
+            'DSP Open\t\t\t0x0000',
+            'DSP Open Response\t\t\t0x0000,0x0000,0x0001,0x0080,0x7fff',
+            'DSP Open Secure Response\t\t\t0x0000,0x0001,0x0081',
+            'Unknown Opcode (32)\t\t\t0x0000',
+            'DSP Request\t\t\t0x0000',
+        ]
+
+    def test_dof_security_structures(self, cmd_tshark, capture_file, test_env):
+        '''The plain Security structures in TRP and TEP PDUs: permission
+        sets, key requests, security scopes and permission validation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {232, 241, 249}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-edof.2008.16.security.1.desired-duration',
+                '-edof.2008.16.security.1.length',
+                '-edof.2008.16.security.4.nonce',
+                '-edof.2008.16.security.10.permission_group_identifier',
+                '-edof.2008.16.security.12.m',
+                '-edof.2008.16.security.12.permission_group_identifier',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '232\tTEP Rekey \t2,5,129\t3,0\t11223344\t\t\t',
+            '241\tTRP Request Session \t2,5,129\t3,0\t55,11223344\t\t\t',
+            '249\tTRP Request Session Response \t\t\t\t1073741821,136\t0,1,3\t'
+            '1073741823,1073741822,1073741821',
+        ]
+
+    def test_dof_streams(self, cmd_tshark, capture_file, test_env):
+        '''TCP 3567 and the tunnel: negotiation, several PDUs in one
+        segment and PDUs reassembled from several segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dof_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 255 && frame.number <= 292 && dof',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '258\tQuery',
+            '259\tQuery Response',
+            '260\tDNP/DPP Negotiation',
+            '261\tDNP/DPP Negotiation',
+            '262\tDSP Open',
+            '263\tDSP Open ResponseDPP Ping Response',
+            '265\tOAP Invoke DPP Ping',
+            '266\tDNP/DPP Negotiation',
+            '268\tDPP Heartbeat',
+            '270\tDPP Ping',
+            '271\tDSP Terminate/Close Request',
+            '273\tDSP Terminate/Close Response',
+            '285\tDNP/DPP Negotiation',
+            '286\tDNP/DPP Negotiation',
+            '288\tDSP OpenDPP Ping',
+            '291\tOAP Provide',
+            '292\tDSP Open Response',
+        ]
+
+    def test_dof_security_decrypt(self, cmd_tshark, capture_file, test_env):
+        '''With the keys, the CCM packets of the UDP and TCP sessions are
+        decrypted or, in the MAC-only session, dissected: packet numbers
+        counted per sender or carried in the header, target and next node
+        IDs, associated data longer than a block, more than 255 counter
+        blocks, encrypted TEP requests and the CCM application. A changed
+        MAC, a packet shorter than the MAC, a key that is in no table and an
+        initiator packet sent before the TEP Confirm fail. The same in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DOF_KEYS,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 304 && dof.epp.v1.ccm.packet',
+                    '-Tfields', '-eframe.number', '-edof.epp.v1.ccm.nodeid',
+                    '-edof.epp.v1.ccm.packet', '-edof.epp.v1.ccm.target',
+                    '-edof.epp.v1.ccm.nnid', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert [l.strip() for l in stdout.splitlines()] == [
+                '306\t1\t1\t\t\tDPP Ping Response',
+                '308\t0\t1\t\t\tOAP Get',
+                '309\t1\t7\t\t\tDPP Ping Response',
+                '310\t0\t2\t\t\t[Encrypted packet - decryption failure]',
+                '311\t0\t3\t3\t4\tDPP Heartbeat',
+                '312\t0\t4\t\t\t[Encrypted packet - decryption failure]',
+                '313\t0\t65536\t131072\t196608\tTEP Rekey',
+                '314\t0\t5\t\t\tTEP Request',
+                '315\t0\t6\t\t\tDPP Ping',
+                '316\t0\t7\t\t\tProbe',
+                '323\t1\t1\t\t\tDPP Ping Response',
+                '325\t0\t1\t\t\tDPP Ping',
+                '326\t0\t2\t\t\t[Encrypted packet - decryption failure]',
+                '338\t1\t1\t\t\tDPP Ping Response',
+                '340\t0\t1\t\t\tOAP Get',
+                '341\t1\t2\t\t\tDPP Ping Response',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DOF_KEYS,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 304 && _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '310\tFailure to decrypt packet.',
+                '312\tFailure to decrypt packet.',
+                '326\tFailure to decrypt packet.',
+                '329\tNo security context to enable packet decryption.',
+                '337\tNo security context to enable packet decryption.',
+            ]
+
+    def test_dof_security_session_keys(self, cmd_tshark, capture_file, test_env):
+        '''The TEP Accept confirmation validates the session key from the
+        key table (UDP, TCP) or the key that the identity secret recovers
+        from the initiator ticket, in one and two passes. The key of the
+        third exchange is in no table.'''
+        table = ':'.join('%02x' % i for i in range(0x00, 0x20))
+        ident = ':'.join('%02x' % i for i in range(0x40, 0x60))
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DOF_KEYS,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 304 && dof.session_key',
+                    '-Tfields', '-eframe.number', '-edof.session_key',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '305\t' + table,
+                '322\t' + ident,
+                '336\t' + table,
+            ]
+
+    def test_dof_security_no_keys(self, cmd_tshark, capture_file, test_env):
+        '''Without the keys the sessions exist but nothing is decrypted.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 304 && _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert [int(n) for n in stdout.split()] == [
+                306, 308, 309, 310, 311, 312, 313, 314, 315, 316, 323, 325, 326,
+                329, 337, 338, 340, 341]
+
+    def test_dof_security_identity(self, cmd_tshark, capture_file, test_env):
+        '''TRP commands from an initiator in the identity secret table (and
+        one from another domain), SGMP commands and the group response,
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DOF_KEYS,
+                    '-r', capture_file('dof_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 342',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert [l.strip() for l in stdout.splitlines()] == [
+                '342\tTRP Request KEK \tInitiator identity known',
+                '343\tTRP Request Random \tInitiator identity known',
+                '344\tTRP Request Security Scopes \tInitiator identity known',
+                '345\tTRP Request Session',
+                '346\tTRP Request KEK',
+                '347\tSGMP Heartbeat',
+                '348\tSGMP Epoch Changed',
+                '349\tSGMP Rekey',
+                '350\tSGMP Rekey Epoch',
+                '351\tSGMP Rekey Merge',
+                '352\tSGMP Request Group',
+                '353\tSGMP Request Group Response',
+            ]
