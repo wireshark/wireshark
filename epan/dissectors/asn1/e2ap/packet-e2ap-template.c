@@ -378,8 +378,8 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 
             /* Don't know OID yet, so for now, just choose first/only one */
             /* TODO: is latest one likely to be more compatible? First fields (at least) come from E2SM.. */
-            if (g_ran_functions_available_dissectors[table->entries[n].ran_function].num_available_dissectors) {
-                ran_function_dissector = g_ran_functions_available_dissectors[table->entries[n].ran_function].ran_function_dissectors[0];
+            if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
+                ran_function_dissector = g_ran_functions_available_dissectors[n].ran_function_dissectors[0];
             }
             break;
         }
@@ -602,7 +602,9 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
     for (unsigned n=0; n < table->num_entries; n++) {
         if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
             ran_function = table->entries[n].ran_function;
-            g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+            if (!PINFO_FD_VISITED(pinfo)) {
+                (void) g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+            }
         }
     }
 
@@ -613,7 +615,7 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
 
     /* Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors */
     if (ran_function < MAX_RANFUNCTIONS) {
-        if (pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             update_dissector_using_oid(pinfo, ran_function);
         }
     }
@@ -789,12 +791,12 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   struct e2ap_private_data *priv_data = e2ap_get_private_data(pinfo);
   priv_data->stats_tap = tap_info;
 
-  /* Store top-level tree */
-  top_tree = e2ap_tree;
-
   /* create the e2ap protocol tree */
   e2ap_item = proto_tree_add_item(tree, proto_e2ap, tvb, 0, -1, ENC_NA);
   e2ap_tree = proto_item_add_subtree(e2ap_item, ett_e2ap);
+
+  /* Store top-level tree */
+  top_tree = e2ap_tree;
 
   dissect_E2AP_PDU_PDU(tvb, pinfo, e2ap_tree, NULL);
 

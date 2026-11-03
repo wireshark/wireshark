@@ -1902,8 +1902,8 @@ void e2ap_store_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbuf
 
             /* Don't know OID yet, so for now, just choose first/only one */
             /* TODO: is latest one likely to be more compatible? First fields (at least) come from E2SM.. */
-            if (g_ran_functions_available_dissectors[table->entries[n].ran_function].num_available_dissectors) {
-                ran_function_dissector = g_ran_functions_available_dissectors[table->entries[n].ran_function].ran_function_dissectors[0];
+            if (g_ran_functions_available_dissectors[n].num_available_dissectors) {
+                ran_function_dissector = g_ran_functions_available_dissectors[n].ran_function_dissectors[0];
             }
             break;
         }
@@ -2126,7 +2126,9 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
     for (unsigned n=0; n < table->num_entries; n++) {
         if (e2ap_data->ran_function_id == table->entries[n].ran_function_id) {
             ran_function = table->entries[n].ran_function;
-            g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+            if (!PINFO_FD_VISITED(pinfo)) {
+                (void) g_strlcpy(table->entries[n].oid, oid, MAX_OID_LEN);
+            }
         }
     }
 
@@ -2137,7 +2139,7 @@ void e2ap_update_ran_function_mapping(packet_info *pinfo, proto_tree *tree, tvbu
 
     /* Can now pick most appropriate dissector for this RAN Function name, based upon this OID and the available dissectors */
     if (ran_function < MAX_RANFUNCTIONS) {
-        if (pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             update_dissector_using_oid(pinfo, ran_function);
         }
     }
@@ -3489,6 +3491,7 @@ dissect_e2ap_RANfunctionDefinition(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 	  for (unsigned d=0; d < g_ran_functions_available_dissectors[n].num_available_dissectors; d++) {
 	    if (g_ran_functions_available_dissectors[n].ran_function_dissectors[d]->major_version > highest_version) {
 	      best_index = d;
+	      highest_version = g_ran_functions_available_dissectors[n].ran_function_dissectors[d]->major_version;
 	    }
 	  }
 	  /* Use it */
@@ -3955,15 +3958,23 @@ dissect_e2ap_TimeToWait(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_e2ap_T_tnlAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  tvbuff_t *value_tvb;
+  tvbuff_t *value_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, true, NULL, 0, &value_tvb, NULL);
 
-  if (tvb_captured_length(value_tvb)==4) {
+  if (value_tvb && tvb_captured_length(value_tvb)==4) {
     proto_item_append_text(tree, " (%s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0));
   }
-  else {
+  else if (value_tvb && tvb_captured_length(value_tvb)==16) {
     proto_item_append_text(tree, " (%s", tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 0));
+  }
+  else if (value_tvb && tvb_captured_length(value_tvb)==20) {
+    /* IPv4 address followed by IPv6 address */
+    proto_item_append_text(tree, " (%s, %s", tvb_ip_to_str(actx->pinfo->pool, value_tvb, 0),
+                           tvb_ip6_to_str(actx->pinfo->pool, value_tvb, 4));
+  }
+  else {
+    proto_item_append_text(tree, " (");
   }
 
 
@@ -3974,7 +3985,7 @@ dissect_e2ap_T_tnlAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_e2ap_T_tnlPort(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  proto_item_append_text(tree, ":%u)", tvb_get_ntohs(tvb, offset/8));
+  proto_item_append_text(tree, ":%u)", tvb_get_bits16(tvb, offset, 16, ENC_BIG_ENDIAN));
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, false, NULL, 0, NULL, NULL);
 
@@ -14677,12 +14688,12 @@ dissect_e2ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   struct e2ap_private_data *priv_data = e2ap_get_private_data(pinfo);
   priv_data->stats_tap = tap_info;
 
-  /* Store top-level tree */
-  top_tree = e2ap_tree;
-
   /* create the e2ap protocol tree */
   e2ap_item = proto_tree_add_item(tree, proto_e2ap, tvb, 0, -1, ENC_NA);
   e2ap_tree = proto_item_add_subtree(e2ap_item, ett_e2ap);
+
+  /* Store top-level tree */
+  top_tree = e2ap_tree;
 
   dissect_E2AP_PDU_PDU(tvb, pinfo, e2ap_tree, NULL);
 
