@@ -42307,3 +42307,122 @@ class TestDissectDhcp:
         assert rows[92][5] == '192.0.2.70,192.0.2.71'
         assert rows[77][6] == 'client1.example.com'
         assert [rows[n][8] for n in range(56, 64)] == ['1', '1', '1', '2', '3', '3', '3', '4']
+
+
+class TestDissectDhcpFailover:
+    def test_dhcpfo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 of the 82 frames are DHCPFO (81 messages), the other two are
+        the first segments of a reassembled message; none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_failover_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-edhcpfo.type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 82
+        protocols = [l.split('\t')[0] for l in lines]
+        assert protocols.count('DHCPFO') == 80
+        assert protocols.count('TCP') == 2
+        types = [t for l in lines for t in l.split('\t')[1].split(',') if t]
+        assert len(types) == 81
+        # Every message type, and one unknown (13).
+        assert sorted(set(int(t) for t in types)) == list(range(1, 14))
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dhcp_failover_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dhcpfo_ms_utf16_strings(self, cmd_tshark, capture_file, test_env):
+        '''The Microsoft UTF-16 options 31, 32, 35 and 40 show the whole
+        string in the option item, also without a terminating NUL, and
+        lengths 0 and 1 give an empty string or one replacement character.
+        Before "DHCPFO: Avoid format_text() with length (size_t)-1" the
+        last character was cut off ("client") and lengths 0 and 1 passed
+        (size_t)-1 to format_text().'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_failover_coverage.pcap.gz'),
+                '-Y', 'frame.number in {67,68,72,73,80,81}',
+                '-V', '-O', 'dhcpfo',
+            ), encoding='utf-8', env=test_env)
+        items = [l.strip() for l in stdout.splitlines()
+                 if l.startswith('        DHCP Style Option') and '"' in l]
+        assert items == [
+            # Frames 67 and 68: IETF style, the options have no name.
+            'DHCP Style Option, Unknown Option (31), ""',
+            'DHCP Style Option, Unknown Option (32), ""',
+            'DHCP Style Option, Unknown Option (35), ""',
+            'DHCP Style Option, Unknown Option (40), ""',
+            'DHCP Style Option, Unknown Option (31), "�"',
+            'DHCP Style Option, Unknown Option (32), "�"',
+            'DHCP Style Option, Unknown Option (35), "�"',
+            'DHCP Style Option, Unknown Option (40), "�"',
+            # Frame 72: strings without a NUL.
+            'DHCP Style Option, microsoft-client-name (31), "client1"',
+            'DHCP Style Option, microsoft-client-description (32), "Test client"',
+            'DHCP Style Option, microsoft-server-name (35), "dhcp2.example"',
+            'DHCP Style Option, microsoft-client-matched-policy (40), "policy-a"',
+            # Frame 73: strings with a NUL.
+            'DHCP Style Option, microsoft-client-name (31), "client2"',
+            'DHCP Style Option, microsoft-client-description (32), "desc"',
+            'DHCP Style Option, microsoft-server-name (35), "srv"',
+            'DHCP Style Option, microsoft-client-matched-policy (40), "pol"',
+            # Frames 80 and 81: lengths 0 and 1 in Microsoft style.
+            'DHCP Style Option, microsoft-client-name (31), ""',
+            'DHCP Style Option, microsoft-client-description (32), ""',
+            'DHCP Style Option, microsoft-server-name (35), ""',
+            'DHCP Style Option, microsoft-client-matched-policy (40), ""',
+            'DHCP Style Option, microsoft-client-name (31), "�"',
+            'DHCP Style Option, microsoft-client-description (32), "�"',
+            'DHCP Style Option, microsoft-server-name (35), "�"',
+            'DHCP Style Option, microsoft-client-matched-policy (40), "�"',
+        ]
+
+    def test_dhcpfo_microsoft_autodetect(self, cmd_tshark, capture_file, test_env):
+        '''Payload offset 8 selects the Microsoft formats: UTF-16
+        relationship name and vendor class, client scope before the
+        hardware address, a one octet IP flags option and the scope ID
+        list; payload offset 12 decodes option 30 as the Infoblox
+        hostname.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_failover_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,15,70,72}',
+                '-Tfields', '-eframe.number', '-edhcpfo.poffset',
+                '-edhcpfo.relationshipname', '-edhcpfo.vendorclass',
+                '-edhcpfo.infoblox.clienthostname',
+                '-edhcpfo.microsoft.clientscope',
+                '-edhcpfo.clienthardwareaddress',
+                '-edhcpfo.microsoft.scopeid', '-edhcpfo.microsoft.ipflags',
+                '-edhcpfo.ipflags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t12\trel-ietf\tisc-dhcpd\t\t\t\t\t\t',
+            '15\t12\t\t\thost-ib\t\t02:00:5e:00:53:01\t\t\t0x4000',
+            '70\t8\trel-ms\tMSFT 5.0\t\t\t\t\t\t',
+            '72\t8\t\t\t\t198.51.100.0\t02:00:5e:00:53:02'
+            '\t198.51.100.0,198.51.255.0\t0x05\t',
+        ]
+
+    def test_dhcpfo_framing(self, cmd_tshark, capture_file, test_env):
+        '''Additional header bytes, bogus payload offsets (no payload),
+        two messages in one segment and one message reassembled from
+        three segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcp_failover_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 60 && frame.number <= 66',
+                '-Tfields', '-eframe.number', '-edhcpfo.length',
+                '-edhcpfo.poffset', '-edhcpfo.xid',
+                '-edhcpfo.additionalheaderbytes', '-edhcpfo.optioncode',
+                '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '60\t25\t16\t0x00000901\taabbccdd\t16\t',
+            '61\t12\t10\t0x00000902\t\t\t',
+            '62\t12\t20\t0x00000903\t\t\t',
+            '63\t12,22\t12,12\t0x00000a01,0x00000a02\t\t16\t',
+            '64\t\t\t\t\t\t',
+            '65\t\t\t\t\t\t',
+            '66\t149\t12\t0x00000a03\t\t2,3,16\t149',
+        ]
