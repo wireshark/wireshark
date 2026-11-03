@@ -2949,4 +2949,3 @@ ThresholdQ-LR-r19 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_decibels)
       proto_item_set_generated(item);
     }
   }
-  return offset;

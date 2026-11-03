@@ -26484,7 +26484,6 @@ dissect_nr_rrc_TrackingAreaCode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
   return offset;
 }

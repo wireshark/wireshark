@@ -44066,7 +44066,6 @@ dissect_lte_rrc_TrackingAreaCode(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
 
   return offset;
@@ -45602,7 +45601,6 @@ dissect_lte_rrc_TrackingAreaCode_5GC_r15(tvbuff_t *tvb _U_, uint32_t offset _U_,
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
 
   return offset;
@@ -58027,7 +58025,6 @@ dissect_lte_rrc_TrackingAreaCodeNR_r15(tvbuff_t *tvb _U_, uint32_t offset _U_, a
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
   return offset;
 }

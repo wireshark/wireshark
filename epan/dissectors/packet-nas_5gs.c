@@ -16454,8 +16454,8 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_tac_name,
         { "TAC Name", "nas-5gs.tac_name",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_nas_5gs_tac,
         { "TAC",   "nas-5gs.tac",

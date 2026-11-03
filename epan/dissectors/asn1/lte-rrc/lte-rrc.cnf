@@ -4424,7 +4424,6 @@ PUR-Config-NB-r16/pur-PhysicalConfig-r16/p0-UE-NPUSCH-r16 DISPLAY=BASE_DEC|BASE_
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
 #.FN_BODY TrackingAreaCode-5GC-r15
   tvbuff_t *tac_tvb = NULL;
@@ -4439,7 +4438,6 @@ PUR-Config-NB-r16/pur-PhysicalConfig-r16/p0-UE-NPUSCH-r16 DISPLAY=BASE_DEC|BASE_
       proto_item_set_generated(item);
     }
   }
-  return offset;
 
 #.FN_BODY TrackingAreaCodeNR-r15
   tvbuff_t *tac_tvb = NULL;
@@ -4454,4 +4452,3 @@ PUR-Config-NB-r16/pur-PhysicalConfig-r16/p0-UE-NPUSCH-r16 DISPLAY=BASE_DEC|BASE_
       proto_item_set_generated(item);
     }
   }
-  return offset;
