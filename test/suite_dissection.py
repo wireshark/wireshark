@@ -47262,3 +47262,133 @@ class TestDissectDsp:
                 for signed in ('unsigned', 'signed'):
                     field = 'dsp.%sChained%s%s_element' % (signed, op, kind)
                     assert values(field), field
+
+
+class TestDissectDsr:
+    def test_dsr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''23 of 24 frames carry DSR (the last is too short), none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 24
+        assert protocols.count('DSR') == 18
+        assert protocols.count('DISCARD') == 4
+        assert protocols.count('TCP') == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'dsr', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 23
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dsr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dsr_options(self, cmd_tshark, capture_file, test_env):
+        '''The header and the options of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edsr.nexthdr', '-edsr.len',
+                '-edsr.option.type', '-edsr.option.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x3b\t8\t1\t6', '2\t0x3b\t20\t1\t18', '3\t0x11\t15\t2\t13',
+            '4\t0x3b\t7\t2\t5', '5\t0x3b\t16\t3\t14', '6\t0x3b\t12\t3\t10',
+            '7\t0x3b\t13\t3\t11', '8\t0x3b\t18\t3\t16', '9\t0x3b\t16\t3\t14',
+            '10\t0x3b\t12\t3\t10', '11\t0x3b\t12\t160,160\t2,6',
+            '12\t0x3b\t12\t32\t10', '13\t0x11\t16\t96\t14', '14\t0x3b\t4\t96\t2',
+            '15\t0x3b\t27\t224,160,0,224,32\t6,3,10', '16\t0x06\t12\t128,129\t2,6',
+            '17\t0x3b\t6\t160\t2', '18\t0x3b\t36\t1,3,160\t10,14,6',
+            '19\t0x30,0x11\t4,12\t160,32\t2,10', '20\t0x11\t\t\t',
+            '21\t0x3b\t\t\t', '22\t0xfd\t0\t\t', '23\t0x3b\t16\t1\t14', '24\t\t\t\t',
+        ]
+
+    def test_dsr_route_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every Route Error type with its type specific fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 5 && frame.number <= 10',
+                '-Tfields', '-edsr.option.err.type', '-edsr.option.err.salvage',
+                '-edsr.option.err.src', '-edsr.option.err.dest',
+                '-edsr.option.err.unreachablenode',
+                '-edsr.option.err.unsupportedoption',
+                '-edsr.option.err.unknownflow.dest',
+                '-edsr.option.err.unknownflow.id',
+                '-edsr.option.err.defaultflowunknown.dest',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t192.0.2.3\t192.0.2.1\t192.0.2.4\t\t\t\t',
+            '2\t0x01\t192.0.2.3\t192.0.2.1\t\t\t\t\t',
+            '3\t0x02\t192.0.2.3\t192.0.2.1\t\t0x81\t\t\t',
+            '129\t0x03\t192.0.2.3\t192.0.2.1\t\t\t192.0.2.9\t0xbeef\t',
+            '130\t0x0f\t192.0.2.3\t192.0.2.1\t\t\t\t\t192.0.2.9',
+            '42\t0x00\t192.0.2.3\t192.0.2.1\t\t\t\t\t',
+        ]
+
+    def test_dsr_hop_lists(self, cmd_tshark, capture_file, test_env):
+        '''Hop lists of Route Request, Route Reply and Source Route, the
+        flags of the Source Route, and the Ack (Request) options.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,3,4,11,12,13,14,16,23}',
+                '-Tfields', '-eframe.number', '-edsr.option.rreq.address',
+                '-edsr.option.rrep.lasthopex', '-edsr.option.rrep.address',
+                '-edsr.option.srcrt.firsthopext', '-edsr.option.srcrt.lasthopext',
+                '-edsr.option.srcrt.salvage', '-edsr.option.srcrt.segsleft',
+                # dsr.option.ack.address is the Source Route hop
+                '-edsr.option.ack.address', '-edsr.option.timeout.timeout',
+                '-edsr.option.destflowid.id', '-edsr.option.destflowid.dest',
+                '-edsr.option.ackreq.id', '-edsr.option.ackreq.address',
+                '-edsr.option.ack.id', '-edsr.option.ack.source',
+                '-edsr.option.ack.dest',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t192.0.2.3,192.0.2.4,192.0.2.5' + '\t' * 15,
+            '3\t\tTrue\t192.0.2.3,192.0.2.4,192.0.2.9' + '\t' * 13,
+            '4\t\tFalse\t192.0.2.9' + '\t' * 13,
+            '11' + '\t' * 12 + '0x0201,0x0202\t192.0.2.3\t\t\t',
+            '12' + '\t' * 14 + '0x0202\t192.0.2.2\t192.0.2.3',
+            '13\t\t\t\tTrue\tTrue\t0x09\t3\t192.0.2.3,192.0.2.4,192.0.2.5' + '\t' * 8,
+            '14\t\t\t\tFalse\tFalse\t0x00\t0' + '\t' * 9,
+            '16' + '\t' * 9 + '300\t0x0042\t192.0.2.9\t\t\t\t\t',
+            '23\t192.0.2.3,192.0.2.4' + '\t' * 15,
+        ]
+
+    def test_dsr_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column lists the options with separators.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11,15,18}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Options : Ack request (id=0x201), Ack request (id=0x202)',
+            'Options : Ack request (id=0x203), Ack (id=0x203)',
+            'Options : Route request (id=0x103), Route error, Ack request (id=0x205)',
+        ]
+
+    def test_dsr_nested(self, cmd_tshark, capture_file, test_env):
+        '''A DSR header can carry another DSR header (next header 48).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'eth:ethertype:ip:dsr:dsr:udp:discard'
+
+    def test_dsr_flow_id(self, cmd_tshark, capture_file, test_env):
+        '''The flow id of a flow state header is 16 bits (it was read as
+        one octet before "DSR: Limit Next Header recursion and fix the
+        flow id length").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dsr_coverage.pcap.gz'),
+                '-Y', 'dsr.flowstate == 1',
+                '-Tfields', '-eframe.number', '-edsr.fs.hopcount', '-edsr.fs.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['20\t2\t0xabcd', '21\t3\t0x1234']
