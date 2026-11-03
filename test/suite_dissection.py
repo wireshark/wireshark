@@ -43086,3 +43086,76 @@ class TestDissectDis:
             ['132', '2', '', '', '', '', '', ''],
         ]
         assert [' '.join(l[8].split()) for l in lines[2:]] == ['J0.0I', 'J2.2I', 'J0.0E0']
+
+
+class TestDissectDiscard:
+    def test_discard_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Seven frames are Discard, one is Wake On LAN on UDP port 9, one
+        is an empty UDP datagram; none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('discard_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 9
+        assert protocols.count('DISCARD') == 7
+        assert protocols.count('WOL') == 1
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('discard_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_discard_default(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences the data and its reported length are
+        shown, over UDP and TCP; WOL is tried first on UDP port 9.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('discard_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ediscard.len',
+                '-ediscard.text', '-ediscard.md5_hash', '-ewol.mac',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[1] == '2\t14\t\t\t\tDiscard'
+        assert lines[2] == '3\t43\t\t\t\tDiscard'
+        assert lines[4].split('\t')[0:4] == ['5', '', '', '']
+        assert lines[4].split('\t')[4].split(',') == ['02:00:00:00:00:99'] * 16
+        assert lines[5] == '6\t14\t\t\t\tDiscard'
+        assert lines[7] == '8\t256\t\t\t\tDiscard'
+
+    def test_discard_prefs(self, cmd_tshark, capture_file, test_env):
+        '''show_as_text puts the text into the tree and the Info column
+        (up to the first NUL), md5_hash adds the MD5 of the captured
+        data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('discard_coverage.pcap.gz'),
+                '-o', 'discard.show_as_text:TRUE',
+                '-o', 'discard.md5_hash:TRUE',
+                '-Y', 'discard.data',
+                '-Tfields', '-eframe.number', '-ediscard.md5_hash',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        quick = 'Discard: The quick brown fox jumps over the lazy dog'
+        assert lines[0:3] == [
+            '2\t2aa9bcf01cc536ef58d7ec5dff94fbf0\tDiscard: ',
+            '3\t9e107d9d372bb6826bd81d3542a419d6\t' + quick,
+            '4\te2c865db4162bed963bfaa9ef6ac18f0\tDiscard: ',
+        ]
+        assert lines[3] == '6\t2aa9bcf01cc536ef58d7ec5dff94fbf0\tDiscard: '
+        assert lines[4] == '7\t9e107d9d372bb6826bd81d3542a419d6\t' + quick
+
+    def test_discard_truncated(self, cmd_tshark, capture_file, test_env):
+        '''A datagram cut short by the capture length shows its reported
+        length and [Packet size limited during capture].'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('discard_coverage.pcap.gz'),
+                '-Y', '_ws.short',
+                '-Tfields', '-eframe.number', '-ediscard.len',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == '9\t200\tDiscard[Packet size limited during capture]\n'
