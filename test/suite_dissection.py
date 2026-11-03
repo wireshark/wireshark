@@ -53118,3 +53118,117 @@ class TestDissectEplV1:
             '10\t\t\t\t67656e65726963206368616e6e656c2064617461',
             '14\t\t\t\t010203',
         ]
+
+
+class TestDissectEpmd:
+    def test_epmd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 EPMD frames, one Erlang distribution frame on the port from a
+        PORT2_RESP and three TCP frames the heuristic rejects; no
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epmd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 35
+        assert protocols.count('EPMD') == 31
+        assert protocols.count('ErlDP') == 1
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epmd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_epmd_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses, OK and error results, the 2 and 4 octet
+        creation and unknown types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epmd_coverage.pcap.gz'),
+                '-Y', 'epmd.type',
+                '-Tfields', '-eframe.number', '-eepmd.result',
+                '-eepmd.creation', '-eepmd.creation2', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t\t\tEPMD_ALIVE2_REQ alpha',
+            '2\t0\t7\t\tEPMD_ALIVE2_RESP OK',
+            '3\t\t\t\tEPMD_ALIVE2_REQ beta',
+            '4\t1\t\t\tEPMD_ALIVE2_RESP ERROR 0x01',
+            '5\t\t\t\tEPMD_ALIVE2_REQ gamma',
+            '6\t0\t\t305419896\tEPMD_ALIVE2_X_RESP OK',
+            '7\t\t\t\tEPMD_ALIVE2_REQ delta',
+            '8\t0\t9\t\tEPMD_ALIVE2_X_RESP OK',
+            '9\t\t\t\tEPMD_ALIVE2_REQ eps',
+            '10\t3\t\t\tEPMD_ALIVE2_X_RESP ERROR 0x03',
+            '12\t\t\t\tEPMD_PORT2_REQ alpha',
+            '13\t0\t\t\tEPMD_PORT2_RESP OK alpha port=25672',
+            '15\t\t\t\tEPMD_PORT2_REQ beta',
+            '16\t0\t\t\tEPMD_PORT2_RESP OK beta port=25673',
+            '17\t\t\t\tEPMD_PORT2_REQ gamma',
+            '18\t0\t\t\tEPMD_PORT2_RESP OK gamma port=25674',
+            '19\t\t\t\tEPMD_PORT2_REQ nobody',
+            '20\t1\t\t\tEPMD_PORT2_RESP ERROR 0x01',
+            '21\t\t\t\tEPMD_ALIVE_REQ zeta',
+            '22\t0\t2\t\tEPMD_ALIVE_OK_RESP OK',
+            '23\t\t\t\tEPMD_ALIVE_REQ eta',
+            '24\t2\t0\t\tEPMD_ALIVE_OK_RESP ERROR 0x02',
+            '25\t\t\t\tEPMD_PORT_REQ theta',
+            '26\t\t\t\tEPMD_NAMES_REQ',
+            '28\t\t\t\tEPMD_NAMES_REQ',
+            '30\t\t\t\tEPMD_DUMP_REQ',
+            '31\t\t\t\tEPMD_KILL_REQ',
+            '32\t\t\t\tunknown (0x01)',
+            '33\t\t\t\tunknown (0x01)',
+        ]
+
+    def test_epmd_node_info(self, cmd_tshark, capture_file, test_env):
+        '''The node fields of ALIVE2_REQ and PORT2_RESP, with and without
+        extra data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epmd_coverage.pcap.gz'),
+                '-Y', 'epmd.node_type',
+                '-Tfields', '-eframe.number', '-eepmd.port_no',
+                '-eepmd.node_type', '-eepmd.protocol', '-eepmd.dist_high',
+                '-eepmd.dist_low', '-eepmd.name', '-eepmd.elen',
+                '-eepmd.edata',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t25672\t77\t0\t6\t5\talpha\t3\t010203',
+            '3\t25673\t72\t0\t5\t0\tbeta\t0\t',
+            '5\t25674\t110\t0\t6\t5\tgamma\t\t',
+            '7\t25675\t109\t1\t4\t1\tdelta\t0\t',
+            '9\t25676\t104\t0\t3\t2\teps\t0\t',
+            '13\t25672\t77\t0\t6\t5\talpha\t2\taabb',
+            '16\t25673\t72\t0\t5\t0\tbeta\t0\t',
+            '18\t25674\t110\t0\t6\t5\tgamma\t\t',
+        ]
+
+    def test_epmd_names_port_length(self, cmd_tshark, capture_file, test_env):
+        '''The port of each node in a NAMES response covers the whole
+        number (it always covered two octets before "EPMD: Highlight the
+        whole port number in NAMES responses").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('epmd_coverage.pcap.gz'),
+                '-Y', 'frame.number == 27',
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        names = [l.split('show="')[1].split('"')[0]
+                 for l in stdout.splitlines() if 'name="epmd.node_name"' in l]
+        ports = [(l.split('show="')[1].split('"')[0], l.split('size="')[1].split('"')[0])
+                 for l in stdout.splitlines() if 'name="epmd.node_port"' in l]
+        assert names == ['alpha', 'beta', 'g']
+        assert ports == [('25672', '5'), ('4370', '4'), ('7', '1')]
+
+    def test_epmd_port2_conversation(self, cmd_tshark, capture_file, test_env):
+        '''The PORT2_RESP in frame 13 hands the node's port to the Erlang
+        distribution dissector, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('epmd_coverage.pcap.gz'),
+                    '-Y', 'erldp',
+                    '-Tfields', '-eframe.number', '-etcp.dstport',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['14\t25672\tSEND_NAME alpha']
