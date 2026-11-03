@@ -36,6 +36,12 @@ EncodedKeySyncMaterial
 KeySyncMaterial
 #.END
 
+#.NO_EMIT
+ToBeSigned
+ToBeEncrypted
+ToBeHashed
+#.END
+
 #.FIELD_RENAME
 
 TypedCertificate/certificate           certificatedata

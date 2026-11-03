@@ -218,6 +218,11 @@ HASHED{ToBeHashed} ::= SEQUENCE {
   hash          BIT STRING
 }(CONSTRAINED BY { -- Hash --ToBeHashed})
 
+-- Stubs for formal type parameters in SIGNED/ENCRYPTED/HASHED (asn2wrs)
+ToBeSigned    ::= ANY
+ToBeEncrypted ::= ANY
+ToBeHashed    ::= ANY
+
 IV8 ::= OCTET STRING(SIZE (8)) -- initial value for 64-bit block ciphers
 
 

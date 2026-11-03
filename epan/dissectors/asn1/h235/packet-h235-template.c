@@ -40,7 +40,7 @@ static int proto_h235;
 
 
 static unsigned
-dissect_xxx_ToBeSigned(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+dissect_h235_ToBeSigned(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
   dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "ToBeSigned");
   return offset;
 }

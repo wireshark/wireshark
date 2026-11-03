@@ -176,7 +176,7 @@ static int ett_h235_FecOrder;
 
 
 static unsigned
-dissect_xxx_ToBeSigned(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
+dissect_h235_ToBeSigned(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_) {
   dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "ToBeSigned");
   return offset;
 }
@@ -533,6 +533,7 @@ dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx 
 
 
 
+
 static unsigned
 dissect_h235_BIT_STRING(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
@@ -543,7 +544,7 @@ dissect_h235_BIT_STRING(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t SIGNED_sequence[] = {
-  { &hf_h235_toBeSigned     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_xxx_ToBeSigned },
+  { &hf_h235_toBeSigned     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_ToBeSigned },
   { &hf_h235_algorithmOID   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_OBJECT_IDENTIFIER },
   { &hf_h235_paramS         , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_Params },
   { &hf_h235_signaturedata  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h235_BIT_STRING },
@@ -742,6 +743,8 @@ dissect_h235_HASHED(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
 
   return offset;
 }
+
+
 
 
 static const per_sequence_t T_cryptoEncryptedToken_sequence[] = {
