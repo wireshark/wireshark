@@ -555,7 +555,7 @@ class LuaDebuggerBreakpointsController : public QObject
     /**
      * @brief Cached breakpoint header dot icons, indexed by
      *        @c LuaDbgBpHeaderIconMode (0..2). Recomputed lazily when the
-     *        cache key (editor font + side + DPR) changes; without this the
+     *        cache key (editor font + icon size + DPR) changes; without this the
      *        icon would be regenerated on every cursor move.
      */
     QIcon headerIconCache_[3];
