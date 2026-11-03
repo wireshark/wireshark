@@ -46809,3 +46809,126 @@ class TestDissectDrb:
             '42,1,1,1,2,1,1,1,1,1,-2,1,7,99,-1,0,1,122,-1,-123,255,4660,'
             '1193046,305419896,2147483647,-256,-4660,-3359830,-2147483648,0,1',
         ]
+
+
+class TestDissectDrbd:
+    # The DRBD heuristics are disabled by default.
+    heuristics = ('--enable-heuristic', 'drbd_tcp',
+                  '--enable-heuristic', 'drbd_lb_tcp',
+                  '--enable-heuristic', 'drbd_rdma')
+
+    def test_drbd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''DRBD over TCP, load balanced TCP and RDMA; none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 109
+        assert protocols.count('DRBD') == 96
+        assert protocols.count('DRBD lb-tcp') == 3
+        assert protocols.count('DRBD RDMA') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.heuristics, *passes,
+                    '-r', capture_file('drbd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_drbd_commands(self, cmd_tshark, capture_file, test_env):
+        '''The command of every DRBD packet.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Tfields', '-edrbd.command',
+            ), encoding='utf-8', env=test_env)
+        assert ' '.join(stdout.split()) == (
+            '0xfffe 0xfffe 0xfff2 0xfff1 0x0010 0x0011 0x000b 0x002d 0x000a 0x0023 '
+            '0x000c 0x0042 0x000d 0x000e 0x000e 0x0012 0x001d 0x002a 0x002b 0x000f '
+            '0x0044 0x0000 0x0001 0x0002 0x0000 0x0003 0x001c 0x0004 0x0024 0x0007 '
+            '0x0008 0x0009 0x001e 0x001f 0x0021 0x0032 0x004c 0x004d 0x004e 0x004f '
+            '0x0050 0x0027 0x0027 0x0028 0x0030 0x0043 0x0031 0x0036 0x0034 0x0033 '
+            '0x0054 0x002e 0x0045 0x0047 0x002e 0x0046 0x0047 0x002e 0x002f 0x0035 '
+            '0x0048 0x0047 0x0047 0x0045 0x0013 0x0014 0x0015 0x0016 0x0051 0x0017 '
+            '0x0018 0x0019 0x001a 0x001b 0x0052 0x0020 0x0022 0x0029 0x004a 0x002c '
+            '0x0053 0x0053 0x0053 0x0053 0x0049 0x0040 0x0040 0x0041 0x0041 0x0060 '
+            '0x0013,0x0030,0x0013 0x0000 0x004b 0x0013,0x0028 0x0014 0x0013 0x000f '
+            '0x0013 0x000e 0x0000 0x0014,0x0015 0x0047 0x0045 0x0013')
+
+    def test_drbd_twopc(self, cmd_tshark, capture_file, test_env):
+        '''Two-phase commit replies, commits and aborts on either TCP
+        connection of the DRBD connection refer to their prepare; a
+        commit and a reply without a prepare do not.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Y', 'drbd.tid',
+                '-Tfields', '-eframe.number', '-edrbd.command', '-edrbd.tid',
+                '-edrbd.twopc_prepare_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '52\t0x002e\t1\t', '53\t0x0045\t1\t52', '54\t0x0047\t1\t52',
+            '55\t0x002e\t2\t', '56\t0x0046\t2\t55', '57\t0x0047\t2\t55',
+            '58\t0x002e\t3\t', '59\t0x002f\t3\t58', '60\t0x0035\t4\t',
+            '61\t0x0048\t4\t60', '62\t0x0047\t4\t60', '63\t0x0047\t99\t',
+            '64\t0x0045\t98\t', '106\t0x0047\t5\t', '107\t0x0045\t5\t',
+        ]
+
+    def test_drbd_node_masks(self, cmd_tshark, capture_file, test_env):
+        '''Node masks are shown as lists and ranges of node numbers.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Y', 'drbd.command in {0x40,0x41,0x42}',
+                '-V', '-O', 'drbd',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()
+                 if 'Nodes:' in l or 'Bitmap UUID' in l]
+        assert lines == [
+            'Nodes: 0 - 2, 63', 'Bitmap UUID nodes: 0, 2, 63',
+            'Bitmap UUID for node 0: 0x000000000000aaaa',
+            'Bitmap UUID for node 2: 0x000000000000bbbb',
+            'Bitmap UUID for node 63: 0x000000000000cccc',
+            'Nodes: <none>', 'Nodes: 63', 'Nodes: 0, 52 - 55, 60 - 63', 'Nodes: 0, 1',
+        ]
+
+    def test_drbd_state(self, cmd_tshark, capture_file, test_env):
+        '''States and state change requests, which show only the fields
+        in their mask.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Y', 'drbd.command in {0x0e,0x12,0x2a}',
+                '-Tfields', '-eframe.number', '-edrbd.state.role',
+                '-edrbd.state.peer', '-edrbd.state.conn', '-edrbd.state.disk',
+                '-edrbd.state.pdsk', '-edrbd.state.quorum',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t1\t2\t10\t8\t8\tTrue', '15\t2\t1\t16\t4\t5\tFalse',
+            '16\t1\t\t10\t\t\t', '18\t\t\t\t\t\t', '103\t1\t2\t10\t8\t8\tFalse',
+        ]
+
+    def test_drbd_ov_result(self, cmd_tshark, capture_file, test_env):
+        '''Online verify results.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Y', 'drbd.command == 0x53',
+                '-Tfields', '-edrbd.ov_result',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['4710', '4711', '4712', '1']
+
+    def test_drbd_segments(self, cmd_tshark, capture_file, test_env):
+        '''Several DRBD packets in one TCP segment, one packet over two
+        segments, lb-tcp wrappers and RDMA payloads with several packets.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.heuristics,
+                '-r', capture_file('drbd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {91,93,95,97,105,108}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-etcp.reassembled.length', '-edrbd.size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '91\t41000 → 7789 [P_PING] [P_DAGTAG] [P_PING]\t\t',
+            '93\t41000 → 7789 [P_DATA]\t240\t200',
+            '95\t41002 → 7790 [P_PING] [P_OUT_OF_SYNC]\t\t512',
+            '97\t41002 → 7790 [lb-tcp Payload]\t\t',
+            '105\tQP=0x000123 [RDMA Flow Control] [P_PING_ACK] [P_RECV_ACK]\t\t4096',
+            '108\tQP=0x000123 [P_PING]\t\t',
+        ]
