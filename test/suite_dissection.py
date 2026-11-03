@@ -49378,3 +49378,74 @@ class TestDissectDxl:
             '    Type: Request (0x00)',
             '        [Expert Info (Warning/Undecoded): Type 0x0 is unsupported]',
         ]
+
+
+E100_OPTS = ('--enable-heuristic', 'e100_udp')
+
+
+class TestDissectE100:
+    def test_e100_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With the e100_udp heuristic (disabled by default) frames 1-7
+        are E100 and frames 8-10 are rejected by the heuristic. No frame
+        is malformed or has a warning or error expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *E100_OPTS,
+                '-r', capture_file('e100_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ee100.seq_num',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tARP\t1', '2\tICMP\t2', '3\tICMP\t3', '4\tUDP\t65535',
+            '5\tUDP\t4', '6\tARP\t5', '7\tARP\t6',
+            '8\tUDP\t', '9\tUDP\t', '10\tUDP\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('e100_coverage.pcap.gz'),
+                '-Y', 'e100',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *E100_OPTS, *passes,
+                    '-r', capture_file('e100_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_e100_header(self, cmd_tshark, capture_file, test_env):
+        '''The header fields, the timestamp (in UTC) and the inner frame.'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark, *E100_OPTS,
+                '-r', capture_file('e100_coverage.pcap.gz'),
+                '-Y', 'e100',
+                '-Tfields', '-ee100.version', '-ee100.port_recv',
+                '-ee100.ip', '-ee100.mon_pkt_id', '-ee100.pkt_ts',
+                '-ee100.bytes_cap', '-ee100.bytes_orig', '-eeth.src',
+                '-Eoccurrence=l',
+            ), encoding='utf-8', env=env)
+        assert stdout.splitlines() == [
+            '1\t1\t192.0.2.50\t1001\t2023-11-14T22:13:20.000001000+0000\t60\t60\t02:00:00:00:00:a1',
+            '1\t2\t192.0.2.50\t1002\t2023-11-14T22:13:20.250000000+0000\t58\t58\t02:00:00:00:00:a1',
+            '1\t2\t192.0.2.50\t1003\t2023-11-14T22:13:21.999999000+0000\t58\t58\t02:00:00:00:00:a2',
+            '1\t255\t192.0.2.50\t4294967295\t2023-11-14T22:13:22.000000000+0000\t56\t56\t02:00:00:00:00:a2',
+            '1\t3\t192.0.2.50\t1005\t2023-11-14T22:13:23.000005000+0000\t56\t98\t02:00:00:00:00:a2',
+            '1\t1\t192.0.2.50\t1006\t2023-11-14T22:13:24.000006000+0000\t60\t2147483647\t02:00:00:00:00:a1',
+            '1\t1\t192.0.2.50\t1007\t2023-11-14T22:13:24.000007000+0000\t60\t4294967295\t02:00:00:00:00:a1',
+        ]
+
+    def test_e100_original_length(self, cmd_tshark, capture_file, test_env):
+        '''An original length larger than the captured one (up to
+        0xffffffff, the reproducer of the review) is the reported length
+        of the inner frame: the frame shows as cut short, not malformed.'''
+        stdout = subprocess.check_output((cmd_tshark, *E100_OPTS,
+                '-r', capture_file('e100_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6, 7}',
+                '-Tfields', '-e_ws.col.info', '-earp.dst.proto_ipv4',
+                '-eudp.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1234 → 5678 Len=14\t\t92,22',
+            'Who has 198.51.100.2? Tell 198.51.100.1\t198.51.100.2\t96',
+            'Who has 198.51.100.2? Tell 198.51.100.1\t198.51.100.2\t96',
+        ]
