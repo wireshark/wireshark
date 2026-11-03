@@ -47392,3 +47392,87 @@ class TestDissectDsr:
                 '-Tfields', '-eframe.number', '-edsr.fs.hopcount', '-edsr.fs.id',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['20\t2\t0xabcd', '21\t3\t0x1234']
+
+
+class TestDissectDtcpIp:
+    # DTCP-IP has no default port; the capture uses TCP port 8000.
+    decode_as = ('-d', 'tcp.port==8000,dtcp-ip')
+
+    def test_dtcp_ip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''16 AKE messages are DTCP-IP, the 3 segments that are not
+        DTCP-IP stay TCP, and none is malformed or has an expert info, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('dtcp_ip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert protocols.count('DTCP-IP') == 16
+        assert protocols[16:] == ['TCP', 'TCP', 'TCP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.decode_as, *passes,
+                    '-r', capture_file('dtcp_ip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dtcp_ip_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the subfunction.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('dtcp_ip_coverage.pcap.gz'),
+                '-Y', 'dtcp-ip',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['challenge (0x1)'] * 4 + \
+            ['response (0x2)'] * 2 + ['exchange_key (0x3)'] * 6 + \
+            ['challenge (0x1)'] * 3 + ['unknown (0x80)']
+
+    def test_dtcp_ip_control(self, cmd_tshark, capture_file, test_env):
+        '''The fields of the control block and the AKE_Info length.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('dtcp_ip_coverage.pcap.gz'),
+                '-Y', 'dtcp-ip',
+                '-Tfields', '-edtcp-ip.length',
+                '-edtcp-ip.ctrl.ctype_response', '-edtcp-ip.ctrl.category',
+                '-edtcp-ip.ctrl.ake_id', '-edtcp-ip.ctrl.subfunction',
+                '-edtcp-ip.ctrl.ake_procedure.full_auth',
+                '-edtcp-ip.ctrl.ake_procedure.ex_full_auth',
+                '-edtcp-ip.ctrl.exchange_key',
+                '-edtcp-ip.ctrl.subfunction_dependent',
+                '-edtcp-ip.ctrl.ake_label', '-edtcp-ip.ctrl.number',
+                '-edtcp-ip.ctrl.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '48\t0x00\t0x00\t0x00\t0x01\tTrue\tFalse\t0x00\t0x00\t0x01\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x01\tTrue\tFalse\t0x00\t0x00\t0x01\t0x00\t0x00',
+            '44\t0x00\t0x00\t0x00\t0x01\tFalse\tTrue\t0x00\t0x00\t0x02\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x01\tTrue\tTrue\t0x00\t0x00\t0x02\t0x00\t0x00',
+            '56\t0x00\t0x00\t0x00\t0x02\tTrue\tTrue\t0x00\t0x00\t0x03\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x02\tTrue\tTrue\t0x00\t0x00\t0x03\t0x00\t0x00',
+            '28\t0x00\t0x00\t0x00\t0x03\tTrue\tFalse\t0x08\t0x00\t0x04\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x03\tTrue\tFalse\t0x08\t0x00\t0x04\t0x00\t0x00',
+            '28\t0x00\t0x00\t0x00\t0x03\tTrue\tFalse\t0x20\t0x00\t0x05\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x03\tTrue\tFalse\t0x20\t0x00\t0x05\t0x00\t0x00',
+            '28\t0x00\t0x00\t0x00\t0x03\tTrue\tFalse\t0x40\t0x00\t0x06\t0x00\t0x0f',
+            '8\t0x09\t0x00\t0x00\t0x03\tTrue\tFalse\t0x40\t0x00\t0x06\t0x00\t0x00',
+            '8\t0x0a\t0x00\t0x00\t0x01\tFalse\tFalse\t0x00\t0x00\t0x08\t0x00\t0x01',
+            '8\t0x0a\t0x00\t0x00\t0x01\tFalse\tFalse\t0x00\t0x00\t0x09\t0x00\t0x07',
+            '8\t0x0a\t0x00\t0x00\t0x01\tFalse\tFalse\t0x00\t0x00\t0x0a\t0x01\t0x03',
+            '12\t0x01\t0x05\t0x02\t0x80\tFalse\tFalse\t0x10\t0xab\t0x0b\t0x0f\t0x02',
+        ]
+
+    def test_dtcp_ip_ake_info(self, cmd_tshark, capture_file, test_env):
+        '''AKE_Info holds "length - 8" octets and only messages with a
+        length above 8 have it.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('dtcp_ip_coverage.pcap.gz'),
+                '-Y', 'dtcp-ip.ake_info',
+                '-Tfields', '-eframe.number', '-edtcp-ip.length',
+                '-e', 'len(dtcp-ip.ake_info)',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t48\t40', '3\t44\t36', '5\t56\t48', '7\t28\t20',
+            '9\t28\t20', '11\t28\t20', '16\t12\t4',
+        ]
