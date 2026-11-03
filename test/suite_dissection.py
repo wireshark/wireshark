@@ -49018,3 +49018,72 @@ class TestDissectDvbSdt:
             'Running Status: Unknown (0x6)',
             'Running Status: Unknown (0x7)',
         ]
+
+
+class TestDissectDvbSit:
+    def test_dvb_sit_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every SIT section in the MPEG-TS packets is dissected, and no
+        frame is malformed or has an expert info, in one and two passes
+        and with the section CRC verified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['mp2t:mpeg_sect:dvb_sit'] * 4 + [
+            'mp2t', 'mp2t:mpeg_sect:dvb_sit',
+            'mp2t:mpeg_sect:dvb_sit:mpeg_sect:dvb_sit']
+        for opts in ((), ('-2',), ('-o', 'mpeg_sect.verify_crc:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvb_sit_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_sit_services(self, cmd_tshark, capture_file, test_env):
+        '''Versions, transmission info length and the services of every
+        section with their running status and descriptors length,
+        including the SIT reassembled from two TS packets (frame 6) and
+        two sections in one TS packet (frame 7).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sit_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edvb_sit.version',
+                '-edvb_sit.cur_next_ind', '-edvb_sit.sect_num',
+                '-edvb_sit.transmission_info_descriptors_length',
+                '-edvb_sit.svc.id', '-edvb_sit.svc.running_status',
+                '-edvb_sit.svc.service_descriptors_length', '-empeg_descr.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01\tTrue\t0\t29\t0x0101,0x0102\t0x0004,0x0001\t25,29\t'
+            '0x63,0x40,0x48,0x48,0x5f',
+            '2\t0x02\tTrue\t0\t0\t' +
+            ','.join('0x%04x' % (0x200 + r) for r in range(8)) + '\t' +
+            ','.join('0x%04x' % r for r in range(8)) + '\t' +
+            ','.join(['0'] * 8) + '\t',
+            '3\t0x03\tFalse\t0\t10\t\t\t\t0x63',
+            '4\t0x1f\tTrue\t0\t0\t\t\t\t',
+            '5\t\t\t\t\t\t\t\t',
+            '6\t0x04\tTrue\t0\t10\t' +
+            ','.join('0x%04x' % (0x300 + i) for i in range(12)) + '\t' +
+            ','.join(['0x0004'] * 12) + '\t' + ','.join(['19'] * 12) + '\t' +
+            ','.join(['0x63'] + ['0x48'] * 12),
+            '7\t0x05,0x05\tTrue,True\t0,1\t10,0\t0x0401,0x0402\t'
+            '0x0004,0x0004\t0,6\t0x63,0x5f',
+        ]
+
+    def test_dvb_sit_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The partial transport stream descriptor of the transmission
+        info and the service names of frame 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_sit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'dvb_sit',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert '..00 0000  1001 0010  0111 1100 = Peak Rate: 15000000 bits/s' in lines
+        assert 'Network Name: Synthetic Network' in lines
+        assert [l for l in lines if l.startswith('Service Name:')] == [
+            'Service Name: Channel One', 'Service Name: Radio Two']
+        assert [l for l in lines if 'Running Status' in l] == [
+            '.100 .... .... .... = Running Status: Running (0x4)',
+            '.001 .... .... .... = Running Status: Not Running (0x1)']
