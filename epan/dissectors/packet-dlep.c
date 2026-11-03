@@ -1309,8 +1309,8 @@ proto_register_dlep(void)
   };
 
   static ei_register_info ei[] = {
-    { &ei_dlep_signal_unexpected_length, { "dlep.signal.unexpected_length", PI_PROTOCOL, PI_WARN, "Message length does not match reported length remaining", EXPFILL }},
-    { &ei_dlep_message_unexpected_length, { "dlep.message.unexpected_length", PI_PROTOCOL, PI_WARN, "Signal length does not match reported length remaining", EXPFILL }},
+    { &ei_dlep_signal_unexpected_length, { "dlep.signal.unexpected_length", PI_PROTOCOL, PI_WARN, "Signal length does not match reported length remaining", EXPFILL }},
+    { &ei_dlep_message_unexpected_length, { "dlep.message.unexpected_length", PI_PROTOCOL, PI_WARN, "Message length does not match reported length remaining", EXPFILL }},
     { &ei_dlep_dataitem_unexpected_length, { "dlep.dataitem.unexpected_length", PI_PROTOCOL, PI_WARN, "Unexpected Data Item length", EXPFILL }},
     { &ei_dlep_dataitem_macaddr_unexpected_length, { "dlep.dataitem.macaddr.unexpected_length", PI_PROTOCOL, PI_WARN, "Unexpected MAC Address length", EXPFILL }},
   };
