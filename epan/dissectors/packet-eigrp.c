@@ -833,7 +833,7 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
         case 10:
             /* IPX */
             proto_tree_add_bytes_format_value(tree, hf_eigrp_ipx_address, tvb, offset, addr_len, NULL,
-                                "IPX Address: %s", tvb_address_to_str(pinfo->pool, tvb, AT_IPX, 1));
+                                "IPX Address: %s", tvb_address_to_str(pinfo->pool, tvb, AT_IPX, offset));
             break;
         case 16:
             /* IPv6 */
@@ -2155,7 +2155,7 @@ dissect_eigrp_wide_metric_attr (proto_tree *tree, tvbuff_t *tvb,
         case EIGRP_ATTR_COMM:
             dissect_eigrp_metric_comm(sub_tree,
                                       tvb_new_subset_length(sub_tvb, sub_offset, 8),
-                                      sub_offset, limit);
+                                      0, 8);
             break;
 
         case EIGRP_ATTR_JITTER:
