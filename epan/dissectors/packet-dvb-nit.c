@@ -95,10 +95,11 @@ dissect_dvb_nit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_tree_add_item(dvb_nit_tree, hf_dvb_nit_reserved3,                    tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item_ret_uint(dvb_nit_tree, hf_dvb_nit_transport_stream_loop_length, tvb, offset, 2, ENC_BIG_ENDIAN, &ts_end);
     offset += 2;
+    ts_end += offset;
 
     while (offset < ts_end) {
         tsid = tvb_get_ntohs(tvb, offset);
-        ts_desc_len = 3 + (tvb_get_ntohs(tvb, offset + 4) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
+        ts_desc_len = 6 + (tvb_get_ntohs(tvb, offset + 4) & DVB_NIT_TRANSPORT_DESCRIPTORS_LENGTH_MASK);
 
         dvb_nit_ts_tree = proto_tree_add_subtree_format(dvb_nit_tree, tvb, offset, ts_desc_len,
                                ett_dvb_nit_ts, NULL, "Stream ID=0x%04hx", tsid);
