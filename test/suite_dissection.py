@@ -48605,3 +48605,190 @@ class TestDissectDvbNit:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == [
             'Synthetic Network\t0x0101,0x0102,0x0201\t0x01,0x02,0x19']
+
+
+class TestDissectDvbS2Bb:
+    DECODE_DF = ('-o', 'dvb-s2_modeadapt.decode_df:TRUE',
+                 '-o', 'dvb-s2_modeadapt.full_decode:TRUE')
+
+    def test_dvb_s2_bb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The SDP of the SIP INVITE makes the RTP packets DVB-S2; the
+        plain UDP datagrams to port 31000 are data by default. No frame is
+        malformed or has an expert info, in one and two passes, with the
+        default preferences and with the data field dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['eth:ethertype:ip:udp:sip:sdp'] + \
+            ['eth:ethertype:ip:udp:rtp:dvb-s2_modeadapt'] * 32 + \
+            ['eth:ethertype:ip:udp:data'] * 2
+        for opts in ((), ('-2',), self.DECODE_DF, ('-2',) + self.DECODE_DF):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dvb_s2_bb_headers(self, cmd_tshark, capture_file, test_env):
+        '''Mode adaptation header (L.3 by default, L.2 in frame 16, L.4 in
+        frame 17, L.1 in frame 18) and BB header of every frame: MATYPE,
+        ISI, UPL, DFL, SYNCD and a correct CRC-8.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Y', 'dvb-s2_modeadapt',
+                '-Tfields', '-eframe.number', '-edvb-s2_modeadapt.sync',
+                '-edvb-s2_modeadapt.acmcmd', '-edvb-s2_modeadapt.frameno',
+                '-edvb-s2_bb.matype1', '-edvb-s2_bb.matype2',
+                '-edvb-s2_bb.upl', '-edvb-s2_bb.dfl', '-edvb-s2_bb.syncd',
+                '-edvb-s2_bb.crc.status',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:17] == [
+            '2\t0xb8\t0x04\t0\t0x70\t0x00\t0\t464\t0\t1',
+            '3\t0xb8\t0xc5\t1\t0x70\t0x00\t0\t1080\t0\t1',
+            '4\t0xb8\t0x04\t2\t0x70\t0x00\t0\t272\t0\t1',
+            '5\t0xb8\t0x04\t3\t0x70\t0x00\t0\t504\t0\t1',
+            '6\t0xb8\t0x04\t4\t0x70\t0x00\t0\t768\t0\t1',
+            '7\t0xb8\t0x04\t5\t0x70\t0x00\t0\t1224\t0\t1',
+            '8\t0xb8\t0x04\t6\t0x70\t0x00\t0\t480\t0\t1',
+            '9\t0xb8\t0x04\t7\t0x70\t0x00\t0\t232\t0\t1',
+            '10\t0xb8\t0x04\t8\t0x70\t0x00\t0\t296\t0\t1',
+            '11\t0xb8\t0x04\t9\t0x40\t0x05\t0\t264\t0\t1',
+            '12\t0xb8\t0x04\t10\t0x40\t0x06\t0\t304\t0\t1',
+            '13\t0xb8\t0x04\t11\t0x40\t0x05\t0\t440\t0\t1',
+            '14\t0xb8\t0x04\t12\t0x50\t0x06\t0\t480\t0\t1',
+            '15\t0xb8\t0x04\t13\t0x30\t0x00\t256\t512\t0\t1',
+            '16\t0xb8\t0x0b\t\t0x70\t0x00\t0\t352\t0\t1',
+            '17\t\t0x23\t14\t0x70\t0x00\t0\t368\t0\t1',
+            '18\t\t\t\t0x70\t0x00\t0\t384\t0\t1',
+        ]
+        assert lines[17:] == [
+            '19\t0xb8\t0x04\t1\t0xd0\t0x01\t1504\t1904\t0\t1',
+            '20\t0xb8\t0x04\t2\t0xd0\t0x01\t1504\t800\t65535\t1',
+            '21\t0xb8\t0x04\t3\t0xd0\t0x01\t1504\t3312\t304\t1',
+            '22\t0xb8\t0x04\t2\t0xd4\t0x02\t1512\t1672\t0\t1',
+            '23\t0xb8\t0x04\t3\t0xd4\t0x02\t1512\t2864\t1352\t1',
+            '24\t0xb8\t0x04\t3\t0xd8\t0x03\t1520\t1680\t0\t1',
+            '25\t0xb8\t0x04\t4\t0xd8\t0x03\t1520\t2880\t1360\t1',
+            '26\t0xb8\t0x04\t4\t0xdc\t0x04\t1528\t1688\t0\t1',
+            '27\t0xb8\t0x04\t5\t0xdc\t0x04\t1528\t2896\t1368\t1',
+            '28\t0xb8\t0x04\t5\t0xd8\t0x05\t1528\t1688\t0\t1',
+            '29\t0xb8\t0x04\t6\t0xd8\t0x05\t1528\t2896\t1368\t1',
+            '30\t0xb8\t0x04\t6\t0xdc\t0x06\t1536\t1696\t0\t1',
+            '31\t0xb8\t0x04\t7\t0xdc\t0x06\t1536\t2912\t1376\t1',
+            '32\t0xb8\t0x04\t16\t0x73\t0x00\t0\t336\t0\t1',
+            '33\t0xb8\t0x04\t16\t0x71\t0x00\t0\t336\t0\t1',
+        ]
+
+    def test_dvb_s2_bb_modeadapt(self, cmd_tshark, capture_file, test_env):
+        '''The detected mode adaptation header types, the DVB-S2X MODCOD
+        of frame 3, and the roll-off: frame 32 has roll-off '11', so from
+        there on the conversation shows the low roll-off values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,3,16,17,18,32,33}',
+                '-V', '-O', 'dvb-s2_modeadapt,dvb-s2_bb',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l for l in lines if 'Mode Adaptation Header' in l] == [
+            'DVB-S2 Mode Adaptation Header L.%d' % t
+            for t in (3, 3, 2, 4, 1, 3, 3)]
+        assert '        11.0 0101 = Modcod indicator: DVBS2X 16APSK 8/15-L(150)' in lines
+        assert [l.strip() for l in lines if '= RO:' in l] == [
+            '.... ..00 = RO: 0,35 (0)'] * 5 + [
+            '.... ..11 = RO: Low rolloff flag (3)',
+            '.... ..01 = RO: 0,10 (1)']
+
+    def test_dvb_s2_bb_gse(self, cmd_tshark, capture_file, test_env):
+        '''GSE packets with the data field dissected: label types,
+        protocol types (IPv4, IPv6, VLAN, Bridged Frame, NCR, signalling
+        table, an extension header), the EIP CRC32, and PDUs reassembled
+        from fragments over several BBFrames and on two input streams with
+        the same Frag ID. The end fragment without a start (frame 8) is
+        not reassembled and its CRC is not checked.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_DF,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Y', 'dvb-s2_gse',
+                '-Tfields', '-eframe.number', '-edvb-s2_gse.hdr.labeltype',
+                '-edvb-s2_gse.proto', '-edvb-s2_gse.fragid',
+                '-edvb-s2_gse.totlength', '-edvb-s2_gse.crc.status',
+                '-edvb-s2_bb.eip_crc32.status', '-edvb-s2_gse.exthdr',
+                '-eudp.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0x0000\t0x0800\t\t\t\t\t\t92,28',
+            '3\t0x0001,0x0002,0x0003\t0x86dd,0x8100,0x0001\t\t\t\t\t\t169,24,16',
+            '4\t0x0002,0x0002,0x0002\t0x0081,0x0082,0x0101\t\t\t\t1\t0x08\t68',
+            '5\t0x0000\t0x0800\t0x01\t186\t\t\t\t97',
+            '6\t0x0003,0x0001\t0x86dd\t0x01,0x02\t93\t\t\t\t130',
+            '7\t0x0003,0x0003\t0x0800,0x86dd\t0x01,0x02\t186,93\t1,1\t\t\t187,158,48',
+            '8\t0x0003,0x0002\t0x0800\t0x09,0x03\t60\t2\t\t\t94',
+            '9\t0x0002\t0x0800\t0x03\t54\t\t\t\t63',
+            '10\t0x0003\t0x0800\t0x03\t54\t1\t\t\t71,32',
+            '11\t0x0000\t0x0800\t0x01\t76\t\t\t\t67',
+            '12\t0x0000\t0x86dd\t0x01\t86\t\t\t\t72',
+            '13\t0x0003\t0x0800\t0x01\t76\t1\t\t\t89,48',
+            '14\t0x0003\t0x86dd\t0x01\t86\t1\t\t\t94,38',
+            '16\t0x0002\t0x0800\t\t\t\t\t\t76,20',
+            '17\t0x0002\t0x0800\t\t\t\t\t\t79,22',
+            '18\t0x0002\t0x0800\t\t\t\t\t\t86,24',
+            '32\t0x0002\t0x0800\t\t\t\t\t\t76,18',
+            '33\t0x0002\t0x0800\t\t\t\t\t\t76,18',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_DF,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-Y', 'frame.number in {3,4,7}',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\teth:ethertype:ip:udp:rtp:dvb-s2_modeadapt:ipv6:udp:data:vlan:ethertype:ip:udp:data',
+            '4\teth:ethertype:ip:udp:rtp:dvb-s2_modeadapt:dvb-s2_table',
+            '7\teth:ethertype:ip:udp:rtp:dvb-s2_modeadapt:ip:udp:data:ipv6:udp:data',
+        ]
+
+    def test_dvb_s2_bb_ts(self, cmd_tshark, capture_file, test_env):
+        '''Transport Streams with the data field dissected, one input
+        stream per user packet format (UPL 188-192 with short or long
+        ISSY and DNP): user packet CRC-8 checks, ISSY and DNP fields, and
+        user packets sliced over two or three BBFrames (frame 20 holds no
+        user packet start, SYNCD 0xFFFF).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_DF,
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 19 && frame.number <= 31',
+                '-Tfields', '-eframe.number', '-edvb-s2_bb.matype2',
+                '-edvb-s2_bb.up.crc.status', '-edvb-s2_bb.issy.short',
+                '-edvb-s2_bb.issy.long', '-edvb-s2_bb.dnp',
+                '-empeg_pat.tsid', '-emp2t.pid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\t0x01\t2\t\t\t\t0x0001\t0x00000000',
+            '20\t0x01\t\t\t\t\t\t',
+            '21\t0x01\t2,1,1\t\t\t\t0x0001,0x0001,0x0001\t'
+            '0x00000000,0x00000000,0x00000000',
+            '22\t0x02\t2\t\t\t0\t\t0x00001fff',
+            '23\t0x02\t2,1\t\t\t1,2\t\t0x00001fff,0x00001fff',
+            '24\t0x03\t2\t0x4010\t\t\t\t0x00001fff',
+            '25\t0x03\t2,1\t0x4110,0x4210\t\t\t\t0x00001fff,0x00001fff',
+            '26\t0x04\t2\t0x4010\t\t0\t\t0x00001fff',
+            '27\t0x04\t2,1\t0x4110,0x4210\t\t1,2\t\t0x00001fff,0x00001fff',
+            '28\t0x05\t2\t\t0x401020\t\t\t0x00001fff',
+            '29\t0x05\t2,1\t0x1020\t0x421020\t\t\t0x00001fff,0x00001fff',
+            '30\t0x06\t2\t\t0x401020\t0\t\t0x00001fff',
+            '31\t0x06\t2,1\t0x1020\t0x421020\t1,2\t\t0x00001fff,0x00001fff',
+        ]
+
+    def test_dvb_s2_bb_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''With the dvb_s2_udp heuristic enabled the BBFrame in plain UDP
+        (frame 34) is DVB-S2 and the text datagram (frame 35) is not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'dvb_s2_udp',
+                '-r', capture_file('dvb_s2_bb_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 34',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34\teth:ethertype:ip:udp:dvb-s2_modeadapt',
+            '35\teth:ethertype:ip:udp:data',
+        ]
