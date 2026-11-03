@@ -3982,15 +3982,21 @@ class Module (Node):
         return self.ident.val
 
     def get_proto(self, ectx):
+        if ectx.conform.check_item('MODULE', self.get_name()):
+            return ectx.conform.use_item('MODULE', self.get_name(), val_dflt=self.get_name())
         if ectx.proto:
-            prot = ectx.proto
-        else:
-            prot = ectx.conform.use_item('MODULE', self.get_name(), val_dflt=self.get_name())
-        return prot
+            return ectx.proto
+        return ectx.conform.use_item('MODULE', self.get_name(), val_dflt=self.get_name())
 
     def to_eth(self, ectx):
         ectx.tags_def = 'EXPLICIT' # default = explicit
-        ectx.proto = self.get_proto(ectx)
+        prot = self.get_proto(ectx)
+        # With merge_modules, keep the main dissector proto (e.g. -p inap) when a
+        # #.MODULE entry maps a submodule (e.g. ROS) to a different proto name.
+        if ectx.merge_modules and ectx.conform.check_item('MODULE', self.get_name()):
+            pass
+        else:
+            ectx.proto = prot
         ectx.tag_def = self.tag_def.dfl_tag
         ectx.eth_reg_module(self)
         self.body.to_eth(ectx)
