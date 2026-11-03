@@ -45165,3 +45165,197 @@ class TestDissectDocsis:
                 '-Tfields', '-edocsis_tlv.unknown.type',
             ), encoding='utf-8', env=test_env)
         assert stdout.replace('\n', ',').split(',').count('200') == 54
+
+
+class TestDissectDocsisMacmgmt:
+    CAPTURE = 'docsis_macmgmt_coverage.pcap.gz'
+
+    def test_docsis_macmgmt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a DOCSIS MAC management message, every message
+        type is there, and no frame is malformed or has an error, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Tfields', '-e_ws.col.protocol', '-edocsis_mgmt.type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 162
+        assert all(l.startswith('DOCSIS MGMT\t') for l in lines)
+        types = [int(l.split('\t')[1]) for l in lines]
+        assert sorted(set(types)) == list(range(1, 72)) + [255]
+        assert types.count(41) == 24        # CM-STATUS, every event type
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_docsis_macmgmt_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Warnings only where the capture has unknown TLV types or values
+        out of range.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert [int(f) for f in stdout.split()] == [
+            47, 95, 97, 99, 100, 105, 107, 109, 110, 116, 117, 125, 127, 128,
+            129, 130, 134, 136, 139]
+
+    def test_docsis_macmgmt_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of a selection of message types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Tfields', '-eframe.number', '-edocsis_mgmt.type',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {}
+        for line in stdout.splitlines():
+            num, mtype, text = line.split('\t')
+            info[int(num)] = (int(mtype), text.strip())
+        for num, mtype, text in (
+            (1, 1, 'Sync Message'),
+            (2, 2, 'Type 2 UCD Message: Channel ID = 3 (U2)'),
+            (3, 2, 'Type 2 UCD Message: Channel ID = 0 (Telephony Return)'),
+            (7, 3, "Map Message:  Version: 1, Channel ID = 3 (U2), UCD Count = 5,  # IE's = 2"),
+            (8, 3, "Map Message:  Version: 1, Channel ID = 0 (Telephony Return), UCD Count = 6, # IE's = 1"),
+            (9, 3, "Map Message:  Version: 5, Channel ID = 3 (U2), UCD Count = 5,  # IE's = 2"),
+            (10, 3, "Map Message:  Version: 5, Channel ID = 3 (U2), UCD Count = 5,  # IE's = 3"),
+            (11, 4, 'Ranging Request: SID = 291'),
+            (12, 4, 'Initial Ranging Request SID = 0'),
+            (17, 5, 'Ranging Response: SID = 291, Upstream Channel = 3 (U2)'),
+            (18, 5, 'Ranging Response: SID = 292, Telephony Return'),
+            (25, 12, 'BPKM Request (BPKM-REQ): Auth Request, ID 1'),
+            (28, 12, 'BPKM Request (BPKM-REQ): Unknown Code (99), ID 3'),
+            (29, 69, 'BPKM Request (BPKM-REQ): Auth Status Info, ID 4'),
+            (41, 23, 'DCC-REQ Message'),
+            (44, 30, 'Initial Ranging Request: SID = 291'),
+            (46, 33, 'MDD Message:'),
+            (50, 34, 'Bonded Initial Ranging Request: MD-DS-SG-ID = 5 (0x5)'),
+            (54, 36, 'Dynamic Bonding Change Request: Tran-Id = 258'),
+            (59, 41, 'CM-STATUS Report: Transaction ID = 256'),
+            (85, 42, 'CM Control Request: Transaction ID = 7'),
+            (88, 44, 'REG-REQ-MP Message:'),
+            (90, 45, 'REG-RSP-MP Message (fragment 1):'),
+            (97, 49, 'OCD: DS CH ID: 7, CCC: 1'),
+            (100, 50, 'DPD: DS CH ID: 7, Profile ID: 1, CCC: 1, Modulation: 256-QAM | 512-QAM | 1024-QAM | reserved'),
+            (105, 54, 'OPT-REQ: DS CH ID: 7, Profile ID: Profile B (1), Opcode: Start (1)'),
+            (110, 55, 'OPT-RSP: DS CH ID: 7, Profile ID: Profile B (1), Status: Testing (1)'),
+            (114, 61, 'RBA: TG_ID: 1, DCID: 3'),
+            (116, 63, 'CWT-REQ Start ID 1 on sub-band 0'),
+            (128, 65, 'ECT-REQ ID 1'),
+            (137, 67, 'EXT-RNG-REQ: SID: 291, DS CH ID: 1, US CH ID: 2'),
+            (138, 68, 'DPR DCID 1 on TG ID 2'),
+            (157, 255, ''),
+        ):
+            assert info[num] == (mtype, text)
+
+    def test_docsis_macmgmt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two-part messages are reassembled: DBC-REQ and REG-RSP-MP with
+        their own fragment fields, and the version 5 multipart messages.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'docsis_mgmt.tlv.reassembled.length',
+                    '-Tfields', '-eframe.number', '-edocsis_mgmt.type',
+                    '-edocsis_mgmt.tlv.fragment.count',
+                    '-edocsis_mgmt.tlv.reassembled.length',
+                    '-edocsis_mgmt.tlv.fragment',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '54\t36\t2\t9\t53,54',
+                '91\t45\t2\t9\t90,91',
+                '99\t49\t2\t58\t98,99',
+                '109\t54\t2\t47\t108,109',
+                '125\t63\t2\t25\t124,125',
+                '127\t64\t2\t25\t126,127',
+                '134\t65\t2\t70\t133,134',
+                '136\t66\t2\t70\t135,136',
+                '141\t5\t2\t112\t140,141',
+                '143\t70\t2\t526\t142,143',
+                '162\t49\t2\t80185\t161,162',
+            ]
+
+    def test_docsis_macmgmt_ocd_multipart_wrap(self, cmd_tshark, capture_file, test_env):
+        '''An OCD reassembled to 80185 bytes of TLVs is walked once to the
+        end. Before "DOCSIS: Fix MAC management TLV loop hang and fragment
+        checks" the uint16_t offset wrapped at 65536 and the loop never
+        ended (without a tree), or ran into the tree item limit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 162
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 162',
+                '-Tfields', '-e_ws.malformed', '-edocsis_ocd.type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        malformed, types = stdout.rstrip('\n').split('\t')
+        assert malformed == ''
+        assert types.split(',') == ['254'] * 313
+
+    def test_docsis_macmgmt_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Items fixed with the hang: the DPD subcarrier assignment vector
+        length, the OPT-REQ 16-bit measurement duration check, the CWT-RSP
+        status in Info, the 1-byte UCD IR power control fields, and the
+        BPKM key exchange share and CMTS designation fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {102, 107, 122, 159, 160}',
+                '-Tfields', '-eframe.number',
+                '-edocsis_ucd.burst.ofma_ir_pow_ctrl_start_pow',
+                '-edocsis_ucd.burst.ofma_ir_pow_ctrl_step_size',
+                '-edocsis_dpd.tlv.subc_assign_vect.modulation',
+                '-edocsis_optreq.trigger_definition.measurement_duration',
+                '-e_ws.expert.message', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            '102\t\t\t4,4\t\t\tDPD: DS CH ID: 1, Profile ID: 0, CCC: 1',
+            '107\t\t\t\t1280\tMeasurement duration exceeds 1024 OFDM symbols: 1280\t'
+            'OPT-REQ: DS CH ID: 7, Profile ID: Profile C (2), Opcode: Start (1)',
+            '122\t\t\t\t\t\tCWT-RSP Start ID 1 on sub-band 0: CWT-REQ rejected, invalid request',
+            '159\t16\t32\t\t\t\tType 2 UCD Message: Channel ID = 1 (U0)',
+            '160\t16\t32\t\t\t\tType 2 UCD Message: Channel ID = 1 (U0)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'docsis_bpkm.code',
+                '-Tfields', '-eframe.number', '-edocsis_bpkm.code',
+                '-edocsis_bpkm.attr.serialnum', '-edocsis_bpkm.attr.macaddr',
+                '-edocsis_bpkm.attr.key_exchange_share.field_id',
+                '-edocsis_bpkm.attr.cmts_designation.common_name',
+                '-edocsis_bpkm.attr.cmts_designation.issuing_ca_serial_number',
+                '-edocsis_bpkm.attr.ocsp_response',
+                '-edocsis_bpkm.attr.allowed_bpi_version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\t4\tSN0001\t02:00:00:00:00:02\t0x0017\t\t\t\t3,4',
+            '26\t5\tSN0002\t02:00:00:00:00:02\t\t\t\t30030a0106,30030a0101\t',
+            '27\t9\t\t\t\t\t\t\t',
+            '28\t99\t\t\t\t\t\t\t',
+            '29\t16\t\t\t\tName-1\tName-9\t\t',
+            '30\t5\t\t\t\t\t\t\t',
+            '142\t5\t\t\t\t\t\t\t',
+            '143\t5\tSN0002\t02:00:00:00:00:02\t\t\t\t30030a0106,30030a0101\t',
+        ]
+
+    def test_docsis_macmgmt_mdd_version(self, cmd_tshark, capture_file, test_env):
+        '''The CMTS DOCSIS version prefers the 4.0 major/minor TLVs over the
+        pre-4.0 ones, and is shown only when both are present.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'docsis_mgmt.type == 33',
+                '-Tfields', '-eframe.number',
+                '-edocsis_mdd.cmts_major_docsis_version',
+                '-edocsis_mdd.cmts_minor_docsis_version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['46\t4\t0', '47\t3\t1', '48\t4\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'docsis_mgmt.type == 33',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'CMTS DOCSIS Version: DOCSIS 4.0 + FDD + FDX' in stdout
+        assert 'CMTS DOCSIS Version: DOCSIS 3.1' in stdout
