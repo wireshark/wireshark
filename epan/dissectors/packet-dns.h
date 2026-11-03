@@ -92,6 +92,7 @@
 #define DNS_T_LP           107              /* ILNP [RFC6742] */
 #define DNS_T_EUI48        108              /* EUI 48 Address (RFC7043) */
 #define DNS_T_EUI64        109              /* EUI 64 Address (RFC7043) */
+#define DNS_T_NXNAME       128              /* Compact Denial of Existence (RFC9824) */
 #define DNS_T_TKEY         249              /* Transaction Key (RFC 2930) */
 #define DNS_T_TSIG         250              /* Transaction Signature (RFC 2845) */
 #define DNS_T_IXFR         251              /* incremental transfer (RFC 1995) */

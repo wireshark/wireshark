@@ -327,6 +327,7 @@ static int hf_dns_rr_ext_rcode;
 static int hf_dns_rr_edns0_version;
 static int hf_dns_rr_z;
 static int hf_dns_rr_z_do;
+static int hf_dns_rr_z_co;
 static int hf_dns_rr_z_reserved;
 static int hf_dns_rr_ttl;
 static int hf_dns_rr_len;
@@ -858,6 +859,11 @@ static const true_false_string tfs_dns_rr_z_do = {
   "Cannot handle DNSSEC security RRs"
 };
 
+static const true_false_string tfs_dns_rr_z_co = {
+  "Compact Answers OK",
+  "None"
+};
+
 static const value_string opcode_vals[] = {
   { DNS_OPCODE_QUERY,  "Standard query"                },
   { DNS_OPCODE_IQUERY, "Inverse query"                 },
@@ -1192,6 +1198,7 @@ static const value_string dns_types_description_vals[] = {
   { DNS_T_LP,         "(Locator FQDN)" },
   { DNS_T_EUI48,      "" },
   { DNS_T_EUI64,      "" },
+  { DNS_T_NXNAME,     "NXNAME" }, /* RFC 9824 */
   { DNS_T_TKEY,       "(Transaction Key)"  },
   { DNS_T_TSIG,       "(Transaction Signature)" },
   { DNS_T_IXFR,       "(incremental transfer)" },
@@ -1432,7 +1439,8 @@ static const range_string dns_ext_err_info_code[] = {
   {    27,    27, "Unsupported NSEC3 Iterations Value" },
   {    28,    28, "Unable to conform to policy"  },
   {    29,    29, "Synthesized"                  },
-  {    30, 49151, "Unassigned"                   },
+  {    30,    30, "Invalid Query Type"           },
+  {    31, 49151, "Unassigned"                   },
   { 49152, 65535, "Reserved for Private Use"     },
   {     0,     0, NULL                           } };
 
@@ -2022,6 +2030,7 @@ add_opt_rr_to_tree(proto_tree *rr_tree, packet_info* pinfo, tvbuff_t *tvb, int o
   Z_item = proto_tree_add_item(rr_tree, hf_dns_rr_z, tvb, offset, 2, ENC_BIG_ENDIAN);
   Z_tree = proto_item_add_subtree(Z_item, ett_dns_rr);
   proto_tree_add_item(Z_tree, hf_dns_rr_z_do, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(Z_tree, hf_dns_rr_z_co, tvb, offset, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(Z_tree, hf_dns_rr_z_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   proto_tree_add_item(rr_tree, hf_dns_rr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -6748,9 +6757,14 @@ proto_register_dns(void)
         FT_BOOLEAN, 16, TFS(&tfs_dns_rr_z_do), 0x8000,
         "DNSSEC OK", HFILL }},
 
+    { &hf_dns_rr_z_co,
+      { "CO bit", "dns.resp.z.co",
+        FT_BOOLEAN, 16, TFS(&tfs_dns_rr_z_co), 0x4000,
+        "Compact Answers OK", HFILL }},
+
     { &hf_dns_rr_z_reserved,
       { "Reserved", "dns.resp.z.reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+        FT_UINT16, BASE_HEX, NULL, 0x3FFF,
         NULL, HFILL }},
 
     { &hf_dns_srv_instance,
