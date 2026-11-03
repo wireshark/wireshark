@@ -46357,3 +46357,103 @@ class TestDissectDplay:
             '01040000|02040000|03040000|04040000\t01050000\t'
             '01060000|02060000|03060000|04060000',
         ]
+
+
+class TestDissectDpnet:
+    def test_dpnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DPNET on UDP port 6073 and none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnet_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert protocols.count('DPNET') == 27
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dpnet_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dpnet_enum(self, cmd_tshark, capture_file, test_env):
+        '''Enumeration queries and responses. The application GUID of a
+        query is little-endian like that of a response, and the
+        description flags are 32 bits ("DPNET: Check enum response
+        offsets and fix small field errors").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnet_coverage.pcap.gz'),
+                '-Y', 'dpnet.lead == 0',
+                '-Tfields', '-eframe.number', '-edpnet.command',
+                '-edpnet.type', '-edpnet.application', '-edpnet.data',
+                '-edpnet.desc_flags', '-edpnet.max_players',
+                '-edpnet.current_players', '-edpnet.session_name',
+                '-edpnet.application_data', '-edpnet.instance',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        app = '00112233-4455-6677-8899-aabbccddeeff'
+        inst = 'a1b2c3d4-e5f6-4789-8abc-def012345678'
+        assert stdout.splitlines() == [
+            '1\t0x02\t1\t%s\t7564\t\t\t\t\t\t\tDPNET Enum Query' % app,
+            '2\t0x02\t2\t\t\t\t\t\t\t\t\tDPNET Enum Query',
+            '3\t0x02\t2\t\t01020304\t\t\t\t\t\t\tDPNET Enum Query',
+            '4\t0x03\t\t%s\t\t0x000007c5\t16\t3\tCoverage Session\taabbcc\t%s\tDPNET Enum Response' % (app, inst),
+            '5\t0x03\t\t%s\t\t0x00000000\t8\t0\t\t\t%s\tDPNET Enum Response' % (app, inst),
+            '6\t0x03\t\t%s\t\t0x00000400\t4\t4\tPeer\t\t%s\tDPNET Enum Response' % (app, inst),
+            '7\t0x03\t\t%s\t\t0x00000001\t2\t1\t\t1020\t%s\tDPNET Enum Response' % (app, inst),
+            '8\t0x05\t\t\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_dpnet_cframes(self, cmd_tshark, capture_file, test_env):
+        '''Control frames: CONNECT, CONNECTED, CONNECTED_SIGNED,
+        HARD_DISCONNECT with and without a signature (only added when all
+        8 octets are there), SACK with each mask, and data frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnet_coverage.pcap.gz'),
+                '-Y', 'dpnet && !dpnet.lead',
+                '-Tfields', '-eframe.number', '-edpnet.cframe.control',
+                '-edpnet.cframe.msg_id', '-edpnet.cframe.protocol',
+                '-edpnet.cframe.timestamp', '-edpnet.cframe.signature',
+                '-edpnet.cframe.sign_opt', '-edpnet.cframe.echo_time',
+                '-edpnet.cframe.flags', '-edpnet.cframe.sack.mask1',
+                '-edpnet.cframe.sack.mask2', '-edpnet.cframe.send.mask1',
+                '-edpnet.cframe.send.mask2', '-edpnet.control.data',
+                '-edpnet.control.cframe',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t0x01\t0x01\t0x00010006\t1000\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '10\t0x02\t0x02\t0x00010006\t1010\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '11\t0x01\t0x01\t0x00010006\t6\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '12\t0x03\t0x03\t0x00010006\t1020\t0x0102030405060708\t0x00000002\t0x000004d2\t\t\t\t\t\tFalse\tTrue',
+            '13\t0x03\t0x01\t0x00010006\t6\t0x0000000000000000\t0x00000000\t0x00000000\t\t\t\t\t\tFalse\tTrue',
+            '14\t0x04\t0x04\t0x00010005\t1030\t0x3132333435363738\t\t\t\t\t\t\t\tFalse\tTrue',
+            '15\t0x04\t0x01\t0x00010006\t6\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '16\t0x04\t0x05\t0x00010000\t1040\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '17\t0x06\t\t\t1\t\t\t\t0x1f\t0x00000002\t0x00000003\t0x00000004\t0x00000005\tFalse\tTrue',
+            '18\t0x06\t\t\t2000\t\t\t\t0x00\t\t\t\t\tFalse\tTrue',
+            '19\t0x06\t\t\t2001\t\t\t\t0x02\t0x000000ff\t\t\t\tFalse\tTrue',
+            '20\t0x06\t\t\t2002\t\t\t\t0x04\t\t0x0000ff00\t\t\tFalse\tTrue',
+            '21\t0x06\t\t\t2003\t\t\t\t0x08\t\t\t0x00ff0000\t\tFalse\tTrue',
+            '22\t0x06\t\t\t2004\t\t\t\t0x11\t\t\t\t0xff000000\tFalse\tTrue',
+            '23\t0x05\t\t\t\t\t\t\t\t\t\t\t\tFalse\tTrue',
+            '24\t0x01\t0x01\t0x00010003\t2\t\t\t\t\t\t\t\t\tFalse\tFalse',
+            '25\t\t\t\t\t\t\t\t\t\t\t\t\tTrue\tFalse',
+            '26\t\t\t\t\t\t\t\t\t\t\t\t\tTrue\tFalse',
+            '27\t\t\t\t\t\t\t\t\t\t\t\t\tTrue\tTrue',
+        ]
+
+    def test_dpnet_labels(self, cmd_tshark, capture_file, test_env):
+        '''The echo time of CONNECTED_SIGNED is labelled "Echo Time" (it
+        was "Signing Options"), and the 32-bit description flags show all
+        their bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dpnet_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,12}',
+                '-V', '-O', 'dpnet',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Description Flags: 0x000007c5, Client, Migrate, dpnsvr, Password, Enumeration, Fast signing, Full signing' in lines
+        assert 'Signing Options: Full signing (0x00000002)' in lines
+        assert 'Echo Time: 0x000004d2' in lines
