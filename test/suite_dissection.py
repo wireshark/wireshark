@@ -52021,3 +52021,84 @@ class TestDissectEigrp:
             '\t\t\t2001:db8:1::,2001:db8::7,::,2001:db8:8000::,2001:db8:2::,2001:db8:300::',
             '\t\t198.51.100.0,198.51.100.0,198.51.100.1,10.1.0.0,10.0.0.0\t',
         ]
+
+
+class TestDissectEiss:
+    def test_eiss_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight EISS sections in nine TS packets (one section spans two
+        packets); no malformed packets or expert infos in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eiss_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['EISS'] * 6 + ['MPEG', 'TS'] + ['EISS'] * 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eiss_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eiss_sections(self, cmd_tshark, capture_file, test_env):
+        '''Section numbers, protocol versions, application IDs, platform
+        IDs and descriptor tags; frame 8 is the section reassembled from
+        frames 7 and 8.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eiss_coverage.pcap.gz'),
+                '-Y', 'eiss',
+                '-Tfields', '-eeiss.sect_num', '-eeiss.last_sect_num',
+                '-eeiss.version_major', '-eeiss.version_minor',
+                '-eeiss.app_id', '-eeiss.platform_id_length',
+                '-eeiss.plat_hw_man', '-eeiss.plat_sw_model',
+                '-eeiss.desc.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0\t0\t0x01\t0x00\t0x0001\t15\t0x00a0b1\t0x2001\t0xe0,0xe1,0xe2',
+            '0\t1\t0x01\t0x00\t0x4001\t30\t0x00a0b2,0x00a0b3\t0x2002,0x2003\t',
+            '1\t1\t0x02\t0x01\t0x8000\t0\t\t\t0xe0,0xe0,0xe0,0xe0',
+            '0\t0\t0x01\t0x00\t0xfffe\t0\t\t\t0xe2,0xe2',
+            '0\t0\t0x01\t0x00\t0xffff\t0\t\t\t0xe1,0xe1',
+            '0\t0\t0x01\t0x00\t0x3fff\t0\t\t\t',
+            '0\t0\t0x01\t0x00\t0x0001\t60\t0x00a0b4,0x00a0b5,0x00a0b6,0x00a0b7\t0x2004,0x2005,0x2006,0x2007\t0xe0,0xe2',
+            '0\t0\t0x01\t0x00\t0x0001\t0\t\t\t0xe0,0xe2',
+        ]
+
+    def test_eiss_irl_string(self, cmd_tshark, capture_file, test_env):
+        '''The Initial Resource Locator is the irl_length octets after the
+        length field (before "EISS: Fix the IRL string and a duplicate
+        field name" its first two octets were taken as a length).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eiss_coverage.pcap.gz'),
+                '-Y', 'eiss.aid.irl.string',
+                '-Tfields', '-eeiss.aid.app_control_code',
+                '-eeiss.aid.test_flag', '-eeiss.aid.irl.type',
+                '-eeiss.aid.irl.length', '-eeiss.aid.irl.string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x01\t0x00\t0x0001\t24\thttp://etv.example/app/1',
+            '0x02,0x03,0x00,0x04\t0x01,0x00,0x00,0x00\t0x003f,0x0001,0x0001,0x0001\t3,0,1,9\t/a2,,x,/reserved',
+            '0x01\t0x00\t0x0001\t79\thttp://etv.example/' + 'p' * 60,
+            '0x01\t0x00\t0x0001\t22\thttp://etv.example/fix',
+        ]
+
+    def test_eiss_descriptor_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The 8 bit length of the Application Information and Media Time
+        descriptors is eiss.desc.length, the 12 bit length of the Stream
+        Event descriptor is eiss.sed.desc_length (they shared the name
+        eiss.desc.length before the fix); the Stream Event payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eiss_coverage.pcap.gz'),
+                '-Y', 'eiss.desc.tag',
+                '-Tfields', '-eeiss.desc.length', '-eeiss.sed.desc_length',
+                '-eeiss.sed.time_value', '-eeiss.mtd.time_value', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '36,4\t14\t180000\t90000\t6576656e742d64617461',
+            '15,12,13,21\t\t\t\t',
+            '\t4,6\t0,4294967295\t\t0102',
+            '4,4\t\t\t0,1\t',
+            '91\t44\t7\t\t45454545454545454545454545454545454545454545454545454545454545454545454545454545',
+            '34\t6\t9\t\t0001',
+        ]
