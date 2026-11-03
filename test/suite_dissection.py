@@ -50128,3 +50128,143 @@ class TestDissectEapol:
             '0x888e\tLogoff', '0x88c7\tStart',
         ]
         assert lines[18] == '0x888e\tFailure'
+
+
+class TestDissectEbhscr:
+    def test_ebhscr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every EBHSCR major number with the protocol it carries, with no
+        malformed packets or error expert infos in one and two passes.
+        The warnings are the status flags set on purpose.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Tfields', '-eebhscr.mjr', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 51
+        assert lines[0:6] == [
+            '0x53\tebhscr:can:data',
+            '0x53\tebhscr:canfd:data',
+            '0x53\tebhscr:can:data',
+            '0x53\tebhscr',
+            '0x50\tebhscr:eth:ethertype:ip:udp',
+            '0x50\tebhscr:eth:ethertype:ip:udp',
+        ]
+        assert [l.split('\t')[0] for l in lines] == \
+            ['0x53'] * 4 + ['0x50'] * 6 + ['0x51'] * 3 + ['0x52'] * 6 + ['0x55'] * 4 + \
+            ['0x56'] * 2 + ['0x57'] * 9 + ['0x5c'] * 6 + ['0x59'] * 3 + ['0x5e'] * 3 + \
+            ['0x43', '0x4f', '0x48', '0x00', '0x60']
+        assert lines[25:31] == [
+            '0x57\tebhscr:flexray:data',
+            '0x57\tebhscr:flexray',
+            '0x57\tebhscr:flexray:data',
+            '0x57\tebhscr:flexray:data',
+            '0x57\tebhscr:flexray',
+            '0x57\tebhscr:flexray',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity == warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['10', '25', '28', '36', '37', '39', '40', '42', '43', '45']
+
+    def test_ebhscr_flexray_header(self, cmd_tshark, capture_file, test_env):
+        '''The 2 octet FlexRay measurement header that EBHSCR builds for
+        frame and symbol packets: type, channel B, error flags and symbol
+        length. Before "EBHSCR: Fix FlexRay tvbs backed by stack arrays and
+        a LIN length" it was built on the stack, so filters and fields
+        such as flexray[0:2] read memory that was gone.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Y', 'flexray',
+                '-Tfields', '-eframe.number', '-eflexray[0:2]', '-eflexray.ch',
+                '-eflexray.eff', '-eflexray.sl', '-eflexray.fid', '-eflexray.cc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '26\t01:00\tFalse\t0x00\t\t8\t5',
+            '27\t02:05\tFalse\t\t5\t\t',
+            '28\t81:1f\tTrue\t0x1f\t\t100\t7',
+            '29\t81:00\tTrue\t0x00\t\t5\t63',
+            '30\t81:00\tTrue\t0x00\t\t6\t1',
+            '31\t82:7f\tTrue\t\t127\t\t',
+        ]
+        for filt, frames in (('flexray[0:2] == 01:00', '26\n'),
+                             ('flexray[0:2] == 02:05', '27\n'),
+                             ('flexray[1] == 7f', '31\n')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                    '-Y', filt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == frames
+
+    def test_ebhscr_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the packets EBHSCR summarizes itself. Frame
+        13 has a length field larger than the payload: the NMEA string is
+        the captured sentence (the length field was used before "EBHSCR:
+        Fix FlexRay tvbs backed by stack arrays and a LIN length").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,8,9,11,13,14,15,21,23,24,32,33,35,38,41,44,47,49}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tEthernet controller 2 Link Up Speed unknown. This value can be used when the speed could not be detected.',
+            '8\tEthernet controller 3 Link Up Speed 100G',
+            '9\tEthernet controller 0 Link Down',
+            '11\tNMEA: $GPGGA,123519,4807.038,N,01131.000,E,1,08,0.9,545.4,M,46.9,M,,*47',
+            '13\tNMEA: $GPGLL,4916.45,N,12311.12,W,225444,A',
+            '14\tTimeState:TimeSourceGPS',
+            '15\tTimeState:Unknown Time Source',
+            '21\tLIN Wake-Up Packet',
+            '23\tLIN Frame',
+            '24\tDIO:  01 00',
+            '32\tFLEXRAY: SLSTS: SCC 123456',
+            '33\tFLEXRAY: SOC: CC 33 SCC 99',
+            '35\tDSI3_SLAVE:  12 34 56',
+            '38\tDSI3_MASTER:  aa bb',
+            '41\tMIPI_CSI2:  01 02 03 04',
+            '44\tCSI2_FRAME:  10 20 30 40',
+            '47\t  75 73 65 72 20 64 61 74 61',
+            '49\t  01 02',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11,13}',
+                '-Tfields', '-eframe.number', '-eebhscr.len', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['11\t65\t65', '13\t1000\t36']
+
+    def test_ebhscr_lin_time_state(self, cmd_tshark, capture_file, test_env):
+        '''LIN PID, data and checksum (data is empty for a 2 octet
+        payload), and time state values shown only with their valid bit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {20,22,23}',
+                '-Tfields', '-eframe.number', '-eebhscr.lin.payload.pid',
+                '-eebhscr.lin.payload.data', '-eebhscr.lin.payload.checksum',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t0x92\t01 02 03 04\t0x55',
+            '22\t0x3c\t<MISSING>\t0xff',
+            '23\t0x01\t00 00 00 00 00 00 00 00\t0x77',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ebhscr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14,15,17}',
+                '-Tfields', '-eframe.number', '-eebhscr.ts.tsrc', '-eebhscr.ts.off',
+                '-eebhscr.ts.lstoff', '-eebhscr.ts.lstjmp', '-eebhscr.ts.leap',
+                '-eebhscr.ts.syn',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t32\t0x00000000075bcd15\t0xfffffffffffffc18\t0x0000000000001388\t0x0025\t0x0001',
+            '15\t119\t\t\t\t\t',
+            '17\t16\t\t\t\t\t',
+        ]
