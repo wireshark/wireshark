@@ -52419,3 +52419,68 @@ class TestDissectElmi:
             '0x02\t6\t0x07\t\t\t\t\t\t',
             '0x09\t\t\t\t\t\t\t\t',
         ]
+
+
+class TestDissectEnc:
+    def test_enc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ENC, the payload goes to IPv4, IPv6 or data, and
+        no frame is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enc_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'enc:ip:udp:data',
+            'enc:ip:udp:data',
+            'enc:ipv6:udp:data',
+            'enc:ipv6:udp:data',
+            'enc:ip:udp:data',
+            'enc:ip:udp:data',
+            'enc:data',
+            'enc:data',
+            'enc',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('enc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_enc_header(self, cmd_tshark, capture_file, test_env):
+        '''The address family and the flags are read in the byte order of
+        the writer (little endian in frames 1, 3, 5-7 and 9, big endian
+        in 2, 4 and 8); the SPI is always big endian.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enc_coverage.pcap.gz'),
+                '-Tfields', '-eenc.af', '-eenc.spi', '-eenc.flags',
+                '-eenc.flags.payload_enc', '-eenc.flags.payload_auth',
+                '-eenc.flags.payload_compress', '-eenc.flags.header_auth',
+                '-eenc.flags.reserved',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0x00001000\t0x00000800\tFalse\tTrue\tFalse\tFalse\t0x00000000',
+            '2\t0x00001001\t0x00000c00\tTrue\tTrue\tFalse\tFalse\t0x00000000',
+            '24\t0x00002000\t0x00003000\tFalse\tFalse\tTrue\tTrue\t0x00000000',
+            '24\t0x00002001\t0x00003c00\tTrue\tTrue\tTrue\tTrue\t0x00000000',
+            '2\t0x00000000\t0x00000000\tFalse\tFalse\tFalse\tFalse\t0x00000000',
+            '2\t0xffffffff\t0xffffc3ff\tFalse\tFalse\tFalse\tFalse\t0xffffc3ff',
+            '1\t0x00003000\t0x00000800\tFalse\tTrue\tFalse\tFalse\t0x00000000',
+            '4660\t0x00003001\t0x00000000\tFalse\tFalse\tFalse\tFalse\t0x00000000',
+            '1\t0x00003002\t0x00000400\tTrue\tFalse\tFalse\tFalse\t0x00000000',
+        ]
+
+    def test_enc_summary(self, cmd_tshark, capture_file, test_env):
+        '''The protocol item names the address family and the SPI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('enc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,4,8}',
+                '-V', '-O', 'enc',
+            ), encoding='utf-8', env=test_env)
+        assert [l for l in stdout.splitlines() if l.startswith('Enc ')] == [
+            'Enc IPv4, SPI 0x00001001',
+            'Enc IPv6, SPI 0x00002001',
+            'Enc unknown (4660), SPI 0x00003001',
+        ]
