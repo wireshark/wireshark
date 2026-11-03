@@ -51574,3 +51574,108 @@ class TestDissectEgd:
             'Status: Configured exchange deleted. (30)',
             'Status: Unknown (5)',
         ]
+
+
+class TestDissectEms:
+    def test_ems_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The EMS text file is read by the wiretap EMS reader; every
+        record is EMS, the L1 and L5 messages go to SBAS L1 and L5. No
+        record is malformed or has an error expert info, in one and two
+        passes (MT 0 gives two "MT is 0" warnings). The last record has
+        no message octets, so nothing follows EMS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ems_coverage.ems.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'ems:sbas_l1:sbas_l1',
+            'ems:sbas_l1:sbas_l1',
+            'ems:sbas_l1:sbas_l1',
+            'ems:sbas_l1:sbas_l1',
+            'ems:sbas_l5:sbas_l5',
+            'ems:sbas_l5:sbas_l5',
+            'ems:sbas_l5:sbas_l5',
+            'ems:sbas_l1:sbas_l1',
+            'ems:data',
+            'ems:data',
+            'ems',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ems_coverage.ems.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ems_coverage.ems.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['3\tMT is 0', '7\tMT is 0']
+
+    def test_ems_records(self, cmd_tshark, capture_file, test_env):
+        '''The fields of L1 records (one and two digit MT columns) and L5
+        or non-standard records (service flag, bit count, MT), and the
+        hex message decoded to bytes: 32 octets for L1 and for 250 bits,
+        2 octets for 16 and for 9 bits, none for 0 bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ems_coverage.ems.gz'),
+                '-Tfields', '-eems.prn', '-eems.year', '-eems.month',
+                '-eems.day', '-eems.hour', '-eems.minute', '-eems.second',
+                '-eems.svc_flag', '-eems.nof_bits', '-eems.mt', '-eems.nof',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:10] for l in lines] == [
+            ['123', '24', '03', '15', '12', '00', '00', '', '', '63'],
+            ['123', '24', '03', '15', '12', '00', '01', '', '', '1'],
+            ['136', '24', '03', '15', '12', '00', '02', '', '', '0'],
+            ['136', '24', '03', '15', '12', '00', '03', '', '', '9'],
+            ['123', '24', '03', '15', '12', '00', '04.000000', 'L5', '00FA', '63'],
+            ['126', '24', '03', '15', '12', '00', '05.500000', 'L5', '00FA', '31'],
+            ['126', '24', '03', '15', '12', '00', '06.999999', 'L5', '00FA', '00'],
+            ['148', '24', '03', '15', '12', '00', '07.250000', 'L1', '00FA', '63'],
+            ['158', '24', '03', '15', '12', '00', '08.000001', 'XX', '0010', '01'],
+            ['120', '24', '03', '15', '12', '00', '09.000002', 'E5', '0009', '62'],
+            ['120', '25', '12', '31', '23', '59', '59.000003', 'ZZ', '0000', '02'],
+        ]
+        assert [len(l[10]) // 2 for l in lines] == [32] * 8 + [2, 2, 0]
+        assert lines[1][10] == '5307fffffffc0000000000000000000000000000000000000000000049c73640'
+        assert lines[8][10] == 'a5c3'
+        assert lines[9][10] == '8001'
+
+    def test_ems_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''The wiretap reader takes the record time (with the fraction of
+        L5 records) as the frame time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ems_coverage.ems.gz'),
+                '-Tfields', '-eframe.time_epoch',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '1710504000.000000000', '1710504001.000000000',
+            '1710504002.000000000', '1710504003.000000000',
+            '1710504004.000000000', '1710504005.500000000',
+            '1710504006.999999000', '1710504007.250000000',
+            '1710504008.000001000', '1710504009.000002000',
+            '1767225599.000003000',
+        ]
+
+    def test_ems_sbas(self, cmd_tshark, capture_file, test_env):
+        '''The decoded messages reach SBAS L1 and L5 with the right MT
+        and a correct CRC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ems_coverage.ems.gz'),
+                '-Y', 'sbas_l1 || sbas_l5',
+                '-Tfields', '-eframe.number', '-esbas_l1.mt', '-esbas_l5.mt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t63\t', '2\t1\t', '3\t0\t', '4\t9\t',
+            '5\t\t63', '6\t\t31', '7\t\t0', '8\t63\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ems_coverage.ems.gz'),
+                '-V', '-O', 'sbas_l1,sbas_l5',
+            ), encoding='utf-8', env=test_env)
+        crcs = [l for l in stdout.splitlines() if 'Checksum:' in l]
+        assert len(crcs) == 8
+        assert all(l.endswith('[correct]') for l in crcs)
