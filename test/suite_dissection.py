@@ -44070,3 +44070,99 @@ class TestDissectDmp:
             ), encoding='utf-8', env=test_env)
         assert 'ASN.1 BER-encoded OR-name (/C=NO/A= /O=ACME1/)' in stdout
         assert 'Recipient Number 1120 (offset from previous: 1100), Direct Address: 200' in stdout
+
+
+class TestDissectDmx:
+    def test_dmx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every start code reaches its dissector and no frame is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmx_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 14
+        assert protocols.count('DMX Channels') == 5
+        assert protocols.count('DMX Text') == 2
+        assert protocols.count('DMX Test Frame') == 3
+        assert protocols.count('DMX SIP') == 3
+        assert protocols.count('DMX') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('dmx_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_dmx_test_frame_items(self, cmd_tshark, capture_file, test_env):
+        '''The Data Good and Data Bad items of a test frame cover the
+        test data (they were placed past the end of the frame before
+        "DMX: Put the Test Frame result items on the test data").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmx_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,8,9}',
+                '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        items = []
+        for line in stdout.splitlines():
+            line = line.strip()
+            if line.startswith(('<field name="dmx_test.data_good"', '<field name="dmx_test.data_bad"')):
+                attrs = dict(a.split('="', 1) for a in line[len('<field '):].split('" ') if '="' in a)
+                items.append((attrs['name'][len('dmx_test.'):], attrs['size'], attrs['pos'], attrs['show']))
+        assert items == [
+            ('data_good', '512', '13', 'True'), ('data_bad', '512', '13', 'False'),
+            ('data_good', '512', '13', 'False'), ('data_bad', '512', '13', 'True'),
+            ('data_good', '16', '13', 'False'), ('data_bad', '16', '13', 'True'),
+        ]
+
+    def test_dmx_fields(self, cmd_tshark, capture_file, test_env):
+        '''Text frames, test frame results and SIP checksums, reserved
+        octets and trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmx_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-edmx.start_code',
+                '-edmx_text.page_nr', '-edmx_text.line_length',
+                '-edmx_text.string', '-edmx_sip.byte_count',
+                '-edmx_sip.checksum.status', '-edmx_sip.reserved',
+                '-edmx_sip.trailer', '-edmx_test.data_good',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[4:13] == [
+            '5\t0x17\t1\t20\tHello DMX text page\t\t\t\t\t',
+            '6\t0x17\t0\t0\t\t\t\t\t\t',
+            '7\t0x55\t\t\t\t\t\t\t\tTrue',
+            '8\t0x55\t\t\t\t\t\t\t\tFalse',
+            '9\t0x55\t\t\t\t\t\t\t\tFalse',
+            '10\t0xcf\t\t\t\t22\t1\t\t\t',
+            '11\t0xcf\t\t\t\t26\t1\taabbccdd\t010203\t',
+            '12\t0xcf\t\t\t\t0\t1\t\t\t',
+            '13\t0x91\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_dmx_channels(self, cmd_tshark, capture_file, test_env):
+        '''Channel levels in rows of 16, as percent ("FL" for full) and
+        in hexadecimal and decimal with other column counts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dmx_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,3}', '-V', '-O', 'dmx_chan',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.strip() for l in stdout.splitlines() if l.startswith('    0x')]
+        assert len(rows) == 32 + 2 + 1
+        assert ' '.join(rows[0].split()) == '0x001: 0% 0% 0% 1% 1% 1% 2% 2% 3% 3% 3% 4% 4% 5% 5% 5%'
+        assert rows[15].split()[-1] == 'FL'
+        assert ' '.join(rows[33].split()) == '0x011: 69% 73% 77% 81% 86% 90% 94% 99%'
+        assert ' '.join(rows[34].split()) == '0x001: FL'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'dmx_chan.dmx_disp_chan_val_type:dec',
+                '-o', 'dmx_chan.dmx_disp_chan_nr_type:dec',
+                '-o', 'dmx_chan.dmx_disp_col_count:6',
+                '-r', capture_file('dmx_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V', '-O', 'dmx_chan',
+            ), encoding='utf-8', env=test_env)
+        rows = [' '.join(l.split()) for l in stdout.splitlines()[4:]]
+        assert rows[:4] == [
+            '1: 0 11 22 33 44 55',
+            '7: 66 77 88 99 110 121',
+            '13: 132 143 154 165 176 187',
+            '19: 198 209 220 231 242 253',
+        ]
