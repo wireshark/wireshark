@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/etypes.h>
 #include "packet-snmp.h"
 
@@ -42,6 +43,7 @@ static int dvb_s2_rcs_version = DVB_S2_RCS2_TABLE_DECODING;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_table;
+static int proto_snmp;
 static int hf_dvb_s2_table_id;
 static int hf_dvb_s2_table_section;
 static int hf_dvb_s2_table_private;
@@ -514,6 +516,8 @@ static int ett_dvb_s2_hdr_table_pt_ms;
 static int ett_dvb_s2_hdr_table_pt_ms_exclusion;
 static int ett_dvb_s2_hdr_tbtp_frame;
 static int ett_dvb_s2_hdr_tbtp_frame_btp;
+
+static expert_field ei_dvb_s2_table_assign_format_unknown;
 
 static const value_string table_modcods[] = {
     { 0, "DUMMY PLFRAME"},
@@ -1367,7 +1371,7 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 }
                 break;
             case (DVB_S2_TABLE_DESC_NETWORK_LAYER_INFO):
-                dissect_snmp_pdu(tvb, cur_off + new_off, pinfo, dvb_s2_hdr_table_desc_tree, 1, ett_dvb_s2_hdr_table_desc, false);
+                dissect_snmp_pdu(tvb, cur_off + new_off, pinfo, dvb_s2_hdr_table_desc_tree, proto_snmp, ett_dvb_s2_hdr_table_desc, false);
                 new_off += desc_length;
                 break;
             case (DVB_S2_TABLE_DESC_CORRECTION_CONTROL):
@@ -1631,7 +1635,7 @@ static int dissect_dvb_s2_table_tbtp(tvbuff_t *tvb, int cur_off, proto_tree *dvb
 }
 
 
-static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, uint16_t table_len)
+static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dvb_s2_hdr_table_tree, uint16_t table_len, packet_info *pinfo)
 {
     int frame_loop_count, frame_start_offset, assign_start_offset, cur_frame, cur_assign, new_off = 0;
     uint16_t assignment_loop_count;
@@ -1648,8 +1652,16 @@ static int dissect_dvb_s2_table_tbtp2(tvbuff_t *tvb, int cur_off, proto_tree *dv
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_superframe_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
     assignment_format = tvb_get_uint8(tvb, cur_off + new_off);
-    proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_assign_format, tvb, cur_off + new_off, 1, ENC_NA);
+    ti = proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_assign_format, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
+    switch (assignment_format) {
+        case 0: case 1: case 2: case 3: case 10: case 11: case 12:
+            break;
+        default:
+            /* The size of an assignment entry is unknown: the loop cannot be walked */
+            expert_add_info(pinfo, ti, &ei_dvb_s2_table_assign_format_unknown);
+            return (table_len - DVB_S2_TABLE_HEADER_RCS2_LEN);
+    }
     frame_loop_count = tvb_get_uint8(tvb, cur_off + new_off);
     proto_tree_add_item(dvb_s2_hdr_table_tree, hf_dvb_s2_table_frame_loop_count, tvb, cur_off + new_off, 1, ENC_NA);
     new_off += 1;
@@ -2436,7 +2448,7 @@ static int dissect_dvb_s2_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             dissect_dvb_s2_table_tim(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, dvb_s2_isUnicast, pinfo);
             break;
         case DVB_S2_TABLE_TBTP2:
-            dissect_dvb_s2_table_tbtp2(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len);
+            dissect_dvb_s2_table_tbtp2(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len, pinfo);
             break;
         case DVB_S2_TABLE_TBTP:
             dissect_dvb_s2_table_tbtp(tvb, cur_off + new_off, dvb_s2_hdr_table_tree, data_len);
@@ -3949,7 +3961,7 @@ void proto_register_dvb_s2_table(void)
         },
         {&hf_dvb_s2_table_ripd_route_id_loop_count, {
                 "Route id loop count", "dvb-s2_table.desc.network_touing.ripd_route_id_loop_count",
-                FT_UINT8, BASE_DEC, NULL, 0x01,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_ripd_route_id, {
@@ -4551,6 +4563,12 @@ void proto_register_dvb_s2_table(void)
         &ett_dvb_s2_hdr_table_pt_ms_exclusion,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_dvb_s2_table_assign_format_unknown,
+          { "dvb-s2_table.assign_format.unknown", PI_PROTOCOL, PI_WARN,
+            "Unknown assignment format, assignments not dissected", EXPFILL }},
+    };
+
     static const enum_val_t rcs_version[] = {
         { "RCS",  "RCS protocol" , DVB_S2_RCS_TABLE_DECODING },
         { "RCS2", "RCS2 protocol", DVB_S2_RCS2_TABLE_DECODING },
@@ -4563,6 +4581,10 @@ void proto_register_dvb_s2_table(void)
     proto_register_field_array(proto_dvb_s2_table, hf_table, array_length(hf_table));
     proto_register_subtree_array(ett_table, array_length(ett_table));
 
+    expert_module_t *expert_dvb_s2_table;
+    expert_dvb_s2_table = expert_register_protocol(proto_dvb_s2_table);
+    expert_register_field_array(expert_dvb_s2_table, ei, array_length(ei));
+
     dvb_s2_table_module = prefs_register_protocol(proto_dvb_s2_table, proto_reg_handoff_dvb_s2_table);
 
     prefs_register_enum_preference(dvb_s2_table_module, "rcs_protocol",
@@ -4574,7 +4596,7 @@ void proto_register_dvb_s2_table(void)
 
 void proto_reg_handoff_dvb_s2_table(void)
 {
-
+    proto_snmp = proto_get_id_by_filter_name("snmp");
 }
 
 /*
