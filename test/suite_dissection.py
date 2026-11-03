@@ -51239,3 +51239,204 @@ class TestDissectEdhoc:
         assert stdout.splitlines()[-3:] == [
             '47\tMessage not decrypted', '49\tMessage not decrypted', '52\tMessage not decrypted',
         ]
+
+
+class TestDissectEdonkey:
+    def test_edonkey_protocols(self, cmd_tshark, capture_file, test_env):
+        '''186 frames are eDonkey (TCP 4661/4662, UDP 4665/4672); the TCP
+        continuation segments of a reassembled message, two TCP segments
+        and a UDP datagram that are not eDonkey are left to TCP and UDP.
+        No frame is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 191
+        assert protocols.count('eDonkey') == 186
+        assert protocols.count('TCP') == 4
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('edonkey_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            # with the whole tree built (integer fields of the wrong
+            # length only show up then)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('edonkey_coverage.pcap.gz'),
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Expert Info' not in stdout
+            assert 'Malformed' not in stdout
+
+    def test_edonkey_kademlia_publish_sourcetype(self, cmd_tshark, capture_file, test_env):
+        '''The KADEMLIA_PUBLISH_REQ of frame 172 ends with a SOURCETYPE tag
+        after a BSOB tag: the pre-scan steps over the BSOB by its own
+        length and the message is dissected as a source publish (file ID
+        and peer ID). Before the fix the BSOB length was read at the start
+        of the message, the pre-scan ended on the wrong octet and the
+        message was shown as a keyword publish. Frame 173 is a keyword
+        publish.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.message.type == 0x40 && edonkey.protocol == 0xe4',
+                '-Tfields', '-eframe.number', '-eedonkey.kademlia.file.id',
+                '-eedonkey.kademlia.keyword.hash', '-eedonkey.kademlia.peer.id',
+                '-eedonkey.kademlia.tag.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '172\t00000000000000000000000000000000\t\tFCF1E6DB281D120754493E3380756A5F\t'
+            '0xf8,0x01,0xfd,0xfe,0xf7,0x02,0x0b,0xff',
+            '173\t1E1308FD4A3F3429766B6055A2978C81\t0D02F7EC392E2318655A4F4491867B70\t\t0x01,0x02',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'frame.number == 172',
+                '-Tfields', '-eedonkey.kademlia.tag.value.bsob',
+                '-eedonkey.kademlia.tag.value.uint8',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '090000\t1'
+
+    def test_edonkey_meta_tags(self, cmd_tshark, capture_file, test_env):
+        '''Meta tags of every type with short (special) and long names in
+        the Hello of frame 1: IP and server version DWORDs by special ID
+        and by name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'edonkey',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('Meta Tag List Size: 19') == 1
+        for expect in (
+                'Meta Tag Name: Part Hash (0x07)',
+                'String: ubuntu-24.04.iso',
+                'Meta Tag Value: 123456789',
+                'IP: 192.0.2.99',
+                'IP: 192.0.2.98',
+                'Meta Tag Name: Server Version (0x91)',
+                'Meta Tag Value: 2.17',
+                'Meta Tag Name: srvversion',
+                'Meta Tag Name: Availability (0x15)',
+                'Meta Tag Name: Parts (0x17)',
+                'Boolean Array Length: 9',
+                'BLOB Length: 3',
+                'Meta Tag Value: 4672',
+                'String: iso!',
+                'String: 0123456789abcdef',
+                'String: name by long id',
+                'Unknown Meta Tag Type (0x80)'):
+            assert expect in lines
+
+    def test_edonkey_hello(self, cmd_tshark, capture_file, test_env):
+        '''A Hello to the server has no user hash length and no server
+        address; a client Hello (0x10, user hash octets 5 and 14 set) has
+        both.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.message.type == 0x01 && edonkey.protocol == 0xe3',
+                '-Tfields', '-eframe.number', '-eedonkey.user_hash_length',
+                '-eedonkey.client_hash', '-eedonkey.ip', '-eedonkey.port',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].split('\t')[0:3] == ['1', '', '111c27323d0e535e69747f8a95a06fb6']
+        assert lines[1] == '33\t16\t88939ea9b40ecad5e0ebf6010c176f2d\t198.51.100.1\t4662,4661'
+
+    def test_edonkey_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one segment (frame 29); a 3008 octet server
+        message over three segments, reassembled in frame 32.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'frame.number == 29 || tcp.reassembled.length',
+                '-Tfields', '-eframe.number', '-eedonkey.message.type',
+                '-etcp.reassembled.length', '-eedonkey.string_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '29\t0x34,0x38\t\t10',
+            '32\t0x38\t3008\t3000',
+        ]
+
+    def test_edonkey_multipacket(self, cmd_tshark, capture_file, test_env):
+        '''eMule multipacket entries: a file request with part status and
+        source count, one followed by another opcode, one without source
+        count, a part count above 442, the answer with file name, status
+        and AICH root hash ending at an unknown opcode, and the extended
+        form.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.emule.multipacket_opcode',
+                '-Tfields', '-eframe.number', '-eedonkey.emule.multipacket_opcode',
+                '-eedonkey.part_count', '-eedonkey.emule.source_count',
+                '-eedonkey.string', '-eedonkey.emule.file_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '83\t0x58,0x4f,0x81,0x9e\t10\t7\t\t',
+            '84\t0x58,0x4f,0x58\t\t\t\t',
+            '85\t0x58,0x81,0x9e\t3\t\t\t',
+            '86\t0x58,0xf4\t\t\t\t',
+            '87\t0x59,0x50,0x9d,0x77\t9\t\tlinux.iso\t',
+            '88\t0x4f,0x81\t\t\t\t5000000000',
+        ]
+
+    def test_edonkey_compressed(self, cmd_tshark, capture_file, test_env):
+        '''eMule compressed TCP messages are inflated and dissected as
+        eDonkey messages (frame 93 holds four octets that are no zlib
+        stream, inflated as far as they go); the protocol octet 0xd4 has
+        no UDP form (frame 118). Kademlia compressed UDP messages are
+        inflated too, and one that cannot be is shown as broken.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.protocol == 0xd4',
+                '-Tfields', '-eframe.number', '-eedonkey.emule.zlib',
+                '-eedonkey.string', '-eedonkey.part_count', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['91', '92', '93', '118']
+        assert lines[0][2] == 'compressed server message ' * 4
+        assert lines[1][3] == '16'
+        assert lines[2][4] == 'eMule Compressed TCP: Server Message'
+        assert lines[3][4] == 'eMule Compressed UDP: Unknown'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.protocol == 0xe5 || edonkey.protocol == 0xa5',
+                '-Tfields', '-eframe.number', '-eedonkey.kademlia.tag.name',
+                '-eedonkey.kademlia.peer.id', '-eedonkey.broken_compressed_data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('188\t0xf8,0x01,0xff,0xf3,0xf7,0xfd\t')
+        assert lines[1].startswith('189\t\t')
+        assert lines[2] == '190\t\t\t789cffffff'
+
+    def test_edonkey_kademlia(self, cmd_tshark, capture_file, test_env):
+        '''Kademlia requests show the XOR distance of target and
+        recipient; the search expression tree of frame 162 nests three
+        boolean operators over a string, a meta tag and 32 and 64 bit
+        conditions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.kademlia.distance',
+                '-Tfields', '-eframe.number', '-eedonkey.kademlia.request.type',
+                '-eedonkey.kademlia.distance',
+            ), encoding='utf-8', env=test_env)
+        dist = ('0011000100011111011100010111001111110001111101110001000100110011'
+                '0001000100101111001100010001001100110001000101110001000101110011')
+        assert stdout.splitlines() == [
+            '155\t0x02\t' + dist, '156\t0x0b\t' + dist, '157\t0x04\t' + dist, '158\t0x55\t' + dist,
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('edonkey_coverage.pcap.gz'),
+                '-Y', 'edonkey.kademlia.search_expression.type',
+                '-Tfields', '-eframe.number', '-eedonkey.kademlia.search_expression.type',
+                '-eedonkey.kademlia.search.bool_op', '-eedonkey.kademlia_string',
+                '-eedonkey.kademlia.search.condition',
+                '-eedonkey.kademlia.search.condition.argument.uint32',
+                '-eedonkey.kademlia.search.condition.argument.uint64',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '162\t0x00,0x01,0x00,0x02,0x00,0x03,0x08\t0x00,0x01,0x02\tdebian\t0x03,0x09\t700\t'
+            '8589934592',
+        ]
