@@ -208,9 +208,11 @@ gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info
      */
 
      /* calculate number of reserved bits */
-    num_res = 8 - (bit_offset & 0x3);
-    proto_tree_add_bits_item(tree, hf_gcsna_tlacReserved, tvb, bit_offset, num_res, ENC_BIG_ENDIAN);
-    bit_offset = bit_offset + num_res;
+    num_res = (8 - (bit_offset & 0x7)) & 0x7;
+    if (num_res) {
+        proto_tree_add_bits_item(tree, hf_gcsna_tlacReserved, tvb, bit_offset, num_res, ENC_BIG_ENDIAN);
+        bit_offset = bit_offset + num_res;
+    }
     *offset = bit_offset >> 3;
 
     proto_tree_add_item(tree, hf_gcsna_tlacEncapsulated, tvb, *offset, -1, ENC_NA);
@@ -237,7 +239,7 @@ static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree
 
 static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    uint16_t cause_val = -1, num_fields = -1, l_offset = -1;
+    uint32_t cause_val = 0, num_fields = 0, l_offset = 0;
     proto_tree *subtree = NULL;
 
     item = proto_tree_add_item(tree, hf_gcsna_servicereject, tvb, *offset, 1, ENC_NA);
@@ -307,7 +309,8 @@ static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, pr
 
     default:
     {
-        proto_tree_add_item(subtree, hf_gcsna_unsupported_reject_seq, tvb, l_offset, -1, ENC_NA);
+        proto_tree_add_item(subtree, hf_gcsna_unsupported_reject_seq, tvb, (l_offset + 7) / 8, -1, ENC_NA);
+        l_offset = tvb_captured_length(tvb) * 8;
         break;
     }
     }
