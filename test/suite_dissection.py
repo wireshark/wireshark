@@ -55807,3 +55807,87 @@ class TestDissectExtremeExeh:
         lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 14',
                 '-Tfields', '-e_ws.expert.message')
         assert lines == ['Ethertype encapsulation nested too deeply']
+
+
+class TestDissectExtrememesh:
+    '''Extreme Mesh (ethertype 0x88A9: Mesh header, MCH, Path Selection,
+    L2 update, probe) from the synthetic capture
+    extrememesh_coverage.pcap.gz.'''
+
+    PS_INFO = {
+        'Extreme Mesh Path Selection Authorization Request': 8,
+        'Extreme Mesh Path Selection Authorization Reply': 8,
+        'Extreme Mesh Path Selection Bind Request': 12,
+        'Extreme Mesh Path Selection Bind Reply': 8,
+        'Extreme Mesh Path Selection Bind Announcement': 8,
+        'Extreme Mesh Path Selection Bind Removed': 8,
+        'Extreme Mesh Path Selection Status Request': 8,
+        'Extreme Mesh Path Selection Status Reply': 8,
+        'Extreme Mesh Path Selection Path Request': 10,
+        'Extreme Mesh Path Selection Path Reply': 10,
+        'Extreme Mesh Path Selection Path Error': 6,
+        'Extreme Mesh Path Selection Path Reset': 3,
+        'Extreme Mesh Path Selection Proxy Remove': 10,
+        'Extreme Mesh Path Selection Trace Path': 6,
+        'Extreme Mesh Path Selection Proxy Error': 8,
+        'Extreme Mesh L2 Update': 3,
+        'Extreme Mesh Probe Message': 3,
+    }
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_extrememesh_frames(self, cmd_tshark, capture_file, test_env):
+        '''150 frames, all with Extreme Mesh; every path selection frame
+        type, L2 update and probe is shown; no malformed packets and no
+        error expert infos in one and two passes.'''
+        cap = capture_file('extrememesh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'extrememesh',
+                '-Tfields', '-e_ws.col.info')
+        assert len(lines) == 150
+        for info, n in self.PS_INFO.items():
+            assert lines.count(info) == n, info
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, cap, test_env, *passes, '-Y',
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_extrememesh_mch_fields(self, cmd_tshark, capture_file, test_env):
+        '''MCH header values of frames 8-10 (an Ethernet frame inside).'''
+        cap = capture_file('extrememesh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y',
+                'frame.number >= 8 && frame.number <= 10', '-Tfields',
+                '-eextrememesh.mch.version', '-eextrememesh.mch.lq',
+                '-eextrememesh.mch.htl', '-eextrememesh.mch.priority',
+                '-eextrememesh.mch.src')
+        assert lines == ['0x01\t0xc8\t0x05\t0x03\t02:00:00:00:00:0d',
+                         '0x02\t0x00\t0x00\t0x07\t02:00:00:00:00:0d',
+                         '0x01\t0xff\t0xff\t0x00\t02:00:00:00:00:0d']
+
+    def test_extrememesh_counts(self, cmd_tshark, capture_file, test_env):
+        '''Probe ballast lengths and the destination and hop counts.'''
+        cap = capture_file('extrememesh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y',
+                'extrememesh.probe.ballast_len', '-Tfields', '-eextrememesh.probe.ballast_len')
+        assert lines == ['0x000a', '0x0000', '0x0003']
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y',
+                'extrememesh.ps.perr.dest_count', '-Tfields', '-eframe.number',
+                '-eextrememesh.ps.perr.dest_count')
+        assert lines == ['113\t0x00', '114\t0x00', '115\t0x01', '116\t0x01',
+                         '117\t0x04', '118\t0x04']
+
+    def test_extrememesh_mch_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Frame 150 nests 600 MCH headers. The nesting is limited with a
+        warning instead of recursing to the end of the packet
+        ("extrememesh: Limit the nesting of MCH headers").'''
+        cap = capture_file('extrememesh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 150',
+                '-Tfields', '-e_ws.expert.message')
+        assert lines == ['Too many nested MCH headers']
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number')
+        assert lines == ['150']
