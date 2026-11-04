@@ -21,6 +21,8 @@
 #include <epan/decode_as.h>
 #include <epan/capture_dissectors.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 #include "packet-eth.h"
 #include "packet-ppp.h"
 
@@ -29,6 +31,14 @@ void proto_register_ethertype(void);
 static dissector_table_t ethertype_dissector_table;
 
 static int proto_ethertype;
+
+static expert_field ei_ethertype_nesting;
+
+/* Stop this many layers before the layer limit of the core, so that
+ * nested encapsulations (Ethernet in Ethernet, E-Tag, EtherIP, ...) end
+ * with an expert info instead of an assertion.  Dissectors that check
+ * the depth themselves use a larger margin and stop first. */
+#define ETHERTYPE_DEPTH_MARGIN 8
 
 const value_string etype_vals[] = {
 	{ ETHERTYPE_IP,                   "IPv4" },
@@ -298,27 +308,32 @@ dissect_ethertype(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	   was reduced by some dissector before an exception was thrown,
 	   we can still put in an item for the trailer. */
 	saved_proto = pinfo->current_proto;
-	TRY {
-		dissector_found = dissector_try_uint(ethertype_dissector_table,
-						     ethertype_data->etype, next_tvb, pinfo, tree);
-	}
-	CATCH_NONFATAL_ERRORS {
-		/* Somebody threw an exception that means that there
-		   was a problem dissecting the payload; that means
-		   that a dissector was found, so we don't need to
-		   dissect the payload as data or update the protocol
-		   or info columns.
-
-		   Just show the exception and then drive on to show
-		   the trailer, after noting that a dissector was found
-		   and restoring the protocol value that was in effect
-		   before we called the subdissector. */
-		show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
-
+	if (wmem_list_count(pinfo->layers) + ETHERTYPE_DEPTH_MARGIN >= prefs.gui_max_tree_depth) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ethertype_nesting, next_tvb, 0);
 		dissector_found = 1;
-		pinfo->current_proto = saved_proto;
+	} else {
+		TRY {
+			dissector_found = dissector_try_uint(ethertype_dissector_table,
+							     ethertype_data->etype, next_tvb, pinfo, tree);
+		}
+		CATCH_NONFATAL_ERRORS {
+			/* Somebody threw an exception that means that there
+			   was a problem dissecting the payload; that means
+			   that a dissector was found, so we don't need to
+			   dissect the payload as data or update the protocol
+			   or info columns.
+
+			   Just show the exception and then drive on to show
+			   the trailer, after noting that a dissector was found
+			   and restoring the protocol value that was in effect
+			   before we called the subdissector. */
+			show_exception(next_tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+			dissector_found = 1;
+			pinfo->current_proto = saved_proto;
+		}
+		ENDTRY;
 	}
-	ENDTRY;
 
 	if (!dissector_found) {
 		/* No sub-dissector found.
@@ -416,6 +431,11 @@ proto_register_ethertype(void)
 	/* Decode As handling */
 	static build_valid_func eth_da_build_value[1] = {eth_value};
 	static decode_as_value_t eth_da_values = {eth_prompt, 1, eth_da_build_value};
+	static ei_register_info ei[] = {
+		{ &ei_ethertype_nesting, { "ethertype.nesting_too_deep", PI_UNDECODED, PI_WARN,
+			"Ethertype encapsulation nested too deeply", EXPFILL }},
+	};
+	expert_module_t *expert_ethertype;
 	static decode_as_t ethertype_da = {"ethertype", "ethertype", 1, 0, &eth_da_values, NULL, NULL,
 										decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL, NULL, NULL };
 
@@ -423,6 +443,8 @@ proto_register_ethertype(void)
 	proto_ethertype = proto_register_protocol("Ethertype", "Ethertype", "ethertype");
 	/* This isn't a real protocol, so you can't disable its dissection. */
 	proto_set_cant_toggle(proto_ethertype);
+	expert_ethertype = expert_register_protocol(proto_ethertype);
+	expert_register_field_array(expert_ethertype, ei, array_length(ei));
 
 	register_dissector("ethertype", dissect_ethertype, proto_ethertype);
 
