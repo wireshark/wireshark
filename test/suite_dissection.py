@@ -56824,3 +56824,94 @@ class TestDissectFcfzs:
         assert [rows[str(n)][0] for n in range(68, 99, 2)] == \
             ['0x01', '0x01', '0x02'] + ['0x03'] * 11 + ['0x04', '0x09']
         assert [rows[str(n)][2] for n in range(68, 99, 2)] == details
+
+
+class TestDissectFcgi:
+    '''FastCGI over TCP port 9000 (FCGI has no default port, so the tests
+    use -d tcp.port==9000,fcgi), from the synthetic capture
+    fcgi_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fcgi_opts():
+        return ('-d', 'tcp.port==9000,fcgi')
+
+    def test_fcgi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames are FCGI (frames 23, 24 and 28 are TCP segments that hold
+        the start of a record reassembled in frames 25 and 29), with
+        no malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 34
+        assert protocols.count('FCGI') == 31
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.fcgi_opts(),
+                    '-r', capture_file('fcgi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcgi_end_request_status(self, cmd_tshark, capture_file, test_env):
+        '''The protocol status of END_REQUEST is a one octet field (it was
+        registered as FT_UINT32 before "FCGI: Make the end request
+        protocol status a one byte field").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Y', 'fcgi.end_request.protocol_status',
+                '-Tfields', '-eframe.number', '-efcgi.end_request.app_status',
+                '-efcgi.end_request.protocol_status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t0\t0', '15\t1\t1', '16\t4294967295\t2',
+            '17\t16909060\t3', '18\t7\t119', '34\t0\t0']
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 16', '-V', '-O', 'fcgi',
+            ), encoding='utf-8', env=test_env)
+        assert '        Protocol Status: FCGI_OVERLOADED (2)' in stdout.splitlines()
+
+    def test_fcgi_records(self, cmd_tshark, capture_file, test_env):
+        '''Record types, request ids, name/value pairs with one and four
+        octet lengths, records sharing a segment and records split over
+        segments.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Y', 'fcgi',
+                '-Tfields', '-eframe.number', '-efcgi.type', '-efcgi.id',
+                '-efcgi.content.length', '-efcgi.nv_name',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'] == ['9', '0', '48', 'FCGI_MAX_CONNS,FCGI_MAX_REQS,FCGI_MPXS_CONNS']
+        assert rows['2'][0] == '10'
+        assert rows['4'] == ['4', '1', '282', 'REQUEST_METHOD,SCRIPT_NAME,HTTP_COOKIE,QUERY_STRING']
+        assert rows['22'] == ['1,4,4,5', '5,5,5,5', '8,4,0,2', 'A']
+        assert rows['25'] == ['4', '5', '43', 'SPLIT_NAME']
+        assert rows['29'] == ['6', '5', '300', '']
+        assert rows['30'][0] == '11'
+        assert rows['32'][0] == '99'
+        assert rows['2'][3] == 'FCGI_MAX_CONNS,FCGI_MAX_REQS,FCGI_MPXS_CONNS'
+
+    def test_fcgi_values(self, cmd_tshark, capture_file, test_env):
+        '''GET_VALUES shows the names alone and the result shows
+        "name = value"; roles and the keep connection flag.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 3', '-V', '-O', 'fcgi',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'FCGI_MAX_CONNS' in lines
+        assert 'FCGI_MAX_CONNS = 10' in lines
+        assert 'FCGI_MPXS_CONNS = 0' in lines
+        assert 'Role: FCGI_RESPONDER (1)' in lines
+        assert 'Role: FCGI_RESPONDER (1)' in lines
+        stdout = subprocess.check_output((cmd_tshark, *self.fcgi_opts(),
+                '-r', capture_file('fcgi_coverage.pcap.gz'),
+                '-Y', 'fcgi.begin_request.keep_conn == 1',
+                '-Tfields', '-eframe.number', '-efcgi.begin_request.role',
+                '-efcgi.begin_request.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['3\t1\t0x01', '21\t9\t0x81']
