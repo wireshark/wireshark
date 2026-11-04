@@ -25,6 +25,8 @@
 void proto_reg_handoff_fortinet_fgcp(void);
 void proto_register_fortinet_fgcp(void);
 
+static expert_field ei_fortinet_fgcp_hb_bad_length;
+
 static int proto_fortinet_fgcp_hb;
 static int hf_fortinet_fgcp_hb_magic;
 static int hf_fortinet_fgcp_hb_flag;
@@ -205,6 +207,11 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (flags & 0x02) { /* Authentication ? */
         /* the payload finish with 32bits of authentication (hash ?) */
         auth_len = 32;
+        if (tvb_reported_length_remaining(tvb, offset) < auth_len) {
+            proto_tree_add_expert_format_remaining(fortinet_hb_tree, pinfo, &ei_fortinet_fgcp_hb_bad_length, tvb, offset,
+                "Payload too short for the authentication field");
+            return tvb_captured_length(tvb);
+        }
     }
 
     if (flags & 0x01) { /* Encrypted Payload ?*/
@@ -230,6 +237,13 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
 
                 proto_item_append_text(ti_tlv, ": (t=%u,l=%d) %s", type, len, val_to_str_const(type, fortinet_fgcp_hb_tlv_vals ,"Unknown type") );
+                if (len > next_offset - offset) {
+                    proto_tree_add_expert_format_remaining(tlv_tree, pinfo, &ei_fortinet_fgcp_hb_bad_length, tvb, offset,
+                        "TLV length %u exceeds the remaining payload", len);
+                    proto_item_set_len(ti_tlv, 2 + 2);
+                    offset = next_offset;
+                    break;
+                }
                 proto_item_set_len(ti_tlv, 2 + 2 + len);
 
                 proto_tree_add_item(tlv_tree, hf_fortinet_fgcp_hb_tlv_value, tvb, offset, len, ENC_NA);
@@ -274,6 +288,11 @@ dissect_fortinet_fgcp_hb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     unsigned    coffset = 0;
                     proto_item *ti_interface;
                     proto_tree *interface_tree;
+                    if (len < 2) {
+                        proto_tree_add_expert(tlv_tree, pinfo, &ei_fortinet_fgcp_hb_bad_length, tvb, offset, len);
+                        offset += len;
+                        break;
+                    }
                     proto_tree_add_item_ret_uint(tlv_tree, hf_fortinet_fgcp_hb_tlv_interface_inventory_number, tvb, offset, 2, ENC_LITTLE_ENDIAN, &number);
                     offset += 2;
                     compressed_tvb = tvb_child_uncompress_zlib(tvb, tvb, offset, len-2);
@@ -357,6 +376,11 @@ dissect_fortinet_fgcp_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 void
 proto_register_fortinet_fgcp(void)
 {
+    expert_module_t *expert_fgcp;
+
+    static ei_register_info ei[] = {
+        { &ei_fortinet_fgcp_hb_bad_length, { "fortinet_fgcp.hb.bad_length", PI_MALFORMED, PI_ERROR, "Bad length", EXPFILL }},
+    };
 
     static hf_register_info hf[] = {
         /* HeartBeat */
@@ -588,6 +612,8 @@ proto_register_fortinet_fgcp(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_fortinet_fgcp_hb, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fgcp = expert_register_protocol(proto_fortinet_fgcp_hb);
+    expert_register_field_array(expert_fgcp, ei, array_length(ei));
 
     fortinet_fgcp_hb_handle = register_dissector("fortinet_fgcp_hb", dissect_fortinet_fgcp_hb,
             proto_fortinet_fgcp_hb);
