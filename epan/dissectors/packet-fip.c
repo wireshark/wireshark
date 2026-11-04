@@ -258,6 +258,7 @@ static int ett_fip_dt_fc4f_types;
 static int ett_fip_dt_fcp_feat;
 
 static expert_field ei_fip_descriptors;
+static expert_field ei_fip_desc_len;
 
 static dissector_handle_t fc_handle;
 
@@ -275,6 +276,35 @@ fip_desc_type_len(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, uint8_t d
     proto_tree_add_item(ret_tree, hf_fip_desc_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 
     return ret_tree;
+}
+
+/*
+ * Minimum descriptor length in bytes, including type and length, for each type.
+ */
+static unsigned
+fip_desc_min_len(uint8_t dtype)
+{
+    switch (dtype) {
+    case FIP_DT_MAC:
+        return 8;
+    case FIP_DT_MAP_OUI:
+        return 8;
+    case FIP_DT_NAME:
+        return 12;
+    case FIP_DT_FAB:
+        return 16;
+    case FIP_DT_VN:
+        return 20;
+    case FIP_DT_FKA:
+        return 8;
+    case FIP_DT_VEND:
+        return 12;
+    case FIP_DT_FC4F:
+        return 44;
+    default:
+        /* Type and length, plus the 16 bit value of the short types. */
+        return 4;
+    }
 }
 
 /*
@@ -341,6 +371,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     unsigned    dtype;
     unsigned    dlen;
     unsigned    desc_offset;
+    unsigned    min_dlen;
     unsigned    val;
     tvbuff_t   *desc_tvb;
     const char *info;
@@ -434,6 +465,14 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         desc_offset += dlen;
         rlen -= dlen;
 
+        min_dlen = fip_desc_min_len(dtype);
+        if (dlen < min_dlen) {
+            /* Too short for its type; don't read past its end. */
+            subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_unk, &item);
+            proto_tree_add_expert(subtree, pinfo, &ei_fip_desc_len, desc_tvb, 0, dlen);
+            continue;
+        }
+
         switch (dtype) {
         case FIP_DT_PRI:
             subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_pri, &item);
@@ -510,9 +549,9 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             subtree = fip_desc_type_len(fip_tree, pinfo, desc_tvb, dtype, ett_fip_dt_vend, &item);
             proto_tree_add_item(subtree, hf_fip_desc_vend, desc_tvb,
                     4, 8, ENC_NA);
-            if (tvb_reported_length_remaining(desc_tvb, 9)) {
+            if (tvb_reported_length_remaining(desc_tvb, 12) > 0) {
                 proto_tree_add_item(subtree, hf_fip_desc_vend_data,
-                     desc_tvb, 9, -1, ENC_NA);
+                     desc_tvb, 12, -1, ENC_NA);
             }
             break;
         case FIP_DT_VLAN:
@@ -788,6 +827,7 @@ proto_register_fip(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_fip_desc_len, { "fip.desc.length_too_short", PI_MALFORMED, PI_ERROR, "Descriptor length too short for its type", EXPFILL }},
         { &ei_fip_descriptors, { "fip.descriptors.length_error", PI_MALFORMED, PI_ERROR, "Descriptor [length error]", EXPFILL }},
     };
 
