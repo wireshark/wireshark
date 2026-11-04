@@ -57025,3 +57025,68 @@ class TestDissectFcip:
         assert rows['44'][:3] == ['FCP', '28674,28675', '0x0703,0x0704']
         assert rows['46'][0] == 'FCIP'
         assert rows['48'][1:3] == ['28676', '0x0705'] and rows['49'][1:3] == ['28677', '0x0706']
+
+
+class TestDissectFclctl:
+    '''FC Link Control frames (R_CTL 0xC0-0xCF) carried in FCoE, from the
+    synthetic capture fclctl_coverage.pcap.gz: ACK, P_RJT, F_RJT with
+    every reject reason, P_BSY, F_BSY and reserved codes.'''
+
+    def test_fclctl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 57 frames are FC link control frames, with no malformed
+        packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fclctl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert len(infos) == 57
+        assert all(l.startswith('FC\t') for l in stdout.splitlines())
+        assert infos.count('Link Ctl, P_RJT') == 19
+        assert infos.count('Link Ctl, F_RJT') == 19
+        assert infos.count('Link Ctl, P_BSY') == 6
+        assert infos.count('Link Ctl, F_BSY (Data frame)') == 3
+        assert infos.count('Link Ctl, F_BSY (Link Ctl)') == 3
+        assert infos[0:5] == ['Link Ctl, ACK1', 'Link Ctl, ACK0',
+            'Link Ctl, LCR', 'Link Ctl, NTY', 'Link Ctl, END']
+        assert infos[-2:] == ['Link Ctl, LCTL 0xa', 'Link Ctl, LCTL 0xf']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fclctl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fclctl_reject_reasons(self, cmd_tshark, capture_file, test_env):
+        '''The parameter of P_RJT and F_RJT names the action code and the
+        reason; unknown values are shown in hex.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fclctl_coverage.pcap.gz'),
+                '-V', '-Y', 'fc.r_ctl == 0xc2 || fc.r_ctl == 0xc3',
+            ), encoding='utf-8', env=test_env)
+        params = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Parameter:')]
+        assert len(params) == 38
+        assert params[0] == 'Parameter: 0x1010000(Retryable Error, Invalid D_ID)'
+        assert params[1] == 'Parameter: 0x2020000(Non-retryable Error, Invalid S_ID)'
+        assert 'Parameter: 0x1030000(Retryable Error, N_Port Not Avail (Temporary))' in params
+        assert 'Parameter: 0x55240000(0x55, PRLI Required)' in params
+        assert 'Parameter: 0x1ff0000(Retryable Error, Vendor Unique Error)' in params
+        assert 'Parameter: 0x21e0000(Non-retryable Error, 1e)' in params
+        assert 'Parameter: 0x1770000(Retryable Error, 77)' in params
+
+    def test_fclctl_busy(self, cmd_tshark, capture_file, test_env):
+        '''P_BSY names the action code and the reason.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fclctl_coverage.pcap.gz'),
+                '-V', '-Y', 'fc.r_ctl == 0xc4',
+            ), encoding='utf-8', env=test_env)
+        params = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Parameter:')]
+        assert params == [
+            'Parameter: 0x1010000(Sequence Marked Busy, Physical N_Port Busy)',
+            'Parameter: 0x2030000(Class 2 Frame Busy, N_Port Resource Busy)',
+            'Parameter: 0x1070000(Sequence Marked Busy, Partial Multicast Busy)',
+            'Parameter: 0x2ff0000(Class 2 Frame Busy, Vendor unique Busy)',
+            'Parameter: 0x9010000(0x9, Physical N_Port Busy)',
+            'Parameter: 0x1550000(Sequence Marked Busy, 0x55)',
+        ]
