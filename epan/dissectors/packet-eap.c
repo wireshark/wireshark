@@ -1557,15 +1557,15 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int 
       offset += len;
       break;
   }
-  return offset - start_offset;
+  return (int)(offset - start_offset);
 }
 
 static void
-dissect_eap_sake_attributes(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int size)
+dissect_eap_sake_attributes(proto_tree *eap_tree, tvbuff_t *tvb, int offset, int end)
 {
   int attr_size;
-  while (offset < size) {
-    attr_size = dissect_eap_sake_attribute(eap_tree, tvb, offset, size);
+  while (offset < end) {
+    attr_size = dissect_eap_sake_attribute(eap_tree, tvb, offset, end - offset);
     if (attr_size == -1) {
       break;
     }
@@ -1578,6 +1578,7 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
 {
   uint32_t version;
   uint32_t subtype;
+  unsigned end = offset + size;
 
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_version, tvb, offset, 1, ENC_NA, &version);
   offset++;
@@ -1595,7 +1596,7 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
     case SAKE_CONFIRM:
     case SAKE_AUTH_REJECT:
     case SAKE_IDENTITY:
-      dissect_eap_sake_attributes(eap_tree, tvb, offset, size + 5 - offset);
+      dissect_eap_sake_attributes(eap_tree, tvb, offset, end);
       break;
     default:
       break;
@@ -1701,12 +1702,15 @@ static int
 dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int size)
 {
   unsigned tlv_type, tlv_len;
+  int tlv_start;
+  int end = offset + size;
   proto_tree *tlv_tree, *tree, *ti_len;
 
   tlv_tree = proto_tree_add_subtree(eap_tree, tvb, offset, size, ett_eap_msauth_tlv,
                                     NULL, "Tag Length Values");
 
 next_tlv:
+  tlv_start = offset;
   tlv_type = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & MSAUTH_TLV_TYPE;
   tlv_len = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
 
@@ -1746,13 +1750,13 @@ next_tlv:
 
   default:
     ti_len = proto_tree_add_item(tree, hf_eap_msauth_tlv_val, tvb, offset, tlv_len, ENC_NA);
-    if (4 + tlv_len > (unsigned)size - offset) {
+    if ((int)tlv_len > end - offset) {
       expert_add_info(pinfo, ti_len, &ei_eap_bad_length);
     }
-    offset += tlv_len;
   }
+  offset = tlv_start + 4 + tlv_len;
 
-  if (offset < size) {
+  if (offset < end) {
     goto next_tlv;
   }
 
@@ -1973,7 +1977,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       case EAP_TYPE_MD5:
       {
         uint8_t     value_size = tvb_get_uint8(tvb, offset);
-        int         extra_len  = size - 1 - value_size;
+        int         extra_len;
         proto_item *item;
 
         /* Warn that this is an insecure EAP type. */
@@ -1985,6 +1989,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           expert_add_info(pinfo, item, &ei_eap_md5_value_size_overflow);
           value_size = size - 1;
         }
+        extra_len = size - 1 - value_size;
 
         offset += 1;
         proto_tree_add_item(eap_tree, hf_eap_md5_value, tvb, offset, value_size, ENC_NA);
@@ -2286,14 +2291,18 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
               case EAP_TYPE_TEAP:
                 if (outer_tlvs) {	/* https://www.rfc-editor.org/rfc/rfc7170.html#section-4.1 */
                   tvbuff_t *teap_tvb = tvb_new_subset_length(tvb, offset + size - outer_tlvs_length, outer_tlvs_length);
+                  increment_dissection_depth(pinfo);
                   call_dissector(teap_handle, teap_tvb, pinfo, eap_tree);
+                  decrement_dissection_depth(pinfo);
                   if (size == outer_tlvs_length) goto skip_tls_dissector;
                   next_tvb = tvb_new_subset_length(next_tvb, 0, size - outer_tlvs_length);
                 }
                 tls_set_appdata_dissector(tls_handle, pinfo, teap_handle);
                 break;
             }
+            increment_dissection_depth(pinfo);
             call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
+            decrement_dissection_depth(pinfo);
           }
         }
       }
@@ -2306,7 +2315,8 @@ skip_tls_dissector:
       **********************************************************************/
       case EAP_TYPE_LEAP:
       {
-        uint8_t count, namesize;
+        uint8_t count;
+        unsigned namesize;
 
         /* Warn that this is an insecure EAP type. */
         expert_add_info(pinfo, eap_type_item, &ei_eap_dictionary_attacks);
@@ -2392,7 +2402,7 @@ skip_tls_dissector:
         offset += count;
 
         /* Name    (Length-(8+Count)) */
-        namesize = eap_len - (8+count);
+        namesize = (eap_len > 8 + count) ? eap_len - (8 + count) : 0;
         proto_tree_add_item(eap_tree, hf_eap_leap_name, tvb, offset, namesize, ENC_ASCII);
       }
 
