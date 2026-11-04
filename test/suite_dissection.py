@@ -55145,3 +55145,87 @@ class TestDissectEtsiCardAppToolkit:
                 '-eframe.number', '-eetsi_cat.comp_tlv.src_dev',
                 '-eetsi_cat.comp_tlv.dst_dev', '-Y', 'frame.number == 103')
         assert lines == ['103\t0x81\t0x83']
+
+
+class TestDissectEtv:
+    @staticmethod
+    def etv_fields(cmd_tshark, capture_file, test_env, name, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name), '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_etv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is DSM-CC (the last dissector called by ETV)
+        except the first fragment of a section split over two frames;
+        none is malformed or has an expert info, in one and two passes.'''
+        lines = self.etv_fields(cmd_tshark, capture_file, test_env,
+                'etv_coverage.pcap.gz', '-e_ws.col.protocol')
+        assert len(lines) == 14
+        assert lines.count('DSM-CC') == 13
+        assert lines[8] == 'MPEG TS'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_etv_filter_info(self, cmd_tshark, capture_file, test_env):
+        '''DII sections carry filter info 0xfbfb, DDB sections a value in
+        0x0001-0xfbef; both appear in the same frame 11.'''
+        lines = self.etv_fields(cmd_tshark, capture_file, test_env,
+                'etv_coverage.pcap.gz', '-eframe.number',
+                '-eetv-dii.filter_info', '-eetv-ddb.filter_info')
+        assert lines == [
+            '1\t0xfbfb\t', '2\t0xfbfb\t', '3\t0xfbfb\t', '4\t0xfbfb\t',
+            '5\t\t0x0001', '6\t\t0xfbef', '7\t\t0x1234', '8\t\t0x0002',
+            '9\t\t', '10\t\t0x0003', '11\t0xfbfb\t0x0009',
+            '12\t\t0x0004', '13\t\t0x0005', '14\t\t0x0006',
+        ]
+
+    def test_etv_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column holds the section length and the filter info,
+        including for sections reassembled over several TS packets or
+        frames (8, 10, 12).'''
+        lines = self.etv_fields(cmd_tshark, capture_file, test_env,
+                'etv_coverage.pcap.gz', '-eframe.number', '-e_ws.col.info')
+        infos = [' '.join(l.split('\t', 1)[1].split()) for l in lines]
+        assert infos[0].endswith('ETV DII, Length: 69, Filter: 0xfbfb')
+        assert infos[7].endswith('ETV DDB, Length: 637, Filter: 0x2')
+        assert infos[9] == 'ETV DDB, Length: 417, Filter: 0x3'
+        assert infos[10].endswith('ETV DII, Length: 69, Filter: 0xfbfb ETV DDB, Length: 40, Filter: 0x9')
+        assert infos[11].endswith('ETV DDB, Length: 1016, Filter: 0x4')
+
+    def test_etv_dsmcc_payload(self, cmd_tshark, capture_file, test_env):
+        '''The part after the filter info goes to DSM-CC: the DII modules
+        and the DDB block.'''
+        lines = self.etv_fields(cmd_tshark, capture_file, test_env,
+                'etv_coverage.pcap.gz', '-eframe.number',
+                '-empeg_dsmcc.dii.module_count', '-empeg_dsmcc.ddb.block_num')
+        assert lines[0] == '1\t1\t'
+        assert lines[1] == '2\t3\t'
+        assert lines[3] == '4\t0\t'
+        assert lines[4] == '5\t\t0x0000'
+
+    def test_etv_short_section(self, cmd_tshark, capture_file, test_env):
+        '''A section_length below 7 (the fixed header) gets an expert info
+        and stops. Before the fix section_length - 7 wrapped around and
+        DSM-CC reported the section as malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etv_short_section.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 6
+        for i, line in enumerate(lines):
+            assert line == '%d\tETV-%s\tInvalid section_length (must be at least 7)' % (
+                i + 1, 'DII' if i % 2 == 0 else 'DDB')
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('etv_short_section.pcap.gz'),
+                '-Y', '_ws.malformed && !etv-dii.section_length_short && !etv-ddb.section_length_short',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
