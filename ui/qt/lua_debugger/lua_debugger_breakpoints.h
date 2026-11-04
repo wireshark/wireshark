@@ -141,19 +141,19 @@ QToolButton *editorPauseToggle(QWidget *editor);
  *  reflected in the text margins. */
 void applyEditorMode(QWidget *editor, int modeIndex);
 
-/** Build a palette-aware "also pause" icon with separate Off / On
- *  variants. The toggled state is signalled by:
+/** Build a palette-aware "also pause" icon of @p side × @p side
+ *  logical pixels with separate Off / On variants. The toggled state
+ *  is signalled by:
  *
- *   - @c QIcon::Off : two solid pause bars in the palette's
- *     @c ButtonText color, on a transparent background. The
- *     @c QToolButton's background stylesheet is also transparent
- *     in this state, so the cell shows the bars on the cell's
- *     own background.
- *   - @c QIcon::On  : two solid bars in @c HighlightedText (white).
- *     The bars sit on top of the @c QToolButton's checked-state
- *     stylesheet background — a rounded @c Highlight-color chip
- *     that fills the whole button, not just the 16×16 icon. */
-QIcon makePauseIcon(const QPalette &palette);
+ *   - @c QIcon::Off : the pause glyph in the palette's @c Text
+ *     color, on a transparent background. The @c QToolButton's
+ *     background stylesheet is also transparent in this state, so
+ *     the cell shows the bars on the cell's own background.
+ *   - @c QIcon::On  : the pause glyph in @c HighlightedText. It sits
+ *     on top of the @c QToolButton's checked-state stylesheet
+ *     background — a rounded @c Highlight-color chip that fills the
+ *     whole button, not just the icon. */
+QIcon makePauseIcon(const QPalette &palette, int side, qreal dpr);
 
 /** Stylesheet for the breakpoint-editor pause toggle: transparent
  *  when unchecked, filled rounded @c Highlight chip when checked. */
@@ -551,15 +551,6 @@ class LuaDebuggerBreakpointsController : public QObject
     QToolButton *removeAllButton_ = nullptr;
     QToolButton *editButton_ = nullptr;
     QAction *removeAllAction_ = nullptr;
-
-    /**
-     * @brief Cached breakpoint header dot icons, indexed by
-     *        @c LuaDbgBpHeaderIconMode (0..2). Recomputed lazily when the
-     *        cache key (editor font + icon size + DPR) changes; without this the
-     *        icon would be regenerated on every cursor move.
-     */
-    QIcon headerIconCache_[3];
-    QString headerIconCacheKey_;
 
     /**
      * @brief True after the first @ref refreshFromEngine pass that ran with

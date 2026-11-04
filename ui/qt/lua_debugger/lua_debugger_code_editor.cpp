@@ -60,6 +60,7 @@
 #include <ui/qt/utils/font_manager.h>
 #include "utils/color_utils.h"
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 
 /* ===== code_palette ===== */
 
@@ -489,7 +490,7 @@ void LuaDebuggerCodeView::setCurrentLine(qint32 line)
 {
     /* The gutter repaints on cursor movement via the updateRequest
      * signal, but the early-return branches below do not move the
-     * cursor, and we need the paused-line yellow arrow (and the
+     * cursor, and we need the paused-line arrow (and the
      * accompanying dimmed breakpoint circle, if any) to appear /
      * disappear whenever pausedExecutionLine_ changes. Request a
      * line-number-area repaint explicitly in every branch. */
@@ -540,7 +541,7 @@ void LuaDebuggerCodeView::clearCurrentLineHighlight()
 {
     pausedExecutionLine_ = -1;
     rebuildLineHighlights();
-    /* Force the gutter to repaint so the paused-line yellow arrow
+    /* Force the gutter to repaint so the paused-line arrow
      * is cleared and any dimmed breakpoint circle returns to full
      * brightness on resume, even when no cursor movement triggers
      * updateRequest. */
@@ -655,12 +656,8 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
             const qint32 lineNo = static_cast<qint32>(blockNumber + 1);
             const bool pausedHere = (pausedExecutionLine_ == lineNo);
 
-            /* Breakpoint circle. On the paused line the red (enabled)
-             * circle is drawn dimmed (reduced alpha) so the overlaid
-             * yellow right-pointing triangle is visually dominant while
-             * the breakpoint itself stays recognizable underneath.
-             * Gray (disabled) circles are not dimmed — the yellow
-             * arrow is the only indicator that is never dimmed.
+            /* Breakpoint circle. On the paused line the continue icon is
+             * drawn on top of it.
              * During a breakpoint drag, skip drawing the source line's
              * breakpoint so the preview at the target is visually distinct. */
             const bool isDragSource = (gutter && gutter->isDraggingBreakpoint() && lineNo == gutter->dragSourceLine());
@@ -670,32 +667,35 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
                 const int32_t state = wslua_debugger_get_breakpoint_state_canonical(canonical, lineNo, &hasExtras);
                 if (state != -1)
                 {
-                    const qint32 radius = fontMetrics().height() / 2 - 2;
-                    const qint32 cx = lineNumberArea->width() - 15;
-                    const qint32 cy = top + 3;
-                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), hasExtras);
+                    const qint32 radius = fontMetrics().height() / 2 - 1;
+                    const qint32 cx = lineNumberArea->width() - 16;
+                    const qint32 cy = top + 2;
+                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), colors.gutterText, hasExtras);
                 }
             }
 
-            /* Yellow right-pointing triangle marks the line the
-             * debugger is paused at. Drawn after (and therefore on
-             * top of) the breakpoint circle, which is dimmed on this
-             * line so the triangle dominates while the breakpoint is
-             * still visible. */
+            /* The continue icon in the theme's warning colour, outlined in
+             * the gutter text colour, marks the line the debugger is paused
+             * at. Drawn after (and therefore on top of) the breakpoint
+             * circle. */
             if (pausedHere)
             {
                 const qint32 radius = fontMetrics().height() / 2 - 2;
                 const qint32 diameter = radius * 2;
-                const qreal x = lineNumberArea->width() - 15;
-                const qreal y = top + 2;
-                QPolygonF triangle;
-                triangle << QPointF(x, y) << QPointF(x, y + diameter) << QPointF(x + diameter, y + diameter / 2.0);
-                const QColor triangleColor("#FFC107");
-                painter.setBrush(triangleColor);
-                /* Same 1px darker rim as the toolbar state indicator
-                 * (see updateEnabledCheckboxIcon()). */
-                painter.setPen(QPen(triangleColor.darker(140), 1));
-                painter.drawPolygon(triangle);
+                const qint32 x = lineNumberArea->width() - 15;
+                const qint32 y = top + 2;
+                /* The play shape covers about 18/24 of the icon box. Draw
+                 * the box at a whole-pixel size, unscaled, centred on the
+                 * diameter-sized square the marker occupies. */
+                const qint32 box = qRound(diameter * 24.0 / 18.0);
+                const QPoint boxTopLeft(x + (diameter - box) / 2, y + (diameter - box) / 2);
+                const qreal dpr = painter.device() ? painter.device()->devicePixelRatioF() : 1.0;
+                static ContrastAdaptIcon icon("lua-debug-paused-line");
+                icon.setTokenColors({
+                    {ThemeManager::AccentWarning, ThemeManager::instance()->color(ThemeManager::AccentWarning)},
+                    {ThemeManager::PaletteText, colors.gutterText},
+                });
+                painter.drawPixmap(boxTopLeft, icon.pixmap(QSize(box, box), dpr));
             }
         }
 
@@ -706,7 +706,7 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
     }
 
     /* Draw semi-transparent preview breakpoint at the drag target line.
-     * Uses the same color and indicators (white core for extras) as the
+     * Uses the same icon (concentric for extras) and colour as the
      * source breakpoint, with reduced alpha for visual distinction. */
     if (gutter && gutter->isDraggingBreakpoint() && gutter->dragTargetLine() > 0)
     {
@@ -725,10 +725,11 @@ void LuaDebuggerCodeView::lineNumberAreaPaintEvent(QPaintEvent *event)
 
                 if (targetTop <= event->rect().bottom() && targetBottom >= event->rect().top())
                 {
-                    const qint32 radius = fontMetrics().height() / 2 - 2;
-                    const qint32 cx = lineNumberArea->width() - 15;
-                    const qint32 cy = targetTop + 3;
-                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), hasExtras, 120);
+                    const qint32 radius = fontMetrics().height() / 2 - 1;
+                    const qint32 cx = lineNumberArea->width() - 16;
+                    const qint32 cy = targetTop + 2;
+                    luaDbgDrawBreakpointDot(painter, cx, cy, radius, (state == 1), colors.gutterText, hasExtras,
+                                            120);
                 }
             }
         }

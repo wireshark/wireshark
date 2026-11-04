@@ -32,16 +32,16 @@ The debugger lets you:
 * _edit_ script files in place, with syntax highlighting, a
   breakpoint gutter, inline find, and go-to-line;
 
-The top of the dialog has an *Enabled* checkbox; its icon is a small
-colored circle that mirrors the debugger's current state, and the
-debugger's state is also appended to the window title (for example
+The toolbar starts with an *Enabled* checkbox; its icon is a circle
+that mirrors the debugger's current state, and the debugger's state
+is also appended to the window title (for example
 _Lua Debugger — Paused_). The debugger has four states:
 
-* *Disabled* (gray) — the line hook is not installed; scripts run at
-  full speed and breakpoints do not fire.
+* *Disabled* (outline) — the line hook is not installed; scripts run
+  at full speed and breakpoints do not fire.
 * *Running* (green) — the line hook is installed; scripts run until a
   breakpoint (or step target) hits.
-* *Paused* (yellow) — a breakpoint, single step, or run-to-line
+* *Paused* (orange) — a breakpoint, single step, or run-to-line
   pointed at a line inside a loaded script and the debugger has
   stopped Lua execution.
 * *Disabled (live capture)* (red) — debugging is forcibly suppressed
@@ -49,6 +49,8 @@ _Lua Debugger — Paused_). The debugger has four states:
   enabled state when the capture ends. The *Enabled* checkbox is
   disabled in this state and its tooltip explains why; see
   <<wslua_debugger_live_capture>>.
+
+Click a section title (chevron) to collapse or expand the section.
 
 Watches, breakpoints, and section layout are
 remembered across Wireshark restarts.
@@ -182,16 +184,16 @@ Then:
   Wireshark picks up the new file. The same shortcut also works
   from the *Reload Lua Plugins* toolbar action inside the Lua
   Debugger dialog once it's open.
-. Open menu:Tools[Lua Debugger] and tick the *Enabled* checkbox in
-  the dialog header.
+. Open menu:Tools[Lua Debugger] and tick the *Enabled* checkbox at
+  the start of the toolbar.
 . Expand the *Files* section and double-click `printer.lua` to open
   it in the editor.
 . Click in the gutter on a line inside `printer.dissector` to toggle
   a breakpoint (a red circle appears).
 . Load any capture file. Dissection starts, the breakpoint hits, and
-  the debugger pauses — the paused line gets a yellow stripe (and a
-  yellow right-pointing triangle in the gutter), the *Enabled*
-  checkbox dot turns yellow, the window title changes to _Lua
+  the debugger pauses — the paused line gets a yellow stripe (and an
+  orange right-pointing triangle in the gutter), the *Enabled*
+  checkbox circle turns orange, the window title changes to _Lua
   Debugger — Paused_, and the main window grays out behind a
   "Lua debugger paused" banner.
 . Inspect the paused state:
@@ -241,9 +243,8 @@ The remaining toolbar actions:
   reload; anything the previous Lua state had stashed in globals
   does not.
 
-Next to the toolbar the dialog header carries the *Enabled*
-checkbox; its colored dot mirrors the current debugger state — see
-<<wslua_debugger_intro>>.
+The toolbar starts with the *Enabled* checkbox; its circle mirrors
+the current debugger state — see <<wslua_debugger_intro>>.
 
 [#wslua_debugger_variables]
 
@@ -947,11 +948,11 @@ Breakpoints are created and removed in several ways:
 
 * Click the gutter of the editor next to a line to toggle a
   breakpoint. A red circle appears in the gutter for active
-  breakpoints; an inactive breakpoint is drawn as a gray circle.
+  breakpoints; an inactive breakpoint is drawn as an outline circle.
   `kbd:[Shift]`-clicking the gutter on an existing breakpoint
-  toggles only its *active* state (red ↔ gray) without removing
+  toggles only its *active* state (red ↔ outline) without removing
   it; on a line with no breakpoint, `kbd:[Shift]`-click adds a
-  *disabled* (gray) breakpoint, which is handy for pre-arming a
+  *disabled* (outline) breakpoint, which is handy for pre-arming a
   line you want to break on later without paying the line-hook
   cost until you activate it. The gutter's tooltip surfaces both
   behaviors.
@@ -977,15 +978,15 @@ corresponding file in the editor and jumps to the line.
 The section header carries five small controls to the right of
 the title rule, in left-to-right order:
 
-* `⚠` — *Break on Error* toggle. Gray when off, red when on.
+* a bug — *Break on Error* toggle. Outline when off, red when on.
   Click to flip; the setting is remembered across Wireshark
   restarts. See <<wslua_debugger_break_on_error>>.
-* a colored dot — the aggregate-active toggle. The dot mirrors the
-  gutter convention: gray when every breakpoint is inactive, red
+* a circle — the aggregate-active toggle. The circle mirrors the
+  gutter convention: outline when every breakpoint is inactive, red
   when any breakpoint is active. Clicking it flips the aggregate
-  state in one shot — gray → activates every breakpoint, red →
+  state in one shot — outline → activates every breakpoint, red →
   deactivates every breakpoint. The control is disabled (and the
-  dot stays gray) when there are no breakpoints. Its tooltip
+  circle stays an outline) when there are no breakpoints. Its tooltip
   describes the click outcome and reminds you of the per-line
   `kbd:[Ctrl+Shift+B]` shortcut.
 * `－` — *Remove Breakpoint* (`kbd:[Delete]`). Removes the
@@ -1060,9 +1061,9 @@ and reload it offline.
 
 The *Location* cell of a breakpoint row is editable (double-click,
 `kbd:[F2]`, or right-click → *Edit*) and lets you attach one of
-three extras to the breakpoint. A white core inside the breakpoint
-dot — in the Breakpoints list and in the editor gutter — marks
-rows that carry an extra:
+three extras to the breakpoint. A ring instead of a circle in the
+editor gutter, and a comment or filter icon in the Breakpoints list,
+marks breakpoints that carry an extra:
 
 * *Expression* — a Lua expression evaluated each time control
   reaches the line. The breakpoint pauses only when the expression
@@ -1423,7 +1424,7 @@ The debugger-specific behaviors:
   set of gutter behaviors, including the `kbd:[Shift]`-click
   variants for "toggle active" and "add disabled".
 * *Paused-line bar.* The line where execution is paused is drawn
-  with a yellow stripe across the full width and a yellow
+  with a yellow stripe across the full width and an orange
   right-pointing triangle in the gutter (overlaid on top of the
   breakpoint circle if one is set on that line); the cursor is
   moved to that line on pause.
