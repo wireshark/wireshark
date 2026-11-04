@@ -31,6 +31,7 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/expert.h>
 #include "packet-ff.h"
 #include "packet-tcp.h"
 
@@ -43,6 +44,8 @@ static int proto_ff;
 static int ett_ff;
 
 static bool ff_desegment    = true; /* desegmentation of FF over TCP */
+
+static expert_field ei_ff_bad_length;
 
 static dissector_handle_t ff_udp_handle;
 static dissector_handle_t ff_tcp_handle;
@@ -11006,24 +11009,26 @@ dissect_ff(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     sub_tree = proto_item_add_subtree(ti, ett_ff);
 
     if (Options & OPTION_MESSAGE_NUMBER_MASK) {
-        length      -= 4;
         trailer_len += 4;
     }
 
     if (Options & OPTION_INVOKE_ID_MASK) {
-        length      -= 4;
         trailer_len += 4;
     }
 
     if (Options & OPTION_TIME_STAMP_MASK) {
-        length      -= 8;
         trailer_len += 8;
     }
 
     if (Options & OPTION_EXTENDED_CNTRL_MASK) {
-        length      -= 4;
         trailer_len += 4;
     }
+
+    if (length < FDA_MSG_HDR_LENGTH + trailer_len) {
+        expert_add_info(pinfo, ti, &ei_ff_bad_length);
+        return tvb_captured_length(tvb);
+    }
+    length -= trailer_len;
 
     /*
      * Header
@@ -11092,7 +11097,7 @@ dissect_ff_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     unsigned offset = 0;
 
-    while (tvb_reported_length_remaining(tvb, offset) > FDA_MSG_HDR_LENGTH)
+    while (tvb_reported_length_remaining(tvb, offset) >= FDA_MSG_HDR_LENGTH)
     {
         tvbuff_t *pdu_tvb;
         unsigned length;
@@ -11233,11 +11238,11 @@ proto_register_ff(void)
                 FT_UINT8, BASE_DEC, VALS(names_lan_unconfirmed), SERVICE_SERVICE_ID_MASK, NULL, HFILL } },
 
         { &hf_ff_hdr_proto_id,
-            { "Service Id", "ff.hdr.proto_id",
+            { "Protocol Id", "ff.hdr.proto_id",
                 FT_UINT8, BASE_DEC, VALS(names_proto), PROTOCOL_MASK, NULL, HFILL } },
 
         { &hf_ff_hdr_confirm_msg_type,
-            { "Service Id", "ff.hdr.confirm_msg_type",
+            { "Confirmed Msg Type", "ff.hdr.confirm_msg_type",
                 FT_UINT8, BASE_DEC, VALS(names_type), TYPE_MASK, NULL, HFILL } },
 
         { &hf_ff_hdr_proto_confirm,
@@ -15272,9 +15277,18 @@ proto_register_ff(void)
         &ett_ff_lr_diagnostic_msg_req_b_to_b_status,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_ff_bad_length,
+            { "ff.bad_length", PI_MALFORMED, PI_ERROR,
+                "Message Length is smaller than the header and trailer", EXPFILL } },
+    };
+    expert_module_t *expert_ff;
+
     proto_ff = proto_register_protocol("FOUNDATION Fieldbus", "FF", "ff");
     proto_register_field_array(proto_ff, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_ff = expert_register_protocol(proto_ff);
+    expert_register_field_array(expert_ff, ei, array_length(ei));
 
     ff_udp_handle = register_dissector("ff.udp", dissect_ff_udp, proto_ff);
     ff_tcp_handle = register_dissector("ff.tcp", dissect_ff_tcp, proto_ff);
