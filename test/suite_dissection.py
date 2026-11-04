@@ -55663,3 +55663,89 @@ class TestDissectExec:
         assert rows[1][5] == 'Command:uptime Server -> Client Data'
         assert rows[15][5] == 'Command:ls -l Server -> Client Data'
         assert rows[39][5] == 'Client -> Server data'
+
+
+class TestDissectExtreme:
+    '''Extreme Discovery Protocol (EDP, ESRP, EAPS, ESL, ELSM, ELRP) from
+    the synthetic capture extreme_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _short_esl_pcap(path):
+        # EDP frame whose ESL TLV (type 0x0e) has only 4 octets of value,
+        # followed by a NULL TLV: the dissector read 38 octets of fixed fields.
+        def cksum(d):
+            s = sum(struct.unpack('>%dH' % (len(d) // 2), d))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return (~s) & 0xffff
+        tlvs = struct.pack('>BBH', 0x99, 0x0e, 8) + bytes(4) + \
+            struct.pack('>BBH', 0x99, 0, 4)
+        pdu = struct.pack('>BBHHH', 1, 0, 16 + len(tlvs), 0, 1) + \
+            bytes(2) + bytes.fromhex('02aabbccdd01') + tlvs
+        pdu = pdu[:4] + struct.pack('>H', cksum(pdu)) + pdu[6:]
+        payload = bytes.fromhex('aaaa0300e02b00bb') + pdu
+        fr = bytes.fromhex('00e02b000000' '02aabbccdd01') + \
+            struct.pack('>H', len(payload)) + payload
+        fr += bytes(max(0, 60 - len(fr)))
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(fr), len(fr)))
+            f.write(fr)
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, test_env, passes=(), extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture,
+                *extra), encoding='utf-8', env=test_env, timeout=120)
+        return [l for l in stdout.splitlines()]
+
+    def test_extreme_protocols(self, cmd_tshark, capture_file, test_env):
+        '''35 frames: the column protocol shows EDP, ESRP, EAPS or ESL.'''
+        lines = self._fields(cmd_tshark, capture_file('extreme_coverage.pcap.gz'),
+                test_env, extra=('-Tfields', '-e_ws.col.protocol'))
+        protocols = [l.strip() for l in lines]
+        assert len(protocols) == 35
+        assert protocols.count('EDP') == 22
+        assert protocols.count('ESRP') == 3
+        assert protocols.count('EAPS') == 4
+        assert protocols.count('ESL') == 6
+
+    def test_extreme_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file('extreme_coverage.pcap.gz'),
+                    test_env, passes, ('-Y', '_ws.malformed || _ws.expert',
+                                       '-Tfields', '-eframe.number'))
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_extreme_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: slot/port are shown one higher than sent, the
+        VLAN, ESRP, EAPS and ESL fields and the ELSM summary.'''
+        cap = capture_file('extreme_coverage.pcap.gz')
+        def one(frame, field):
+            return self._fields(cmd_tshark, cap, test_env,
+                    extra=('-Y', 'frame.number == %d' % frame, '-Tfields',
+                           '-e' + field))[0].strip()
+        assert one(3, 'edp.info.slot') == '4'
+        assert one(3, 'edp.info.port') == '48'
+        assert one(2, 'edp.vlan.id') == '4094'
+        assert one(2, 'edp.vlan.name') == 'a-very-long-vlan-name-0123456789'
+        assert one(5, 'edp.esrp.proto') == '1'
+        assert one(7, 'edp.eaps.vlanid') == '4000'
+        assert one(11, 'edp.esl.numlinks') == '3'
+        assert one(11, 'edp.esl.linklist') == '1,2,3'
+        assert one(14, 'edp.esl.linklist') == '1,2'
+        assert one(18, '_ws.col.info') == 'EDP: ELSM Unknown (0x09) Unknown (0x07) (#18)'
+        assert one(32, 'edp.checksum.status') == '2'
+
+    def test_extreme_short_fixed_tlv(self, cmd_tshark, result_file, test_env):
+        '''A fixed size TLV shorter than its fixed part gets an expert
+        info and is skipped instead of running into the next TLV and
+        ending in an exception ("EDP: Check the TLV length of fixed size
+        TLVs").'''
+        pcap = result_file('extreme_short_esl.pcap')
+        self._short_esl_pcap(pcap)
+        lines = self._fields(cmd_tshark, pcap, test_env,
+                extra=('-Tfields', '-e_ws.expert.message'))
+        assert len(lines) == 1
+        assert 'ESL TLV is too short' in lines[0]
+        assert 'Exception' not in lines[0]
