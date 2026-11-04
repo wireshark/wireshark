@@ -58219,3 +58219,64 @@ class TestDissectFlexnet:
         assert lines[0] == '1\t' + b'Hello FlexNet'.hex()
         assert lines[1] == '2\t'
         assert lines[4] == '6\tffffffff'
+
+
+class TestDissectFlexray:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('flexray_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_flexray_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 27 frames are FlexRay, none malformed or with an error.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['FLEXRAY'] * 27
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_flexray_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Error flags and a startup frame that is not a sync frame.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexray.error_flag', '-Tfields', '-eframe.number',
+                '-eflexray.eff')
+        assert lines == ['16\t0x10', '17\t0x08', '18\t0x04', '19\t0x02',
+                         '20\t0x01', '21\t0x1f']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexray.stfi_flag', '-Tfields', '-eframe.number')
+        assert lines == ['13']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexray.symbol_frame', '-Tfields', '-eframe.number',
+                '-eflexray.sl')
+        assert lines == ['24\t12', '25\t127', '27\t5']
+
+    def test_flexray_frames(self, cmd_tshark, capture_file, test_env):
+        '''Channel, frame id, cycle, payload length and indicators.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexray.fid', '-Tfields', '-eframe.number', '-eflexray.ch',
+                '-eflexray.fid', '-eflexray.cc', '-eflexray.pl', '-eflexray.nfi',
+                '-eflexray.sfi', '-eflexray.stfi')
+        assert lines[0:3] == [
+            '1\tFalse\t1\t0\t2\tTrue\tTrue\tTrue',
+            '2\tTrue\t2\t1\t8\tTrue\tFalse\tFalse',
+            '3\tFalse\t17\t2\t4\tTrue\tFalse\tFalse',
+        ]
+        assert lines[4] == '5\tTrue\t2047\t63\t127\tTrue\tFalse\tFalse'
+        assert lines[6] == '7\tFalse\t4\t5\t2\tFalse\tFalse\tFalse'
+        assert len(lines) == 23
+
+    def test_flexray_info_and_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Info column, the null frame text and the frame CRC trailer.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert lines[0] == 'FRAME: ID    1 CC  0   01 02 03 04'
+        assert lines[6] == 'FRAME: ID    4 CC  5   NF'
+        assert lines[23] == 'SYMB: SL  12'
+        assert lines[25] == 'Unknown (0x03):'
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexray.crc', '-Tfields', '-eframe.number', '-eflexray.crc')
+        assert lines == ['14\t0x123456', '15\t0xabcdef', '23\t0x112233']
