@@ -57221,3 +57221,175 @@ class TestDissectFcoib:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol')
         assert stdout.splitlines() == [
             '10\tBLS', '11\tBLS', '12\tBLS', '13\tBLS', '14\tBLS']
+
+
+class TestDissectFcp:
+    '''FCP (FC type 0x08) over FCoE from the synthetic capture
+    fcp_coverage.pcap.gz: SCSI exchanges with data, XFER_RDY and response
+    variants, interleaved exchanges on one LUN, task management flags,
+    and FC-4 link services.'''
+
+    INFOS = [
+        'SCSI Read(10) LUN: 0x00 512 bytes (1 blocks) at LBA: 0x00000010 ',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x00 Read(10), 512 bytes (1 blocks) (Good) ',
+        'SCSI Write(10) LUN: 0x00 512 bytes (1 blocks) at LBA: 0x00000020 ',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x00 Write(10), 512 bytes (1 blocks) (Good) ',
+        'SCSI Inquiry LUN: 0x00 ',
+        'FCP_DATA[SCSI transfer limited due to allocation_length too small]',
+        'SCSI Response LUN: 0x00 Inquiry, 36 bytes (0 blocks) (Good) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        'SCSI Write(10) LUN: 0x00 1024 bytes (1 blocks) at LBA: 0x00000020 ',
+        'XFER_RDY',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x00 Write(10), 1024 bytes (2 blocks) (Good) ',
+        'SCSI Read(10) LUN: 0x105 512 bytes (1 blocks) at LBA: 0x00000010 ',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x105 Read(10), 512 bytes (1 blocks) (Good) ',
+        'SCSI Test Unit Ready LUN: 0x05 ',
+        'SCSI Response LUN: 0x05 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Check Condition)  LUN:0x00 ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Check Condition)  LUN:0x00 ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Busy) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Reservation Conflict) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (Task Set Full) ',
+        'SCSI Test Unit Ready LUN: 0x00 ',
+        'SCSI Response LUN: 0x00 Test Unit Ready, 0 bytes (0 blocks) (ACA Active) ',
+        'SCSI Read(10) LUN: 0x01 512 bytes (1 blocks) at LBA: 0x00000010 ',
+        'SCSI Response LUN: 0x01 Read(10), 512 bytes (1 blocks) (Good) ',
+        'SCSI Read(10) LUN: 0x00 512 bytes (1 blocks) at LBA: 0x00000010 ',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x00 Read(10), 512 bytes (1 blocks) (Good) ',
+        '[FCP OBSOLETE] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP CLEAR_ACA] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP TARGET_RESET] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP LU_RESET] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP RSVD] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP CLEAR_TASK_SET] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP ABORT_TASK_SET] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        '[FCP ABORT_TASK_SET] [FCP CLEAR_TASK_SET] SCSI Test Unit Ready LUN: 0x02 ',
+        'SCSI Response LUN: 0x02 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        'SCSI Test Unit Ready LUN: 0x04 ',
+        'SCSI Response LUN: 0x04 Test Unit Ready, 0 bytes (0 blocks) (Good) ',
+        'SCSI Read(10) LUN: 0x09 64 bytes (1 blocks) at LBA: 0x00000010 ',
+        'SCSI Read(10) LUN: 0x09 64 bytes (1 blocks) at LBA: 0x00000010 ',
+        'SCSI Read(10) LUN: 0x09 64 bytes (1 blocks) at LBA: 0x00000010 ',
+        'SCSI Read(10) LUN: 0x09 64 bytes (1 blocks) at LBA: 0x00000010 ',
+        'FCP_DATA',
+        'FCP_DATA',
+        'FCP_DATA',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x09 Read(10), 64 bytes (0 blocks) (Good) ',
+        'SCSI Response LUN: 0x09 Read(10), 64 bytes (0 blocks) (Good) ',
+        'SCSI Response LUN: 0x09 Read(10), 64 bytes (0 blocks) (Good) ',
+        'SCSI Response LUN: 0x09 Read(10), 64 bytes (0 blocks) (Good) ',
+        'SCSI Read(10) LUN: 0x09 64 bytes (1 blocks) at LBA: 0x00000010 ',
+        'FCP_DATA',
+        'SCSI Response LUN: 0x09 Read(10), 64 bytes (0 blocks) (Good) ',
+        'FCP_DATA',
+        'FCP_RSP:Good<missing request>',
+        'FCP',
+        'Control',
+        'Confirm',
+        '0x4',
+        'SRR',
+        'ACC',
+        '0x77',
+    ]
+
+    REQUEST_IN = {2: 1, 3: 1, 5: 4, 6: 4, 8: 7, 9: 7, 11: 10, 13: 12, 14: 12, 15: 12, 17: 16, 18: 16, 20: 19, 22: 21, 24: 23, 26: 25, 28: 27, 30: 29, 32: 31, 34: 33, 36: 35, 38: 37, 39: 37, 41: 40, 43: 42, 45: 44, 47: 46, 49: 48, 51: 50, 53: 52, 55: 54, 57: 56, 62: 60, 63: 58, 64: 61, 65: 59, 66: 61, 67: 59, 68: 60, 69: 58, 71: 70, 72: 70}
+    # command (first frame of each exchange) and data frames -> response
+    RESPONSE_IN = {1: 3, 2: 3, 4: 6, 5: 6, 7: 9, 8: 9, 10: 11, 12: 15, 13: 15,
+                   14: 15, 16: 18, 17: 18, 19: 20, 21: 22, 23: 24, 25: 26,
+                   27: 28, 29: 30, 31: 32, 33: 34, 35: 36, 37: 39, 38: 39,
+                   40: 41, 42: 43, 44: 45, 46: 47, 48: 49, 50: 51, 52: 53,
+                   54: 55, 56: 57, 58: 69, 59: 67, 60: 68, 61: 66, 62: 68,
+                   63: 69, 64: 66, 65: 67, 70: 72, 71: 72}
+
+    def test_fcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 frames are FCP; frame 75 (FCP data with the relative offset
+        bit set) is left to the FC dissector. None is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 81
+        assert [i + 1 for i, p in enumerate(protocols) if p != 'FCP'] == [75]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame (second pass, so that responses
+        also show their request).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('fcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\n')[:-1] == self.INFOS
+
+    def test_fcp_request_matching(self, cmd_tshark, capture_file, test_env):
+        '''Data and response frames find their command by OX_ID and LUN
+        ("Request In") and, in the second pass, the command finds the
+        response ("Response In"). Before "FCP: Fix response length checks
+        and request matching" nothing was matched, and an exchange reused
+        the data of an earlier one on the same LUN (interleaved
+        on LUN 9 in frames 58-69, and a reused OX_ID in 70-72).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('fcp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-efcp.request_in', '-efcp.response_in',
+            ), encoding='utf-8', env=test_env)
+        req = {}
+        resp = {}
+        for line in stdout.split('\n')[:-1]:
+            n, a, b = (line.split('\t') + ['', ''])[:3]
+            if a:
+                req[int(n)] = int(a)
+            if b:
+                resp[int(n)] = int(b)
+        assert req == self.REQUEST_IN
+        assert resp == self.RESPONSE_IN
+
+    def test_fcp_request_in_first_pass(self, cmd_tshark, capture_file, test_env):
+        '''In one pass the command frames have no "Response In" yet but the
+        data and responses already link back to their command.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-Tfields', '-eframe.number', '-efcp.request_in', '-efcp.response_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\n')[:-1] == ['1\t\t', '2\t1\t', '3\t1\t', '4\t\t', '5\t4\t', '6\t4\t']
+
+    def test_fcp_luns(self, cmd_tshark, capture_file, test_env):
+        '''Single level LUNs and the multi-level LUN of frame 16 (the task
+        management flags are in the Info column).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-efcp.lun', '-efcp.multilun',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.split('\n')[:-1]}
+        assert rows[16][0:2] == ['', '4105000000000000']
+        assert rows[17][0] == '0x05'
+        assert rows[58][0] == '0x09'
