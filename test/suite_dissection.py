@@ -56190,3 +56190,54 @@ class TestDissectFbzero:
                 '-Tfields', '-efb_zero.tag.time', '-efb_zero.tag.alpn',
                 '-efb_zero.tag.aead', '-efb_zero.tag.kexs')
         assert lines == ['1700000000\th2\tAESG,S20P,CC12\tC255,P256']
+
+
+class TestDissectFc00:
+    '''Fc00 CryptoAuth (cjdns) from the synthetic capture
+    fc00_coverage.pcap.gz. The dissector has no default port: the UDP
+    port 5555 of the capture is decoded with -d udp.port==5555,fc00.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-d', 'udp.port==5555,fc00',
+                '-r', capture, *args), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_fc00_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 18 frames are fc00, without malformed packets or error
+        expert infos in one and two passes.'''
+        cap = capture_file('fc00_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'fc00',
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 18
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, cap, test_env, *passes, '-Y',
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_fc00_session_state(self, cmd_tshark, capture_file, test_env):
+        '''Handshake frames show the session state; data frames (a state
+        above 3 and below 0xffffffff) show the session nonce.'''
+        cap = capture_file('fc00_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number <= 5 || '
+                'frame.number >= 12 && frame.number <= 15', '-Tfields',
+                '-efc00.session_state', '-efc00.session_nonce')
+        assert lines == ['0\t', '1\t', '2\t', '3\t', '4294967295\t',
+                         '\t4', '\t305419896', '\t4294967294', '\t99']
+
+    def test_fc00_derivations(self, cmd_tshark, capture_file, test_env):
+        '''The Auth Derivations field is 15 bits wide, so values of 128
+        and above are shown correctly (mask 0x7f before "FC00: Fix the
+        derivations mask and a field description").'''
+        cap = capture_file('fc00_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 6 && '
+                'frame.number <= 10', '-Tfields', '-efc00.auth_challenge.derivations')
+        assert lines == ['5', '127', '128', '4660', '32767']
+
+    def test_fc00_ipv6_address(self, cmd_tshark, capture_file, test_env):
+        '''The IPv6 address derived from the (made up) public key.'''
+        cap = capture_file('fc00_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 1',
+                '-Tfields', '-efc00.ip')
+        assert lines == ['a64b:4972:7fb1:5503:836f:5be0:b0b1:bb26']
