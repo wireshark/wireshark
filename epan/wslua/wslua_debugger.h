@@ -33,16 +33,6 @@ extern "C"
     } wslua_debugger_state_t;
 
     /**
-     * @brief Code view theme enum.
-     */
-    typedef enum
-    {
-        WSLUA_DEBUGGER_THEME_AUTO = 0, /**< Follow Wireshark theme (default) */
-        WSLUA_DEBUGGER_THEME_DARK = 1, /**< Dark theme */
-        WSLUA_DEBUGGER_THEME_LIGHT = 2 /**< Light theme */
-    } wslua_debugger_theme_t;
-
-    /**
      * @brief Hit-count comparison mode used by the line hook gate.
      *
      * Persisted as a string in the Qt JSON settings file (the lower-cased

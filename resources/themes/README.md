@@ -189,6 +189,7 @@ of `light` and `dark` is valid, the parser uses it for both and warns.
 | `packets` | `selection`, `selectionText`, `inactive`, `inactiveText`, `marked`, `markedText`, `ignored`, `ignoredText`, `hidden` | Packet-list and details state colors (background and matching text) |
 | `conversation` | `client`, `clientText`, `server`, `serverText` | Follow Stream client and server colors |
 | `filter` | `valid`, `invalid`, `deprecated`, `busy`, `busyText`, `history`, `bookmark`, `bookmarkCapture`, `bookmarkMatch`, `clear`, `apply` | Filter field tints and inline glyph colors (details below) |
+| `code` | `background`, `text`, `selection`, `selectionText`, `gutter`, `gutterText`, `pausedLine`, `string`, `keyword`, `number`, `builtIn`, `functionCall`, `comment` | Colors of the Lua Debugger script editor (details below) |
 | `separator` | one color pair | Hairline divider between cards and sections |
 | `graphs` | array of color pairs | Rotating color cycle for graphs and diagrams |
 | `fonts` | `regular`, `monospace` | Font hints, see "Fonts" |
@@ -239,6 +240,29 @@ from `palette.mid`; the glyph keys default to the accent named in their
 row.  Glyphs brighten slightly on hover and are kept at the icon contrast
 ratio against the filter field.  Explicit values let themes ship a saturated dark green / dark red look
 that alpha-tinting an accent can never reach.
+
+#### `code`
+
+| Key             | Light default | Dark default | Purpose |
+|-----------------|---------------|--------------|---------|
+| `background`    | `#ffffff`     | `#1e1e1e`    | Editor background |
+| `text`          | `#000000`     | `#d4d4d4`    | Plain text |
+| `selection`     | `#add6ff`     | `#264f78`    | Selection background |
+| `selectionText` | `#000000`     | `#ffffff`    | Selected text |
+| `gutter`        | `#f3f3f3`     | `#252526`    | Line number gutter, and the background of the line with the text cursor |
+| `gutterText`    | `#237893`     | `#858585`    | Line numbers |
+| `pausedLine`    | `#fef3c7`     | `#78806f00`  | Line the debugger is paused on; the dark default is translucent |
+| `string`        | `#a31515`     | `#ce9178`    | String literals |
+| `keyword`       | `#0000ff`     | `#569cd6`    | Keywords, drawn bold |
+| `number`        | `#098658`     | `#b5cea8`    | Numbers |
+| `builtIn`       | `#267f99`     | `#4fc1ff`    | Built-in names (`self`) |
+| `functionCall`  | `#795e26`     | `#dcdcaa`    | Name of a called function |
+| `comment`       | `#008000`     | `#6a9955`    | Comments |
+
+An omitted key is not derived from `brand`, `accent` or `palette`: it uses
+the fixed default in its row.  The default syntax colors are chosen for
+the default `background`; a theme that changes `background` should check
+that they still read on it.
 
 #### `separator`
 

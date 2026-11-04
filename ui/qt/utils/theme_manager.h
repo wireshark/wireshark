@@ -234,8 +234,26 @@ public:
                                 // the default theme pins fixed grays
                                 // via theme.filter.history.
 
+        // Code editor (Lua Debugger script editor) — surface, gutter and
+        // paused-line colours, then the syntax highlighting foreground
+        // colours.  Every key is optional; an omitted one uses the
+        // editor's built-in light / dark default.
+        CodeBackground,
+        CodeText,
+        CodeSelection,
+        CodeSelectionText,
+        CodeGutter,
+        CodeGutterText,
+        CodePausedLine,
+        CodeString,
+        CodeKeyword,
+        CodeNumber,
+        CodeBuiltIn,
+        CodeFunctionCall,
+        CodeComment,
+
         // Syntax highlighting — foreground text colours for code- and
-        // data-viewers (JSON, hex, Lua debugger, etc.).  Derived so
+        // data-viewers (JSON, hex, etc.).  Derived so
         // the variant is darker in light mode and lighter in dark
         // mode, keeping enough contrast against PaletteBase.
         SyntaxKey,

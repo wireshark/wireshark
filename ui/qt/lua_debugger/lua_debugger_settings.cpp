@@ -99,7 +99,7 @@ void LuaDebuggerDialog::saveSettingsFile()
 {
     /*
      * Always merge live watch rows and engine breakpoints before writing so
-     * callers that only touch theme/splitters (or watches alone) do not persist
+     * callers that only touch splitters (or watches alone) do not persist
      * stale or empty breakpoint/watch entries.
      */
     watchController_.serializeTo(settingsStore_.map());
@@ -121,21 +121,10 @@ void LuaDebuggerDialog::applyDialogSettings()
 
     watchController_.restoreFrom(settingsStore_.map());
 
-    // Apply theme setting
-    QString themeStr = settingsStore_.map().value(LuaDebuggerSettingsKeys::Theme, "auto").toString();
-    int32_t theme = WSLUA_DEBUGGER_THEME_AUTO;
-    if (themeStr == "dark")
-        theme = WSLUA_DEBUGGER_THEME_DARK;
-    else if (themeStr == "light")
-        theme = WSLUA_DEBUGGER_THEME_LIGHT;
-    currentTheme_ = theme;
-
-    if (themeComboBox)
-    {
-        int idx = themeComboBox->findData(theme);
-        if (idx >= 0)
-            themeComboBox->setCurrentIndex(idx);
-    }
+    /* The code view colors come from the Theme Manager; drop the keys of
+     * the former Settings section (theme combo box) from older files. */
+    settingsStore_.map().remove(QStringLiteral("theme"));
+    settingsStore_.map().remove(QStringLiteral("sectionSettings"));
 
     QString mainSplitterHex = settingsStore_.map().value(LuaDebuggerSettingsKeys::MainSplitter).toString();
     QString leftSplitterHex = settingsStore_.map().value(LuaDebuggerSettingsKeys::LeftSplitter).toString();
@@ -181,9 +170,6 @@ void LuaDebuggerDialog::applyDialogSettings()
         filesSection->setExpanded(settingsStore_.map().value(LuaDebuggerSettingsKeys::SectionFiles, false).toBool());
     if (evalSection)
         evalSection->setExpanded(settingsStore_.map().value(LuaDebuggerSettingsKeys::SectionEval, false).toBool());
-    if (settingsSection)
-        settingsSection->setExpanded(
-            settingsStore_.map().value(LuaDebuggerSettingsKeys::SectionSettings, false).toBool());
     if (watchSection)
         watchSection->setExpanded(settingsStore_.map().value(LuaDebuggerSettingsKeys::SectionWatch, true).toBool());
     /* The setExpanded() calls above each fire the section's toggled signal
@@ -220,19 +206,6 @@ void LuaDebuggerDialog::storeDialogSettings()
      * Refresh the settings map from UI only (no disk I/O). JSON is written from
      * closeEvent() via saveSettingsFile().
      */
-    // Store theme from combo box (or current C-side value)
-    int32_t theme = WSLUA_DEBUGGER_THEME_AUTO;
-    if (themeComboBox)
-    {
-        theme = themeComboBox->itemData(themeComboBox->currentIndex()).toInt();
-    }
-    if (theme == WSLUA_DEBUGGER_THEME_DARK)
-        settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "dark";
-    else if (theme == WSLUA_DEBUGGER_THEME_LIGHT)
-        settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "light";
-    else
-        settingsStore_.map()[LuaDebuggerSettingsKeys::Theme] = "auto";
-
     // Store splitter states as hex strings
     if (ui->mainSplitter)
     {
@@ -260,8 +233,6 @@ void LuaDebuggerDialog::storeDialogSettings()
         breakpointsSection ? breakpointsSection->isExpanded() : true;
     settingsStore_.map()[LuaDebuggerSettingsKeys::SectionFiles] = filesSection ? filesSection->isExpanded() : false;
     settingsStore_.map()[LuaDebuggerSettingsKeys::SectionEval] = evalSection ? evalSection->isExpanded() : false;
-    settingsStore_.map()[LuaDebuggerSettingsKeys::SectionSettings] =
-        settingsSection ? settingsSection->isExpanded() : false;
     settingsStore_.map()[LuaDebuggerSettingsKeys::SectionWatch] = watchSection ? watchSection->isExpanded() : true;
 
     /* Persist the user's intent (i.e. whether they have explicitly disabled

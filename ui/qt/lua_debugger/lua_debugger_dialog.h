@@ -202,12 +202,6 @@ class LuaDebuggerDialog : public GeometryStateDialog
     ~LuaDebuggerDialog();
 
     /**
-     * @brief Get the current theme setting.
-     * @return Theme enum value (WSLUA_DEBUGGER_THEME_AUTO, DARK, or LIGHT).
-     */
-    static int32_t currentTheme();
-
-    /**
      * @brief Retrieve the singleton instance, creating it if needed.
      * @param parent Optional parent widget supplied when instantiating.
      * @return Pointer to the global dialog instance.
@@ -552,7 +546,7 @@ class LuaDebuggerDialog : public GeometryStateDialog
     /** @brief Update code view themes when preferences change. */
     void onPreferencesChanged();
 
-    /** @brief Update code view themes when Wireshark's color scheme changes. */
+    /** @brief Update code view themes when the theme or color scheme changes. */
     void onColorsChanged();
 
     /**
@@ -582,12 +576,6 @@ class LuaDebuggerDialog : public GeometryStateDialog
      * this on the next show to catch up the visible counter.
      */
     void drainBreakpointStateUpdates();
-
-    /**
-     * @brief Handle theme selection changes from the Settings section.
-     * @param idx The selected index.
-     */
-    void onThemeChanged(int idx);
 
     /** @brief Show inline find/replace bar. */
     void onEditorFind();
@@ -648,8 +636,6 @@ class LuaDebuggerDialog : public GeometryStateDialog
     LuaDebuggerKeyRouter keyRouter_;
     /** @brief Global singleton instance pointer. */
     static LuaDebuggerDialog *_instance;
-    /** @brief Currently selected theme. */
-    static int32_t currentTheme_;
 
     /** @brief Wire up signals and slots for the files panel. */
     void wireFilesPanel();
@@ -737,8 +723,6 @@ class LuaDebuggerDialog : public GeometryStateDialog
     CollapsibleSection *filesSection;
     /** @brief Collapsible section for evaluation. */
     CollapsibleSection *evalSection;
-    /** @brief Collapsible section for settings. */
-    CollapsibleSection *settingsSection;
 
     // Tree views and item models (created programmatically)
     /** @brief Tree view for variables. */
@@ -780,10 +764,6 @@ class LuaDebuggerDialog : public GeometryStateDialog
      * (see LuaDebuggerSettingsKeys::EvalSplitter).
      */
     QSplitter *evalSplitter_ = nullptr;
-
-    // Settings panel widgets (created programmatically)
-    /** @brief ComboBox for theme selection. */
-    QComboBox *themeComboBox;
 
     /** @brief Breakpoints section header: toggle at caret, clear all. */
     QToolButton *breakpointHeaderToggleButton_ = nullptr;
