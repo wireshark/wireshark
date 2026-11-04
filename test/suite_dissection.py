@@ -55419,3 +55419,82 @@ class TestDissectEvrc:
         assert sizes['98'] == [22, 5, 5]
         assert len(rows[4][2].split(',')) == 32
         assert sizes['99'] == [22] * 32
+
+
+class TestDissectEvs:
+    @staticmethod
+    def _info(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('evs_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eevs.packet_length',
+            ), encoding='utf-8', env=test_env)
+        rows = {}
+        for l in stdout.splitlines():
+            f = l.split('\t')
+            rows[int(f[0])] = (f[1], f[2] if len(f) > 2 else '')
+        return rows
+
+    def test_evs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''One SIP/SDP packet that sets up the RTP streams, then 127 EVS
+        packets, none malformed or with an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('evs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 128
+        assert protocols.count('SIP/SDP') == 1
+        assert protocols.count('EVS') == 127
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('evs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_evs_compact_format(self, cmd_tshark, capture_file, test_env):
+        '''The payload size selects the Compact format and the mode.'''
+        rows = self._info(cmd_tshark, capture_file, test_env)
+        expect = {
+            2: ('EVS Primary SID 2.4', '48'),
+            6: ('EVS Primary 2.8', '56'),
+            10: ('EVS AMR-WB IO 6.6', '136'),
+            12: ('EVS Primary 7.2', '144'),
+            22: ('EVS Primary 13.2', '264'),
+            38: ('EVS Primary 24.4', '488'),
+            42: ('EVS Primary 32.0', '640'),
+            49: ('EVS Primary 64.0', '1280'),
+            54: ('EVS Primary 96.0', '1920'),
+            56: ('EVS Primary 128.0', '2560'),
+        }
+        for n, (text, bits) in expect.items():
+            assert rows[n][0].endswith(', ' + text), n
+            assert rows[n][1] == bits, n
+
+    def test_evs_header_full(self, cmd_tshark, capture_file, test_env):
+        '''Header-Full: CMR and ToC, several frames, and the 56 bit AMR-WB
+        IO SID, which is a Compact frame (it was decoded as Header-Full
+        before "EVS: Treat the 56-bit AMR-WB IO SID payload as Compact
+        format").'''
+        rows = self._info(cmd_tshark, capture_file, test_env)
+        assert rows[8][0].endswith(', EVS AMR-WB IO SID')
+        assert rows[114][0].endswith(
+            ', Primary 9.6 kbps, Primary 9.6 kbps… (2 frames in packet)')
+        assert rows[115][0].endswith('… (3 frames in packet)')
+        assert rows[116][0].endswith(', NO_DATA… (1 frame in packet)')
+
+    def test_evs_rtp_padding_and_hf_only(self, cmd_tshark, capture_file, test_env):
+        '''RTP padding counts for the payload size; hf-only=1 in the SDP
+        (or the preference) makes the compact sizes Header-Full.'''
+        rows = self._info(cmd_tshark, capture_file, test_env)
+        assert rows[119][0].endswith(', EVS Primary SID 2.4')   # 5 + 1 octets
+        assert rows[120][0].endswith(', EVS Primary 7.2')       # 16 + 2 octets
+        assert rows[122][0].endswith('Primary 13.2 kbps… (1 frame in packet)')
+        assert rows[122][1] == ''
+        assert rows[128][0].endswith(', EVS Primary 13.2')
+        rows = self._info(cmd_tshark, capture_file, test_env, '-o', 'evs.hf_only:TRUE')
+        assert rows[128][1] == ''
+        assert rows[10][1] == ''
