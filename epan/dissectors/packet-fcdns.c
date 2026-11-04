@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/tfs.h>
 #include "packet-fc.h"
@@ -1082,10 +1083,12 @@ dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, bool isreq)
         len = tvb_reported_length_remaining (tvb, offset);
 
         while (len > 0) {
-            proto_tree_add_item (req_tree, hf_fcdns_req_fdesclen, tvb, offset,
-                                 1, ENC_BIG_ENDIAN);
+            uint32_t dlen;
+
+            proto_tree_add_item_ret_uint (req_tree, hf_fcdns_req_fdesclen, tvb,
+                                          offset, 1, ENC_BIG_ENDIAN, &dlen);
             proto_tree_add_item (req_tree, hf_fcdns_req_fdesc, tvb, offset+1,
-                                 len, ENC_ASCII);
+                                 dlen, ENC_ASCII);
             offset += 256;
             len -= 256;
         }
@@ -1424,6 +1427,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation_t *conversation;
     fcdns_conv_data_t *cdata;
     fcdns_conv_key_t ckey, *req_key;
+    uint32_t *req_opcode;
     fc_hdr *fchdr;
 
     /* Reject the packet if data is NULL */
@@ -1478,7 +1482,8 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
              * case of another request using the same exchange as a previous
              * req.
              */
-            cdata->opcode = opcode;
+            if (!PINFO_FD_VISITED(pinfo))
+                cdata->opcode = opcode;
         }
         else {
             req_key = wmem_new(wmem_file_scope(), fcdns_conv_key_t);
@@ -1513,12 +1518,26 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             cdata = (fcdns_conv_data_t *)wmem_map_lookup (fcdns_req_hash, &ckey);
 
-            if (cdata != NULL) {
+            /* The exchange may have been reused by a later request, so
+             * keep the opcode each reply was matched with on the first
+             * pass and use it on later passes.
+             */
+            req_opcode = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fcdns, 0);
+            if (!PINFO_FD_VISITED(pinfo) && cdata != NULL && req_opcode == NULL) {
+                req_opcode = wmem_new(wmem_file_scope(), uint32_t);
+                *req_opcode = cdata->opcode;
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_fcdns, 0, req_opcode);
+            }
+
+            if (req_opcode != NULL) {
                 if (opcode == FCCT_MSG_ACC) {
-                    opcode = cdata->opcode;
+                    opcode = *req_opcode;
                 }
                 else
-                    failed_opcode = cdata->opcode;
+                    failed_opcode = *req_opcode;
+            }
+            else {
+                cdata = NULL;
             }
 
             if (opcode != FCCT_MSG_RJT) {
