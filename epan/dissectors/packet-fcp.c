@@ -14,6 +14,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
 #include <epan/tfs.h>
 #include "packet-scsi.h"
 #include "packet-fc.h"
@@ -24,8 +25,12 @@ void proto_reg_handoff_fcp(void);
 
 static dissector_handle_t fcp_handle;
 
+struct fcp_request_data;
+
 typedef struct _fcp_proto_data_t {
     uint16_t lun;
+    /* The exchange this frame belongs to, found on the first pass. */
+    struct fcp_request_data *request_data;
 } fcp_proto_data_t;
 
 /* Initialize the protocol and registered fields */
@@ -77,6 +82,8 @@ static int hf_fcp_srr_rx_id;
 static int ett_fcp;
 static int ett_fcp_taskmgmt;
 static int ett_fcp_rsp_flags;
+
+static expert_field ei_fcp_rsp_len;
 
 typedef struct _fcp_conv_data_t {
     wmem_map_t *luns;
@@ -291,6 +298,40 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
         proto_item_append_text(item, " (No values set)");
 }
 
+/* The requests are keyed by OX_ID and LUN, so that a later exchange which
+ * uses the same LUN does not reuse the data of an earlier one. */
+static void *
+fcp_request_key(fc_hdr *fchdr, uint16_t lun)
+{
+    return GUINT_TO_POINTER(((unsigned)(fchdr->oxid & 0xFFFF) << 16) | lun);
+}
+
+static fcp_request_data_t *
+fcp_new_request_data(wmem_allocator_t *scope, packet_info *pinfo, uint16_t lun)
+{
+    fcp_request_data_t *request_data;
+
+    request_data = wmem_new(scope, fcp_request_data_t);
+    request_data->request_frame = pinfo->num;
+    request_data->response_frame = 0;
+    request_data->request_time = pinfo->abs_ts;
+
+    request_data->itlq = wmem_new(scope, itlq_nexus_t);
+    request_data->itlq->first_exchange_frame=0;
+    request_data->itlq->last_exchange_frame=0;
+    request_data->itlq->lun=lun;
+    request_data->itlq->scsi_opcode=0xffff;
+    request_data->itlq->task_flags=0;
+    request_data->itlq->data_length=0;
+    request_data->itlq->bidir_data_length=0;
+    request_data->itlq->fc_time=pinfo->abs_ts;
+    request_data->itlq->flags=0;
+    request_data->itlq->alloc_len=0;
+    request_data->itlq->extra_data=NULL;
+
+    return request_data;
+}
+
 static void
 dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, fcp_conv_data_t *fcp_conv_data)
 {
@@ -329,33 +370,20 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun = tvb_get_uint8(tvb, offset+1);
     }
 
+    proto_data = (fcp_proto_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0);
     if (!pinfo->fd->visited) {
-        proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
-        proto_data->lun = lun;
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
+        /* Every command starts a new exchange with its own request data. */
+        request_data = fcp_new_request_data(wmem_file_scope(), pinfo, lun);
+        wmem_map_insert(fcp_conv_data->luns, fcp_request_key(fchdr, lun), request_data);
+        if (proto_data) {
+            proto_data->lun = lun;
+            proto_data->request_data = request_data;
+        }
+    } else if (proto_data) {
+        request_data = proto_data->request_data;
     }
-
-    request_data = (fcp_request_data_t*)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER((unsigned)lun));
     if (!request_data) {
-        request_data = wmem_new(wmem_file_scope(), fcp_request_data_t);
-        request_data->request_frame = pinfo->num;
-        request_data->response_frame = 0;
-        request_data->request_time = pinfo->abs_ts;
-
-        request_data->itlq = wmem_new(wmem_file_scope(), itlq_nexus_t);
-        request_data->itlq->first_exchange_frame=0;
-        request_data->itlq->last_exchange_frame=0;
-        request_data->itlq->lun=lun;
-        request_data->itlq->scsi_opcode=0xffff;
-        request_data->itlq->task_flags=0;
-        request_data->itlq->data_length=0;
-        request_data->itlq->bidir_data_length=0;
-        request_data->itlq->fc_time=pinfo->abs_ts;
-        request_data->itlq->flags=0;
-        request_data->itlq->alloc_len=0;
-        request_data->itlq->extra_data=NULL;
-
-        wmem_map_insert(fcp_conv_data->luns, GUINT_TO_POINTER((unsigned)lun), request_data);
+        request_data = fcp_new_request_data(pinfo->pool, pinfo, lun);
     }
 
     /* populate the exchange struct */
@@ -369,8 +397,15 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         }
     }
 
-    if (request_data->itlq)
-        request_data->itlq->lun = lun;
+    request_data->itlq->lun = lun;
+
+    /* The response is only known once it has been seen, so this shows on
+     * the command frame after the first pass. */
+    if (request_data->response_frame) {
+        proto_item *it;
+        it = proto_tree_add_uint(tree, hf_fcp_response_in, tvb, 0, 0, request_data->response_frame);
+        proto_item_set_generated(it);
+    }
 
     fchdr->lun = lun;
 
@@ -379,13 +414,12 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     dissect_task_mgmt_flags(pinfo, tree, tvb, offset+10);
     proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     rwflags = tvb_get_uint8(tvb, offset+11);
-    if (request_data->itlq) {
-        if (rwflags & 0x02) {
-            request_data->itlq->task_flags |= SCSI_DATA_READ;
-        }
-        if (rwflags & 0x01) {
-            request_data->itlq->task_flags |= SCSI_DATA_WRITE;
-        }
+    request_data->itlq->task_flags = 0;
+    if (rwflags & 0x02) {
+        request_data->itlq->task_flags |= SCSI_DATA_READ;
+    }
+    if (rwflags & 0x01) {
+        request_data->itlq->task_flags |= SCSI_DATA_WRITE;
     }
     proto_tree_add_item(tree, hf_fcp_rddata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_fcp_wrdata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
@@ -460,8 +494,8 @@ static void
 dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, proto_tree *tree, conversation_t *conversation, fc_hdr *fchdr, fcp_request_data_t *request_data)
 {
     uint32_t    offset = 0;
-    int32_t     snslen = 0;
-    int32_t     rsplen = 0;
+    uint32_t    snslen = 0;
+    uint32_t    rsplen = 0;
     uint8_t     flags;
     uint8_t     status;
     itl_nexus_t itl;
@@ -474,10 +508,9 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     /* Save the response frame */
     if (request_data != NULL) {
-        request_data->response_frame = pinfo->num;
-
         /* populate the exchange struct */
         if(!pinfo->fd->visited){
+            request_data->response_frame = pinfo->num;
             if(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST){
                 request_data->itlq->first_exchange_frame=pinfo->num;
                 request_data->itlq->fc_time = pinfo->abs_ts;
@@ -521,19 +554,23 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
 
     /* sense length */
     if (flags & 0x2) {
-        snslen = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_fcp_snslen, tvb, offset, 4,
-                            snslen);
+        proto_tree_add_item_ret_uint(tree, hf_fcp_snslen, tvb, offset, 4,
+                                     ENC_BIG_ENDIAN, &snslen);
     }
     offset += 4;
 
     /* response length */
     if (flags & 0x1) {
-        rsplen = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_uint(tree, hf_fcp_rsplen, tvb, offset, 4,
-                            rsplen);
+        proto_tree_add_item_ret_uint(tree, hf_fcp_rsplen, tvb, offset, 4,
+                                     ENC_BIG_ENDIAN, &rsplen);
     }
     offset += 4;
+
+    /* Both lengths come from the packet; do not trust them. */
+    if ((uint64_t)rsplen + snslen > tvb_reported_length_remaining(tvb, offset)) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_fcp_rsp_len, tvb, offset);
+        return;
+    }
 
     /* rsp_info */
     if (rsplen) {
@@ -668,13 +705,19 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if (!pinfo->fd->visited) {
         proto_data = wmem_new(wmem_file_scope(), fcp_proto_data_t);
         proto_data->lun = fchdr->lun;
+        proto_data->request_data = NULL;
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
     } else {
         proto_data = (fcp_proto_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0);
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL) && (proto_data != NULL)) {
-        request_data = (fcp_request_data_t *)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER((unsigned)(proto_data->lun)));
+        if (!pinfo->fd->visited) {
+            /* Remember the exchange found now, a later exchange may reuse the key. */
+            proto_data->request_data = (fcp_request_data_t *)wmem_map_lookup(fcp_conv_data->luns,
+                    fcp_request_key(fchdr, proto_data->lun));
+        }
+        request_data = proto_data->request_data;
     }
 
     /* put a request_in in all frames except the command frame */
@@ -792,7 +835,7 @@ proto_register_fcp(void)
 
         { &hf_fcp_data_ro,
           {"FCP_DATA_RO", "fcp.data_ro",
-           FT_UINT32, BASE_DEC, VALS(fcp_iu_val), 0x0,
+           FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL}},
 
         { &hf_fcp_r_ctl,
@@ -952,6 +995,12 @@ proto_register_fcp(void)
     };
 
     /* Setup protocol subtree array */
+    static ei_register_info ei[] = {
+        { &ei_fcp_rsp_len, { "fcp.rsp_len_invalid", PI_MALFORMED, PI_ERROR,
+            "FCP_RSP response/sense length exceeds the packet", EXPFILL }},
+    };
+    expert_module_t *expert_fcp;
+
     static int *ett[] = {
         &ett_fcp,
         &ett_fcp_taskmgmt,
@@ -965,6 +1014,8 @@ proto_register_fcp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_fcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_fcp = expert_register_protocol(proto_fcp);
+    expert_register_field_array(expert_fcp, ei, array_length(ei));
 
     fcp_handle = register_dissector("fcp", dissect_fcp, proto_fcp);
 }
