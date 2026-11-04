@@ -54414,3 +54414,111 @@ class TestDissectEtag:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['11']
+
+
+class TestDissectEtch:
+    ETCH_FRAMES = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28,
+                   33, 35, 38, 44, 46, 48, 52, 66, 68]
+
+    def test_etch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''22 frames are decoded by Etch (found by the heuristic on port
+        4001 and 9999); none is malformed or has an error expert info, in
+        one and two passes, except frame 8, whose two undefined type codes
+        (0x8a, 0xa0) are reported as etch.unknown_type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etch_coverage.pcap.gz'),
+                '-Y', 'etch', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert [int(n) for n in stdout.split()] == self.ETCH_FRAMES
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etch_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etch_coverage.pcap.gz'),
+                    '-Y', 'etch.unknown_type',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8']
+
+    def test_etch_struct_field_count(self, cmd_tshark, capture_file, test_env):
+        '''A struct whose field count is a BYTE, SHORT or INT (frames 10,
+        12, 14) has its fields decoded (they were skipped before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etch_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 10, 12, 14, 22, 8}',
+                '-Tfields', '-eframe.number', '-eetch.keyvalue',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for line in stdout.splitlines():
+            num, _, kvs = line.partition('\t')
+            counts[int(num)] = len(kvs.split(',')) if kvs else 0
+        assert counts == {4: 2, 8: 19, 10: 2, 12: 2, 14: 2, 22: 0}
+
+    def test_etch_info_symbols(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''With a symbol folder the message hash is shown in the Info
+        column; the PDU count is per frame ("[2]", "[3]") and a frame
+        without a complete PDU shows no stale count.'''
+        (tmp_path / 'calc.ewh').write_text(
+            '11223344,Calc.add\n55667788,Calc.add_result\n'
+            '99aabbcc,Calc.notify\nshort\nzzzzzzzzzz,nothex\n')
+        (tmp_path / 'other.txt').write_text('11223344,Ignored\n')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-o', 'etch.file:' + str(tmp_path),
+                    '-r', capture_file('etch_coverage.pcap.gz'),
+                    '-Y', 'etch', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            info = {}
+            for line in stdout.splitlines():
+                num, _, text = line.partition('\t')
+                info[int(num)] = text.strip()
+            assert info[4] == 'Calc.add()'
+            assert info[6] == 'Calc.add_result()'
+            assert info[8] == 'Calc.notify()'
+            assert info[24] == ''
+            assert info[33] == '[2] Calc.add() Calc.add_result()'
+            assert info[35] == '[3] Calc.add() Calc.add_result() Calc.add()'
+            # a PDU completed by reassembly and a second PDU in one segment
+            assert info[48] == '[2] Calc.notify() Calc.add_result()'
+
+    def test_etch_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split over two or three segments, or with the header split
+        after 3 or 6 octets, are reassembled and decoded in the last
+        segment (frames 38, 44, 52); the short segments show no Etch.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etch_coverage.pcap.gz'),
+                '-Y', 'frame.number in {37, 38, 40, 41, 43, 44, 50, 51, 52}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eetch.msglength', '-eetch.string',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1]) for r in rows] == [
+            ('37', 'TCP'), ('38', 'ETCH'), ('40', 'TCP'), ('41', 'TCP'),
+            ('43', 'TCP'), ('44', 'ETCH'), ('50', 'TCP'), ('51', 'TCP'),
+            ('52', 'ETCH')]
+        for r in rows:
+            if r[1] == 'ETCH':
+                assert r[2] == '121,2,100'
+                assert r[3] == 'q' * 100
+
+    def test_etch_values(self, cmd_tshark, capture_file, test_env):
+        '''Scalars, floats and strings of the all-types message (frame 8)
+        and the string/bytes message (frame 16).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etch_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-eetch.byte', '-eetch.short', '-eetch.int',
+                '-eetch.long', '-eetch.float', '-eetch.double',
+            ), encoding='utf-8', env=test_env)
+        byte, short, int_, long_, flt, dbl = stdout.rstrip('\n').split('\t')
+        assert byte == '-7'
+        assert short == '-300'
+        assert '70000' in int_.split(',')
+        assert long_ == '-5000000000'
+        # Decimal separator depends on the locale
+        assert flt in ('1.5', '1,5')
+        assert dbl in ('-2.25', '-2,25')
