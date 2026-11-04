@@ -282,7 +282,8 @@ capture_eth(const unsigned char *pd, int offset, int len, capture_packet_info_t 
        (IPX/SPX is they only thing that can be contained inside a
        straight 802.3 packet). A non-0xffff value means that there's an
        802.2 layer inside the 802.3 layer */
-    if (pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
+    if (BYTES_ARE_IN_FRAME(offset, len, ETH_HEADER_SIZE + 2) &&
+        pd[offset+14] == 0xff && pd[offset+15] == 0xff) {
       ethhdr_type = ETHERNET_802_3;
     }
     else {
@@ -416,8 +417,6 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   eth_hdr           *ehdr;
   bool              is_802_2;
   proto_tree        *fh_tree = NULL;
-  static eth_hdr    ehdrs[4];
-  static int        ehdr_num=0;
   proto_tree        *tree;
   ethertype_data_t  ethertype_data;
   heur_dtbl_entry_t *hdtbl_entry = NULL;
@@ -425,12 +424,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   /* a facility for not duplicating long code */
   bool              needs_dissector_with_data = false;
 
-  /* Rotating buffer */
-  ehdr_num++;
-  if(ehdr_num>=4){
-     ehdr_num=0;
-  }
-  ehdr=&ehdrs[ehdr_num];
+  /* Allocate per packet, so that the tap never sees stale data */
+  ehdr = wmem_new0(pinfo->pool, eth_hdr);
 
   tree=parent_tree;
 
@@ -837,8 +832,16 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
         }
       }
       /* If it was determined that we have padding, add it to the tree. */
+      /* Padding must not run into a known FCS, nor past the captured data */
+      if (fcs_len == 4) {
+        unsigned max_padding = trailer_reported_length >= 4 ? trailer_reported_length - 4 : 0;
+        if (padding_length > max_padding)
+          padding_length = max_padding;
+      }
+      if (padding_length > trailer_length)
+        padding_length = trailer_length;
       if (padding_length > 0) {
-          tvb_ensure_bytes_exist(tvb, 0, padding_length);
+          tvb_ensure_bytes_exist(trailer_tvb, 0, padding_length);
           proto_tree_add_item(fh_tree, hf_eth_padding, trailer_tvb, 0,
               padding_length, ENC_NA);
           trailer_length -= padding_length;
@@ -881,8 +884,8 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
          The trailer must be at least 4 bytes long to have enough
          space for an FCS. */
 
-      if (fcs_len == 4 || (fcs_len == -1 && !dissected &&
-        frame_len >= 64 && trailer_reported_length >= 4)) {
+      if (trailer_reported_length >= 4 &&
+          (fcs_len == 4 || (fcs_len == -1 && !dissected && frame_len >= 64))) {
         /* Either we know we have an FCS, or we believe we have an FCS. */
         if (trailer_length < trailer_reported_length) {
           /* The packet is claimed to have enough data for a 4-byte FCS,
@@ -917,6 +920,10 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
                                               &hdtbl_entry, &payload_length);
         }
       }
+    }
+
+    if (real_trailer_tvb == NULL) {
+      real_trailer_tvb = tvb_new_subset_remaining(trailer_tvb, padding_length);
     }
 
     if (!dissected) {
@@ -992,16 +999,18 @@ dissect_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
      putting the frame on the network. Make sure these packets get
      a proper trailer (even though the sliced frame might not
      properly dissect. */
-  if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_captured_length(real_tvb)) ) {
-    tvbuff_t *next_tvb;
-    unsigned total_trailer_length = eth_trailer_length;
+  /* If we have to guess if the trailer includes the FCS, assume not; the
+   * user probably set the "eth_trailer_length" preference to the total
+   * trailer length. The user has already set the preference, so should
+   * have little difficulty changing it or the "fcs" preference if need be.
+   */
+  unsigned total_trailer_length = eth_trailer_length;
+  total_trailer_length += (fcs_len < 0 ? 0 : (unsigned)fcs_len);
 
-    /* If we have to guess if the trailer includes the FCS, assume not; the
-     * user probably set the "eth_trailer_length" preference to the total
-     * trailer length. The user has already set the preference, so should
-     * have little difficulty changing it or the "fcs" preference if need be.
-     */
-    total_trailer_length += (fcs_len < 0 ? 0 : (unsigned)fcs_len);
+  if ( (eth_trailer_length > 0) &&
+       (total_trailer_length < tvb_captured_length(real_tvb)) &&
+       (total_trailer_length <= tvb_reported_length(real_tvb)) ) {
+    tvbuff_t *next_tvb;
 
     /* Dissect the tvb up to, but not including the trailer */
     next_tvb = tvb_new_subset_length_caplen(real_tvb, 0,
