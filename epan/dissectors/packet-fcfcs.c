@@ -75,6 +75,7 @@ static int hf_fcfcs_num_platform_name_entries;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_fcfcs_no_record_of_exchange;
+static expert_field ei_fcfcs_unterminated_string;
 
 /* Initialize the subtree pointers */
 static int ett_fcfcs;
@@ -228,40 +229,57 @@ dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, bool isreq)
     }
 }
 
+/* Add a NUL terminated string; false if there is none in the tvb. */
+static bool
+fcfcs_add_cstring (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                   int hf, unsigned *offset)
+{
+    unsigned end;
+
+    if (tvb_captured_length_remaining (tvb, *offset) <= 0) {
+        return false;
+    }
+    if (!tvb_find_uint8_remaining (tvb, *offset, 0, &end)) {
+        proto_tree_add_expert_remaining (tree, pinfo,
+                &ei_fcfcs_unterminated_string, tvb, *offset);
+        return false;
+    }
+    proto_tree_add_item (tree, hf, tvb, *offset, end + 1 - *offset, ENC_ASCII);
+    *offset = end + 1;
+    return true;
+}
+
 static void
-dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, bool isreq)
+dissect_fcfcs_gieil (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool isreq)
 {
     unsigned offset = 16; /* past the fcct header */
-    unsigned len;
     uint32_t tot_len, prevlen;
+    unsigned start;
+
+    if (!tree) {
+        return;
+    }
 
     if (isreq) {
         proto_tree_add_item (tree, hf_fcs_iename, tvb, offset, 8, ENC_NA);
     }
     else {
         proto_tree_add_item_ret_uint(tree, hf_fcfcs_list_length, tvb, offset+3, 1, ENC_NA, &tot_len);
+        offset += 4;
+        start = offset;
 
-        prevlen = 0;
-        len = tvb_strsize(tvb, offset+4);
-        proto_tree_add_item (tree, hf_fcs_vendorname, tvb, offset+4,
-                len, ENC_ASCII);
-        prevlen += len;
-
-        len = tvb_strsize(tvb, offset+4+prevlen);
-        proto_tree_add_item (tree, hf_fcs_modelname, tvb, offset+4+prevlen,
-                len, ENC_ASCII);
-        prevlen += len;
-
-        len = tvb_strsize(tvb, offset+4+prevlen);
-        proto_tree_add_item (tree, hf_fcs_releasecode, tvb,
-                offset+4+prevlen, len, ENC_ASCII);
-        prevlen += len;
-        offset += (4+prevlen);
+        if (!fcfcs_add_cstring (tvb, pinfo, tree, hf_fcs_vendorname, &offset) ||
+            !fcfcs_add_cstring (tvb, pinfo, tree, hf_fcs_modelname, &offset) ||
+            !fcfcs_add_cstring (tvb, pinfo, tree, hf_fcs_releasecode, &offset)) {
+            return;
+        }
+        prevlen = offset - start;
         while (tot_len > prevlen) {
-            len = tvb_strsize(tvb, offset);
-            proto_tree_add_item(tree, hf_fcfcs_vendor_specific_information, tvb, offset, len, ENC_ASCII);
-            prevlen += len;
-            offset += len;
+            if (!fcfcs_add_cstring (tvb, pinfo, tree,
+                    hf_fcfcs_vendor_specific_information, &offset)) {
+                return;
+            }
+            prevlen = offset - start;
         }
     }
 }
@@ -804,7 +822,7 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         dissect_fcfcs_gmal (tvb, fcfcs_tree, isreq);
         break;
     case FCFCS_GIEIL:
-        dissect_fcfcs_gieil (tvb, fcfcs_tree, isreq);
+        dissect_fcfcs_gieil (tvb, pinfo, fcfcs_tree, isreq);
         break;
     case FCFCS_GPL:
         dissect_fcfcs_gpl (tvb, fcfcs_tree, isreq);
@@ -993,6 +1011,7 @@ proto_register_fcfcs (void)
     static ei_register_info ei[] = {
         /* Generated from convert_proto_tree_add_text.pl */
         { &ei_fcfcs_no_record_of_exchange, { "fcfcs.no_record_of_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode MSG_ACC/RJT", EXPFILL }},
+        { &ei_fcfcs_unterminated_string, { "fcfcs.unterminated_string", PI_MALFORMED, PI_ERROR, "String is not NUL terminated", EXPFILL }},
     };
 
     expert_module_t* expert_fcfcs;
