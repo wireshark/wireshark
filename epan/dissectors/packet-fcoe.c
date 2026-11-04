@@ -165,7 +165,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         version = len_sof >> 14;
         ver = "pre-T11 ";
         if (version != 0)
-            ver = wmem_strdup_printf(pinfo->pool, ver, "pre-T11 ver %d ", version);
+            ver = wmem_strdup_printf(pinfo->pool, "pre-T11 ver %d ", version);
         eof_offset = header_len + frame_len + 4;
         eof_str = "none";
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
@@ -185,7 +185,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ver = "";
         version = tvb_get_uint8(tvb, 0) >> 4;
         if (version != 0)
-            ver = wmem_strdup_printf(pinfo->pool, ver, "ver %d ", version);
+            ver = wmem_strdup_printf(pinfo->pool, "ver %d ", version);
 
         frame_len = tvb_reported_length_remaining(tvb, FCOE_HEADER_LEN);
         if (frame_len >= FCOE_TRAILER_LEN) {
@@ -199,7 +199,8 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         eof_offset = header_len + frame_len + 4;
         if (NULL == (eof_str = fcoe_get_eof(tvb, eof_offset))) {
             /* We didn't find the EOF, look 4 bytes earlier */
-            if (NULL != (eof_str = fcoe_get_eof(tvb, eof_offset-4))) {
+            if (frame_len >= 4 &&
+                NULL != (eof_str = fcoe_get_eof(tvb, eof_offset-4))) {
                 /* Found it, so it seems there's an Ethernet FCS. */
                 frame_len -= 4;
                 set_actual_length(tvb, eof_offset);
@@ -274,6 +275,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      */
     if (tvb_bytes_exist(tvb, eof_offset, 1)) {
         proto_tree_add_item(fcoe_tree, hf_fcoe_eof, tvb, eof_offset, 1, ENC_BIG_ENDIAN);
+        eof = tvb_get_uint8(tvb, eof_offset);
     }
 
     /* Set the SOF/EOF flags in the packet_info header */
@@ -286,8 +288,9 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if (eof != FCOE_EOFn) {
         fc_data.sof_eof |= FC_DATA_EOF_LAST_FRAME;
-    } else if (eof != FCOE_EOFt) {
-        fc_data.sof_eof |= FC_DATA_EOF_INVALID;
+        if (eof != FCOE_EOFt) {
+            fc_data.sof_eof |= FC_DATA_EOF_INVALID;
+        }
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
