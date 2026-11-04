@@ -658,6 +658,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             } else {
                 /* EVS AMR-WB IO SID */
                 str = "EVS AMR-WB IO SID";
+                is_compact = true;
             }
         } else {
             str = try_val_to_str_idx(num_bits, evs_protected_payload_sizes_value, &idx);
