@@ -58020,3 +58020,67 @@ class TestDissectFinger:
                 '-Y', 'finger.nocrlf', '-Tfields', '-eframe.number',
                 '-efinger.query')
         assert lines == ['18\t/W bo']
+
+
+class TestDissectFip:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fip_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_fip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''22 FIP frames and 6 with FC ELS (FLOGI, FDISC, LOGO and ELP)
+        encapsulations; none malformed or with an expert info.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 28
+        assert lines.count('FIP') == 22
+        assert lines.count('FC ELS') == 6
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fip_info(self, cmd_tshark, capture_file, test_env):
+        '''Opcode and subcode names, including unknown ones.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            'Solicitation', 'Advertisement', 'Advertisement', 'FLOGI',
+            'ACC (FLOGI)', 'FDISC', 'LOGO', 'ACC (LOGO)', 'ECHO',
+            'Keep-Alive', 'Clear Virtual Link', 'VLAN Request',
+            'VLAN Response', 'Probe Request', 'Probe Reply',
+            'Claim Notification', 'Claim Response', 'Beacon',
+            'Solicitation', 'Solicitation', 'Discovery 0x7f',
+            'Link Service 0x7f', 'Control 0x7f', 'VLAN 0x7f',
+            'VN2VN 0x7f', 'Unknown op 0x9', 'Keep-Alive', 'Solicitation',
+        ]
+
+    def test_fip_vendor_data(self, cmd_tshark, capture_file, test_env):
+        '''The vendor specific data starts after the 8 octet Vendor ID
+        (it started at offset 9 before the fix).'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 19', '-Tfields', '-efip.vendor',
+                '-efip.vendor.data')
+        assert lines == ['41434d452d464950,41434d452d464950\tdeadbeef01020304']
+
+    def test_fip_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Descriptor fields of the discovery advertisement and the
+        keep-alive with a VN_Port descriptor, and the FC-4 features.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2', '-Tfields', '-efip.pri', '-efip.mac',
+                '-efip.name', '-efip.fab.vfid', '-efip.fab.map', '-efip.fab.name',
+                '-efip.fka', '-efip.flags.available', '-efip.flags.sol',
+                '-efip.flags.fport')
+        assert lines == ['128\t0e:fc:00:00:00:02\t20:00:00:00:00:00:00:01\t1\t'
+                         '0e.fc.00\t20:00:00:00:00:00:00:99\t8000\tTrue\tTrue\tTrue']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-Tfields', '-efip.vn.mac',
+                '-efip.vn.fc_id', '-efip.vn.pwwn')
+        assert lines == ['0e:fc:00:00:00:02\t0x00010203\t10:00:00:00:00:00:00:02']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 19', '-Tfields', '-efip.fc4f.ip',
+                '-efip.fc4f.fcp', '-efip.fc4f.gs3', '-efip.fc4f.feat.fcp.target',
+                '-efip.fc4f.feat.fcp.initiator')
+        assert len(lines) == 1
