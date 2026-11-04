@@ -81,7 +81,7 @@ get_git_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
   uint16_t plen;
 
   if (!get_packet_length(tvb, pinfo, offset, &plen))
-    return 0; /* No idea what this is */
+    return 4; /* No idea what this is, skip the length field */
 
   return plen < 4
       ? 4   // Special packet (e.g., flush-pkt)
@@ -123,6 +123,9 @@ dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
   proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, *offset, 4, plen);
   *offset += 4;
   plen -= 4;
+
+  if (plen == 0)
+    return true;
 
   /*
    * Parse out the version of the Git Protocol
