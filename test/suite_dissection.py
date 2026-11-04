@@ -58177,3 +58177,45 @@ class TestDissectFix:
         assert lines == ['86\tHeartbeat', '88\t[FIX continuation]',
                          '90\tTestRequest', '92\tHeartbeat',
                          '96\tHeartbeat, Heartbeat']
+
+
+class TestDissectFlexnet:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('flexnet_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_flexnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''5 of 6 AX.25 frames carry FlexNet (PID 0xce), none malformed
+        or with a warning or error (AX.25 itself may add a note, for
+        example that it assumes modulo 8).'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['Flexnet'] * 4 + ['AX.25-NoL3', 'Flexnet']
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_flexnet_header(self, cmd_tshark, capture_file, test_env):
+        '''Destination, source and control are 15 octets each.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexnet', '-Tfields', '-eframe.number', '-eflexnet.dst',
+                '-eflexnet.src', '-eflexnet.ctl')
+        assert lines == [
+            '1\t4442304142432d3100000000000000\t444c3158595a2d3200000000000000\t010203000000000000000000000000',
+            '2\t410000000000000000000000000000\t420000000000000000000000000000\t000000000000000000000000000000',
+            '3\t4442304142432d3100000000000000\t444c3158595a2d3200000000000000\t010203000000000000000000000000',
+            '4\t4442304142432d3100000000000000\t444c3158595a2d3200000000000000\t010203000000000000000000000000',
+            '6\t0102030405060708090a0b0c0d0e0f\t101112131415161718191a1b1c1d1e\tf0f1f2f3f4f5f6f7f8f9fafbfcfdfe',
+        ]
+
+    def test_flexnet_payload(self, cmd_tshark, capture_file, test_env):
+        '''The data after the 45 octet header goes to the data dissector.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flexnet', '-Tfields', '-eframe.number', '-edata.data')
+        assert lines[0] == '1\t' + b'Hello FlexNet'.hex()
+        assert lines[1] == '2\t'
+        assert lines[4] == '6\tffffffff'
