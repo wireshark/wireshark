@@ -81,6 +81,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
+#include <epan/proto_data.h>
 
 void proto_register_fw1(void);
 void proto_reg_handoff_fw1(void);
@@ -128,6 +129,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   uint32_t      iface_len = 10;
   wmem_strbuf_t *header;
   int           i;
+  unsigned      iface_count;
   bool          found;
   static const char     fw1_header[] = "FW1 Monitor";
   ethertype_data_t ethertype_data;
@@ -152,21 +154,27 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   interface_name = (char*)tvb_get_stringzpad(pinfo->pool, tvb, 2, iface_len, ENC_ASCII|ENC_NA);
 
-  /* Known interface name - if not, remember it */
-  found=false;
-  for (i=0; i<interface_anzahl; i++) {
-    if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
-      found=true;
-      break;
+  /* Known interface name - if not, remember it (first pass only) */
+  if (!PINFO_FD_VISITED(pinfo)) {
+    found=false;
+    for (i=0; i<interface_anzahl; i++) {
+      if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
+        found=true;
+        break;
+      }
     }
+    if (!found && interface_anzahl < MAX_INTERFACES) {
+      p_interfaces[interface_anzahl] = wmem_strdup(wmem_file_scope(), interface_name);
+      interface_anzahl++;
+    }
+    /* Remember how many interfaces were known at this packet */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_fw1, 0, GUINT_TO_POINTER((unsigned)interface_anzahl + 1));
   }
-  if (!found && interface_anzahl < MAX_INTERFACES) {
-    p_interfaces[interface_anzahl] = wmem_strdup(wmem_file_scope(), interface_name);
-    interface_anzahl++;
-  }
+  iface_count = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_fw1, 0));
+  iface_count = iface_count > 0 ? iface_count - 1 : 0;
 
   /* display all interfaces always in the same order */
-  for (i=0; i<interface_anzahl; i++) {
+  for (i=0; (unsigned)i<iface_count && i<interface_anzahl; i++) {
     if ( strcmp(p_interfaces[i], interface_name) == 0 ) {
       wmem_strbuf_append_printf(header, "  %c%c %s %c%c",
                                 direction == 'i' ? 'i' : (direction == 'O' ? 'O' : (direction == 'E' ? 'E' :  ' ') ),
