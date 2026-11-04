@@ -727,7 +727,7 @@ dissect_fr_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 static int
 dissect_fr_stripped_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_fr_common(tvb, pinfo, tree, true, false );
+  dissect_fr_common(tvb, pinfo, tree, false, false );
   return tvb_captured_length(tvb);
 }
 
