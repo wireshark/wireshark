@@ -29,8 +29,8 @@ seen this here: https://github.com/lusis/gelfd/blob/229cf5f1f913a35db648b195300d
 #define MIN_ZLIB_MSG  46
 
 /* make 32 bit message id from 64 bit message id */
-#define BUILD_MESSAGE_ID(X) ((X[3] << 3 | X[2] << 2 | X[1] << 1 | X[0]) ^ \
-                            (X[4] << 3 | X[5] << 2 | X[6] << 1 | X[7]))
+#define BUILD_MESSAGE_ID(X) ((((uint32_t)(X)[3] << 24) | ((uint32_t)(X)[2] << 16) | ((uint32_t)(X)[1] << 8) | (uint32_t)(X)[0]) ^ \
+                            (((uint32_t)(X)[4] << 24) | ((uint32_t)(X)[5] << 16) | ((uint32_t)(X)[6] << 8) | (uint32_t)(X)[7]))
 
 
 void proto_register_gelf(void);
@@ -192,27 +192,25 @@ dissect_gelf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool heur_chec
 
     if (header == HEADER_CHUNKED) {
         uint32_t number, count, short_id, data_len;
-        GByteArray *bytes;
+        uint8_t bytes[8];
         char message_id[17];
         bool more_frags;
         fragment_head *fd_head;
 
         message_id[0] = '\0';
-        bytes = g_byte_array_sized_new(8);
 
         it = proto_tree_add_boolean(gelf_tree, hf_gelf_pdu_chunked, tvb, 0, 2, true);
         proto_item_set_generated(it);
-        proto_tree_add_bytes_item(gelf_tree, hf_gelf_pdu_message_id, tvb, 2, 8, ENC_BIG_ENDIAN, bytes,
-                                  NULL, NULL);
+        proto_tree_add_item(gelf_tree, hf_gelf_pdu_message_id, tvb, 2, 8, ENC_NA);
+        tvb_memcpy(tvb, bytes, 2, 8);
         proto_tree_add_item_ret_uint(gelf_tree, hf_gelf_pdu_chunk_number, tvb, 10, 1, ENC_BIG_ENDIAN,
                                      &number);
         proto_tree_add_item_ret_uint(gelf_tree, hf_gelf_pdu_chunk_count, tvb, 11, 1, ENC_BIG_ENDIAN,
                                      &count);
-        bytes_to_hexstr(message_id, bytes->data, 8);
+        bytes_to_hexstr(message_id, bytes, 8);
         message_id[16] = '\0';
         // HACK: convert 64 bit message id to 32 bit :)
-        short_id = BUILD_MESSAGE_ID(bytes->data);
-        g_byte_array_free(bytes, true);
+        short_id = BUILD_MESSAGE_ID(bytes);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Chunked packet: id: %s, number %u, count %u", message_id,
                      number, count);
         data_len = tvb_captured_length_remaining(tvb, 12);
