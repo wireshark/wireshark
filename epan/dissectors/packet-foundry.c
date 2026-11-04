@@ -289,6 +289,13 @@ dissect_fdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 					"TLV with invalid length: %u", tlv_length);
 				break;
 			}
+			/* The fixed part of the TLV must fit in its length */
+			if ((tlv_type == FDP_TYPE_NET && tlv_length < 13) ||
+			    (tlv_type == FDP_TYPE_TAG && tlv_length < 8)) {
+				proto_tree_add_expert_format(fdp_tree, pinfo, &ei_fdp_tlv_length, tvb, offset, tlv_length,
+					"TLV length %u too short for its type", tlv_length);
+				break;
+			}
 			type_string = val_to_str(pinfo->pool, tlv_type, fdp_type_vals, "[%u]");
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", type_string);
 
