@@ -19,6 +19,9 @@
 #include <ui/qt/utils/themes/theme_parser.h>
 #include <ui/qt/utils/themes/theme_writer.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
+#ifdef HAVE_LUA
+#include <ui/qt/widgets/theme_lua_code_preview.h>
+#endif
 #include "main_application.h"
 
 #include <epan/prefs.h>
@@ -253,7 +256,11 @@ ThemeDesignerDialog::ThemeDesignerDialog(QWidget *parent, Context context,
         ui_->fontOverrideBannerLabel->setText(
             tr("Your monospace font preference on the Fonts page (%1) overrides the theme's monospace font, "
                "so this setting only applies where that preference is not set. "
+#ifdef HAVE_LUA
+               "The Packet List sample shows the theme's font, the Lua Code sample your preference.")
+#else
                "The preview shows the theme's font.")
+#endif
             .arg(FontManager::displayName(FontManager::fontFromName(pref_font))));
     }
 
@@ -282,9 +289,25 @@ ThemeDesignerDialog::ThemeDesignerDialog(QWidget *parent, Context context,
     connect(ui_->welcomePreview, &ThemeWelcomePreview::childDialogClosed,
             this, &ThemeDesignerDialog::keepInFront);
 
+#ifdef HAVE_LUA
+    // The Lua Debugger exists only with Lua, and so does its sample.
+    lua_code_preview_ = new ThemeLuaCodePreview(ui_->previewTabWidget);
+    lua_code_preview_->setObjectName(QStringLiteral("luaCodeTab"));
+    ui_->previewTabWidget->addTab(lua_code_preview_, tr("Lua Code"));
+    connect(lua_code_preview_, &ThemeLuaCodePreview::childDialogClosed,
+            this, &ThemeDesignerDialog::keepInFront);
+    connect(lua_code_preview_, &ThemeLuaCodePreview::layerPicked,
+            this, &ThemeDesignerDialog::previewLayerPicked);
+    connect(lua_code_preview_, &ThemeLuaCodePreview::pickMenuRequested,
+            this, &ThemeDesignerDialog::previewPickMenu);
+#endif
+
     // Clicking a sample selects the theme color that paints the spot.
     pickers_.insert(ui_->welcomePreview, &ui_->welcomePreview->picker());
     pickers_.insert(ui_->packetListPreview, &ui_->packetListPreview->picker());
+#ifdef HAVE_LUA
+    pickers_.insert(lua_code_preview_, &lua_code_preview_->picker());
+#endif
     for (auto it = pickers_.cbegin(); it != pickers_.cend(); ++it) {
         QWidget *sample = static_cast<QWidget *>(it.key());
         sample->installEventFilter(this);
@@ -355,6 +378,10 @@ ThemeDesignerDialog::ThemeDesignerDialog(QWidget *parent, Context context,
 
     connect(ThemeManager::instance(), &ThemeManager::themeChanged,
             this, &ThemeDesignerDialog::themeChanged);
+#ifdef HAVE_LUA
+    connect(FontManager::instance(), &FontManager::monospaceFontChanged,
+            this, &ThemeDesignerDialog::updatePlayground);
+#endif
 
     ThemeManager::setNoticeState(ui_->bundledBannerLabel, "info");
     ThemeManager::setNoticeState(ui_->fontOverrideBannerLabel, "info");
@@ -958,13 +985,22 @@ void ThemeDesignerDialog::updatePlayground()
     const QHash<ThemeManager::ThemeToken, ThemeColorPair> tokens =
         ThemeManager::instance()->resolveDraftTokens(draft_, side_dark_, &palette);
     ui_->welcomePreview->setTheme(tokens, side_dark_, palette);
-    ui_->packetListPreview->setPreviewColors(ThemeManager::flattenTokens(tokens, side_dark_),
-                                             draft_.declaresWindow());
+    const QHash<ThemeManager::ThemeToken, QColor> colors = ThemeManager::flattenTokens(tokens, side_dark_);
+    ui_->packetListPreview->setPreviewColors(colors, draft_.declaresWindow());
 
     const QFont regular = resolvedFont(draft_.regularFont, false);
     const QFont monospace = resolvedFont(draft_.monospaceFont, true);
     ui_->welcomePreview->setPreviewFont(regular);
     ui_->packetListPreview->setPreviewFonts(regular, monospace);
+
+#ifdef HAVE_LUA
+    lua_code_preview_->setPreviewColors(colors);
+    // The Lua Debugger editor shows the monospace font preference when one
+    // is set, and follows the zoom level.
+    const bool pref_font = prefs.gui_font_name && *prefs.gui_font_name;
+    lua_code_preview_->setPreviewFont(pref_font ? FontManager::zoomedMonospaceFont()
+                                                : FontManager::scaledFont(monospace));
+#endif
 }
 
 void ThemeDesignerDialog::updateStatus()

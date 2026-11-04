@@ -331,7 +331,10 @@ endif()
 
 if(LUA_FOUND)
 	include(${CMAKE_SOURCE_DIR}/ui/qt/lua_debugger/CMakeLists.txt)
-	list(APPEND WIRESHARK_QT_HEADERS ${WIRESHARK_LUA_DEBUGGER_HEADERS})
+	list(APPEND WIRESHARK_QT_HEADERS
+		${WIRESHARK_LUA_DEBUGGER_HEADERS}
+		${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_lua_code_preview.h
+	)
 endif()
 
 set (STRATOSHARK_QT_HEADERS
@@ -683,7 +686,10 @@ if(ENABLE_PCAP)
 endif()
 
 if(LUA_FOUND)
-	list(APPEND WIRESHARK_QT_SRC ${WIRESHARK_LUA_DEBUGGER_SRCS})
+	list(APPEND WIRESHARK_QT_SRC
+		${WIRESHARK_LUA_DEBUGGER_SRCS}
+		${CMAKE_SOURCE_DIR}/ui/qt/widgets/theme_lua_code_preview.cpp
+	)
 endif()
 
 set (STRATOSHARK_QT_SRC
