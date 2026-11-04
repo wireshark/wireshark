@@ -55749,3 +55749,61 @@ class TestDissectExtreme:
         assert len(lines) == 1
         assert 'ESL TLV is too short' in lines[0]
         assert 'Exception' not in lines[0]
+
+
+class TestDissectExtremeExeh:
+    '''EXEH (EXos internal Extra Header, ethertype 0xE555) from the
+    synthetic capture extreme_exeh_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_extreme_exeh_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 14 frames contain EXEH; no malformed packets and no error
+        expert infos in one and two passes.'''
+        cap = capture_file('extreme_exeh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'exeh', '-Tfields',
+                '-eframe.number')
+        assert len(lines) == 14
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, cap, test_env, *passes, '-Y',
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_extreme_exeh_expert_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Frames with a wrong 0x8100 length, unequal ports, a non-zero
+        incoming frame source and an unknown outgoing frame source magic
+        get warnings.'''
+        cap = capture_file('extreme_exeh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        got = {l.split('\t')[0]: l.split('\t')[1] for l in lines}
+        assert got['6'] == 'Unexpected length'
+        assert got['10'] == 'Unequal ports,Incoming framesource non-zero'
+        assert got['11'] == 'Unequal ports,Outgoing framesource unknown magic'
+        assert got['12'] == 'Unequal ports'
+        assert got['14'] == 'Ethertype encapsulation nested too deeply'
+        assert sorted(got, key=int) == ['6', '10', '11', '12', '14']
+
+    def test_extreme_exeh_fields(self, cmd_tshark, capture_file, test_env):
+        '''Direction, module, port and frame source values.'''
+        cap = capture_file('extreme_exeh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number <= 3',
+                '-Tfields', '-eexeh.direction', '-eexeh.module1', '-eexeh.port1',
+                '-eexeh.module2', '-eexeh.port2', '-eexeh.framesource')
+        assert lines == ['0x0007\t1\t2\t1\t2\t0x0000',
+                         '0x00ff\t3\t4\t0\t0\t0x0000',
+                         '0x00ff\t1\t9\t0\t0\t0x4248']
+
+    def test_extreme_exeh_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Frame 14 nests EXEH 600 times. The nesting is limited (no stack
+        exhaustion or endless dissection) with a warning on the ethertype
+        item ("Ethertype: Limit the nesting of encapsulated payloads").'''
+        cap = capture_file('extreme_exeh_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 14',
+                '-Tfields', '-e_ws.expert.message')
+        assert lines == ['Ethertype encapsulation nested too deeply']
