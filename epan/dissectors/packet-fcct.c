@@ -109,7 +109,7 @@ get_gs_server (uint8_t gstype, uint8_t gssubtype)
         else if (gssubtype == FCCT_GSSUBTYPE_IP)
             return FCCT_GSRVR_IP;
         return FCCT_GSRVR_UNKNOWN;
-    case FCCT_GSRVR_FCTLR:
+    case FCCT_GSTYPE_FCTLR:
          if (gssubtype == FCCT_GSSUBTYPE_FCTLR)
               return (FCCT_GSRVR_FCTLR);
          else return (FCCT_GSRVR_UNKNOWN);
