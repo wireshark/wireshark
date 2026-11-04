@@ -194,17 +194,17 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
             }
         }
         mbim_tvb = tvb_new_subset_remaining(tvb, user_data_offset);
-        call_dissector_only(mbim_dissector, mbim_tvb, pinfo, tree, data);
+        call_dissector_only(mbim_dissector, mbim_tvb, pinfo, tree, NULL);
     }
     else if (message_length){
         char* message = (char*)tvb_get_string_enc(pinfo->pool, tvb, message_offset, message_length, ENC_LITTLE_ENDIAN | ENC_UTF_16);
-        col_set_str(pinfo->cinfo, COL_INFO, message);
+        col_add_str(pinfo->cinfo, COL_INFO, message);
         if (provider_name_offset) {
             char* provider_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, provider_name_offset, provider_name_length, ENC_LITTLE_ENDIAN | ENC_UTF_16);
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, provider_name);
+            col_add_str(pinfo->cinfo, COL_PROTOCOL, provider_name);
         }
     } else {
-        col_set_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id, pinfo->pool));
+        col_add_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id, pinfo->pool));
     }
 
     etw_counter += 1;
