@@ -231,10 +231,12 @@ typedef struct Property_Key_Value
 /// <param name="dwPropertyCount"></param>
 /// <param name="lpszOutBuffer"></param>
 /// <param name="dwOutBufferCount"></param>
+#define ETW_MAX_FORMATTED_LEN (64 * 1024)
+
 static int
 format_message(char* lpszMessage, wmem_array_t* propArray, wmem_allocator_t* allocator, wmem_strbuf_t** out_buffer)
 {
-    uint16_t startLoc = 0;
+    unsigned startLoc = 0;
     int percent_loc = 0;
     PROPERTY_KEY_VALUE key_value;
     *out_buffer = wmem_strbuf_new(allocator, NULL);
@@ -280,6 +282,12 @@ format_message(char* lpszMessage, wmem_array_t* propArray, wmem_allocator_t* all
             if (lpszMessage[i] == '!' && lpszMessage[i + 1] == 'S' && lpszMessage[i + 2] == '!')
             {
                 i += 3;
+            }
+
+            /* Cap the formatted output; the rest is appended unformatted */
+            if (wmem_strbuf_get_len(*out_buffer) + strlen(lpszMessage + startLoc) + strlen((char*) key_value.value) > ETW_MAX_FORMATTED_LEN)
+            {
+                break;
             }
 
             /* We have everything */
@@ -425,7 +433,8 @@ dissect_edata_tlvs(tvbuff_t* tvb, packet_info* pinfo, proto_tree* edata_tree, ui
 
             proto_tree_add_item_ret_uint16(edata_item_data_tree, hf_etw_edata_traits_traitssize, tvb, edata_off_int, 2, ENC_LITTLE_ENDIAN, &traits_size);
             edata_off_int += 2;
-            proto_tree_add_item(edata_item_data_tree, hf_etw_edata_traits_providername, tvb, edata_off_int, traits_size - 2, ENC_NA | ENC_UTF_8);
+            if (traits_size >= 2)
+                proto_tree_add_item(edata_item_data_tree, hf_etw_edata_traits_providername, tvb, edata_off_int, traits_size - 2, ENC_UTF_8);
             /* edata_off_int += traits_size; */
             break;
         }
@@ -461,7 +470,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     uint16_t event_id;
     uint64_t event_keywords;
     nstime_t timestamp;
-    uint64_t ts;
+    int64_t ts;
     unsigned offset = 0;
     static int* const etw_header_flags[] = {
         &hf_etw_header_flag_extended_info,
@@ -505,9 +514,14 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     offset += 4;
     proto_tree_add_item(etw_header, hf_etw_process_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    ts = tvb_get_letoh64(tvb, offset) - INT64_C(0x019DB1DED53E8000);
-    timestamp.secs = (unsigned)(ts / 10000000);
-    timestamp.nsecs = (unsigned)((ts % 10000000) * 100);
+    ts = (int64_t)tvb_get_letoh64(tvb, offset) - INT64_C(0x019DB1DED53E8000);
+    /* Round towards minus infinity so that nsecs is never negative */
+    timestamp.secs = (time_t)(ts / 10000000);
+    timestamp.nsecs = (int)((ts % 10000000) * 100);
+    if (timestamp.nsecs < 0) {
+        timestamp.secs -= 1;
+        timestamp.nsecs += 1000000000;
+    }
     proto_tree_add_time(etw_header, hf_etw_time_stamp, tvb, offset, 8, &timestamp);
     offset += 8;
     tvb_get_letohguid(tvb, offset, &provider_id);
@@ -624,7 +638,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
                 char* src_addr;
                 proto_item_set_text(etw_tlv, "Extra Information Item (SRC_ADDR)");
                 proto_tree_add_item_ret_string(etw_tlv, hf_etw_src, tvb, tlv_offset, tlv_length, ENC_NA | ENC_ASCII, pinfo->pool, (const uint8_t**)&src_addr);
-                col_set_str(pinfo->cinfo, COL_DEF_SRC, src_addr);
+                col_add_str(pinfo->cinfo, COL_DEF_SRC, src_addr);
             }
             else if (tlv_type == 4)
             {
@@ -632,7 +646,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
                 char* dst_addr;
                 proto_item_set_text(etw_tlv, "Extra Information Item (DST_ADDR)");
                 proto_tree_add_item_ret_string(etw_tlv, hf_etw_dst, tvb, tlv_offset, tlv_length, ENC_NA | ENC_ASCII, pinfo->pool, (const uint8_t**)&dst_addr);
-                col_set_str(pinfo->cinfo, COL_DEF_DST, dst_addr);
+                col_add_str(pinfo->cinfo, COL_DEF_DST, dst_addr);
             }
             else if (tlv_type == 5)
             {
@@ -679,7 +693,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
             }
         }
         subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
-        call_dissector_only(mbim_dissector, subproto_tvb, pinfo, tree, data);
+        call_dissector_only(mbim_dissector, subproto_tvb, pinfo, tree, NULL);
     }
     else if (user_data_length &&
         (memcmp(&smbclient_providerid, &provider_id, sizeof(e_guid_t)) == 0 ||
@@ -689,7 +703,11 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
         // SMB "Packet" event
 
         subproto_tvb = tvb_new_subset_length(tvb, user_data_offset, user_data_length);
-        call_dissector_only(nbss_dissector, subproto_tvb, pinfo, tree, data);
+        {
+            struct tcpinfo tcpinfo;
+            memset(&tcpinfo, 0, sizeof(tcpinfo));
+            call_dissector_only(nbss_dissector, subproto_tvb, pinfo, tree, &tcpinfo);
+        }
     }
     else if (user_data_length &&
         memcmp(&wininet_providerid, &provider_id, sizeof(e_guid_t)) == 0 &&
@@ -755,7 +773,7 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
         }
 
         if (provider_name_length) {
-            col_set_str(pinfo->cinfo, COL_PROTOCOL, provider_name);
+            col_add_str(pinfo->cinfo, COL_PROTOCOL, provider_name);
         }
 
         if (message_length) {
@@ -770,11 +788,11 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
                 ti = proto_tree_add_string(etw_data, hf_etw_message_formatted, tvb, 0, -1, message);
                 proto_item_set_generated(ti);
             }
-            col_set_str(pinfo->cinfo, COL_INFO, message);
+            col_add_str(pinfo->cinfo, COL_INFO, message);
         }
         else
         {
-            col_set_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id, pinfo->pool));
+            col_add_str(pinfo->cinfo, COL_INFO, guids_resolve_guid_to_str(&provider_id, pinfo->pool));
         }
     }
 
