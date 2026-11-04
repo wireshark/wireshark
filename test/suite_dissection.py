@@ -57529,3 +57529,84 @@ class TestDissectFcsb3:
         lines = [l.strip() for l in stdout.splitlines()]
         assert '1... .... = CD: Set' in lines
         assert '.... ...1 = SSS: Set' in lines
+
+
+class TestDissectFcsp:
+    '''FC-SP (authentication) in ELS AUTH_ELS and SW_ILS AUTH_ILS requests
+    over FCoE, from the synthetic capture fcsp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fcsp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fcsp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''28 of the 29 frames are FC-SP messages (the response in frame 27
+        belongs to the ELS dissector); no frame is malformed or has an
+        error expert info, in one and two passes. Frames 20-25 (FCAP and
+        FCPAP) have the "not supported" warning.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcsp.opcode')
+        assert len(rows) == 29
+        assert [r[0] for r in rows if len(r) > 1 and r[1]] == [str(n) for n in range(1, 30) if n != 27]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcsp.fcap_undecoded',
+                            extra=('-Y', 'fcsp.fcap_undecoded'))
+        assert [r[0] for r in rows] == ['20', '21', '22', '23', '24', '25']
+
+    def test_fcsp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message code, ELS or SW_ILS.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', '_ws.col.info')
+        assert [r[1:] for r in rows] == (
+            [['FC ELS', 'AUTH_Negotiate']] * 5 + [['SW_ILS', 'AUTH_Negotiate']] +
+            [['FC ELS', 'AUTH_Reject']] * 5 + [['SW_ILS', 'AUTH_Reject']] +
+            [['FC ELS', 'AUTH_Done'], ['FC ELS', 'DHCHAP_Challenge'], ['FC ELS', 'DHCHAP_Challenge'],
+             ['FC ELS', 'DHCHAP_Reply'], ['FC ELS', 'DHCHAP_Reply'],
+             ['FC ELS', 'DHCHAP_Success'], ['FC ELS', 'DHCHAP_Success'],
+             ['FC ELS', 'FCAP_Request'], ['FC ELS', 'FCAP_Acknowledge'], ['FC ELS', 'FCAP_Confirm'],
+             ['FC ELS', 'FCPAP_Init'], ['FC ELS', 'FCPAP_Accept'], ['FC ELS', 'FCPAP_Complete'],
+             ['FC ELS', '0x99'], ['FC ELS', 'ACC (AUTH)'], ['FC ELS', 'AUTH_Done'],
+             ['FC ELS', 'AUTH_Negotiate']])
+
+    def test_fcsp_negotiate_params(self, cmd_tshark, capture_file, test_env):
+        '''Protocols, hash and DH group lists of the AUTH_Negotiate frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcsp.usableproto', 'fcsp.proto',
+                            'fcsp.dhchap.hashtype', 'fcsp.dhchap.dhgid', 'fcsp.dhchap.paramtype',
+                            extra=('-Y', 'fcsp.opcode == 0x0b'))
+        assert rows[0][1:] == ['3', '1,2,9', '5,6', '0,1,2,3,4', '0x0001,0x0002']
+        assert rows[1][1:] == ['1', '1', '5', '', '0x0001,0x0007']
+        assert rows[4][1:] == ['0', '', '', '', '']
+        assert rows[5][1:] == ['2', '1,2', '5,6', '1,2', '0x0001,0x0002']
+
+    def test_fcsp_reject_codes(self, cmd_tshark, capture_file, test_env):
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcsp.rjtcode', 'fcsp.rjtcodet',
+                            extra=('-Y', 'fcsp.opcode == 0x0a'))
+        assert rows == [['7', '1', '1'], ['8', '1', '5'], ['9', '2', '6'],
+                        ['10', '2', '8'], ['11', '9', '66'], ['12', '1', '3']]
+
+    def test_fcsp_in_fcsp_tree(self, cmd_tshark, capture_file, test_env):
+        '''The items of the per-message handlers are inside the FC-SP
+        subtree (they were added to the parent tree before "FCSP: Fix
+        negotiate loop and subtree placement").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7', '-V', '-O', 'fcsp',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('FC-SP')
+        assert lines[start + 1:start + 8] == [
+            '    Flags: 0x00',
+            '    Message Code: AUTH_Reject (0x0a)',
+            '    Protocol Version: 0x01',
+            '    Packet Length: 16',
+            '    Transaction Identifier: 0x00000007',
+            '    Reason Code: Authentication Failure (1)',
+            '    Reason Code Explanation: Authentication Mechanism Not Usable (1)']
