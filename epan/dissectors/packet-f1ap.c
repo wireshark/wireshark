@@ -31434,6 +31434,8 @@ dissect_f1ap_SRBID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_,
       break;
     }
   }
+  f1ap_data->rrc_tvb = NULL;
+  f1ap_data->rrc_tree = NULL;
 
 
   return offset;
@@ -49146,6 +49148,15 @@ dissect_f1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* Add stats tap to private struct */
   f1ap_private_data_t *priv_data = f1ap_get_private_data(pinfo);
   priv_data->stats_tap = f1ap_info;
+
+  /* The private data is shared by all F1AP PDUs of a frame, so do not
+   * carry per-PDU state over from a previous PDU. */
+  priv_data->rrc_tvb = NULL;
+  priv_data->rrc_tree = NULL;
+  priv_data->srb_id = -1;
+  priv_data->sib_type = 0;
+  priv_data->number_type = E212_NONE;
+  priv_data->obj_id = NULL;
 
   /* Store top-level tree */
   priv_data->top_tree = f1ap_tree;

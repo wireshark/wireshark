@@ -2522,6 +2522,8 @@ CUDUCSIRSCoordinationResponse            N f1ap.proc.sout id-CUDUCSIRSCoordinati
       break;
     }
   }
+  f1ap_data->rrc_tvb = NULL;
+  f1ap_data->rrc_tree = NULL;
 
 #.FN_BODY RRCContainer-RRCSetupComplete VAL_PTR=&param_tvb
   tvbuff_t *param_tvb = NULL;
