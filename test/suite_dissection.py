@@ -57162,3 +57162,62 @@ class TestDissectFcoe:
                 '-Y', 'frame.number == 10', '-V', '-O', 'fcoe',
             ), encoding='utf-8', env=test_env)
         assert 'FCoE (SOFi3/EOFt) 26 bytes [invalid length]' in stdout.splitlines()
+
+
+class TestDissectFcoib:
+    '''FCoIB from the synthetic capture fcoib_coverage.pcap.gz. The frames
+    are RoCE v2 (UDP 4791) UD sends; the Infiniband payload heuristic
+    "fc_infiniband" is on by default and selects FCoIB for frames 1-9.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('fcoib_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_fcoib_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-9 are FCoIB carrying ABTS; frames 10-15 are not
+        accepted by the heuristic and stay RRoCE (frame 10 has padding
+        behind the trailer, 11-14 a wrong signature, non-zero reserved
+        octets, an unknown SOF and an unknown EOF, 15 is too short).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-efcoib.sof')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 15
+        assert [r[1] for r in rows] == ['BLS'] * 9 + ['RRoCE'] * 6
+        assert [r[2] for r in rows] == ['0x28', '0x29', '0x2d', '0x2e', '0x31',
+                '0x35', '0x36', '0x39', '0x2e'] + [''] * 6
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_fcoib_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''Every SOF and EOF value, with a good CRC.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'fcoib', '-Tfields', '-efcoib.sof', '-efcoib.eof',
+                '-efcoib.ver', '-efcoib.sig', '-efcoib.crc.status')
+        assert stdout.splitlines() == [
+            '0x28\t0x41\t0\t0x01\t1', '0x29\t0x42\t0\t0x01\t1',
+            '0x2d\t0x44\t0\t0x01\t1', '0x2e\t0x46\t0\t0x01\t1',
+            '0x31\t0x49\t0\t0x01\t1', '0x35\t0x4e\t0\t0x01\t1',
+            '0x36\t0x4f\t0\t0x01\t1', '0x39\t0x50\t0\t0x01\t1',
+            '0x2e\t0x42\t1\t0x01\t1']
+
+    def test_fcoib_version_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 is shown in the protocol line (it was dropped before
+        "FCoIB: Fix the version string format").'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 9', '-V', '-O', 'fcoib')
+        assert 'FCoIB ver 1 (SOFi3/EOFt) 24 bytes' in stdout.splitlines()
+
+    def test_fcoib_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristic off and Decode As, FCoIB decodes the frames
+        the heuristic rejected (frames 10-14).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'infiniband.try_heuristic_first:FALSE',
+                '-d', 'infiniband,fcoib',
+                '-Y', 'frame.number >= 10 && frame.number <= 14',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '10\tBLS', '11\tBLS', '12\tBLS', '13\tBLS', '14\tBLS']
