@@ -701,8 +701,7 @@ icqv5_cmd_send_text_code(proto_tree *tree, /* Tree to put the data in */
     proto_tree *subtree = tree;
     uint16_t len;
 
-    len = tvb_get_letohs(tvb, offset+CMD_SEND_TEXT_CODE_LEN);
-    proto_tree_add_item(subtree, hf_icq_text_code_length, tvb, offset + CMD_SEND_TEXT_CODE_LEN, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(subtree, hf_icq_text_code_length, tvb, offset + CMD_SEND_TEXT_CODE_LEN, 2, ENC_LITTLE_ENDIAN, &len);
 
     if (len>0) {
         proto_tree_add_item(subtree, hf_icq_text_code, tvb, offset + CMD_SEND_TEXT_CODE_TEXT, len, ENC_ASCII);
@@ -751,8 +750,7 @@ icqv5_cmd_contact_list(proto_tree *tree, tvbuff_t *tvb, unsigned offset)
     uint32_t uin;
 
     if (tree) {
-        num = tvb_get_uint8(tvb, offset + CMD_CONTACT_LIST_NUM);
-        proto_tree_add_item(tree, hf_icq_number_of_uins, tvb, offset + CMD_CONTACT_LIST, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(tree, hf_icq_number_of_uins, tvb, offset + CMD_CONTACT_LIST, 1, ENC_NA, &num);
         /*
          * A sequence of num times UIN follows
          */
@@ -805,8 +803,7 @@ icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
     uint16_t pktSz;
     int i;
 
-    num = tvb_get_uint8(tvb, offset + SRV_MULTI_NUM);
-    proto_tree_add_item(tree, hf_icq_multi_num_packets, tvb, offset + SRV_MULTI_NUM, 1, ENC_NA);
+    proto_tree_add_item_ret_uint8(tree, hf_icq_multi_num_packets, tvb, offset + SRV_MULTI_NUM, 1, ENC_NA, &num);
     /*
      * A sequence of num times ( pktsize, packetData) follows
      */

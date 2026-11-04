@@ -517,8 +517,7 @@ dissect_usb_ptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
     proto_tree_add_item(tree, hf_container_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     /*ptp_length = tvb_get_letohl(tvb,offset);*/
     offset+=4;
-    proto_tree_add_item(tree, hf_container_type,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    ptp_type = tvb_get_letohs(tvb,offset);
+    proto_tree_add_item_ret_uint16(tree, hf_container_type,   tvb, offset, 2, ENC_LITTLE_ENDIAN, &ptp_type);
     offset+=2;
     ptp_code = tvb_get_letohs(tvb,offset);
 

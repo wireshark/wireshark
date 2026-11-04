@@ -2399,8 +2399,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
      then the associated length field shall be set to zero, and the particular parameter field shall not be present.
      */
   /* Length of Mobile Station Classmark2  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
@@ -2410,8 +2409,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 
   /* Length of Mobile Station Classmark3  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
@@ -2421,8 +2419,7 @@ dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
 
    /*Length of Supported Codec List  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
@@ -2456,8 +2453,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
    */
 
     /*Length of Mobile Station Classmark2  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
@@ -2467,8 +2463,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /*Length of Mobile Station Classmark3  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
@@ -2478,8 +2473,7 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     }
 
     /*Length of Supported Codec List  */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len) {
         fi = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
@@ -4166,8 +4160,7 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     }
 
     proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 5, ENC_BIG_ENDIAN);
-    pdn = tvb_get_uint8(tvb, offset)& 0x7;
-    proto_tree_add_item(tree, hf_gtpv2_pdn_type, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_pdn_type, tvb, offset, length, ENC_BIG_ENDIAN, &pdn);
     proto_item_append_text(item, "%s", val_to_str_ext_const(pdn, &gtpv2_pdn_type_vals_ext, "Unknown"));
 
 }
@@ -4956,8 +4949,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset ==length) {
-        hbr_len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN, &hbr_len);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
         if (hbr_len) {
@@ -5054,8 +5046,7 @@ dissect_gtpv2_mm_context_gsm_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset <length) {
-        hbr_len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN, &hbr_len);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
         if (hbr_len) {
@@ -5156,8 +5147,7 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
     if (offset <length) {
-        hbr_len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN, &hbr_len);
         offset += 1;
         /* s+2 Higher bitrates than 16 Mbps flag */
         if (hbr_len) {
@@ -5640,6 +5630,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     nsapi_tree = proto_item_add_subtree(nsapi_ti, ett_gtpv2_pdn_numbers_nsapi);
     proto_tree_add_bits_item(nsapi_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(nsapi_tree, hf_gtpv2_pdn_numbers_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* TODO: value not shifted by 3 bits to lsb.. */
     proto_item_append_text(item, "NSAPI: %u", nsapi);
     offset += 1;
 
@@ -6450,8 +6441,7 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     unsigned offset = 0;
     uint8_t ss_mode;
 
-    ss_mode = tvb_get_uint8(tvb, offset) & 0x03;
-    proto_tree_add_item(tree, hf_gtpv2_selec_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_selec_mode, tvb, offset, 1, ENC_BIG_ENDIAN, &ss_mode);
     proto_item_append_text(item, "%s", val_to_str_const(ss_mode, gtpv2_selec_mode_vals, "Unknown"));
 }
 
@@ -6525,9 +6515,8 @@ dissect_gtpv2_bearer_control_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     uint8_t bcm;
 
-    proto_tree_add_item(tree, hf_gtpv2_bearer_control_mode, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_bearer_control_mode, tvb, 0, 1, ENC_BIG_ENDIAN, &bcm);
     /* Add Bearer Control Mode to tree */
-    bcm = tvb_get_uint8(tvb, 0);
     proto_item_append_text(item, "%s", val_to_str_const(bcm, gtpv2_bearer_control_mode_short_vals, "Unknown"));
 
 }
@@ -6821,8 +6810,7 @@ dissect_gtpv2_mbms_service_area(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* A consecutive list of MBMS Service Area Identities follow, each with a length of two octets. */
     while (offset < length) {
         /* 3GPP TS 23.003 15.3 Structure of MBMS SAI */
-        sai = tvb_get_ntohs(tvb, offset);
-        sai_item = proto_tree_add_item(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sai_item = proto_tree_add_item_ret_uint16(tree, hf_gtpv2_mbms_service_area_id, tvb, offset, 2, ENC_BIG_ENDIAN, &sai);
         /* The value 0 denotes the whole of PLMN as the MBMS Service Area */
         if (sai == 0) {
             proto_item_append_text(sai_item, " Entire PLMN");
@@ -7237,8 +7225,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     uint8_t     elm_len;
 
     /* Length of Mobile Station Classmark 2 */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
 
     /* For each of the Mobile Station Classmark 2, Mobile Station Classmark 3 and Supported Codec List parameters,
@@ -7254,8 +7241,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Length of Mobile Station Classmark 3 */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len > 0) {
         ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
@@ -7266,8 +7252,7 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     }
 
     /* Length of Supported Codec List */
-    elm_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN, &elm_len);
     offset += 1;
     if (elm_len > 0) {
         ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);

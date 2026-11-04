@@ -2191,8 +2191,7 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     ospf_lsa_upd_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ospf_lsa_upd, NULL, "LS Update Packet");
 
-    lsa_nr = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(ospf_lsa_upd_tree, hf_ospf_ls_number_of_lsas, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(ospf_lsa_upd_tree, hf_ospf_ls_number_of_lsas, tvb, offset, 4, ENC_BIG_ENDIAN, &lsa_nr);
     /* skip to the beginning of the first LSA */
     offset += 4; /* the LS Upd Packet contains only a 32 bit #LSAs field */
 
@@ -3779,8 +3778,7 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
             proto_tree_add_item(tlv_tree, hf_ospf_ls_elink_tlv, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
-            link_type = tvb_get_uint8(tvb, offset + 4);
-            ti = proto_tree_add_item(tlv_tree, hf_ospf_ls_router_linktype, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item_ret_uint8(tlv_tree, hf_ospf_ls_router_linktype, tvb, offset + 4, 1, ENC_BIG_ENDIAN, &link_type);
             proto_item_append_text(ti, " - %s",
                                    val_to_str_const(link_type, ospf_v3_lsa_type_vals, "Unknown link type"));
             proto_item_append_text(ti_tree, "  (Type: %-8s ID: %-15s Data: %s)",

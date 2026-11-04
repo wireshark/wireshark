@@ -817,8 +817,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
         case ISO15765_MESSAGE_TYPES_FR_SINGLE_FRAME_EXT: {
             offset += 1;
 
-            data_length = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(iso15765_tree, hf_iso15765_data_length_8bit, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(iso15765_tree, hf_iso15765_data_length_8bit, tvb, offset, 1, ENC_NA, &data_length);
             offset += 1;
 
             next_tvb = tvb_new_subset_length(tvb, offset, data_length);

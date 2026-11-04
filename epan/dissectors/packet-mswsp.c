@@ -5293,8 +5293,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_fbwdfetch, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		eType = tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_etype, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_mswsp_msg_cpmgetrows_etype, tvb, offset, 4, ENC_LITTLE_ENDIAN, &eType);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_chapt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -5335,8 +5334,7 @@ static int dissect_CPMGetRows(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
 		struct rows_data *rowsin = find_rowsin_msg_data(ct, pinfo, private_data);
 		bool b_64bit_mode = false;
 		bool b_has_arch = is_64bit_mode(ct, pinfo, &b_64bit_mode, private_data);
-		num_rows = tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrows_crowsreturned, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item_ret_uint(tree, hf_mswsp_msg_cpmgetrows_crowsreturned, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_rows);
 		offset += 4;
 
 		eType = tvb_get_letohl(tvb, offset);

@@ -496,8 +496,7 @@ dissect_RSVD_SRB_STATUS(tvbuff_t *tvb, proto_tree *parent_tree, int offset, int1
         offset += 1;
 
         /* SenseInfoExLength */
-        sense_info_length = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_info_ex_length, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(gfi_sub_tree, hf_svhdx_tunnel_srb_status_sense_info_ex_length, tvb, offset, 1, ENC_NA, &sense_info_length);
         offset += 1;
 
         /* SenseDataEx */

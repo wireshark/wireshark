@@ -976,8 +976,7 @@ dissect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 			offset += 32;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 16, ENC_NA);
 			offset += 16; /* reserved */
-			gid_list_len = tvb_get_uint8(tvb, offset);
-			proto_tree_add_item(tree, hf_smc_confirm_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint8(tree, hf_smc_confirm_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN, &gid_list_len);
 			offset += 1;
 			proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 3, ENC_NA);
 			offset += 3; /* reserved */
@@ -1132,8 +1131,7 @@ dissect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree, bool is_smc_v2)
 	offset += GID_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 8, ENC_NA);
 	offset += 8; /* reserved */
-	proto_tree_add_item(tree, hf_smcr_add_link_rkey_count, tvb, offset, 2, ENC_BIG_ENDIAN);
-	rkey_count = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smcr_add_link_rkey_count, tvb, offset, 2, ENC_BIG_ENDIAN, &rkey_count);
 	offset += 2;
 	while (rkey_count > 0) {
 		proto_tree_add_item(tree, hf_smcr_add_link_rkey, tvb, offset, RKEY_LEN, ENC_BIG_ENDIAN);
@@ -1210,8 +1208,7 @@ dissect_smcr_request_add_link(tvbuff_t* tvb, proto_tree* tree)
 	offset += FLAG_BYTE_LEN;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 20, ENC_NA);
 	offset += 20; /* reserved */
-	gid_list_len = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smc_request_add_link_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_smc_request_add_link_gid_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN, &gid_list_len);
 	offset += 1;
 	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, 3, ENC_NA);
 	offset += 3; /* reserved */

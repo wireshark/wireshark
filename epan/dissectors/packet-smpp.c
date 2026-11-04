@@ -1544,13 +1544,11 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *offset
                 (*offset) += 1;
                 break;
             case  0x020E:       /* sar_total_segments   */
-                proto_tree_add_item(sub_tree, hf_smpp_sar_total_segments, tvb, *offset, 1, ENC_NA);
-                frags = tvb_get_uint8(tvb, *offset);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_smpp_sar_total_segments, tvb, *offset, 1, ENC_NA, &frags);
                 (*offset) += 1;
                 break;
             case  0x020F:       /* sar_segment_seqnum   */
-                proto_tree_add_item(sub_tree, hf_smpp_sar_segment_seqnum, tvb, *offset, 1, ENC_NA);
-                frag = tvb_get_uint8(tvb, *offset);
+                proto_tree_add_item_ret_uint8(sub_tree, hf_smpp_sar_segment_seqnum, tvb, *offset, 1, ENC_NA, &frag);
                 (*offset) += 1;
                 break;
             case  0x0210:       /* SC_interface_version */

@@ -1263,8 +1263,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			col_append_str(pinfo->cinfo, COL_INFO, "Wake/sleep event");
 			proto_tree_add_item(post_tree, hf_solaredge_post_event_timestamp_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
-			event_type = tvb_get_uint32(tvb, current_offset, ENC_LITTLE_ENDIAN);
-			proto_tree_add_item(post_tree, hf_solaredge_post_event_type_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item_ret_uint(post_tree, hf_solaredge_post_event_type_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN, &event_type);
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_event_event_start_timestamp_type, tvb, current_offset, 4, ENC_LITTLE_ENDIAN);
 			current_offset += 4;
