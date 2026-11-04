@@ -470,6 +470,12 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_item	*info_item;
 	proto_tree	*info_tree;
 
+	if (length < 36) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_edp_short_tlv, tvb, offset, length > 0 ? length : 0,
+			"INFO TLV is too short (need 36 bytes)");
+		return offset + (length > 0 ? length : 0);
+	}
+
 	/* The slot and port numbers printed on the chassis are 1
 	   bigger than the transmitted values indicate */
 	slot = tvb_get_ntohs(tvb, offset + 0 + 4) + 1;
@@ -634,6 +640,12 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree	*esrp_tree;
 	uint16_t		group;
 
+	if (length < 26) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_edp_short_tlv, tvb, offset, length > 0 ? length : 0,
+			"ESRP TLV is too short (need 26 bytes)");
+		return offset + (length > 0 ? length : 0);
+	}
+
 	group = tvb_get_uint8(tvb, offset + 1 + 4);
 	esrp_item = proto_tree_add_protocol_format(tree, hf_edp_esrp,
 		tvb, offset, length, "ESRP: Group %d", group);
@@ -691,6 +703,12 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	proto_tree	*eaps_tree;
 	uint16_t		ctrlvlanid;
 	const char	*sysmac_str;
+
+	if (length < 64) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_edp_short_tlv, tvb, offset, length > 0 ? length : 0,
+			"EAPS TLV is too short (need 64 bytes)");
+		return offset + (length > 0 ? length : 0);
+	}
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 1 + 1 + 4);
 	sysmac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + 12);
@@ -763,6 +781,12 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	uint16_t		ctrlvlanid;
 	uint16_t		numlinks;
 	const char	*sysmac_str;
+
+	if (length < 38) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_edp_short_tlv, tvb, offset, length > 0 ? length : 0,
+			"ESL TLV is too short (need 38 bytes)");
+		return offset + (length > 0 ? length : 0);
+	}
 
 	ctrlvlanid = tvb_get_ntohs(tvb, offset + 2 + 4);
 	sysmac_str = tvb_ether_to_str(pinfo->pool, tvb, offset + 12);
@@ -878,6 +902,12 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 	proto_item	*elsm_item;
 	proto_tree	*elsm_tree;
 	uint8_t		type, subtype;
+
+	if (length < 8) {
+		proto_tree_add_expert_format(tree, pinfo, &ei_edp_short_tlv, tvb, offset, length > 0 ? length : 0,
+			"ELSM TLV is too short (need 8 bytes)");
+		return offset + (length > 0 ? length : 0);
+	}
 
 	type = tvb_get_uint8(tvb, offset + 4);
 	subtype = tvb_get_uint8(tvb, offset + 4 + 1);
