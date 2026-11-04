@@ -57090,3 +57090,75 @@ class TestDissectFclctl:
             'Parameter: 0x9010000(0x9, Physical N_Port Busy)',
             'Parameter: 0x1550000(Sequence Marked Busy, 0x55)',
         ]
+
+
+class TestDissectFcoe:
+    '''FCoE (ethertype 0x8906) from the synthetic capture
+    fcoe_coverage.pcap.gz: T11 and pre-T11 headers, every SOF and EOF,
+    versions, a trailing Ethernet FCS, unexpected and missing EOFs.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fcoe_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fcoe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 21 frames are FCoE carrying Basic Link Services and none is
+        malformed or has an expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', 'fcoe.sof')
+        assert len(rows) == 21
+        assert all(r[1] == 'BLS' and r[2] for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcoe_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcoe_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-8 carry each SOF and each EOF of the T11 format.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcoe.sof', 'fcoe.eof', 'fcoe.crc.status')
+        assert [r[1:] for r in rows[:8]] == [
+            ['0x28', '0x41', '1'], ['0x29', '0x42', '1'],
+            ['0x2d', '0x44', '1'], ['0x2e', '0x46', '1'],
+            ['0x31', '0x49', '1'], ['0x35', '0x4e', '1'],
+            ['0x36', '0x4f', '1'], ['0x39', '0x50', '1']]
+
+    def test_fcoe_version_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The version is shown in the protocol line, as in "FCoE: Do not
+        let the frame length go negative" (it was dropped before): frame 9
+        has version 1 in the T11 format, frame 20 in the pre-T11 format.'''
+        for frame, text in ((9, 'FCoE ver 1 (SOFi3/EOFt) 24 bytes'),
+                            (20, 'FCoE pre-T11 ver 1 (SOFn4/EOFt) 24 bytes')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('fcoe_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-V', '-O', 'fcoe',
+                ), encoding='utf-8', env=test_env)
+            assert text in stdout.splitlines()
+            assert '    Version: 1' in stdout.splitlines()
+
+    def test_fcoe_eof_variants(self, cmd_tshark, capture_file, test_env):
+        '''An unexpected EOF value is shown as it is (frame 12), a frame
+        cut off in the trailer has no EOF (13, 14), the pre-T11 format
+        has a frame length field (15-21), and a trailing Ethernet FCS
+        is skipped (frame 11).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'fcoe.len', 'fcoe.eof', 'fcoe.crc.status')
+        assert rows[11][1:] == ['', '0x77', '1']
+        assert rows[12][1:] == ['', '', '3']
+        assert rows[13][1:] == ['', '', '3']
+        assert rows[10][1:] == ['', '0x42', '1']
+        assert [r[1] for r in rows[14:]] == ['24'] * 7
+        assert rows[20][2] == ''
+
+    def test_fcoe_bad_crc_and_short(self, cmd_tshark, capture_file, test_env):
+        '''Frame lengths that are not a multiple of 4 are marked in the
+        tree; a bad FC CRC is an error expert info (not in this capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcoe_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10', '-V', '-O', 'fcoe',
+            ), encoding='utf-8', env=test_env)
+        assert 'FCoE (SOFi3/EOFt) 26 bytes [invalid length]' in stdout.splitlines()
