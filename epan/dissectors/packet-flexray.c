@@ -435,9 +435,11 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         /* FlexRay Symbol [1 Byte] */
         expert_add_info(pinfo, flexray_tree, &ei_flexray_symbol_frame);
 
-        uint32_t symbol_length;
-        proto_tree_add_item_ret_uint(flexray_tree, hf_flexray_sl, tvb, 1, 1, ENC_BIG_ENDIAN, &symbol_length);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SL %3d", symbol_length);
+        if (tvb_reported_length(tvb) > 1) {
+            uint32_t symbol_length;
+            proto_tree_add_item_ret_uint(flexray_tree, hf_flexray_sl, tvb, 1, 1, ENC_BIG_ENDIAN, &symbol_length);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " SL %3d", symbol_length);
+        }
     }
 
     return tvb_captured_length(tvb);
