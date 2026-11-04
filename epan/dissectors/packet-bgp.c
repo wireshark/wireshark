@@ -59,6 +59,7 @@
  * draft-abraitis-bgp-version-capability-13
  * draft-ietf-idr-bgp-bfd-strict-mode
  * RFC8654 Extended Message Support for BGP
+ * RFC9793 BGP Extensions for Bit Index Explicit Replication (BIER)
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -275,6 +276,7 @@ static dissector_handle_t bgp_handle;
 #define BGPTYPE_BFD_DISCRIMINATOR   38 /* BFD Discriminator [RFC9026] */
 #define BGPTYPE_NEXT_HOP_DEP_CAP    39 /* BGP Next Hop Dependent Capabilities draft-ietf-idr-entropy-label-13 */
 #define BGPTYPE_BGP_PREFIX_SID      40 /* BGP Prefix-SID [RFC8669] */
+#define BGPTYPE_BGP_BIER            41 /* Bit Index Explicit Replication (BIER) [RFC9793] */
 #define BGPTYPE_LINK_STATE_OLD_ATTR 99 /* squatted value used by at least 2
                                           implementations before IANA assignment */
 #define BGPTYPE_ATTR_SET           128 /* RFC6368           */
@@ -1197,6 +1199,11 @@ static dissector_handle_t bgp_handle;
 #define BGP_PREFIX_SID_TLV_SRV6_L3_SERVICE 5 /* SRv6 L3 Service [draft-ietf-bess-srv6-services] */
 #define BGP_PREFIX_SID_TLV_SRV6_L2_SERVICE 6 /* SRv6 L2 Service [draft-ietf-bess-srv6-services] */
 
+#define BGP_PREFIX_BIER_TLV_BIER          1
+#define BGP_PREFIX_BIER_TLV_MPLS_ENC      2
+#define BGP_PREFIX_BIER_TLV_NON_MPLS_ENC  3
+#define BGP_PREFIX_BIER_TLV_BIER_NEXT_HOP 4
+
 /* BGP_PREFIX_SID TLV lengths   */
 #define BGP_PREFIX_SID_TLV_LEN_LABEL_INDEX 7
 
@@ -1482,6 +1489,7 @@ static const value_string bgpattr_type[] = {
     { BGPTYPE_BFD_DISCRIMINATOR,   "BFD Discriminator" },
     { BGPTYPE_NEXT_HOP_DEP_CAP,    "BGP Next Hop Dependent Capabilities" },
     { BGPTYPE_BGP_PREFIX_SID,      "BGP Prefix-SID" },
+    { BGPTYPE_BGP_BIER,            "BIER" },
     { BGPTYPE_LINK_STATE_OLD_ATTR, "LINK_STATE (unofficial code point)" },
     { BGPTYPE_ATTR_SET,            "ATTR_SET" },
     { BGPTYPE_129,                 "Deprecated" },
@@ -2285,6 +2293,25 @@ static const value_string bgp_prefix_sid_type[] = {
     { BGP_PREFIX_SID_TLV_4,               "Deprecated" },
     { BGP_PREFIX_SID_TLV_SRV6_L3_SERVICE, "SRv6 L3 Service" },
     { BGP_PREFIX_SID_TLV_SRV6_L2_SERVICE, "SRv6 L2 Service" },
+    { 0, NULL }
+};
+
+static const value_string bgp_prefix_bier_type[] = {
+    { BGP_PREFIX_BIER_TLV_BIER,          "BIER TLV" },
+    { BGP_PREFIX_BIER_TLV_MPLS_ENC,      "MPLS Encapsulation sub-TLV" },
+    { BGP_PREFIX_BIER_TLV_NON_MPLS_ENC,  "non-MPLS Encapsulation sub-TLV" },
+    { BGP_PREFIX_BIER_TLV_BIER_NEXT_HOP, "BIER Nexthop sub-TLV" },
+    { 0, NULL }
+};
+
+static const value_string bgp_prefix_bier_bs_len[] = {
+    { 1, "64 bits" },
+    { 2, "128 bits" },
+    { 3, "256 bits" },
+    { 4, "512 bits" },
+    { 5, "1024 bits" },
+    { 6, "2048 bits" },
+    { 7, "4096 bits" },
     { 0, NULL }
 };
 
@@ -3172,6 +3199,22 @@ static int hf_bgp_prefix_sid_length;
 static int hf_bgp_prefix_sid_value;
 static int hf_bgp_prefix_sid_reserved;
 
+static int hf_bgp_prefix_bier;
+static int hf_bgp_prefix_bier_type;
+static int hf_bgp_prefix_bier_length;
+static int hf_bgp_prefix_bier_bier_subdom;
+static int hf_bgp_prefix_bier_bier_bfrid;
+static int hf_bgp_prefix_bier_bier_reserved;
+static int hf_bgp_prefix_bier_mpls_max_si;
+static int hf_bgp_prefix_bier_mpls_bs_len;
+static int hf_bgp_prefix_bier_mpls_label;
+static int hf_bgp_prefix_bier_nonmpls_max_si;
+static int hf_bgp_prefix_bier_nonmpls_bs_len;
+static int hf_bgp_prefix_bier_nonmpls_bift_id;
+static int hf_bgp_prefix_bier_nh_ipv4;
+static int hf_bgp_prefix_bier_nh_ipv6;
+static int hf_bgp_prefix_bier_data;
+
 /* draft-ietf-bess-srv6-services-05 header field */
 static int hf_bgp_prefix_sid_srv6_l3vpn;
 static int hf_bgp_prefix_sid_srv6_l3vpn_sub_tlvs;
@@ -3564,6 +3607,7 @@ static int ett_bgp_prefix_sid_srv6_l2vpn_sub_sub_tlvs;
 static int ett_bgp_prefix_sid_srv6_l2vpn_sid_structure;
 static int ett_bgp_prefix_sid_srv6_l2vpn_sid_unknown;
 static int ett_bgp_prefix_sid_srv6_l2vpn_unknown;
+static int ett_bgp_prefix_bier;
 static int ett_bgp_mup_nlri;
 static int ett_bgp_mup_nlri_3gpp_5g_type1_st_route;
 static int ett_bgp_mup_nlri_3gpp_5g_type2_st_route;
@@ -10452,6 +10496,123 @@ dissect_bgp_srv6_sid_endpoint_behavior(tvbuff_t *tvb, proto_tree *tree, unsigned
     return bytes_consumed;
 }
 
+// NOLINTNEXTLINE(misc-no-recursion)
+static void dissect_bgp_bier_tlv(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                                 unsigned offset, uint16_t length)
+{
+    unsigned end = offset + length;
+    proto_item *tlv_item;
+    proto_tree *tlv_tree;
+
+    while (offset + 4 <= end) {
+        uint16_t bier_type, bier_length;
+        unsigned value_off;
+
+        tlv_item = proto_tree_add_item(tree, hf_bgp_prefix_bier, tvb, offset, -1, ENC_NA);
+        tlv_tree = proto_item_add_subtree(tlv_item, ett_bgp_prefix_bier);
+        proto_tree_add_item_ret_uint16(tlv_tree, hf_bgp_prefix_bier_type, tvb, offset, 2, ENC_BIG_ENDIAN, &bier_type);
+        offset += 2;
+        proto_tree_add_item_ret_uint16(tlv_tree, hf_bgp_prefix_bier_length, tvb, offset, 2, ENC_BIG_ENDIAN, &bier_length);
+        offset += 2;
+        proto_item_set_len(tlv_item, bier_length + 4);
+        value_off = offset;
+
+        if (bier_length > end - offset) {
+            expert_add_info_format(pinfo, tlv_item, &ei_bgp_length_invalid,
+                                   "BIER TLV length %u is greater than the remaining attribute data (%u bytes)",
+                                   bier_length, end - offset);
+            proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_data, tvb, offset, end - offset, ENC_NA);
+            return;
+        }
+
+        switch (bier_type) {
+        case BGP_PREFIX_BIER_TLV_BIER:
+            if (bier_length < 4) {
+                expert_add_info_format(pinfo, tlv_item, &ei_bgp_length_invalid,
+                                       "BIER TLV length %u is too short (minimum is 4)", bier_length);
+            } else {
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_bier_subdom, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_bier_bfrid, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_bier_reserved, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                if (bier_length > 4) {
+                    increment_dissection_depth(pinfo);
+                    dissect_bgp_bier_tlv(tlv_tree, tvb, pinfo, offset, (uint16_t)(bier_length - 4));
+                    decrement_dissection_depth(pinfo);
+                }
+            }
+            break;
+
+        case BGP_PREFIX_BIER_TLV_MPLS_ENC:
+            if (bier_length < 4) {
+                expert_add_info_format(pinfo, tlv_item, &ei_bgp_length_invalid,
+                                       "BIER MPLS Encapsulation sub-TLV length %u is too short (minimum is 4)",
+                                       bier_length);
+            } else {
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_mpls_max_si, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_mpls_bs_len, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_mpls_label, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                if (bier_length > 4) {
+                    increment_dissection_depth(pinfo);
+                    dissect_bgp_bier_tlv(tlv_tree, tvb, pinfo, offset, (uint16_t)(bier_length - 4));
+                    decrement_dissection_depth(pinfo);
+                }
+            }
+            break;
+
+        case BGP_PREFIX_BIER_TLV_NON_MPLS_ENC:
+            if (bier_length < 4) {
+                expert_add_info_format(pinfo, tlv_item, &ei_bgp_length_invalid,
+                                       "BIER non-MPLS Encapsulation sub-TLV length %u is too short (minimum is 4)",
+                                       bier_length);
+            } else {
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_nonmpls_max_si, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_nonmpls_bs_len, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_nonmpls_bift_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+                if (bier_length > 4) {
+                    increment_dissection_depth(pinfo);
+                    dissect_bgp_bier_tlv(tlv_tree, tvb, pinfo, offset, (uint16_t)(bier_length - 4));
+                    decrement_dissection_depth(pinfo);
+                }
+            }
+            break;
+
+        case BGP_PREFIX_BIER_TLV_BIER_NEXT_HOP:
+            if (bier_length == 4) {
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_nh_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+            } else if (bier_length == 16) {
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_nh_ipv6, tvb, offset, 16, ENC_NA);
+            } else {
+                expert_add_info_format(pinfo, tlv_item, &ei_bgp_length_invalid,
+                                       "BIER Nexthop sub-TLV length %u is invalid (expected 4 or 16)",
+                                       bier_length);
+                proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_data, tvb, offset, bier_length, ENC_NA);
+            }
+            break;
+
+        default:
+            /* Unknown and unsupported types are preserved (and shown as data). */
+            proto_tree_add_item(tlv_tree, hf_bgp_prefix_bier_data, tvb, offset, bier_length, ENC_NA);
+            break;
+        }
+
+        offset = value_off + bier_length;
+    }
+
+    if (offset < end) {
+        expert_add_info_format(pinfo, NULL, &ei_bgp_length_invalid,
+                               "BIER TLV does not fill its length field: %u trailing byte(s)",
+                               end - offset);
+        proto_tree_add_item(tree, hf_bgp_prefix_bier_data, tvb, offset, end - offset, ENC_NA);
+    }
+}
+
 /*
  * Dissect BGP path attributes
  *
@@ -12017,6 +12178,10 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, uint16_t path_attr_len
                     }
                 }
                 break;
+            case BGPTYPE_BGP_BIER:
+                dissect_bgp_bier_tlv(subtree2, tvb, pinfo, o + i + aoff, tlen);
+                break;
+
             case BGPTYPE_PMSI_TUNNEL_ATTR:
                 dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
                 break;
@@ -13433,6 +13598,52 @@ proto_register_bgp(void)
       { &hf_bgp_prefix_sid_reserved,
         { "Reserved", "bgp.prefix_sid.reserved", FT_BYTES,
           BASE_NONE, NULL, 0x0, "Unused (must be clear)", HFILL }},
+
+      { &hf_bgp_prefix_bier,
+        { "BIER TLV", "bgp.prefix_bier", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_type,
+        { "Type", "bgp.prefix_bier.type", FT_UINT16,
+          BASE_DEC, VALS(bgp_prefix_bier_type), 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_length,
+        { "Length", "bgp.prefix_bier.length", FT_UINT16,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_bier_subdom,
+        { "Sub-domain", "bgp.prefix_bier.bier.sub_domain", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_bier_bfrid,
+        { "BFR-ID", "bgp.prefix_bier.bier.bfr_id", FT_UINT16,
+          BASE_DEC, NULL, 0x0, "Bit-Forwarding Router Identifier", HFILL }},
+      { &hf_bgp_prefix_bier_bier_reserved,
+        { "Reserved", "bgp.prefix_bier.bier.reserved", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_mpls_max_si,
+        { "Max SI", "bgp.prefix_bier.mpls.max_si", FT_UINT8,
+          BASE_DEC, NULL, 0x0, "Maximum Set Identifier", HFILL }},
+      { &hf_bgp_prefix_bier_mpls_bs_len,
+        { "BS Len", "bgp.prefix_bier.mpls.bs_len", FT_UINT8,
+          BASE_DEC, VALS(bgp_prefix_bier_bs_len), 0xF0, "BitString Length", HFILL }},
+      { &hf_bgp_prefix_bier_mpls_label,
+        { "Label", "bgp.prefix_bier.mpls.label", FT_UINT24,
+          BASE_HEX, NULL, 0x0FFFFF, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_nonmpls_max_si,
+        { "Max SI", "bgp.prefix_bier.non_mpls.max_si", FT_UINT8,
+          BASE_DEC, NULL, 0x0, "Maximum Set Identifier", HFILL }},
+      { &hf_bgp_prefix_bier_nonmpls_bs_len,
+        { "BS Len", "bgp.prefix_bier.non_mpls.bs_len", FT_UINT8,
+          BASE_DEC, VALS(bgp_prefix_bier_bs_len), 0xF0, "BitString Length", HFILL }},
+      { &hf_bgp_prefix_bier_nonmpls_bift_id,
+        { "BIFT-id", "bgp.prefix_bier.non_mpls.bift_id", FT_UINT24,
+          BASE_HEX, NULL, 0x0FFFFF, "Bit Index Forwarding Table Identifier", HFILL }},
+      { &hf_bgp_prefix_bier_nh_ipv4,
+        { "Nexthop", "bgp.prefix_bier.nexthop.ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_nh_ipv6,
+        { "Nexthop", "bgp.prefix_bier.nexthop.ipv6", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_prefix_bier_data,
+        { "DATA", "bgp.prefix_bier.data", FT_BYTES,
+          BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* draft-ietf-bess-srv6-services-05 */
       { &hf_bgp_prefix_sid_srv6_l3vpn,
@@ -15596,6 +15807,7 @@ proto_register_bgp(void)
       &ett_bgp_prefix_sid_srv6_l2vpn_sid_structure,
       &ett_bgp_prefix_sid_srv6_l2vpn_sid_unknown,
       &ett_bgp_prefix_sid_srv6_l2vpn_unknown,
+      &ett_bgp_prefix_bier,
       &ett_bgp_mup_nlri,
       &ett_bgp_mup_nlri_3gpp_5g_type1_st_route,
       &ett_bgp_mup_nlri_3gpp_5g_type2_st_route,
