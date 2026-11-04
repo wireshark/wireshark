@@ -11,6 +11,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/tfs.h>
 #include <epan/conversation.h>
 #include <epan/expert.h>
@@ -73,6 +74,7 @@ static void dissect_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *
     bool conv_dissected; /* If the TVB was dissected using the conversation dissector*/
     bool heur_dissected; /* If the TVB was dissected using a heuristic dissector*/
     uint32_t current_destport,current_srcport;
+    conversation_t *conv;
 
     /* Saving old ports */
     current_destport = pinfo->destport;
@@ -82,40 +84,62 @@ static void dissect_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *
     pinfo->destport = uid;
     pinfo->srcport = 0;
 
-    /* Adding previously created FP/MAC/RLC info */
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fp_mux_info->fpinfos[payload_index]);
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, fp_mux_info->macinfos[payload_index]);
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, fp_mux_info->rlcinfos[payload_index]);
+    /* Adding previously created FP/MAC/RLC info (only when there is some,
+     * a NULL entry would hide the info a sub dissector attaches) */
+    if (fp_mux_info->fpinfos[payload_index])
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_fp, 0, fp_mux_info->fpinfos[payload_index]);
+    if (fp_mux_info->macinfos[payload_index])
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0, fp_mux_info->macinfos[payload_index]);
+    if (fp_mux_info->rlcinfos[payload_index])
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0, fp_mux_info->rlcinfos[payload_index]);
 
-    /* Trying a dissector assigned to the conversation (Usually from NBAP) */
-    conv_dissected = try_conversation_dissector(&pinfo->dst, &pinfo->src, CONVERSATION_UDP,
+    TRY {
+        /* Trying a dissector assigned to the conversation (Usually from NBAP),
+         * but never FP Mux itself, which would recurse without end. */
+        conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src, CONVERSATION_UDP,
+                                 pinfo->destport, pinfo->srcport, 0);
+        if (conv != NULL && conversation_get_dissector(conv, pinfo->num) == fp_mux_handle) {
+            conv_dissected = false;
+        } else {
+            conv_dissected = try_conversation_dissector(&pinfo->dst, &pinfo->src, CONVERSATION_UDP,
                                  pinfo->destport, pinfo->srcport, next_tvb, pinfo, tree, NULL, 0);
-    if (!conv_dissected) {
-        /* No conversation dissector / TVB was rejected, try other options */
-        if(call_fp_heur) {
-            /* Trying heuristic dissector */
-            heur_dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
-            if(!heur_dissected) {
-                /* No heuristic dissector / TVB was rejected, show as data */
+        }
+        if (!conv_dissected) {
+            /* No conversation dissector / TVB was rejected, try other options */
+            if(call_fp_heur) {
+                /* Trying heuristic dissector */
+                heur_dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL);
+                if(!heur_dissected) {
+                    /* No heuristic dissector / TVB was rejected, show as data */
+                    call_data_dissector(next_tvb,pinfo,tree);
+                }
+            }
+            else {
+                /* Trying heuristic dissectors disabled, show as data */
                 call_data_dissector(next_tvb,pinfo,tree);
             }
         }
-        else {
-            /* Trying heuristic dissectors disabled, show as data */
-            call_data_dissector(next_tvb,pinfo,tree);
-        }
     }
+    FINALLY {
+        /* Saving FP/MAC/RLC Info which the sub dissector might have attached */
+        fp_mux_info->fpinfos[payload_index] =  (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+        fp_mux_info->macinfos[payload_index] = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+        fp_mux_info->rlcinfos[payload_index] = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
-    /* Saving FP/MAC/RLC Info which the sub dissector might have attached */
-    fp_mux_info->fpinfos[payload_index] =  (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    fp_mux_info->macinfos[payload_index] = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
-    fp_mux_info->rlcinfos[payload_index] = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
+        /* Removing FP/MAC/RLC info from the packet */
+        /* to allow other packets to be dissected correctly */
+        while (p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0))
+            p_remove_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+        while (p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0))
+            p_remove_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
+        while (p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0))
+            p_remove_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
 
-    /* Removing FP/MAC/RLC info from the packet */
-    /* to allow other packets to be dissected correctly */
-    p_remove_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
-    p_remove_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
-    p_remove_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
+        /* Restoring ports */
+        pinfo->destport = current_destport;
+        pinfo->srcport = current_srcport;
+    }
+    ENDTRY;
 
     /* Setting a fence in the info column to aggregate all payloads' descriptions */
     const char* info = col_get_text(pinfo->cinfo, COL_INFO);
@@ -124,10 +148,6 @@ static void dissect_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *
         col_append_str(pinfo->cinfo, COL_INFO, " ");
         col_set_fence(pinfo->cinfo, COL_INFO);
     }
-
-    /* Restoring ports */
-    pinfo->destport = current_destport;
-    pinfo->srcport = current_srcport;
 }
 
 static int dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -263,7 +283,7 @@ static bool heur_dissect_fp_mux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     while(offset < total_length)
     {
-        if(total_length < offset + 2) {
+        if(total_length < offset + 3) {
             return false;
         }
         ext_flag = ((tvb_get_uint8(tvb, offset + 2)&0x80)==0x80);
