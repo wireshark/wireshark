@@ -83,8 +83,10 @@ protected:
 private:
     /**
      * @brief Applies the current preference changes.
+     * @param closing true if the dialog closes afterwards, in which case
+     * the redissection is queued until the dialog is destroyed.
      */
-    void apply();
+    void apply(bool closing);
 
     /**
      * @brief Resizes the splitter within the dialog.

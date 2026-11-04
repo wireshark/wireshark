@@ -31,6 +31,11 @@ void open(QWidget *parent);
  *          further teardown), @c false to let the main window proceed normally. */
 bool tryDeferMainWindowClose(QCloseEvent *event);
 
+/** Force the debugger off while the Preferences dialog is open, the same way
+ *  as during a live capture, and restore the user's choice when it closes.
+ *  @param suppressed @c true when the dialog opens, @c false when it closes. */
+void setSuppressedByPreferences(bool suppressed);
+
 } // namespace LuaDebugger
 
 #endif
