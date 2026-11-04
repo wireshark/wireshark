@@ -54522,3 +54522,158 @@ class TestDissectEtch:
         # Decimal separator depends on the locale
         assert flt in ('1.5', '1,5')
         assert dbl in ('-2.25', '-2,25')
+
+
+class TestDissectEth:
+    '''Ethernet (packet-eth.c) from the synthetic capture
+    eth_coverage.pcapng.gz: Ethernet II, 802.3/LLC, padding, trailers and
+    FCS on interfaces with an unknown, a 4 octet and a 0 octet FCS length,
+    ISL, encapsulated Ethernet (bridging, GRE, VXLAN, NSH, SLL, CHDLC,
+    sFlow, NFLOG), and the preferences that change the code that runs.
+    77 frames; frames 39-41 and 56-62 are reproducers of
+    "Ethernet: Fix FCS/padding handling and a stale tap stream index".'''
+
+    def _fields(self, cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        args = [cmd_tshark, *opts, '-r', capture_file('eth_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_eth_frames(self, cmd_tshark, capture_file, test_env):
+        '''77 frames, none malformed and none with an error expert info, in
+        one and two passes; both passes give the same -V output.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eth_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes, '-V',
+                    '-r', capture_file('eth_coverage.pcapng.gz'),
+                ), encoding='utf-8', env=test_env, timeout=120))
+        assert outs[0] == outs[1]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('eth_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 77
+
+    def test_eth_runt_fcs(self, cmd_tshark, capture_file, test_env):
+        '''Runt frames on an interface with a 4 octet FCS: the padding no
+        longer swallows the FCS (the trailer length wrapped around and the
+        frame was shown as truncated).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {39,40,41}',
+                ['frame.number', 'eth.fcs', 'eth.padding', '_ws.malformed'])
+        assert rows == [
+            ['39', '0x00112233', '00' * 22, ''],
+            ['40', '0xaa112233', '00' * 22, ''],
+            ['41', '0x00000000', '00' * 26, ''],
+        ]
+
+    def test_eth_padding_any_snap(self, cmd_tshark, capture_file, test_env):
+        '''A 60 octet frame captured as 40: with "padding any" the padding
+        is limited to the captured data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {12,13,56}',
+                ['frame.number', 'eth.padding', 'eth.trailer', '_ws.malformed'],
+                '-o', 'eth.padding:any')
+        assert rows == [
+            ['12', 'deadbeef1122334455667788deadbeef112233445566', '', ''],
+            ['13', '00' * 12 + 'deadbeef112233445566', '', ''],
+            ['56', '00' * 6, '', ''],
+        ]
+
+    def test_eth_padding_trailers(self, cmd_tshark, capture_file, test_env):
+        '''Zero padding followed by a PRP trailer, undecoded trailers, a
+        guessed FCS on a frame over 64 octets, and the expert info when no
+        zero padding is found.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {10,11,12,13,15,16,19}',
+                ['frame.number', 'prp.trailer.version', 'eth.padding', 'eth.trailer',
+                 'eth.fcs', 'eth.padding_bad'])
+        assert rows[0][:3] == ['10', 'PRP-1', '00' * 16]
+        assert rows[1][:3] == ['11', 'PRP-0', '00' * 18]
+        assert rows[2][0] == '12' and rows[2][2] == ''
+        assert rows[2][3] == 'deadbeef1122334455667788deadbeef112233445566'
+        assert rows[3][:4] == ['13', '', '00' * 12, 'deadbeef112233445566']
+        assert rows[4][:5] == ['15', '', '', 'deadbeef', '0x9ab1dcae']
+        assert rows[5][:5] == ['16', '', '', '010203', '']
+        assert rows[6][:2] == ['19', 'PRP-1'] and rows[6][4] == '0x8970e1dc'
+
+    def test_eth_check_fcs(self, cmd_tshark, capture_file, test_env):
+        '''With "check_fcs" the FCS of Ethernet II, VLAN and 802.3 frames
+        validates (status Good = 1); the FCS of frame 38 is 0xfda44af5.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {15,38,42,44,45,47}',
+                ['frame.number', 'eth.fcs.status'], '-o', 'eth.check_fcs:TRUE')
+        assert rows == [[n, '1'] for n in ('15', '38', '42', '44', '45', '47')]
+
+    def test_eth_encapsulated(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet in Ethernet (0x6558, 3 levels), GRE, IP protocol 143,
+        VXLAN, NSH, sFlow, SLL, CHDLC and NFLOG all reach the Ethernet
+        dissector; NFLOG calls the header-only variant.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {63,64,65,66,67,69,71,72,73,74,75,77}',
+                ['frame.number', 'eth.src'])
+        by = {int(r[0]): r[1] for r in rows}
+        assert by[64] == ('02:00:00:00:00:01,02:00:00:00:00:05,02:00:00:00:00:03')
+        assert by[63] == '02:00:00:00:00:01,02:00:00:00:00:03'
+        for n in (65, 66, 67, 69, 71, 72, 77):
+            assert by[n] == '02:00:00:00:00:01,02:00:00:00:00:03', n
+        assert by[73] == by[74] == '02:00:00:00:00:03'
+        assert by[75] == ''
+
+    def test_eth_802_3_isl_invalid(self, cmd_tshark, capture_file, test_env):
+        '''802.3 raw IPX (length 40), invalid length/type values with the
+        warning expert info, ISL carrying Ethernet with VLAN 100.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {24,27,28,29,30}',
+                ['frame.number', '_ws.col.protocol', 'eth.invalid_lentype', 'eth.len', 'isl.vlan_id'])
+        assert rows == [
+            ['24', 'IPX MSG', '', '40', ''],
+            ['27', 'Ethernet', '0x05ff', '', ''],
+            ['28', 'SPP', '', '', ''],
+            ['29', 'Ethernet', '0x05dd', '', ''],
+            ['30', 'IPv4', '', '', '100'],
+        ]
+
+    def test_eth_preferences(self, cmd_tshark, capture_file, test_env):
+        '''CCSDS Space Packet recognition, the duplicate destination MAC
+        of Cisco FEX and the TTEthernet constant field.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {26,76}', ['frame.number', '_ws.col.protocol'])
+        assert rows == [['26', 'SNA'], ['76', 'SNA']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {26,76}', ['frame.number', '_ws.col.protocol'],
+                '-o', 'eth.ccsds_heuristic_length:TRUE')
+        assert rows == [['26', 'CCSDS SP'], ['76', 'CCSDS SP']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {26,76}', ['frame.number', '_ws.col.protocol'],
+                '-o', 'eth.ccsds_heuristic_bit:TRUE')
+        assert rows == [['26', 'CCSDS SP'], ['76', 'SNA']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 37', ['eth.src', 'eth.type', 'ip.proto'],
+                '-o', 'eth.deduplicate_dmac:TRUE')
+        assert rows == [['88:b5:00:00:00:01', '0x0800', '253']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 32', ['_ws.col.protocol'],
+                '-o', 'tte.ct_mask_value:ffff0000', '-o', 'tte.ct_marker_value:0fff0000')
+        assert rows == [['TTE/0x88d7']]
+
+    def test_eth_stats(self, cmd_tshark, capture_file, test_env):
+        '''The Ethernet conversation table counts every Ethernet header, also
+        those that leave the dissector early (invalid length/type).'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', '-z', 'conv,eth',
+                '-r', capture_file('eth_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        total = 0
+        for line in stdout.splitlines():
+            if '<->' in line:
+                total += int(line.split('<->')[1].split()[7])
+        assert total == 89   # 77 frames, 12 more Ethernet headers in encapsulations
