@@ -148,6 +148,7 @@ static int hf_tecmp_payload_data_flags_ppi;
 static int hf_tecmp_payload_data_flags_cas;
 static int hf_tecmp_payload_data_flags_header_crc_err;
 static int hf_tecmp_payload_data_flags_frame_crc_err;
+static int hf_tecmp_payload_data_flags_fr_channel;
 
 /* UART/RS232 ASCII*/
 static int hf_tecmp_payload_data_flags_dl;
@@ -823,6 +824,11 @@ static const value_string tecmp_payload_flexray_tx_mode[] = {
     {0, NULL}
 };
 
+static const true_false_string tfs_tecmp_flexray_channel = {
+    "B",
+    "A"
+};
+
 static const true_false_string tfs_tecmp_i2c_direction = {
     "Read",
     "Write"
@@ -884,6 +890,7 @@ static const value_string tecmp_timesync_event_flags[] = {
 #define DATA_FLAG_FR_WUS                0x0008
 #define DATA_FLAG_FR_PPI                0x0010
 #define DATA_FLAG_FR_CAS                0x0020
+#define DATA_FLAG_FR_CHANNEL            0x0800
 #define DATA_FLAG_FR_HDR_CRC_ERR        0x1000
 #define DATA_FLAG_FR_FRAME_CRC_ERR      0x2000
 
@@ -1477,6 +1484,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
         &hf_tecmp_payload_data_flags_frame_crc_err,
         &hf_tecmp_payload_data_flags_header_crc_err,
+        &hf_tecmp_payload_data_flags_fr_channel,
         &hf_tecmp_payload_data_flags_cas,
         &hf_tecmp_payload_data_flags_ppi,
         &hf_tecmp_payload_data_flags_wus,
@@ -1489,6 +1497,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     static int * const dataflags_flexray_tx_data[] = {
 
         &hf_tecmp_payload_data_flags_use_header_crc_value,
+        &hf_tecmp_payload_data_flags_fr_channel,
         &hf_tecmp_payload_data_flags_tx_mode,
         NULL
     };
@@ -2448,8 +2457,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 /* lets set it based on config */
                 fr_info.bus_id = ht_interface_config_to_bus_id(interface_id);
 
-                /* we assume "FlexRay Channel A" since we cannot know */
-                fr_info.ch = 0;
+                fr_info.ch = (dataflags & DATA_FLAG_FR_CHANNEL) ? 1 : 0;
 
                 proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_cycle, sub_tvb, offset2, 1, ENC_NA, &tmp);
                 fr_info.cc = (uint8_t)tmp;
@@ -3277,6 +3285,7 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_flags_cas,                                 { "Collision Avoidance Symbol", "tecmp.payload.data_flags.collision_avoidance_symbol", FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_CAS, NULL, HFILL } },
         { &hf_tecmp_payload_data_flags_header_crc_err,                      { "Header CRC Error", "tecmp.payload.data_flags.header_crc_error", FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_HDR_CRC_ERR, NULL, HFILL } },
         { &hf_tecmp_payload_data_flags_frame_crc_err,                       { "Frame CRC Error", "tecmp.payload.data_flags.frame_crc_error", FT_BOOLEAN, 16, NULL, DATA_FLAG_FR_FRAME_CRC_ERR, NULL, HFILL } },
+        { &hf_tecmp_payload_data_flags_fr_channel,                          { "Channel", "tecmp.payload.data_flags.channel", FT_BOOLEAN, 16, TFS(&tfs_tecmp_flexray_channel), DATA_FLAG_FR_CHANNEL, NULL, HFILL } },
 
         /* UART/RS232 ASCII */
         { &hf_tecmp_payload_data_flags_dl,                                  { "DL", "tecmp.payload.data_flags.dl", FT_UINT16, BASE_DEC, VALS(tecmp_payload_rs232_uart_dl_types), 0x000e, NULL, HFILL } },
