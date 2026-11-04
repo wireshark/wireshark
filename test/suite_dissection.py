@@ -57962,3 +57962,61 @@ class TestDissectFf:
                 '-Tfields', '-eframe.number',
                 '-eff.sm.find_tag_reply.req.num_of_fda_addr_selectors')
         assert lines == ['1004\t1', '1009\t2', '1014\t3']
+
+
+class TestDissectFinger:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args[0],
+                '-r', capture_file('finger_coverage.pcap.gz'), *args[1:],
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_finger_protocols(self, cmd_tshark, capture_file, test_env):
+        '''6 queries and 5 (reassembled) responses, no malformed packets or
+        warnings, in one and two passes.'''
+        lines = self.run(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'finger', '-Tfields', '-eframe.number', '-efinger.query')
+        assert [l.split('\t')[0] for l in lines] == [
+            '4', '12', '20', '22', '28', '32', '37', '43', '51', '55', '57']
+        assert [l.split('\t')[1] for l in lines].count('') == 5
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_finger_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Request/response matching in the second pass: queries point to
+        the reassembled response, responses to their query.'''
+        lines = self.run(cmd_tshark, capture_file, test_env, ('-2',),
+                '-Y', 'finger', '-Tfields', '-eframe.number',
+                '-efinger.response_in', '-efinger.response_to')
+        assert lines == [
+            '4\t12\t', '12\t\t4', '20\t22\t', '22\t\t20', '28\t32\t',
+            '32\t\t28', '37\t\t', '43\t\t', '51\t57\t', '55\t57\t',
+            '57\t\t55',
+        ]
+        lines = self.run(cmd_tshark, capture_file, test_env, ('-2',),
+                '-Y', 'frame.number == 12', '-Tfields', '-efinger.response')
+        assert lines == ['Login: alice           Name: Alice Example\\r\\n'
+                         'Directory: /home/alice  Shell: /bin/sh\\r\\n'
+                         'No mail.\\r\\nNo Plan.\\r\\n']
+        lines = self.run(cmd_tshark, capture_file, test_env, ('-2',),
+                '-Y', 'frame.number == 12', '-Tfields', '-efinger.response_time')
+        assert len(lines) == 1 and lines[0].replace(',', '.').startswith('8.008')
+
+    def test_finger_request_without_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Without TCP reassembly the request is recorded in the first pass:
+        responses link back to their query in a single pass (the request
+        frame was not recorded before the fix), and a query that is not
+        terminated by CR LF gets an expert info.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                ('-o', 'tcp.desegment_tcp_streams:FALSE'),
+                '-Y', 'finger.response_to', '-Tfields', '-eframe.number',
+                '-efinger.response_to')
+        assert lines == ['6\t4', '8\t4', '10\t4', '22\t20', '30\t28', '53\t51', '57\t55']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                ('-o', 'tcp.desegment_tcp_streams:FALSE'),
+                '-Y', 'finger.nocrlf', '-Tfields', '-eframe.number',
+                '-efinger.query')
+        assert lines == ['18\t/W bo']
