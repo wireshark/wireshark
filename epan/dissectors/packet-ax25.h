@@ -29,4 +29,26 @@
 #define AX25_P_NO_L3 	0xF0	/* No layer 3 protocol */
 #define AX25_P_L3_ESC 	0xFF	/* Escape character. Next octet contains more layer 3 protocol info */
 
+/*
+ * Key for p_add_proto_data(pinfo->pool, pinfo, proto_ax25, ...).
+ *
+ * An encapsulating dissector that knows which radio port a frame came
+ * from (KISS) stores GUINT_TO_POINTER(port + 1) under this key just
+ * before calling the AX.25 dissector. The AX.25 dissector consumes and
+ * removes it, and uses the port as part of the link (conversation) key.
+ *
+ * The data pointer isn't used for this because the AX.25 dissector is
+ * also reached through wtap_encap and ip.proto, whose callers pass data
+ * pointers of their own.
+ */
+#define AX25_PROTO_DATA_PORT	0x80000001U
+
+/*
+ * Same mechanism: GUINT_TO_POINTER(n) when the last n octets handed to
+ * the AX.25 dissector aren't part of the AX.25 frame (a KISS checksum).
+ * They are still dissected as before; AX.25 only leaves them out where
+ * the length of the frame matters.
+ */
+#define AX25_PROTO_DATA_TRAILER	0x80000003U
+
 #endif /* __PACKET_AX25_H__ */

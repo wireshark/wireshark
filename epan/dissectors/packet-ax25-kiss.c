@@ -101,6 +101,8 @@
 #include <epan/packet.h>
 #include <epan/capture_dissectors.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
+#include "packet-ax25.h"
 
 #define STRLEN	80
 
@@ -151,6 +153,7 @@ static capture_dissector_handle_t ax25_cap_handle;
 
 /* Dissector handles - all the possibles are listed */
 static dissector_handle_t ax25_handle;
+static int proto_ax25;
 
 static const value_string kiss_frame_types[] = {
 	{ KISS_DATA_FRAME, 	"Data frame" },
@@ -341,6 +344,16 @@ dissect_ax25_kiss( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	if ( ( kiss_type == KISS_DATA_FRAME ) || ( kiss_type == KISS_DATA_FRAME_ACK ) )
 		{
 		next_tvb = tvb_new_subset_remaining( tvb, offset );
+		/* In checksum mode the last octet is the KISS checksum. AX.25
+		 * still gets it, but is told, so it can leave it out where the
+		 * length of the frame matters. See packet-ax25.h. */
+		if ( gPREF_CKSUM_MODE )
+			p_add_proto_data( pinfo->pool, pinfo, proto_ax25, AX25_PROTO_DATA_TRAILER,
+					GUINT_TO_POINTER( 1 ) );
+		/* Tell AX.25 which port this came from; it's part of the
+		 * link key there. See packet-ax25.h. */
+		p_add_proto_data( pinfo->pool, pinfo, proto_ax25, AX25_PROTO_DATA_PORT,
+				GUINT_TO_POINTER( (unsigned)kiss_port + 1 ) );
 		call_dissector( ax25_handle, next_tvb, pinfo, parent_tree );
 		}
 
@@ -442,6 +455,7 @@ proto_reg_handoff_ax25_kiss(void)
 
 	/* only currently implemented for AX.25 */
 	ax25_handle = find_dissector_add_dependency( "ax25", proto_ax25_kiss );
+	proto_ax25  = dissector_handle_get_protocol_index( ax25_handle );
 
 	ax25_cap_handle = find_capture_dissector("ax25");
 }

@@ -273,6 +273,22 @@ The following features are either new or have been significantly updated since v
   content-encoded bodies are uncompressed, controlled by the new
   `ajp13.decompress_body` preference.
 
+* The AX.25 dissector tracks links. Each link (station pair, KISS port and
+  capture interface) is a conversation, with a new stream (`ax25.stream`) at
+  each connection attempt; connectionless UI frames have no stream. The modulo of I and S frames comes from SABM/SABME
+  and UA, or is inferred from S frames when a capture starts mid-session
+  (`ax25.modulo`, `ax25.modulo.source`). Pre-2.0 C/R encodings are recognized
+  (`ax25.version`, `ax25.cr`). The link state (`ax25.link.state`) is followed,
+  with expert infos for frames after DISC/UA, DM or FRMR, while disconnecting
+  or after an idle timeout, and for digipeated copies (`ax25.link.dup_of`).
+  XID information fields are decoded (`ax25.xid.*`), with what each command
+  offers and each response selects (`ax25.xid.neg.*`), and the link parameters
+  in effect (`ax25.param.*`) are resolved from XID, a new station table
+  (`ax25_stations` UAT) and the new `ax25.t1`, `ax25.t3`, `ax25.n2`,
+  `ax25.n1`, `ax25.k`, `ax25.k_mod8_default` and `ax25.tr210` preferences.
+  Segments (PID 0x08) are decoded (`ax25.seg.*`) and checked, without
+  reassembly. UI frames with the P/F bit set now carry their PID and payload.
+
 * The Help menu entries Website and Wiki now show the Wireshark application icon on
   Linux and Windows, and Ask (Q&A) no longer has an icon.
 
@@ -319,6 +335,9 @@ peer processes with effective UID other than that of the sharkd process.
 The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
 
 Building with Qt 5 is no longer supported.
+
+The AX.25 `ax25.extended` preference has been removed: the modulo is now
+determined per link.
 
 // === Removed Dissectors
 

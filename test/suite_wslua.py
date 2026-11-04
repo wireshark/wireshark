@@ -348,6 +348,10 @@ class TestWslua:
         '''wslua conversation'''
         check_lua_script('conversation.lua', dns_port_pcap, True)
 
+    def test_wslua_ax25_stream(self, check_lua_script):
+        '''wslua AX.25 subdissector: ax25.stream and the link conversation'''
+        check_lua_script('ax25_stream.lua', 'ax25_sabm.pcap.gz', True)
+
     def test_wslua_conversation_expiry(self, check_lua_script):
         '''wslua conversation expiry when the file scope is freed'''
         check_lua_script('conversation_expiry.lua', dns_port_pcap, True, '-M', '2')

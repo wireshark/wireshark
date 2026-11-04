@@ -143,6 +143,8 @@ dissect_ax25_nol3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
 	char       *info_buffer;
 	int         offset;
 	tvbuff_t   *next_tvb = NULL;
+	/* The AX.25 control field: one octet, or two (low octet first) for a
+	 * modulo 128 I frame. Only the low octet tells U frames apart. */
 	int         control  = GPOINTER_TO_INT(data);
 	bool        ax25_ui_frame = (((control & XDLC_S_U_MASK) == XDLC_U) &&
 	                             ((control & XDLC_U_MODIFIER_MASK) == XDLC_UI));

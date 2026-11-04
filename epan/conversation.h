@@ -167,6 +167,7 @@ typedef enum {
     CONVERSATION_ILNP,           /**< Identifier-Locator Network Protocol (ILNP) conversation */
     CONVERSATION_SYNCHROPHASOR,  /**< Synchrophasor conversation */
     CONVERSATION_UDX,            /**< UDX stream */
+    CONVERSATION_AX25,           /**< AX.25 link (address pair, KISS port, interface) */
 } conversation_type;
 
 /*
@@ -219,6 +220,7 @@ typedef enum {
 #define ENDPOINT_ETH		CONVERSATION_ETH
 #define ENDPOINT_ILNP		CONVERSATION_ILNP
 #define ENDPOINT_UDX		CONVERSATION_UDX
+#define ENDPOINT_AX25		CONVERSATION_AX25
 
 typedef conversation_type endpoint_type;
 

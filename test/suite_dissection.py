@@ -8154,6 +8154,294 @@ class TestDissectAprs:
                               for n, c in zip(range(145, 163), comments)]
 
 
+# The ax25_*.pcap.gz captures are synthetic (text2pcap): each exercises one
+# part of the AX.25 link tracking. The frame numbers below are those of the
+# comments in the script that made them.
+AX25_CAPTURES = (
+    'ax25_sabme_mod128.pcap.gz', 'ax25_sabm.pcap.gz', 'ax25_disc_stray.pcap.gz',
+    'ax25_dm.pcap.gz', 'ax25_frmr.pcap.gz', 'ax25_xid.pcap.gz',
+    'ax25_segments.pcap.gz', 'ax25_pre20.pcap.gz', 'ax25_digi_dup.pcap.gz',
+    'ax25_t3_gap.pcap.gz', 'ax25_midsession.pcap.gz', 'ax25_kiss_ports.pcap.gz',
+    'ax25_interfaces.pcapng.gz',
+)
+
+
+class TestDissectAx25Link:
+    def run_fields(self, cmd_tshark, capture_file, test_env, capture, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file(capture),
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {int(line.split('\t')[0]): line.split('\t')[1:]
+                for line in stdout.splitlines()}
+
+    def matching(self, cmd_tshark, capture_file, test_env, capture, dfilter, opts=()):
+        '''Frame numbers matching a display filter.'''
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file(capture), '-Y', dfilter,
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        return [int(n) for n in stdout.split()]
+
+    def test_ax25_two_pass_identical(self, cmd_tshark, capture_file, test_env):
+        '''State is only built on the first pass, so the output is the same
+        with and without -2, and nothing is malformed.'''
+        for capture in AX25_CAPTURES:
+            outputs = [subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file(capture), '-V',
+                ), encoding='utf-8', env=test_env) for opts in ((), ('-2',))]
+            assert outputs[0] == outputs[1], capture
+            assert self.matching(cmd_tshark, capture_file, test_env, capture,
+                                 '_ws.malformed || _ws.expert.severity == error') == [], capture
+
+    def test_ax25_sabme_mod128(self, cmd_tshark, capture_file, test_env):
+        '''SABME and UA set modulo 128 from the UA on; two-octet control
+        fields are decoded with seven-bit sequence numbers.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_sabme_mod128.pcap.gz',
+                            'ax25.stream', 'ax25.modulo', 'ax25.modulo.source', 'ax25.modulo.frame',
+                            'ax25.ctl.n_s_ext', 'ax25.ctl.n_r_ext', 'ax25.ctl_ext')
+        assert all(f[n][0] == '0' for n in f)
+        for n in (3, 4, 5, 6, 7, 8):
+            assert f[n][1:4] == ['128', '3', '2']
+        assert f[7][4:6] == ['100', '2']
+        assert f[8][5] == '101'
+        assert f[3][6] == '0x0000'
+
+    def test_ax25_sabm(self, cmd_tshark, capture_file, test_env):
+        '''A SABM link is modulo 8; SABM retries stay in the stream, a new
+        SABM after DISC/UA starts the next one. UI with P=1 keeps its PID.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_sabm.pcap.gz',
+                            'ax25.stream', 'ax25.modulo', 'ax25.link.state', 'ax25.pid')
+        # The UI frame (10) is connectionless and has no stream
+        assert [f[n][0] for n in sorted(f)] == ['0'] * 9 + [''] + ['1'] * 3
+        assert f[4][1] == '8'
+        assert f[9][2] == '4'               # Disconnected (DISC/UA)
+        assert f[10][3] == '0xf0'           # UI P=1
+        assert f[13][2] == '2'              # Connected
+
+    def test_ax25_disc_stray(self, cmd_tshark, capture_file, test_env):
+        '''I frames and RR/RNR/REJ commands after DISC/UA are flagged, with
+        the frame that disconnected the link; responses, UI, TEST, XID and
+        SABM are not.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_disc_stray.pcap.gz', dfilter)
+        assert m('ax25.link.disconnecting') == [5]
+        assert m('ax25.link.after_disc') == [7, 8, 9, 10]
+        assert m('ax25.link.state_frame == 6') == [7, 8, 9, 10]
+        assert m('ax25.link.state_frame == 4') == [5]
+        assert m('_ws.expert.group == "Sequence"') == [5, 7, 8, 9, 10]
+        assert m('ax25.stream == 1') == [15]
+
+    def test_ax25_dm(self, cmd_tshark, capture_file, test_env):
+        '''DM answering a SABM(E) refuses it; a SABM after a refused SABME is
+        a v2.0 fallback in the same stream; I frames after DM are flagged.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_dm.pcap.gz', dfilter)
+        assert m('ax25.link.refused') == [2, 5]
+        assert m('ax25.link.refused == 4') == [5]
+        assert m('ax25.link.after_dm') == [3, 10]
+        assert m('ax25.link.state_frame == 9') == [10]
+        assert m('ax25.link.fallback == 5') == [6]
+        assert m('ax25.stream == 1') == [4, 5, 6, 7, 8, 9, 10]
+
+    def test_ax25_frmr(self, cmd_tshark, capture_file, test_env):
+        '''FRMR answering XID is a v2.0 peer, not a link error; any other
+        FRMR is; FRMR answering SABME leads to a SABM fallback.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_frmr.pcap.gz', dfilter)
+        assert m('ax25.link.frmr_xid == 3') == [4]
+        assert m('ax25.link.after_frmr') == [7]
+        assert m('ax25.link.state_frame == 6') == [7]
+        assert m('ax25.link.refused == 8') == [9]
+        assert m('ax25.link.fallback == 9') == [10]
+        assert m('_ws.expert.severity == warning') == [7]
+        # v2.0 evidence is about the stations, so it carries over to the next stream
+        assert m('ax25.param.version == 0 && ax25.param.version.frame == 4') == [4, 5, 6, 7, 8, 9]
+
+    def test_ax25_xid(self, cmd_tshark, capture_file, test_env):
+        '''Every PI is decoded; bit fields are least significant octet
+        first and numbers big-endian.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz',
+                            'ax25.xid.cop', 'ax25.xid.cop.abm', 'ax25.xid.cop.half',
+                            'ax25.xid.hdlc', 'ax25.xid.hdlc.srej', 'ax25.xid.hdlc.mod128',
+                            'ax25.xid.hdlc.segmenter', 'ax25.xid.n1_tx', 'ax25.xid.n1_rx',
+                            'ax25.xid.k_tx', 'ax25.xid.k_rx', 'ax25.xid.t1', 'ax25.xid.n2',
+                            'ax25.xid.gl')
+        assert f[2] == ['0x0021', 'True', 'True', '0x42a884', 'True', 'True', 'True',
+                        '2048', '512', '7', '2', '4000', '12', '30']
+        assert f[19][13] == '0'
+
+    def test_ax25_xid_parameters(self, cmd_tshark, capture_file, test_env):
+        '''XID before the SABME carries over to its stream: N1 and k are
+        what the receiver notified, T1 and N2 what the response set.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz',
+                            'ax25.stream', 'ax25.param.n1', 'ax25.param.n1.source',
+                            'ax25.param.k', 'ax25.param.t1', 'ax25.param.t1.source',
+                            'ax25.param.n2', 'ax25.param.version', 'ax25.param.xid_frame')
+        assert f[1][1:3] == ['256', '0']    # nothing notified yet: spec default
+        assert f[5] == ['1', '64', '3', '2', '4000', '3', '12', '1', '2,2,2,2']
+        assert f[6][1:4] == ['128', '3', '4']
+        assert f[16][4:6] == ['3000', '3']  # PL=0: the default, from XID
+
+    def test_ax25_xid_experts(self, cmd_tshark, capture_file, test_env):
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz', dfilter)
+        assert m('ax25.param.n1.exceeded') == [5]
+        assert m('ax25.xid.negotiation') == [8]
+        assert m('ax25.xid.sabm_modulo') == [11]
+        assert m('ax25.xid.modulo_change') == [15]
+        assert m('ax25.modulo == 128 && ax25.modulo.source == 4') == [16, 17, 20, 21]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_xid.pcap.gz'), '-Y', 'frame.number == 8',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        for why in ('full duplex', 'SREJ', 'modulo 128', 'T1 2000 ms < 5000 ms', 'N2 5 < 10'):
+            assert why in stdout
+
+    def test_ax25_xid_negotiation(self, cmd_tshark, capture_file, test_env):
+        '''XID frames show what a command offers and what a response selects,
+        with the command it answers, defaults, kept values and rule breaches.'''
+        fields = ('ax25.xid.neg.command_frame', 'ax25.xid.neg.duplex', 'ax25.xid.neg.reject',
+                  'ax25.xid.neg.modulo', 'ax25.xid.neg.segmenter', 'ax25.xid.neg.t1',
+                  'ax25.xid.neg.n2', 'ax25.xid.neg.n1', 'ax25.xid.neg.k')
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz', *fields)
+        assert f[1] == ['', '0', '2', '128', 'True', '3000', '10', '128', '4']    # offer
+        assert f[2] == ['1', '0', '2', '128', 'True', '4000', '12', '64', '2']    # result
+        assert f[19] == ['18', '0', '2', '128', 'False', '3000', '10', '256', '32']  # GL=0
+        assert f[23] == ['22', '', '', '', '', '', '', '', '16']
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz', dfilter)
+        assert m('ax25.xid.neg.v22') == [2, 8, 10, 15, 19, 23]
+        assert m('ax25.xid.neg.kept') == [23]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_xid.pcap.gz'), '-Y', 'frame.number == 8', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('[breaks section 6.3.2]') == 5
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_xid.pcap.gz'), '-Y', 'frame.number == 23', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'current value is kept (128)' in stdout
+        assert 'current value is kept (3000 ms, XID)' in stdout
+
+    def test_ax25_segments(self, cmd_tshark, capture_file, test_env):
+        '''Segment headers, the original PID in the first segment, and the
+        sequence checks over I and UI.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz',
+                            'ax25.seg.first', 'ax25.seg.remaining', 'ax25.seg.pid',
+                            'ax25.seg.first_frame')
+        assert f[5][:3] == ['True', '2', '0xcc']
+        assert [f[n][3] for n in (6, 7, 8)] == ['5', '5', '5']
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz', dfilter)
+        assert m('ax25.seg.missing_first') == [10]
+        assert m('ax25.seg.remaining.bad') == [11, 19]
+        assert m('ax25.seg.interleaved') == [12, 20]
+        assert m('ax25.seg.too_long') == [13]
+        assert m('ax25.seg.tr210') == [14]
+        assert m('ax25.seg.negotiation_not_captured') == [16, 18, 19]
+        assert m('ax25.seg.not_negotiated') == [25]
+        # Segments over UI belong to no stream, and a link with only UI
+        # frames doesn't use up a stream index
+        assert m('ax25.stream') == list(range(1, 16)) + list(range(21, 26))
+        assert m('ax25.stream == 2') == [21, 22]
+        # A retransmitted segment isn't a new one
+        assert 7 not in m('_ws.expert')
+        # TR210 from the preference
+        assert self.matching(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz',
+                             'ax25.seg.tr210', opts=('-o', 'ax25.tr210:200')) == []
+
+    def test_ax25_pre20(self, cmd_tshark, capture_file, test_env):
+        '''C/R 00 and 11 are pre-2.0: C/R comes from the frame type, and is
+        unknown (P/F shown as such) for S frames and XID.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_pre20.pcap.gz',
+                            'ax25.version', 'ax25.cr', 'ax25.ctl.pf', 'ax25.ctl.p', 'ax25.ctl.f')
+        assert [f[n][:2] for n in sorted(f)] == [
+            ['0', '0'], ['0', '1'], ['0', '0'], ['0', '2'], ['1', '1'],
+            ['0', '2'], ['0', '0'], ['0', '0'], ['0', '1'], ['0', '0']]
+        assert f[4][2:] == ['True', '', '']
+        assert f[9][2:] == ['', '', 'True']
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_pre20.pcap.gz', dfilter)
+        assert m('ax25.cr.mixed') == [5, 9]
+        assert m('ax25.pre20.v22_feature') == [6, 7, 10]
+
+    def test_ax25_digi_dup(self, cmd_tshark, capture_file, test_env):
+        '''A copy with more H bits set within T1 is a digipeated copy; a
+        retransmission (same H bits) and a late copy are not.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_digi_dup.pcap.gz',
+                            'ax25.link.dup_of', 'ax25.link.state')
+        assert [f[n][0] for n in sorted(f)] == ['', '1', '', '3', '', '5', '', '7', '']
+        assert f[9][1] == '2'
+
+    def test_ax25_t3_gap(self, cmd_tshark, capture_file, test_env):
+        '''Silence longer than T3 + N2 x T1 presumes the link down; if N(S)
+        carries on it's a possible capture gap.'''
+        def m(dfilter, opts=()):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_t3_gap.pcap.gz',
+                                 dfilter, opts=opts)
+        assert m('ax25.link.capture_gap') == [5]
+        assert m('ax25.link.after_idle') == [7]
+        assert m('ax25.link.state_frame == 6') == [7]
+        assert m('ax25.link.state == 2') == [2, 3, 4, 5, 6, 7, 8]
+        assert m('ax25.stream != 0') == []
+        assert m('ax25.link.after_idle || ax25.link.capture_gap', opts=('-o', 'ax25.t3:1000')) == []
+        assert m('ax25.link.after_idle || ax25.link.capture_gap', opts=('-o', 'ax25.t3:0')) == []
+
+    def test_ax25_midsession(self, cmd_tshark, capture_file, test_env):
+        '''Mid-session start: the modulo is inferred from the first decisive
+        S frame, assumed to be 8 before, and taken from an unanswered SABME
+        once the initiator sends I frames.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_midsession.pcap.gz',
+                            'ax25.modulo', 'ax25.modulo.source', 'ax25.modulo.frame')
+        assert f[1] == ['8', '0', '']
+        assert f[2] == ['8', '1', '2']      # bits 4-7 set
+        assert f[3] == ['8', '0', '']
+        assert f[4] == ['128', '1', '4']    # two octets
+        assert f[5] == ['128', '1', '4']
+        assert f[6] == ['8', '1', '6']      # one octet
+        assert f[7] == ['8', '0', '']
+        assert f[8] == ['8', '0', '']       # not decisive
+        assert f[10] == ['128', '2', '9']   # SABME, UA not captured
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_midsession.pcap.gz', dfilter)
+        assert m('ax25.modulo.assumed') == [1, 3, 7, 8]
+        assert m('ax25.modulo.inferred') == [2, 4, 5, 6]
+        assert m('ax25.modulo.no_ua') == [10]
+
+    def test_ax25_link_key(self, cmd_tshark, capture_file, test_env):
+        '''The KISS port and the capture interface are part of the link.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_kiss_ports.pcap.gz',
+                            'ax25_kiss.port', 'ax25.stream', 'ax25.link.refused')
+        assert f == {1: ['0', '0', ''], 2: ['1', '1', ''], 3: ['1', '1', ''],
+                     4: ['1', '1', ''], 5: ['0', '0', '1']}
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_interfaces.pcapng.gz',
+                            'frame.interface_id', 'ax25.stream', 'ax25.link.state')
+        assert f[1][1] != f[2][1]
+        assert f[1][0] == f[3][0] and f[1][1] == f[3][1] and f[3][2] == '5'   # DM
+        assert f[2][0] == f[4][0] and f[2][1] == f[4][1] and f[4][2] == '2'   # UA
+
+    def test_ax25_station_table(self, cmd_tshark, capture_file, test_env):
+        '''The station table comes after XID and before the preferences.'''
+        uat = ('-o', 'uat:ax25_stations:"NJ7P","5000","60","3","100","5","2.2"')
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_sabm.pcap.gz',
+                            'ax25.src', 'ax25.param.t1', 'ax25.param.t1.source',
+                            'ax25.param.n1', 'ax25.param.n1.source', 'ax25.param.k',
+                            opts=uat + ('-o', 'ax25.t1:4000', '-o', 'ax25.n1:200'))
+        assert f[3] == ['NJ7P', '5000', '2', '200', '1', '7']    # sent by NJ7P
+        assert f[4] == ['N7LEM', '4000', '1', '100', '2', '5']   # sent to NJ7P
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_xid.pcap.gz',
+                            'ax25.param.n1.source', opts=uat)
+        assert f[5] == ['3']                # XID wins
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_sabm.pcap.gz',
+                            'ax25.param.k', 'ax25.param.k.source',
+                            opts=('-o', 'ax25.k_mod8_default:4'))
+        assert f[4] == ['4', '0']
+
+
 # ar_drone_coverage.pcap.gz is synthetic: every packet was generated, to
 # cover as much of the AR Drone dissector as possible. No UDP port is
 # registered for it by default and its heuristic is disabled.
@@ -11640,7 +11928,7 @@ class TestDissectAx25:
 
     def test_ax25_control(self, cmd_tshark, capture_file, test_env):
         '''S and U frames show the command or response modifier from the
-        C bits, and only I and UI frames (without the P bit) have a PID.'''
+        C bits, and only I and UI frames have a PID.'''
         frames = self.run_fields(cmd_tshark, capture_file, test_env,
                                  '-Y', 'frame.number >= 14 && frame.number <= 43',
                                  '-e_ws.col.info', '-eax25.ctl.u_cmd',
@@ -11659,10 +11947,11 @@ class TestDissectAx25:
         assert frames[22][0] == 'U, func=FRMR'
         assert frames[23][0] == 'U, func=XID'
         assert frames[25][0] == 'U, func=TEST'
-        # UI with the P bit: no PID; a UI response has one
-        assert frames[27] == ['U P, func=UI', '0x00', '', '']
+        # UI with the P bit has a PID too (section 3.4, Figure 4.4): here
+        # the first octet of the text, 'U'
+        assert frames[27] == ['U P, func=UI, Unknown (0x55)', '0x00', '', '0x55']
         assert frames[28][2:] == ['0x00', '0xf0']
-        assert all(f[3] == '' for f in frames[:28])
+        assert all(f[3] == '' for f in frames[:27])
 
     def test_ax25_pids(self, cmd_tshark, capture_file, test_env):
         '''The I frames go to the dissector registered for the PID or to
