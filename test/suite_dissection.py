@@ -56915,3 +56915,113 @@ class TestDissectFcgi:
                 '-efcgi.begin_request.flags',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['3\t1\t0x01', '21\t9\t0x81']
+
+
+class TestDissectFcip:
+    '''FCIP (Fibre Channel over IP) found by the TCP heuristic on port
+    3225, from the synthetic capture fcip_coverage.pcap.gz. FCIP frames
+    carry FC frames, so FCP, BLS, FC ELS and FC link control appear as the
+    protocol of the FC frame.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fcip_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fcip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''49 frames; the TCP segments that start a reassembled frame are
+        TCP; no malformed packets or expert infos in one and two passes,
+        and both passes show the same.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 49
+        protocols = [r[0] for r in rows.values()]
+        assert protocols.count('TCP') == 7
+        assert protocols.count('FCIP') == 3
+        assert protocols.count('FCP') == 34
+        assert protocols.count('FC') == 2
+        assert protocols.count('FC ELS') == 2
+        assert protocols.count('BLS') == 1
+        assert rows['20'] == ['FCIP'] and rows['21'] == ['FCIP']
+        assert rows == self.fields(cmd_tshark, capture_file, test_env,
+                                   '_ws.col.protocol', passes=('-2',))
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcip_multiple_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every FCIP frame of a segment is decoded from its own start:
+        its own SOF, EOF and FC payload (the FCP_DATA_RO and the OX_ID).
+        Before "FCIP: Decode every frame in a segment and fix the EOF
+        check" every frame showed the first one.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'fcip.sof', 'fcip.eof', 'fcp.data_ro', 'fc.ox_id')
+        assert rows['23'] == ['0x2e,0x2d', '0x41,0x42', '286331153,572662306', '0x0010,0x0020']
+        assert rows['24'] == ['0x2e,0x2e,0x2e,0x2e,0x2e', '0x41,0x42,0x41,0x42,0x41',
+                              '858993456,858993457,858993458,858993459,858993460',
+                              '0x0030,0x0031,0x0032,0x0033,0x0034']
+        assert rows['44'][2:] == ['28674,28675', '0x0703,0x0704']
+        # a frame after four octets of garbage
+        assert rows['26'] == ['0x2e', '0x42', '1145324612', '0x0040']
+
+    def test_fcip_eof_check(self, cmd_tshark, capture_file, test_env):
+        '''Frames with a bad length, bad complement, illegal EOF, bad
+        EOF complement or replica and bad reserved octets in front of a
+        good frame are skipped (frames 27-36 hold only the good frame).
+        The EOF is checked at the end of the frame (the old code looked
+        four times too far).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'fcip.sof', 'fcip.eof', 'fcp.data_ro', 'fc.ox_id')
+        for n in range(10):
+            row = rows[str(27 + n)]
+            assert row[0] == '0x2e' and row[1] == '0x42' and row[3] == '0x0600'
+        assert [rows[str(27 + n)][2] for n in range(9)] == [str(0x6000 + n) for n in range(9)]
+        assert rows['36'][2] == str(0x6100)
+
+    def test_fcip_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''Every SOF and EOF value is named.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcip_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 16', '-V', '-O', 'fcip',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for name, val in (('SOFf', 0x28), ('SOFi4', 0x29), ('SOFi2', 0x2d), ('SOFi3', 0x2e),
+                          ('SOFn4', 0x31), ('SOFn2', 0x35), ('SOFn3', 0x36), ('SOFc4', 0x39)):
+            assert 'SOF: %s (0x%02x)' % (name, val) in lines
+        for name, val in (('EOFn', 0x41), ('EOFt', 0x42), ('EOFrt', 0x44), ('EOFdt', 0x46),
+                          ('EOFni', 0x49), ('EOFdti', 0x4e), ('EOFrti', 0x4f), ('EOFa', 0x50)):
+            assert 'EOF: %s (0x%02x)' % (name, val) in lines
+        assert 'FCIP (SOFf/EOFn)' in lines
+
+    def test_fcip_special_frame(self, cmd_tshark, capture_file, test_env):
+        '''Special frames show the connection fields; the changed flag is
+        appended to the Info column.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '_ws.col.info', 'fcip.pflags.sf', 'fcip.pflags.ch',
+                           'fcip.srcwwn', 'fcip.dstwwn', 'fcip.katov',
+                           'fcip.conncode', 'fcip.connflags')
+        assert rows['20'] == ['Special Frame', 'True', 'False',
+            '20:00:00:de:ad:be:ef:01', '20:00:00:ca:fe:ba:be:02', '7000', '0x0002', '0x40']
+        assert rows['21'] == ['Special Frame(Changed)', 'True', 'True',
+            '20:00:00:ca:fe:ba:be:02', '20:00:00:de:ad:be:ef:01', '0', '0x0102', '0xc0']
+
+    def test_fcip_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frames split over TCP segments are reassembled in the last
+        segment: a frame split at 40 octets (37-38), in four (39-42), the
+        second of two frames (43-44), a special frame (45-46) and two
+        frames over three segments (47-49).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '_ws.col.protocol', 'fcp.data_ro', 'fc.ox_id')
+        assert rows['37'][0] == 'TCP'
+        assert rows['38'][:3] == ['FCP', '28673', '0x0701']
+        assert rows['42'][0] == 'FC ELS' and rows['42'][2] == '0x0702'
+        assert rows['39'][0] == rows['40'][0] == rows['41'][0] == 'TCP'
+        assert rows['44'][:3] == ['FCP', '28674,28675', '0x0703,0x0704']
+        assert rows['46'][0] == 'FCIP'
+        assert rows['48'][1:3] == ['28676', '0x0705'] and rows['49'][1:3] == ['28677', '0x0706']
