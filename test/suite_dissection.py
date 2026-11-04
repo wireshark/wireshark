@@ -56379,3 +56379,70 @@ class TestDissectFc:
             ), encoding='utf-8', env=test_env)
         assert '01.02.03             <-> 01.04.05' in stdout
         assert '01.06.07             <-> 01.08.09' in stdout
+
+
+class TestDissectFcct:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('fcct_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_fcct_protocols(self, cmd_tshark, capture_file, test_env):
+        '''61 of the 62 frames carry an FC-CT preamble (the first frame of the
+        multi-frame request does not); none is malformed or has an error
+        expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'fcct', '-Tfields', '-eframe.number')
+        assert len(lines) == 61
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fcct_servers(self, cmd_tshark, capture_file, test_env):
+        '''The server derived from the GS type and subtype, for each type
+        (including the unknown ones and the GS type 0x09 oddity).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fcct.revision && frame.number <= 33 && frame.number % 2 == 1', '-Tfields',
+                '-eframe.number', '-efcct.revision', '-efcct.in_id', '-efcct.gstype',
+                '-efcct.gssubtype', '-efcct.server', '-efcct.options')
+        got = {l[0]: l[3:6] for l in lines}
+        assert got['1'] == ['0xf7', '0x00', '0x08']      # key server
+        assert got['3'] == ['0xf8', '0x01', '0x06']      # alias server
+        assert got['5'][2] == '0xff'                     # unknown subtype
+        assert got['7'][2] == '0x03'                     # fabric configuration server
+        assert got['9'][2] == '0x04'                     # unzoned name server
+        assert got['11'][2] == '0x05'                    # fabric zone server
+        assert got['15'][2] == '0x07'                    # time server
+        assert got['19'][2] == '0x01'                    # dNS
+        assert got['21'][2] == '0x02'                    # IP server
+        assert got['25'][2] == '0x09'                    # GS type 0xFD: fabric controller
+        assert got['27'] == ['0x09', '0x00', '0xff']     # GS type 0x09 is not mapped
+        assert got['33'][2] == '0xff'
+        assert {l[2] for l in lines} == {'01.02.03'}
+
+    def test_fcct_messages(self, cmd_tshark, capture_file, test_env):
+        '''Info column text: request, accept, every reject code, reserved
+        opcodes and the dissectors reached through the server table.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 35',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.col.protocol')
+        got = {l[0]: l[1:] for l in lines}
+        reasons = ['Invalid Cmd Code', 'Invalid Version Level', 'Logical Error', 'Invalid CT_IU Size',
+                   'Logical Busy', 'Protocol Error', 'Unable to Perform Cmd', 'Cmd Not Supported', '0x42']
+        for i, r in enumerate(reasons):
+            assert got[str(36 + 2 * i)] == ['FC_CT Reject (%s)' % r, 'FC_CT']
+        assert got['35'] == ['FC_CT Request', 'FC_CT']
+        assert got['54'][0] == 'FC_CT Reserved'
+        assert got['55'][0] == 'FC_CT Request'
+        assert got['56'][0] == 'FC_CT Reserved'
+        assert got['57'] == ['GPN_ID', 'dNS']
+        assert got['59'] == ['GID_FT', 'Unzoned NS']
+
+    def test_fcct_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''The two-frame request (frames 60, 61) is reassembled before FC-CT
+        is called, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'fc.reassembled.length', '-Tfields', '-eframe.number', '-efc.reassembled.length',
+                    '-efcct.gssubtype', '-e_ws.col.protocol')
+            assert len(lines) == 1 and lines[0][0] == '62' and lines[0][2] == '0x03'
