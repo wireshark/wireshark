@@ -187,16 +187,6 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	/* First, clear the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	/*username */
-	if(hash_info->username && preference_info_show_username == true){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Username:%s ", hash_info->username);
-	}
-
-	/* Command */
-	if(hash_info->command && preference_info_show_command == true){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
-	}
-
 	/* create display subtree for the protocol */
 	ti = proto_tree_add_item(tree, proto_exec, tvb, 0, -1, ENC_NA);
 	exec_tree = proto_item_add_subtree(ti, ett_exec);
@@ -222,13 +212,14 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			proto_tree_add_string(exec_tree, hf_exec_stderr_port, tvb, offset, length, field_stringz);
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_USERNAME;
+
+			/* Used if the next field is in the same packet */
+			offset += length;
 		} else {
-			/* Since the data doesn't match this field, it must be data only */
+			/* Since the data doesn't match this field, it must be data only.
+			 * Do not consume it, so that it is shown as data below. */
 			hash_info->state = WAIT_FOR_DATA;
 		}
-
-		/* Used if the next field is in the same packet */
-		offset += length;
 	}
 
 
@@ -250,13 +241,14 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
 			 /* Next field we need */
 			hash_info->state = WAIT_FOR_PASSWORD;
+
+			/* Used if the next field is in the same packet */
+			offset += length;
 		} else {
-			/* Since the data doesn't match this field, it must be data only */
+			/* Since the data doesn't match this field, it must be data only.
+			 * Do not consume it, so that it is shown as data below. */
 			hash_info->state = WAIT_FOR_DATA;
 		}
-
-		/* Used if the next field is in the same packet */
-		offset += length;
 	}
 
 
@@ -299,6 +291,18 @@ dissect_exec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		}
 	}
 
+
+	/* Build the info column after this packet's fields have been parsed,
+	 * so that the result does not depend on the pass. */
+	/*username */
+	if(hash_info->username && preference_info_show_username == true){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Username:%s ", hash_info->username);
+	}
+
+	/* Command */
+	if(hash_info->command && preference_info_show_command == true){
+		col_append_fstr(pinfo->cinfo, COL_INFO, "Command:%s ", hash_info->command);
+	}
 
 	if(hash_info->state == WAIT_FOR_DATA
 	&& tvb_reported_length_remaining(tvb, offset)){
