@@ -57610,3 +57610,163 @@ class TestDissectFcsp:
             '    Transaction Identifier: 0x00000007',
             '    Reason Code: Authentication Failure (1)',
             '    Reason Code Explanation: Authentication Mechanism Not Usable (1)']
+
+
+class TestDissectFcswils:
+    '''Fibre Channel SW_ILS (FC type 0x22, R_CTL 0x02/0x03) over FCoE from
+    the synthetic capture fcswils_coverage.pcap.gz: every handled ILS
+    with its accept, rejects, zoning with all member types, ESS capability
+    objects, AUTH_ILS (FC-SP) and unhandled opcodes.'''
+
+    INFOS = [
+        'ELP',
+        'SW_ACC (ELP)',
+        'ELP',
+        'SW_ACC (ELP)',
+        'ELP',
+        'SW_ACC (ELP)',
+        'EFP',
+        'SW_ACC (EFP)',
+        'EFP',
+        'EFP',
+        'DIA',
+        'SW_ACC (DIA)',
+        'RDI',
+        'SW_ACC (RDI)',
+        'RDI',
+        'SW_ACC (RDI)',
+        'HLO',
+        'SW_ACC (HLO)',
+        'LSU',
+        'SW_ACC (LSU)',
+        'LSA',
+        'BF',
+        'SW_ACC (BF)',
+        'RCF',
+        'SW_ACC (RCF)',
+        'SW_RSCN',
+        'SW_ACC (SW_RSCN)',
+        'SW_RSCN',
+        'DRLIR',
+        'SW_ACC (DRLIR)',
+        '0x19',
+        '0x1a',
+        '0x1c',
+        '0x1d',
+        'DSCN',
+        'LOOPD',
+        '0x27',
+        '0x32',
+        '0x33',
+        '0x35',
+        '0x7f',
+        'ELP',
+        'SW_RJT (ELP)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'RDI',
+        'SW_RJT (RDI)',
+        'MR',
+        'SW_ACC (MR)',
+        'MR',
+        'SW_ACC (MR)',
+        'MR',
+        'SW_ACC (MR)',
+        'ACA',
+        'SW_ACC (ACA)',
+        'RCA',
+        'SW_ACC (RCA)',
+        'SFC',
+        'SW_ACC (SFC)',
+        'SFC',
+        'SW_ACC (SFC)',
+        'UFC',
+        'SW_ACC (UFC)',
+        'ESC',
+        'SW_ACC (ESC)',
+        'ESS',
+        'SW_ACC (ESS)',
+        'ESS',
+        'MRRA',
+        'SW_ACC (MRRA)',
+        'AUTH_Done',
+    ]
+
+    def test_fcswils_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 83 frames are SW_ILS (frame 83 is FC-SP data within it) and
+        none is malformed or has an error expert info, in one and two
+        passes. Frame 10 has the "Record length is zero" note.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcswils_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 83
+        assert protocols.count('SW_ILS') == 83
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcswils_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error" || _ws.expert.severity == "warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcswils_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame: the ILS name, and for accepts
+        and rejects the name of the request found through the exchange.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcswils_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split('\n')[:-1] == self.INFOS
+
+    def test_fcswils_ess_vendor_objects(self, cmd_tshark, capture_file, test_env):
+        '''A vendor capability object with three vendor entries is followed by
+        a Directory Service capability object in frame 80. The offset of
+        the next object advanced by 12 per vendor entry instead of 8
+        before "fcswils: Fix nested zone set handling and small errors".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcswils_coverage.pcap.gz'),
+                '-Y', 'frame.number == 80', '-V', '-O', 'swils',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        objs = [l for l in lines if l.startswith('Capability Object')]
+        assert objs == ['Capability Object (Vendor-specific 0xe0)',
+                        'Capability Object (Directory Service)']
+
+    def test_fcswils_zoning(self, cmd_tshark, capture_file, test_env):
+        '''The merge request of frame 60 has zones with every member type
+        and a zone set with a nested zone list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcswils_coverage.pcap.gz'),
+                '-Y', 'frame.number == 60', '-Tfields',
+                '-eswils.zone.mbrtype', '-eswils.zone.zoneobjname',
+            ), encoding='utf-8', env=test_env)
+        types, names = stdout.rstrip('\n').split('\t')
+        assert names.split(',') == ['zset1', 'zoneA', 'zoneB', 'zone1', 'z2', 'aliasobj']
+        assert set(types.split(',')) == {'0x01', '0x02', '0x03', '0x04', '0xe1', '0xe2', '0xe3'}
+
+    def test_fcswils_exchange_opcode(self, cmd_tshark, capture_file, test_env):
+        '''Accepts name the request of their exchange; a reject of an RDI
+        exchange (frames 44-58) carries the reason code. The exchange
+        opcode is only stored on the first pass ("fcswils: Fix nested zone
+        set handling and small errors").'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('fcswils_coverage.pcap.gz'),
+                '-Y', 'swils.rjt.reason', '-Tfields', '-eframe.number', '-eswils.rjt.reason',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.split('\n')[:-1]]
+        assert [r[0] for r in rows] == ['43'] + [str(n) for n in range(45, 60, 2)]
