@@ -368,7 +368,7 @@ init_fpp_ctx(struct _fpp_ctx_t *ctx, uint8_t frame_cnt, uint32_t crc) {
     ctx->frag_cnt = FragCount_3;
     ctx->size = 0;
     ctx->crc = crc;
-    ctx->crc_history = wmem_map_new(wmem_epan_scope(), g_int_hash, g_int_equal);
+    ctx->crc_history = wmem_map_new(wmem_file_scope(), g_int_hash, g_int_equal);
 }
 
 static uint8_t
@@ -529,14 +529,16 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                     prev_crc = ctx->crc;
                 }
                 /* create a copy of frame number and previous crc and store in crc_history */
-                uint32_t *copy_of_pinfo_num = wmem_new(wmem_epan_scope(), uint32_t);
-                uint32_t *copy_of_prev_crc = wmem_new(wmem_epan_scope(), uint32_t);
+                uint32_t *copy_of_pinfo_num = wmem_new(wmem_file_scope(), uint32_t);
+                uint32_t *copy_of_prev_crc = wmem_new(wmem_file_scope(), uint32_t);
                 *copy_of_pinfo_num = pinfo->num;
                 *copy_of_prev_crc = prev_crc;
                 wmem_map_insert(ctx->crc_history, copy_of_pinfo_num, copy_of_prev_crc);
             }
             else {
-                prev_crc = *(uint32_t *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
+                uint32_t *hist_crc = (uint32_t *)wmem_map_lookup(ctx->crc_history, &pinfo->num);
+                if (hist_crc)
+                    prev_crc = *hist_crc;
             }
         }
     }
@@ -578,10 +580,13 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                tvb, preamble_length, pinfo, interface_id | packet_direction, NULL,
                                0, frag_size, true);
 
-            set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
-            set_address_tvb(&pinfo->dst, AT_ETHER, 6, tvb, 8);
-            set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, 14);
-            set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, 14);
+            /* The Ethernet addresses follow the preamble */
+            if (tvb_captured_length_remaining(tvb, preamble_length) >= 12) {
+                set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, preamble_length);
+                set_address_tvb(&pinfo->dst, AT_ETHER, 6, tvb, preamble_length);
+                set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, preamble_length + 6);
+                set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, preamble_length + 6);
+            }
 
             proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_mcrc32, hf_fpp_mcrc32_status, &ei_fpp_mcrc32, pinfo, mcrc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
@@ -638,8 +643,8 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (conv) {
                 ctx = (fpp_ctx_t*)conversation_get_proto_data(conv, proto_fpp);
                 if ((ctx) && (ctx->preemption) && (ctx->frame_cnt == smd1) && (frag_cnt_next(ctx->frag_cnt) == smd2)) {
-                    fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
                     if (!PINFO_FD_VISITED(pinfo)) {
+                        fpp_pdata_t *fpp_pdata = wmem_new(wmem_file_scope(), fpp_pdata_t);
                         fpp_pdata->offset = ctx->size;
                         p_add_proto_data(wmem_file_scope(), pinfo, proto_fpp, interface_id | packet_direction, fpp_pdata);
                     }
