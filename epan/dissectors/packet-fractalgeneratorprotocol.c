@@ -62,7 +62,7 @@ static int ett_fractalgeneratorprotocol;
 
 #define MESSAGE_TYPE_OFFSET    0
 #define MESSAGE_FLAGS_OFFSET   (MESSAGE_TYPE_OFFSET    + MESSAGE_TYPE_LENGTH)
-#define MESSAGE_LENGTH_OFFSET  (MESSAGE_FLAGS_OFFSET   + MESSAGE_FLAGS_OFFSET)
+#define MESSAGE_LENGTH_OFFSET  (MESSAGE_FLAGS_OFFSET   + MESSAGE_FLAGS_LENGTH)
 #define MESSAGE_VALUE_OFFSET   (MESSAGE_LENGTH_OFFSET  + MESSAGE_LENGTH_LENGTH)
 
 
@@ -141,15 +141,18 @@ dissect_fgp_parameter_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_fgp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  uint16_t buffer_length;
+  uint64_t buffer_length;
 
   proto_tree_add_item(message_tree, hf_data_start_x, message_tvb, DATA_STARTX_OFFSET, DATA_STARTX_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_start_y, message_tvb, DATA_STARTY_OFFSET, DATA_STARTY_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_data_points,  message_tvb, DATA_POINTS_OFFSET, DATA_POINTS_LENGTH, ENC_BIG_ENDIAN);
 
-  buffer_length = tvb_get_ntohl(message_tvb, DATA_POINTS_OFFSET)*4;
+  buffer_length = (uint64_t)tvb_get_ntohl(message_tvb, DATA_POINTS_OFFSET)*4;
+  if (buffer_length > INT_MAX) {
+    buffer_length = INT_MAX;
+  }
   if (buffer_length > 0) {
-    proto_tree_add_item(message_tree, hf_buffer, message_tvb, DATA_BUFFER_OFFSET, buffer_length, ENC_NA);
+    proto_tree_add_item(message_tree, hf_buffer, message_tvb, DATA_BUFFER_OFFSET, (int)buffer_length, ENC_NA);
   }
 }
 
