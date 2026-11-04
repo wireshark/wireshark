@@ -1774,7 +1774,6 @@ next_tlv:
   switch (tlv_type) {
   case MSAUTH_TLV_TYPE_EXTENSION_RESULT:
     proto_tree_add_item(tree, hf_eap_msauth_tlv_status, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
     break;
 
   case MSAUTH_TLV_TYPE_EXTENSION_CRYPTOBINDING:
@@ -1789,7 +1788,6 @@ next_tlv:
     proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_nonce, tvb, offset, 32, ENC_NA);
     offset += 32;
     proto_tree_add_item(tree, hf_eap_msauth_tlv_crypto_cmac, tvb, offset, 20, ENC_NA);
-    offset += 20;
     break;
 
   default:
