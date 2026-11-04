@@ -55060,3 +55060,88 @@ class TestDissectEti:
         lines = self.eti_fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'tcp.segments', '-eframe.number')
         assert len(lines) > 0
+
+
+class TestDissectEtsiCardAppToolkit:
+    @staticmethod
+    def cat_fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('etsi_card_app_toolkit_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_etsi_cat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are GSMTAP SIM APDUs (GSM SIM, GSM SMS for the SMS
+        TPDUs) and none is malformed or has an expert info, in one and two
+        passes.'''
+        lines = self.cat_fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(lines) == 188
+        assert lines.count('GSM SIM') == 185
+        assert lines.count('GSM SMS') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etsi_card_app_toolkit_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_etsi_cat_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the APDU, the proactive command and the
+        events.'''
+        lines = self.cat_fields(cmd_tshark, capture_file, test_env, '-eframe.number', '-e_ws.col.info')
+        info = {int(l.split('\t')[0]): ' '.join(l.split('\t')[1].split()) for l in lines}
+        assert info[1] == 'ETSI TS 102.221 FETCH Proactive Command DISPLAY TEXT'
+        assert info[10] == 'ETSI TS 102.221 FETCH Proactive Command DISPLAY TEXT'
+        assert info[11] == 'ETSI TS 102.221 FETCH Proactive Command SELECT ITEM'
+        assert info[15] == 'ETSI TS 102.221 FETCH Proactive Command SEND SHORT MESSAGE'
+        assert info[160] == 'ETSI TS 102.221 TERMINAL RESPONSE PROVIDE LOCAL INFORMATION'
+        assert info[180] == 'ETSI TS 102.221 ENVELOPE GSM/3GPP/3GPP2 - SMS-PP Download'
+        assert info[182] == 'ETSI TS 102.221 ENVELOPE Event Download IMS Registration'
+
+    def test_etsi_cat_nmr_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The measurement qualifier E-UTRAN in a terminal response (frame
+        165) does not change how its network measurement results are
+        decoded: GERAN in both passes. Before the fix the first pass decoded
+        them as GERAN and later passes as an LTE MeasurementReport.'''
+        for passes in ((), ('-2',)):
+            lines = self.cat_fields(cmd_tshark, capture_file, test_env,
+                    '-eframe.number', '-e_ws.col.info', passes=passes)
+            info = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+            assert 'MeasurementReport' not in info[163]
+            assert 'MeasurementReport' not in info[165]
+            # UTRAN and E-UTRAN transactions still decode the results as RRC
+            assert 'MeasurementReport' in info[167]
+            assert 'MeasurementReport' in info[169]
+
+    def test_etsi_cat_plmn_list(self, cmd_tshark, capture_file, test_env):
+        '''Every PLMN of a PLMN list is read from its own offset.'''
+        lines = self.cat_fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ee212.mcc', '-ee212.mnc')
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert info['100'] == ['262,310,001', '01,410,01']
+        assert info['105'] == ['262,310,208', '01,410,01']
+
+    def test_etsi_cat_utran_bearer(self, cmd_tshark, capture_file, test_env):
+        '''The UTRAN bearer description shows the PDP type (octet 18, not
+        the traffic class) and labels the uplink guaranteed bit rate UL.'''
+        lines = self.cat_fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-eetsi_cat.comp_tlv.bearer.utran.pdp_type',
+                '-eetsi_cat.comp_tlv.bearer.utran.traffic_class',
+                '-Y', 'frame.number == 45')
+        assert lines == ['45\t2\t3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etsi_card_app_toolkit_coverage.pcap.gz'),
+                '-Y', 'frame.number == 45', '-V', '-O', 'etsi_cat',
+            ), encoding='utf-8', env=test_env)
+        assert 'Guaranteed Bitrate UL: 768' in stdout
+        assert 'Guaranteed Bitrate DL: 1025' in stdout
+
+    def test_etsi_cat_empty_address(self, cmd_tshark, capture_file, test_env):
+        '''Address and broadcast network information TLVs of length 0 no
+        longer swallow the device identity that follows (frame 103).'''
+        lines = self.cat_fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-eetsi_cat.comp_tlv.src_dev',
+                '-eetsi_cat.comp_tlv.dst_dev', '-Y', 'frame.number == 103')
+        assert lines == ['103\t0x81\t0x83']
