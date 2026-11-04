@@ -56128,3 +56128,65 @@ class TestDissectF5ethtrailer:
         shown = stdout.split()
         for f in ('53', '54', '55', '56', '103', '104', '105'):
             assert f not in shown
+
+
+class TestDissectFbzero:
+    '''FB Zero (Facebook Zero Protocol over TCP, found by the heuristic
+    dissector) from the synthetic capture fbzero_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_fbzero_frames(self, cmd_tshark, capture_file, test_env):
+        '''19 of the 23 segments are FB Zero (handshakes, then payload on
+        the conversation); a 2 octet segment, a handshake whose length is
+        larger than the segment and two non-FB-Zero segments are not.'''
+        cap = capture_file('fbzero_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'fb_zero',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = [l.split('\t')[1] for l in lines]
+        assert len(lines) == 19
+        assert info.count('Client Hello') == 10
+        assert info.count('Server NOM??') == 3
+        assert info.count('Payload (Encrypted)') == 6
+        numbers = [l.split('\t')[0] for l in lines]
+        for n in ('8', '20', '22', '23'):
+            assert n not in numbers
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, cap, test_env, *passes, '-Y',
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_fbzero_puflags_version(self, cmd_tshark, capture_file, test_env):
+        '''A handshake with the public flags 0x01 and with 0x03 skips the
+        version ("QTV") and shows the tags (the flags test used bit 1
+        instead of bit 0 before "FB Zero: Fix public flags handling and
+        zero total tag length").'''
+        cap = capture_file('fbzero_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y',
+                'frame.number == 1 || frame.number == 9', '-Tfields',
+                '-efb_zero.puflags', '-efb_zero.version', '-efb_zero.tag.sni',
+                '-efb_zero.tag.version')
+        assert lines == ['0x01\tQTV\twww.example.org\tQ001',
+                         '0x03\tQTV\ta.b\tQ001']
+
+    def test_fbzero_zero_total_tag_length(self, cmd_tshark, capture_file, test_env):
+        '''A message without tags, or with only empty tags, no longer
+        hides the next message of the segment.'''
+        cap = capture_file('fbzero_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y',
+                'frame.number == 10 || frame.number == 11', '-Tfields',
+                '-efb_zero.tag.sni', '-efb_zero.tag.version', '-efb_zero.tag_number')
+        assert lines == ['second.example\t\t0,1', '\tQ001\t3,1']
+
+    def test_fbzero_tags(self, cmd_tshark, capture_file, test_env):
+        '''The tags of the full Client Hello in frame 1.'''
+        cap = capture_file('fbzero_coverage.pcap.gz')
+        lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 1',
+                '-Tfields', '-efb_zero.tag.time', '-efb_zero.tag.alpn',
+                '-efb_zero.tag.aead', '-efb_zero.tag.kexs')
+        assert lines == ['1700000000\th2\tAESG,S20P,CC12\tC255,P256']
