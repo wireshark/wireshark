@@ -154,9 +154,8 @@ dissect_gdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     while (tvb_captured_length_remaining(tvb, offset) > 0) {
         packet_tvb = NULL;
         offset_start = offset;
-        if (!tvb_find_uint8_remaining(tvb, offset, '#', &pos)) {
-            offset += pos;
-            offset++; /* skip the hash sign */
+        if (tvb_find_uint8_remaining(tvb, offset, '#', &pos)) {
+            offset = pos + 1; /* skip the hash sign */
             /* to have a complete packet, we need another two bytes
                for the checksum */
             if (tvb_bytes_exist(tvb, offset, 2)) {
@@ -168,9 +167,9 @@ dissect_gdb_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         }
 
         if (packet_tvb)
-            dissect_gdb_packet(tvb, pinfo, tree);
+            dissect_gdb_packet(packet_tvb, pinfo, tree);
         else {
-            pinfo->desegment_offset = offset;
+            pinfo->desegment_offset = offset_start;
             pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
             return tvb_captured_length(tvb);
         }
