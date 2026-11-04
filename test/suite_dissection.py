@@ -4503,6 +4503,30 @@ class TestDissectTns:
             ['2', 'N,S,M', '2,96,2', '3,4', ''],
         ], rows
 
+    def test_tns_oci_out_binds(self, cmd_tshark, capture_file, test_env):
+        '''A server answers an OCI client's PL/SQL block with each bind's
+        direction and its OUT value: a REF CURSOR as the describe of its
+        columns and the id the client fetches it by, a NUMBER as the
+        value; the block binds a REF CURSOR by id, 0 for a new one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_out_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_bind.value',
+            '-T', 'fields',
+            '-e', 'tns.data_iov.bind_dir',
+            '-e', 'tns.data_col.name',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data_bind.oci_return_code',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['', '', '0,0', '', ''],
+            ['48', 'ID,NAME', '3', '0', ''],
+            ['', '', '0', '', ''],
+            ['16', '', '', '0', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A
