@@ -180,11 +180,15 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
         /* Show the key in the tree */
         uint64_t k = *key_val;
         proto_tree_add_uint(cbor_tree, hf_coap_eap_cbormap_key,
-            tvb, key_chunk->start, key_chunk->head_length, (uint32_t)k);
+            tvb, key_chunk->start, key_chunk->head_length, k <= UINT32_MAX ? (uint32_t)k : UINT32_MAX);
         wscbor_chunk_free(key_chunk);
 
         if (off >= len)
             break;
+
+        /* On a value of the wrong type, skip all of it (including the
+         * items of an array or map) to stay aligned with the map. */
+        int val_start = off;
 
         switch (k) {
         case 1: {
@@ -198,6 +202,8 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
             if (!wscbor_require_array(arr_chunk) || arr_chunk->type_minor == 31 ||
                 wscbor_has_errors(arr_chunk)) {
                 wscbor_chunk_free(arr_chunk);
+                off = val_start;
+                wscbor_skip_next_item(alloc, tvb, &off);
                 break;
             }
 
@@ -207,11 +213,15 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
             for (uint64_t j = 0; j < cs_count; j++) {
                 if (off >= len)
                     break;
+                int cs_item_start = off;
                 wscbor_chunk_t *cs_chunk = wscbor_chunk_read(alloc, tvb, &off);
                 uint64_t *cs_val = wscbor_require_uint64(alloc, cs_chunk);
 
-                if (cs_val != NULL && !wscbor_has_errors(cs_chunk)) {
-                    if (j > 0)
+                if (cs_val == NULL || wscbor_has_errors(cs_chunk)) {
+                    off = cs_item_start;
+                    wscbor_skip_next_item(alloc, tvb, &off);
+                } else {
+                    if (wmem_strbuf_get_len(buf) > 0)
                         wmem_strbuf_append_c(buf, ',');
                     wmem_strbuf_append_printf(buf, "%s (%u)",
                         val_to_str_const((uint32_t)*cs_val, cipher_suite_vals, "Unknown"),
@@ -239,6 +249,9 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
                     proto_tree_add_item(cbor_tree, hf_id,
                         bstr_tvb, 0, tvb_captured_length(bstr_tvb), ENC_NA);
                 }
+            } else {
+                off = val_start;
+                wscbor_skip_next_item(alloc, tvb, &off);
             }
             wscbor_chunk_free(rid_chunk);
             break;
@@ -252,6 +265,9 @@ dissect_cbor_info(tvbuff_t *tvb, packet_info *pinfo, int offset, int len, proto_
             if (lt_val != NULL && !wscbor_has_errors(lt_chunk)) {
                 proto_tree_add_uint64(cbor_tree, hf_coap_eap_lifetime,
                     tvb, lt_chunk->start, lt_chunk->head_length, *lt_val);
+            } else {
+                off = val_start;
+                wscbor_skip_next_item(alloc, tvb, &off);
             }
             wscbor_chunk_free(lt_chunk);
             break;
@@ -493,10 +509,9 @@ dissect_coap_eap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  * The payload may be a complete reassembled payload.
  */
 static int
-dissect_coap_eap_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_coap_eap_media(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    media_content_info_t *content_info = data;
-    DISSECTOR_ASSERT(content_info);
+    /* Some media_type callers (ID3v2, OBEX) pass no media_content_info_t */
     return dissect_coap_eap_payload(tvb, pinfo, tree);
 }
 
