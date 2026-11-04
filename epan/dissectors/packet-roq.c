@@ -162,7 +162,7 @@ dissect_roq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     } else {
         /* The beginning of the stream was not captured, so the packet
          * boundaries within the stream are unknown. */
-        proto_tree_add_expert(roq_tree, pinfo, &ei_roq_stream_head_missing, tvb, offset, -1);
+        proto_tree_add_expert_remaining(roq_tree, pinfo, &ei_roq_stream_head_missing, tvb, offset);
         call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, roq_tree);
         return tvb_captured_length(tvb);
     }
@@ -222,7 +222,7 @@ dissect_roq_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     roq_tree = proto_item_add_subtree(ti, ett_roq);
 
     if (!try_get_quic_varint(tvb, offset, &flow_id, &lenvar)) {
-        proto_tree_add_expert(roq_tree, pinfo, &ei_roq_flow_id_invalid, tvb, offset, -1);
+        proto_tree_add_expert_remaining(roq_tree, pinfo, &ei_roq_flow_id_invalid, tvb, offset);
         return tvb_captured_length(tvb);
     }
     proto_tree_add_uint64(roq_tree, hf_roq_flow_id, tvb, offset, lenvar, flow_id);

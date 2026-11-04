@@ -635,8 +635,8 @@ dissect_proxy_v2_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (offset > next_offset) {
-        proto_tree_add_expert(proxy_tree, pinfo, &ei_proxy_header_length_too_small,
-                                     tvb, offset, -1);
+        proto_tree_add_expert_remaining(proxy_tree, pinfo, &ei_proxy_header_length_too_small,
+                                     tvb, offset);
         return offset;
     }
 

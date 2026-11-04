@@ -1784,7 +1784,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 58: /* Write Register */
         proto_tree_add_expert(command_tree, pinfo, &ei_unexpected_response, tvb, offset, 0);
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
-            proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
+            proto_tree_add_expert_remaining(main_tree, pinfo, &ei_unknown_data, tvb, offset);
             offset = tvb_captured_length(tvb);
         }
         break;
@@ -1982,7 +1982,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
+        proto_tree_add_expert_remaining(main_tree, pinfo, &ei_unknown_data, tvb, offset);
         offset = tvb_captured_length(tvb);
     }
 

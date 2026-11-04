@@ -2275,7 +2275,7 @@ static int dissect_uftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             dissect_uftp_abort(next_tvb, pinfo, uftp_tree);
             break;
         default:
-            proto_tree_add_expert_format(tree, pinfo, &ei_uftp_func_unknown, tvb, offset, -1,
+            proto_tree_add_expert_format_remaining(tree, pinfo, &ei_uftp_func_unknown, tvb, offset,
                         "Function unknown: %d", mes_type);
             break;
     }

@@ -7584,7 +7584,7 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* Can't dissect anything without it... */
     if (p_mac_lte_info == NULL) {
-        proto_tree_add_expert(mac_lte_tree, pinfo, &ei_mac_lte_no_per_frame_data, tvb, offset, -1);
+        proto_tree_add_expert_remaining(mac_lte_tree, pinfo, &ei_mac_lte_no_per_frame_data, tvb, offset);
         return 0;
     }
 

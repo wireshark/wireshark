@@ -2884,7 +2884,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * procedure and service information, so we can't dissect
 		 * the payload.
 		 */
-		proto_tree_add_expert_format(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset, -1,
+		proto_tree_add_expert_format_remaining(ptree, pinfo, &ei_rpc_cannot_dissect, tvb, offset,
 		    "GSS-API authentication, but procedure and service unknown - cannot dissect");
 		return true;
 

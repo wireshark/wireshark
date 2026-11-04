@@ -1056,7 +1056,7 @@ dissect_tpm20_tpm_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tpm_entry *command_entry = (tpm_entry *)wmem_tree_lookup32(cmd_tree, entry->com_pnum);
 	if (command_entry == NULL) {
 		/* No command seen before this response */
-		proto_tree_add_expert(tree, pinfo, &ei_no_command, tvb, offset, -1);
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_no_command, tvb, offset);
 		return;
 	}
 

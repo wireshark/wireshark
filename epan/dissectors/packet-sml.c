@@ -2437,7 +2437,7 @@ static void dissect_sml_file(tvbuff_t *tvb, packet_info *pinfo, unsigned *offset
 				*offset+=4;
 			}
 			else{
-				proto_tree_add_expert(sml_tree, pinfo, &ei_sml_version2_not_supported, tvb, *offset, -1);
+				proto_tree_add_expert_remaining(sml_tree, pinfo, &ei_sml_version2_not_supported, tvb, *offset);
 				return;
 			}
 		}

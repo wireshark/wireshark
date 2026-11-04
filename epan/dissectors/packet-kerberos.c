@@ -4313,7 +4313,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 		proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		if (dlglen > tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_dlglen, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_krb_gssapi_dlglen, tvb, offset,
 					"DlgLen:%u exceeds bytes remaining:%d", dlglen, tvb_reported_length_remaining(tvb, offset));
 			return offset;
 		}
@@ -4325,7 +4325,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 	/* RFC 6542 extensions have a big-endian type and length. */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		if (tvb_reported_length_remaining(tvb, offset) < 8) {
-			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset,
 					"Incomplete GSSAPI extension header");
 			return offset;
 		}
@@ -4336,7 +4336,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb)
 		proto_tree_add_item(tree, hf_krb_gssapi_ext_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		if (ext_len > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
-			proto_tree_add_expert_format(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset, -1,
+			proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_krb_gssapi_extlen, tvb, offset,
 					"Extension length:%u exceeds bytes remaining:%d", ext_len, tvb_reported_length_remaining(tvb, offset));
 			return offset;
 		}

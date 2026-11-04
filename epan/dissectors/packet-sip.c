@@ -2461,8 +2461,8 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, u
                     case MECH_PARA_UINT:
                         /* Extract the value */
                         if (!tvb_get_string_uint(tvb, equals_offset+1, semi_colon_offset-equals_offset+1, ENC_STR_DEC, &uint_value, &token_end_offset)) {
-                            proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
-                                                  tvb, current_offset, -1);
+                            proto_tree_add_expert_remaining(tree, pinfo, &ei_sip_sipsec_malformed,
+                                                  tvb, current_offset);
                         } else {
                             proto_tree_add_uint(tree, *sec_mechanism_parameters_hf_array[hf_index].hf_item, tvb,
                                                 equals_offset+1, semi_colon_offset-equals_offset-1, uint_value);

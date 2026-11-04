@@ -6015,7 +6015,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
              */
             /* %requested_feedback_location */
             if ((msg_length-1) < offset) {
-                proto_tree_add_expert(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, 0, -1);
+                proto_tree_add_expert_remaining(sigcomp_udvm_tree, pinfo, &ei_sigcomp_all_remaining_parameters_zero, udvm_tvb, 0);
                 return;
             }
             offset = dissect_udvm_multitype_operand(udvm_tvb, sigcomp_udvm_tree, offset, true, &start_offset, &value, &is_memory_address);

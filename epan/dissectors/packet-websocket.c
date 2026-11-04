@@ -450,7 +450,7 @@ dissect_websocket_data_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     if (!uncompress_ok) {
-      proto_tree_add_expert(tree, pinfo, &ei_ws_decompression_failed, tvb, 0, -1);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_ws_decompression_failed, tvb, 0);
       return;
     }
     if (uncompressed) {
