@@ -58084,3 +58084,96 @@ class TestDissectFip:
                 '-efip.fc4f.fcp', '-efip.fc4f.gs3', '-efip.fc4f.feat.fcp.target',
                 '-efip.fc4f.feat.fcp.initiator')
         assert len(lines) == 1
+
+
+class TestDissectFix:
+    # high-bit bytes that expand when converted to a string, as in the
+    # capture (the next message follows the SOH)
+    JUNK = (b'\xc3\xa9\xff\xfe\x80\x81 garbage text with bytes '
+            b'\xe2\x82\xac\xf0\x9f\x98\x80\x01')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fix_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_fix_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 frames contain FIX (found by the heuristic, no port); none is
+        malformed or has an error, in one and two passes.'''
+        lines = self.run(cmd_tshark, capture_file, test_env, '-Y', 'fix',
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 32
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fix_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types, body lengths and the table driven values.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 26 && fix', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-efix.BodyLength')
+        assert lines == [
+            '4\tLogon\t76', '6\tHeartbeat\t58', '8\tTestRequest\t68',
+            '10\tNewOrderSingle\t172', '12\tExecutionReport\t140',
+            '14\tResendRequest\t67', '16\tReject\t91', '18\tSequenceReset\t70',
+            '20\tOrderCancelReject\t75', '22\tBusinessMessageReject\t70',
+            '24\tQuoteCancel\t85', '26\tLogout\t59',
+        ]
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-V', '-O', 'fix')
+        for expected in ('    MsgType (35): D (ORDER SINGLE)',
+                         '    Side (54): 1 (BUY)',
+                         '    OrdType (40): 2 (LIMIT)',
+                         '    Price (44): 123.45',
+                         '    Symbol (55): IBM'):
+            assert expected in lines
+
+    def test_fix_unknown_fields(self, cmd_tshark, capture_file, test_env):
+        '''Tags that are not in the dictionary and fields without value.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 24', '-V', '-O', 'fix')
+        assert '    9999: private field' in lines
+        assert '    5000: x' in lines
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 50', '-V', '-O', 'fix')
+        assert '    55: <missing value>' in lines
+
+    def test_fix_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages split over TCP segments, several messages per segment
+        and a message that grows beyond one segment.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {38,40,42,44,106}', '-Tfields',
+                '-eframe.number', '-efix.MsgType', '-efix.BodyLength')
+        assert lines == ['38\tD\t90', '40\t0,0\t58,58', '42\t1\t68',
+                         '44\t0,0\t10,58', '106\tD\t362']
+
+    def test_fix_negative_bodylength(self, cmd_tshark, capture_file, test_env):
+        '''A BodyLength of -23 no longer holds the rest of the stream: the
+        valid messages that follow are dissected (before the fix they were
+        held back waiting for more data).'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {66,68,70}', '-Tfields',
+                '-eframe.number', '-efix.MsgType', '-efix.BodyLength')
+        assert lines == ['66\t0\t-23', '68\t0\t25', '70\t0\t25']
+
+    def test_fix_resync_high_bytes(self, cmd_tshark, capture_file, test_env):
+        '''Resynchronising on the next 8=FIX uses tvb offsets, also when
+        the skipped bytes are 0x80 or above; the skipped bytes are shown
+        as continuation data of exactly their length.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {52,54,56}', '-Tfields',
+                '-eframe.number', '-efix.MsgType', '-efix.data')
+        assert lines == [
+            '52\t0\t' + self.JUNK.hex(),
+            '54\t0\t' + (self.JUNK * 2).hex(),
+            '56\t\t' + b'tail of something earlier\x01'.hex(),
+        ]
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {86,88,90,92,96}', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert lines == ['86\tHeartbeat', '88\t[FIX continuation]',
+                         '90\tTestRequest', '92\tHeartbeat',
+                         '96\tHeartbeat, Heartbeat']
