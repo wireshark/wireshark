@@ -556,6 +556,7 @@ static void dissect_gbcs_gbz_component(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_item *ti;
     proto_tree *component_tree;
     uint32_t component_len;
+    uint32_t min_len;
     uint32_t cluster;
     bool fromdatetime_present;
     bool encryption_present;
@@ -580,6 +581,15 @@ static void dissect_gbcs_gbz_component(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     if (component_len > tvb_reported_length_remaining(tvb, *offset)) {
         expert_add_info(pinfo, tree, &ei_gbcs_gbz_invalid_length);
+    }
+
+    /* The fixed header fields (and the MAC) must fit in the component length */
+    min_len = 3 + (fromdatetime_present ? 4 : 0) + (encryption_present ? 9 + GBCS_GBZ_MAC_LENGTH : 0);
+    if (component_len < min_len) {
+        expert_add_info(pinfo, component_tree, &ei_gbcs_gbz_invalid_length);
+        *offset += MIN(component_len, tvb_captured_length_remaining(tvb, *offset));
+        proto_item_set_end(ti, tvb, *offset);
+        return;
     }
 
     if (fromdatetime_present) {
@@ -620,10 +630,6 @@ static void dissect_gbcs_gbz_component(tvbuff_t *tvb, packet_info *pinfo, proto_
         proto_tree_add_item(component_tree, hf_gbcs_gbz_invocation_counter, tvb, *offset, 4, ENC_BIG_ENDIAN);
         *offset += 4;
         component_len -= 4;
-
-        if (component_len < GBCS_GBZ_MAC_LENGTH) {
-            expert_add_info(pinfo, tree, &ei_gbcs_gbz_invalid_length);
-        }
 
         proto_tree_add_item(component_tree, hf_gbcs_gbz_encrypted_payload, tvb, *offset, component_len - GBCS_GBZ_MAC_LENGTH, ENC_NA);
         *offset += component_len - GBCS_GBZ_MAC_LENGTH;
