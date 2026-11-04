@@ -4,6 +4,9 @@
      prefix; all sources live in resources/svg_icons/. -->
 <RCC>
     <qresource prefix="/svg_icons">
+        <file alias="appearance-dark.svg">svg_icons/appearance-dark.svg</file>
+        <file alias="appearance-light.svg">svg_icons/appearance-light.svg</file>
+        <file alias="appearance-system.svg">svg_icons/appearance-system.svg</file>
         <file alias="bookmark-capture.svg">svg_icons/bookmark-capture.svg</file>
         <file alias="bookmark-display.svg">svg_icons/bookmark-display.svg</file>
         <file alias="bookmark-match.svg">svg_icons/bookmark-match.svg</file>

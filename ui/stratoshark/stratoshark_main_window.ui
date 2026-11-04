@@ -2359,6 +2359,14 @@
     <string>&amp;Full Screen</string>
    </property>
   </action>
+  <action name="actionViewAppearanceMode">
+   <property name="text">
+    <string>Appearance Mode</string>
+   </property>
+   <property name="toolTip">
+    <string>Switch between the System, Light and Dark appearance modes</string>
+   </property>
+  </action>
   <action name="actionHelpReleaseNotes">
    <property name="text">
     <string>Release Notes</string>
