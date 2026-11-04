@@ -343,31 +343,36 @@ dissect_path_data_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 static void
-dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length_count)
+dissect_operation_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned length_count)
 {
     proto_item *ti;
     proto_tree *oper_tree;
     unsigned    type, length;
+    tvbuff_t   *oper_tvb;
 
-    while (tvb_reported_length_remaining(tvb, offset) >= TLV_TL_LENGTH)
-    {
-        oper_tree = proto_tree_add_subtree(tree, tvb, offset, length_count,
-            ett_forces_lfbselect_tlv_type_operation, &ti, "Operation TLV");
+    /* Dissects exactly one Operation TLV; the caller walks the TLVs. */
+    if (tvb_reported_length_remaining(tvb, offset) < TLV_TL_LENGTH)
+        return;
 
-        ti = proto_tree_add_item_ret_uint(oper_tree, hf_forces_lfbselect_tlv_type_operation_type,
-                                          tvb, offset, 2, ENC_BIG_ENDIAN, &type);
-        if (try_val_to_str(type, operation_type_vals) == NULL)
-            expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
-                "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
+    oper_tree = proto_tree_add_subtree(tree, tvb, offset, length_count,
+        ett_forces_lfbselect_tlv_type_operation, &ti, "Operation TLV");
 
-        proto_tree_add_item_ret_uint(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
-                                   tvb, offset+2, 2, ENC_BIG_ENDIAN, &length);
+    ti = proto_tree_add_item_ret_uint(oper_tree, hf_forces_lfbselect_tlv_type_operation_type,
+                                      tvb, offset, 2, ENC_BIG_ENDIAN, &type);
+    if (try_val_to_str(type, operation_type_vals) == NULL)
+        expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_type,
+            "Bogus: ForCES Operation TLV (Type:0x%04x) is not supported", type);
 
-        dissect_path_data_tlv(tvb, pinfo, oper_tree, offset+TLV_TL_LENGTH);
-        if (length == 0)
-            break;
-        offset += length;
+    ti = proto_tree_add_item_ret_uint(oper_tree, hf_forces_lfbselect_tlv_type_operation_length,
+                               tvb, offset+2, 2, ENC_BIG_ENDIAN, &length);
+    if (length < TLV_TL_LENGTH) {
+        expert_add_info_format(pinfo, ti, &ei_forces_lfbselect_tlv_type_operation_path_length, "Bogus TLV length: %u", length);
+        return;
     }
+
+    /* Restrict the path data TLVs to this Operation TLV */
+    oper_tvb = tvb_new_subset_length(tvb, offset, length);
+    dissect_path_data_tlv(oper_tvb, pinfo, oper_tree, TLV_TL_LENGTH);
 }
 
 static void
@@ -383,7 +388,7 @@ dissect_lfbselecttlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     {
         tlv_length = tvb_get_ntohs(tvb, offset+2);
         dissect_operation_tlv(tvb, pinfo, tree, offset, tlv_length);
-        if (tlv_length == 0)
+        if (tlv_length < TLV_TL_LENGTH)
             break;
         offset += tlv_length;
     }
