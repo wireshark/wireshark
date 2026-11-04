@@ -212,7 +212,7 @@ proto_register_fc00(void)
 
         { &hf_fc00_auth_derivations,
           { "Auth Derivations", "fc00.auth_challenge.derivations",
-            FT_UINT16, BASE_DEC, NULL, 0x7F,
+            FT_UINT16, BASE_DEC, NULL, 0x7FFF,
             NULL, HFILL }
         },
 
@@ -237,7 +237,7 @@ proto_register_fc00(void)
         { &hf_fc00_ip_address,
           { "IPv6 Address", "fc00.ip",
             FT_IPv6, BASE_NONE, NULL, 0x0,
-            "Double SHA256 hash of public key", HFILL }
+            "Double SHA512 hash of public key", HFILL }
         },
 
         { &hf_fc00_authenticator,
