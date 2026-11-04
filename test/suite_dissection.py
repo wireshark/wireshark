@@ -55229,3 +55229,100 @@ class TestDissectEtv:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectEtw:
+    @staticmethod
+    def _frames(cmd_tshark, capture_file, test_env, dfilter, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        return [int(n) for n in stdout.split()]
+
+    def test_etw_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''37 records, none malformed or with an expert info, in one and
+        two passes (the ERF record of the reproducer is frame 36).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 37
+        for passes in ((), ('-2',)):
+            assert self._frames(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert', *passes) == []
+        assert self._frames(cmd_tshark, capture_file, test_env, 'etw.size') == \
+            [n for n in range(1, 38) if n != 36]
+
+    def test_etw_event_types(self, cmd_tshark, capture_file, test_env):
+        '''Manifest, WPP, classic and TraceLogging events, the provider
+        name from the TLV, extended data types, properties and the
+        addresses and session id TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                '-eetw.type', '-e_ws.col.Protocol', '-eetw.edata.exttype',
+                '-eetw.prop.key', '-eetw.prop.value', '-eetw.sessid',
+                '-e_ws.col.Source', '-e_ws.col.Destination',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0] == ['1', 'Manifest-based', 'Contoso-Demo-Provider', '',
+                           'path,error', 'C:\\\\temp\\\\a.txt,ACCESS_DENIED', '',
+                           'windows', 'windows']
+        assert rows[1][1:5] == ['WPP', 'Packet', '1', '']
+        assert rows[2][1] == 'MOF (classic)'
+        assert rows[3][1:4] == ['TraceLogging', 'MyCompany.MyProvider', '11,2,6,12,16']
+        assert rows[4][3] == '12,12'
+        assert rows[5][3] == '1'
+        assert rows[6][5:] == ['7', '4294967303', '192.0.2.1:49152', '192.0.2.2:445']
+        assert rows[6][2] == 'Net-Provider'
+
+    def test_etw_message_formatting(self, cmd_tshark, capture_file, test_env):
+        '''%N is replaced by property N (also %N!S!), other percent
+        sequences stay. The formatted message is capped at 64 KiB: once
+        the next substitution would exceed it, the rest is appended
+        unformatted. Frame 11 is the reproducer of "ETW: Bound the
+        formatted message size" (a 64 KiB value and 48000 substitutions
+        used to need 4.7 GB).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Y', 'etw.message_formatted', '-Tfields', '-eframe.number',
+                '-eetw.message_formatted',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert rows[1] == 'File C:\\\\temp\\\\a.txt failed with error ACCESS_DENIED (%0, %99, %123, %, 100%)'
+        assert rows[7] == 'Connection 7 opened'
+        assert len(rows[9]) == 60100 and rows[9].endswith('y' * 100)
+        assert len(rows[10]) == 60024            # three substitutions, then the rest as is
+        assert rows[10].endswith('A %1 %1 %1 %1 %1 %1 %1 ')
+        assert rows[11] == '%1' * 48000          # the first substitution would exceed the limit
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3', '-Tfields', '-e_ws.col.Info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'classic event %1 without properties'
+
+    def test_etw_providers(self, cmd_tshark, capture_file, test_env):
+        '''The providers with a handler pass their user data on to MBIM,
+        SMB, HTTP, LDAP and Bluetooth; anything else with the same GUID
+        is plain ETW. MBIM frames get host/device addresses from the
+        pcapng packet direction.'''
+        def frames(f):
+            return self._frames(cmd_tshark, capture_file, test_env, f)
+        assert frames('mbim') == [12, 13, 14, 15, 37]
+        assert frames('smb2') == [16, 17]
+        assert frames('http.request') == [19, 20, 24, 25]
+        assert frames('http.response') == [21, 22, 26, 27]
+        assert frames('ldap') == [29, 30]
+        assert frames('bthci_cmd') == [32]
+        assert frames('bthci_evt') == [33]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etw_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 12 && frame.number <= 15',
+                '-Tfields', '-e_ws.col.Source', '-e_ws.col.Destination',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['device\thost', 'host\tdevice',
+                                       'windows\twindows', 'windows\twindows']
+        # an MBIM event after an ERF record with extension headers: the
+        # ERF pseudo header is not passed on to the MBIM dissector
+        assert frames('frame.number == 37 && mbim') == [37]
