@@ -3238,7 +3238,8 @@ dissect_uds_no_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 static int
 dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     doip_info_t *doip_info = (doip_info_t *)data;
     return dissect_uds_internal(tvb, pinfo, tree, doip_info->source_address, doip_info->target_address, 2, 2);
@@ -3246,7 +3247,8 @@ dissect_uds_doip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 static int
 dissect_uds_hsfz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     hsfz_info_t *hsfz_info = (hsfz_info_t *)data;
     return dissect_uds_internal(tvb, pinfo, tree, hsfz_info->source_address, hsfz_info->target_address, 2, 1);
@@ -3254,7 +3256,8 @@ dissect_uds_hsfz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 static int
 dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     iso15765_info_t *info = (iso15765_info_t *)data;
     return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, info->number_of_addresses_valid, info->address_length);
@@ -3262,7 +3265,8 @@ dissect_uds_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
 static int
 dissect_uds_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     iso10681_info_t *info = (iso10681_info_t *)data;
     return dissect_uds_internal(tvb, pinfo, tree, info->source_address, info->target_address, 2, 2);

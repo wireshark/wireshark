@@ -283,7 +283,8 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     struct eth_phdr eth;
     void        *phdr;
 
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     link_type = (uint32_t *) data;
 

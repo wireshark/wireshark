@@ -79,6 +79,9 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
     urb_info_t *urb;
 
     urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
 
     return dissector_try_uint_new(usb_ms_bulk_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
@@ -89,6 +92,9 @@ dissect_usb_ms_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tre
     urb_info_t *urb;
 
     urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
 
     return dissector_try_uint_new(usb_ms_control_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
@@ -99,6 +105,9 @@ dissect_usb_ms_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
     urb_info_t *urb;
 
     urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
 
     return dissector_try_uint_new(usb_ms_interrupt_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }
@@ -109,6 +118,9 @@ dissect_usb_ms_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_
     urb_info_t *urb;
 
     urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
 
     return dissector_try_uint_new(usb_ms_descriptor_dissector_table, urb->conv->interfaceProtocol, tvb, pinfo, parent_tree, true, urb);
 }

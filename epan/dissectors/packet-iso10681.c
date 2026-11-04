@@ -412,7 +412,8 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
 
 static int
 dissect_iso10681_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
     flexray_info_t *flexray_info = (flexray_info_t *)data;
     uint32_t id = flexray_flexrayinfo_to_flexrayid(flexray_info);
 

@@ -4085,7 +4085,7 @@ dissect_pxeclient_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	proto_tree* vendor_tree;
 
 	/* PXE protocol 2.1 as described in the Intel specs */
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, "PXEClient", strlen("PXEClient")) != 0))
 		return false;
 
@@ -4660,7 +4660,7 @@ dissect_cablelabs_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	 * OpenCable TRIF - TR
 	 */
 
-	if ((option_data->vendor_class_id != NULL) &&
+	if ((option_data != NULL) && (option_data->vendor_class_id != NULL) &&
 		((strncmp((const char*)option_data->vendor_class_id, "pktc", strlen("pktc")) == 0) ||
 		 (strncmp((const char*)option_data->vendor_class_id, "docsis", strlen("docsis")) == 0) ||
 		 (strncmp((const char*)option_data->vendor_class_id, "OpenCable2.0", strlen("OpenCable2.0")) == 0) ||
@@ -4693,7 +4693,7 @@ dissect_aruba_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, ARUBA_AP, strlen(ARUBA_AP)) != 0))
 		return false;
 
@@ -4715,7 +4715,7 @@ dissect_aruba_instant_ap_vendor_info_heur( tvbuff_t *tvb, packet_info *pinfo _U_
 	int32_t nameorglen, ampiplen;
 
 	/* Aruba  Instant AP */
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, ARUBA_INSTANT_AP, strlen(ARUBA_INSTANT_AP)) != 0))
 		return false;
 
@@ -4890,7 +4890,7 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, APPLE_BSDP_SERVER, strlen(APPLE_BSDP_SERVER)) != 0))
 		return false;
 
@@ -5029,7 +5029,7 @@ dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, CISCO_VCID, strlen(CISCO_VCID)) != 0))
 		return false;
 
@@ -5114,7 +5114,7 @@ dissect_aerohive_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
 	proto_tree* vendor_tree;
 
-	if ((option_data->vendor_class_id == NULL) ||
+	if ((option_data == NULL) || (option_data->vendor_class_id == NULL) ||
 		(strncmp((const char*)option_data->vendor_class_id, AEROHIVE_VCID, strlen(AEROHIVE_VCID)) != 0))
 		return false;
 

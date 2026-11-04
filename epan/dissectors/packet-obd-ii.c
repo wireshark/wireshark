@@ -1379,7 +1379,8 @@ dissect_obdii_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	bool id_is_query;
 	bool id_is_response;
 
-	DISSECTOR_ASSERT(data);
+	if (!data)
+		return 0;
 
 	iso15765_info = *((iso15765_info_t *) data);
 	if (iso15765_info.bus_type != ISO15765_TYPE_CAN && iso15765_info.bus_type != ISO15765_TYPE_CAN_FD) {

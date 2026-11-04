@@ -8637,9 +8637,10 @@ static uint8_t dissect_gprs_data_segments(tvbuff_t *tvb, packet_info *pinfo, pro
   }
   octet_offset = blk_length;
 
-  if(octet_offset < octet_length)
+  /* The spare field is an 8 bit item, it can not cover more than 8 bits at once */
+  for (; octet_offset < octet_length; octet_offset++)
     proto_tree_add_bits_item(tree, is_uplink ? hf_ul_data_spare : hf_dl_data_spare, tvb,
-                             octet_offset*8, (octet_length - octet_offset)*8, ENC_BIG_ENDIAN);
+                             octet_offset*8, 8, ENC_BIG_ENDIAN);
   return octet_length;
 }
 

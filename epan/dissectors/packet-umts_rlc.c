@@ -2464,9 +2464,13 @@ static int
 dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *subtree = NULL;
+    fp_info    *fpi;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
     col_clear(pinfo->cinfo, COL_INFO);
+
+    fpi = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
+    if (!fpi) return 0; /* dissection failure */
 
     /* PCCH is always RLC TM */
     if (tree) {

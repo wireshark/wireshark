@@ -98,8 +98,8 @@ static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 		 * safe than sorry. See
 		 * https://gitlab.com/wireshark/wireshark/-/issues/8169
 		 */
-		DISSECTOR_ASSERT(len < UINT32_MAX - 11);
-		DISSECTOR_ASSERT((uint64_t)offset + len + 12 < INT_MAX);
+		if (len >= UINT32_MAX - 11 || (uint64_t)offset + len + 12 >= INT_MAX)
+			break;
 		offset += len + 12;
 	}
 

@@ -1806,6 +1806,9 @@ dissect_zbee_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         NULL
     };
 
+    if (!data) {
+        return 0;
+    }
     pie_length = *(int *)data;
 
     do {

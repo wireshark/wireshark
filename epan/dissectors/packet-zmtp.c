@@ -551,6 +551,8 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                conversation_pt_to_conversation_type(pinfo->ptype),
                                pinfo->destport, pinfo->srcport,
                                0 /* options */);
+    if (p_conv == NULL)
+        return tvb_captured_length(tvb);
 
     /* Look up data from conversation */
     p_conv_data = (zmtp_conversation_t *)conversation_get_proto_data(p_conv, proto_zmtp);

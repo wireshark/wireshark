@@ -468,6 +468,10 @@ dissect_lapd_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	struct isdn_phdr *isdn = (struct isdn_phdr *)data;
 	uint32_t flags = LAPD_HAS_DIRECTION;
 
+	if (!isdn) {
+		return 0;
+	}
+
 	if (isdn->uton)
 		flags |= LAPD_USER_TO_NETWORK;
 	dissect_lapd_full(tvb, pinfo, tree, flags);

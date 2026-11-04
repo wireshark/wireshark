@@ -7999,9 +7999,15 @@ proto_register_mswsp(void)
 static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	smb_info_t *si = (smb_info_t*)data;
-	bool in = si->request;
+	bool in;
 
 	smb_fid_info_t *fid_info = NULL;
+
+	if (!si) {
+		return 0;
+	}
+
+	in = si->request;
 	fid_info = find_fid_info(si);
 
 	if (!fid_info || !fid_info->fsi || !fid_info->fsi->filename) {

@@ -6963,7 +6963,12 @@ dissect_lustre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_item *ti  = NULL;
     proto_tree *lustre_tree = NULL;
     struct lnet_trans_info *info = (struct lnet_trans_info *)data;
-    lustre_trans_t *trans = lustre_get_trans(pinfo, info);
+    lustre_trans_t *trans;
+
+    if (!info) {
+        return 0;
+    }
+    trans = lustre_get_trans(pinfo, info);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Lustre");
     col_clear(pinfo->cinfo, COL_INFO);

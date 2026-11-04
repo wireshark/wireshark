@@ -1214,7 +1214,8 @@ dissect_wifi_p2p_anqp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
   anqp_info_dissector_data_t* anqp_data = (anqp_info_dissector_data_t*)data;
   tvbuff_t *next_tvb;
 
-  DISSECTOR_ASSERT(anqp_data);
+  if (!anqp_data)
+    return 0;
 
   item = proto_tree_add_item(tree, hf_p2p_anqp_service_update_indicator, tvb,
                              offset, 2, ENC_LITTLE_ENDIAN);

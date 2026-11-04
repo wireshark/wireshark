@@ -65,6 +65,9 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   len = tvb_reported_length(tvb);
 
   eap_tvb = (tvbuff_t *)p_get_proto_data(pinfo->pool, pinfo, proto_eap, PROTO_DATA_EAP_TVB | tls_group);
+  if (eap_tvb == NULL) {
+    return 0;
+  }
   version = tvb_get_uint8(eap_tvb, EAP_TLS_FLAGS_OFFSET) & EAP_TLS_FLAGS_VERSION;
   if (version > 0) {	/* FIXME support v1 and v2 */
     goto ret;

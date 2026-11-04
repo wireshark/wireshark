@@ -149,7 +149,9 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     main_item = proto_tree_add_item(tree, proto_adb_service, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_adb_service);
 
-    DISSECTOR_ASSERT(adb_service_data);
+    if (!adb_service_data) {
+        return 0;
+    }
 
     service = adb_service_data->service;
 

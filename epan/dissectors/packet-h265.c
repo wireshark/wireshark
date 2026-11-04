@@ -1971,8 +1971,10 @@ dissect_h265_slice_segment_header(proto_tree *tree, tvbuff_t *tvb, packet_info *
 			dependent_slice_segment_flag = tvb_get_bits8(tvb, bit_offset, 1);
 			bit_offset++;
 		}
-		proto_tree_add_bits_item(tree, hf_h265_slice_segment_address, tvb, bit_offset, nBits, ENC_BIG_ENDIAN);
-		bit_offset = bit_offset + nBits;
+		if (nBits > 0) {
+			proto_tree_add_bits_item(tree, hf_h265_slice_segment_address, tvb, bit_offset, nBits, ENC_BIG_ENDIAN);
+			bit_offset = bit_offset + nBits;
+		}
 	}
 
 	if (!dependent_slice_segment_flag) {

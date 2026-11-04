@@ -10838,7 +10838,9 @@ dissect_pfcp_generic_enterprise_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     // Length field is already checked to be big enough by accessing tvb[4:6].
     // This tvb was created with length derived from the length-field.
-    DISSECTOR_ASSERT(ie_len >= 2);
+    if (ie_len < 2) {
+        return tvb_captured_length(tvb);
+    }
     const unsigned data_len = ie_len - 2;
     if (data_len == 0)
     {

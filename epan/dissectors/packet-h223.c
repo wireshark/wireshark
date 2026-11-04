@@ -477,9 +477,10 @@ find_or_create_call_info_conv(packet_info * pinfo)
     /* assume we're running atop TCP or RTP; use the conversation support */
     conv = find_conversation_pinfo(pinfo, 0 );
 
-    /* both RTP and TCP track their conversations, so just assert here if
-     * we can't find one */
-    DISSECTOR_ASSERT(conv);
+    /* both RTP and TCP track their conversations, but we can be called
+     * without one (e.g. from Exported PDU) */
+    if (!conv)
+        return NULL;
 
     datax = (h223_call_info *)conversation_get_proto_data(conv, proto_h223);
 
@@ -1290,6 +1291,8 @@ dissect_h223_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, convers
 
     /* find or create the call_info for this call */
     call_info = find_or_create_call_info(pinfo, ctype, circuit_id);
+    if (call_info == NULL)
+        return;
 
     /* add the 'h223' tree to the main tree */
     if (tree) {
@@ -1337,7 +1340,9 @@ dissect_h223_circuit_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 {
     iax2_dissector_info_t circuit_info;
 
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return 0;
+    }
     circuit_info = *((iax2_dissector_info_t*)data);
 
     dissect_h223_common(tvb, pinfo, tree, circuit_info.ctype, circuit_info.circuit_id);

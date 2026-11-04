@@ -894,7 +894,12 @@ dissect_rsvd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     unsigned    offset = 0;
     uint16_t len;
     uint64_t request_id = 0;
-    bool request = *(bool *)data;
+    bool request;
+
+    if (!data) {
+        return 0;
+    }
+    request = *(bool *)data;
 
     top_tree = parent_tree;
 
