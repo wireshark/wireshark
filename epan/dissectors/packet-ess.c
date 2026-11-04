@@ -204,6 +204,9 @@ ess_dissect_attribute (uint32_t value, asn1_ctx_t *actx)
 {
   unsigned i;
 
+  if (!object_identifier_id)
+    return;
+
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
 
@@ -222,6 +225,9 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
   proto_tree *tree;
   uint8_t *value;
   unsigned i;
+
+  if (!object_identifier_id)
+    return;
 
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
   value = (uint8_t *)tvb_memdup (actx->pinfo->pool, tvb, 0, tvb_captured_length (tvb));
@@ -518,6 +524,8 @@ static const ber_sequence_t SecurityCategory_sequence[] = {
 
 static unsigned
 dissect_ess_SecurityCategory(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecurityCategory_sequence, hf_index, ett_ess_SecurityCategory);
 
@@ -590,6 +598,8 @@ static const ber_sequence_t RestrictiveTag_sequence[] = {
 
 static unsigned
 dissect_ess_RestrictiveTag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RestrictiveTag_sequence, hf_index, ett_ess_RestrictiveTag);
 
@@ -642,6 +652,8 @@ static const ber_sequence_t EnumeratedTag_sequence[] = {
 
 static unsigned
 dissect_ess_EnumeratedTag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    EnumeratedTag_sequence, hf_index, ett_ess_EnumeratedTag);
 
@@ -684,6 +696,8 @@ static const ber_sequence_t PermissiveTag_sequence[] = {
 
 static unsigned
 dissect_ess_PermissiveTag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PermissiveTag_sequence, hf_index, ett_ess_PermissiveTag);
 
@@ -748,6 +762,8 @@ static const ber_sequence_t InformativeTag_sequence[] = {
 
 static unsigned
 dissect_ess_InformativeTag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    InformativeTag_sequence, hf_index, ett_ess_InformativeTag);
 
