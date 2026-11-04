@@ -286,7 +286,7 @@ PacketList::PacketList(QWidget *parent) :
     pinned_selection_model_(nullptr),
     syncing_selection_(false),
     pinned_column_boundary_(0),
-    saved_pins_open_type_(WTAP_TYPE_AUTO),
+    reload_pending_(false),
     pinned_column_view_(nullptr),
     pinned_row_view_(nullptr),
     pinned_row_corner_view_(nullptr),
@@ -2717,15 +2717,13 @@ void PacketList::deleteAllPacketComments()
 void PacketList::setCaptureFile(capture_file *cf)
 {
     // Reloading closes and reopens the file before the reload starts, so
-    // keep the pins saved when the file is cleared, unless a different file
-    // (or the same one as a different type) is opened. Compare with the file
-    // as it was opened; Reload as File Format changes open_type beforehand.
+    // keep the pins saved when the file is cleared, unless something other
+    // than a reload opens a file.
     if (cf) {
-        if (saved_pins_filename_ != cf->filename || saved_pins_open_type_ != cf->open_type) {
+        if (!reload_pending_) {
             pinned_rows_model_->discardSavedPins();
         }
-        saved_pins_filename_ = cf->filename;
-        saved_pins_open_type_ = cf->open_type;
+        reload_pending_ = false;
     }
     cap_file_ = cf;
     packet_list_model_->setCaptureFile(cf);

@@ -291,6 +291,9 @@ void CaptureFile::captureFileEvent(int event, void *data)
     case(cf_cb_file_read_finished):
         emit captureEvent(CaptureEvent(CaptureEvent::File, CaptureEvent::Finished));
         break;
+    case(cf_cb_file_reload_pending):
+        emit captureEvent(CaptureEvent(CaptureEvent::Reload, CaptureEvent::Prepared));
+        break;
     case(cf_cb_file_reload_started):
         emit captureEvent(CaptureEvent(CaptureEvent::Reload, CaptureEvent::Started));
         break;

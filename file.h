@@ -58,6 +58,7 @@ typedef enum {
     cf_cb_file_closed,           /**< A capture file has been fully closed */
     cf_cb_file_read_started,     /**< Reading of a capture file has begun */
     cf_cb_file_read_finished,    /**< Reading of a capture file has completed */
+    cf_cb_file_reload_pending,   /**< A capture file is about to be closed and reopened to reload the same records */
     cf_cb_file_reload_started,   /**< A capture file reload has begun */
     cf_cb_file_reload_finished,  /**< A capture file reload has completed */
     cf_cb_file_rescan_started,   /**< A packet rescan (without full redissection) has begun */
@@ -152,6 +153,15 @@ void cf_close(capture_file *cf);
  * @return one of cf_status_t
  */
 cf_status_t cf_reload(capture_file *cf);
+
+/**
+ * Reload a capture file, reading it as a given type.
+ *
+ * @param cf the capture file to be reloaded
+ * @param type WTAP_TYPE_AUTO, or the open routine to read the file with
+ * @return one of cf_status_t
+ */
+cf_status_t cf_reload_as_type(capture_file *cf, unsigned int type);
 
 /**
  * Read all packets of a capture file into the internal structures.

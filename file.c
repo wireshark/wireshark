@@ -256,8 +256,13 @@ ws_epan_new(capture_file *cf)
     return epan_new(&cf->provider, &funcs);
 }
 
-cf_status_t
-cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err)
+/*
+ * Open a capture file. If "reloading" is true, the file being opened
+ * has the same records as the one being closed, as when reloading it,
+ * so tell our callbacks that before we close it.
+ */
+static cf_status_t
+cf_open_internal(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, bool reloading, int *err)
 {
     wtap  *wth;
     char *err_info;
@@ -268,6 +273,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
 
     /* The open succeeded.  Close whatever capture file we had open,
        and fill in the information for this file. */
+    if (reloading)
+        cf_callback_invoke(cf_cb_file_reload_pending, cf);
     cf_close(cf);
 
     /* Initialize the record information.
@@ -343,6 +350,12 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile
 fail:
     report_cfile_open_failure(fname, *err, err_info);
     return CF_ERROR;
+}
+
+cf_status_t
+cf_open(capture_file *cf, const char *fname, unsigned int type, bool is_tempfile, int *err)
+{
+    return cf_open_internal(cf, fname, type, is_tempfile, false, err);
 }
 
 /*
@@ -5891,7 +5904,7 @@ cf_save_records(capture_file *cf, const char *fname, unsigned save_format,
                    being written to the file, e.g ERF records
                    In that case, we need to reload the whole file */
                 if(needs_reload) {
-                    if (cf_open(cf, fname, WTAP_TYPE_AUTO, false, &err) == CF_OK) {
+                    if (cf_open_internal(cf, fname, WTAP_TYPE_AUTO, false, true, &err) == CF_OK) {
                         if (cf_read(cf, /*reloading=*/true) != CF_READ_OK) {
                             /* The rescan failed; just close the file.  Either
                                a dialog was popped up for the failure, so the
@@ -6085,6 +6098,12 @@ fail:
 cf_status_t
 cf_reload(capture_file *cf)
 {
+    return cf_reload_as_type(cf, cf->open_type);
+}
+
+cf_status_t
+cf_reload_as_type(capture_file *cf, unsigned int type)
+{
     char     *filename;
     bool      is_tempfile;
     cf_status_t cf_status = CF_OK;
@@ -6101,14 +6120,15 @@ cf_reload(capture_file *cf)
        it's a temporary file; we don't want that to happen (for one thing,
        it'd prevent subsequent reopens from working).  Remember whether it's
        a temporary file, mark it as not being a temporary file, and then
-       reopen it as the type of file it was.
+       reopen it.
 
        Also, "cf_close()" will free "cf->filename", so we must make
        a copy of it first. */
     filename = g_strdup(cf->filename);
     is_tempfile = cf->is_tempfile;
     cf->is_tempfile = false;
-    if (cf_open(cf, filename, cf->open_type, is_tempfile, &err) == CF_OK) {
+    /* Reading the file as a different type gives different records. */
+    if (cf_open_internal(cf, filename, type, is_tempfile, type == cf->open_type, &err) == CF_OK) {
         switch (cf_read(cf, /*reloading=*/true)) {
 
             case CF_READ_OK:

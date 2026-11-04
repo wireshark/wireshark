@@ -606,6 +606,9 @@ void StratosharkMainWindow::captureEventHandler(CaptureEvent ev)
 
     case CaptureEvent::Reload:
         switch (ev.eventType()) {
+        case CaptureEvent::Prepared:
+            packet_list_->captureFileReloadPending();
+            break;
         case CaptureEvent::Started:
             captureFileReadStarted(tr("Reloading"));
             break;
@@ -2637,12 +2640,13 @@ void StratosharkMainWindow::reloadCaptureFileAsFormatOrCapture()
             return;
     }
 
+    unsigned int open_type;
     if (cf->open_type == WTAP_TYPE_AUTO)
-        cf->open_type = open_info_name_to_type("MIME Files Format");
+        open_type = open_info_name_to_type("MIME Files Format");
     else /* TODO: This should be latest format chosen by user */
-        cf->open_type = WTAP_TYPE_AUTO;
+        open_type = WTAP_TYPE_AUTO;
 
-    cf_reload(cf);
+    cf_reload_as_type(cf, open_type);
 }
 
 void StratosharkMainWindow::reloadCaptureFile()

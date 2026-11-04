@@ -222,6 +222,13 @@ public:
     void captureFileReadFinished(CaptureEvent::Context context);
 
     /**
+     * @brief Handles the event when the capture file is about to be closed
+     * and reopened to reload the same records, so that the pinned packets
+     * are kept for the reload.
+     */
+    void captureFileReloadPending() { reload_pending_ = true; }
+
+    /**
      * @brief Sets the column delegate for the view.
      */
     void setColumnDelegate();
@@ -929,10 +936,9 @@ private:
 
     // Number of leftmost columns currently frozen/pinned, or 0.
     int pinned_column_boundary_;
-    // The file that was last opened, so that reloading it can restore
+    // The file is being closed and reopened to reload it, so keep
     // pinned_rows_model_'s saved pins; see setCaptureFile().
-    QByteArray saved_pins_filename_;
-    unsigned int saved_pins_open_type_;
+    bool reload_pending_;
 
     // Overlay view showing the frozen leftmost columns for all rows.
     PinnedColumnView *pinned_column_view_;
