@@ -536,7 +536,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 	tree=parent_tree;
 
-	DISSECTOR_ASSERT(fr_data);
+	if (!fr_data) {
+		return 0;
+	}
 
 	/*
 	 * Set the protocol to the record type name.

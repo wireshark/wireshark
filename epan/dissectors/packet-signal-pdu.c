@@ -2474,7 +2474,9 @@ static int
 dissect_spdu_message_someip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     someip_info_t *someip_info = (someip_info_t *)data;
 
-    DISSECTOR_ASSERT(someip_info);
+    if (!data) {
+        return 0;
+    }
 
     if (data_spdu_someip_mappings == NULL) {
         return 0;
@@ -2493,7 +2495,9 @@ dissect_spdu_message_someip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_spdu_message_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     struct can_info *can_info = (struct can_info *)data;
-    DISSECTOR_ASSERT(can_info);
+    if (!data) {
+        return 0;
+    }
 
     if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
@@ -2516,7 +2520,9 @@ dissect_spdu_message_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_spdu_message_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     struct flexray_info *flexray_data = (struct flexray_info *)data;
-    DISSECTOR_ASSERT(flexray_data);
+    if (!data) {
+        return 0;
+    }
 
     if (data_spdu_flexray_mappings == NULL) {
         return 0;
@@ -2541,7 +2547,9 @@ static int
 dissect_spdu_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     lin_info_t *lininfo = (lin_info_t *)data;
 
-    DISSECTOR_ASSERT(lininfo);
+    if (!data) {
+        return 0;
+    }
 
     spdu_lin_mapping_t *lin_mapping = get_lin_mapping(lininfo);
 
@@ -2555,7 +2563,9 @@ dissect_spdu_message_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static int
 dissect_spdu_message_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     pdu_transport_info_t *pdu_info = (pdu_transport_info_t *)data;
-    DISSECTOR_ASSERT(pdu_info);
+    if (!data) {
+        return 0;
+    }
 
     if (data_spdu_pdu_transport_mappings == NULL) {
         return 0;
@@ -2573,7 +2583,9 @@ dissect_spdu_message_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static int
 dissect_spdu_message_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     autosar_ipdu_multiplexer_info_t *pdu_info = (autosar_ipdu_multiplexer_info_t *)data;
-    DISSECTOR_ASSERT(pdu_info);
+    if (!data) {
+        return 0;
+    }
 
     if (data_spdu_ipdum_mappings == NULL) {
         return 0;
@@ -2591,7 +2603,9 @@ dissect_spdu_message_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 static bool
 dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     dlt_info_t *pdu_info = (dlt_info_t *)data;
-    DISSECTOR_ASSERT(pdu_info);
+    if (!data) {
+        return false;
+    }
 
     if (data_spdu_dlt_mappings == NULL) {
         return 0;
@@ -2610,7 +2624,9 @@ dissect_spdu_message_dlt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static bool
 dissect_spdu_message_uds_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     uds_info_t *uds_info = (uds_info_t *)data;
-    DISSECTOR_ASSERT(uds_info);
+    if (!data) {
+        return false;
+    }
 
     spdu_uds_mapping_t *uds_mapping = get_uds_mapping(uds_info);
     if (uds_mapping == NULL) {
@@ -2623,7 +2639,9 @@ dissect_spdu_message_uds_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 static int
 dissect_spdu_message_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     isobus_info_t *isobus_info = (isobus_info_t *)data;
-    DISSECTOR_ASSERT(isobus_info);
+    if (!data) {
+        return 0;
+    }
 
     spdu_isobus_mapping_t *isobus_mapping = get_isobus_mapping(isobus_info->pgn, isobus_info->bus_id);
 

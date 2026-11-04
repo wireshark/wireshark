@@ -378,7 +378,8 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
     struct reassemble_identifier *identifier = NULL;
     struct address_reassemble_table *address_reassemble_table_item = NULL;
 
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
     can_info = *((struct can_info*)data);
 
     if ((can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) || !(can_info.id & CAN_EFF_FLAG)) {

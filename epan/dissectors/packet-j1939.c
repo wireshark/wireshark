@@ -169,7 +169,8 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     uint32_t pgn;
     uint8_t *src_addr, *dest_addr;
 
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
     can_info = *((struct can_info*)data);
 
     if ((can_info.id & CAN_ERR_FLAG) ||

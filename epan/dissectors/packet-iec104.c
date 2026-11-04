@@ -2237,6 +2237,10 @@ static int dissect_iec60870_asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_item * itSignal = NULL;
 	proto_tree * trSignal;
 
+	if (!parms) {
+		return 0;
+	}
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEC 60870-5 ASDU");
 
 	it104 = proto_tree_add_item(tree, proto_iec60870_asdu, tvb, offset, -1, ENC_NA);

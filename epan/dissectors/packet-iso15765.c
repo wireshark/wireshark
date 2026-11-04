@@ -992,7 +992,8 @@ static int
 dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     can_info_t can_info;
 
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
     can_info = *((can_info_t*)data);
 
     if (can_info.id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
@@ -1016,7 +1017,8 @@ dissect_iso15765_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 static int
 dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     lin_info_t *lininfo = (lin_info_t *)data;
 
@@ -1025,7 +1027,8 @@ dissect_iso15765_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 static int
 dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     flexray_info_t *flexray_id = (flexray_info_t *)data;
 
@@ -1036,7 +1039,8 @@ dissect_iso15765_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 static int
 dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     autosar_ipdu_multiplexer_info_t *ipdum_data = (autosar_ipdu_multiplexer_info_t *)data;
 
@@ -1045,7 +1049,8 @@ dissect_iso15765_ipdum(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 static int
 dissect_iso15765_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
 
     pdu_transport_info_t *pdu_transport_data = (pdu_transport_info_t *)data;
 

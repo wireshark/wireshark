@@ -257,6 +257,9 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     };
 
     bluetooth_data = (bluetooth_data_t *) data;
+    if (!bluetooth_data) {
+        return 0;
+    }
 
     /*
      * XXX - the raw data sent to a Bluetooth monitor socket has a 6-byte

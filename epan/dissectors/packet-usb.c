@@ -5541,7 +5541,8 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
         NULL
     };
 
-    DISSECTOR_ASSERT(provider_id_data != NULL);
+    if (provider_id_data == NULL)
+        return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBPort");
     col_clear(pinfo->cinfo, COL_INFO);

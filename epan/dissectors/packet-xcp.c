@@ -3662,7 +3662,9 @@ dissect_xcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, xcp_stream_t *s
 static int
 dissect_xcp_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) {
     struct can_info *can_info = (struct can_info *)data;
-    DISSECTOR_ASSERT(can_info);
+    if (!data) {
+        return 0;
+    }
 
     if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
         /* Error and RTR frames are not for us. */
@@ -3708,8 +3710,8 @@ xcp_ptype_to_port_type(packet_info *pinfo) {
         xcp_port_type = XCP_PORT_TCP;
         break;
     default:
-        /* this should never happen */
-        ws_assert_not_reached();
+        /* Not UDP or TCP, e.g. called from Exported PDU. */
+        break;
     }
 
     return xcp_port_type;

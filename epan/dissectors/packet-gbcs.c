@@ -657,7 +657,12 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *gbz_tree;
     unsigned offset = 0;
-    uint8_t cra = *(uint8_t*)data;
+    uint8_t cra;
+
+    if (!data) {
+        return 0;
+    }
+    cra = *(uint8_t*)data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GBCS GBZ");
 

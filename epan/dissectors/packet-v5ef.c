@@ -70,6 +70,10 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	const char	*srcname = "src";
 	const char	*dstname = "dst";
 
+	if (!isdn) {
+		return 0;
+	}
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "V5-EF");
 	col_clear(pinfo->cinfo, COL_INFO);
 

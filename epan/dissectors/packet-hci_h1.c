@@ -53,6 +53,9 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data_t  *bluetooth_data;
 
     bluetooth_data = (bluetooth_data_t *) data;
+    if (!bluetooth_data) {
+        return 0;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI");
 

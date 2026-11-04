@@ -2409,6 +2409,9 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
     proto_tree      *epl_tree = NULL;
     uint8_t epl_msgtype = 0;
 
+    if ( data == NULL )
+        return false;
+
     /* We will call the epl dissector by using call_dissector(). The epl dissector will then call
      * the heuristic openSAFETY dissector again. By setting this information, we prevent a dissector
      * loop */

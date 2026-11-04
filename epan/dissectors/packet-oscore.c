@@ -601,6 +601,10 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         return 0;
     }
 
+    if (!info) {
+        return 0;
+    }
+
 
     /* Set the Protocol column to the constant string of oscore */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSCORE");

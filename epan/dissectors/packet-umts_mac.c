@@ -1028,7 +1028,9 @@ static int dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_t
     rlc_info * rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
     struct fp_info *p_fp_info = (struct fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
 
-    DISSECTOR_ASSERT(mac_is_info != NULL && rlcinf != NULL && p_fp_info != NULL);
+    if (mac_is_info == NULL || rlcinf == NULL || p_fp_info == NULL) {
+        return 0;
+    }
 
     pi = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_NA);
     macis_pdu_tree = proto_item_add_subtree(pi, ett_mac_edch_type2);
@@ -1234,13 +1236,12 @@ static int dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     fpinf  = (fp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fp, 0);
     macinf = (umts_mac_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_mac, 0);
 
-    pos = fpinf->cur_tb;
-    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;   /*No MAC-d header for type 2*/
-
-    if (!macinf) {
+    if (!macinf || !fpinf) {
         proto_tree_add_expert(hsdsch_tree, pinfo, &ei_mac_per_frame_info_missing, tvb, 0, -1);
         return 1;
     }
+    pos = fpinf->cur_tb;
+    bitoffs = fpinf->hsdsch_entity == ehs ? 0 : 4;   /*No MAC-d header for type 2*/
     if (macinf->ctmux[pos]) {   /*The 4'st bits are padding*/
         proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
 
@@ -1250,8 +1251,10 @@ static int dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];    /*Lookup MAC content*/
 
         rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_umts_rlc, 0);
-        rlcinf->rbid[pos] = macinf->lchid[pos];
-        rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]]; /*Look up RLC mode*/
+        if (rlcinf) {
+            rlcinf->rbid[pos] = macinf->lchid[pos];
+            rlcinf->mode[pos] =  lchId_rlc_map[macinf->lchid[pos]]; /*Look up RLC mode*/
+        }
         bitoffs += 4;
     }
 

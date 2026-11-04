@@ -1665,7 +1665,8 @@ dissect_netlink_netfilter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 	proto_item *pi;
 	int offset = 0;
 
-	DISSECTOR_ASSERT(nl_data && nl_data->magic == PACKET_NETLINK_MAGIC);
+	if (!nl_data || nl_data->magic != PACKET_NETLINK_MAGIC)
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Netlink netfilter");
 	col_clear(pinfo->cinfo, COL_INFO);

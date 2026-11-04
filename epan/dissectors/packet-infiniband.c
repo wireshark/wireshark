@@ -3147,6 +3147,9 @@ static bool dissect_mellanox_eoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     bool        more_segments;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
 
+    if (!info)
+        return false;
+
     if (((info->opCode & 0xE0) >> 5) != TRANSPORT_UD)
         return false;
 

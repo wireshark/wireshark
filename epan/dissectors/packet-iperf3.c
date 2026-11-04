@@ -327,6 +327,10 @@ get_iperf3_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb _U_, int offset _U_, vo
 static int
 dissect_iperf3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    /* The dissector needs a conversation, e.g. missing when called from Exported PDU */
+    if (find_conversation_pinfo(pinfo, 0) == NULL)
+        return 0;
+
     /*
      * Determine control connection for *any* packet
      *
@@ -412,6 +416,10 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree *iperf3_tree, *time_tree;
     uint32_t offset = 0;
     uint32_t nbytes = tvb_reported_length(tvb);
+
+    /* The dissector needs a conversation, e.g. missing when called from Exported PDU */
+    if (find_conversation_pinfo(pinfo, 0) == NULL)
+        return 0;
 
     uint64_t maybe_sequence_num;
 
