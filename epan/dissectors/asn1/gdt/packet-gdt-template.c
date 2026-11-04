@@ -37,18 +37,16 @@ static int dissect_gdt(tvbuff_t *tvb,
                        packet_info *pinfo,
                        proto_tree *tree,
                        void *data _U_) {
-    proto_item *gdt_item = NULL;
-    proto_tree *gdt_tree = NULL;
+    proto_item *gdt_item;
+    proto_tree *gdt_tree;
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GDT");
 
     /* create the gdt protocol tree */
-    if (tree) {
-        gdt_item = proto_tree_add_item(tree, proto_gdt, tvb, 0, -1, ENC_NA);
-        gdt_tree = proto_item_add_subtree(gdt_item, ett_gdt);
-        dissect_GDTMessage_PDU(tvb, pinfo, gdt_tree, 0);
-    }
+    gdt_item = proto_tree_add_item(tree, proto_gdt, tvb, 0, -1, ENC_NA);
+    gdt_tree = proto_item_add_subtree(gdt_item, ett_gdt);
+    dissect_GDTMessage_PDU(tvb, pinfo, gdt_tree, 0);
     return tvb_captured_length(tvb);
 }
 
