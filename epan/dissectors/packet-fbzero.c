@@ -370,7 +370,7 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
     }
 
     /* XXX - can this still occur? */
-    if (offset + total_tag_len <= offset) {
+    if (offset + total_tag_len < offset) {
         expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
                          "Invalid total tag length: %u", total_tag_len);
         return offset + tvb_reported_length_remaining(tvb, offset);
@@ -446,10 +446,10 @@ dissect_fb_zero_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     fb_zero_tree = proto_item_add_subtree(ti, ett_fb_zero);
 
     /* Public Flags */
-    ti_puflags = proto_tree_add_item(fb_zero_tree, hf_fb_zero_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    ti_puflags = proto_tree_add_item_ret_uint8(fb_zero_tree, hf_fb_zero_puflags, tvb, offset, 1, ENC_LITTLE_ENDIAN, &puflags);
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_fb_zero_puflags);
     proto_tree_add_item(puflags_tree, hf_fb_zero_puflags_vrsn, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item_ret_uint8(puflags_tree, hf_fb_zero_puflags_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN, &puflags);
+    proto_tree_add_item(puflags_tree, hf_fb_zero_puflags_unknown, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     if(puflags & PUFLAGS_VRSN){
