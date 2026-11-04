@@ -397,6 +397,10 @@ static const value_string ri_lsa_fad_metric_type_vals[] = {
 #define FAD_INCLUDE_ALL_AG          3
 #define FAD_DEF_FLAGS               4
 #define FAD_EXCLUDE_SRLG            5
+/* Reverse Admin Group Sub-TLVs (rfc9917) */
+#define FAD_EXCLUDE_REV_AG          10
+#define FAD_INCLUDE_ANY_REV_AG      11
+#define FAD_INCLUDE_ALL_REV_AG      12
 
 static const value_string ri_lsa_fad_stlv_type_vals[] = {
     { FAD_EXCLUDE_AG,       "Flexible Algorithm Exclude Admin Group"},
@@ -404,6 +408,9 @@ static const value_string ri_lsa_fad_stlv_type_vals[] = {
     { FAD_INCLUDE_ALL_AG,   "Flexible Algorithm Include-All Admin Group"},
     { FAD_DEF_FLAGS,        "Flexible Algorithm Definition Flags"},
     { FAD_EXCLUDE_SRLG,     "Flexible Algorithm Exclude SRLG"},
+    { FAD_EXCLUDE_REV_AG,     "Flexible Algorithm Exclude Reverse Admin Group"},
+    { FAD_INCLUDE_ANY_REV_AG, "Flexible Algorithm Include-Any Reverse Admin Group"},
+    { FAD_INCLUDE_ALL_REV_AG, "Flexible Algorithm Include-All Reverse Admin Group"},
     { 0, NULL }
 };
 
@@ -3381,6 +3388,9 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                 case FAD_EXCLUDE_AG:
                 case FAD_INCLUDE_ANY_AG:
                 case FAD_INCLUDE_ALL_AG:
+                case FAD_EXCLUDE_REV_AG:
+                case FAD_INCLUDE_ANY_REV_AG:
+                case FAD_INCLUDE_ALL_REV_AG:
                     dissect_ospf_subtlv_ext_admin_group(tvb, stlv_tree, stlv_offset + 4, stlv_type, stlv_length);
                     break;
                 case FAD_DEF_FLAGS:
