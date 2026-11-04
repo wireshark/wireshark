@@ -2794,7 +2794,7 @@ dissect_per_external_type(tvbuff_t *tvb _U_, uint32_t offset, asn1_ctx_t *actx, 
 unsigned
 call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, asn1_ctx_t *actx, int hf_index)
 {
-	uint32_t type_length, end_offset, start_offset;
+	uint32_t type_length, type_bit_length, end_offset, start_offset;
 	tvbuff_t *val_tvb = NULL;
 
 	start_offset = offset;
@@ -2803,7 +2803,11 @@ call_per_oid_callback(const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_
 		dissect_per_not_decoded_yet(tree, actx->pinfo, tvb, "unexpected length");
 	}
 	if (actx->aligned) BYTE_ALIGN_OFFSET(offset);
-	end_offset = offset + type_length;
+	/* offset is in bits, type_length in octets */
+	if (ckd_mul(&type_bit_length, type_length, 8) ||
+	    ckd_add(&end_offset, offset, type_bit_length)) {
+		THROW(ReportedBoundsError);
+	}
 
 
 	/* length in bits */
