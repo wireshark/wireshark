@@ -1047,6 +1047,14 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
             {
                 DISSECTOR_ASSERT_HINT(pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT,
                                       "FTDI FT supports only DESEGMENT_ONE_MORE_SEGMENT");
+                if ((!desegment_data && pinfo->desegment_offset <= 0) ||
+                    (desegment_data && (pinfo->desegment_offset <= 0 || (uint32_t)pinfo->desegment_offset <= reassembled_bytes)))
+                {
+                    /* Nothing in this frame was completed: the second pass does not
+                     * hand it to the subdissector, so show the same protocol.
+                     */
+                    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTDI FT");
+                }
                 if (!desegment_data)
                 {
                     /* Start desegmenting */
@@ -1056,7 +1064,7 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     fragment_add_check(&ftdi_reassembly_table, tvb, pinfo->desegment_offset, pinfo,
                                        desegment_data->first_frame, desegment_data, 0, fragment_length, true);
                 }
-                else if (pinfo->desegment_offset == 0)
+                else if (pinfo->desegment_offset <= 0 || (uint32_t)pinfo->desegment_offset <= reassembled_bytes)
                 {
                     /* Continue reassembling */
                     fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
@@ -1069,7 +1077,6 @@ dissect_serial_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
                     desegment_data_t *previous_desegment_data;
 
                     /* This packet contains both an end from a previous reassembly and start of a new one */
-                    DISSECTOR_ASSERT((uint32_t)pinfo->desegment_offset > reassembled_bytes);
                     previous_bytes = pinfo->desegment_offset - reassembled_bytes;
                     fragment_add_check(&ftdi_reassembly_table, tvb, 0, pinfo, desegment_data->first_frame,
                                        desegment_data, reassembled_bytes, previous_bytes, false);
@@ -1214,13 +1221,16 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 2;
 
             /* Record the request type so we can find it when dissecting response */
-            request_data = wmem_new(wmem_file_scope(), request_data_t);
-            request_data->bus_id = urb->bus_id;
-            request_data->device_address = urb->device_address;
-            request_data->request = brequest;
-            request_data->hvalue = hvalue;
-            request_data->lindex = lindex;
-            wmem_tree_insert32_array(request_info, key, request_data);
+            if (!PINFO_FD_VISITED(pinfo))
+            {
+                request_data = wmem_new(wmem_file_scope(), request_data_t);
+                request_data->bus_id = urb->bus_id;
+                request_data->device_address = urb->device_address;
+                request_data->request = brequest;
+                request_data->hvalue = hvalue;
+                request_data->lindex = lindex;
+                wmem_tree_insert32_array(request_info, key, request_data);
+            }
         }
         else
         {
@@ -1241,7 +1251,10 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     break;
                 case REQUEST_SET_BITMODE:
                     /* TODO: Record interface mode only if the control request has succeeded */
-                    record_interface_mode(pinfo, urb, lindex_to_interface(request_data->lindex), request_data->hvalue);
+                    if (!PINFO_FD_VISITED(pinfo))
+                    {
+                        record_interface_mode(pinfo, urb, lindex_to_interface(request_data->lindex), request_data->hvalue);
+                    }
                     break;
                 default:
                     break;
