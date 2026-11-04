@@ -57393,3 +57393,139 @@ class TestDissectFcp:
         assert rows[16][0:2] == ['', '4105000000000000']
         assert rows[17][0] == '0x05'
         assert rows[58][0] == '0x09'
+
+
+class TestDissectFcsb3:
+    '''FC-SB3 (FICON, FC types 0x1B and 0x1C) over FCoE from the synthetic
+    capture fcsb3_coverage.pcap.gz: command headers, data, status,
+    control and link control IUs.'''
+
+    INFOS = [
+        'Command Header: Write',
+        'Command Header: Read',
+        'Command Header: Control',
+        'Command Header: Sense',
+        'Command Header: Write (Modifier)',
+        'Command Header: Read Backward',
+        'Command Header: Control (Modifier)',
+        'Command Header: Reserved',
+        'Command Header & Data: Write',
+        'Data',
+        'Data',
+        'Status',
+        'Status  Attention',
+        'Status  Status Modifier',
+        'Status  Control-Unit End',
+        'Status  Busy',
+        'Status  Channel End',
+        'Status  Device End',
+        'Status  Unit Check',
+        'Status  Unit Exception',
+        'Status  Attention  Status Modifier  Control-Unit End  Busy  Channel End  Device End  Unit Check  Unit Exception',
+        'Status  Channel End  Device End',
+        'Control: Control End',
+        'Control: Command Response',
+        'Control: Stack Status',
+        'Control: Cancel',
+        'Control: System Reset',
+        'Control: Selective Reset',
+        'Control: Selective Reset',
+        'Control: Request Status',
+        'Control: Device Level Exception',
+        'Control: Device Level Exception',
+        'Control: Status Accepted',
+        'Control: Device-Level Ack',
+        'Control: Purge Path',
+        'Control: Purge Path',
+        'Control: 0x77',
+        'Control: Purge Path Response',
+        'Control: Purge Path Response',
+        'Control: Purge Path Response',
+        'Control: Purge Path Response',
+        'Link Control: ELP',
+        'Link Control: RLP',
+        'Link Control: TIN',
+        'Link Control: LPE',
+        'Link Control: LPR',
+        'Link Control: LPR',
+        'Link Control: LRJ',
+        'Link Control: LRJ',
+        'Link Control: LBY',
+        'Link Control: LACK',
+        'Link Control: 0xff',
+        'Link Control: TIR',
+        'Link Control: TIR',
+        'Link Control: TIR',
+        'Reserved',
+        'Reserved',
+        'Command Header: Read',
+        'Status  Channel End  Device End',
+        'Command Header: Read',
+        'Status  Channel End  Device End',
+        'Command Header: Read',
+        'Status  Channel End  Device End',
+        'Command Header: Read',
+        'Status  Channel End  Device End',
+        'Command Header: Read',
+        'Status  Channel End  Device End',
+    ]
+
+    def test_fcsb3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 67 frames are FC-SB3, none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcsb3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 67
+        assert protocols.count('FC-SB3') == 67
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcsb3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcsb3_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame: IU type, CCW command or
+        function, and the status bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcsb3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == self.INFOS
+
+    def test_fcsb3_fields(self, cmd_tshark, capture_file, test_env):
+        '''Image IDs and device addresses, and the codes of device level
+        exception, purge path, purge path response (60 octets into the
+        DIB), LPR and LRJ, and the logical path maps of TIR.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcsb3_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-efcsb3.chid', '-efcsb3.cuid',
+                '-efcsb3.devaddr', '-efcsb3.dip.xcpcode',
+                '-efcsb3.purgepathcode', '-efcsb3.purgepathrspcode',
+                '-efcsb3.lprcode', '-efcsb3.lrjcode', '-efcsb3.logical_path',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows[1][0:3] == ['1', '2', '256']
+        assert rows[66][0:3] == ['255', '255', '65535']
+        assert rows[60][0:3] == ['3', '2', '258']
+        assert rows[31][3] == '1' and rows[32][3] == '7'
+        assert rows[35][4] == '13' and rows[36][4] == '1'
+        assert [rows[n][5] for n in range(38, 42)] == ['0', '3', '16', '99']
+        assert rows[46][6] == '3' and rows[47][6] == '0'
+        assert rows[48][7] == '0x06' and rows[49][7] == '0x09'
+        assert rows[53][8] == '00:01:02:03,04:05:06:07'
+        assert rows[54][8] == '00:00:00:00'
+
+    def test_fcsb3_flags(self, cmd_tshark, capture_file, test_env):
+        '''The CCW and command flag bits of the command header (frame 2).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcsb3_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-V', '-O', 'fcsb3',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert '1... .... = CD: Set' in lines
+        assert '.... ...1 = SSS: Set' in lines
