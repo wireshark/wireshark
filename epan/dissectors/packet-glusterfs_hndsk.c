@@ -327,7 +327,7 @@ static const rpc_prog_vers_info gluster_hndsk_vers_info[] = {
 
 static const value_string gluster_hndsk_proc_vals[] = {
 	{ GF_HNDSK_NULL,         "NULL" },
-	{ GF_HNDSK_SETVOLUME,    "DUMP" },
+	{ GF_HNDSK_SETVOLUME,    "SETVOLUME" },
 	{ GF_HNDSK_GETSPEC,      "GETSPEC" },
 	{ GF_HNDSK_PING,         "PING" },
 	{ GF_HNDSK_SET_LK_VER,   "LOCK VERSION" },

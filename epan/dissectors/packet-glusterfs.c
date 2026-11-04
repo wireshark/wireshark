@@ -365,7 +365,7 @@ glusterfs_rpc_dissect_gf_2_flock(proto_tree *tree, tvbuff_t *tvb, unsigned offse
 {
 	proto_item *flock_item;
 	proto_tree *flock_tree;
-	int len;
+	uint32_t len;
 	int start_offset = offset;
 
 	flock_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_glusterfs_flock, &flock_item, "Flock");
@@ -385,7 +385,7 @@ glusterfs_rpc_dissect_gf_2_flock(proto_tree *tree, tvbuff_t *tvb, unsigned offse
 	offset += 4;
 
 	proto_tree_add_item(flock_tree, hf_glusterfs_flock_owner, tvb, offset, len, ENC_NA);
-	offset += len;
+	offset += rpc_roundup(len);
 
 	proto_item_set_len (flock_item, offset - start_offset);
 
@@ -588,7 +588,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, in
 	}
 
 	if (roundup) {
-		ti = proto_tree_add_item(subtree, hf_gluster_rpc_roundup_bytes, tvb, offset, -1, ENC_NA);
+		ti = proto_tree_add_item(subtree, hf_gluster_rpc_roundup_bytes, tvb, offset, roundup, ENC_NA);
 		proto_item_set_generated(ti);
 		offset += roundup;
 	}
@@ -740,8 +740,9 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb,
 			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len, value, "%s: %s",
 								key, value);
 		} else if (val_type == 8) {
-			offset = glusterfs_rpc_dissect_gfx_iatt(tree, tvb,
-					hf_glusterfs_preparent_iatt, offset);
+			offset = glusterfs_rpc_dissect_gfx_iatt(subtree, tvb,
+					hf_glusterfs_iattx, offset);
+			dict_item = NULL;
 		} else if (val_type == 7) {
 			val_len = 16;
 			tvb_get_ntohguid(tvb, offset, &gfid);
@@ -4501,22 +4502,22 @@ proto_register_glusterfs(void)
 		},
 		{ &hf_glusterfs_iax_atime_nsec,
 			{ "Time of last access(nsec)", "glusterfs.iax_atime_nsec",
-				FT_UINT64, BASE_DEC, NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_mtime_nsec,
 			{ "Time of last modification(nsec)", "glusterfs.iax_mtime_nsec",
-				FT_UINT64, BASE_DEC, NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_ctime_nsec,
 			{ "Time of last status change(nsec)", "glusterfs.iax_ctime_nsec",
-				FT_UINT64, BASE_DEC, NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				NULL, HFILL }
 		},
 		{ &hf_glusterfs_iax_btime_nsec,
 			{ "Creation time(nsec)", "glusterfs.iax_btime_nsec",
-				FT_UINT64, BASE_DEC, NULL, 0,
+				FT_UINT32, BASE_DEC, NULL, 0,
 				NULL, HFILL }
 		},
 
