@@ -12,6 +12,8 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
+#include <epan/prefs.h>
 
 typedef enum _MeshNextProtocol
 {
@@ -94,6 +96,8 @@ static int proto_extrememesh_probe;
 /*MESH fields*/
 static int hf_extrememesh_version;
 static int hf_extrememesh_nextproto;
+
+static expert_field ei_extrememesh_mch_depth;
 
 /*MCH fields*/
 static int hf_extrememesh_mch_version;
@@ -1405,7 +1409,7 @@ static int dissect_extrememesh_eth_noaddr(tvbuff_t *tvb, packet_info *pinfo, pro
 		memcpy(ethBuffer + pinfo->dst.len, pinfo->src.data, pinfo->src.len);
 
 		//Copy in the rest of the packet
-		tvb_memcpy(tvb, ethBuffer, pinfo->src.len + pinfo->dst.len, tvbLen);
+		tvb_memcpy(tvb, ethBuffer + pinfo->src.len + pinfo->dst.len, 0, tvbLen);
 		nextTvb = tvb_new_real_data(ethBuffer, bufferLen, bufferLen);
 		tvb_set_child_real_data_tvbuff(tvb, nextTvb);
 		add_new_data_source(pinfo, nextTvb, "Encapsulated Ethernet, no addr");
@@ -1470,7 +1474,7 @@ static int dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	int next_proto;
 	tvbuff_t *nextTvb;
 
-	proto_tree_add_item(meshTree, proto_extrememesh_mch, tvb, offset, -1, ENC_NA);
+	proto_item *mch_item = proto_tree_add_item(meshTree, proto_extrememesh_mch, tvb, offset, -1, ENC_NA);
 	proto_tree_add_item(meshTree, hf_extrememesh_mch_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	next_proto = tvb_get_uint8(tvb, offset);
@@ -1516,7 +1520,15 @@ static int dissect_extrememesh_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			break;
 		case MESH_NEXT_PROTOCOL_MCH:
 			// We recurse here, but we'll run out of packet before we run out of stack.
+			if ((unsigned)pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth)
+			{
+				expert_add_info(pinfo, mch_item, &ei_extrememesh_mch_depth);
+				next_proto = MESH_NEXT_PROTOCOL_INVALID;
+				break;
+			}
+			increment_dissection_depth(pinfo);
 			next_proto = dissect_extrememesh_mch(nextTvb, pinfo, meshTree);
+			decrement_dissection_depth(pinfo);
 			break;
 		case MESH_NEXT_PROTOCOL_ENCAPSULATED_ETH:
 			if (eth_withoutfcs_handle)
@@ -2429,6 +2441,11 @@ void proto_register_extrememesh(void)
 		NULL, 0x0, NULL, HFILL }}
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_extrememesh_mch_depth, { "extrememesh.mch.too_deep", PI_PROTOCOL, PI_WARN, "Too many nested MCH headers", EXPFILL }}
+	};
+	expert_module_t *expert_extrememesh;
+
 	static int *ett[] = {
 		&ett_extrememesh,
 		&ett_extrememesh_mch,
@@ -2537,6 +2554,9 @@ void proto_register_extrememesh(void)
 	/* extrememesh mesh path selection proxy error */
 	proto_extrememesh_ps_prer = proto_register_protocol("Extreme Mesh Path Selection Proxy Error", "EXTREME PS PRER", "extrememesh_ps_prer");
 	proto_register_field_array(proto_extrememesh_ps_prer, hf_extrememesh_ps_prer, array_length(hf_extrememesh_ps_prer));
+
+	expert_extrememesh = expert_register_protocol(proto_extrememesh);
+	expert_register_field_array(expert_extrememesh, ei, array_length(ei));
 }
 
 /*****************************************************************************/
