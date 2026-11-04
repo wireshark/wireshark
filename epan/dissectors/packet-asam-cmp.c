@@ -567,6 +567,33 @@ static int hf_cmp_status_sw_ver;
 static int hf_cmp_status_vendor_data_length;
 static int hf_cmp_status_vendor_data;
 
+/* Technica Engineering Vendor Data in CM Status Message */
+static int hf_cmp_status_technica_major;
+static int hf_cmp_status_technica_minor;
+static int hf_cmp_status_technica_product_id;
+static int hf_cmp_status_technica_reserved;
+static int hf_cmp_status_technica_meas_size;
+static int hf_cmp_status_technica_meas;
+static int hf_cmp_status_technica_meas_flags;
+static int hf_cmp_status_technica_meas_flag_ovfl;
+static int hf_cmp_status_technica_meas_flag_res;
+static int hf_cmp_status_technica_fill_level;
+static int hf_cmp_status_technica_buffer_size_mbit;
+static int hf_cmp_status_technica_voltage;
+static int hf_cmp_status_technica_temp_chassis;
+static int hf_cmp_status_technica_temp_silicon;
+static int hf_cmp_status_technica_props_size;
+static int hf_cmp_status_technica_props;
+static int hf_cmp_status_technica_prop;
+static int hf_cmp_status_technica_leg_fill_level;
+static int hf_cmp_status_technica_leg_overflow;
+static int hf_cmp_status_technica_leg_buf_s_gbit;
+static int hf_cmp_status_technica_leg_voltage_int;
+static int hf_cmp_status_technica_leg_voltage_frac;
+static int hf_cmp_status_technica_leg_voltage;
+static int hf_cmp_status_technica_leg_temp_chassis;
+static int hf_cmp_status_technica_leg_temp_silicon;
+
 /* Interface Status Message */
 static int hf_cmp_iface_interface;
 static int hf_cmp_iface_iface_id;
@@ -702,6 +729,10 @@ static int ett_asam_cmp_status_timeloss_flags;
 static int ett_asam_cmp_status_interface;
 static int ett_asam_cmp_status_feature_support;
 static int ett_asam_cmp_status_stream_ids;
+static int ett_asam_cmp_status_technica;
+static int ett_asam_cmp_status_technica_meas;
+static int ett_asam_cmp_status_technica_flags;
+static int ett_asam_cmp_status_technica_props;
 
 /* General */
 #define CMP_HEADER_LEN                         8
@@ -3107,6 +3138,192 @@ dissect_asam_cmp_ctrl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
     return CMP_MSG_HEADER_LEN + asam_cmp_ctrl_msg_payload_length;
 }
 
+/* Technica Engineering vendor data in the CM Status Message */
+static const unit_name_string units_technica_mbit = { " Mbit", NULL };
+static const unit_name_string units_technica_gbit = { " Gbit", NULL };
+
+static const true_false_string tfs_technica_buffer_overflow = {
+    "Buffer Overflow occurred",
+    "No Buffer Overflow occurred"
+};
+
+#define CMP_TECHNICA_TEMP_LEGACY_NA     (-128)  /* 0x80 */
+#define CMP_TECHNICA_TEMP_LEGACY_MAX    127     /* 0x7f: 127 or more */
+#define CMP_TECHNICA_VD_LEGACY_LEN      10
+#define CMP_TECHNICA_VD_MIN_LEN         12
+#define CMP_TECHNICA_VD_MEAS_LEN        24
+
+static void
+dissect_asam_cmp_status_technica_temp_legacy(tvbuff_t *tvb, proto_tree *tree, int hf, unsigned offset) {
+    int8_t temperature = tvb_get_int8(tvb, offset);
+
+    if (temperature == CMP_TECHNICA_TEMP_LEGACY_NA) {
+        proto_tree_add_int_format_value(tree, hf, tvb, offset, 1, temperature, "Not Available");
+    } else {
+        proto_item *ti = proto_tree_add_item(tree, hf, tvb, offset, 1, ENC_NA);
+        if (temperature == CMP_TECHNICA_TEMP_LEGACY_MAX) {
+            proto_item_append_text(ti, " or more");
+        }
+    }
+}
+
+static void
+dissect_asam_cmp_status_technica_float(tvbuff_t *tvb, proto_tree *tree, int hf, unsigned offset) {
+    proto_item *ti = proto_tree_add_item(tree, hf, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+    if (isnan(tvb_get_ieee_float(tvb, offset, ENC_BIG_ENDIAN))) {
+        proto_item_append_text(ti, " (Not Available)");
+    }
+}
+
+/* Returns true, if the vendor data was dissected. */
+static bool
+dissect_asam_cmp_status_vendor_data_technica(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset_orig, unsigned length) {
+    static int * const meas_flags[] = {
+        &hf_cmp_status_technica_meas_flag_res,
+        &hf_cmp_status_technica_meas_flag_ovfl,
+        NULL
+    };
+
+    unsigned offset = offset_orig;
+    unsigned end = offset_orig + length;
+    proto_item *ti;
+    proto_tree *vd_tree;
+
+    if (length != CMP_TECHNICA_VD_LEGACY_LEN && length < CMP_TECHNICA_VD_MIN_LEN) {
+        return false;
+    }
+
+    if (length == CMP_TECHNICA_VD_LEGACY_LEN) {
+        unsigned volt_int;
+        unsigned volt_frac;
+
+        ti = proto_tree_add_bytes_format_value(tree, hf_cmp_status_vendor_data, tvb, offset, length, NULL, "Technica Engineering, Legacy");
+        vd_tree = proto_item_add_subtree(ti, ett_asam_cmp_status_technica);
+
+        ti = proto_tree_add_item(vd_tree, hf_cmp_status_technica_leg_fill_level, tvb, offset, 1, ENC_NA);
+        proto_item_append_text(ti, "%%");
+        offset += 1;
+
+        proto_tree_add_item(vd_tree, hf_cmp_status_technica_leg_overflow, tvb, offset, 1, ENC_NA);
+        offset += 1;
+
+        proto_tree_add_item(vd_tree, hf_cmp_status_technica_leg_buf_s_gbit, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item_ret_uint(vd_tree, hf_cmp_status_technica_leg_voltage_int, tvb, offset, 1, ENC_NA, &volt_int);
+        proto_tree_add_item_ret_uint(vd_tree, hf_cmp_status_technica_leg_voltage_frac, tvb, offset + 1, 1, ENC_NA, &volt_frac);
+        ti = proto_tree_add_double(vd_tree, hf_cmp_status_technica_leg_voltage, tvb, offset, 2, (double)volt_int + volt_frac / 100.0);
+        proto_item_set_generated(ti);
+        offset += 2;
+
+        dissect_asam_cmp_status_technica_temp_legacy(tvb, vd_tree, hf_cmp_status_technica_leg_temp_chassis, offset);
+        offset += 1;
+
+        dissect_asam_cmp_status_technica_temp_legacy(tvb, vd_tree, hf_cmp_status_technica_leg_temp_silicon, offset);
+        return true;
+    }
+
+    uint32_t meas_size;
+    uint32_t props_size;
+
+    if (tvb_get_uint8(tvb, offset) != 1) {
+        /* unknown major version, we do not know the layout */
+        return false;
+    }
+
+    ti = proto_tree_add_bytes_format_value(tree, hf_cmp_status_vendor_data, tvb, offset, length, NULL, "Technica Engineering");
+    vd_tree = proto_item_add_subtree(ti, ett_asam_cmp_status_technica);
+
+    proto_tree_add_item(vd_tree, hf_cmp_status_technica_major, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(vd_tree, hf_cmp_status_technica_minor, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(vd_tree, hf_cmp_status_technica_product_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(vd_tree, hf_cmp_status_technica_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(vd_tree, hf_cmp_status_technica_meas_size, tvb, offset, 2, ENC_BIG_ENDIAN, &meas_size);
+    offset += 2;
+
+    /* measurements data, reserved (2) and properties size (2) must follow */
+    if (meas_size > end - offset || end - offset - meas_size < 4) {
+        proto_tree_add_expert(vd_tree, pinfo, &ei_asam_cmp_length_mismatch, tvb, offset, end - offset);
+        return true;
+    }
+
+    if (meas_size > 0) {
+        unsigned meas_end = offset + meas_size;
+        proto_tree *meas_tree;
+
+        ti = proto_tree_add_item(vd_tree, hf_cmp_status_technica_meas, tvb, offset, meas_size, ENC_NA);
+        meas_tree = proto_item_add_subtree(ti, ett_asam_cmp_status_technica_meas);
+
+        if (meas_size >= CMP_TECHNICA_VD_MEAS_LEN) {
+            proto_tree_add_bitmask(meas_tree, tvb, offset, hf_cmp_status_technica_meas_flags, ett_asam_cmp_status_technica_flags, meas_flags, ENC_NA);
+            offset += 1;
+
+            ti = proto_tree_add_item(meas_tree, hf_cmp_status_technica_fill_level, tvb, offset, 1, ENC_NA);
+            proto_item_append_text(ti, "%%");
+            offset += 1;
+
+            proto_tree_add_item(meas_tree, hf_cmp_status_technica_reserved, tvb, offset, 2, ENC_NA);
+            offset += 2;
+
+            proto_tree_add_item(meas_tree, hf_cmp_status_technica_buffer_size_mbit, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            dissect_asam_cmp_status_technica_float(tvb, meas_tree, hf_cmp_status_technica_voltage, offset);
+            offset += 4;
+
+            proto_tree_add_item(meas_tree, hf_cmp_status_technica_reserved, tvb, offset, 4, ENC_NA);
+            offset += 4;
+
+            dissect_asam_cmp_status_technica_float(tvb, meas_tree, hf_cmp_status_technica_temp_chassis, offset);
+            offset += 4;
+
+            dissect_asam_cmp_status_technica_float(tvb, meas_tree, hf_cmp_status_technica_temp_silicon, offset);
+            offset += 4;
+        }
+        /* skip fields we do not know (newer minor versions) or a too short structure */
+        offset = meas_end;
+    }
+
+    proto_tree_add_item(vd_tree, hf_cmp_status_technica_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item_ret_uint(vd_tree, hf_cmp_status_technica_props_size, tvb, offset, 2, ENC_BIG_ENDIAN, &props_size);
+    offset += 2;
+
+    if (props_size > end - offset) {
+        proto_tree_add_expert(vd_tree, pinfo, &ei_asam_cmp_length_mismatch, tvb, offset, end - offset);
+        return true;
+    }
+
+    if (props_size > 0) {
+        unsigned props_end = offset + props_size;
+        proto_tree *props_tree;
+
+        ti = proto_tree_add_item(vd_tree, hf_cmp_status_technica_props, tvb, offset, props_size, ENC_NA);
+        props_tree = proto_item_add_subtree(ti, ett_asam_cmp_status_technica_props);
+
+        while (offset < props_end) {
+            unsigned nl_offset;
+            bool found = tvb_find_uint8_length(tvb, offset, props_end - offset, '\n', &nl_offset);
+            unsigned line_len = nl_offset - offset;
+
+            if (line_len > 0) {
+                proto_tree_add_item(props_tree, hf_cmp_status_technica_prop, tvb, offset, line_len, ENC_UTF_8);
+            }
+            offset += line_len + (found ? 1 : 0);
+        }
+    }
+
+    return true;
+}
+
 static int
 dissect_asam_cmp_status_interface_support_mask(tvbuff_t *tvb, proto_tree *tree, unsigned offset_orig, uint8_t interface_type) {
     unsigned offset = offset_orig;
@@ -3260,6 +3477,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     unsigned asam_cmp_status_msg_cm_hw_ver_length = 0;
     unsigned asam_cmp_status_msg_cm_sw_ver_length = 0;
     unsigned asam_cmp_status_msg_vendor_data_length = 0;
+    unsigned asam_cmp_status_msg_vendor_id = 0;
     unsigned asam_cmp_status_msg_iface_stream_id_count = 0;
     uint64_t uptime = 0;
     const char *descr = NULL;
@@ -3311,7 +3529,7 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(asam_cmp_status_msg_header_tree, hf_cmp_msg_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(asam_cmp_status_msg_header_tree, hf_cmp_msg_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(asam_cmp_status_msg_header_tree, hf_cmp_msg_vendor_id, tvb, offset, 2, ENC_BIG_ENDIAN, &asam_cmp_status_msg_vendor_id);
     offset += 2;
 
     proto_tree_add_bitmask(asam_cmp_status_msg_header_tree, tvb, offset, hf_cmp_msg_common_flags, ett_asam_cmp_common_flags, asam_cmp_common_flags, ENC_BIG_ENDIAN);
@@ -3408,7 +3626,11 @@ dissect_asam_cmp_status_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 2;
 
         if (asam_cmp_status_msg_vendor_data_length > 0) {
-            proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
+            if (asam_cmp_status_msg_vendor_id != CMP_VENDOR_TECHNICA ||
+                offset + asam_cmp_status_msg_vendor_data_length > tvb_captured_length(tvb) ||
+                !dissect_asam_cmp_status_vendor_data_technica(tvb, pinfo, asam_cmp_status_msg_payload_tree, offset, asam_cmp_status_msg_vendor_data_length)) {
+                proto_tree_add_item(asam_cmp_status_msg_payload_tree, hf_cmp_status_vendor_data, tvb, offset, asam_cmp_status_msg_vendor_data_length, ENC_NA);
+            }
             offset += (int)asam_cmp_status_msg_vendor_data_length;
         }
         break;
@@ -4210,6 +4432,33 @@ proto_register_asam_cmp(void) {
         { &hf_cmp_status_vendor_data_length,        { "Length of Vendor Data", "asam-cmp.msg.cm.vendor_data_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_status_vendor_data,               { "Vendor Data", "asam-cmp.msg.cm.vendor_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
+        /* Technica Engineering Vendor Data */
+        { &hf_cmp_status_technica_major,            { "Major Version", "asam-cmp.msg.cm.vendor_data.technica.major", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_minor,            { "Minor Version", "asam-cmp.msg.cm.vendor_data.technica.minor", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_product_id,       { "Product Identifier", "asam-cmp.msg.cm.vendor_data.technica.product_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_reserved,         { "Reserved", "asam-cmp.msg.cm.vendor_data.technica.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_meas_size,        { "Measurements Size", "asam-cmp.msg.cm.vendor_data.technica.meas_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_meas,             { "Measurements Data", "asam-cmp.msg.cm.vendor_data.technica.meas", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_meas_flags,       { "Flags", "asam-cmp.msg.cm.vendor_data.technica.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_meas_flag_res,    { "Reserved", "asam-cmp.msg.cm.vendor_data.technica.flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL } },
+        { &hf_cmp_status_technica_meas_flag_ovfl,   { "Buffer Overflow", "asam-cmp.msg.cm.vendor_data.technica.flags.overflow", FT_BOOLEAN, 8, TFS(&tfs_technica_buffer_overflow), 0x01, NULL, HFILL } },
+        { &hf_cmp_status_technica_fill_level,       { "Buffer Fill Level", "asam-cmp.msg.cm.vendor_data.technica.fill_level", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_buffer_size_mbit, { "Buffer Size", "asam-cmp.msg.cm.vendor_data.technica.buffer_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_technica_mbit), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_voltage,          { "Voltage", "asam-cmp.msg.cm.vendor_data.technica.voltage", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_volt), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_temp_chassis,     { "Chassis Temperature", "asam-cmp.msg.cm.vendor_data.technica.temp_chassis", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_temp_silicon,     { "Silicon Temperature", "asam-cmp.msg.cm.vendor_data.technica.temp_silicon", FT_FLOAT, BASE_NONE|BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_props_size,       { "Properties Size", "asam-cmp.msg.cm.vendor_data.technica.props_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_props,            { "Properties Data", "asam-cmp.msg.cm.vendor_data.technica.props", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_prop,             { "Property", "asam-cmp.msg.cm.vendor_data.technica.prop", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_fill_level,   { "Buffer Fill Level", "asam-cmp.msg.cm.vendor_data.technica_legacy.fill_level", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_overflow,     { "Buffer Overflow", "asam-cmp.msg.cm.vendor_data.technica_legacy.overflow", FT_BOOLEAN, BASE_NONE, TFS(&tfs_technica_buffer_overflow), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_buf_s_gbit,   { "Buffer Size", "asam-cmp.msg.cm.vendor_data.technica_legacy.buffer_size", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, UNS(&units_technica_gbit), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_voltage_int,  { "Voltage Integer Part", "asam-cmp.msg.cm.vendor_data.technica_legacy.voltage_int", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_voltage_frac, { "Voltage Fractional Part", "asam-cmp.msg.cm.vendor_data.technica_legacy.voltage_frac", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_voltage,      { "Voltage", "asam-cmp.msg.cm.vendor_data.technica_legacy.voltage", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, UNS(&units_volt), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_temp_chassis, { "Chassis Temperature", "asam-cmp.msg.cm.vendor_data.technica_legacy.temp_chassis", FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL } },
+        { &hf_cmp_status_technica_leg_temp_silicon, { "Silicon Temperature", "asam-cmp.msg.cm.vendor_data.technica_legacy.temp_silicon", FT_INT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_degree_celsius), 0x0, NULL, HFILL } },
+
         /* Interface Status Message */
         { &hf_cmp_iface_interface,                  { "Interface", "asam-cmp.msg.iface", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_cmp_iface_iface_id,                   { "Interface ID", "asam-cmp.msg.iface.iface_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
@@ -4346,7 +4595,11 @@ proto_register_asam_cmp(void) {
         &ett_asam_cmp_status_timeloss_flags,
         &ett_asam_cmp_status_interface,
         &ett_asam_cmp_status_feature_support,
-        &ett_asam_cmp_status_stream_ids
+        &ett_asam_cmp_status_stream_ids,
+        &ett_asam_cmp_status_technica,
+        &ett_asam_cmp_status_technica_meas,
+        &ett_asam_cmp_status_technica_flags,
+        &ett_asam_cmp_status_technica_props
     };
 
     static ei_register_info ei[] = {
