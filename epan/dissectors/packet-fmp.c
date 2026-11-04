@@ -129,10 +129,12 @@ static bool fmp_fhandle_reqrep_matching;
 static int
 dissect_fmp_genString(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_tree *tree)
 {
+    uint32_t enc_mode = tvb_get_ntohl(tvb, offset);
+
     proto_tree_add_item(tree, hf_fmp_encoding_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    if (try_val_to_str(tvb_get_ntohl(tvb, offset), fmp_encoding_mode_vals) == NULL)
+    if (try_val_to_str(enc_mode, fmp_encoding_mode_vals) == NULL)
         return offset;
 
     offset = dissect_rpc_string(tvb, pinfo, tree, hf_fmp_path,
@@ -219,8 +221,8 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case FMP_FMP:
-        offset = dissect_rpc_string(tvb, pinfo, fileHandleTree,
-                                    hf_fmp_fmpFHandle, offset, NULL);
+        offset = dissect_rpc_data(tvb, pinfo, fileHandleTree,
+                                  hf_fmp_fmpFHandle, offset);
         break;
 
     case FMP_FS_ONLY:
@@ -617,7 +619,7 @@ dissect_fmp_VolumeDescription(tvbuff_t *tvb, packet_info* pinfo, int offset, pro
             break;
 
         case FMP_DISK_IDENTIFIER_SERIAL:
-            dissect_fmp_devSerial(tvb, offset, NULL, Hietree);
+            offset = dissect_fmp_devSerial(tvb, offset, pinfo, Hietree);
             break;
         }
 
@@ -711,6 +713,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     vmType = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(tree, hf_fmp_volume_mgmt_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
 
     switch (vmType) {
     case FMP_SERVER_BASED:
@@ -757,7 +760,7 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case FMP_HIERARCHICAL_VOLUME:
-        dissect_fmp_Hiervolume(tvb, pinfo, offset, tree);
+        offset = dissect_fmp_Hiervolume(tvb, pinfo, offset, tree);
         break;
 
     default:
