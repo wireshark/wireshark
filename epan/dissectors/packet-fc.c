@@ -25,6 +25,7 @@
 #include "packet-fcbls.h"
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 void proto_register_fc(void);
 void proto_reg_handoff_fc(void);
@@ -683,10 +684,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
 
     uint32_t param, exchange_key;
     uint16_t real_seqcnt;
+    uint32_t *seqcnt_base;
     uint8_t ftype;
 
     fc_hdr* fchdr = wmem_new(pinfo->pool, fc_hdr); /* Needed by conversations, not just tap */
     fc_exchange_t *fc_ex;
+    wmem_tree_t *frame_luns;
+    uint32_t lun_key;
     fc_conv_data_t *fc_conv_data=NULL;
 
     conversation_t *conversation;
@@ -754,8 +758,26 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
     /* Set up LUN data. OXID + LUN make up unique exchanges, but LUN is populated in subdissectors
        and not necessarily in every frame. Stub it here for now */
     fchdr->lun = 0xFFFF;
+    /* The LUN each frame was given on the first pass is kept per frame,
+       keyed by OX_ID and SEQ_CNT (a packet may carry several FC frames);
+       the per-OX_ID map holds the LUN + 1 as set by a subdissector, 0 for none. */
+    lun_key = ((uint32_t)fchdr->oxid << 16) | fchdr->seqcnt;
+    frame_luns = (wmem_tree_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fc, 0);
     if (pinfo->fd->visited) {
-        fchdr->lun = (uint16_t)GPOINTER_TO_UINT(wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid));
+        if (frame_luns) {
+            uintptr_t l = (uintptr_t)wmem_tree_lookup32(frame_luns, lun_key);
+            if (l)
+                fchdr->lun = (uint16_t)(l - 1);
+        }
+    } else {
+        uintptr_t l = (uintptr_t)wmem_tree_lookup32(fc_conv_data->luns, fchdr->oxid);
+        if (l)
+            fchdr->lun = (uint16_t)(l - 1);
+        if (!frame_luns) {
+            frame_luns = wmem_tree_new(wmem_file_scope());
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_fc, 0, frame_luns);
+        }
+        wmem_tree_insert32(frame_luns, lun_key, (void *)(uintptr_t)((uintptr_t)fchdr->lun + 1));
     }
 
     /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -1053,27 +1075,42 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
         cdata = (fcseq_conv_data_t *)wmem_map_lookup (fcseq_req_hash,
                                                           &ckey);
 
+        /* The SEQ_CNT base is kept per conversation, but a later pass may
+         * see a different value than the first pass did when an exchange
+         * is reused, so keep the base used for each frame.
+         */
+        seqcnt_base = (uint32_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fc, 1);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            if (is_1frame_inseq) {
+                if (cdata) {
+                    /* Since we never free the memory used by an exchange, this maybe a
+                     * case of another request using the same exchange as a previous
+                     * req.
+                     */
+                    cdata->seq_cnt = fchdr->seqcnt;
+                }
+                else {
+                    req_key = wmem_new(wmem_file_scope(), fcseq_conv_key_t);
+                    req_key->conv_idx = conversation->conv_index;
+
+                    cdata = wmem_new(wmem_file_scope(), fcseq_conv_data_t);
+                    cdata->seq_cnt = fchdr->seqcnt;
+
+                    wmem_map_insert (fcseq_req_hash, req_key, cdata);
+                }
+            }
+            if (seqcnt_base == NULL) {
+                seqcnt_base = wmem_new(wmem_file_scope(), uint32_t);
+                *seqcnt_base = (cdata != NULL) ? cdata->seq_cnt : 0;
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_fc, 1, seqcnt_base);
+            }
+        }
+
         if (is_1frame_inseq) {
-            if (cdata) {
-                /* Since we never free the memory used by an exchange, this maybe a
-                 * case of another request using the same exchange as a previous
-                 * req.
-                 */
-                cdata->seq_cnt = fchdr->seqcnt;
-            }
-            else {
-                req_key = wmem_new(wmem_file_scope(), fcseq_conv_key_t);
-                req_key->conv_idx = conversation->conv_index;
-
-                cdata = wmem_new(wmem_file_scope(), fcseq_conv_data_t);
-                cdata->seq_cnt = fchdr->seqcnt;
-
-                wmem_map_insert (fcseq_req_hash, req_key, cdata);
-            }
             real_seqcnt = 0;
         }
-        else if (cdata != NULL) {
-            real_seqcnt = fchdr->seqcnt - cdata->seq_cnt ;
+        else if (seqcnt_base != NULL) {
+            real_seqcnt = fchdr->seqcnt - *seqcnt_base;
         }
         else {
             real_seqcnt = fchdr->seqcnt;
@@ -1157,8 +1194,8 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
        key) when packets are guaranteed to be parsed consecutively */
 
     /* Set up LUN data */
-    if (!pinfo->fd->visited) {
-        wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, GUINT_TO_POINTER((unsigned)fchdr->lun));
+    if (!pinfo->fd->visited && fchdr->lun != 0xFFFF) {
+        wmem_tree_insert32(fc_conv_data->luns, fchdr->oxid, (void *)((uintptr_t)fchdr->lun + 1));
     }
 
     exchange_key = ((fchdr->oxid & 0xFFFF) | (((uint32_t)fchdr->lun << 16) & 0xFFFF0000));
@@ -1169,12 +1206,14 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_
      */
     fc_ex=(fc_exchange_t*)wmem_tree_lookup32(fc_conv_data->exchanges, exchange_key);
     if(!fc_ex){
-        fc_ex=wmem_new(wmem_file_scope(), fc_exchange_t);
+        /* Exchanges are only created on the first pass */
+        fc_ex=wmem_new(pinfo->fd->visited ? pinfo->pool : wmem_file_scope(), fc_exchange_t);
         fc_ex->first_exchange_frame=0;
         fc_ex->last_exchange_frame=0;
         fc_ex->fc_time=pinfo->abs_ts;
 
-        wmem_tree_insert32(fc_conv_data->exchanges, exchange_key, fc_ex);
+        if (!pinfo->fd->visited)
+            wmem_tree_insert32(fc_conv_data->exchanges, exchange_key, fc_ex);
     }
 
     fchdr->fc_ex = fc_ex;
