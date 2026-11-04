@@ -127,7 +127,7 @@ void proto_register_geonw(void);
 
 #define HT_GET(ht)        ((ht)&HT_MASK)
 #define HST_GET(ht)       ((ht)&HST_MASK)
-#define IS_HT_KNOWN(ht)   ((ht) <= 0x61) && (ht >= 0x10) && (HST_GET(ht) < 3) && ((HST_GET(ht) == 0) || ((HT_GET(ht) > 0x30) && ((HST_GET(ht) == 1) || ((HST_GET(ht) == 2) && (HT_GET(ht) < 0x43)))))
+#define IS_HT_KNOWN(ht)   (((ht) <= 0x61) && ((ht) >= 0x10) && (HST_GET(ht) < 3) && ((HST_GET(ht) == 0) || ((HT_GET(ht) >= 0x30) && ((HST_GET(ht) == 1) || ((HST_GET(ht) == 2) && (HT_GET(ht) < 0x43))))))
 
 #define BH_LEN            4
 #define BH_NH_COMMON_HDR  1
@@ -149,6 +149,7 @@ void proto_register_geonw(void);
 #define TST_MAX 0xffffffff
 
 #define SEC_TVB_KEY 0
+#define DUP_KEY 1
 
 /*
  * Variables
@@ -1249,20 +1250,24 @@ dissect_sec_intx(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tree *tre
     ti = proto_tree_add_item(tree, hf_sgeonw_intx, tvb, start, (*offset) - start, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_sgeonw_intx);
     proto_tree_add_bits_item(subtree, hf_sgeonw_var_len_det, tvb, start << 3, (*offset) - start, ENC_NA);
-    if ((hf != hf_sgeonw_app_id) || ((*offset) - start) > 4) {
-        proto_tree_add_uint64_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), tmp_val, ENC_BIG_ENDIAN, "%" PRIu64, tmp_val);
+    if (((*offset) - start) > 4) {
+        /* The value does not fit the 32 bit fields */
+        expert_add_info(pinfo, ti, &ei_geonw_intx_too_big);
+    }
+    else if (hf == hf_sgeonw_app_id) {
+        proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
+            (((*offset) - start) << 3) - ((*offset) - start), (uint32_t)tmp_val, ENC_BIG_ENDIAN, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (uint32_t)tmp_val);
     }
     else {
         proto_tree_add_uint_bits_format_value(subtree, hf, tvb, (start << 3) + (*offset) - start,
-            (((*offset) - start) << 3) - ((*offset) - start), (uint32_t)tmp_val, ENC_BIG_ENDIAN, "%s(%u)", val64_to_str_const(tmp_val, ieee1609dot2_Psid_vals, "Unknown") , (uint32_t)tmp_val);
+            (((*offset) - start) << 3) - ((*offset) - start), (uint32_t)tmp_val, ENC_BIG_ENDIAN, "%u", (uint32_t)tmp_val);
     }
     // ETSI TS 103 097 V1.2.1: The encoding of the length shall use at most 7 bits set to 1.
     if (!mask)
         // EI Error if more than 7
         expert_add_info(pinfo, ti, &ei_sgeonw_len_too_long);
     if (ret) {
-        if(tmp_val & 0xffffffff00000000) {
+        if((tmp_val & 0xffffffff00000000) && ((*offset) - start) <= 4) {
             expert_add_info(pinfo, ti, &ei_geonw_intx_too_big);
         }
         *ret = (uint32_t) tmp_val;
@@ -1549,7 +1554,7 @@ dissect_sec_subject_attributes(tvbuff_t *tvb, int *offset, packet_info *pinfo, p
                     expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
                     return *offset - start;
                 }
-                tmp_val -= param_len;
+                tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
             }
             break;
         case its_aid_ssp_list:
@@ -1560,7 +1565,7 @@ dissect_sec_subject_attributes(tvbuff_t *tvb, int *offset, packet_info *pinfo, p
                     expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
                     return *offset - start;
                 }
-                tmp_val -= param_len;
+                tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
             }
             break;
         case priority_its_aid_list:
@@ -1571,7 +1576,7 @@ dissect_sec_subject_attributes(tvbuff_t *tvb, int *offset, packet_info *pinfo, p
                     expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
                     return *offset - start;
                 }
-                tmp_val -= param_len;
+                tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
             }
             break;
         case priority_ssp_list:
@@ -1582,7 +1587,7 @@ dissect_sec_subject_attributes(tvbuff_t *tvb, int *offset, packet_info *pinfo, p
                     expert_add_info(pinfo, ti, &ei_sgeonw_bogus);
                     return *offset - start;
                 }
-                tmp_val -= param_len;
+                tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
             }
             break;
         default:
@@ -1628,7 +1633,7 @@ dissect_sec_polygonalregion(tvbuff_t *tvb, int *offset, packet_info *pinfo, prot
         param_len = dissect_sec_2dlocation(tvb, offset, tree);
         if(tmp_val < param_len)
             return *offset - start;
-        tmp_val -= param_len;
+        tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
     }
 
     return (*offset) - start;
@@ -1756,7 +1761,7 @@ dissect_sec_certificate(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tr
         tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
         while (tmp_val > 0) {
             param_len = dissect_sec_signer_info(tvb, offset, pinfo, tree, version);
-            tmp_val -= param_len;
+            tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
         }
     }
     else {
@@ -1766,12 +1771,12 @@ dissect_sec_certificate(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tr
     tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
     while (tmp_val > 0) {
         param_len = dissect_sec_subject_attributes(tvb, offset, pinfo, tree, version);
-        tmp_val -= param_len;
+        tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
     }
     tmp_val = dissect_sec_var_len(tvb, offset, pinfo, tree);
     while (tmp_val > 0) {
         param_len = dissect_sec_validity_restrictions(tvb, offset, pinfo, tree);
-        tmp_val -= param_len;
+        tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
     }
     dissect_sec_signature(tvb, offset, pinfo, tree);
 
@@ -1824,7 +1829,7 @@ dissect_sec_signer_info(tvbuff_t *tvb, int *offset, packet_info *pinfo, proto_tr
                     insidetree = proto_item_add_subtree(tinner, ett_sgeonw_field);
                     param_len = dissect_sec_certificate(tvb, offset, pinfo, insidetree, version);
                     proto_item_set_end(tinner, tvb, *offset);
-                    tmp_val -= param_len;
+                    tmp_val = (param_len < tmp_val) ? (tmp_val - param_len) : 0;
                 }
                 break;
             case certificate_digest_with_other_algorithm:
@@ -2021,7 +2026,7 @@ dissect_secured_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
                 while (param_len) {
                     proto_tree_add_item(field_tree, hf_sgeonw_hashedid3, tvb, offset, 3, ENC_NA);
                     offset += 3;
-                    param_len -= 3;
+                    param_len = (param_len > 3) ? (param_len - 3) : 0;
                 }
                 break;
             case message_type:
@@ -2042,7 +2047,8 @@ dissect_secured_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
                 param_len = dissect_sec_var_len(tvb, &offset, pinfo, field_tree);
                 proto_item_set_len(ti, (offset-start) + param_len);
                 while (param_len) {
-                    param_len -= dissect_sec_recipient_info(tvb, &offset, pinfo, field_tree, version);
+                    uint32_t ri_len = dissect_sec_recipient_info(tvb, &offset, pinfo, field_tree, version);
+                    param_len = (ri_len < param_len) ? (param_len - ri_len) : 0;
                 }
                 offset += param_len;
                 break;
@@ -2059,6 +2065,8 @@ dissect_secured_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
         }
         proto_item_set_end(ti, tvb, offset);
         /* EI var_len >= (offset-start) */
+        if (var_len < (offset - start))
+            break;
         var_len -= (offset - start);
     }
     proto_item_set_end(part_item, tvb, offset);
@@ -2110,6 +2118,8 @@ dissect_secured_message(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
                 offset += param_len;
         }
         proto_item_set_end(ti, tvb, offset);
+        if (var_len < (offset - start))
+            break;
         var_len -= (offset - start);
     }
     proto_item_set_end(part_item, tvb, offset);
@@ -2477,6 +2487,7 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         // XXX Is it possible to "follow" a station when updating its GN_ADDR?
 
+        bool is_dup = false;
         if(geonw_analyze_seq && (geonwh->gnw_ver==0) && !(pinfo->fd->visited)) {
             // Duplication detection uses SN and TST or only TST (see Annex A of ETSI EN 302 636-4-1)
             // We rely on address type and hashtable as this shall be done on a per station basis (i.e. not over a conversation)
@@ -2534,10 +2545,7 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         } else {
                                                                     // SN(P) is not greater than SN(SO)
                                                                     // P is a duplicate
-                            ti = proto_tree_add_item(geonw_tree, hf_geonw_analysis_flags, tvb, 0, 0, ENC_NA);
-                            proto_item_set_generated(ti);
-                            expert_add_info(pinfo, ti, &ei_geonw_analysis_duplicate);
-                            col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Duplicate packet] ");
+                            is_dup = true;
                         }
                     } // else { # TST(P) not greater than TST(SO) }
                 }
@@ -2562,13 +2570,19 @@ dissect_geonw_internal(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         tp->timestamp = timestamp;      // P is not a duplicate packet
                     } else {
                                                         // P is a duplicate
-                        ti = proto_tree_add_item(geonw_tree, hf_geonw_analysis_flags, tvb, 0, 0, ENC_NA);
-                        proto_item_set_generated(ti);
-                        expert_add_info(pinfo, ti, &ei_geonw_analysis_duplicate);
-                        col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Duplicate packet] ");
+                        is_dup = true;
                     }
                 }
             }
+        }
+        if (is_dup) {
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_geonw, DUP_KEY, GUINT_TO_POINTER(1));
+        }
+        if (p_get_proto_data(wmem_file_scope(), pinfo, proto_geonw, DUP_KEY)) {
+            ti = proto_tree_add_item(geonw_tree, hf_geonw_analysis_flags, tvb, 0, 0, ENC_NA);
+            proto_item_set_generated(ti);
+            expert_add_info(pinfo, ti, &ei_geonw_analysis_duplicate);
+            col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Duplicate packet] ");
         }
         // XXX Implement DPD if version == 1
 
@@ -2931,10 +2945,12 @@ proto_reg_handoff_btpb(void)
 static void
 display_latitude( char *result, int32_t hexver )
 {
-    snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
-            abs(hexver)/10000000,
-            abs(hexver%10000000)*6/1000000,
-            abs(hexver*6%1000000)*6./100000.,
+    int64_t v = hexver;
+    uint64_t av = (uint64_t)(v < 0 ? -v : v);
+    snprintf( result, ITEM_LABEL_LENGTH, "%"PRIu64"d%u'%.2f\"%c (%d)",
+            av/10000000,
+            (unsigned)((av%10000000)*6/1000000),
+            (double)((av*6)%1000000)*6./100000.,
             hexver>=0?'N':'S',
             hexver);
 }
@@ -2942,10 +2958,12 @@ display_latitude( char *result, int32_t hexver )
 static void
 display_longitude( char *result, int32_t hexver )
 {
-    snprintf( result, ITEM_LABEL_LENGTH, "%ud%u'%.2f\"%c (%d)",
-            abs(hexver)/10000000,
-            abs(hexver%10000000)*6/1000000,
-            abs(hexver*6%1000000)*6./100000.,
+    int64_t v = hexver;
+    uint64_t av = (uint64_t)(v < 0 ? -v : v);
+    snprintf( result, ITEM_LABEL_LENGTH, "%"PRIu64"d%u'%.2f\"%c (%d)",
+            av/10000000,
+            (unsigned)((av%10000000)*6/1000000),
+            (double)((av*6)%1000000)*6./100000.,
             hexver>=0?'E':'W',
             hexver);
 }
