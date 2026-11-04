@@ -1258,6 +1258,11 @@ To get a descriptive name for a VLAN tag ID a vlans file can be used.
 
 To get a node name for a SS7 point code a ss7pcs file can be used.
 
+==== TAC Resolution
+
+The Tracking Area Code resolution can be performed by a tac file for the following protocols:
+EPS NAS, EUTRA RRC, S1AP, X2AP and GTPv2-C, and 5GS NAS, NR RRC, NGAP and XnAP.
+
 // XXX - mention the role of the /etc/services file (but don’t forget the files and folders section)!
 
 [#ChAdvChecksums]
