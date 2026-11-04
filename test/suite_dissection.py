@@ -55579,3 +55579,87 @@ class TestDissectExablaze:
                 '-Y', 'frame.number == 1', '-V', '-O', 'exablaze',
             ), encoding='utf-8', env=self._env(test_env))
         assert "Exablaze trailer, Device: 1, Port: 2, Timestamp: 22:13:20" in stdout
+
+
+class TestDissectExec:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('exec_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eexec.stderr_port',
+                '-eexec.username', '-eexec.password', '-eexec.command',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_exec_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is EXEC and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('exec_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 41
+        assert protocols.count('EXEC') == 41
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('exec_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_exec_info_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column does not depend on the pass: the user name
+        learned in frame 38 is shown in its own Info (it was only shown
+        on the second pass before "Exec: Build the Info column after
+        parsing the packet"). Frames 25-27 and 32-37 too.'''
+        one = self._fields(cmd_tshark, capture_file, test_env)
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2')
+        assert one == two
+        assert one[37] == ['38', '', 'root', 'pw', '', 'Username:root Client -> Server data']
+        assert one[38][5] == 'Username:root Server -> Client Data'
+
+    def test_exec_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fields in one packet and one per packet, empty fields and
+        values that do not fit a field (treated as session data).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env)
+        assert len(rows) == 41
+        # Everything in the first packet of the conversation
+        assert rows[0] == ['1', '', 'root', 'secret', 'uptime', 'Session Establishment']
+        assert rows[1][5] == 'Username:root Server -> Client Data'
+        assert rows[2][5] == 'Username:root Client -> Server data'
+        # One field per packet
+        assert rows[5] == ['6', '1234', '', '', '', 'Session Establishment']
+        assert rows[6][1:5] == ['', 'alice', '', '']
+        assert rows[7][1:5] == ['', '', 'pw', '']
+        assert rows[8][1:5] == ['', '', '', 'echo hi']
+        assert rows[9][5] == 'Username:alice Server -> Client Data'
+        # An empty password is not shown, the command follows
+        assert rows[12][1:5] == ['', 'bob', '', '']
+        assert rows[14][1:5] == ['', '', '', 'ls -l']
+        assert rows[15][5] == 'Username:bob Server -> Client Data'
+        # Too long stderr port, user name, command and a non-printable
+        # user name: everything is session data
+        assert rows[22][5] == 'Client -> Server data'
+        assert rows[23][5] == 'Client -> Server data'
+        assert rows[26][1:5] == ['', 'u', 'p', '']
+        assert rows[26][5] == 'Username:u Client -> Server data'
+        # A password that is too long is skipped, the command follows
+        assert rows[24][1:5] == ['', 'u', '', 'cmd']
+        # Port, user name and password, then the command
+        assert rows[31][1] == '7'
+        assert rows[32][1:5] == ['', 'dave', 'pw', '']
+        assert rows[33][4] == 'who'
+        assert rows[36][5] == 'Username:dave Server -> Client Data'
+
+    def test_exec_prefs(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the command with the preference and
+        hides the user name with the other.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-o', 'exec.info_show_command:TRUE',
+                '-o', 'exec.info_show_username:FALSE')
+        assert rows[1][5] == 'Command:uptime Server -> Client Data'
+        assert rows[15][5] == 'Command:ls -l Server -> Client Data'
+        assert rows[39][5] == 'Client -> Server data'
