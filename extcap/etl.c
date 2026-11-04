@@ -1498,6 +1498,7 @@ static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     ULONG status;
     BYTE* Buffer = NULL;
     PWTAP_ETL_RECORD_CONTEXT ctx = ctx_init();
+    bool is_inbound = true;
 
     // Get "BIP_DataLen" property
     DataDescriptor.PropertyName = (ULONGLONG)&L"BIP_DataLen";
@@ -1519,12 +1520,38 @@ static void etw_dump_write_bthport_event(PEVENT_RECORD ev, ULARGE_INTEGER timest
     status = TdhGetProperty(ev, 0, NULL, 1, &DataDescriptor, sizeof(DWORD), (PBYTE)&Type);
     if (status != NO_ERROR) goto end;
 
-    Buffer[0] = (Type & 0xFF);  // We create a HCI H4 packet by adding the type here
+    // NB: this internal Windows type needs to be mapped to the HCI H4 one (like btvs does)
+    // That type is added in the first octet.
+    switch (Type)
+    {
+        case 1: // HCI Command
+            Buffer[0] = 0x01;
+            is_inbound = false;
+            break;
+
+        case 2: // HCI Event
+            Buffer[0] = 0x04;
+            is_inbound = true;
+            break;
+
+        case 3: // ACL received
+            Buffer[0] = 0x02;
+            is_inbound = true;
+            break;
+
+        case 4: // ACL sent
+            Buffer[0] = 0x02;
+            is_inbound = false;
+            break;
+
+        default:
+            Buffer[0] = Type & 0xFF;
+    }
     ctx_add_tlv_user_data(ctx, Buffer, DataLen + 1);
 
     // Dump
     total_packet_length = wtap_etl_rec_build(&etl_record, ev, ctx);
-    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, true, timestamp, WTAP_ENCAP_ETW, NULL, 0);
+    wtap_etl_rec_dump((char*)etl_record, total_packet_length, total_packet_length, 0, is_inbound, timestamp, WTAP_ENCAP_ETW, NULL, 0);
 
     g_free(etl_record);
 
