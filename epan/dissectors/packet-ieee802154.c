@@ -2187,7 +2187,8 @@ dissect_ieee802154_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     unsigned fcs_len;
     int fcs_type;
 
-    DISSECTOR_ASSERT(data != NULL);
+    if (data == NULL)
+        return 0;
     fcs_type = *(int *)data;
 
     /* Set the default FCS length based on the FCS type in the configuration */

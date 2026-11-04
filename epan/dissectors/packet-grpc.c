@@ -407,7 +407,9 @@ get_grpc_context(packet_info *pinfo, const media_content_info_t *content_info)
     }
     else if (proto_is_frame_protocol(pinfo->layers, "http")) {
         curr_req_res = (http_req_res_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_http, HTTP_PROTO_DATA_REQRES);
-        DISSECTOR_ASSERT_HINT(curr_req_res && content_info, "Unexpected error: HTTP request/reply or HTTP message info not available.");
+        if (!curr_req_res || !content_info) {
+            return NULL;
+        }
         grpc_ctx->is_request = (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST);
         grpc_ctx->path = curr_req_res->request_uri;
         grpc_ctx->content_type = pinfo->match_string; /* only for grpc-web(-text) over http1.1 */
@@ -416,8 +418,8 @@ get_grpc_context(packet_info *pinfo, const media_content_info_t *content_info)
         }
     }
     else {
-        /* unexpected protocol error */
-        DISSECTOR_ASSERT_NOT_REACHED();
+        /* unexpected protocol */
+        return NULL;
     }
 
     return grpc_ctx;
@@ -430,6 +432,9 @@ dissect_grpc(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
     media_content_info_t* content_info = (media_content_info_t*)data;
 
     grpc_ctx = get_grpc_context(pinfo, content_info);
+    if (!grpc_ctx) {
+        return 0;
+    }
     grpc_ctx->proto_type = GRPC_PTYPE_GRPC;
 
     return dissect_grpc_common(tvb, pinfo, tree, grpc_ctx);
@@ -442,6 +447,9 @@ dissect_grpc_web(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
     media_content_info_t* content_info = (media_content_info_t*)data;
 
     grpc_ctx = get_grpc_context(pinfo, content_info);
+    if (!grpc_ctx) {
+        return 0;
+    }
     grpc_ctx->proto_type = GRPC_PTYPE_GRPC_WEB;
 
     return dissect_grpc_common(tvb, pinfo, tree, grpc_ctx);
@@ -459,6 +467,9 @@ dissect_grpc_web_text(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     add_new_data_source(pinfo, real_data_tvb, "Decoded base64 body");
 
     grpc_ctx = get_grpc_context(pinfo, content_info);
+    if (!grpc_ctx) {
+        return 0;
+    }
     grpc_ctx->proto_type = GRPC_PTYPE_GRPC_WEB_TEXT;
 
     ret = dissect_grpc_common(real_data_tvb, pinfo, tree, grpc_ctx);

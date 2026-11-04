@@ -714,7 +714,8 @@ static int dissect_usb_i1d3(
     } else if (pinfo->p2p_dir == P2P_DIR_RECV) {
         dissect_usb_i1d3_response(tvb, pinfo, conversation, usb_i1d3_tree);
     } else {
-        DISSECTOR_ASSERT(0);
+        /* Direction unknown (e.g. Exported PDU), nothing more to decode. */
+        return tvb_captured_length(tvb);
     }
     conversation->previous_packet = pinfo->num;
 

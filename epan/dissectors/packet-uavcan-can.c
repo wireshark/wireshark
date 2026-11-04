@@ -172,7 +172,8 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     reported_length = tvb_reported_length(tvb);
 
-    DISSECTOR_ASSERT(data);
+    if (!data)
+        return 0;
     can_info = *((struct can_info *) data);
 
     tail_byte = tvb_get_uint8(tvb, reported_length - 1);

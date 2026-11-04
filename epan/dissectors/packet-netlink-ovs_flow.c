@@ -1273,7 +1273,8 @@ dissect_netlink_ovs_flow(tvbuff_t *tvb, packet_info *pinfo,
 	proto_item *pi;
 	int offset;
 
-	DISSECTOR_ASSERT(genl_info);
+	if (!genl_info)
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ovs_flow");
 	col_clear(pinfo->cinfo, COL_INFO);

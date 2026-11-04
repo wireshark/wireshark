@@ -327,9 +327,12 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     conversation = find_conversation_pinfo( pinfo, 0);
 
-    DISSECTOR_ASSERT( conversation);    /* should always find a conversation */
+    if (conversation == NULL)
+        return 0;
 
     hash_info = (socks_hash_entry_t *)conversation_get_proto_data(conversation, proto_socks);
+    if (hash_info == NULL)
+        return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Socks");
     col_set_str(pinfo->cinfo, COL_INFO, "Version: 5, UDP Associated packet");

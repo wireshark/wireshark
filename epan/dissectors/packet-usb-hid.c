@@ -5400,8 +5400,13 @@ dissect_usb_hid_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *hid_tree;
     wmem_array_t *fields;
     urb_info_t *usb_data = (urb_info_t*) data;
-    report_descriptor_t *rdesc = get_report_descriptor(pinfo, usb_data);
+    report_descriptor_t *rdesc;
     unsigned remaining = tvb_reported_length_remaining(tvb, offset);
+
+    if (!usb_data) {
+        return 0;
+    }
+    rdesc = get_report_descriptor(pinfo, usb_data);
 
     if (remaining) {
         hid_ti = proto_tree_add_item(tree, hf_usbhid_data, tvb, offset, -1, ENC_NA);

@@ -194,10 +194,13 @@ static int msproxy_sub_dissector( tvbuff_t *tvb, packet_info *pinfo,
 
 	conversation = find_conversation_pinfo(pinfo, 0);
 
-	DISSECTOR_ASSERT( conversation);	/* should always find a conversation */
+	if ( conversation == NULL)
+		return 0;
 
 	redirect_info = (redirect_entry_t *)conversation_get_proto_data(conversation,
 		proto_msproxy);
+	if ( redirect_info == NULL)
+		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS Proxy");
 

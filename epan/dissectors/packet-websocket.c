@@ -829,6 +829,15 @@ get_websocket_frame_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, vo
 static int
 dissect_websocket(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+  /* data is an http_upgrade_info_t only when HTTP, HTTP/2 or HTTP/3 hands
+   * the connection over. Called by name otherwise (for example from an
+   * Exported PDU, which can pass a struct tcpinfo), it is something else. */
+  if (data && !proto_is_frame_protocol(pinfo->layers, "http") &&
+      !proto_is_frame_protocol(pinfo->layers, "http2") &&
+      !proto_is_frame_protocol(pinfo->layers, "http3")) {
+    data = NULL;
+  }
+
   /* Need at least two bytes for flags, opcode and Payload length. */
   tcp_dissect_pdus(tvb, pinfo, tree, true, 2,
                    get_websocket_frame_length, dissect_websocket_frame, data);

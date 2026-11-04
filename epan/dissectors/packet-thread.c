@@ -5166,6 +5166,9 @@ dissect_thread_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
         NULL
     };
 
+    if (!data) {
+        return 0;
+    }
     pie_length = *(int *)data;
 
     do {

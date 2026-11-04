@@ -1658,6 +1658,9 @@ dissect_wlan_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 {
   struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
 
+  if (!phdr)
+    return 0;
+
   dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
 
   /* Is there anything there? A 0-length-psdu has no frame data. */
@@ -1676,6 +1679,9 @@ static int
 dissect_wlan_noqos_radio (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void *data)
 {
   struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+
+  if (!phdr)
+    return 0;
 
   dissect_wlan_radio_phdr(tvb, pinfo, tree, phdr);
 
