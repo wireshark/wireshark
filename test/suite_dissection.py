@@ -56446,3 +56446,78 @@ class TestDissectFcct:
                     '-Y', 'fc.reassembled.length', '-Tfields', '-eframe.number', '-efc.reassembled.length',
                     '-efcct.gssubtype', '-e_ws.col.protocol')
             assert len(lines) == 1 and lines[0][0] == '62' and lines[0][2] == '0x03'
+
+
+class TestDissectFcdns:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('fcdns_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_fcdns_protocols(self, cmd_tshark, capture_file, test_env):
+        '''157 of the 158 frames are dissected by the name server dissector;
+        none is malformed or has an error expert info, in one and two passes
+        (including the RFD_ID request with a descriptor).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'fcdns', '-Tfields', '-eframe.number')
+        assert len(lines) == 157
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fcdns_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The Info column (opcode of each ACC) is the same in both passes.'''
+        args = ('-Y', 'fcdns', '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.col.protocol')
+        one = self._fields(cmd_tshark, capture_file, test_env, *args)
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert one == two
+
+    def test_fcdns_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every handled opcode appears as a request and as an accept
+        decoded with the opcode of the request.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'fcdns', '-Tfields', '-e_ws.col.info')
+        infos = {l[0] for l in lines}
+        names = ('GA_NXT GPN_ID GNN_ID GCS_ID GFT_ID GSPN_ID GPT_ID GFPN_ID GFD_ID GFF_ID GID_PN GIPP_PN '
+                 'GID_NN GPN_NN GIP_NN GSNN_NN GID_FT GPN_FT GNN_FT GID_PT GID_IPP GID_FF RPN_ID RNN_ID '
+                 'RCS_ID RFT_ID RSPN_ID RPT_ID RIPP_ID RFD_ID RFF_ID RIP_NN RSNN_NN DA_ID GE_ID GE_PN '
+                 'GE_NN GE_IP GE_FT GE_PT GE_ZM GE_ZN GE_IPP GE_FF').split()
+        for n in names:
+            assert n in infos, n
+            assert 'ACC (%s)' % n in infos, n
+
+    def test_fcdns_reject_and_orphans(self, cmd_tshark, capture_file, test_env):
+        '''RJT with the failed opcode, an RJT and an ACC without a request,
+        and the unzoned name server.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {149,150,151,152,153,154,155,156}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.col.protocol')
+        got = {l[0]: l[1:] for l in lines}
+        assert got['150'] == ['RJT (GPN_ID)', 'dNS']
+        assert got['152'] == ['RJT (RPN_ID)', 'dNS']
+        assert got['155'] == ['GPN_ID', 'Unzoned NS']
+        assert got['156'] == ['ACC (GPN_ID)', 'Unzoned NS']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fcdns.no_record_of_exchange || fcdns.zone.mbrid.unknown_type',
+                '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == ['141', '154', '158']
+
+    def test_fcdns_rfdid(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "Fix RFD_ID descriptor length": the descriptor
+        length byte, not the rest of the frame, is the length of the
+        descriptor (frames 101, 103, 105).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fcdns.opcode == 0x021e && fcdns.req.fc4desclen', '-Tfields', '-eframe.number',
+                '-efcdns.req.fc4desclen', '-efcdns.req.fc4desc')
+        assert lines == [['101', '4', 'abcd'], ['103', '3,2', 'abc,zz']]
+
+    def test_fcdns_responses(self, cmd_tshark, capture_file, test_env):
+        '''Fields of some accepts: a port name, an FC-4 type bitmap, a port
+        list, name server entries.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {34,56,118}', '-Tfields', '-eframe.number',
+                '-efcdns.fc4types.fcp', '-efcdns.rply.portid', '-efcdns.num_entries')
+        got = {l[0]: l[1:] for l in lines}
+        assert got['34'][0] == 'True'
+        assert got['56'][1] == '00.00.01,00.00.02,00.00.03'
+        assert got['118'][1:] == ['01.01.01,01.01.02', '0x00000002']
