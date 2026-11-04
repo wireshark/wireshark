@@ -90,6 +90,10 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 pinfo->desegment_offset = 0;
                 return -1;
             }
+        } else if (is_query) {
+            /* No desegmentation: record the request on the first pass too. */
+            finger_trans->req_frame = pinfo->num;
+            finger_trans->req_time = pinfo->abs_ts;
         }
     } else if (is_query && (finger_trans->req_frame == 0)) {
         finger_trans->req_frame = pinfo->num;
