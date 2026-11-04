@@ -89,6 +89,28 @@
 	},
 
 	// -----------------------------------------------------------------
+	// Code: the Lua Debugger editor in the colors of Tokyo Night Light
+	// and Tokyo Night, with the translucent selection laid over the
+	// editor background and the line highlight as the gutter.  Tokyo
+	// Night Light's selection gray is too close to its line highlight,
+	// so the light selection is the packet selection color instead.
+	// -----------------------------------------------------------------
+	"code": {
+		"background":   { "light": "#e6e7ed", "dark": "#1a1b26" },
+		"text":         { "light": "#343b59", "dark": "#a9b1d6" },
+		"selection":    { "light": "#b7c4dc", "dark": "#2b2f41" },
+		"gutter":       { "light": "#dcdee3", "dark": "#1e202e" },
+		"gutterText":   { "light": "#9da0ab", "dark": "#363b54" },
+		"pausedLine":   { "light": "#e7e8c8", "dark": "#20e2bd3a" },
+		"string":       { "light": "#385f0d", "dark": "#9ece6a" },
+		"keyword":      { "light": "#65359d", "dark": "#bb9af7" },
+		"number":       { "light": "#965027", "dark": "#ff9e64" },
+		"builtIn":      { "light": "#8c4351", "dark": "#f7768e" },
+		"functionCall": { "light": "#2959aa", "dark": "#7aa2f7" },
+		"comment":      { "light": "#888b94", "dark": "#51597d" }
+	},
+
+	// -----------------------------------------------------------------
 	// Palette: light = Tokyo Night Light, dark = Tokyo Night.  Editor
 	// background as base, side bar background as window, the line
 	// highlight as alternate rows, the description color as the

@@ -54,6 +54,21 @@
 		"deprecated": { "light": "#ffff99", "dark": "#4d4d00" },
 		"history":    { "light": "#000000", "dark": "#ffffff" }
 	},
+	// Lua Debugger editor: the VS Code High Contrast Light and High
+	// Contrast themes.  VS Code marks the cursor line with a border, not
+	// a fill, so the gutter keeps the default.
+	"code": {
+		"background":    { "light": "#ffffff", "dark": "#000000" },
+		"text":          { "light": "#292929", "dark": "#ffffff" },
+		"selection":     { "light": "#0f4a85", "dark": "#ffffff" },
+		"selectionText": { "light": "#ffffff", "dark": "#000000" },
+		"string":        { "light": "#0f4a85", "dark": "#ce9178" },
+		"keyword":       { "light": "#b5200d", "dark": "#c586c0" },
+		"number":        { "light": "#096d48", "dark": "#b5cea8" },
+		"builtIn":       { "light": "#0f4a85", "dark": "#9cdcfe" },
+		"functionCall":  { "light": "#5e2cbc", "dark": "#dcdcaa" },
+		"comment":       { "light": "#515151", "dark": "#7ca668" }
+	},
 	"conversation": {
 		"client":     { "light": "#fff0e0", "dark": "#2a1200" },
 		"clientText": { "light": "#7a0000", "dark": "#ffc9a8" },

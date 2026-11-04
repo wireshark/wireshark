@@ -109,6 +109,30 @@
 	},
 
 	// -----------------------------------------------------------------
+	// Code — Lua Debugger editor, every color moved off the default
+	//
+	// Purple strings, orange keywords, pink numbers, olive self, blue
+	// function calls, brown comments, a cyan gutter and a green paused
+	// line (the default is amber), so any editor color that ignores the
+	// theme stands out.
+	// -----------------------------------------------------------------
+	"code": {
+		"background":    { "light": "#fff3e0", "dark": "#1a0a20" },
+		"text":          { "light": "#3e2723", "dark": "#ffe0b2" },
+		"selection":     { "light": "#f8bbd0", "dark": "#4a148c" },
+		"selectionText": { "light": "#311b92", "dark": "#fff176" },
+		"gutter":        { "light": "#b2ebf2", "dark": "#12304a" },
+		"gutterText":    { "light": "#00695c", "dark": "#80cbc4" },
+		"pausedLine":    { "light": "#c8e6c9", "dark": "#7000c853" },
+		"string":        { "light": "#6a1b9a", "dark": "#ce93d8" },
+		"keyword":       { "light": "#bf360c", "dark": "#ffab40" },
+		"number":        { "light": "#ad1457", "dark": "#f48fb1" },
+		"builtIn":       { "light": "#827717", "dark": "#e6ee9c" },
+		"functionCall":  { "light": "#1565c0", "dark": "#90caf9" },
+		"comment":       { "light": "#795548", "dark": "#bcaaa4" }
+	},
+
+	// -----------------------------------------------------------------
 	// Palette — distinctly tinted surfaces
 	//
 	// Light mode: a cyan window around warm cream panes, brown text
