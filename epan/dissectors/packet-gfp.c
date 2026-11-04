@@ -293,6 +293,10 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         }
 
         proto_tree_set_appendix(gfp_tree, tvb, *offset + payload_len, fcs_len);
+        if (fcs_len < 4) {
+            /* Truncated FCS, nothing to verify */
+            goto fcs_done;
+        }
         fcs = tvb_get_ntohl(tvb, *offset + payload_len);
         /* Same CRC32 as ATM */
         /* As with ATM, we can either compute the CRC as it would be
@@ -323,6 +327,7 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
         fcs_ti = proto_tree_add_uint(gfp_tree, hf_gfp_fcs, tvb, *offset+payload_len, 4, fcs);
         proto_item_append_text(fcs_ti, (fcs_calc == 0xC704DD7B) ? " [correct]" : " [incorrect]"); */
     }
+fcs_done:
 
     /* Some client frames we can do. Others are not implemented yet.
      * Transparent mode types are much trickier than frame-mapped,
@@ -601,7 +606,7 @@ proto_reg_handoff_gfp(void)
     dissector_add_uint("gfp.upi", 1, find_dissector("eth_withfcs"));
     dissector_add_uint("gfp.upi", 2, find_dissector("ppp_hdlc"));
     dissector_add_uint("gfp.upi", 9, find_dissector("mp2t"));
-    dissector_add_uint("gfp.upi", 12, find_dissector("mpls"));
+    dissector_add_uint("gfp.upi", 14, find_dissector("mpls"));
     dissector_add_uint("gfp.upi", 13, find_dissector("mpls"));
     dissector_add_uint("gfp.upi", 16, find_dissector("ip"));
     dissector_add_uint("gfp.upi", 17, find_dissector("ipv6"));
