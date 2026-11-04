@@ -57889,3 +57889,76 @@ class TestDissectFefd:
         assert lines[5] == '\t\t\t0x00ff\t24\t' + 'aa' * 20
         # TLV with length < 4: the rest goes to the data dissector
         assert lines[6].startswith('Device ID: switch-1\tswitch-1\t\t0x0001,0x0006\t13,2\t')
+
+
+class TestDissectFf:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ff_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_ff_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message of the capture is dissected as FF (UDP and TCP)
+        without malformed packets or warnings, in one and two passes.'''
+        lines = self.run(cmd_tshark, capture_file, test_env, '-Y', 'ff',
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 1092
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_ff_header_only_messages(self, cmd_tshark, capture_file, test_env):
+        '''A 12 octet message (an empty body, such as an SM Identify
+        Request) is dissected in the middle and at the end of a datagram
+        (the last one was skipped before the fix).'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {921,922,923,924}', '-Tfields',
+                '-eframe.number', '-eff.hdr.len')
+        assert lines == ['921\t12', '922\t12,12', '923\t12,12,20,12', '924\t64,12,12']
+
+    def test_ff_trailer(self, cmd_tshark, capture_file, test_env):
+        '''The trailer selected by the Options (message number, invoke id,
+        time stamp, extended control field) follows the body.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 990', '-Tfields', '-eff.hdr.len',
+                '-eff.trailer.msg_num', '-eff.trailer.invoke_id',
+                '-eff.trailer.time_stamp', '-eff.trailer.extended_control_field')
+        assert lines == ['32\t286331153\t286331153\t1229782938247303441\t286331153']
+
+    def test_ff_error_codes(self, cmd_tshark, capture_file, test_env):
+        '''Error codes are named by error class.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1106,1126}', '-V', '-O', 'ff')
+        text = '\n'.join(lines)
+        assert 'Error Code: max-fms-pdu-size-insufficient (1)' in text
+
+    def test_ff_tcp(self, cmd_tshark, capture_file, test_env):
+        '''FMS over TCP: messages split over segments are reassembled,
+        several messages per segment are all dissected.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ff && tcp', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-eff.hdr.len')
+        assert lines == [
+            '947\tFMS Initiate Response\t52,16',
+            '953\tFMS Read Request\t20',
+            '955\tFMS Read ResponseFMS Status Request\t56,12',
+            '957\tFMS Status Response\t60',
+            '961\tFMS Abort Request\t32',
+        ]
+
+    def test_ff_lists(self, cmd_tshark, capture_file, test_env):
+        '''Lists with entries: cross cable statistics and FDA address
+        selectors.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ff.lr.get_statistics.rsp.num_x_cable_stat > 0',
+                '-Tfields', '-eframe.number',
+                '-eff.lr.get_statistics.rsp.num_x_cable_stat')
+        assert lines == ['1001\t1', '1006\t2', '1011\t3']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ff.sm.find_tag_reply.req.num_of_fda_addr_selectors > 0',
+                '-Tfields', '-eframe.number',
+                '-eff.sm.find_tag_reply.req.num_of_fda_addr_selectors')
+        assert lines == ['1004\t1', '1009\t2', '1014\t3']
