@@ -1082,8 +1082,7 @@ typedef struct _free_chunk {
 static void
 insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *eo_info)
 {
-	int        nfreechunks      = g_slist_length(file->free_chunk_list);
-	int        i;
+	GSList     *l, *prev, *next;
 	free_chunk *current_free_chunk;
 	free_chunk *new_free_chunk;
 	uint64_t    chunk_offset     = eo_info->smb_file_offset;
@@ -1108,28 +1107,28 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 	/* Above has to be at least 0 because chunk_length != 0 */
 
 	/* Let's recalculate the file length and data gathered */
-	if ((file->data_gathered == 0) && (nfreechunks == 0)) {
+	if ((file->data_gathered == 0) && (file->free_chunk_list == NULL)) {
 		/* If this is the first entry for this file, we first create an initial free chunk */
 		new_free_chunk = g_new(free_chunk, 1);
 		new_free_chunk->start_offset = 0;
 		new_free_chunk->end_offset = MAX(file->file_length, calculated_size) - 1;
 		file->free_chunk_list = NULL;
 		file->free_chunk_list = g_slist_append(file->free_chunk_list, new_free_chunk);
-		nfreechunks += 1;
 	} else {
 		if (calculated_size > file->file_length) {
 			new_free_chunk = g_new(free_chunk, 1);
 			new_free_chunk->start_offset = file->file_length;
 			new_free_chunk->end_offset = chunk_end_offset;
 			file->free_chunk_list = g_slist_append(file->free_chunk_list, new_free_chunk);
-			nfreechunks += 1;
 		}
 	}
 	file->file_length = MAX(file->file_length, calculated_size);
 
 	/* Recalculate each free chunk according with the incoming data chunk */
-	for (i=0; i<nfreechunks; i++) {
-		current_free_chunk = (free_chunk *)g_slist_nth_data(file->free_chunk_list, i);
+	prev = NULL;
+	for (l = file->free_chunk_list; l != NULL; prev = l, l = next) {
+		next = l->next;
+		current_free_chunk = (free_chunk *)l->data;
 		/* 1. data chunk before the free chunk? */
 		/* -> free chunk is not altered and no new data gathered */
 		if (chunk_end_offset<current_free_chunk->start_offset) {
@@ -1146,15 +1145,15 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 		/* -> free chunk is removed */
 		if (chunk_offset<=current_free_chunk->start_offset && chunk_end_offset>=current_free_chunk->end_offset) {
 			file->data_gathered += current_free_chunk->end_offset-current_free_chunk->start_offset+1;
-			file->free_chunk_list = g_slist_remove(file->free_chunk_list, current_free_chunk);
-			g_free(current_free_chunk);
-			nfreechunks -= 1;
-			if (nfreechunks == 0) { /* The free chunk list is empty */
-				g_slist_free(file->free_chunk_list);
-				file->free_chunk_list = NULL;
-				break;
+			if (prev) {
+				prev->next = next;
+			} else {
+				file->free_chunk_list = next;
 			}
-			i--;
+			g_free(current_free_chunk);
+			g_slist_free_1(l);
+			/* The previous node stays the same */
+			l = prev;
 			continue;
 		}
 		/* 4. data chunk is inside the free chunk */
@@ -1164,7 +1163,11 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 			new_free_chunk->start_offset = chunk_end_offset + 1;
 			new_free_chunk->end_offset = current_free_chunk->end_offset;
 			current_free_chunk->end_offset = chunk_offset-1;
-			file->free_chunk_list = g_slist_insert(file->free_chunk_list, new_free_chunk, i + 1);
+			/* Link the new chunk in after the current one */
+			l->next = g_slist_prepend(next, new_free_chunk);
+			/* Visit the new node next (it lies after the data chunk), so
+			   that prev stays correct if a later node is removed */
+			next = l->next;
 			file->data_gathered += chunk_length;
 			continue;
 		}
@@ -1184,7 +1187,10 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 
 	/* Now, let's insert the data chunk into memory
 	   ...first, we shall be able to allocate the memory */
-	if (!entry->payload_data) {
+	if (file->is_out_of_memory) {
+		/* An earlier chunk did not fit: the file content has been
+		   dropped, so do not start a new (incomplete) copy of it */
+	} else if (!entry->payload_data) {
 		/* This is a New file */
 		if (calculated_size > UINT32_MAX) {
 			/*
@@ -1196,7 +1202,9 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 			 */
 			entry->payload_data = NULL;
 		} else {
-			entry->payload_data = (uint8_t *)g_try_malloc((size_t)calculated_size);
+			/* Zeroed, so that parts of the file that were never
+			   seen are not exported as uninitialized memory */
+			entry->payload_data = (uint8_t *)g_try_malloc0((size_t)calculated_size);
 			entry->payload_len  = (size_t)calculated_size;
 		}
 		if (!entry->payload_data) {
@@ -1229,6 +1237,9 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 				entry->payload_len = 0;
 			} else {
 				entry->payload_data = (uint8_t *)dest_memory_addr;
+				/* Zero the new part, as for a new file */
+				memset(entry->payload_data + entry->payload_len, 0,
+					(size_t)calculated_size - entry->payload_len);
 				entry->payload_len = (size_t)calculated_size;
 			}
 		}
@@ -1244,26 +1255,21 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 static int
 find_incoming_file(GSList *GSL_active_files_p, active_file *incoming_file)
 {
-	int          i, row, last;
+	int          i = 0, row = -1;
+	GSList      *l;
 	active_file *in_list_file;
 
-	row  = -1;
-	last = g_slist_length(GSL_active_files_p) - 1;
-
-	/* We lookup in reverse order because it is more likely that the file
-		is one of the latest */
-	for (i=last; i>=0; i--) {
-		in_list_file = (active_file *)g_slist_nth_data(GSL_active_files_p, i);
-		/* The best-working criteria of two identical files is that the file
-			that is the same of the file that we are analyzing is the last one
-			in the list that has the same tid and the same fid */
-		/* note that we have excluded in_list_file->uid == incoming_file->uid
-			from the comparison, because a file can be opened by different
-			SMB users and it is still the same file */
+	/* The best-working criteria of two identical files is that the file
+		that is the same of the file that we are analyzing is the last one
+		in the list that has the same tid and the same fid */
+	/* note that we have excluded in_list_file->uid == incoming_file->uid
+		from the comparison, because a file can be opened by different
+		SMB users and it is still the same file */
+	for (l = GSL_active_files_p; l != NULL; l = l->next, i++) {
+		in_list_file = (active_file *)l->data;
 		if (in_list_file->tid == incoming_file->tid &&
 			in_list_file->fid == incoming_file->fid) {
 			row = i;
-			break;
 		}
 	}
 
@@ -1423,24 +1429,18 @@ smb_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 static void
 smb_eo_cleanup(void)
 {
-	int          i, last;
+	GSList      *l;
 	active_file *in_list_file;
 
 	/* Free any previous data structures used in previous invocation to the
 		export_object_smb function */
-	last = g_slist_length(GSL_active_files);
-	if (GSL_active_files) {
-		for (i=last-1; i>=0; i--) {
-			in_list_file = (active_file *)g_slist_nth_data(GSL_active_files, i);
-			if (in_list_file->free_chunk_list) {
-				g_slist_free(in_list_file->free_chunk_list);
-				in_list_file->free_chunk_list = NULL;
-			}
-			g_free(in_list_file);
-		}
-		g_slist_free(GSL_active_files);
-		GSL_active_files = NULL;
+	for (l = GSL_active_files; l != NULL; l = l->next) {
+		in_list_file = (active_file *)l->data;
+		g_slist_free_full(in_list_file->free_chunk_list, g_free);
+		g_free(in_list_file);
 	}
+	g_slist_free(GSL_active_files);
+	GSL_active_files = NULL;
 }
 
 /*
@@ -1553,6 +1553,49 @@ const char *tree_ip_str(packet_info *pinfo, uint16_t cmd) {
 }
 
 
+/*
+ * The TID and FID tables are keyed on {tid, frame} and {tid, fid, frame}
+ * so that a lookup finds the latest entry at or before the given frame
+ * and a reused TID/FID does not change what earlier frames show.
+ */
+static smb_tid_info_t *
+smb_tid_tree_lookup(conv_tables_t *ct, uint16_t tid, uint32_t frame)
+{
+	uint32_t tid32 = tid;
+	wmem_tree_key_t key[] = {
+		{ 1, &tid32 },
+		{ 1, &frame },
+		{ 0, NULL }
+	};
+	smb_tid_info_t *tid_info;
+
+	tid_info = (smb_tid_info_t *)wmem_tree_lookup32_array_le(ct->tid_tree, key);
+	/* The "le" lookup can return the entry of a lower TID. */
+	if (tid_info && tid_info->tid != tid)
+		return NULL;
+	return tid_info;
+}
+
+smb_fid_info_t *
+smb_fid_tree_lookup(conv_tables_t *ct, uint16_t tid, uint16_t fid, uint32_t frame)
+{
+	uint32_t tid32 = tid;
+	uint32_t fid32 = fid;
+	wmem_tree_key_t key[] = {
+		{ 1, &tid32 },
+		{ 1, &fid32 },
+		{ 1, &frame },
+		{ 0, NULL }
+	};
+	smb_fid_info_t *fid_info;
+
+	fid_info = (smb_fid_info_t *)wmem_tree_lookup32_array_le(ct->fid_tree, key);
+	/* The "le" lookup can return the entry of a lower TID/FID. */
+	if (fid_info && (fid_info->tid != tid || fid_info->fid != fid))
+		return NULL;
+	return fid_info;
+}
+
 /* ExportObject feed function*/
 static void
 feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint16_t dataoffset, uint32_t datalen, uint32_t chunk_len,
@@ -1562,9 +1605,7 @@ feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint
 					export object and aux */
 	smb_tid_info_t  *tid_info = NULL;
 	smb_fid_info_t  *fid_info = NULL;
-	smb_fid_info_t  *suspect_fid_info = NULL;
 	tvbuff_t        *data_tvb;
-	GSList          *GSL_iterator;
 
 	/* Create a new tvb to point to the payload data */
 	data_tvb = tvb_new_subset_length(tvb, dataoffset, datalen);
@@ -1572,19 +1613,9 @@ feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint
 	eo_info = wmem_new(pinfo->pool, smb_eo_t);
 
 	/* Try to get fid_info and tid_info */
-	if (fid_info == NULL) {
-		GSL_iterator = si->ct->GSL_fid_info;
-		while (GSL_iterator) {
-			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
-			if (suspect_fid_info->opened_in > pinfo->num) break;
-			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
-				fid_info = suspect_fid_info;
-			GSL_iterator = g_slist_next(GSL_iterator);
-			}
-		}
+	fid_info = smb_fid_tree_lookup(si->ct, si->tid, fid, pinfo->num);
 
-
-	tid_info = (smb_tid_info_t *)wmem_tree_lookup32(si->ct->tid_tree, si->tid);
+	tid_info = smb_tid_tree_lookup(si->ct, si->tid, pinfo->num);
 
 	/* Construct the eo_info structure */
 	eo_info->smbversion = 1;
@@ -1625,14 +1656,6 @@ feed_eo_smb(uint16_t cmd, uint16_t fid, tvbuff_t * tvb, packet_info *pinfo, uint
 
 	tap_queue_packet(smb_eo_tap, pinfo, eo_info);
 } /* feed_eo_smb */
-
-/* Compare function to maintain the GSL_fid_info ordered
-   Order criteria: packet where the fid was opened */
-static int
-fid_cmp(smb_fid_info_t *fida, smb_fid_info_t *fidb)
-{
-	return (fida->opened_in - fidb->opened_in);
-}
 
 /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
    These are needed by the reassembly of SMB Transaction payload and DCERPC over SMB
@@ -2869,7 +2892,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
 	proto_tree *tr = NULL;
 	proto_item *ti;
-	uint16_t    bc;
+	uint16_t    bc, bc_start;
 	uint8_t     wc;
 	struct negprot_dialects *dialects = NULL;
 
@@ -2878,6 +2901,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	WORD_COUNT;
 
 	BYTE_COUNT;
+	bc_start = bc;
 
 	tr = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb_dialects, &ti, "Requested Dialects");
 
@@ -2927,7 +2951,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			dialects->name[dialects->num++] = wmem_strdup(wmem_file_scope(), str);
 		}
 	}
-	proto_item_set_len(ti, bc);
+	proto_item_set_len(ti, bc_start - bc);
 
 	END_OF_SMB
 
@@ -3648,11 +3672,19 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		} else {
 			tid_info->filename = NULL;
 		}
-		wmem_tree_insert32(si->ct->tid_tree, tid, tid_info);
+		tid_info->tid = tid;
+		uint32_t tid32 = tid;
+		uint32_t frame32 = pinfo->num;
+		wmem_tree_key_t key[] = {
+			{ 1, &tid32 },
+			{ 1, &frame32 },
+			{ 0, NULL }
+		};
+		wmem_tree_insert32_array(si->ct->tid_tree, key, tid_info);
 	}
 
 	if (!tid_info) {
-		tid_info = (smb_tid_info_t *)wmem_tree_lookup32_le(si->ct->tid_tree, tid);
+		tid_info = smb_tid_tree_lookup(si->ct, tid, pinfo->num);
 	}
 	if (!tid_info) {
 		return offset;
@@ -4299,10 +4331,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 	proto_item       *it;
 	proto_tree       *tr;
 	smb_fid_info_t   *fid_info         = NULL;
-	smb_fid_info_t   *suspect_fid_info = NULL;
 	bool              is_dir = false;
-	/* We need this to use an array-accessed tree */
-	GSList           *GSL_iterator;
 
 	DISSECTOR_ASSERT(si);
 
@@ -4333,31 +4362,22 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 		} else {
 			fid_info->fsi = NULL;
 		}
-		/* We don't use the fid_tree anymore to access and
-		   maintain the fid information of analyzed files.
-		   (was wmem_tree_insert32(si->ct->fid_tree, fid, fid_info);)
-		   We'll use a single list instead to keep track of the
-		   files (fid) opened.
-		   Note that the insert_sorted function allows to insert duplicates
-		   but being inside this if section should prevent it */
-		si->ct->GSL_fid_info = g_slist_insert_sorted(
-					si->ct->GSL_fid_info,
-					fid_info,
-					(GCompareFunc)fid_cmp);
+		{
+			uint32_t tid32 = si->tid;
+			uint32_t fid32 = fid;
+			uint32_t frame32 = pinfo->num;
+			wmem_tree_key_t key[] = {
+				{ 1, &tid32 },
+				{ 1, &fid32 },
+				{ 1, &frame32 },
+				{ 0, NULL }
+			};
+			wmem_tree_insert32_array(si->ct->fid_tree, key, fid_info);
+		}
 	}
 
 	if (!fid_info) {
-		/* we use the single linked list to access this fid_info
-		   (was fid_info = wmem_tree_lookup32(si->ct->fid_tree, fid);) */
-		GSL_iterator = si->ct->GSL_fid_info;
-		while (GSL_iterator) {
-			suspect_fid_info = (smb_fid_info_t *)GSL_iterator->data;
-			if (suspect_fid_info->opened_in > pinfo->num || !si->sip)
-				break;
-			if ((suspect_fid_info->tid == si->tid) && (suspect_fid_info->fid == fid))
-				fid_info = (smb_fid_info_t *)suspect_fid_info;
-			GSL_iterator = g_slist_next(GSL_iterator);
-		}
+		fid_info = smb_fid_tree_lookup(si->ct, si->tid, fid, pinfo->num);
 	}
 	if (!fid_info) {
 		return NULL;
@@ -4795,7 +4815,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (fn == NULL)
 		goto endofcommand;
 
-	proto_item_append_text(smb_tree, ", (%s)", wmem_strdup(wmem_file_scope(), fn));
+	proto_item_append_text(smb_tree, ", (%s)", fn);
 
 	if ((!pinfo->fd->visited) && si->sip) {
 		si->sip->extra_info_type = SMB_EI_FILENAME;
@@ -5252,13 +5272,6 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item_ret_uint(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN, &datalen);	COUNT_BYTES(2);
 	dataoffset = offset;
 
-	/* file data, might be DCERPC on a pipe */
-	if (bc) {
-		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
-		    top_tree_global, offset, bc, -1, bc, 0, (uint16_t) fid, si);
-		bc = 0;
-	}
-
 	/* If we have seen the request, then print which FID this refers to */
 	if ((si->sip != NULL) && (si->sip->frame_req > 0) && (si->sip->extra_info_type == SMB_EI_FID)) {
 		fid = GPOINTER_TO_INT(si->sip->extra_info);
@@ -5278,6 +5291,13 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		/* we need the fid for the call to dcerpc below */
 		fid = rwi->fid;
+	}
+
+	/* file data, might be DCERPC on a pipe */
+	if (bc) {
+		offset = dissect_file_data_maybe_dcerpc(tvb, pinfo, tree,
+		    top_tree_global, offset, bc, -1, bc, 0, (uint16_t) fid, si);
+		bc = 0;
 	}
 
 	/* feed the export object tap listener */
@@ -6591,7 +6611,7 @@ dissect_find_close_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* data len */
 	CHECK_BYTE_COUNT(2);
-	data_len = tvb_get_ntohs(tvb, offset);
+	data_len = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_data_len, tvb, offset, 2, data_len);
 	COUNT_BYTES(2);
 
@@ -7822,11 +7842,12 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	*/
 	if (mode&WRITE_MODE_MESSAGE_START) {
 		if (mode&WRITE_MODE_RAW) {
+			CHECK_BYTE_COUNT(2);
 			proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			dataoffset += 2;
 			bc -= 2;
-			datalen -= 2;
+			datalen = (datalen >= 2) ? datalen - 2 : 0;
 		}
 		if (!pinfo->fd->visited) {
 			/* In case we did not see the TreeConnect call,
@@ -11433,7 +11454,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		if (fid_info && fid_info->fsi) {
 			desired_access = fid_info->fsi->desired_access;
 			granted_access = desired_access & maximal_access;
-			offset = dissect_smb_access_mask_bits(tvb, tr, 0, -1, granted_access, isdir, SMB_ACCESS_GRANTED);
+			dissect_smb_access_mask_bits(tvb, tr, 0, -1, granted_access, isdir, SMB_ACCESS_GRANTED);
 			fid_info->fsi->granted_access = granted_access;
 		}
 	}
@@ -15144,7 +15165,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_smb_data_disp16, tvb, offset, 2, dd);
 		offset += 2;
 
-		if (tdc && tdc >= dc ) {
+		if (tdc && tdc >= dc + dd) {
 			uint16_t diff = tdc - (dc + dd);
 			it = proto_tree_add_uint(tree, hf_bytes_until_total_data_count, tvb, 0, 0, diff);
 			proto_item_set_generated(it);
@@ -16138,7 +16159,8 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
-	sfn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
+	CHECK_BYTE_COUNT_SUBR(24);
+	sfn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, true, true, bcp);
 	CHECK_STRING_SUBR(sfn);
 	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
 		sfn);
@@ -16388,7 +16410,8 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
-	sfn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, false, true, bcp);
+	CHECK_BYTE_COUNT_SUBR(24);
+	sfn = smb_get_unicode_or_ascii_string(pinfo->pool, tvb, &offset, si->unicode, &sfn_len, true, true, bcp);
 	CHECK_STRING_SUBR(sfn);
 	proto_tree_add_string(tree, hf_smb_short_file_name, tvb, offset, 24,
 		sfn);
@@ -17230,7 +17253,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* Backup Time */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		dissect_nttime(tvb, tree, offset, hf_smb_backup_time, ENC_LITTLE_ENDIAN);
-		CHECK_BYTE_COUNT_TRANS_SUBR(8);
+		COUNT_BYTES_TRANS_SUBR(8);
 		/* Allocation blocks */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_alloc_block_count, tvb,
@@ -17347,9 +17370,10 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 			       ", Files found: %u", count);
 		if (count) {
 			while (count--) {
+				int old_offset = offset;
 				offset = dissect_ff2_response_data(tvb, pinfo, tree,
 								   offset, &dc, &trunc, si);
-				if (trunc)
+				if (trunc || offset == old_offset)
 					break;
 			}
 		} else {
@@ -18703,7 +18727,6 @@ free_hash_tables(void *ctarg, void *user_data _U_)
 		g_hash_table_destroy(ct->tid_service);
 	if (ct->trans_frag_resp)
 		g_hash_table_destroy(ct->trans_frag_resp);
-	g_slist_free(ct->GSL_fid_info);
 	g_free(ct);
 }
 
@@ -19009,7 +19032,6 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			pdata->cmd_index = 0;
 		}
 		pdata->command_count++;
-		pdata->multi_cmds = (pdata->command_count > 1);
 	}
 
 	if (pinfo->fd->visited && pdata->frame_num == pinfo->fd->num) {
@@ -19045,6 +19067,11 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			}
 			pdata->cmd_index++;
 		}
+		/*
+		 * The flag must be the same on every pass: it is set when
+		 * this SMB is not the first one of the frame.
+		 */
+		pdata->multi_cmds = (pdata->cmd_index > 1);
 	}
 
 	flags2 = tvb_get_letohs(tvb, offset+10);
@@ -19098,9 +19125,8 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		si->ct->raw_ntlmssp = 0;
 
 		si->ct->tid_tree = wmem_tree_new(wmem_file_scope());
+		si->ct->fid_tree = wmem_tree_new(wmem_file_scope());
 		si->ct->uid_tree = wmem_tree_new(wmem_file_scope());
-		/* Initialize the GSL_fid_info for this ct */
-		si->ct->GSL_fid_info = NULL;
 		conversation_add_proto_data(conversation, proto_smb, si->ct);
 	}
 
@@ -19180,6 +19206,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				    (si->cmd == SMB_COM_TRANSACTION2_SECONDARY) ||
 				    (si->cmd == SMB_COM_NT_TRANSACT_SECONDARY)) {
 					sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->primaries, GUINT_TO_POINTER(pid_mid));
+					if (sip != NULL) {
+						/* remember it for later passes */
+						new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
+						new_key->frame = pinfo->num;
+						new_key->pid_mid = pid_mid;
+						g_hash_table_insert(si->ct->matched, new_key, sip);
+					}
 				}
 			}
 		} else {
@@ -19352,6 +19385,13 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 				    (si->cmd == SMB_COM_TRANSACTION2) ||
 				    (si->cmd == SMB_COM_NT_TRANSACT)) {
 					sip = (smb_saved_info_t *)g_hash_table_lookup(si->ct->primaries, GUINT_TO_POINTER(pid_mid));
+					if (sip != NULL && !si->request) {
+						/* remember it for later passes */
+						new_key = wmem_new(wmem_file_scope(), smb_saved_info_key_t);
+						new_key->frame = pinfo->num;
+						new_key->pid_mid = pid_mid;
+						g_hash_table_insert(si->ct->matched, new_key, sip);
+					}
 				}
 			}
 
@@ -20325,8 +20365,8 @@ proto_register_smb(void)
 		  NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_alloc_block_size,
-	        { "Allocation Block Count", "smb.alloc.size", FT_UINT32, BASE_DEC,
-		  NULL, 0, "Allocation Block Size", HFILL}},
+	        { "Allocation Block Size", "smb.alloc.size", FT_UINT32, BASE_DEC,
+		  NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_free_block_count,
 	        { "Free Block Count", "smb.free_block.count", FT_UINT32, BASE_DEC,
@@ -20341,11 +20381,11 @@ proto_register_smb(void)
 	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_file_count,
-	  { "Root File Count", "smb.file.count", FT_UINT32, BASE_DEC,
+	  { "File Count", "smb.file.count", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_dir_count,
-	  { "Root Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
+	  { "Directory Count", "smb.dir.count", FT_UINT32, BASE_DEC,
 	    NULL, 0, NULL, HFILL}},
 
 	{ &hf_smb_mac_sup,

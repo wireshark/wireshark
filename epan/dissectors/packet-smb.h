@@ -232,10 +232,9 @@ typedef struct conv_tables {
 	GHashTable  *tid_service;
 	bool         raw_ntlmssp; /* Do extended security exc use raw ntlmssp */
 
-	/* track fid to fidstruct (filename/openframe/closeframe */
+	/* track fid to fidstruct (filename/openframe/closeframe), keyed on
+	   {tid, fid, frame opened in}; look up with smb_fid_tree_lookup() */
 	wmem_tree_t *fid_tree;
-        /* We'll use a GSL list instead */
-        GSList	    *GSL_fid_info;
 
 	/* track tid to fidstruct (sharename/shareframe/unshareframe */
 	wmem_tree_t *tid_tree;
@@ -324,6 +323,7 @@ struct _smb_fid_into_t {
 
 /* used for tracking tid to sharename openedframe closedframe */
 typedef struct _smb_tid_into_t {
+	uint16_t tid;
 	int   opened_in;
 	int   closed_in;
 	char *filename;
@@ -395,6 +395,9 @@ extern const char *smb_get_unicode_or_ascii_string(wmem_allocator_t *scope, tvbu
 
 /* Returns an IP (v4 or v6) of the server in a SMB/SMB2 conversation */
 extern const char *tree_ip_str(packet_info *pinfo, uint16_t cmd);
+
+/* The most recent open of FID fid on tree tid at or before frame, or NULL */
+extern smb_fid_info_t *smb_fid_tree_lookup(conv_tables_t *ct, uint16_t tid, uint16_t fid, uint32_t frame);
 
 int dissect_smb_datetime(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
     int hf_date, int hf_dos_date, int hf_dos_time, bool time_first);
