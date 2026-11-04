@@ -32,6 +32,7 @@ static int hf_etv_dii_reserved;
 
 static expert_field ei_etv_dii_invalid_section_syntax_indicator;
 static expert_field ei_etv_dii_invalid_section_length;
+static expert_field ei_etv_dii_section_length_short;
 static expert_field ei_etv_dii_invalid_reserved_bits;
 static expert_field ei_etv_dii_filter_info;
 
@@ -40,6 +41,7 @@ static int hf_etv_ddb_reserved;
 
 static expert_field ei_etv_ddb_invalid_section_syntax_indicator;
 static expert_field ei_etv_ddb_invalid_section_length;
+static expert_field ei_etv_ddb_section_length_short;
 static expert_field ei_etv_ddb_invalid_reserved_bits;
 static expert_field ei_etv_ddb_filter_info;
 
@@ -50,7 +52,8 @@ static void
 dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int proto,
 	int hf_filter_info, int hf_reserved,
 	expert_field* ei_section_syntax_indicator, expert_field* ei_reserved,
-	expert_field* ei_section_length, expert_field* ei_filter_info)
+	expert_field* ei_section_length, expert_field* ei_section_length_short,
+	expert_field* ei_filter_info)
 {
 	tvbuff_t   *sub_tvb;
 	unsigned    offset = 0;
@@ -95,6 +98,10 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, ei_section_length);
 	}
+	if (sect_len < 7) {
+		expert_add_info(pinfo, items[PACKET_MPEG_SECT_PI__LENGTH], ei_section_length_short);
+		return;
+	}
 
 	filter_info = tvb_get_ntohs(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Filter: 0x%x", filter_info);
@@ -137,7 +144,7 @@ dissect_etv_ddb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_ddb, hf_etv_ddb_filter_info,
 		hf_etv_ddb_reserved, &ei_etv_ddb_invalid_section_syntax_indicator,
 		&ei_etv_ddb_invalid_reserved_bits, &ei_etv_ddb_invalid_section_length,
-		&ei_etv_ddb_filter_info);
+		&ei_etv_ddb_section_length_short, &ei_etv_ddb_filter_info);
 	return tvb_captured_length(tvb);
 }
 
@@ -150,7 +157,7 @@ dissect_etv_dii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	dissect_etv_common(tvb, pinfo, tree, proto_etv_dii, hf_etv_dii_filter_info,
 		hf_etv_dii_reserved, &ei_etv_dii_invalid_section_syntax_indicator,
 		&ei_etv_dii_invalid_reserved_bits, &ei_etv_dii_invalid_section_length,
-		&ei_etv_dii_filter_info);
+		&ei_etv_dii_section_length_short, &ei_etv_dii_filter_info);
 	return tvb_captured_length(tvb);
 }
 
@@ -191,6 +198,7 @@ proto_register_etv(void)
 		{ &ei_etv_ddb_invalid_section_syntax_indicator, { "etv-ddb.invalid_section_syntax_indicator", PI_MALFORMED, PI_ERROR, "Invalid section_syntax_indicator (should be 0)", EXPFILL }},
 		{ &ei_etv_ddb_invalid_reserved_bits, { "etv-ddb.invalid_reserved_bits", PI_MALFORMED, PI_ERROR, "Invalid reserved bits", EXPFILL }},
 		{ &ei_etv_ddb_invalid_section_length, { "etv-ddb.invalid_section_length", PI_MALFORMED, PI_ERROR, "Invalid section_length (must not exceed 1021)", EXPFILL }},
+		{ &ei_etv_ddb_section_length_short, { "etv-ddb.section_length_short", PI_MALFORMED, PI_ERROR, "Invalid section_length (must be at least 7)", EXPFILL }},
 		{ &ei_etv_ddb_filter_info, { "etv-ddb.filter_info.invalid", PI_MALFORMED, PI_ERROR, "Invalid filter info", EXPFILL }},
 	};
 
@@ -198,6 +206,7 @@ proto_register_etv(void)
 		{ &ei_etv_dii_invalid_section_syntax_indicator, { "etv-dii.invalid_section_syntax_indicator", PI_MALFORMED, PI_ERROR, "Invalid section_syntax_indicator (should be 0)", EXPFILL }},
 		{ &ei_etv_dii_invalid_reserved_bits, { "etv-dii.invalid_reserved_bits", PI_MALFORMED, PI_ERROR, "Invalid reserved bits", EXPFILL }},
 		{ &ei_etv_dii_invalid_section_length, { "etv-dii.invalid_section_length", PI_MALFORMED, PI_ERROR, "Invalid section_length (must not exceed 1021)", EXPFILL }},
+		{ &ei_etv_dii_section_length_short, { "etv-dii.section_length_short", PI_MALFORMED, PI_ERROR, "Invalid section_length (must be at least 7)", EXPFILL }},
 		{ &ei_etv_dii_filter_info, { "etv-dii.filter_info.invalid", PI_MALFORMED, PI_ERROR, "Invalid filter info", EXPFILL }},
 	};
 
