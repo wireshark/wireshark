@@ -57770,3 +57770,75 @@ class TestDissectFcswils:
             ), encoding='utf-8', env=test_env)
         rows = [l.split('\t') for l in stdout.split('\n')[:-1]]
         assert [r[0] for r in rows] == ['43'] + [str(n) for n in range(45, 60, 2)]
+
+
+class TestDissectFddi:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fddi_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_fddi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 31 frames contain FDDI (29 directly, 2 inside sFlow) and none
+        is malformed or has an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fddi', '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 31
+        assert lines.count('FDDI') == 24
+        assert lines.count('ARP') == 5
+        assert lines.count('sFlow') == 2
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fddi_frame_control(self, cmd_tshark, capture_file, test_env):
+        '''Every class of frame control byte gets its own description.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fddi.fc', '-Tfields', '-efddi.fc', '-efddi.fc.clf',
+                '-efddi.fc.prio', '-efddi.fc.smt_subtype', '-efddi.fc.mac_subtype')
+        assert lines[0:12] == [
+            '0x00\t0x00\t\t\t',
+            '0x80\t0x08\t\t\t',
+            '0xc0\t0x0c\t\t\t',
+            '0x41\t0x04\t\t1\t',
+            '0x4f\t0x04\t\t15\t',
+            '0x40\t0x04\t\t0\t',
+            '0x42\t0x04\t\t2\t',
+            '0xc1\t0x0c\t\t\t1',
+            '0xc2\t0x0c\t\t\t2',
+            '0xc3\t0x0c\t\t\t3',
+            '0xc5\t0x0c\t\t\t5',
+            '0xcf\t0x0c\t\t\t15',
+        ]
+        assert lines[12:17] == [
+            '0x50\t0x05\t0\t\t',
+            '0x54\t0x05\t4\t\t',
+            '0x57\t0x05\t7\t\t',
+            '0x58\t0x05\t\t\t',
+            '0x5f\t0x05\t\t\t',
+        ]
+        info = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'fddi',
+                '-Tfields', '-e_ws.col.info')
+        assert info[0] == 'Void frame'
+        assert info[1] == 'Nonrestricted token'
+        assert info[2] == 'Restricted token'
+        assert info[5] == 'SMT frame, control 0'
+        assert info[10] == 'MAC frame, control 5'
+        assert info[17] == 'Sync LLC frame'
+        assert info[18] == 'Sync LLC frame, control 1'
+        assert info[20] == 'Implementor async frame, control 0'
+        assert info[22] == 'Implementor sync frame, control 0'
+        assert info[24:29] == ['Unknown frame type'] * 5
+
+    def test_fddi_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Link type 10 has bit-swapped MAC addresses, which the dissector
+        swaps back; FDDI inside sFlow is not swapped.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1,29,30,31}',
+                '-Tfields', '-Eoccurrence=f', '-eframe.number', '-efddi.src', '-efddi.dst')
+        assert lines[0] == '1\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
+        assert lines[1] == '29\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
+        assert lines[2] == '30\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
+        assert lines[3] == '31\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
