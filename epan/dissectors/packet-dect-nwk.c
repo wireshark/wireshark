@@ -2551,62 +2551,58 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 		ie_end = offset + element_length;
 		switch (element_type) {
 			case DECT_NWK_S_IE_AUTH_TYPE:
-				offset = dissect_dect_nwk_s_ie_auth_type(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_auth_type(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_CALLING_PARTY_NUMBER:
-				offset = dissect_dect_nwk_s_ie_calling_party_number(tvb, offset, element_length, field_tree, data);
+				dissect_dect_nwk_s_ie_calling_party_number(tvb, offset, element_length, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_CIPHER_INFO:
-				offset = dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_cipher_info(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_DURATION:
-				offset = dissect_dect_nwk_s_ie_duration(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_duration(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_FIXED_IDENTITY:
-				offset = dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_fixed_identity(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_IWU_TO_IWU:
-				offset = dissect_dect_nwk_s_ie_iwu_to_iwu(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_iwu_to_iwu(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_LOCATION_AREA:
-				offset = dissect_dect_nwk_s_ie_location_area(tvb, offset, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_location_area(tvb, offset, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_MULTI_DISPLAY:
-				offset = dissect_dect_nwk_s_ie_multi_display(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_multi_display(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_MULTI_KEYPAD:
-				offset = dissect_dect_nwk_s_ie_multi_keypad(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_multi_keypad(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_NWK_ASSIGNED_IDENTITY:
-				offset = dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_PORTABLE_IDENTITY:
-				offset = dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_RAND:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rand_rand_field, tvb, offset, element_length, ENC_NA);
-				offset += element_length;
 				break;
 			case DECT_NWK_S_IE_RES:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_res_res_field, tvb, offset, element_length, ENC_NA);
-				offset += element_length;
 				break;
 			case DECT_NWK_S_IE_RS:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rs_rs_field, tvb, offset, element_length, ENC_NA);
-				offset += element_length;
 				break;
 			case DECT_NWK_S_IE_TERMINAL_CAPABILITY:
-				offset = dissect_dect_nwk_s_ie_terminal_capability(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_terminal_capability(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_ESCAPE_TO_PROPRIETARY:
 				dissect_dect_nwk_s_ie_escape_to_proprietary(tvb, offset, field_tree, data);
-				offset += element_length;
 				break;
 			case DECT_NWK_S_IE_MODEL_IDENTIFIER:
-				offset = dissect_dect_nwk_s_ie_model_identifier(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_model_identifier(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_CODEC_LIST:
-				offset = dissect_dect_nwk_s_ie_codec_list(tvb, offset, element_length, pinfo, field_tree, data);
+				dissect_dect_nwk_s_ie_codec_list(tvb, offset, element_length, pinfo, field_tree, data);
 				break;
 			default:
 				break;
