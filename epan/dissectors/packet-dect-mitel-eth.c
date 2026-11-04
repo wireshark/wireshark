@@ -934,28 +934,28 @@ static unsigned dissect_dect_mitel_eth_rfpc(tvbuff_t *tvb, packet_info *pinfo, p
 
 		switch (item_type) {
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_REVISION:
-				offset = dissect_dect_mitel_eth_rfpc_revision(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_revision(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFPI:
-				offset = dissect_dect_mitel_eth_rfpc_rfpi(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_rfpi(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_HIGHER_LAYER_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_higher_layer_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_extended_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_MAC_CAPABILITIES:
-				offset = dissect_dect_mitel_eth_rfpc_mac_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_mac_capabilities(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_STATISTIC_DATA:
-				offset = dissect_dect_mitel_eth_rfpc_statistic_data(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_statistic_data(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_RFP_PLI:
-				offset = dissect_dect_mitel_eth_rfpc_rfp_pli(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_rfp_pli(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			case DECT_MITEL_ETH_RFPC_ITEM_TYPE_EXTENDED_CAPABILITIES2:
-				offset = dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvb, pinfo, rfpc_item_tree, data, offset);
+				dissect_dect_mitel_eth_rfpc_extended_capabilities2(tvb, pinfo, rfpc_item_tree, data, offset);
 				break;
 			default:
 				proto_tree_add_item(rfpc_item_tree, hf_dect_mitel_eth_rfpc_item_value, tvb, offset, item_length, ENC_NA);
