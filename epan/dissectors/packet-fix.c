@@ -91,15 +91,21 @@ fix_field_tag_compar(const void *v_needle, const void *v_entry)
 }
 
 /* Code to actually dissect the packets */
-static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
+static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo _U_, unsigned offset)
 {
     /* try to resync to the next start */
-    unsigned      min_len = tvb_captured_length_remaining(tvb, offset);
-    const char *data    = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, min_len, ENC_ASCII);
-    const char *start   = data;
+    unsigned min_len = tvb_captured_length_remaining(tvb, offset);
+    unsigned pos     = offset;
+    unsigned found;
 
-    while ((start = strstr(start, "\0018"))) {
-        min_len = (unsigned) (start +1 -data);
+    /* Search the tvb itself for "\0018": offsets in a converted string
+     * do not match tvb offsets when bytes expand to multi-byte UTF-8. */
+    while (tvb_find_uint8_remaining(tvb, pos, 0x01, &found)) {
+        if (!tvb_bytes_exist(tvb, found + 1, 1) || tvb_get_uint8(tvb, found + 1) != '8') {
+            pos = found + 1;
+            continue;
+        }
+        min_len = found + 1 - offset;
         /*  if remaining length < 6 return and let the next desegment round
             test for 8=FIX
         */
@@ -107,7 +113,7 @@ static int fix_next_header(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
            break;
         if (!fix_marker(tvb, min_len +offset) )
             break;
-        start++;
+        pos = found + 1;
     }
     return min_len;
 }
@@ -164,7 +170,7 @@ fix_header_len(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
     /* msg length */
     if (!(tag = fix_param(tvb, offset)) || tvb_strneql(tvb, offset, "9=", 2)) {
         /* not a tag or not the BodyLength tag, give up */
-        return fix_next_header(tvb, pinfo, offset);
+        return fix_next_header(tvb, pinfo, offset) + (offset - base_offset);
     }
 
     if (!tvb_get_string_int(tvb, tag->value_offset, tag->value_len, ENC_STR_DEC, &value, NULL))
@@ -172,6 +178,8 @@ fix_header_len(tvbuff_t *tvb, packet_info* pinfo, unsigned offset)
     /* Fix version, msg type, length and checksum aren't in body length.
      * If the packet is big enough find the checksum
     */
+    if (value < 0)
+        return fix_next_header(tvb, pinfo, base_offset +MARKER_LEN)  +MARKER_LEN;
     size = value + tag->ctrla_offset - base_offset + 1;
     if (tvb_reported_length_remaining(tvb, base_offset) > size +4) {
         /* 10= should be there */
@@ -372,15 +380,6 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     return tvb_captured_length(tvb);
 }
 
-static unsigned
-get_fix_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
-{
-    unsigned fix_len;
-
-    fix_len = fix_header_len(tvb, pinfo, offset);
-    return fix_len;
-}
-
 /* ------------------------------------
    fixed-length part isn't really a constant but if we assume it's at least:
        8=FIX.x.y\01   10
@@ -392,6 +391,19 @@ get_fix_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
 */
 
 #define FIX_MIN_LEN 24
+
+static unsigned
+get_fix_pdu_len(packet_info *pinfo, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    unsigned fix_len;
+
+    fix_len = fix_header_len(tvb, pinfo, offset);
+    /* A resynchronised PDU can be shorter than the minimum length
+     * passed to tcp_dissect_pdus(), which would raise a bounds error. */
+    if (fix_len < FIX_MIN_LEN)
+        fix_len = FIX_MIN_LEN;
+    return fix_len;
+}
 
 static int
 dissect_fix_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
