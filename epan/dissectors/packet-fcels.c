@@ -262,6 +262,7 @@ static expert_field ei_fcels_src_unknown;
 static expert_field ei_fcels_dst_unknown;
 static expert_field ei_fcels_no_record_of_els_req;
 static expert_field ei_fcels_no_record_of_exchange;
+static expert_field ei_fcels_short_payload;
 
 static int * const hf_fcels_estat_fields[] = {
     &hf_fcels_estat_resp,
@@ -1015,7 +1016,8 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset += 16;
         }
         proto_tree_add_item (logi_tree, hf_fcels_vendorvers, tvb, offset, 16, ENC_NA);
-        if (svcvld) {
+        /* The standard 116 octet payload ends before the service availability */
+        if (svcvld && tvb_bytes_exist (tvb, offset+32, 8)) {
             proto_tree_add_item (logi_tree, hf_fcels_svcavail, tvb, offset+32, 8, ENC_NA);
         }
     }
@@ -1178,7 +1180,7 @@ dissect_fcels_fdisc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1190,6 +1192,11 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (adisc_tree, hf_fcels_opcode, tvb, offset-5, 1, ENC_BIG_ENDIAN);
 
+        if (tvb_captured_length (tvb) < 28) {
+            proto_tree_add_expert_remaining (adisc_tree, pinfo, &ei_fcels_short_payload, tvb, 1);
+            return;
+        }
+
         proto_tree_add_item (adisc_tree, hf_fcels_hardaddr, tvb, offset, 3, ENC_NA);
         proto_tree_add_item (adisc_tree, hf_fcels_npname, tvb, offset+3, 8, ENC_NA);
         proto_tree_add_item (adisc_tree, hf_fcels_fnname, tvb, offset+11, 8, ENC_NA);
@@ -1199,7 +1206,7 @@ dissect_fcels_adisc (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     proto_item *ti)
 {
     unsigned offset = 4;
@@ -1209,6 +1216,11 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         farp_tree = proto_item_add_subtree (ti, ett_fcels_farp);
 
         proto_tree_add_item (farp_tree, hf_fcels_opcode, tvb, offset-4, 1, ENC_BIG_ENDIAN);
+
+        if (tvb_captured_length (tvb) < 76) {
+            proto_tree_add_expert_remaining (farp_tree, pinfo, &ei_fcels_short_payload, tvb, 1);
+            return;
+        }
 
         proto_tree_add_item (farp_tree, hf_fcels_farp_matchcodept,
                              tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1324,7 +1336,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset = 12;
             /* The following loop is for dissecting the port blocks */
             for (loop = tvb_get_ntoh24 (tvb, 5); loop > 0; loop--) {
-                pb_tree = proto_tree_add_subtree_format(rpl_tree, tvb, offset+12, 16,
+                pb_tree = proto_tree_add_subtree_format(rpl_tree, tvb, offset, 16,
                                              ett_fcels_rplpb, NULL, "Port Block %u", loop);
 
                 proto_tree_add_item(pb_tree, hf_fcels_rpl_physical_port, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1337,7 +1349,7 @@ dissect_fcels_rpl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static void
-dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                    uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1348,6 +1360,11 @@ dissect_fcels_fan (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         fan_tree = proto_item_add_subtree (ti, ett_fcels_fan);
 
         proto_tree_add_item (fan_tree, hf_fcels_opcode, tvb, offset-5, 1, ENC_BIG_ENDIAN);
+
+        if (tvb_captured_length (tvb) < 24) {
+            proto_tree_add_expert_remaining (fan_tree, pinfo, &ei_fcels_short_payload, tvb, 1);
+            return;
+        }
 
         proto_tree_add_item (fan_tree, hf_fcels_fabricaddr, tvb, offset, 3, ENC_NA);
         proto_tree_add_item (fan_tree, hf_fcels_fabricpname, tvb, offset+3,
@@ -1571,7 +1588,7 @@ dissect_fcels_tprlo (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static void
-dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     uint8_t isreq _U_, proto_item *ti)
 {
     /* Set up structures needed to add the protocol subtree and manage it */
@@ -1584,16 +1601,21 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         proto_tree_add_item (lirr_tree, hf_fcels_opcode, tvb, offset-4, 1, ENC_BIG_ENDIAN);
 
+        if (tvb_captured_length (tvb) < 6) {
+            proto_tree_add_expert_remaining (lirr_tree, pinfo, &ei_fcels_short_payload, tvb, 1);
+            return;
+        }
+
         proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_function, tvb, offset, 1, ENC_BIG_ENDIAN);
         lirr_fmt = tvb_get_uint8 (tvb, offset+1);
         if (!lirr_fmt) {
             /* This scheme is resorted to because the value 0 has a string in
              * the value_string that is not what we want displayed here.
              */
-            proto_tree_add_uint_format_value(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset, 1, 0, "Common Format");
+            proto_tree_add_uint_format_value(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset+1, 1, 0, "Common Format");
         }
         else {
-            proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(lirr_tree, hf_fcels_lirr_regn_format, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -1672,9 +1694,11 @@ dissect_fcels_cbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item (cbind_tree, hf_fcels_cbind_dnpname, tvb, offset+20, 8, ENC_NA);
 
     switch(tvb_reported_length(tvb)){
+    case 28: /* 28 byte Request without the FC CRC */
     case 32: /* 28 byte Request + 4 bytes FC CRC */
         col_append_str (pinfo->cinfo, COL_INFO, "Request");
         break;
+    case 36: /* 36 byte Response without the FC CRC */
     case 40: /* 36 byte Response + 4 bytes FC CRC */
         col_append_str (pinfo->cinfo, COL_INFO, "Response");
         proto_tree_add_item (cbind_tree, hf_fcels_cbind_status, tvb, offset+30, 2, ENC_BIG_ENDIAN);
@@ -1703,6 +1727,8 @@ dissect_fcels_unbind (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
     switch(tvb_reported_length(tvb)){
+    case 20: /* 20 byte Request without the FC CRC (24 is ambiguous and
+             * is taken as a Request with the CRC) */
     case 24: /* 20 byte Request + 4 bytes FC CRC */
         col_append_str (pinfo->cinfo, COL_INFO, "Request");
         break;
@@ -2585,6 +2611,7 @@ proto_register_fcels (void)
     static ei_register_info ei[] = {
         { &ei_fcels_src_unknown, { "fcels.src.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown source address type", EXPFILL }},
         { &ei_fcels_dst_unknown, { "fcels.dst.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown destination address type", EXPFILL }},
+        { &ei_fcels_short_payload, { "fcels.short_payload", PI_MALFORMED, PI_ERROR, "Payload too short for this ELS", EXPFILL }},
         { &ei_fcels_no_record_of_exchange, { "fcels.no_record_of_exchange", PI_UNDECODED, PI_WARN, "No record of Exchange. Unable to decode ACC", EXPFILL }},
         { &ei_fcels_no_record_of_els_req, { "fcels.no_record_of_els_req", PI_UNDECODED, PI_WARN, "No record of ELS Req. Unable to decode ACC", EXPFILL }},
     };
