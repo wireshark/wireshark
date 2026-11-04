@@ -3460,14 +3460,18 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                data_section);
         }
 
-        /* If 2nd entry not in use, use that one */
-        if (!data_section->details[1].in_use) {
-            index_to_use = 1;
-        }
-        else {
-            /* Both in use, so replace the older of the 2 entries */
-            if (data_section->details[1].frame_number < data_section->details[0].frame_number) {
+        /* TODO: not currently coping with case where >1  C-plane frames define same sectionId (covering different PRBs).
+         * Ideally would at least update the missing beamIds.. */
+        if (data_section->details[0].in_use) {
+            /* If 2nd entry not in use, use that one */
+            if (!data_section->details[1].in_use) {
                 index_to_use = 1;
+            }
+            else {
+                /* Both in use, so replace the older of the 2 entries */
+                if (data_section->details[1].frame_number < data_section->details[0].frame_number) {
+                    index_to_use = 1;
+                }
             }
         }
 
