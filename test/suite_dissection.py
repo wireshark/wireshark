@@ -55891,3 +55891,91 @@ class TestDissectExtrememesh:
         lines = self._tshark(cmd_tshark, cap, test_env, '-Y', '_ws.expert',
                 '-Tfields', '-eframe.number')
         assert lines == ['150']
+
+
+class TestDissectF1ap:
+    '''F1AP over SCTP (port 38472, PPID 62) from the synthetic capture
+    f1ap_coverage.pcap.gz: every elementary procedure message encoded
+    from the F1AP ASN.1 modules, then SIB type variants (654-682 with
+    two PDUs in frame 682) and the reproducer for "F1AP: Do not reuse
+    RRC container state across PDUs" (683-684).'''
+
+    @staticmethod
+    def f1ap_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f1ap_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+
+    def test_f1ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is F1AP over SCTP, some with NR RRC inside; none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                                  '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 684
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['F1AP'] == 661
+        assert counts['F1AP/NR RRC'] == 19
+        assert counts['F1AP/NR RRC/NR RRC'] == 2
+        assert counts['F1AP/F1AP/NR RRC'] == 1
+        assert counts['F1AP//NR RRC'] == 1
+        for passes in ((), ('-2',)):
+            stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_f1ap_info(self, cmd_tshark, capture_file, test_env):
+        '''The first frames are the Reset and ResetAcknowledge messages;
+        the last ones UEContextReleaseCommand.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 6 || frame.number >= 683',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '1\tReset', '2\tReset', '3\tReset', '4\tReset',
+            '5\tResetAcknowledge', '6\tResetAcknowledge',
+            '683\tUEContextReleaseCommand, UEContextReleaseCommand, UEContextReleaseCommand',
+            '684\tUEContextReleaseCommand',
+        ]
+
+    def test_f1ap_rrc_container_state(self, cmd_tshark, capture_file, test_env):
+        '''Frame 683 holds three UEContextReleaseCommand PDUs: an RRC
+        container, then SRBID 0, then SRBID 2. Before "F1AP: Do not reuse
+        RRC container state across PDUs" the SRBID handlers dissected the
+        first PDU's container (as NR RRC DL-CCCH) under the later PDUs.
+        The container is only used with an SRBID of its own PDU, so
+        neither frame has NR RRC.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 683',
+                '-Tfields', '-eframe.number', '-ef1ap.SRBID',
+                '-e_ws.col.protocol', '-enr-rrc.DL_CCCH_Message_element')
+        assert stdout.splitlines() == ['683\t0,2\tF1AP\t', '684\t\tF1AP\t']
+
+    def test_f1ap_two_rrc_containers(self, cmd_tshark, capture_file, test_env):
+        '''Frame 682 holds two ULRRCMessageTransfer PDUs on SRB 1; each
+        container is dissected as PDCP/NR RRC under its own PDU.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 682',
+                '-Tfields', '-ef1ap.SRBID', '-e_ws.col.protocol')
+        assert stdout.splitlines() == ['1,1\tF1AP/F1AP/NR RRC']
+
+    def test_f1ap_plmn(self, cmd_tshark, capture_file, test_env):
+        '''PLMN identities decode as MCC 001/MNC 01 and MCC 262/MNC 012.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-ee212.mcc', '-ee212.mnc')
+        mcc, mnc = stdout.strip().split('\t')
+        assert set(mcc.split(',')) <= {'001', '262'}
+        assert set(mnc.split(',')) <= {'01', '012'}
+        assert '001' in mcc
+
+    def test_f1ap_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The f1ap statistics tree counts every PDU, also the bundled
+        ones: 684 frames hold 687 PDUs.'''
+        stdout = self.f1ap_fields(cmd_tshark, capture_file, test_env,
+                '-q', '-z', 'f1ap,tree')
+        rows = {l.split()[0]: l.split()[-0 + 1] for l in stdout.splitlines()
+                if l.split() and l.split()[0] in ('UEContextReleaseCommand',)}
+        assert rows == {'UEContextReleaseCommand': '8'}
+        assert [l.split()[2] for l in stdout.splitlines()
+                if l.startswith('Total Packets')] == ['687']
