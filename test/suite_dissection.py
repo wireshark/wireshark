@@ -56241,3 +56241,141 @@ class TestDissectFc00:
         lines = self._tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 1',
                 '-Tfields', '-efc00.ip')
         assert lines == ['a64b:4972:7fb1:5503:836f:5be0:b0b1:bb26']
+
+
+class TestDissectFc:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('fc_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_fc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''104 of the 105 frames are dissected by FC (FC-2, FC-2 with
+        delimiters, MDS header and Boardwalk); none is malformed or has an
+        error expert info (a bad CRC, a short header), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fc_coverage.pcapng.gz'),
+                '-Y', 'fc', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 104
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fc_link_control_and_bls(self, cmd_tshark, capture_file, test_env):
+        '''Link control frames (with the reject parameter text), basic link
+        services (ABTS, BA_ACC, BA_RJT).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 7 || frame.number == 17 || (frame.number >= 19 && frame.number <= 23)',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-efc.r_ctl', '-efc.parameter',
+                '-efc.bls_oxid', '-efc.bls_reason', '-efc.bls_rjtdetail')
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['1'][1:3] == ['Link Ctl, ACK1', '0xc0']
+        assert by_frame['3'][1:4] == ['Link Ctl, P_RJT', '0xc2', '0x01030000']
+        assert by_frame['4'][1] == 'Link Ctl, F_RJT'
+        assert by_frame['6'][1] == 'Link Ctl, F_BSY (Data frame)'
+        assert by_frame['7'][1] == 'Link Ctl, F_BSY (Link Ctl)'
+        assert by_frame['19'][1] == 'ABTS' and by_frame['19'][3] == '0x00000001'
+        assert by_frame['22'][1] == 'BA_ACC' and by_frame['22'][4] == '0x0100'
+        assert by_frame['23'][1] == 'BA_RJT' and by_frame['23'][5:] == ['0x03', '0x05']
+
+    def test_fc_vft_and_network_header(self, cmd_tshark, capture_file, test_env):
+        '''The VFT header (frame 41) and the Network_Header (frame 42).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 41 || frame.number == 42', '-Tfields', '-eframe.number',
+                '-efc.vft.vf_id', '-efc.vft.pri', '-efc.vft.hop_ct', '-efc.nethdr.da', '-efc.nethdr.sa')
+        assert lines[0] == ['41', '291', '5', '7', '', '']
+        assert lines[1] == ['42', '', '', '', '00:01:02:03:04:05:06:07', '08:09:0a:0b:0c:0d:0e:0f']
+
+    def test_fc_exchange_and_lun_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Exchange First In / Last In. Frames 43/44 (and 91/92) are the
+        reproducers of "Keep the LUN of each frame from the first pass": a
+        non-FCP frame, then the FCP_CMND that sets LUN 5, on the same OX_ID.
+        The non-FCP frame is in the exchange without the LUN in both passes.'''
+        args = ('-Y', 'frame.number in {43,44,46,91,92,93}', '-Tfields', '-eframe.number',
+                '-efc.exchange_first_frame')
+        one = self._fields(cmd_tshark, capture_file, test_env, *args)
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert one == two
+        by_frame = {l[0]: l for l in one}
+        assert by_frame['43'][1] == '0'
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('fc_coverage.pcapng.gz'), '-Y', 'frame.number == 43',
+                '-Tfields', '-efc.exchange_last_frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0'
+        assert by_frame['46'][1] == '45'
+        assert by_frame['93'][1] == '92'
+
+    def test_fc_exchange_time(self, cmd_tshark, capture_file, test_env):
+        '''The time from exchange first is only shown for the last frame.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fc.time', '-Tfields', '-eframe.number')
+        frames = [l[0] for l in lines]
+        assert '46' in frames and '53' in frames and '76' in frames
+        assert '45' not in frames
+
+    def test_fc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Multi-frame sequences are reassembled, also with a streaming
+        SEQ_CNT (frames 66-68), in the responder direction (69, 70), and
+        again in the second pass.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'fc.reassembled.length', '-Tfields', '-eframe.number', '-efc.reassembled.length',
+                    '-e_ws.col.protocol')
+            assert lines == [['62', '2148', 'FC_CT'], ['65', '2148', 'FC_CT'],
+                             ['68', '2148', 'FC_CT'], ['70', '1074', 'FC_CT']]
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {60,61,63,66,69}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert all('(Fragmented)' in l[1] for l in lines)
+
+    def test_fc_fcp_relative_offset(self, cmd_tshark, capture_file, test_env):
+        '''FCP data with the relative offset flag: offset 0 goes to FCP,
+        a non-zero offset is shown as relative offset and not dissected.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {73,74}', '-Tfields', '-eframe.number',
+                '-efc.relative_offset', '-e_ws.col.protocol')
+        assert lines == [['73', '0', 'FCP'], ['74', '36', 'FC']]
+
+    def test_fc_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''Frame delimiters and the CRC of the frames with delimiters.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'fc.sof', '-Tfields', '-eframe.number', '-efc.sof', '-efc.eof', '-efc.crc.status')
+        assert len(lines) == 48
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['45'][1:] == ['0xbcb55656', '0xbcb57575', '1']
+        assert by_frame['51'][2] == '0xbcb5d5d5'
+        assert by_frame['56'][2] == '0xbcaa9595'
+        assert by_frame['55'][1] == '0xbcb55858'
+        assert all(l[3] == '1' for l in lines)
+
+    def test_fc_mds_and_boardwalk(self, cmd_tshark, capture_file, test_env):
+        '''The MDS header and Boardwalk encapsulations, with the dropped
+        packet detection, the wrap of the packet count and the packet length.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 94', '-Tfields', '-eframe.number', '-emdshdr.vsan',
+                '-ebrdwlk.pktcnt', '-ebrdwlk.drop', '-ebrdwlk.plen')
+        by_frame = {l[0]: l for l in lines}
+        assert [by_frame[str(f)][1] for f in range(94, 99)] == ['80'] * 5
+        assert [by_frame[str(f)][3] for f in range(99, 106)] == [
+            'False', 'False', 'True', 'False', 'False', 'True', 'False']
+        assert by_frame['102'][4] == '60' and by_frame['103'][4] == '160'
+        assert by_frame['104'][2] == '65535' and by_frame['105'][2] == '0'
+
+    def test_fc_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The SRT statistics by FC-4 type and the conversation table.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('fc_coverage.pcapng.gz'), '-z', 'fc,srt',
+            ), encoding='utf-8', env=test_env)
+        assert 'FC SRT Statistics' in stdout
+        assert grep_output(stdout, r'FC_CT\s+11 ') or grep_output(stdout, r'FC_CT\s+11\b')
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('fc_coverage.pcapng.gz'), '-z', 'conv,fc',
+            ), encoding='utf-8', env=test_env)
+        assert '01.02.03             <-> 01.04.05' in stdout
+        assert '01.06.07             <-> 01.08.09' in stdout
