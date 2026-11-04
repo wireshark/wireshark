@@ -36909,7 +36909,7 @@ class TestDissectDcerpcNetlogon:
             assert stdout.count('Secure Channel Verifier') == 2
             assert stdout.count('Operation: NetrLogonGetCapabilities (21)') == 2
 
-    def test_netlogon_schannel_keys(self, cmd_tshark, capture_file, test_env):
+    def test_netlogon_schannel_keys(self, cmd_tshark, capture_file, features, test_env):
         '''Port 50006 negotiates session keys from the NT password
         SchannelCover. With that password, ServerAuthenticate2/3 report
         the AES, MD5 and DES keys and the sealed GetCapabilities stubs
@@ -36918,6 +36918,8 @@ class TestDissectDcerpcNetlogon:
         on this connection is decrypted, and neither way is malformed.
         One pass and two passes agree. The password is not in the
         capture: the suite passes it as an NTLMSSP credential.'''
+        if not features.have_kerberos:
+            pytest.skip('Requires Kerberos.')
         cred = ('-o', 'uat:ntlmssp_creds:"NT Password","SchannelCover"')
         aes = 'Using session key learned in frame 725 (45807f4f) from <NT Password 1>'
         md5 = 'Using session key learned in frame 735 (3d593e66) from <NT Password 1>'
@@ -36961,12 +36963,14 @@ class TestDissectDcerpcNetlogon:
                     ), encoding='utf-8', env=test_env)
                 assert count_output(stdout) == 0
 
-    def test_netlogon_session_key_buffers(self, cmd_tshark, capture_file, test_env):
+    def test_netlogon_session_key_buffers(self, cmd_tshark, capture_file, features, test_env):
         '''Port 50007 decrypts netr_CryptPassword and the OpaqueBuffer
         with the AES and STRONGKEY session keys of SchannelCover. A
         plaintext length that does not survive decryption is reported
         unusable, and the DES key has no cipher. One pass and two passes
         agree.'''
+        if not features.have_kerberos:
+            pytest.skip('Requires Kerberos.')
         cred = ('-o', 'uat:ntlmssp_creds:"NT Password","SchannelCover"')
         aes = 'session key learned in frame 763 (3d5cc643) from <NT Password 1>'
         md5 = 'session key learned in frame 775 (76464ee5) from <NT Password 1>'
