@@ -56734,3 +56734,93 @@ class TestDissectFcfcs:
             ['0x00', '0x01', '0x02', '0x03', '0x04', '0x7f', '0x10']
         assert [rows[str(n)][2] for n in range(84, 97, 2)] == \
             ['0x00', '0x00', '0x44', '0x00', '0x00', '0x01', '0xff']
+
+
+class TestDissectFcfzs:
+    '''FC Zone Server (FC-CT GS type 0xFA, subtype 3) in FCoE, from the
+    synthetic capture fcfzs_coverage.pcap.gz: every request with its
+    accept, zone sets with every member type, rejects and exchange state
+    tracking.'''
+
+    OPS = ['Get Capabilities'] * 5 + ['Get Enforcement State'] * 4 + \
+        ['Get Zone Set List'] * 2 + ['Get Zone List'] * 2 + ['Get Zone Member List'] * 2 + \
+        ['Get Active Zone Set'] * 2 + ['Get Zone Set'] * 2 + ['Add Zone Set', 'Activate Zone Set Direct',
+        'Activate Zone Set', 'Deactivate Zone Set', 'Add Zone Members', 'Remove Zone Members',
+        'Add Zone Members', 'Remove Zone Members', 'Add Zone', 'Remove Zone', 'Remove Zone Set',
+        '0x7777', 'Get Capabilities', 'Get Enforcement State']
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fcfzs_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fcfzs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 100 frames are Zone Server frames, with no malformed
+        packets or expert infos in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 100
+        assert all(r[0] == 'Zone Server' for r in rows.values())
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcfzs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcfzs_info(self, cmd_tshark, capture_file, test_env):
+        '''The accept is named after the request of its exchange, also
+        when the exchange is reused (frames 63-66), and for rejects.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.info', passes=passes)
+            infos = [rows[str(n)][0] for n in range(1, 101)]
+            expected = []
+            for op in self.OPS:
+                expected += [op, 'MSG_ACC (%s)' % op]
+            expected += ['Get Zone Set', 'MSG_RJT (Get Zone Set)'] * 16
+            expected += ['FC_CT Reject (Invalid Cmd Code)', '0x8003']
+            assert infos == expected
+
+    def test_fcfzs_zoneset(self, cmd_tshark, capture_file, test_env):
+        '''The active zone set with every member type (frame 32), a zone
+        set list and capability and state flags.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcfzs.zoneset.name',
+                         'fcfzs.zone.name', 'fcfzs.zonembr.idtype', 'fcfzs.zone.mbrid.fcwwn',
+                         'fcfzs.zone.mbrid.uint', 'fcfzs.zone.mbrid.fc', 'fcfzs.zone.lun')
+        r = rows['32']
+        assert r[0] == 'ZSET_ONE'
+        assert r[1] == 'zone_a,zb,zone_empty'
+        assert r[2] == '0x01,0x04,0x02,0x03,0xe1,0xe2,0xe3,0x01'
+        assert r[3] == '10:00:00:aa:00:00:00:01,10:00:00:aa:00:00:00:04,' \
+                       '10:00:00:aa:00:00:00:07,10:00:00:aa:00:00:00:01'
+        assert r[4] == '0x001234,0x100000'
+        assert r[5] == '01.02.03,10.00.00'
+        assert r[6] == '00000007e2000000,100000aa00000008,100000aa00000009'
+        assert rows['34'][0] == 'ZS'
+        # requests with the zone set definition
+        assert rows['39'][0] == 'ZSET_ONE' and rows['41'][0] == 'ZS'
+
+    def test_fcfzs_flags(self, cmd_tshark, capture_file, test_env):
+        '''Capabilities and enforcement state bits and vendor flags.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcfzs.gzc.flags',
+                         'fcfzs.gzc.flags.hard_zones', 'fcfzs.gzc.flags.soft_zones',
+                         'fcfzs.gzc.flags.zoneset_db', 'fcfzs.gzc.vendor',
+                         'fcfzs.zone.state', 'fcfzs.gest.vendor')
+        assert rows['2'] == ['0xe0', 'True', 'True', 'False', '0x00070000', '', '']
+        assert rows['10'] == ['0x00', 'False', 'False', 'False', '0x00000000', '', '']
+        assert rows['12'][5:] == ['0xc0', '0xcafe00c0']
+        assert rows['18'][5:] == ['0x00', '0xcafe0000']
+
+    def test_fcfzs_reject(self, cmd_tshark, capture_file, test_env):
+        '''Reject reason, explanation and vendor codes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcfzs.reason',
+                         'fcfzs.rjtdetail', 'fcfzs.rjtvendor')
+        details = [rows[str(n)][1] for n in range(68, 99, 2)]
+        assert details == ['0x00', '0x00', '0x01', '0x10', '0x11', '0x12', '0x13', '0x14',
+                           '0x15', '0x16', '0x17', '0x18', '0x19', '0x1a', '0x7f', '0xff']
+        assert [rows[str(n)][0] for n in range(68, 99, 2)] == \
+            ['0x01', '0x01', '0x02'] + ['0x03'] * 11 + ['0x04', '0x09']
+        assert [rows[str(n)][2] for n in range(68, 99, 2)] == details
