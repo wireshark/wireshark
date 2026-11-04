@@ -243,7 +243,7 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
 
 static int
 dissect_glbp_auth(tvbuff_t *tvb, int offset,
-        packet_info *pinfo _U_, proto_tree *tlv_tree)
+        packet_info *pinfo, proto_tree *tlv_tree)
 {
   uint8_t authtype;
   uint8_t authlength;
@@ -262,6 +262,11 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
     offset += authlength;
     break;
   case 3:
+    if (authlength < 4) {
+      expert_add_info(pinfo, tlv_tree, &ei_glbp_tlv_length_too_small);
+      offset += authlength;
+      break;
+    }
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainindex, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainhash,  tvb, offset+4, authlength-4, ENC_NA);
     offset += authlength;
