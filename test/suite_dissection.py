@@ -58280,3 +58280,52 @@ class TestDissectFlexray:
         lines = self.run(cmd_tshark, capture_file, test_env,
                 '-Y', 'flexray.crc', '-Tfields', '-eframe.number', '-eflexray.crc')
         assert lines == ['14\t0x123456', '15\t0xabcdef', '23\t0x112233']
+
+
+class TestDissectFlip:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('flip_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_flip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''15 of 17 frames are FLIP (two are too short to be), none is
+        malformed or has an expert info, in one and two passes.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 17
+        assert lines.count('FLIP') == 15
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_flip_info(self, cmd_tshark, capture_file, test_env):
+        '''Flow ID, checksum, and the descriptions of the invalid frames.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flip', '-Tfields', '-e_ws.col.info')
+        assert lines[0] == 'FlowID 0x00000100'
+        assert lines[1] == 'FlowID 0x0fffffff'
+        assert lines[3] == 'FlowID 0x00000200'
+        assert lines[4] == 'Checksum 0xbcef [Incorrect] (computed 0xbcee)'
+        assert lines[8] == 'Extension header indicated, but not enough data'
+        assert lines[9] == 'Invalid extension header type 0x7f'
+        assert lines[10] == 'Checksum 0xffff [Incorrect] (computed 0x7b3c)'
+        assert lines[11] == 'Length mismatch: frame 46 bytes, hdr 500 bytes'
+        assert lines[12] == 'Invalid length in basic header: 4 bytes'
+        assert lines[13] == 'Invalid length in basic header: 0 bytes'
+
+    def test_flip_headers(self, cmd_tshark, capture_file, test_env):
+        '''Basic header fields, chained checksum headers.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'flip', '-Tfields', '-eframe.number', '-eflip.basic.e',
+                '-eflip.basic.reserved', '-eflip.basic.flowid',
+                '-eflip.basic.seqnum', '-eflip.basic.len', '-eflip.chksum.chksum',
+                '-eflip.chksum.e', '-eflip.chksum.spare')
+        assert lines[0] == '1\tFalse\t0\t0x00000100\t1\t8\t\t\t'
+        assert lines[2] == '3\tFalse\t7\t0x07000123\t3\t14\t\t\t'
+        assert lines[3] == '4\tTrue\t0\t0x00000200\t4\t31\t0x0000447a\tFalse\t0'
+        assert lines[5] == '6\tTrue\t0\t0x00000201\t6\t35\t0x00004c74,0x00001234\tTrue,False\t0,0'
+        assert lines[6].split('\t')[6] == '0x00000aa5,0x00001234,0x00001234'
+        assert lines[10] == '11\tTrue\t0\t0x00000302\t11\t12\t0x0000ffff\tFalse\t85'
