@@ -55326,3 +55326,96 @@ class TestDissectEtw:
         # an MBIM event after an ERF record with extension headers: the
         # ERF pseudo header is not passed on to the MBIM dissector
         assert frames('frame.number == 37 && mbim') == [37]
+
+
+class TestDissectEvrc:
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args):
+        # The legacy format (payload type 60) needs the preference
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'evrc.legacy_pt_60:TRUE', *args,
+                '-r', capture_file('evrc_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_evrc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Two SIP/SDP packets that set up the streams, then 100 EVRC
+        packets (92 without the legacy preference, the rest are RTP);
+        none is malformed or has an expert info, in one and two passes.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 102
+        assert protocols.count('SIP/SDP') == 2
+        assert protocols.count('EVRC') == 100
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('evrc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('EVRC') == 92
+        assert protocols.count('RTP') == 8
+        for passes in ((), ('-2',)):
+            stdout = self._run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert')
+            assert count_output(stdout) == 0
+
+    def test_evrc_variants(self, cmd_tshark, capture_file, test_env):
+        '''The variants follow their SDP names: the mode request field
+        of each one, the frame counts and the ToC frame types.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-eevrc.mode_request',
+                '-eevrc.b.mode_request', '-eevrc.wb.mode_request',
+                '-eevrc.nw.mode_request', '-eevrc.nw2k.mode_request',
+                '-eevrc.frame_count')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[2] == ['3', '0', '', '', '', '', '0']      # EVRC
+        assert rows[12][0:7] == ['13', '', '0', '', '', '', '0']   # EVRC-B
+        assert rows[22][0:7] == ['23', '', '', '0', '', '', '0']   # EVRC-WB
+        assert rows[32][0:7] == ['33', '', '', '', '0', '', '0']   # EVRC-NW
+        assert rows[42][0:7] == ['43', '', '', '', '', '0', '0']   # EVRC-NW2K
+        assert rows[10][6] == '31'
+        assert rows[5] == ['6', '3', '', '', '', '', '3']
+        # mode requests 0-7 of EVRC-WB in frames 55-102 order
+        modes = [r[3] for r in rows if r[3]]
+        assert modes[10:] == [str(m) for m in range(8)]
+
+    def test_evrc_toc_and_speech_data(self, cmd_tshark, capture_file, test_env):
+        '''The speech data lengths follow the ToC frame types
+        (1/8 rate 2, 1/4 rate 5, 1/2 rate 10, full rate 22 octets);
+        data that does not fit is not shown, and the padding nibble
+        follows an odd number of frames.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-eevrc.toc.frame_type_hi',
+                '-eevrc.toc.frame_type_lo', '-eevrc.padding',
+                '-eevrc.speech_data', '-Y', 'frame.number >= 3 && frame.number <= 12')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        sizes = [[len(v) // 2 for v in r[4].split(',') if v and v != '<MISSING>']
+                 for r in rows]
+        assert sizes[0] == [22]
+        assert sizes[1] == [10, 2]
+        assert sizes[2] == [22]                # 4, 0, 5: only the full rate frame
+        assert sizes[3] == [5, 2, 10, 22]      # 1/4 rate is 5 octets
+        assert rows[2][3] == '0'               # padding of three frames
+        assert sizes[7] == [10]                # 6, 7, 15 and 1/2 rate
+        assert sizes[8] == [2] * 32            # 32 frames in one packet
+        assert sizes[9] == [10]                # data cut short after 15 octets
+
+    def test_evrc_legacy_toc(self, cmd_tshark, capture_file, test_env):
+        '''The legacy ToC: the frame type is 6 bits and the reduced rate
+        bit (0x40) is separate. With the reduced rate bit set the speech
+        data length used to be computed as 0 ("EVRC: Fix the frame type
+        mask of the legacy ToC").'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-eevrc.legacy.toc.reduced_rate',
+                '-eevrc.legacy.toc.frame_type', '-eevrc.speech_data',
+                '-Y', 'frame.number >= 95')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        sizes = {r[0]: [len(v) // 2 for v in r[3].split(',') if v and v != '<MISSING>']
+                 for r in rows if len(r) > 3}
+        assert rows[0][1:3] == ['0', '4'] and sizes['95'] == [22]
+        assert rows[2][1:3] == ['1,1,1,0', '3,4,1,14']
+        assert sizes['97'] == [10, 22, 2]
+        assert rows[3][1:3] == ['1,1,0,0', '4,14,2,2']
+        assert sizes['98'] == [22, 5, 5]
+        assert len(rows[4][2].split(',')) == 32
+        assert sizes['99'] == [22] * 32
