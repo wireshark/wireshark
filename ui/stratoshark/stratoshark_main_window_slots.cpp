@@ -597,7 +597,7 @@ void StratosharkMainWindow::captureEventHandler(CaptureEvent ev)
             captureFileReadStarted(tr("Loading"));
             break;
         case CaptureEvent::Finished:
-            captureFileReadFinished();
+            captureFileReadFinished(CaptureEvent::File);
             break;
         default:
             break;
@@ -610,7 +610,7 @@ void StratosharkMainWindow::captureEventHandler(CaptureEvent ev)
             captureFileReadStarted(tr("Reloading"));
             break;
         case CaptureEvent::Finished:
-            captureFileReadFinished();
+            captureFileReadFinished(CaptureEvent::Reload);
             break;
         default:
             break;
@@ -624,7 +624,7 @@ void StratosharkMainWindow::captureEventHandler(CaptureEvent ev)
             captureFileReadStarted(tr("Rescanning"));
             break;
         case CaptureEvent::Finished:
-            captureFileReadFinished();
+            captureFileReadFinished(CaptureEvent::Rescan);
             break;
         default:
             break;
@@ -740,7 +740,7 @@ void StratosharkMainWindow::captureFileReadStarted(const QString &action) {
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(false);
 }
 
-void StratosharkMainWindow::captureFileReadFinished() {
+void StratosharkMainWindow::captureFileReadFinished(CaptureEvent::Context context) {
     if (!capture_file_.capFile()->is_tempfile && capture_file_.capFile()->filename) {
         /* Add this filename to the list of recent files in the "Recent Files" submenu */
         WorkspaceState::instance()->addRecentCaptureFile(qUtf8Printable(capture_file_.capFile()->filename));
@@ -758,7 +758,7 @@ void StratosharkMainWindow::captureFileReadFinished() {
     main_ui_->statusBar->setFileName(capture_file_);
     main_ui_->actionAnalyzeReloadLuaPlugins->setEnabled(true);
 
-    packet_list_->captureFileReadFinished();
+    packet_list_->captureFileReadFinished(context);
 
     emit setDissectedCaptureFile(capture_file_.capFile());
 }

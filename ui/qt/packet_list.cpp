@@ -286,7 +286,7 @@ PacketList::PacketList(QWidget *parent) :
     pinned_selection_model_(nullptr),
     syncing_selection_(false),
     pinned_column_boundary_(0),
-    saved_pinned_column_boundary_(0),
+    saved_pins_open_type_(WTAP_TYPE_AUTO),
     pinned_column_view_(nullptr),
     pinned_row_view_(nullptr),
     pinned_row_corner_view_(nullptr),
@@ -2219,7 +2219,6 @@ void PacketList::columnsChanged()
     if (pinned_column_boundary_ > 0) {
         setPinnedColumnBoundary(0);
     }
-    saved_pinned_column_boundary_ = 0;
     columns_changed_ = false;
 }
 
@@ -2329,20 +2328,16 @@ void PacketList::setVerticalAutoScroll(bool enabled)
 
 // Called when we finish reading, reloading, rescanning, and retapping
 // packets.
-void PacketList::captureFileReadFinished()
+void PacketList::captureFileReadFinished(CaptureEvent::Context context)
 {
     packet_list_proxy_model_->flushVisibleRows();
     packet_list_proxy_model_->dissectIdle(true);
-    // Redissection cleared the model; bring back the frozen columns and
-    // pinned packets.
-    if (saved_pinned_column_boundary_ > 0) {
-        int boundary = saved_pinned_column_boundary_;
-        saved_pinned_column_boundary_ = 0;
-        if (boundary < header()->count()) {
-            setPinnedColumnBoundary(boundary);
-        }
-    }
-    if (pinned_rows_model_ && pinned_rows_model_->restoreSavedPins()) {
+    // Redissecting or reloading the file cleared the model; bring back the
+    // pinned packets. A newly opened file has none, even if it's the same
+    // file.
+    if (context == CaptureEvent::File) {
+        pinned_rows_model_->discardSavedPins();
+    } else if (pinned_rows_model_->restoreSavedPins()) {
         updatePinnedRowVisibility();
         reconcilePinnedSelection();
     }
@@ -2466,20 +2461,13 @@ bool PacketList::thaw(bool restore_selection)
 
 void PacketList::clear() {
     // pinned_rows_model_ unpins everything itself when packet_list_model_
-    // is cleared below, remembering the pins so redissection can restore
-    // them (see captureFileReadFinished()). The frozen columns are handled
-    // the same way.
-    // cap_file_ is null when the file is being closed (setCaptureFile(NULL)
-    // precedes the clear), in which case there is nothing to restore later.
-    saved_pinned_column_boundary_ = cap_file_ ? pinned_column_boundary_ : 0;
-    setPinnedColumnBoundary(0);
-
+    // is cleared below, remembering the pins so redissecting or reloading
+    // the file can restore them (see captureFileReadFinished()). The frozen
+    // columns are part of the view, like the columns themselves, and are
+    // kept.
     related_packet_delegate_.clear();
     selectionModel()->clear();
     packet_list_model_->clear();
-    if (!cap_file_) {
-        pinned_rows_model_->discardSavedPins();
-    }
     proto_tree_->clear();
     selection_history_.clear();
     cur_history_ = -1;
@@ -2728,10 +2716,18 @@ void PacketList::deleteAllPacketComments()
 
 void PacketList::setCaptureFile(capture_file *cf)
 {
+    // Reloading closes and reopens the file before the reload starts, so
+    // keep the pins saved when the file is cleared, unless a different file
+    // (or the same one as a different type) is opened. Compare with the file
+    // as it was opened; Reload as File Format changes open_type beforehand.
+    if (cf) {
+        if (saved_pins_filename_ != cf->filename || saved_pins_open_type_ != cf->open_type) {
+            pinned_rows_model_->discardSavedPins();
+        }
+        saved_pins_filename_ = cf->filename;
+        saved_pins_open_type_ = cf->open_type;
+    }
     cap_file_ = cf;
-    // A different file (or none) is being shown, not a redissection.
-    pinned_rows_model_->discardSavedPins();
-    saved_pinned_column_boundary_ = 0;
     packet_list_model_->setCaptureFile(cf);
     if (cap_file_ && columns_changed_) {
         columnsChanged();
