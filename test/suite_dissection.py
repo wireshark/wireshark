@@ -56653,3 +56653,84 @@ class TestDissectFcels:
         assert rows['85'][8:11] == ['16', '0x00000003', '80']
         assert rows['107'][11:13] == ['3', '0x7766'] and rows['109'][13] == '1'
         assert rows['103'][14] == '0x2000,0x4000'
+
+
+class TestDissectFcfcs:
+    '''FC Fabric Configuration Server (FC-CT GS type 0xFA, subtype 1) in
+    FCoE, from the synthetic capture fcfcs_coverage.pcap.gz: every request
+    with its accept, rejects, and exchange state tracking.'''
+
+    OPS = ['GIEL', 'GIEL', 'GIET', 'GIET', 'GDID', 'GMID', 'GFN', 'GIELN', 'GMAL',
+           'GMAL', 'GIEIL', 'GIEIL', 'GPL', 'GPL', 'GPT', 'GPPN', 'GAPNL', 'GPS',
+           'GPLNL', 'GPLNL', 'GPLT', 'GPLML', 'GNPL', 'GPNL', 'RIELN', 'RPL', 'RPL',
+           'RPLN', 'RPLT', 'RPLM', 'DPL', 'DPLN', 'DPLML', 'GCAP', 'GCAP', 'GTIN',
+           'GATIN', 'GNID', '0x7777', 'GPT', 'GPS']
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fcfcs_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fcfcs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''98 frames are FC-FCS and the last one is for another server
+        (Unzoned NS); no malformed packets or expert infos in one and two
+        passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 99
+        protocols = [r[0] for r in rows.values()]
+        assert protocols.count('FC-FCS') == 98
+        assert protocols[-1] == 'Unzoned NS'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcfcs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcfcs_info(self, cmd_tshark, capture_file, test_env):
+        '''The accept is named after the request of its exchange (state
+        kept per OX_ID), also when the exchange is reused (frames 79-82)
+        and for rejects.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.info', passes=passes)
+            infos = [rows[str(n)][0] for n in range(1, 100)]
+            expected = []
+            for op in self.OPS:
+                expected += [op, 'MSG_ACC (%s)' % op]
+            expected += ['GIEL', 'MSG_RJT (GIEL)'] * 7
+            expected += ['FC_CT Reject (Invalid Cmd Code)', '0x8003', 'GID_A']
+            assert infos == expected
+
+    def test_fcfcs_lists(self, cmd_tshark, capture_file, test_env):
+        '''Lists: interconnect elements, element info with vendor specific
+        strings, ports, capabilities.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcs.ie.name', 'fcs.ie.type',
+                         'fcs.ie.domainid', 'fcs.ie.mgmtid', 'fcs.vendorname',
+                         'fcs.modelname', 'fcs.releasecode',
+                         'fcfcs.vendor_specific_information', 'fcs.port.type',
+                         'fcs.port.state', 'fcs.numcap', 'fcs.gssubtype')
+        r = rows['2']
+        assert r[0] == '10:00:00:aa:00:00:00:00,10:00:00:aa:00:00:00:01,' \
+                       '10:00:00:aa:00:00:00:02,10:00:00:aa:00:00:00:03'
+        assert r[1] == '0x01,0x02,0x03,0x09'
+        assert rows['10'][2] == '0x21' and rows['12'][3] == 'fc.01.0a'
+        assert rows['22'][4:8] == ['ACME', 'M-1000', '1.2.3', 'extra info,more']
+        assert rows['24'][4:8] == ['ACME', 'M-1000', '1.2.3', '']
+        assert rows['26'][8] == '0x01,0x81,0x84'
+        assert rows['36'][8:10] == ['0x81', '0x02']
+        assert rows['68'][10:12] == ['3', '0x01,0x02,0x09']
+
+    def test_fcfcs_reject(self, cmd_tshark, capture_file, test_env):
+        '''Reject reason, explanation and vendor code.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcs.reason',
+                         'fcs.reasondet', 'fcs.err.vendor')
+        assert [rows[str(n)][0] for n in range(84, 97, 2)] == \
+            ['0x01', '0x02', '0x03', '0x04', '0x05', '0x07', '0x09']
+        assert [rows[str(n)][1] for n in range(84, 97, 2)] == \
+            ['0x00', '0x01', '0x02', '0x03', '0x04', '0x7f', '0x10']
+        assert [rows[str(n)][2] for n in range(84, 97, 2)] == \
+            ['0x00', '0x00', '0x44', '0x00', '0x00', '0x01', '0xff']
