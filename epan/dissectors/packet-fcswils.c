@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
 
@@ -197,6 +198,7 @@ static int hf_swils_lsupdate_flags;
 static expert_field ei_swils_efp_record_len;
 static expert_field ei_swils_no_exchange;
 static expert_field ei_swils_zone_mbrid;
+static expert_field ei_swils_zone_nesting;
 
 /* Initialize the subtree pointers */
 static int ett_fcswils;
@@ -677,12 +679,12 @@ dissect_swils_ess_capability_obj(tvbuff_t *tvb, proto_tree *tree, int offset)
             offset += 12;
             len += 12;
 
-            while ((i > 0) && tvb_bytes_exist(tvb, offset, 8)) {
+            while ((i >= 8) && tvb_bytes_exist(tvb, offset, 8)) {
                 proto_tree_add_item(capinfo_tree, hf_swils_ess_cap_vendorobj,
                                     tvb, offset, 8, ENC_NA);
                 i -= 8;
                 offset += 8;
-                len += 12;
+                len += 8;
             }
         }
     }
@@ -1209,13 +1211,19 @@ dissect_swils_zone_mbr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zmbr_tree,
 
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, int offset)
+dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree, int offset, unsigned level)
 {
     proto_tree *zmbr_tree;
     int         mbrlen, numrec, i, objtype;
     char       *str;
 
     objtype = tvb_get_uint8(tvb, offset);
+
+    /* The format nests a zone set only once (zone set -> zones -> members). */
+    if (objtype == FC_SWILS_ZONEOBJ_ZONESET && level >= 1) {
+        proto_tree_add_expert_remaining(zobj_tree, pinfo, &ei_swils_zone_nesting, tvb, offset);
+        return;
+    }
 
     proto_tree_add_item(zobj_tree, hf_swils_zone_objtype, tvb, offset,
                         1, ENC_BIG_ENDIAN);
@@ -1231,11 +1239,9 @@ dissect_swils_zone_obj(tvbuff_t *tvb, packet_info* pinfo, proto_tree *zobj_tree,
     offset += 8 + ZONENAME_LEN(tvb, offset+4);
     for (i = 0; i < numrec; i++) {
         if (objtype == FC_SWILS_ZONEOBJ_ZONESET) {
-            increment_dissection_depth(pinfo);
-            /* XXX - Is it legal to have more than one level of nesting here?
-             * get_zoneobj_len assumes one at most. Should there be a subtree? */
-            dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
-            decrement_dissection_depth(pinfo);
+            /* Nesting is limited to one level (see above), which is what
+             * get_zoneobj_len accounts for. */
+            dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset, level + 1);
             offset += get_zoneobj_len(tvb, offset);
         }
         else {
@@ -1284,7 +1290,7 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo, proto_tree *mr_tree, u
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset+4, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset, 0);
                     offset += objlen;
                 }
             }
@@ -1310,7 +1316,7 @@ dissect_swils_mergereq(tvbuff_t *tvb, packet_info* pinfo, proto_tree *mr_tree, u
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset,
                                                 objlen, ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset, 0);
                     offset += objlen;
                 }
             }
@@ -1411,7 +1417,7 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sfc_tree, uint8
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset, 0);
                     offset += objlen;
                 }
             }
@@ -1437,7 +1443,7 @@ dissect_swils_sfc(tvbuff_t *tvb, packet_info* pinfo, proto_tree *sfc_tree, uint8
                     objlen = get_zoneobj_len(tvb, offset);
                     zobj_tree = proto_tree_add_subtree_format(zobjlist_tree, tvb, offset, objlen,
                                                 ett_fcswils_zoneobj, NULL, "Zone Object %d", i);
-                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset);
+                    dissect_swils_zone_obj(tvb, pinfo, zobj_tree, offset, 0);
                     offset += objlen;
                 }
             }
@@ -1666,6 +1672,7 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     conversation_t      *conversation;
     fcswils_conv_data_t *cdata;
     fcswils_conv_key_t   ckey, *req_key;
+    uint8_t             *req_opcode;
     proto_tree          *swils_tree    = NULL;
     uint8_t              isreq         = FC_SWILS_REQ;
     tvbuff_t            *next_tvb;
@@ -1705,9 +1712,11 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
              * case of another request using the same exchange as a previous
              * req.
              */
-            cdata->opcode = opcode;
+            if (!PINFO_FD_VISITED(pinfo)) {
+                cdata->opcode = opcode;
+            }
         }
-        else {
+        else if (!PINFO_FD_VISITED(pinfo)) {
             req_key = wmem_new(wmem_file_scope(), fcswils_conv_key_t);
             req_key->conv_idx = conversation->conv_index;
 
@@ -1735,11 +1744,25 @@ dissect_fcswils(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             cdata = (fcswils_conv_data_t *)wmem_map_lookup(fcswils_req_hash, &ckey);
 
-            if (cdata != NULL) {
+            /* The exchange may have been reused by a later request, so
+             * keep the opcode each reply was matched with on the first
+             * pass and use it on later passes.
+             */
+            req_opcode = (uint8_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fcswils, 0);
+            if (!PINFO_FD_VISITED(pinfo) && cdata != NULL && req_opcode == NULL) {
+                req_opcode = wmem_new(wmem_file_scope(), uint8_t);
+                *req_opcode = (uint8_t)cdata->opcode;
+                p_add_proto_data(wmem_file_scope(), pinfo, proto_fcswils, 0, req_opcode);
+            }
+
+            if (req_opcode != NULL) {
                 if (opcode == FC_SWILS_SWACC)
-                    opcode = cdata->opcode;
+                    opcode = *req_opcode;
                 else
-                    failed_opcode = cdata->opcode;
+                    failed_opcode = *req_opcode;
+            }
+            else {
+                cdata = NULL;
             }
 
             if (tree) {
@@ -2494,6 +2517,7 @@ proto_register_fcswils(void)
 
     static ei_register_info ei[] = {
         { &ei_swils_efp_record_len, { "swils.efp.recordlen.zero", PI_UNDECODED, PI_NOTE, "Record length is zero", EXPFILL }},
+        { &ei_swils_zone_nesting, { "swils.zone.nesting", PI_MALFORMED, PI_ERROR, "Zone set nested inside a zone set", EXPFILL }},
         { &ei_swils_no_exchange, { "swils.no_exchange", PI_UNDECODED, PI_WARN, "No record of Exchg. Unable to decode", EXPFILL }},
         { &ei_swils_zone_mbrid, { "swils.zone.mbrid.unknown_type", PI_PROTOCOL, PI_WARN, "Unknown member type format", EXPFILL }},
     };
