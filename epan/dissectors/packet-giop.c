@@ -271,6 +271,7 @@
 #include <errno.h>
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
@@ -282,6 +283,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 #include <wsutil/report_message.h>
+#include <wsutil/zlib_compat.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"
@@ -918,7 +920,12 @@ LocateReplyHeader_t;
  * DATA - complete_request_list
  */
 
-static GList *giop_complete_request_list;
+/* fn -> comp_req_list_entry_t (latest entry for a frame number) */
+static wmem_map_t *giop_req_by_fn;
+/* (reqid, src address, src port) -> comp_req_list_entry_t (latest request) */
+static wmem_map_t *giop_req_by_reqid;
+/* (frame, request id) -> repository id resolved on the first pass */
+static wmem_map_t *giop_repoid_by_req;
 
 struct comp_req_list_entry {
   uint32_t           fn;        /* frame number */
@@ -931,6 +938,25 @@ struct comp_req_list_entry {
 };
 
 typedef struct comp_req_list_entry comp_req_list_entry_t;
+
+struct comp_req_key {
+  uint32_t           reqid;
+  uint32_t           port;
+  address            addr;
+};
+
+static unsigned comp_req_key_hash(const void *k) {
+  const struct comp_req_key *key = (const struct comp_req_key *)k;
+  unsigned hash = add_address_to_hash(key->reqid * 31 + key->port, &key->addr);
+  return hash;
+}
+
+static gboolean comp_req_key_equal(const void *a, const void *b) {
+  const struct comp_req_key *k1 = (const struct comp_req_key *)a;
+  const struct comp_req_key *k2 = (const struct comp_req_key *)b;
+  return k1->reqid == k2->reqid && k1->port == k2->port &&
+         cmp_address(&k1->addr, &k2->addr) == 0;
+}
 
 
 /*
@@ -1099,8 +1125,12 @@ static const char *giop_ior_file;
  * Insert FN, reqid, operation and sub handle in list. DOES not check for duplicates yet.
  */
 
-static GList *insert_in_comp_req_list(GList *list, uint32_t fn, uint32_t reqid, const char * op, giop_sub_handle_t *sh, address *addr, uint32_t port ) {
+static void insert_in_comp_req_list(uint32_t fn, uint32_t reqid, const char * op, giop_sub_handle_t *sh, address *addr, uint32_t port ) {
   comp_req_list_entry_t *entry;
+  struct comp_req_key   *key;
+
+  if (giop_req_by_fn == NULL || giop_req_by_reqid == NULL)
+    return;
 
   entry =  wmem_new(wmem_file_scope(), comp_req_list_entry_t);
 
@@ -1112,31 +1142,26 @@ static GList *insert_in_comp_req_list(GList *list, uint32_t fn, uint32_t reqid, 
   entry->srcport   = port ;
   copy_address_wmem (wmem_file_scope (), &entry->src, addr) ;
 
-  return g_list_append (list, entry); /* append */
+  /* The latest entry with the same key wins */
+  wmem_map_insert(giop_req_by_fn, GUINT_TO_POINTER(fn), entry);
+
+  key = wmem_new(wmem_file_scope(), struct comp_req_key);
+  key->reqid = reqid;
+  key->port  = port;
+  copy_address_wmem(wmem_file_scope(), &key->addr, addr);
+  wmem_map_insert(giop_req_by_reqid, key, entry);
 }
 
 
 /*
  * Used to find an entry with matching Frame Number FN
- * in the complete_request_list list.
+ * in the complete request map.
  */
 
 static comp_req_list_entry_t * find_fn_in_list(uint32_t fn) {
-
-  GList                 *element;   /*  entry in list */
-  comp_req_list_entry_t *entry_ptr;
-
-  element = g_list_last(giop_complete_request_list); /* start from  last  */
-
-  while (element) {                      /* valid list entry */
-    entry_ptr = (comp_req_list_entry_t *)element->data;  /* grab data pointer */
-    if (entry_ptr->fn == fn) {  /* similar FN  */
-      return entry_ptr;
-    }
-    element = g_list_previous(element); /* try next previous */
-  }
-
-  return NULL;                  /* no match so return NULL */
+  if (giop_req_by_fn == NULL)
+    return NULL;
+  return (comp_req_list_entry_t *)wmem_map_lookup(giop_req_by_fn, GUINT_TO_POINTER(fn));
 }
 
 
@@ -1246,35 +1271,22 @@ static uint32_t get_mfn_from_fn(uint32_t fn) {
 
 static uint32_t get_mfn_from_fn_and_reqid(uint32_t fn, uint32_t reqid, address *addr, uint32_t pnum) {
 
-  GList                 *element; /* last entry in list */
-  comp_req_list_entry_t *entry_ptr = NULL;
+  comp_req_list_entry_t *entry_ptr;
+  struct comp_req_key    key;
 
-  /* Need Some pretty snappy code */
-
-  /* Loop back from current end of complete_request_list looking for */
-  /* a FN with the same reqid -- TODO enhance with port/address checks -- FS */
+  if (giop_req_by_reqid == NULL)
+    return fn;
 
   /*
    * As this routine is only called during initial pass of data,
-   * and NOT when a user clicks, it is ok to start from Current
-   * end of complete_request_list when searching for a match.
-   * As that list is bing populated in the same order as FN's
-   * are being read.
-   *
-   * Also, can make check for same reqid more detailed, but I start
-   * with reqid. Could add say port or address checks etc later ??
+   * the latest request with the same reqid, address and port wins.
    */
-
-
-  element = g_list_last(giop_complete_request_list); /* get last  */
-
-  while (element) {                      /* valid list entry */
-    entry_ptr = (comp_req_list_entry_t *)element->data;  /* grab data pointer */
-    if (entry_ptr->reqid == reqid && cmp_address (&entry_ptr->src, addr) == 0 && entry_ptr->srcport == pnum) {    /* similar reqid  */
-      return entry_ptr->fn;     /* return MFN */
-    }
-    element = g_list_previous(element); /* try next previous */
-  }
+  key.reqid = reqid;
+  key.port  = pnum;
+  key.addr  = *addr;
+  entry_ptr = (comp_req_list_entry_t *)wmem_map_lookup(giop_req_by_reqid, &key);
+  if (entry_ptr)
+    return entry_ptr->fn;       /* return MFN */
 
   return fn;                    /* no match so return FN */
 }
@@ -1538,6 +1550,23 @@ static int giop_getline(FILE *fp, char *line, int maxlen) {
  * and store in object key hash
  */
 
+static bool giop_reading_ior_file;
+
+/* Decode one IOR read from the IOR file, ignoring a malformed one. */
+static void decode_IOR_from_file(tvbuff_t *tvb, packet_info *pinfo) {
+  int  my_offset = 0;
+  bool stream_is_big_endian;
+
+  TRY {
+    stream_is_big_endian = !get_CDR_octet(tvb, &my_offset);
+    decode_IOR(tvb, pinfo, NULL, &my_offset, 0, stream_is_big_endian);
+  }
+  CATCH_ALL {
+    /* Malformed IOR line, ignore the rest of it */
+  }
+  ENDTRY;
+}
+
 static void read_IOR_strings_from_file(const char *name, int max_iorlen) {
   char     *buf;                /* NOTE reused for every line */
   int       len;
@@ -1545,8 +1574,6 @@ static void read_IOR_strings_from_file(const char *name, int max_iorlen) {
   FILE     *fp;
   uint8_t  *out = NULL;         /* ptr to unstringified IOR */
   tvbuff_t *tvb;                /* temp tvbuff for dissecting IORs */
-  int       my_offset = 0;
-  bool      stream_is_big_endian;
 
 
   fp = ws_fopen(name, "r");      /* open read only */
@@ -1560,25 +1587,33 @@ static void read_IOR_strings_from_file(const char *name, int max_iorlen) {
   buf = (char *)wmem_alloc0(NULL, max_iorlen+1);        /* input buf */
 
   while ((len = giop_getline(fp, buf, max_iorlen+1)) > 0) {
-    my_offset = 0;              /* reset for every IOR read */
 
     ior_val_len = string_to_IOR(buf, len, &out);  /* convert */
 
     if (ior_val_len>0) {
 
-      /* XXX - can this code throw an exception?  If so, we need to
-         catch it and clean up, but we really shouldn't allow it - or
-         "get_CDR_octet()", or "decode_IOR()" - to throw an exception.
+      /*
+       * The dissector code is reused here without a packet. Give it a
+       * dummy packet_info (frame number 0, so expert infos are dropped)
+       * with a scratch allocator for this line, and catch any exception.
+       */
+      packet_info  fake_pinfo;
+      frame_data   fake_fd;
+      wmem_allocator_t *scratch = wmem_allocator_new(WMEM_ALLOCATOR_SIMPLE);
 
-         Either that, or don't reuse dissector code when we're not
-         dissecting a packet. */
+      memset(&fake_pinfo, 0, sizeof(fake_pinfo));
+      memset(&fake_fd, 0, sizeof(fake_fd));
+      fake_pinfo.fd   = &fake_fd;
+      fake_pinfo.pool = scratch;
+      giop_reading_ior_file = true;
 
       tvb =  tvb_new_real_data(out, ior_val_len, ior_val_len);
 
-      stream_is_big_endian = !get_CDR_octet(tvb, &my_offset);
-      decode_IOR(tvb, NULL, NULL, &my_offset, 0, stream_is_big_endian);
+      decode_IOR_from_file(tvb, &fake_pinfo);
 
+      giop_reading_ior_file = false;
       tvb_free(tvb);
+      wmem_destroy_allocator(scratch);
     }
 
     wmem_free(NULL, out);
@@ -1608,14 +1643,18 @@ static void giop_init(void) {
   giop_objkey_hash = g_hash_table_new(giop_hash_objkey_hash, giop_hash_objkey_equal);
   giop_complete_reply_hash = g_hash_table_new(complete_reply_hash_fn, complete_reply_equal_fn);
 
-  giop_complete_request_list = NULL;
+  giop_req_by_fn = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+  giop_req_by_reqid = wmem_map_new(wmem_file_scope(), comp_req_key_hash, comp_req_key_equal);
+  giop_repoid_by_req = wmem_map_new(wmem_file_scope(), g_int64_hash, g_int64_equal);
   read_IOR_strings_from_file(giop_ior_file, 600);
 }
 
 static void giop_cleanup(void) {
   g_hash_table_destroy(giop_objkey_hash);
   g_hash_table_destroy(giop_complete_reply_hash);
-  g_list_free(giop_complete_request_list);
+  giop_req_by_fn = NULL;
+  giop_req_by_reqid = NULL;
+  giop_repoid_by_req = NULL;
 }
 
 
@@ -1669,6 +1708,33 @@ static char * get_repoid_from_objkey(GHashTable *hash, const uint8_t *obj, uint3
   return NULL;                  /* not  found */
 }
 
+
+
+/*
+ * Resolve the repository id of a request. The object key hash can be
+ * filled from later IORs, so resolve it on the first pass only and keep
+ * the result, so that every later pass sees the same value.
+ */
+static char * get_repoid_for_request(packet_info *pinfo, uint32_t request_id,
+                                     const uint8_t *obj, uint32_t len) {
+  uint64_t  key = ((uint64_t)pinfo->num << 32) | request_id;
+  char     *repoid;
+
+  if (giop_repoid_by_req == NULL)
+    return get_repoid_from_objkey(giop_objkey_hash, obj, len);
+
+  if (!PINFO_FD_VISITED(pinfo)) {
+    uint64_t *k;
+    repoid = get_repoid_from_objkey(giop_objkey_hash, obj, len);
+    k = wmem_new(wmem_file_scope(), uint64_t);
+    *k = key;
+    wmem_map_insert(giop_repoid_by_req, k,
+                    repoid ? wmem_strdup(wmem_file_scope(), repoid) : NULL);
+    return repoid;
+  }
+
+  return (char *)wmem_map_lookup(giop_repoid_by_req, &key);
+}
 
 
 /*
@@ -1940,7 +2006,7 @@ static bool try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
                 MessageHeader *header, const char *operation  ) {
 
   int                i, len;
-  bool               res = false; /* result of calling a heuristic sub dissector */
+  volatile bool      res = false; /* result of calling a heuristic sub dissector */
   giop_sub_handle_t *subh;
 
   len = g_slist_length(giop_sub_list); /* find length */
@@ -1970,7 +2036,17 @@ static bool try_heuristic_giop_dissector(tvbuff_t *tvb, packet_info *pinfo, prot
       pinfo->current_proto =
         proto_get_protocol_short_name(subh->sub_proto);
       int saved_offset        = *offset;
-      res = (subh->sub_fn)(tvb, pinfo, NULL, offset, header, operation, NULL); /* callit TODO - replace NULL */
+      /*
+       * A probe that runs off the end of the data only means that this is
+       * not the right sub dissector; try the next one.
+       */
+      TRY {
+        res = (subh->sub_fn)(tvb, pinfo, NULL, offset, header, operation, NULL); /* callit TODO - replace NULL */
+      }
+      CATCH_NONFATAL_ERRORS {
+        res = false;
+      }
+      ENDTRY;
       if (res) {
         ws_debug("operation is matching on (%s)", subh->sub_name);
         ws_debug("remaining data to process = (%u)", tvb_reported_length_remaining(tvb, *offset));
@@ -2162,7 +2238,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
 
   bool my_boolean; /* boolean */
 
-  int8_t s_octet1;   /* signed int8 */
+  int    s_octet1;   /* wchar length or negative size */
   uint8_t u_octet1;   /* unsigned int8 */
 
   int16_t s_octet2;  /* signed int16 */
@@ -2226,7 +2302,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     break;
   case tk_ulong:
     u_octet4 = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint(tree, hf_giop_type_ulong, tvb, *offset-4, 4, u_octet4);
+    it = proto_tree_add_uint(tree, hf_giop_type_ulong, tvb, *offset-4, 4, u_octet4);
     if (data_name && strlen(data_name))
       proto_item_set_text(it, "%s: %u", data_name, u_octet4);
     break;
@@ -2301,6 +2377,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
         expert_add_info(pinfo, item, &ei_giop_offset_error);
         break;
       }
+      old_offset = *offset;
     }
     break;
   case tk_union:
@@ -2363,6 +2440,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
         expert_add_info(pinfo, mysubtree, &ei_giop_offset_error);
         break;
       }
+      old_offset = *offset;
     }
     break;
   case tk_array:
@@ -2389,6 +2467,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
         expert_add_info(pinfo, mysubtree, &ei_giop_offset_error);
         break;
       }
+      old_offset = *offset;
     }
     break;
   case tk_alias:
@@ -2412,7 +2491,7 @@ static void dissect_data_for_typecode_with_params(tvbuff_t *tvb, packet_info *pi
     break;
   case tk_ulonglong:
     u_octet8 = get_CDR_ulong_long(tvb, offset, stream_is_big_endian, boundary);
-    proto_tree_add_uint64(tree, hf_giop_type_ulonglong, tvb, *offset-8, 8, u_octet8);
+    it = proto_tree_add_uint64(tree, hf_giop_type_ulonglong, tvb, *offset-8, 8, u_octet8);
     if (data_name && strlen(data_name))
       proto_item_set_text(it, "%s: %" PRIu64 , data_name, u_octet8);
     break;
@@ -2641,6 +2720,7 @@ static void dissect_tk_union_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     /* get member type */
     get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
+    old_offset = *offset;
   }
 
 }
@@ -2714,7 +2794,7 @@ static void dissect_tk_sequence_params(tvbuff_t *tvb, packet_info *pinfo, proto_
       new_stream_is_big_endian, new_boundary, header, inner_params);
 
   /* get max length */
-  *u_octet4 = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+  *u_octet4 = get_CDR_ulong(tvb, offset, new_stream_is_big_endian, new_boundary);
   proto_tree_add_uint(tree, hf_giop_typecode_max_length, tvb,
                         *offset-4, 4, *u_octet4);
   wmem_list_append(params, typecode);
@@ -2747,7 +2827,7 @@ static void dissect_tk_array_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       new_stream_is_big_endian, new_boundary, header, inner_params);
 
   /* get length */
-  *u_octet4 = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
+  *u_octet4 = get_CDR_ulong(tvb, offset, new_stream_is_big_endian, new_boundary);
   proto_tree_add_uint(tree, hf_giop_typecode_length, tvb,
       *offset-4, 4, *u_octet4);
 
@@ -2875,7 +2955,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                 hf_giop_typecode_name, &str);
 
   /* get ValueModifier */
-  s_octet2 = get_CDR_short(tvb, offset, stream_is_big_endian, boundary);
+  s_octet2 = get_CDR_short(tvb, offset, new_stream_is_big_endian, new_boundary);
   proto_tree_add_int(tree, hf_giop_typecode_ValueModifier, tvb,
                        *offset-2, 2, s_octet2);
 
@@ -2897,7 +2977,7 @@ static void dissect_tk_value_params(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     get_CDR_typeCode(tvb, pinfo, tree, offset, new_stream_is_big_endian, new_boundary, header);
 
     /* get Visibility */
-    s_octet2 = get_CDR_short(tvb, offset, stream_is_big_endian, boundary);
+    s_octet2 = get_CDR_short(tvb, offset, new_stream_is_big_endian, new_boundary);
     if (tree) {
       proto_tree_add_int(tree, hf_giop_typecode_Visibility, tvb,
                           *offset-(int)sizeof(s_octet2), 2, s_octet2);
@@ -4657,7 +4737,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(pinfo->pool, operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(pinfo->pool, operation, strlen(operation)));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -4683,8 +4763,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
    * But only if user is NOT clicking.
    */
   if (! pinfo->fd->visited)
-    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
-                                                         request_id, operation, NULL, &pinfo->src, pinfo->srcport);
+    insert_in_comp_req_list(pinfo->num, request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
 
   /*
@@ -4697,7 +4776,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
 
   header->req_id = request_id;          /* save for sub dissector */
-  repoid = get_repoid_from_objkey(giop_objkey_hash, objkey, objkey_len);
+  repoid = get_repoid_for_request(pinfo, request_id, objkey, objkey_len);
 
 
   if (repoid) {
@@ -4771,7 +4850,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
   dissect_target_address(tvb, pinfo, &offset, request_tree, stream_is_big_endian,
                          &objkey_len, &objkey);
   if (objkey) {
-    repoid = get_repoid_from_objkey(giop_objkey_hash, objkey, objkey_len);
+    repoid = get_repoid_for_request(pinfo, request_id, objkey, objkey_len);
   }
 
   /* length of operation string and string */
@@ -4780,7 +4859,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(pinfo->pool, operation, (size_t)len));
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(pinfo->pool, operation, strlen(operation)));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -4806,8 +4885,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
    */
 
   if (! pinfo->fd->visited)
-    giop_complete_request_list = insert_in_comp_req_list(giop_complete_request_list, pinfo->num,
-                                                         request_id, operation, NULL, &pinfo->src, pinfo->srcport);
+    insert_in_comp_req_list(pinfo->num, request_id, operation, NULL, &pinfo->src, pinfo->srcport);
 
   /*
    *
@@ -4850,7 +4928,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   uint32_t    request_id;
   uint32_t    len    = 0;
   proto_tree *locate_request_tree;
-  proto_item *tf;
+  proto_item *tf, *tl;
 
   locate_request_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
       ett_giop_locate_request, &tf, "General Inter-ORB Locate Request");
@@ -4862,10 +4940,10 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
   if (header->GIOP_version.minor < 2)
   {
     len = get_CDR_ulong(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
-    proto_tree_add_uint (locate_request_tree, hf_giop_objekt_key_len, tvb, offset-4, 4, len);
+    tl = proto_tree_add_uint (locate_request_tree, hf_giop_objekt_key_len, tvb, offset-4, 4, len);
 
     if (len > (uint32_t)tvb_reported_length_remaining(tvb, offset)) {
-        expert_add_info_format(pinfo, tf, &ei_giop_length_too_big, "Object key length bigger than packet size");
+        expert_add_info_format(pinfo, tl, &ei_giop_length_too_big, "Object key length bigger than packet size");
         return;
     }
 
@@ -4919,11 +4997,11 @@ dissect_giop_locate_reply( tvbuff_t * tvb, packet_info * pinfo,
     decode_IOR(tvb, pinfo, locate_reply_tree, &offset, GIOP_HEADER_SIZE, stream_is_big_endian);
     break;
   case LOC_SYSTEM_EXCEPTION:
-    decode_SystemExceptionReplyBody (tvb, pinfo, tree, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
+    decode_SystemExceptionReplyBody (tvb, pinfo, locate_reply_tree, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
     break;
   case LOC_NEEDS_ADDRESSING_MODE:
     addr_disp = get_CDR_ushort(tvb, &offset, stream_is_big_endian, GIOP_HEADER_SIZE);
-    proto_tree_add_uint (tree, hf_giop_addressing_disposition, tvb, offset-2, 2, addr_disp);
+    proto_tree_add_uint (locate_reply_tree, hf_giop_addressing_disposition, tvb, offset-2, 2, addr_disp);
     break;
   default: /* others have no reply body */
     break;
@@ -4949,6 +5027,96 @@ dissect_giop_fragment( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 /* Main entry point */
 
+/*
+ * Inflate a zlib (or raw deflate) stream, refusing to produce more than
+ * max_out bytes. Returns NULL on error or if the output would exceed the
+ * limit (*too_big is set in that case). The generic tvb helper has no
+ * output limit, so a small packet could make it allocate gigabytes.
+ */
+static tvbuff_t *
+giop_uncompress_limited(wmem_allocator_t *pool, tvbuff_t *tvb, unsigned offset, unsigned comprlen,
+                        unsigned max_out, bool *too_big)
+{
+#ifdef USE_ZLIB_OR_ZLIBNG
+  uint8_t    *compr;
+  unsigned    attempt;
+
+  *too_big = false;
+  if (comprlen == 0)
+    return NULL;
+  if (max_out > INT_MAX)
+    max_out = INT_MAX;
+
+  compr = (uint8_t *)tvb_memdup(NULL, tvb, offset, comprlen);
+  if (compr == NULL)
+    return NULL;
+
+  for (attempt = 0; attempt < 2; attempt++) {
+    zlib_stream strm = {0};
+    uint8_t    *buf;
+    unsigned    bufsiz, used = 0;
+    int         err;
+
+    strm.next_in  = compr;
+    strm.avail_in = comprlen;
+    if (ZLIB_PREFIX(inflateInit2)(&strm, attempt == 0 ? MAX_WBITS : -MAX_WBITS) != Z_OK)
+      break;
+
+    bufsiz = 32768;
+    if (bufsiz > max_out)
+      bufsiz = max_out + 1;
+    buf = (uint8_t *)wmem_alloc(pool, bufsiz);
+
+    for (;;) {
+      if (used == bufsiz) {
+        /* Grow, but never past max_out + 1 so that excess is detected */
+        unsigned newsiz = bufsiz > (max_out + 1) / 2 ? max_out + 1 : bufsiz * 2;
+        if (newsiz == bufsiz) {
+          *too_big = true;
+          err = Z_MEM_ERROR;
+          break;
+        }
+        buf = (uint8_t *)wmem_realloc(pool, buf, newsiz);
+        bufsiz = newsiz;
+      }
+      strm.next_out  = buf + used;
+      strm.avail_out = bufsiz - used;
+      err = ZLIB_PREFIX(inflate)(&strm, Z_SYNC_FLUSH);
+      used = bufsiz - strm.avail_out;
+      if (used > max_out) {
+        *too_big = true;
+        err = Z_MEM_ERROR;
+        break;
+      }
+      if (err == Z_STREAM_END)
+        break;
+      if (err != Z_OK && err != Z_BUF_ERROR)
+        break;
+      if (err == Z_BUF_ERROR && strm.avail_out != 0)
+        break;  /* truncated input */
+    }
+    ZLIB_PREFIX(inflateEnd)(&strm);
+
+    if (err == Z_STREAM_END) {
+      tvbuff_t *new_tvb;
+      wmem_free(NULL, compr);
+      new_tvb = tvb_new_child_real_data(tvb, buf, used, used);
+      return new_tvb;
+    }
+    wmem_free(pool, buf);
+    if (*too_big)
+      break;
+  }
+  wmem_free(NULL, compr);
+  return NULL;
+#else
+  (void)pool; (void)tvb; (void)offset; (void)comprlen; (void)max_out;
+  *too_big = false;
+  return NULL;
+#endif
+}
+
+
 static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   int            offset = 0;
   MessageHeader  header;
@@ -4970,6 +5138,9 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 //  giop_dump_collection(cd_complete_request_list);
 
   header.exception_id = NULL;
+
+  /* A previous exception may have left the recursion depth raised */
+  p_set_proto_depth(pinfo, proto_giop, 0);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "GIOP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -5064,13 +5235,19 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     if (rem_len <= 0)
       return 8;
 
-    payload_tvb = tvb_child_uncompress_zlib(tvb, tvb, GIOP_HEADER_SIZE, rem_len);
-    if (payload_tvb) {
-      add_new_data_source (pinfo, payload_tvb, "decompressed Content");
-    } else {
-      /* Decompression failed. */
-      /* XXX: Consider:  add expert item ? do data dissection ? */
-      return 8;
+    {
+      bool too_big = false;
+      payload_tvb = giop_uncompress_limited(pinfo->pool, tvb, GIOP_HEADER_SIZE, (unsigned)rem_len,
+                                            giop_max_message_size, &too_big);
+      if (payload_tvb) {
+        add_new_data_source (pinfo, payload_tvb, "decompressed Content");
+      } else {
+        /* Decompression failed, or the result would be too big. */
+        if (too_big)
+          expert_add_info_format(pinfo, ti, &ei_giop_message_size_too_big,
+                "Decompressed size is bigger than the maximum message size (%u)", giop_max_message_size);
+        return 8;
+      }
     }
   } else {
     payload_tvb = tvb_new_subset_remaining (tvb, GIOP_HEADER_SIZE);
@@ -5116,14 +5293,29 @@ static int dissect_giop_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
     if(header.message_type != Fragment) {
       /* Record the type of this request id so we can dissect it correctly later */
-      wmem_map_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER((unsigned)header.message_type));
+      if (!PINFO_FD_VISITED(pinfo))
+        wmem_map_insert(giop_info->optypes, GUINT_TO_POINTER(header.req_id), GUINT_TO_POINTER((unsigned)header.message_type));
     } else if (!(header.flags & GIOP_MESSAGE_FLAGS_FRAGMENT)) {
-      /* This is the last fragment, recoverr the original messagetype */
-      message_type = (uint8_t)GPOINTER_TO_UINT(wmem_map_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
+      /*
+       * This is the last fragment, recover the original message type.
+       * Resolve it on the first pass only and keep the result for
+       * later passes, as the map keeps changing while the file is read.
+       */
+      void *saved = p_get_proto_data(wmem_file_scope(), pinfo, proto_giop, header.req_id);
+      if (saved == NULL) {
+        message_type = (uint8_t)GPOINTER_TO_UINT(wmem_map_lookup(giop_info->optypes, GUINT_TO_POINTER(header.req_id)));
+        if (!PINFO_FD_VISITED(pinfo))
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_giop, header.req_id,
+                           GUINT_TO_POINTER((unsigned)message_type + 1));
+      } else {
+        message_type = (uint8_t)(GPOINTER_TO_UINT(saved) - 1);
+      }
 
-      /* We override the header message type and size */
+      /* We override the header message type and size, keeping the wire byte order */
       header.message_type = message_type;
-      header.message_size = tvb_captured_length_remaining(payload_tvb, 0);
+      header.message_size = stream_is_big_endian ?
+          GUINT32_TO_BE(tvb_captured_length_remaining(payload_tvb, 0)) :
+          GUINT32_TO_LE(tvb_captured_length_remaining(payload_tvb, 0));
     }
   }
 
@@ -6076,7 +6268,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
      */
 
     if (repo_id_buf) {
-      if (pinfo) {
+      if (pinfo && !giop_reading_ior_file) {
         if (!pinfo->fd->visited)
           insert_in_objkey_hash(giop_objkey_hash, objkey, seqlen, repo_id_buf, ior_src_req_res);
       }
