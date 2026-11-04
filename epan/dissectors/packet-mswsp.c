@@ -684,11 +684,10 @@ static int msg_data_find(struct message_data *a, struct message_data *b)
 	}
 	return 1;
 }
-static  smb_fid_info_t *find_fid_info(smb_info_t *si)
+static  smb_fid_info_t *find_fid_info(smb_info_t *si, uint32_t frame)
 {
 	smb_fid_info_t *fid_info = NULL;
 	smb_transact_info_t *tri = (smb_transact_info_t *)((si->sip && (si->sip->extra_info_type == SMB_EI_TRI)) ? si->sip->extra_info : NULL);
-	GSList *iter;
 	uint32_t fid = 0;
 
 	if (tri == NULL) {
@@ -704,13 +703,7 @@ static  smb_fid_info_t *find_fid_info(smb_info_t *si)
 	if (!fid) {
 		return NULL;
 	}
-	for (iter = si->ct->GSL_fid_info; iter; iter = iter->next) {
-		smb_fid_info_t *info = (smb_fid_info_t *)iter->data;
-		if ((info->tid == si->tid) && (info->fid == fid)) {
-			fid_info = info;
-			break;
-		}
-	}
+	fid_info = smb_fid_tree_lookup(si->ct, si->tid, fid, frame);
 	return fid_info;
 }
 
@@ -726,7 +719,7 @@ static bool get_fid_and_frame(packet_info *pinfo, uint32_t *fid, unsigned *frame
 	if (*p_smb_level == SMB1) {
 		smb_info_t *si = (smb_info_t*)data;
 		smb_fid_info_t *info;
-		info = find_fid_info(si);
+		info = find_fid_info(si, pinfo->num);
 		if (!info) {
 			return false;
 		}
@@ -7654,7 +7647,7 @@ static int dissect_mswsp_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 
 	in = si->request;
-	fid_info = find_fid_info(si);
+	fid_info = find_fid_info(si, pinfo->num);
 
 	if (!fid_info || !fid_info->fsi || !fid_info->fsi->filename) {
 		return 0;
