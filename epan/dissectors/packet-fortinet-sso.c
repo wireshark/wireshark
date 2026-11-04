@@ -41,6 +41,29 @@ static int hf_fsso_unknown_ipv4;
 
 static dissector_handle_t fortinet_sso_handle;
 
+/* Add the '/' delimited field at offset (limited to *remaining bytes) and
+ * advance past it. If there is no delimiter the field takes all that is left. */
+static void
+fsso_add_field(proto_tree *tree, int hf, tvbuff_t *tvb, unsigned *offset, unsigned *remaining)
+{
+    unsigned found_offset;
+    unsigned len;
+    bool found = false;
+
+    if (*remaining > 0)
+        found = tvb_find_uint8_length(tvb, *offset, *remaining, '/', &found_offset);
+    if (found) {
+        len = found_offset - *offset;
+        proto_tree_add_item(tree, hf, tvb, *offset, len, ENC_ASCII);
+        *offset += len + 1;
+        *remaining -= len + 1;
+    } else {
+        proto_tree_add_item(tree, hf, tvb, *offset, *remaining, ENC_ASCII);
+        *offset += *remaining;
+        *remaining = 0;
+    }
+}
+
 static int
 dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -49,7 +72,6 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     uint32_t payload_length, client_ip;
     unsigned string_length;
     const char *string;
-    uint32_t len;
     unsigned offset = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FSSO");
@@ -72,41 +94,18 @@ dissect_fortinet_sso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 2;
 
     proto_tree_add_item_ret_string_and_length(fsso_tree, hf_fsso_string, tvb, offset, -1, ENC_ASCII, pinfo->pool, (const uint8_t**)&string, &string_length);
-    col_set_str(pinfo->cinfo, COL_INFO, string);
+    col_add_str(pinfo->cinfo, COL_INFO, string);
 
     if(client_ip == 0xFFFFFFFF) { //if client_ip equal 255.255.255.255 (0xFFFFFFFF) is KeepAlive packet
         /* Domain / KeepAlive (User) / Version */
-        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
-        len = len -offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
-        offset += (len + 1);
-        string_length -= (len + 1);
-
-        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
-        len = len - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, len, ENC_ASCII);
-        offset += (len + 1);
-        string_length -= (len + 1);
-
-        proto_tree_add_item(fsso_tree, hf_fsso_version, tvb, offset, string_length, ENC_ASCII);
-        offset += (string_length);
-
+        fsso_add_field(fsso_tree, hf_fsso_domain, tvb, &offset, &string_length);
+        fsso_add_field(fsso_tree, hf_fsso_user, tvb, &offset, &string_length);
+        fsso_add_field(fsso_tree, hf_fsso_version, tvb, &offset, &string_length);
     } else {
         /* Host / Domain / User */
-        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
-        len = len - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_host, tvb, offset, len, ENC_ASCII);
-        offset += (len + 1);
-        string_length -= (len + 1);
-
-        tvb_find_uint8_length(tvb, offset, string_length, '/', &len);
-        len = len - offset;
-        proto_tree_add_item(fsso_tree, hf_fsso_domain, tvb, offset, len, ENC_ASCII);
-        offset += (len + 1);
-        string_length -= (len + 1);
-
-        proto_tree_add_item(fsso_tree, hf_fsso_user, tvb, offset, string_length, ENC_ASCII);
-        offset += (string_length);
+        fsso_add_field(fsso_tree, hf_fsso_host, tvb, &offset, &string_length);
+        fsso_add_field(fsso_tree, hf_fsso_domain, tvb, &offset, &string_length);
+        fsso_add_field(fsso_tree, hf_fsso_user, tvb, &offset, &string_length);
     }
 
     if(tvb_reported_length_remaining(tvb, offset) == 4) {
