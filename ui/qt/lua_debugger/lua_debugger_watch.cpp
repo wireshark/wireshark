@@ -61,6 +61,7 @@
 #include "lua_debugger_stack.h"
 #include "lua_debugger_variables.h"
 #include "widgets/collapsible_section.h"
+#include <ui/qt/utils/themes/themed_icon.h>
 #include <ui/qt/utils/zoom_scaling.h>
 #include <epan/wslua/wslua_debugger.h>
 
@@ -1834,7 +1835,7 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
         ZoomScaling::scaleLayoutMetrics(watchHeaderBtnLayout);
         watchHeaderBtnLayout->setAlignment(Qt::AlignVCenter);
         QToolButton *const watchAddBtn = new QToolButton(watchHeaderBtnRow);
-        watchAddBtn->setText(kLuaDbgHeaderPlus);
+        watchAddBtn->setIcon(ThemedIcon("lua-debug-add"));
         watchAddBtn->setAutoRaise(true);
         watchAddBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         /* Compute tooltip directly from the action's shortcut so this block
@@ -1843,7 +1844,7 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
             tr("Add Watch (%1)").arg(ui->actionAddWatch->shortcut().toString(QKeySequence::NativeText)));
         connect(watchAddBtn, &QToolButton::clicked, ui->actionAddWatch, &QAction::trigger);
         QToolButton *const watchRemBtn = new QToolButton(watchHeaderBtnRow);
-        watchRemBtn->setText(kLuaDbgHeaderMinus);
+        watchRemBtn->setIcon(ThemedIcon("lua-debug-remove"));
         watchRemBtn->setAutoRaise(true);
         watchRemBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
         watchRemBtn->setEnabled(false);
@@ -1852,21 +1853,19 @@ CollapsibleSection *LuaDebuggerDialog::createWatchSection(QWidget *parent)
         QToolButton *const watchRemAllBtn = new QToolButton(watchHeaderBtnRow);
         watchRemAllBtn->setAutoRaise(true);
         watchRemAllBtn->setStyleSheet(kLuaDbgHeaderToolButtonStyle);
+        watchRemAllBtn->setIcon(ThemedIcon("lua-debug-dismiss"));
         watchRemAllBtn->setEnabled(false);
         watchRemAllBtn->setToolTip(
             tr("Remove All Watches (%1)").arg(kLuaDbgCtxWatchRemoveAll.toString(QKeySequence::NativeText)));
-        /* The buttons are sized to the title row and the icons are painted at
-         * that size, so size them now and again whenever the section's title
-         * row changes (application font or zoom). */
+        /* The buttons are sized to the title row, so size them now and again
+         * whenever the section's title row changes (application font or
+         * zoom). */
         const auto applyHeaderSizes = [this, watchAddBtn, watchRemBtn, watchRemAllBtn]()
         {
             const int side = watchSection->titleButtonHeight();
-            const QFont titleFont = watchSection->titleButtonFont();
-            styleLuaDebuggerHeaderPlusMinusButton(watchAddBtn, side, titleFont);
-            styleLuaDebuggerHeaderPlusMinusButton(watchRemBtn, side, titleFont);
-            watchRemAllBtn->setIcon(luaDbgPaintedGlyphButtonIcon(kLuaDbgHeaderRemoveAll, side, devicePixelRatioF(),
-                                                                 titleFont, palette(), /*margin=*/2));
-            styleLuaDebuggerHeaderIconOnlyButton(watchRemAllBtn, side);
+            styleLuaDebuggerHeaderIconOnlyButton(watchAddBtn, side, /*iconGrow=*/2);
+            styleLuaDebuggerHeaderIconOnlyButton(watchRemBtn, side, /*iconGrow=*/2);
+            styleLuaDebuggerHeaderIconOnlyButton(watchRemAllBtn, side, /*iconGrow=*/2);
         };
         applyHeaderSizes();
         connect(watchSection, &CollapsibleSection::titleMetricsChanged, watchHeaderBtnRow, applyHeaderSizes);

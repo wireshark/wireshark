@@ -650,10 +650,7 @@ QString watchItemExpansionKey(const QStandardItem *item)
 
 /* ===== header_styles ===== */
 
-const QString kLuaDbgHeaderPlus{QStringLiteral("\uFF0B")};
-const QString kLuaDbgHeaderMinus{QStringLiteral("\uFF0D")};
-const QString kLuaDbgHeaderEdit{QStringLiteral("\u2699")};
-const QString kLuaDbgHeaderRemoveAll{QStringLiteral("\u24CD")};
+const QColor kLuaDbgBreakpointRed{0xDC, 0x35, 0x45};
 const QString kLuaDbgRowLog{QStringLiteral("\u2630")};
 const QString kLuaDbgRowExtras{QStringLiteral("\u2699")};
 
@@ -669,7 +666,7 @@ void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qre
 
     const int clampedAlpha = qBound(0, alpha, 255);
 
-    QColor fill = enabled ? QColor(QStringLiteral("#DC3545")) : QColor(QStringLiteral("#808080"));
+    QColor fill = enabled ? kLuaDbgBreakpointRed : QColor(QStringLiteral("#808080"));
     fill.setAlpha(clampedAlpha);
 
     QColor rim = fill.darker(140);
@@ -692,11 +689,11 @@ void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qre
     }
 }
 
-QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderIconMode mode, int headerSide, qreal dpr)
+QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderIconMode mode, int iconSide, qreal dpr)
 {
-    if (headerSide < 4)
+    if (iconSide < 4)
     {
-        headerSide = 12;
+        iconSide = 12;
     }
     if (dpr <= 0.0 || dpr > 8.0)
     {
@@ -706,12 +703,12 @@ QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderI
     const QFontMetrics fm(f);
     const int r = fm.height() / 2 - 2;
     int diam = 2 * qMax(0, r);
-    diam = qMax(6, qMin(diam, headerSide - 4));
-    const qreal s = static_cast<qreal>(headerSide);
+    diam = qMax(6, qMin(diam, iconSide));
+    const qreal s = static_cast<qreal>(iconSide);
     const qreal d = static_cast<qreal>(diam);
     const QRectF circleRect((s - d) / 2.0, (s - d) / 2.0, d, d);
 
-    QPixmap pm(QSize(headerSide, headerSide) * dpr);
+    QPixmap pm(QSize(iconSide, iconSide) * dpr);
     pm.setDevicePixelRatio(dpr);
     pm.fill(Qt::transparent);
     {
@@ -808,79 +805,7 @@ QIcon luaDbgPaintedGlyphIcon(const QString &glyph, int side, qreal dpr,
     return QIcon(pm);
 }
 
-QIcon luaDbgPaintedGlyphButtonIcon(const QString &glyph, int side, qreal dpr,
-                                   const QFont &baseFont, const QPalette &palette,
-                                   int margin)
-{
-    const QColor active = palette.color(QPalette::Active, QPalette::ButtonText);
-    const QColor disabled = palette.color(QPalette::Disabled, QPalette::ButtonText);
-    QIcon icon = luaDbgPaintedGlyphIcon(glyph, side, dpr, baseFont, active, margin);
-    QIcon disabledIcon = luaDbgPaintedGlyphIcon(glyph, side, dpr, baseFont, disabled, margin);
-    icon.addPixmap(disabledIcon.pixmap(QSize(side, side)), QIcon::Disabled);
-    return icon;
-}
-
-void styleLuaDebuggerHeaderBreakpointToggleButton(QToolButton *btn, int side)
-{
-    btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
-    btn->setIconSize(QSize(side, side));
-    btn->setFixedSize(side, side);
-    btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    btn->setText(QString());
-}
-
-void styleLuaDebuggerHeaderFittedTextButton(QToolButton *btn, int side, const QFont &titleFont,
-                                            const QStringList &glyphs)
-{
-    if (glyphs.isEmpty())
-    {
-        return;
-    }
-    const QString &shrinkKey = glyphs[0];
-    btn->setToolButtonStyle(Qt::ToolButtonTextOnly);
-    QFont f = titleFont;
-    for (int k = 0; k < 45 && f.pointSizeF() > 3.0; ++k)
-    {
-        QFontMetricsF m(f);
-        const QRectF r = m.boundingRect(shrinkKey);
-        if (m.height() <= static_cast<qreal>(side) + 0.5 && r.height() <= static_cast<qreal>(side) + 0.5)
-        {
-            break;
-        }
-        f.setPointSizeF(f.pointSizeF() - 0.5);
-    }
-    for (int k = 0; k < 3; ++k)
-    {
-        QFont tryF = f;
-        tryF.setPointSizeF(f.pointSizeF() + 0.5);
-        QFontMetricsF m(tryF);
-        qreal rMax = 0.0;
-        for (const QString &g : glyphs)
-        {
-            rMax = std::max(rMax, m.boundingRect(g).height());
-        }
-        if (m.height() <= static_cast<qreal>(side) + 0.5 && rMax <= static_cast<qreal>(side) + 0.5)
-        {
-            f = tryF;
-        }
-        else
-        {
-            break;
-        }
-    }
-    btn->setFont(f);
-    btn->setFixedSize(side, side);
-    btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    btn->setIcon(QIcon());
-}
-
-void styleLuaDebuggerHeaderPlusMinusButton(QToolButton *btn, int side, const QFont &titleFont)
-{
-    const QStringList pm{kLuaDbgHeaderPlus, kLuaDbgHeaderMinus};
-    styleLuaDebuggerHeaderFittedTextButton(btn, side, titleFont, pm);
-}
-
-void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side)
+void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side, int iconGrow)
 {
     btn->setToolButtonStyle(Qt::ToolButtonIconOnly);
 #ifdef Q_OS_MACOS
@@ -888,43 +813,13 @@ void styleLuaDebuggerHeaderIconOnlyButton(QToolButton *btn, int side)
 #else
     const int btnSide = qMax(1, side - 2);
 #endif
-    btn->setIconSize(QSize(btnSide, btnSide));
+    /* Inset the icon like the text glyphs these buttons used to paint,
+     * which kept a 2 px margin on each side. */
+    const int iconSide = qBound(1, btnSide - 4 + iconGrow, btnSide);
+    btn->setIconSize(QSize(iconSide, iconSide));
     btn->setFixedSize(btnSide, btnSide);
     btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     btn->setText(QString());
-}
-
-QIcon luaDbgErrorBreakHeaderIcon(bool checked, int side, qreal dpr,
-                                 const QFont &titleFont, const QPalette &palette)
-{
-    /* Paint a warning-sign glyph (U+26A0 + U+FE0E text-presentation
-     * selector for monochrome rendering across platforms), red when
-     * checked (active), gray when unchecked. Matches the red color
-     * (#DC3545) used in the Toggle All button when active. */
-    QColor glyphColor = checked ? QColor(QStringLiteral("#DC3545"))
-                                : palette.color(QPalette::Disabled, QPalette::Text);
-
-    QIcon icon = luaDbgPaintedGlyphButtonIcon(
-        QString::fromUtf8("\xe2\x9a\xa0\xef\xb8\x8e"),
-        side, dpr, titleFont, palette, /*margin=*/2);
-    QPixmap pixmap = icon.pixmap(side, side, checked ? QIcon::Normal : QIcon::Disabled);
-
-    if (!pixmap.isNull()) {
-        QImage img = pixmap.toImage();
-        for (int y = 0; y < img.height(); ++y) {
-            for (int x = 0; x < img.width(); ++x) {
-                QColor c = img.pixelColor(x, y);
-                if (c.alpha() > 0) {
-                    c.setRed(glyphColor.red());
-                    c.setGreen(glyphColor.green());
-                    c.setBlue(glyphColor.blue());
-                    img.setPixelColor(x, y, c);
-                }
-            }
-        }
-        icon = QIcon(QPixmap::fromImage(img));
-    }
-    return icon;
 }
 
 QIcon luaDbgMakeSelectionAwareIcon(const QIcon &base, const QPalette &palette)

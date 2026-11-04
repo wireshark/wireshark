@@ -126,8 +126,9 @@ public:
      *
      * For previews of a theme that is not the active one.  A token without a
      * valid entry in @p colors still resolves via the live theme (or the
-     * palette for Palette* tokens).  Affects every copy of this icon, like
-     * setPalette().
+     * palette for Palette* tokens).  A fully transparent colour paints as
+     * "none", e.g. to drop a fill and keep only the outline.  Affects every
+     * copy of this icon, like setPalette().
      */
     void setTokenColors(const QHash<ThemeManager::ThemeToken, QColor> &colors);
 

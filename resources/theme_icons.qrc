@@ -42,7 +42,11 @@
         <file alias="list-move-down.svg">svg_icons/list-move-down.svg</file>
         <file alias="list-move-up.svg">svg_icons/list-move-up.svg</file>
         <file alias="list-remove.svg">svg_icons/list-remove.svg</file>
+        <file alias="lua-debug-add.svg">svg_icons/lua-debug-add.svg</file>
+        <file alias="lua-debug-break-on-error.svg">svg_icons/lua-debug-break-on-error.svg</file>
         <file alias="lua-debug-continue.svg">svg_icons/lua-debug-continue.svg</file>
+        <file alias="lua-debug-dismiss.svg">svg_icons/lua-debug-dismiss.svg</file>
+        <file alias="lua-debug-remove.svg">svg_icons/lua-debug-remove.svg</file>
         <file alias="lua-debug-run-to-line.svg">svg_icons/lua-debug-run-to-line.svg</file>
         <file alias="lua-debug-step-in.svg">svg_icons/lua-debug-step-in.svg</file>
         <file alias="lua-debug-step-out.svg">svg_icons/lua-debug-step-out.svg</file>

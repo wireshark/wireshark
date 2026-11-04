@@ -409,7 +409,12 @@ private:
             out += QStringView{svg_}.mid(last, m.capturedStart(1) - last);
             const QColor c = QColor(m.captured(1));
             const QColor a = c.isValid() ? finalColor(c, mode, state, bg, min_contrast) : c;
-            out += a.isValid() ? a.name() : m.captured(1);
+            // QColor::name() drops alpha; a fully transparent colour must not
+            // paint as its opaque RGB.
+            if (a.isValid() && a.alpha() == 0)
+                out += QStringLiteral("none");
+            else
+                out += a.isValid() ? a.name() : m.captured(1);
             last = m.capturedEnd(1);
         }
         out += QStringView{svg_}.mid(last);
