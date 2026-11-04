@@ -423,15 +423,27 @@ record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_in
 {
     command_data_t *data = *cmd_data;
 
-    DISSECTOR_ASSERT(response_length > 0);
+    if (response_length == 0)
+    {
+        return;
+    }
 
     if (data && data->preliminary)
     {
-        DISSECTOR_ASSERT(data->cmd == cmd);
-        DISSECTOR_ASSERT(data->response_length == response_length);
-        data->command_in_packet = pinfo->num;
-        data->preliminary = preliminary;
-        return;
+        if (data->cmd == cmd && data->response_length == response_length)
+        {
+            if (data->command_in_packet != pinfo->num)
+            {
+                /* Completed by reassembly in a later frame: make the record
+                 * findable from that frame in the next pass. */
+                insert_command_data_pointer(tx_command_info, pinfo, mpsse_info, data);
+            }
+            data->command_in_packet = pinfo->num;
+            data->preliminary = preliminary;
+            return;
+        }
+        /* Stale preliminary record (e.g. from another MPSSE instance) */
+        data->preliminary = false;
     }
 
     data = wmem_new(wmem_file_scope(), command_data_t);
@@ -444,9 +456,8 @@ record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_in
     data->response_in_packet = 0;
     data->next = NULL;
 
-    if (*cmd_data && (!(*cmd_data)->is_response_set))
+    if (*cmd_data && (!(*cmd_data)->is_response_set) && (*cmd_data)->next == NULL)
     {
-        DISSECTOR_ASSERT((*cmd_data)->next == NULL);
         (*cmd_data)->next = data;
         if ((*cmd_data)->command_in_packet != pinfo->num)
         {
@@ -462,18 +473,18 @@ record_command_data(command_data_t **cmd_data, packet_info *pinfo, ftdi_mpsse_in
 }
 
 static void expect_response(command_data_t **cmd_data, packet_info *pinfo, proto_tree *tree,
-                            ftdi_mpsse_info_t *mpsse_info, uint8_t cmd, uint16_t response_length)
+                            ftdi_mpsse_info_t *mpsse_info, uint8_t cmd, uint32_t response_length)
 {
     if (pinfo->fd->visited)
     {
-        DISSECTOR_ASSERT(*cmd_data);
-        DISSECTOR_ASSERT((*cmd_data)->cmd == cmd);
-        DISSECTOR_ASSERT((*cmd_data)->response_length == response_length);
+        if (!*cmd_data || (*cmd_data)->cmd != cmd || (*cmd_data)->response_length != (int32_t)response_length)
+        {
+            return;
+        }
         if ((*cmd_data)->is_response_set)
         {
             proto_tree *response_in = proto_tree_add_uint(tree, hf_mpsse_response_in, NULL, 0, 0, (*cmd_data)->response_in_packet);
             proto_item_set_generated(response_in);
-            DISSECTOR_ASSERT((*cmd_data)->command_in_packet == pinfo->num);
         }
         *cmd_data = (*cmd_data)->next;
     }
@@ -1290,7 +1301,6 @@ dissect_ftdi_mpsse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             /* Not visited yet - advance iterator to last element */
             while (iter && iter->next)
             {
-                DISSECTOR_ASSERT(!iter->preliminary);
                 iter = iter->next;
             }
         }
