@@ -282,7 +282,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             oct = tvb_get_uint8(tvb, offset);
             further_entries = (oct & 0x80) ? true : false;
 
-            speech_data_len[frame_count] = evrc_frame_type_to_octs((uint8_t)(oct & 0x7f));
+            speech_data_len[frame_count] = evrc_frame_type_to_octs((uint8_t)(oct & 0x3f));
 
             frame_count++;
             offset++;
