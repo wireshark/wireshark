@@ -183,6 +183,26 @@ format_option_name(wmem_allocator_t *scope, uint16_t opt_class, uint8_t opt_type
     return name;
 }
 
+/* Smallest option data length (octets) the fixed-size decoding needs. */
+static uint32_t
+geneve_min_data_len(uint32_t vendor_no)
+{
+    switch (vendor_no) {
+        case GENEVE_GCP_VNID:
+        case GENEVE_GCP_PRIMARY_IP4:
+            return 4;
+        case GENEVE_GCP_TIMESTAMP:
+        case GENEVE_GCP_FOPIC_TIMESTAMP:
+            return 8;
+        case GENEVE_GCP_NETWORK_STABLE_ID:
+            return 16;
+        case GENEVE_CPACKET_METADATA:
+            return 24;
+        default:
+            return 0;
+    }
+}
+
 static void
 dissect_option(packet_info *pinfo, tvbuff_t *tvb, proto_tree *opts_tree, int offset,
                geneve_option_t *geneve_option)
@@ -226,14 +246,22 @@ dissect_option(packet_info *pinfo, tvbuff_t *tvb, proto_tree *opts_tree, int off
 
     tvbuff_t   *opt_tvb;
     uint32_t vendor_no = ((uint32_t)geneve_option->opt_class << 8) | geneve_option->opt_type;
-    opt_tvb = tvb_new_subset_length(tvb, offset, geneve_option->opt_len);
+    opt_tvb = tvb_new_subset_length(tvb, offset, geneve_option->opt_len - 4);
 
     // Find a per-vendor dissector or fallback to the generic-dissector.
     if (!dissector_try_uint_with_data(geneve_vendor_dissector_table, vendor_no, opt_tvb, pinfo, opt_tree, true, geneve_option)) {
       proto_item_set_text(opt_item, "%s (%s)",
               format_option_name(pinfo->pool, geneve_option->opt_class, geneve_option->opt_type),
               geneve_option->critical);
-      switch (vendor_no) {
+      uint32_t dispatch_no = vendor_no;
+      if ((uint32_t)geneve_option->opt_len - 4 < geneve_min_data_len(vendor_no)) {
+          /* Too short for the fixed-size decoding: show it as raw data. */
+          expert_add_info_format(pinfo, opt_item, &ei_geneve_opt_len_invalid,
+                                 "Option length of %u is too short for this option",
+                                 geneve_option->opt_len);
+          dispatch_no = 0xFFFFFFFF;
+      }
+      switch (dispatch_no) {
           case GENEVE_GCP_VNID:
               proto_tree_add_bits_item(opt_tree, hf_geneve_opt_gcp_vnid, tvb, offset * 8,
                                       28, ENC_BIG_ENDIAN);
@@ -247,8 +275,13 @@ dissect_option(packet_info *pinfo, tvbuff_t *tvb, proto_tree *opts_tree, int off
                                   geneve_option->opt_len - 4, ENC_NA);
               break;
           case GENEVE_GCP_PROFILE:
-              proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_profile, tvb, offset,
-                                  geneve_option->opt_len - 4, ENC_BIG_ENDIAN);
+              if (geneve_option->opt_len - 4 == 8) {
+                  proto_tree_add_item(opt_tree, hf_geneve_opt_gcp_profile, tvb, offset,
+                                      8, ENC_BIG_ENDIAN);
+              } else {
+                  proto_tree_add_item(opt_tree, hf_geneve_opt_unknown_data, tvb, offset,
+                                      geneve_option->opt_len - 4, ENC_NA);
+              }
               break;
           case GENEVE_GCP_TIMESTAMP:
               {
