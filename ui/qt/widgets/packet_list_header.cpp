@@ -123,7 +123,6 @@ void PacketListHeader::mousePressEvent(QMouseEvent *e)
         /* No move happening yet */
         int sectIdx = logicalIndexAt(e->position().toPoint().x() - 4, e->position().toPoint().y());
 
-        QString headerName = model()->headerData(sectIdx, orientation()).toString();
         QToolTip::showText(e->globalPosition().toPoint(), QStringLiteral("Width: %1").arg(sectionSize(sectIdx)));
     }
     if (e->button() == Qt::LeftButton) {
@@ -166,7 +165,6 @@ void PacketListHeader::mouseMoveEvent(QMouseEvent *e)
         else if (sectionIdx == triggeredSection)
         {
             /* Only run for the current moving section after a change */
-            QString headerName = model()->headerData(sectionIdx, orientation()).toString();
             QToolTip::showText(e->globalPosition().toPoint(), QStringLiteral("Width: %1").arg(sectionSize(sectionIdx)));
         }
     }
@@ -201,6 +199,9 @@ void PacketListHeader::forwardMouseReleaseEvent(QMouseEvent *event)
 
 void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (!model())
+        return;
+
     int sectionIdx = logicalIndexAt(event->pos());
     if (sectionIdx < 0 || ((unsigned)sectionIdx >= prefs.num_cols))
         return;
@@ -426,6 +427,9 @@ void PacketListHeader::removeColumn()
 
 void PacketListHeader::resizeToWidth()
 {
+    if (!model())
+        return;
+
     QAction * action = qobject_cast<QAction *>(sender());
     if (!action)
         return;
