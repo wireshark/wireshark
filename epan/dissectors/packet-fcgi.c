@@ -353,7 +353,7 @@ proto_register_fcgi(void)
           FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
       { &hf_fcgi_end_request_protocol_status,
         { "Protocol Status", "fcgi.end_request.protocol_status",
-          FT_UINT32, BASE_DEC, VALS(protocol_statuses), 0x0, NULL, HFILL } },
+          FT_UINT8, BASE_DEC, VALS(protocol_statuses), 0x0, NULL, HFILL } },
       { &hf_fcgi_nv_name,
         { "NV Pair name", "fcgi.nv_name",
           FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
