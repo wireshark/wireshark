@@ -476,9 +476,15 @@ static const value_string gdsdb_response_status_vals[] = {
 	{ 0, NULL }
 };
 
-static int dword_align(int length)
+/* Round up to a multiple of 4. Lengths are clamped to 256 MiB, far more
+ * than a PDU can hold here, so that sums of several of them cannot
+ * overflow an int. */
+#define GDSDB_MAX_ALIGNED_LENGTH (256U * 1024 * 1024)
+static int dword_align(uint32_t length)
 {
-	return WS_ROUNDUP_4(length);
+	if (length > GDSDB_MAX_ALIGNED_LENGTH)
+		length = GDSDB_MAX_ALIGNED_LENGTH;
+	return (int)WS_ROUNDUP_4(length);
 }
 
 static int add_uint_string(proto_tree *tree, int hf_string, tvbuff_t *tvb, int offset)
@@ -970,7 +976,7 @@ gdsdb_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
 	}
 
 	if(opcode == op_service_info) {
-		total_length += dword_align(tvb_get_ntohl(tvb, offset+total_length-8));
+		total_length += dword_align(tvb_get_ntohl(tvb, offset+total_length-4));
 		if (length < total_length) {
 			return -1;
 		}
@@ -1444,15 +1450,15 @@ dissect_gdsdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		/* opcode < op_max */
 		int old_offset = offset;
 		offset = gdsdb_handle_opcode[opcode](tvb, pinfo, gdsdb_tree, offset+4);
-		if (offset <= old_offset) {
-			expert_add_info(NULL, ti, &ei_gdsdb_invalid_length);
-			return tvb_reported_length_remaining(tvb, old_offset);
-		}
 		if (offset < 0)
 		{
 			/* But at this moment we don't know how much we will need */
 			pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
 			return -1; /* need more data */
+		}
+		if (offset <= old_offset) {
+			expert_add_info(NULL, ti, &ei_gdsdb_invalid_length);
+			return tvb_reported_length_remaining(tvb, old_offset);
 		}
 	}
 
