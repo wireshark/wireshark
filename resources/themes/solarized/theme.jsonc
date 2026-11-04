@@ -85,6 +85,26 @@
 	},
 
 	// -----------------------------------------------------------------
+	// Code: the Lua Debugger editor in the colors of the VS Code
+	// Solarized Light and Solarized Dark themes, with the current line
+	// highlight as the gutter.  Solarized Light selects in its line
+	// highlight color, which would hide a selection on the cursor line,
+	// so the light selection is the packet selection color instead.
+	// -----------------------------------------------------------------
+	"code": {
+		"background":   { "light": "#fdf6e3", "dark": "#002b36" },
+		"text":         { "light": "#657b83", "dark": "#839496" },
+		"selection":    { "light": "#dfca88", "dark": "#274642" },
+		"gutter":       { "light": "#eee8d5", "dark": "#073642" },
+		"string":       { "light": "#2aa198", "dark": "#2aa198" },
+		"keyword":      { "light": "#859900", "dark": "#859900" },
+		"number":       { "light": "#d33682", "dark": "#d33682" },
+		"builtIn":      { "light": "#268bd2", "dark": "#268bd2" },
+		"functionCall": { "light": "#268bd2", "dark": "#268bd2" },
+		"comment":      { "light": "#93a1a1", "dark": "#586e75" }
+	},
+
+	// -----------------------------------------------------------------
 	// Palette: light = Solarized Light (base3 background, base2
 	// window, base01 text), dark = Solarized Dark (base03
 	// background, base02 window, base0 text).

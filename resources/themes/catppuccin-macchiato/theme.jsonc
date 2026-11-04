@@ -87,6 +87,27 @@
 	},
 
 	// -----------------------------------------------------------------
+	// Code: the Lua Debugger editor in the colors of Catppuccin for
+	// VS Code (Latte and Macchiato), with the translucent selection, line
+	// highlight and paused line laid over Base.  self is Red, the
+	// selfKeyword color.
+	// -----------------------------------------------------------------
+	"code": {
+		"background":   { "light": "#eff1f5", "dark": "#24273a" },
+		"text":         { "light": "#4c4f69", "dark": "#cad3f5" },
+		"selection":    { "light": "#cccfd7", "dark": "#404459" },
+		"gutter":       { "light": "#e3e6eb", "dark": "#303347" },
+		"gutterText":   { "light": "#8c8fa1", "dark": "#8087a2" },
+		"pausedLine":   { "light": "#26df8e1d", "dark": "#26eed49f" },
+		"string":       { "light": "#40a02b", "dark": "#a6da95" },
+		"keyword":      { "light": "#8839ef", "dark": "#c6a0f6" },
+		"number":       { "light": "#fe640b", "dark": "#f5a97f" },
+		"builtIn":      { "light": "#d20f39", "dark": "#ed8796" },
+		"functionCall": { "light": "#1e66f5", "dark": "#8aadf4" },
+		"comment":      { "light": "#7c7f93", "dark": "#939ab7" }
+	},
+
+	// -----------------------------------------------------------------
 	// Palette: light = Latte, dark = Macchiato.  Base background,
 	// Mantle window and alternate rows, Text for all text, Overlay 1
 	// as the secondary tone, Surface 0 for quiet borders.
