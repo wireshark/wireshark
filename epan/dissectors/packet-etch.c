@@ -20,6 +20,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_message.h>
 #include "packet-tcp.h"
@@ -96,6 +98,15 @@ static int ett_etch_struct;
 static int ett_etch_keyvalue;
 static int ett_etch_key;
 static int ett_etch_value;
+
+static expert_field ei_etch_bad_length;
+static expert_field ei_etch_too_deep;
+static expert_field ei_etch_unknown_type;
+
+/* Structs and arrays nested deeper than this are not dissected; each
+ * level adds several tree levels, so this stays below the tree depth
+ * limit. */
+#define ETCH_MAX_NESTING 100
 static int hf_etch_sig;
 static int hf_etch_length;
 static int hf_etch_version;
@@ -126,8 +137,6 @@ static dissector_handle_t etch_handle;
 static const char       *gbl_keytab_folder = "";
 static char             *gbl_current_keytab_folder;
 
-static int               gbl_pdu_counter;
-static uint32_t          gbl_old_frame_num;
 
 static wmem_strbuf_t    *gbl_symbol_buffer;
 static bool              gbl_have_symbol;
@@ -221,7 +230,8 @@ gbl_symbols_vs_ext_new(void)
 /* Aux Functions */
 
 /*
- * get the length of a given typecode in bytes, -1 if to be derived from message
+ * get the length of a given typecode in bytes, -1 if to be derived from
+ * message, -2 for an unknown typecode
  */
 static int32_t
 get_byte_length(uint8_t typecode)
@@ -253,7 +263,7 @@ get_byte_length(uint8_t typecode)
   case ETCH_TC_ANY:
     return  -1;
   default:
-    return 0;
+    return -2;            /* unknown type code */
   }
 }
 
@@ -385,7 +395,7 @@ read_array_type(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  * read the length of an array and add it to tree
  */
 static uint32_t
-read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
+read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_info *pinfo)
 {
   uint32_t length;
   int     length_of_array_length_type;
@@ -394,9 +404,15 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   tiny = tvb_get_uint8(tvb, *offset);
 
   /*  Is this the value already? */
-  if (  tiny <= ETCH_TC_MAX_TINY_INT
-        || tiny >= ETCH_TC_MIN_TINY_INT) {
+  if (tiny <= ETCH_TC_MAX_TINY_INT) {
     length = tiny;
+    length_of_array_length_type = 1;
+  } else if (tiny >= ETCH_TC_MIN_TINY_INT) {
+    /* Negative tiny integer (-64..-1): not a valid length. */
+    proto_tree_add_expert_format(etch_tree, pinfo, &ei_etch_bad_length,
+                                 tvb, *offset, 1,
+                                 "Negative length (%d)", (int)(int8_t)tiny);
+    length = 0;
     length_of_array_length_type = 1;
   } else {
     uint8_t type_code;
@@ -414,7 +430,9 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
       length = tvb_get_ntohl(tvb, *offset);
       break;
     default:
-      return 0;             /* error! */
+      proto_tree_add_expert(etch_tree, pinfo, &ei_etch_bad_length,
+                            tvb, *offset, 0);
+      return 0;
     }
   }
   proto_tree_add_item(etch_tree, hf_etch_length, tvb, *offset,
@@ -450,7 +468,7 @@ read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_in
   (*offset)++;
 
   /*  Array length */
-  length = read_length(offset, tvb, etch_tree);
+  length = read_length(offset, tvb, etch_tree, pinfo);
 
   for (; length > 0; length--) {
     read_value(offset, tvb, etch_tree, pinfo, hf_etch_value);
@@ -464,12 +482,12 @@ read_array(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_in
  * read a sequence of bytes and add them to tree
  */
 static void
-read_bytes(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
+read_bytes(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_info *pinfo)
 {
   int length;
 
   read_type(offset, tvb, etch_tree);
-  length = read_length(offset, tvb, etch_tree);
+  length = read_length(offset, tvb, etch_tree, pinfo);
   proto_tree_add_item(etch_tree, hf_etch_bytes, tvb, *offset, length,
                       ENC_NA);
   (*offset) += length;
@@ -479,13 +497,13 @@ read_bytes(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
  * read a string and add it to tree
  */
 static void
-read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
+read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree, packet_info *pinfo)
 {
   int byteLength;
 
   read_type(offset, tvb, etch_tree);
 
-  byteLength = read_length(offset, tvb, etch_tree);
+  byteLength = read_length(offset, tvb, etch_tree, pinfo);
 
   proto_tree_add_item(etch_tree, hf_etch_string, tvb, *offset,
                       byteLength, ENC_ASCII);
@@ -546,6 +564,13 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     return type_code;
   }
 
+  unsigned depth = p_get_proto_depth(pinfo, proto_etch);
+  if (depth >= ETCH_MAX_NESTING) {
+    proto_tree_add_expert_remaining(etch_tree, pinfo, &ei_etch_too_deep, tvb, *offset);
+    *offset = tvb_reported_length(tvb);
+    return 0;
+  }
+  p_set_proto_depth(pinfo, proto_etch, depth + 1);
   increment_dissection_depth(pinfo);
   switch(type_code) {
   case ETCH_TC_CUSTOM:
@@ -555,7 +580,7 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     read_array(offset, tvb, etch_tree, pinfo);
     break;
   case ETCH_TC_STRING:
-    read_string(offset, tvb, etch_tree);
+    read_string(offset, tvb, etch_tree, pinfo);
     break;
   case ETCH_TC_FLOAT:
     read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_float, type_code);
@@ -576,12 +601,16 @@ read_value(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
     read_number(offset, tvb, pinfo->pool, etch_tree, hf_etch_byte, type_code);
     break;
   case ETCH_TC_BYTES:
-    read_bytes(offset, tvb, etch_tree);
+    read_bytes(offset, tvb, etch_tree, pinfo);
     break;
   default:
+    if (get_byte_length(type_code) == -2) {
+      proto_tree_add_expert(etch_tree, pinfo, &ei_etch_unknown_type, tvb, *offset, 1);
+    }
     read_number(offset, tvb, pinfo->pool, etch_tree, asWhat, type_code);
   }
   decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_etch, depth);
   return 0;
 }
 
@@ -595,8 +624,8 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
 {
   proto_item *ti;
   proto_tree *new_tree;
-  int         length;
-  int         i;
+  uint32_t    length;
+  uint32_t    i;
 
   ti = proto_tree_add_item(etch_tree, hf_etch_struct, tvb, *offset,
                            tvb_captured_length(tvb) - *offset, ENC_NA);
@@ -609,7 +638,7 @@ read_struct(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree,
   read_value(offset, tvb, new_tree, pinfo, hf_etch_value);
 
   /* struct length */
-  length = read_value(offset, tvb, new_tree, pinfo, hf_etch_length);
+  length = read_length(offset, tvb, new_tree, pinfo);
 
   for (i = 0; i < length; i++) {
     read_key_value(offset, tvb, new_tree, pinfo);
@@ -689,6 +718,24 @@ get_column_info(wmem_allocator_t *scope, tvbuff_t *tvb)
 }
 
 
+/*
+ * Number of Etch PDUs dissected in this frame minus one. It is kept with
+ * the packet, as TCP can call the dissector more than once for a frame
+ * (a reassembled PDU and the PDUs after it).
+ */
+static int *
+etch_pdu_counter(packet_info *pinfo)
+{
+  int *counter = (int *)p_get_proto_data(pinfo->pool, pinfo, proto_etch, 0);
+
+  if (counter == NULL) {
+    counter = wmem_new(pinfo->pool, int);
+    *counter = -1;
+    p_add_proto_data(pinfo->pool, pinfo, proto_etch, 0, counter);
+  }
+  return counter;
+}
+
 /****************************************************************************************************/
 /*
  * main dissector function for an etch message
@@ -698,6 +745,11 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
   /* We've a full PDU: 8 bytes + pdu_packetlen bytes  */
   wmem_strbuf_t *colInfo = NULL;
+  int *pdu_counter = etch_pdu_counter(pinfo);
+
+  /* An exception in an earlier PDU of this frame can leave the nesting
+   * depth set. */
+  p_set_proto_depth(pinfo, proto_etch, 0);
 
   if (pinfo->cinfo || tree) {
     colInfo = get_column_info(pinfo->pool, tvb);    /* get current symbol */
@@ -705,14 +757,10 @@ dissect_etch_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   if (pinfo->cinfo) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ETCH");
-    gbl_pdu_counter++;
-
-    /* Switch to another frame? => Clear column */
-    if (pinfo->num != gbl_old_frame_num) {
+    /* First PDU of this frame? => Clear column */
+    if (++(*pdu_counter) == 0) {
       col_clear(pinfo->cinfo, COL_INFO);
-      gbl_pdu_counter = 0;
     }
-    gbl_old_frame_num = pinfo->num;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", wmem_strbuf_get_str(colInfo));
   }
@@ -745,7 +793,11 @@ get_etch_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                      int offset, void *data _U_)
 {
   /* length is at offset 4. we add magic bytes length + length size */
-  return tvb_get_ntohl(tvb, offset + 4) + 8;
+  uint32_t len = tvb_get_ntohl(tvb, offset + 4);
+
+  if (len > UINT32_MAX - 8)
+    len = UINT32_MAX - 8;
+  return len + 8;
 }
 
 
@@ -768,8 +820,9 @@ dissect_etch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   tcp_dissect_pdus(tvb, pinfo, tree, true, 8, get_etch_message_len,
                    dissect_etch_message, data);
 
-  if (gbl_pdu_counter > 0) {
-    col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%d] ", gbl_pdu_counter + 1);
+  int pdu_counter = *etch_pdu_counter(pinfo);
+  if (pdu_counter > 0) {
+    col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%d] ", pdu_counter + 1);
   }
 
   return 1;
@@ -779,13 +832,6 @@ static bool
 dissect_etch_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     return dissect_etch(tvb, pinfo, tree, data) > 0;
-}
-
-static void
-etch_dissector_init(void)
-{
-  gbl_pdu_counter   = 0;
-  gbl_old_frame_num = 0xFFFFFFFF;
 }
 
 void proto_register_etch(void)
@@ -917,6 +963,18 @@ void proto_register_etch(void)
     },
   };
 
+  static ei_register_info ei[] = {
+    { &ei_etch_bad_length,
+      { "etch.bad_length", PI_MALFORMED, PI_ERROR,
+        "Invalid length or count", EXPFILL }},
+    { &ei_etch_too_deep,
+      { "etch.too_deep", PI_UNDECODED, PI_WARN,
+        "Etch values nested too deeply, not dissected", EXPFILL }},
+    { &ei_etch_unknown_type,
+      { "etch.unknown_type", PI_MALFORMED, PI_WARN,
+        "Unknown type code", EXPFILL }},
+  };
+
   /* Setup protocol subtree array */
   static int *ett[] = {
     &ett_etch,
@@ -930,9 +988,10 @@ void proto_register_etch(void)
 
   proto_register_field_array(proto_etch, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_module_t *expert_etch = expert_register_protocol(proto_etch);
+  expert_register_field_array(expert_etch, ei, array_length(ei));
   etch_handle = register_dissector("etch", dissect_etch, proto_etch);
 
-  register_init_routine(&etch_dissector_init);
 
   etch_module = prefs_register_protocol(proto_etch, proto_reg_handoff_etch);
 
