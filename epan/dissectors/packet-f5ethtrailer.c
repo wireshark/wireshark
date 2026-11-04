@@ -1772,6 +1772,9 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (rstcauselen + F5_MEDV1_LENMIN != trailer_length) {
             return 0;
         }
+        if (rstcauselen != 0 && rstcauselen < 9) {
+            return 0; /* too short for an RST cause header */
+        }
         if (rstcauselen)
             rstcausever = (tvb_get_uint8(tvb, offset + F5_MEDV1_LENMIN) & 0xfe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
@@ -1794,6 +1797,9 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (rstcauselen + F5_MEDV2_LENMIN != trailer_length) {
             return 0;
         }
+        if (rstcauselen != 0 && rstcauselen < 9) {
+            return 0; /* too short for an RST cause header */
+        }
         if (rstcauselen)
             rstcausever = (tvb_get_uint8(tvb, offset + F5_MEDV2_LENMIN) & 0x0fe) >> 1;
         /* If we want the RST cause in the summary, we need to do it here,
@@ -1811,19 +1817,22 @@ dissect_med_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
         if (trailer_length < F5_MEDV3_LENMIN) { /* too small */
             return 0;
         }
-        rstcauselen = tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN -1);
+        rstcauselen = tvb_get_uint8(tvb, offset + F5_MEDV3_LENMIN -1);
         /* check size is valid */
         if (rstcauselen + F5_MEDV3_LENMIN != trailer_length) {
             return 0;
         }
+        if (rstcauselen != 0 && rstcauselen < 9) {
+            return 0; /* too short for an RST cause header */
+        }
         if (rstcauselen)
-            rstcausever = (tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN) & 0xfe) >>1;
+            rstcausever = (tvb_get_uint8(tvb, offset + F5_MEDV3_LENMIN) & 0xfe) >>1;
         /* If we want the RST cause in the summary, we need to do it here,
          * before the tree check below */
         if (rstcauselen && rstcause_in_info) {
             if (rstcausever == 0x00) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "[F5RST%s: %s]",
-                tvb_get_int8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
+                tvb_get_uint8(tvb, offset + F5_MEDV3_LENMIN) & 0x01 ? "(peer)" : "",
                     tvb_get_string_enc(pinfo->pool, tvb, offset + F5_MEDV3_LENMIN + 9,
                         rstcauselen - 9, ENC_ASCII));
             }
@@ -2136,7 +2145,8 @@ dissect_dpt_trailer_noise_high(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     uint8_t ipproto;
     f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
 
-    DISSECTOR_ASSERT(tdata != NULL);
+    if (tdata == NULL)
+        return 0;
     len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
@@ -2259,7 +2269,8 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int ver;
     f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
 
-    DISSECTOR_ASSERT(tdata != NULL);
+    if (tdata == NULL)
+        return 0;
     len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
@@ -2279,7 +2290,8 @@ dissect_dpt_trailer_noise_med(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     /* Check for an invalid reset cause length and do not try to reference any of the data if it is
      * bad
      */
-    if (tvb_reported_length_remaining(tvb, o + F5_MEDV4_LENMIN) < rstcauselen) {
+    if (tvb_reported_length_remaining(tvb, o + F5_MEDV4_LENMIN) < rstcauselen ||
+        (rstcauselen != 0 && rstcauselen < 9)) {
         badrstcauselen = 1;
         /* Set this to zero to prevent processing of things that utilize it */
         rstcauselen = 0;
@@ -2417,7 +2429,8 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     unsigned tmm;
     f5eth_tap_data_t *tdata = (f5eth_tap_data_t *)data;
 
-    DISSECTOR_ASSERT(tdata != NULL);
+    if (tdata == NULL)
+        return 0;
     len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
     ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
@@ -2484,7 +2497,7 @@ dissect_dpt_trailer_noise_low(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* VIP Name */
         int viplen = tvb_get_uint8(tvb, offset);
         /* Make sure VIP Name Length does not extend past the TVB */
-        if (tvb_reported_length_remaining(tvb, offset) < viplen) {
+        if (tvb_reported_length_remaining(tvb, offset + 1) < viplen) {
             pi = proto_tree_add_item(tree, hf_vip, tvb, offset, 0, ENC_ASCII);
             expert_add_info(pinfo, pi, &ei_f5eth_badlen);
             /* Cannot go any further */
@@ -2613,6 +2626,9 @@ static int
 dissect_dpt_trailer_noise(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     uint32_t pattern;
+
+    if (data == NULL)
+        return 0;
     pattern = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF) << 16
               | tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
     return (
@@ -2675,6 +2691,10 @@ dissect_dpt_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     dpt_len = tvb_get_ntohs(tvb, F5_DPT_V1_HDR_LENGTH_OFF);
     dpt_ver = tvb_get_ntohs(tvb, F5_DPT_V1_HDR_VERSION_OFF);
+    /* A length smaller than the header (or larger than the data) is bogus;
+     * consume what is there rather than return a value that is too small. */
+    if (dpt_len < F5_DPT_V1_HDR_LEN || (unsigned)dpt_len > tvb_reported_length(tvb))
+        dpt_len = tvb_reported_length(tvb);
 
     /* Render the DPT header */
     pi = proto_tree_add_item(tree, hf_trailer_hdr, tvb, 0, F5_DPT_V1_TLV_HDR_LEN, ENC_NA);
@@ -2884,9 +2904,9 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     while (found == NONE) {
         /* Check if this is a new format trailer. */
-        if (trailer_length - offset >= F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN) {
+        if (tvb_reported_length_remaining(tvb, offset) >= F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN) {
             if (tvb_get_ntohl(tvb, offset) == F5_DPT_V1_HDR_MAGIC) {
-                if (tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                if (tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF) > tvb_reported_length_remaining(tvb, offset)) {
                     /* we have the right magic, but the length doesn't match up.
                     assume we're not an f5ethtrailer, or it is corrupt.
                     Either way, don't try and dissect. */
@@ -2907,7 +2927,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             This seems reasonable enough for old format trailers. */
             for (unsigned i = 0; i <= offset && i <= 4; i++) {
                 if (tvb_get_ntohl(tvb, offset + 4 - i) == F5_DPT_V1_HDR_MAGIC) {
-                    if (tvb_get_ntohs(tvb, offset + 4 - i + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                    if (tvb_get_ntohs(tvb, offset + 4 - i + F5_DPT_V1_HDR_LENGTH_OFF) > tvb_reported_length_remaining(tvb, offset + 4 - i)) {
                         return 0;
                     }
                     found = NEW_FORMAT;
@@ -3646,7 +3666,8 @@ f5ethtrailer_prefs(void)
     switch (pref_info_type) {
     case brief:
     case brief_in_out_only:
-        if (pref_brief_inout_chars != NULL && strlen(pref_brief_inout_chars) >= 2) {
+        if (pref_brief_inout_chars != NULL && strlen(pref_brief_inout_chars) >= 2 &&
+            pref_brief_inout_chars[0] != '%' && pref_brief_inout_chars[1] != '%') {
             info_format_in_only  = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[0]);
             info_format_out_only = wmem_strdup_printf(NULL, "%c: ", pref_brief_inout_chars[1]);
             info_format_in_slot =
