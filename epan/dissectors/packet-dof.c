@@ -7112,17 +7112,16 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
 
                 /* Add all the reference information to the tree. */
-                if (globals.track_operations && tree)
+                if (globals.track_operations && tree && packet_data->opid_first)
                 {
                     proto_tree *ophistory_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_2009_12_dpp_2_opid_history, NULL, "Operation History");
 
                     dof_packet_data *ptr = packet_data->opid_first;
 
-                    if (ptr)
-                        proto_tree_add_uint_format(ophistory_tree, hf_2008_1_dpp_first_command,
-                                                   tvb, 0, 0, ptr->frame,
-                                                   "First Operation: %u",
-                                                   ptr->frame);
+                    proto_tree_add_uint_format(ophistory_tree, hf_2008_1_dpp_first_command,
+                                               tvb, 0, 0, ptr->frame,
+                                               "First Operation: %u",
+                                               ptr->frame);
 
                     if (ptr->opid_last && ptr->opid_last != ptr)
                         proto_tree_add_uint_format(ophistory_tree, hf_2008_1_dpp_last_command,
