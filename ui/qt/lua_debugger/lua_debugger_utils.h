@@ -740,60 +740,37 @@ QString watchItemExpansionKey(const QStandardItem *item);
 
 /* ===== from header_styles ===== */
 
-/**
- * @brief Create a selection-aware icon for tree icons (breakpoints, variables,
- * and watch) that applies a selected-row tint.
- *
- * @param base    The base icon to tint.
- * @param palette The palette to derive the selection tint from.
- * @return A @c QIcon that applies a tint when the row is selected.
- */
-QIcon luaDbgMakeSelectionAwareIcon(const QIcon &base, const QPalette &palette);
-
-
-/**
- * @brief Paint a glyph centred into a square pixmap and return it as an icon.
- *
- * Paints @p glyph centred into a square @p side x @p side pixmap (scaled by
- * @p dpr for HiDPI), sized so the glyph's inked extent fills the cell.
- *
- * @param glyph    The glyph string to paint.
- * @param side     The side length of the square pixmap in pixels.
- * @param dpr      The device pixel ratio for HiDPI scaling.
- * @param baseFont The font to use for painting the glyph.
- * @param color    The color to paint the glyph with.
- * @param margin   The margin around the glyph in pixels (default 1).
- * @return A @c QIcon containing the painted glyph.
- */
-QIcon luaDbgPaintedGlyphIcon(const QString &glyph, int side, qreal dpr,
-                             const QFont &baseFont, const QColor &color,
-                             int margin = 1);
-
-/** Three stacked horizontal lines (U+2630 trigram for heaven) for the
- *  Active-column logpoint row indicator. */
-extern const QString kLuaDbgRowLog;
-/** Reference mark (U+203B) for the Active-column condition / hit-count
- *  row indicator. */
-extern const QString kLuaDbgRowExtras;
 /** Flat tool button style for section header buttons. */
 extern const QString kLuaDbgHeaderToolButtonStyle;
-/** Fill colour of an active breakpoint dot, also used for the
- *  Break-on-Error header button when it is on. */
-extern const QColor kLuaDbgBreakpointRed;
+/**
+ * @brief Return a Fluent circle icon for breakpoints and debugger state.
+ *
+ * @param actions Use the concentric variant, for breakpoints with a
+ *                condition, hit count or log message.
+ * @param fill    Fill colour, or an invalid colour for no fill.
+ * @param outline Outline ring colour, or an invalid colour for no ring.
+ *                With both valid the ring is drawn over the fill's edge.
+ * @return A cached icon; the Fluent circle covers 20/24 of its box.
+ */
+QIcon luaDbgCircleIcon(bool actions, const QColor &fill, const QColor &outline);
 
 /**
  * @brief Draws a breakpoint dot on the given painter.
+ *
+ * An enabled breakpoint is filled with the theme's error accent colour, a
+ * disabled one is drawn as an outline in @p outlineColor.
  *
  * @param painter The QPainter object to draw on.
  * @param dotLeft The left coordinate of the dot.
  * @param dotTop The top coordinate of the dot.
  * @param radius The radius of the dot.
  * @param enabled Whether the breakpoint is enabled.
- * @param hasExtras Whether the dot has additional extras.
+ * @param outlineColor The outline colour of a disabled breakpoint.
+ * @param hasExtras Whether the breakpoint has a condition, hit count or log message.
  * @param alpha The transparency level of the dot.
  */
 void luaDbgDrawBreakpointDot(QPainter &painter, qreal dotLeft, qreal dotTop, qreal radius, bool enabled,
-                             bool hasExtras = false, int alpha = 255);
+                             const QColor &outlineColor, bool hasExtras = false, int alpha = 255);
 
 /**
  * @brief Controls the state of the header toggle icon in the Lua debugger breakpoint list.
@@ -808,18 +785,11 @@ enum class LuaDbgBpHeaderIconMode
 /**
  * @brief Return the appropriate breakpoint header icon for the given mode.
  *
- * The dot is sized like the editor's gutter breakpoint dot, at most
- * @p iconSide.
- *
- * @param editorFont The font used in the editor, or nullptr for the
- *                   application font.
- * @param mode       The breakpoint header icon mode.
- * @param iconSide   The side length of the icon in pixels.
- * @param dpr        The device pixel ratio for HiDPI scaling.
- * @return A @c QIcon for the breakpoint header in the given mode.
+ * @param mode The breakpoint header icon mode.
+ * @return A @c QIcon for the breakpoint header in the given mode, filled
+ *         when breakpoints are active and an outline otherwise.
  */
-QIcon luaDbgBreakpointHeaderIconForMode(const QFont *editorFont, LuaDbgBpHeaderIconMode mode, int iconSide,
-                                        qreal dpr);
+QIcon luaDbgBreakpointHeaderIconForMode(LuaDbgBpHeaderIconMode mode);
 
 /**
  * @brief Style a Lua debugger header icon-only button.

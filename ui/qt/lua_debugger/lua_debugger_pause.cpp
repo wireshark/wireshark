@@ -35,6 +35,7 @@
 #include <ui/qt/models/packet_list_record.h>
 #include <ui/qt/utils/zoom_scaling.h>
 #include <ui/qt/utils/theme_manager.h>
+#include <ui/qt/utils/themes/themed_icon.h>
 
 namespace
 {
@@ -272,11 +273,8 @@ constexpr qreal kSubtextFontScale = 1.0;
 /* Subtext is bold; use near-full foreground alpha so it stays readable. */
 constexpr int kSubtextAlpha = 235;
 
-/* Pause glyph (two rounded vertical bars). */
-constexpr int kGlyphBarWidth = 5;
-constexpr int kGlyphBarHeight = 22;
-constexpr int kGlyphBarGap = 5;
-constexpr int kGlyphBarRadius = 2;
+/* Pause icon box. The bars cover 18/24 of it, so 29 gives 22 px bars. */
+constexpr int kGlyphSize = 29;
 constexpr int kGlyphTitleSpacing = 12;
 
 /* The design values above, scaled for the current text zoom. */
@@ -288,11 +286,8 @@ struct PauseGeometry
     int cardMinWidth = ZoomScaling::scaledPixels(kCardMinWidth);
     int titleHeight = ZoomScaling::scaledPixels(kTitleHeight);
     int subtextOffset = ZoomScaling::scaledPixels(kSubtextOffset);
-    int glyphBarWidth = ZoomScaling::scaledPixels(kGlyphBarWidth);
-    int glyphBarHeight = ZoomScaling::scaledPixels(kGlyphBarHeight);
-    int glyphBarGap = ZoomScaling::scaledPixels(kGlyphBarGap);
-    int glyphBarRadius = ZoomScaling::scaledPixels(kGlyphBarRadius);
-    int glyphTotalWidth = 2 * glyphBarWidth + glyphBarGap;
+    int glyphSize = ZoomScaling::scaledPixels(kGlyphSize);
+    int glyphTotalWidth = glyphSize;
     int glyphTitleSpacing = ZoomScaling::scaledPixels(kGlyphTitleSpacing);
 };
 } // namespace
@@ -377,15 +372,13 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
 
     const QColor text_color = dark ? QColor(220, 220, 225) : QColor(50, 50, 55);
 
-    /* Pause glyph (static two-bar symbol). */
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(text_color);
-
-    const int glyph_y = card_y + g.cardPadding + (g.titleHeight - g.glyphBarHeight) / 2;
-    const int bar1_x = card_x + g.cardPadding;
-    const int bar2_x = bar1_x + g.glyphBarWidth + g.glyphBarGap;
-    painter.drawRoundedRect(QRectF(bar1_x, glyph_y, g.glyphBarWidth, g.glyphBarHeight), g.glyphBarRadius, g.glyphBarRadius);
-    painter.drawRoundedRect(QRectF(bar2_x, glyph_y, g.glyphBarWidth, g.glyphBarHeight), g.glyphBarRadius, g.glyphBarRadius);
+    /* Pause icon in the card's text colour. */
+    QPalette glyph_palette = palette();
+    glyph_palette.setColor(QPalette::Text, text_color);
+    ThemedIcon pause_icon(QStringLiteral(":/svg_icons/media-playback-pause.svg"), ThemeManager::PaletteText);
+    pause_icon.setPalette(glyph_palette);
+    const QPoint glyph_pos(card_x + g.cardPadding, card_y + g.cardPadding + (g.titleHeight - g.glyphSize) / 2);
+    painter.drawPixmap(glyph_pos, pause_icon.pixmap(QSize(g.glyphSize, g.glyphSize), devicePixelRatioF()));
 
     /* Title (bold, slightly larger) — same style as SplashOverlay. */
     const int text_left = card_x + g.cardPadding + g.glyphTotalWidth + g.glyphTitleSpacing;

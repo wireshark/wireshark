@@ -56,7 +56,6 @@
 #include <QModelIndex>
 #include <QMutex>
 #include <QMutexLocker>
-#include <QPainter>
 #include <QPalette>
 #include <QPersistentModelIndex>
 #include <QPlainTextEdit>
@@ -1338,6 +1337,8 @@ void LuaDebuggerDialog::onColorsChanged()
 {
     applyCodeViewThemes();
     watchController_.refreshDisplay();
+    breakpointsController_.updateHeaderButtonState();
+    updateEnabledCheckboxIcon();
 }
 
 void LuaDebuggerDialog::updateStyleSheets()
@@ -1500,50 +1501,43 @@ void LuaDebuggerDialog::updateEnabledCheckboxIcon()
     // Create a colored circle icon to indicate enabled/disabled state.
     // Render at the screen's native pixel density so the circle stays
     // crisp on Retina / HiDPI displays instead of being upscaled from
-    // a 16x16 bitmap.
+    // a 16x16 bitmap. Use the toolbar icon size so the circle matches
+    // the action icons at every zoom level.
     const qreal dpr = enabledCheckBox->devicePixelRatioF();
-    /* The circle is drawn in a 16 unit design square, scaled to the zoomed icon size. */
-    const int iconSide = ZoomScaling::scaledPixels(16);
-    QPixmap pixmap(QSize(iconSide, iconSide) * dpr);
-    pixmap.setDevicePixelRatio(dpr);
-    pixmap.fill(Qt::transparent);
-    QPainter painter(&pixmap);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.scale(iconSide / 16.0, iconSide / 16.0);
+    const int iconSide = ui->toolBar->iconSize().width();
 
     const DebuggerUiStatus uiStatus = currentDebuggerUiStatus();
+    const ThemeManager *const theme = ThemeManager::instance();
     QColor fill;
     switch (uiStatus)
     {
     case DebuggerUiStatus::Paused:
-        // Yellow circle for paused
-        fill = QColor("#FFC107");
+        // Warning-coloured circle for paused
+        fill = theme->color(ThemeManager::AccentWarning);
         enabledCheckBox->setToolTip(tr("Debugger is paused. Uncheck to disable."));
         break;
     case DebuggerUiStatus::Running:
-        // Green circle for enabled
-        fill = QColor("#28A745");
+        // Success-coloured circle for enabled
+        fill = theme->color(ThemeManager::AccentSuccess);
         enabledCheckBox->setToolTip(tr("Debugger is enabled. Uncheck to disable."));
         break;
     case DebuggerUiStatus::DisabledLiveCapture:
-        // Red circle with a "locked by live capture" tooltip so
+        // Error-coloured circle with a "locked by live capture" tooltip so
         // the user understands the toggle is inert by design.
-        fill = QColor("#DC3545");
+        fill = theme->color(ThemeManager::AccentError);
         enabledCheckBox->setToolTip(tr("Debugger is disabled while a live capture is running. "
                                        "Stop the capture to re-enable."));
         break;
     case DebuggerUiStatus::Disabled:
-        // Gray circle for disabled
-        fill = QColor("#808080");
+        // Outline-only circle for disabled
         enabledCheckBox->setToolTip(tr("Debugger is disabled. Check to enable."));
         break;
     }
 
-    // Thin darker rim gives the circle definition on both light and dark backgrounds.
-    painter.setBrush(fill);
-    painter.setPen(QPen(fill.darker(140), 1));
-    painter.drawEllipse(QRectF(2.5, 2.5, 12.0, 12.0));
-    painter.end();
+    // Every state has the ring in the button text colour; the other states
+    // fill it with their accent colour.
+    const QPixmap pixmap = luaDbgCircleIcon(false, fill, QApplication::palette().color(QPalette::ButtonText))
+                               .pixmap(QSize(iconSide, iconSide), dpr);
 
     /* Register the colored pixmap for BOTH QIcon::Normal and
      * QIcon::Disabled. The checkbox widget is disabled in the
@@ -1552,7 +1546,8 @@ void LuaDebuggerDialog::updateEnabledCheckboxIcon()
      * supplied, Qt synthesizes a Disabled pixmap by desaturating it.
      * macOS's Cocoa style does this subtly enough that the red stays
      * visible, but Linux styles (Fusion / Breeze / Adwaita / gtk3)
-     * desaturate aggressively, making the red circle look gray. */
+     * desaturate aggressively, making the red circle look gray.
+     * ContrastAdaptIcon's own Disabled mode would also dim it. */
     QIcon icon;
     icon.addPixmap(pixmap, QIcon::Normal);
     icon.addPixmap(pixmap, QIcon::Disabled);
