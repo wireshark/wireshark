@@ -247,7 +247,7 @@ post_update_can_interfaces_cb(void) {
     data_can_interfaces_by_name = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
 
     for (i = 0; i < interface_config_num; i++) {
-        if (interface_configs[i].interface_id != 0xfffffff) {
+        if (interface_configs[i].interface_id != 0xffffffff) {
             g_hash_table_insert(data_can_interfaces_by_id, GUINT_TO_POINTER(interface_configs[i].interface_id), &interface_configs[i]);
         }
 
