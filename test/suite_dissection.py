@@ -54677,3 +54677,44 @@ class TestDissectEth:
             if '<->' in line:
                 total += int(line.split('<->')[1].split()[7])
         assert total == 89   # 77 frames, 12 more Ethernet headers in encapsulations
+
+
+class TestDissectEtherip:
+    def test_etherip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames carry EtherIP, none is malformed or has an
+        expert info other than the EtherIP ones, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etherip_coverage.pcap.gz'),
+                    '-Y', 'etherip', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 11
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etherip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || (_ws.expert && !etherip.ver.not3 && !etherip.reserved.not0)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_etherip_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version, reserved bits and the warnings for a version other
+        than 3 and for non-zero reserved bits; the inner protocol.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etherip_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eetherip.ver',
+                '-eetherip.reserved', '-e_ws.col.protocol',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t3\t0x0000\tUDP\t',
+            '2\t3\t0x0000\tARP\t',
+            '3\t3\t0x0000\tUDP\t',
+            '4\t3\t0x0000\tUDP\t',
+            '5\t3\t0x0000\tUDP\t',
+            '6\t3\t0x0000\tARP\t',
+            '7\t2\t0x0000\tUDP\tVersion must be 3',
+            '8\t15\t0x0000\tARP\tVersion must be 3',
+            '9\t3\t0x0001\tUDP\tReserved field must be 0',
+            '10\t3\t0x0fff\tARP\tReserved field must be 0',
+            '11\t1\t0x0800\tUDP\tVersion must be 3,Reserved field must be 0',
+        ]
