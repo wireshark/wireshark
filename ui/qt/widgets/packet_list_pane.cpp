@@ -308,8 +308,13 @@ PacketListPane::PacketListPane(QWidget *parent) :
 
 void PacketListPane::updatePinnedRowsStripWidth(int corner_width, bool have_pinned_rows)
 {
-    pinned_row_corner_view_->setFixedWidth(corner_width);
-    duplicate_header_corner_->setFixedWidth(corner_width);
+    // While frozen, PacketList's header has no sections (so corner_width
+    // is 0) and is hidden, and ours should be too. thaw() calls us again.
+    bool frozen = packet_list_->isFrozen();
+    if (!frozen) {
+        pinned_row_corner_view_->setFixedWidth(corner_width);
+        duplicate_header_corner_->setFixedWidth(corner_width);
+    }
 
     // Explicitly fix the strip's height to exactly what the pinned-row
     // content needs, rather than relying on sizeHint()/updateGeometry()
@@ -334,7 +339,7 @@ void PacketListPane::updatePinnedRowsStripWidth(int corner_width, bool have_pinn
     // strip) whenever anything is pinned, and restore the native one
     // otherwise. See the class comment for why relocating the native
     // header itself isn't a safe option.
-    if (have_pinned_rows) {
+    if (have_pinned_rows && !frozen) {
         // Full resync (not just the incremental sectionResized/
         // sortIndicatorChanged mirroring already wired up in the
         // constructor) right before this becomes visible, since it may
@@ -406,8 +411,10 @@ void PacketListPane::updatePinnedRowsStripWidth(int corner_width, bool have_pinn
         duplicate_header_corner_->setFixedHeight(header_height);
         duplicate_header_main_->setFixedHeight(header_height);
     }
-    packet_list_->header()->setVisible(!have_pinned_rows);
-    duplicate_header_strip_->setVisible(have_pinned_rows);
+    if (!frozen) {
+        packet_list_->header()->setVisible(!have_pinned_rows);
+    }
+    duplicate_header_strip_->setVisible(have_pinned_rows && !frozen);
 
     updateGeometry();
 }

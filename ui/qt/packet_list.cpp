@@ -2381,6 +2381,11 @@ bool PacketList::freeze(bool keep_current_frame)
     // call selectionChanged.
     related_packet_delegate_.clear();
 
+    // Hide the frozen column overlay and PacketListPane's duplicate
+    // headers too. They still have a model, and would otherwise forward
+    // header clicks to our model-less header.
+    layoutPinnedOverlays();
+
     if (keep_current_frame) {
         cap_file_->current_frame = current_frame;
     }
@@ -3210,7 +3215,8 @@ void PacketList::updatePinnedRowVisibility()
 
     bool have_pinned_rows = pinned_rows_model_->pinnedCount() > 0;
 
-    for (unsigned i = 0; i < prefs.num_cols; i++) {
+    // Our header has no sections while frozen; thaw() calls us again.
+    for (unsigned i = 0; !isFrozen() && i < prefs.num_cols; i++) {
         int width = header()->sectionSize(i);
         if (pinned_row_view_) {
             pinned_row_view_->mirrorSectionWidth(i, width);
@@ -3275,7 +3281,7 @@ void PacketList::layoutPinnedOverlays()
     int top_offset = header()->pos().y();
     int header_height = header()->height();
 
-    if (pinned_column_boundary_ > 0) {
+    if (pinned_column_boundary_ > 0 && !isFrozen()) {
         pinned_column_view_->mirrorHeaderHeight(header_height);
         // Span from the header's own top offset (not the viewport's) so
         // this view's own header covers the primary header's frozen-column

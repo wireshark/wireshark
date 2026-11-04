@@ -124,6 +124,12 @@ public:
     bool thaw(bool restore_selection = false);
 
     /**
+     * @brief Whether the packet list is frozen (see freeze()).
+     * @return True if the model is disconnected, false otherwise.
+     */
+    bool isFrozen() const { return model() == nullptr; }
+
+    /**
      * @brief Clears the packet list.
      */
     void clear();
