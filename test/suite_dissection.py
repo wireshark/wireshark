@@ -57842,3 +57842,50 @@ class TestDissectFddi:
         assert lines[1] == '29\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
         assert lines[2] == '30\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
         assert lines[3] == '31\t02:00:00:00:00:aa\t02:00:00:00:00:bb'
+
+
+class TestDissectFefd:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fefd_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_fefd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 10 frames are FEFD, none is malformed or has an expert info,
+        in one and two passes.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['FEFD'] * 10
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_fefd_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, opcode, flags and checksum.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-efefd.version', '-efefd.opcode', '-efefd.flags',
+                '-efefd.flags.rt', '-efefd.flags.rsy', '-efefd.checksum')
+        assert lines[0:6] == [
+            '1\t1\t0xc0\tTrue\tTrue\t0x1234',
+            '1\t1\t0x80\tTrue\tFalse\t0x0000',
+            '1\t2\t0x40\tFalse\tTrue\t0x0000',
+            '2\t3\t0x00\tFalse\tFalse\t0x0000',
+            '0\t0\t0x00\tFalse\tFalse\t0x0000',
+            '7\t4\t0x3f\tFalse\tFalse\t0x0000',
+        ]
+
+    def test_fefd_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Device ID and Port ID strings (a Port ID whose length does not
+        cover the string is extended by 3), and the generic TLVs.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info', '-efefd.device_id',
+                '-efefd.sent_through_interface', '-efefd.tlv.type',
+                '-efefd.tlv.len', '-efefd.data')
+        assert lines[0] == 'Device ID: switch-1, Port ID: Gi1/1\tswitch-1\tGi1/1\t0x0001,0x0002,0x0004,0x0005\t13,6,6,6\t000f,003c'
+        assert lines[1] == 'Device ID: switch-1, Port ID: Te0/1\tswitch-1\tTe0/1\t0x0001,0x0002,0x0003,0x0007\t13,9,8,8\t01020304,00000007'
+        assert lines[2].startswith('Device ID: sw2, Port ID: Fa0/2\tsw2\tFa0/2\t0x0001,0x0002,0x0006,0x1234\t')
+        assert lines[5] == '\t\t\t0x00ff\t24\t' + 'aa' * 20
+        # TLV with length < 4: the rest goes to the data dissector
+        assert lines[6].startswith('Device ID: switch-1\tswitch-1\t\t0x0001,0x0006\t13,2\t')
