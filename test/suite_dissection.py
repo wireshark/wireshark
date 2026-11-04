@@ -56521,3 +56521,135 @@ class TestDissectFcdns:
         assert got['34'][0] == 'True'
         assert got['56'][1] == '00.00.01,00.00.02,00.00.03'
         assert got['118'][1:] == ['01.01.01,01.01.02', '0x00000002']
+
+
+class TestDissectFcels:
+    '''FC Extended Link Services (R_CTL 0x22/0x23, type 1) in FCoE, from
+    the synthetic capture fcels_coverage.pcap.gz: login, logout, exchange
+    management, process login, discovery, status and registration
+    commands, iFCP CBIND/UNBIND and LS_RJT with every reason.'''
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *fields, passes=(), extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fcels_coverage.pcap.gz'), *extra,
+                '-Tfields', '-eframe.number', *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fcels_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 196 frames are FC ELS, with no malformed packets or expert
+        infos in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 196
+        assert all(r[0] == 'FC ELS' for r in rows.values())
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fcels_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fcels_info(self, cmd_tshark, capture_file, test_env):
+        '''The accept is named after the request of its exchange (FLOGI
+        from a fabric login and from a loop port included), rejects name
+        the failed request, and CBIND/UNBIND tell request from response.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.info', passes=passes)
+            infos = [rows[str(n)][0] for n in range(1, 197)]
+            assert infos[:8] == ['PLOGI', 'ACC (PLOGI)', 'FLOGI', 'ACC (FLOGI)',
+                                 'PDISC', 'ACC (PDISC)', 'FDISC', 'ACC (FDISC)']
+            assert infos[14:16] == ['FLOGI', 'ACC (FLOGI)']          # from a loop port
+            assert infos[20:30] == ['LOGO', 'ACC (LOGO)', 'ABTX', 'ACC (ABTX)', 'RSI',
+                                    'ACC (RSI)', 'RRQ', 'ACC (RRQ)', 'REC', 'ACC (REC)']
+            assert infos[105:109] == ['CBIND Request', 'CBIND Response',
+                                      'UNBIND Request', 'UNBIND Response']
+            assert infos[109:117] == ['PLOGI', 'LS_RJT (PLOGI)', 'PRLI', 'LS_RJT (PRLI)',
+                                      'ADISC', 'LS_RJT (ADISC)', 'LOGO', 'LS_RJT (LOGO)']
+            assert infos[191:] == ['LOGO', 'ACC (LOGO)', 'SRL', 'LS_RJT (SRL)', 'LS_RJT (0x0)']
+            for op in ('RTV', 'RLS', 'ECHO', 'TEST', 'SRR', 'LINIT', 'LKA', 'FARP-REQ',
+                       'FARP-REPLY', 'FAN', 'RLIR', 'RPSC', 'LSTS', 'RNFT', 'SCR', 'RSCN'):
+                assert op in infos
+
+    def test_fcels_lirr_format_offset(self, cmd_tshark, capture_file, test_env):
+        '''The LIRR registration format item covers the second octet after
+        the function (frame offset 57), the octet it shows, not the
+        function octet (56); it was added at the function octet before
+        "fcels: Fix the LIRR registration format offset".'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fcels_coverage.pcap.gz'),
+                '-Y', 'frame.number == 92', '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env)
+        els = json.loads(stdout)[0]['_source']['layers']['fcels']
+        assert els['fcels.lirr.regn_function'] == '0x01'
+        assert els['fcels.lirr.regn_function_raw'][1:3] == [56, 1]
+        assert els['fcels.lirr.regn_format'] == '0x08'
+        assert els['fcels.lirr.regn_format_raw'][0:3] == ['08', 57, 1]
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcels.lirr.regn_function',
+                         'fcels.lirr.regn_format', extra=('-Y', 'fcels.lirr.regn_format'))
+        assert rows['94'] == ['0x02', '0x00'] and rows['96'] == ['0xfe', '0x04']
+
+    def test_fcels_login(self, cmd_tshark, capture_file, test_env):
+        '''Common features, class flags, receive size, E_D_TOV, names and
+        the service availability of the 256 octet login payload.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcels.logi.cmnfeatures',
+                         'fcels.logi.rcvsize', 'fcels.edtov', 'fcels.npname',
+                         'fcels.logi.svcavail', 'fcels.logi.clsflags',
+                         extra=('-Y', 'frame.number <= 20'))
+        assert rows['1'] == ['0xfffe', '2048', '10000', '20:00:00:de:ad:00:00:01', '',
+                             '0x8000,0xc000,0x8000,0x0000']
+        assert rows['2'][0] == '0x3800' and rows['5'][0] == '0x7f7e'
+        assert rows['9'][5] == '0x0000,0x0000,0x0000,0x0000'
+        assert rows['10'][5] == '0xffff,0xffff,0xffff,0xffff'
+        assert rows['11'][0] == '0x0001' and rows['11'][4] == '200000dead000009'
+        assert rows['15'][0] == '0x8800'
+
+    def test_fcels_reject(self, cmd_tshark, capture_file, test_env):
+        '''LS_RJT reason, detail and vendor codes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcels.rjt.reason',
+                         'fcels.rjt.detail', 'fcels.rjt.vnduniq',
+                         extra=('-Y', 'fcels.rjt.reason'))
+        assert len(rows) == 43
+        assert rows['111'] == ['0x01', '0x00', '0x00']
+        assert rows['113'] == ['0x03', '0x01', '0x01']
+        assert rows['115'] == ['0x05', '0x03', '0x02']
+        assert rows['189'] == ['0x0d', '0x62', '0x27']
+        assert rows['191'] == ['0x0e', '0x7e', '0x28']
+        assert rows['195'] == ['0x03', '0x01', '0x00']
+        assert rows['196'] == ['0x01', '0x00', '0x00']
+        assert {r[0] for r in rows.values()} == {'0x01', '0x03', '0x05', '0x07', '0x09', '0x0b',
+                                                 '0x0d', '0x0e', '0x20', '0xff', '0x02'}
+
+    def test_fcels_prli(self, cmd_tshark, capture_file, test_env):
+        '''PRLI, PRLO and TPRLO service parameter pages: SCSI pages show
+        the FCP flags, other pages the response or third party fields.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcels.prlilo.type',
+                         'fcels.prlilo.payload_length', 'fcels.prlilo.response_code',
+                         'fcels.fcpflags', 'fcels.prlilo.3rd_party_n_port_id',
+                         'fcels.prlilo.service_parameter_response',
+                         extra=('-Y', 'frame.number >= 45 && frame.number <= 52'))
+        assert rows['45'][:2] == ['8,5,8', '52']
+        assert rows['46'][:4] == ['8,5,5,8', '68', '0x21,0x01,0x02,0x01', '0x0000003f,0x00000002']
+        assert rows['46'][5] == '0xffffffff,0x00000000'
+        assert rows['49'][4] == '01.02.03'
+        assert rows['50'][:2] == ['8', '20']
+
+    def test_fcels_lists(self, cmd_tshark, capture_file, test_env):
+        '''RSCN pages, RNFT entries, RPL port blocks, RPS counters, RNID
+        node identification data, CBIND/UNBIND fields, RPSC speeds.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'fcels.rscn.payload_len',
+                         'fcels.rscn.addrfmt', 'fcels.rnft.fc4type', 'fcels.rnft.fc_4_qualifier',
+                         'fcels.rpl.list_length', 'fcels.rpl.port_name', 'fcels.portstatus',
+                         'fcels.l_port_status', 'fcels.common_identification_data_length',
+                         'fcels.rnid.asstype', 'fcels.rnid.tcpport', 'fcels.cbind.status',
+                         'fcels.cbind.handle', 'fcels.unbind.status', 'fcels.rpsc.port_oper_speed')
+        assert rows['68'][:2] == ['28', '0x00,0x01,0x02,0x00,0x02,0x01']
+        assert rows['81'][2:4] == ['0x08,0x05,0x20', '0x000001,0x000002,0x000003']
+        assert rows['65'][4:6] == ['3', '20:00:00:de:ad:00:00:01,20:00:00:de:ad:00:00:02,'
+                                        '20:00:00:de:ad:00:00:03']
+        assert rows['59'][6] == '0x0300' and rows['61'][6:8] == ['0x0500', '0x0100']
+        assert rows['85'][8:11] == ['16', '0x00000003', '80']
+        assert rows['107'][11:13] == ['3', '0x7766'] and rows['109'][13] == '1'
+        assert rows['103'][14] == '0x2000,0x4000'
