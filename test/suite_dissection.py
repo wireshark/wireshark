@@ -54993,3 +54993,70 @@ class TestDissectSmb:
         assert files['%5cexport%5cwrap.bin'] == b''
         # a directory is listed but has no content
         assert files['%5cexport%5cdir'] == b''
+
+
+class TestDissectEti:
+    @staticmethod
+    def eti_fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('eti_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_eti_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Four TCP flows (ports 19006, 19043, 19506, 19543) carry ETI
+        messages of every template, none is malformed or has a warning or
+        error expert info (counter overflow, bad length, missing or
+        overused values), in one and two passes.'''
+        lines = self.eti_fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(lines) == 63
+        assert lines.count('ETI') == 43
+        assert lines.count('TCP') == 20
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('eti_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity > 4194304 || '
+                          'eti.counter_overflow || eti.invalid_template || eti.invalid_length || '
+                          'eti.unaligned || eti.missing || eti.overused',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_eti_templates(self, cmd_tshark, capture_file, test_env):
+        '''280 messages, one or more for each of the 143 allocated
+        templates, several per TCP segment.'''
+        lines = self.eti_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'eti', '-eeti.templateid')
+        ids = [i for l in lines for i in l.split(',')]
+        assert len(ids) == 280
+        assert len(set(ids)) == 143
+        assert min(int(i) for i in ids) == 10000
+        assert max(int(i) for i in ids) < 10720
+
+    def test_eti_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frame 4 holds twelve messages; the first are ModifyOrderNRResponse
+        style header-only layouts with the body length in the first field.'''
+        lines = self.eti_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-eeti.bodylen', '-eeti.templateid',
+                '-e_ws.col.info')
+        assert lines == ['280,48,32,32,32,40,56,40,32,248,344,184\t'
+                         '10000,10008,10012,10024,10028,10032,10036,10040,10044,10100,10104,10108\t'
+                         'ModifyOrderNRResponse']
+
+    def test_eti_fixed_point_int64(self, cmd_tshark, capture_file, test_env):
+        '''Fixed point fields registered as FT_UINT64 (NettingCoefficient,
+        TradeToQuoteRatio, TradeToRequestRatio) are FT_INT64 now: large
+        values decode without an exception.'''
+        lines = self.eti_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'eti.nettingcoefficient', '-eframe.number', '-eeti.nettingcoefficient')
+        values = dict(l.split('\t') for l in lines)
+        assert values['5'] == '740740734'
+        assert values['26'] == '2345678991,3333333303'
+        assert values['22'] == '-9223372036854775808'     # NO_VALUE
+
+    def test_eti_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages longer than a TCP segment are reassembled.'''
+        lines = self.eti_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.segments', '-eframe.number')
+        assert len(lines) > 0
