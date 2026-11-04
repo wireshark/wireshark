@@ -30,6 +30,9 @@
 #include <ui/capture_globals.h>
 #include <app/application_flavor.h>
 
+#ifdef HAVE_LUA
+#include "lua_debugger.h"
+#endif
 
 #include "main_application.h"
 
@@ -128,6 +131,20 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     advancedPrefsDelegate_(this),
     modulePrefsModel_(this)
 {
+#ifdef HAVE_LUA
+    // Applying preferences can redissect packets while this dialog exists,
+    // and a breakpoint pause there would block both this dialog and the
+    // debugger, or delete this dialog while it is still in use.
+    LuaDebugger::setSuppressedByPreferences(true);
+    // Connected before the main window's handlers, so the release is posted
+    // ahead of the redissection that flushAppSignals() posts, and runs only
+    // after the app signals queued by this dialog have been emitted.
+    connect(this, &QObject::destroyed, mainApp, []() {
+        QMetaObject::invokeMethod(mainApp, []() {
+            LuaDebugger::setSuppressedByPreferences(false);
+        }, Qt::QueuedConnection);
+    });
+#endif
     advancedPrefsModel_.setSourceModel(&model_);
     modulePrefsModel_.setSourceModel(&model_);
 
@@ -397,7 +414,7 @@ void PreferencesDialog::on_showChangedValuesCheckBox_toggled(bool checked)
     pd_ui_->advancedView->expandAll();
 }
 
-void PreferencesDialog::apply()
+void PreferencesDialog::apply(bool closing)
 {
     char* err = NULL;
     unsigned int redissect_flags = 0;
@@ -480,8 +497,14 @@ void PreferencesDialog::apply()
     }
 
     if (redissect_flags & PREF_EFFECT_DISSECTION) {
-        /* Redissect all the packets, and re-evaluate the display filter. */
-        mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
+        /* Redissect all the packets, and re-evaluate the display filter.
+         * When closing, wait until the dialog is gone and the Lua debugger
+         * is no longer suppressed, so breakpoints fire in the redissection. */
+        if (closing) {
+            mainApp->queueAppSignal(MainApplication::PacketDissectionChanged);
+        } else {
+            mainApp->emitAppSignal(MainApplication::PacketDissectionChanged);
+        }
     }
 
     write_profile_recent();
@@ -495,7 +518,7 @@ void PreferencesDialog::apply()
 
 void PreferencesDialog::on_buttonBox_accepted()
 {
-    apply();
+    apply(true);
     accept();
 }
 
@@ -514,7 +537,7 @@ void PreferencesDialog::on_buttonBox_rejected()
 void PreferencesDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
     if (pd_ui_->buttonBox->buttonRole(button) == QDialogButtonBox::ApplyRole) {
-        apply();
+        apply(false);
     }
 }
 

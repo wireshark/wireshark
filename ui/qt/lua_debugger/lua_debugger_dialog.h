@@ -810,6 +810,8 @@ class LuaDebuggerDialog : public GeometryStateDialog
         Paused,
         /** @brief Debugger is disabled due to live capture. */
         DisabledLiveCapture,
+        /** @brief Debugger is disabled while the Preferences dialog is open. */
+        DisabledPreferences,
         /** @brief Debugger is manually disabled. */
         Disabled,
         /** @brief Debugger is currently running. */

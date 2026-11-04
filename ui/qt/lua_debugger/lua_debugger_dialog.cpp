@@ -115,32 +115,42 @@ namespace
 {
 
 /**
- * @brief Process-global "live capture is forcing the debugger off" state.
+ * @brief Process-global "something is forcing the debugger off" state.
+ *
+ * The debugger is forced off while a live capture is running and while the
+ * Preferences dialog is open. Applying preferences can redissect packets
+ * from inside the modal dialog, and a breakpoint pause there would leave
+ * both the dialog and the debugger unusable, or let the dialog be deleted
+ * while it is still applying.
  *
  * The capture-session callback is registered at process start (before the
  * dialog exists), so this state is intentionally static and does not depend
  * on a live @ref LuaDebuggerDialog instance. The dialog observes the state
  * (via @ref isActive) when refreshing chrome, and updates the "restore on
- * stop" intent (via @ref setPrevEnabled) when the user toggles the
- * debugger toolbar during a capture.
+ * release" intent (via @ref setPrevEnabled) when the user toggles the
+ * debugger toolbar while suppressed.
  */
-class LuaDebuggerCaptureSuppression
+class LuaDebuggerSuppression
 {
   public:
-    /** @brief True when a live capture currently has the debugger force-disabled. */
+    /** @brief Why the debugger is forced off. Several can apply at once. */
+    enum Reason : unsigned
+    {
+        LiveCapture = 1u << 0,
+        Preferences = 1u << 1,
+    };
+
+    /** @brief True when any reason currently has the debugger force-disabled. */
     static bool isActive();
 
-#ifdef HAVE_LIBPCAP
-    /** @brief Enter suppression. Snapshots the user's pre-capture enabled
-     *  intent so we can restore it on @ref exit. Idempotent: returns true
-     *  iff this call actually transitioned the state. */
-    static bool enter();
+    /** @brief True when @p reason currently has the debugger force-disabled. */
+    static bool isActive(Reason reason);
 
-    /** @brief Exit suppression. Restores the snapshotted enabled intent
-     *  unless the user has since explicitly disabled the debugger.
-     *  Idempotent: returns true iff this call actually transitioned the state. */
-    static bool exit();
-#endif
+    /** @brief Add or remove @p reason and refresh the dialog if that changed
+     *  anything. The first reason snapshots the user's enabled intent; the
+     *  last one restores it unless the user has since explicitly disabled
+     *  the debugger. */
+    static void setSuppressed(Reason reason, bool suppressed);
 
     /** @brief Re-apply suppression at dialog startup so any constructor-time
      *  paths that re-enabled the core get reverted. */
@@ -151,63 +161,89 @@ class LuaDebuggerCaptureSuppression
     static void onCaptureSessionEvent(int event, struct _capture_session *cap_session, void *user_data);
 #endif
 
-    /** @brief Update the "restore on capture stop" intent. */
+    /** @brief Update the "restore on release" intent. */
     static void setPrevEnabled(bool enabled);
+
+  private:
+    /** @brief Add @p reason. Returns true iff it was not set yet. */
+    static bool enter(Reason reason);
+
+    /** @brief Remove @p reason. Returns true iff it was set. */
+    static bool exit(Reason reason);
 };
 
-bool g_captureSuppressionActive = false;
-/* User's enabled-state at the moment the live capture started; restored
- * when capture finishes. Meaningful only while @c g_captureSuppressionActive is true. */
-bool g_captureSuppressionPrevEnabled = false;
+unsigned g_suppressionReasons = 0;
+/* User's enabled-state at the moment the first reason was added; restored
+ * when the last one is removed. Meaningful only while @c g_suppressionReasons
+ * is non-zero. */
+bool g_suppressionPrevEnabled = false;
 
-bool LuaDebuggerCaptureSuppression::isActive()
+bool LuaDebuggerSuppression::isActive()
 {
-    return g_captureSuppressionActive;
+    return g_suppressionReasons != 0;
 }
 
-#ifdef HAVE_LIBPCAP
-bool LuaDebuggerCaptureSuppression::enter()
+bool LuaDebuggerSuppression::isActive(Reason reason)
 {
-    /* Suppress on the very first start-ish event of a session.
-     * "prepared" already commits us to a live capture, and the
-     * dumpcap child may begin writing packets before the
-     * "update_started" / "fixed_started" event arrives. */
-    if (g_captureSuppressionActive)
+    return (g_suppressionReasons & reason) != 0;
+}
+
+bool LuaDebuggerSuppression::enter(Reason reason)
+{
+    if (g_suppressionReasons & reason)
     {
         return false;
     }
-    g_captureSuppressionPrevEnabled = wslua_debugger_is_enabled();
-    g_captureSuppressionActive = true;
-    if (g_captureSuppressionPrevEnabled)
+    if (g_suppressionReasons == 0)
     {
-        wslua_debugger_set_enabled(false);
+        g_suppressionPrevEnabled = wslua_debugger_is_enabled();
+        if (g_suppressionPrevEnabled)
+        {
+            wslua_debugger_set_enabled(false);
+        }
     }
+    g_suppressionReasons |= reason;
     return true;
 }
 
-bool LuaDebuggerCaptureSuppression::exit()
+bool LuaDebuggerSuppression::exit(Reason reason)
 {
-    if (!g_captureSuppressionActive)
+    if (!(g_suppressionReasons & reason))
     {
         return false;
     }
-    const bool restore_enabled = g_captureSuppressionPrevEnabled;
-    g_captureSuppressionActive = false;
-    g_captureSuppressionPrevEnabled = false;
+    g_suppressionReasons &= ~static_cast<unsigned>(reason);
+    if (g_suppressionReasons != 0)
+    {
+        return true;
+    }
+    const bool restore_enabled = g_suppressionPrevEnabled;
+    g_suppressionPrevEnabled = false;
     /* Respect user_explicitly_disabled (unchecked toolbar or closed dialog):
-     * do not turn the core back on when capture ends. */
+     * do not turn the core back on when the suppression ends. */
     if (restore_enabled && wslua_debugger_may_auto_enable_for_breakpoints())
     {
         wslua_debugger_set_enabled(true);
     }
     return true;
 }
-#endif
 
-void LuaDebuggerCaptureSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog)
+void LuaDebuggerSuppression::setSuppressed(Reason reason, bool suppressed)
+{
+    const bool state_changed = suppressed ? enter(reason) : exit(reason);
+    if (state_changed)
+    {
+        if (LuaDebuggerDialog *dialog = LuaDebuggerDialog::instanceIfExists())
+        {
+            dialog->refreshDebuggerStateUi();
+        }
+    }
+}
+
+void LuaDebuggerSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog)
 {
     /* The capture-session callback is registered at process start, so by the
-     * time the dialog opens, g_captureSuppressionActive already reflects whether
+     * time the dialog opens, g_suppressionReasons already reflects whether
      * a live capture is in progress.
      *
      * What this method exists to fix: ctor init paths can re-enable the core
@@ -215,14 +251,14 @@ void LuaDebuggerCaptureSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog
      * applyDialogSettings() → wslua_debugger_add_breakpoint, then
      * breakpointsController_.refreshFromEngine()
      * → ensureDebuggerEnabledForActiveBreakpoints can re-enable. */
-    if (!g_captureSuppressionActive)
+    if (g_suppressionReasons == 0)
     {
         return;
     }
     if (wslua_debugger_is_enabled())
     {
-        /* Force the core back off without touching g_captureSuppressionPrevEnabled
-         * — it was correctly snapshotted to the user's pre-capture intent. */
+        /* Force the core back off without touching g_suppressionPrevEnabled
+         * — it was correctly snapshotted to the user's pre-suppression intent. */
         wslua_debugger_set_enabled(false);
     }
     if (dialog)
@@ -232,43 +268,37 @@ void LuaDebuggerCaptureSuppression::reconcileOnStartup(LuaDebuggerDialog *dialog
 }
 
 #ifdef HAVE_LIBPCAP
-void LuaDebuggerCaptureSuppression::onCaptureSessionEvent(int event, struct _capture_session *cap_session,
-                                                          void *user_data)
+void LuaDebuggerSuppression::onCaptureSessionEvent(int event, struct _capture_session *cap_session,
+                                                   void *user_data)
 {
     Q_UNUSED(cap_session);
     Q_UNUSED(user_data);
 
-    bool state_changed = false;
-
     switch (event)
     {
+    /* Suppress on the very first start-ish event of a session.
+     * "prepared" already commits us to a live capture, and the
+     * dumpcap child may begin writing packets before the
+     * "update_started" / "fixed_started" event arrives. */
     case capture_cb_capture_prepared:
     case capture_cb_capture_update_started:
     case capture_cb_capture_fixed_started:
-        state_changed = enter();
+        setSuppressed(LiveCapture, true);
         break;
     case capture_cb_capture_update_finished:
     case capture_cb_capture_fixed_finished:
     case capture_cb_capture_failed:
-        state_changed = exit();
+        setSuppressed(LiveCapture, false);
         break;
     default:
         break;
     }
-
-    if (state_changed)
-    {
-        if (LuaDebuggerDialog *dialog = LuaDebuggerDialog::instanceIfExists())
-        {
-            dialog->refreshDebuggerStateUi();
-        }
-    }
 }
 #endif
 
-void LuaDebuggerCaptureSuppression::setPrevEnabled(bool enabled)
+void LuaDebuggerSuppression::setPrevEnabled(bool enabled)
 {
-    g_captureSuppressionPrevEnabled = enabled;
+    g_suppressionPrevEnabled = enabled;
 }
 
 /* Cross-thread coalescing queue for logpoint emissions.
@@ -363,7 +393,7 @@ extern "C" void onLogEmit(const char *file_path, int64_t line, const char *messa
 
 /** @brief Process-global registrar: wires the UI breakpoint-hit
  *  callback (and, when libpcap is available, the capture-session
- *  observer used by @ref LuaDebuggerCaptureSuppression) at process
+ *  observer used by @ref LuaDebuggerSuppression) at process
  *  start, and tears them down at process exit. */
 class UiCallbackProcessRegistrar
 {
@@ -372,7 +402,7 @@ class UiCallbackProcessRegistrar
     {
         wslua_debugger_register_ui_callback(onUiBreakpointHit);
 #ifdef HAVE_LIBPCAP
-        capture_callback_add(&LuaDebuggerCaptureSuppression::onCaptureSessionEvent, nullptr);
+        capture_callback_add(&LuaDebuggerSuppression::onCaptureSessionEvent, nullptr);
 #endif
     }
 
@@ -380,7 +410,7 @@ class UiCallbackProcessRegistrar
     {
         wslua_debugger_register_ui_callback(NULL);
 #ifdef HAVE_LIBPCAP
-        capture_callback_remove(&LuaDebuggerCaptureSuppression::onCaptureSessionEvent, nullptr);
+        capture_callback_remove(&LuaDebuggerSuppression::onCaptureSessionEvent, nullptr);
 #endif
     }
 };
@@ -601,7 +631,7 @@ LuaDebuggerDialog::LuaDebuggerDialog(QWidget *parent)
     /* Reconcile with any live capture in progress AFTER all init paths
      * that may have re-enabled the core debugger (applyDialogSettings
      * / updateBreakpoints, including ensureDebuggerEnabledForActiveBreakpoints). */
-    LuaDebuggerCaptureSuppression::reconcileOnStartup(this);
+    LuaDebuggerSuppression::reconcileOnStartup(this);
 }
 
 LuaDebuggerDialog::~LuaDebuggerDialog()
@@ -729,7 +759,7 @@ void LuaDebuggerDialog::handlePause(const char *file_path, int64_t line)
     pauseController_.beginOuterFreeze();
 
     /* Note: live capture cannot be running here. The live-capture
-     * observer (LuaDebuggerCaptureSuppression::onCaptureSessionEvent) force-disables the debugger
+     * observer (LuaDebuggerSuppression::onCaptureSessionEvent) force-disables the debugger
      * for the duration of any capture, so wslua_debug_hook never
      * dispatches into us while dumpcap is feeding the pipe. That is
      * the only sane policy: suspending the pipe GSource for the
@@ -878,16 +908,16 @@ void LuaDebuggerDialog::onStepOut()
 
 void LuaDebuggerDialog::onDebuggerToggled(bool checked)
 {
-    if (LuaDebuggerCaptureSuppression::isActive())
+    if (LuaDebuggerSuppression::isActive())
     {
-        /* The checkbox is normally setEnabled(false) while a live
-         * capture is running, but a programmatic toggle (e.g. via
+        /* The checkbox is normally setEnabled(false) while the
+         * debugger is suppressed, but a programmatic toggle (e.g. via
          * QAbstractButton::click in tests, or any path that bypasses
          * the disabled state) must not be allowed to flip the core
          * enable on or off. Remember the user's intent so it is
-         * applied automatically when the capture stops, and re-sync
+         * applied automatically when the suppression ends, and re-sync
          * the checkbox to the (still suppressed) core state. */
-        LuaDebuggerCaptureSuppression::setPrevEnabled(checked);
+        LuaDebuggerSuppression::setPrevEnabled(checked);
         refreshDebuggerStateUi();
         return;
     }
@@ -1458,11 +1488,11 @@ void LuaDebuggerDialog::syncDebuggerToggleWithCore()
     bool previousState = enabledCheckBox->blockSignals(true);
     enabledCheckBox->setChecked(debuggerEnabled);
     enabledCheckBox->blockSignals(previousState);
-    /* Lock the toggle while a live capture is forcing the debugger
-     * off so the checkbox cannot drift out of sync with the core
+    /* Lock the toggle while a live capture or the Preferences dialog
+     * is forcing the debugger off so the checkbox cannot drift out of sync with the core
      * state, and the user gets an obvious "this is intentional, not
      * me" affordance. The disabled icon's tooltip explains why. */
-    enabledCheckBox->setEnabled(!LuaDebuggerCaptureSuppression::isActive());
+    enabledCheckBox->setEnabled(!LuaDebuggerSuppression::isActive());
 }
 
 void LuaDebuggerDialog::refreshDebuggerStateUi()
@@ -1482,9 +1512,13 @@ LuaDebuggerDialog::DebuggerUiStatus LuaDebuggerDialog::currentDebuggerUiStatus()
     }
     if (!debuggerEnabled)
     {
-        if (LuaDebuggerCaptureSuppression::isActive())
+        if (LuaDebuggerSuppression::isActive(LuaDebuggerSuppression::LiveCapture))
         {
             return DebuggerUiStatus::DisabledLiveCapture;
+        }
+        if (LuaDebuggerSuppression::isActive(LuaDebuggerSuppression::Preferences))
+        {
+            return DebuggerUiStatus::DisabledPreferences;
         }
         return DebuggerUiStatus::Disabled;
     }
@@ -1527,6 +1561,11 @@ void LuaDebuggerDialog::updateEnabledCheckboxIcon()
         fill = theme->color(ThemeManager::AccentError);
         enabledCheckBox->setToolTip(tr("Debugger is disabled while a live capture is running. "
                                        "Stop the capture to re-enable."));
+        break;
+    case DebuggerUiStatus::DisabledPreferences:
+        fill = theme->color(ThemeManager::AccentError);
+        enabledCheckBox->setToolTip(tr("Debugger is disabled while the Preferences dialog is open. "
+                                       "Close it to re-enable."));
         break;
     case DebuggerUiStatus::Disabled:
         // Outline-only circle for disabled
@@ -1576,6 +1615,9 @@ void LuaDebuggerDialog::updateStatusLabel()
         break;
     case DebuggerUiStatus::DisabledLiveCapture:
         title += tr("Disabled (live capture)");
+        break;
+    case DebuggerUiStatus::DisabledPreferences:
+        title += tr("Disabled (preferences)");
         break;
     case DebuggerUiStatus::Disabled:
         title += tr("Disabled");
@@ -1637,14 +1679,15 @@ void LuaDebuggerDialog::updateWidgets()
 
 void LuaDebuggerDialog::ensureDebuggerEnabledForActiveBreakpoints()
 {
-    /* wslua_debugger owns enable *policy*; live capture gating is owned by
-     * LuaDebuggerCaptureSuppression: epan has no knowledge of the capture path. */
+    /* wslua_debugger owns enable *policy*; live capture and Preferences
+     * gating is owned by LuaDebuggerSuppression: epan has no knowledge of
+     * either. */
     const bool shouldBeEnabled = wslua_debugger_may_auto_enable_for_breakpoints();
-    if (LuaDebuggerCaptureSuppression::isActive())
+    if (LuaDebuggerSuppression::isActive())
     {
-        /* During live capture, snapshot desired post-capture state but do not
-         * flip the core debugger immediately. */
-        LuaDebuggerCaptureSuppression::setPrevEnabled(shouldBeEnabled);
+        /* While suppressed, snapshot the desired state for when the
+         * suppression ends, but do not flip the core debugger immediately. */
+        LuaDebuggerSuppression::setPrevEnabled(shouldBeEnabled);
         refreshDebuggerStateUi();
         return;
     }
@@ -1740,6 +1783,11 @@ void LuaDebugger::open(QWidget *parent)
 bool LuaDebugger::tryDeferMainWindowClose(QCloseEvent *event)
 {
     return LuaDebuggerDialog::handleMainCloseIfPaused(event);
+}
+
+void LuaDebugger::setSuppressedByPreferences(bool suppressed)
+{
+    LuaDebuggerSuppression::setSuppressed(LuaDebuggerSuppression::Preferences, suppressed);
 }
 
 /* Drain entry point: defined as a slot on LuaDebuggerDialog so

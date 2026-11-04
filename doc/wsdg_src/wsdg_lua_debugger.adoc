@@ -49,6 +49,9 @@ _Lua Debugger — Paused_). The debugger has four states:
   enabled state when the capture ends. The *Enabled* checkbox is
   disabled in this state and its tooltip explains why; see
   <<wslua_debugger_live_capture>>.
+* *Disabled (preferences)* (red) — the same suppression, for as long
+  as the Preferences dialog is open; see
+  <<wslua_debugger_preferences>>.
 
 Click a section title (chevron) to collapse or expand the section.
 
@@ -105,6 +108,19 @@ of any live capture:
 If you need to step through a dissector on live traffic, stop the
 capture, re-enable the debugger if needed, and reload a saved capture
 file instead — offline dissection is fully compatible with pausing.
+
+[#wslua_debugger_preferences]
+
+==== Preferences suppression
+
+Applying preferences can redissect packets while the Preferences
+dialog is still open and modal. A pause there would leave neither
+the dialog nor the debugger usable, so the debugger is suppressed
+the same way as during a live capture from the moment the
+Preferences dialog opens until it closes. The debugger is restored
+before the redissection that *OK* starts, so breakpoints fire there
+as usual. The redissection that *Apply* starts runs while the dialog
+is still open and does not stop at breakpoints.
 
 [#wslua_debugger_getting_started]
 
@@ -1519,7 +1535,8 @@ reload, anything the script stashed in globals does not.
 *The debugger never pauses.* Check that *Enabled* is ticked and
 that you are not in a live capture — the debugger is forcibly
 disabled while live capture is running (see
-<<wslua_debugger_live_capture>>). Check that the breakpoint file
+<<wslua_debugger_live_capture>>) and while the Preferences dialog
+is open (see <<wslua_debugger_preferences>>). Check that the breakpoint file
 path matches the path the Lua loader actually used. A file opened
 via a symlink can end up with a different path than the loaded
 copy — in that case open the script from the Files tree (which
