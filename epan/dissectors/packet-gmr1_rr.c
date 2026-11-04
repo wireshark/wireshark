@@ -1032,7 +1032,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_pkt_imm_ass_2_prm)
 
 	/* RLC Data Blocks Granted */
 	proto_tree_add_split_bits_item_ret_val(
-		tree, hf_rr_pkt_imm_ass_2_prm_ac_rlc_dblk_gnt,
+		subtree_ac, hf_rr_pkt_imm_ass_2_prm_ac_rlc_dblk_gnt,
 		tvb, (offset+1) << 3,
 		rr_pkt_imm_ass_2_prm_ac_rlc_dblk_gnt_crumbs,
 		NULL);
@@ -1949,6 +1949,8 @@ dissect_gmr1_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	} else {
 		proto_tree_add_item(ccch_tree, hf_rr_message_elements, tvb, offset, len - offset, ENC_NA);
 	}
+
+	return tvb_captured_length(tvb);
 
 	/* Error handling */
 err:

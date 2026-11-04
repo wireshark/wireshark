@@ -957,10 +957,9 @@ segx_half_db_value_fmt(char *s, uint32_t v)
 
 /* Segment 1A - [3] 11.5.2.66 */
 static void
-seg1a_syncinfo_sa_freq_offset_fmt(char *s, uint32_t v)
+seg1a_syncinfo_sa_freq_offset_fmt(char *s, int32_t v)
 {
-	int32_t sv = (int32_t)v;
-	snprintf(s, ITEM_LABEL_LENGTH, "%d Hz (%d)", sv * 5, sv);
+	snprintf(s, ITEM_LABEL_LENGTH, "%d Hz (%d)", v * 5, v);
 }
 
 static const value_string seg1a_rachctrl_acc_vals[] = {
@@ -1128,7 +1127,7 @@ proto_register_gmr1_bcch(void)
 		},
 		{ &hf_seg1a_syncinfo_sa_freq_offset,
 		  { "SA_FREQ_OFFSET", "gmr1.bcch.seg1a.syncinfo.sa_freq_offset",
-		    FT_UINT8, BASE_CUSTOM, CF_FUNC(seg1a_syncinfo_sa_freq_offset_fmt), 0x00,
+		    FT_INT8, BASE_CUSTOM, CF_FUNC(seg1a_syncinfo_sa_freq_offset_fmt), 0x00,
 		    NULL, HFILL }
 		},
 		{ &hf_seg1a_rachctrl_max_retrans,

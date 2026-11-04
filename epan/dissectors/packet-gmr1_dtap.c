@@ -106,7 +106,7 @@ dissect_gmr1_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
 	/* Protocol discriminator item */
 	/*pd_item =*/ proto_tree_add_uint(
-		dtap_tree, hf_gmr1_dtap_protocol_discriminator, tvb, 1, 1, pd);
+		dtap_tree, hf_gmr1_dtap_protocol_discriminator, tvb, 0, 1, pd);
 
 	/*pd_tree = proto_item_add_subtree(pd_item, ett_gmr1_pd);*/
 

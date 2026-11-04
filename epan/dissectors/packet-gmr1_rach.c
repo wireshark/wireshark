@@ -1051,7 +1051,7 @@ proto_register_gmr1_rach(void)
 		},
 		{ &hf_rach_spare,
 		  { "Spare", "gmr1.rach.spare",
-		    FT_UINT32, BASE_DEC, NULL, 0x01fffff8,
+		    FT_UINT8, BASE_DEC, NULL, 0x01,
 		    NULL, HFILL }
 		},
 		{ &hf_rach_gci,

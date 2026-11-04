@@ -163,6 +163,9 @@ static const value_string com_cm2_a5_2_gmr1_vals[] = {
 
 GMR1_IE_FUNC(gmr1_ie_com_cm2)
 {
+	if (len < 1)
+		return len;
+
 	proto_tree_add_item(tree, hf_com_cm2_spare1,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -179,6 +182,9 @@ GMR1_IE_FUNC(gmr1_ie_com_cm2)
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
+
+	if (len < 2)
+		return len;
 
 	proto_tree_add_item(tree, hf_com_cm2_spare2,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -197,6 +203,9 @@ GMR1_IE_FUNC(gmr1_ie_com_cm2)
 
 	offset++;
 
+	if (len < 3)
+		return len;
+
 	proto_tree_add_item(tree, hf_com_cm2_cm3_presence,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -211,7 +220,7 @@ GMR1_IE_FUNC(gmr1_ie_com_cm2)
 
 	offset++;
 
-	return 3;
+	return len;
 }
 
 /* [1] 11.5.1.8 - Spare Half Octet */
@@ -350,7 +359,7 @@ proto_register_gmr1_common(void)
 		},
 		{ &hf_com_spare_nibble,
 		  { "Spare Half Octet", "gmr1.common.spare_nibble",
-		    FT_UINT8, BASE_HEX, NULL, 0x0,
+		    FT_UINT8, BASE_HEX, NULL, 0xf0,
 		    NULL, HFILL }
 		},
 	};
