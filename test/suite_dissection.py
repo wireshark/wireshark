@@ -54367,3 +54367,50 @@ class TestDissectEsun:
                 '-Y', 'frame.number == 2', '-V', '-O', 'esun',
             ), encoding='utf-8', env=test_env)
         assert '    Flow Label: 48879 <Ignored (F=0)>' in stdout.splitlines()
+
+
+class TestDissectEtag:
+    def test_etag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has an E-Tag and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etag_coverage.pcap.gz'),
+                '-Y', 'etag', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('etag_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_etag_fields(self, cmd_tshark, capture_file, test_env):
+        '''PCP, DEI, group, reserved bits and the CIDs of every frame,
+        and the nested E-Tag of frame 11.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etag_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eetag.pcp', '-eetag.dei',
+                '-eetag.group', '-eetag.resv', '-eetag.iecid_base',
+                '-eetag.ecid_base', '-eetag.iecid_ext', '-eetag.ecid_ext',
+                '-eetag.etype',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 15
+        assert lines[0] == ['1', '0', '0', '0', '0', '0x0100', '0x0200', '0x00', '0x10', '0x0800']
+        assert lines[7] == ['8', '7', '1', '3', '0', '0x0107', '0x0207', '0x07', '0x17', '0x0800']
+        assert lines[8] == ['9', '7', '1', '3', '3', '0x0fff', '0x0fff', '0xff', '0xff', '0x0800']
+        assert lines[10] == ['11', '1,2', '0,0', '1,2', '0,0', '0x0005,0x0007',
+                             '0x0006,0x0008', '0x00,0x01', '0x00,0x01', '0x893f,0x0800']
+        assert lines[12][-1] == '0x1234'
+        assert lines[14][-1] == '0x88b5'
+
+    def test_etag_nested(self, cmd_tshark, capture_file, test_env):
+        '''The payload of a nested E-Tag (frame 11) is dissected down to UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('etag_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11 && udp.dstport == 9',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['11']
