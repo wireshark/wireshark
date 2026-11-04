@@ -133,7 +133,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     ver = "";
     version = tvb_get_uint8(tvb, 0 + FCOIB_VER_OFFSET) >> 4;
     if (version != 0)
-        ver = wmem_strdup_printf(pinfo->pool, ver, "ver %d ", version);
+        ver = wmem_strdup_printf(pinfo->pool, "ver %d ", version);
 
     if (tvb_bytes_exist(tvb, 0, 1))
         sig = tvb_get_uint8(tvb, 0) >> 6;
