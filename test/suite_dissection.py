@@ -54718,3 +54718,96 @@ class TestDissectEtherip:
             '10\t3\t0x0fff\tARP\tReserved field must be 0',
             '11\t1\t0x0800\tUDP\tVersion must be 3,Reserved field must be 0',
         ]
+
+
+class TestDissectEthertype:
+    def test_ethertype_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame protocol stacks: the ethertype dispatcher calls the
+        subdissector, or Data for unknown ethertypes; none of the 23
+        frames is malformed or has an error, in one and two passes, and
+        only frame 23 (nesting limit) has a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        frames = [l.split('\t') for l in stdout.splitlines()]
+        assert len(frames) == 23
+        assert frames[0][1] == 'eth:ethertype:ip:udp:discard'
+        assert frames[2][1] == 'eth:ethertype:arp'
+        assert frames[3][1] == 'eth:ethertype:ipv6:data'
+        assert frames[5][1] == 'eth:ethertype:data'
+        assert frames[8][1] == 'eth'
+        assert frames[13][1] == 'eth:ethertype:vlan:ethertype:ip:udp:discard'
+        assert frames[21][1] == 'eth:ethertype:eth:ethertype:ip:udp:discard'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '23\tEthertype encapsulation nested too deeply']
+
+    def test_ethertype_unknown(self, cmd_tshark, capture_file, test_env):
+        '''Unknown ethertypes show the ethertype in the Protocol column
+        and the Data length; a known name goes in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6,7,8,10,11,12,13}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['6', '0x1234', 'Ethernet II', '25'],
+            ['7', '0xc0de', 'eXpressive Internet Protocol', '11'],
+            ['8', '0x88b5', 'Local Experimental Ethertype 1', '20'],
+            ['10', '0xfff2', 'Cisco ACI ARP gleaning', ''],
+            ['11', '0xfff2', 'Cisco ACI ARP gleaning', '3'],
+            ['12', '0xfff2', 'Cisco ACI ARP gleaning', ''],
+            ['13', '0xfff2', 'Cisco ACI ARP gleaning', ''],
+        ]
+
+    def test_ethertype_aci_gleaning(self, cmd_tshark, capture_file, test_env):
+        '''Cisco ACI gleaning dissects the payload as IPv4, IPv6 or ARP
+        according to the first nibble.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {10,11,12}',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['10', 'eth:ethertype:ip:udp:discard'],
+            ['11', 'eth:ethertype:ipv6:data'],
+            ['12', 'eth:ethertype:arp'],
+        ]
+
+    def test_ethertype_trailer_fcs(self, cmd_tshark, capture_file, test_env):
+        '''Padding and trailers after the payload are in the Ethernet
+        (or VLAN) trailer; on an interface with a 4 octet FCS the FCS is
+        removed from the payload first and checked.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eeth.trailer',
+                '-evlan.trailer', '-eeth.fcs.status',
+            ), encoding='utf-8', env=test_env)
+        frames = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert frames['1'] == ['', '', '']
+        assert frames['2'] == ['00000000000000000000', '', '']
+        assert frames['4'] == ['deadbeef', '', '']
+        assert frames['5'] == ['', '', '']   # trailer cut off by the snaplen
+        assert frames['14'] == ['', '00000000000000000000', '']
+        assert frames['16'] == ['', '', '2']
+        assert frames['18'] == ['747261696c657221', '', '2']
+        assert frames['19'] == ['', '', '2']
+
+    def test_ethertype_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''300 nested Ethernet headers (frame 23) stop at the nesting
+        limit with ethertype.nesting_too_deep instead of failing the
+        layer assertion, and are not marked malformed.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ethertype_coverage.pcapng.gz'),
+                    '-Y', 'ethertype.nesting_too_deep && !_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['23']
