@@ -100,7 +100,7 @@ fclctl_get_typestr (wmem_allocator_t* pool, uint8_t linkctl_type, uint8_t type)
 {
     if ((linkctl_type == FC_LCTL_FBSYB) ||
         (linkctl_type == FC_LCTL_FBSYL)) {
-        return (val_to_str(pool, (type & 0xF0), fc_lctl_fbsy_val, "0x%x"));
+        return (val_to_str(pool, ((type & 0xF0) >> 4), fc_lctl_fbsy_val, "0x%x"));
     }
     return "";
 }
