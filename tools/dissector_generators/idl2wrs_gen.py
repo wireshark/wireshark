@@ -2168,7 +2168,7 @@ item = proto_tree_add_uint(tree, hf_@seqname@_loop, tvb,*offset-4, 4, u_octet4_l
 """
 
     template_get_CDR_sequence_octet = """\
-if (u_octet4_loop_@seqname@ > 0 && tree) {
+if (u_octet4_loop_@seqname@ > 0) {
     get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_@seqname@, offset,
         u_octet4_loop_@seqname@);
     text_seq_@seqname@ = make_printable_string(pinfo->pool, binary_seq_@seqname@,

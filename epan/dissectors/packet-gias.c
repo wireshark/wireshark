@@ -6817,7 +6817,7 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
     u_octet4_loop_UCO_CompressedImage_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_UCO_CompressedImage_data_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_CompressedImage_data);
 
-    if (u_octet4_loop_UCO_CompressedImage_data > 0 && tree) {
+    if (u_octet4_loop_UCO_CompressedImage_data > 0) {
         get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_CompressedImage_data, offset,
             u_octet4_loop_UCO_CompressedImage_data);
         text_seq_UCO_CompressedImage_data = make_printable_string(pinfo->pool, binary_seq_UCO_CompressedImage_data,
@@ -7716,7 +7716,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
         u_octet4_loop_GIAS_Domain_bd = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_GIAS_Domain_bd_loop, tvb,*offset-4, 4, u_octet4_loop_GIAS_Domain_bd);
 
-        if (u_octet4_loop_GIAS_Domain_bd > 0 && tree) {
+        if (u_octet4_loop_GIAS_Domain_bd > 0) {
             get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_GIAS_Domain_bd, offset,
                 u_octet4_loop_GIAS_Domain_bd);
             text_seq_GIAS_Domain_bd = make_printable_string(pinfo->pool, binary_seq_GIAS_Domain_bd,
@@ -7840,7 +7840,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
         u_octet4_loop_UCO_Buffer_octet_buffer = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_UCO_Buffer_octet_buffer_loop, tvb,*offset-4, 4, u_octet4_loop_UCO_Buffer_octet_buffer);
 
-        if (u_octet4_loop_UCO_Buffer_octet_buffer > 0 && tree) {
+        if (u_octet4_loop_UCO_Buffer_octet_buffer > 0) {
             get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_UCO_Buffer_octet_buffer, offset,
                 u_octet4_loop_UCO_Buffer_octet_buffer);
             text_seq_UCO_Buffer_octet_buffer = make_printable_string(pinfo->pool, binary_seq_UCO_Buffer_octet_buffer,

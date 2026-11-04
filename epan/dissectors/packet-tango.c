@@ -3206,7 +3206,7 @@ decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     u_octet4_loop_Tango_ZmqCallInfo_oid = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_ZmqCallInfo_oid_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ZmqCallInfo_oid);
 
-    if (u_octet4_loop_Tango_ZmqCallInfo_oid > 0 && tree) {
+    if (u_octet4_loop_Tango_ZmqCallInfo_oid > 0) {
         get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_ZmqCallInfo_oid, offset,
             u_octet4_loop_Tango_ZmqCallInfo_oid);
         text_seq_Tango_ZmqCallInfo_oid = make_printable_string(pinfo->pool, binary_seq_Tango_ZmqCallInfo_oid,
@@ -5042,7 +5042,7 @@ decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
     u_octet4_loop_Tango_DevEncoded_encoded_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_DevEncoded_encoded_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevEncoded_encoded_data);
 
-    if (u_octet4_loop_Tango_DevEncoded_encoded_data > 0 && tree) {
+    if (u_octet4_loop_Tango_DevEncoded_encoded_data > 0) {
         get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_DevEncoded_encoded_data, offset,
             u_octet4_loop_Tango_DevEncoded_encoded_data);
         text_seq_Tango_DevEncoded_encoded_data = make_printable_string(pinfo->pool, binary_seq_Tango_DevEncoded_encoded_data,
@@ -5321,7 +5321,7 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
         u_octet4_loop_Tango_AttrValUnion_uchar_att_value = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         proto_tree_add_uint(tree, hf_Tango_AttrValUnion_uchar_att_value_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttrValUnion_uchar_att_value);
 
-        if (u_octet4_loop_Tango_AttrValUnion_uchar_att_value > 0 && tree) {
+        if (u_octet4_loop_Tango_AttrValUnion_uchar_att_value > 0) {
             get_CDR_octet_seq(pinfo->pool, tvb, &binary_seq_Tango_AttrValUnion_uchar_att_value, offset,
                 u_octet4_loop_Tango_AttrValUnion_uchar_att_value);
             text_seq_Tango_AttrValUnion_uchar_att_value = make_printable_string(pinfo->pool, binary_seq_Tango_AttrValUnion_uchar_att_value,
