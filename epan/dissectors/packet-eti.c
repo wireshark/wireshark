@@ -12765,7 +12765,7 @@ proto_register_eti(void)
           }
         , { &hf_eti[NETTINGCOEFFICIENT_FH_IDX],
               { "NettingCoefficient", "eti.nettingcoefficient",
-                FT_UINT64, BASE_DEC, NULL, 0x0,
+                FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
           }
         , { &hf_eti[NETWORKMSGID_FH_IDX],
@@ -14020,7 +14020,7 @@ proto_register_eti(void)
           }
         , { &hf_eti[TRADETOQUOTERATIO_FH_IDX],
               { "TradeToQuoteRatio", "eti.tradetoquoteratio",
-                FT_UINT64, BASE_DEC, NULL, 0x0,
+                FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
           }
         , { &hf_eti[TRADETOQUOTERATIOPOSITION_FH_IDX],
@@ -14035,7 +14035,7 @@ proto_register_eti(void)
           }
         , { &hf_eti[TRADETOREQUESTRATIO_FH_IDX],
               { "TradeToRequestRatio", "eti.tradetorequestratio",
-                FT_UINT64, BASE_DEC, NULL, 0x0,
+                FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
           }
         , { &hf_eti[TRADINGCAPACITY_FH_IDX],
