@@ -55498,3 +55498,84 @@ class TestDissectEvs:
         rows = self._info(cmd_tshark, capture_file, test_env, '-o', 'evs.hf_only:TRUE')
         assert rows[128][1] == ''
         assert rows[10][1] == ''
+
+
+class TestDissectExablaze:
+    @staticmethod
+    def _env(test_env):
+        env = test_env.copy()
+        env['TZ'] = 'UTC'
+        return env
+
+    def test_exablaze_trailers(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic is disabled by default; enabled, the frames with
+        a valid trailer (within a week of the capture time, with or
+        without a new FCS after it) are decoded and no frame is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('exablaze_coverage.pcap.gz'),
+                '-Y', 'exablaze',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=self._env(test_env))
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '--enable-heuristic', 'exablaze_eth',
+                    '-r', capture_file('exablaze_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-eexablaze.device',
+                    '-eexablaze.port', '-eexablaze.timestamp.seconds',
+                    '-eexablaze.original_fcs',
+                ), encoding='utf-8', env=self._env(test_env))
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert len(rows) == 16
+            assert rows[0] == ['1', '1', '2', '1700000000', '0xdeadbeef']
+            assert rows[1] == ['2', '3', '4', '1700000001', '0xdeadbeef']
+            # in the future and in the past, device and port 255 and 0
+            assert rows[2] == ['3', '255', '255', '1700003602', '0xdeadbeef']
+            assert rows[3] == ['4', '0', '0', '1699913603', '0xdeadbeef']
+            # padding before the trailer, exactly a week either way
+            assert rows[4] == ['5', '9', '10', '1700000004', '0xdeadbeef']
+            assert rows[5] == ['6', '11', '12', '1700604805', '0xdeadbeef']
+            assert rows[6] == ['7', '13', '14', '1699395206', '0xdeadbeef']
+            assert rows[7] == ['8', '15', '16', '1700000007', '0xdeadbeef']
+            assert rows[8] == ['9', '17', '18', '1699999008', '0xdeadbeef']
+            # a week and a second off, too short, none, wrong octets
+            for r in rows[9:]:
+                assert r[1:] == ['', '', '', '']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '--enable-heuristic', 'exablaze_eth',
+                    '-r', capture_file('exablaze_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=self._env(test_env))
+            assert count_output(stdout) == 0
+
+    def test_exablaze_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp is the seconds plus the 40 bit binary fraction.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'exablaze_eth',
+                '-r', capture_file('exablaze_coverage.pcap.gz'),
+                '-Y', 'exablaze.timestamp.fractional_seconds >= 0.5 && exablaze.timestamp.fractional_seconds < 0.5001',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=self._env(test_env))
+        assert stdout.split() == ['1', '2', '9']
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'exablaze_eth',
+                '-r', capture_file('exablaze_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4 && exablaze.timestamp == "2023-11-13 22:13:23"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=self._env(test_env))
+        assert stdout.split() == ['4']
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'exablaze_eth',
+                '-r', capture_file('exablaze_coverage.pcap.gz'),
+                '-Y', 'exablaze.timestamp.fractional_seconds > 0.99999999999',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=self._env(test_env))
+        assert stdout.split() == ['3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'exablaze_eth',
+                '-r', capture_file('exablaze_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-V', '-O', 'exablaze',
+            ), encoding='utf-8', env=self._env(test_env))
+        assert "Exablaze trailer, Device: 1, Port: 2, Timestamp: 22:13:20" in stdout
