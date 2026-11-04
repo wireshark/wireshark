@@ -1204,6 +1204,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			dissect_cat_efadn_coding(tvb, elem_tree, pos, len, hf_ctlv_alpha_id_string);
 			break;
 		case 0x06:	/* address */
+			if (len < 1)
+				break;
 			proto_tree_add_item(elem_tree, hf_ctlv_address_ton, tvb, pos, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(elem_tree, hf_ctlv_address_npi, tvb, pos, 1, ENC_BIG_ENDIAN);
 			dissect_cat_efadn_coding(tvb, elem_tree, pos+1, len-1, hf_ctlv_address_string);
@@ -1425,11 +1427,13 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_delivery_erroneous_sdus, tvb, pos+14, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_transfer_delay, tvb, pos+15, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_traffic_handling_prio, tvb, pos+16, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_pdp_type, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_pdp_type, tvb, pos+17, 1, ENC_BIG_ENDIAN);
 				break;
 			case 0x0a:
 				break;
 			case 0x0b:
+				if (len < 2)
+					break;
 				de_esm_qos(tvb, elem_tree, pinfo, pos+1, len-2, NULL, 0);
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer_utran_pdp_type, tvb, pos+len-1, 1, ENC_BIG_ENDIAN);
 				break;
@@ -1486,7 +1490,8 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
 			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
-			if (cat_trans && ((cat_trans->id & 0x00ffff) == 0x2602)) {
+			if (cat_trans && !PINFO_FD_VISITED(pinfo) && GPOINTER_TO_INT(data) == 0xd0 &&
+			    ((cat_trans->id & 0x00ffff) == 0x2602)) {
 				if (g8 >= 1 && g8 <= 4)
 					cat_trans->nmr_type = CAT_NMR_UTRAN;
 				else if (g8 >= 5 && g8 <= 9)
@@ -1529,10 +1534,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x79:	/* PLMN list */
 			for (i = 0; i < len; i+=3) {
-				dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos+3*i, E212_NONE, true);
+				dissect_e212_mcc_mnc(tvb, pinfo, elem_tree, pos+i, E212_NONE, true);
 			}
 			break;
 		case 0x7a:/* Broadcast Network Information */
+			if (len < 1)
+				break;
 			proto_tree_add_item(elem_tree, hf_ctlv_broadcast_nw_tech, tvb, pos, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(elem_tree, hf_ctlv_broadcast_nw_loc_info, tvb, pos+1, len-1, ENC_NA);
 			break;
@@ -1905,7 +1912,7 @@ proto_register_card_app_toolkit(void)
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_utran_guaranteed_bitrate_ul,
-			{ "Guaranteed Bitrate DL", "etsi_cat.comp_tlv.bearer.utran.guaranteed_bitrate_ul",
+			{ "Guaranteed Bitrate UL", "etsi_cat.comp_tlv.bearer.utran.guaranteed_bitrate_ul",
 			  FT_UINT16, BASE_DEC, NULL, 0,
 			  NULL, HFILL },
 		},
