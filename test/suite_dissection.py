@@ -54811,3 +54811,185 @@ class TestDissectEthertype:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['23']
+
+
+class TestDissectSmb:
+    @staticmethod
+    def smb_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        '''Run tshark on the SMB coverage capture and return the tab
+        separated -T fields rows (one list per matching frame).'''
+        args = [cmd_tshark, *passes, '-r', capture_file('smb_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The synthetic capture holds 1034 frames, 999 of them SMB, over
+        TCP 445 and 139, TPKT/COTP, IPX and NetBIOS datagrams.  None is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smb_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-Y', 'smb',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 999
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 1034
+        assert protocols.count('SMB') == 967
+        assert protocols.count('SMB Pipe') == 17
+        assert protocols.count('NBSS') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('smb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_smb_commands_and_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Core commands, AndX commands, Transaction, Transaction2 and NT
+        Transact (with their sub-commands and information levels) are all
+        present.'''
+        def count(flt):
+            return len(self.smb_fields(cmd_tshark, capture_file, test_env, flt))
+        assert count('smb.cmd == 0x32') == 486
+        assert count('smb.cmd == 0x25') == 38
+        assert count('smb.cmd == 0xa0') == 56
+        assert count('smb.qpi_loi') == 190
+        assert count('smb.ff2_loi') == 45
+        assert count('smb.qfsi_loi') == 59
+        assert count('smb.spi_loi') == 66
+        assert count('nt.sec_desc.revision') == 11
+        # Every command of the core protocol is seen in a request
+        cmds = set()
+        for row in self.smb_fields(cmd_tshark, capture_file, test_env, 'smb.cmd && !(smb.flags.response == 1)', 'smb.cmd'):
+            cmds.update(int(c, 16) for c in row[1].split(','))
+        for c in (0x00, 0x04, 0x0a, 0x0b, 0x24, 0x2b, 0x2d, 0x2e, 0x2f, 0x32, 0x33, 0x70, 0x72, 0x73, 0x75, 0x81, 0xa0, 0xa2, 0xc0, 0xd0):
+            assert c in cmds
+
+    def test_smb_nt_create_andx_extended(self, cmd_tshark, capture_file, test_env):
+        '''The NT Create AndX response with 42 words used to reset the
+        offset to 0, so the byte count was read from the SMB marker; with
+        an AndX chain it was malformed.'''
+        for passes in ((), ('-2',)):
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 941 || frame.number == 943',
+                              'smb.fid', 'smb.bcc', 'smb.cmd', passes=passes)
+            assert rows == [['941', '0x4a01', '0', '0xa2,0xff'],
+                            ['943', '0x4a02', '0,0', '0xa2,0x04']]
+
+    def test_smb_two_pass_transaction_matching(self, cmd_tshark, capture_file, test_env):
+        '''A Trans2 request with an interim response and a secondary request
+        keeps its matches in later passes: the secondary is a continuation
+        of the request, the final response has its request and sub-command.'''
+        for passes in ((), ('-2',)):
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 946 || frame.number == 947',
+                              'smb.continuation_of', 'smb.response_to', 'smb.trans2.cmd', passes=passes)
+            assert rows == [['946', '944', '', ''], ['947', '', '944', '0x0003']]
+
+    def test_smb_multi_command_info(self, cmd_tshark, capture_file, test_env):
+        '''Two Trans2 SMBs in one segment: the Info column is the same in
+        every pass (the "Data: x of y" suffix depended on the pass).'''
+        infos = []
+        for passes in ((), ('-2',)):
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 948',
+                              '_ws.col.info', passes=passes)
+            infos.append(rows[0][1])
+        assert infos[0] == infos[1]
+        assert infos[0].startswith('Trans2 Request; SET_FILE_INFO, Data: 10 of 100, FID: 0x1234')
+        assert infos[0].endswith('; QUERY_FS_INFO, Query FS Size Info')
+
+    def test_smb_tid_tracking(self, cmd_tshark, capture_file, test_env):
+        '''An unmapped TID shows no tree path (it used to take the nearest
+        lower TID) and a re-used TID keeps the share of the time of the
+        frame.'''
+        for passes in ((), ('-2',)):
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 930 || frame.number == 932 || frame.number == 936',
+                              'smb.tid', 'smb.path', passes=passes)
+            # tshark escapes the backslashes in -Tfields output
+            assert rows == [['930', '2053', ''],
+                            ['932', '2048', r'\\\\SRV\\SHAREA'],
+                            ['936', '2048', r'\\\\SRV\\SHAREB']]
+
+    def test_smb_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The Requested Dialects tree covers the dialects, the Find Close
+        Data Length is little endian and the Mac Query FS Info Backup Time
+        advances the offset.'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        m = re.search(r'<field name="smb.bcc" showname="Byte Count \(BCC\): (\d+)".*?'
+                      r'<field name="" show="Requested Dialects" size="(\d+)"', stdout, re.S)
+        assert m and m.group(1) == m.group(2) != '0'
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 75', 'smb.data_len')
+        assert rows == [['75', '1']]
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 950',
+                          'smb.backup.time', 'smb.alloc.count', 'smb.alloc.size',
+                          'smb.free_block.count', 'smb.root.file.count', 'smb.root.dir.count')
+        assert len(rows) == 1 and rows[0][2:] == ['286331153', '572662306', '858993459', '68', '85']
+        assert rows[0][1] != ''
+
+    def test_smb_pipes_dcerpc(self, cmd_tshark, capture_file, test_env):
+        '''DCE/RPC binds and acknowledgements over a pipe are found in Write
+        AndX, Read AndX, Write, Read and TransactNmPipe, and the Read
+        response knows the FID of its request.'''
+        for passes, ack in (((), 5), (('-2',), 6)):
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'dcerpc.pkt_type == 11', passes=passes)
+            assert len(rows) == 5
+            rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'dcerpc.pkt_type == 12', passes=passes)
+            assert len(rows) == ack     # the reassembled one is shown in pass 2 only
+        for flt in ('dcerpc.pkt_type == 12 && smb.cmd == 0x0a', 'dcerpc.pkt_type == 12 && smb.cmd == 0x2e',
+                    'dcerpc.pkt_type == 11 && smb.cmd == 0x0b', 'dcerpc.pkt_type == 11 && smb.cmd == 0x2f'):
+            for passes in ((), ('-2',)):
+                assert len(self.smb_fields(cmd_tshark, capture_file, test_env, flt, passes=passes)) == 1
+
+    def test_smb_dfs_referral(self, cmd_tshark, capture_file, test_env):
+        '''DFS referrals of versions 1 to 4 including name list referrals.'''
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'smb.dfs.referral.node',
+                          'smb.dfs.referral.node')
+        assert len(rows) == 3
+        assert rows[2][1] == 'node'
+
+    def test_smb_trans_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Multi-part Transaction2, Transaction and NT Transact responses
+        are reassembled; the reassembly is shown in the first part in
+        later passes.'''
+        assert len(self.smb_fields(cmd_tshark, capture_file, test_env, 'smb.reassembled_in')) == 4
+        assert len(self.smb_fields(cmd_tshark, capture_file, test_env, 'smb.reassembled_in', passes=('-2',))) == 6
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'frame.number == 669', '_ws.col.info',
+                          passes=('-2',))
+        assert rows[0][1].endswith('Fragment data 42-91')
+
+    def test_smb_other_transports(self, cmd_tshark, capture_file, test_env):
+        '''SMB over IPX sockets, TPKT/COTP and NetBIOS datagrams.'''
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'ipx && smb', 'ipx.dst.socket')
+        assert [r[1] for r in rows] == ['0x0550', '0x0552', '0x0554']
+        assert len(self.smb_fields(cmd_tshark, capture_file, test_env, 'cotp && smb')) == 2
+        rows = self.smb_fields(cmd_tshark, capture_file, test_env, 'nbdgm && smb && browser', 'browser.command')
+        assert rows == [['1034', '0x01']]
+
+    def test_smb_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Chunks written and read out of order, overlapping, empty and
+        beyond the file length build the exported files; offsets that do
+        not fit in memory give empty files.'''
+        export_dir = tmp_path / 'export'
+        export_dir.mkdir()
+        subprocess.check_call((cmd_tshark,
+                '-r', capture_file('smb_coverage.pcap.gz'),
+                '-q', '--export-objects', f'smb,{export_dir}',
+            ), env=test_env)
+        files = {p.name: p.read_bytes() for p in export_dir.iterdir()}
+        assert files['%5cexport%5cbig.bin'] == b'J' * 1600
+        mid = files['%5cexport%5cmid.bin']
+        assert len(mid) == 700
+        assert mid[:100] == b'a' * 100 and mid[150:550] == b'e' * 400 and mid[600:] == b'd' * 100
+        assert files['%5cexport%5chuge.bin'] == b''
+        assert files['%5cexport%5cwrap.bin'] == b''
+        # a directory is listed but has no content
+        assert files['%5cexport%5cdir'] == b''
