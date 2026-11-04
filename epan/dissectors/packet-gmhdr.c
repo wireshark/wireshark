@@ -126,7 +126,7 @@ static expert_field ei_gmhdr_field_length_invalid;
 static expert_field ei_gmhdr_len;
 
 static void
-dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, unsigned offset, uint16_t length)
+dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, unsigned offset, unsigned length)
 {
   proto_tree *ti;
   proto_tree *srcport_tree;
@@ -138,6 +138,10 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gmhdr_tree, unsigne
     length -= 2;
 
     fl = tl & 0xff;
+    if (fl > length) {
+      expert_add_info_format(pinfo, gmhdr_tree, &ei_gmhdr_field_length_invalid, "Field length %u invalid", fl);
+      return;
+    }
     switch (tl >> 8) {
       case GMHDR_FTYPE_SRCPORT_G: {
         uint16_t pid;
@@ -218,13 +222,19 @@ static int
 dissect_gmhdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree *ti;
-  int16_t     length;
+  unsigned    length;
   uint16_t    encap_proto;
   bool        is_802_2;
   proto_tree *gmhdr_tree = NULL;
   unsigned    offset = 0;
 
   length = tvb_get_uint8(tvb, offset); /* Length of the Gigamon header */
+
+  if (length < 1) {
+    ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, 1, ENC_NA);
+    expert_add_info_format(pinfo, ti, &ei_gmhdr_field_length_invalid, "Header length %u invalid", length);
+    return tvb_captured_length(tvb);
+  }
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_gmhdr, tvb, offset, length, ENC_NA);
