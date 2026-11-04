@@ -436,7 +436,7 @@ gadu_gadu_strsize(tvbuff_t *tvb, const int abs_offset)
 
 	len = tvb_strnlen(tvb, abs_offset, -1);
 	if (len == -1) {
-		len = tvb_captured_length(tvb);
+		len = tvb_captured_length_remaining(tvb, abs_offset);
 	} else {
 		len++; // Include the NUL
 	}
@@ -457,16 +457,13 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, int hfindex, proto_tree *tree, c
 static unsigned
 dissect_gadu_gadu_uint32_string_utf8(tvbuff_t *tvb, int hfindex, proto_tree *tree, unsigned offset)
 {
-	const unsigned org_offset = offset;
-
 	uint32_t len;
 
 	len = tvb_get_letohl(tvb, offset);
 	offset += 4;
 
+	proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_UTF_8 | ENC_NA);
 	offset += len;
-
-	proto_tree_add_item(tree, hfindex, tvb, org_offset, offset - org_offset, ENC_UTF_8 | ENC_NA);
 
 	return offset;
 }
