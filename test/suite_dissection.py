@@ -55979,3 +55979,152 @@ class TestDissectF1ap:
         assert rows == {'UEContextReleaseCommand': '8'}
         assert [l.split()[2] for l in stdout.splitlines()
                 if l.startswith('Total Packets')] == ['687']
+
+
+class TestDissectF5ethtrailer:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, name='f5ethtrailer_coverage.pcapng.gz'):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(name), *args),
+                encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_f5ethtrailer_protocols(self, cmd_tshark, capture_file, test_env):
+        '''93 frames carry an F5 trailer, none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                '-Y', 'f5ethtrailer', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 93
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_f5ethtrailer_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The decoded trailer fields are the same in one and two passes.'''
+        args = ('-Y', 'f5ethtrailer', '-Tfields', '-eframe.number', '-ef5ethtrailer.ingress',
+                '-ef5ethtrailer.slot', '-ef5ethtrailer.tmm', '-ef5ethtrailer.vip',
+                '-ef5ethtrailer.flowid', '-ef5ethtrailer.peerid', '-ef5ethtrailer.rstcausetxt',
+                '-ef5ethtrailer.peerremoteaddr', '-ef5ethtrailer.orig_fcs', '-e_ws.col.info')
+        one = self._fields(cmd_tshark, capture_file, test_env, *args)
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) == 93
+        assert one == two
+
+    def test_f5ethtrailer_fileinfo(self, cmd_tshark, capture_file, test_env):
+        '''The F5 file information packet at the start of the capture.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 1',
+                '-Tfields', '-ef5fileinfo.cmdline', '-ef5fileinfo.version', '-ef5fileinfo.hostname',
+                '-ef5fileinfo.platform', '-ef5fileinfo.platformname', '-ef5fileinfo.product',
+                '-ef5fileinfo.session', '-e_ws.col.protocol')
+        assert lines == [['tcpdump -i 0.0:nnn -s0 -w /var/tmp/x.pcap', 'BIG-IP 13.1.3.4 0.0.5',
+                          'bigip1.example.com', 'C115', 'BIG-IP i4000 Series (i4600, i4800)',
+                          'BIG-IP', '1a2b3c', 'FILEINFO']]
+
+    def test_f5ethtrailer_old_format(self, cmd_tshark, capture_file, test_env):
+        '''Old format low, medium and high trailers: slot, tmm, virtual
+        server, flow IDs, RST cause and the peer addresses of a high trailer.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'f5ethtrailer', '-Tfields',
+                '-eframe.number', '-ef5ethtrailer.slot', '-ef5ethtrailer.tmm',
+                '-ef5ethtrailer.vip', '-ef5ethtrailer.flowid', '-ef5ethtrailer.rstcausetxt',
+                '-ef5ethtrailer.peerremoteaddr', '-ef5ethtrailer.peerremotertdom',
+                '-ef5ethtrailer.peerremoteport', '-ef5ethtrailer.peervlan')
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['2'][1:5] == ['1', '2', 'vs_http', '']
+        assert by_frame['4'][1:5] == ['2', '4', 'vs_flow', '0x0000000000001000']
+        assert by_frame['13'][5] == 'no route to host'
+        assert by_frame['14'][5] == 'peer reset'
+        assert by_frame['22'][1:] == ['1', '3', 'vs_https', '0x0000000000000300', 'combo',
+                                      '10.1.1.1', '', '443', '100']
+        assert by_frame['23'][6:] == ['10.2.2.1', '5', '53', '200']
+
+    def test_f5ethtrailer_dpt(self, cmd_tshark, capture_file, test_env):
+        '''New format (DPT) trailers: object names, an original FCS in front
+        of the magic and the RST cause of a medium trailer.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'f5ethtrailer.trailer_magic',
+                '-Tfields', '-eframe.number', '-ef5ethtrailer.vip', '-ef5ethtrailer.phys_port',
+                '-ef5ethtrailer.trunk', '-ef5ethtrailer.orig_fcs', '-ef5ethtrailer.rstcausetxt',
+                '-ef5ethtrailer.trailer_version')
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['64'][1:4] == ['vs_dpt4', '1.1', 'trk1']
+        assert by_frame['68'][1] == 'vs_a,vs_b'
+        assert by_frame['69'][5] == 'dpt reset'
+        assert by_frame['74'][4] == '0xaabbccdd'
+        assert by_frame['75'][4] == '0x0000ccdd'
+        assert by_frame['76'][4] == '0x000000dd'
+        assert by_frame['77'][6] == '2'
+        for f in ('82', '83'):
+            assert f in by_frame
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                '-Y', 'f5ethtrailer.undecoded', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['66']
+
+    def test_f5ethtrailer_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column prefix follows the info_type preference.'''
+        for pref, prefix in (('Full', 'IN  s1/tmm2 : '), ('InOutOnly', 'IN : '),
+                             ('Brief', '>1/2 : '), ('BriefInOutOnly', '>: '), ('None', '')):
+            lines = self._fields(cmd_tshark, capture_file, test_env, '-o', 'f5ethtrailer.info_type:' + pref,
+                    '-Y', 'frame.number == 2', '-Tfields', '-e_ws.col.info')
+            assert lines[0][0].startswith(prefix)
+            assert (pref == 'None') == (not lines[0][0].startswith(('IN', '>')))
+
+    def test_f5ethtrailer_walk_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Non-zero padding in front of the trailer is skipped only with
+        the pref_walk_trailer preference.'''
+        for pref, count in (('FALSE', 0), ('TRUE', 1)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                    '-o', 'f5ethtrailer.pref_walk_trailer:' + pref,
+                    '-Y', 'frame.number == 34 && f5ethtrailer', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count
+
+    def test_f5ethtrailer_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Flow reuse (an inbound SYN with a flow) and flow lost (an inbound
+        ACK without one) with the perform_analysis preference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                '-o', 'f5ethtrailer.perform_analysis:TRUE', '-V',
+                '-Y', 'f5ethtrailer.analysis',
+            ), encoding='utf-8', env=test_env)
+        found = []
+        frame = None
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = line.split(':')[0].split()[1]
+            elif 'Expert Info' in line and 'Flow reuse' in line:
+                found.append((frame, 'reuse'))
+            elif 'Expert Info' in line and 'Flow lost' in line:
+                found.append((frame, 'lost'))
+        assert [f for f in found if f[0] in ('89', '90', '92', '49')] == [
+            ('49', 'lost'), ('89', 'reuse'), ('90', 'lost'), ('92', 'reuse')]
+        assert ('91', 'lost') not in found   # egress ACK
+
+    def test_f5ethtrailer_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The tmm and virtual server distribution statistics trees.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'), '-q',
+                '-z', 'f5_tmm_dist,tree', '-z', 'f5_virt_dist,tree',
+            ), encoding='utf-8', env=test_env)
+        assert 'tmm Packet Distribution' in stdout
+        assert 'Virtual Server Packet Distribution' in stdout
+        assert 'vs_https' in stdout
+        assert 'direction in' in stdout
+
+    def test_f5ethtrailer_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers: a remainder shorter than the zero padding (frame 53),
+        RST cause lengths below 9 (55, 56) and the noise dissector called
+        from Exported PDU without data (103-105) are not malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('f5ethtrailer_coverage.pcapng.gz'),
+                '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        shown = stdout.split()
+        for f in ('53', '54', '55', '56', '103', '104', '105'):
+            assert f not in shown
