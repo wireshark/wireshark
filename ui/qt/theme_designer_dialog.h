@@ -10,6 +10,8 @@
 #ifndef THEME_DESIGNER_DIALOG_H
 #define THEME_DESIGNER_DIALOG_H
 
+#include <config.h>
+
 #include <ui/qt/geometry_state_dialog.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/widgets/theme_preview_pick.h>
@@ -20,6 +22,7 @@
 #include <QString>
 #include <QStringList>
 
+class ThemeLuaCodePreview;
 class QAction;
 class QComboBox;
 class QLabel;
@@ -35,7 +38,8 @@ class ThemeDesignerDialog;
  * Creates, copies, edits, imports and exports personal themes.
  *
  * The dialog edits a draft of the selected theme and previews it on a
- * compact Welcome Page and a fake packet list window.  Nothing it shows
+ * compact Welcome Page, a fake packet list window and, with Lua, a Lua
+ * Debugger script editor.  Nothing it shows
  * touches the live theme; bundled themes are never written.
  */
 class ThemeDesignerDialog : public GeometryStateDialog
@@ -175,6 +179,9 @@ private:
     }
 
     Ui::ThemeDesignerDialog *ui_;
+#ifdef HAVE_LUA
+    ThemeLuaCodePreview *lua_code_preview_ = nullptr;  // The Lua Code sample
+#endif
     Context context_;
 
     ThemeDraft base_;

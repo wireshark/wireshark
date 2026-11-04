@@ -9,8 +9,9 @@
 
 /**
  * @file
- * Code editor stack: editor view, gutter, syntax highlighter, theme
- * palette, font policy and the script-tabs controller.
+ * Code editor stack: editor view, gutter, theme palette, font policy
+ * and the script-tabs controller.  The syntax highlighter is in
+ * lua_syntax_highlighter.h.
  */
 
 #ifndef LUA_DEBUGGER_CODE_EDITOR_H
@@ -28,6 +29,8 @@
 #include <QTextCursor>
 #include <QVector>
 #include <QtGlobal>
+
+#include <ui/qt/lua_debugger/lua_syntax_highlighter.h>
 
 class LuaDebuggerCodeView;
 class LuaDebuggerDialog;
@@ -71,59 +74,6 @@ struct LuaDebuggerEditorPalette
  * @return LuaDebuggerEditorPalette The editor palette.
  */
 LuaDebuggerEditorPalette luaDebuggerEditorPalette();
-
-/* ===== lua_highlighter ===== */
-
-/**
- * @brief Syntax highlighter tuned for Lua keywords, strings, numbers,
- *        comments and Lua's long-bracket strings/comments.
- *
- * Colours come from the theme's @c code section (ThemeManager::Code*
- * tokens) for the active light/dark mode; call @ref updateColors after
- * a theme or mode change. No coupling to @c LuaDebuggerCodeView or
- * @c LuaDebuggerDialog.
- */
-class LuaSyntaxHighlighter : public QSyntaxHighlighter
-{
-  public:
-    /** @brief Build the rule set from the current theme and bind to @p parent's document. */
-    explicit LuaSyntaxHighlighter(QTextDocument *parent);
-
-    /** @brief Rebuild the rule set from the current theme colours and rehighlight. */
-    void updateColors();
-
-  protected:
-    /** @brief Apply highlighting to a single text block. */
-    void highlightBlock(const QString &text) override;
-
-  private:
-    /**
-     * @brief A single syntax highlighting rule pairing a regex pattern with a text format.
-     */
-    struct Rule
-    {
-        QRegularExpression pattern;  /**< Regular expression used to match tokens in source text. */
-        QTextCharFormat format;      /**< Text character format applied to matched tokens. */
-    };
-
-
-    QVector<Rule> rules_;                    /**< Ordered list of syntax highlighting rules applied in sequence. */
-    QTextCharFormat stringFormat_;           /**< Text format applied to string literals. */
-    QTextCharFormat commentFormat_;          /**< Text format applied to comment text. */
-    QRegularExpression singleLineComment_;   /**< Regular expression used to detect single-line comments. */
-
-    /** @brief Highlight multi-line strings or comments, preserving parser state. */
-    bool highlightLongBlock(const QString &text, bool isComment, bool continuingPrevious, qint32 eqCountFromState,
-                            qint32 &nextStateEqCount);
-    /** @brief Locate the beginning of a Lua long bracket token. */
-    qint32 findLongBlockStart(const QString &text, qint32 from, bool isComment, qint32 &eqCount,
-                              qint32 &tokenLength) const;
-    /** @brief Locate the closing delimiter for a Lua long bracket token. */
-    qint32 findLongBlockEnd(const QString &text, qint32 from, qint32 eqCount) const;
-
-    /** @brief Build the syntax-highlighting rules from the current theme colours and store them in @c rules_. */
-    void buildRules();
-};
 
 /* ===== code_view ===== */
 

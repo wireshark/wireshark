@@ -5249,7 +5249,7 @@ wslua_debugger_eval_expr_to_string_at_level0(lua_State *L, const char *expr,
  *   Origin
  *     - @c {filename}  — @c ctx->file_path verbatim.
  *     - @c {basename}  — last path component of @c ctx->file_path
- *                        (e.g. @c "printer.lua"). Empty when
+ *                        (e.g. @c "udpdelta.lua"). Empty when
  *                        @c file_path is NULL or empty.
  *     - @c {line}      — @c ctx->line as a decimal integer.
  *     - @c {function}  — current function's @c debug.getinfo "n" name,
@@ -5333,7 +5333,7 @@ wslua_debugger_format_log_message(lua_State *L, const char *fmt,
                 else if (g_strcmp0(expr, "basename") == 0)
                 {
                     /* Last path component of {filename} — e.g.
-                     * "printer.lua". GLib returns a freshly allocated
+                     * "udpdelta.lua". GLib returns a freshly allocated
                      * string we own. Empty file_path collapses to the
                      * empty string. */
                     if (ctx->file_path && ctx->file_path[0])

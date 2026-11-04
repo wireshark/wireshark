@@ -1404,7 +1404,9 @@ When a bundled theme is selected, the notice _Bundled themes cannot be modified_
 The path of the personal themes folder is a link that opens the folder.
 * The editor has the _Name_, _Author_ and _Description_ fields, the _Appearance_ selection of _Light_ or _Dark_, and the tabs _Colors_, _Fonts_ and _Code_.
 The description is a single line; it wraps in the field.
-* The tabs _Welcome Page_ and _Packet List_ show samples of the draft theme.
+* The tabs _Welcome Page_, _Packet List_ and _Lua Code_ show samples of the draft theme.
+_Lua Code_ shows a script in the editor of the Lua Debugger, in the `code` colors, with a breakpoint, the line the debugger is paused at and a selection.
+It is only there when Wireshark is built with Lua.
 
 The _Appearance_ selection only chooses which side of the theme is edited and shown in the samples.
 It does not change the appearance mode of the application.

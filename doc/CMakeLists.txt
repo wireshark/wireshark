@@ -427,6 +427,7 @@ set(WSDG_FILES
 	wsdg_src/wsdg_userinterface.adoc
 	wsdg_src/wsdg_wiretap.adoc
 	wsdg_src/wsdg_works.adoc
+	udpdelta.lua
 	${COMMON_GUIDE_FILES}
 )
 

@@ -19,6 +19,7 @@ set(WIRESHARK_LUA_DEBUGGER_HEADERS
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_utils.h
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_variables.h
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_watch.h
+	${CMAKE_CURRENT_LIST_DIR}/lua_syntax_highlighter.h
 )
 
 set(WIRESHARK_LUA_DEBUGGER_SRCS
@@ -36,6 +37,7 @@ set(WIRESHARK_LUA_DEBUGGER_SRCS
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_utils.cpp
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_variables.cpp
 	${CMAKE_CURRENT_LIST_DIR}/lua_debugger_watch.cpp
+	${CMAKE_CURRENT_LIST_DIR}/lua_syntax_highlighter.cpp
 )
 
 set(WIRESHARK_LUA_DEBUGGER_UI
