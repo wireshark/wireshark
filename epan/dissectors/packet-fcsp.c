@@ -80,6 +80,7 @@ static int hf_auth_dhchap_rsp_value;
 static int ett_fcsp;
 
 static expert_field ei_auth_fcap_undecoded;
+static expert_field ei_auth_bad_param_len;
 
 static const value_string fcauth_msgcode_vals[] = {
     {FC_AUTH_MSG_AUTH_REJECT,    "AUTH_Reject"},
@@ -196,6 +197,9 @@ static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
                 if (param_len == 0) {
                     return;
                 }
+                /* Skip the value of the unknown parameter */
+                total_len -= 4;
+                offset += param_len;
                 break;
             }
 
@@ -206,7 +210,7 @@ static void dissect_fcsp_dhchap_auth_param(tvbuff_t *tvb, proto_tree *tree,
 
 static void dissect_fcsp_dhchap_challenge(tvbuff_t *tvb, proto_tree *tree)
 {
-    int     offset = 12;
+    unsigned offset = 12;
     uint16_t name_type;
     uint16_t param_len, name_len;
 
@@ -294,7 +298,7 @@ static void dissect_fcsp_dhchap_success(tvbuff_t *tvb, proto_tree *tree)
 }
 
 
-static void dissect_fcsp_auth_negotiate(tvbuff_t *tvb, proto_tree *tree)
+static void dissect_fcsp_auth_negotiate(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int     offset = 12;
     uint16_t name_type, name_len, proto_type, param_len;
@@ -327,6 +331,13 @@ static void dissect_fcsp_auth_negotiate(tvbuff_t *tvb, proto_tree *tree)
             proto_tree_add_item(tree, hf_auth_proto_param_len, tvb, offset, 4, ENC_BIG_ENDIAN);
             param_len = tvb_get_ntohl(tvb, offset);
             offset += 4;
+
+            /* A length beyond the end of the packet (which would also make
+             * the offset wrap around) ends the list. */
+            if (param_len > tvb_reported_length_remaining(tvb, offset)) {
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_auth_bad_param_len, tvb, offset);
+                break;
+            }
 
             if (tvb_bytes_exist(tvb, offset, param_len)) {
                 proto_type = tvb_get_ntohl(tvb, offset);
@@ -388,22 +399,22 @@ static int dissect_fcsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         switch (opcode) {
         case FC_AUTH_MSG_AUTH_REJECT:
-            dissect_fcsp_auth_rjt(tvb, tree);
+            dissect_fcsp_auth_rjt(tvb, fcsp_tree);
             break;
         case FC_AUTH_MSG_AUTH_NEGOTIATE:
-            dissect_fcsp_auth_negotiate(tvb, tree);
+            dissect_fcsp_auth_negotiate(tvb, pinfo, fcsp_tree);
             break;
         case FC_AUTH_MSG_AUTH_DONE:
-            dissect_fcsp_auth_done(tvb, tree);
+            dissect_fcsp_auth_done(tvb, fcsp_tree);
             break;
         case FC_AUTH_DHCHAP_CHALLENGE:
-            dissect_fcsp_dhchap_challenge(tvb, tree);
+            dissect_fcsp_dhchap_challenge(tvb, fcsp_tree);
             break;
         case FC_AUTH_DHCHAP_REPLY:
-            dissect_fcsp_dhchap_reply(tvb, tree);
+            dissect_fcsp_dhchap_reply(tvb, fcsp_tree);
             break;
         case FC_AUTH_DHCHAP_SUCCESS:
-            dissect_fcsp_dhchap_success(tvb, tree);
+            dissect_fcsp_dhchap_success(tvb, fcsp_tree);
             break;
         case FC_AUTH_FCAP_REQUEST:
         case FC_AUTH_FCAP_ACKNOWLEDGE:
@@ -587,6 +598,7 @@ proto_register_fcsp(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_auth_bad_param_len, { "fcsp.bad_param_len", PI_MALFORMED, PI_ERROR, "Parameter length goes beyond the end of the packet", EXPFILL }},
         { &ei_auth_fcap_undecoded, { "fcsp.fcap_undecoded", PI_UNDECODED, PI_WARN, "FCAP Decoding Not Supported", EXPFILL }},
     };
 
