@@ -575,6 +575,10 @@ static void
 Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t length)
 {
 	uint8_t media_protocol;
+	const int start = *offset;
+
+	if (length == 0)
+		return;
 
 	media_protocol = tvb_get_uint8(tvb, *offset);
 	proto_tree_add_item(tree, hf_ged125_floating_media_protocol, tvb, *offset, 1, ENC_ASCII);
@@ -586,6 +590,8 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 	case 'S':
 	case 'O':
 	case 'F':
+		if (length < 2)
+			break;
 		proto_tree_add_item(tree, hf_ged125_floating_library_designator, tvb, *offset, 1, ENC_ASCII);
 		*offset += 1;
 		proto_tree_add_item(tree, hf_ged125_floating_payload_strg, tvb, *offset, length - 2, ENC_ASCII);
@@ -596,6 +602,8 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 		break;
 
 	case 'D':
+		if (length < 9)
+			break;
 		proto_tree_add_item(tree, hf_ged125_Data_Playback_Type, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
 		proto_tree_add_item(tree, hf_ged125_Data_Playback_Formats, tvb, *offset, 4, ENC_BIG_ENDIAN);
@@ -604,19 +612,22 @@ Media_Specifier_dissect(tvbuff_t* tvb, proto_tree* tree, int* offset, uint32_t l
 		break;
 	}
 
-	*offset += length;
+	/* The length covers the whole value, including the fields above */
+	*offset = start + (int)length;
 }
 
 static void
 floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset, const int size)
 {
-	int32_t length = 4;
+	int32_t length;
 	uint32_t floating_type;
 	proto_tree *ged125_tree, *float_tree;
 	proto_item *ti;
 
-	if (size - offset > 0)
-		length = size - offset;
+	/* No floating fields in this message */
+	if (size - offset <= 0)
+		return;
+	length = size - offset;
 
 	ged125_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ged125_floating, NULL, "Float Message");
 
@@ -660,7 +671,7 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 			offset += 1;
 			if (length-5 > 0)
 			{
-				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-4, ENC_ASCII);
+				proto_tree_add_item(float_tree, hf_ged125_floating_payload_strg, tvb, offset, length-5, ENC_ASCII);
 				offset += (length-5);
 			}
 			break;
@@ -700,6 +711,11 @@ floating_fields(tvbuff_t* tvb, packet_info *pinfo, proto_tree* tree, int offset,
 		case 45:
 		case 46:
 			proto_tree_add_item(float_tree, hf_ged125_floating_payload_bool, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += length;
+			break;
+
+		default:
+			/* Unknown floating field type: skip its value */
 			offset += length;
 			break;
 		}
@@ -966,10 +982,13 @@ service_control_dissect(tvbuff_t* tvb,proto_tree* msg_tree, proto_tree* ged125_t
 
 static unsigned
 get_ged125_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
-                   int offset _U_, void *data _U_)
+                   int offset, void *data _U_)
 {
-	/* XXX: why does this not use the offset to get the value? */
-	return tvb_get_ntohl(tvb, 0) + 8;
+	uint32_t len = tvb_get_ntohl(tvb, offset);
+	/* Do not wrap around */
+	if (len > UINT32_MAX - 8)
+		return UINT32_MAX;
+	return len + 8;
 }
 
 static int
