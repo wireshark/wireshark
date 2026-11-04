@@ -118,7 +118,7 @@ static const value_string fph_content_vals[] = {
     { FPH_CONTENT_UNKNOWN,  "Unknown" },
     { FPH_CONTENT_DCCH,     "DCCH" },
     { FPH_CONTENT_PS_DTCH,  "PS DTCH" },
-    { FPH_CONTENT_CS_DTCH,  "PS DTCH" },
+    { FPH_CONTENT_CS_DTCH,  "CS DTCH" },
     { 0, NULL }
 };
 
@@ -304,7 +304,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, f
             return;
         }
         pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, ENC_NA);
-        subtree = proto_item_add_subtree(pi, ett_fph_rb);
+        subtree = proto_item_add_subtree(pi, ett_fph_tf);
         hdr = tvb_get_ptr(tvb, offset, 4);
         dch_id = (hdr[0] & 0x1f) + 1;
 
@@ -481,7 +481,7 @@ static void attach_info(tvbuff_t *tvb, packet_info *pinfo, uint16_t offset, uint
 static int dissect_fp_hint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     uint8_t frame_type, channel_type;
-    uint16_t hdrlen;
+    unsigned hdrlen;
     uint32_t atm_hdr, aal2_ext;
     tvbuff_t *next_tvb;
     dissector_handle_t next_dissector;
