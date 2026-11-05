@@ -72701,3 +72701,61 @@ class TestDissectHomepna:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['1', '2', '3', '4']
+
+
+class TestDissectHpErm:
+    '''HP ERM has no registered port: the capture uses UDP 7933 and is
+    dissected with "-d udp.port==7933,hp_erm".'''
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-d', 'udp.port==7933,hp_erm',
+                '-r', capture_file('hp_erm_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_hp_erm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 13 frames carry HP_ERM and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hp_erm', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 13
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_hp_erm_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Priority, CFI, VLAN, Is_Tagged and the unknown fields of the
+        header.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-ehp_erm.unknown1',
+                '-ehp_erm.unknown2', '-ehp_erm.priority', '-ehp_erm.cfi',
+                '-ehp_erm.vlan', '-ehp_erm.is_tagged', '-ehp_erm.unknown3')
+        lines = stdout.splitlines()
+        assert len(lines) == 13
+        assert lines[0] == '1\t0001020304050607\t0\t0\tFalse\t1\tFalse\t0'
+        assert lines[7] == '8\t0001020304050607\t0\t7\tFalse\t8\tFalse\t0'
+        assert lines[8] == '9\t0001020304050607\t165\t3\tTrue\t4094\tTrue\t85'
+        assert lines[9] == '10\tffffffffffffffff\t255\t7\tTrue\t0\tTrue\t127'
+        assert lines[12] == '13\t0001020304050607\t1\t6\tFalse\t200\tFalse\t1'
+
+    def test_hp_erm_priority_text(self, cmd_tshark, capture_file, test_env):
+        '''The priority names come from the HP numbering.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 6 || frame.number == 8', '-V', '-O', 'hp_erm')
+        assert 'Priority: Background (0)' in stdout
+        assert 'Priority: Video, < 100ms latency and jitter (5)' in stdout
+        assert 'Priority: Network Control (7)' in stdout
+        assert 'CFI: Canonical' in stdout
+
+    def test_hp_erm_mirrored_frame(self, cmd_tshark, capture_file, test_env):
+        '''The mirrored Ethernet frame follows the 12 octet header
+        (plain, ARP, 802.1Q and an unknown ethertype).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-Eoccurrence=l', '-eframe.number', '-eeth.type',
+                '-evlan.id', '-earp.opcode', '-eeth.src')
+        lines = stdout.splitlines()
+        assert lines[0].startswith('1\t0x0800\t\t\t02:00:00:00:00:10')
+        assert lines[8].split('\t')[1:4] == ['0x8100', '4094', '']
+        assert lines[9].split('\t')[1:4] == ['0x0806', '', '1']
+        assert lines[11].split('\t')[1] == '0x88b5'
