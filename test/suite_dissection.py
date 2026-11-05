@@ -59364,3 +59364,75 @@ class TestDissectFpMux:
                 extra=('-Y', 'udp.srcport == 0'))
         assert rows == {'10': ['0', '5003', '5003,1', 'FP Mux'],
                         '11': ['0', '5003', '5003,1', 'FP Mux']}
+
+
+class TestDissectFpp:
+    @staticmethod
+    def fpp_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fpp_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fpp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every mPacket is FPP or the reassembled Ethernet frame; no
+        malformed packets, bad checksums or expert infos in one and two
+        passes.'''
+        rows = self.fpp_fields(cmd_tshark, capture_file, test_env, 'frame.protocols')
+        assert len(rows) == 38
+        assert all(r[0].startswith('fpp') for r in rows.values())
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fpp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fpp_info(self, cmd_tshark, capture_file, test_env):
+        '''Express, verify, respond, non-fragmented, initial and
+        continuation mPackets named by their SMD (and fragment count).'''
+        rows = self.fpp_fields(cmd_tshark, capture_file, test_env,
+                'fpp.preamble.smd', '_ws.col.info', extra=('-2',))
+        assert rows['1'][0] == '0xd5'
+        assert rows['3'][0:2] == ['0xe6', 'Local Experimental Ethertype 1']
+        assert [rows[str(i)][0] for i in (3, 4, 5, 6)] == ['0xe6', '0x4c', '0x7f', '0xb3']
+        assert rows['10'] == ['0x07', '[Verify]']
+        assert rows['11'] == ['0x19', '[Respond]']
+        assert rows['12'][1] == '[Initial fragment: SMD-S0] [Reassembled in #13]'
+        assert rows['15'][1] == '[Continuation fragment: SMD-C1] [#0] [Reassembled in #16]'
+        assert [rows[str(i)][1] for i in (18, 19, 20)] == [
+            '[Continuation fragment: SMD-C2] [#%d] [Reassembled in #21]' % i for i in range(3)]
+        # the second pass knows where a fragment is reassembled
+        assert rows['14'][1] == '[Initial fragment: SMD-S1] [Reassembled in #16]'
+
+    def test_fpp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frames of 2, 3 and 5 fragments, also interleaved on one
+        interface in the two directions, are reassembled into the
+        Ethernet frame with the right length and fragment count.'''
+        for passes in ((), ('-2',)):
+            rows = self.fpp_fields(cmd_tshark, capture_file, test_env,
+                    'fpp.reassembled.length', 'fpp.fragment.count', 'eth.type',
+                    extra=('-Y', 'fpp.reassembled.length', *passes))
+            assert {k: v for k, v in rows.items()} == {
+                '13': ['134', '2', '0x88b5'],
+                '16': ['214', '3', '0x88b5'],
+                '21': ['314', '5', '0x88b5'],
+                '25': ['174', '2', '0x88b6'],
+                '26': ['164', '3', '0x88b5'],
+                '30': ['114', '2', '0x88b5'],
+                '32': ['78', '2', '0x88b5'],
+                '34': ['78', '2', '0x88b5'],
+            }
+
+    def test_fpp_initial_fragment_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The Ethernet addresses of an initial fragment follow the
+        preamble: also behind the 0x50 alignment octet and a 7 octet
+        preamble (frame 31), where they used to be taken from offsets 8
+        and 14 and were shifted by one octet.'''
+        rows = self.fpp_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.def_src', '_ws.col.def_dst', extra=('-Y', ' || '.join('frame.number == ' + n for n in ('12', '14', '17', '31', '33'))))
+        for n in ('12', '14', '17', '31', '33'):
+            assert rows[n] == ['02:00:00:00:00:01', '02:00:00:00:00:02']
