@@ -73555,3 +73555,75 @@ class TestDissectHsrp:
                 '-Y', 'frame.number == 25', '-V', '-O', 'hsrp',
             ), encoding='utf-8', env=test_env)
         assert 'Hellotime: Non-Default (1000)' in stdout
+
+
+class TestDissectHsrPrpSupervision:
+    def test_hsr_prp_supervision_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames are HSR/PRP supervision (the last one behind an
+        HSR tag) and none is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_prp_supervision_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('HSR/PRP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hsr_prp_supervision_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hsr_prp_supervision_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The Info column and the TLV types and lengths, including
+        unknown types, unexpected lengths and the end of the TLV list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_prp_supervision_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ehsr_prp_supervision.tlv.type',
+                '-ehsr_prp_supervision.tlv.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tPRP Supervision\t20,30\t12,6',
+            '2\tPRP Supervision\t20,0\t12,0',
+            '3\tPRP Supervision\t21,31\t12,6',
+            '4\tPRP Supervision\t20,30,31,0\t12,6,6,0',
+            '5\tPRP Supervision\t21\t6',
+            '6\tPRP Supervision\t20,0\t6,0',
+            '7\tHSR Supervision\t23,30,0\t6,6,0',
+            '8\tHSR Supervision\t23\t12',
+            '9\tHSR or PRP Supervision\t22,85,20,30,31,0\t6,3,8,4,12,0',
+            '10\tHSR or PRP Supervision\t0\t4',
+            '11\tHSR or PRP Supervision\t0\t0',
+            '12\tHSR Supervision\t23,0\t6,0',
+        ]
+
+    def test_hsr_prp_supervision_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Version, sequence number (version 1 and above only) and the
+        MAC addresses of every kind of TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_prp_supervision_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                '-ehsr_prp_supervision.path', '-ehsr_prp_supervision.version',
+                '-ehsr_prp_supervision.supervision_seqno',
+                '-ehsr_prp_supervision.source_mac_address_A',
+                '-ehsr_prp_supervision.source_mac_address_B',
+                '-ehsr_prp_supervision.source_mac_address',
+                '-ehsr_prp_supervision.red_box_mac_address',
+                '-ehsr_prp_supervision.vdan_mac_address',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        a, b, c = '02:00:00:00:0a:01', '02:00:00:00:0b:01', '02:00:00:00:0c:01'
+        assert lines[0] == ['1', '0', '0', '', a, b, '', c, '']
+        assert lines[2] == ['3', '1', '0', '', a, b, '', '', c]
+        assert lines[3] == ['4', '0', '1', '5', a, b, '', c, b]
+        assert lines[4] == ['5', '1', '1', '6', '', '', a, '', '']
+        assert lines[6] == ['7', '2', '1', '8', '', '', a, c, '']
+        # Unexpected TLV lengths and types: no address is decoded
+        assert lines[8] == ['9', '0', '1', '10', '', '', '', '', '']
+        assert lines[10][:4] == ['11', '15', '2', '12']
+        # Behind an HSR tag
+        assert lines[11] == ['12', '0', '1', '13', '', '', a, '', '']
