@@ -64984,3 +64984,126 @@ class TestDissectGsmAbisOm2000:
         stdout = run(cmd_tshark, capture_file, test_env,
                 '-Y', 'gsm_abis_om2000.reject', '-Tfields', '-eframe.number')
         assert count_output(stdout) == 34
+
+
+class TestDissectGsmAbisOml:
+    # The capture has three sections that each decode in one OML dialect
+    # (a preference): frames 1-302 ETSI (also ip.access), 303-388 Siemens
+    # BS-11, 389-463 ip.access. OML rides on LAPD SAPI 62, which needs the
+    # LAPD preference "Use GSM SAPI values" (TS 48.056).
+    @staticmethod
+    def oml_run(cmd_tshark, capture_file, test_env, dialect, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'lapd.use_gsm_sapi_values:TRUE',
+                '-o', 'gsm_abis_oml.oml_dialect:' + dialect,
+                '-r', capture_file('gsm_abis_oml_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_abis_oml_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is OML; no frame of a dialect's section is malformed
+        or has an error expert info with that dialect, in one and two
+        passes.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'etsi', '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 463
+        assert protocols.count('OML') == 463
+        for dialect, first, last in (('etsi', 1, 302), ('ipaccess', 1, 302),
+                                     ('siemens', 303, 388), ('ipaccess', 389, 463)):
+            for passes in ((), ('-2',)):
+                stdout = run(cmd_tshark, capture_file, test_env, dialect, *passes,
+                        '-Y', '(_ws.malformed || _ws.expert.severity == 0x800000)'
+                        ' && frame.number >= %d && frame.number <= %d' % (first, last),
+                        '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0, (dialect, first, last)
+
+    def test_gsm_abis_oml_manufacturer_id(self, cmd_tshark, capture_file, test_env):
+        '''The ip.access manufacturer ID is recognised with and without the
+        terminating NUL ("GSM OML: Fix ip.access manufacturer ID, test report
+        skip"; frames 270 and 271 are the reproducers); other IDs get an
+        expert info and the FOM is not dissected.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'etsi',
+                '-Y', 'frame.number >= 270 && frame.number <= 275',
+                '-Tfields', '-eframe.number', '-egsm_abis_oml.manuf_id_len',
+                '-egsm_abis_oml.fom.msg_type', '-egsm_abis_oml.expert.unknown_manuf')
+        assert stdout.splitlines() == [
+            '270\t12\t116\t',
+            '271\t13\t116\t',
+            '272\t11\t\t1',
+            '273\t13\t116\t',
+            '274\t6\t\t1',
+            '275\t0\t\t1',
+        ]
+
+    def test_gsm_abis_oml_length_mismatch(self, cmd_tshark, capture_file, test_env):
+        '''A length indicator that does not match is a warning.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'etsi',
+                '-Y', 'gsm_abis_oml.expert.length_mismatch', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['262', '263', '268', '269']
+
+    def test_gsm_abis_oml_get_ari(self, cmd_tshark, capture_file, test_env):
+        '''The nested attributes of Get Attribute Response Info.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'etsi',
+                '-Y', 'frame.number >= 247 && frame.number <= 249',
+                '-Tfields', '-eframe.number', '-egsm_abis_oml.fom.attr.ari.not_reported_cnt',
+                '-egsm_abis_oml.fom.attr.adm_state', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '247\t2\t0x02\tTEI:00 U, func=UI | BTS(00,00,ff) Get Attributes Response Unlocked Enabled ',
+            '248\t1,1,1,2\t0x02,0x02,0x02,0x02\tTEI:00 U, func=UI | BTS(00,00,ff) Get Attributes Unlocked Unlocked Unlocked Unlocked Enabled ',
+            '249\t0\t\tTEI:00 U, func=UI | BTS(00,00,ff) Get Attributes ',
+        ]
+
+    def test_gsm_abis_oml_siemens(self, cmd_tshark, capture_file, test_env):
+        '''The Siemens message types and object classes need the Siemens
+        dialect.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'siemens',
+                '-Y', 'frame.number == 303 || frame.number == 330',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '303\tTEI:00 U, func=UI | SIE Adjacent Channel(00,00,ff) SIE Reset Resource ',
+            '330\tTEI:00 U, func=UI | SIE BTSE(00,03,ff) SIE Reconnect BTS ',
+        ]
+        stdout = run(cmd_tshark, capture_file, test_env, 'etsi',
+                '-Y', 'frame.number == 330', '-Tfields', '-e_ws.col.info')
+        assert stdout.strip() == 'TEI:00 U, func=UI | SIE BTSE(00,03,ff) Unknown 0xf1'
+
+    def test_gsm_abis_oml_ipaccess(self, cmd_tshark, capture_file, test_env):
+        '''ip.access attributes and the ip.access test report (BCCH
+        information) in the ip.access dialect.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'ipaccess',
+                '-Y', 'frame.number == 389 || frame.number == 390 || frame.number == 396',
+                '-Tfields', '-eframe.number', '-egsm_abis_oml.fom.attr.ipa.rsl_ip',
+                '-egsm_abis_oml.fom.attr.ipa.rsl_port', '-egsm_abis_oml.fom.attr.ipa.nsei',
+                '-egsm_abis_oml.fom.attr.ipa.nv_flags')
+        assert stdout.splitlines() == [
+            '389\t192.0.2.10\t3003\t\t',
+            '390\t\t\t\t0x011f',
+            '396\t\t\t1234\t',
+        ]
+        stdout = run(cmd_tshark, capture_file, test_env, 'ipaccess',
+                '-Y', 'frame.number >= 456 && frame.number <= 461',
+                '-Tfields', '-eframe.number', '-egsm_abis_oml.fom.testrep.result',
+                '-egsm_abis_oml.fom.testrep.ipa.bsic', '-egsm_abis_oml.fom.testrep.ipa.cell_id')
+        assert stdout.splitlines() == [
+            '456\t0\t\t',
+            '457\t1\t\t',
+            '458\t2\t43\t0x1234',
+            '459\t3\t43\t0x1234',
+            '460\t4\t43,43\t0x1234,0x1234',
+            '461\t0\t43\t0x1234',
+        ]
+
+    def test_gsm_abis_oml_test_report_skip(self, cmd_tshark, capture_file, test_env):
+        '''Unknown information elements of an ip.access test report are
+        skipped, so the channel usage element behind them (frame 456) is
+        found.'''
+        run = TestDissectGsmAbisOml.oml_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'ipaccess',
+                '-Y', 'frame.number == 456', '-Tfields',
+                '-egsm_abis_oml.fom.testrep.ipa_arfcn', '-egsm_abis_oml.fom.testrep.ipa_rxlev')
+        assert stdout.strip() == '291,359\t0,17'
