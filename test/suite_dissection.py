@@ -70865,3 +70865,62 @@ class TestDissectHclnfsd:
                             'hclnfsd.job_id', 'hclnfsd.print_jobs', 'hclnfsd.job_id',
                             'hclnfsd.jobstatus', 'hclnfsd.size')
         assert rows == [['50', '1', '11,12', '2,2', '4096,4096']]
+
+
+class TestDissectHcrt:
+    '''HCrt (Hotline Command-Response Transaction) over UDP port 47000
+    and Ethernet type 0xf052, from the synthetic capture
+    hcrt_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hcrt_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hcrt_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 26 frames are HCrt (22 over UDP, 4 over Ethernet) without
+        malformed packets or error expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hcrt')
+        assert len(rows) == 26
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hcrt && eth.type == 0xf052')
+        assert [r[0] for r in rows] == ['23', '24', '25', '26']
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hcrt_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types and addressing modes of the single message frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 5, 7, 9, 11, 13}',
+                            'hcrt.type', 'hcrt.am', 'hcrt.adl')
+        assert rows == [['1', '0', '0', '0'], ['5', '1', '0', '1'],
+                        ['7', '1', '1', '1'], ['9', '2', '0', '1'],
+                        ['11', '2', '1', '1'], ['13', '3', '0', '2']]
+
+    def test_hcrt_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows address and data of ADL 1 reads and writes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {5, 9}', '_ws.col.info')
+        assert rows == [
+            ['5', 'Type: Write, Tag: 0x5, ADL: 1, Address: 0x00001000, Data: 0x00001011'],
+            ['9', 'Type: Read, Tag: 0x9, ADL: 1, Address: 0x00001000']]
+
+    def test_hcrt_multiple_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 18-22 carry several messages; only the last has the Last bit.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {18, 19, 21}', 'hcrt.adl', 'hcrt.last')
+        assert rows == [['18', '1,2,0', 'False,False,True'],
+                        ['19', '0,0,0', 'False,False,True'],
+                        ['21', '1,1', 'False,True']]
+
+    def test_hcrt_response_code(self, cmd_tshark, capture_file, test_env):
+        '''Response code of the response messages (0 = OK, 1 = Timeout, 2 = Error).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {12, 13, 14, 15, 16}', 'hcrt.response_code')
+        assert [r[1] for r in rows] == ['0x00', '0x01', '0x02', '0x03', '0x0f']
