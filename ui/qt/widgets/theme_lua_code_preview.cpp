@@ -31,48 +31,63 @@
 
 namespace {
 
-// A copy of doc/udpdelta.lua, the postdissector of the "Getting Started"
+// A copy of doc/udprtt.lua, the postdissector of the "Getting Started"
 // section in doc/wsdg_src/wsdg_lua_debugger.adoc.
-const char kUdpDeltaLua[] = R"lua(-- Time since the previous frame of the same UDP stream,
--- what tcp.time_delta shows for TCP
+const char kUdpRttLua[] = R"lua(-- Time from a UDP request to its reply in the same stream,
+-- like dns.time for DNS, for any protocol over UDP
 
-local udpdelta  = Proto("udpdelta", "UDP Stream Timing")
-local f_delta   = ProtoField.double("udpdelta.time",
-                                    "Time since previous stream frame")
-udpdelta.fields = { f_delta }
+local udprtt    = Proto("udprtt", "UDP Response Time")
+local f_rtt     = ProtoField.relative_time("udprtt.time", "Time since request")
+local f_request = ProtoField.framenum("udprtt.request", "Request in frame",
+                                      base.NONE, frametype.REQUEST)
+udprtt.fields   = { f_rtt, f_request }
 local f_stream  = Field.new("udp.stream")
+local f_time    = Field.new("frame.time")
+local timeout   = NSTime(2, 0)  -- later replies are not matched
 local state     = {}
 
 function state:reset()
-  self.last  = {}  -- stream index -> time of latest frame
-  self.delta = {}  -- frame number -> seconds since previous frame
+  self.stream = {}  -- stream index -> client address:port and latest request
+  self.reply  = {}  -- frame number -> request answered by this frame
 end
 
-function udpdelta.init()
+function udprtt.init()
   state:reset()
 end
 
-function udpdelta.dissector(tvb, pinfo, tree)
+function udprtt.dissector(tvb, pinfo, tree)
   local stream = f_stream()
   if not stream then return end
+  local id  = stream.value
+  local now = f_time().value
 
-  if state.delta[pinfo.number] == nil then
-    local previous = state.last[stream.value]
-    state.delta[pinfo.number] = previous and pinfo.abs_ts - previous or 0
-    state.last[stream.value] = pinfo.abs_ts
+  if not pinfo.visited then
+    local src = tostring(pinfo.src) .. ":" .. pinfo.src_port
+    local s = state.stream[id] or { client = src }
+    state.stream[id] = s
+    if src == s.client then
+      s.request = { frame = pinfo.number, time = now }
+    elseif s.request and now - s.request.time <= timeout then
+      state.reply[pinfo.number] = s.request
+    end
   end
 
-  tree:add(udpdelta):add(f_delta, state.delta[pinfo.number])
+  local request = state.reply[pinfo.number]
+  if request then
+    local subtree = tree:add(udprtt)
+    subtree:add(f_request, request.frame)
+    subtree:add(f_rtt, now - request.time)
+  end
 end
 
-register_postdissector(udpdelta))lua";
+register_postdissector(udprtt))lua";
 
 // 1-based lines of the sample state.
-const int kInactiveBreakpointLine = 17;
-const int kBreakpointLine = 24;
-const int kPausedLine = 26;
-const int kLogpointLine = 30;
-const int kSelectionLine = 30;
+const int kInactiveBreakpointLine = 20;
+const int kBreakpointLine = 29;
+const int kPausedLine = 31;
+const int kLogpointLine = 36;
+const int kSelectionLine = 36;
 const char kSelectionText[] = "state";
 
 // Space the debugger's gutter keeps right of the line numbers for its markers.
@@ -92,7 +107,7 @@ ThemeLuaCodePreview::ThemeLuaCodePreview(QWidget *parent)
     option.setWrapMode(QTextOption::NoWrap);
     document_->setDefaultTextOption(option);
     document_->setDefaultFont(resolvedFont());
-    document_->setPlainText(QString::fromUtf8(kUdpDeltaLua));
+    document_->setPlainText(QString::fromUtf8(kUdpRttLua));
     highlighter_ = new LuaSyntaxHighlighter(document_);
 }
 

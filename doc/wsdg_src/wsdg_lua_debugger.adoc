@@ -127,40 +127,57 @@ is still open and does not stop at breakpoints.
 === Getting Started
 
 A small postdissector is enough to exercise everything the
-debugger does. This one adds the time since the previous frame of
-the same UDP stream to every UDP frame, as `udpdelta.time`. Download
-link:{wireshark-code-file-url}doc/udpdelta.lua[udpdelta.lua] or save
-the following as `udpdelta.lua`:
+debugger does. This one measures the response time of any protocol
+over UDP, what `dns.time` shows for DNS. On each reply it adds the
+time since the client's latest request in the same UDP stream, as
+`udprtt.time`, and a link to that request, as `udprtt.request`.
+Download link:{wireshark-code-file-url}doc/udprtt.lua[udprtt.lua] or
+save the following as `udprtt.lua`:
 
 [source,lua]
 ----
-include::../udpdelta.lua[]
+include::../udprtt.lua[]
 ----
 
 Every example later in this chapter resolves against names this
 script defines, so you can paste any of them into the *Watch*
 panel without setting up extra state. What's in scope while
-`udpdelta.dissector` is paused:
+`udprtt.dissector` is paused:
 
 * *Upvalues* (file-scope locals captured by the dissector closure):
-  `udpdelta`, `f_delta`, `f_stream`, `state`.
-* *Locals*: `tvb`, `pinfo`, `tree`, `stream`, and `previous` inside
-  the block that computes a new value.
+  `udprtt`, `f_rtt`, `f_request`, `f_stream`, `f_time`, `timeout`,
+  `state`.
+* *Locals*: `tvb`, `pinfo`, `tree`, `stream`, `id`, `now`, and
+  `request`, plus `src` and `s` inside the block that runs on the
+  first pass.
 * *Globals* of interest: `print`, `tostring`, `assert`, `string`,
-  `type`, `getmetatable`, `Field`, `Proto`, `register_postdissector`,
-  `get_version`.
+  `type`, `getmetatable`, `Field`, `NSTime`, `Proto`,
+  `register_postdissector`, `get_version`.
 
-`state.last` holds the time of the latest frame of each stream and
-`state.delta` the value of each frame. A frame's value is computed
-only the first time the frame is dissected; later passes, in any
-order, read it back from `state.delta`. `udpdelta.init()` clears both
-tables when a capture file is opened or dissected again.
+The first sender in a stream is its client. `state.stream` holds,
+for each stream index, the client's address and port and its latest
+request, a table with the request's frame number and time.
+`state.reply` maps the frame number of each reply to the request it
+answers; that is the request's own table, not a copy, which is why
+every request gets a new table. The state is updated only the first
+time a frame is dissected, while `pinfo.visited` is false; later
+passes, in any order, read it back from `state.reply`.
+`udprtt.init()` clears both tables when a capture file is opened or
+dissected again.
+
+Times are `NSTime` values with nanosecond precision, not numbers:
+`f_time().value` is the time of the frame, the difference of two
+`NSTime` values is exact, and the `ProtoField.relative_time` field
+shows it like `udp.time_delta`. `pinfo.abs_ts` is a Lua number of
+seconds since the epoch, too coarse for differences of a few
+microseconds. `NSTime(2, 0)` builds the timeout of two seconds, so
+that it compares with an `NSTime` difference.
 
 `Field.new(...)` is called at *file scope* on purpose: extractors
 can only be constructed at script load, before any dissector or tap
 callback runs. Inside the dissector callback the script *references*
-`f_stream` (and so do the watch examples below), but never calls
-`Field.new` again.
+`f_stream` and `f_time` (and so do the watch examples below), but
+never calls `Field.new` again.
 
 Drop it into your
 link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal plugins directory_]
@@ -179,18 +196,20 @@ Then:
   Debugger dialog once it's open.
 . Open menu:Tools[Lua Debugger] and tick the *Enabled* checkbox at
   the start of the toolbar.
-. Expand the *Files* section and double-click `udpdelta.lua` to open
+. Expand the *Files* section and double-click `udprtt.lua` to open
   it in the editor.
-. Click in the gutter on a line inside `udpdelta.dissector` to toggle
+. Click in the gutter on a line inside `udprtt.dissector` to toggle
   a breakpoint (a red circle appears).
-. Load a capture file with UDP traffic. Dissection starts, the
+. Load a capture file with UDP requests and replies, such as DNS.
+  Dissection starts, the
   breakpoint hits, and the debugger pauses — the paused line gets a yellow stripe (and an
   orange right-pointing triangle in the gutter), the *Enabled*
   checkbox circle turns orange, the window title changes to _Lua
   Debugger — Paused_, and the main window grays out behind a
   "Lua debugger paused" banner.
 . Inspect the paused state:
-  - *Variables* shows Locals (`tvb`, `pinfo`, `tree`, `stream`),
+  - *Variables* shows Locals (`tvb`, `pinfo`, `tree`, `stream`, `id`,
+    `now`),
     Upvalues, and Globals for the current frame.
   - *Stack Trace* shows the postdissector call on top of whatever
     frame drove the dissection.
@@ -344,8 +363,8 @@ the next time the debugger pauses.
   is still tolerated, just redundant here.)
 * Bare identifiers resolve against the paused frame's locals, then
   upvalues, then globals; see <<wslua_debugger_variables>>. In
-  `udpdelta.lua`, `pinfo`, `tvb`, and `tree` are the parameters of
-  `udpdelta.dissector`; `udpdelta`, `f_delta`, `f_stream`, and
+  `udprtt.lua`, `pinfo`, `tvb`, and `tree` are the parameters of
+  `udprtt.dissector`; `udprtt`, `f_rtt`, `f_stream`, `timeout`, and
   `state` are upvalues; and library names like `string`, `tostring`, and `Field`
   fall through to globals automatically.
 * Tables — and Wireshark userdata with attribute getters or a
@@ -364,7 +383,7 @@ see <<wslua_debugger_watch_expressions>>.
 
 *Plain variable paths get extras.* When the spec is a plain name
 optionally chained with `.field` or `[key]` segments — for example
-`pinfo.src`, `Upvalues.state.delta[1]`, `state.delta[0x10]`, or
+`pinfo.src`, `Upvalues.state.stream[0]`, `state.reply[0x10]`, or
 just `pinfo` — the debugger recognizes the shape and routes the row
 through a *path watch* fast path: a constrained but tree-aware
 specialization of the general expression watcher. Anything that
@@ -470,20 +489,23 @@ there is no error and no UI toggle.
 
 [source,lua]
 ----
--- A local in the current frame (a parameter of udpdelta.dissector):
+-- A local in the current frame (a parameter of udprtt.dissector):
 Locals.pinfo
 
 -- A field on that local userdata:
 pinfo.src
 
--- A table inside an upvalue (udpdelta.lua's per-stream times):
-Upvalues.state.last
+-- A table inside an upvalue (udprtt.lua's per-stream state):
+Upvalues.state.stream
 
 -- The same table indexed by an integer key (stream 0):
-Upvalues.state.last[0]
+Upvalues.state.stream[0]
 
--- A hex key (the value of frame 16):
-Upvalues.state.delta[0x10]
+-- A field of that entry (the client of stream 0):
+Upvalues.state.stream[0].client
+
+-- A hex key (the request answered by frame 16):
+Upvalues.state.reply[0x10]
 
 -- An explicit Globals path (a Lua-side global function):
 Globals.get_version
@@ -514,7 +536,7 @@ bare path with no prefix (including a lone identifier) is resolved
 in `Locals`, then `Upvalues`, then `Globals`, in that order, and
 the UI rewrites the tooltip with the section that actually matched.
 
-A common confusion: a file-scope `local` like `udpdelta.lua`'s
+A common confusion: a file-scope `local` like `udprtt.lua`'s
 `local state = {}` is an *upvalue* of any function defined in
 the same chunk, *not* a global. So the path is
 `Upvalues.state`, not `Globals.state`. Globals are names that
@@ -622,8 +644,11 @@ works on string locals (`name:upper()`).
 
 [source,lua]
 ----
--- Seconds since the latest frame of the same stream:
-pinfo.abs_ts - state.last[stream.value]
+-- Time since the client's latest request in this stream (an NSTime):
+now - state.stream[id].request.time
+
+-- The same as a Lua number of seconds:
+(now - state.stream[id].request.time):tonumber()
 
 -- "Beyond frame N":
 pinfo.number > 100
@@ -665,9 +690,10 @@ named-function form (`bit.band(tvb:range(13, 1):uint(), 0x80)`).
 
 [source,lua]
 ----
--- udpdelta.lua defines `f_stream` at file scope:
+-- udprtt.lua defines `f_stream` and `f_time` at file scope:
 f_stream()
 f_stream().value
+f_time().value
 ----
 
 Calling a `Field` returns the most recent `FieldInfo` for the
@@ -680,7 +706,7 @@ when the protocol may be missing. *`Field.new(...)` itself cannot
 be called from a watch*: extractors can only be constructed at
 script load, before any dissector or tap callback runs (the watch
 evaluates inside that callback). Define the `Field` once at file
-scope, the way `udpdelta.lua` does, and reference it by name in the
+scope, the way `udprtt.lua` does, and reference it by name in the
 watch.
 
 *Index a table by a non-path key.*
@@ -692,13 +718,13 @@ watch.
 _G["my-shared-state"]
 
 -- A subtable indexed by the current frame number:
-state.delta[pinfo.number]
+state.reply[pinfo.number]
 
 -- A field value used as the key:
-state.last[stream.value]
+state.stream[stream.value]
 
 -- A non-integer key:
-state.delta[1.5]
+state.reply[1.5]
 ----
 
 Path watches accept identifiers and short integer / boolean /
@@ -713,9 +739,10 @@ for userdata, ignoring `__eq`. Wireshark attribute getters like
 access, so `t[pinfo.src] = …` followed by `t[pinfo.src]` always
 misses on the second read. Key by a stable representation
 instead — `tostring(pinfo.src)` for an `Address`, `pinfo.number`
-for per-frame uniqueness — which is why `state.last` above is keyed
+for per-frame uniqueness — which is why `state.stream` above is keyed
 by the number `stream.value`, not by the `FieldInfo` that
-`f_stream()` returns.
+`f_stream()` returns, and why `udprtt.lua` stores the client as the
+string `src` built with `tostring(pinfo.src)`.
 
 *Build an ad-hoc table.*
 
@@ -768,6 +795,9 @@ assert(tvb:len() >= 20, "short IP header")
 
 -- "Frame is more than 30 s after the previous one":
 pinfo.delta_ts > 30
+
+-- "This datagram comes too late to be matched as a reply":
+now - state.stream[id].request.time > timeout
 ----
 
 A failing `assert` (or a bare `error("...")`) turns the row red
@@ -784,8 +814,8 @@ the row's tooltip.
 
 [source,lua]
 ----
--- "Time of the latest frame of this stream, or 'first frame'":
-state.last[stream.value] or "first frame"
+-- "The client of this stream, or 'new stream'":
+state.stream[id] and state.stream[id].client or "new stream"
 
 -- A two-state badge:
 pinfo.visited and "seen" or "first time"
@@ -1110,7 +1140,7 @@ Origin
 [horizontal]
 `{filename}`:: Source file path (canonicalized).
 `{basename}`:: Last path component of `{filename}`, e.g.
-  `udpdelta.lua`. Empty when the chunk has no on-disk path.
+  `udprtt.lua`. Empty when the chunk has no on-disk path.
 `{line}`:: 1-based line number of the breakpoint.
 `{function}`:: Running function's name (`debug.getinfo` `n`),
   or `?` for anonymous, tail, and main-chunk frames.
@@ -1144,12 +1174,12 @@ Time
 ===== Examples
 
 The mini-blocks below resolve against the names defined by the
-`udpdelta.lua` postdissector in <<wslua_debugger_getting_started>>:
-locals `tvb`, `pinfo`, `tree`, `stream` inside `udpdelta.dissector`,
-upvalues `udpdelta`, `f_delta`, `f_stream`, `state`. Drop a
-breakpoint on any line of `udpdelta.dissector` after
-`local stream = f_stream()` and edit its *Location* cell to attach the
-extras shown.
+`udprtt.lua` postdissector in <<wslua_debugger_getting_started>>:
+locals `tvb`, `pinfo`, `tree`, `stream`, `id`, `now` inside
+`udprtt.dissector`, upvalues `udprtt`, `f_rtt`, `f_request`,
+`f_stream`, `f_time`, `timeout`, `state`. Drop a breakpoint on any
+line of `udprtt.dissector` after `local now = f_time().value` and
+edit its *Location* cell to attach the extras shown.
 
 *Expression — gate the pause on a Lua predicate.*
 
@@ -1165,7 +1195,10 @@ not pinfo.visited
 pinfo.dst_port == 443 or pinfo.src_port == 443
 
 -- Frames that are not the first of their UDP stream:
-state.last[stream.value] ~= nil
+state.stream[id] ~= nil
+
+-- Replies only, on any pass:
+state.reply[pinfo.number] ~= nil
 
 -- Bail-out invariant: pause if a length assumption breaks:
 tvb:len() < 20
@@ -1263,11 +1296,15 @@ same coercion `tostring()` performs, just like a Watch row.
 [source]
 ----
 frame {pinfo.number}: {tostring(pinfo.src)} -> {tostring(pinfo.dst)}
-delta={state.delta[pinfo.number]} at {filename}:{line}
+stream {id}: client {state.stream[id].client} at {filename}:{line}
 flags=0x{string.format("%02x", tvb:range(13, 1):uint())}
-stream {stream.value}: {state.delta[pinfo.number]} s since previous frame
+reply to frame {request.frame} after {now - request.time} s
 {datetime} hit #{hits}: ports {pinfo.src_port}->{pinfo.dst_port}
 ----
+
+The `client` line needs a breakpoint after `state.stream[id] = s`,
+and the `request` line one inside `if request then`, where those
+values are set; elsewhere the placeholder shows `<error: ...>`.
 
 Wireshark userdata classes (`Address`, `Pinfo`, `Tvb`, …) expose
 their canonical text via `__tostring`, so wrap them in
@@ -1357,7 +1394,7 @@ The panel is enabled only while the debugger is paused. Typical
 uses:
 
 * Inspect a value — `pinfo.src`, `tostring(pinfo.dst)`, or
-  `state.delta[pinfo.number]`.
+  `state.reply[pinfo.number]`.
 * Mutate state — `_G.my_flag = true`, `my_table.field = 99`. (For
   *read-only* observation prefer the *Watch* panel; expression
   watches re-evaluate automatically on every pause without taking
