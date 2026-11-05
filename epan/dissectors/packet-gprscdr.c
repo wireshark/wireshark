@@ -981,6 +981,9 @@ static const ber_sequence_t ManagementExtension_sequence[] = {
 
 static int
 dissect_gprscdr_ManagementExtension(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  /* Never use an OID left over from an earlier extension or packet */
+  obj_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    ManagementExtension_sequence, hf_index, ett_gprscdr_ManagementExtension);
 
@@ -1626,11 +1629,14 @@ dissect_gprscdr_MSTimeZone(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
   if (!parameter_tvb)
     return offset;
 
+  if (tvb_captured_length(parameter_tvb) < 2)
+    return offset;
+
   data = tvb_get_uint8(parameter_tvb, 0);
   sign = (data & 0x08) ? '-' : '+';
   data = (data >> 4) + (data & 0x07) * 10;
 
-  data2 = tvb_get_uint8(tvb, 1) & 0x3;
+  data2 = tvb_get_uint8(parameter_tvb, 1) & 0x3;
 
   proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)",
                          sign,
