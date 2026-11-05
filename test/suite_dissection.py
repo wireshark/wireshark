@@ -73627,3 +73627,113 @@ class TestDissectHsrPrpSupervision:
         assert lines[10][:4] == ['11', '15', '2', '12']
         # Behind an HSR tag
         assert lines[11] == ['12', '0', '1', '13', '', '', a, '', '']
+
+
+class TestDissectHttp2Coverage:
+    '''HTTP/2 frames over TCP (magic heuristic, HTTP port heuristic,
+    HTTP/1.1 Upgrade: h2c), from the synthetic capture
+    http2_coverage.pcap.gz. Tests that need HPACK skip without nghttp2;
+    without it HEADERS frames carry an error expert info by design.'''
+
+    CAP = 'http2_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectHttp2Coverage.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_http2_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''Every frame type is dissected: counts per type and per
+        connection preface, none of the frames malformed.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http2', '-Tfields', '-ehttp2.type')
+        assert len(lines) == 64
+        types = [int(t) for line in lines for t in line.split(',')]
+        counts = {t: types.count(t) for t in set(types)}
+        assert counts == {0: 23, 1: 8, 2: 1, 3: 1, 4: 18, 5: 3, 6: 4, 7: 2,
+                          8: 7, 9: 2, 10: 3, 11: 1, 12: 1, 13: 1, 16: 2,
+                          238: 1}
+        magic = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http2.magic', '-Tfields', '-eframe.number')
+        assert len(magic) == 7
+        assert not self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+
+    def test_http2_no_errors_one_and_two_passes(self, cmd_tshark, features, capture_file, test_env):
+        '''No error expert infos in one and two passes, apart from the
+        HEADERS frames when HPACK is not compiled in; the HTTP/2 fields
+        are the same in both passes.'''
+        flt = '_ws.expert.severity >= 0x00800000'
+        if not features.have_nghttp2:
+            flt += ' && !(http2.type == 1)'
+        for passes in ((), ('-2',)):
+            assert not self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', flt, '-Tfields', '-eframe.number', passes=passes)
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'http2', '-Tfields', '-eframe.number', '-ehttp2.type',
+                    '-ehttp2.streamid', '-ehttp2.length', '-ehttp2.flags',
+                    '-ehttp2.calculated.connection.window_size.after',
+                    passes=passes))
+        assert out[0] == out[1]
+
+    def test_http2_frame_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of ALTSVC, ORIGIN, PRIORITY_UPDATE, GOAWAY,
+        SETTINGS and the HTTP2-Settings header of the h2c upgrade.'''
+        run = lambda *a: self._fields(cmd_tshark, capture_file, test_env, *a)
+        assert run('-Y', 'http2.altsvc.origin or http2.altsvc.field_value', '-Tfields',
+                   '-ehttp2.altsvc.origin', '-ehttp2.altsvc.field_value') == [
+            'example.org\th3=":443"', '\th3=":8443"', 'a.b\t']
+        assert run('-Y', 'http2.origin.origin', '-Tfields',
+                   '-ehttp2.origin.origin') == ['https://a.example,https://b.example:8443']
+        assert run('-Y', 'http2.goaway.addata', '-Tfields',
+                   '-ehttp2.goaway.addata') == ['64656275672064617461']
+        assert run('-Y', 'http2.settings.unknown', '-Tfields',
+                   '-ehttp2.settings.unknown') == ['5']
+        # HTTP2-Settings: MAX_CONCURRENT_STREAMS 100, INITIAL_WINDOW 1<<14 ... of the RFC example
+        assert run('-Y', 'http.http2_settings', '-Tfields',
+                   '-ehttp.http2_settings', '-ehttp2.settings.max_concurrent_streams') == [
+            'AAMAAABkAARAAAAAAAIAAAAA\t100']
+        # the first connection's client SETTINGS carry all nine identifiers
+        assert run('-Y', 'frame.number == 4', '-Tfields',
+                   '-ehttp2.settings.id') == ['1,2,3,4,5,6,8,9,16,119']
+
+    def test_http2_window_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Connection flow control: WINDOW_UPDATE of 0, overflow past
+        2^31-1 and DATA exceeding the window raise warnings.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http2.window_update.window_size_increment == 0 || '
+                      'http2.window_size_exceeded', '-Tfields', '-eframe.number',
+                '-e_ws.expert.message')
+        msgs = [l.split('\t', 1) for l in out]
+        text = '\n'.join(m[1] for m in msgs)
+        assert 'Window increment value of 0' in text
+        assert 'Calculated window size exceeded maximum size' in text
+        assert 'exceeds the calculated connection window size' in text
+        assert 'Initial window size exceeds maximum size' in text
+
+    def test_http2_connect_recursion(self, cmd_tshark, features, capture_file, test_env):
+        '''Extended CONNECT with :protocol h2c followed by 7270 nested
+        DATA frames on stream 1 (HTTP2: Prevent unbounded tunnel
+        recursion). With nghttp2 the unfixed dissector recursed once per
+        frame; here the frames decode as plain DATA either way, and the
+        test needs nghttp2 to be able to fail.'''
+        if not features.have_nghttp2:
+            pytest.skip('Requires nghttp2.')
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http2.type == 0 && http2.streamid == 1 && frame.len > 60000',
+                '-Tfields', '-eframe.number')
+        assert len(out) == 1
+        assert not self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+
+    def test_http2_headers_without_nghttp2(self, cmd_tshark, features, capture_file, test_env):
+        '''Without nghttp2 a HEADERS frame says so (HPACK is not decoded).'''
+        if features.have_nghttp2:
+            pytest.skip('Needs a build without nghttp2.')
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 7', '-Tfields', '-e_ws.expert.message')
+        assert out == ['Wireshark must be built with nghttp2 for HTTP/2 HEADERS support']
