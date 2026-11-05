@@ -76668,3 +76668,120 @@ class TestDissectWlanRadio:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == [
             '1\t65', '2\t65', '3\t48', '4\t48', '5\t54', '6\t54', '7\t54']
+
+
+class TestDissectRadiotap:
+    # Helpers are static methods so that only the class is copied.
+    @staticmethod
+    def null_frame():
+        return (struct.pack('<BBH', 0x48, 0x01, 0) + bytes.fromhex('020000000001') +
+                bytes.fromhex('020000000002') + bytes.fromhex('020000000003') + struct.pack('<H', 0))
+
+    @staticmethod
+    def write_pcap(path, packets):
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 127))
+            for i, pkt in enumerate(packets):
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(pkt), len(pkt)))
+                f.write(pkt)
+
+    @staticmethod
+    def tlv_packet(tlv_type, data):
+        # radiotap header with one TLV, followed by a null data frame
+        tlv = struct.pack('<HH', tlv_type, len(data)) + data
+        tlv += b'\0' * (-len(tlv) % 4)
+        return struct.pack('<BBHI', 0, 0, 8 + len(tlv), 1 << 28) + tlv
+
+    def test_radiotap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is radiotap; all but the 104 0-length PSDU frames
+        go on to wlan_radio and wlan.  Nothing is malformed or an error,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 2340
+        assert all(p.startswith('radiotap') for p in protocols)
+        assert protocols.count('radiotap:wlan_radio:wlan') == 2236
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radiotap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_radiotap_two_pass_identical(self, cmd_tshark, capture_file, test_env):
+        '''The full tree is the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radiotap_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outs[0] == outs[1]
+
+    def test_radiotap_tsft_and_fields(self, cmd_tshark, capture_file, test_env):
+        '''The TSFT of the first frame, the MCS index 76 frames (the
+        last entry of the MCS tables) and the counts of the TLV
+        fields (HE, U-SIG, EHT with user info entries, S1G).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eradiotap.mactime', '-eradiotap.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '81985529216486895\t16'
+        for display_filter, count in (
+                ('radiotap.mcs.index == 76', 7),
+                ('radiotap.he.data_1', 195),
+                ('radiotap.u_sig.common', 73),
+                ('radiotap.eht.user_info', 79),
+                ('radiotap.s1g.known', 11),
+                ('radiotap.vendor_namespace', 6),
+                ('radiotap.timestamp.ts', 70),
+                ('radiotap.flags.fcs == 1', 40),
+            ):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('radiotap_coverage.pcap.gz'),
+                    '-Y', display_filter, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count, display_filter
+
+    def test_radiotap_vendor_tlv_too_short(self, cmd_tshark, tmp_path, test_env):
+        '''A vendor namespace TLV shorter than its 8 byte header is
+        reported.  Before the fix the data length wrapped, and the vendor
+        data covered the 802.11 frame.'''
+        pcap = str(tmp_path / 'vendor_tlv_short.pcap')
+        self.write_pcap(pcap, [
+            self.tlv_packet(30, bytes.fromhex('0050f2') + b'\x01') + self.null_frame(),
+            self.tlv_packet(30, bytes.fromhex('0050f2') + b'\x01' + struct.pack('<HH', 3, 0)) + self.null_frame(),
+        ])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                '-eradiotap.vendor_data', '-ewlan.fc.type_subtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tVendor namespace item too short\t\t0x0024',
+            '2\t\t1\t0x0024',
+        ]
+
+    def test_radiotap_bit14_fcs_in_header(self, cmd_tshark, tmp_path, test_env):
+        '''With the "bit 14 is the FCS" preference the header holds the
+        FCS of the frame, which is checked: correct, incorrect, and not
+        enough data.'''
+        import zlib
+        frame = self.null_frame()
+        good = zlib.crc32(frame) & 0xffffffff
+        hdr = struct.pack('<BBHI', 0, 0, 12, 1 << 14)
+        pcap = str(tmp_path / 'bit14.pcap')
+        self.write_pcap(pcap, [
+            hdr + struct.pack('<I', good) + frame,
+            hdr + struct.pack('<I', 0xdeadbeef) + frame,
+            hdr + struct.pack('<I', good),
+        ])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-o', 'radiotap.bit14_fcs_in_header:TRUE', '-V', '-O', 'radiotap',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('[correct]') == 1
+        assert stdout.count('[incorrect, should be 0x') == 1
+        assert stdout.count('[cannot verify - not enough data]') == 1
