@@ -66927,3 +66927,74 @@ class TestDissectGsmSms:
                 '-egsm_sms.tp-oa', '-egsm_sms.scts.timezone')
         rows = [l.split('\t') for l in stdout.splitlines()]
         assert {r[1] for r in rows} == {'8', '41', '10'}
+
+
+class TestDissectGsmSmsUd:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_sms_ud_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_sms_ud_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The SMPP PDUs are found by the SMPP heuristic dissector; nothing
+        is malformed and there is no warning, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 33
+        assert protocols.count('SMPP') == 21
+        assert protocols.count('WSP') == 8
+        assert protocols.count('WTP+WSP') == 1
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x00400000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_sms_ud_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments of a short message (8 bit and 16 bit reference in the
+        UDH, in submit_sm, deliver_sm and data_sm) are reassembled in the
+        last fragment, including a message whose first fragment is repeated.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms_ud.reassembled.length', '-Tfields',
+                '-eframe.number', '-egsm_sms_ud.reassembled.length',
+                '-egsm_sms_ud.fragment.count', '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '14\t18\t3\tWSP',
+            '16\t23\t2\tSMPP',
+            '18\t18\t2\tWSP',
+            '25\t13\t3\tSMPP',
+            '28\t18\t2\tWSP',
+            '32\t18\t2\tWSP',
+        ]
+
+    def test_gsm_sms_ud_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''The port numbers of the UDH select WSP (also behind WTP); other
+        data is shown as Short Message body.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['6', '8', '9', '14', '18', '28', '29', '30', '32']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {7, 10, 11}', '-Tfields',
+                '-eframe.number', '-egsm_sms_ud.short_msg')
+        assert stdout.splitlines() == [
+            '7\t0106018348656c6c6f205753502070757368',
+            '10\t756e636c61696d656420706f72742064617461',
+            '11\t706c61696e20757365722064617461',
+        ]
+
+    def test_gsm_sms_ud_unreassembled(self, cmd_tshark, capture_file, test_env):
+        '''Fragments that cannot be reassembled (fragment number 0, 0
+        fragments, one fragment, fragment number above the total) are shown
+        as plain short messages.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {19, 20, 21, 22}', '-Tfields',
+                '-eframe.number', '-egsm_sms_ud.short_msg')
+        assert stdout.splitlines() == [
+            '19\t66726167207a65726f',
+            '20\t6672616773207a65726f',
+            '21\t73696e676c6520667261676d656e74',
+            '22\t667261672033206f662032',
+        ]
