@@ -67163,3 +67163,86 @@ class TestDissectGsmtap:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap_log.string',
                             flt='gsmtap_log')
         assert rows == [['270', 'hello']]
+
+
+class TestDissectGsmtapLog:
+    def test_gsmtap_log_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a GSMTAP libosmocore log record and none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-egsmtap_log.level',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 13
+        assert all(l.startswith('GSMTAP\t') for l in lines)
+        assert all(l.split('\t')[1] for l in lines)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gsmtap_log_levels(self, cmd_tshark, capture_file, test_env):
+        '''The log levels with names (DEBUG, INFO, NOTICE, ERROR, FATAL)
+        and the level 2 that has none.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-Tfields', '-eframe.number', '-egsmtap_log.level',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:2] for l in stdout.splitlines()] == [
+            ['1', '1'], ['2', '3'], ['3', '5'], ['4', '7'], ['5', '8'], ['6', '2']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-V', '-O', 'gsmtap_log',
+            ), encoding='utf-8', env=test_env)
+        for name in ('DEBUG (1)', 'INFO (3)', 'NOTICE (5)', 'ERROR (7)', 'FATAL (8)'):
+            assert 'Log Level: ' + name in stdout
+        assert 'Log Level: Unknown (2)' in stdout
+
+    def test_gsmtap_log_fields(self, cmd_tshark, capture_file, test_env):
+        '''The record fields, the summary line and the Info column of a
+        record whose fields fill their whole width (frame 8), an empty
+        message (frame 7) and one behind a GSMTAP header of 24 octets
+        (frame 11).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,8,11}',
+                '-Tfields', '-eframe.number', '-egsmtap_log.ident',
+                '-egsmtap_log.pid', '-egsmtap_log.subsys',
+                '-egsmtap_log.src_file.name', '-egsmtap_log.src_file.line_nr',
+                '-egsmtap_log.string', '-egsmtap.hdr_len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tosmo-msc\t1\tDMM\tgsm_04_08.c\t1\t\t16',
+            '8\t0123456789abcdef\t4000000000\tABCDEFGHIJKLMNOP\t'
+            'ffffffffffffffffffffffffffffff.c\t4294967295\tfull width fields\t16',
+            '11\tosmo-hlr\t5\tDDB\tdb.c\t5\tlonger GSMTAP header\t24',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-egsmtap_log.timestamp', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.startswith('2023-11-14T22:13:20.001000000Z\tDEBUG message from the BTS')
+
+    def test_gsmtap_log_long_message(self, cmd_tshark, capture_file, test_env):
+        '''A 300 character message that continues after a NUL octet is
+        shown in full in the string field and up to the NUL in nothing
+        else (frame 9), and non-ASCII octets do not break frame 10.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-egsmtap_log.string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.startswith('X' * 300)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsmtap_log_coverage.pcap.gz'),
+                '-Y', 'gsmtap_log.pid == 3 && gsmtap_log.level == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['10']
