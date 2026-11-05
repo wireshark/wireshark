@@ -61909,3 +61909,252 @@ class TestDissectGeneve:
                 '-Y', 'frame.number == 23', '-V', '-O', 'geneve',
             ), encoding='utf-8', env=test_env)
         assert 'Cilium Service IP, Class: Cilium (0x014b) Type: 0x81 (Critical)' in stdout
+
+
+class TestDissectGeonw:
+    '''GeoNetworking (ethertype 0x8947) from the synthetic capture
+    geonw_coverage.pcapng.gz. Interface 0 is Ethernet (frames 1 to 144),
+    interface 1 is Exported PDU naming the "gnw.comm" and "gnw.sec"
+    dissectors (frames 145 to 149). The security header is built as
+    structure only with placeholder keys and signatures.'''
+
+    @staticmethod
+    def fix_decimals(text):
+        '''tshark prints the seconds of a latitude with the locale's
+        decimal separator: accept ',' for the "0.00" part only.'''
+        return text.replace(',', '.')
+
+    @staticmethod
+    def intx_pcap(path):
+        '''Two secured packets (version 2) with IntX fields longer than 32
+        bits: a 5 octet application id and a 5 octet local region.'''
+        def vec(b): return bytes([len(b)]) + b
+        eth = bytes.fromhex('020000000001' '020000000002') + struct.pack('>H', 0x8947)
+        bh = bytes([0x02, 0x00, 0x50, 0x01])
+        sig = bytes([0]) + bytes([0]) + bytes(32) + bytes(32)
+        frames = []
+        # message type (application id) with a 5 octet IntX
+        hdr = bytes([5, 0xf0, 0, 0, 0, 0])
+        sec = bytes([2]) + vec(hdr) + bytes([0, 0]) + vec(b'') + vec(b'')
+        frames.append(eth + bh + sec)
+        # certificate with a region validity restriction: local region of 5 octets
+        vr = bytes([3, 4, 0, 0, 1]) + bytes([0xf0, 0, 0, 0, 0])
+        cert = bytes([2]) + bytes([0]) + bytes([1, 0]) + vec(b'') + vec(vr) + sig
+        hdr = bytes([128, 2]) + cert
+        sec = bytes([2]) + vec(hdr) + bytes([0, 0]) + vec(b'') + vec(b'')
+        frames.append(eth + bh + sec)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, fr in enumerate(frames):
+                f.write(struct.pack('<IIII', 1000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_geonw_protocols(self, cmd_tshark, capture_file, test_env):
+        '''144 Ethernet frames and 5 Exported PDU frames, all GeoNetworking
+        (or a protocol it carries), with no malformed packets and no error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert len(protocols) == 149
+        assert sum(1 for p in protocols if p.startswith('eth:ethertype:gnw')) == 144
+        assert sum(1 for p in protocols if p.startswith('exported_pdu:gnw')) == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geonw_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geonw_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+
+    def test_geonw_header_types(self, cmd_tshark, capture_file, test_env):
+        '''Every header type, next header and the unknown version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 44',
+                '-Tfields', '-eframe.number', '-egeonw.bh.version', '-egeonw.ch.htype',
+                '-egeonw.ch.nh', '-egeonw.seq_num', '-egeonw.ch.plength',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows[1][:3] == ['0', '0x10', '0']             # beacon
+        assert rows[2][:3] == ['0', '0x50', '2']             # SHB with BTP-B
+        assert rows[3][:3] == ['0', '0x50', '1']             # BTP-A
+        assert rows[5][:3] == ['0', '0x50', '3']             # IPv6
+        assert rows[10][:3] == ['0', '0x51', '2']            # TSB (multi-hop)
+        assert rows[19][:2] == ['0', '']                   # no common header: basic header next header ANY
+        assert [rows[n][1] for n in (38, 39, 40, 41, 42, 43, 44)] == [
+            '0x00', '0x07', '0x62', '0x70', '0xf3', '0x43', '0x33']
+        assert [rows[n][1] for n in (29, 30, 31, 32, 33, 34, 35)] == [
+            '0x20', '0x30', '0x31', '0x32', '0x40', '0x41', '0x42']
+        assert [rows[n][3] for n in (29, 30, 31, 32, 33, 34, 35)] == [
+            '10', '68', '69', '70', '84', '85', '86']
+
+    def test_geonw_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Reserved bits, hop limits and out of range positions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 28 && _ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        msgs = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert msgs[14] == 'Incorrect, should be 0,"Remain Hop Limit" only 3'
+        assert msgs[15] == '"Remain Hop Limit" != 1 for BEACON or SHB (5),Ignored: "Remain Hop Limit" > 1 (mhl)'
+        assert msgs[17] == 'Ignored: "Remain Hop Limit" > 4 (mhl)'
+        assert msgs[20] == 'Incorrect, should be 0,Incorrect, should be 0,Incorrect, should be 0'
+        assert msgs[24] == 'Incorrect, should be 0'
+        assert 28 not in msgs
+
+    def test_geonw_latlon(self, cmd_tshark, capture_file, test_env):
+        '''Latitude and longitude are computed with 64 bit values (the
+        multiplication by 6 overflowed a 32 bit int and abs() was applied
+        to INT32_MIN).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 26 && frame.number <= 28',
+                '-V', '-O', 'gnw',
+            ), encoding='utf-8', env=test_env)
+        lines = [self.fix_decimals(l.strip()) for l in stdout.splitlines()
+                 if l.strip().startswith(('Latitude:', 'Longitude:'))]
+        assert lines == [
+            'Latitude: 90d0\'0.00"S (-900000000)',
+            'Longitude: 180d0\'0.00"W (-1800000000)',
+            'Latitude: 214d44\'54.11"S (-2147483648)',
+            'Longitude: 214d44\'54.11"E (2147483647)',
+            'Latitude: 50d0\'0.00"N (500000000)',
+            'Longitude: 100d0\'0.00"E (1000000000)',
+        ]
+
+    def test_geonw_duplicates(self, cmd_tshark, capture_file, test_env):
+        '''Duplicate packet detection (ETSI EN 302 636-4-1 annex A): the
+        result is the same in one and two passes, with the expert info,
+        the tree item and the Info column prefix (they were lost on the
+        second pass before the fix).'''
+        expected = [53, 54, 59, 62, 64, 65, 73, 76, 78]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geonw_coverage.pcapng.gz'),
+                    '-Y', 'geonw.analysis.flags',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert [int(n) for n in stdout.split()] == expected
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geonw_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 53 && frame.number <= 54',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            for line in stdout.splitlines():
+                assert '[Duplicate packet]' in line
+                assert line.endswith('Duplicate packet')
+        # version 1 headers are not analysed
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'geonw.bh.version == 1 && geonw.analysis.flags',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_geonw_location_service(self, cmd_tshark, capture_file, test_env):
+        '''Location service request/reply matching; unanswered requests
+        are flagged on the second pass only.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'geonw.ch.htype == 0x60 || geonw.ch.htype == 0x61',
+                '-Tfields', '-eframe.number', '-egeonw.resp_in', '-egeonw.resp_to',
+                '-egeonw.no_resp', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '45\t46\t\t\tLocation Service Request (reply in 46)',
+            '46\t\t45\t\tLocation Service Reply (request in 45)',
+            '47\t\t\t\tLocation Service Reply',
+            '48\t\t\t1\tLocation Service Request (no response found!)',
+            '49\t\t\t\tLocation Service Reply',
+            '50\t\t\t1\tLocation Service Request (no response found!)',
+            '93\t94\t\t\tLocation Service Request (reply in 94)',
+            '94\t\t93\t\tLocation Service Reply (request in 93)',
+        ]
+
+    def test_geonw_secured(self, cmd_tshark, capture_file, test_env):
+        '''Secured packets: versions 1 and 2, every signer info type, the
+        application ids, certificates with their subject attributes and
+        validity restrictions, IEEE 1609.2 (version 3), and the inner
+        GeoNetworking packet of the payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'geonw.sec', '-Tfields', '-eframe.number', '-egeonw.sec.version',
+            ), encoding='utf-8', env=test_env)
+        versions = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert len(versions) == 62
+        assert sorted(set(versions.values())) == ['', '0', '1', '2', '4']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'geonw.sec.app_id && geonw.sec.version == 2 && frame.number >= 129 && frame.number <= 139',
+                '-Tfields', '-eframe.number', '-egeonw.sec.app_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '129\t0', '130\t36', '131\t37', '132\t127', '133\t128', '134\t4660',
+            '135\t16383', '136\t16384', '137\t2097151', '138\t2097152', '139\t268435455']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 143 || frame.number == 144',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '143\teth:ethertype:gnw:ieee1609dot2',
+            '144\teth:ethertype:gnw:ieee1609dot2:btpb:data']
+        # payload of a secured packet: the inner GeoNetworking packet is dissected
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 85 && frame.number <= 95',
+                '-Tfields', '-eframe.number', '-egeonw.sec.version', '-egeonw.ch.htype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '85\t1\t0x50', '86\t2\t0x10', '87\t2\t0x20', '88\t2\t0x30', '89\t1\t0x31',
+            '90\t2\t0x40', '91\t2\t0x42', '92\t1\t0x51', '93\t2\t0x60', '94\t1\t0x61',
+            '95\t1\t0x77']
+
+    def test_geonw_certificates(self, cmd_tshark, capture_file, test_env):
+        '''The local region IntX of the identified-region validity
+        restrictions in the certificates of frames 112, 113, 126 and 127.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'geonw.sec.local_region',
+                '-Tfields', '-eframe.number', '-egeonw.sec.local_region',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['112\t5', '113\t5,5', '126\t5', '127\t5,5']
+
+    def test_geonw_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The gnw.comm and gnw.sec dissectors, which skip the basic header
+        and are only reached by name, here through Exported PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geonw_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-eframe.protocols', '-egeonw.ch.htype',
+                '-egeonw.sec.version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '145\texported_pdu:gnw:btpb:data\t0x50\t',
+            '146\texported_pdu:gnw\t0x10\t',
+            '147\texported_pdu:gnw:btpb:data\t0x20\t',
+            '148\texported_pdu:gnw:btpb:data\t0x50\t2',
+            '149\texported_pdu:gnw:btpb:data\t0x50\t1',
+        ]
+
+    def test_geonw_intx_too_big(self, cmd_tshark, result_file, test_env):
+        '''IntX fields longer than 32 bits only get the "IntX value exceeds
+        32 bits" expert info; they hit a field type / bit width assertion
+        in the 32 bit application id and local region fields before the
+        fix.'''
+        path = result_file('geonw_intx.pcap')
+        self.intx_pcap(path)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', path,
+                    '-Y', 'geonw.intx_too_big',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['1', '2']
