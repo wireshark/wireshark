@@ -69896,3 +69896,90 @@ class TestDissectH323:
         assert [r[1] for r in rows] == ['Q.931'] * 5
         assert 'SETUP' in rows[0][2]
         assert 'RELEASE COMPLETE' in rows[1][2]
+
+
+class TestDissectH450:
+    '''H.450 supplementary services from the synthetic capture
+    h450_coverage.pcap.gz: 168 H.225.0 Facility messages (Q.931 in TPKT
+    over TCP port 1720) whose h4501SupplementaryService items carry
+    aligned PER encoded H.450.1 service APDUs. Frames 1-77 are invokes of
+    every operation of the H.450 table, 78-99 return results, 100-123 return
+    errors, 124-151 unknown codes, linked ids and rejects, 152-168 network
+    facility extensions, interpretation APDUs and two items in one UU-PDU.
+    The arguments are random values generated from the ASN.1 sources.'''
+
+    @staticmethod
+    def h450_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h450_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h450_protocols(self, cmd_tshark, capture_file, test_env):
+        '''168 frames, none malformed or with an error expert info, in one
+        and two passes.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 168
+        assert {r[1] for r in rows} == {'H.225.0'}
+        for passes in ((), ('-2',)):
+            rows = self.h450_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h450_operations_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''58 different operation codes and 33 different error codes of the
+        H.450 tables are decoded.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.operation', 'h450.error',
+                                filt='h450.operation || h450.error')
+        ops = {x for r in rows for x in r[1].split(',') if x}
+        errs = {x for r in rows for x in r[2].split(',') if x}
+        assert len(ops) == 58
+        assert len(errs) == 33
+        assert '9' in ops and '1008' in errs and '2002' in errs
+
+    def test_h450_unsupported_types(self, cmd_tshark, capture_file, test_env):
+        '''Result or error data for an operation or error whose type the
+        table does not know gives the "UNSUPPORTED ... TYPE" warning.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='_ws.expert.message contains "UNSUPPORTED"')
+        assert [r[0] for r in rows] == ['79', '80', '81', '100', '101']
+        assert all('UNSUPPORTED RESULT TYPE' in r[1] for r in rows[:3])
+        assert all('UNSUPPORTED ERROR TYPE' in r[1] for r in rows[3:])
+
+    def test_h450_unknown_codes(self, cmd_tshark, capture_file, test_env):
+        '''Unknown local codes and object identifier (global) codes are
+        reported as undecoded; a linked id is shown.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='_ws.expert.message contains "Undecoded"')
+        assert [r[0] for r in rows] == ['124', '125', '127', '128', '130', '131']
+        assert [r[1] for r in rows] == ['Undecoded INV: 4242', 'Undecoded INV: 1.3.6.1.4.1.9999.1',
+                                        'Undecoded RES: 4242', 'Undecoded RES: 1.3.6.1.4.1.9999.1',
+                                        'Undecoded ERR: 4243', 'Undecoded ERR: 1.3.6.1.4.1.9999.2']
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.ros.linkedId', 'h450.operation',
+                                filt='h450.ros.linkedId')
+        assert rows == [['126', '3', '9']]
+
+    def test_h450_rejects(self, cmd_tshark, capture_file, test_env):
+        '''Reject APDUs: general (0, 1, 2, 7), invoke (0-7), return result
+        (0-2) and return error (0-4) problems.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.ros.general', 'h450.ros.invokeProblem',
+                                'h450.ros.returnResultProblem', 'h450.ros.returnErrorProblem',
+                                filt='frame.number >= 132 && frame.number <= 151')
+        assert [r[1] for r in rows[:4]] == ['0', '1', '2', '7']
+        assert [r[2] for r in rows[4:12]] == [str(i) for i in range(8)]
+        assert [r[3] for r in rows[12:15]] == ['0', '1', '2']
+        assert [r[4] for r in rows[15:]] == [str(i) for i in range(5)]
+
+    def test_h450_network_facility_extension(self, cmd_tshark, capture_file, test_env):
+        '''Frames 152-167 have a network facility extension with every
+        combination of entity types and, in 12 of them, an interpretation
+        APDU; frame 168 has two H.450 items in one UU-PDU.'''
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.sourceEntity', 'h450.destinationEntity',
+                                'h450.interpretationApdu', filt='h450.sourceEntity && frame.number >= 152')
+        assert len(rows) == 16
+        assert {(r[1], r[2]) for r in rows} == {('0', '0'), ('0', '1'), ('1', '0'), ('1', '1')}
+        assert sum(r[3] != '' for r in rows) == 12
+        rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.operation', filt='frame.number == 168')
+        assert rows == [['168', '7,7']]
