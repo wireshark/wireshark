@@ -62583,3 +62583,73 @@ class TestDissectGiop:
         ior_txt = capture_file('giop_ior.txt').replace('\\', '/')
         assert self.fields(cmd_tshark, capture_file, test_env, '-o', 'giop.ior_txt:' + ior_txt,
                            *args) == ['231\tCOSNAMING', '232\tTANGO']
+
+
+class TestDissectGlbp:
+    '''Gateway Load Balancing Protocol (UDP 3222, IPv4 and IPv6) from the
+    synthetic capture glbp_coverage.pcap.gz.'''
+
+    CAP = 'glbp_coverage.pcap.gz'
+
+    def test_glbp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are GLBP, without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'glbp', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 28
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_glbp_hello(self, cmd_tshark, capture_file, test_env):
+        '''Hello with IPv4, IPv6 and unknown address types, and the
+        Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {1, 4, 6, 7, 8}',
+                '-Tfields', '-eframe.number', '-eglbp.group', '-eglbp.hello.vgstate',
+                '-eglbp.hello.virtualipv4', '-eglbp.hello.virtualipv6',
+                '-eglbp.hello.virtualunk', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t4\t192.0.2.100\t\t\tG: 1, Hello, IPv4',
+            '4\t4\t32\t192.0.2.100\t\t\tG: 4, Hello, IPv4',
+            '6\t7\t32\t\t2001:db8::100\t\tG: 7, Hello, IPv6',
+            '7\t8\t32\t\t\tdeadbeef0102\tG: 8, Hello, 3',
+            '8\t8\t32\t\t\t<MISSING>\tG: 8, Hello, 0',
+        ]
+
+    def test_glbp_auth(self, cmd_tshark, capture_file, test_env):
+        '''Authentication TLVs: none, plain text, MD5 string, MD5 chain
+        (also with an empty hash, the length-check fix), unknown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'glbp.auth.authtype',
+                '-Tfields', '-eframe.number', '-eglbp.auth.authtype',
+                '-eglbp.auth.plainpass', '-eglbp.auth.md5chainindex',
+                '-eglbp.auth.md5chainhash',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\t0\t\t\t',
+            '20\t1\tsecret12\t\t',
+            '21\t2\t\t\t',
+            '22\t3\t\t5\t101112131415161718191a1b1c1d1e1f',
+            '23\t3\t\t6\t<MISSING>',
+            '24\t9\t\t\t',
+        ]
+
+    def test_glbp_reqresp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Several TLVs in one packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 26',
+                '-Tfields', '-eglbp.type', '-eglbp.reqresp.virtualmac', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('1,2,2\t00:07:b4:00:01:01,00:07:b4:00:01:02\t'
+                                  'G: 15, Hello, IPv4, Request/Response?, Request/Response?')
