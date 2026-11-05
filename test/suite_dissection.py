@@ -73031,3 +73031,81 @@ class TestDissectHpfeeds:
         # (the average is printed with the locale's decimal separator)
         assert any(l.split()[0:3] in (['1', '7.00', '7'], ['1', '7,00', '7'])
                    for l in stdout.splitlines() if l.startswith(' ') and len(l.split()) > 3)
+
+
+class TestDissectHpsw:
+    def test_hpsw_clean(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-10 are HP Switch Protocol (behind HPEXT), frame 11 has
+        another DXSAP. None is malformed, and frame 8 is the only one with
+        expert infos (the bad lengths), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpsw_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 11
+        assert protocols[:10] == ['HP'] * 10
+        assert protocols[10] != 'HP'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hpsw_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hpsw_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['8']
+
+    def test_hpsw_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The TLV types of every frame: unknown types are shown as data,
+        and a TLV with length 0 or longer than the rest ends the list.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpsw_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ehpsw.version',
+                '-ehpsw.type', '-ehpsw.tlv_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01\t0x01\t0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08',
+            '2\t0x01\t0x01\t0x09,0x0a,0x0b,0x0c,0x0d,0x0e',
+            '3\t0x02\t0x02\t0x0b',
+            '4\t0x02\t0x02\t0x0b',
+            '5\t0x01\t0x01\t0x0d',
+            '6\t0x01\t0x01\t0x55,0x00,0xff',
+            '7\t0x03\t0x09\t',
+            '8\t0x01\t0x01\t0x04,0x05,0x06,0x08,0x09,0x0a,0x0b,0x0c,0x0d,0x0e',
+            '9\t0x01\t0x01\t0x01',
+            '10\t0x01\t0x01\t0x01',
+            '11\t\t\t',
+        ]
+
+    def test_hpsw_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of the TLVs of frames 1 and 2, the neighbor
+        count and the device ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpsw_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-Tfields', '-eframe.number', '-ehpsw.device_name',
+                '-ehpsw.device_version', '-ehpsw.config_name',
+                '-ehpsw.root_mac_addr', '-ehpsw.ip_addr', '-ehpsw.field_6',
+                '-ehpsw.domain', '-ehpsw.field_8', '-ehpsw.field_9',
+                '-ehpsw.field_10', '-ehpsw.field_12', '-ehpsw.own_mac_addr',
+                '-ehpsw.neighbor_mac_addr', '-ehpsw.device_id',
+                '-ehpsw.device_id_data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:9] == ['1', 'switch-core-1', 'K.15.06.0008',
+                'running-config', '00:1a:1b:00:00:01', '192.0.2.10',
+                '0x0020', 'DOMAIN-A', '0x0102']
+        assert lines[1][9:13] == ['0x0003', '0x0000002a', '0x07', '00:1a:1b:00:00:05']
+        assert lines[1][13] == '00:1a:1b:00:00:02,00:1a:1b:00:00:03'
+        assert lines[3][13] == '00:1a:1b:00:00:07,00:1a:1b:00:00:08,00:1a:1b:00:00:09'
+        assert lines[4][14:] == ['00:1a:1b:00:00:01', 'ff']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpsw_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-V', '-O', 'hpsw',
+            ), encoding='utf-8', env=test_env)
+        assert 'Number of neighbor MAC Addresses: 3' in stdout
