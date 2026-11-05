@@ -66363,3 +66363,89 @@ class TestDissectGsmMap:
         for name in ('updateLocation', 'insertSubscriberData',
                      'sendAuthenticationInfo'):
             assert name in stdout
+
+
+class TestDissectGsmOsmux:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_osmux_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout
+
+    def test_gsm_osmux_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Two MGCP responses with X-Osmux set up the conversations, the
+        other 33 frames are Osmux, none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 35
+        assert protocols.count('Osmux') == 33
+        assert protocols.count('MGCP/SDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_osmux_headers(self, cmd_tshark, capture_file, test_env):
+        '''Field type, sequence number, circuit id, AMR frame type, counter
+        and marker of every frame, including the old two octet dummy
+        (frames 26-27), three Osmux frames in one datagram (29) and the
+        field types signalling, dummy and the reserved value 3.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'osmux', '-Tfields', '-eframe.number', '-eosmux.ft',
+                '-eosmux.seq', '-eosmux.circuit_id', '-eosmux.amr_ft',
+                '-eosmux.ctr', '-eosmux.stream_id')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert len(rows) == 33
+        # (ft, seq, cid, amr_ft, ctr, stream)
+        assert by_frame[3] == ['1', '0x00', '0x01', '0x00', '0x00', '0']
+        assert by_frame[10] == ['1', '0x07', '0x01', '0x07', '0x00', '0']
+        assert by_frame[12] == ['1', '0x09', '0x01', '0x07', '0x03', '0']
+        assert by_frame[13] == ['1', '0x0a', '0x01', '0x08', '0x07', '0']
+        assert by_frame[17] == ['1', '0x0f', '0x01', '0x09', '0x00', '0']
+        assert by_frame[23][0] == '0'
+        assert by_frame[24][0] == '2'
+        assert by_frame[25][0] == '3'
+        assert by_frame[26] == ['1', '', '0x01', '', '0x00', '0']
+        assert by_frame[27] == ['1', '', '0x09', '', '0x00', '1']
+        assert by_frame[29] == ['1,1,1', '0x13,0x00,0x00', '0x01,0x02,0x03',
+                '0x07,0x02,0x08', '0x00,0x00,0x01', '0,2,3']
+        assert by_frame[31] == ['1', '0xfe', '0x07', '0x03', '0x02', '4']
+        assert by_frame[35] == ['0', '0x00', '0x08', '0x0e', '0x00', '5']
+
+    def test_gsm_osmux_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column text, including the marker bit and the reserved
+        field type.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {3, 19, 23, 24, 25, 26, 29}',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'Osmux AMR (M) (CID 1) ',
+            'Osmux AMR (M) (CID 1) ',
+            'Osmux Signalling (CID 1) ',
+            'Osmux Dummy (CID 1) ',
+            'Osmux unknown 0x03 (CID 1) ',
+            'Osmux AMR Old Dummy (CID 1)',
+            'Osmux AMR (CID 1) , Osmux AMR (CID 2) , Osmux AMR (CID 3) ',
+        ]
+
+    def test_gsm_osmux_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The statistics tree names the reserved field type 3 instead of
+        reading the terminator of the value string table, and counts the
+        sequence number analysis results.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-q', '-z', 'osmux,tree')
+        assert 'Field: FT: Unknown (3)' in stdout
+        assert 'null' not in stdout.lower()
+        for name in ('Field: FT: Old Dummy', 'Field: FT: Dummy',
+                     'Field: FT: Signalling', 'SeqNum Analysis: Out Of Order',
+                     'SeqNum Analysis: Consecutive Repeated'):
+            assert name in stdout
+        assert 'Osmux Total Packets' in stdout
+        assert 'Osmux Streams' in stdout
+        for line in stdout.splitlines():
+            if line.strip().startswith('Osmux Total Packets'):
+                assert line.split()[3] == '35'
