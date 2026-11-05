@@ -74078,3 +74078,66 @@ class TestDissectHyperdhtCoverage:
             '49\tReq PEER_HANDSHAKE Mode=REPLY',
             '50\tReq PEER_HOLEPUNCH Mode=REPLY',
         ]
+
+
+class TestDissectHyperscsi:
+    def test_hyperscsi_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames are HyperSCSI and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hyperscsi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 16
+        assert protocols.count('HyperSCSI') == 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hyperscsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hyperscsi_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command name, unknown commands and the masked top bit.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hyperscsi_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ehyperscsi.cmd',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\tCommand Block Encap Request',
+            '2\t1\tCommand Block Encap Reply',
+            '3\t16\tDevice Discovery Reply',
+            '4\t17\tAuth/Device Neg Request',
+            '5\t18\tAuth/Device Neg Reply',
+            '6\t19\tDisconnect Request',
+            '7\t32\tFlow Control Setup/Ack Request',
+            '8\t33\tFlow Control Ack Reply',
+            '9\t1\tCommand Block Encap Reply',
+            '10\t48\tUnknown HyperSCSI Request or Response (48)',
+            '11\t127\tUnknown HyperSCSI Request or Response (127)',
+            '12\t1\tCommand Block Encap Reply',
+            '13\t0\tCommand Block Encap Request',
+            '14\t0\tCommand Block Encap Request',
+            '15\t0\tCommand Block Encap Request',
+            '16\t16\tDevice Discovery Reply',
+        ]
+
+    def test_hyperscsi_header(self, cmd_tshark, capture_file, test_env):
+        '''Reserved bits, tag number, last fragment flag, fragment number
+        and version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hyperscsi_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 13',
+                '-Tfields', '-eframe.number', '-ehyperscsi.reserved',
+                '-ehyperscsi.tagno', '-ehyperscsi.lastfrag',
+                '-ehyperscsi.fragno', '-ehyperscsi.version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t3\t511\tFalse\t1023\t2',
+            '14\t15\t511\tTrue\t341\t2',
+            '15\t1\t0\tFalse\t1\t0',
+            '16\t0\t1\tTrue\t0\t1',
+        ]
