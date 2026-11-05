@@ -1313,13 +1313,42 @@ dissect_class_svalidator_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  *
  * CRC handling
  *
+ * The CRCs are calculated over the values as they are
+ * sent, least significant octet first.
+ *
  ************************************************/
+static void triad_to_le_bytes(const cip_connection_triad_t* triad, uint8_t *buf)
+{
+    phtoleu16(buf, triad->VendorID);
+    phtoleu32(&buf[2], triad->DeviceSerialNumber);
+    phtoleu16(&buf[6], triad->ConnSerialNumber);
+}
+
+static uint8_t crc8_0x37_le16(uint16_t value, uint8_t crc)
+{
+    uint8_t buf[2];
+    phtoleu16(buf, value);
+    return crc8_0x37(buf, 2, crc);
+}
+
+static uint16_t crc16_0x080F_le16(uint16_t value, uint16_t crc)
+{
+    uint8_t buf[2];
+    phtoleu16(buf, value);
+    return crc16_0x080F_seed(buf, 2, crc);
+}
+
+static uint32_t crc32_0x5D6DCB_le16(uint16_t value, uint32_t crc)
+{
+    uint8_t buf[2];
+    phtoleu16(buf, value);
+    return crc32_0x5D6DCB_seed(buf, 2, crc);
+}
+
 static uint8_t compute_crc_s1_pid(const cip_connection_triad_t* triad)
 {
     uint8_t temp_buf[8];
-    memcpy(temp_buf, &triad->VendorID, 2);
-    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
-    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
+    triad_to_le_bytes(triad, temp_buf);
 
     return crc8_0x37(temp_buf, 8, 0);
 }
@@ -1327,7 +1356,7 @@ static uint8_t compute_crc_s1_pid(const cip_connection_triad_t* triad)
 static uint8_t compute_crc_s1_timestamp(uint8_t pid_seed, uint8_t mode_byte_mask, uint16_t timestamp)
 {
     uint8_t mode_byte_crc = crc8_0x37(&mode_byte_mask, 1, pid_seed);
-    uint8_t timestamp_crc = crc8_0x37((uint8_t*)&timestamp, 2, mode_byte_crc);
+    uint8_t timestamp_crc = crc8_0x37_le16(timestamp, mode_byte_crc);
 
     return timestamp_crc;
 }
@@ -1353,9 +1382,7 @@ static uint8_t compute_crc_s2_data(uint8_t pid_seed, uint8_t mode_byte_mask, uin
 static uint16_t compute_crc_s3_pid(const cip_connection_triad_t* triad)
 {
     uint8_t temp_buf[8];
-    memcpy(temp_buf, &triad->VendorID, 2);
-    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
-    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
+    triad_to_le_bytes(triad, temp_buf);
 
     return crc16_0x080F_seed(temp_buf, 8, 0);
 }
@@ -1369,7 +1396,7 @@ static uint16_t compute_crc_s3_base_data(uint16_t pid_seed, uint8_t mode_byte_ma
 
 static uint16_t compute_crc_s3_extended_data(uint16_t pid_seed, uint16_t rollover_value, uint8_t mode_byte_mask, const uint8_t *buf, int len)
 {
-    uint16_t rollover_crc = crc16_0x080F_seed((uint8_t*)&rollover_value, 2, pid_seed);
+    uint16_t rollover_crc = crc16_0x080F_le16(rollover_value, pid_seed);
     uint16_t mode_byte_crc = crc16_0x080F_seed(&mode_byte_mask, 1, rollover_crc);
 
     return crc16_0x080F_seed(buf, len, mode_byte_crc);
@@ -1380,7 +1407,7 @@ static uint16_t compute_crc_s3_time(uint16_t pid_seed, uint8_t ack_mcast_byte, u
     uint16_t mode_byte_crc = crc16_0x080F_seed(&ack_mcast_byte, 1, pid_seed);
     uint16_t timestamp_crc;
 
-    timestamp_crc = crc16_0x080F_seed((uint8_t*)&timestamp_value, 2, mode_byte_crc);
+    timestamp_crc = crc16_0x080F_le16(timestamp_value, mode_byte_crc);
 
     return timestamp_crc;
 }
@@ -1388,33 +1415,31 @@ static uint16_t compute_crc_s3_time(uint16_t pid_seed, uint8_t ack_mcast_byte, u
 static uint32_t compute_crc_s5_pid(const cip_connection_triad_t* triad)
 {
     uint8_t temp_buf[8];
-    memcpy(temp_buf, &triad->VendorID, 2);
-    memcpy(&temp_buf[2], &triad->DeviceSerialNumber, 4);
-    memcpy(&temp_buf[6], &triad->ConnSerialNumber, 2);
+    triad_to_le_bytes(triad, temp_buf);
 
     return crc32_0x5D6DCB_seed(temp_buf, 8, 0);
 }
 
 static uint32_t compute_crc_s5_short_data(uint32_t pid_seed, uint16_t rollover_value, uint8_t mode_byte_mask, uint16_t timestamp_value, const uint8_t *buf, int len)
 {
-    uint32_t rollover_crc = crc32_0x5D6DCB_seed((uint8_t*)&rollover_value, 2, pid_seed);
+    uint32_t rollover_crc = crc32_0x5D6DCB_le16(rollover_value, pid_seed);
     uint32_t mode_byte_crc = crc32_0x5D6DCB_seed(&mode_byte_mask, 1, rollover_crc);
     uint32_t data_crc, timestamp_crc;
 
     data_crc = crc32_0x5D6DCB_seed(buf, len, mode_byte_crc);
-    timestamp_crc = crc32_0x5D6DCB_seed((uint8_t*)&timestamp_value, 2, data_crc);
+    timestamp_crc = crc32_0x5D6DCB_le16(timestamp_value, data_crc);
 
     return timestamp_crc;
 }
 
 static uint32_t compute_crc_s5_long_data(uint32_t pid_seed, uint16_t rollover_value, uint8_t mode_byte_mask, uint16_t timestamp_value, const uint8_t *comp_buf, int len)
 {
-    uint32_t rollover_crc = crc32_0x5D6DCB_seed((uint8_t*)&rollover_value, 2, pid_seed);
+    uint32_t rollover_crc = crc32_0x5D6DCB_le16(rollover_value, pid_seed);
     uint32_t mode_byte_crc = crc32_0x5D6DCB_seed(&mode_byte_mask, 1, rollover_crc);
     uint32_t comp_data_crc, timestamp_crc;
 
     comp_data_crc = crc32_0x5D6DCB_seed(comp_buf, len, mode_byte_crc);
-    timestamp_crc = crc32_0x5D6DCB_seed((uint8_t*)&timestamp_value, 2, comp_data_crc);
+    timestamp_crc = crc32_0x5D6DCB_le16(timestamp_value, comp_data_crc);
 
     return timestamp_crc;
 }
@@ -1424,7 +1449,7 @@ static uint32_t compute_crc_s5_time(uint32_t pid_seed, uint8_t ack_mcast_byte, u
     uint32_t mode_byte_crc = crc32_0x5D6DCB_seed(&ack_mcast_byte, 1, pid_seed);
     uint32_t timestamp_crc;
 
-    timestamp_crc = crc32_0x5D6DCB_seed((uint8_t*)&timestamp_value, 2, mode_byte_crc);
+    timestamp_crc = crc32_0x5D6DCB_le16(timestamp_value, mode_byte_crc);
 
     return timestamp_crc;
 }
