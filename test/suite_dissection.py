@@ -64462,3 +64462,124 @@ class TestDissectGprsLlc:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs.frmrvs', 'llcgprs.frmrvs', 'llcgprs.frmrvr',
                             'llcgprs.frmrcr', 'llcgprs.frmrw1', 'llcgprs.frmrw2', 'llcgprs.frmrw3', 'llcgprs.frmrw4')
         assert rows == [['77', '511', '257', '1', '1', '1', '1', '1'], ['78', '0', '0', '0', '1', '1', '1', '1']]
+
+
+class TestDissectGquic:
+    '''Google QUIC (found by the UDP heuristic: versions Q02x to Q04x with the
+    version and CID flags, and Q046 long headers), from the synthetic capture
+    gquic_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, passes, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gquic_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gquic_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 126 frames are GQUIC, with no malformed packets and no error
+        expert infos in one and two passes; the warnings are the empty tag
+        list of frame 61 and the CRYPTO frame of frame 119.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame', '_ws.col.protocol')
+        assert len(rows) == 126
+        assert [r[1] for r in rows if r[1] != 'GQUIC'] == []
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, passes,
+                                '_ws.malformed || _ws.expert.severity == "error"')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, passes,
+                                '_ws.expert.severity == "warning"', '_ws.expert.message')
+            assert rows == [['61', 'Invalid total tag length: 0'], ['119', 'Invalid Data']]
+
+    def test_gquic_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The Info column and the fields do not change between one and two
+        passes (the per-conversation version and byte order are set by the
+        first packet of every conversation).'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gquic_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-egquic.version',
+                    '-egquic.cid', '-egquic.packet_number',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_gquic_versions_and_messages(self, cmd_tshark, capture_file, test_env):
+        '''The version of the first packet of each conversation, handshake
+        messages, public reset and version negotiation.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {1, 2, 3, 10, 11, 53, 55, 102, 104, 112, 123, 125}',
+                            'gquic.version', '_ws.col.info')
+        assert [(r[0], r[1], r[2].split(',')[0]) for r in rows] == [
+            ('1', 'Q025', 'Client Hello'),
+            ('2', '', 'Rejection'),
+            ('3', '', 'Server Hello'),
+            ('10', '', 'Public Reset'),
+            ('11', 'Q043,Q039,Q035,Q025', 'Version Negotiation'),
+            ('53', 'Q033', 'Client Hello'),
+            ('55', 'Q035', 'Payload (Encrypted)'),
+            ('102', 'Q039', 'Client Hello'),
+            ('104', 'Q043', 'Client Hello'),
+            ('112', 'Q046', 'Client Hello'),
+            ('123', 'Q050', 'Client Hello'),
+            ('125', 'T051', 'Client Hello'),
+        ]
+        # a conversation of a server on another port: the port is learnt from the CHLO
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number in {105, 106}',
+                            'udp.srcport', '_ws.col.info', 'gquic.diversification_nonce')
+        assert rows[0][1] == '4444' and rows[0][2].startswith('Server Hello')
+        assert rows[1][1] == '4444' and rows[1][2].startswith('Version Negotiation')
+
+    def test_gquic_endianness(self, cmd_tshark, capture_file, test_env):
+        '''Packet number and CID are little endian up to Q038 and big endian
+        from Q039.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {2, 3, 4, 102, 103}', 'gquic.packet_number', 'gquic.cid')
+        assert rows == [
+            ['2', '256', '72623859790382856'],
+            ['3', '1027', '72623859790382856'],
+            ['4', '67305985', '72623859790382856'],
+            ['102', '168496141', '72623859790382856'],
+            ['103', '168496142', '72623859790382856'],
+        ]
+
+    def test_gquic_tags(self, cmd_tshark, capture_file, test_env):
+        '''Tags of a CHLO and of a rejection, nested server config, public
+        reset tags (client address of IPv4, IPv6 and an unknown type).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 1',
+                            'gquic.tag.sni', 'gquic.tag.pdmd', 'gquic.tag.mspc', 'gquic.tag.tcid',
+                            'gquic.tag.epid')
+        assert rows == [['1', 'www.example.org', 'X509', '100', '0', 'gws']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 2',
+                            'gquic.tag.expy', 'gquic.tag.rrej')
+        assert rows == [['2', '1800000000,1800000000', '0,1,2,5,99']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'gquic.tag.caddr.addr.type',
+                            'gquic.tag.caddr.addr.type', 'gquic.tag.caddr.addr.ipv4',
+                            'gquic.tag.caddr.addr.ipv6', 'gquic.tag.caddr.addr', 'gquic.tag.caddr.port',
+                            'gquic.tag.rnon', 'gquic.tag.rseq')
+        assert rows == [
+            ['10', '2', '192.0.2.1', '', '', '4444', '1234605616436508552', '9'],
+            ['12', '10', '', '2001:db8::1', '', '4444', '1', ''],
+            ['13', '7', '', '', 'aabbccdd', '4444', '', ''],
+        ]
+
+    def test_gquic_review_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''A CRYPTO frame in a Q043 packet gives a warning (it was an
+        assertion); a PUBS tag of 1 octet and an SCFG tag with a huge tag
+        count are decoded (the tag count used to wrap).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 119',
+                            '_ws.expert.message', '_ws.col.info')
+        assert rows[0][1] == 'Invalid Data'
+        assert 'Len=67' in rows[0][2]
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 120',
+                            'gquic.tag.scfg.number', '_ws.expert.message', 'gquic.tag.sni')
+        assert rows == [['120', '536870912', 'Unknown Data', 'abcd']]
+
+    def test_gquic_crypto_frames(self, cmd_tshark, capture_file, test_env):
+        '''CRYPTO frames of Q050 carry GQUIC tags, those of T051 a TLS 1.3
+        handshake.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'gquic.crypto.offset',
+                            'gquic.tag', 'tls.handshake.type')
+        assert [(r[0], r[2]) for r in rows if r[2]] == [('125', '1'), ('126', '2')]
+        assert [r[0] for r in rows] == ['123', '124', '125', '126']
