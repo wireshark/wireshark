@@ -68344,3 +68344,74 @@ class TestDissectH223:
             ('57', ''), ('58', 'openLogicalChannelAck '), ('59', '(No complete PDUs)'),
             ('60', ''), ('61', '')]
         assert rows[-1][2] == '0,0,0'
+
+
+class TestDissectH224:
+    '''H.224 (far end camera control and client management) carried in RTP
+    payload type 100, named "H224" by the SDP of a SIP INVITE, from the
+    synthetic capture h224_coverage.pcap.gz.'''
+
+    @staticmethod
+    def h224_fields(cmd_tshark, capture_file, test_env, *fields, filt='h224', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h224_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h224_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the SIP INVITE, frames 2-36 are H.224 without
+        malformed packets or error expert infos, in one and two passes.'''
+        rows = self.h224_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 36
+        assert rows[0][1] == 'SIP/SDP'
+        assert all(r[1] == 'H.224' for r in rows[1:])
+        for passes in ((), ('-2',)):
+            rows = self.h224_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert', passes=passes)
+            assert rows == []
+
+    def test_h224_start_action_timeout(self, cmd_tshark, capture_file, test_env):
+        '''The START ACTION timeout is computed from the low 4 bits of the
+        octet (0 means 800 ms); the whole octet was multiplied before the
+        fix (163 gave 8150 ms).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('h224_coverage.pcap.gz'),
+                '-Y', 'h224.fecc_message_code == 1', '-V',
+            ), encoding='utf-8', env=test_env)
+        texts = [l.strip() for l in stdout.splitlines() if l.strip().endswith(' milliseconds)')
+                 and l.strip()[0].isdigit()]
+        assert texts == ['0 (800 milliseconds)', '3 (150 milliseconds)', '15 (750 milliseconds)',
+                         '163 (150 milliseconds)', '240 (800 milliseconds)']
+
+    def test_h224_unterminated_string(self, cmd_tshark, capture_file, test_env):
+        '''Frame 9 has video source id 6 and a string without a
+        terminator within 16 octets: no string item is shown (the
+        terminator offset was uninitialized before the fix); frame 7 has a
+        terminated string.'''
+        rows = self.h224_fields(cmd_tshark, capture_file, test_env, 'h224.ascii_str', 'h224.pan_cap',
+                                filt='frame.number in {7, 9}')
+        assert rows == [['7', 'Main camera', 'True'], ['9', '', 'False']]
+
+    def test_h224_client_ids(self, cmd_tshark, capture_file, test_env):
+        '''Client list with CME, FECC, an extended and a non-standard
+        client; the extended and non-standard IDs of the extra capability
+        messages are recognised with the extension bit set.'''
+        rows = self.h224_fields(cmd_tshark, capture_file, test_env, 'h224.number_of_clients',
+                                'h224.extended_client_id_list', 'h224.manufacturer_code',
+                                filt='frame.number in {2, 3, 10, 11, 15, 16}')
+        assert rows == [
+            ['2', '5', '0x7e', '0xb500534c'],
+            ['3', '3', '0x7e', ''],
+            ['10', '', '0x7e', ''],
+            ['11', '', '', '0xb500534c'],
+            ['15', '', '0x7e', ''],
+            ['16', '', '', '0xb500534c'],
+        ]
+
+    def test_h224_fecc_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every FECC message code from 1 to 7 and an unknown one.'''
+        rows = self.h224_fields(cmd_tshark, capture_file, test_env, 'h224.fecc_message_code',
+                                filt='h224.fecc_message_code')
+        assert [r[1] for r in rows] == ['0x01'] * 5 + ['0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x09']
