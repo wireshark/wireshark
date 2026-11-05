@@ -71693,3 +71693,115 @@ class TestDissectHipercontracer:
                              'hipercontracer.seq_number', 'hipercontracer.send_ttl',
                              heur=True)
         assert lines == ['19\t7\t10', '20\t8\t10', '24\t9\t11', '25\t10\t11']
+
+
+class TestDissectHiqnet:
+    '''HiQnet over UDP and TCP 3804 from the synthetic capture
+    hiqnet_coverage.pcap.gz (frames 1-52 UDP, 53-62 TCP).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hiqnet_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_hiqnet_frames(self, cmd_tshark, capture_file, test_env):
+        '''56 frames decode as HiQnet (every message ID, the header
+        options, two PDUs in a datagram, TCP with PDUs split and joined)
+        without malformed packets or error expert infos, in one and two
+        passes. The only expert info is the warning for an invalid
+        datatype in frame 26.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'hiqnet',
+                                 'frame.number', passes=passes)
+            assert len(lines) == 56
+            assert [int(n) for n in lines[-4:]] == [56, 58, 60, 62]
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                 'frame.number', passes=passes)
+            assert lines == []
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'hiqnet.datatype.invalid', 'frame.number',
+                                 passes=passes)
+            assert lines == ['26']
+
+    def test_hiqnet_event_log_reply(self, cmd_tshark, capture_file, test_env):
+        '''The event log reply: each string has a two octet length that
+        the dissector skipped, so the strings were read from the wrong
+        place; see "HiQnet: Fix offsets in the REQEVTLOG reply and object
+        tree".'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 44', 'hiqnet.entrieslen',
+                             'hiqnet.cat', 'hiqnet.eventid', 'hiqnet.priority',
+                             'hiqnet.eventseqnum', 'hiqnet.eventtime',
+                             'hiqnet.eventdate', 'hiqnet.information',
+                             'hiqnet.eventadddata')
+        assert lines == ['2\t0x0007,0x0003\t5,17\t1,0\t100,101\t'
+                         '12:34:56,12:34:57\t2026-01-02,2026-01-02\t'
+                         'Invalid Parameter,Not a Router\tdead00,<MISSING>']
+
+    def test_hiqnet_object_tree(self, cmd_tshark, capture_file, test_env):
+        '''MultiObjectParamSet: the object address is shown in each
+        Object subtree, not in the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hiqnet_coverage.pcap.gz'),
+                '-Y', 'frame.number == 30', '-V', '-O', 'hiqnet',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert ('        Object\n'
+                '            Virtual Device Object: 1.2.3.4\n'
+                '            Parameter count: 2\n') in stdout
+        assert ('        Object\n'
+                '            Virtual Device Object: 5.6.7.8\n'
+                '            Parameter count: 1\n') in stdout
+        header = stdout.split('    Header\n')[1].split('    Payload\n')[0]
+        assert 'Virtual Device Object' not in header
+
+    def test_hiqnet_data_types(self, cmd_tshark, capture_file, test_env):
+        '''MultiParamSet with the twelve data types.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 25', 'hiqnet.datatype',
+                             'hiqnet.string_value', 'hiqnet.block_value',
+                             'hiqnet.long_value', 'hiqnet.ulong64_value')
+        assert lines == ['0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08,0x09,0x0a,0x0b'
+                         '\tFader\t0102030405\t-123456\t1152921504606846976']
+
+    def test_hiqnet_network_info(self, cmd_tshark, capture_file, test_env):
+        '''DiscoInfo with TCP/IP, RS232 and an unknown network type.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {1, 2, 3}', 'hiqnet.netid',
+                             'hiqnet.macaddr', 'hiqnet.ipaddr',
+                             'hiqnet.baudrate', 'hiqnet.sernum')
+        assert lines == [
+            '1\t02:00:00:00:00:02\t192.0.2.2\t\t001a2b3c4d5e6f70',
+            '4\t\t\t115200\t001a2b3c4d5e6f70',
+            '2\t\t\t\t001a2b3c4d5e6f70',
+        ]
+
+    def test_hiqnet_header_options(self, cmd_tshark, capture_file, test_env):
+        '''Error string, multi-part and session number headers.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {19, 21, 22}', 'frame.number',
+                             'hiqnet.errstr', 'hiqnet.ssno', 'hiqnet.rembytes',
+                             'hiqnet.sessnum')
+        assert lines == [
+            '19\tBad device\t\t\t',
+            '21\t\t7\t1024\t',
+            '22\t\t\t\t43981',
+        ]
+
+    def test_hiqnet_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU over two TCP segments (frames 59-60) and a PDU whose
+        header is split after four octets (61-62) are dissected once the
+        last segment arrives.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'tcp && hiqnet', 'frame.number', 'hiqnet.msgid',
+                             'hiqnet.mlen')
+        assert lines == [
+            '56\t0x0008\t29',
+            '58\t0x0007,0x0005\t27,25',
+            '60\t0x0100,0x0005\t124,25',
+            '62\t0x0129\t37',
+        ]
