@@ -76450,3 +76450,121 @@ class TestDissectNetmon80211:
             '46\t0x00000000\t0x001d', '47\t0x00000000\t0x0024',
             '48\t0x00000001\t0x001d', '49\t0x00000001\t0x0024',
         ]
+
+
+class TestDissectPrism:
+    '''Prism capture header (DLT_PRISM_HEADER, link type 119) from the
+    synthetic capture prism_coverage.pcap.gz: 80 frames of a Prism header
+    (message codes 0x44 and 0x41, both byte orders, Qualcomm SIG A1/A2/B
+    DIDs) or an AVS header, followed by a minimal 802.11 frame.'''
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('prism_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_prism_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''80 frames decode without malformed packets or error expert infos
+        in one and two passes; 76 of them have a Prism header, two (75, 76)
+        carry an AVS header and two (77, 78) have no radio header.'''
+        for passes in ((), ('-2',)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+        assert len(self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number')) == 80
+        assert len(self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'prism', '-Tfields', '-eframe.number')) == 76
+        assert self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wlancap', '-Tfields', '-eframe.number') == ['75', '76']
+
+    def test_prism_unknown_preamble(self, cmd_tshark, capture_file, test_env):
+        '''SIG A1 preamble types above 3 gave a NULL string (frames 64, 65)
+        before "Prism: Fix radio metadata, unknown preamble and capture
+        offset".'''
+        rows = self._run(cmd_tshark, capture_file, test_env, '-V',
+                '-Y', 'frame.number in {64, 65}')
+        text = [r.strip() for r in rows if 'SIG Field' in r]
+        assert text == ['SIG Field Unknown preamble type 4',
+                        'SIG Field Unknown preamble type 15']
+
+    def test_prism_no_tree(self, cmd_tshark, capture_file, test_env):
+        '''The DID values are read without a tree, so the radio columns
+        (channel, rate, RSSI) are the same as with one. Frame 74 is the
+        reproducer: channel 6, rate 22 (11 Mb/s), RSSI 50.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-o', 'gui.column.format:"No.","%m","Chan","%F","Rate","%x","RSSI","%e"')
+        assert len(rows) == 80
+        # The rate column uses the locale's decimal separator.
+        by_no = {r.split()[0]: [t.replace(',', '.') for t in r.split()[1:]]
+                 for r in rows}
+        assert by_no['1'] == ['6', '1.0', '-40', 'dBm']
+        assert by_no['4'] == ['6', '54.0', '-40', 'dBm']
+        assert by_no['74'] == ['6', '11.0', '50', 'dBm']
+        # AVS header behind the Prism link type
+        assert by_no['75'] == ['2437', 'MHz', '2.0', '-40', 'dBm']
+        # a SIG rate without a tree, on channel 6 (frame 25)
+        assert by_no['25'] == ['6', '54.0']
+        fields = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {74}', '-Tfields', '-ewlan_radio.phy',
+                '-ewlan_radio.data_rate', '-ewlan_radio.channel')
+        assert fields == ['4\t11\t6']
+
+    def test_prism_phy_from_rate_and_channel(self, cmd_tshark, capture_file, test_env):
+        '''The PHY is guessed from the rate and the channel: DSSS rates are
+        11b, OFDM rates are 11g on 2.4 GHz and 11a on 5 GHz channels and
+        unknown without a channel. (The data rate is a float that tshark
+        prints with the decimal separator of the locale, so only integer
+        rates are listed; frames 2 and 11 have rates 5.5 and 3.5 Mb/s.)'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 11 && !(frame.number in {2, 11})',
+                '-Tfields', '-eframe.number',
+                '-ewlan_radio.phy', '-ewlan_radio.data_rate', '-ewlan_radio.channel')
+        assert rows == [
+            '1\t4\t1\t6', '3\t4\t22\t11', '4\t6\t54\t6',
+            '5\t5\t54\t36', '6\t4\t1\t6', '7\t5\t48\t149', '8\t4\t11\t6',
+            '9\t6\t6\t11', '10\t\t54\t',
+        ]
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wlan_radio.data_rate == 5.5 && frame.number <= 11',
+                '-Tfields', '-eframe.number', '-ewlan_radio.phy',
+                '-ewlan_radio.channel')
+        assert rows == ['2\t4\t1']
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'wlan_radio.data_rate == 3.5 && frame.number <= 11',
+                '-Tfields', '-eframe.number', '-ewlan_radio.phy',
+                '-ewlan_radio.channel')
+        assert rows == ['11\t\t6']
+
+    def test_prism_byte_order_and_unknown_did(self, cmd_tshark, capture_file, test_env):
+        '''Both byte orders (frames 8 and 9 are big-endian, message code 0x44
+        and 0x41), DIDs that are not supplied (frame 12) and an unknown
+        DID (frame 13).'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 9, 12, 13}', '-Tfields', '-eframe.number',
+                '-eprism.msgcode', '-eprism.did.channel', '-eprism.did.rate',
+                '-eprism.did.unknown')
+        assert rows == [
+            '8\t0x00000044\t6\t22\t',
+            '9\t0x00000041\t11\t12\t',
+            '12\t0x00000044\t\t\t',
+            '13\t0x00000044\t\t\t0x00001234',
+        ]
+
+    def test_prism_sig_rates(self, cmd_tshark, capture_file, test_env):
+        '''The SIG A1/A2/B rate text for OFDM, DSSS, HT and VHT (SU, MU) and
+        the limits of the rate tables.'''
+        rows = self._run(cmd_tshark, capture_file, test_env, '-V',
+                '-Y', 'prism.did.sigab')
+        text = [r.strip() for r in rows if r.strip().startswith('SIG Field')]
+        assert 'SIG Field Rate: 54.0 Mb/s OFDM Signaling:Dynamic BW 20' in text
+        assert 'SIG Field Rate: 11.0 Mb/s DSSS [SP]' in text
+        assert 'SIG Field Rate: 150.0 Mb/s HT MCS 7 NSS 1 BW 40 MHz [SGI] [LDPC] [STBC]' in text
+        assert 'SIG Field Rate: 0.0 Mb/s HT MCS 100 NSS 13 BW 40 MHz' in [t.rstrip() for t in text]
+        assert ('SIG Field Rate: 780.0 Mb/s VHT MCS 9 NSS 2 Partial AID 291 BW 80 MHz'
+                '    GroupID 63 [SU_PPDU] [TxBF]') in text
+        assert 'SIG Field VHT NSTS 1 2 0 3 BW 80 MHz [SGI] [LDPC] [STBC] GroupID 5 [MU_PPDU]' in text
+        assert len(text) == 56  # frames 14-65 and 70-73
