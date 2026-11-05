@@ -66998,3 +66998,168 @@ class TestDissectGsmSmsUd:
             '21\t73696e676c6520667261676d656e74',
             '22\t667261672033206f662032',
         ]
+
+
+class TestDissectGsmtap:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsmtap_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsmtap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''277 frames (274 GSMTAP over UDP, 3 from a LINKTYPE_GSMTAP_UM interface), none
+        malformed, in one and two passes; the only expert infos are the
+        two unknown GSMTAP versions (frames 273 and 274).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 277
+        protocols = {}
+        for r in rows:
+            protocols[r[1]] = protocols.get(r[1], 0) + 1
+        lte_rrc = sum(n for p, n in protocols.items() if p.startswith('LTE RRC'))
+        assert lte_rrc == 23
+        assert protocols['GSMTAP'] == 92
+        assert protocols['RRC'] == 64
+        assert protocols['GSM RLC/MAC'] == 44
+        assert protocols['LAPDm'] == 21
+        assert protocols['GSM SIM'] == 8
+        assert protocols['LAPSat'] == 4
+        assert protocols['LAPD'] == 4
+        assert protocols['GSMTAP CBCH'] == 2
+        assert sum(protocols.values()) - lte_rrc - 92 - 64 - 44 - 21 - 8 - 4 - 4 - 2 == 15
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                                flt='_ws.malformed || _ws.expert.severity >= error',
+                                extra=passes) == []
+            assert [r[0] for r in self._fields(
+                cmd_tshark, capture_file, test_env, flt='_ws.expert',
+                extra=passes)] == ['273', '274']
+
+    def test_gsmtap_header_length(self, cmd_tshark, capture_file, test_env):
+        '''Frame 271 has a header length octet of 0x44 (272 bytes) and the
+        BCCH block behind it: before "GSMTAP: Reject too short header
+        lengths" the length wrapped to 16 in an 8 bit variable and the
+        padding was decoded as the payload. Frame 272 has a header of 20.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.hdr_len',
+                            'gsmtap.chan_type', '_ws.col.info',
+                            flt='frame.number in {1,271,272}')
+        assert rows == [
+            ['1', '16', '1', '(CCCH) (RR) System Information Type 3 '],
+            ['271', '272', '1', '(CCCH) (RR) System Information Type 3 '],
+            ['272', '20', '1', '(CCCH) (RR) System Information Type 3 '],
+        ]
+
+    def test_gsmtap_unknown_version(self, cmd_tshark, capture_file, test_env):
+        '''Versions 1 and 3 give the warning and are not decoded further.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                            '_ws.col.protocol', flt='gsmtap.version.invalid')
+        assert [(r[0], r[1], r[2]) for r in rows] == [
+            ('273', 'Unknown protocol version', 'GSMTAP'),
+            ('274', 'Unknown protocol version', 'GSMTAP')]
+
+    def test_gsmtap_types(self, cmd_tshark, capture_file, test_env):
+        '''The payload types of the 275 frames of a known version (UM, Abis,
+        bursts, SIM, TETRA, WiMAX, GB, GMR-1, UMTS and LTE, log, DIAG, NAS,
+        E1/T1, RLP and an unknown type 0x30).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.type')
+        counts = {}
+        for r in rows:
+            if r[1]:
+                counts[int(r[1])] = counts.get(int(r[1]), 0) + 1
+        assert counts == {1: 95, 2: 1, 3: 1, 4: 9, 5: 10, 6: 1, 7: 8, 8: 1, 9: 1,
+                          10: 20, 11: 1, 12: 64, 13: 25, 14: 1, 15: 1, 16: 1,
+                          17: 1, 18: 4, 19: 28, 20: 1, 48: 1}
+
+    def test_gsmtap_um_channels(self, cmd_tshark, capture_file, test_env):
+        '''BCCH, CCCH, AGCH, PCH and RACH go to the CCCH decoder, the
+        dedicated channels to LAPDm (with the SACCH L1 header for the
+        SACCH variants), PACCH and PDTCH to RLC/MAC, CBCH to GSMTAP CBCH,
+        and PTCCH/D to the Timing Advance decoder.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.chan_type',
+                            '_ws.col.protocol', 'gsmtap.sacch_l1.ta',
+                            flt='frame.number <= 31')
+        by_chan = {}
+        for r in rows:
+            by_chan.setdefault(r[1], set()).add(r[2])
+        assert by_chan['1'] == by_chan['2'] == by_chan['4'] == by_chan['5'] == {'GSMTAP'}
+        for chan in ('6', '7', '8', '9', '10', '134', '135', '136', '137', '138'):
+            assert by_chan[chan] == {'LAPDm'}
+        assert by_chan['12'] == by_chan['15'] == {'GSMTAP CBCH'}
+        sacch = [r for r in rows if r[1] in ('134', '135', '136', '137', '138')]
+        assert len(sacch) == 10
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.sacch_l1.power_lev',
+                            'gsmtap.sacch_l1.ta', flt='gsmtap.sacch_l1.ta')
+        assert [r[1:] for r in rows if r[0] != '31'] == [['5', '1']] * 10
+        assert [r[1:] for r in rows if r[0] == '31'] == [['1', '2']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.ptcch.ta_val',
+                            '_ws.col.info', flt='gsmtap.ptcch.ta_idx')
+        assert len(rows) == 1
+        assert rows[0][1] == ','.join(str(v) for v in range(0, 64, 4))
+        assert rows[0][2] == 'Packet Timing Advance Control'
+
+    def test_gsmtap_voice(self, cmd_tshark, capture_file, test_env):
+        '''Every voice frame type from HR to AMR_RATSCCH_DATA and an
+        unknown one.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.um_voice_type')
+        voice = [r for r in rows if r[1]]
+        assert [r[1] for r in voice] == [str(n) for n in list(range(14)) + [0]]
+        info = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                            flt='gsmtap.um_voice_type')
+        assert info[0][1].endswith(': HR')
+        assert info[12][1].endswith(': AMR_RATSCCH_DATA')
+        assert info[13][1].endswith(': Unknown 13')
+
+    def test_gsmtap_sub_dissectors(self, cmd_tshark, capture_file, test_env):
+        '''SIM APDUs, Abis, GB LLC and SNDCP, WiMAX bursts, GMR-1, UMTS RRC,
+        LTE RRC, LTE MAC framed, LTE NAS, E1/T1 and GSM RLP reach their
+        dissectors; sub types the dissector does not know are shown as
+        data.'''
+        for flt, count in (('gsm_sim', 8), ('lapsat', 4), ('lte_rrc', 23), ('lapd', 4),
+                           ('v120', 2), ('fr', 2), ('sndcp', 1), ('mac-lte', 1),
+                           ('nas-eps', 2), ('gsm_rlp', 1), ('x75', 2), ('qcdiag', 1),
+                           ('gsmtap.type == 12', 64), ('gsmtap.type == 19', 28)):
+            assert len(self._fields(cmd_tshark, capture_file, test_env, flt=flt)) == count, flt
+        # RRC sub types 17 (SIB 1) and 41 (SIB 15.2) always give malformed
+        # packets with the payloads tried and are not in the capture; the
+        # two LTE RRC sub types above 22 are shown as data
+        subs = [int(r[1]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                                                'gsmtap.rrc_sub_type', flt='gsmtap.type == 12')]
+        assert subs == [n for n in range(66) if n not in (17, 41)]
+        info = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                            flt='gsmtap.type == 4')
+        assert info[0][1].endswith('SELECT File MF ')
+        assert info[1][1].startswith('ATR')
+        assert info[2][1].endswith('READ BINARY Offset=0 ')
+
+    def test_gsmtap_rlcmac(self, cmd_tshark, capture_file, test_env):
+        '''GPRS blocks (CS-1 to CS-4 from the block length, a block of an
+        unusual length decoded as CS-1) and EGPRS blocks with header types
+        1-3 reach RLC/MAC; the access burst forms of uplink frames of up to
+        5 octets are decoded; frames 275-277 come from a GSMTAP_UM link.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                            flt='gsm_rlcmac')
+        info = [r[1] for r in rows]
+        assert len(info) == 44
+        for cs in ('CS1', 'CS2', 'CS3', 'CS4'):
+            assert any('GPRS DL DATA: ' + cs in i for i in info)
+        # the MCS comes from the block header (MCS-1 does not occur)
+        mcs = set(i.split('MCS')[1].split()[0] for i in info if 'EGPRS' in i)
+        assert mcs == set('023456789')
+        assert sum(1 for i in info if i.startswith('PACCH ACCESS BURST')) == 3
+        assert any('GPRS DL CTRL' in i for i in info) and any('GPRS UL CTRL' in i for i in info)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap.type',
+                            '_ws.col.protocol', '_ws.col.info', flt='frame.number >= 275')
+        assert [r[2] for r in rows] == ['GSMTAP', 'GSM RLC/MAC', 'LAPDm']
+        assert rows[1][3].startswith('EGPRS DL DATA: MCS2 ')
+
+    def test_gsmtap_log_type(self, cmd_tshark, capture_file, test_env):
+        '''Type 0x10 records are handed to GSMTAP_LOG through the
+        gsmtap.type dissector table.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsmtap_log.string',
+                            flt='gsmtap_log')
+        assert rows == [['270', 'hello']]
