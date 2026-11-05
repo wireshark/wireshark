@@ -829,7 +829,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                                 proto_tree_add_uint_format_value(ti_loc, hf_hip_tlv_locator_reserved, tvb,
                                                            newoffset, 1, reserved,
                                                            "0x%x %s", reserved,
-                                                           (reserved >> 31) ? "(Preferred)" : "");
+                                                           (reserved & 0x01) ? "(Preferred)" : "");
                                 newoffset++;
                                 /* Locator lifetime */
                                 proto_tree_add_item(ti_loc, hf_hip_tlv_locator_lifetime, tvb,
@@ -950,6 +950,7 @@ dissect_hip_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_item *ti, i
                 if ((pv_len + newoffset) < tlv_len) {
                         /* Second Group ID*/
                         newoffset += pv_len;
+                        n = tvb_get_uint8(tvb, newoffset);
                         proto_tree_add_uint_format(t, hf_hip_tlv_dh_group_id, tvb, newoffset,
                                                    1, n, "%u (%s)", n,
                                                    val_to_str_const(n, dh_group_id_vals, "Unknown"));
