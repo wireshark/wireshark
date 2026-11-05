@@ -61021,3 +61021,93 @@ class TestDissectGbcs:
             ['48', 'GBCS GBZ', 'Response, ECS02 Set ESME Payment Mode to Credit'],
             ['49', 'ZigBee SE', 'ZCL Tunneling: Transfer Data, Seq: 6'],
         ]
+
+
+class TestDissectGcsna:
+    @staticmethod
+    def gcsna_fields(cmd_tshark, capture_file, test_env, filt, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gcsna_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gcsna_frames(self, cmd_tshark, capture_file, test_env):
+        '''24 frames carry GCSNA (23 in A21 on UDP 23272, the last one in an
+        Exported PDU), none is malformed or has an error expert info, in one
+        and two passes.'''
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env, 'gcsna.msghdr')
+        assert len(rows) == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gcsna_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gcsna_circuit_service(self, cmd_tshark, capture_file, test_env):
+        '''1x Circuit Service: option, alternates, IWS ID, flags and the
+        TLAC PDU after the reserved bits (the TLAC was misplaced by four
+        bits before the fix and CDMA2K failed on it).'''
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
+                'gcsna.Option', 'gcsna.Option', 'gcsna.altGCSNAOption',
+                'gcsna.iwsidValue', 'gcsna.ackRequired', 'gcsna.msgSequence',
+                'gcsna.NumTLACEncapsulated1xL3PDU', 'gcsna.Class',
+                'gcsna.ClassRev', 'cdma2k.MsgType')
+        assert rows == [
+            ['1', '0x00', '', '', '0', '0x00', '0x00', '0x00', '0x00', '0x02'],
+            ['2', '0x01', '', '', '0', '0x00', '0x00', '0x00', '0x01', '0x02'],
+            ['3', '0x02', '', '', '0', '0x00', '0x00', '0x00', '0x02', '0x02'],
+            ['4', '0x08', '', '', '0', '0x00', '0x00', '0x01', '0x00', '0x02'],
+            ['5', '0x01', '0x00,0x02', '', '1', '0x05', '0x00', '0x00', '0x01', '0x02'],
+            ['6', '0x02', '', '0x1234', '0', '0x3f', '0x00', '0x00', '0x02', '0x02'],
+            ['7', '0x08', '0x01,0x02,0x03,0x08', '0xffff', '1', '0x11', '0x03', '0x01', '0x00', '0x02'],
+            ['8', '0x00', '', '', '1', '0x01', '0x01', '0x00', '0x00', '0x02'],
+            ['9', '0x01', '0x00', '0x0007', '0', '0x02', '0x02', '0x00', '0x01', '0x02'],
+            ['10', '0x00', '', '', '0', '0x03', '0x00', '0x00', '0x00', '0x02'],
+            ['21', '0x00', '', '', '0', '0x00', '0x00', '0x00', '0x00', '0x02'],
+        ]
+
+    def test_gcsna_service_reject(self, cmd_tshark, capture_file, test_env):
+        '''Service Reject causes 0, 1, 2, 3 and 5, with a list of classes,
+        protocol revision, invalid message id and record types.'''
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
+                'gcsna.cause && frame.number != 22', 'gcsna.rejSequence',
+                'gcsna.cause', 'gcsna.Class', 'gcsna.ClassRev',
+                'gcsna.1xProtocolRevision', 'gcsna.invalidMessageId',
+                'gcsna.recordType')
+        assert rows == [
+            ['13', '0x01', '0x00', '', '', '', '', ''],
+            ['14', '0x02', '0x00', '0x00,0x01', '0x01,0x00', '', '', ''],
+            ['15', '0x03', '0x01', '', '', '0x07', '', ''],
+            ['16', '0x04', '0x02', '0x00', '0x02', '0x06', '', ''],
+            ['17', '0x05', '0x03', '', '', '', '0x55', ''],
+            ['18', '0x08', '0x05', '', '', '', '', '0x10,0x20,0x30'],
+            ['19', '0x09', '0x05', '', '', '', '', ''],
+            ['20', '0x03', '0x03', '', '', '', '0x09', ''],
+            ['21', '0x01', '0x01', '0x00', '0x00', '0x01', '', ''],
+            ['24', '0x0b', '0x03', '', '', '', '0x21', ''],
+        ]
+
+    def test_gcsna_several_messages(self, cmd_tshark, capture_file, test_env):
+        '''L2 acks and several messages in one GCSNA PDU.'''
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {11,12,20,23,24}', 'gcsna.ackSequence')
+        assert rows == [
+            ['11', '0x00'], ['12', '0x3f'], ['20', '0x01,0x02,0x04'],
+            ['23', '0x07'], ['24', '0x09'],
+        ]
+
+    def test_gcsna_reject_loop(self, cmd_tshark, capture_file, test_env):
+        '''A Service Reject behind 4100 L2 acks (8200 octets) is decoded
+        once (the uint16_t bit offset wrapped at 8192 bits before the fix
+        and the same messages were decoded again).'''
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 22', 'gcsna.cause', 'gcsna.rejSequence',
+                'gcsna.1xProtocolRevision')
+        assert rows == [['22', '0x01', '0x00', '0x00']]
+        rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 22', 'gcsna.ackSequence')
+        assert len(rows[0][1].split(',')) == 4100
