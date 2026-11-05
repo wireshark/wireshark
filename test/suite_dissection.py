@@ -75302,3 +75302,140 @@ class TestDissectIdmp:
                     '-Tfields', '-eframe.number', '-eidmp.reassembled.length',
                 ), encoding='utf-8', env=test_env)
             assert stdout.strip() == frames
+
+
+class TestDissectIdn:
+    @staticmethod
+    def idn_tree(cmd_tshark, capture_file, test_env, frame, *passes):
+        '''Lines of the IDN tree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Y', f'frame.number == {frame}',
+                '-V', '-O', 'idn',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        return lines[lines.index('ILDA Digital Network Protocol'):]
+
+    def test_idn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IDN (UDP 7255) and none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 75
+        assert protocols.count('IDN') == 75
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idn_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_idn_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command, the StageFeed commands (matched on the first
+        octet) and void messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 19',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tVOID',
+            '2\tPING_REQUEST',
+            '3\tPING_RESPONSE',
+            '4\tSCAN_REQUEST',
+            '5\tSCAN_RESPONSE',
+            '6\tSCAN_RESPONSE',
+            '7\tSERVICEMAP_REQUEST',
+            '8\tSERVICEMAP_RESPONSE',
+            '9\tSERVICEMAP_RESPONSE',
+            '10\tMESSAGE_ACK',
+            '11\tMESSAGE_ACK',
+            '12\tUnknown (0x20)',
+            '13\tMESSAGE_ACKREQ_CLOSE-VOID',
+            '14\tMESSAGE_CLOSE-VOID',
+            '15\tMESSAGE_ACKREQ-VOID',
+            '16\tStageFeed Command 0x70: Start',
+            '17\tStageFeed Command 0x71: Stop',
+            '18\tStageFeed Command 0x78: Drainroute Request',
+            '19\tStageFeed Command 0x79: Drainroute Response',
+        ]
+
+    def test_idn_service_map(self, cmd_tshark, capture_file, test_env):
+        '''A service map with a relay entry and two service entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-eidn.relay_count', '-eidn.service_count',
+                '-eidn.name', '-eidn.service_mode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1\t2\tRelay one,Graphic service,DMX service\t0x00,0x01,0x05'
+
+    def test_idn_configuration_tracking(self, cmd_tshark, capture_file, test_env):
+        '''A message without a configuration header uses the configuration
+        of the channel from an earlier frame (frame 21 after frame 20), in
+        one and two passes; samples with 16 bit precision tags.'''
+        for passes in ((), ('-2',)):
+            first = self.idn_tree(cmd_tshark, capture_file, test_env, 20, *passes)
+            second = self.idn_tree(cmd_tshark, capture_file, test_env, 21, *passes)
+            assert '    Samples ( X Y R G B I )' in first
+            col = [l for l in first if l.startswith('    Samples (')]
+            assert col == [l for l in second if l.startswith('    Samples (')]
+            assert len(col) == 1
+            assert '        Samples   1 -  10' in second
+            assert '        Samples  11 -  14' in second
+            wave = self.idn_tree(cmd_tshark, capture_file, test_env, 25, *passes)
+            assert '    Samples ( X Y Z U4 R G B U1 U2 NOP H H WP BB )' in wave
+            assert '            Sample   1:     1   515     4     5     6     7     8     9    10    11    12    13    14    15' in wave
+
+    def test_idn_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''The notes and warnings the capture is built to raise.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\tNo configuration is associated with this message',
+            '34\tNo configuration is associated with this message',
+            '35\tSCWC is zero/unknown',
+            '65\tAudio samples with zero channels or zero sample length',
+            '66\tAudio samples with zero channels or zero sample length',
+            '69\tAudio sample size mismatch: expected 10 bytes, got 40 bytes (max_samples:5, channels 1, byte_len: 2)',
+            '70\tAudio sample size mismatch: expected 600 bytes, got 40 bytes (max_samples:200, channels 1, byte_len: 3)',
+            '71\tAudio sample size mismatch: expected 0 bytes, got 8 bytes (max_samples:0, channels 1, byte_len: 2)',
+            '72\tAudio samples with zero channels or zero sample length',
+            '73\tNo configuration is associated with this message',
+            '74\tSCWC is zero/unknown',
+        ]
+
+    def test_idn_audio_samples(self, cmd_tshark, capture_file, test_env):
+        '''Audio samples in groups of ten with the remainder in a last
+        group (frame 48: 25 samples of two 16 bit channels), and the
+        audio message sent without a configuration header (frame 49).'''
+        lines = self.idn_tree(cmd_tshark, capture_file, test_env, 48)
+        item = [l for l in lines if l.startswith('    Audio Samples ')]
+        assert len(item) == 1
+        import re
+        # the frequency is printed with the locale's decimal separator
+        assert re.fullmatch(r'    Audio Samples 25 Samples, 2500[.,]00 kHz, format 0x1\(16 Bit Words\)', item[0])
+        assert '        Samples 1-10 Channel:  1  2' in lines
+        assert '        Samples 11-20 Channel:  1  2' in lines
+        assert '        Samples 21-25 ' in lines
+        assert '            Sample    1:      1    515  ' in lines
+        lines = self.idn_tree(cmd_tshark, capture_file, test_env, 49)
+        assert any(l.startswith('        Samples 1-5') for l in lines)
+
+    def test_idn_audio_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frame 72 claims 65535 bytes with zero channels and no sample
+        bytes. It used to allocate memory for every claimed sample; it now
+        gives a warning and dissects the rest of the capture.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('idn_coverage.pcap.gz'),
+                '-Y', 'frame.number == 72',
+                '-Tfields', '-eidn.total_size', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '65535\tAudio samples with zero channels or zero sample length'
