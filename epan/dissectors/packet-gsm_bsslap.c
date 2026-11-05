@@ -48,6 +48,7 @@ static int ett_bsslap_cell_list_disc3;
 
 static expert_field ei_gsm_bsslap_missing_mandatory_element;
 static expert_field ei_gsm_bsslap_not_decoded_yet;
+static expert_field ei_gsm_bsslap_cell_id_overrun;
 
 /* Table 5.1: Element Identifier codes */
 #define BSSLAP_PARAM_TIMING_ADVANCE                  0x01
@@ -273,7 +274,7 @@ static uint16_t
 de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, unsigned len, char *add_string _U_, int string_len _U_)
 {
     uint32_t curr_offset;
-    uint8_t consumed;
+    uint32_t consumed;
     uint32_t cell_id_disc;
     uint8_t num_cells;
     proto_item  *item = NULL, *subitem = NULL;
@@ -323,6 +324,11 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 consumed = len;
                 break;
         }
+        if (consumed > len) {
+            proto_tree_add_expert(subtree, pinfo, &ei_gsm_bsslap_cell_id_overrun, tvb, curr_offset, len);
+            curr_offset += len;
+            break;
+        }
         curr_offset += consumed;
         len-=consumed;
         /* length is "cell id" + discriminator */
@@ -360,8 +366,8 @@ de_lac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset,
     uint32_t curr_offset;
 
     curr_offset = offset;
-    proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    curr_offset++;
+    proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    curr_offset += 2;
 
     return curr_offset - offset;
 }
@@ -917,7 +923,7 @@ proto_register_gsm_bsslap(void)
         },
         { &hf_gsm_bsslap_lac,
             {"Location Area Code", "gsm_bsslap.lac",
-            FT_UINT8, BASE_DEC, NULL, 0x3f,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_bsslap_cell_id_disc,
@@ -934,6 +940,7 @@ proto_register_gsm_bsslap(void)
 
     static ei_register_info ei[] = {
         { &ei_gsm_bsslap_missing_mandatory_element, { "gsm_bsslap.missing_mandatory_element", PI_PROTOCOL, PI_WARN, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
+        { &ei_gsm_bsslap_cell_id_overrun, { "gsm_bsslap.cell_id_overrun", PI_MALFORMED, PI_ERROR, "Cell identification overruns the Cell Identity List", EXPFILL }},
         { &ei_gsm_bsslap_not_decoded_yet, { "gsm_bsslap.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
     };
 
