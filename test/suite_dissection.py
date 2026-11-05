@@ -63012,3 +63012,65 @@ class TestDissectGlusterfsHndsk:
         rows = [r.split('\t') for r in stdout.splitlines()]
         assert ['vol0', '', ''] in rows
         assert ['', 'srv1-1234-2026/11/05-09:00:00', '3'] in rows
+
+
+class TestDissectGlusterPmap:
+    # Frames of the Portmap and Dump messages in gluster_pmap_coverage.pcap.gz
+    # (RPC over UDP and TCP port 24007, found by the RPC heuristics).
+
+    def test_gluster_pmap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Gluster Portmap and Gluster Dump message decodes without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_pmap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 64
+        assert protocols.count('Gluster Portmap') == 32
+        assert protocols.count('Gluster Dump') == 14
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gluster_pmap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_gluster_pmap_portbybrick(self, cmd_tshark, capture_file, test_env):
+        '''PORTBYBRICK carries the brick name; the reply has the return
+        value, errno, status and port (UDP and TCP).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_pmap_coverage.pcap.gz'),
+                '-Y', 'gluster.brick || gluster.brick.port',
+                '-Tfields', '-eframe.number', '-egluster.brick',
+                '-egluster.brick.status', '-egluster.brick.port',
+                '-egluster.op_errno',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['3'][0] == '/bricks/vol0/brick1'
+        assert by_frame['4'] == ['', '0', '49152', '0']
+        assert by_frame['8'] == ['', '-1', '0', '2']
+        assert by_frame['32'][0] == '/bricks/tcp/brick'
+        assert by_frame['34'] == ['', '0', '49160', '0']
+
+    def test_gluster_dump_reply(self, cmd_tshark, capture_file, test_env):
+        '''The DUMP reply lists the available programs with their numbers
+        and versions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_pmap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 47',
+                '-Tfields', '-egluster.dump.progname',
+                '-egluster.dump.prognum', '-egluster.dump.progver',
+                '-egluster.gfsid',
+            ), encoding='utf-8', env=test_env)
+        names, nums, vers, gfsid = stdout.rstrip('\n').split('\t')
+        assert names.split(',') == ['GlusterFS Handshake', 'GlusterFS 4.x v1',
+                'GlusterFS 3.3', 'GlusterFS Callback', 'Gluster Portmap',
+                'Gluster Dump', 'GlusterD svc cli', 'GlusterD mgmt']
+        assert nums.split(',') == ['14398633', '1298437', '1298437',
+                '52743234', '34123456', '123451501', '1238463', '1238433']
+        assert vers.split(',') == ['2', '400', '330', '1', '1', '1', '2', '3']
+        assert gfsid == '0x0000000000001111'
