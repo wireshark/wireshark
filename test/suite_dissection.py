@@ -62780,3 +62780,66 @@ class TestDissectGlusterCli:
         assert ['/var/lib/glusterd', '', '', ''] in rows
         assert ['', 'label0', '', ''] in rows
         assert any(r[2] in ('0x00000000', '0x00000001') and r[3].startswith('/mnt/gluster') for r in rows)
+
+
+class TestDissectGlusterd:
+    # glusterd_coverage.pcap.gz: the GD_MGMT (versions 1, 2, 3), GD_BRICK
+    # and GD_FRIEND programs as RPC over TCP (frames 1-?) and UDP port 24007.
+
+    def test_glusterd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every decoded procedure of the three programs decodes without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 331
+        assert protocols.count('GlusterD Management') == 268
+        assert protocols.count('GlusterD Brick') == 40
+        assert protocols.count('GlusterD Friend') == 20
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glusterd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_glusterd_probe_query(self, cmd_tshark, capture_file, test_env):
+        '''PROBE_QUERY: the UUID (sent as 16 words of one octet each), the
+        host name and the port.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 6 && frame.number <= 9',
+                '-Tfields', '-eframe.number', '-eglusterd.uuid',
+                '-eglusterd.hostname', '-eglusterd.port', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {r.split('\t')[0]: r.split('\t')[1:] for r in stdout.splitlines()}
+        assert rows['6'] == ['11161b20-252a-2f34-393e-43484d52575c',
+                'peer1.example.net', '24007', 'V1 PROBE_QUERY Call']
+        assert rows['7'][0] == '22272c31-363b-4045-4a4f-54595e63686d'
+        assert rows['7'][1:3] == ['peer2.example.net', '24007']
+        assert rows['9'][1:3] == ['x', '1']
+
+    def test_glusterd_mgmt_v3(self, cmd_tshark, capture_file, test_env):
+        '''Version 3 carries a transaction ID next to the UUID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterd_coverage.pcap.gz'),
+                '-Y', 'glusterd.tnx_id',
+                '-Tfields', '-eglusterd.tnx_id',
+            ), encoding='utf-8', env=test_env)
+        ids = set(stdout.split())
+        assert ids == {'999ea3a8-adb2-b7bc-c1c6-cbd0d5dadfe4'}
+
+    def test_glusterd_operations(self, cmd_tshark, capture_file, test_env):
+        '''STAGE_OP carries the glusterd operation of the transaction.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterd_coverage.pcap.gz'),
+                '-Y', 'glusterd.op',
+                '-Tfields', '-eglusterd.op',
+            ), encoding='utf-8', env=test_env)
+        ops = {int(x) for x in stdout.replace(',', '\n').split()}
+        assert {0, 3, 15, 30, 57}.issubset(ops)
+        assert {1, 2, 5, 14, 18}.issubset(ops)
