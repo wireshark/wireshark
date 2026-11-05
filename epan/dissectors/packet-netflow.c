@@ -144,6 +144,7 @@
 #include "packet-tcp.h"
 #include "packet-udp.h"
 #include "packet-ntp.h"
+#include "packet-e212.h"
 
 void proto_register_netflow(void);
 void proto_reg_handoff_netflow(void);
@@ -5416,6 +5417,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
         uint32_t     pen;
         const char *pen_str;
         int          vstr_len;
+        const uint8_t *string_value;
+        uint64_t     imsi_value;
 
         type    = entries_p[i].type;
         length  = entries_p[i].length;
@@ -7894,8 +7897,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
 
         case 455: /* mobileIMSI */
-            ti = proto_tree_add_item(pdutree, hf_cflow_mobile_imsi,
-                                     tvb, offset, length, ENC_UTF_8);
+            ti = proto_tree_add_item_ret_string(pdutree, hf_cflow_mobile_imsi,
+                                     tvb, offset, length, ENC_UTF_8, pinfo->pool, &string_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, (const char *)string_value);
             break;
 
         case 456: /* mobileMSISDN */
@@ -9240,8 +9244,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 227):           /* GTPV1_END_USER_IMSI */
         case ((VENDOR_NTOP << 16) | 227): /* GTPV1_END_USER_IMSI */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_gtpv1_end_user_imsi,
-                                     tvb, offset, length, ENC_ASCII);
+            ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ntop_gtpv1_end_user_imsi,
+                                     tvb, offset, length, ENC_ASCII, pinfo->pool, &string_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, (const char *)string_value);
             break;
 
         case (NTOP_BASE + 228):           /* GTPV1_END_USER_MSISDN */
@@ -9342,8 +9347,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 247):           /* RADIUS_USER_IMSI */
         case ((VENDOR_NTOP << 16) | 247): /* RADIUS_USER_IMSI */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_radius_user_imsi,
-                                     tvb, offset, length, ENC_ASCII);
+            ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ntop_radius_user_imsi,
+                                     tvb, offset, length, ENC_ASCII, pinfo->pool, &string_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, (const char *)string_value);
             break;
 
         case (NTOP_BASE + 248):           /* RADIUS_USER_IMEI */
@@ -9438,8 +9444,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case (NTOP_BASE + 276):           /* GTPV2_END_USER_IMSI */
         case ((VENDOR_NTOP << 16) | 276): /* GTPV2_END_USER_IMSI */
-            ti = proto_tree_add_item(pdutree, hf_pie_ntop_gtpv2_end_user_imsi,
-                                     tvb, offset, length, ENC_ASCII);
+            ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ntop_gtpv2_end_user_imsi,
+                                     tvb, offset, length, ENC_ASCII, pinfo->pool, &string_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, (const char *)string_value);
             break;
 
         case (NTOP_BASE + 277):           /* GTPV2_END_USER_MSISDN */
@@ -10688,8 +10695,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_BIG_ENDIAN);
             break;
         case ((VENDOR_IXIA << 16) | 181):
-            ti = proto_tree_add_item(pdutree, hf_pie_ixia_imsi,
-                                     tvb, offset, length, ENC_ASCII);
+            ti = proto_tree_add_item_ret_string(pdutree, hf_pie_ixia_imsi,
+                                     tvb, offset, length, ENC_ASCII, pinfo->pool, &string_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, (const char *)string_value);
             break;
         case ((VENDOR_IXIA << 16) | 182):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_user_agent,
@@ -11131,8 +11139,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_ASCII);
             break;
         case ((VENDOR_IXIA << 16) | 289):
-            ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_IMSI,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item_ret_uint64(pdutree, hf_pie_ixia_gtp_IMSI,
+                                     tvb, offset, length, ENC_BIG_ENDIAN, &imsi_value);
+            add_assoc_imsi_item(tvb, pinfo, pdutree, wmem_strdup_printf(pinfo->pool, "%" PRIu64, imsi_value));
             break;
         case ((VENDOR_IXIA << 16) | 290):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_gtp_ULI_SAI_SAC,
