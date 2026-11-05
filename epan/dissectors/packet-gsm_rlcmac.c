@@ -4965,7 +4965,7 @@ static CSN_CallBackStatus_t callback_init_Cell_Sel_Param_2_FREQUENCY_DIFF(proto_
   uint8_t freq_diff_len = *(uint8_t*)param1;
   CellSelectionParamsWithFreqDiff_t *pCell_Sel_Param = (CellSelectionParamsWithFreqDiff_t*)param2;
 
-  for( i=0; i<16; i++, pCell_Sel_Param++ )
+  for( i=0; i<32; i++, pCell_Sel_Param++ )
   {
     pCell_Sel_Param->FREQ_DIFF_LENGTH = freq_diff_len;
   }
@@ -5511,7 +5511,7 @@ static CSN_CallBackStatus_t callback_init_luMode_Cell_Sel_Param_FREQUENCY_DIFF(p
   uint8_t freq_diff_len = *(uint8_t*)param1;
   lu_ModeOnlyCellSelectionParamsWithFreqDiff_t *pArray = (lu_ModeOnlyCellSelectionParamsWithFreqDiff_t*)param2;
 
-  for( i=0; i<16; i++, pArray++ )
+  for( i=0; i<32; i++, pArray++ )
   {
     pArray->FREQ_DIFF_LENGTH = freq_diff_len;
   }
