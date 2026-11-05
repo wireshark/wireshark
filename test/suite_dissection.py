@@ -68415,3 +68415,71 @@ class TestDissectH224:
         rows = self.h224_fields(cmd_tshark, capture_file, test_env, 'h224.fecc_message_code',
                                 filt='h224.fecc_message_code')
         assert [r[1] for r in rows] == ['0x01'] * 5 + ['0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x09']
+
+
+class TestDissectH225:
+    '''H.225.0 RAS (UDP 1719) and call signalling (Q.931 in TPKT, with
+    H.245 tunnelled or on its own connection) from the synthetic capture
+    h225_coverage.pcap.gz.  The PER encodings of the 350 frames are
+    produced by a generator driven by the ASN.1 sources of H.225, H.235
+    and H.245; frames 224-319 are RAS request/response sequences, 320-328
+    NonStandardParameters, 331-350 an H.225 call.'''
+
+    @staticmethod
+    def h225_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h225_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h225_protocols(self, cmd_tshark, capture_file, test_env):
+        '''350 frames; none is malformed or has an error expert info, in
+        one and two passes.'''
+        rows = self.h225_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 350
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.225.0') == 307
+        assert protocols.count('H.225.0/H.245') == 34
+        assert protocols.count('H.245') == 7
+        for passes in ((), ('-2',)):
+            rows = self.h225_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h225_ras_matching(self, cmd_tshark, capture_file, test_env):
+        '''Request/response matching of the gatekeeper category: response
+        in frame 226, duplicate request, duplicate responses, a new request
+        after 400 s (new call), and a response without request.'''
+        rows = self.h225_fields(cmd_tshark, capture_file, test_env, 'h225.ras.rspframe',
+                                'h225.ras.reqframe', 'h225.ras.dup',
+                                filt='frame.number >= 224 && frame.number <= 236')
+        assert [r[1:] for r in rows[:7]] == [
+            ['', '', ''], ['', '224', ''], ['225', '', '1000'], ['', '224', '1000'], ['', '224', '1000'],
+            ['', '', ''],      # response with another request number
+            ['', '', '']]      # response in an unknown conversation
+
+    def test_h225_ras_stats(self, cmd_tshark, capture_file, test_env):
+        '''The RAS response time table has one row per category.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('h225_coverage.pcap.gz'),
+                '-q', '-z', 'h225_ras,rtd'), encoding='utf-8', env=test_env, timeout=300)
+        assert 'Gatekeeper' in stdout and 'Location' in stdout
+
+    def test_h225_h245_connection(self, cmd_tshark, capture_file, test_env):
+        '''The H.245 address of the Connect (frame 334) makes TCP port
+        11001 an H.245 connection: frames 336-341 are H.245.'''
+        rows = self.h225_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
+                                filt='frame.number >= 336 && frame.number <= 341')
+        assert [r[1] for r in rows] == ['H.245'] * 6
+
+    def test_h225_nonstandard_h221(self, cmd_tshark, capture_file, test_env):
+        '''NonStandardParameter with the NetMeeting H.221 identifier goes to
+        the h221nonstd dissector: the 24 octet item with 0x0100 at offset 22
+        shows the codec, the 23 octet one (it threw an exception before the
+        "Require 24 bytes" fix) shows nothing.'''
+        rows = self.h225_fields(cmd_tshark, capture_file, test_env, 'h221nonstd.netmeeting.codec',
+                                'h221nonstd.netmeeting.non_standard',
+                                filt='frame.number >= 320 && frame.number <= 326')
+        assert [bool(r[1]) for r in rows] == [True, True, False, False, False, False, True]
+        assert [bool(r[2]) for r in rows] == [False, False, False, True, False, False, False]
