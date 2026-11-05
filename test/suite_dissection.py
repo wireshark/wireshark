@@ -65609,3 +65609,68 @@ class TestDissectGsmAGm:
                 '-Y', 'gsm_a.gm.sm.pdp_type_number', '-Tfields', '-egsm_a.gm.sm.pdp_type_number')
         nums = {i for l in stdout.split() for i in l.split(',')}
         assert nums == {'0', '1', '9', '33', '48', '87', '119', '141'}
+
+
+class TestDissectGsmARp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gsm_a_rp_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _frames(cmd_tshark, capture_file, test_env, flt, *passes):
+        stdout = TestDissectGsmARp._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                           '-Y', flt, '-Tfields', '-eframe.number')
+        return [int(n) for n in stdout.split()]
+
+    def test_gsm_a_rp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed and no expert info has the error severity, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self._frames(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000', *passes) == []
+
+    def test_gsm_a_rp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame is the same in one and two passes.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_gsm_a_rp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''48 frames: 2 SCCP set up, 36 CP messages on the A interface, 7 SIP MESSAGE
+        requests and 5 HTTP requests (NF SMS). 44 of them have an RP message; the
+        count per RP message type.'''
+        def count(flt):
+            return len(self._frames(cmd_tshark, capture_file, test_env, flt))
+        assert count('frame') == 48
+        assert count('gsm_a.rp') == 44
+        assert count('gsm_a.rp.msg_type == 0x00') == 5    # RP-DATA, MS to network
+        assert count('gsm_a.rp.msg_type == 0x01') == 4    # RP-DATA, network to MS
+        assert count('gsm_a.rp.msg_type == 0x02') == 5    # RP-ACK, MS to network
+        assert count('gsm_a.rp.msg_type == 0x03') == 5    # RP-ACK, network to MS
+        assert count('gsm_a.rp.msg_type == 0x04') == 7    # RP-ERROR, MS to network
+        assert count('gsm_a.rp.msg_type == 0x05') == 7    # RP-ERROR, network to MS
+        assert count('gsm_a.rp.msg_type == 0x06') == 6    # RP-SMMA
+        assert count('sip && gsm_a.rp') == 7
+
+    def test_gsm_a_rp_embedded_tpdu(self, cmd_tshark, capture_file, test_env):
+        '''The TPDU in the RP user data is handed to the GSM SMS dissector.'''
+        frames = self._frames(cmd_tshark, capture_file, test_env, 'gsm_sms')
+        assert len(frames) == 21
+        assert 3 in frames and 6 in frames
+
+    def test_gsm_a_rp_nf_media_type(self, cmd_tshark, capture_file, test_env):
+        '''Five HTTP requests carry an SMS payload. When the contentId of the JSON part
+        matches the Content-Id of the SMS part (frames 44 and 46) the part is dissected
+        as a DTAP message, otherwise as an RP message (frames 45, 47, 48).'''
+        assert self._frames(cmd_tshark, capture_file, test_env, 'http && gsm_a.dtap') == [44, 46]
+        assert self._frames(cmd_tshark, capture_file, test_env, 'http && gsm_a.rp && !gsm_a.dtap') == [45, 47, 48]
+
+    def test_gsm_a_rp_causes(self, cmd_tshark, capture_file, test_env):
+        '''RP-Cause values: 8 (operator determined barring) and 22 (memory capacity exceeded).'''
+        for cause in (8, 22):
+            assert len(self._frames(cmd_tshark, capture_file, test_env, f'gsm_a.rp.cause == {cause}')) >= 2
+
+    def test_gsm_a_rp_extraneous_data(self, cmd_tshark, capture_file, test_env):
+        '''Two RP messages have extra octets after the last element (frames 33 and 34).'''
+        assert self._frames(cmd_tshark, capture_file, test_env, 'gsm_a.rp.extraneous_data') == [33, 34]
