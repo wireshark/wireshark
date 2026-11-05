@@ -172,6 +172,14 @@ class TestWslua:
         '''wslua fields'''
         check_lua_script('field.lua', dhcp_pcap, True, '-q', '-c1')
 
+    def test_wslua_postdissector_two_pass(self, check_lua_script):
+        '''wslua postdissector field extractors on the first of two passes'''
+        args = ('-T', 'fields', '-e', 'test_postdissector.seen')
+        one_pass = check_lua_script('postdissector_fields.lua', dhcp_pcap, False, *args)
+        two_pass = check_lua_script('postdissector_fields.lua', dhcp_pcap, False, '-2', *args)
+        assert one_pass.stdout.split() == ['1', '2', '3', '4']
+        assert two_pass.stdout == one_pass.stdout
+
     def test_wslua_request_protocol_fields(self, check_lua_script):
         '''wslua request_protocol_fields'''
         check_lua_script('request_protocol_fields.lua', empty_pcap, True, '-q')

@@ -1313,6 +1313,17 @@ extern bool wslua_has_field_extractors(void);
 extern void lua_prime_all_fields(proto_tree* tree);
 
 /**
+ * @brief Sets the fields wanted by every Lua postdissector.
+ *
+ * This lets the postdissectors' field extractors get their values
+ * whenever a protocol tree is needed for them, including the first
+ * pass of two-pass dissection.
+ *
+ * @param hfids The field ids of the registered field extractors.
+ */
+extern void wslua_set_postdissector_wanted_hfids(const GArray* hfids);
+
+/**
  * @brief Commits protocol changes.
  *
  * This function commits any pending protocol changes made during the current Lua script execution.

@@ -516,6 +516,7 @@ bool wslua_has_field_extractors(void) {
 static bool fake_tap;
 void lua_prime_all_fields(proto_tree* tree _U_) {
     GString* fake_tap_filter = g_string_new("frame");
+    GArray* hfids = g_array_new(false, false, sizeof(int));
     unsigned i;
     df_error_t *df_err;
 
@@ -529,11 +530,19 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
         }
 
         g_string_append_printf(fake_tap_filter, " || %s", f->hfi->abbrev);
+        g_array_append_val(hfids, f->hfi->id);
         fake_tap = true;
     }
 
     g_ptr_array_free(wanted_fields,true);
     wanted_fields = NULL;
+
+    /*
+     * The fake tap doesn't make tshark build a protocol tree on the
+     * first of two passes, but wanted hfids of postdissectors do.
+     */
+    wslua_set_postdissector_wanted_hfids(hfids);
+    g_array_free(hfids, true);
 
     if (fake_tap && fake_tap_filter->len > strlen("frame")) {
         /* a boring tap :-) */
