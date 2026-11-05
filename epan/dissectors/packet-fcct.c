@@ -13,6 +13,7 @@
 
 #include <epan/packet.h>
 #include <epan/to_str.h>
+#include <wsutil/pint.h>
 #include "packet-fc.h"
 #include "packet-fcct.h"
 
@@ -127,8 +128,8 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     proto_item *ti;
     proto_tree *fcct_tree;
     tvbuff_t *next_tvb;
-    int in_id,
-        offset = 0;
+    uint8_t in_id[3];
+    int offset = 0;
     uint8_t server;
     fc_ct_preamble cthdr;
     address addr;
@@ -164,8 +165,8 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         col_append_str (pinfo->cinfo, COL_INFO, " Reserved");
     }
 
-    in_id = cthdr.in_id;
-    in_id = g_htonl (in_id) >> 8;
+    /* The FC address of the IN_ID, in network byte order */
+    phtonu24 (in_id, cthdr.in_id);
 
     /* Determine server */
     server = get_gs_server (cthdr.gstype, cthdr.gssubtype);
@@ -178,7 +179,7 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         proto_tree_add_item (fcct_tree, hf_fcct_revision, tvb, offset++,
                              sizeof (uint8_t), ENC_BIG_ENDIAN);
-        set_address(&addr, AT_FC, 3, &in_id);
+        set_address(&addr, AT_FC, 3, in_id);
         proto_tree_add_string (fcct_tree, hf_fcct_inid, tvb, offset, 3,
                                address_to_str(pinfo->pool, &addr));
         offset += 3; /* sizeof FC address */
