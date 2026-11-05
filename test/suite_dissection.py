@@ -77436,3 +77436,109 @@ class TestDissectIeee802a:
             '7\t32962\t0x0000\tIEEE802a',
             '8\t94\t0x0800\tIEEE802a',
         ]
+
+
+class TestDissectIfcp:
+    def test_ifcp_clean(self, cmd_tshark, capture_file, test_env):
+        '''23 frames carry iFCP (24 PDUs, found by the default heuristic
+        on any port; frame 23, the first part of a split PDU, does not)
+        and none is malformed or has a warning or an error, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'ifcp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = stdout.split()
+        assert len(frames) == 23
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ifcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ifcp_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same iFCP and FC fields (the TCP
+        reassembly note of frame 23 is added by the second pass only).'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ifcp_coverage.pcap.gz'),
+                    '-Y', 'ifcp', '-Tfields', '-eframe.number',
+                    '-e_ws.col.protocol', '-e_ws.col.info', '-eifcp.sof',
+                    '-eifcp.eof', '-eifcp.flags', '-eifcp.encap.framelen',
+                    '-efc.ftype', '-efc.ox_id',
+                ), encoding='utf-8', env=test_env)
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+
+    def test_ifcp_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''SOF and EOF of every combination, frame length in words and
+        the protocol and version fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'ifcp && frame.number <= 16',
+                '-Tfields', '-eframe.number', '-eifcp.sof', '-eifcp.eof',
+                '-eifcp.encap.framelen', '-eifcp.encap.proto',
+                '-eifcp.encap.version',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [(l[1].split(',')[0], l[2].split(',')[0], l[3]) for l in lines] == [
+            ('0x2e', '0x41', '24'), ('0x2e', '0x42', '16'), ('0x28', '0x41', '20'),
+            ('0x29', '0x44', '18'), ('0x2d', '0x46', '24'), ('0x31', '0x49', '16'),
+            ('0x35', '0x41', '20'), ('0x36', '0x42', '18'), ('0x39', '0x4e', '24'),
+            ('0x2e', '0x4f', '16'), ('0x35', '0x50', '20'), ('0x20', '0x99', '18'),
+            ('0x00', '0x41', '24'),
+        ]
+        assert all(l[4:] == ['2', '1'] for l in lines)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-V', '-O', 'ifcp',
+            ), encoding='utf-8', env=test_env)
+        assert 'iFCP (SOFi3/EOFn)' in stdout
+
+    def test_ifcp_flags(self, cmd_tshark, capture_file, test_env):
+        '''iFCP flags, common flags and LS_COMMAND_ACC (frames 17-21).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'ifcp.flags && frame.number >= 17 && frame.number <= 21',
+                '-Tfields', '-eframe.number', '-eifcp.flags',
+                '-eifcp.flags.ses', '-eifcp.flags.trp', '-eifcp.flags.spc',
+                '-eifcp.common_flags', '-eifcp.common_flags.crcv',
+                '-eifcp.ls_command_acc',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:5] == ['17', '0x04', 'True', 'False', 'False']
+        assert lines[1][:5] == ['18', '0x02', 'False', 'True', 'False']
+        assert lines[2][:5] == ['19', '0x01', 'False', 'False', 'True']
+        assert lines[3][:5] == ['20', '0x07', 'True', 'True', 'True']
+        assert lines[3][5:] == ['0x01', 'True', '0x02']
+        assert lines[4][5:7] == ['0x04', 'False']
+
+    def test_ifcp_fc(self, cmd_tshark, capture_file, test_env):
+        '''The FC frames inside are dissected (FCP, BLS, ELS), including
+        two frames in one segment and a frame split over two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 6, 22, 24, 25, 35}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tFCP', '5\tBLS', '6\tFC ELS', '22\tFC ELS', '24\tFCP',
+            '25\tFCP', '35\tFC ELS']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22', '-Tfields', '-eifcp.eof',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x41,0x41,0x41,0x42,0x42,0x42'
+
+    def test_ifcp_desegment_pref(self, cmd_tshark, capture_file, test_env):
+        '''Without desegmentation the split frame is not found.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ifcp.desegment:FALSE',
+                '-r', capture_file('ifcp_coverage.pcap.gz'),
+                '-Y', 'ifcp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 22
+        assert '24' not in stdout.split()
