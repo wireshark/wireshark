@@ -66449,3 +66449,155 @@ class TestDissectGsmOsmux:
         for line in stdout.splitlines():
             if line.strip().startswith('Osmux Total Packets'):
                 assert line.split()[3] == '35'
+
+
+class TestDissectGsmRlcmac:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsm_rlcmac_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsm_rlcmac_protocols(self, cmd_tshark, capture_file, test_env):
+        '''181 frames, 179 of them GSM RLC/MAC and 2 LTE RRC from Packet
+        Handover Commands to E-UTRAN; no malformed packets or errors in
+        one and two passes; warnings only for the access burst that no
+        format matches (frame 160) and the control blocks of the wrong
+        coding scheme (161-163).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 181
+        assert [r[1] for r in rows].count('GSM RLC/MAC') == 179
+        assert [r[0] for r in rows if r[1] == 'LTE RRC DL_DCCH'] == ['31', '34']
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env, extra=passes,
+                                flt='_ws.malformed || _ws.expert.severity >= error') == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                extra=passes, flt='_ws.expert')
+            assert rows == [
+                ['160', 'Unknown PACCH access burst'],
+                ['161', 'GPRS block with invalid coding scheme (34) for RLC Control'],
+                ['162', 'GPRS block with invalid coding scheme (35) for RLC Control'],
+                ['163', 'GPRS UL block with Coding Scheme CS2 and incompatible payload type'],
+            ]
+
+    def test_gsm_rlcmac_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every uplink and EC-GSM-IoT message type and all but one
+        downlink type (Packet Queueing Notification, which is also
+        missing from the CSN.1 capture), with the Packet Handover
+        Command to UTRAN and the Packet Cell Change Order with 3G
+        neighbour cells.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsm_rlcmac.dl.message_type',
+                            'gsm_rlcmac.ul.message_type', 'gsm_rlcmac.ul.ec_message_type',
+                            'gsm_rlcmac.dl.ec_message_type', extra=('-Eoccurrence=f',))
+        dl = set(int(r[1]) for r in rows if r[1])
+        ul = set(int(r[2]) for r in rows if r[2])
+        ec_ul = set(int(r[3]) for r in rows if r[3])
+        ec_dl = set(int(r[4]) for r in rows if r[4])
+        assert dl == {1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 21, 22, 33, 34, 35, 36,
+                      37, 49, 50, 51, 54, 55}
+        assert ul == set(range(14)) - {9}
+        assert ec_ul == {1, 2}
+        assert ec_dl == {1, 2, 3, 4, 5, 6, 7, 17, 18}
+
+    def test_gsm_rlcmac_freq_diff_length(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of "GSM RLC/MAC: Set FREQ_DIFF_LENGTH for all 32
+        frequencies": Packet Measurement Orders whose Additional Frequency
+        List (frames 166-168) and LU mode only frequency list (169, 170)
+        hold 20, 31 and 16 frequencies. Before the fix the frequencies
+        after the 16th were read with a zero bit FREQUENCY_DIFF.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlcmac.dl.add_frequency_list_nr_of_frequencies',
+                            'gsm_rlcmac.dl.cell_selection_param_with_freqdiff',
+                            'gsm_rlcmac.dl.dd_lu_modeonlyfrequencylist_nr_of_frequencies',
+                            'gsm_rlcmac.dl.lu_modeonlycellselectionparamswithfreqdiff',
+                            'gsm_rlcmac.dl.lu_modeonlycellselectionparamswithfreqdiff_bsic',
+                            flt='frame.number in {166..170}')
+        # NC list: 3 (20), 4 (31) and 2 (16) bits per frequency
+        assert [(r[0], r[1], len(r[2].split(','))) for r in rows[:3]] == [
+            ('166', '20', 60), ('167', '31', 124), ('168', '16', 32)]
+        # LU mode only list: 2 and 3 bits per frequency, one BSIC each
+        assert rows[3][3] == '20' and len(rows[3][4].split(',')) == 40
+        assert rows[3][5].split(',') == [str(63 - i) for i in range(20)]
+        assert rows[4][3] == '31' and len(rows[4][4].split(',')) == 93
+        assert rows[4][5].split(',') == [str(63 - i) for i in range(31)]
+
+    def test_gsm_rlcmac_3g_neighbour_cells(self, cmd_tshark, capture_file, test_env):
+        '''UTRAN TDD neighbour cell information: the cells of a Packet
+        Cell Change Order (frame 133), and two whose information ends in a
+        window of 0 and so has no cells (164, 165).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlcmac.dl.utran_tdd_neighbourcells_nrofcells',
+                            'gsm_rlcmac.cell_parameter', flt='frame.number in {133,164,165}')
+        assert [(r[0], r[1].split(',')[0], bool(r[2])) for r in rows] == [
+            ('133', '11', True), ('164', '4', False), ('165', '11', False)]
+        assert len(rows[0][2].split(',')) == 19
+
+    def test_gsm_rlcmac_ps_handover_utran(self, cmd_tshark, capture_file, test_env):
+        '''The RRC container of a Packet Handover Command to UTRAN
+        (frame 171) is handed to the RRC dissector.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlcmac.dl.ps_handoverto_utran_payload_rrc_containerlength',
+                            'gsm_rlcmac.dl.ps_handoverto_utran_payload_rrc_container',
+                            '_ws.col.info', flt='frame.number == 171')
+        assert rows == [['171', '24', '5d0c6359b2e392440880ba8ce4b084f028ad2d38e14184e7',
+                         'GPRS DL CTRL: PACKET_HANDOVER_COMMAND USF=0(cs-domain)']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'rrc.handoverToUTRANCommand_r3_element',
+                            flt='frame.number == 171')
+        assert rows[0][1] != ''
+
+    def test_gsm_rlcmac_data_blocks(self, cmd_tshark, capture_file, test_env):
+        '''GPRS and EGPRS data blocks with length indicators (frames 145-158,
+        174, 175, 177): the LI values, the TLLI and PFI behind the LI
+        octets, and the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsm_rlcmac.li',
+                            'gsm_rlcmac.tlli', 'gsm_rlcmac.pfi', '_ws.col.info',
+                            flt='frame.number in {145..158} || frame.number in {174,175,177}')
+        by = dict((r[0], r[1:]) for r in rows)
+        assert by['145'][0] == '63' and by['145'][3].endswith('[RRBP] [FBI]')
+        assert by['146'][0] == '4,63' and by['148'][0] == '2,2,2,2,2,1'
+        assert by['149'][:3] == ['3,2', '0x0badcafe', '42']
+        assert by['150'][:3] == ['63', '0x12345678', '']
+        assert by['151'][:3] == ['', '', '5']
+        assert by['152'][0] == '126' and by['153'][0] == '126,127'
+        assert by['154'][0] == '127,10,126,127' and by['155'][0] == '0,126,127,4'
+        assert by['156'][:2] == ['126', '0x0badcafe'] and by['158'][0] == '127,10,126,127'
+        assert by['174'][0] == '2,1' and by['175'][0] == '8'
+        assert by['154'][3].startswith('EGPRS DL DATA: MCS7 ')
+        assert by['155'][3].startswith('EGPRS DL DATA: MCS8 ')
+        assert by['157'][3].startswith('EGPRS UL DATA: MCS6 ')
+        assert by['147'][3].startswith('GPRS DL DATA: CS4 ')
+        assert by['148'][3].startswith('GPRS DL DATA: CS3 ')
+
+    def test_gsm_rlcmac_other_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Access bursts, reserved payload types, control blocks of an
+        unknown message type, and blocks that reach the dissector from
+        Exported PDU without a coding scheme.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                            flt='frame.number in {159..163} || frame.number >= 172')
+        assert [r[1] for r in rows] == [
+            'PACCH ACCESS BURST', 'PACCH ACCESS BURST', 'GPRS DL', 'GPRS DL', 'GPRS UL',
+            'GPRS DL: GSM RLC/MAC RESERVED MESSAGE TYPE',
+            'GPRS UL: GSM RLC/MAC RESERVED MESSAGE TYPE',
+            'GPRS DL DATA: CS1 TFI=3 BSN=9 USF=0 Len=2 Len=1',
+            'GPRS DL DATA: CS1 TFI=3 BSN=10 USF=0 Len=8',
+            'PACCH ACCESS BURST',
+            'GPRS UL DATA: CS1 TFI=2 BSN=3 CV=15 Len=20',
+            'GPRS DL CTRL: Invalid Message Type USF=1',
+            'GPRS UL CTRL: Unknown Message Type',
+            'EC-GSM-IoT DL:Unknown Message Type',
+            'EC-GSM-IoT UL:Unknown Message Type',
+        ]
+        # the access burst forms: 8 bit, 8 bit with TN/RRBP, 11 bit, and
+        # 11 bit with TN/RRBP (frame 159); frame 176 is a two octet block
+        # from Exported PDU
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gsm_rlcmac.message_type_6',
+                            'gsm_rlcmac.ul.packet_control_ack_additionsr5_tn_rrbp',
+                            'gsm_rlcmac.message_type_9',
+                            flt='frame.number in {130..132} || frame.number in {159, 176}')
+        assert rows == [['130', '31', '', ''], ['131', '', '0', ''], ['132', '', '', '505'],
+                        ['159', '55', '4', ''], ['176', '31', '', '']]
