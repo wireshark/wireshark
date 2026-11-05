@@ -60668,3 +60668,55 @@ class TestDissectFw1:
         tree = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3',
                            '-V', '-o', 'fw1.summary_in_tree:FALSE')
         assert 'FW1 Monitor' in tree
+
+
+class TestDissectG723:
+    '''G.723.1 over RTP payload type 4, from the synthetic capture
+    g723_coverage.pcap.gz. The RTP streams are set up by the SDP of two
+    SIP INVITE/200 OK exchanges (frames 1-2 and 19-20).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('g723_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_g723_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 19 RTP packets are dissected as G.723.1 and nothing is
+        malformed or has an error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'g723',
+                                '-eframe.number', passes=passes)
+            assert len(lines) == 19
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                '-eframe.number', passes=passes)
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_g723_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''The two low bits select high rate (0), low rate (1), SID (2)
+        and reserved (3); the other six bits are the LPC value.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'g723',
+                            '-eframe.number', '-eg723.frame_size_and_codec',
+                            '-eg723.lpc.b5b0')
+        got = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert got['3'] == ['0x00', '0x05']
+        assert got['8'] == ['0x01', '0x06']
+        assert got['13'] == ['0x02', '0x3f']
+        assert got['15'] == ['0x03', '0x2a']
+        assert got['17'] == ['0x00', '0x00']
+        assert got['18'] == ['0x01', '0x3f']
+        counts = {}
+        for v in got.values():
+            counts[v[0]] = counts.get(v[0], 0) + 1
+        assert counts == {'0x00': 9, '0x01': 6, '0x02': 3, '0x03': 1}
+
+    def test_g723_second_call(self, cmd_tshark, capture_file, test_env):
+        '''The second SDP offer sets up its own RTP stream (frames
+        21-23).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'g723 && udp.port == 20002', '-eframe.number',
+                            '-ertp.p_type')
+        assert lines == ['21\t4', '22\t4', '23\t4']
