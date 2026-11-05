@@ -106,6 +106,7 @@ static int ett_h223_al2;
 static int ett_h223_al_payload;
 
 static expert_field ei_h223_al2_crc;
+static expert_field ei_h223_mux_sublist_empty;
 
 /* These are the handles of our subdissectors */
 static dissector_handle_t data_handle;
@@ -278,10 +279,10 @@ add_h223_mux_element(h223_call_direction_data *direct, uint8_t mc, h223_mux_elem
 
     DISSECTOR_ASSERT(mc < 16);
 
-    li = wmem_new(wmem_file_scope(), h223_mux_element_listitem);
     old_li_ptr = &(direct->mux_table[mc]);
     old_li = *old_li_ptr;
     if( !old_li ) {
+        li = wmem_new(wmem_file_scope(), h223_mux_element_listitem);
         direct->mux_table[mc] = li;
     } else {
         while( old_li->next ) {
@@ -290,7 +291,8 @@ add_h223_mux_element(h223_call_direction_data *direct, uint8_t mc, h223_mux_elem
         }
         if( framenum < old_li->first_frame || (framenum == old_li->first_frame && pdu_offset < old_li->pdu_offset)  )
             return;
-        else if ( framenum == old_li->first_frame && pdu_offset == old_li->pdu_offset )
+        li = wmem_new(wmem_file_scope(), h223_mux_element_listitem);
+        if ( framenum == old_li->first_frame && pdu_offset == old_li->pdu_offset )
             *old_li_ptr = li; /* replace the tail of the list with the new item, since */
                               /* a single h223 pdu has just set the same MC twice.. */
         else
@@ -804,22 +806,22 @@ static uint32_t
 // NOLINTNEXTLINE(misc-no-recursion)
 mux_element_sublist_size(packet_info *pinfo, h223_mux_element* me)
 {
-    h223_mux_element *current_me = me->next;
-    uint32_t length = 0;
+    h223_mux_element *current_me = me;
+    uint64_t length = 0;
     increment_dissection_depth(pinfo);
-    while ( current_me ) {
+    while ( current_me && length < UINT32_MAX ) {
         if ( current_me->sublist )
-            length += current_me->repeat_count * mux_element_sublist_size(pinfo, current_me->sublist);
+            length += (uint64_t)current_me->repeat_count * mux_element_sublist_size(pinfo, current_me->sublist);
         else
             length += current_me->repeat_count;
         current_me = current_me->next;
     }
     decrement_dissection_depth(pinfo);
 
-    /* should never happen, but to avoid infinite loops... */
-    DISSECTOR_ASSERT(length != 0);
-
-    return length;
+    /* may be 0, the caller must not loop on that */
+    if (length > UINT32_MAX)
+        length = UINT32_MAX;
+    return (uint32_t)length;
 }
 
 /* dissect part of a MUX-PDU payload according to a multiplex list
@@ -852,11 +854,17 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
     while ( me ) {
         if ( me->sublist ) {
             if ( me->repeat_count == 0 ) {
-                for(sublist_len = mux_element_sublist_size(pinfo, me->sublist);
-                    offset + sublist_len <= len;
+                sublist_len = mux_element_sublist_size(pinfo, me->sublist);
+                if (sublist_len == 0) {
+                    /* Nothing to repeat, avoid looping forever */
+                    expert_add_info(pinfo, NULL, &ei_h223_mux_sublist_empty);
+                    break;
+                }
+                while (offset <= len && sublist_len <= len - offset) {
                     offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
                                                              call_info, me->sublist, offset, endOfMuxSdu,
-                                                             ctype, circuit_id) );
+                                                             ctype, circuit_id);
+                }
             } else {
                 for(i = 0; i < me->repeat_count; ++i)
                     offset = dissect_mux_payload_by_me_list( tvb, pinfo, pkt_offset, pdu_tree,
@@ -943,7 +951,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, uint32_t pkt_offset,
     int32_t errors = 0;
     uint16_t closing_flag = 0;
     uint8_t mc = 0;
-    uint8_t mpl = 0;
+    uint32_t mpl = 0;
     bool end_of_mux_sdu = false;
     tvbuff_t *pdu_tvb;
 
@@ -1450,7 +1458,7 @@ void proto_register_h223 (void)
             "H.223 MUX multiplex code", HFILL }},
 
         { &hf_h223_mux_mpl,
-          { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT16, BASE_DEC, NULL, 0xf00f,
+          { "Multiplex Payload Length", "h223.mux.mpl", FT_UINT8, BASE_DEC, NULL, 0x0,
             "H.223 MUX multiplex Payload Length", HFILL }},
 
         { &hf_h223_mux_deact,
@@ -1611,6 +1619,7 @@ void proto_register_h223 (void)
 
     static ei_register_info ei[] = {
         { &ei_h223_al2_crc, { "h223.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_h223_mux_sublist_empty, { "h223.mux.sublist_empty", PI_MALFORMED, PI_ERROR, "Multiplex sublist has zero length", EXPFILL }},
     };
 
     expert_module_t* expert_h223;
