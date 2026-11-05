@@ -3316,7 +3316,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
             break;
         }
-      increment_dissection_depth(pinfo);
+      decrement_dissection_depth(pinfo);
     }
     else if (payload_length > length) {
       proto_tree_add_expert_format(ntree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
@@ -4814,6 +4814,12 @@ dissect_ikev2_fragmentation(tvbuff_t *tvb, int offset, proto_tree *tree,
                                                 false     /* Don't dissect decrypted tvb as not a completed payload */
                                                 );
 
+    if (isakmp_decrypted_fragment_tvb == NULL ||
+        tvb_reported_length(isakmp_decrypted_fragment_tvb) < 1) {
+      /* Could not decrypt (or nothing decrypted) */
+      return;
+    }
+
     /* Save pinfo->fragmented, will later restore it */
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = true;
@@ -6282,8 +6288,12 @@ dissect_enc(tvbuff_t *tvb,
       dissect_payloads(decr_tvb, decr_payloads_tree, 2, inner_payload, 0, payloads_len, pinfo, 0, is_request, decr_info);
     }
   }else{
-     proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, 4, ENC_NA);
-     proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length, ENC_NA);
+     if (length >= 4) {
+       proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, 4, ENC_NA);
+       proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length-4, ENC_NA);
+     } else {
+       proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, length, ENC_NA);
+     }
   }
   return decr_tvb;
 }
