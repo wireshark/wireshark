@@ -59997,3 +59997,163 @@ class TestDissectFtam:
                 '-Y', 'frame.protocols contains "ftam:ftam:ftam"', '-Tfields', '-eframe.number'),
                 encoding='utf-8', env=test_env)
         assert stdout.split()[:6] == ['16', '21', '23', '50', '60', '61']
+
+
+class TestDissectFtdiFt:
+    '''FTDI FT USB serial converters (packet-ftdi-ft.c) from the synthetic
+    Linux usbmon capture ftdi_ft_coverage.pcap.gz (LINKTYPE 220). The
+    devices are identified by the USB product ids of their device
+    descriptors; the bcdDevice values select the chip.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ftdi_ft_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def rows(self, cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', filt,
+                            '-Tfields', *('-e' + f for f in fields), passes=passes)
+        return [l.split('\t') for l in lines]
+
+    def test_ftdi_ft_frames(self, cmd_tshark, capture_file, test_env):
+        '''303 frames, no malformed packets or error expert infos in one
+        and two passes. The Info and Protocol columns are the same in
+        both passes: 190 FTDI FT, 19 FTDI MPSSE and 94 USB frames. The
+        five frames that are parts of a reassembly (247, 249, 254, 256,
+        269) are FTDI FT in both passes.'''
+        infos = []
+        counts_per_pass = []
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number',
+                                '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            rows = [l.split('\t') for l in lines]
+            assert len(rows) == 303
+            counts = {}
+            for r in rows:
+                counts[r[1]] = counts.get(r[1], 0) + 1
+            counts_per_pass.append(counts)
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                            'frame.number', passes=passes)
+            assert bad == []
+            infos.append([(r[0], r[2]) for r in rows])
+        assert infos[0] == infos[1]
+        assert counts_per_pass[0] == {'FTDI FT': 190, 'FTDI MPSSE': 19, 'USB': 94}
+        assert counts_per_pass[1] == counts_per_pass[0]
+
+    def test_ftdi_ft_control_requests(self, cmd_tshark, capture_file, test_env):
+        '''Every vendor request of the FT2232H (device 2) is named in the
+        Info column of the request and of its response.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'usb.device_address == 2 && ftdi-ft && frame.number < 75 && !(frame.number in {69..72})',
+                         'frame.number', '_ws.col.info')
+        names = [r[1].replace('FTDI FT Request: ', '') for r in rows if 'Request' in r[1]]
+        assert names == ['Reset'] * 3 + ['ModemCtrl'] * 4 + ['SetFlowCtrl'] * 4 + ['SetBaudRate'] * 2 + \
+            ['SetData'] * 5 + ['GetModemStat'] * 2 + ['SetEventChar'] * 2 + ['SetErrorChar'] * 2 + \
+            ['SetLatTimer'] + ['GetLatTimer'] * 2 + ['GetPins', 'ReadEEPROM', 'WriteEEPROM', 'EraseEEPROM',
+                                                     'Unknown', 'Unknown', 'SetBitMode']
+        resp = [r[1].replace('FTDI FT Response: ', '') for r in rows if 'Response' in r[1]]
+        assert resp == names
+
+    def test_ftdi_ft_responses(self, cmd_tshark, capture_file, test_env):
+        '''Modem and line status, latency timer, pin states and the EEPROM
+        word come from the responses; a longer response than expected and
+        an unknown request give the "Not dissected yet" expert info.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {40, 42, 54, 56, 58, 60}',
+                         'frame.number', 'ftdi-ft.modem_status', 'ftdi-ft.line_status',
+                         'ftdi-ft.latency_time', 'ftdi-ft.pin_states', 'ftdi-ft.eeprom_word',
+                         '_ws.expert.message', passes=('-2',))
+        assert rows == [
+            ['40', '0x01', '0x60', '', '', '', ''],
+            ['42', '0xb2', '0x7e', '', '', '', ''],
+            ['54', '', '', '16', '', '', ''],
+            ['56', '', '', '16', '', '', 'Not dissected yet (report to wireshark.org)'],
+            ['58', '', '', '', '0xa5', '', ''],
+            ['60', '', '', '', '', '0x0403', ''],
+        ]
+        # the unknown request and the response of an unknown request (frames 65-68)
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {65, 66, 67, 68}',
+                         'frame.number', '_ws.col.info', '_ws.expert.message', passes=('-2',))
+        assert [r[1] for r in rows] == ['FTDI FT Request: Unknown', 'FTDI FT Response: Unknown'] * 2
+        assert rows[0][2] and not rows[1][2] and rows[2][2] and rows[3][2]
+
+    def test_ftdi_ft_flow_control_and_data_format(self, cmd_tshark, capture_file, test_env):
+        '''SetFlowCtrl: XON/XOFF characters and the three flow control
+        bits; SetData: data size and parity.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {19, 21, 23}',
+                         'frame.number', 'ftdi-ft.lValue', 'ftdi-ft.hValue', 'ftdi-ft.hIndex.b0',
+                         'ftdi-ft.hIndex.b1', 'ftdi-ft.hIndex.b2')
+        assert rows == [['19', '0x11', '0x13', 'True', 'False', 'False'],
+                        ['21', '0x11', '0x13', 'False', 'True', 'False'],
+                        ['23', '0x11', '0x13', 'False', 'False', 'True']]
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {29, 31, 33, 35, 37}',
+                         'frame.number', 'ftdi-ft.lValue', 'ftdi-ft.hValue.parity')
+        assert [(r[1], r[2]) for r in rows] == [('0x08', '0x00'), ('0x07', '0x02'), ('0x08', '0x01'),
+                                                ('0x08', '0x03'), ('0x08', '0x04')]
+
+    def test_ftdi_ft_chips(self, cmd_tshark, capture_file, test_env):
+        '''SetBaudRate is decoded according to the chip of bcdDevice; an
+        unknown bcdDevice (device 6) is not decoded.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'ftdi-ft.bRequest == 3 && usb.device_address in {3, 4, 5, 6, 7, 8, 9, 10, 11, 12}',
+                         'usb.device_address', '_ws.expert.message', passes=('-2',))
+        undecoded = {r[0] for r in rows if r[1]}
+        assert undecoded == {'6'}
+        assert len(rows) == 20
+
+    def test_ftdi_ft_unknown_response(self, cmd_tshark, capture_file, test_env):
+        '''A control response without a captured request (frame 177) is
+        shown as "Unknown".'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number == 177',
+                         '_ws.col.info', '_ws.expert.message')
+        assert rows == [['FTDI FT Response: Unknown', 'Not dissected yet (report to wireshark.org)']]
+
+    def test_ftdi_ft_serial_payload(self, cmd_tshark, capture_file, test_env):
+        '''Interfaces A to D, status bytes only, full speed packets (62 data
+        octets each) and high speed packets (510 data octets).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {178, 181, 183, 185, 187, 189, 190, 193, 198, 201, 202, 205}',
+                         'frame.number', '_ws.col.info')
+        assert [r[1] for r in rows] == [
+            'INTERFACE A TX 21 bytes', 'INTERFACE A RX 12 bytes', 'INTERFACE A RX',
+            'INTERFACE A RX 13 bytes', 'INTERFACE A RX 128 bytes', 'INTERFACE A RX 516 bytes',
+            'INTERFACE B TX 15 bytes', 'INTERFACE B RX 14 bytes', 'INTERFACE C TX 10 bytes',
+            'INTERFACE C RX 9 bytes', 'INTERFACE D TX 10 bytes', 'INTERFACE D RX 9 bytes']
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {181, 185, 187}',
+                         'frame.number', 'ftdi-ft.if_a_rx_payload', 'ftdi-ft.modem_status')
+        assert rows[0][1] == '48656c6c6f206261636b0d0a'
+        assert rows[1][2] == '0xf0'
+        assert rows[2][2] == '0x31,0x31,0x31'
+        assert len(rows[2][1].split(',')) == 3
+
+    def test_ftdi_ft_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''MPSSE asks for more data. Frames 244, 247 and 249 are the
+        reproducer of the assertion in the reassembly code ("FTDI FT: Fix
+        assertion in reassembly and repeated state updates"): Bad Command
+        0x00, then RX FA and RX FA, which ask for reassembly at an offset
+        that equals the reassembled bytes. Frames 254-265: a command spread
+        over three URBs, a URB that ends one reassembly and starts another
+        (frames 258 and 260). Frames 266-271: a response split over two
+        URBs.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'ftdi-ft.reassembled.in',
+                         'frame.number', 'ftdi-ft.reassembled.in', passes=('-2',))
+        assert {r[0]: r[1] for r in rows if r[0] in ('247', '249', '254', '256', '258', '269', '276')} == {
+            '247': '251', '249': '251', '254': '258', '256': '258', '258': '260', '269': '271', '276': '278'}
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {251, 258, 260, 271}',
+                         'frame.number', 'ftdi-ft.fragment.count', 'ftdi-ft.reassembled.length',
+                         passes=('-2',))
+        assert rows[0][:2] == ['251', '3'] and rows[1][1] == '3' and rows[2][1] == '2'
+        # the Skipped response data warning of the Bad Command search (frame 251)
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number == 251',
+                         '_ws.expert.message', passes=('-2',))
+        assert rows == [['Skipped response data while looking for Bad Command response']]
+
+    def test_ftdi_ft_repeated_requests_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''SetBitMode requests are recorded in the first pass only
+        ("FTDI FT: Fix assertion in reassembly and repeated state
+        updates"); the MPSSE traffic that follows (frames 228-243) is
+        dissected as MPSSE in both passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'ftdi-mpsse && frame.number in {228, 230, 233, 234, 237}',
+                             'frame.number', '_ws.col.info', passes=passes)
+            assert [r[0] for r in rows] == ['228', '230', '233', '234', '237']
