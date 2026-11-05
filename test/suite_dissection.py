@@ -62279,3 +62279,56 @@ class TestDissectGfp:
             '58\tControl Frame (Reserved)',
             '65\tIdle Frame',
         ]
+
+
+class TestDissectGias:
+    '''GIAS (Geospatial and Imagery Access Services, a generated CORBA
+    dissector on top of GIOP) from the synthetic capture
+    gias_coverage.pcap.gz: every operation of every registered interface
+    after IORs taught the object keys, a sample through the GIOP
+    heuristic, and the UCO user exceptions. The argument bodies are
+    filler, so the tests check protocol assignment and the absence of
+    errors, not decoded values.'''
+
+    CAP = 'gias_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gias_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_gias_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one and two
+        passes; 714 frames are dissected by GIAS.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            assert rows.count('GIAS') == 714
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+
+    def test_gias_operations(self, cmd_tshark, capture_file, test_env):
+        '''The request operation of GIAS frames: 95 operation/interface
+        pairs, 77 distinct operation names.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.col.protocol == "GIAS" && giop.request_op',
+                '-Tfields', '-egiop.request_op')
+        assert len(set(rows)) == 77
+        assert 'complete_StringDAG' in rows and 'get_data_model_manager' not in rows
+
+    def test_gias_user_exceptions(self, cmd_tshark, capture_file, test_env):
+        '''UCO user exceptions are decoded (and an unknown one is left to
+        GIOP).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'giop.exceptionid', '-Tfields', '-eframe.number',
+                '-egiop.exceptionid', '-e_ws.col.protocol',
+                '-egiop-gias.exception_details.exception_desc')
+        got = [r.split('\t')[1:3] for r in rows]
+        assert ['IDL:UCO/ProcessingFault:1.0', 'GIAS'] in got
+        assert ['IDL:UCO/SystemFault:1.0', 'GIAS'] in got
+        assert ['IDL:UCO/InvalidInputParameter:1.0', 'GIAS'] in got
+        assert ['IDL:UCO/Unknown:1.0', 'GIOP'] in got
