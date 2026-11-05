@@ -2685,6 +2685,7 @@ get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *fram
                     value = wmem_map_lookup(frame_map_deint, &ginfod);
                     if (value != NULL) {
                         *frame = GPOINTER_TO_UINT(value);
+                        wmem_destroy_list(frame_map_keys);
                         return 1;
                     }
 
@@ -2851,7 +2852,7 @@ void
 gtp_add_teid_imsi(uint32_t teid, const char* imsi)
 {
     if(g_gtp_session) {
-        wmem_map_insert(teid_imsi, GUINT_TO_POINTER(teid), wmem_strdup(wmem_epan_scope(), imsi));
+        wmem_map_insert(teid_imsi, GUINT_TO_POINTER(teid), wmem_strdup(wmem_file_scope(), imsi));
     }
 }
 
@@ -5420,7 +5421,7 @@ decode_gtp_user_addr(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, p
                 proto_tree_add_ipv6_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 9, 0, &ipv6, "dynamic");
                 proto_item_append_text(te, " : %s / dynamic", tvb_ip_to_str(pinfo->pool, tvb, offset + 5));
             } else if (length == 18) {
-                proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 0, 0, "dynamic");
+                proto_tree_add_ipv4_format_value(ext_tree_user, hf_gtp_user_ipv4, tvb, offset + 5, 0, 0, "dynamic");
                 proto_tree_add_item(ext_tree_user, hf_gtp_user_ipv6, tvb, offset + 5, 16, ENC_NA);
                 proto_item_append_text(te, " : dynamic / %s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 5));
             } else if (length == 22) {
@@ -6548,7 +6549,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, unsigned offset, packet_info * pinfo,
         if (hf_ipv4 != hf_gtp_gsn_ipv4)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv4, tvb, offset + 4, 4, ENC_BIG_ENDIAN));
         proto_item_append_text(te, "%s", tvb_ip_to_str(pinfo->pool, tvb, offset + 4));
-        set_address_tvb(gsn_address, AT_IPv6, 16, tvb, offset + 4);
+        set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 4);
         break;
     case 16:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -6556,7 +6557,7 @@ decode_gtp_gsn_addr_common(tvbuff_t * tvb, unsigned offset, packet_info * pinfo,
         if (hf_ipv6 != hf_gtp_gsn_ipv6)
             proto_item_set_hidden(proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_ipv6, tvb, offset + 3, 16, ENC_NA));
         proto_item_append_text(te, "%s", tvb_ip6_to_str(pinfo->pool, tvb, offset + 3));
-        set_address_tvb(gsn_address, AT_IPv4, 4, tvb, offset + 3);
+        set_address_tvb(gsn_address, AT_IPv6, 16, tvb, offset + 3);
         break;
     case 17:
         proto_tree_add_item(ext_tree_gsn_addr, hf_gtp_gsn_address_information_element_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
@@ -7708,7 +7709,7 @@ decode_gtp_mbms_sa(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_t
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    next_tvb = tvb_new_subset_length(tvb, offset, length-3);
+    next_tvb = tvb_new_subset_length(tvb, offset, length);
     dissect_gtp_3gpp_mbms_service_area(next_tvb, pinfo, ext_tree, NULL);
 
     return 3 + length;
@@ -9903,7 +9904,7 @@ decode_gtp_data_req(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_
 
             offset = offset + cdr_length;
         }
-        return offset;
+        return 3 + length;
 
     } else {
         /* Proprietary CDR format */
@@ -10478,7 +10479,7 @@ dissect_gtp_tpsu_as_pdcp_nr_info(tvbuff_t * tvb, packet_info * pinfo, proto_tree
 
     if ((found_record = look_up_pdcp_nr_keys_record(pinfo, (uint32_t)gtp_hdr->teid))) {
         tvbuff_t *pdcp_tvb;
-        struct pdcp_nr_info temp_data;
+        struct pdcp_nr_info temp_data = {0};
 
         pdcp_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -11211,8 +11212,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         if (args && !PINFO_FD_VISITED(pinfo)) {
             /* We insert the lists inside the table*/
             if(is_deinterlacing_supported(pinfo)) {
-                conversation_t *conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
-                fill_map(args->teid_list, args->ip_list, pinfo->num, conv->conv_index, 0);
+                conversation_t *conv = find_conversation_strat(pinfo,
+                        (pinfo->src.type == AT_IPv6) ? CONVERSATION_IPV6 : CONVERSATION_IP,
+                        NO_PORT_X, false);
+                if (conv) {
+                    fill_map(args->teid_list, args->ip_list, pinfo->num, conv->conv_index, 0);
+                } else {
+                    fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1);
+                }
             }
             else {
                 // no deinterlacing supported/asked
