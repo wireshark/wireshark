@@ -2385,11 +2385,12 @@ dissect_push_button_join_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_sender_joining_interface, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 6, ENC_NA);
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_new_device_interface, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 6, ENC_NA);
+    offset += 6;
 
     return offset;
 }
@@ -8295,6 +8296,11 @@ static int
 dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
+    if (len < 14) {
+        proto_tree_add_expert(tree, pinfo, &ei_ieee1905_extraneous_tlv_data, tvb, offset, len);
+        return offset + len;
+    }
+
     proto_tree_add_item(tree, hf_ieee1905_qos_mgmt_desc_qmid, tvb, offset,
                         2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -8313,6 +8319,9 @@ dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
     /* There is MSCS, SCS or QoS element */
     while (len > 0) {
         uint16_t desc_size = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        if (desc_size == 0 || desc_size > len) {
+            break;
+        }
         offset += desc_size;
         len -= desc_size;
     }
@@ -10153,7 +10162,7 @@ ieee1905_fragment_equal(const void *k1, const void *k2)
     return (key1->frag_id == key2->frag_id &&
             key1->vlan_id == key2->vlan_id &&
             addresses_equal(&key1->src, &key2->src) &&
-            addresses_equal(&key1->src, &key2->src));
+            addresses_equal(&key1->dst, &key2->dst));
 }
 
 static void *
