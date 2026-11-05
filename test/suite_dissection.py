@@ -70491,3 +70491,84 @@ class TestDissectHciH1:
             lines = stdout.splitlines()
             assert text in lines
             assert lines[lines.index(text) + 1].startswith('    [Direction: ')
+
+
+class TestDissectHciH4:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hci_h4_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hci_h4_protocols(self, cmd_tshark, capture_file, test_env):
+        '''43 frames from two interfaces (link types 187 and 201); the 15
+        with an unknown packet type are HCI H4, none is malformed or
+        has an error expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', '_ws.col.protocol')
+        assert len(rows) == 43
+        assert [r[1] for r in rows].count('HCI H4') == 15
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes)
+            assert rows == []
+
+    def test_hci_h4_direction(self, cmd_tshark, capture_file, test_env):
+        '''Link type 187 has no direction field: it comes from the pcapng
+        packet flags, and is unknown without them. Link type 201 has a
+        direction field.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 6 || (frame.number >= 19 && frame.number <= 22)',
+                            'frame.number', 'hci_h4.direction', '_ws.col.info')
+        assert rows == [
+            ['1', '0xff', 'UnknownDirection Reset'],
+            ['2', '0x01', 'Rcvd Command Complete (Reset)'],
+            ['3', '0x00', 'Sent Change Local Name'],
+            ['4', '0xff', 'UnknownDirection Command Complete (Change Local Name)'],
+            ['5', '0x01', 'Rcvd Read Local Version Information'],
+            ['6', '0x00', 'Sent Command Status (Inquiry)'],
+            ['19', '0xff', 'UnknownDirection Reset'],
+            ['20', '0xff', 'UnknownDirection Reset'],
+            ['21', '0x00', 'Sent Reset'],
+            ['22', '0x01', 'Rcvd Command Complete (Reset)'],
+        ]
+
+    def test_hci_h4_types(self, cmd_tshark, capture_file, test_env):
+        '''Each packet type goes to its dissector; unknown types are
+        named in the Info column and the rest is shown as data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 8 && frame.number <= 18',
+                            'frame.number', 'hci_h4.type', '_ws.col.protocol',
+                            '_ws.col.info')
+        assert rows == [
+            ['8', '0x04', 'HCI_EVT', 'Rcvd Connect Complete'],
+            ['9', '0x02', 'L2CAP', 'Sent Connection oriented channel'],
+            ['10', '0x02', 'L2CAP', 'UnknownDirection Connection Request (SDP, SCID: 0x0040)'],
+            ['11', '0x03', 'HCI_SCO', 'Rcvd SCO - Correctly Received Data'],
+            ['12', '0x05', 'HCI_ISO', 'Sent '],
+            ['13', '0x04', 'HCI_EVT', 'UnknownDirection Number of Completed Packets'],
+            ['14', '0x00', 'HCI H4', 'Rcvd Unknown HCI packet type 0x00'],
+            ['15', '0x06', 'HCI H4', 'Rcvd Unknown HCI packet type 0x06'],
+            ['16', '0x07', 'HCI H4', 'Rcvd Unknown HCI packet type 0x07'],
+            ['17', '0xff', 'HCI H4', 'Rcvd Unknown HCI packet type 0xff'],
+            ['18', '0x09', 'HCI H4', 'Rcvd Unknown HCI packet type 0x09'],
+        ]
+
+    def test_hci_h4_tree(self, cmd_tshark, capture_file, test_env):
+        '''The H4 tree holds the generated direction and the packet type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hci_h4_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3', '-V', '-O', 'hci_h4',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Bluetooth HCI H4')
+        assert lines[start + 1:start + 3] == [
+            '    [Direction: Sent (0x00)]',
+            '    HCI Packet Type: HCI Command (0x01)',
+        ]
