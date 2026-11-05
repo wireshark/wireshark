@@ -3331,7 +3331,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
   */
   if (begin->fragment->tsn > end->fragment->tsn) {
     for (last_frag = first_frag, frag_i = first_frag->next;
-         frag_i && frag_i->tsn == (last_frag->tsn + 1);
+         frag_i && frag_i->data && frag_i->tsn == (last_frag->tsn + 1);
          last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
 
     /* check if we reached the last possible tsn
@@ -3350,12 +3350,19 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
 
     len += msg->fragments->len;
     for (last_frag = msg->fragments, frag_i = last_frag->next;
-         frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
+         frag_i && frag_i->data && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
          last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
 
   } else {
+    /* In add_fragment() we do not create the sctp_fragment if len would be 0,
+     * and thus if data is NULL then frag_i has already been used to complete
+     * another message. Don't re-use those fragments; this is strictly illegal
+     * according to https://www.rfc-editor.org/info/rfc9260/#section-6.9-8.3.1
+     * (counting their length would lead to uninitialized memory in the TVB.)
+     * Just give up and mark as fragmented.
+     */
     for (last_frag = first_frag, frag_i = first_frag->next;
-         frag_i && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
+         frag_i && frag_i->data && frag_i->tsn < end->fragment->tsn && frag_i->tsn == (last_frag->tsn + 1);
          last_frag = frag_i, frag_i = frag_i->next) len += frag_i->len;
   }
 
