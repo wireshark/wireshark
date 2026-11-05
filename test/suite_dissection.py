@@ -68113,3 +68113,63 @@ class TestDissectGvsp:
         rows = self._rows(cmd_tshark, capture_file, test_env)
         assert rows[208][1] == 'LEADER [Block ID: 34359738457 Packet ID: 0] GENDC '
         assert rows[209][1] == 'GENDC [Block ID: 34359738457 Packet ID: 1] '
+
+
+class TestDissectH1:
+    '''Sinec H1 (heuristic over TCP and COTP) from the synthetic capture
+    h1_coverage.pcap.gz.'''
+
+    @staticmethod
+    def h1_fields(cmd_tshark, capture_file, test_env, *fields, filt='h1', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h1_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are H1 (24 over TCP, 4 over COTP) and none is
+        malformed or has an expert info, in one and two passes.'''
+        rows = self.h1_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 28
+        assert all(r[1] == 'H1' for r in rows)
+        assert len(self.h1_fields(cmd_tshark, capture_file, test_env, filt='h1 && cotp')) == 4
+        for passes in ((), ('-2',)):
+            rows = self.h1_fields(cmd_tshark, capture_file, test_env,
+                                  filt='_ws.malformed || _ws.expert', passes=passes)
+            assert rows == []
+
+    def test_h1_length_unsigned(self, cmd_tshark, capture_file, test_env):
+        '''h1.dlen is unsigned: 40000 and 65535 words were shown as negative
+        numbers when the field was FT_INT16.'''
+        rows = self.h1_fields(cmd_tshark, capture_file, test_env, 'h1.dlen', filt='frame.number in {20, 21}')
+        assert rows == [['20', '40000'], ['21', '65535']]
+
+    def test_h1_info(self, cmd_tshark, capture_file, test_env):
+        '''Opcode, memory type and return code names, including the unknown
+        values (the unknown return code string lacked its closing
+        parenthesis).'''
+        rows = self.h1_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        info = {int(r[0]): r[1] for r in rows}
+        assert info[1] == 'S5: Read Request DB 3 DW 257 Count 20'
+        assert info[11] == 'S5: Read Request DE 3 DW 272 Count 20'
+        assert info[13] == 'S5: Write Request Unknown Type (0x77) 255 DW 65535 Count 1'
+        assert info[15] == 'S5: Write Response No error'
+        assert info[16] == 'S5: Read Response Requested block does not exist'
+        assert info[17] == 'S5: Read Response Requested block too small'
+        assert info[18] == 'S5: Write Response Error, reason unknown'
+        assert info[19] == 'S5: Unknown Opcode (0x77) Unknown Returncode (0x55)'
+        assert info[25] == 'S5: Read Request DB 5 DW 10 Count 8'
+
+    def test_h1_trailing_data(self, cmd_tshark, capture_file, test_env):
+        '''Octets after the H1 length indicator, or after a block of length 0,
+        are handed to the data dissector.'''
+        rows = self.h1_fields(cmd_tshark, capture_file, test_env, 'h1.len', 'data.data',
+                              filt='frame.number in {22, 23, 24, 27}')
+        assert rows == [
+            ['22', '19', '0011223344556677'],
+            ['23', '8', 'ff007461696c'],
+            ['24', '6', '03080101000000047061796c6f6164'],
+            ['27', '16', 'deadbeefdeadbeefdeadbeefdeadbeef'],
+        ]
