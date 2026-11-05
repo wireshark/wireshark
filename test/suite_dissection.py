@@ -63980,3 +63980,74 @@ class TestDissectGmrp:
                               '-Y', 'gmrp.protocol_id == 2', '-Tfields', '-eframe.number',
                               '-e_ws.expert.message', '-edata.len')
         assert stdout.splitlines() == ['23\tThis version of Wireshark only knows about protocol id = 1\t11']
+
+
+class TestDissectGnutella:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *args):
+        out = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('gnutella_coverage.pcap.gz'), *args, '-Tfields',
+                *[x for f in fields for x in ('-e', f)]), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_gnutella_protocols(self, cmd_tshark, capture_file, test_env):
+        '''24 of the 36 frames are Gnutella (PDUs, streams and segments of reassembled PDUs); none is
+        malformed or has an error expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert len(lines) == 36
+        assert lines.count('Gnutella') == 24
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    *passes, '-Y', '_ws.malformed || _ws.expert.severity == "error"')
+            assert lines == []
+
+    def test_gnutella_info(self, cmd_tshark, capture_file, test_env):
+        '''Descriptor names, several PDUs in one segment, and reassembly of
+        a PDU split over two segments.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gnutella.header.payload', 'gnutella.header.size', '_ws.col.info'],
+                '-Y', 'gnutella.header')
+        assert [l.split('\t') for l in lines] == [
+            ['6', '0', '0', 'Ping'], ['7', '1', '14', 'Pong'],
+            ['8', '128', '13', 'Query'], ['9', '128', '2', 'Query'],
+            ['10', '128', '300', 'Query'], ['11', '129', '81', 'QueryHit'],
+            ['12', '129', '52', 'QueryHit'], ['13', '129', '27', 'QueryHit'],
+            ['14', '64', '26', 'Push'], ['15', '2', '7', 'Unknown'],
+            ['16', '127', '0', 'Unknown'],
+            ['17', '0,1,64', '0,14,26', 'Ping, Pong, Push'],
+            ['19', '128', '22', 'Query'], ['21', '1', '14', 'Pong'],
+            ['22', '128', '4096', 'Query'], ['31', '0', '0', 'Ping']]
+
+    def test_gnutella_size_32bit(self, cmd_tshark, capture_file, test_env):
+        '''The descriptor payload length is a 32-bit field: a Query with a
+        payload of 300 octets shows 300, not 44 (it was FT_UINT8).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['gnutella.header.size', 'gnutella.query.search'],
+                '-Y', 'frame.number == 10')
+        assert len(lines) == 1
+        size, search = lines[0].split('\t')
+        assert size == '300'
+        assert search == 'x' * 298
+
+    def test_gnutella_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Pong, Push, Query and QueryHit contents and the transfer
+        stream.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gnutella.pong.port', 'gnutella.pong.ip', 'gnutella.pong.files',
+                 'gnutella.pong.kbytes', 'gnutella.push.index', 'gnutella.push.ip',
+                 'gnutella.push.port'], '-Y', 'frame.number == 7 || frame.number == 14')
+        assert lines == ['7\t6346\t192.0.2.7\t120\t4096\t\t\t',
+                         '14\t\t\t\t\t3\t192.0.2.10\t6346']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gnutella.queryhit.count', 'gnutella.queryhit.hit.name',
+                 'gnutella.queryhit.hit.size', 'gnutella.queryhit.hit.extra', 'gnutella.queryhit.extra'],
+                '-Y', 'gnutella.queryhit.count')
+        assert lines == ['11\t2\tsong.mp3,other file.ogg\t4096,12345\t75726e3a736861313a414243\t',
+                         '12\t1\ta.txt\t1\t\t56454e444f5202000100',
+                         '13\t0\t\t\t\t']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number'], '-Y', 'gnutella.stream')
+        assert lines == ['4', '5', '23', '33']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gnutella.query.search'], '-Y', 'frame.number == 9')
+        assert lines == ['9\t']
