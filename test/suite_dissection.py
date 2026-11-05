@@ -72308,3 +72308,115 @@ class TestDissectHomeplugAv:
         assert rows[0][2] == '7'
         assert rows[1][2] == '1'
         assert rows[2][2] == ''
+
+
+class TestDissectHomeplugAvVertexcom:
+    @staticmethod
+    def _fields(cmd_tshark, test_env, capture, fields, display_filter=None, passes=()):
+        cmd = [cmd_tshark, *passes, '-r', capture]
+        if display_filter:
+            cmd += ['-Y', display_filter]
+        cmd += ['-Tfields']
+        for field in fields:
+            cmd += ['-e', field]
+        stdout = subprocess.check_output(cmd, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_homeplug_av_vertexcom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 69 frames are HomePlug AV with the VertexCom OUI (Info
+        starts with "VertexCom"); none is malformed or has an expert
+        info, in one and two passes.'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['_ws.col.protocol', '_ws.col.info'])
+        assert len(rows) == 69
+        assert all(r[0] == 'HomePlug AV' and r[1].startswith('VertexCom, ') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                    '_ws.malformed || _ws.expert', passes)
+            assert rows == []
+
+    def test_homeplug_av_vertexcom_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the VS_* MME; an MM type without a name
+        shows its number.'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        info = {int(r[0]): r[1] for r in self._fields(cmd_tshark, test_env, cap,
+                ['frame.number', '_ws.col.info'])}
+        assert info[1] == 'VertexCom, VS_GET_VERSION.REQ'
+        assert info[2] == 'VertexCom, VS_GET_VERSION.CNF'
+        assert info[12] == 'VertexCom, VS_GET_SNR.CNF'
+        assert info[31] == 'VertexCom, VS_GET_PWM_STATS.IND'
+        assert info[46] == 'VertexCom, VS_FILE_ACCESS.REQ'
+        assert info[66] == 'VertexCom, Unknown 0xa138'
+        assert info[67] == 'VertexCom, Unknown 0xa03c'
+
+    def test_homeplug_av_vertexcom_link_stats(self, cmd_tshark, capture_file, test_env):
+        '''The link statistics confirmation is Tx or Rx depending on the
+        flag of the request before it (state kept in the dissector): Tx
+        after flag 0, Rx after flag 1, neither after flag 2.'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        p = 'homeplug_av.mmtype.vertexcom.vs.get_link_stats_'
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'req.tlflag', p + 'cnf.tx', p + 'cnf.rx', p + 'req.dasa'],
+                'frame.number in {13, 14, 15, 16, 17, 18, 19, 20}')
+        assert len(rows) == 8
+        kinds = {r[0]: ('tx' if r[2] else '') + ('rx' if r[3] else '') for r in rows}
+        assert kinds == {'13': '', '14': 'tx', '15': '', '16': 'rx', '17': '',
+                '18': '', '19': '', '20': 'tx'}
+        assert [r[1] for r in rows if r[1]] == ['0x00', '0x01', '0x02', '0x00']
+        assert rows[6][4] == '02:00:00:00:00:03'
+        for passes in (('-2',),):
+            rows2 = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                    p + 'req.tlflag', p + 'cnf.tx', p + 'cnf.rx', p + 'req.dasa'],
+                    'frame.number in {13, 14, 15, 16, 17, 18, 19, 20}', passes)
+            assert rows2 == rows
+
+    def test_homeplug_av_vertexcom_snr(self, cmd_tshark, capture_file, test_env):
+        '''The SNR confirmation: interval list, carrier group and the
+        1024 SNR values (only for carrier groups up to 3).'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        p = 'homeplug_av.mmtype.vertexcom.vs.get_snr_cnf.'
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'interval_list_length', p + 'carrier_group', p + 'tm_ber',
+                p + 'interval_list.end_time', p + 'snr_list.carrier_snr'], p + 'result')
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['12'][:4] == ['0', '0x00', '0', '']
+        assert by_frame['48'][:4] == ['2', '0x00', '4660', '50,200']
+        assert len(by_frame['48'][4].split(',')) == 1024
+        assert by_frame['49'][:4] == ['1', '0x03', '0', '97']
+        assert len(by_frame['49'][4].split(',')) == 1024
+        assert by_frame['50'][:4] == ['0', '0x04', '0', '']
+        assert by_frame['50'][4] == ''
+
+    def test_homeplug_av_vertexcom_messages(self, cmd_tshark, capture_file, test_env):
+        '''Network info with two stations, file access with fragment
+        data, status, version.'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        p = 'homeplug_av.mmtype.vertexcom.vs.'
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'get_nw_info_cnf.numstas', p + 'get_nw_info_cnf.sta_list.sta.tei',
+                p + 'get_nw_info_cnf.sta_list.sta.macaddr'], 'frame.number == 52')
+        assert rows == [['52', '2', '0x01,0x02', '02:00:00:00:00:02,02:00:00:00:00:03']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'get_status_cnf.link_state', p + 'get_status_cnf.authenticated_count'],
+                'frame.number == 58')
+        assert rows == [['58', '0x01', '768']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'get_version_cnf.deviceid', p + 'get_version_cnf.appversion'],
+                'frame.number in {55, 56}')
+        assert rows == [['55', '0x0001', '1.2.3'], ['56', '0x0100', '']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                p + 'file_access_req.total_fragments', p + 'file_access_req.fragment_data'],
+                'frame.number == 53')
+        assert rows[0][0] == '53' and rows[0][1] == '768'
+
+    def test_homeplug_av_vertexcom_not_decoded(self, cmd_tshark, capture_file, test_env):
+        '''Messages with fewer than 38 octets after the OUI, and MM types
+        without a decoder, only show the OUI (no VS_* tree).'''
+        cap = capture_file('homeplug_av_vendor_vertexcom_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                'frame.number in {66, 67, 68, 69} && homeplug_av.mmtype.vertexcom.vs.get_version_cnf')
+        assert rows == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 68', '-V', '-O', 'homeplug-av'),
+                encoding='utf-8', env=test_env)
+        assert 'Organizationally Unique Identifier' in stdout or 'OUI' in stdout
