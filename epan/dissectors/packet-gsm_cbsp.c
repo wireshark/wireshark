@@ -410,7 +410,7 @@ dissect_cbsp_content_ie(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, int 
 	next_tvb = tvb_new_subset_length(tvb, offset+1, len-1);
 
 	unpacked_tvb = dissect_cbs_data(sms_encoding, next_tvb, tree, pinfo, 0);
-	if (tree) {
+	if (tree && unpacked_tvb) {
 		unsigned captured_len = tvb_captured_length(unpacked_tvb);
 		proto_tree *cbs_page_subtree = proto_item_add_subtree(cbs_page_item, ett_cbsp_cbs_page_content);
 		proto_tree_add_item_ret_string(cbs_page_subtree, hf_cbsp_cbs_page_content, unpacked_tvb,
@@ -671,6 +671,7 @@ dissect_cbsp_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			break;
 		case TLV_TYPE_TLV:
 			len = tvb_get_uint8(tvb, offset);
+			len_len = 1;
 			break;
 		case TLV_TYPE_TL16V:
 			len = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
