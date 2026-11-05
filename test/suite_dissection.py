@@ -77614,3 +77614,108 @@ class TestDissectIgap:
                 '-Y', 'frame.number == 20', '-V', '-O', 'igap',
             ), encoding='utf-8', env=test_env)
         assert '25.5 sec (0xff)' in stdout or '25,5 sec (0xff)' in stdout
+
+
+class TestDissectIgmp:
+    def test_igmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IGMP versions 0-3, multicast traceroute and unknown types over
+        IP protocol 2, and one IP fragment. No frame is malformed or has a
+        warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 60
+        assert protocols.count('IGMPv0') == 13
+        assert protocols.count('IGMPv1') == 2
+        assert protocols.count('IGMPv2') == 7
+        assert protocols.count('IGMPv3') == 29
+        assert protocols.count('IGMP') == 8
+        assert protocols.count('IPv4') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('igmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_igmp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column by version and message, including the join and
+        leave summaries of version 3 reports.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igmp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert info[1] == 'Create Group Request'
+        assert info[12] == 'Unknown Type:0x00'
+        assert info[14] == 'Membership Query'
+        assert info[16] == 'Membership Query, general'
+        assert info[17] == 'Membership Query, specific for group 224.1.2.3'
+        assert info[18] == 'Membership Report group 224.1.2.3'
+        assert info[20] == 'Leave Group 224.1.2.3'
+        assert info[27] == ('Membership Query, specific for group 224.1.2.3, '
+                            'sources {192.0.2.7, 192.0.2.8, 192.0.2.9}')
+        assert info[28] == 'Membership Report - General query'
+        assert info[29] == 'Membership Report / Leave group 224.1.2.3'
+        assert info[30] == 'Membership Report / Join group 224.1.2.3 for any sources'
+        assert info[36] == 'Membership Report / Join group 224.1.2.3, for source not {192.0.2.7}'
+        assert info[44] == ('Membership Report / Join group 224.1.2.3, for sources not in '
+                            '{192.0.2.7, 192.0.2.8}')
+        assert info[47] == 'Membership Report / Group 224.1.2.3, unknown record type (?)'
+        assert info[49] == ('Membership Report / Join group 224.1.2.3 for source {192.0.2.7} / '
+                            'Join group 224.4.5.6 for any sources / '
+                            'Group 224.7.8.9, new sources {192.0.2.1, 192.0.2.2}')
+        assert info[50] == 'Traceroute Query'
+        assert info[51] == 'Traceroute Request'
+        assert info[52] == 'Traceroute Response, 0 blocks'
+        assert info[53] == 'Traceroute Response, 1 block'
+        assert info[54] == 'Traceroute Response, 11 blocks'
+        assert info[56] == 'Unknown Type:0x77'
+
+    def test_igmp_v3_query_max_resp(self, cmd_tshark, capture_file, test_env):
+        '''The max response code of a version 3 query: a plain value
+        (frame 22) and the floating point form (frame 23), whose value is
+        shown with the locale's decimal separator.'''
+        import re
+        lines = {}
+        for frame in (22, 23):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('igmp_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-V', '-O', 'igmp',
+                ), encoding='utf-8', env=test_env)
+            lines[frame] = [l.strip() for l in stdout.splitlines()]
+        assert any(re.fullmatch(r'Max Resp Time: 10[.,]0 sec \(0x64\)', l) for l in lines[22])
+        assert any(re.fullmatch(r'Max Resp Time: \d+[.,]\d sec \(0x8a\)', l) for l in lines[23])
+        assert any('Exponent' in l for l in lines[23])
+        assert any('Mantissa' in l for l in lines[23])
+
+    def test_igmp_checksum(self, cmd_tshark, capture_file, test_env):
+        '''All checksums verify (status 1); a capture cut short by the
+        snap length (frames 58, 60) is not verified (status 2).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igmp_coverage.pcap.gz'),
+                '-Y', 'igmp.checksum.status',
+                '-Tfields', '-eframe.number', '-eigmp.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        status = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert len(status) == 57
+        assert [n for n, s in status.items() if s != '1'] == [58, 60]
+        assert status[58] == '2' and status[60] == '2'
+
+    def test_igmp_traceroute_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Response data blocks of a traceroute response (frame 53, 55).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {52,53,55}',
+                '-Tfields', '-eframe.number', '-eigmp.mtrace.q_inaddr',
+                '-eigmp.mtrace.q_outaddr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '52\t\t',
+            '53\t10.0.0.1\t10.0.0.2',
+            '55\t10.0.0.1,10.0.1.1\t10.0.0.2,10.0.1.2',
+        ]
