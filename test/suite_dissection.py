@@ -77251,3 +77251,59 @@ class TestDissectIeee8021ah:
             '12\t7\t1\t11\t\t',
             '13\t0\t0\t20\t\t',
         ]
+
+
+class TestDissectIeee8021cb:
+    '''IEEE 802.1CB R-tag from the synthetic capture
+    ieee8021cb_coverage.pcapng.gz. Every frame is an Exported PDU naming
+    the dissector "ieee8021cb": packet-rtag.c registers the same ethertype
+    (0xf1c1) later and wins, so the ethertype never reaches this one.'''
+
+    def test_ieee8021cb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 10 frames have an ieee8021cb layer and decode without
+        malformed packets or error expert infos, in one and two passes (the
+        100 non-zero trailer octets of frame 9 give a warning).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021cb_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert all(p.startswith('exported_pdu:ieee8021cb:') for p in protocols)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee8021cb_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ieee8021cb_seq_etype(self, cmd_tshark, capture_file, test_env):
+        '''The sequence number and the encapsulated ethertype.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021cb_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eieee8021cb.seq',
+                '-eieee8021cb.etype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0000\t0x0800', '2\t0x0001\t0x0800', '3\t0xffff\t0x0800',
+            '4\t0x1234\t0x0806', '5\t0x0007\t0x88b5', '6\t0x0008\t0x0042',
+            '7\t0x0009\t0x8100', '8\t0x000a\t0x8100', '9\t0x1234\t0x0800',
+            '10\t0x000c\t0x0800',
+        ]
+
+    def test_ieee8021cb_trailer(self, cmd_tshark, capture_file, test_env):
+        '''The octets after the IPv4 packet are shown as ieee8021cb.trailer
+        (frame 9: 100 octets of 0x5a; the field index was uninitialised
+        before "IEEE 802.1CB: Initialise the ethertype data", which
+        AddressSanitizer reported in the ethertype dissector).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021cb_coverage.pcapng.gz'),
+                '-Y', 'ieee8021cb.trailer',
+                '-Tfields', '-eframe.number', '-eieee8021cb.trailer',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t' + '5a' * 100,
+            '10\t' + 'a5' * 6,
+        ]
