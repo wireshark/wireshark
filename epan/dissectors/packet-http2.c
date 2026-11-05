@@ -2116,8 +2116,12 @@ populate_http_header_tracking(tvbuff_t *tvb, packet_info *pinfo, http2_session_t
     /* Prepare dissector for extended CONNECT protocol */
     if (stream_info->is_stream_http_connect
         && strcmp(header_name, HTTP2_HEADER_PROTOCOL) == 0) {
-        stream_info->protocol = header_value;
+        stream_info->protocol = wmem_strdup(wmem_file_scope(), header_value);
         stream_info->next_handle = http_upgrade_dissector(header_value);
+        if (stream_info->next_handle == http2_handle) {
+            /* Tunnelling HTTP/2 inside itself would recurse without end. */
+            stream_info->next_handle = NULL;
+        }
         stream_info->upgrade_info = wmem_new0(wmem_file_scope(), http_upgrade_info_t);
         stream_info->upgrade_info->server_port = pinfo->destport;
         stream_info->upgrade_info->http_version = 2;
@@ -3540,8 +3544,15 @@ dissect_http2_data_partial_body(tvbuff_t *tvb, packet_info *pinfo, http2_session
     proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, length, ENC_NA);
 
     if (stream_info->next_handle) {
+        if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+            proto_tree_add_expert_format(http2_tree, pinfo, &ei_http2_reassembly_error, tvb, offset, length,
+                "Too many nested tunnelled protocols, not dissecting further.");
+            return;
+        }
+        increment_dissection_depth(pinfo);
         stream_info->upgrade_info->from_server = select_http2_flow_index(pinfo, http2_session) == 1;
         call_dissector_only(stream_info->next_handle, tvb_new_subset_remaining(tvb, offset), pinfo, proto_tree_get_parent_tree(proto_tree_get_parent_tree(http2_tree)), stream_info->upgrade_info);
+        decrement_dissection_depth(pinfo);
     }
 }
 
