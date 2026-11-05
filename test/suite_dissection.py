@@ -61690,3 +61690,94 @@ class TestDissectGed125:
             '106 TCP 40003 → 7000 [PSH, ACK] Seq=470 Ack=1 Win=65535 Len=6',
             '107 TCP 40003 → 7000 [PSH, ACK] Seq=476 Ack=1 Win=65535 Len=6',
         ]
+
+
+class TestDissectGelf:
+    '''GELF from the synthetic capture gelf_coverage.pcapng.gz. Frames 1
+    to 29 are UDP datagrams, reached with the "gelf_udp" heuristic
+    dissector (disabled by default); frames 30 to 44 are Exported PDUs
+    that name the "gelf-udp" dissector.'''
+
+    @staticmethod
+    def gelf_opts():
+        return ('--enable-heuristic', 'gelf_udp')
+
+    def test_gelf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1 to 21 and 30 to 44 are GELF; frames 22 to 29 are
+        datagrams the heuristic rejects. No malformed packets or error
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gelf_opts(),
+                '-r', capture_file('gelf_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert len(protocols) == 44
+        assert [n for n, p in protocols.items() if p == 'UDP'] == list(range(22, 30))
+        assert all(p.startswith('GELF') for n, p in protocols.items() if n not in range(22, 30))
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.gelf_opts(),
+                    '-r', capture_file('gelf_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gelf_heuristic_disabled(self, cmd_tshark, capture_file, test_env):
+        '''The UDP datagrams are not GELF unless the heuristic is
+        enabled; the Exported PDU frames always are.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gelf_coverage.pcapng.gz'),
+                '-Y', 'gelf', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(30, 45)]
+
+    def test_gelf_types(self, cmd_tshark, capture_file, test_env):
+        '''Every header type, and the JSON inside after decompressing.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gelf_opts(),
+                '-r', capture_file('gelf_coverage.pcapng.gz'),
+                '-Y', 'gelf.chunked == 0',
+                '-Tfields', '-eframe.number', '-egelf.type', '-e_ws.col.info',
+                '-ejson.member_with_value',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == [str(n) for n in list(range(1, 8)) + list(range(30, 37))]
+        types = [r[1] for r in rows]
+        assert types == ['0x7b22', '0x1f3c', '0x7801', '0x785e', '0x789c', '0x78da', '0x1f8b'] * 2
+        infos = [r[2] for r in rows]
+        assert infos[:7] == ['uncompressed plain, JSON', 'uncompressed, JSON', 'ZLIB, JSON',
+                'ZLIB, JSON', 'ZLIB, JSON', 'ZLIB, JSON', 'GZIP, JSON']
+        assert all(r[3].startswith('version:1.1') for r in rows)
+
+    def test_gelf_chunked(self, cmd_tshark, capture_file, test_env):
+        '''Chunked messages are reassembled, in or out of order and
+        interleaved with other messages, and the JSON inside is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gelf_opts(), '-2',
+                '-r', capture_file('gelf_coverage.pcapng.gz'),
+                '-Y', 'gelf.reassembled.in || gelf.reassembled.length',
+                '-Tfields', '-eframe.number', '-egelf.chunk.number',
+                '-egelf.chunk.count', '-egelf.reassembled.length', '-ejson.member_with_value',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        # the frames that complete a message: number, last chunk, count, length
+        completing = {r[0]: r[3] for r in rows if r[3]}
+        assert completing == {'10': '151', '14': '782', '18': '152', '19': '164',
+                '21': '784', '39': '151', '41': '164', '42': '120', '44': '151'}
+        # the first pass shows the message in the last chunk only; the second
+        # pass also links the earlier chunks to the frame that completes it
+        reassembled_in = {r[0] for r in rows if not r[3]}
+        assert {'8', '9', '11', '12', '13', '15', '16', '17', '20', '37', '38', '40', '43'} == reassembled_in
+
+    def test_gelf_chunk_fields(self, cmd_tshark, capture_file, test_env):
+        '''Message id, chunk number and count of the chunked packets.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gelf_opts(),
+                '-r', capture_file('gelf_coverage.pcapng.gz'),
+                '-Y', 'gelf.chunked == 1 && frame.number >= 11 && frame.number <= 14',
+                '-Tfields', '-eframe.number', '-egelf.chunk.msg_id',
+                '-egelf.chunk.number', '-egelf.chunk.count', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\ta1a2a3a4a5a6a7a8\t2\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 2, count 4',
+            '12\ta1a2a3a4a5a6a7a8\t0\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 0, count 4',
+            '13\ta1a2a3a4a5a6a7a8\t3\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 3, count 4',
+            '14\ta1a2a3a4a5a6a7a8\t1\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 1, count 4, JSON',
+        ]
