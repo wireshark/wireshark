@@ -1237,6 +1237,9 @@ static int dissect_idn_audio_header(tvbuff_t *tvb, int offset, proto_tree *idn_t
 	if (channels == 0) {
 		channels = 1;
 	}
+	if (max_samples < 0) {
+		max_samples = 0;
+	}
 	max_samples /= channels; // one sample covers all channels
 	minfo->max_samples = max_samples;
 
@@ -1313,26 +1316,39 @@ static void add_audio_sample_description(proto_item *audio_samples_tree, configu
 	return;
 }
 
-static int dissect_idn_formatted_audio_samples(tvbuff_t *tvb, int offset, proto_tree *idn_tree, configuration_info *config, message_info *minfo, int byte_len){
+static int dissect_idn_formatted_audio_samples(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, configuration_info *config, message_info *minfo, int byte_len){
 	uint16_t max_samples = minfo->max_samples;
 	uint8_t channels = config->audio_channels;
 	int sample_group_counter = 1;
 	wmem_strbuf_t *values;
 	wmem_strbuf_t *group_numbers;
 
+	if (channels == 0 || byte_len <= 0) {
+		expert_add_info_format(NULL, idn_tree, &ei_idn_audio_sample_size_mismatch, "Audio samples with zero channels or zero sample length");
+		return offset;
+	}
+
 	uint16_t expected_length = max_samples * byte_len * channels;
 	if(expected_length != tvb_reported_length_remaining(tvb, offset)) {
 		expert_add_info_format(NULL, idn_tree, &ei_idn_audio_sample_size_mismatch, "Audio sample size mismatch: expected %u bytes, got %u bytes (max_samples:%u, channels %u, byte_len: %d)",expected_length, tvb_reported_length_remaining(tvb, offset), max_samples, channels, byte_len);
 	}
+	{
+		/* Do not claim more samples than the remaining bytes can hold. */
+		unsigned remaining = tvb_reported_length_remaining(tvb, offset);
+		unsigned can_hold = remaining / ((unsigned)channels * (unsigned)byte_len);
+		if (max_samples > can_hold) {
+			max_samples = (uint16_t)can_hold;
+		}
+	}
 	//add samples in groups of 10
 	while (max_samples >= 10){
-		group_numbers = wmem_strbuf_new_len(wmem_file_scope(), "", 0);
+		group_numbers = wmem_strbuf_new_len(pinfo->pool, "", 0);
 		wmem_strbuf_append_printf(group_numbers, "Samples %d-%d ", sample_group_counter, sample_group_counter + 9);
 		proto_tree *subtree = proto_tree_add_subtree(idn_tree, tvb, offset, 10 * channels * byte_len, ett_audio_samples_subtree, NULL, wmem_strbuf_get_str(group_numbers));
 		//adding description of layout and channels
 		add_audio_sample_description(subtree, config);
 		for(int j = 0; j < 10; j++) {
-			values = wmem_strbuf_new_len(wmem_file_scope(), "", 0);
+			values = wmem_strbuf_new_len(pinfo->pool, "", 0);
 			for(int i = 0; i < (int)channels; i++) {
 				switch(byte_len){
 					case 1:
@@ -1355,14 +1371,14 @@ static int dissect_idn_formatted_audio_samples(tvbuff_t *tvb, int offset, proto_
 		sample_group_counter += 10;
 	}
 	if(max_samples > 0){//add any remaining samples
-		group_numbers = wmem_strbuf_new_len(wmem_file_scope(), "", 0);
+		group_numbers = wmem_strbuf_new_len(pinfo->pool, "", 0);
 		wmem_strbuf_append_printf(group_numbers, "Samples %d-%d ", sample_group_counter, sample_group_counter + max_samples - 1);
 		proto_tree *subtree = proto_tree_add_subtree(idn_tree, tvb, offset, max_samples * channels * byte_len, ett_audio_samples_subtree, NULL, wmem_strbuf_get_str(group_numbers));
 
 		while(max_samples > 0){
 			int remaining_samples = max_samples;
 			max_samples--;
-			values = wmem_strbuf_new_len(wmem_file_scope(), "", 0);
+			values = wmem_strbuf_new_len(pinfo->pool, "", 0);
 			for (int i = 0; i < (int)channels; i++) {
 				switch(byte_len){
 					case 1:
@@ -1386,7 +1402,7 @@ static int dissect_idn_formatted_audio_samples(tvbuff_t *tvb, int offset, proto_
 	return offset;
 }
 
-static int dissect_idn_audio_samples(tvbuff_t *tvb, int offset, proto_tree *idn_tree, configuration_info  * config, message_info *minfo){
+static int dissect_idn_audio_samples(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree, configuration_info  * config, message_info *minfo){
 	proto_item *audio_samples_tree = proto_tree_add_subtree(idn_tree, tvb, offset, 4, ett_audio_samples, NULL, "Audio Samples");
 	uint8_t audio_format = config->audio_format;
 	uint16_t sample_count = minfo->max_samples;
@@ -1414,7 +1430,7 @@ static int dissect_idn_audio_samples(tvbuff_t *tvb, int offset, proto_tree *idn_
 			proto_item_append_text(audio_samples_tree, ", unknown format");
 			break;
 	}
-	offset = dissect_idn_formatted_audio_samples(tvb, offset, audio_samples_tree, config, minfo, byte_len);
+	offset = dissect_idn_formatted_audio_samples(tvb, pinfo, offset, audio_samples_tree, config, minfo, byte_len);
 	return offset;
 }
 
@@ -1424,7 +1440,7 @@ static int dissect_idn_audio(tvbuff_t *tvb, packet_info *pinfo, int offset, prot
 	offset = dissect_idn_audio_dictionary(tvb, pinfo, offset, idn_tree, config);
 	}
 	offset = dissect_idn_audio_header(tvb, offset, idn_tree, minfo, config);
-	offset = dissect_idn_audio_samples(tvb, offset, idn_tree, config, minfo);
+	offset = dissect_idn_audio_samples(tvb, pinfo, offset, idn_tree, config, minfo);
 	return offset;
 }
 
