@@ -67,6 +67,7 @@
 #define DNS_T_NSEC3         50              /* Next secure hash (RFC 5155) */
 #define DNS_T_NSEC3PARAM    51              /* NSEC3 parameters (RFC 5155) */
 #define DNS_T_TLSA          52              /* TLSA (RFC 6698) */
+#define DNS_T_SMIMEA        53              /* S/MIME cert association (RFC 8162) */
 #define DNS_T_HIP           55              /* Host Identity Protocol (HIP) RR (RFC 5205) */
 #define DNS_T_NINFO         56              /* NINFO */
 #define DNS_T_RKEY          57              /* RKEY */

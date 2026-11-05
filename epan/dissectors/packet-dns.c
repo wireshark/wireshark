@@ -536,6 +536,10 @@ static int hf_dns_tlsa_certificate_usage;
 static int hf_dns_tlsa_selector;
 static int hf_dns_tlsa_matching_type;
 static int hf_dns_tlsa_certificate_association_data;
+static int hf_dns_smimea_certificate_usage;
+static int hf_dns_smimea_selector;
+static int hf_dns_smimea_matching_type;
+static int hf_dns_smimea_certificate_association_data;
 static int hf_dns_tsig_algorithm_name;
 static int hf_dns_tsig_time_signed;
 static int hf_dns_tsig_error;
@@ -1070,6 +1074,7 @@ static const value_string dns_types_vals[] = {
   { DNS_T_NSEC3,      "NSEC3"      }, /* RFC 5155 */
   { DNS_T_NSEC3PARAM, "NSEC3PARAM" }, /* RFC 5155 */
   { DNS_T_TLSA,       "TLSA"       },
+  { DNS_T_SMIMEA,     "SMIMEA"     }, /* RFC 8162 */
   { DNS_T_HIP,        "HIP"        }, /* RFC 5205 */
   { DNS_T_RKEY,       "RKEY"       },
   { DNS_T_TALINK,     "TALINK"     },
@@ -1174,6 +1179,7 @@ static const value_string dns_types_description_vals[] = {
   { DNS_T_NSEC3,      "" },
   { DNS_T_NSEC3PARAM, "" },
   { DNS_T_TLSA,       "" },
+  { DNS_T_SMIMEA,     "(S/MIME cert association)" }, /* RFC 8162 */ /* RFC 8162 */
   { DNS_T_HIP,        "(Host Identity Protocol)" }, /* RFC 5205 */
   { DNS_T_RKEY,       "" },
   { DNS_T_TALINK,     "(Trust Anchor LINK)" },
@@ -4198,6 +4204,27 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       rr_len --;
 
       proto_tree_add_item(rr_tree, hf_dns_tlsa_certificate_association_data, tvb, cur_offset, rr_len, ENC_NA);
+    }
+    break;
+
+    case DNS_T_SMIMEA: /* S/MIME cert association (53) */
+    {
+      int     rr_len = data_len;
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", name_out);
+
+      proto_tree_add_item(rr_tree, hf_dns_smimea_certificate_usage, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+
+      proto_tree_add_item(rr_tree, hf_dns_smimea_selector, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+
+      proto_tree_add_item(rr_tree, hf_dns_smimea_matching_type, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
+      cur_offset ++;
+      rr_len --;
+
+      proto_tree_add_item(rr_tree, hf_dns_smimea_certificate_association_data, tvb, cur_offset, rr_len, ENC_NA);
     }
     break;
 
@@ -7921,6 +7948,26 @@ proto_register_dns(void)
       { "Certificate Association Data", "dns.tlsa.certificate_association_data",
         FT_BYTES, BASE_NONE, NULL, 0,
         "The data refers to the certificate in the association", HFILL }},
+
+    { &hf_dns_smimea_certificate_usage,
+      { "Certificate Usage", "dns.smimea.certificate_usage",
+        FT_UINT8, BASE_DEC, VALS(tlsa_certificate_usage_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_smimea_selector,
+      { "Selector", "dns.smimea.selector",
+        FT_UINT8, BASE_DEC, VALS(tlsa_selector_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_smimea_matching_type,
+      { "Matching Type", "dns.smimea.matching_type",
+        FT_UINT8, BASE_DEC, VALS(tlsa_matching_type_vals), 0,
+        NULL, HFILL }},
+
+    { &hf_dns_smimea_certificate_association_data,
+      { "Certificate Association Data", "dns.smimea.certificate_association_data",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
     { &hf_dns_tsig_algorithm_name,
       { "Algorithm Name", "dns.tsig.algorithm_name",
