@@ -61536,3 +61536,157 @@ class TestDissectGearman:
             '83\t[MGR] shutdown\tshutdown',
             '84\t[MGR] ',
         ]
+
+
+class TestDissectGed125:
+    '''Cisco GED-125 over TCP port 7000 (GED-125 has no default port, so
+    the tests use -d tcp.port==7000,ged125), from the synthetic capture
+    ged125_coverage.pcap.gz.'''
+
+    @staticmethod
+    def ged_opts():
+        return ('-d', 'tcp.port==7000,ged125')
+
+    def test_ged125_protocols(self, cmd_tshark, capture_file, test_env):
+        '''131 frames are GED125 (frames 103, 104, 106 and 107 are TCP
+        segments of PDUs that are too short or reassembled in a later
+        frame), with no malformed packets or error expert infos in one
+        and two passes, with and without a tree.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 153
+        assert protocols.count('GED125') == 131
+        assert protocols.count('TCP') == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.ged_opts(),
+                    '-r', capture_file('ged125_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.ged_opts(),
+                    '-r', capture_file('ged125_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+
+    def test_ged125_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The GED125 tree is the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, *self.ged_opts(),
+                    '-r', capture_file('ged125_coverage.pcap.gz'),
+                    '-V', '-O', 'ged125',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_ged125_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every base message type and every service control sub type.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'ged125', '-Tfields', '-eged125.value',
+            ), encoding='utf-8', env=test_env)
+        values = [v for l in stdout.split() for v in l.split(',')]
+        assert sorted({int(v) for v in values}) == list(range(1, 25)) + list(range(41, 50)) + [99]
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'ged125.service_control', '-Tfields', '-eged125.service_control',
+            ), encoding='utf-8', env=test_env)
+        subs = [int(v) for v in stdout.split()]
+        assert len(subs) == 48
+        assert sorted(set(subs)) == [0] + list(range(1, 32))
+
+    def test_ged125_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of some messages.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', ' || '.join('frame.number == %d' % n for n in (4, 5, 10, 22, 37, 54, 83, 96, 97)),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tOPEN_REQ 20 bytes',
+            '5\tOPEN_CONF 32 bytes',
+            '10\tINIT_TRKGRP_DATA_EVENT 48 bytes',
+            '22\tDELIVERED_EVENT 393 bytes',
+            '37\tROUTE_REQUEST_EVENT 30 bytes',
+            '54\tService_Control->NEW_CALL DIALOGUE_ID=6 LEN=401',
+            '83\tService_Control->MICROAPP_PLAY DIALOGUE_ID=9 LEN=74',
+            '96\tService_Control->Unknown 31 DIALOGUE_ID=9 LEN=24',
+            '97\tService_Control->Unknown 0 DIALOGUE_ID=9 LEN=24',
+        ]
+
+    def test_ged125_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Operational status ranges, trunk group and count limits, the
+        dialogue id / send sequence number check and unknown sub types.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'ged125 && _ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        by_frame = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert sorted(by_frame) == [11, 13, 14, 15, 16, 17, 18, 29, 30, 31, 32, 33, 35,
+                64, 65, 66, 67, 68, 71, 72, 73, 74, 75, 93, 94, 96, 97]
+        assert by_frame[11] == ('TrunkGroupID must be between 0-65535,'
+                'Invalid number of trunks (max is 1023)')
+        assert by_frame[13] == 'Normal Operation'
+        assert by_frame[15] == 'Degraded call processing'
+        assert by_frame[16] == 'Conditions prevent call processing'
+        assert by_frame[17] == 'Error: Invalid message'
+        assert by_frame[35] == 'Invalid number of trunks (max is 1023)'
+        assert by_frame[93].startswith('Both SendSeqNo & DialogueID must be NULL')
+        assert by_frame[96] == 'Unknown Service-Control Message Sub-type, aborting dissection'
+
+    def test_ged125_pdu_length_offset(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in one TCP segment: the length of each PDU is read
+        at its own offset (it was read at offset 0, so the second PDU got
+        the length of the first), and an unknown type in a later PDU is
+        dissected too.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'frame.number == 101 || frame.number == 102',
+                '-Tfields', '-eframe.number', '-eged125.value', '-eged125.len',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '101\t5,45,6\t4,8,4',
+            '102\t5,99,6\t4,4,4',
+        ]
+
+    def test_ged125_media_specifier(self, cmd_tshark, capture_file, test_env):
+        '''The length of a media specifier covers the whole value (the
+        offset was advanced twice before the fix) and an ECC variable
+        array string is 5 octets shorter than the field.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 114',
+                '-Tfields', '-eframe.number', '-eged125.len',
+                '-eged125.media_protocol', '-eged125.library_designator',
+                '-eged125.floating_payload.strg', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows[117] == ['24,3,0', "'H'", "'A'", 'z']
+        assert rows[119] == ['31,10,0', "'H'", "'A'", 'zzzzzzzz']
+        assert rows[136] == ['30,9,0', "'F'", "'A'", 'zzzzzzz']
+        assert rows[141] == ['24,3,0', "'T'", '', 'yy']
+        assert rows[143] == ['31,10,0', "'T'", '', 'yyyyyyyyy']
+        assert rows[149] == ['31,10,0', "'D'", '', 'x']
+        # ECC_VAR_ARRAY, last frame
+        assert rows[150][-1] == 'ABCDEFG'
+
+    def test_ged125_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A DELIVERED_EVENT split over three segments, and a PDU that is
+        too short to identify (the dissector declines it).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.ged_opts(),
+                '-r', capture_file('ged125_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 103 && frame.number <= 107',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '103 TCP 40003 → 7000 [PSH, ACK] Seq=77 Ack=1 Win=65535 Len=14',
+            '104 TCP 40003 → 7000 [PSH, ACK] Seq=91 Ack=1 Win=65535 Len=26',
+            '105 GED125 DELIVERED_EVENT 393 bytes',
+            '106 TCP 40003 → 7000 [PSH, ACK] Seq=470 Ack=1 Win=65535 Len=6',
+            '107 TCP 40003 → 7000 [PSH, ACK] Seq=476 Ack=1 Win=65535 Len=6',
+        ]
