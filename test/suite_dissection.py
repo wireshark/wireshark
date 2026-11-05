@@ -59898,3 +59898,102 @@ class TestDissectFr:
                 '-o', 'fr.encap:ethernet', '-Y', 'frame.number == 15',
                 '-Tfields', '-eframe.protocols')
         assert stdout.strip() == 'fr:eth:ethertype:ip:udp:data'
+
+
+class TestDissectFtam:
+    def test_ftam_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The FTAM PDUs over the OSI upper layers on TCP port 102, and no
+        malformed packet or error expert info in one and two passes.'''
+        cap = capture_file('ftam_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Tfields', '-e_ws.col.protocol'), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 318
+        assert {p: protocols.count(p) for p in set(protocols)} == {
+            'TCP': 12, 'COTP': 4, 'ACSE': 4, 'PRES': 3, 'FTAM': 295}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        # The FTAM tree is the same in both passes
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V', '-O', 'ftam',
+                '-Y', 'ftam'), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V', '-O', 'ftam',
+                '-Y', 'ftam'), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_ftam_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every one of the 73 PDUs of the FTAM PDU choice is seen once
+        or more (the Info column names the PDU).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ftam_coverage.pcap.gz'), '-Y', 'ftam',
+                '-Tfields', '-e_ws.col.info'), encoding='utf-8', env=test_env)
+        seen = {w.rstrip(':') for w in stdout.split() if w.endswith(':')}
+        assert sorted(seen) == sorted([
+            'f-begin-group-request', 'f-begin-group-response', 'f-cancel-request',
+            'f-cancel-response', 'f-Change-attrib-reques', 'f-Change-attrib-respon',
+            'f-Change-Iink-attrib-response', 'f-Change-link-attrib-request',
+            'f-Change-prefix-request', 'f-Change-prefix-response', 'f-close-request',
+            'f-close-response', 'f-copy-request', 'f-copy-response',
+            'f-create-directory-request', 'f-create-directory-response', 'f-create-request',
+            'f-create-response', 'f-data-end-request', 'f-delete-request', 'f-delete-response',
+            'f-deselect-request', 'f-deselect-response', 'f-end-group-request',
+            'f-end-group-response', 'f-erase-request', 'f-erase-response',
+            'f-group-Change-attrib-request', 'f-group-Change-attrib-response',
+            'f-group-copy-request', 'f-group-copy-response', 'f-group-delete-request',
+            'f-group-delete-response', 'f-group-list-request', 'f-group-list-response',
+            'f-group-move-request', 'f-group-move-response', 'f-group-select-request',
+            'f-group-select-response', 'f-initialize-request', 'f-initialize-response',
+            'f-link-request', 'f-link-response', 'f-list-request', 'f-list-response',
+            'f-locate-request', 'f-locate-response', 'f-move-request', 'f-move-response',
+            'f-open-request', 'f-open-response', 'f-p-abort-request', 'f-read-attrib-request',
+            'f-read-attrib-response', 'f-read-link-attrib-request',
+            'f-read-link-attrib-response', 'f-read-request', 'f-recover-request',
+            'f-recover-response', 'f-restart-request', 'f-restart-response',
+            'f-select-another-request', 'f-select-another-response', 'f-select-request',
+            'f-select-response', 'f-terminate-request', 'f-terminate-response',
+            'f-transfer-end-request', 'f-transfer-end-response', 'f-u-abort-request',
+            'f-unlink-request', 'f-unlink-response', 'f-write-request',
+        ])
+        assert len(seen) == 73
+
+    def test_ftam_initialize(self, cmd_tshark, capture_file, test_env):
+        '''F-INITIALIZE in the ACSE user information: a request and a
+        response with their parameters, then the same in a second
+        association with only the mandatory parameters.'''
+        cap = capture_file('ftam_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', '_ws.col.info contains "f-initialize"', '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6', '7', '306', '307']
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 6', '-V', '-O', 'ftam'),
+                encoding='utf-8', env=test_env)
+        assert '    fTAM-Regime-PDU: f-initialize-request (0)\n' in stdout
+        assert '            implementation-information: ftam test\n' in stdout
+        assert '            service-class: f8\n' in stdout
+        assert '                1... .... = unconstrained-class: True\n' in stdout
+        assert '                direct-reference: 1.0.8571.5.2 (ISO FTAM sequential text)\n' in stdout
+
+    def test_ftam_text_binary_and_nesting(self, cmd_tshark, capture_file, test_env):
+        '''File contents in the unstructured text and binary document
+        types, two PDUs in one P-DATA, and FTAM PDUs nested through the
+        open type of the shared ASE information.'''
+        cap = capture_file('ftam_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number >= 292 && frame.number <= 294',
+                '-Tfields', '-eframe.number', '-eftam.unstructured_text',
+                '-eftam.unstructured_binary'), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['292', 'FTAM unstructured text\\r\\nsecond line', '']
+        assert lines[1] == ['293', '', ''.join('%02x' % i for i in range(40))]
+        assert lines[2] == ['294', 'plain text without BER encoding', '']
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 295', '-Tfields', '-e_ws.col.info'),
+                encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'f-read-request: f-data-end-request:'
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.protocols contains "ftam:ftam:ftam"', '-Tfields', '-eframe.number'),
+                encoding='utf-8', env=test_env)
+        assert stdout.split()[:6] == ['16', '21', '23', '50', '60', '61']
