@@ -39,6 +39,7 @@
 
 #include "packet-rtp.h"
 #include "packet-bssap.h"
+#include "packet-e212.h"
 #include "packet-ansi_a.h"
 
 /*
@@ -2459,6 +2460,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset, u
         str = tvb_bcd_dig_to_str(pinfo->pool, tvb, curr_offset, len - (curr_offset - offset), &Dgt_msid, true);
         proto_tree_add_string_format(tree, hf_ansi_a_imsi, tvb, curr_offset, len - (curr_offset - offset),
                                      str, "BCD Digits: %s", str);
+        add_assoc_imsi_item(tvb, pinfo, tree, str);
 
         proto_item_append_text(data_p->elem_item, " - IMSI (%s)", str);
         if (data_p->message_item)
