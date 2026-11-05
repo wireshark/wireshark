@@ -69057,3 +69057,114 @@ class TestDissectH248AnnexE:
                             ('h248.generic.sc.meth', 7)):
             rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, filt=filt)
             assert len(rows) == count, filt
+
+
+class TestDissectH248:
+    '''H.248 (MEGACO) binary BER messages from the synthetic capture
+    h248_coverage.pcapng.gz: frames 1-80 put every property, signal,
+    event and statistic of the registered packages (H.248.1 Annexes C and
+    E, H.248.2, H.248.7, H.248.10, Q.1950 and 3GPP) in a message, 81-100
+    are request/reply sequences, 101-243 messages built from the ASN.1
+    module (all kinds of transactions, MId, versions 1 to 3), 244-251
+    TCP/TPKT, 252-255 MTP3, 256-257 text MEGACO, 258-271 IPv6, Exported
+    PDU and context tracking and 272-278 reproducers of fixed bugs.'''
+
+    @staticmethod
+    def h248_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h248_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_protocols(self, cmd_tshark, capture_file, test_env):
+        '''278 frames; none is malformed or has an error expert info, in
+        one and two passes and with the context tracking.'''
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 278
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.248') == 269
+        assert protocols.count('H.248/SDP') == 2
+        assert protocols.count('H.248/SDP/SDP') == 1
+        assert protocols.count('MEGACO') == 2
+        assert protocols.count('TCP') == 4
+        for passes, extra in (((), ()), (('-2',), ()), ((), ('-o', 'h248.ctx_info:TRUE')),
+                              (('-2',), ('-o', 'h248.ctx_info:TRUE'))):
+            rows = self.h248_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                    passes=passes, extra=extra)
+            assert rows == []
+
+    def test_h248_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same Info column (except for
+        the first TCP segment of a reassembled TPKT, frame 249, which only
+        the second pass can complete).'''
+        flt = 'frame.number != 249'
+        one = self.h248_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', filt=flt)
+        two = self.h248_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', filt=flt, passes=('-2',))
+        assert one == two
+
+    def test_h248_packages(self, cmd_tshark, capture_file, test_env):
+        '''Package names, signals, parameters of the sub dissectors.'''
+        for filt, count in (('h248.package_name', 132), ('h248.package_signalid', 27),
+                            ('h248.chp.mgcon.reduction', 2), ('h248.package_3GUP.Mode', 5),
+                            ('h248.package_3GTFO.codeclist', 8), ('sdp.media.port', 4),
+                            ('h248.errorCode', 29), ('h248.serviceChangeReasonstr', 6),
+                            ('h248.term.wildcard.mode', 59), ('h248.mtpaddress.pc', 34)):
+            rows = self.h248_fields(cmd_tshark, capture_file, test_env, filt=filt)
+            assert len(rows) == count, filt
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'h248.mtpaddress.ni', 'h248.mtpaddress.pc',
+                                filt='frame.number == 105 || frame.number == 106')
+        assert rows == [['105', '0', '1165'], ['106', '1', '528648']]
+
+    def test_h248_version1(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 messages use the audit reply of H.248 v1.'''
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, filt='h248.auditValueReplyV1')
+        assert [r[0] for r in rows] == ['123', '126', '143']
+
+    def test_h248_transports(self, cmd_tshark, capture_file, test_env):
+        '''TCP with TPKT (a message in two segments, two messages in one
+        segment), MTP3, text MEGACO, IPv6 and Exported PDU.'''
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', 'h248.contextId',
+                                filt='frame.number >= 244 && frame.number <= 251')
+        assert [r[1] for r in rows] == ['TCP', 'TCP', 'TCP', 'H.248', 'H.248', 'TCP', 'H.248', 'H.248']
+        assert rows[7][2] == '0x00000000,0x00000000'
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'mtp3.opc', 'mtp3.dpc',
+                                filt='mtp3 && h248')
+        assert rows == [['252', '4660', '1383'], ['253', '4661', '1383'], ['254', '4662', '1383'],
+                        ['255', '1383', '4660']]
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'megaco.transid', filt='megaco')
+        assert rows == [['256', '9'], ['257', '10']]
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'ipv6.src', 'ip.src',
+                                filt='frame.number >= 258 && frame.number <= 261')
+        assert [r[1:] for r in rows] == [['2001:db8::1', ''], ['2001:db8::2', ''], ['', ''], ['', '']]
+
+    def test_h248_context_tracking(self, cmd_tshark, capture_file, test_env):
+        '''With h248.ctx_info the commands and terminations of context 5
+        are collected; a request for all terminations is answered with
+        the named ones (frames 264 and 265).'''
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'h248.ctx', 'h248.ctx.cmd', 'h248.ctx.term',
+                                filt='frame.number == 82 || frame.number == 265',
+                                extra=('-o', 'h248.ctx_info:TRUE'))
+        assert rows == [['82', '0x00000005', '81,81,81,82,82', '010203,5254502f31'],
+                        ['265', '0x0000000c', '264,265', '0a,0b']]
+        rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'h248.ctx.term.nsap', 'h248.ctx.term.bir',
+                                filt='frame.number == 267', extra=('-o', 'h248.ctx_info:TRUE'))
+        assert rows == [['267', '39840f0007880000000000000000010102030400,39840f0007880000000000000000010102030400', '0001,0001']]
+
+    def test_h248_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 272-278: an empty constructed wildcard field, an empty
+        constructed signal parameter name (both threw a dissector bug), the
+        apv specific parameters as an octet string (an assertion), and
+        the transaction id reuse that read an uninitialised pointer with
+        h248.ctx_info in the second pass.'''
+        for passes in ((), ('-2',)):
+            rows = self.h248_fields(cmd_tshark, capture_file, test_env, 'h248.contextId', 'h248.an.apv.sp',
+                                    '_ws.col.info', filt='frame.number >= 272', passes=passes,
+                                    extra=('-o', 'h248.ctx_info:TRUE'))
+            assert [r[0] for r in rows] == [str(n) for n in range(272, 279)]
+            assert [r[1] for r in rows] == ['0x00000001'] * 3 + ['0xfffffffe', '0x00000005', '0x00000005',
+                                                                '0x00000009']
+            assert rows[2][2] == 'abc'
+            assert all('AddReq' in r[3] and 'Dissector bug' not in r[3] for r in rows)
