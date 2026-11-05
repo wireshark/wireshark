@@ -560,15 +560,14 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 #if defined(BACNET_MSTP_CHECKSUM_VALIDATE)
 		/* 16-bit checksum - calculate to validate */
+		/* It is sent least significant octet first */
 		crc16 = crc16_ccitt_tvb_offset(tvb, offset, mstp_frame_pdu_len);
-		/* convert it to on-the-wire format */
-		crc16 = g_htons(crc16);
 
 		proto_tree_add_checksum(subtree, tvb, offset+mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad, pinfo, crc16,
-							ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+							ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 #else
 		proto_tree_add_checksum(subtree, tvb, offset+mstp_frame_pdu_len, hf_mstp_frame_crc16, hf_mstp_frame_checksum_status, &ei_mstp_frame_checksum_bad, pinfo, 0,
-							ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+							ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
 #endif
 	}
 }
