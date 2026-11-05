@@ -61395,3 +61395,144 @@ class TestDissectGdt:
         rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
                 'frame.number == 88', 'gdt.version', 'gdt.encrypted_data')
         assert rows == [['88', '1,1', '7365636f6e64']]
+
+
+class TestDissectGearman:
+    '''Gearman on its default TCP port 4730, from the synthetic capture
+    gearman_coverage.pcap.gz.'''
+
+    def test_gearman_protocols(self, cmd_tshark, capture_file, test_env):
+        '''64 frames are Gearman (frames 62 and 63 are TCP segments that
+        hold the start of a PDU reassembled in frame 64), with no
+        malformed packets in one and two passes, with and without a tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 97
+        assert protocols.count('Gearman') == 64
+        assert protocols.count('TCP') == 33
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gearman_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gearman_coverage.pcap.gz'),
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+
+    def test_gearman_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The Gearman tree is the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gearman_coverage.pcap.gz'),
+                    '-V', '-O', 'gearman',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_gearman_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command type and its arguments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Y', 'gearman.pkt_type',
+                '-Tfields', '-eframe.number', '-egearman.pkt_type',
+                '-egearman.func.name', '-egearman.uniq_id',
+                '-egearman.func.arg', '-egearman.reducer',
+                '-egearman.job.handle', '-egearman.numerator',
+                '-egearman.denominator', '-egearman.client_count',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert len(rows) == 52
+        # frame: type, func, uniq, arg, reducer, handle, numerator, denominator, client count
+        assert rows[8] == ['7', 'reverse', 'u1', 'hello', '', '', '', '', '']
+        assert rows[9] == ['8', '', '', '', '', 'H:host:1', '', '', '']
+        assert rows[16] == ['35', 'cron', 'u7', 'sched arg', '', '', '', '', '']
+        assert rows[18] == ['37', 'map', 'u9', '', 'reducefn', '', '', '', '']
+        assert rows[21] == ['20', '', '', '', '', 'H:host:1', '50', '100', '']
+        assert rows[23] == ['42', '', '', '', '', 'u1', '50', '100', '2']
+        assert rows[24] == ['12', '', '', '', '', 'H:host:1', '50', '100', '']
+        assert rows[28] == ['13', '', '', '', '', 'H:host:1', '', '', '']
+        assert rows[49] == ['11', 'reverse', '', 'worker arg', '', 'H:host:3', '', '', '']
+        assert rows[50] == ['31', 'reverse', 'u11', 'worker arg', '', 'H:host:3', '', '', '']
+        assert rows[51] == ['40', 'map', 'u12', 'worker arg', 'reducefn', 'H:host:3', '', '', '']
+        # the same set of command types is covered
+        types = sorted({int(r[0].split(',')[0]) for r in rows.values()})
+        assert types == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+                18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+                36, 37, 38, 39, 40, 41, 42, 99, 100]
+
+    def test_gearman_options(self, cmd_tshark, capture_file, test_env):
+        '''Options, schedule fields, epoch, timeout, client id, echo text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Y', 'gearman.submit_job_sched.minute || gearman.submit_job.epoch_time || gearman.timeout.value || gearman.client_id || gearman.opt.name || gearman.echo_text',
+                '-Tfields', '-eframe.number', '-egearman.opt.name',
+                '-egearman.submit_job_sched.minute', '-egearman.submit_job_sched.hour',
+                '-egearman.submit_job_sched.day_of_month', '-egearman.submit_job_sched.month',
+                '-egearman.submit_job_sched.day_of_week', '-egearman.submit_job.epoch_time',
+                '-egearman.timeout.value', '-egearman.client_id', '-egearman.echo_text',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows[6] == ['exceptions', '', '', '', '', '', '', '', '', '']
+        assert rows[16] == ['', '30', '12', '1', '6', '3', '', '', '', '']
+        assert rows[17] == ['', '', '', '', '', '', '1700000000', '', '', '']
+        assert rows[39] == ['', '', '', '', '', '', '', '30', '', '']
+        assert rows[42] == ['', '', '', '', '', '', '', '', 'worker-7', '']
+        assert rows[4][-1] == 'ping'
+        assert rows[92][-1] == 'server side request'
+
+    def test_gearman_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split over three segments, two PDUs in one segment and
+        three PDUs in one segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 61 && frame.number <= 66 || frame.number == 94',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '61 [REQ] ECHO_REQ(16) LEN=3 , [REQ] ECHO_REQ(16) LEN=3 , [REQ] SUBMIT_JOB(7) LEN=11',
+            '62 40003 → 4730 [PSH, ACK] Seq=54 Ack=1 Win=65535 Len=5',
+            '63 40003 → 4730 [PSH, ACK] Seq=59 Ack=1 Win=65535 Len=95 [TCP PDU reassembled in 63]',
+            '64 [REQ] SUBMIT_JOB(7) LEN=312 , [REQ] RESET_ABILITIES(3) LEN=0',
+            '65 [RES] JOB_CREATED(8) LEN=5',
+            '66 [RES] WORK_COMPLETE(13) LEN=56',
+            '94 [REQ] SUBMIT_JOB(7) LEN=16',
+        ]
+
+    def test_gearman_unknown_command(self, cmd_tshark, capture_file, test_env):
+        '''Unknown types, and GET_STATUS, whose argument is not decoded,
+        get the "Unknown command" warning when they carry data (also type 0, TEXT).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Y', 'gearman && _ws.expert.message == "Unknown command"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['20', '52', '54']
+
+    def test_gearman_management(self, cmd_tshark, capture_file, test_env):
+        '''Management (text) protocol lines.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gearman_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 73 && frame.number <= 84',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-egearman.mgr_cmd',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip('\t') for l in stdout.splitlines()] == [
+            '73\t[MGR] workers\tworkers',
+            '74\t[MGR] 32 10.0.0.1 worker-7 : reverse slow,.',
+            '75\t[MGR] status\tstatus',
+            '76\t[MGR] reverse\\\\t1\\\\t1\\\\t1,.',
+            '77\t[MGR] maxqueue reverse 10',
+            '78\t[MGR] maxqueue\tmaxqueue',
+            '79\t[MGR] status\tversion,workers,status',
+            '80\t[MGR] OK 1.1.19',
+            '81\t[MGR] workers,bar,baz\tworkers',
+            '82\t[MGR] workers,unknown line\tworkers',
+            '83\t[MGR] shutdown\tshutdown',
+            '84\t[MGR] ',
+        ]
