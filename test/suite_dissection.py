@@ -67703,3 +67703,91 @@ class TestDissectGtpv2:
         rows = {r[0]: r[1] for r in self._fields(cmd_tshark, capture_file, test_env,
                 'gtpv2.pres_rep_area_action.no_tai')}
         assert rows['192'] == '2,1,0,0'
+
+
+class TestDissectGue:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gue_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gue_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed; the only expert infos are the warnings of the
+        invalid IP versions (19, 20) and unknown variants (21, 22), in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number',
+                                  '-e_ws.expert.message')
+            assert stdout.splitlines() == [
+                '19\tInvalid IP version 5 for GUE variant 1',
+                '20\tInvalid IP version 7 for GUE variant 1',
+                '21\tUnknown GUE variant 2',
+                '22\tUnknown GUE variant 3',
+            ]
+
+    def test_gue_frame_counts(self, cmd_tshark, capture_file, test_env):
+        '''22 of the 24 frames are GUE; the last two (variant 0 with fewer than 4
+        octets) are not and stay plain UDP.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'gue', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(1, 23)]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', '!gue', '-Tfields',
+                              '-eframe.number', '-e_ws.col.protocol')
+        assert stdout.splitlines() == ['23\tUDP', '24\tUDP']
+
+    def test_gue_variant0_header(self, cmd_tshark, capture_file, test_env):
+        '''Data and control messages of variant 0 with extension fields.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gue.version == 0 && frame.number != 18 && frame.number != 9',
+                              '-Tfields', '-eframe.number', '-egue.c', '-egue.hlen', '-egue.proto',
+                              '-egue.ctype', '-egue.flags', '-egue.ext_data')
+        assert stdout.splitlines() == [
+            '1\tFalse\t0\t4\t\t0x0000\t',
+            '2\tFalse\t0\t41\t\t0x0000\t',
+            '3\tFalse\t0\t17\t\t0x0000\t',
+            '4\tFalse\t0\t1\t\t0x0000\t',
+            '5\tFalse\t0\t253\t\t0x0000\t',
+            '6\tFalse\t0\t59\t\t0x0000\t',
+            '7\tFalse\t1\t4\t\t0x0000\t01020304',
+            '8\tFalse\t3\t4\t\t0x8001\t0102030405060708090a0b0c',
+            '10\tFalse\t0\t4\t\t0x0100\t',
+            '11\tTrue\t0\t\t0\t0x0000\t',
+            '12\tTrue\t0\t\t255\t0x0000\t',
+            '13\tTrue\t2\t\t7\t0x0000\t0102030405060708',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 9',
+                              '-Tfields', '-egue.hlen', '-egue.flags')
+        assert stdout.strip() == '31\t0xffff'
+
+    def test_gue_payload_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The payload is handed to the dissector of the protocol number, directly
+        for variant 1, and the control payload to the data dissector.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'gue', '-Tfields',
+                              '-eframe.number', '-eframe.protocols')
+        lines = dict(l.split('\t') for l in stdout.splitlines())
+        assert lines['1'] == 'eth:ethertype:ip:udp:gue:ip:udp:data'
+        assert lines['2'] == 'eth:ethertype:ip:udp:gue:ipv6:udp:data'
+        assert lines['3'] == 'eth:ethertype:ip:udp:gue:udp:data'
+        assert lines['4'] == 'eth:ethertype:ip:udp:gue:icmp'
+        assert lines['5'] == 'eth:ethertype:ip:udp:gue:data'
+        assert lines['11'] == 'eth:ethertype:ip:udp:gue:data'
+        assert lines['14'] == 'eth:ethertype:ip:udp:gue:ip:udp:data'
+        assert lines['16'] == 'eth:ethertype:ip:udp:gue:ipv6:udp:data'
+        assert lines['17'] == 'eth:ethertype:ipv6:udp:gue:ip:udp:data'
+        assert lines['19'] == 'eth:ethertype:ip:udp:gue:data'
+
+    def test_gue_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Info column for unclaimed payloads, control messages and bad variants.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number in {5,6,11,12,13,19,21,22}',
+                              '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '5\tEncapsulated Unknown (253)',
+            '6\tEncapsulated IPv6-NoNxt',
+            '11\tControl message (type 0)',
+            '12\tControl message (type 255)',
+            '13\tControl message (type 7)',
+            '19\tInvalid IP version 5 for GUE variant 1',
+            '21\tUnknown GUE variant 2',
+            '22\tUnknown GUE variant 3',
+        ]
