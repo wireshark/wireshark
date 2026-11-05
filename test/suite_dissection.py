@@ -71080,3 +71080,105 @@ class TestDissectHdcp:
                 in stdout)
         assert 'Response to frame 16 (content of register unknown (0x8))' in stdout
         assert '%x' not in stdout
+
+
+class TestDissectHdfs:
+    '''HDFS client <-> namenode RPC over TCP from the synthetic capture
+    hdfs_coverage.pcap.gz. HDFS has no default port; the dissector is
+    selected with the "hdfs.tcp.port" preference (8020), which also tells
+    it which side is the namenode (responses).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-o', 'hdfs.tcp.port:8020',
+                '-r', capture_file('hdfs_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hdfs_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-23, 25, 26 and 28 are HDFS (9 requests of one kind and
+        responses); frames 24 and 27 are the first segments of two
+        responses that HDFS reassembles (segments of 1448 and 1321
+        octets). No malformed packets or error expert infos, in one and
+        two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs')
+        assert [r[0] for r in rows] == [str(n) for n in list(range(4, 24)) + [25, 26, 28]]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'tcp.len in {1448, 1321}',
+                            '_ws.col.protocol')
+        assert rows == [['24', 'TCP'], ['27', 'TCP']]
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hdfs_requests(self, cmd_tshark, capture_file, test_env):
+        '''Method names, parameter counts and the packet numbers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdfs.strcall', 'hdfs.seqno', 'hdfs.strcall', 'hdfs.params')
+        assert rows[:6] == [['5', '0', 'getProtocolVersion', '2'],
+                            ['7', '1', 'getFileInfo', '1'],
+                            ['9', '2', 'getBlockLocations', '3'],
+                            ['11', '3', 'mkdirs', '3'],
+                            ['13', '4', 'setReplication', '2'],
+                            ['15', '5', 'setSafeMode', '5']]
+        # the heartbeat has no parameter list
+        assert [r for r in rows if r[0] in ('17', '18')] == [
+            ['17', '6', 'sendHeartbeat', ''],
+            ['18', '7', 'datanodeprotocol.sendHeartbeat', '']]
+
+    def test_hdfs_setup_and_authentication(self, cmd_tshark, capture_file, test_env):
+        '''The connection header, and the authentication bytes in front of
+        the first call. The authentication length is a 32 bit number
+        ("HDFS: Fix a global over-read comparing type names" also
+        changed the field from a string to FT_UINT32).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.type',
+                            'hdfs.type', 'hdfs.version', 'hdfs.auth_type')
+        assert rows == [['4', 'hrpc', '4', '80']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.authlen',
+                            'hdfs.authlen', 'hdfs.auth', 'hdfs.len')
+        assert rows == [['5', '16', 'PLACEHOLDER-AUTH', '108']]
+
+    def test_hdfs_responses(self, cmd_tshark, capture_file, test_env):
+        '''Protocol version (long), file status, located blocks (2 blocks
+        in one segment, 10 and 9 blocks reassembled), a generic response
+        and the error statuses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.prover', 'hdfs.prover')
+        assert rows == [['6', '61']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.filename',
+                            'hdfs.filename', 'hdfs.ownername', 'hdfs.groupname',
+                            'hdfs.blockrep', 'hdfs.endblockloc', 'hdfs.isdir')
+        assert rows == [['8', 'file.txt', 'hdfsuser', 'supergroup', '3', '4096', '0']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.blockcount',
+                            'hdfs.blockcount', 'hdfs.blockloc', 'hdfs.hostname')
+        assert [r[:2] for r in rows] == [['10', '2'], ['25', '10'], ['28', '9']]
+        assert rows[0][2:] == ['1073741825,1073741826', 'node1,node1']
+        assert rows[1][2].count(',') == 9 and rows[2][2].count(',') == 8
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfs.success != 0',
+                            'hdfs.success')
+        assert rows == [['16', '1'], ['20', '4294967295']]
+
+    def test_hdfs_param_types(self, cmd_tshark, capture_file, test_env):
+        '''Numeric parameter types are shown as numbers (the dissector
+        takes 8 octets for all but short and boolean) and the
+        FsPermission value is followed by the permission bits.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 15',
+                            'hdfs.paramvalnum')
+        assert rows == [['15', '1,2,3,4,5']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {11, 13}',
+                            'hdfs.paramvalnum', 'hdfs.fileperm')
+        assert rows == [['11', '1', '493'], ['13', '3', '']]
+
+    def test_hdfs_type_length_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 21 and 22 have a parameter type or value whose length
+        (200, 300) is larger than the literal it is compared with; they
+        read past the literal before "HDFS: Fix a global over-read
+        comparing type names" (an AddressSanitizer failure; the output is
+        the same without it). The type is not taken for a number, and the
+        value is not taken for FsPermission.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {21, 22}',
+                            'hdfs.paramvalnum', 'hdfs.fileperm', 'hdfs.paramtype')
+        assert rows == [['21', '', '', 'long'], ['22', '', '', 'x']]
