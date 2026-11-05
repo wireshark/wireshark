@@ -13,6 +13,8 @@
 
 #include "config.h"
 
+#include <epan/packet.h>
+#include <epan/charsets.h>
 
 #include "packet-nfs.h"
 
@@ -229,8 +231,11 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				if (password > ident_decoded + ident_len)
 					password = ident_decoded + ident_len;
 
-				proto_tree_add_string(ident_tree, hf_hclnfsd_username, tvb, offset, ident_len, username);
-				proto_tree_add_string(ident_tree, hf_hclnfsd_password, tvb, offset, ident_len, password);
+				/* the decoded bytes are arbitrary, make them valid UTF-8 */
+				proto_tree_add_string(ident_tree, hf_hclnfsd_username, tvb, offset, ident_len,
+					(const char *)get_utf_8_string(pinfo->pool, (const uint8_t *)username, strlen(username)));
+				proto_tree_add_string(ident_tree, hf_hclnfsd_password, tvb, offset, ident_len,
+					(const char *)get_utf_8_string(pinfo->pool, (const uint8_t *)password, strlen(password)));
 			}
 
 			offset = newoffset;
