@@ -2329,8 +2329,8 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     /* Get the total length of the header and TLVs */
     length = tvb_get_letohs(tvb, 2);
 
-    if (length > tvb_captured_length(tvb)) {
-        /* Malformed packet. The TLVs exceeds our captured packet. */
+    if (length < 4 || length > tvb_captured_length(tvb)) {
+        /* Malformed packet. The header is shorter than its fixed part or the TLVs exceeds our captured packet. */
         return 0;
     }
 
@@ -3107,7 +3107,12 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, unsigned mhr_len, packet_info *pinfo, 
         /* Get the unencrypted data if decryption failed.  */
         if (!payload_tvb) {
             /* Deal with possible truncation and the MIC field at the end. */
-            int reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len;
+            if (tvb_reported_length(tvb) < mhr_len ||
+                tvb_reported_length(tvb) - mhr_len < rx_mic_len) {
+                expert_add_info_format(pinfo, proto_root, &ei_ieee802154_decrypt_error, "Packet was too small to include the MIC");
+                return NULL;
+            }
+            unsigned reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len;
             payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
         }
 
@@ -3241,7 +3246,7 @@ unsigned ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, pro
                 if (((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) ||
                      (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) &&
                         (packet->dst_pan != packet->src_pan) &&
-                        dissector_try_uint_with_data(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, true, packet)) {
+                        dissector_try_uint_with_data(panid_dissector_table, packet->dst_pan, payload_tvb, pinfo, tree, true, packet)) {
                     break;
                 }
                 /* Try heuristic dissection. */
@@ -3696,13 +3701,11 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         unsigned padding_len = WS_PADDING_TO_4(length);
         if (padding_len != 0) {
-            uint32_t zero = 0;
-            GByteArray *padding = g_byte_array_sized_new(4);
-            ti = proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_padding, tvb, offset, padding_len, ENC_NA, padding, NULL, NULL);
-            if (memcmp(&zero, padding->data, padding_len)) {
+            static const uint8_t zero_padding[4] = { 0, 0, 0, 0 };
+            ti = proto_tree_add_item(tlvtree, hf_ieee802154_tap_tlv_padding, tvb, offset, padding_len, ENC_NA);
+            if (tvb_memeql(tvb, offset, zero_padding, padding_len) != 0) {
                 expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_padding_not_zeros);
             }
-            g_byte_array_free(padding, true);
             offset += padding_len;
         }
     } /* while */
