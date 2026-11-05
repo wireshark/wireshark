@@ -69692,3 +69692,84 @@ class TestDissectH265:
         bytes.'''
         rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.type', filt='frame.number >= 108')
         assert rows == [['108', '32,33,34,35,19'], ['109', '1,1,36'], ['110', '40']]
+
+
+H282_OPTS = ('-d', 'udp.port==6283,lct')    # RDC PDUs travel in H.283 LCT, which has no registered port
+
+
+class TestDissectH282:
+    '''H.282 Remote Device Control PDUs from the synthetic capture
+    h282_coverage.pcap.gz (203 frames), carried in H.283 LCT PDUs on UDP
+    port 6283 (Decode As). Frames 1-188 are random request, response and
+    indication PDUs, 189-196 responses with capability lists, 197-200 LCT
+    device list responses, 201-203 unknown extension alternatives.'''
+
+    @staticmethod
+    def h282_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *H282_OPTS, *passes, *extra, '-r', capture_file('h282_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h282_protocols(self, cmd_tshark, capture_file, test_env):
+        '''203 frames, none malformed or with an error expert info, in one
+        and two passes.'''
+        rows = self.h282_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', '_ws.col.info')
+        assert len(rows) == 203
+        protocols = [r[1] for r in rows]
+        assert protocols.count('RDC') == 199
+        assert protocols.count('LCT') == 4
+        infos = [r[2] for r in rows]
+        assert sum(i.startswith('RequestPDU/') for i in infos) == 81
+        assert sum(i.startswith('ResponsePDU/') for i in infos) == 101
+        assert sum(i.startswith('IndicationPDU/') for i in infos) == 14
+        assert infos.count('LCTResponse/deviceListResp') == 4
+        for passes in ((), ('-2',)):
+            rows = self.h282_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h282_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every request, response and indication PDU type occurs.'''
+        rows = self.h282_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        infos = {r[1] for r in rows}
+        assert {i for i in infos if i.startswith(('RequestPDU/', 'ResponsePDU/', 'IndicationPDU/'))} == {
+            'RequestPDU/sourceSelectRequest', 'RequestPDU/sourceEventsRequest',
+            'RequestPDU/deviceAttributeRequest', 'RequestPDU/deviceLockRequest',
+            'RequestPDU/deviceLockEnquireRequest', 'RequestPDU/deviceControlRequest',
+            'RequestPDU/deviceStatusEnquireRequest', 'RequestPDU/configureDeviceEventsRequest',
+            'RequestPDU/nonStandardRequest',
+            'ResponsePDU/sourceSelectResponse', 'ResponsePDU/sourceEventsResponse',
+            'ResponsePDU/deviceAttributeResponse', 'ResponsePDU/deviceLockResponse',
+            'ResponsePDU/deviceLockEnquireResponse', 'ResponsePDU/deviceStatusEnquireResponse',
+            'ResponsePDU/configureDeviceEventsResponse', 'ResponsePDU/nonStandardResponse',
+            'IndicationPDU/sourceChangeEventIndication', 'IndicationPDU/deviceLockTerminatedIndication',
+            'IndicationPDU/deviceEventNotifyIndication', 'IndicationPDU/nonStandardIndication'}
+
+    def test_h282_capability_lists(self, cmd_tshark, capture_file, test_env):
+        '''Frames 194-196 carry capability lists with preset, lens and
+        light entries.'''
+        rows = self.h282_fields(cmd_tshark, capture_file, test_env, 'h282.presetNumber', 'h282.lensNumber',
+                                'h282.lightNumber',
+                                filt='frame.number >= 194 && frame.number <= 196')
+        assert rows == [['194', '', '255,36', ''], ['195', '', '', '10,10'], ['196', '255,255', '', '']]
+
+    def test_h282_device_list(self, cmd_tshark, capture_file, test_env):
+        '''The device list of an LCT deviceListResp is dissected as RDC
+        NonCollapsingCapabilities: frame 197 has two capability entries
+        (device list), frame 199 device profiles.'''
+        rows = self.h282_fields(cmd_tshark, capture_file, test_env, 'h282.capabilityID', 'h282.deviceID',
+                                filt='frame.number >= 197 && frame.number <= 200')
+        assert [r[0] for r in rows] == ['197', '198', '199', '200']
+        assert rows[0][1] == '1,0'
+        assert rows[2][1] == '1,1' and rows[2][2] == '0'
+
+    def test_h282_unknown_extension(self, cmd_tshark, capture_file, test_env):
+        '''An unknown extension alternative of the request, response or
+        indication choice gives a warning, not an error.'''
+        rows = self.h282_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='_ws.expert')
+        assert rows == [['201', 'Choice no. 0 in extension'], ['202', 'Choice no. 0 in extension'],
+                        ['203', 'Choice no. 0 in extension']]
