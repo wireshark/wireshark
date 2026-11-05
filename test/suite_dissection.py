@@ -69435,3 +69435,102 @@ class TestDissectH263p:
         rows = self.h263p_fields(cmd_tshark, capture_file, test_env, 'h263p.plen', 'h263.tr2',
                                  filt='h263p.extra_hdr')
         assert rows == [['21', '5', '77'], ['22', '5', '77'], ['23', '5', '77'], ['24', '5', '3,3']]
+
+
+class TestDissectH264:
+    '''H.264 carried in RTP dynamic payload types named by the SDP of SIP
+    INVITEs (with sprop-parameter-sets), in H.245 generic video
+    capabilities tunnelled in H.225.0, and in Annex B byte streams
+    (Exported PDU), from the synthetic capture h264_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def h264_fields(cmd_tshark, capture_file, test_env, *fields, filt='h264', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h264_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h264_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-4 are SIP INVITEs, 5-78 RTP, 79-97 H.245 tunnelled in
+        H.225.0, 98-123 Annex B byte streams; no frame is malformed or has
+        an error expert info, in one and two passes.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 123
+        prot = [r[1] for r in rows]
+        assert prot[:4] == ['SIP/SDP'] * 4
+        assert prot[4:78] == ['H.264'] * 74
+        assert prot[78:97] == ['H.225.0/H.245'] * 19
+        assert prot[97:] == ['H.264'] * 26
+        for passes in ((), ('-2',)):
+            rows = self.h264_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= error', passes=passes)
+            assert rows == []
+
+    def test_h264_mtap24_timestamp_offset(self, cmd_tshark, capture_file, test_env):
+        '''The MTAP24 timestamp offset is a 3 octet field; it was added
+        with a length of 2 before the fix and showed 0.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.ts_offset24', 'h264.nalu_size',
+                                filt='h264.ts_offset24')
+        assert rows == [['59', '100,200,300', rows[0][2]]]
+        assert rows[0][2].count(',') == 2
+
+    def test_h264_iso_sei_user_data(self, cmd_tshark, capture_file, test_env):
+        '''A user data unregistered SEI with an unknown UUID shows the
+        payload bytes after the 16 octet UUID (payloadSize - 16 = 18
+        octets); before the fix the item had a length of 16.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.sei.iso_sec_info',
+                                'h264.payloadsize', filt='h264.sei.iso_sec_info')
+        assert rows == [['48', b'secinfo-0123456789'.hex(), '34']]
+
+    def test_h264_sprop_start_codes(self, cmd_tshark, capture_file, test_env):
+        '''sprop-parameter-sets blobs with Annex B start codes: the SPS
+        and the PPS behind a 4 octet start code are both decoded (the
+        start code was not recognised after an SPS before the fix, which
+        decoded the zero octet as an unspecified NAL unit).'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.nal_unit_type',
+                                '_ws.expert.message', filt='frame.number <= 3')
+        assert rows == [['1', '7,8', ''], ['2', '7,8', ''], ['3', '7,8', '']]
+
+    def test_h264_sps_profiles(self, cmd_tshark, capture_file, test_env):
+        '''Frames 5-21 carry SPS NAL units of many profiles (the SDP
+        frames carry their sprop SPS first).'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.profile_idc',
+                                filt='h264.profile_idc && frame.number >= 5 && frame.number <= 21')
+        assert [r[1] for r in rows] == ['66', '66', '77', '88', '66', '100', '100', '110', '122', '144',
+                                        '83', '118', '128', '138', '44', '86', '66']
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.pic_width_in_mbs_minus1',
+                                'h264.frame_crop_bottom_offset', filt='frame.number in {7, 99}')
+        assert rows == [['7', '1000', '8'], ['99', '1000', '8']]
+
+    def test_h264_aggregation_and_fragments(self, cmd_tshark, capture_file, test_env):
+        '''PACSI (TL0PICIDX/IDRPICID, DONC), FU-A and the NAL header
+        extension (NI-MTAP) of the RTP frames.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.pacsi.tl0picidx',
+                                'h264.pacsi.idrpicid', 'h264.pacsi.donc', filt='h264.pacsi.x')
+        assert rows == [['60', '9', '4660', ''], ['61', '', '', '77'], ['62', '9', '4660', '77'],
+                        ['63', '', '', ''], ['64', '9', '4660', '77']]
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.nal_hdr_extension.subtype',
+                                filt='h264.nal_hdr_extension.subtype')
+        assert [r[1] for r in rows] == ['1', '0', '2', '2']
+
+    def test_h264_h245_generic_capability(self, cmd_tshark, capture_file, test_env):
+        '''H.241 H.264 capabilities in H.245: Profile, ProfileIOP,
+        AdditionalModesSupported and the decoder configuration NAL units.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.par_profile', 'h264.ProfileIOP',
+                                'h264.AdditionalModesSupported', filt='h245 && h264.par_profile')
+        assert rows == [['79', '0xfe', '0xe0', '0x80'], ['80', '0x01', '', '']]
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.nal_unit_type',
+                                filt='h245 && h264.nal_unit_type')
+        assert [r[1] for r in rows] == ['7', '7,8', '7,8']
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('h264_coverage.pcapng.gz'),
+                                          '-Y', 'frame.number == 79', '-V'), encoding='utf-8', env=test_env)
+        assert 'unsignedMin: 64 - Level 3' in stdout
+
+    def test_h264_byte_stream(self, cmd_tshark, capture_file, test_env):
+        '''Annex B byte streams: NAL unit types in the frames, from
+        parameter sets and SEI/AUD/IDR in one packet to every type 0-19.'''
+        rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.nal_unit_type',
+                                filt='h264.nal_unit_type && frame.number >= 98')
+        assert [r[1] for r in rows] == ['7,8,6,9,5', '7,8'] + [str(t) for t in range(20)] + ['28', '31', '5,1', '7,7,7,8']
