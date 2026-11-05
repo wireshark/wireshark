@@ -1236,7 +1236,7 @@ static int dissect_1722_61883(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 expert_add_info(pinfo, ti_cip_fdf, &ei_1722_61883_incorrect_cip_fdf);
             }
 
-            proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_fdf_tsf, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ti_61883_tree, hf_1722_61883_cip_fdf_tsf, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 3;
         }
 
