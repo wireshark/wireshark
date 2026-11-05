@@ -66748,3 +66748,79 @@ class TestDissectGsmRUus1:
         stdout = run(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number >= 54 && gsm-r-uus1', '-Tfields', '-eframe.number')
         assert count_output(stdout) == 0
+
+
+class TestDissectGsmSim:
+    # Frames 1-131 are GSMTAP SIM frames (SIMtrace: command and response in
+    # one frame, frame 131 is an ATR), frames 132-266 are Exported PDU frames naming gsm_sim.command
+    # and gsm_sim.response (separate command and response frames) and
+    # gsm_sim.bertlv.
+    @staticmethod
+    def sim_run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_sim_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_sim_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and two
+        passes (the links between a command and its response are only known
+        on the second pass, so the output is not compared).'''
+        run = TestDissectGsmSim.sim_run
+        stdout = run(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 266
+        stdout = run(cmd_tshark, capture_file, test_env, '-Y', 'gsm_sim', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 262    # all but the ATR frame and the 3 bare BER-TLV frames
+        for passes in ((), ('-2',)):
+            stdout = run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_sim_select(self, cmd_tshark, capture_file, test_env):
+        '''SELECT by file id in a SIMtrace style frame and an FCP template
+        in a response frame.'''
+        run = TestDissectGsmSim.sim_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 3',
+                '-Tfields', '-eframe.number', '-egsm_sim.file_id', '-egsm_sim.apdu.sw')
+        assert stdout.splitlines() == ['1\t0x3f00\t0x9f16', '3\t0x6f07\t0x9000']
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 133', '-Tfields', '-egsm_sim.fcp.file_id',
+                '-egsm_sim.fcp.file_size', '-egsm_sim.apdu.sw')
+        assert stdout.strip() == '0x3f00\t32\t0x9000'
+
+    def test_gsm_sim_get_response_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A response with SW 61xx followed by GET RESPONSE commands is
+        reassembled (two fragments in frame 157, three in frame 163), and a
+        multi-block STORE DATA is reassembled in its last block (frame 244).'''
+        run = TestDissectGsmSim.sim_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sim.reassembled.length', '-Tfields', '-eframe.number',
+                '-egsm_sim.fragment.count', '-egsm_sim.reassembled.length')
+        assert stdout.splitlines() == ['157\t2\t22', '163\t3\t22', '244\t3\t120']
+
+    def test_gsm_sim_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their commands and a GET RESPONSE is
+        related to the SELECT it continues.'''
+        run = TestDissectGsmSim.sim_run
+        stdout = run(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 154 && frame.number <= 157', '-Tfields',
+                '-eframe.number', '-egsm_sim.response_in', '-egsm_sim.response_to',
+                '-egsm_sim.related_to')
+        assert stdout.splitlines() == [
+            '154\t155\t\t',
+            '155\t\t154\t',
+            '156\t157\t\t154',
+            '157\t\t156\t154',
+        ]
+
+    def test_gsm_sim_ber_tlv_length(self, cmd_tshark, capture_file, test_env):
+        '''The long form of a BER-TLV length is decoded from the length
+        octets only ("GSM SIM: Fix BER length parsing and short responses";
+        frame 129 is the reproducer with the inner TLV 82 81 02 ..., frame 130
+        the same with the short form 82 02 ...).'''
+        run = TestDissectGsmSim.sim_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 129 || frame.number == 130',
+                '-Tfields', '-eframe.number', '-egsm_sim.fcp.len', '-egsm_sim.fcp.file_id')
+        assert stdout.splitlines() == ['129\t2,2\t0x3f00', '130\t2,2\t0x3f00']
