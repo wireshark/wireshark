@@ -108216,3 +108216,16 @@ class TestDissectNoe:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 231',
                            ('_ws.col.info', 'noe.errcode', 'noe.class', 'noe.objectid', 'noe.value'))
         assert rows == [['Data - NOE Protocol (CS): Notify EVT_ERROR_PROTOCOL', '3', '134', '0x0009', '0x0000004d']]
+
+
+class TestDissectDnsSvcbDocpath:
+    def test_docpath_segment(self, cmd_tshark, capture_file, test_env):
+        '''SVCB docpath SvcParam segments are decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dns_svcb_docpath.pcap'),
+                '-Tfields',
+                '-e', 'dns.qry.type',
+                '-e', 'svc_params.docpath',
+            ), encoding='utf-8', env=test_env)
+        assert '64' in stdout           # SVCB type
+        assert 'dns-query' in stdout    # docpath segment

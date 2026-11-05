@@ -388,6 +388,8 @@ static int hf_svc_param_port;
 static int hf_svc_param_ipv4hint_ip;
 static int hf_svc_param_ipv6hint_ip;
 static int hf_svc_param_dohpath;
+static int hf_svc_param_docpath_length;
+static int hf_svc_param_docpath;
 static int hf_svc_param_odohconfig;
 
 static int hf_dns_dsync_type;
@@ -1364,6 +1366,7 @@ static const range_string dns_dso_type_rvals[] = {
 #define DNS_SVCB_KEY_IPV6HINT         6
 #define DNS_SVCB_KEY_DOHPATH          7 /* draft-ietf-add-svcb-dns-08 */
 #define DNS_SVCB_KEY_OHTTP            8 /* rfc9540 */
+#define DNS_SVCB_KEY_DOCPATH         10 /* RFC9953 */
 #define DNS_SVCB_KEY_ODOHCONFIG   32769 /* draft-pauly-dprive-oblivious-doh-02 */
 #define DNS_SVCB_KEY_RESERVED     65535
 
@@ -1381,6 +1384,7 @@ static const value_string dns_svcb_param_key_vals[] = {
   { DNS_SVCB_KEY_IPV6HINT,      "ipv6hint" },
   { DNS_SVCB_KEY_DOHPATH,       "dohpath" },
   { DNS_SVCB_KEY_OHTTP,         "ohttp" },
+  { DNS_SVCB_KEY_DOCPATH,       "docpath" },
   { DNS_SVCB_KEY_ODOHCONFIG,    "odohconfig" },
   { DNS_SVCB_KEY_RESERVED,      "key65535" },
   { 0,                          NULL }
@@ -2451,6 +2455,34 @@ dissect_svc_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         proto_tree_add_item_ret_string(svcb_param_tree, hf_svc_param_dohpath, tvb, cur_offset, svc_param_length, ENC_UTF_8|ENC_NA, pinfo->pool, &dohpath);
         cur_offset += svc_param_length;
         proto_item_append_text(svcb_param_ti, "=%s", dohpath);
+        break;
+      case DNS_SVCB_KEY_DOCPATH:
+        if (svc_param_length == 0) {
+          proto_item_append_text(svcb_param_ti, "=/");
+          break;
+        }
+        for (svc_param_offset = 0; svc_param_offset < svc_param_length; ) {
+          const uint8_t *seg;
+          uint32_t seg_len;
+          if (cur_offset >= param_end) {
+            malformed = true;
+            expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                   "docpath SvcParamValue ended unexpectedly");
+            break;
+          }
+          proto_tree_add_item_ret_uint(svcb_param_tree, hf_svc_param_docpath_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN, &seg_len);
+          cur_offset += 1;
+          if ((int)seg_len > (param_end - cur_offset)) {
+            malformed = true;
+            expert_add_info_format(pinfo, svcb_param_ti, &ei_dns_svcb_param_bad_length,
+                                   "Invalid docpath segment length %u in SvcParamValue", seg_len);
+            break;
+          }
+          proto_tree_add_item_ret_string(svcb_param_tree, hf_svc_param_docpath, tvb, cur_offset, seg_len, ENC_ASCII|ENC_NA, pinfo->pool, &seg);
+          cur_offset += seg_len;
+          proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), seg);
+          svc_param_offset += 1 + seg_len;
+        }
         break;
       case DNS_SVCB_KEY_OHTTP:
         if (svc_param_length != 0) {
@@ -7187,6 +7219,16 @@ proto_register_dns(void)
       { "DoH path", "svc_params.dohpath",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "DoH URI template", HFILL}},
+
+    { &hf_svc_param_docpath_length,
+      { "DoC path segment length", "svc_params.docpath.length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_svc_param_docpath,
+      { "DoC path segment", "svc_params.docpath",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        "DNS over CoAP path segment (RFC9953)", HFILL }},
 
     { &hf_svc_param_odohconfig,
       { "ODoHConfig", "svc_params.odohconfig",
