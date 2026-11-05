@@ -10621,6 +10621,11 @@ fill_display_label_float(const field_info *fi, char *label_str)
 			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%.*g", digits, value);
 			break;
 		case BASE_DEC:
+			/* XXX - BASE_DEC is a bad choice for FT_DOUBLE, in that
+			 * it can require 317 characters for -DBL_MAX, that is,
+			 * 1 + 309 + 1 + 6 for sign + 10^308 + decimal + frac,
+			 * and then one more for the \0 terminator, and our
+			 * standard label width is 240. */
 			n = snprintf(label_str, ITEM_LABEL_LENGTH, "%f", value);
 			break;
 		case BASE_HEX:
@@ -10635,14 +10640,20 @@ fill_display_label_float(const field_info *fi, char *label_str)
 	if (n < 0) {
 		return 0; /* error */
 	}
+	if (n >= ITEM_LABEL_LENGTH) {
+		/* XXX - We should perhaps do something other than a console
+		 * warning. */
+		ws_warning("label length too small");
+		return strlen(label_str);
+	}
 	if ((fi->hfinfo->strings) && (fi->hfinfo->display & BASE_UNIT_STRING)) {
 		const char *hf_str_val;
 		hf_str_val = hf_try_double_val_to_str(value, fi->hfinfo);
 		n += protoo_strlcpy(label_str + n, hf_str_val, ITEM_LABEL_LENGTH - n);
-	}
-	if (n > ITEM_LABEL_LENGTH) {
-		ws_warning("label length too small");
-		return strlen(label_str);
+		if (n >= ITEM_LABEL_LENGTH) {
+			ws_warning("label length too small");
+			return strlen(label_str);
+		}
 	}
 
 	return n;
