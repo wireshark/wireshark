@@ -111,7 +111,7 @@ class CollapsibleSection : public QWidget
   private slots:
     /**
      * @brief Toggle the content area visibility and emit the toggled signal.
-     * @param checked True if the toggle button is checked (expanded), false otherwise.
+     * @param checked True to expand, false to collapse.
      */
     void onToggle(bool checked);
 
@@ -139,6 +139,8 @@ class CollapsibleSection : public QWidget
     /** Non-null if setHeaderTrailingWidget; owned as child, cleared on replace. */
     QWidget *headerTrailingWidget_ = nullptr;
     int savedHeight;
+    /** Expanded state; the toggle button is deliberately not checkable. */
+    bool expanded_ = false;
     /** Cached header row height, measured from toggleButton->sizeHint()
      *  by applyTitleMetrics() when the font or zoom changes. */
     int titleH_ = 0;
