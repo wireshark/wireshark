@@ -423,7 +423,9 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
       if (len > 2) {
         next_tvb = tvb_new_subset_length(tvb, offset, len - 2);
+        increment_dissection_depth(pinfo);
         offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+        decrement_dissection_depth(pinfo);
       }
 
       break;
@@ -438,7 +440,9 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
       if (len > eaplen) {
         next_tvb = tvb_new_subset_length(tvb, offset, len - eaplen);
+        increment_dissection_depth(pinfo);
         offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+        decrement_dissection_depth(pinfo);
       }
     }
     break;
@@ -449,7 +453,9 @@ dissect_teap_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 
       if (len > 2) {
         next_tvb = tvb_new_subset_length(tvb, offset, len - 2);
+        increment_dissection_depth(pinfo);
         offset += dissect_teap(next_tvb, pinfo, tlv_tree, NULL);
+        decrement_dissection_depth(pinfo);
       }
 
       break;
