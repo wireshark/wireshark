@@ -59296,3 +59296,71 @@ class TestDissectFpHint:
         channel = {l[2]: l[3] for l in values if l[1] == 'fp_hint.channel_type'}
         assert channel == {'0x0': 'PCH', '0x1': 'RACH', '0x2': 'FACH', '0x3': 'DCH',
                            '0x4': 'HSDSCH', '0x5': 'E-DCH'}
+
+
+class TestDissectFpMux:
+    @staticmethod
+    def mux_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        # the FP Mux UDP heuristic is disabled by default
+        stdout = subprocess.check_output((cmd_tshark,
+                '--enable-heuristic', 'fp_mux_udp', *extra,
+                '-r', capture_file('fp_mux_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fp_mux_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristic enabled the flows whose first packet holds two
+        or more payloads are FP Mux, the others plain UDP. No malformed
+        packets or error expert infos (a needlessly extended length is a
+        warning) in one and two passes.'''
+        rows = self.mux_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert [rows[str(i)][0] for i in range(1, 12)] == \
+            ['FP Mux'] * 7 + ['UDP', 'UDP'] + ['FP Mux'] * 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '--enable-heuristic', 'fp_mux_udp', *passes,
+                    '-r', capture_file('fp_mux_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fp_mux_heuristic_disabled(self, cmd_tshark, capture_file, test_env):
+        '''By default the heuristic is off and everything is plain UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fp_mux_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert set(stdout.split()) == {'UDP'}
+
+    def test_fp_mux_payloads(self, cmd_tshark, capture_file, test_env):
+        '''User identifiers and lengths of the muxed payloads, short and
+        extended length fields, the maximum of 64 payloads.'''
+        rows = self.mux_fields(cmd_tshark, capture_file, test_env,
+                'fp_mux.uid', 'fp_mux.length', 'fp_mux.ef')
+        assert rows['1'] == ['1,2', '4,5', 'False,False']
+        assert rows['2'] == ['3', '4', 'False']
+        assert rows['4'] == ['6,7', '128,300', 'True,True']
+        assert rows['5'] == ['8,9', '12,3', 'True,False']
+        assert rows['6'] == ['0,65535', '1,2', 'False,False']
+        assert rows['7'][0] == ','.join(str(i) for i in range(64))
+        assert rows['7'][1] == ','.join(['4'] * 64)
+
+    def test_fp_mux_needlessly_extended(self, cmd_tshark, capture_file, test_env):
+        '''An extended length field for a length that fits in 7 bits is a
+        warning.'''
+        rows = self.mux_fields(cmd_tshark, capture_file, test_env,
+                'fp_mux.length', extra=('-Y', 'fp_mux.needlessly_extended_length'))
+        assert rows == {'5': ['12,3']}
+
+    def test_fp_mux_no_recursion(self, cmd_tshark, capture_file, test_env):
+        '''Source port 0 and a user identifier equal to the destination
+        port made the conversation dissector (FP Mux itself) be offered
+        every payload again; nested mux headers recursed (frames 10, 11).'''
+        rows = self.mux_fields(cmd_tshark, capture_file, test_env,
+                'udp.srcport', 'udp.dstport', 'fp_mux.uid', '_ws.col.protocol',
+                extra=('-Y', 'udp.srcport == 0'))
+        assert rows == {'10': ['0', '5003', '5003,1', 'FP Mux'],
+                        '11': ['0', '5003', '5003,1', 'FP Mux']}
