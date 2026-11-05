@@ -70336,3 +70336,102 @@ class TestDissectHartip:
         assert count('Response', 'Packets') == 111
         assert count('Error', 'Packets') == 8
         assert count('Publish', 'Packets') == 2
+
+
+class TestDissectHazelcast:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hazelcast_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hazelcast_protocols(self, cmd_tshark, capture_file, test_env):
+        '''398 of the 400 frames are HAZELCAST (the two first segments of
+        a message split over three are TCP), none is malformed or has an
+        expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', '_ws.col.protocol')
+        assert len(rows) == 400
+        assert [r[1] for r in rows].count('HAZELCAST') == 398
+        assert [r[0] for r in rows if r[1] == 'TCP'] == ['393', '394']
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert',
+                                'frame.number', passes=passes)
+            assert rows == []
+
+    def test_hazelcast_operations(self, cmd_tshark, capture_file, test_env):
+        '''The operation names in the Info column, including values that
+        are not in the table.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 124', 'frame.number',
+                            'hazelcast.operation', '_ws.col.info')
+        assert rows[0] == ['1', '0', 'NONE']
+        assert rows[1] == ['2', '1', 'RESPONSE']
+        assert rows[46] == ['47', '46', 'CONCURRENT_MAP_GET']
+        assert rows[98] == ['99', '98', 'CLIENT_AUTHENTICATE']
+        assert rows[120] == ['121', '120', 'LOCK_FORCE_UNLOCK']
+        assert rows[121] == ['122', '121', 'Unknown (0x79)']
+        assert rows[122] == ['123', '200', 'Unknown (0xc8)']
+        assert rows[123] == ['124', '255', 'Unknown (0xff)']
+
+    def test_hazelcast_flags(self, cmd_tshark, capture_file, test_env):
+        '''Frames 125-380 hold the 256 flag values: each flag adds its
+        optional field and the lock address is there unless the
+        "lock address null" flag is set.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 125 && frame.number <= 380',
+                            'frame.number', 'hazelcast.flags', 'hazelcast.lockCount',
+                            'hazelcast.timeout', 'hazelcast.ttl', 'hazelcast.txnID',
+                            'hazelcast.longValue', 'hazelcast.version',
+                            'hazelcast.lockaddr.ip', 'hazelcast.lockaddr.port',
+                            'hazelcast.callID')
+        assert len(rows) == 256
+        for n, r in enumerate(rows):
+            assert r[0] == str(125 + n)
+            assert int(r[1], 16) == n
+            expect = ['3', '5000', '60000', '1234605616436508552', '424242', '9']
+            for bit, value in enumerate(expect):
+                assert r[2 + bit] == (value if n & (1 << bit) else '')
+            assert r[8] == ('' if n & 0x80 else '10.1.2.3')
+            assert r[9] == ('' if n & 0x80 else '5701')
+            assert r[10] == str(1000 + n)
+
+    def test_hazelcast_unsupported_version(self, cmd_tshark, capture_file, test_env):
+        '''Only versions 6 are decoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 390 || frame.number == 391',
+                            'frame.number', 'hazelcast.operation', '_ws.col.info')
+        assert rows == [['390', '', 'Hazelcast unsupported version'],
+                        ['391', '', 'Hazelcast unsupported version']]
+
+    def test_hazelcast_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message split over three segments (393-395) with the start of
+        the next one, and several messages in one segment (392).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 392 && frame.number <= 398',
+                            'frame.number', 'hazelcast.operation', 'hazelcast.name',
+                            'hazelcast.values')
+        assert rows[0] == ['392', '3,4,5', 'two,three', '76']
+        assert rows[1] == ['393', '', '', '']
+        assert rows[2] == ['394', '', '', '']
+        assert rows[3][0:3] == ['395', '38', 'bigmap']
+        assert len(rows[3][3]) == 2 * 250
+        assert rows[4] == ['396', '46', 'next', '62']
+        assert rows[5] == ['397', '3', '', '']
+        assert rows[6] == ['398', '0', '', '']
+
+    def test_hazelcast_key_value(self, cmd_tshark, capture_file, test_env):
+        '''A long name, key and value (frame 389) and the lengths in the
+        fixed header.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 389', 'hazelcast.hdr.length',
+                            'hazelcast.hdr.keylength', 'hazelcast.hdr.valuelength',
+                            'hazelcast.nameLength', 'hazelcast.keys', 'hazelcast.values')
+        assert rows[0][0:4] == ['332', '700', '900', '300']
+        assert len(rows[0][4]) == 1400 and len(rows[0][5]) == 1800
