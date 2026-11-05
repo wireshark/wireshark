@@ -765,7 +765,6 @@ enum {
 /* which A-bis OML dialect to use (preference) */
 static int global_oml_dialect = OML_DIALECT_ETSI;
 
-static proto_tree *top_tree;
 
 static dissector_handle_t sub_om2000;
 
@@ -1560,6 +1559,7 @@ dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 						  att_tree, offset);
 			break;
 		default:
+			offset += len;
 			break;
 		}
 	}
@@ -1987,8 +1987,8 @@ dissect_oml_manuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    offset + 1, len, ENC_ASCII);
 
 	/* Some implementations include '\0', some don't - handle this */
-	if ((len == (sizeof(ipaccess_magic) + 1) || len == sizeof(ipaccess_magic)) &&
-	    !tvb_memeql(tvb, offset+1, ipaccess_magic, sizeof(ipaccess_magic))) {
+	if ((len == (sizeof(ipaccess_magic) - 1) || len == sizeof(ipaccess_magic)) &&
+	    !tvb_memeql(tvb, offset+1, ipaccess_magic, sizeof(ipaccess_magic) - 1)) {
 		offset += len + 1;
 		return dissect_oml_fom(tvb, pinfo, tree, offset, top_ti);
 	} else {
@@ -2010,8 +2010,6 @@ dissect_abis_oml(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OML");
-
-	top_tree = tree;
 
 	ti = proto_tree_add_item(tree, proto_abis_oml, tvb, 0, -1, ENC_NA);
 	oml_tree = proto_item_add_subtree(ti, ett_oml);
