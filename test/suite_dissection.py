@@ -70670,3 +70670,135 @@ class TestDissectHciMon:
         assert [r[1] for r in rows] == [
             'HCI_CMD', 'HCI_EVT', 'HCI_CMD', 'HCI_EVT', 'L2CAP', 'L2CAP',
             'L2CAP', 'L2CAP', 'HCI_SCO', 'HCI_SCO', 'HCI_ISO', 'HCI_ISO']
+
+
+class TestDissectHciUsb:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(),
+                name='hci_usb_coverage.pcapng.gz'):
+        args = [cmd_tshark, *passes, '-r', capture_file(name)]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hci_usb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Commands, events, ACL and SCO data of a Bluetooth adapter over
+        Linux usbmon and FreeBSD usbpf decode without malformed packets
+        or error expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', '_ws.col.protocol')
+        assert len(rows) == 55
+        protocols = [r[1] for r in rows]
+        assert protocols.count('USB') == 23
+        assert protocols.count('HCI_CMD') == 6
+        assert protocols.count('HCI_EVT') == 7
+        assert protocols.count('HCI_USB') == 11
+        assert protocols.count('L2CAP') == 6
+        assert protocols.count('HCI_SCO') == 2
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes)
+            assert rows == []
+
+    def test_hci_usb_setup(self, cmd_tshark, capture_file, test_env):
+        '''The setup fields of the HCI commands in control transfers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 3 && frame.number <= 6',
+                            'frame.number', 'hci_usb.setup.bRequest',
+                            'hci_usb.setup.wValue', 'hci_usb.setup.adapter_id',
+                            'hci_usb.setup.wLength', '_ws.col.info')
+        assert rows == [
+            ['3', '0', '0x0000', '0', '3', 'Sent Reset'],
+            ['4', '43', '0x0000', '0', '251', 'Sent Change Local Name'],
+            ['5', '224', '0x0000', '0', '3', 'Sent Read Local Version Information'],
+            ['6', '85', '0x0000', '0', '3', 'Sent Read BD ADDR'],
+        ]
+
+    def test_hci_usb_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An event of 40 octets in three transfers (frames 12, 14, 16),
+        an ACL packet of 104 octets in three transfers on each endpoint
+        (26-30 in, 31-35 out) and a command in two parts (41-42) are
+        reassembled in the last transfer.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hci_usb.msg.reassembled.length',
+                            'frame.number', 'hci_usb.msg.reassembled.length',
+                            'hci_usb.msg.fragment', '_ws.col.info')
+        assert rows == [
+            ['16', '40', '12,14,16', 'Rcvd Command Complete (Change Local Name)'],
+            ['20', '14', '18,20', 'Rcvd Command Complete (Read Local Version Information)'],
+            ['30', '104', '26,28,30', 'Rcvd Connection oriented channel'],
+            ['35', '104', '31,33,35', 'Sent Connection oriented channel'],
+            ['40', '104', '38,40', 'Rcvd Connection oriented channel'],
+            ['42', '251', '41,42', 'Sent Change Local Name'],
+        ]
+
+    def test_hci_usb_fragments_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''The first pass does not know that a transfer is a part of a
+        longer packet ("Unknown Packet Fragment"); on a second pass the
+        earlier parts are "Packet Fragment" and the Info column says so.'''
+        for passes, field, info in (((), 'hci_usb.packet.unknown_fragment', 'Rcvd'),
+                                    (('-2',), 'hci_usb.packet.fragment', 'Rcvd Fragment')):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'frame.number == 12 || frame.number == 14',
+                                'frame.number', field, '_ws.col.info', passes=passes)
+            assert rows == [['12', '1', info], ['14', '1', info]]
+        # a truncated capture is never reassembled
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 47',
+                            'hci_usb.packet.unknown_fragment', '_ws.col.info',
+                            passes=('-2',))
+        assert rows == [['1', 'Rcvd']]
+
+    def test_hci_usb_freebsd(self, cmd_tshark, capture_file, test_env):
+        '''FreeBSD usbpf records: a bulk out packet, an event, two SCO
+        frames in one record and a transfer of an unknown type.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 51', 'frame.number',
+                            'frame.protocols', '_ws.col.info')
+        assert rows == [
+            ['51', 'usb:bluetooth:hci_usb:bthci_evt', 'Rcvd Connect Complete'],
+            ['52', 'usb:bluetooth:hci_usb:bthci_acl:btl2cap', 'Sent Connection oriented channel'],
+            ['53', 'usb:bluetooth:hci_usb:bthci_evt', 'Rcvd Number of Completed Packets'],
+            ['54', 'usb:bluetooth:hci_usb:bthci_sco:bluetooth:hci_usb:bthci_sco',
+             'Rcvd SCO - Correctly Received Data'],
+            ['55', 'usb:bluetooth:hci_usb', 'Rcvd'],
+        ]
+
+    def test_hci_usb_multiframe(self, cmd_tshark, capture_file, test_env):
+        '''Several complete HCI packets in one FreeBSD record end their
+        reassembly in the same frame number at different layers. On the
+        second pass the lookup by frame number finds a reassembly of
+        another layer: that must not pass a NULL reassembled tvb on to
+        the ACL and event dissectors (the parts are shown as fragments
+        instead).'''
+        name = 'hci_usb_coverage_multiframe.pcapng.gz'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 4',
+                            'frame.number', 'frame.protocols', '_ws.col.info',
+                            name=name)
+        acl = 'usb:bluetooth:hci_usb:bthci_acl:btl2cap'
+        evt = 'usb:bluetooth:hci_usb:bthci_evt'
+        assert rows == [
+            ['4', acl + ':bluetooth:hci_usb:bthci_acl:btl2cap:bluetooth:hci_usb:bthci_acl:btl2cap',
+             'Sent Connection oriented channel'],
+            ['5', evt + ':bluetooth:hci_usb:bthci_evt', 'Rcvd Number of Completed Packets'],
+            ['6', 'usb:bluetooth:hci_usb:bluetooth:hci_usb:bthci_acl:btl2cap',
+             'Sent Connection oriented channel'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 4',
+                            'frame.number', 'frame.protocols', '_ws.col.info',
+                            passes=('-2',), name=name)
+        assert rows == [
+            ['4', 'usb:bluetooth:hci_usb:bluetooth:hci_usb:bluetooth:hci_usb', 'Sent Fragment'],
+            ['5', 'usb:bluetooth:hci_usb:bluetooth:hci_usb', 'Rcvd Fragment'],
+            ['6', 'usb:bluetooth:hci_usb:bluetooth:hci_usb:bthci_acl:btl2cap',
+             'Sent Connection oriented channel'],
+        ]
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes, name=name)
+            assert rows == []
