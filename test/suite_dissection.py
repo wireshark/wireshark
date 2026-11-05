@@ -71451,3 +71451,76 @@ class TestDissectHI2Operations:
                              'HI2Operations.bearer_capability')
         assert [l.split('\t')[0:3] for l in lines] == [
             ['64', '1', '8890a3'], ['65', '2', ''], ['66', '0', '80']]
+
+
+class TestDissectHicp:
+    '''HICP (Host IP Configuration Protocol, UDP 3250) from the synthetic
+    capture hicp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hicp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_hicp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-18 and the reassembled datagram of frame 62 decode as
+        HICP without malformed packets or error expert infos, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'hicp',
+                                 'frame.number', passes=passes)
+            assert len(lines) == 19
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                 'frame.number', passes=passes)
+            assert lines == []
+
+    def test_hicp_configure(self, cmd_tshark, capture_file, test_env):
+        '''Configure carries the target and the new settings.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 3', 'hicp.cmd', 'hicp.target',
+                             'hicp.ip', 'hicp.sn', 'hicp.gw', 'hicp.dhcp',
+                             'hicp.hn', 'hicp.dns1', 'hicp.dns2', 'hicp.pswd',
+                             'hicp.newpswd', 'hicp.newmac')
+        assert lines == ['Configure\t00-11-22-33-44-55\t192.0.2.10\t'
+                         '255.255.255.0\t192.0.2.254\tDisabled\tplc1\t'
+                         '192.0.2.53\t192.0.2.54\tsecretplaceholder\t'
+                         'placeholder2\t00-11-22-33-44-66']
+
+    def test_hicp_module_scan_response(self, cmd_tshark, capture_file, test_env):
+        '''The response parameters, the DHCP/PSWD flags and the EXT
+        values (1 is Wink, 0 is None, others are shown as sent).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hicp.protoversion', 'frame.number',
+                             'hicp.fbtype', 'hicp.moduleversion', 'hicp.mac',
+                             'hicp.dhcp', 'hicp.pswdrequired', 'hicp.ext')
+        assert lines == [
+            '8\tEtherNet/IP\t4.01.01\t00-11-22-33-44-55\tDisabled\tNot required\tWink',
+            '9\tPROFINET IO\t3.12\t00-11-22-33-44-77\tEnabled\tRequired\tNone',
+            '10\t\t\t00-11-22-33-44-88\t\t\t5',
+            '11\t\t\t00-11-22-33-44-99\t\t\t',
+        ]
+
+    def test_hicp_errors(self, cmd_tshark, capture_file, test_env):
+        '''Invalid Password and Invalid Configuration raise a note.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hicp.error', 'frame.number', 'hicp.error',
+                             'hicp.src')
+        assert lines == [
+            '14\tInvalid Password\t00-11-22-33-44-55',
+            '15\tInvalid Configuration\t00-11-22-33-44-55',
+        ]
+
+    def test_hicp_many_separators(self, cmd_tshark, capture_file, test_env):
+        '''A reassembled 65000 octet datagram of ";" separators decodes
+        (the parameter loop called g_strv_length() on every iteration,
+        which is quadratic; see "HICP: Avoid quadratic parsing of the
+        parameter list").'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hicp && udp.length > 60000', 'frame.number',
+                             'udp.length', '_ws.col.protocol')
+        assert lines == ['62\t65008\tHICP']
