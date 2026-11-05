@@ -192,7 +192,7 @@ add_authval_str(proto_tree *tree, int type, int len, tvbuff_t *tvb, int offset)
             break;
         case IAPP_AUTH_USERNAME:
         case IAPP_AUTH_PROVNAME:
-            proto_tree_add_item(tree, hf_iapp_auth_string, tvb, offset, 1, ENC_ASCII);
+            proto_tree_add_item(tree, hf_iapp_auth_string, tvb, offset, len, ENC_ASCII);
             break;
         case IAPP_AUTH_RXPKTS:
         case IAPP_AUTH_TXPKTS:
