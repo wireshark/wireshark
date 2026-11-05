@@ -62158,3 +62158,124 @@ class TestDissectGeonw:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['1', '2']
+
+
+class TestDissectGfp:
+    '''GFP (ITU-T G.7041), reached by link-layer type (GFP-F, DLT 171, and
+    GFP-T, DLT 170), from the synthetic capture gfp_coverage.pcapng.gz.'''
+
+    def test_gfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 65 frames are GFP; none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-egfp.pli',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 65
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'gfp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 65
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gfp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gfp_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+
+    def test_gfp_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''Frames 63 to 65 are GFP-T (encapsulation 178), the others GFP-F.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'frame.encap_type == 178', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['63', '64', '65']
+
+    def test_gfp_client_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The payload is handed to the dissector for its UPI. UPI 14
+        (frame-mapped MPLS, multicast) is MPLS since the fix; UPI 12
+        (asynchronous transparent Fibre Channel, which was registered as
+        MPLS) is not supported.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 2 && frame.number <= 11',
+                '-Tfields', '-eframe.number', '-egfp.upi', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = {int(l.split('\t')[0]): l.split('\t')[2] for l in stdout.splitlines()}
+        assert protocols[2] == 'gfp:eth:ethertype:ip:udp:data'
+        assert protocols[5] == 'gfp:ppp:ip:udp:data'
+        assert protocols[6] == 'gfp:mp2t'
+        assert protocols[7] == 'gfp:mpls:udp:data'
+        assert protocols[8] == 'gfp:mpls:udp:data'
+        assert protocols[9] == 'gfp:data'
+        assert protocols[10] == 'gfp:ip:udp:data'
+        assert protocols[11] == 'gfp:ipv6:data'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 8 || frame.number == 9',
+                '-Tfields', '-eframe.number', '-egfp.upi', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t0x000e\t',
+            '9\t0x000c\tPayload type 0x0c (Asynchronous Transparent Fibre Channel) unsupported',
+        ]
+
+    def test_gfp_fcs(self, cmd_tshark, capture_file, test_env):
+        '''Payload FCS present and correct, bad, and with linear extension.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'gfp.fcs', '-Tfields', '-eframe.number', '-egfp.fcs',
+                '-egfp.fcs_good', '-egfp.fcs_bad', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t0x601b8a0e\tTrue\tFalse\t',
+            '4\t0x9fe475f1\tFalse\tTrue\tBad FCS',
+            '34\t0x0c646886\tTrue\tFalse\t',
+            '40\t0x0c646886\tTrue\tFalse\tBad cHEC [should be 0x3653],Bad tHEC [should be 0x1142]',
+            '62\t0x0c646886\tTrue\tFalse\t',
+            '64\t0x6ad858cc\tTrue\tFalse\tPayload type 0x06 (Transparent Gbit Ethernet) unsupported',
+        ]
+
+    def test_gfp_hec_and_headers(self, cmd_tshark, capture_file, test_env):
+        '''Core, type and extension HEC checks and the extension header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 33 && frame.number <= 40',
+                '-Tfields', '-eframe.number', '-egfp.exi', '-egfp.cid',
+                '-egfp.chec.status', '-egfp.thec.status', '-egfp.ehec.status',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\t0x0001\t0x07\t1\t1\t1\t',
+            '34\t0x0001\t0xff\t1\t1\t1\t',
+            '35\t0x0001\t0x01\t1\t1\t0\tBad eHEC [should be 0x3331]',
+            '36\t0x0002\t\t1\t1\t\t',
+            '37\t0x0003\t\t1\t1\t\t',
+            '38\t0x0000\t\t0\t1\t\tBad cHEC [should be 0xe5ee]',
+            '39\t0x0000\t\t1\t0\t\tBad tHEC [should be 0x1231]',
+            '40\t0x0000\t\t0\t0\t\tBad cHEC [should be 0x3653],Bad tHEC [should be 0x1142]',
+        ]
+
+    def test_gfp_frame_kinds(self, cmd_tshark, capture_file, test_env):
+        '''Idle and control frames, client management, reserved PTI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gfp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 41 || frame.number == 44 || '
+                      'frame.number == 52 || frame.number == 53 || frame.number == 58 || frame.number == 65',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tIdle Frame',
+            '41\tClient Management: Client Signal Fail (Loss of Client Signal)',
+            '44\tClient Management: Forward Defect Indication (FDI)',
+            '52\tManagement Communications: Reserved for future standardization',
+            '53\tReserved PTI (1)',
+            '58\tControl Frame (Reserved)',
+            '65\tIdle Frame',
+        ]
