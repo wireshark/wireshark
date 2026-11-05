@@ -1193,6 +1193,7 @@ static int ett_ieee1905_fragments;
 static expert_field ei_ieee1905_malformed_tlv;
 static expert_field ei_ieee1905_extraneous_tlv_data;
 static expert_field ei_ieee1905_mic_check_unsupported;
+static expert_field ei_ieee1905_mic_too_short;
 static expert_field ei_ieee1905_mic_check_failed;
 
 typedef enum {
@@ -2224,6 +2225,8 @@ decrypt_encrypted_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
 }
 
 #define MIC_TLV_OCTETS 13
+/* Fixed part of the MIC TLV value: MIC_TLV_OCTETS plus the 2 byte MIC length */
+#define DOT1905_MIC_FIXED_OCTETS (MIC_TLV_OCTETS + 2)
 
 static void
 check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -2256,12 +2259,12 @@ check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
     /* Check if packet lenghts where correct */
     if (!GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_EOM_KEY))) {
-        proto_item_append_text(check_item, ": Invalid TLV lenghts");
+        proto_item_append_text(check_item, ": Invalid TLV lengths");
         return;
     }
 
     /* Check version */
-    uint8_t version = tvb_get_uint8(tvb, offset) & 0x30 >> 4;
+    uint8_t version = (tvb_get_uint8(tvb, offset) & 0x30) >> 4;
 
     if (version != 1) {
         proto_item_append_text(check_item, ": Unsupported version [%d]", version);
@@ -2288,11 +2291,18 @@ check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     /* Get CMDU and TLVs */
     const uint8_t *cmdu     = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, DECRYPT_MIC_CMDU_OCTETS_KEY);
     const uint8_t *tlvs     = p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_KEY);
-    uint16_t       tlvs_len = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_LEN_KEY));
+    unsigned       tlvs_len = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_ieee1905, MIC_TLVS_LEN_KEY));
+
+    if (cmdu == NULL || tlvs == NULL) {
+        proto_item_append_text(check_item, ": No TLV data available");
+        expert_add_info(pinfo, check_item, &ei_ieee1905_mic_check_unsupported);
+        return;
+    }
 
     /* Construct data on which MIC is to be checked - allocate larger buffer then needed (part of tlvs is omitted) */
-    uint8_t  *data = wmem_alloc0(pinfo->pool, DECRYPT_MIC_CMDU_OCTETS + tlvs_len);
-    uint16_t  data_len = 0;
+    const unsigned data_size = DECRYPT_MIC_CMDU_OCTETS + MIC_TLV_OCTETS + tlvs_len;
+    uint8_t  *data = wmem_alloc0(pinfo->pool, data_size);
+    unsigned  data_len = 0;
 
     /* 6 first bytes from CMDU */
     memcpy(data + data_len, cmdu, DECRYPT_MIC_CMDU_OCTETS);
@@ -2309,7 +2319,13 @@ check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     do {
         uint8_t tlv_type = p[0];
         uint16_t tlv_len = pntohu16(p + 1);
-        uint16_t tlv_tot_len = 3 + tlv_len;
+        unsigned tlv_tot_len = 3 + (unsigned)tlv_len;
+
+        if (tlv_tot_len > tlvs_len - (unsigned)(p - tlvs) ||
+            tlv_tot_len > data_size - data_len) {
+            proto_item_append_text(check_item, ": Invalid TLV lengths");
+            return;
+        }
 
         if (tlv_type != MIC_TLV) {
             memcpy(data + data_len, p, tlv_tot_len);
@@ -2317,7 +2333,7 @@ check_mic_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         }
 
         p += tlv_tot_len;
-    } while (p < tlvs + tlvs_len);
+    } while (p < tlvs + tlvs_len && tlvs_len - (unsigned)(p - tlvs) >= 3);
 
     /* Loop over all available keys */
     bool success = false;
@@ -2860,11 +2876,12 @@ dissect_push_button_join_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_sender_joining_interface, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 6, ENC_NA);
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_new_device_interface, tvb,
-                        offset, 2, ENC_NA);
+                        offset, 6, ENC_NA);
+    offset += 6;
 
     return offset;
 }
@@ -6636,8 +6653,8 @@ static const value_string mic_version_vals[] = {
 };
 
 static int
-dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
-        proto_tree *tree, unsigned offset, uint16_t len _U_)
+dissect_mic(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, unsigned offset, uint16_t len)
 {
     unsigned offset_start = offset;
     uint16_t mic_len = 0;
@@ -6662,6 +6679,11 @@ dissect_mic(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ieee1905_mic_bytes, tvb, offset, mic_len,
                         ENC_NA);
     offset += mic_len;
+
+    if (len < DOT1905_MIC_FIXED_OCTETS + (unsigned)mic_len) {
+        proto_tree_add_expert(tree, pinfo, &ei_ieee1905_mic_too_short, tvb, offset_start, 0);
+        return offset;
+    }
 
     check_mic_tlv(tvb, pinfo, tree, offset_start);
 
@@ -8829,6 +8851,11 @@ static int
 dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, unsigned offset, uint16_t len)
 {
+    if (len < 14) {
+        proto_tree_add_expert(tree, pinfo, &ei_ieee1905_extraneous_tlv_data, tvb, offset, len);
+        return offset + len;
+    }
+
     proto_tree_add_item(tree, hf_ieee1905_qos_mgmt_desc_qmid, tvb, offset,
                         2, ENC_BIG_ENDIAN);
     offset += 2;
@@ -8847,6 +8874,9 @@ dissect_qos_management_descriptor(tvbuff_t *tvb, packet_info *pinfo,
     /* There is MSCS, SCS or QoS element */
     while (len > 0) {
         uint16_t desc_size = add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+        if (desc_size == 0 || desc_size > len) {
+            break;
+        }
         offset += desc_size;
         len -= desc_size;
     }
@@ -10922,7 +10952,7 @@ ieee1905_fragment_equal(const void *k1, const void *k2)
     return (key1->frag_id == key2->frag_id &&
             key1->vlan_id == key2->vlan_id &&
             addresses_equal(&key1->src, &key2->src) &&
-            addresses_equal(&key1->src, &key2->src));
+            addresses_equal(&key1->dst, &key2->dst));
 }
 
 static void *
@@ -15267,6 +15297,10 @@ proto_register_ieee1905(void)
         { &ei_ieee1905_mic_check_unsupported,
           { "ieee1905.mic.check.unsupported", PI_PROTOCOL, PI_WARN,
             "MIC check unsupported", EXPFILL }},
+
+        { &ei_ieee1905_mic_too_short,
+          { "ieee1905.mic.too_short", PI_MALFORMED, PI_ERROR,
+            "MIC TLV too short for its fixed part and MIC", EXPFILL }},
 
         { &ei_ieee1905_mic_check_failed,
           { "ieee1905.mic.check.failed", PI_PROTOCOL, PI_WARN,
