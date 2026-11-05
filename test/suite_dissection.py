@@ -73407,3 +73407,51 @@ class TestDissectHsms:
             ), encoding='utf-8', env=test_env)
         assert 'List (2 items)' in stdout
         assert 'Value: LOT42' in stdout
+
+
+class TestDissectHsr:
+    def test_hsr_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 23 frames carry an HSR tag and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_coverage.pcap.gz'),
+                '-Tfields', '-ehsr.path',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 23
+        assert '' not in stdout.splitlines()
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hsr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hsr_fields(self, cmd_tshark, capture_file, test_env):
+        '''Path, network id, lane id, LSDU size, sequence number and the
+        inner ethertype of the tag, and the protocol above it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ehsr.path', '-ehsr.netid',
+                '-ehsr.laneid', '-ehsr.lsdu_size', '-ehsr.sequence_nr',
+                '-ehsr.type', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '0', '0', '0', '64', '0', '0x0800', 'UDP']
+        assert lines[1] == ['2', '1', '0', '1', '64', '1', '0x0800', 'UDP']
+        assert lines[15] == ['16', '15', '7', '1', '64', '15', '0x0800', 'UDP']
+        assert lines[16][1:] == ['0', '0', '0', '34', '100', '0x0806', 'ARP']
+        assert lines[18][1:] == ['2', '1', '0', '46', '101', '0x88b5', 'HSR']
+        assert lines[21][1:] == ['0', '0', '0', '0', '65535', '0x88b5', 'HSR']
+
+    def test_hsr_lsdu_size(self, cmd_tshark, capture_file, test_env):
+        '''The LSDU size is checked against the remaining length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 20, 21, 23}',
+                '-V', '-O', 'hsr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('LSDU size: 64 [correct]') == 1
+        assert stdout.count('LSDU size: 60 [correct]') == 1
+        assert 'LSDU size: 10 [WRONG, should be 64]' in stdout
+        assert 'LSDU size: 4095 [WRONG, should be 64]' in stdout
