@@ -419,13 +419,13 @@ dissect_S101(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (flags != FLAG_SINGLE_PACKET) {
                 fragment_head *frag_msg = NULL;
                 uint32_t id = get_fragment_pdu_id(pinfo);
-                s101_fragment_t* fi = (s101_fragment_t*)wmem_map_lookup(s101_fragment_info_hash, &id);
+                s101_fragment_t* fi = (s101_fragment_t*)wmem_map_lookup(s101_fragment_info_hash, GUINT_TO_POINTER(id));
                 pinfo->fragmented = true;
 
                 if (flags == FLAG_FIRST_MULTI_PACKET) {
                     if (NULL == fi) {
                         fi = new_fragment_info(pinfo);
-                        wmem_map_insert(s101_fragment_info_hash, &id, fi);
+                        wmem_map_insert(s101_fragment_info_hash, GUINT_TO_POINTER(id), fi);
                     }
                     else {
                         fi->id = pinfo->num;
