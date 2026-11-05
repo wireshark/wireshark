@@ -62390,3 +62390,110 @@ class TestDissectGift:
         assert lines[1] == '15\t\t\tRequest: '
         assert lines[2].startswith('22\t\tcmd\tResponse: cmd with')
         assert '\\\\ttab' in lines[2] or '\\ttab' in lines[2]
+
+
+class TestDissectGiop:
+    '''GIOP / DIOP / IIOP from the synthetic capture giop_coverage.pcap.gz
+    (GIOP 1.0, 1.1 and 1.2 over TCP and UDP, all message types, fragment
+    reassembly, ZIOP bodies, IORs, the TypeCode / any walker through the
+    Tango heuristic dissector). giop_ior.txt is the stringified IOR file
+    for the giop.ior_txt preference.'''
+
+    CAP = 'giop_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('giop_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_giop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one and two
+        passes; the number of frames per protocol.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            counts = {p: rows.count(p) for p in set(rows)}
+            assert counts['GIOP'] == 91
+            assert counts['TANGO'] == 102
+            assert counts['COSNAMING'] == 10
+            assert counts['ZIOP'] == 1
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+
+    def test_giop_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The GIOP, TANGO and COSNAMING frames show the same columns in
+        one and two passes (the request/reply matching, the repository id
+        of a request and the fragment message types are kept from the
+        first pass).'''
+        args = ('-Y', 'giop', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) > 200
+
+    def test_giop_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Request, Reply, CancelRequest, LocateRequest, LocateReply,
+        CloseConnection, MessageError and Fragment all occur.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'giop', '-Tfields', '-egiop.type')
+        types = {t for r in rows for t in r.split(',') if t}
+        assert types == {'0', '1', '2', '3', '4', '5', '6', '7', '9'}
+
+    def test_giop_reply_status(self, cmd_tshark, capture_file, test_env):
+        '''Every reply status of a GIOP 1.0 request id 5 (frames 12-21).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 12 && frame.number <= 21 && giop.replystatus',
+                '-Tfields', '-eframe.number', '-egiop.replystatus')
+        assert rows == ['12\t1', '13\t1', '14\t2', '15\t3', '16\t4', '17\t5',
+                        '18\t9', '19\t9', '20\t0', '21\t0']
+
+    def test_giop_ior(self, cmd_tshark, capture_file, test_env):
+        '''The IOR in the reply of frame 7 has five profiles (IIOP 1.0,
+        IIOP 1.2 with components, multiple components, a vendor profile
+        and an empty one).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 7', '-Tfields', '-egiop.iiop.host',
+                '-egiop.iiop.port', '-egiop.typeid', '-egiop.profid')
+        assert rows == ['ns.example.test,h2.example.test\t2809,2810\t'
+                        'IDL:CosNaming/NamingContext:1.0\t0,0,1,305419896,2']
+
+    def test_giop_fragments(self, cmd_tshark, capture_file, test_env):
+        '''A fragmented Request (big endian, frame 93), Reply (frame 96)
+        and a little endian Request (frame 124) are reassembled; the
+        message type comes from the first fragment.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'giop.reassembled.length', '-Tfields', '-eframe.number',
+                '-egiop.reassembled.length', '-egiop.request_op')
+        assert rows == ['93\t92\tfragmented', '96\t102\t', '124\t133\tfragle']
+
+    def test_giop_ziop(self, cmd_tshark, capture_file, test_env):
+        '''Compressed GIOP bodies (zlib and raw deflate) over TCP and UDP
+        are inflated; a ZIOP header in a GIOP stream goes to ZIOP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'giop.flags.ziop_enabled == 1 || ziop',
+                '-Tfields', '-eframe.number', '-egiop.request_op', '-e_ws.col.protocol')
+        assert rows == ['106\tcompressed\tGIOP', '107\tcompressed\tGIOP',
+                        '109\t\tGIOP', '112\t\tZIOP', '230\tudp_ziop\tGIOP']
+
+    def test_giop_typecode_any(self, cmd_tshark, capture_file, test_env):
+        '''The values of a struct inside an any (frame 133) are decoded
+        from the TypeCode.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 133', '-Tfields', '-egiop.tculongdata',
+                '-egiop.tcushortdata', '-e_ws.col.protocol')
+        assert rows == ['4000000000\t65000\tTANGO']
+
+    def test_giop_ior_file(self, cmd_tshark, capture_file, test_env):
+        '''giop.ior_txt maps object keys to repository ids. The requests
+        of frames 231 and 232 carry a trailing octet, so the heuristic
+        sub-dissectors reject them; with the file the explicit CosNaming
+        and Tango dissectors take them.'''
+        args = ('-Y', 'frame.number >= 231', '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert self.fields(cmd_tshark, capture_file, test_env, *args) == ['231\tGIOP', '232\tGIOP']
+        ior_txt = capture_file('giop_ior.txt').replace('\\', '/')
+        assert self.fields(cmd_tshark, capture_file, test_env, '-o', 'giop.ior_txt:' + ior_txt,
+                           *args) == ['231\tCOSNAMING', '232\tTANGO']
