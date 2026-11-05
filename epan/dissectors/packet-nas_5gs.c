@@ -1734,6 +1734,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         supi_fmt = (oct & 0x70) >> 4;
         if (supi_fmt == 0) {
             /* IMSI */
+            uint32_t mcc_mnc_offset = offset;
 
             /* MCC digit 2    MCC digit 1
              * MNC digit 3    MCC digit 3
@@ -1753,8 +1754,16 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             offset += 1;
             /* Scheme output octet 12-x */
             if (scheme_id == 0) {
+                const char *msin;
+
                 new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
-                proto_tree_add_item(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_string(tree, hf_nas_5gs_mm_suci_msin, new_tvb, 0, -1, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN,
+                                               pinfo->pool, (const uint8_t **)&msin);
+                /* The null scheme sends the MSIN in clear, so the SUCI carries the IMSI */
+                if (msin[0] != '\0') {
+                    add_assoc_imsi_item(tvb, pinfo, tree,
+                                        wmem_strdup_printf(pinfo->pool, "%s%s", e212_get_mcc_mnc_digits(tvb, pinfo->pool, mcc_mnc_offset), msin));
+                }
             } else {
                 proto_item *pi = proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
                 if ((scheme_id == 1 && len >= 49) || (scheme_id == 2 && len >= 50)) {

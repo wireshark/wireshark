@@ -56,6 +56,15 @@ int dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 WS_DLL_PUBLIC
 int dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
+/**
+ * Return the MCC and MNC digits of the PLMN identity at offset, coded as in
+ * 3GPP TS 24.008 figure 10.5.13 (MNC digit 3 is 0xf for a 2-digit MNC),
+ * e.g. "00101" or "001010", with '?' for a non-decimal digit. It adds nothing
+ * to the tree.
+ */
+WS_DLL_PUBLIC
+const char *e212_get_mcc_mnc_digits(tvbuff_t *tvb, wmem_allocator_t *scope, int offset);
+
 WS_DLL_PUBLIC
 int dissect_e212_mcc_mnc_in_utf8_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset);
 

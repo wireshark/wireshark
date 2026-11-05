@@ -4167,6 +4167,30 @@ dissect_e212_mcc_mnc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
     return offset +3;
 }
 
+const char *
+e212_get_mcc_mnc_digits(tvbuff_t *tvb, wmem_allocator_t *scope, int offset)
+{
+    static const char digits[] = "0123456789??????";
+    uint8_t octet1 = tvb_get_uint8(tvb, offset);
+    uint8_t octet2 = tvb_get_uint8(tvb, offset + 1);
+    uint8_t octet3 = tvb_get_uint8(tvb, offset + 2);
+    uint8_t mnc3 = octet2 >> 4;
+    char *str = (char *)wmem_alloc(scope, 7);
+    unsigned i = 0;
+
+    str[i++] = digits[octet1 & 0x0f];   /* MCC digit 1 */
+    str[i++] = digits[octet1 >> 4];     /* MCC digit 2 */
+    str[i++] = digits[octet2 & 0x0f];   /* MCC digit 3 */
+    str[i++] = digits[octet3 & 0x0f];   /* MNC digit 1 */
+    str[i++] = digits[octet3 >> 4];     /* MNC digit 2 */
+    if (mnc3 != 0x0f) {
+        str[i++] = digits[mnc3];        /* MNC digit 3 */
+    }
+    str[i] = '\0';
+
+    return str;
+}
+
 /*
  * When we want to decode the MCC/MNC pair in an address that is encoded according to E.212
  * the main problem is that we do not know whether we are dealing with a length 2 or length 3
