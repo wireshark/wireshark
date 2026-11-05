@@ -74503,3 +74503,96 @@ class TestDissectIcap:
         rows = self.rows(cmd_tshark, capture_file, test_env, 'icap && http.response.code == 403',
                          'frame.number', passes=('-2',))
         assert rows == [['17']]
+
+
+class TestDissectIcep:
+    def test_icep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ICEP is found by the TCP and UDP heuristics (port 10000). No
+        frame is malformed or has an error expert info, in one and two
+        passes; the only expert infos are the empty batch and the unknown
+        message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 38
+        assert protocols.count('ICEP') == 28
+        assert protocols.count('TCP') == 9
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icep_coverage.pcap.gz'),
+                    '-Y', 'icep.batch_requests.empty || icep.message_type.unknown',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['20', '21']
+
+    def test_icep_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of every message type and reply status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icep_coverage.pcap.gz'),
+                '-Y', 'icep',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert info[4] == 'Validate connection'
+        assert info[5] == 'Request(oneway): Hello.sayHello()'
+        assert info[6] == 'Reply(1): Success'
+        assert info[7] == 'Request(2): Printer.print()'
+        assert info[9] == 'Request(3): (empty).x()'
+        assert info[10] == 'Reply(3): User exception'
+        assert [info[n] for n in range(12, 19)] == [
+            'Reply(12): Object does not exist', 'Reply(13): Facet does not exist',
+            'Reply(14): Operation does not exist', 'Reply(15): Unknown Ice local exception',
+            'Reply(16): Unknown Ice user exception', 'Reply(17): Unknown exception',
+            'Reply(18): unknown reply status']
+        assert info[19] == 'Batch request: A.a(), B.b(), C.c()'
+        assert info[20] == 'Batch request (empty batch requests sequence)'
+        assert info[21] == 'Unknown Message Type: 0x09'
+        assert info[30] == 'Close connection'
+        assert info[36] == 'Batch request: Hello.u1(), Hello.u2()'
+
+    def test_icep_request_fields(self, cmd_tshark, capture_file, test_env):
+        '''Identity, facet, operation mode, invocation context and
+        parameters of a request; strings with a 4 octet size (frame 11);
+        two requests in one segment (frame 24).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icep_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7,11,19,24}',
+                '-Tfields', '-eframe.number', '-eicep.id.name', '-eicep.id.content',
+                '-eicep.facet', '-eicep.operation', '-eicep.operation_mode',
+                '-eicep.invocation_key', '-eicep.invocation_value',
+                '-eicep.params.size', '-eicep.request_id',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '7\tPrinter\tDevices\tadmin\tprint\t1\tuser,lang\talice,en\t10\t2'
+        assert lines[1].split('\t')[1] == 'N' * 300
+        assert lines[1].split('\t')[2] == 'C' * 256
+        assert lines[1].split('\t')[7] == 'v' * 260
+        assert lines[2] == '19\tA,B,C\t(empty),c,(empty)\t(empty),f,(empty)\ta,b,c\t0,1,0\tx\ty\t6,6,10\t'
+        assert lines[3] == '24\tHello,Hello\t(empty),(empty)\t(empty),(empty)\tfirst,second\t0,0\t\t\t6,6\t7,8'
+
+    def test_icep_reply_and_segments(self, cmd_tshark, capture_file, test_env):
+        '''A request over two TCP segments (frame 27) and a reply whose
+        header is split after five octets (frame 29), in one and two
+        passes; reply data and the UDP datagrams.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icep_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {8,27,29,35}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-eicep.operation', '-eicep.params.reply_data',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\tICEP\t\t0001020304',
+                '27\tICEP\tsplit\t',
+                '29\tICEP\t\t78797a',
+                '35\tICEP\t\t6f6b',
+            ]
