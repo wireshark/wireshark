@@ -91,6 +91,7 @@ static int hf_um_voice_type;
 static int ett_gsmtap;
 
 static expert_field ei_gsmtap_unknown_gsmtap_version;
+static expert_field ei_gsmtap_bad_hdrlen;
 
 enum {
 	GSMTAP_SUB_DATA = 0,
@@ -803,13 +804,21 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	proto_item *ti;
 	proto_tree *gsmtap_tree = NULL;
 	tvbuff_t *payload_tvb, *l1h_tvb = NULL;
-	uint8_t hdr_len, type, sub_type, timeslot, subslot;
+	unsigned hdr_len;
+	uint8_t type, sub_type, timeslot, subslot;
 	uint16_t arfcn;
 	uint32_t frame_nr;
 
 	len = tvb_reported_length(tvb);
 
-	hdr_len = tvb_get_uint8(tvb, offset + 1) <<2;
+	hdr_len = (unsigned)tvb_get_uint8(tvb, offset + 1) << 2;
+	if (hdr_len < 16) {
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSMTAP");
+		ti = proto_tree_add_protocol_format(tree, proto_gsmtap, tvb, 0, -1, "GSM TAP Header");
+		proto_tree_add_expert_format(proto_item_add_subtree(ti, ett_gsmtap), pinfo, &ei_gsmtap_bad_hdrlen,
+					     tvb, offset + 1, 1, "Header length %u is less than 16 bytes", hdr_len);
+		return tvb_captured_length(tvb);
+	}
 	type = tvb_get_uint8(tvb, offset + 2);
 	timeslot = tvb_get_uint8(tvb, offset + 3);
 	arfcn = tvb_get_ntohs(tvb, offset + 4);
@@ -822,9 +831,9 @@ dissect_gsmtap_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	if (type == GSMTAP_TYPE_UM &&
 	    sub_type & GSMTAP_CHANNEL_ACCH) {
 		l1h_tvb = tvb_new_subset_length(tvb, hdr_len, 2);
-		payload_tvb = tvb_new_subset_length(tvb, hdr_len+2, len-(hdr_len+2));
+		payload_tvb = tvb_new_subset_length(tvb, (int)hdr_len+2, len-((int)hdr_len+2));
 	} else {
-		payload_tvb = tvb_new_subset_length(tvb, hdr_len, len-hdr_len);
+		payload_tvb = tvb_new_subset_length(tvb, (int)hdr_len, len-(int)hdr_len);
 	}
 
 	/* We don't want any UDP related info left in the INFO field, as the
@@ -1235,7 +1244,7 @@ proto_register_gsmtap(void)
 		{ &hf_gsmtap_version, { "Version", "gsmtap.version",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_gsmtap_hdrlen, { "Header Length", "gsmtap.hdr_len",
-		  FT_UINT8, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
+		  FT_UINT16, BASE_DEC|BASE_UNIT_STRING, UNS(&units_byte_bytes), 0, NULL, HFILL } },
 		{ &hf_gsmtap_type, { "Payload Type", "gsmtap.type",
 		  FT_UINT8, BASE_DEC, VALS(gsmtap_types), 0, NULL, HFILL } },
 		{ &hf_gsmtap_timeslot, { "Time Slot", "gsmtap.ts",
@@ -1303,6 +1312,7 @@ proto_register_gsmtap(void)
 	};
 	static ei_register_info ei[] = {
 		{ &ei_gsmtap_unknown_gsmtap_version, { "gsmtap.version.invalid", PI_PROTOCOL, PI_WARN, "Unknown protocol version", EXPFILL }},
+		{ &ei_gsmtap_bad_hdrlen, { "gsmtap.hdr_len.invalid", PI_MALFORMED, PI_ERROR, "Invalid header length", EXPFILL }},
 	};
 
 	expert_module_t* expert_gsmtap;
