@@ -62948,3 +62948,67 @@ class TestDissectGlusterfs:
         rows = [line.split('\t') for line in stdout.splitlines()]
         assert len(rows) >= 6
         assert all(len(r[1].split(',')) in (1, 2) for r in rows)
+
+
+class TestDissectGlusterfsHndsk:
+    # glusterfs_hndsk_coverage.pcap.gz: the handshake program (versions 1 and
+    # 2) and the callback program (cache invalidation) as RPC over TCP and
+    # UDP. The last two frames are the reproducer of the RPC-roundup fix.
+
+    def test_glusterfs_hndsk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every handshake and callback procedure decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 134
+        assert protocols.count('GlusterFS Handshake') == 86
+        assert protocols.count('GlusterFS Callback') == 42
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_glusterfs_hndsk_setvolume_name(self, cmd_tshark, capture_file, test_env):
+        '''SETVOLUME (procedure 1) was named "DUMP".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                '-Y', 'frame.number == 133',
+                '-Tfields', '-eglusterfs.hndsk.proc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tV2 SETVOLUME Call']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                '-Y', '_ws.col.info contains "DUMP"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == []
+
+    def test_glusterfs_hndsk_roundup(self, cmd_tshark, capture_file, test_env):
+        '''A dict whose length is not a multiple of four is followed by
+        padding; the "RPC-roundup bytes" item covers only the padding octet,
+        not the rest of the packet (here eight octets of other data).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                '-Y', 'frame.number == 133',
+                '-Tfields', '-eglusterfs.rpc_roundup_bytes',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['00']
+
+    def test_glusterfs_hndsk_values(self, cmd_tshark, capture_file, test_env):
+        '''GETSPEC key, LOCK VERSION name and version, and EVENTNOTIFY.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_hndsk_coverage.pcap.gz'),
+                '-Y', 'glusterfs.hndsk.getspec.key || glusterfs.hndsk.uid',
+                '-Tfields', '-eglusterfs.hndsk.getspec.key',
+                '-eglusterfs.hndsk.uid', '-eglusterfs.hndsk.lk_ver',
+            ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert ['vol0', '', ''] in rows
+        assert ['', 'srv1-1234-2026/11/05-09:00:00', '3'] in rows
