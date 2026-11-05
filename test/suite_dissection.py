@@ -66224,3 +66224,82 @@ class TestDissectGsmIpa:
                 '-ogsm_ipa.hsl_debug_in_info:TRUE')
         assert stdout.splitlines() == ['HSL Debug hello debug ',
                 'HSL Debug two HSL Debug three ']
+
+
+class TestDissectGsmL2rcop:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsm_l2rcop_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsm_l2rcop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 51 frames are GSM RLP IS frames carrying L2RCOP and none is
+        malformed or has an expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'gsm_l2rcop.addr')
+        assert len(rows) == 51
+        assert all(r[1] for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gsm_l2rcop_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gsm_l2rcop_status_octets(self, cmd_tshark, capture_file, test_env):
+        '''The SA, SB and X bits in every combination on a status change
+        (address 31).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_l2rcop.sa', 'gsm_l2rcop.sb', 'gsm_l2rcop.x',
+                          'gsm_l2rcop.addr', flt='frame.number <= 8')
+        assert [r[1:] for r in rows] == [
+            ['False', 'False', 'False', '31'], ['False', 'False', 'True', '31'],
+            ['False', 'True', 'False', '31'], ['False', 'True', 'True', '31'],
+            ['True', 'False', 'False', '31'], ['True', 'False', 'True', '31'],
+            ['True', 'True', 'False', '31'], ['True', 'True', 'True', '31']]
+
+    def test_gsm_l2rcop_special_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Status change with characters (30), break (29) and break
+        acknowledge (28), and 1 to 26 characters.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_l2rcop.addr', 'gsm_l2rcop.break',
+                          'gsm_l2rcop.break_ack', 'data.len',
+                          flt='frame.number in {9, 10, 11, 12, 13, 38}')
+        assert rows == [
+            ['9', '30', '', '', '8'], ['10', '30', '', '', ''],
+            ['11', '29', '29', '', ''], ['12', '28', '', '60', ''],
+            ['13', '1', '', '', '1'], ['38', '26', '', '', '26']]
+
+    def test_gsm_l2rcop_extended_address(self, cmd_tshark, capture_file, test_env):
+        '''The 6 bit extended address has its own field (it was added with
+        the 5 bit address field, which truncated 37 to 5 and described it
+        with the wrong value strings).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_l2rcop.addr', 'gsm_l2rcop.ext_addr', 'data.len',
+                          flt='frame.number in {39, 42, 43, 51}')
+        assert rows == [
+            ['39', '27', '1', '1'], ['42', '27', '37', '37'],
+            ['43', '27', '40', '40'], ['51', '27', '2', '2']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_l2rcop_coverage.pcap.gz'),
+                '-Y', 'frame.number == 42', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '        ..10 0101 = Extended Address: 37' in stdout
+        assert '        ...1 1011 = Address: extended address in ext octet (27)' in stdout
+
+    def test_gsm_l2rcop_multiple_chunks(self, cmd_tshark, capture_file, test_env):
+        '''Several chunks in one frame; an address of 0 or an extended
+        address of 0 ends the dissection.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_l2rcop.addr', 'gsm_l2rcop.ext_addr',
+                          flt='frame.number in {44, 45, 46, 47, 48, 49, 50}')
+        assert rows == [
+            ['44', '2,27,1,31', '3'], ['45', '4,29', ''], ['46', '5,30', ''],
+            ['47', '3,28', ''], ['48', '0', ''], ['49', '3,0', ''],
+            ['50', '27', '']]
