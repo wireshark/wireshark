@@ -59571,3 +59571,179 @@ class TestDissectFractalGeneratorProtocol:
             ['FractalGenerator Parameter', '5', '300'],
             ['FractalGenerator Data', '5', '932'],
         ]
+
+
+class TestDissectFrame:
+    @staticmethod
+    def frame_fields(cmd_tshark, test_env, capture, *fields, extra=()):
+        '''Run tshark -Tfields and return the lines split at tabs.'''
+        args = [cmd_tshark, '-r', capture, *extra, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_frame_records(self, cmd_tshark, capture_file, test_env):
+        '''Every record of the capture, the packets and the other kinds
+        of records (journal entries, an event, custom blocks), and no
+        malformed packet or error expert info in one and two passes.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, '_ws.col.protocol')
+        assert len(rows) == 49
+        protocols = [r[1] for r in rows]
+        assert protocols.count('UDP') == 39
+        assert protocols[31:37] == ['MTP2', 'MTP2', 'LAPD', 'LAPD', 'UDP', 'UDP']
+        assert protocols[40:46] == ['Systemd Journal Entry', 'Systemd Journal Entry',
+                                    'Event', 'PCAPNG', 'PCAPNG', 'UNKNOWN']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V'),
+                                      encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V'),
+                                      encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_frame_interfaces_and_sections(self, cmd_tshark, capture_file, test_env):
+        '''Interface id and name, section number, link-layer pseudo header
+        direction and the protocols of frames that carry a pseudo header
+        or have no dissector.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.interface_id',
+                'frame.interface_name', 'frame.section_number', 'frame.p2p_dir',
+                'frame.protocols')
+        by_number = {r[0]: r[1:] for r in rows}
+        assert by_number['1'] == ['0', 'eth0', '1', '', 'eth:ethertype:ip:udp:data']
+        assert by_number['31'][:3] == ['1', 'unknown', '1']
+        assert by_number['32'] == ['2', 'mtp2', '1', '0', 'mtp2']
+        assert by_number['33'] == ['2', 'mtp2', '1', '1', 'mtp2']
+        assert by_number['35'] == ['3', 'lapd', '1', '1', 'lapd']
+        assert by_number['36'] == ['5', 'ppp', '1', '0', 'ppp:ip:udp:data']
+        assert by_number['46'] == ['6', 'noenc', '1', '', 'data']
+        assert by_number['47'] == ['0', 'eth1', '2', '', 'eth:ethertype:ip:udp:data']
+        # Records that are not packets have no interface
+        assert by_number['41'][0] == ''
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-V',
+                '-Y', 'frame.number == 1', '-O', 'frame'),
+                encoding='utf-8', env=test_env)
+        assert 'Interface id: 0 (eth0)' in stdout
+        assert 'Interface description: first test interface' in stdout
+        assert 'on interface eth0, id 0' in stdout
+
+    def test_frame_comments(self, cmd_tshark, capture_file, test_env):
+        '''Single and multi-line comments, a comment longer than
+        frame.max_comment_lines and the comment expert infos.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.comment',
+                '-Tfields', '-eframe.number', '-e_ws.expert.severity'),
+                encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['2', '1048576'], ['3', '1048576'], ['4', '1048576,1048576'], ['38', '1048576']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-V',
+                '-Y', 'frame.number == 3'), encoding='utf-8', env=test_env)
+        assert stdout.startswith('Packet comments\n    first [...]\n        first\n'
+                                 '        second\n        third\n')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-V',
+                '-o', 'frame.max_comment_lines:2', '-Y', 'frame.number == 4'),
+                encoding='utf-8', env=test_env)
+        assert stdout.startswith('Packet comments\n    line 1 [...]\n        line 1\n'
+                                 '        line 2\n        [comment truncated at 2 lines]\n'
+                                 '    x [...]\n        x\n        y\n')
+
+    def test_frame_packet_options(self, cmd_tshark, capture_file, test_env):
+        '''Flags, queue, packet id, drop count, hashes, verdicts.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.packet_flags',
+                'frame.packet_flags_direction', 'frame.packet_flags_reception_type',
+                'frame.packet_flags_fcs_length', 'frame.packet_flags_crc_error',
+                'frame.interface_queue', 'frame.packet_id', 'frame.drop_count',
+                extra=('-Y', 'frame.packet_flags || frame.packet_id'))
+        assert rows == [
+            ['5', '0x00000001', '0x00000001', '0', '0', 'False', '', '', ''],
+            ['6', '0xff000086', '0x00000002', '1', '4', 'True', '', '', ''],
+            ['7', '0x00000008', '0x00000000', '2', '0', 'False', '', '', ''],
+            ['8', '0x0000001f', '0x00000003', '7', '0', 'False', '', '', ''],
+            ['22', '', '', '', '', '', '3', '1234605616436508552', '12'],
+            ['38', '0x00000001', '0x00000001', '0', '0', 'False', '1', '', ''],
+        ]
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.hash.value',
+                extra=('-Y', 'frame.hash'))
+        hashes = {r[0]: r[1] for r in rows}
+        assert hashes['9'] == hashes['10'] == '00'
+        assert hashes['12'] == '00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f'
+        assert hashes['13'] == ' '.join('%02x' % i for i in range(20))
+        assert hashes['16'] == 'aa bb cc dd,cc'
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.verdict.hw',
+                'frame.verdict.ebpf_tc', 'frame.verdict.ebpf_xdp',
+                extra=('-Y', 'frame.verdict'))
+        assert rows == [
+            ['17', '11 22', '', ''],
+            ['18', '', '-5', ''],
+            ['19', '', '', '2'],
+            ['21', '', '1', '3'],
+            ['38', '', '9', ''],
+        ]
+
+    def test_frame_custom_options_and_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Custom string and binary options, and custom blocks.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.custom_opt.pen',
+                'frame.custom_opt.copy', 'frame.custom_opt.string',
+                'frame.custom_opt.binary', 'frame.cb_pen', 'frame.cb_copy',
+                extra=('-Y', 'frame.custom_opt || frame.cb_pen'))
+        assert rows == [
+            ['29', '32473,32473,32473,32473', 'True,True,False,False',
+             'copyable string,no copy string', '010203,aabb', '', ''],
+            ['44', '', '', '', '', '32473', 'True'],
+            ['45', '', '', '', '', '32473', 'False'],
+        ]
+
+    def test_frame_processes(self, cmd_tshark, capture_file, test_env):
+        '''Process and thread ids with the information of the process
+        information blocks, in both kinds of block and in two sections.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.process.pid',
+                'frame.process.tid', 'frame.process.name', 'frame.process.path',
+                'frame.process.cmdline', 'frame.process.ppid', 'frame.process.uid',
+                'frame.process.user', 'frame.process.uuid',
+                extra=('-Y', 'frame.process.pid'))
+        by_number = {r[0]: r[1:] for r in rows}
+        full = ['1234', '99', 'testd', '/usr/sbin/testd', '/usr/sbin/testd --flag value',
+                '1', '1000', 'tester', '00010203-0405-0607-0809-0a0b0c0d0e0f']
+        assert by_number['23'] == full
+        assert by_number['24'] == ['77', '0', 'bare', '', '', '', '', '', '']
+        assert by_number['25'] == ['5555', '5'] + [''] * 7
+        assert by_number['26'][:2] == ['0', '7']
+        assert by_number['27'][:3] == ['1234,77', '1,2', 'testd,bare']
+        assert by_number['28'][:3] == ['4321', '3', 'darwind']
+        assert by_number['47'][:3] == ['1234', '4', 'otherd']
+        assert by_number['47'][3:] == ['/usr/sbin/otherd', '', '2', '0', 'root', '']
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-V', '-O', 'frame',
+                '-Y', 'frame.number == 23'), encoding='utf-8', env=test_env)
+        assert 'Process information: PID 1234 (testd), TID 99' in stdout
+        # The Darwin options name the processes through their blocks
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-V',
+                '-Y', 'frame.number == 30'), encoding='utf-8', env=test_env)
+        assert '[Process Information: darwind(4321) [testd(1234)]]' in stdout
+
+    def test_frame_preferences(self, cmd_tshark, capture_file, test_env):
+        '''The MD5 hash of the frame data, the file offset, and the frame
+        time fields.'''
+        cap = capture_file('frame_coverage.pcapng.gz')
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.md5_hash',
+                extra=('-o', 'frame.generate_md5_hash:TRUE', '-Y', 'frame.number == 1'))
+        assert rows == [['1', '83ceb01d90a0baa7fea151349419bc36']]
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.file_off',
+                extra=('-o', 'frame.show_file_off:TRUE', '-Y', 'frame.number == 2'))
+        assert rows == [['2', '644']]
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.time_epoch',
+                'frame.len_lt_caplen', 'frame.cap_len', 'frame.len',
+                extra=('-Y', 'frame.number == 39'))
+        assert rows[0][3:] == ['40', '52']
+        # A simple packet block has no time stamp, the journal entries do
+        rows = self.frame_fields(cmd_tshark, test_env, cap, 'frame.time_epoch',
+                extra=('-Y', 'frame.number >= 40 && frame.number <= 42'))
+        assert rows[0] == ['40', '']
+        assert rows[1][1].startswith('1700000100.') and rows[2][1].startswith('1700000101.')
