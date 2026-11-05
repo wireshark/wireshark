@@ -77542,3 +77542,75 @@ class TestDissectIfcp:
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 22
         assert '24' not in stdout.split()
+
+
+class TestDissectIgap:
+    def test_igap_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 21 frames are IGAP and none is malformed or has an expert
+        info (the checksums are correct), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 21
+        assert protocols.count('IGAP') == 21
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('igap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_igap_subtypes(self, cmd_tshark, capture_file, test_env):
+        '''Type, subtype and the message field of every subtype: password
+        (string), MD5 result and challenge (bytes), authentication result
+        and accounting status (values) and unknown messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eigap.subtype', '-eigap.user_password',
+                '-eigap.result_of_md5_calculation', '-eigap.challenge',
+                '-eigap.authentication_result', '-eigap.accounting_status',
+                '-eigap.unknown_message',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        md5 = 'a0a1a2a3a4a5a6a7a8a9aaabacadaeaf'
+        chal = '101112131415161718191a1b1c1d1e1f'
+        assert lines[0] == ['1', 'Membership Report (Join)', '0x02', 'password-text', '', '', '', '', '']
+        assert lines[1] == ['2', 'Membership Report (Join)', '0x03', '', '', '', '', '', '']
+        assert lines[2][2:] == ['0x04', '', md5, '', '', '', '']
+        assert lines[3] == ['4', 'Membership Query', '0x21', '', '', '', '', '', '']
+        assert lines[4][2:] == ['0x23', '', '', chal, '', '', '']
+        assert lines[5][2:] == ['0x24', '', '', '', '0x11', '', '']
+        assert lines[6][2:] == ['0x24', '', '', '', '0x21', '', '']
+        assert lines[7][2:] == ['0x24', '', '', '', '0x00', '', '']
+        assert lines[8][2:] == ['0x25', '', '', '', '', '0x11', '']
+        assert lines[9][2:] == ['0x25', '', '', '', '', '0x21', '']
+        assert lines[10][1:3] == ['Leave Group', '0x41']
+        assert lines[11][2:4] == ['0x42', 'password-text']
+        assert lines[13][2:] == ['0x44', '', md5, '', '', '', '']
+        assert lines[14][2:] == ['0x99', '', '', '', '', '', '78797a']
+        assert lines[15][2] == '0x21' and lines[15][8] != ''
+
+    def test_igap_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Account and message sizes beyond the 16 and 64 octet fields are
+        clamped, the account is shown as a string.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 17 && frame.number <= 19',
+                '-Tfields', '-eframe.number', '-eigap.asize', '-eigap.msize',
+                '-eigap.account', '-eigap.user_password',
+                '-eigap.version', '-eigap.max_resp', '-eigap.maddr',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:5] == ['17', '40', '200', 'account-sixteen!', 'P' * 64]
+        assert lines[1][1:5] == ['0', '64', '', '']
+        assert lines[2][:3] == ['19', '4', '2']
+        assert lines[2][5:] == ['0x20', '0', '224.1.2.3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20', '-V', '-O', 'igap',
+            ), encoding='utf-8', env=test_env)
+        assert '25.5 sec (0xff)' in stdout or '25,5 sec (0xff)' in stdout
