@@ -595,12 +595,12 @@ static int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
                 offset ++ ;
                 break;
             case IDRP_PATH_ATTR_TYPE_EXT_INFO:
-                proto_tree_add_item(tree,
+                proto_tree_add_boolean(tree,
                         hf_idrp_update_path_attr_ext_info,
                         tvb,
                         offset,
                         0,
-                        ENC_BIG_ENDIAN);
+                        true);
                 break;
             case IDRP_PATH_ATTR_TYPE_RD_PATH:
                 start_offset = offset;
@@ -654,8 +654,8 @@ static int dissect_BISPDU_UPDATE(tvbuff_t * tvb, int offset, proto_tree * tree)
                 offset += 1;
 
                 start_offset = offset;
-                /* process Nth next hop */
-                while (offset < (start_offset + path_attr_len)) {
+                /* process Nth next hop (path_attr_len includes the flag octet) */
+                while (offset < (start_offset + path_attr_len - 1)) {
                     /* 1 octet Proto type */
                     proto_tree_add_item(tree,
                             hf_idrp_update_path_attr_next_hop_proto_type,
