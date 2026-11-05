@@ -70983,3 +70983,100 @@ class TestDissectHdcp2:
             ['23', 'Length must be at least 6,version must be set to 0x2'],
             ['24', 'Length must be at least 6,version must be set to 0x2'],
             ['25', 'reserved bytes must be set to 0x0']]
+
+
+class TestDissectHdcp:
+    '''HDCP register traffic on the DDC (I2C) bus, pcap link type 209,
+    from the synthetic capture hdcp_coverage.pcap.gz. HDCP is reached
+    through the HDMI dissector, which needs Decode As of the I2C message
+    table. All key selection vectors and random numbers are made-up
+    placeholder values.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-d', 'i2c.message,hdmi',
+                '-r', capture_file('hdcp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hdcp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 26 frames are HDCP, without malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdcp')
+        assert len(rows) == 26
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hdcp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests, responses, writes and link verification.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 2, 3, 8, 9, 14, 15, 17, 19}', '_ws.col.info')
+        assert rows == [['1', "send link verification Ri'"],
+                        ['2', 'request B_ksv'],
+                        ['3', 'send B_ksv'],
+                        ['8', 'send A_ksv'],
+                        ['9', 'send An'],
+                        ['14', 'send unknown (0x20)'],
+                        ['15', "send link verification Ri'"],
+                        ['17', 'send unknown (0x8)'],
+                        ['19', '']]
+
+    def test_hdcp_values(self, cmd_tshark, capture_file, test_env):
+        '''Register contents: ksv, An, B_caps, B_status and Ri'.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp.a_ksv || hdcp.b_ksv || hdcp.an',
+                            'hdcp.a_ksv', 'hdcp.b_ksv', 'hdcp.an')
+        assert rows == [['3', '', '0x0000001122334455', ''],
+                        ['8', '0x000000aabbccddee', '', ''],
+                        ['9', '', '', '0x0102030405060708'],
+                        ['25', '', '0x0000002233445566', '']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp.repeater', 'hdcp.repeater', 'hdcp.ksv_fifo')
+        assert rows == [['5', '1', '1'], ['7', '0', '0'], ['22', '1', '0']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp.downstream', 'hdcp.hdmi_mode', 'hdcp.max_casc_exc',
+                            'hdcp.depth', 'hdcp.max_devs_exc', 'hdcp.downstream')
+        assert rows == [['11', '1', '1', '5', '1', '12'], ['13', '0', '0', '0', '0', '0']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp.link_vfy', 'hdcp.link_vfy')
+        assert [r[1] for r in rows] == ['0x0a0b', '0x3c4d', '0x7081', '0x9293']
+
+    def test_hdcp_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Requests are linked to their responses (the "Response In"
+        field of a request exists in the second pass only), and a request
+        that is never answered has none. A read with two octets and no
+        request is a link verification.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp.resp_in || hdcp.resp_to', 'hdcp.resp_in', 'hdcp.resp_to',
+                            passes=('-2',))
+        assert rows == [['2', '3', ''], ['3', '', '2'], ['4', '5', ''], ['5', '', '4'],
+                        ['6', '7', ''], ['7', '', '6'], ['10', '11', ''], ['11', '', '10'],
+                        ['12', '13', ''], ['13', '', '12'], ['16', '17', ''], ['17', '', '16'],
+                        ['21', '22', ''], ['22', '', '21'], ['24', '25', ''], ['25', '', '24']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 20 && !hdcp.resp_in', passes=('-2',))
+        assert rows == [['20']]
+
+    def test_hdcp_unknown_register_text(self, cmd_tshark, capture_file, test_env):
+        '''A register without a name is shown as "unknown (0x8)", in the
+        generated "Response In" and "Response To" items too; before
+        "HDCP: Use val_to_str and do not update state on later passes"
+        they showed the literal "unknown (0x%x)".'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {16, 17}', 'hdcp.resp_in', 'hdcp.resp_to',
+                            passes=('-2',))
+        assert rows == [['16', '17', ''], ['17', '', '16']]
+        stdout = subprocess.check_output((cmd_tshark, '-2', '-d', 'i2c.message,hdmi',
+                '-r', capture_file('hdcp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16, 17}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert ('Request to get the content of register unknown (0x8), response in frame 17'
+                in stdout)
+        assert 'Response to frame 16 (content of register unknown (0x8))' in stdout
+        assert '%x' not in stdout
