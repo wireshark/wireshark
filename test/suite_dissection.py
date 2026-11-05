@@ -75111,3 +75111,103 @@ class TestDissectIcq:
                 '-Tfields', '-eframe.number', '-eicq.multi.num_packets',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['48\t3', '49\t2,2']
+
+
+class TestDissectId3v2:
+    @staticmethod
+    def id3v2_lines(cmd_tshark, capture_file, test_env, frame, *passes):
+        '''Lines of the whole dissection tree of one frame from the
+        ID3v2 line on.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('id3v2_coverage.pcap.gz'),
+                '-Y', f'frame.number == {frame}',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        return lines[lines.index('    ID3v2'):]
+
+    def test_id3v2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ID3v2 tags in audio/mpeg and audio/mp3 HTTP responses: five
+        responses are ID3v2 (the others are not accepted by the dissector
+        and stay HTTP), and no frame is malformed or has a warning or
+        error expert info, in one and two passes. The only expert info is
+        the undecoded WXXX frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('id3v2_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 56
+        assert protocols.count('ID3v2') == 5
+        assert protocols.count('HTTP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('id3v2_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('id3v2_coverage.pcap.gz'),
+                    '-Y', 'id3v2.expert.undecoded',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['5']
+
+    def test_id3v2_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the title and artist of the last tag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('id3v2_coverage.pcap.gz'),
+                '-Y', 'id3v2',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.rstrip() for l in stdout.splitlines()]
+        assert lines[0] == '5\tTitle: Song title, Artist: Artist ä,  (PNG)'
+        assert lines[1] == '13\tTitle: ' + 'T' * 200 + ', Artist: Artist,'
+        assert lines[2] == '21'
+        assert lines[3] == '29\tArtist: two,'
+        assert lines[4] == '53\tTitle: mp3 type,'
+
+    def test_id3v2_text_frames(self, cmd_tshark, capture_file, test_env):
+        '''Text, TXXX and COMM frames in every encoding (ISO-8859-1,
+        UTF-16 with BOM, UTF-16BE, UTF-8 and an unknown value that is
+        read as UTF-8), the UFID, PRIV and APIC frames (the PNG is
+        handed to the PNG dissector) and the padding.'''
+        lines = self.id3v2_lines(cmd_tshark, capture_file, test_env, 5)
+        assert lines[1:5] == [
+            '        File Identifier: ID3',
+            '        Version: 2.3 (0x0300)',
+            '        Flags: 0x00',
+            '        Size: 474',
+        ]
+        for expected in (
+                '            Text Encoding: UTF-16 with BOM (0x01)',
+                '            Text Encoding: UTF-16BE (0x02)',
+                '            Text Encoding: Unknown (0x04)',
+                '            Text value: Album',
+                '            Text value: Sub',
+                '            Text value: Genre with unknown encoding',
+                '            Text description: desc',
+                '            Text value: value',
+                '            Comment language: eng',
+                '            Comment description: short',
+                '            Comment text: a comment',
+                '            Comment text: text',
+                '        Unique file identifier (Owner: http://example.org/id)',
+                '            Unique file identifier: "0123456789"',
+                '            Attached picture MIME type: image/png',
+                '            Attached picture type: Cover (front)',
+                '            Attached picture description: cover',
+                '            Portable Network Graphics',
+                '            Attached picture MIME type: image/x-unknown',
+                '        Private frame',
+                '        Padding: ' + '00' * 20):
+            assert expected in lines
+
+    def test_id3v2_v24_synchsafe(self, cmd_tshark, capture_file, test_env):
+        '''Version 2.4 frame sizes are synchsafe: a 201 octet frame.'''
+        for passes in ((), ('-2',)):
+            lines = self.id3v2_lines(cmd_tshark, capture_file, test_env, 13, *passes)
+            assert '        Version: 2.4 (0x0400)' in lines
+            assert '            Frame Size: 201' in lines
+            assert '            Frame Flags: 0x0002' in lines
