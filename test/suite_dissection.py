@@ -72162,3 +72162,149 @@ class TestDissectHnbap:
         assert 'missing (1)' in stdout
         assert 'hNB-Cell-Access-Mode: hybrid (1)' in stdout
         assert 'ipv6info' in stdout and 'ipv4info' in stdout
+
+
+class TestDissectHomeplugAv:
+    @staticmethod
+    def _fields(cmd_tshark, test_env, capture, fields, display_filter=None, passes=()):
+        cmd = [cmd_tshark, *passes, '-r', capture]
+        if display_filter:
+            cmd += ['-Y', display_filter]
+        cmd += ['-Tfields']
+        for field in fields:
+            cmd += ['-e', field]
+        stdout = subprocess.check_output(cmd, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_homeplug_av_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is HomePlug AV and none is malformed or has an
+        expert info, in one and two passes.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['_ws.col.protocol'])
+        assert len(rows) == 314
+        assert all(r == ['HomePlug AV'] for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                    '_ws.malformed || _ws.expert', passes)
+            assert rows == []
+
+    def test_homeplug_av_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the MME and the vendor.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        info = {int(r[0]): r[1] for r in self._fields(cmd_tshark, test_env, cap,
+                ['frame.number', '_ws.col.info'])}
+        assert info[1] == 'CC_BACKUP_APPOINT.REQ'
+        assert info[242] == 'CC_BACKUP_APPOINT.REQ'
+        assert info[270] == 'CM_SLAC_USER_DATA.REQ'
+        assert info[272] == 'Qualcomm Atheros, LNK_STATS.CNF (Link Statistics Confirmation)'
+        assert info[276] == 'Qualcomm Atheros, SNIFFER.IND (Sniffer Indicate)'
+        assert info[293] == 'ST/IoTecha, STP_DISCOVER.CNF'
+        assert info[304] == 'CP State Change: Ambiguous (A-B), 50%'
+        assert info[307] == 'ST/IoTecha, STP_USER_MESSAGE.IND: info-text'
+        assert info[311] == 'VertexCom, VS_GET_VERSION.REQ'
+        assert info[313] == 'dSPACE GmbH'
+
+    def test_homeplug_av_atten_char_groups(self, cmd_tshark, capture_file, test_env):
+        '''The average attenuation is only added to the Info column when
+        there are groups (it divided by the number of groups, also when
+        that was zero).  Frame 260 has four groups.'''
+        import re
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        info = {int(r[0]): r[1] for r in self._fields(cmd_tshark, test_env, cap,
+                ['frame.number', '_ws.col.info'], 'frame.number in {246, 260, 261}')}
+        assert info[246] == 'CM_ATTEN_CHAR.IND'
+        assert info[261] == 'CM_ATTEN_CHAR.IND'
+        assert re.fullmatch(r'CM_ATTEN_CHAR\.IND \(Groups = 4, Avg\. Attenuation = 25[.,]00 dB\)', info[260])
+
+    def test_homeplug_av_slac_user_data_tlv(self, cmd_tshark, capture_file, test_env):
+        '''The TLV header is two octets and the TLV type is the top
+        seven bits, so the vendor TLV is recognised (its OUI, subtype and
+        information string are decoded).'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.gp.cm_slac_user_data.tlv.type',
+                'homeplug_av.gp.cm_slac_user_data.tlv.length',
+                'homeplug_av.gp.cm_slac_user_data.tlv.subtype',
+                'homeplug_av.gp.cm_slac_user_data.tlv.info_str',
+                'homeplug_av.gp.cm_slac_user_data.tlv.str'], 'frame.number == 270')
+        assert rows == [['270', '0x001f,0x0001,0x0020', '0x0008,0x0003,0x0002',
+                '0x01', '41 42 43 44', '78 79 7a,61 62']]
+
+    def test_homeplug_av_discover_tlv_type(self, cmd_tshark, capture_file, test_env):
+        '''The STP_DISCOVER TLV type is the top six bits of the header.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.st_iotecha.stp_discover.tlv.type'],
+                'frame.number in {293, 310}')
+        assert rows == [
+            ['293', '0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,0x0009,0x000a'],
+            ['310', '0x0002,0x0001'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 310', '-V', '-O', 'homeplug-av'),
+                encoding='utf-8', env=test_env)
+        assert '= Type: Device type (0x02)' in stdout
+        assert '= Type: Device name (0x01)' in stdout
+
+    def test_homeplug_av_user_message(self, cmd_tshark, capture_file, test_env):
+        '''STP_USER_MESSAGE.IND skips the NUL that ends the first string,
+        so the second string does not start with it.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.st_iotecha.user_message',
+                'homeplug_av.st_iotecha.user_message_details'],
+                'frame.number in {307, 308, 309}')
+        assert rows == [
+            ['307', 'info-text', 'details-text'],
+            ['308', 'only-one', ''],
+            ['309', '', ''],
+        ]
+
+    def test_homeplug_av_no_tree(self, cmd_tshark, capture_file, test_env):
+        '''Without a protocol tree a HomePlug AV 1.0 public MME still
+        skips the two fragmentation octets, so the Info column (written
+        by CM_ATTEN_CHAR.IND) is the same as with a tree.'''
+        import re
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number in {246, 260}'),
+                encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 2
+        assert lines[0].rstrip().endswith('CM_ATTEN_CHAR.IND')
+        assert re.search(r'CM_ATTEN_CHAR\.IND \(Groups = 4, Avg\. Attenuation = 25[.,]00 dB\)$', lines[1])
+
+    def test_homeplug_av_link_statistics(self, cmd_tshark, capture_file, test_env):
+        '''Link statistics for Tx, Rx (with intervals) and Tx/Rx, and no
+        statistics after a failure status.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.lnk_stats_cnf.dir', 'homeplug_av.lnk_stats_cnf.status',
+                'homeplug_av.lnk_stats.tx.mpdu_ack', 'homeplug_av.lnk_stats.rx.num_int'],
+                'frame.number in {272, 273, 274, 275}')
+        assert [r[:3] for r in rows] == [
+            ['272', '0x00', '0x00'], ['273', '0x01', '0x00'],
+            ['274', '0x02', '0x00'], ['275', '0x00', '0x01']]
+        assert rows[1][4] == '2'
+        assert rows[2][4] == '1'
+
+    def test_homeplug_av_st_iotecha(self, cmd_tshark, capture_file, test_env):
+        '''ST/IoTecha channel quality report, key list, item names and
+        CP state with its ADC bitmask.'''
+        cap = capture_file('homeplug_av_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.st_iotecha.chanqual.tmi.count',
+                'homeplug_av.st_iotecha.chanqual.int.count',
+                'homeplug_av.st_iotecha.chanqual.int.et'], 'frame.number == 299')
+        assert rows == [['299', '2', '2', '1,2']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.st_iotecha.mfct.name'], 'frame.number in {300, 301, 302}')
+        assert rows == [['300', 'key1,second-key,third'], ['301', 'item-name'],
+                ['302', 'item-name']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug_av.st_iotecha.cpstate.state',
+                'homeplug_av.st_iotecha.cpstate.adc_bitmask'],
+                'frame.number in {304, 305, 306}')
+        assert rows[0][2] == '7'
+        assert rows[1][2] == '1'
+        assert rows[2][2] == ''
