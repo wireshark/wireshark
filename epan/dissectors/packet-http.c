@@ -148,6 +148,7 @@ static int ett_http_header_item;
 static int ett_http_http2_settings_item;
 
 static expert_field ei_http_te_and_length;
+static expert_field ei_http_tunnel_too_deep;
 static expert_field ei_http_te_unknown;
 static expert_field ei_http_subdissector_failed;
 static expert_field ei_http_tls_port;
@@ -866,6 +867,11 @@ http_seq_stats_tick_request(stats_tree* st, const char* arg_full_uri, int refere
 	void *node_id_p;
 	char *uri;
 
+	/* A request whose referer is itself would only create a chain of nodes. */
+	uri = (char *) wmem_map_lookup(refstats_node_id_to_uri_hash, referer_node_id_p);
+	if (uri && strcmp(uri, arg_full_uri) == 0)
+		return;
+
 	node_id = tick_stat_node(st, arg_full_uri, referer_node_id, true);
 	node_id_p = GINT_TO_POINTER(node_id);
 
@@ -1027,7 +1033,8 @@ http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
 
 			/* Tick all stats nodes above the location */
 			current_node_id_p = GINT_TO_POINTER(referer_node_id);
-			while (wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
+			unsigned depth = 0;
+			while (depth++ < 64 && wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
 				parent_node_id = GPOINTER_TO_INT(parent_node_id_p);
 				uri = (char *) wmem_map_lookup(refstats_node_id_to_uri_hash, current_node_id_p);
 				tick_stat_node(st, uri, parent_node_id, true);
@@ -1051,7 +1058,8 @@ http_seq_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* e
 
 		/* Tick all stats nodes above the referer */
 		current_node_id_p = GINT_TO_POINTER(referer_node_id);
-		while (wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
+		unsigned depth = 0;
+		while (depth++ < 64 && wmem_map_lookup_extended(refstats_node_id_to_parent_node_id_hash, current_node_id_p, NULL, &parent_node_id_p)) {
 			parent_node_id = GPOINTER_TO_INT(parent_node_id_p);
 			uri = (char *) wmem_map_lookup(refstats_node_id_to_uri_hash, current_node_id_p);
 			tick_stat_node(st, uri, parent_node_id, true);
@@ -1590,9 +1598,13 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	// Ensure headers is valid before the `goto dissecting_body` below.
 	if (headers == NULL) {
-		DISSECTOR_ASSERT_HINT(!PINFO_FD_VISITED(pinfo) || (PINFO_FD_VISITED(pinfo) && !streaming_chunk_mode),
-			"The headers variable should not be NULL if it is in streaming mode during a non first scan.");
-		DISSECTOR_ASSERT_HINT(header_value_map == NULL, "The header_value_map variable should be NULL while headers is NULL.");
+		if (PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) {
+			/* No streaming state was kept for this frame (can happen
+			 * with pipelined messages); dissect it without it. */
+			streaming_chunk_mode = false;
+			begin_with_chunk = false;
+		}
+		header_value_map = NULL;
 
 		headers = wmem_new0((streaming_chunk_mode ? wmem_file_scope() : pinfo->pool), headers_t);
 		header_value_map = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
@@ -2059,9 +2071,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 	}
 
-	if (!PINFO_FD_VISITED(pinfo) && streaming_chunk_mode && streaming_reassembly_data == NULL) {
-		DISSECTOR_ASSERT(!begin_with_chunk && handle && http_dechunk_body && http_desegment_body
-			&& headers->content_type && header_value_map);
+	bool create_streaming_data = !PINFO_FD_VISITED(pinfo) && streaming_chunk_mode && streaming_reassembly_data == NULL;
+	if (create_streaming_data && !(!begin_with_chunk && handle && http_dechunk_body && http_desegment_body
+			&& headers->content_type && header_value_map && prv_data)) {
+		/* Inconsistent streaming state (e.g. pipelined messages); dissect without it. */
+		streaming_chunk_mode = false;
+		create_streaming_data = false;
+	}
+	if (create_streaming_data) {
 
 		content_info = wmem_new0(wmem_file_scope(), media_content_info_t);
 		content_info->media_str = headers->content_type_parameters;
@@ -3002,6 +3019,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 
 		if (http_conversation_is_connect(conv, pinfo->num)) {
 			call_data_dissector(tvb, pinfo, tree);
+		} else if (wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+			/* Tunnels inside tunnels (for example two CONNECTs to the
+			 * same target) would recurse until the layer limit. */
+			proto_tree_add_expert(tree, pinfo, &ei_http_tunnel_too_deep, tvb, 0, 0);
+			call_data_dissector(tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
 			if (!from_server) {
@@ -3023,9 +3045,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			copy_address_shallow(addrp, &uri_addr);
 			saved_port = *ptr;
 			*ptr = uri_port;
+			increment_dissection_depth(pinfo);
 			decode_tcp_ports(tvb, 0, pinfo, tree,
 				pinfo->srcport, pinfo->destport, NULL,
 				(struct tcpinfo *)data);
+			decrement_dissection_depth(pinfo);
 			*ptr = saved_port;
 			copy_address_shallow(addrp, &saved_addr);
 		}
@@ -3759,7 +3783,11 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			break;
 
 		case HDR_CONTENT_LENGTH:
-			DISSECTOR_ASSERT_HINT(!streaming_chunk_mode, "In streaming chunk mode, there will never be content-length header.");
+			if (streaming_chunk_mode) {
+				/* Transfer-Encoding overrides Content-Length (RFC 9112 6.3). */
+				expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
+				break;
+			}
 			errno = 0;
 			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
 			up = (unsigned char *)p;
@@ -4909,6 +4937,7 @@ proto_register_http(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
+		{ &ei_http_tunnel_too_deep, { "http.tunnel_too_deep", PI_MALFORMED, PI_ERROR, "Tunnels nested too deep, not dissecting the tunnelled data", EXPFILL }},
 		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
 		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
 		{ &ei_http_tls_port, { "http.tls_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
