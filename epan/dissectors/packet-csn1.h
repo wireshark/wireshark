@@ -162,6 +162,11 @@ typedef struct
 {
   int16_t     type;
   int16_t     i;
+  /* Initialize "value" with a designator, {.value = N}; read after
+   * initializing "ptr" with (void*)N, it would hold the wrong half of
+   * the pointer on 64-bit big-endian hosts. Designated initializers
+   * require C++20, so the macros that use them can't be used in C++
+   * code, which we build as C++17. */
   union
   {
     const void*     ptr;
@@ -350,7 +355,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *      Par4: value added to the returned integer (offset)
  *****************************************************************************/
 #define M_UINT_OFFSET(_STRUCT, _MEMBER, _BITS, _OFFSET, _HF_PTR)\
-        {CSN_UINT_OFFSET, _BITS, {(void*)_OFFSET}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_UINT_OFFSET, _BITS, {.value = _OFFSET}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /******************************************************************************
  * M_UINT_ARRAY(Par1, Par2, Par3, Par4)
@@ -361,7 +366,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *      Par4: number of elements in the array (fixed integer value)
  *****************************************************************************/
 #define M_UINT_ARRAY(_STRUCT, _MEMBER, _BITS, _ElementCount, _HF_PTR)\
-        {CSN_UINT_ARRAY, _BITS, {(void*)_ElementCount}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_UINT_ARRAY, _BITS, {.value = _ElementCount}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /******************************************************************************
  * M_VAR_UINT_ARRAY(Par1, Par2, Par3, Par4)
@@ -373,7 +378,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *            structure member holding the length value
  *****************************************************************************/
 #define M_VAR_UINT_ARRAY(_STRUCT, _MEMBER, _BITS, _ElementCountField, _HF_PTR)\
-        {CSN_UINT_ARRAY, _BITS, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 1, _HF_PTR, NULL, NULL}
+        {CSN_UINT_ARRAY, _BITS, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 1, _HF_PTR, NULL, NULL}
 
 /******************************************************************************
  * M_VAR_ARRAY(Par1, Par2, Par3, Par4)
@@ -384,7 +389,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *      Par4: offset that is added to the Par3 to get the actual size of the array
  *****************************************************************************/
 #define M_VAR_ARRAY(_STRUCT, _MEMBER, _ElementCountField, _OFFSET, _HF_PTR)\
-        {CSN_VARIABLE_ARRAY, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_VARIABLE_ARRAY, _OFFSET, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /******************************************************************************
  * M_VAR_TARRAY(Par1, Par2, Par3, Par4)
@@ -421,7 +426,7 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
  *****************************************************************************/
 /* XXX - need 2 hf support */
 #define M_REC_ARRAY(_STRUCT, _MEMBER, _ElementCountField, _BITS, _HF_PTR, _HF_PTR_EXIST)\
-        {CSN_RECURSIVE_ARRAY, _BITS, {(const void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, _HF_PTR_EXIST, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
+        {CSN_RECURSIVE_ARRAY, _BITS, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, _HF_PTR_EXIST, (void_fn_t)array_length(((_STRUCT*)0)->_MEMBER)}
 
 /******************************************************************************
  * M_VAR_TYPE_ARRAY(Par1, Par2, Par3, Par4)
@@ -606,25 +611,25 @@ int16_t csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* p
 
 /* variable length, right aligned bitmap i.e. _ElementCountField = 11 => 00000111 11111111 */
 #define M_VAR_BITMAP(_STRUCT, _MEMBER, _ElementCountField, _OFFSET, _HF_PTR)\
-        {CSN_VARIABLE_BITMAP, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_VARIABLE_BITMAP, _OFFSET, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /* variable length, right aligned bitmap filling the rest of message
  * - when unpacking the _ElementCountField will be set in runtime
  * - when packing _ElementCountField contains the size of bitmap
  */
 #define M_VAR_BITMAP_1(_STRUCT, _MEMBER, _ElementCountField, _OFFSET)\
-        {CSN_VARIABLE_BITMAP_1, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, NULL, NULL, NULL}
+        {CSN_VARIABLE_BITMAP_1, _OFFSET, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, NULL, NULL, NULL}
 
 /* variable length, left aligned bitmap i.e. _ElementCountField = 11 => 11111111 11100000 */
 #define M_LEFT_VAR_BMP(_STRUCT, _MEMBER, _ElementCountField, _OFFSET, _HF_PTR)\
-        {CSN_LEFT_ALIGNED_VAR_BMP, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_LEFT_ALIGNED_VAR_BMP, _OFFSET, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /* variable length, left aligned bitmap filling the rest of message
  *- when unpacking the _ElementCountField will be set in runtime
  * - when packing _ElementCountField contains the size of bitmap
  */
 #define M_LEFT_VAR_BMP_1(_STRUCT, _MEMBER, _ElementCountField, _OFFSET, _HF_PTR)\
-        {CSN_LEFT_ALIGNED_VAR_BMP_1, _OFFSET, {(void*)offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
+        {CSN_LEFT_ALIGNED_VAR_BMP_1, _OFFSET, {.value = offsetof(_STRUCT, _ElementCountField)}, offsetof(_STRUCT, _MEMBER), false, #_MEMBER, NULL, 0, _HF_PTR, NULL, NULL}
 
 /* todo: dissect padding bits looking for unexpected extensions */
 #define M_PADDING_BITS(_STRUCT, _HF_PTR)\
