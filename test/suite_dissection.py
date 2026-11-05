@@ -67467,3 +67467,152 @@ class TestDissectGssapi:
                 'gss-api.OID', 'spnego.krb5.tok_id')
         assert [r[1:] for r in rows] == [['1.2.840.113554.1.2.2', '0x0102'],
                                          ['', '0x0102'], ['', '0x0102']]
+
+
+class TestDissectGtp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gtp_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        args = ['-Tfields'] + [a for f in fields for a in ('-e', f)]
+        out = TestDissectGtp._tshark(cmd_tshark, capture_file, test_env, *opts, '-Y', flt, *args)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_gtp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed and none has an error expert info, in one and two passes.
+        The 58 frames with warnings are IE contents that GTP does not decode, unknown IEs
+        and extension headers of the wrong length.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                                  '-Tfields', '-eframe.number')
+            assert stdout.split() == []
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.expert.severity >= 6291456', '-Tfields', '-eframe.number')
+            assert len(stdout.split()) == 58
+
+    def test_gtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GTPv0/GTPv1/GTP' control messages, GTP-U with the T-PDU payloads, GTPv2 (handed on)
+        and the RADIUS QoS attributes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protos = {}
+        for p in stdout.split():
+            protos[p] = protos.get(p, 0) + 1
+        assert protos == {'GTP': 371, 'GTP/UDP': 63, 'GTP/ARP': 1, 'GTP/PPPoED': 1, 'GTPv2': 1,
+                          'BSSGP': 5, 'RADIUS': 9, 'UDP': 5}
+
+    def test_gtp_v0_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-35 hold every GTPv0 message type of the table with its IEs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 35',
+                            'frame.number', 'gtp.flags.version', 'gtp.message')
+        assert len(rows) == 35
+        assert all(r[1] == '0' for r in rows)
+        assert [r[2] for r in rows[:8]] == ['0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x10']
+        assert rows[-1][2] == '0xf1'
+
+    def test_gtp_v1_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 36-76 hold every GTPv1 message type with its IEs; the decoded IEs of the
+        Create PDP Context Request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 44',
+                            'gtp.message', 'e212.imsi', 'gtp.apn', 'gtp.user_ipv4', 'gtp.qos_traf_class')
+        assert rows == [['0x10', '310410123456789', 'internet.example.com', '192.0.2.10', '1']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 36 && frame.number <= 76 && gtp.flags.version == 1',
+                            'frame.number')
+        assert len(rows) == 41
+
+    def test_gtp_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses with the same sequence number in one conversation are
+        matched (the request shows its response in the second pass).
+        The error indications are not associated with a session (they are dropped from the
+        TEID map before the lookup).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 250 && gtp.response_to',
+                            'frame.number', 'gtp.response_to', opts=('-2',))
+        pairs = {r[0]: r[1] for r in rows}
+        assert pairs['251'] == '250'      # Echo
+        assert pairs['253'] == '252'      # Create PDP Context
+        assert pairs['255'] == '254'      # Update PDP Context
+        assert pairs['260'] == '259'      # Delete PDP Context
+        assert pairs['295'] == '294'      # Identification
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 250', 'gtp.response_in', opts=('-2',))
+        assert rows == [['251']]
+
+    def test_gtp_session_tracking(self, cmd_tshark, capture_file, test_env):
+        '''With "Track GTP session" the messages of one session (create, update, error
+        indication, delete) get the same session number and the IMSI is associated.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 250 && frame.number <= 260 && gtp.session',
+                            'frame.number', 'gtp.session', opts=('-o', 'gtp.track_gtp_session:TRUE'))
+        assert [r[0] for r in rows] == ['252', '253', '254', '255', '259', '260']
+        assert len({r[1] for r in rows}) == 1
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 252', 'e212.assoc.imsi',
+                            opts=('-o', 'gtp.track_gtp_session:TRUE'))
+        assert rows == [['310410123456789,310410123456789']]        # the IMSI of the message and the associated IMSI
+
+    def test_gtp_session_tracking_deinterlaced(self, cmd_tshark, capture_file, test_env):
+        '''Tracking sessions with deinterlacing by VLAN, also for the IPv6 Create PDP Context
+        Request (reproducer: the conversation lookup returned NULL for IPv6).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-o', 'gtp.track_gtp_session:TRUE',
+                              '-o', 'protocols.conversation_deinterlacing_key:VM.',
+                              '-Y', 'gtp.session', '-Tfields', '-eframe.number', '-egtp.session')
+        assert len(stdout.splitlines()) > 30
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 443', 'ipv6.src', 'gtp.message',
+                            opts=('-o', 'gtp.track_gtp_session:TRUE', '-o', 'protocols.conversation_deinterlacing_key:VM.'))
+        assert rows == [['2001:db8::a', '0x10']]
+
+    def test_gtp_prime(self, cmd_tshark, capture_file, test_env):
+        '''GTP' data record transfer: record format, release and the IEs after the Data
+        Record Packet IE (reproducer: the IE following the data record was lost).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gtp.data_record_format',
+                            'frame.number', 'gtp.number_of_data_records', 'gtp.data_record_format')
+        assert len(rows) >= 14
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 446',
+                            'gtp.message', 'gtp.seq_num_released', 'gtp.ext_id', 'gtp.data_record_format')
+        assert rows == [['0xf0', '0x1111,0x2222', '1', '1']]
+
+    def test_gtp_gsn_address_lengths(self, cmd_tshark, capture_file, test_env):
+        '''GSN addresses of 4, 5, 16 and 17 octets, also as the last IE (reproducer: a 5 octet
+        address was read as IPv6 and ended in an exception).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 444 || frame.number == 445',
+                            'frame.number', 'gtp.gsn_ipv4', 'gtp.gsn_ipv6')
+        assert rows == [['444', '192.0.2.10', ''], ['445', '', '2001:db8::1']]
+
+    def test_gtp_mbms_service_area(self, cmd_tshark, capture_file, test_env):
+        '''MBMS Service Area with two codes (reproducer: the subset was 3 octets too short).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 447',
+                            'gtp.message', 'gtp.no_of_mbms_sa_codes', 'gtp.mbms_sa_code')
+        assert rows == [['0x60', '2', '4660,22136']]
+
+    def test_gtp_user_plane(self, cmd_tshark, capture_file, test_env):
+        '''GTP-U: T-PDUs with IPv4, IPv6, Ethernet, VLAN and PPPoE payloads and the extension
+        headers of the PDU session container (both directions) and NR-U (all PDU types).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gtp.message == 0xff && frame.number >= 354 && frame.number <= 378',
+                            'frame.number', 'gtp.teid', '_ws.col.protocol')
+        assert len(rows) == 20
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gtp.ext_hdr.pdu_ses_con.pdu_type', 'frame.number',
+                            'gtp.ext_hdr.pdu_ses_con.pdu_type')
+        assert [r[1] for r in rows] == ['0'] * 6 + ['1'] * 9 + ['2']     # the last one is an unknown PDU type
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'nrup', 'frame.number', 'nrup.pdu_type')
+        assert [r[1] for r in rows] == ['0'] * 5 + ['1'] * 9 + ['2'] * 6 + ['3']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gtp.ext_hdr.udp_port', 'gtp.ext_hdr.udp_port')
+        assert rows[0] == ['2152']
+
+    def test_gtp_radius_qos(self, cmd_tshark, capture_file, test_env):
+        '''The 3GPP QoS profile and selection mode RADIUS attributes are decoded by GTP.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'gtp.qos_version', 'frame.number', 'gtp.qos_version')
+        assert len(rows) >= 7
+
+    def test_gtp_pdcp_tpdu(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''T-PDUs handed to PDCP-NR / PDCP-LTE with the preconfigured tables (reproducer:
+        uninitialized members of the PDCP-NR info).'''
+        with open(os.path.join(conf_path, 'gtp_pdcp_nr_keys2'), 'w') as f:
+            f.write('"10.0.0.2","*","DL","SDAP header NOT present","MAC-I NOT present","User plane","12 bits",'
+                    '"RoHC NOT compressed","Uncompressed (0)","1","1"\n')
+        with open(os.path.join(conf_path, 'gtp_pdcp_lte_keys2'), 'w') as f:
+            f.write('"10.0.0.2","*","DL","Header present","User plane","12 bits",'
+                    '"RoHC NOT compressed","Uncompressed (0)","1","1"\n')
+        for tpdu, proto in (('pdcp-nr', 'pdcp-nr'), ('pdcp-lte', 'pdcp-lte')):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 424',
+                                'frame.protocols', opts=('-o', 'gtp.dissect_tpdu_as:' + tpdu))
+            assert proto in rows[0][0]
