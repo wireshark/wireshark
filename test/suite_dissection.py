@@ -77165,3 +77165,89 @@ class TestDissectIeee802154:
                 '-o', 'uat:802154_addresses:"2","1234",0011223344556677', '-V',
             ), encoding='utf-8', env=test_env)
         assert '[Origin: Pre-configured]' in stdout
+
+
+class TestDissectIeee8021ah:
+    '''IEEE 802.1ah I-tags and 802.1ad tags, from the synthetic capture
+    ieee8021ah_coverage.pcap.gz.'''
+
+    def test_ieee8021ah_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has an 802.1ah or 802.1ad layer and decodes without
+        malformed packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021ah_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert sum(1 for p in protocols if 'ieee8021ah' in p) == 8
+        assert sum(1 for p in protocols if 'ieee8021ad' in p) == 7
+        assert sum(1 for p in protocols if 'ieee8021ad' not in p and 'ieee8021ah' not in p) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee8021ah_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ieee8021ah_itag(self, cmd_tshark, capture_file, test_env):
+        '''The I-tag fields and the customer addresses (frames 1, 2, 5).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021ah_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 5}',
+                '-Tfields', '-eframe.number', '-eieee8021ah.priority',
+                '-eieee8021ah.drop', '-eieee8021ah.nca', '-eieee8021ah.res1',
+                '-eieee8021ah.res2', '-eieee8021ah.isid', '-eieee8021ah.cdst',
+                '-eieee8021ah.csrc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0\t0\t0\t1\t02:00:00:00:00:03\t02:00:00:00:00:04',
+            '2\t7\t1\t1\t1\t3\t16777215\t02:00:00:00:00:03\t02:00:00:00:00:04',
+            '5\t0\t0\t1\t0\t0\t5\t00:00:00:00:00:00\t00:00:00:00:00:00',
+        ]
+
+    @staticmethod
+    def etype_offsets(cmd_tshark, capture_file, test_env, frames):
+        '''Frame offset of the ieee8021ah.etype item (the tree is built
+        with -J on the JSON raw data).'''
+        import json
+        offsets = {}
+        for n in frames:
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ieee8021ah_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {n}', '-Tjson', '-x',
+                ), encoding='utf-8', env=test_env)
+            items = [d for d in json.loads(stdout)[0]['_source']['layers'].values()
+                     if isinstance(d, dict)]
+            raw = [v for d in items for k, v in d.items() if k == 'ieee8021ah.etype_raw']
+            assert len(raw) == 1
+            offsets[n] = raw[0][1]
+        return offsets
+
+    def test_ieee8021ah_etype_item_offset(self, cmd_tshark, capture_file, test_env):
+        '''ieee8021ah.etype covers the encapsulated ethertype: frame
+        offset 14 + 16 = 30 in frames 2 and 14 (I-tag), offset 14 + 2 = 16
+        in the single 802.1ad tag of frame 11.'''
+        offsets = self.etype_offsets(cmd_tshark, capture_file, test_env, (2, 11, 14))
+        assert offsets == {2: 30, 11: 16, 14: 30}
+
+    def test_ieee8021ad_tags(self, cmd_tshark, capture_file, test_env):
+        '''B-tags, Q-in-Q S/C tags and single S-tags (frames 7-13).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8021ah_coverage.pcap.gz'),
+                '-Y', 'ieee8021ad',
+                '-Tfields', '-eframe.number', '-eieee8021ad.priority',
+                '-eieee8021ad.dei', '-eieee8021ad.id', '-eieee8021ad.svid',
+                '-eieee8021ad.cvid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t5\t0\t100\t\t',
+            '8\t0\t1\t4095\t\t',
+            '9\t6,1\t0,1\t\t200\t300',
+            '10\t0,0\t0,0\t\t1\t2',
+            '11\t2\t0\t10\t\t',
+            '12\t7\t1\t11\t\t',
+            '13\t0\t0\t20\t\t',
+        ]
