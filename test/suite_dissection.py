@@ -68523,3 +68523,34 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
             assert ['001010000000001', '1', '4'] in rows
+
+
+# PFCP session tracking is off by default.
+PFCP_SESSION_OPTS = ('-o', 'pfcp.track_pfcp_session:TRUE')
+
+
+class TestDissectPfcpSession:
+    def test_pfcp_session_imsi(self, cmd_tshark, capture_file, test_env):
+        '''The messages of a session get the IMSI of the User ID of the
+        Session Establishment Request, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['1\t001010000000003'] * 3
+
+    def test_pfcp_session_imsi_tap(self, cmd_tshark, capture_file, test_env):
+        '''The session IMSI reaches the "imsi" tap, which dissects without a
+        tree, and not only the frame that carries the User ID.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-q', '-z', 'imsi',
+                ), encoding='utf-8', env=test_env)
+            # IMSI, first frame, last frame
+            rows = [[cols[0], cols[2], cols[3]]
+                    for cols in (row.split() for row in stdout.splitlines())
+                    if cols and cols[0].isdigit()]
+            assert rows == [['001010000000003', '1', '3']]
