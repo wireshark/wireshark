@@ -59747,3 +59747,154 @@ class TestDissectFrame:
                 extra=('-Y', 'frame.number >= 40 && frame.number <= 42'))
         assert rows[0] == ['40', '']
         assert rows[1][1].startswith('1700000100.') and rows[2][1].startswith('1700000101.')
+
+
+class TestDissectFr:
+    @staticmethod
+    def fr_tshark(cmd_tshark, test_env, capture, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_fr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol stack of every frame: Frame Relay with every
+        NLPID and encapsulation, and the ways to reach it (link-layer
+        type, Juniper, cooked capture, GRE, sFlow, MPLS pseudowire
+        without Decode As, Exported PDU).'''
+        cap = capture_file('fr_coverage.pcapng.gz')
+        stdout = self.fr_tshark(cmd_tshark, test_env, cap,
+                '-Tfields', '-eframe.number', '-eframe.protocols')
+        lines = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert lines == [
+            'fr:ip:udp:data',
+            'fr:ipv6',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:q933',
+            'fr:lmi',
+            'fr:ppp:ip:udp:data',
+            'fr:data',
+            'fr:data',
+            'fr:data',
+            'fr:ip:udp:data',
+            'fr:eth:ethertype:ip:udp:data',
+            'fr:eth:llc:ip:udp:data',
+            'fr:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:ip:udp:data',
+            'fr:esis',
+            'fr:ip:udp:data',
+            'fr:q933',
+            'fr:esis',
+            'fr:data',
+            'eth:ethertype:ip:gre:fr:ip:udp:data',
+            'eth:ethertype:ip:gre:fr:ip:udp:data',
+            'sll:fr:ip:udp:data',
+            'juniper:fr:ip:udp:data',
+            'juniper:fr:ipv6',
+            'juniper:fr:ip:udp:data',
+            'eth:ethertype:ip:udp:sflow:fr:ip:udp:data',
+            'eth:ethertype:mpls:pwethcw:eth:ethertype:data',
+            'eth:ethertype:mpls:pwethcw:eth:ethertype:data',
+            'exported_pdu:fr:ip:udp:data',
+            'exported_pdu:fr:ip:udp:data',
+            'exported_pdu:fr:ip:udp:data',
+            'exported_pdu:fr:data',
+            'exported_pdu:fr:ip:udp:data',
+        ]
+
+    def test_fr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and
+        two passes; the warnings are the bogus address octets and the
+        LAPF and XID frames that are not implemented.'''
+        cap = capture_file('fr_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            stdout = self.fr_tshark(cmd_tshark, test_env, cap, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self.fr_tshark(cmd_tshark, test_env, cap, *passes,
+                    '-Y', '_ws.expert.severity == 0x600000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert stdout.splitlines() == [
+                '12\tFrame relay lapf not yet implemented',
+                '13\tFrame relay xid not yet implemented',
+                '20\tBogus 1-octet address field',
+                '21\tBogus extra address octet',
+                '39\tFrame relay lapf not yet implemented',
+            ]
+
+    def test_fr_address(self, cmd_tshark, capture_file, test_env):
+        '''DLCI, C/R, FECN, BECN and DE from two, three and four octet
+        addresses, DL-CORE control, and the NLPID.'''
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 8 || frame.number == 21',
+                '-Tfields', '-eframe.number', '-efr.dlci', '-efr.cr',
+                '-efr.fecn', '-efr.becn', '-efr.de', '-efr.dlcore_control',
+                '-efr.nlpid')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '16', 'False', 'False', 'False', 'False', '', '0xcc'],
+            ['2', '1023', 'True', 'True', 'True', 'True', '', '0x8e'],
+            ['3', '17', 'False', 'False', 'False', 'False', '', '0x80'],
+            ['4', '18', 'False', 'False', 'False', 'False', '', '0x00,0xcc'],
+            ['5', '4660', 'False', 'False', 'False', 'False', '', '0xcc'],
+            ['6', '72', 'False', 'False', 'False', 'False', '0x0a', '0xcc'],
+            ['7', '109517', 'False', 'False', 'False', 'False', '', '0xcc'],
+            ['8', '0', 'True', 'False', 'False', 'False', '', '0x08'],
+            ['21', '140613', 'False', 'False', 'False', 'False', '', '0xcc'],
+        ]
+
+    def test_fr_control_and_types(self, cmd_tshark, capture_file, test_env):
+        '''Control fields and the Cisco HDLC and SNAP types.'''
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage.pcapng.gz'),
+                '-Y', 'fr.control || fr.chdlctype',
+                '-Tfields', '-eframe.number', '-efr.control',
+                '-efr.chdlctype', '-efr.snaptype')
+        lines = stdout.splitlines()
+        assert [l.split('\t')[:2] for l in lines if l.split('\t')[0] in
+                ('11', '12', '13', '18', '19', '23', '24', '25', '26')] == [
+            ['11', '0x03'], ['12', '0x00'], ['13', '0xaf'], ['18', '0x01'],
+            ['19', '0x02'], ['23', '0x00'], ['24', '0x13'], ['25', '0x13'], ['26', '0x13']]
+        assert '14\t\t0x0800\t' in lines
+        assert '3\t0x03\t\t0x0800' in lines
+
+    def test_fr_pseudo_header_direction(self, cmd_tshark, capture_file, test_env):
+        '''A Visual Networks file has a DTE/DCE pseudo header and
+        the direction shows in the address columns. The stripped
+        address encapsulation (Exported PDU, as used by the pseudowire
+        dissector) has none and must not show it.'''
+        col = 'gui.column.format:"No.","%m","Src","%rhs","Dst","%rhd","Protocol","%p"'
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage_visual.vwr.gz'),
+                '-o', col)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 DCE → DTE UDP', '2 DTE → DCE IPv6',
+            '3 DCE → DTE UDP', '4 DTE → DCE Q.933']
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage.pcapng.gz'),
+                '-o', col, '-Y', 'frame.number >= 36 && frame.number <= 39')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '36 → UDP', '37 → UDP', '38 → UDP', '39 → FR']
+        assert 'DTE' not in stdout and 'DCE' not in stdout
+
+    def test_fr_pseudowire(self, cmd_tshark, capture_file, test_env):
+        '''MPLS pseudowire frames reach the stripped address
+        encapsulation through the Frame Relay PW dissector.'''
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage.pcapng.gz'),
+                '-d', 'mpls.label==100,pwfr', '-Y', 'pwfr',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-epwfr.length', '-epwfr.fecn', '-epwfr.cr')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['34', 'eth:ethertype:mpls:fr:ip:udp:data', '37', '1', '0'],
+            ['35', 'eth:ethertype:mpls:fr:ip:udp:data', '0', '0', '1'],
+        ]
+
+    def test_fr_encap_preference(self, cmd_tshark, capture_file, test_env):
+        '''With the raw Ethernet encapsulation a frame with a DLCI other
+        than 0 is Ethernet.'''
+        stdout = self.fr_tshark(cmd_tshark, test_env, capture_file('fr_coverage.pcapng.gz'),
+                '-o', 'fr.encap:ethernet', '-Y', 'frame.number == 15',
+                '-Tfields', '-eframe.protocols')
+        assert stdout.strip() == 'fr:eth:ethertype:ip:udp:data'
