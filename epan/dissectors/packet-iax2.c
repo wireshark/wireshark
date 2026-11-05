@@ -218,6 +218,7 @@ static expert_field ei_iax_too_many_transfers;
 static expert_field ei_iax_circuit_id_conflict;
 static expert_field ei_iax_peer_address_unsupported;
 static expert_field ei_iax_invalid_len;
+static expert_field ei_iax_desegment_conflict;
 
 static dissector_handle_t iax2_handle;
 
@@ -2153,7 +2154,7 @@ static uint32_t dissect_trunkcall_nots(tvbuff_t *tvb, uint32_t offset, proto_tre
   rlen = MIN(tvb_captured_length(tvb) - offset - 4, datalen);
 
   if (iax2_tree) {
-    call_tree = proto_tree_add_subtree_format(iax2_tree, tvb, offset, rlen + 6,
+    call_tree = proto_tree_add_subtree_format(iax2_tree, tvb, offset, rlen + 4,
                         ett_iax2_trunk_call, NULL, "Trunk call from %u", *scallno);
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2165,48 +2166,6 @@ static uint32_t dissect_trunkcall_nots(tvbuff_t *tvb, uint32_t offset, proto_tre
   return offset;
 }
 
-typedef struct _call_list {
-  uint16_t           scallno;
-  struct _call_list *next;
-} call_list;
-
-static call_list *call_list_append(wmem_allocator_t *pool, call_list *list, uint16_t scallno)
-{
-  call_list *node = wmem_new0(pool, call_list);
-
-  node->scallno = scallno;
-
-  if (list) {
-    call_list *cur = list;
-    while (cur->next) {
-      cur = cur->next;
-    }
-    cur->next = node;
-    return list;
-  } else {
-    return node;
-  }
-}
-
-static bool call_list_find(call_list *list, uint16_t scallno)
-{
-  for (; list; list = list->next) {
-    if (list->scallno == scallno) {
-      return true;
-    }
-  }
-  return false;
-}
-
-static unsigned call_list_length(call_list *list)
-{
-  unsigned count = 0;
-  for (; list; list = list->next) {
-    count++;
-  }
-  return count;
-}
-
 static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
                                    uint16_t scallno_param _U_, packet_info *pinfo,
                                    proto_tree *iax2_tree, proto_tree *main_tree _U_)
@@ -2215,7 +2174,7 @@ static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
   unsigned    nframes    = 0, ncalls = 0;
   proto_item *cd, *nc    = NULL;
   proto_tree *field_tree = NULL;
-  call_list  *calls      = NULL;
+  wmem_map_t *calls      = wmem_map_new(pinfo->pool, g_direct_hash, g_direct_equal);
   /*iax_packet_data *iax_packet;*/
 
   cmddata = tvb_get_uint8(tvb, offset + 1);
@@ -2252,9 +2211,7 @@ static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
     while(tvb_captured_length_remaining(tvb, offset) >= 6) {
       uint16_t scallno;
       offset = dissect_trunkcall_ts(tvb, offset, iax2_tree, &scallno);
-      if (!call_list_find(calls, scallno)) {
-        calls = call_list_append(pinfo->pool, calls, scallno);
-      }
+      wmem_map_insert(calls, GUINT_TO_POINTER((unsigned)scallno), GUINT_TO_POINTER(1));
       nframes++;
     }
   }
@@ -2263,14 +2220,12 @@ static uint32_t dissect_trunkpacket(tvbuff_t *tvb, uint32_t offset,
     while(tvb_captured_length_remaining(tvb, offset) >= 4) {
       uint16_t scallno;
       offset = dissect_trunkcall_nots(tvb, offset, iax2_tree, &scallno);
-      if (!call_list_find(calls, scallno)) {
-        calls = call_list_append(pinfo->pool, calls, scallno);
-      }
+      wmem_map_insert(calls, GUINT_TO_POINTER((unsigned)scallno), GUINT_TO_POINTER(1));
       nframes++;
     }
   }
 
-  ncalls = call_list_length(calls);
+  ncalls = wmem_map_size(calls);
 
   if (iax2_tree) {
     /* number of items */
@@ -2332,7 +2287,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
   iax_call_dirdata *dirdata;
   void *            value          = NULL;
   uint32_t          frag_offset    = 0;
-  fragment_head    *fd_head;
+  fragment_head    *fd_head = NULL;
   bool              must_desegment = false;
 
   DISSECTOR_ASSERT(iax_call);
@@ -2347,8 +2302,15 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
 
   dirdata = &(iax_call->dirdata[!!(iax_packet->reversed)]);
 
-  if ((!pinfo->fd->visited && (dirdata->current_frag_bytes > 0)) ||
-     ((value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num))) != NULL)) {
+  value = g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num));
+  if (!pinfo->fd->visited && value != NULL) {
+    /* Several IAX2 PDUs in one frame; this frame is already registered. */
+    proto_tree_add_expert(tree, pinfo, &ei_iax_desegment_conflict, tvb, 0, 0);
+    value = NULL;
+    process_iax_pdu(tvb, pinfo, tree, video, iax_packet);
+    pinfo->desegment_len = 0;
+    fd_head = NULL;
+  } else if ((!pinfo->fd->visited && (dirdata->current_frag_bytes > 0)) || value != NULL) {
 
     /* then we are continuing an already-started pdu */
     uint32_t fid;
@@ -2364,7 +2326,6 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       uint32_t tot_len;
       fid = dirdata->current_frag_id;
       tot_len                      = dirdata->current_frag_minlen;
-      DISSECTOR_ASSERT(g_hash_table_lookup(iax_fid_table, GUINT_TO_POINTER(pinfo->num)) == NULL);
       g_hash_table_insert(iax_fid_table, GUINT_TO_POINTER(pinfo->num), GUINT_TO_POINTER(fid));
       frag_offset                  = dirdata->current_frag_bytes;
       dirdata->current_frag_bytes += frag_len;
@@ -3374,6 +3335,7 @@ proto_register_iax2(void)
     { &ei_iax_too_many_transfers, { "iax2.too_many_transfers", PI_PROTOCOL, PI_WARN, "Too many transfers for iax_call", EXPFILL }},
     { &ei_iax_circuit_id_conflict, { "iax2.circuit_id_conflict", PI_PROTOCOL, PI_WARN, "Circuit ID conflict", EXPFILL }},
     { &ei_iax_peer_address_unsupported, { "iax2.peer_address_unsupported", PI_PROTOCOL, PI_WARN, "Peer address unsupported", EXPFILL }},
+    { &ei_iax_desegment_conflict, { "iax2.desegment_conflict", PI_MALFORMED, PI_WARN, "Several PDUs in one frame, not reassembling", EXPFILL }},
     { &ei_iax_invalid_len, { "iax2.invalid_len", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
   };
 
