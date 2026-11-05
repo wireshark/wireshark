@@ -72064,3 +72064,101 @@ class TestDissectHl7:
         assert fields[1] == '0x1c0d'
         assert fields[2].startswith('MSH|^~\\\\&|RECV|FAC2|SENDER')
         assert fields[3].split(',')[1] == 'MSA|AA|MSG0001\\r'
+
+
+class TestDissectHnbap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hnbap_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_hnbap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''45 HNBAP PDUs over SCTP (port 29169, and port 41001 reached
+        through the payload protocol identifier 20); nothing is
+        malformed or has an error expert info in one and two passes. The
+        only warnings are the two private messages whose open types have
+        no dissector.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hnbap', '-Tfields', '-eframe.number', '-esctp.dstport')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 45
+        assert sum(1 for l in lines if l[1] == '41001') == 6
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert stdout.split() == ['37', '38']
+
+    def test_hnbap_message_names(self, cmd_tshark, capture_file, test_env):
+        '''Info column: one text per procedure, "Unknown Message" for an
+        unknown procedure code.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hnbap', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = {l.split('\t')[0]: l.split('\t')[1].strip() for l in stdout.splitlines()}
+        assert info['1'] == 'HNB_REGISTER_REQUEST'
+        assert info['6'] == 'HNB_REGISTER_ACCEPT'
+        assert info['8'] == 'HNB_REGISTER_REJECT'
+        assert info['15'] == 'HNB_DE-REGISTER'
+        assert info['16'] == 'UE_REGISTER_REQUEST'
+        assert info['24'] == 'UE_REGISTER_ACCEPT'
+        assert info['26'] == 'UE_REGISTER_REJECT'
+        assert info['27'] == 'UE_DE-REGISTER'
+        assert info['28'] == 'CSG_MEMBERSHIP_UPDATE_MESSAGE'
+        assert info['29'] == 'TNL_UPDATE_REQUEST_MESSAGE'
+        assert info['30'] == 'TNL_UPDATE_RESPONSE_MESSAGE'
+        assert info['31'] == 'TNL_UPDATE_FAILURE_MESSAGE'
+        assert info['32'] == 'HNB_CONFIG_TRANSFER_REQUEST_MESSAGE'
+        assert info['33'] == 'HNB_CONFIG_TRANSFER_RESPONSE_MESSAGE'
+        assert info['35'] == 'RELOCATION_COMPLETE_MESSAGE'
+        assert info['36'] == 'ERROR_INDICATION'
+        assert info['37'] == 'PRIVATE_MESSAGE'
+        assert info['40'] == info['41'] == info['42'] == 'Unknown Message'
+
+    def test_hnbap_ie_values(self, cmd_tshark, capture_file, test_env):
+        '''RNC-ID, backoff timer, cause, UE identity choice, IMSI,
+        context and mux port.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6 || frame.number == 8 || frame.number == 16 || '
+                      'frame.number == 17 || frame.number == 24 || frame.number == 25',
+                '-Tfields', '-eframe.number', '-ehnbap.RNC_ID',
+                '-ehnbap.BackoffTimer', '-ehnbap.UE_Identity',
+                '-ehnbap.iMSI', '-ehnbap.Context_ID', '-ehnbap.MuxPortNumber',
+                '-ee212.imsi')
+        lines = stdout.splitlines()
+        assert lines[0] == '6\t1234\t\t\t\t\t2048\t'
+        assert lines[1] == '8\t\t3600\t\t\t\t\t'
+        assert lines[2] == '16\t\t\t0\t0010123456789f\t\t\t000121436587'
+        assert lines[3] == '17\t\t\t1\t\t\t\t'
+        assert lines[4] == '24\t\t\t0\t0010123456789f\tabcdef\t\t000121436587'
+        assert lines[5] == '25\t\t\t1\t\t000001\t\t'
+
+    def test_hnbap_location_and_rabs(self, cmd_tshark, capture_file, test_env):
+        '''Geographical coordinates (a negative longitude), the MCC/MNC of
+        the PLMN identity and the RAB list of a TNL update.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 29',
+                '-Tfields', '-eframe.number', '-ehnbap.latitude',
+                '-ehnbap.longitude', '-ehnbap.altitude', '-ehnbap.rAB_ID',
+                '-ehnbap.cn_domain_indicator', '-ee212.mcc', '-ee212.mnc')
+        lines = stdout.splitlines()
+        assert lines[0].startswith('1\t1234567\t-123456\t100\t\t\t')
+        assert lines[1].startswith('29\t\t\t\t20,21\t0,1\t')
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 29', '-V', '-O', 'hnbap')
+        assert 'bindingID: 010203' in stdout
+        assert 'gtp-TEI: 00001234' in stdout
+        assert 'Update-cause: relocation-preparation (0)' in stdout
+
+    def test_hnbap_config_transfer(self, cmd_tshark, capture_file, test_env):
+        '''Neighbour information with provided and missing configuration.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 33', '-V', '-O', 'hnbap')
+        assert 'provided (0)' in stdout
+        assert 'missing (1)' in stdout
+        assert 'hNB-Cell-Access-Mode: hybrid (1)' in stdout
+        assert 'ipv6info' in stdout and 'ipv4info' in stdout
