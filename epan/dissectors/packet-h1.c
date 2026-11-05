@@ -180,7 +180,7 @@ static bool dissect_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr (pinfo->cinfo, COL_INFO, " %s",
                         val_to_str(pinfo->pool, tvb_get_uint8(tvb,  offset),
-                            returncode_vals,"Unknown Returncode (0x%2.2x"));
+                            returncode_vals,"Unknown Returncode (0x%2.2x)"));
                 break;
         }
 
@@ -223,7 +223,7 @@ proto_register_h1 (void)
             {"Address within memory block", "h1.dwnr", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         {&hf_h1_dlen,
-            {"Length in words", "h1.dlen", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+            {"Length in words", "h1.dlen", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         {&hf_h1_response_value,
             {"Response value", "h1.resvalue", FT_UINT8, BASE_DEC,
                 VALS (returncode_vals), 0x0, NULL, HFILL }}
