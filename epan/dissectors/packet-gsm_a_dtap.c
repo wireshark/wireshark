@@ -744,6 +744,7 @@ static expert_field ei_gsm_a_dtap_extraneous_data;
 static expert_field ei_gsm_a_dtap_missing_mandatory_element;
 static expert_field ei_gsm_a_dtap_coding_scheme;
 static expert_field ei_gsm_a_dtap_ti_not_valid;
+static expert_field ei_gsm_a_dtap_emerg_num_len;
 
 
 static dissector_table_t u2u_dissector_table;
@@ -1172,6 +1173,10 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t 
          * Emergency Service Category Value and the Number digits.
          */
         en_len = tvb_get_uint8(tvb, curr_offset);
+        if (en_len == 0) {
+            proto_tree_add_expert(tree, pinfo, &ei_gsm_a_dtap_emerg_num_len, tvb, curr_offset, 1);
+            break;
+        }
 
         item = proto_tree_add_uint(tree, hf_gsm_a_dtap_emergency_number_information,
             tvb, curr_offset, en_len + 1, count);
@@ -2642,7 +2647,7 @@ de_facility(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset
     uint32_t     header_len;
     asn1_ctx_t   asn1_ctx;
     tvbuff_t    *SS_tvb        = NULL;
-    static int   comp_type_tag;
+    int          comp_type_tag;
 
     asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
@@ -3666,8 +3671,8 @@ de_tp_ue_test_loop_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     }
     case 2:
         oct = tvb_get_uint8(tvb, curr_offset);
-        curr_offset+= 1;
         proto_tree_add_uint(tree, hf_gsm_a_dtap_mbms_short_transmission_identity, tvb, curr_offset, 1, (oct & 0x1f)+1);
+        curr_offset+= 1;
         break;
     }
 
@@ -8386,6 +8391,7 @@ proto_register_gsm_a_dtap(void)
     int *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_GSM_DTAP_MSG_MM + NUM_GSM_DTAP_MSG_CC +
           NUM_GSM_DTAP_MSG_SMS + NUM_GSM_DTAP_MSG_SS + NUM_GSM_DTAP_MSG_TP +
+          NUM_GSM_DTAP_MSG_GCC + NUM_GSM_DTAP_MSG_BCC +
           NUM_GSM_DTAP_ELEM];
 
     static ei_register_info ei[] = {
@@ -8399,6 +8405,7 @@ proto_register_gsm_a_dtap(void)
         { &ei_gsm_a_dtap_extraneous_data, { "gsm_a.dtap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
         { &ei_gsm_a_dtap_missing_mandatory_element, { "gsm_a.dtap.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL }},
         { &ei_gsm_a_dtap_coding_scheme, { "gsm_a.dtap.coding_scheme.unknown", PI_PROTOCOL, PI_WARN, "Text string encoded according to an unknown Coding Scheme", EXPFILL } },
+        { &ei_gsm_a_dtap_emerg_num_len, { "gsm_a.dtap.emerg_num_len", PI_MALFORMED, PI_ERROR, "Emergency Number information length must be at least 1", EXPFILL } },
         { &ei_gsm_a_dtap_ti_not_valid,{ "gsm_a.dtap.ti_not_valid", PI_PROTOCOL, PI_ERROR, "If TI bits = 7, length must be > 2", EXPFILL } },
     };
 
@@ -8452,6 +8459,16 @@ proto_register_gsm_a_dtap(void)
     for (i=0; i < NUM_GSM_DTAP_MSG_TP; i++, last_offset++)
     {
         ett[last_offset] = &ett_gsm_dtap_msg_tp[i];
+    }
+
+    for (i=0; i < NUM_GSM_DTAP_MSG_GCC; i++, last_offset++)
+    {
+        ett[last_offset] = &ett_gsm_dtap_msg_gcc[i];
+    }
+
+    for (i=0; i < NUM_GSM_DTAP_MSG_BCC; i++, last_offset++)
+    {
+        ett[last_offset] = &ett_gsm_dtap_msg_bcc[i];
     }
 
     for (i=0; i < NUM_GSM_DTAP_ELEM; i++, last_offset++)
