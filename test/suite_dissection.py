@@ -75211,3 +75211,94 @@ class TestDissectId3v2:
             assert '        Version: 2.4 (0x0400)' in lines
             assert '            Frame Size: 201' in lines
             assert '            Frame Flags: 0x0002' in lines
+
+
+class TestDissectIdmp:
+    def test_idmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IDMP on TCP port 1102 (DAP operations inside) and no frame is
+        malformed or has an error expert info, in one and two passes. The
+        warnings are the PDUs with an unknown protocol (the bind itself,
+        which is dissected before its protocol OID is saved, and a bind with
+        an unregistered OID).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 58
+        assert protocols.count('IDMP') == 38
+        assert protocols.count('DAP') == 12
+        assert protocols.count('TCP') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idmp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['5', '11', '15', '44', '50']
+
+    def test_idmp_dap_operations(self, cmd_tshark, capture_file, test_env):
+        '''After a bind the DAP operations are decoded: bind result, read
+        argument and result, bind errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idmp_coverage.pcap.gz'),
+                '-Y', 'dap && frame.number <= 16',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tdirectoryBind_result anonymous',
+            '7\tread_argument (root)',
+            '8\tread_result (root)',
+            '9\tread_argument (root)',
+            '12\tdirectoryBind_result anonymous',
+            '13\tdirectoryBindError unavailable',
+            '14\tdirectoryBindError unavailable',
+            '16\tread_argument (root)',
+        ]
+
+    def test_idmp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Reject reasons 0-13, abort reasons and TLS responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idmp_coverage.pcap.gz'),
+                '-Y', 'idmp.reason || idmp.abort || idmp.tLSResponse',
+                '-Tfields', '-eframe.number', '-eidmp.reason', '-eidmp.abort',
+                '-eidmp.tLSResponse',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[1] for l in lines[:14]] == [str(i) for i in range(14)]
+        assert [l.split('\t')[2] for l in lines[14:21]] == [str(i) for i in range(7)]
+        assert [l.split('\t')[3] for l in lines[21:]] == ['0', '1', '2', '3']
+
+    def test_idmp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A bind in two IDMP segments (frame 50), a request in three (52)
+        and four (55), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idmp_coverage.pcap.gz'),
+                    '-Y', 'idmp.reassembled.length',
+                    '-Tfields', '-eframe.number', '-eidmp.reassembled.length',
+                    '-eidmp.fragment.count',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['50\t49\t2', '52\t16\t3', '55\t16\t3']
+
+    def test_idmp_twopass_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The review reproducer (capture idmp_twopass.pcap.gz): the final
+        segment of the first PDU shares frame 5 with the first segment of
+        the second PDU, which completes in frame 6. On the second pass the
+        reassembly table gives frame 5 the head of the second PDU and
+        process_reassembled_data() returns NULL; that used to be passed to
+        the BER dissector. It now stops: the first pass reassembles both
+        PDUs, the second pass only the second.'''
+        for passes, frames in (((), '5\t9\n6\t9'), (('-2',), '6\t9')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idmp_twopass.pcap.gz'),
+                    '-Y', 'idmp.reassembled.length',
+                    '-Tfields', '-eframe.number', '-eidmp.reassembled.length',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == frames
