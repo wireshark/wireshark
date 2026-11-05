@@ -64202,3 +64202,60 @@ class TestDissectGopher:
             '37\t\t0abcdefghij\\r\\n1x\\tsel\\thost.example\\t70\\r\\n',
             '45\t\tiInformational line without tabs\\r\\n.\\r\\n',
             '53\tok\t']
+
+
+class TestDissectGpef:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *args):
+        out = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('gpef_coverage.pcap.gz'), *args, '-Tfields',
+                *[x for f in fields for x in ('-e', f)]), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_gpef_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GPEF blobs are carried by LSA DCE/RPC calls (6 frames); nothing
+        is malformed or has an error expert info, in one and two
+        passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'], '-Y', 'gpef')
+        assert lines == ['7', '9', '11', '13', '14', '16']
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert len(lines) == 20
+        assert lines.count('LSARPC') == 12
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    *passes, '-Y', '_ws.malformed || _ws.expert.severity == "error"')
+            assert lines == []
+
+    def test_gpef_keys(self, cmd_tshark, capture_file, test_env):
+        '''Key counts, key lengths, SID and certificate offsets, the SIDs
+        and the certificate subjects of the blobs.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gpef.key_count', 'gpef.efskey.length1', 'gpef.efskey.sid_offset',
+                 'gpef.efskey.cert_length', 'gpef.efskey.cert_offset', 'nt.sid', 'x509sat.uTF8String'],
+                '-Y', 'gpef')
+        dom = 'S-1-5-21-1004336348-1177238915-682003330'
+        assert [l.split('\t') for l in lines] == [
+            ['7', '2', '348,347', '24,24', '292,291', '52,52', dom + '-500,' + dom + '-1104',
+             'EFS Recovery CA,Administrator,EFS Recovery CA,EFS Recovery'],
+            ['9', '0', '', '', '', '', '', ''],
+            ['11', '1', '325', '24', '285', '36', 'S-1-5-18', 'EFS Recovery CA,SYSTEM'],
+            ['13', '3', '348,347,325', '24,24,24', '292,291,285', '52,52,36',
+             dom + '-500,' + dom + '-1104,S-1-5-18',
+             'EFS Recovery CA,Administrator,EFS Recovery CA,EFS Recovery,EFS Recovery CA,SYSTEM'],
+            ['14', '2', '347,348', '24,24', '291,292', '52,52', dom + '-1104,' + dom + '-500',
+             'EFS Recovery CA,EFS Recovery,EFS Recovery CA,Administrator'],
+            ['16', '0', '', '', '', '', '', '']]
+
+    def test_gpef_key_items(self, cmd_tshark, capture_file, test_env):
+        '''Each EfsKey item covers its own key and the SID is inside it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gpef_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11', '-T', 'pdml',
+            ), encoding='utf-8', env=test_env)
+        def attr(line, name):
+            return line.split(' %s="' % name)[1].split('"')[0]
+        blob = [(attr(l, 'pos'), attr(l, 'size')) for l in stdout.splitlines() if '<proto name="gpef"' in l]
+        key = [(attr(l, 'pos'), attr(l, 'size')) for l in stdout.splitlines() if '<field name="gpef.efskey"' in l]
+        assert len(blob) == 1 and len(key) == 1
+        assert int(key[0][1]) == 325
+        assert int(key[0][0]) == int(blob[0][0]) + 8
