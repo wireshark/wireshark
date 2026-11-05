@@ -247,7 +247,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             oct = tvb_get_uint8(tvb, offset);
-            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
+            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, (oct & 0x7f));
             if ((oct & 0x7f) == 0x01) {
                 static int* const fecc_number_of_presets[] = {
                         &hf_h224_caps_reserved,
@@ -270,8 +270,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
                 offset++;
                 source_id = (oct & 0xf0) >> 4;
                 if (source_id > 5) {
-                    tvb_find_uint8_length(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0, &zero_offset);
-                    if (zero_offset > offset) {
+                    if (tvb_find_uint8_length(tvb, offset, FECC_MAX_LENGTH_ASCII_STR, 0, &zero_offset) && zero_offset > offset) {
                         proto_tree_add_item(ext_tree, hf_h224_encoded_characters, tvb, offset, zero_offset - offset, ENC_ASCII);
                         offset = zero_offset;
                         proto_tree_add_item(ext_tree, hf_h224_end_octet, tvb, offset, 1, ENC_NA);
@@ -297,7 +296,7 @@ dissect_h224_cme_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_ex_caps_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
             oct = tvb_get_uint8(tvb, offset);
-            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, oct);
+            offset = dissect_h224_standard_clients_ids(tvb, ext_tree, offset, (oct & 0x7f));
             break;
         default:
             break;
@@ -335,7 +334,7 @@ dissect_h224_fecc_client_data(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
             offset++;
             proto_tree_add_item(ext_tree, hf_h224_message_reserved_b7b4, tvb, offset, 1, ENC_BIG_ENDIAN);
             oct = tvb_get_uint8(tvb, offset);
-            timeout = (oct & 0x0f) ? (oct * TIMEOUT_INTERVALS) : MAX_TIMEOUT_VALUE;
+            timeout = (oct & 0x0f) ? ((oct & 0x0f) * TIMEOUT_INTERVALS) : MAX_TIMEOUT_VALUE;
             proto_tree_add_uint_format(ext_tree, hf_h224_message_timeout, tvb, offset, 1, oct,"%u (%u milliseconds)", oct, timeout);
             offset++;
             break;
