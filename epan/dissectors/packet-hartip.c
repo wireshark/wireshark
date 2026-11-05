@@ -868,7 +868,7 @@ dissect_cmd48(proto_tree *body_tree, tvbuff_t *tvb, int offset, int bodylen)
         offset += dissect_byte(body_tree, hf_hartip_pt_rsp_analog_channel_fixed,   tvb, offset);
     }
 
-    if (bodylen >= 24) {
+    if (bodylen >= 25) {
       proto_tree_add_item(body_tree,    hf_hartip_pt_rsp_device_sp_status,         tvb, offset, 11, ENC_NA);
       /*offset += 11;*/
     }
@@ -1330,7 +1330,7 @@ dissect_hartip_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   length  = tvb_get_ntohs(tvb, offset+6);
 
-  hart_item = proto_tree_add_item(tree, proto_hartip, tvb, 0, length, ENC_NA);
+  hart_item = proto_tree_add_item(tree, proto_hartip, tvb, offset, length, ENC_NA);
   hartip_tree = proto_item_add_subtree(hart_item, ett_hartip);
 
   hdr_tree = proto_tree_add_subtree(hartip_tree, tvb, offset, HARTIP_HEADER_LENGTH,
@@ -1464,7 +1464,7 @@ dissect_hartip_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   while (tvb_reported_length_remaining(tvb, offset) >= HARTIP_HEADER_LENGTH)
-    offset += dissect_hartip_common(tvb, pinfo, tree, offset);
+    offset = dissect_hartip_common(tvb, pinfo, tree, offset);
 
   return offset;
 }
