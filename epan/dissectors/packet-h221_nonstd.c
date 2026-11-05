@@ -68,7 +68,7 @@ dissect_ms_nonstd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
      * nonStandardData item, and rethrow other exceptions (as a
      * BoundsError means you really *have* run out of packet data).
      */
-    if(tvb_len >= 23)
+    if(tvb_len >= 24)
     {
 
         codec_extra = tvb_get_ntohs(tvb,offset+22);
