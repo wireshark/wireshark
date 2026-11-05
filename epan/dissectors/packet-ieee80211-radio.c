@@ -995,7 +995,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
               info_n->has_bandwidth &&
               info_n->has_short_gi) {
             bandwidth_40 = (info_n->bandwidth == PHDR_802_11_BANDWIDTH_40_MHZ) ? 1 : 0;
-            if (info_n->mcs_index < MAX_MCS_INDEX) {
+            if (info_n->mcs_index <= MAX_MCS_INDEX) {
               data_rate = ieee80211_htrate(info_n->mcs_index, bandwidth_40, info_n->short_gi);
               have_data_rate = true;
             }
