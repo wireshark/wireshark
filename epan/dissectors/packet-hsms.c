@@ -92,6 +92,8 @@ static int hf_hsms_data_item_value_u2;
 static int hf_hsms_data_item_value_u4;
 
 static expert_field ei_hsms_ptype;
+static expert_field ei_hsms_item_format;
+static expert_field ei_hsms_nesting;
 
 static wmem_map_t *value_lengths;
 
@@ -216,6 +218,13 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     {
         value_length = (unsigned*)wmem_map_lookup(value_lengths, GUINT_TO_POINTER(item_format_code));
 
+        if (GPOINTER_TO_UINT(value_length) == 0)
+        {
+            proto_tree_add_expert_format(tree, pinfo, &ei_hsms_item_format, tvb, *offset, 1,
+                "Unknown item format code %02o", item_format_code);
+            return -1;
+        }
+
         /* length must be dividable by item length, because it must be a multiple of items */
         if (length % GPOINTER_TO_UINT(value_length) != 0)
             return -1;
@@ -265,7 +274,14 @@ dissect_secs_variable(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         {
             if (item_format_code == 0)
             {
-                /* add sub items for list element to item tree */
+                /* add sub items for list element to item tree; each list
+                 * level adds two tree levels, so stop before the tree
+                 * depth limit is reached */
+                if ((pinfo->dissection_depth + 1) * 2 + 16 >= prefs.gui_max_tree_depth)
+                {
+                    proto_tree_add_expert(hsms_data_item_tree, pinfo, &ei_hsms_nesting, tvb, *offset, 0);
+                    return -1;
+                }
                 increment_dissection_depth(pinfo);
                 int subItemLength = dissect_secs_variable(tvb, pinfo, hsms_data_item_tree, data, offset);
                 decrement_dissection_depth(pinfo);
@@ -731,6 +747,20 @@ proto_register_hsms(void)
             PI_RESPONSE_CODE,
             PI_NOTE,
             "Unknown presentation type (ptype)",
+            EXPFILL }
+        },
+        { &ei_hsms_item_format,
+            { "hsms.data.item.format.unknown",
+            PI_MALFORMED,
+            PI_ERROR,
+            "Unknown item format code",
+            EXPFILL }
+        },
+        { &ei_hsms_nesting,
+            { "hsms.data.item.list.too_deep",
+            PI_MALFORMED,
+            PI_ERROR,
+            "List nesting too deep",
             EXPFILL }
         }
     };
