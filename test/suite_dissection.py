@@ -67791,3 +67791,128 @@ class TestDissectGue:
             '21\tUnknown GUE variant 2',
             '22\tUnknown GUE variant 3',
         ]
+
+
+class TestDissectGvcp:
+    @staticmethod
+    def _infos(cmd_tshark, capture_file, test_env, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.Info',
+            ), encoding='utf-8', env=test_env)
+        return {int(l.split('\t')[0]): l.split('\t')[1].rstrip()
+                for l in stdout.splitlines()}
+
+    def test_gvcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is GVCP and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.Protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 923
+        assert protocols.count('GVCP') == 923
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gvcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gvcp_discovery(self, cmd_tshark, capture_file, test_env):
+        '''Discovery acknowledge strings and the force IP exchange.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Y', 'gvcp.bootstrap.manufacturername && frame.number < 10',
+                '-Tfields', '-eframe.number',
+                '-egvcp.bootstrap.manufacturername',
+                '-egvcp.bootstrap.serialnumber',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tSynthetic Vision GmbH\tSN-0001',
+            '4\tSynthetic Vision GmbH\tSN-0002',
+        ]
+        info = self._infos(cmd_tshark, capture_file, test_env)
+        assert info[2] == '< DISCOVERY_ACK (Synthetic Vision GmbH, SN-0001)'
+        assert info[5].startswith('> FORCEIP_CMD')
+        assert info[6].startswith('< FORCEIP_ACK')
+
+    def test_gvcp_registers(self, cmd_tshark, capture_file, test_env):
+        '''Register names and values come from the matching request.'''
+        info = self._infos(cmd_tshark, capture_file, test_env)
+        assert info[7] == '> READREG_CMD [Version]'
+        assert info[8] == '< READREG_ACK [Version] Value=0x00020002'
+        assert info[345] == '> READREG_CMD [Addr:0x00012345]'
+        assert info[346] == '< READREG_ACK [Addr:0x00012345] Value=0xDEADBEEF'
+        assert info[354] == '< READREG_ACK (Access Denied) [Addr:0x00012345]'
+        assert info[694] == '< WRITEREG_ACK [Multiple WriteReg Ack] (4/4) (Success)'
+        assert info[696] == '< WRITEREG_ACK (Not Implemented) [Multiple WriteReg Ack] (2/4) (Failed)'
+        assert info[905] == '< WRITEREG_ACK Unknown status (0x8ABC)(Failed)'
+        assert info[860] == '> Unknown Command (0x999)'
+
+    def test_gvcp_extended_bootstrap(self, cmd_tshark, capture_file, test_env):
+        '''The stream channel extended bootstrap address is learned from a
+        READREG_ACK, and from a READMEM_ACK (the reproducer of "GVCP: Fix
+        read memory acknowledge and short length handling"), and then names
+        the registers in the window.'''
+        info = self._infos(cmd_tshark, capture_file, test_env)
+        assert info[751] == '< READREG_ACK [SCEBA0 (Stream Channel Extended Bootstrap Address #0)] Value=0x00010000'
+        assert info[752] == '> READREG_CMD [SCGDAx (GenDC Descriptor Address)]'
+        assert info[753] == '< READREG_ACK [SCGDAx (GenDC Descriptor Address)] Value=0x00001000'
+        assert info[784] == '> READREG_CMD [Addr:0x00010010]'
+        assert info[792] == '> WRITEREG_CMD [SCGFTAx (GenDC Flow Mapping Table Address)] Value=0x00001234'
+        assert info[794] == '> READMEM_CMD  (0x00030000 (4) bytes)'
+        assert info[795] == '< READMEM_ACK [SCGDAx (GenDC Descriptor Address)]'
+        assert info[797] == '< READREG_ACK [Addr:0x00000E3C] Value=0x00040000'
+        assert info[798] == '> READREG_CMD [SCGDAx (GenDC Descriptor Address)]'
+
+    def test_gvcp_memory(self, cmd_tshark, capture_file, test_env):
+        '''Memory reads and writes, pending acknowledges.'''
+        info = self._infos(cmd_tshark, capture_file, test_env)
+        assert info[802] == '> WRITEMEM_CMD [Addr:0x00100000]: 32 bytes'
+        assert info[803] == '< PENDING_ACK'
+        assert info[804] == '< WRITEMEM_ACK [Addr:0x00100000]'
+        assert info[807] == '< READREG_ACK [Heartbeat timeout] Value=0x00000BB8'
+
+    def test_gvcp_events_and_resend(self, cmd_tshark, capture_file, test_env):
+        '''Packet resend with 16 and 64 bit block IDs, events (also to the
+        message channel port learned from the MCP register write) and
+        event data with an event size.'''
+        info = self._infos(cmd_tshark, capture_file, test_env)
+        assert info[808] == '> PACKETRESEND_CMD Block 4660, Packets 5->9'
+        assert info[812] == '> PACKETRESEND_CMD Block 4294967298, Packets 1000->2000'
+        assert info[811] == '< PACKETRESEND_ACK (Packet Resend)'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Y', 'udp.dstport == 50020 && gvcp',
+                '-Tfields', '-eframe.number', '-e_ws.col.Protocol',
+            ), encoding='utf-8', env=test_env)
+        frames = [l.split('\t') for l in stdout.splitlines()]
+        assert len(frames) == 7
+        assert all(f[1] == 'GVCP' for f in frames)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Y', 'gvcp.cmd.event.eventsize',
+                '-Tfields', '-eframe.number',
+                '-egvcp.cmd.event.eventsize', '-egvcp.cmd.eventdata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '850\t0x0020,0x0018,0x001f\t6162636465666768,78797a31323334',
+            '851\t0x0028\t30313233343536373839616263646566',
+        ]
+        assert info[850] == '> EVENTDATA_CMD [ID: 0x0009][ID: 0x8004][ID: 0xB000]'
+
+    def test_gvcp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in one and two passes; the
+        transaction links appear on the second pass.'''
+        one = self._infos(cmd_tshark, capture_file, test_env)
+        two = self._infos(cmd_tshark, capture_file, test_env, '-2')
+        assert one == two
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('gvcp_coverage.pcap.gz'),
+                '-Y', 'gvcp.response_in == 8',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7']
