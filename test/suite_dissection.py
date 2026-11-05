@@ -74989,3 +74989,125 @@ class TestDissectIcp:
             '21\t32\t' + bytes(range(32)).hex(),
             '22\t0\t<MISSING>',
         ]
+
+
+class TestDissectIcq:
+    def test_icq_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ICQ on UDP 4000: v5 server and client packets, v2-v4 packets
+        (version only) and two datagrams (versions 6 and 1) that are not
+        ICQ. No frame is malformed or has an error expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 62
+        assert protocols.count('ICQv5') == 57
+        assert protocols.count('ICQv2') == 1
+        assert protocols.count('ICQv3') == 1
+        assert protocols.count('ICQv4') == 1
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icq_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_icq_server_commands(self, cmd_tshark, capture_file, test_env):
+        '''Server commands in the Info column, and the warning for the
+        commands the dissector does not decode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 21',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eicq.unknown_command',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('1\tICQv5 SRV_ACK\t')
+        assert lines[6].startswith('7\tICQv5 SRV_LOGIN_REPLY\t')
+        assert lines[7].startswith('8\tICQv5 SRV_USER_ONLINE\t')
+        assert lines[9].startswith('10\tICQv5 SRV_RAND_USER\t')
+        assert lines[11].split('\t')[1] == 'ICQv5 SRV_QUERY'
+        assert lines[11].split('\t')[-1] == 'Unknown command'
+        assert lines[20].split('\t')[1] == 'ICQv5 Unknown'
+
+    def test_icq_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Received messages of every type: text, URL, authorization
+        request, authorization, user added, e-mail, contacts, an unknown
+        type and 0xffff.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'icq.msg_type',
+                '-Tfields', '-eframe.number', '-eicq.msg_type',
+            ), encoding='utf-8', env=test_env)
+        types = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert types[:16] == ['1', '4', '6', '8', '8', '12', '14', '19', '19', '153',
+                              '65535', '4', '4', '14', '6', '12']
+        assert types[16:] == ['1', '4', '6', '8']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'frame.number == 31',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Unknown msgType: 153 (0x99)'
+
+    def test_icq_meta_user(self, cmd_tshark, capture_file, test_env):
+        '''META_USER replies: the Result item is one octet long (it had
+        length and value swapped), "Failure" for results other than 0x0a,
+        and the unknown subcommand warning.'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'icq.meta_user.result',
+                '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env)
+        packets = json.loads(stdout)
+        results = []
+        for p in packets:
+            layers = p['_source']['layers']
+            # [hex, offset, length, bitmask, type]
+            results.append((layers['frame']['frame.number'],
+                            layers['icq']['icq.meta_user.subcmd'] if 'icq.meta_user.subcmd' in layers['icq'] else None))
+        assert [r[0] for r in results] == ['42', '43', '44', '45', '46', '47']
+        def result_raw(p):
+            def walk(d):
+                if isinstance(d, dict):
+                    for k, v in d.items():
+                        if k == 'icq.meta_user.result_raw':
+                            return v
+                        r = walk(v)
+                        if r:
+                            return r
+                return None
+            return walk(p['_source']['layers']['icq'])
+        for p, raw in zip(packets, ('0a', '0a', '0a', '0a', '14', '0a')):
+            r = result_raw(p)
+            assert r[0] == raw
+            assert r[2] == 1
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'frame.number == 47',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Unknown Meta subcmd: 0x1234'
+
+    def test_icq_multi_nesting(self, cmd_tshark, capture_file, test_env):
+        '''A SRV_MULTI packet that holds a SRV_MULTI packet 500 levels
+        deep (frame 51) stops with a warning in one and two passes; the
+        small nested multi frames (48-50) decode completely.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icq_coverage.pcap.gz'),
+                    '-Y', 'icq.too_deep',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['51\tMulti packet nesting too deep']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icq_coverage.pcap.gz'),
+                '-Y', 'frame.number == 48 || frame.number == 49',
+                '-Tfields', '-eframe.number', '-eicq.multi.num_packets',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['48\t3', '49\t2,2']
