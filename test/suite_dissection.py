@@ -68758,3 +68758,51 @@ class TestDissectH248_10:
                 encoding='utf-8', env=test_env, timeout=300)
         assert 'Event ID: MGCon (1)' in stdout
         assert 'Event ID: Unknown (9)' in stdout
+
+
+class TestDissectH248_2:
+    '''H.248.2 package ctyp (Call Type Discrimination, 0x0011), event dtone
+    (Discriminating Tone Detected) inside binary H.248 on UDP 2945, from the
+    synthetic capture h248_2_coverage.pcapng.gz: frames 1-21 are
+    notifications and requests of the event with tone types (inside and
+    outside of the value list), parameter ids of 1 to 4 octets, unknown
+    events and parameters; 22-25 are the package sweep and 26-80 messages
+    built from the H.248 ASN.1 module with this package.'''
+
+    @staticmethod
+    def h248_2_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_2_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 H.248 frames, none malformed or with an error expert info
+        in one and two passes.'''
+        rows = self.h248_2_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 80
+        assert {r[1] for r in rows} == {'H.248'}
+        for passes in ((), ('-2',)):
+            rows = self.h248_2_fields(cmd_tshark, capture_file, test_env,
+                                      filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h248_2_tone_types(self, cmd_tshark, capture_file, test_env):
+        '''The call type of the dtone event: values of the list and others.'''
+        rows = self.h248_2_fields(cmd_tshark, capture_file, test_env, 'h248.2.dtt.val',
+                                  filt='frame.number <= 12 && h248.2.dtt.val')
+        assert [r[1] for r in rows] == ['1', '2', '3', '11', '18', '23', '27', '28', '0', '153', '70000', '1,2']
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('h248_2_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3', '-V'), encoding='utf-8', env=test_env, timeout=300)
+        assert 'Event ID: Discriminating Tone Detected(dtone) (1)' in stdout
+        assert 'call type: XCI (3)' in stdout
+
+    def test_h248_2_unknown_event(self, cmd_tshark, capture_file, test_env):
+        '''Event 2 is named but has no parameter table: its parameter is
+        not decoded; the observed events 1, 2 and 3 of frame 16 are
+        all shown.'''
+        rows = self.h248_2_fields(cmd_tshark, capture_file, test_env, 'h248.package_eventid', 'h248.2.dtt.val',
+                                  filt='frame.number == 15 || frame.number == 16')
+        assert rows == [['15', '0x0002', ''], ['16', '0x0001,0x0002,0x0003', '1']]
