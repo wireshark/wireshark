@@ -58331,3 +58331,136 @@ class TestDissectFlip:
         assert lines[5] == '6\tTrue\t0\t0x00000201\t6\t35\t0x00004c74,0x00001234\tTrue,False\t0,0'
         assert lines[6].split('\t')[6] == '0x00000aa5,0x00001234,0x00001234'
         assert lines[10] == '11\tTrue\t0\t0x00000302\t11\t12\t0x0000ffff\tFalse\t85'
+
+
+class TestDissectFmp:
+    '''FMP (File Mapping Protocol, ONC-RPC program 1001911 version 3)
+    over UDP, from the synthetic capture fmp_coverage.pcap.gz. FMP is
+    found by the RPC UDP heuristic, so no Decode As is needed.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *names, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fmp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + n for n in names),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is FMP and none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 224
+        assert protocols.count('FMP') == 224
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fmp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The FMP fields are the same in one and two passes.'''
+        names = ('fmp.procedure', 'fmp.status', 'fmp.sessHandle',
+                 'fmp.fmpFHandle', 'fmp.nfsFHandle', 'fmp.Path',
+                 'fmp.mount_path', 'fmp.volID', 'fmp.volume_desc',
+                 'fmp.volume_mgmt_type', 'fmp.firstLogBlk', 'fmp.numBlks',
+                 'fmp.extentState', 'fmp.cmd', 'fmp.fileSize', 'fmp.devSig',
+                 'fmp.volHandle', 'fmp.os_name', 'fmp.cap')
+        one = self.fields(cmd_tshark, capture_file, test_env, 'fmp', *names)
+        two = self.fields(cmd_tshark, capture_file, test_env, 'fmp', *names,
+                          passes=('-2',))
+        assert len(one) == 224
+        assert one == two
+
+    def test_fmp_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure of the table is dissected, as call and reply.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'fmp',
+                           'fmp.procedure')
+        procs = [int(r[1]) for r in rows]
+        assert sorted(set(procs)) == list(range(0, 26))
+        # procedure 24 is not in the table of procedures: no FMP body
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {167, 168}', '_ws.col.info')
+        assert rows == [['167', 'V3 proc-24 Call'],
+                        ['168', 'V3 proc-24 Reply (Call In 167)']]
+
+    def test_fmp_open_fmp_handle(self, cmd_tshark, capture_file, test_env):
+        '''The FMP file handle is bytes ("FHND"); it asserted on the
+        field type before "FMP: Fix crashes and several decoding
+        errors".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 63', 'fmp.fmpFHandle',
+                           'fmp.native_protocol')
+        assert rows == [['63', '46484e44', '3']]
+
+    def test_fmp_gen_string(self, cmd_tshark, capture_file, test_env):
+        '''The encoding mode of a SHARE file handle decides whether the
+        string follows (it checked the length word before the fix); an
+        unknown mode has no string.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {51, 53, 57, 59, 67}',
+                           'fmp.encoding_mode', 'fmp.Path')
+        assert rows == [
+            ['51', '0', 'share1'],
+            ['53', '1', '/mnt/vol'],
+            ['57', '2', '//srv/share'],
+            ['59', '9', ''],
+            ['67', '0', 'share'],
+        ]
+
+    def test_fmp_dev_serial(self, cmd_tshark, capture_file, test_env):
+        '''A disk identified by its serial is decoded; this crashed
+        (NULL packet_info) before the fix.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 176', 'fmp.volume_desc',
+                           'fmp.disk_identifier', 'fmp.devSerial.query_cmd',
+                           'fmp.devSig', 'fmp.volID')
+        assert rows == [['176', '0', '1', '0', 'ABCD', '0x00000007']]
+
+    def test_fmp_vm_info(self, cmd_tshark, capture_file, test_env):
+        '''The volume management type is followed by its data (the
+        offset was not advanced past the type before the fix): the third
+        party volume handle of frame 178 and the hierarchical volume
+        description of frame 38.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {38, 178}',
+                           'fmp.volume_mgmt_type', 'fmp.volHandle',
+                           'fmp.topVolumeId', 'fmp.length_of_volume_list',
+                           'fmp.volume_desc', 'fmp.volID')
+        assert rows == [
+            ['38', '64', '', '0x00000099', '6', '0,0,1,2,3,9',
+             '0x00000001,0x00000002,0x00000003,0x00000004,0x00000005'],
+            ['178', '2', 'vol', '', '', '', ''],
+        ]
+
+    def test_fmp_extents(self, cmd_tshark, capture_file, test_env):
+        '''The extent list of an OpenGetMap reply (three extents) and the
+        extent list of a GetMapEx reply (64 bit offsets).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {74, 156}',
+                           'fmp.extentList_len', 'fmp.firstLogBlk',
+                           'fmp.numBlks', 'fmp.extentState', 'fmp.firstLogBlk64',
+                           'fmp.start_offset64', 'fmp.fileSize')
+        assert rows == [
+            ['74', '3', '0,16,32', '16,16,8', '0,1,2', '', '', '100000'],
+            ['156', '', '', '', '0,1', '0,8589934592', '0,17179869184',
+             '1099511627776'],
+        ]
+
+    def test_fmp_status(self, cmd_tshark, capture_file, test_env):
+        '''All status values of a HeartBeat reply, with a name for the
+        defined ones.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number >= 180 && fmp.status && !fmp.sessHandle',
+                           'fmp.status', '_ws.col.info')
+        status = [int(r[1]) for r in rows]
+        assert status == [0, 5, 12, 13, 22, 28, 79, 500, 501, 502, 503,
+                          504, 505, 506, 507, 508, 509, 510, 511, 512, 600,
+                          7777, 0]
