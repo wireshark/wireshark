@@ -64583,3 +64583,103 @@ class TestDissectGquic:
                             'gquic.tag', 'tls.handshake.type')
         assert [(r[0], r[2]) for r in rows if r[2]] == [('125', '1'), ('126', '2')]
         assert [r[0] for r in rows] == ['123', '124', '125', '126']
+
+
+class TestDissectGreBonding:
+    '''Huawei GRE bonding control messages (GRE protocol types 0xB7EA and
+    0x0101) from the synthetic capture grebonding_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('grebonding_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_grebonding_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 44 frames are GREbond, with no malformed packets and no
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('grebonding_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 44
+        assert protocols.count('GREbond') == 44
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('grebonding_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_grebonding_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message and tunnel types of the first frames, GRE protocol 0x0101.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 11',
+                            'gre.proto', 'grebonding.type', 'grebonding.tunneltype', '_ws.col.info')
+        assert rows == [
+            ['1', '0xb7ea', '1', '1', 'Tunnel setup request'],
+            ['2', '0xb7ea', '2', '2', 'Tunnel setup accept'],
+            ['3', '0xb7ea', '3', '1', 'Tunnel setup deny'],
+            ['4', '0xb7ea', '4', '2', 'Hello'],
+            ['5', '0xb7ea', '5', '1', 'Tunnel tear down'],
+            ['6', '0xb7ea', '6', '2', 'Notify'],
+            ['7', '0xb7ea', '10', '0', 'Link Detection (Telekom specific)'],
+            ['8', '0xb7ea', '1', '8', 'Tunnel setup request'],
+            ['9', '0xb7ea', '7', '3', '0x07 (unknown)'],
+            ['10', '0x0101', '1', '0', 'Tunnel setup request'],
+            ['11', '0xb7ea', '4', '8', 'Hello'],
+        ]
+
+    def test_grebonding_filter_list_ack(self, cmd_tshark, capture_file, test_env):
+        '''The ACK code is the last octet of the attribute (it was read from
+        the octet after the attribute, the type of the next attribute).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.filter.commit && frame.number >= 34 && frame.number <= 37',
+                            'grebonding.attr.val.filter.commit', 'grebonding.attr.val.filter.ack')
+        assert rows == [['34', '7', '0'], ['35', '7', '1'], ['36', '7', '2'], ['37', '7', '3']]
+
+    def test_grebonding_filter_list_items(self, cmd_tshark, capture_file, test_env):
+        '''All items of a filter list are decoded, also after a long
+        attribute (the loop compared the absolute offset with the
+        attribute length).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.filter.item.type',
+                            'grebonding.attr.val.filter.item.type', 'grebonding.attr.val.filter.item.desc')
+        by = {r[0]: r[1:] for r in rows}
+        assert by['30'][0] == '1,2,3,4,5,6,7,8'
+        assert by['31'][0] == '9,10,11,12,13,14,15'
+        assert by['30'][1].split(',')[:2] == ['filter-1', 'filter-2']
+        # the filter list after a 24 octet CIN attribute, and before a CIN attribute
+        assert by['43'] == ['1', 'web']
+        assert by['44'] == ['1', 'web']
+        # item lengths that exceed the attribute or the packet are clamped
+        assert by['41'][0] == '1'
+        assert by['42'][0] == '1'
+
+    def test_grebonding_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Error codes, DSL protocol values, strings and addresses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.error', 'grebonding.attr.val.error')
+        assert rows[:2] == [['15', '9'], ['18', '1,2,3,4,5']]
+        assert rows[-1] == ['22', '502,503,999']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.dslproto', 'grebonding.attr.val.dslproto')
+        assert [r[1] for r in rows] == ['0', '1', '2', '3', '4', '5']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.string || grebonding.attr.val.bras_name',
+                            'grebonding.attr.val.string', 'grebonding.attr.val.bras_name')
+        assert rows[0] == ['10', 'CIN-0001', '']
+        assert ['29', '', 'bras01.example.net'] in rows
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'grebonding.attr.val.ipv4 || grebonding.attr.val.ipv6',
+                            'grebonding.attr.val.ipv4', 'grebonding.attr.val.ipv6')
+        assert rows[0] == ['12', '192.0.2.10', '2001:db8::5']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('grebonding_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14', '-V', '-O', 'grebonding',
+            ), encoding='utf-8', env=test_env)
+        assert '        IPv6 prefix - 2001:db8:0:1::/64' in stdout.splitlines()
+        assert '        IPv6 prefix - 2001:db8:0:2::/56' in stdout.splitlines()
