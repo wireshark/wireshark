@@ -66303,3 +66303,63 @@ class TestDissectGsmL2rcop:
             ['44', '2,27,1,31', '3'], ['45', '4,29', ''], ['46', '5,30', ''],
             ['47', '3,28', ''], ['48', '0', ''], ['49', '3,0', ''],
             ['50', '27', '']]
+
+
+class TestDissectGsmMap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_map_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_map_protocols(self, cmd_tshark, capture_file, test_env):
+        '''MTP3/SCCP/TCAP on the MAP subsystem numbers: 920 frames, none
+        malformed or with a warning or error expert info, in one and two
+        passes. The last two are the SES/PRES reproducer.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 920
+        assert protocols.count('GSM MAP') == 883
+        assert protocols.count('GSM SMS') == 26
+        assert protocols.count('RANAP') == 11
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_map_components(self, cmd_tshark, capture_file, test_env):
+        '''Component counts: invokes, return results, return errors and
+        rejects, and the number of different operation codes in them.'''
+        for flt, n in (('gsm_old.invoke_element', 412),
+                       ('gsm_old.returnError_element', 160),
+                       ('gsm_old.reject_element', 16)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output(stdout) == n
+        for flt, n in (('gsm_old.invoke_element', 92),
+                       ('gsm_old.returnResultLast_element', 75)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', flt, '-Tfields', '-egsm_old.localValue')
+            codes = set(c for l in stdout.splitlines() for c in l.split(','))
+            assert len(codes) == n
+            assert {'2', '7', '22', '44', '46', '56', '59', '67'} <= codes
+
+    def test_gsm_map_ses_pres(self, cmd_tshark, capture_file, test_env):
+        '''MAP reached as a BER OID dissector from ACSE/PRES (frames 919 and
+        920): it used to read the session data as a tcap_private_t.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 919', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-ee212.imsi', '-egsm_old.localValue')
+        assert stdout.splitlines() == [
+            '919\tGSM MAP\t262019876543210\t56',
+            '920\tGSM MAP\t262019876543210\t56']
+
+    def test_gsm_map_operation_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The gsm_map,operation statistics list the operation names.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-q', '-z', 'gsm_map,operation')
+        for name in ('updateLocation', 'insertSubscriberData',
+                     'sendAuthenticationInfo'):
+            assert name in stdout
