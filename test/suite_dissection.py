@@ -73285,3 +73285,125 @@ class TestDissectHsfz:
             ), encoding='utf-8', env=test_env)
         assert 'Source Address: 0xf4 (Tester)' in stdout
         assert 'Target Address: 0x12 (ECU Engine)' in stdout
+
+
+class TestDissectHsms:
+    # HSMS has no default port: set the port preference
+    @staticmethod
+    def hsms_args():
+        return ('-o', 'hsms.tcp.port:5000')
+
+    def test_hsms_clean(self, cmd_tshark, capture_file, test_env):
+        '''27 frames are HSMS messages (the first segment of a split message
+        is not), none is malformed or has an expert info except the
+        presentation type note of frame 31, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(),
+                '-r', capture_file('hsms_coverage.pcap.gz'),
+                '-Y', 'hsms', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 27
+        # Without the preference nothing is HSMS
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsms_coverage.pcap.gz'),
+                '-Y', 'hsms', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(), *passes,
+                    '-r', capture_file('hsms_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456 || '
+                          'hsms.data.item.format.unknown',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(), *passes,
+                    '-r', capture_file('hsms_coverage.pcap.gz'),
+                    '-Y', 'hsms.header.ptype.unknown',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['31']
+
+    def test_hsms_unknown_item_format(self, cmd_tshark, capture_file, test_env):
+        '''An item with an unknown format code gets an expert info and
+        stops the item decoding (it divided by zero before the fix). One
+        and two passes give the same result.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(), *passes,
+                    '-r', capture_file('hsms_unknown_format.pcap.gz'),
+                    '-Y', 'hsms.data.item.format.unknown',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+        lines = [l.split('\t') for l in outs[0].splitlines()]
+        assert [l[0] for l in lines] == ['4', '5', '6']
+        assert lines[0][2] == 'Unknown item format code 01'
+        assert lines[1][2] == 'Unknown item format code 77'
+        assert lines[2][2] == 'Unknown item format code 13'
+
+    def test_hsms_messages(self, cmd_tshark, capture_file, test_env):
+        '''Session, stream, function, W-bit, S-type and system bytes of
+        control and data messages.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(),
+                '-r', capture_file('hsms_coverage.pcap.gz'),
+                '-Y', 'hsms', '-Tfields', '-eframe.number',
+                '-ehsms.header.stype', '-ehsms.header.sessionid',
+                '-ehsms.header.stream', '-ehsms.header.function',
+                '-ehsms.header.wbit', '-ehsms.header.system',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines['4'] == ['1', '65535', '', '', '', '4097', 'HSMS Message Select.req']
+        assert lines['5'][-1] == 'HSMS Message Select.rsp'
+        assert lines['7'][-1] == 'HSMS Message Linktest.req'
+        assert lines['9'][-1] == 'HSMS Message Reject.req'
+        assert lines['10'][-1] == 'HSMS Message Deselect.req'
+        assert lines['11'][-1] == 'HSMS Message Deselect.rsp'
+        assert lines['12'][-1] == 'HSMS Message Separate.req'
+        assert lines['13'][-1] == 'HSMS Message Unknown (11)'
+        assert lines['14'] == ['0', '1', '1', '1', 'True', '4104', 'HSMS SECS Stream/Function S01F01']
+        assert lines['15'][3:5] == ['2', 'False']
+        assert lines['27'] == ['0', '1', '127', '255', 'False', '4114', 'HSMS SECS Stream/Function S127F255']
+        # Two messages in one segment, split message
+        assert lines['28'][0] == '5,6'
+        assert lines['30'][-1] == 'HSMS SECS Stream/Function S01F13'
+
+    def test_hsms_items(self, cmd_tshark, capture_file, test_env):
+        '''Every item type of frame 19 with its values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(),
+                '-r', capture_file('hsms_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19', '-Tfields',
+                '-ehsms.data.item.format', '-ehsms.data.item.length',
+                '-ehsms.data.item.value.binary',
+                '-ehsms.data.item.value.boolean',
+                '-ehsms.data.item.value.string',
+                '-ehsms.data.item.value.int64', '-ehsms.data.item.value.int8',
+                '-ehsms.data.item.value.int16', '-ehsms.data.item.value.int32',
+                '-ehsms.data.item.value.double', '-ehsms.data.item.value.float',
+                '-ehsms.data.item.value.uint64', '-ehsms.data.item.value.uint8',
+                '-ehsms.data.item.value.uint16', '-ehsms.data.item.value.uint32',
+            ), encoding='utf-8', env=test_env)
+        f = stdout.rstrip('\n').split('\t')
+        assert f[0] == '0,8,9,16,16,24,25,26,28,32,36,40,41,42,44'
+        assert f[1] == '14,4,3,10,0,16,2,4,8,16,8,16,2,4,8'
+        assert f[2] == '01:02:03:ff'
+        assert f[3] == 'True,False,True'
+        assert f[4] == 'plain text,'
+        assert f[5] == '-1,1099511627776'
+        assert f[6] == '-128,127'
+        assert f[7] == '-2,300'
+        assert f[8] == '-70000,70000'
+        assert f[11] == '0,9223372036854775808'
+        assert f[12] == '0,255'
+        assert f[13] == '1,65535'
+        assert f[14] == '1,4294967295'
+        # Floating point values: the decimal separator depends on the locale
+        assert f[9] in ('1.5,-2.25', '1,5,-2,25')
+        stdout = subprocess.check_output((cmd_tshark, *self.hsms_args(),
+                '-r', capture_file('hsms_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17', '-V', '-O', 'hsms',
+            ), encoding='utf-8', env=test_env)
+        assert 'List (2 items)' in stdout
+        assert 'Value: LOT42' in stdout
