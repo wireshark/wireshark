@@ -3932,7 +3932,9 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         wmem_array_grow(field.usages, usage_max - usage_min + 1);
                         /* Ensure j doesn't overflow even if usage_max is UINT32_MAX */
                         for (uint64_t j = usage_min; j <= usage_max; j++) {
-                            wmem_array_append_one(field.usages, j);
+                            /* The array holds uint32_t */
+                            uint32_t range_usage = (uint32_t)j;
+                            wmem_array_append_one(field.usages, range_usage);
                         }
 
                         defined &= ~(HID_USAGE_MIN | HID_EXTENDED_USAGE);
