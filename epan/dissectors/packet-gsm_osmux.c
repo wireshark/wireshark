@@ -409,7 +409,7 @@ static tap_packet_status osmux_stats_tree_packet(stats_tree *st,
     tick_stat_node(st, stream_name, st_osmux_stats_conn, true);
     tick_stat_node(st, st_str_pkts, stream->stats.node_id, true);
 
-    ft_name = wmem_strdup_printf(pinfo->pool, "Field: FT: %s", osmuxh->is_old_dummy ? "Old Dummy" : osmux_ft_vals[osmuxh->ft].strptr);
+    ft_name = wmem_strdup_printf(pinfo->pool, "Field: FT: %s", osmuxh->is_old_dummy ? "Old Dummy" : val_to_str(pinfo->pool, osmuxh->ft, osmux_ft_vals, "Unknown (%u)"));
     tick_stat_node(st, ft_name, stream->stats.node_id, true);
 
     if (osmuxh->ft == OSMUX_FT_AMR && !osmuxh->is_old_dummy) {
