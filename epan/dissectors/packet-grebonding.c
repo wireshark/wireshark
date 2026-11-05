@@ -309,7 +309,7 @@ dissect_greb_filter_list_ack(tvbuff_t *tvb, proto_tree *attrb_tree, unsigned off
         "Filter list ACK - Commit %d", filter_commit_count);
     filter_tree = proto_item_add_subtree(it_filter, ett_grebonding_filter_list);
     proto_tree_add_item(filter_tree, hf_greb_attr_filter_commit, tvb, offset, attrb_length - 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(filter_tree, hf_greb_attr_filter_ack, tvb, offset + attrb_length, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(filter_tree, hf_greb_attr_filter_ack, tvb, offset + attrb_length - 1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -318,6 +318,7 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
 {
     proto_item *it_filter;
     proto_tree *filter_tree;
+    unsigned end;
     unsigned filter_commit_count = tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     unsigned filter_packet_sum = tvb_get_uint16(tvb, offset + 4, ENC_BIG_ENDIAN);
     unsigned filter_packet_id = tvb_get_uint16(tvb, offset + 6, ENC_BIG_ENDIAN);
@@ -328,9 +329,10 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
     proto_tree_add_item(filter_tree, hf_greb_attr_filter_packetid, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(filter_tree, hf_greb_attr_filter_packetsum, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
+    end = offset + attrb_length;
     offset += 8;
 
-    while (offset < attrb_length) {
+    while (offset < end) {
         proto_item *it_filter_item;
         proto_tree *filter_item_tree;
         unsigned filter_item_length = tvb_get_uint16(tvb, offset + 2, ENC_BIG_ENDIAN);
@@ -338,8 +340,10 @@ dissect_greb_filter_list(packet_info *pinfo, tvbuff_t *tvb, proto_tree *attrb_tr
         // bound lengths to not exceed packet
         if (filter_item_length > (unsigned) tvb_reported_length_remaining(tvb, offset + 2))
             filter_item_length = tvb_reported_length_remaining(tvb, offset + 2);
-        if (filter_item_desc_length > filter_item_length)
-            filter_item_length = filter_item_desc_length;
+        if (filter_item_length < 4)
+            filter_item_length = 4;
+        if (filter_item_desc_length > filter_item_length - 4)
+            filter_item_desc_length = filter_item_length - 4;
 
         it_filter_item = proto_tree_add_none_format(filter_tree, hf_greb_attr_val_none, tvb, offset,
             filter_item_length + 4, "Filter item - %s", tvb_get_string_enc(pinfo->pool, tvb, offset + 8,
