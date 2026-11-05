@@ -583,7 +583,8 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
     proto_item                    *item;
     proto_tree                    *tree;
     asn1_ctx_t                     asn1_ctx;
-    struct SESSION_DATA_STRUCTURE  session;
+    struct SESSION_DATA_STRUCTURE  session = { 0 };
+    tvbuff_t                      *next_tvb = tvb;
     bool                           idmp_final;
     uint32_t                       idmp_length;
     fragment_head                 *fd_head;
@@ -633,8 +634,10 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
             if (idmp_final) {
                 /* This is the last segment */
-                tvb = process_reassembled_data (tvb, offset, pinfo,
+                next_tvb = process_reassembled_data (tvb, offset, pinfo,
                                                 "Reassembled IDMP", fd_head, &idmp_frag_items, NULL, tree);
+                if (!next_tvb)
+                    return tvb_captured_length(tvb);
                 offset = 0;
             } else if (pinfo->num != fd_head->reassembled_in) {
                 /* Add a "Reassembled in" link if not reassembled in this frame */
@@ -656,10 +659,10 @@ static int dissect_idmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
     /* not reassembling - just dissect */
     if(idmp_final) {
         asn1_ctx.private_data = &session;
-        dissect_idmp_IDM_PDU(false, tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
+        dissect_idmp_IDM_PDU(false, next_tvb, offset, &asn1_ctx, tree, hf_idmp_PDU);
     }
 
-    return tvb_captured_length(tvb);
+    return tvb_captured_length(next_tvb);
 }
 
 static unsigned get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -674,7 +677,7 @@ static unsigned get_idmp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 static int dissect_idmp_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-    tcp_dissect_pdus(tvb, pinfo, parent_tree, idmp_desegment, 0, get_idmp_pdu_len, dissect_idmp, data);
+    tcp_dissect_pdus(tvb, pinfo, parent_tree, idmp_desegment, 6, get_idmp_pdu_len, dissect_idmp, data);
 	return tvb_captured_length(tvb);
 }
 
