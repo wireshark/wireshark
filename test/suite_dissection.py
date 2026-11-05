@@ -68483,3 +68483,43 @@ class TestDissectH225:
                                 filt='frame.number >= 320 && frame.number <= 326')
         assert [bool(r[1]) for r in rows] == [True, True, False, False, False, False, True]
         assert [bool(r[2]) for r in rows] == [False, False, False, True, False, False, False]
+
+
+# GTP session tracking is off by default.
+GTP_SESSION_OPTS = ('-o', 'gtp.track_gtp_session:TRUE')
+
+
+class TestDissectGtpSession:
+    def imsi_rows(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *args,
+                '-r', capture_file('gtpv2_session.pcap'),
+                '-q', '-z', 'imsi',
+            ), encoding='utf-8', env=test_env)
+        # IMSI, first frame, last frame
+        return [[cols[0], cols[2], cols[3]]
+                for cols in (row.split() for row in stdout.splitlines())
+                if cols and cols[0].isdigit()]
+
+    def test_gtp_session_imsi(self, cmd_tshark, capture_file, test_env):
+        '''The messages and the GTP-U T-PDU of a session get the IMSI of the
+        Create Session Request, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number <= 4',
+                    '-Tfields', '-egtpv2.session', '-egtp.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t\t001010000000001',
+                '1\t\t001010000000001',
+                '1\t\t001010000000001',
+                '\t1\t001010000000001',
+            ]
+
+    def test_gtp_session_imsi_tap(self, cmd_tshark, capture_file, test_env):
+        '''The session IMSI reaches the "imsi" tap, which dissects without a
+        tree, and not only the frame that carries the IMSI IE.'''
+        for passes in ((), ('-2',)):
+            rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
+            assert ['001010000000001', '1', '4'] in rows

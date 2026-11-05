@@ -9650,16 +9650,15 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
         }
     }
 
-    if (tree) {
-        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
-        if (session) {
-            it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
-            proto_item_set_generated(it);
+    /* Add the IMSI without a tree as well, so that the "imsi" tap gets it */
+    session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
+    if (session) {
+        it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, session);
+        proto_item_set_generated(it);
 
-            imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
-            if (imsi) {
-                add_assoc_imsi_item(tvb, pinfo, tree, imsi);
-            }
+        imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
+        if (imsi) {
+            add_assoc_imsi_item(tvb, pinfo, tree, imsi);
         }
     }
 }
