@@ -551,7 +551,7 @@ dissect_mpeg_audio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 				offset += dissect_id3v1(next_tvb, pinfo, mpeg_audio_tree);
 				break;
 			case 0x494433: /* ID3 */
-				offset += call_dissector(id3v2_handle, tvb, pinfo, mpeg_audio_tree);
+				offset += call_dissector(id3v2_handle, next_tvb, pinfo, mpeg_audio_tree);
 				break;
 			default:
 				frame_len = dissect_mpeg_audio_frame(next_tvb, pinfo, mpeg_audio_tree);
