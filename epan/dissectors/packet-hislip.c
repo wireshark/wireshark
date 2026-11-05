@@ -1110,7 +1110,8 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /* Additionally keep HiSLIP as conversation dissector for detection with keys */
         conversation_set_dissector_from_frame_number(conversation, pinfo->num + 1, hislip_handle);
         /* Record TLS transition point for routing in dissect_hislip() */
-        wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
+        if (!PINFO_FD_VISITED(pinfo))
+            wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
         break;
 
 
@@ -1123,7 +1124,8 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             /* Switch conversation dissector to HiSLIP from next frame onward */
             conversation_set_dissector_from_frame_number(conversation, pinfo->num + 1, hislip_handle);
             /* Record TLS transition point for routing in dissect_hislip() */
-            wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
+            if (!PINFO_FD_VISITED(pinfo))
+                wmem_tree_insert32(hislip_info->tls_transitions, pinfo->num + 1, GUINT_TO_POINTER(1));
         }
         break;
 
@@ -1144,7 +1146,8 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         hislip_trans = (hislip_transaction_t *) wmem_tree_lookup32_le( hislip_info->pdus, pinfo->num);
         if (hislip_trans)
         {
-            hislip_trans->rep_frame = pinfo->num;
+            if (!PINFO_FD_VISITED(pinfo))
+                hislip_trans->rep_frame = pinfo->num;
             oldcontrolvalue = hislip_trans->controlcode;
             it = proto_tree_add_uint( hislip_tree, hf_hislip_request,tvb, 0, 0, hislip_trans->req_frame);
             proto_item_set_generated(it);
