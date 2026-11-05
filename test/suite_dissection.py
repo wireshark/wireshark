@@ -65257,3 +65257,124 @@ class TestDissectGsmAbisTfp:
         stdout = run(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 50', '-Tfields', '-edata.len', '-edata.data')
         assert stdout.strip().startswith('40\t00070e15')
+
+
+class TestDissectGsmABssmap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_a_bssmap_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_gsm_a_bssmap_messages(self, cmd_tshark, capture_file, test_env):
+        '''All 84 BSSMAP message types that have a decoder, with the
+        optional elements, BSSAP over connectionless and connection oriented
+        SCCP (found by the SCCP heuristic) and the field elements in RANAP
+        decode without malformed packets, in one and two passes. The only
+        warning is the Resource Indication in frame 586, see
+        test_gsm_a_bssmap_resource_available.'''
+        protocols = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 612
+        assert protocols.count('BSSAP') == 596
+        assert protocols.count('BSSAP/BSSLAP') == 5
+        assert protocols.count('SCCP (Int. ITU)') == 5
+        assert protocols.count('RANAP') == 6
+        types = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.bssmap', '-Tfields', '-egsm_a.bssmap.msgtype')
+        assert len(types) == 601
+        assert len(set(types)) == 84
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert lines == ['586']
+
+    def test_gsm_a_bssmap_resource_available(self, cmd_tshark, capture_file, test_env):
+        '''The Resource Available element has a 2 octet full rate and a 2
+        octet half rate count for each of the 5 bands. They were read as one
+        4 octet value, so the full rate count showed the half rate value.
+        The element is a TV element whose decoder returns an unknown length,
+        so the dissector warns about the missing mandatory elements.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a_bssmap.full_rate_channels_available',
+                '-Tfields', '-eframe.number',
+                '-egsm_a_bssmap.full_rate_channels_available',
+                '-egsm_a_bssmap.half_rate_channels_available',
+                '-e_ws.expert.message')
+        assert len(lines) == 1
+        number, full, half, expert = lines[0].split('\t')
+        assert number == '586'
+        assert full == '256,257,258,259,260'
+        assert half == '512,513,514,515,516'
+        assert expert.startswith('Missing Mandatory element (0x1c) Resource Indication Method')
+
+    def test_gsm_a_bssmap_speech_codec_length(self, cmd_tshark, capture_file, test_env):
+        '''Each Speech Codec Element of a Speech Codec (List) has its own
+        length: the length was only set on the last one.'''
+        from xml.etree import ElementTree
+        pdml = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_a_bssmap_coverage.pcap.gz'),
+                '-Y', 'gsm_a.bssmap.speech_codec', '-Tpdml'),
+                env=test_env)
+        sizes = {}
+        for field in ElementTree.fromstring(pdml).iter('field'):
+            show = field.get('show', '')
+            if show.startswith('Speech Codec Element '):
+                codec = show.split(' - ', 1)[1] if ' - ' in show else ''
+                sizes.setdefault(codec, set()).add(int(field.get('size')))
+        assert sizes['GSM FR'] == {1}
+        assert sizes['GSM EFR'] == {1}
+        assert sizes['FR_AMR'] == {3}
+        assert sizes['HR_AMR'] == {3}
+        assert sizes['OHR_AMR'] == {3}
+        assert sizes['FR_AMR-WB'] == {2}
+        assert sizes['OFR_AMR-WB'] == {2}
+        assert sizes['OHR_AMR-WB'] == {2}
+
+    def test_gsm_a_bssmap_nested_field_elements(self, cmd_tshark, capture_file, test_env):
+        '''Cell Load Information Group field elements are nested, each one
+        inside the length of the one before it (frame 585, 15 levels, the
+        reproducer of the unbounded recursion). RANAP hands the same
+        field elements to BSSMAP (frames 607-612).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 585',
+                '-Tfields', '-egsm_a.bssmap.field_elem_id')
+        assert lines == [','.join(['0x0b'] * 15)]
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ranap', '-Tfields', '-eframe.number',
+                '-egsm_a.bssmap.field_elem_id')
+        assert lines == [
+            '607\t0x01,0x02,0x03,0x05,0x06',
+            '608\t0x01,0x02,0x03,0x05,0x06',
+            '609\t0x09,0x0a,0x0c,0x0d,0x0e,0x6f,0x95',
+            '610\t0x09,0x0a,0x0c,0x0d,0x0e,0x6f,0x95',
+            '611\t0x0b,0x0c,0x0b,0x0b,0x09,0x0b',
+            '612\t0x0b,0x0c,0x0b,0x0b,0x09,0x0b',
+        ]
+
+    def test_gsm_a_bssmap_cell_discriminator(self, cmd_tshark, capture_file, test_env):
+        '''With SCCP association tracking the cell identification
+        discriminator of the first message of a connection selects the
+        decoder of the Layer 3 Information of the Handover Command that
+        follows (frames 589, 593, 597, 601 and 605); without it the
+        Layer 3 Information is not decoded. Both passes agree.'''
+        args = ('-Y', 'frame.number in {587..606} and gsm_a.dtap', '-Tfields', '-eframe.number')
+        assert self._tshark(cmd_tshark, capture_file, test_env, *args) == []
+        for passes in ((), ('-2',)):
+            assert self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-o', 'sccp.trace_sccp:TRUE', *args) == [
+                '589', '593', '597', '601', '605']
+
+    def test_gsm_a_bssmap_aoip_and_apdu(self, cmd_tshark, capture_file, test_env):
+        '''The AoIP Transport Layer Address is an IPv4 (6 octets) or an IPv6
+        (18 octets) address and a UDP port; the APDU element carries BSSLAP.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2}', '-Tfields', '-eframe.number',
+                '-egsm_a.bssmap.aoip_trans_ipv4', '-egsm_a.bssmap.aoip_trans_ipv6',
+                '-egsm_a.bssmap.aoip_trans_port')
+        assert lines == ['1\t10.0.0.1\t\t5060', '2\t\t2001:db8::1\t5060']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'bsslap', '-Tfields', '-eframe.number',
+                '-egsm_bsslap.msg_type')
+        assert lines == ['333\t1', '334\t10', '339\t10', '509\t1', '510\t10']
