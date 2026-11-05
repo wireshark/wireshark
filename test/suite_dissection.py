@@ -69288,3 +69288,90 @@ class TestDissectH261:
         rows = self.h261_fields(cmd_tshark, capture_file, test_env, 'iax2.video.codec', 'h261.gobn',
                                 'h261.quant', filt='iax2 && h261')
         assert [(r[0], r[2], r[3]) for r in rows] == [('13', '4', '9'), ('14', '0', '0')]
+
+
+class TestDissectH263:
+    '''H.263 picture and GOB layers (packet-h263.c), reached through RTP
+    payload type 34 (RFC 2190 modes A, B and C, named by the SDP of a SIP
+    INVITE), through IAX2 video frames and through RFC 4629 (H263-1998),
+    from the synthetic capture h263_coverage.pcap.gz.'''
+
+    @staticmethod
+    def h263_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h263_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h263_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1 and 31 are SIP INVITEs, frames 2-30 carry H.263 behind
+        RFC 2190, frames 32-33 are RFC 4629; no frame is malformed or has
+        an error expert info, in one and two passes.'''
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 33
+        prot = [r[1].strip() for r in rows]
+        assert prot[0] == prot[30] == 'SIP/SDP'
+        assert prot[1:30] == ['H.263'] * 29
+        assert prot[31:] == ['H.263 RFC4629'] * 2
+        assert len(self.h263_fields(cmd_tshark, capture_file, test_env, filt='h263')) == 29
+        for passes in ((), ('-2',)):
+            rows = self.h263_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= error', passes=passes)
+            assert rows == []
+
+    def test_h263_picture_info(self, cmd_tshark, capture_file, test_env):
+        '''Picture start codes with the picture coding type in the Info
+        column, GOB start codes, and payloads without a start code.'''
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        def tail(n):
+            return rows[n - 1][1].split('MODE')[1].strip()
+        assert tail(2) == 'A H263 payload (PSC) P-frame'
+        assert tail(3) == 'A H263 payload (PSC) I-Frame'
+        assert tail(13) == 'A H263 payload (PSC)'
+        assert tail(17) == 'A H263 payload (GBSC)'
+        assert tail(20) == 'A H263 payload'   # EOSBS
+        assert tail(22) == 'A H263 payload'   # no start code
+        assert tail(25) == 'B H263 payload (PSC) I-Frame'
+        assert tail(26) == 'B H263 payload (GBSC)'
+        assert tail(27) == 'C H263 payload (PSC) I-Frame'
+        assert tail(28) == 'C H263 payload (GBSC)'
+
+    def test_h263_picture_header(self, cmd_tshark, capture_file, test_env):
+        '''Temporal reference, quantizer, CPM/PSBI, PB-frame TRB and the
+        PEI/PSUPP octets of the non-extended picture headers.'''
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, 'h263.tr2', 'h263.pquant', 'h263.cpm',
+                                'h263.psbi', 'h263.PB_frames_mode', 'h263.trb', 'h263.psupp',
+                                filt='frame.number in {8, 9, 10, 11, 12}')
+        assert rows == [
+            ['8', '200', '8', 'False', '', 'False', '', ''],
+            ['9', '1', '8', 'True', '2', 'False', '', ''],
+            ['10', '1', '8', 'False', '', 'True', '5', ''],
+            ['11', '1', '8', 'False', '', 'False', '', '85'],
+            ['12', '1', '8', 'False', '', 'False', '', '1,2,3'],
+        ]
+
+    def test_h263_plusptype(self, cmd_tshark, capture_file, test_env):
+        '''Source format 7: UFEP 1 shows the OPPTYPE source format and the
+        custom PCF bit, UFEP 0 only the picture type code; CPM and PSBI
+        follow immediately (the quantizer is not decoded).'''
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, 'h263.ufep', 'h263.ext_source_format',
+                                'h263.custom_pcf', 'h263.psi', 'h263.cpm', 'h263.psbi', 'h263.pquant',
+                                filt='frame.number in {13, 14, 15, 16}')
+        assert rows == [
+            ['13', '1', '0x02', 'False', '0', 'False', '', ''],
+            ['14', '1', '0x06', 'True', '2', 'False', '', ''],
+            ['15', '0', '', '', '3', 'False', '', ''],
+            ['16', '1', '0x02', 'False', '1', 'True', '3', ''],
+        ]
+
+    def test_h263_gob_and_rfc4629(self, cmd_tshark, capture_file, test_env):
+        '''Group numbers of the GOB start codes in RFC 2190 (including the IAX2 frame) and the picture
+        and GOB headers with the RFC 4629 bit layout.'''
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, 'h263.gn',
+                                filt='h263.gbsc && frame.number < 31')
+        assert [r[1] for r in rows] == ['5', '31', '31', '31', '2', '7', '3']
+        rows = self.h263_fields(cmd_tshark, capture_file, test_env, 'h263.psc', 'h263.tr2', 'h263.gbsc',
+                                'h263.gn', filt='frame.number >= 32')
+        assert rows == [['32', '0x00000020', '3', '', ''], ['33', '', '', '0x00000001', '9']]
