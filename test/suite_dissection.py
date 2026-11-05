@@ -65760,3 +65760,48 @@ class TestDissectGsmARr:
                               flt='frame.number == 1364 && gsm_a.rr.nri',
                               extra=('-ogsm_a.rr.nri_length:' + n,))
             assert (rows[0] if rows else None) == expected
+
+
+class TestDissectGsmBsslap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_bsslap_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_gsm_bsslap_messages(self, cmd_tshark, capture_file, test_env):
+        '''All BSSLAP messages with every element, carried in the APDU
+        element of BSSMAP Connection Oriented Information messages over
+        SCCP, decode without warnings or malformed packets in one and two
+        passes; the RRLP Position Command/Response elements reach RRLP.'''
+        protocols = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 65
+        assert protocols.count('BSSAP/BSSLAP') == 61
+        assert protocols.count('BSSAP/BSSLAP/RRLP') == 4
+        types = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'bsslap', '-Tfields', '-egsm_bsslap.msg_type')
+        assert len(types) == 65
+        assert sorted({int(t) for t in types}) == [0, 1, 2, 4, 5, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 255]
+        for passes in ((), ('-2',)):
+            assert self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number') == []
+
+    def test_gsm_bsslap_lac(self, cmd_tshark, capture_file, test_env):
+        '''The Location Area Code is two octets (it was one octet with a
+        6 bit mask, so 0xfffe showed as 0x3f).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_bsslap.lac', '-Tfields', '-eframe.number',
+                '-egsm_bsslap.lac')
+        assert lines == ['18\t42', '19\t65534']
+
+    def test_gsm_bsslap_cell_identity_list(self, cmd_tshark, capture_file, test_env):
+        '''A Cell Identity List holds cells of all four discriminators in
+        a row (the serving cell identity comes first), and each cell item is as
+        long as its cell identification
+        (frame 6).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6', '-Tfields',
+                '-egsm_bsslap.cell_id_disc', '-egsm_a.bssmap.cell_ci')
+        assert lines == ['0,1,2,3,1\t0x1234,0x1234,0x1234,0x1234']
