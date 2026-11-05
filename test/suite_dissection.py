@@ -68711,3 +68711,50 @@ class TestDissectH245:
         out = subprocess.check_output((cmd_tshark, '-r', capture_file('h245_stale_coverage.pcap.gz'), '-V'),
                                       encoding='utf-8', env=test_env, timeout=300)
         assert 'tsapIdentifier: 6000' in out
+
+
+class TestDissectH248_10:
+    '''H.248.10 (package chp, Media Gateway Resource Congestion Handling)
+    inside binary H.248 on UDP 2945, from the synthetic capture
+    h248_10_coverage.pcapng.gz: frames 1-12 are MGCon notifications with
+    the reduction parameter (version 2 and 3, parameter id of 1 to 4
+    octets), an event without parameters, an unknown parameter and event,
+    13-16 the package sweep and 17-71 messages built from the H.248
+    ASN.1 module with this package in the descriptors.'''
+
+    @staticmethod
+    def h248_10_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_10_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_10_protocols(self, cmd_tshark, capture_file, test_env):
+        '''71 H.248 frames, none malformed or with an error expert info
+        in one and two passes.'''
+        rows = self.h248_10_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 71
+        assert {r[1] for r in rows} == {'H.248'}
+        for passes in ((), ('-2',)):
+            rows = self.h248_10_fields(cmd_tshark, capture_file, test_env,
+                                       filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h248_10_reduction(self, cmd_tshark, capture_file, test_env):
+        '''The reduction parameter of the MGCon event is an integer.'''
+        rows = self.h248_10_fields(cmd_tshark, capture_file, test_env, 'h248.chp.mgcon.reduction',
+                                   filt='frame.number <= 6')
+        assert [r[1] for r in rows] == ['0', '10', '50', '100', '255', '70000']
+        rows = self.h248_10_fields(cmd_tshark, capture_file, test_env, 'h248.chp.mgcon.reduction',
+                                   filt='h248.chp.mgcon.reduction')
+        assert len(rows) == 9
+
+    def test_h248_10_event_name(self, cmd_tshark, capture_file, test_env):
+        '''Event 1 of package 0x0029 is MGCon; event 9 is not known.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('h248_10_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 10', '-V'),
+                encoding='utf-8', env=test_env, timeout=300)
+        assert 'Event ID: MGCon (1)' in stdout
+        assert 'Event ID: Unknown (9)' in stdout
