@@ -69234,3 +69234,57 @@ class TestDissectH248Q1950:
         rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, 'bctp.tpi',
                                       filt='(frame.number == 24 || frame.number == 25) && bctp')
         assert rows == []
+
+
+class TestDissectH261:
+    '''H.261 carried in RTP payload type 31 (named by the SDP of a SIP
+    INVITE) and in IAX2 video frames, from the synthetic capture
+    h261_coverage.pcap.gz.'''
+
+    @staticmethod
+    def h261_fields(cmd_tshark, capture_file, test_env, *fields, filt='h261', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h261_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h261_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the SIP INVITE, frames 2-12 are H.261 in RTP, 13-14
+        are IAX2 video frames with H.261, and no frame is malformed or has
+        an error expert info, in one and two passes.'''
+        rows = self.h261_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 14
+        assert rows[0][1] == 'SIP/SDP'
+        assert [r[1] for r in rows[1:]] == ['H.261'] * 13
+        assert len(self.h261_fields(cmd_tshark, capture_file, test_env, filt='h261')) == 13
+        for passes in ((), ('-2',)):
+            rows = self.h261_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= error', passes=passes)
+            assert rows == []
+
+    def test_h261_vmvd_mask(self, cmd_tshark, capture_file, test_env):
+        '''The vertical motion vector data is the last 5 bits of the fourth
+        octet; without the 0x1F mask frame 11 (HMVD bits set, VMVD 0)
+        showed the whole octet (224).'''
+        rows = self.h261_fields(cmd_tshark, capture_file, test_env, 'h261.hmvd', 'h261.vmvd',
+                                filt='frame.number in {6, 8, 9, 10, 11}')
+        assert rows == [['6', '31', '31'], ['8', '0', '16'], ['9', '16', '0'],
+                        ['10', '0', '31'], ['11', '7', '0']]
+
+    def test_h261_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''SBIT, EBIT, I, V, GOBN, MBAP and QUANT of the first frames.'''
+        rows = self.h261_fields(cmd_tshark, capture_file, test_env, 'h261.sbit', 'h261.ebit', 'h261.i',
+                                'h261.v', 'h261.gobn', 'h261.mbap', 'h261.quant',
+                                filt='frame.number in {3, 6, 8}')
+        assert rows == [['3', '7', '7', 'True', 'True', '0', '0', '0'],
+                        ['6', '0', '0', 'False', 'False', '15', '31', '31'],
+                        ['8', '0', '0', 'False', 'False', '5', '17', '12']]
+
+    def test_h261_iax2(self, cmd_tshark, capture_file, test_env):
+        '''The two IAX2 video frames (H.261 codec) reach the H.261
+        dissector.'''
+        rows = self.h261_fields(cmd_tshark, capture_file, test_env, 'iax2.video.codec', 'h261.gobn',
+                                'h261.quant', filt='iax2 && h261')
+        assert [(r[0], r[2], r[3]) for r in rows] == [('13', '4', '9'), ('14', '0', '0')]
