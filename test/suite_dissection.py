@@ -65203,3 +65203,57 @@ class TestDissectGsmAbisPgsl:
         assert [l.split('\t')[0] for l in lines] == ['61', '62', '63', '64', '65', '66']
         assert [l.split('\t')[2] for l in lines] == ['0', '1', '2', '3', '3', '1']
         assert [l.split('\t')[3] for l in lines] == ['23', '23', '23', '23', '54', '160']
+
+
+class TestDissectGsmAbisTfp:
+    @staticmethod
+    def tfp_run(cmd_tshark, capture_file, test_env, *args):
+        # TFP rides on LAPD with the GSM SAPI values (TS 48.056)
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'lapd.use_gsm_sapi_values:TRUE',
+                '-r', capture_file('gsm_abis_tfp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_abis_tfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is TFP; none is malformed or has an expert info, in
+        one and two passes.'''
+        run = TestDissectGsmAbisTfp.tfp_run
+        stdout = run(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 51
+        assert protocols.count('TFP') == 51
+        for passes in ((), ('-2',)):
+            stdout = run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_abis_tfp_frame_type_and_delay(self, cmd_tshark, capture_file, test_env):
+        '''The frame type is shifted down and the delay information is read
+        at the right place ("GSM TFP: Fix frame type and delay info
+        decoding"; frame 35 is the reproducer: 16k, FR, delay 5).'''
+        run = TestDissectGsmAbisTfp.tfp_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 35 || frame.number == 3 || frame.number == 4',
+                '-Tfields', '-eframe.number',
+                '-egsm_abis_tfp.delay_info', '-egsm_abis_tfp.seq_nr', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert lines[0] == '3\t3\t4\tTEI:01 U, func=UI | TS=2, Seq=4, Full Rate (16kbps), TFP-FR-IND '
+        assert lines[1] == '4\t4\t6\tTEI:01 U, func=UI | TS=3, Seq=6, Full Rate (16kbps), TFP-EFR-IND '
+        assert lines[2] == '35\t5\t3\tTEI:01 U, func=UI | TS=1, Seq=3, Full Rate (16kbps), TFP-FR-IND '
+
+    def test_gsm_abis_tfp_amr_rate(self, cmd_tshark, capture_file, test_env):
+        '''The AMR rate comes from the length of the payload.'''
+        run = TestDissectGsmAbisTfp.tfp_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_abis_tfp.amr.rate', '-Tfields', '-egsm_abis_tfp.amr.rate',
+                '-E', 'occurrence=f')
+        rates = stdout.split()
+        assert rates[-13:] == ['1', '5', '12', '13', '15', '17', '19', '20', '26', '31', '7', '12', '31']
+
+    def test_gsm_abis_tfp_tail_bit(self, cmd_tshark, capture_file, test_env):
+        '''A clear tail bit extends the header: the payload of frame 50 starts
+        3 octets later.'''
+        run = TestDissectGsmAbisTfp.tfp_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 50', '-Tfields', '-edata.len', '-edata.data')
+        assert stdout.strip().startswith('40\t00070e15')
