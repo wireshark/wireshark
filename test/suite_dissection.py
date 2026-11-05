@@ -59144,3 +59144,54 @@ class TestDissectFortinetSso:
         assert rows['1'] == ['33', '192.0.2.77', '17']
         assert rows['2'] == ['27', '192.0.2.78', '15']
         assert rows['3'] == ['31', '255.255.255.255', '19']
+
+
+class TestDissectFoundry:
+    @staticmethod
+    def fdp_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('foundry_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_foundry_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames with LLC/SNAP OUI Foundry and PID 0x2000 are FDP; no
+        malformed packets or expert infos in one and two passes.'''
+        rows = self.fdp_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 10
+        assert [rows[str(i)][0] for i in range(1, 11)] == ['FDP'] * 9 + ['LLC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('foundry_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_foundry_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Every known TLV type and the Info column listing them.'''
+        rows = self.fdp_fields(cmd_tshark, capture_file, test_env,
+                'fdp.version', 'fdp.holdtime', 'fdp.checksum', 'fdp.tlv.type',
+                '_ws.col.info', 'fdp.string.text')
+        assert rows['1'][0:4] == ['2', '180', '0x1234', '1,2,3,4,5,6,257,258']
+        assert rows['1'][4] == 'FDP: DeviceID Net? Interface Capabilities Version Platform VLAN-Bitmap Tagging-Info'
+        assert rows['1'][5] == 'switch-1,ethernet 1/1/1,router,FastIron 08.0.30,ICX6450-48'
+        assert rows['2'][3:5] == ['7,39321,259', 'FDP: [7] [39321] [259]']
+        assert rows['8'][3:5] == ['', 'FDP:']
+        assert rows['9'][0:3] == ['2', '0', '0xabcd']
+
+    def test_foundry_net_tag_vlanmap(self, cmd_tshark, capture_file, test_env):
+        '''Net? TLV addresses (the fixed part is checked against the TLV
+        length), port tags and the VLAN bitmap.'''
+        rows = self.fdp_fields(cmd_tshark, capture_file, test_env,
+                'fdp.net.iplength', 'fdp.net.ip', 'fdp.tag.native',
+                'fdp.tag.type', 'fdp.vlanmap.vlan')
+        assert rows['1'] == ['8', '10.0.0.1,10.0.1.1', '1', '0x8100', '1,2,10,100,4094']
+        assert rows['4'][0:2] == ['0,4,12,6', '192.0.2.1,1.1.1.1,2.2.2.2,3.3.3.3,9.9.9.9']
+        # a Net? TLV of exactly the minimum length 13 and a tag of exactly 8
+        assert rows['5'][0:2] == ['0', '']
+        assert rows['6'][2:4] == ['100,200', '0x8100,0x9100']
+        vlans = rows['7'][4].split(',')
+        assert vlans[:2] == ['1', '8'] and len(vlans) == 2 + 2048
