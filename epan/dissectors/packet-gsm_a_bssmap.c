@@ -31,6 +31,7 @@
 #include <epan/expert.h>
 #include <epan/asn1.h>
 #include <epan/tfs.h>
+#include <epan/prefs.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/array.h>
@@ -786,6 +787,8 @@ static int hf_gsm_a_bssmap_layer3_message_contents;
 static int hf_gsm_a_bssmap_forward_indicator;
 
 static expert_field ei_gsm_a_bssmap_extraneous_data;
+static expert_field ei_gsm_a_bssmap_fe_nesting;
+static expert_field ei_gsm_a_bssmap_fe_len_too_long;
 static expert_field ei_gsm_a_bssmap_not_decoded_yet;
 static expert_field ei_gsm_a_bssap_unknown_codec;
 static expert_field ei_gsm_a_bssmap_bogus_length;
@@ -1109,17 +1112,15 @@ be_res_avail(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t o
     uint32_t curr_offset;
     uint16_t value;
     int     i;
-    proto_item* ti;
 
     curr_offset = offset;
 
     for (i=0; i < 5; i++) {
-        value = tvb_get_ntohl(tvb, curr_offset);
-        ti = proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_full_rate_channels_available, tvb, curr_offset, 2, value, "Number of full rate channels available in band %u %u",i+1,value);
-        proto_item_set_len(ti, len);
+        value = tvb_get_ntohs(tvb, curr_offset);
+        proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_full_rate_channels_available, tvb, curr_offset, 2, value, "Number of full rate channels available in band %u %u",i+1,value);
         curr_offset+=2;
-        ti = proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_half_rate_channels_available, tvb, curr_offset, 2, value, "Number of half rate channels available in band %u %u",i+1, value);
-        proto_item_set_len(ti, len);
+        value = tvb_get_ntohs(tvb, curr_offset);
+        proto_tree_add_uint_format(tree, hf_gsm_a_bssmap_half_rate_channels_available, tvb, curr_offset, 2, value, "Number of half rate channels available in band %u %u",i+1, value);
         curr_offset+=2;
     }
 
@@ -4094,8 +4095,8 @@ be_speech_codec_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
                 consumed+=2;
                 break;
         }
+        proto_item_set_len(item, consumed);
     }
-    proto_item_set_len(item, consumed);
     return len;
 }
 /*
@@ -4244,8 +4245,8 @@ be_speech_codec(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t of
                 consumed+=2;
                 break;
         }
+        proto_item_set_len(item, consumed);
     }
-    proto_item_set_len(item, consumed);
     return len;
 }
 /*
@@ -4987,7 +4988,18 @@ be_fe_cell_load_info_group(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 
     curr_offset = offset;
     curr_offset += be_cell_id(tvb, tree, pinfo, curr_offset, len, NULL, 0);
+    if (curr_offset - offset >= len) {
+        /* The cell id used up the whole element */
+        return curr_offset-offset;
+    }
+    if (pinfo->dissection_depth >= 32 ||
+        pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+        proto_tree_add_expert(tree, pinfo, &ei_gsm_a_bssmap_fe_nesting, tvb, curr_offset, len + offset - curr_offset);
+        return len;
+    }
+    increment_dissection_depth(pinfo);
     curr_offset += be_field_element_dissect(tvb, tree, pinfo, curr_offset, len + offset - curr_offset, NULL, 0);
+    decrement_dissection_depth(pinfo);
 
     return curr_offset-offset;
 }
@@ -5123,6 +5135,13 @@ be_field_element_dissect(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, ui
 
         if (!str)
             str = "Unknown";
+
+        /* The field element must fit in the enclosing element */
+        if (ie_len > len - (curr_offset - offset)) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_fe_len_too_long, tvb, ie_id_off, curr_offset - ie_id_off,
+                "Field Element length %u exceeds the %u octets left", ie_len, len - (curr_offset - offset));
+            ie_len = len - (curr_offset - offset);
+        }
 
         /* Add subtree */
         bss_to_bss_tree = proto_tree_add_subtree_format(tree, tvb, ie_id_off, ie_len + 1 + len_len, ett_bss_to_bss_info, NULL, "%s", str);
@@ -8370,8 +8389,8 @@ proto_register_gsm_a_bssmap(void)
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_gsm_a_bssmap_pcm_multiplexer, { "PCM Multiplexer", "gsm_a_bssmap.pcm_multiplexer", FT_UINT16, BASE_DEC, NULL, 0xffe0, NULL, HFILL }},
       { &hf_gsm_a_bssmap_timeslot, { "Timeslot", "gsm_a_bssmap.timeslot", FT_UINT16, BASE_DEC, NULL, 0x001f, NULL, HFILL }},
-      { &hf_gsm_a_bssmap_full_rate_channels_available, { "Number of full rate channels available in band", "gsm_a_bssmap.full_rate_channels_available", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-      { &hf_gsm_a_bssmap_half_rate_channels_available, { "Number of half rate channels available in band", "gsm_a_bssmap.half_rate_channels_available", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_a_bssmap_full_rate_channels_available, { "Number of full rate channels available in band", "gsm_a_bssmap.full_rate_channels_available", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_gsm_a_bssmap_half_rate_channels_available, { "Number of half rate channels available in band", "gsm_a_bssmap.half_rate_channels_available", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_a_bssmap_cause_class, { "Cause Class", "gsm_a_bssmap.cause_class", FT_UINT8, BASE_DEC, VALS(cause_class_vals), 0x70, NULL, HFILL }},
       { &hf_gsm_a_bssmap_national_cause, { "National Cause", "gsm_a_bssmap.national_cause", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
       { &hf_gsm_a_bssmap_cause_value, { "Cause Value", "gsm_a_bssmap.cause_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -8420,6 +8439,8 @@ proto_register_gsm_a_bssmap(void)
     expert_module_t* expert_gsm_a_bssmap;
 
     static ei_register_info ei[] = {
+        { &ei_gsm_a_bssmap_fe_nesting, { "gsm_a_bssmap.fe_nesting", PI_MALFORMED, PI_ERROR, "Field Element nesting too deep", EXPFILL }},
+        { &ei_gsm_a_bssmap_fe_len_too_long, { "gsm_a_bssmap.fe_len_too_long", PI_MALFORMED, PI_ERROR, "Field Element length exceeds the enclosing element", EXPFILL }},
         { &ei_gsm_a_bssmap_extraneous_data, { "gsm_a_bssmap.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
         { &ei_gsm_a_bssmap_not_decoded_yet, { "gsm_a_bssmap.not_decoded_yet", PI_UNDECODED, PI_WARN, "Not decoded yet", EXPFILL }},
         { &ei_gsm_a_bssap_unknown_codec, { "gsm_a_bssmap.unknown_codec", PI_PROTOCOL, PI_WARN, "Unknown codec - the rest of the dissection my be suspect", EXPFILL }},
