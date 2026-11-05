@@ -69773,3 +69773,71 @@ class TestDissectH282:
                                 filt='_ws.expert')
         assert rows == [['201', 'Choice no. 0 in extension'], ['202', 'Choice no. 0 in extension'],
                         ['203', 'Choice no. 0 in extension']]
+
+
+H283_OPTS = ('-d', 'udp.port==6283,lct')    # LCT has no registered port
+
+
+class TestDissectH283:
+    '''H.283 Logical Channel Transport (LCT) over UDP, from the synthetic
+    capture h283_coverage.pcap.gz (65 frames, UDP port 6283 with Decode As).
+    Frames 1-46 are random PDUs (ack, H.282 RDC PDUs, device lists, LCT
+    messages), 47-58 every LCT message with both reliable values, 59-62
+    unknown extension alternatives, 63-65 ack.'''
+
+    @staticmethod
+    def h283_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *H283_OPTS, *passes, *extra, '-r', capture_file('h283_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h283_protocols(self, cmd_tshark, capture_file, test_env):
+        '''65 frames, none malformed or with an error expert info, in one
+        and two passes; 15 carry an H.282 RDC PDU.'''
+        rows = self.h283_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 65
+        protocols = [r[1] for r in rows]
+        assert protocols.count('LCT') == 50
+        assert protocols.count('RDC') == 15
+        for passes in ((), ('-2',)):
+            rows = self.h283_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h283_lct_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every LCT request, response, indication and the non-standard
+        message, once with reliable set and once cleared.'''
+        rows = self.h283_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'h283.reliable',
+                                filt='frame.number >= 47 && frame.number <= 58')
+        assert [r[1] for r in rows] == [
+            'LCTRequest/announceReq', 'LCTRequest/announceReq', 'LCTRequest/deviceListReq',
+            'LCTRequest/deviceListReq', 'LCTResponse/announceResp', 'LCTResponse/announceResp',
+            'LCTResponse/deviceListResp', 'LCTResponse/deviceListResp', 'LCTIndication/deviceChange',
+            'LCTIndication/deviceChange', 'LCTMessage/nonStandardMessage', 'LCTMessage/nonStandardMessage']
+        assert [r[2] for r in rows] == ['True', 'False'] * 6
+
+    def test_h283_nonstandard(self, cmd_tshark, capture_file, test_env):
+        '''NonStandardParameters with an H.221 identifier (manufacturer
+        0x1234) and an object identifier.'''
+        rows = self.h283_fields(cmd_tshark, capture_file, test_env, 'h283.manufacturerCode', 'h283.object',
+                                filt='h283.manufacturerCode == 4660 && h283.object == 1.3.6.1.4.1.9999.3')
+        assert [r[0] for r in rows] == ['57', '58']
+        assert rows[0][1:] == ['4660', '1.3.6.1.4.1.9999.3']
+
+    def test_h283_unknown_extension(self, cmd_tshark, capture_file, test_env):
+        '''Unknown extension alternatives of the LCT message choices give a
+        warning (not an error) and the Info column names the level.'''
+        rows = self.h283_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', '_ws.expert.message',
+                                filt='frame.number >= 59 && frame.number <= 62')
+        assert [r[1] for r in rows] == ['RDCData/lctMessage', 'LCTMessage/lctRequest',
+                                        'LCTMessage/lctResponse', 'LCTMessage/lctIndication']
+        assert all(r[2] == 'Choice no. 0 in extension' for r in rows)
+
+    def test_h283_ack(self, cmd_tshark, capture_file, test_env):
+        '''Frames 63-65 are acks with sequence numbers 0, 1, 2.'''
+        rows = self.h283_fields(cmd_tshark, capture_file, test_env, 'h283.seqNumber',
+                                filt='h283.ack_element && frame.number >= 63')
+        assert [r[1] for r in rows] == ['0', '1', '2']
