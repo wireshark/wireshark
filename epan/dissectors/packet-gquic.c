@@ -1490,6 +1490,9 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
                 proto_tree_add_item_ret_uint(tag_tree, hf_gquic_tag_scfg_number, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN, &scfg_tag_number);
                 tag_offset += 4;
 
+                /* Each tag takes 8 bytes of the remaining data */
+                if (scfg_tag_number > tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset) / 8)
+                    scfg_tag_number = tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset) / 8;
                 dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
                 tag_offset += tag_len - 4 - 4;
                 }
@@ -1522,6 +1525,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
             break;
             case TAG_PUBS:
                 /*TODO FIX: 24 Length + Pubs key?.. ! */
+                if (tag_len < 2)
+                    break;
                 proto_tree_add_item(tag_tree, hf_gquic_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
                 tag_offset += 2;
                 while(offset_end - tag_offset >= 3){
@@ -1640,7 +1645,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, uns
                     break;
                     default: /* Unknown */
                     proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_addr, tvb, tag_offset_start + tag_offset, tag_len - 2 - 2, ENC_NA);
-                    tag_offset += tag_len + 2 + 2 ;
+                    tag_offset += tag_len - 2 - 2;
                     break;
                 }
                 proto_tree_add_item(tag_tree, hf_gquic_tag_cadr_port, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
@@ -1871,7 +1876,11 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
             uint64_t crypto_offset, crypto_length;
             uint32_t lenvar;
 
-            DISSECTOR_ASSERT(gquic_info->version_valid && gquic_info->version >= 50);
+            if (!(gquic_info->version_valid && gquic_info->version >= 50)) {
+                /* CRYPTO frames only exist in Q050 and later */
+                expert_add_info(pinfo, ft_tree, &ei_gquic_data_invalid);
+                return offset + tvb_reported_length_remaining(tvb, offset);
+            }
 
             col_append_str(pinfo->cinfo, COL_INFO, ", CRYPTO");
             offset += 1;
