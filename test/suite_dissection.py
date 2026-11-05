@@ -62710,3 +62710,73 @@ class TestDissectGlow:
         ids = set(stdout.replace('\n', ',').split(','))
         for name in ('Root', 'Device', 'p-int', 'p-real', 'p-enum', 'add', 'qm', 'm1'):
             assert name in ids
+
+
+class TestDissectGlusterCli:
+    # gluster_cli_coverage.pcap.gz: RPC over TCP and UDP port 24007 (found by
+    # the RPC heuristics). Frames 4-147 are version 2 call/reply pairs (TCP,
+    # UDP, TCP, UDP, ...) of every procedure, 148-221 are version 1.
+
+    def test_gluster_cli_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every CLI procedure decodes without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_cli_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 219
+        assert protocols.count('Gluster CLI') == 216
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gluster_cli_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_gluster_cli_procedures(self, cmd_tshark, capture_file, test_env):
+        '''The procedure names of version 2 (35 procedures over TCP and UDP)
+        and of version 1 (not decoded further).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_cli_coverage.pcap.gz'),
+                '-Y', 'gluster.cli.proc && rpc.msgtyp == 0',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = stdout.splitlines()
+        assert len(infos) == 35 * 2 + 1 + 37
+        assert infos[2] == 'V2 PROBE Call' or infos[2].startswith('V2 PROBE')
+        assert 'V2 CLRLOCKS_VOLUME Call' in infos
+        assert 'V2 STATUS_ALL Call' in infos
+        assert 'V1 STATEDUMP_VOLUME Call' in infos
+
+    def test_gluster_cli_probe(self, cmd_tshark, capture_file, test_env):
+        '''PROBE: the call has the host name and port, the reply the return
+        value, the port, the host name and the error string.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_cli_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 8 && frame.number <= 11',
+                '-Tfields', '-eframe.number', '-egluster.hostname',
+                '-egluster.port', '-egluster.op_errstr',
+            ), encoding='utf-8', env=test_env)
+        rows = {r.split('\t')[0]: r.split('\t')[1:] for r in stdout.splitlines()}
+        assert rows['8'] == ['srv0.example.net', '24007', '']
+        assert rows['9'] == ['srv0.example.net', '24007', 'volume already exists']
+        assert rows['11'] == ['srv1.example.net', '24008',
+                              'Operation failed on srv2 (the peer is not connected)']
+
+    def test_gluster_cli_getwd_mount(self, cmd_tshark, capture_file, test_env):
+        '''GETWD and FSM_LOG carry a path; MOUNT a label and a dict, UMOUNT
+        a path.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gluster_cli_coverage.pcap.gz'),
+                '-Y', 'gluster.wd || gluster.label || gluster.lazy',
+                '-Tfields', '-egluster.wd', '-egluster.label',
+                '-egluster.lazy', '-egluster.path',
+            ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert ['/var/lib/glusterd/fsm0.log', '', '', ''] in rows
+        assert ['/var/lib/glusterd', '', '', ''] in rows
+        assert ['', 'label0', '', ''] in rows
+        assert any(r[2] in ('0x00000000', '0x00000001') and r[3].startswith('/mnt/gluster') for r in rows)
