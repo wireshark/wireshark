@@ -143,13 +143,13 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, unsigned offset)
 }
 
 static uint8_t*
-hpfeeds_get_channel_name(tvbuff_t* tvb, unsigned offset)
+hpfeeds_get_channel_name(wmem_allocator_t *scope, tvbuff_t* tvb, unsigned offset)
 {
     uint8_t len = tvb_get_uint8(tvb, offset);
     offset += len + 1;
     len = tvb_get_uint8(tvb, offset);
     offset += 1;
-    return tvb_get_string_enc(wmem_file_scope(), tvb, offset, len, ENC_ASCII);
+    return tvb_get_string_enc(scope, tvb, offset, len, ENC_ASCII);
 }
 
 static unsigned
@@ -186,13 +186,13 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* try the heuristic dissectors */
     if (try_heuristic) {
         /* save the current match_string before calling the subdissectors */
-        if (pinfo->match_string)
-            save_match_string = pinfo->match_string;
+        save_match_string = pinfo->match_string;
         pinfo->match_string = (const char*)channelname;
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+            pinfo->match_string = save_match_string;
             return;
         }
 
@@ -222,7 +222,7 @@ static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_in
         /* search an existing channel node and create it if it does not */
         while(cur != NULL) {
             ch_node = (struct channel_node*)wmem_list_frame_data(cur);
-            if (strncmp((char*)ch_node->channel, (char*)pi->channel, strlen((char*)pi->channel)) == 0) {
+            if (strcmp((char*)ch_node->channel, (char*)pi->channel) == 0) {
                 break;
             }
             cur = wmem_list_frame_next(cur);
@@ -333,9 +333,9 @@ dissect_hpfeeds_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     }
 
     /* In publish, generate stats every packet, even not in tree */
-    hpfeeds_stats = wmem_new0(wmem_file_scope(), struct HpfeedsTap);
+    hpfeeds_stats = wmem_new0(pinfo->pool, struct HpfeedsTap);
     if (opcode == OP_PUBLISH) {
-        hpfeeds_stats->channel = hpfeeds_get_channel_name(tvb, offset);
+        hpfeeds_stats->channel = hpfeeds_get_channel_name(pinfo->pool, tvb, offset);
         hpfeeds_stats->payload_size = hpfeeds_get_payload_size(tvb, 0);
     }
 
