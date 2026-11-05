@@ -113,12 +113,12 @@ dissect_abis_tfp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_atsr, tvb, offset, 2, ENC_BIG_ENDIAN, &atsr);
 	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_slot_rate, tvb, offset, 2, ENC_BIG_ENDIAN, &slot_rate);
 	proto_tree_add_item_ret_uint(tfp_tree, hf_tfp_hdr_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN, &seq_nr);
-	proto_tree_add_item(tfp_tree, hf_tfp_hdr_delay_info, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tfp_tree, hf_tfp_hdr_delay_info, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_p, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_s, tvb, offset+2, 1, ENC_NA);
 	proto_tree_add_item(tfp_tree, hf_tfp_hdr_m, tvb, offset+2, 1, ENC_NA);
 	/* Frame Type depends on Slot Rate */
-	ftype = tvb_get_uint8(tvb, offset+2) & 0x1E;
+	ftype = (tvb_get_uint8(tvb, offset+2) & 0x1E) >> 1;
 	if (slot_rate == 0)
 		ftype |= 0x80;
 	proto_tree_add_uint_format_value(tfp_tree, hf_tfp_hdr_frame_type, tvb, offset+2, 1, ftype, "%s",
