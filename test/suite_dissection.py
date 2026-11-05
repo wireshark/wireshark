@@ -61111,3 +61111,68 @@ class TestDissectGcsna:
         rows = self.gcsna_fields(cmd_tshark, capture_file, test_env,
                 'frame.number == 22', 'gcsna.ackSequence')
         assert len(rows[0][1].split(',')) == 4100
+
+
+class TestDissectGdb:
+    @staticmethod
+    def gdb_args():
+        # GDB has no default port: Decode As is needed
+        return ('-d', 'tcp.port==2345,gdb', '-d', 'tcp.port==2346,gdb')
+
+    def test_gdb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''17 frames are GDB, none is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gdb_args(),
+                '-r', capture_file('gdb_coverage.pcap.gz'),
+                '-Y', 'gdb', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    *self.gdb_args(),
+                    '-r', capture_file('gdb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gdb_packets(self, cmd_tshark, capture_file, test_env):
+        '''A complete packet is found and dissected (it was never found
+        before the fix: the dissector always asked for one more segment),
+        several packets in one segment give several items, acks and nacks
+        are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gdb_args(),
+                '-r', capture_file('gdb_coverage.pcap.gz'),
+                '-Y', 'gdb', '-Tfields', '-eframe.number', '-egdb.ack',
+                '-egdb.payload', '-egdb.chksum',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 17
+        # "$qSupported:multiprocess+;swbreak+#1b" without an ack
+        assert lines[0] == ('4\t\t71537570706f727465643a6d756c746970726f63'
+                '6573732b3b7377627265616b2b\t1b')
+        # "+$PacketSize=3fff;swbreak+#ea"
+        assert lines[1].split('\t')[1] == "'+'"
+        assert lines[1].split('\t')[3] == 'ea'
+        # three packets in one segment, the last one empty is not shown
+        # (frame 11 has two payloads, frame 12 two)
+        assert lines[6] == ("11\t'+'\t67,6d3430313562632c32\t67,5a")
+        # a nack
+        assert lines[12].split('\t')[1] == "'-'"
+
+    def test_gdb_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Packets split over segments (also in the checksum) and a lone
+        ack or nack wait for the next segment: the segments of the
+        reassembled PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.gdb_args(),
+                '-r', capture_file('gdb_coverage.pcap.gz'),
+                '-Y', 'tcp.segment', '-Tfields',
+                '-eframe.number', '-etcp.segment', '-egdb.payload',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t8,9\t3f',
+            '15\t13,14,15\t4d3430313562632c343a6465616462656566,63',
+            '17\t16,17\t5430357468726561643a30313b',
+            '31\t29,31\t714174746163686564',
+            '32\t30,32\t31',
+        ]
