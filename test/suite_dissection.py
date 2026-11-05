@@ -70048,3 +70048,86 @@ class TestDissectH450Ros:
         rows = self.ros_fields(cmd_tshark, capture_file, test_env, 'h450.operation',
                                filt='frame.number >= 165 && frame.number <= 168')
         assert [r[1] for r in rows] == ['7,7', '9,8', '7,7,7,7', '7,7,7,7,7']
+
+
+class TestDissectH460:
+    '''H.460.x features in H.225.0 GenericData / FeatureDescriptor items
+    from the synthetic capture h460_coverage.pcap.gz: frames 1-126 are
+    RAS messages (UDP port 1719) with the content PDU of every H.460
+    feature that has one, 127-134 are H.245 messages tunnelled in H.225.0
+    Facility messages (TPKT over TCP port 1720) with the H.460.18 generic
+    messages and the H.460.19 TraversalParameters. Frames 114-126 are the
+    reproducers for "H.460: Limit RAS nesting through H.460.17"
+    (H.460.17 carries a RAS message in a RAS message, 1 to 10, 20, 60 and 120
+    levels). The content values are random but valid.'''
+
+    @staticmethod
+    def h460_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h460_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h460_protocols(self, cmd_tshark, capture_file, test_env):
+        '''134 frames, none malformed or with an error expert info, in one
+        and two passes (also for the 120 levels of H.460.17 nesting).'''
+        rows = self.h460_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 134
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.225.0') == 126
+        assert protocols.count('H.225.0/H.245') == 8
+        for passes in ((), ('-2',)):
+            rows = self.h460_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h460_ras_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''A RAS message inside a RAS message (H.460.17, GenericData 17/1)
+        is dissected to 8 levels; deeper nesting (frames 122-126: 9, 10,
+        20, 60 and 120 levels) gets an expert info instead of running into
+        the generic dissection depth limit. This used to end in a
+        DISSECTOR_ASSERT without a tree.'''
+        for opts in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture_file('h460_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.message contains "nested too deeply"', '-Tfields', '-eframe.number',
+                    '-e_ws.expert.message'), encoding='utf-8', env=test_env, timeout=300)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['122', '123', '124', '125', '126']
+            assert all(r[1] == 'RAS nested too deeply in H.460.17' for r in rows)
+
+    def test_h460_content_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Every feature parameter with a content PDU is dissected by the
+        H.460 dissector, as GenericData and as FeatureDescriptor.'''
+        rows = self.h460_fields(cmd_tshark, capture_file, test_env, 'frame.protocols', 'h225.debug.dissector_try_string',
+                                filt='frame.number <= 113')
+        seen = set()
+        for r in rows:
+            if 'h460' in r[1].split(':'):
+                seen.update(k for k in r[2].split(',') if k)
+        for kind in ('GenericData', 'FeatureDescriptor'):
+            for key in ('2/1', '3/1', '4/1', '4/2', '4/3', '4/4', '9/1', '9/2', '10/1', '14/1', '15/1', '18/1',
+                        '18/2', '20/1', '21/1'):
+                assert '%s/%s' % (kind, key) in seen, (kind, key)
+        assert 'GenericData/5/1' in seen and 'GenericData/16/3' in seen
+
+    def test_h460_q931_ies(self, cmd_tshark, capture_file, test_env):
+        '''H.460.5 and H.460.16 carry Q.931 information elements, which
+        the H.460 dissector hands to the Q.931 IE dissector (frames
+        102-111; the two frames with an empty string have none).'''
+        rows = self.h460_fields(cmd_tshark, capture_file, test_env, 'frame.protocols',
+                                filt='frame.number >= 102 && frame.number <= 113')
+        assert [r[1].endswith(':q931') for r in rows] == [True] * 10 + [False] * 2
+
+    def test_h460_h245(self, cmd_tshark, capture_file, test_env):
+        '''H.460.18 generic messages and the H.460.19 traversal parameters
+        in a generic information of a tunnelled H.245 message.'''
+        rows = self.h460_fields(cmd_tshark, capture_file, test_env, 'h245.debug.dissector_try_string',
+                                filt='frame.number >= 127')
+        assert 'GenericMessage/0.0.8.460.18.0.1-1/1' in rows[0][1]
+        assert 'GenericMessage/0.0.8.460.18.0.1-1/2' in rows[0][1]
+        assert [r[0] for r in rows] == [str(i) for i in range(127, 135)]
+        rows = self.h460_fields(cmd_tshark, capture_file, test_env, 'h460.19.TraversalParameters_element',
+                                filt='h460.19.TraversalParameters_element')
+        assert [r[0] for r in rows] == ['132', '133', '134']
