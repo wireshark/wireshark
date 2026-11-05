@@ -13,6 +13,8 @@
 
 #include "config.h"
 
+#include <assert.h>
+
 #include <wiretap/wtap.h>
 #include <epan/packet.h>
 #include <epan/tfs.h>
@@ -517,6 +519,68 @@ dissect_bblog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     return tvb_captured_length(tvb);
 }
 
+/*
+ * Get the fields of a TCP info option that we use. The option data is
+ * little-endian regardless of the byte order of the host that wrote
+ * it, so it can't simply be copied into the structure; nor can the
+ * window shift bit-fields, whose order depends on the compiler.
+ */
+static_assert(offsetof(struct nflx_tcpinfo, tlb_len) + sizeof(uint32_t) <= OPT_NFLX_TCPINFO_SIZE,
+              "the TCP info fields must be within the minimum option size");
+
+static void
+get_nflx_tcpinfo(struct nflx_tcpinfo *tcpinfo, const uint8_t *data)
+{
+#define GET_LE16(field) tcpinfo->field = pletohu16(data + offsetof(struct nflx_tcpinfo, field))
+#define GET_LE32(field) tcpinfo->field = pletohu32(data + offsetof(struct nflx_tcpinfo, field))
+    /* The window shifts are in the octet before the padding */
+    const uint8_t scale = data[offsetof(struct nflx_tcpinfo, _pad) - 1];
+
+    memset(tcpinfo, 0, sizeof *tcpinfo);
+    GET_LE32(tlb_ticks);
+    GET_LE32(tlb_sn);
+    tcpinfo->tlb_eventid = data[offsetof(struct nflx_tcpinfo, tlb_eventid)];
+    GET_LE16(tlb_eventflags);
+    GET_LE32(tlb_errno);
+    GET_LE32(tlb_rxbuf_tls_sb_acc);
+    GET_LE32(tlb_rxbuf_tls_sb_ccc);
+    GET_LE32(tlb_rxbuf_tls_sb_spare);
+    GET_LE32(tlb_txbuf_tls_sb_acc);
+    GET_LE32(tlb_txbuf_tls_sb_ccc);
+    GET_LE32(tlb_txbuf_tls_sb_spare);
+    GET_LE32(tlb_state);
+    GET_LE32(tlb_starttime);
+    GET_LE32(tlb_iss);
+    GET_LE32(tlb_flags);
+    GET_LE32(tlb_snd_una);
+    GET_LE32(tlb_snd_max);
+    GET_LE32(tlb_snd_cwnd);
+    GET_LE32(tlb_snd_nxt);
+    GET_LE32(tlb_snd_recover);
+    GET_LE32(tlb_snd_wnd);
+    GET_LE32(tlb_snd_ssthresh);
+    GET_LE32(tlb_srtt);
+    GET_LE32(tlb_rttvar);
+    GET_LE32(tlb_rcv_up);
+    GET_LE32(tlb_rcv_adv);
+    GET_LE32(tlb_flags2);
+    GET_LE32(tlb_rcv_nxt);
+    GET_LE32(tlb_rcv_wnd);
+    GET_LE32(tlb_dupacks);
+    GET_LE32(tlb_segqlen);
+    GET_LE32(tlb_snd_numholes);
+    GET_LE32(tlb_flex1);
+    GET_LE32(tlb_flex2);
+    GET_LE32(tlb_fbyte_in);
+    GET_LE32(tlb_fbyte_out);
+    tcpinfo->tlb_snd_scale = scale & BBLOG_SND_SCALE_MASK;
+    tcpinfo->tlb_rcv_scale = (scale & BBLOG_RCV_SCALE_MASK) >> 4;
+    memcpy(tcpinfo->_pad, data + offsetof(struct nflx_tcpinfo, _pad), sizeof tcpinfo->_pad);
+    GET_LE32(tlb_len);
+#undef GET_LE16
+#undef GET_LE32
+}
+
 static int
 dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, void *data)
@@ -547,9 +611,7 @@ dissect_bblog_binary_option(tvbuff_t *tvb, packet_info *pinfo,
     case NFLX_OPT_TYPE_TCPINFO:
         if (custom_data_len < OPT_NFLX_TCPINFO_SIZE)
             return (int) cbo_data->optval->custom_binaryval.data.custom_data_len;
-        if (custom_data_len > sizeof (struct nflx_tcpinfo))
-            custom_data_len = sizeof (struct nflx_tcpinfo);
-        memcpy(&tcpinfo, custom_data, custom_data_len);
+        get_nflx_tcpinfo(&tcpinfo, custom_data);
         if ((tcpinfo.tlb_flags & NFLX_TLB_TF_REQ_SCALE) &&
             (tcpinfo.tlb_flags & NFLX_TLB_TF_RCVD_SCALE)) {
             /* TCP WS option has been sent and received. */
