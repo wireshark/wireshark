@@ -75787,3 +75787,199 @@ class TestDissectIeee1609dot2:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['21', '22', '23']
+
+
+class TestDissectIeee17221:
+    '''IEEE 1722.1 (AVDECC: ADP, ACMP and AECP with AEM commands and
+    descriptors) over Ethernet (ethertype 0x22f0) and UDP (port 17220), from
+    the synthetic capture ieee17221_coverage.pcap.gz: 266 frames. Floats
+    (the sample rate frequency) are only compared with display filters, as
+    tshark prints them with the decimal separator of the locale.'''
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ieee17221_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ieee17221_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 266 frames decode as IEEE1722-1 without malformed packets or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 266
+        assert set(rows) == {'IEEE1722-1'}
+        # six ADP, 21 ACMP frames; the rest is AECP
+        assert len(self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee17221.valid_time', '-Tfields', '-eframe.number')) == 6
+        assert len(self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee17221.vlan_id', '-Tfields', '-eframe.number')) == 21
+
+    def test_ieee17221_adp(self, cmd_tshark, capture_file, test_env):
+        '''ADP: message types, valid time, capabilities and the UDP encapsulation.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 6', '-Tfields', '-eframe.number',
+                '-eieee17221.message_type', '-eieee17221.valid_time',
+                '-eieee17221.entity_id', '-eieee17221.entity_capabilities',
+                '-eieee17221.talker_capabilities', '-eieee17221.controller_capabilities',
+                '-eieee17221.available_index', '-eieee17221.association_id',
+                '-eieee17221.talker_stream_sources')
+        assert rows[0] == ('1\t0\t10\t0x02000000000200ff\t0x000007ff\t0xe201\t0x00000003'
+                           '\t0x00000001\t0x0000000000001234\t2')
+        assert [r.split('\t')[1:3] for r in rows] == [
+            ['0', '10'], ['1', '10'], ['2', '10'], ['0', '31'], ['3', '10'], ['0', '10']]
+        assert rows[2].split('\t')[3] == '0x0000000000000000'
+        assert rows[5].split('\t')[4] == '0x00000008'
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6', '-Tfields', '-eieee1722.encapsulation_sequence_num')
+        assert rows == ['0x00000001']
+
+    def test_ieee17221_acmp(self, cmd_tshark, capture_file, test_env):
+        '''ACMP: all 14 message types, status codes and the flags.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 7 && frame.number <= 27', '-Tfields',
+                '-eframe.number', '-eieee17221.message_type', '-eieee17221.status_field',
+                '-eieee17221.flags', '-eieee17221.vlan_id', '-eieee17221.connection_count',
+                '-eieee17221.dest_mac')
+        cols = [r.split('\t') for r in rows]
+        assert [c[1] for c in cols[:14]] == [str(i) for i in range(14)]
+        assert [c[2] for c in cols[14:19]] == ['1', '5', '12', '15', '31']
+        assert cols[19][3] == '0x007f' and cols[0][3] == '0x0000'
+        assert cols[0][4:] == ['0x0002', '1', '91:e0:f0:00:fe:01']
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee17221.flags.class_b == 1 && ieee17221.flags.talker_failed == 1',
+                '-Tfields', '-eframe.number')
+        assert rows == ['26']
+
+    def test_ieee17221_aecp_commands(self, cmd_tshark, capture_file, test_env):
+        '''AECP: the command type, the u flag, descriptor type and index,
+        key and token lengths, MSRP mappings and AS path.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {28, 29, 165, 166, 167, 168}', '-Tfields',
+                '-eframe.number', '-eieee17221.command_type', '-eieee17221.u_flag',
+                '-eieee17221.descriptor_type', '-eieee17221.key_length')
+        assert rows == [
+            '28\t0x0000\tFalse\t0x0000\t',
+            '29\t0x0000\tFalse\t0x0000\t',
+            '165\t0x0007\tTrue\t\t',
+            '166\t0x0004\tFalse\t0x0005\t',
+            '167\t0x0037\tFalse\t\t16',
+            '168\t0x003a\tFalse\t\t16',
+        ]
+        # command type 0x0000 - 0x004a: every defined command is present
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee17221.command_type', '-Tfields', '-eieee17221.command_type')
+        types = {int(r, 16) for r in rows}
+        assert set(range(0, 0x29)) <= types and 0x7fff in types and 0x4a in types
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee17221.msrp_mappings_count == 3 || ieee17221.as_path_count == 2',
+                '-Tfields', '-eframe.number')
+        assert len(rows) == 2
+
+    def test_ieee17221_sample_rate_frequency(self, cmd_tshark, capture_file, test_env):
+        '''The audio unit sample rates (frames 199 and 255): pull values 3
+        and 4 are 24/25 and 25/24 of the base frequency. "ieee1722.1: Fix
+        sample rate calculation in the audio unit descriptor": integer
+        divisions gave 0 and 2, and a sign extended pull value 4 or more
+        never matched.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 199', '-Tfields', '-eieee17221.sample_rates_count',
+                '-eieee17221.pull_field', '-eieee17221.base_frequency')
+        assert rows == ['6\t0x00,0x01,0x02,0x03,0x04,0x05\t48000,48000,44100,48000,48000,96000']
+        for lo, hi in ((46079, 46081), (49999, 50001), (48047, 48049)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', f'frame.number == 199 && ieee17221.frequency > {lo} && ieee17221.frequency < {hi}',
+                    '-Tfields', '-eframe.number')
+            assert rows == ['199'], (lo, hi)
+        # pull 5 is unknown: frequency 0
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 199 && ieee17221.frequency == 0',
+                '-Tfields', '-eframe.number')
+        assert rows == ['199']
+
+    def test_ieee17221_counters(self, cmd_tshark, capture_file, test_env):
+        '''GET_COUNTERS responses show the counters of the descriptor type.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 178 && frame.number <= 182', '-Tfields',
+                '-eframe.number', '-eieee17221.link_up', '-eieee17221.clock_domain_locked',
+                '-eieee17221.media_locked', '-eieee17221.flags.link_up_valid',
+                '-eieee17221.flags.media_locked_valid')
+        cols = [r.split('\t') for r in rows]
+        assert [bool(c[1]) for c in cols] == [False, True, False, False, False]
+        assert [bool(c[2]) for c in cols] == [False, False, True, False, False]
+        assert [bool(c[3]) for c in cols] == [False, False, False, True, False]
+        assert cols[1][4] == 'True' and cols[3][5] == 'True'
+
+    def test_ieee17221_stream_formats(self, cmd_tshark, capture_file, test_env):
+        '''Stream format version, subtype, 61883 format and IIDC fields.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 184 && frame.number <= 194', '-Tfields',
+                '-eframe.number', '-eieee17221.sf_version', '-eieee17221.sf_subtype',
+                '-eieee17221.fmt', '-eieee17221.iidc_format')
+        assert [r.split('\t')[:3] for r in rows] == [
+            ['184', '0x00', '0x00'], ['185', '0x00', '0x00'], ['186', '0x00', '0x00'],
+            ['187', '0x00', '0x00'], ['188', '0x00', '0x00'], ['189', '0x00', '0x01'],
+            ['190', '0x00', '0x02'], ['191', '0x00', '0x03'], ['192', '0x00', '0x7f'],
+            ['193', '0x00', '0x30'], ['194', '0x01', '']]
+        assert rows[0].split('\t')[3] == '0x20' and rows[2].split('\t')[3] == '0x01'
+        assert rows[4].split('\t')[4] == '0x00'
+
+    def test_ieee17221_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''READ_DESCRIPTOR responses for every descriptor type that is
+        dissected, with their arrays, and an unknown descriptor type.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {197, 198, 202, 210, 218, 219, 220, 252}',
+                '-Tfields', '-eframe.number', '-eieee17221.entity_name',
+                '-eieee17221.descriptor_counts_count', '-eieee17221.number_of_formats',
+                '-eieee17221.number_of_mappings', '-eieee17221.clock_sources_count',
+                '-eieee17221.signals_count', '-eieee17221.unknown_descriptor')
+        cols = [r.split('\t') for r in rows]
+        assert cols[0][:2] == ['197', 'Synthetic entity']
+        assert cols[1][3] == '' and cols[1][2] == '6'
+        assert cols[2][3] == '3'
+        assert cols[4][4] == '3' and cols[5][5] == '3' and cols[6][6] == '3'
+        assert cols[7][7].startswith('00') and len(cols[7][7]) == 192
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 197 && frame.number <= 253', '-Tfields',
+                '-eframe.number', '-eieee17221.descriptor_type')
+        # the descriptor types 0-0x25 except the ones without a descriptor
+        # here (video/sensor cluster and map, splitter ... transcoder)
+        types = {int(r.split('\t')[1].split(',')[0], 16) for r in rows}
+        assert {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 23,
+                0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x24, 0x25, 0x100} <= types
+
+    def test_ieee17221_control_values(self, cmd_tshark, capture_file, test_env):
+        '''CONTROL descriptors: linear, selector, string, bode plot and
+        vendor value types (frames 224-250).'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 224 && frame.number <= 250', '-Tfields',
+                '-eframe.number', '-eieee17221.control_value_type', '-eieee17221.ctrl_int8',
+                '-eieee17221.ctrl_uint16', '-eieee17221.ctrl_float', '-eieee17221.string',
+                '-eieee17221.blob_size')
+        cols = {c[0]: c for c in (r.split('\t') for r in rows)}
+        assert cols['224'][1:3] == ['0x0000', '0,0,0,0,0,0,0,0,0,0']
+        assert cols['227'][3] == '0,0,0,0,0,0,0,0,0,0'
+        assert cols['232'][4] == '0,0,0,0,0,0,0,0,0,0'
+        assert cols['234'][2] == '0,0,0,0'
+        assert cols['244'][5] == 'abc'
+        assert cols['245'][4].count(',') == 14
+        assert cols['249'][6] == '4'
+
+    def test_ieee17221_address_access_vendor_unique(self, cmd_tshark, capture_file, test_env):
+        '''Address access TLV, vendor unique messages and the UDP frames.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 258 && frame.number <= 261', '-Tfields',
+                '-eframe.number', '-eieee17221.count', '-eieee17221.tlv_mode',
+                '-eieee17221.tlv_address')
+        assert rows[0] == '258\t1\t1\t0x0000000012345678'
+        assert rows[1] == '259\t1\t1\t0x0000000012345678'
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ieee1722.encapsulation_sequence_num', '-Tfields', '-eframe.number',
+                '-eieee1722.encapsulation_sequence_num')
+        assert rows == ['6\t0x00000001', '27\t0x00000002', '257\t0x00000003', '266\t0x00000004']
