@@ -75983,3 +75983,193 @@ class TestDissectIeee17221:
                 '-Y', 'ieee1722.encapsulation_sequence_num', '-Tfields', '-eframe.number',
                 '-eieee1722.encapsulation_sequence_num')
         assert rows == ['6\t0x00000001', '27\t0x00000002', '257\t0x00000003', '266\t0x00000004']
+
+
+class TestDissectIeee1722:
+    '''IEEE 1722 (AVTP) over Ethernet (ethertype 0x22f0) and UDP (port 17220)
+    from the synthetic capture ieee1722_coverage.pcap.gz: 92 frames of
+    IEC 61883, AAF, CVF, CRF, NTSCF and TSCF (v0 and v1) with ACF CAN
+    (v1, brief, v2, FD) and ACF LIN messages.'''
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ieee1722_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ieee1722_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 92 frames decode without malformed packets or error expert
+        infos in one and two passes (frames with a bad length show warnings).'''
+        for passes in ((), ('-2',)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 92
+        counts = {p: rows.count(p) for p in set(rows)}
+        assert counts['ACF-CAN'] == 21
+        assert counts['ACF-CAN-v2'] == 5
+        assert counts['ACF-LIN'] == 11
+        assert counts['IEEE1722'] == 27
+        assert counts['JPEG'] == 3
+        assert counts['H.264'] == 2
+
+    def test_ieee1722_aaf(self, cmd_tshark, capture_file, test_env):
+        '''AAF formats, channels, bit depth and the data length; the expert
+        infos for a zero channel count, bit depth, AES3 and reserved formats.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 7 && frame.number <= 18', '-Tfields',
+                '-eframe.number', '-eaaf.format_info', '-eaaf.channels_per_frame',
+                '-eaaf.bit_depth', '-eaaf.stream_data_len', '-eaaf.expert.channels_per_frame_zero',
+                '-eaaf.expert.incorrect_bit_depth', '-eaaf.expert.aes3_format',
+                '-eaaf.expert.reserved_format', '-eaaf.expert.sample_width_zero')
+        assert rows[0] == '7\t0x04\t2\t16\t16\t\t\t\t\t'
+        assert rows[1] == '8\t0x03\t2\t24\t12\t\t\t\t\t'
+        assert rows[4] == '11\t0x00\t2\t16\t8\t\t1\t\t\t1'
+        assert [r.split('\t')[0] for r in rows if r.split('\t')[5] != ''] == ['14']
+        assert [r.split('\t')[0] for r in rows if r.split('\t')[7] != ''] == ['15']
+        assert [r.split('\t')[0] for r in rows if r.split('\t')[8] != ''] == ['16']
+        assert [r.split('\t')[0] for r in rows if r.split('\t')[6] != ''] == ['11', '12', '13']
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 17', '-Tfields', '-eaaf.data.sample')
+        assert len(rows[0].split(',')) == 16
+
+    def test_ieee1722_cvf(self, cmd_tshark, capture_file, test_env):
+        '''CVF: MJPEG and H.264 are handed to the JPEG and H.264 dissectors
+        (the H.264 timestamp is read from the payload), JPEG2000 and reserved
+        formats show expert infos, a data length that is too large is clamped.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'cvf', '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ecvf.format', '-ecvf.format_subtype', '-ecvf.stream_data_len',
+                '-ecvf.h264_timestamp', '-ecvf.expert.data_len',
+                '-ecvf.expert.jpeg2000_video', '-ecvf.expert.reserved_format')
+        by_no = {r.split('\t')[0]: r.split('\t') for r in rows}
+        assert by_no['19'][1:4] == ['JPEG', '0x02', '0x00']
+        assert by_no['20'][1:4] == ['H.264', '0x02', '0x01']
+        assert by_no['20'][5] == '4660'
+        assert by_no['21'][5] == '77'
+        assert by_no['22'][7] != '' and by_no['22'][1] == 'IEEE1722'
+        assert by_no['23'][8] != '' and by_no['24'][8] != ''
+        assert by_no['25'][4] == '500' and by_no['25'][6] != ''
+        assert by_no['26'][1] == 'JPEG'
+
+    def test_ieee1722_crf(self, cmd_tshark, capture_file, test_env):
+        '''CRF timestamps, pull and base frequency, and the length expert.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'crf', '-Tfields', '-eframe.number', '-ecrf.pull',
+                '-ecrf.base_frequency', '-ecrf.data_len', '-ecrf.timestamp',
+                '-ecrf.expert.crf_datalen')
+        assert rows == [
+            '27\t0x00000001\t48000\t24\t0x00000000000003e8,0x00000000000007d0,0x0000000000000bb8\t',
+            '28\t0x00000000\t48000\t0\t\t',
+            '29\t0x00000000\t48000\t11\t\t1',
+            '30\t0x00000004\t536870911\t16\t0x0000000000000001,0x0000000000000002\t',
+        ]
+
+    def test_ieee1722_61883(self, cmd_tshark, capture_file, test_env):
+        '''IEC 61883: the tag, channel and the tcode check (frames 1-5). The
+        CIP header is never dissected, see the README of the capture.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 6', '-Tfields', '-eframe.number',
+                '-eiec61883.tag', '-eiec61883.channel', '-eiec61883.tcode',
+                '-eiec61883.mrfield', '-eiec61883.tvfield')
+        assert rows == [
+            '1\t0x00\t31\t0x0a\tFalse\tTrue',
+            '2\t0x01\t31\t0x0a\tFalse\tTrue',
+            '3\t0x02\t31\t0x0a\tFalse\tTrue',
+            '4\t0x03\t5\t0x00\tFalse\tTrue',
+            '5\t0x00\t31\t0x0a\tTrue\tFalse',
+            '6\t0x01\t31\t0x0a\tFalse\tTrue',
+        ]
+
+    def test_ieee1722_udp_encapsulation_seqnum(self, cmd_tshark, capture_file, test_env):
+        '''The UDP encapsulation sequence number is checked against the
+        expected one of the conversation, in one and two passes: frame 60
+        is a duplicate and frames 61 and 92 are out of order.'''
+        for passes in ((), ('-2',)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'ieee1722.encapsulation_sequence_num.dup || '
+                          'ieee1722.encapsulation_sequence_num.ooo',
+                    '-Tfields', '-eframe.number',
+                    '-eieee1722.encapsulation_sequence_num.dup',
+                    passes=passes)
+            assert [r.split('\t')[0] for r in rows] == ['60', '61', '92']
+            assert rows[0].split('\t')[1] != '' and rows[1].split('\t')[1] == ''
+
+    def test_ieee1722_acf_can(self, cmd_tshark, capture_file, test_env):
+        '''ACF CAN: standard and extended IDs, FD lengths, padding, v1, brief
+        and v2 headers, and the expert infos for invalid lengths and IDs.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'acf-can', '-Tfields', '-eframe.number', '-eacf.msg_type',
+                '-eacf-can.bus_id', '-ecan.id', '-ecan.len', '-eacf-can.flags.pad',
+                '-eacf-can.expert.incorrect_datalen', '-eacf-can.expert.incorrect_fd_datalen',
+                '-eacf-can.expert.incorrect_can_id', '-eacf-can.expert.header_cropped')
+        by_no = {r.split('\t')[0]: r.split('\t') for r in rows}
+        # columns: frame, msg type, bus id, CAN id, length, pad length
+        assert by_no['33'][1:6] == ['0x0001', '2', '0x00000123', '4', '0']
+        assert by_no['34'][1:6] == ['0x0001', '2', '0x1abcdef0', '8', '0']
+        assert by_no['35'][4] == '0'
+        assert by_no['43'][4:6] == ['0', '3']
+        assert by_no['46'][1:6] == ['0x0021', '341', '0x00000222', '4', '0']
+        assert by_no['48'][1:4] == ['0x0022', '3', '0x00000224']
+        assert by_no['39'][7] != '' and by_no['40'][6] != '' and by_no['41'][8] != ''
+        assert [f for f, r in by_no.items() if r[9] != ''] == ['74', '75']
+
+    def test_ieee1722_acf_lin(self, cmd_tshark, capture_file, test_env):
+        '''ACF LIN identifier, bus, padding and payload length checks.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {52, 53, 54, 55, 56, 76}', '-Tfields',
+                '-eframe.number', '-eacf-lin.id', '-eacf-lin.bus_id',
+                '-eacf-lin.flags.pad', '-eacf-lin.expert.incorrect_datalen',
+                '-eacf-lin.expert.header_cropped')
+        assert [r.split('\t')[:4] for r in rows] == [
+            ['52', '0x12', '1', '1'], ['53', '0x3c', '1', '0'],
+            ['54', '0x01', '1', '0'], ['55', '0x02', '1', '3'],
+            ['56', '0x02', '1', '3'], ['76', '', '', '']]
+        assert rows[3].split('\t')[4] != '' and rows[5].split('\t')[5] != ''
+
+    def test_ieee1722_ntscf_tscf(self, cmd_tshark, capture_file, test_env):
+        '''NTSCF and TSCF header versions, sequence numbers, cropped headers,
+        data lengths and ACF message lengths.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eacf.expert.msg_length', '-entscf.expert.seqnum_lsb',
+                '-etscf.expert.seqnum_lsb', '-entscf.expert.invalid_header_version',
+                '-etscf.expert.invalid_header_version', '-entscf.expert.no_space_for_header',
+                '-etscf.expert.no_space_for_header', '-entscf.expert.data_len',
+                '-etscf.expert.data_len')
+        by_no = {r.split('\t')[0]: r.split('\t') for r in rows}
+
+        def flags(no):
+            return [i for i, v in enumerate(by_no[no][2:], 2) if v != '']
+        # column numbers: 2 acf msg_length, 3/4 ntscf/tscf seqnum lsb,
+        # 5/6 invalid version, 7/8 no space for header, 9/10 data length
+        assert by_no['77'][1] == 'ACF-LIN' and flags('77') == []
+        assert by_no['83'][1] == 'ACF-LIN' and flags('83') == []
+        assert by_no['78'][1] == 'ACF-CAN' and flags('78') == [3]
+        assert by_no['84'][1] == 'ACF-CAN' and flags('84') == [4]
+        assert by_no['79'][1] == 'NTSCF (v3)' and flags('79') == [5]
+        assert by_no['85'][1] == 'TSCF (v2)' and flags('85') == [2, 6, 10]
+        assert by_no['81'][1] == 'NTSCF (v0)' and flags('81') == [7]
+        assert by_no['82'][1] == 'NTSCF (v1)' and flags('82') == [7]
+        assert by_no['86'][1] == 'TSCF (v0)' and flags('86') == [8]
+        assert by_no['87'][1] == 'TSCF (v1)' and flags('87') == [8]
+        assert flags('80') == [9] and flags('88') == [10]
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'acf.expert.msg_length || acf.expert.msg_cropped',
+                '-Tfields', '-eframe.number')
+        assert rows == ['71', '72', '85']
+
+    def test_ieee1722_tscf_data_length_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frame 91: TSCF whose data length is 4 more than the payload
+        (the review finding, ieee1722_tscf_datalen.pcap). The clamp is made at
+        the data length field, so it misses by 4; it decodes without a
+        malformed packet.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 91', '-Tfields', '-e_ws.col.protocol',
+                '-etscf.data_len', '-e_ws.malformed')
+        assert rows == ['TSCF (v0)\t8\t']
