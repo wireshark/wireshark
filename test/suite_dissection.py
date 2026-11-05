@@ -73909,3 +73909,53 @@ class TestDissectHttpCoverage:
         out = subprocess.check_output((cmd_tshark, '-q', '-r', capture_file(self.CAP), '-z', 'http,tree'),
                                       encoding='utf-8', env=test_env, timeout=180)
         assert '404 Not Found' in out and '200 OK' in out
+
+
+class TestDissectHttpUrlencoded:
+    '''HTML form data (application/x-www-form-urlencoded) in HTTP, a
+    multipart part and Exported PDUs, from the synthetic capture
+    http-urlencoded_coverage.pcapng.gz.'''
+
+    CAP = 'http-urlencoded_coverage.pcapng.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        out = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectHttpUrlencoded.CAP), '-Y', filt,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_urlencoded_frames(self, cmd_tshark, capture_file, test_env):
+        '''25 frames with form data, none malformed or with an error
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'urlencoded-form', 'frame.number', passes=passes)
+            assert len(rows) == 25
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number', passes=passes)
+            assert bad == []
+
+    def test_urlencoded_decoding(self, cmd_tshark, capture_file, test_env):
+        '''Percent sequences and plus signs are decoded in keys and values;
+        keys without a value, empty items and an equals sign in a value.'''
+        rows = {r[0]: r[1:] for r in self.rows(cmd_tshark, capture_file, test_env, 'urlencoded-form',
+                'frame.number', 'urlencoded-form.key', 'urlencoded-form.value', passes=('-2',))}
+        assert rows['4'] == ['user,password,submit', 'test,placeholder,Login']
+        assert rows['8'] == ['name,city,note', 'John Smith,New York,a b c']
+        assert rows['10'] == ['kAB,ef', 'vCD,gh']
+        assert rows['12'] == ['q,café', 'あい,crème']
+        assert rows['16'] == ['flag,other,third', ',,3']
+        assert rows['22'] == ['eq,more', 'a=b=c,x=y']
+        # invalid UTF-8 is replaced
+        assert '�' in rows['14'][1]
+        assert rows['45'] == ['m1,m2', '1,2']          # a multipart part
+        assert rows['49'] == ['p,q', '1,2']            # Exported PDU
+
+    def test_urlencoded_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The media type is appended to the Info column, not for an
+        Exported PDU that has no media type.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {4, 38, 49}',
+                         '_ws.col.info', passes=('-2',))
+        assert 'POST /form/0 HTTP/1.1  (application/x-www-form-urlencoded)' in rows[0][0]
+        assert 'application/x-www-form-urlencoded' not in rows[2][0]
