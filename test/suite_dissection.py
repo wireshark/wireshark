@@ -75500,3 +75500,84 @@ class TestDissectIdp:
                 '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['11\t36\t6\tIDP', '12\t45\t15\tIDP']
+
+
+class TestDissectIdrp:
+    def test_idrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IDRP PDUs in CLNP over 802.3/LLC: 45 are IDRP, the two sent to
+        another NSAP selector or with another NLPID stay CLNP. No frame
+        is malformed or has a warning or error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('IDRP') == 45
+        assert protocols.count('CLNP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_idrp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Info column by BISPDU type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idrp_coverage.pcap.gz'),
+                '-Y', 'idrp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()}
+        assert [info[n] for n in (1, 4, 5, 17, 18, 36, 37, 38, 39, 40, 43)] == [
+            'OPEN', 'OPEN', 'UPDATE', 'UPDATE', 'ERROR', 'ERROR',
+            'KEEPALIVE', 'CEASE', 'Unknown (32)', 'RIB REFRESH', 'RIB REFRESH']
+
+    def test_idrp_update_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The EXT_INFO path attribute (a boolean without data) and the
+        NEXT_HOP loop that stops before the NLRI: one hop in frame 11, two
+        hops with SNPAs in frame 10, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idrp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {8,10,11,12}',
+                    '-Tfields', '-eframe.number', '-eidrp.update.path-attr.ext-info',
+                    '-eidrp.update.path-attr.next-hop.segment-protp-type',
+                    '-eidrp.update.path-attr.next-hop.rdi',
+                    '-eidrp.update.path-attr.next-hop.snpa',
+                    '-eidrp.update.nlri.addr-info-bits',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\tTrue\t\t\t\t24',
+                '10\t\t1,1\t4700010001,470002\t020000000001,02000000000203\t24',
+                '11\t\t1\t4700010001\t\t24',
+                '12\t\t\t\t\t24',
+            ]
+
+    def test_idrp_nlri_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Several address infos in one NLRI, every error code with its
+        subcode, and the RIB REFRESH note for an empty attribute set.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 16',
+                '-Tfields', '-eidrp.update.nlri.addr-info-bits',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '24,16,0,40'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idrp_coverage.pcap.gz'),
+                '-Y', 'idrp.error.code',
+                '-Tfields', '-eidrp.error.code', '-eidrp.error.subcode',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 19
+        assert lines[0] == '1\t1' and lines[7] == '1\t7'
+        assert lines[17].split('\t')[0] == '9'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 40',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'No path attributes' in stdout
