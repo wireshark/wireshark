@@ -1442,12 +1442,12 @@ h264_user_data_unregistered(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo 
     }
     else
     {
-        proto_tree_add_item(tree, hf_h264_sei_iso_sec_info, tvb, offset, 16, ENC_NA);
     /*  for (i = 16; i < payloadSize; i++)
      *  user_data_payload_byte 5 b(8)
      */
         if (payloadSize > 16)
         {
+            proto_tree_add_item(tree, hf_h264_sei_iso_sec_info, tvb, offset, payloadSize-16, ENC_NA);
             proto_tree_add_expert(tree, pinfo, &ei_h264_undecoded, tvb, offset, payloadSize-16);
             offset+=(payloadSize-16);
         }
@@ -2210,7 +2210,7 @@ dissect_h264_mtap(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, unsig
         else
         {
             /* Get the 24 bit DOND value */
-            proto_tree_add_item(tree, hf_h264_ts_offset24, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_h264_ts_offset24, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
         }
 
@@ -2246,7 +2246,7 @@ dissect_h264_nalu_extension (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     tvbuff_t    *nalu_tvb;
     uint8_t     subtype;
     uint8_t     j_flag;
-    uint8_t     bit_offset = offset << 3;
+    unsigned    bit_offset = offset << 3;
     uint8_t     unit = 1;
     proto_item  *item;
     proto_tree  *nimtap_tree;
@@ -2322,7 +2322,7 @@ startover:
     /* In decoder configuration start code may be pressent
      * B.1.1 Byte stream NAL unit syntax
      */
-    if (tvb_reported_length_remaining(tvb, offset<<3) >= 4) {
+    if (tvb_reported_length_remaining(tvb, offset) >= 4) {
         dword = tvb_get_bits32(tvb, offset<<3, 32, ENC_BIG_ENDIAN);
         if (dword == 1) {
             /* zero_byte + start_code_prefix_one_3bytes */
