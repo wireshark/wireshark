@@ -3070,7 +3070,7 @@ dissect_q931_tpkt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
      * 1 for the call_reference length,
      * and one for the message type.
      */
-    if (is_tpkt(tvb, 3, NULL)) {
+    if (!is_tpkt(tvb, 3, NULL)) {
         /*
          * It's not a TPKT packet; reject it.
          */
