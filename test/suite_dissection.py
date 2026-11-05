@@ -64683,3 +64683,132 @@ class TestDissectGreBonding:
             ), encoding='utf-8', env=test_env)
         assert '        IPv6 prefix - 2001:db8:0:1::/64' in stdout.splitlines()
         assert '        IPv6 prefix - 2001:db8:0:2::/56' in stdout.splitlines()
+
+
+class TestDissectGre:
+    '''GRE (ip.proto 47 and UDP port 4754), from the synthetic capture
+    gre_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, passes, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gre_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gre_protocols(self, cmd_tshark, capture_file, test_env):
+        '''51 frames, no malformed packets or error expert infos in one
+        and two passes; only the bad checksum of frame 8 is reported.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gre_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 51
+        assert protocols.count('GRE') == 9
+        assert protocols.count('ARP') == 1
+        assert protocols.count('CDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gre_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gre_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '8\tIncorrect GRE Checksum [should be 0xd709]',
+            ]
+
+    def test_gre_checksum(self, cmd_tshark, capture_file, test_env):
+        '''Good, bad and unverified (truncated capture). The fragment, frame 50, is not passed to GRE while IP reassembly is on.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'gre.flags.checksum == 1', 'gre.checksum', 'gre.checksum.status')
+        assert [(r[0], r[2]) for r in rows if r[0] in ('7', '8', '13', '31', '50', '51')] == [
+            ('7', '1'), ('8', '0'), ('13', '1'), ('31', '1'), ('51', '2')]
+        assert [r[1] for r in rows if r[0] == '8'] == ['0x1234']
+
+    def test_gre_key_sequence_ack(self, cmd_tshark, capture_file, test_env):
+        '''Key, enhanced GRE payload length and call id, sequence and
+        acknowledgment numbers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'gre',
+                            'gre.key', 'gre.key.payload_length', 'gre.key.call_id',
+                            'gre.sequence_number', 'gre.ack_number')
+        by = {r[0]: r[1:] for r in rows}
+        assert by['9'] == ['0xdeadbeef', '', '', '', '']
+        assert by['10'] == ['', '', '', '77', '']
+        assert by['11'] == ['0x00000001', '', '', '2', '']
+        assert by['16'] == ['', '34', '4660', '', '']
+        assert by['17'] == ['', '34', '4660', '5', '']
+        assert by['18'] == ['', '34', '4660', '6', '5']
+        assert by['19'] == ['', '0', '4660', '', '6']
+        assert by['20'] == ['0x00010002', '', '', '', '']
+        assert by['21'] == ['0x11223344', '', '', '', '']
+
+    def test_gre_routing_tree(self, cmd_tshark, capture_file, test_env):
+        '''The source route entry fields are in the Routing item (they
+        were added to the GRE item before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gre_coverage.pcap.gz'),
+                '-Y', 'frame.number == 30', '-V', '-O', 'gre',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    Routing')
+        assert lines[start:start + 10] == [
+            '    Routing',
+            '        Address Family: 2048',
+            '        SRE Offset: 0',
+            '        SRE Length: 4',
+            '        Routing Information: c0000209',
+            '    Routing',
+            '        Address Family: 0',
+            '        SRE Offset: 0',
+            '        SRE Length: 0',
+            'Internet Protocol Version 4, Src: 10.0.0.1, Dst: 10.0.0.2',
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'gre.routing', 'gre.routing.src_length')
+        assert rows == [['30', '4,0'], ['31', '8,2,0'], ['32', '0'], ['33', '1,0']]
+
+    def test_gre_3gpp2_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The 3GPP2 attribute fields are one octet wide (they were 16 bits
+        wide before the fix, so the values were read from two octets).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'gre.3gpp2_attrib', 'gre.3gpp2_sdi', 'gre.3gpp2_fci',
+                            'gre.3gpp2_di', 'gre.ggp2_3gpp2_seg', 'gre.ggp2_flow_disc')
+        assert rows == [
+            ['23', 'True', 'False', 'True', '', ''],
+            ['24', 'False', 'True', 'True', '0x02', '1234'],
+            ['25', '', '', '', '0x01,0x02', ''],
+            ['26', '', '', '', '0x00,0x03', ''],
+            ['27', 'False', 'False', 'False', '', ''],
+            ['28', '', 'True', 'True', '', ''],
+            ['29', 'True', '', '', '', '00'],
+        ]
+        for frame, text in (
+                ('23', '        Flow Control Indication - XOFF/INDEFINITE'),
+                ('23', '            0... .... = Flow Control Indicator: XON'),
+                ('24', '            10.. .... = Type: Packet Ended (0x2)')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('gre_coverage.pcap.gz'),
+                    '-Y', 'frame.number == ' + frame, '-V', '-O', 'gre',
+                ), encoding='utf-8', env=test_env)
+            assert text in stdout.splitlines()
+
+    def test_gre_wccp(self, cmd_tshark, capture_file, test_env):
+        '''WCCP version 1 has IPv4 right after the GRE header, version 2
+        has a redirect header.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'gre.wccp.redirect_header', 'gre.wccp.dynamic_service', 'gre.wccp.service_id',
+                            'gre.wccp.alternative_bucket', 'gre.wccp.primary_bucket')
+        assert rows == [
+            ['35', 'True', '5', '6', '7'],
+            ['36', 'False', '0', '0', '0'],
+            ['37', 'False', '255', '1', '2'],
+            ['38', 'True', '1', '1', '1'],
+        ]
