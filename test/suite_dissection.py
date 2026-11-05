@@ -72420,3 +72420,191 @@ class TestDissectHomeplugAvVertexcom:
                 '-Y', 'frame.number == 68', '-V', '-O', 'homeplug-av'),
                 encoding='utf-8', env=test_env)
         assert 'Organizationally Unique Identifier' in stdout or 'OUI' in stdout
+
+
+class TestDissectHomeplug:
+    @staticmethod
+    def _fields(cmd_tshark, test_env, capture, fields, display_filter=None, passes=()):
+        cmd = [cmd_tshark, *passes, '-r', capture]
+        if display_filter:
+            cmd += ['-Y', display_filter]
+        cmd += ['-Tfields']
+        for field in fields:
+            cmd += ['-e', field]
+        stdout = subprocess.check_output(cmd, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_homeplug_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 72 frames are HomePlug; none is malformed or has an
+        error expert info (frame 26 has the warnings for the tone maps
+        that do not exist), in one and two passes.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['_ws.col.protocol'])
+        assert len(rows) == 72
+        assert all(r == ['HomePlug'] for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                    '_ws.malformed || _ws.expert.severity >= 8388608', passes)
+            assert rows == []
+            rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                    '_ws.expert', passes)
+            assert rows == [['26']]
+
+    def test_homeplug_entries(self, cmd_tshark, capture_file, test_env):
+        '''Number of entries, MME type and entry length of some frames,
+        including a frame without entries and frames with several.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.mctrl.ne', 'homeplug.mehdr.metype', 'homeplug.melen'])
+        assert len(rows) == 72
+        assert rows[0] == ['1', '0', '', '']
+        assert rows[1] == ['2', '1', '0x00', '1']
+        assert rows[2] == ['3', '1', '0x01', '14']
+        assert rows[3] == ['4', '1', '0x01', '15']
+        assert rows[4] == ['5', '1', '0x01', '27']
+        assert rows[11] == ['12', '1', '0x08', '22']
+        assert rows[22] == ['23', '1', '0x1a', '187']
+        assert rows[23] == ['24', '1', '0x1a', '199']
+        assert rows[70] == ['71', '7', '0x00,0x1f,0x19,0x02,0x04,0x07,0x1b',
+                '1,3,6,4,9,2,1']
+        assert rows[71] == ['72', '2', '0x1f,0x00', '3,1']
+
+    def test_homeplug_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the MME; for the Network Statistics and
+        Bridging Characteristics MMEs it also says which form it is.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        info = {int(r[0]): r[1] for r in self._fields(cmd_tshark, test_env, cap,
+                ['frame.number', '_ws.col.info'])}
+        assert info[1] == 'MAC Management'
+        assert info[2] == 'Request Channel Estimation'
+        assert info[6] == 'Vendor Specific'
+        assert info[7] == 'Replace Bridge Address'
+        assert info[20] == 'Bridging Characteristics Local'
+        assert info[22] == 'Bridging Characteristics Network'
+        assert info[23] == 'Network Statistics Basic'
+        assert info[24] == 'Network Statistics Extended'
+        assert info[27] == 'Loader Get Firmware Version'
+        assert info[52] == 'Loader Set NVM Parameters'
+        assert info[53] == 'Load Firmware'
+        assert info[54] == 'Host Request: Get Device Version'
+        assert info[63] == 'Host Request: MAC Reset'
+        assert info[65] == 'Host Request'
+        assert info[66] == 'Host Response: Get Device Version'
+        assert info[69] == 'Host Response: Invalid MME'
+        assert info[71] == 'Set Network Encryption Key, Request Parameters and Statistics, Reserved'
+
+    def test_homeplug_channel_estimation(self, cmd_tshark, capture_file, test_env):
+        '''The bridged addresses of a Channel Estimation Response follow
+        when the BP bit is set.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.cer.nbdas', 'homeplug.cer.bda'], 'homeplug.cer')
+        assert rows == [
+            ['3', '', ''],
+            ['4', '0', ''],
+            ['5', '2', '02:00:00:00:00:01,02:00:00:00:00:02'],
+        ]
+
+    def test_homeplug_network_statistics(self, cmd_tshark, capture_file, test_env):
+        '''Basic and extended Network Statistics, the IC_ID names and a
+        frame whose tone maps do not exist.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.ns.extended', 'homeplug.ns.icid',
+                'homeplug.ns.fails_robo', 'homeplug.ns.drops_robo'], 'homeplug.ns')
+        assert [r[:2] for r in rows] == [
+            ['23', 'False'], ['24', 'True'], ['25', 'False'], ['26', 'False']]
+        assert [r[2] for r in rows] == ['0x00', '0x03', '0x10', '0x04']
+        assert all(r[3:5] == ['3', '4'] for r in rows)
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 24', '-V', '-O', 'homeplug'),
+                encoding='utf-8', env=test_env)
+        assert 'IC_ID: INT51X1 (Host/DTE Option) (0x03)' in stdout
+        assert stdout.count('Tone Map #') == 15
+        assert 'TX_BFR_5_STATE' in stdout
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 25', '-V', '-O', 'homeplug'),
+                encoding='utf-8', env=test_env)
+        assert 'IC_ID: Reserved (0x10)' in stdout
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number'],
+                'homeplug.tone_map_not_exist')
+        assert rows == [['26']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 26', '-V', '-O', 'homeplug'),
+                encoding='utf-8', env=test_env)
+        assert stdout.count('Tone Map #') == 45
+        assert 'Tone Map #15 does not exist' in stdout
+        assert '        Tone Map #1\n' not in stdout
+
+    def test_homeplug_bridging(self, cmd_tshark, capture_file, test_env):
+        '''Local bridging characteristics list the proxied addresses; the
+        network form has two bridges.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.bcl.hprox_das', 'homeplug.bcl.hpbda',
+                'homeplug.bcn.bp_das', 'homeplug.bcn.bp_da'], 'homeplug.bcl || homeplug.bcn')
+        assert rows == [
+            ['20', '0', '', '', ''],
+            ['21', '3', '02:00:00:00:00:01,02:00:00:00:00:02,02:00:00:00:00:03', '', ''],
+            ['22', '', '', '1,2', '02:00:00:00:00:02,02:00:00:00:00:04,02:00:00:00:00:05'],
+        ]
+
+    def test_homeplug_loader(self, cmd_tshark, capture_file, test_env):
+        '''Loader requests and responses, told apart by the length.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.loader.length', 'homeplug.loader.status',
+                'homeplug.loader.version', 'homeplug.loader.data.address',
+                'homeplug.loader.data'], 'homeplug.loader.length')
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert len(rows) == 26
+        assert by_frame['27'] == ['0', '', '', '', '']
+        assert by_frame['28'] == ['12', '0', 'INT6000-MAC-1.0', '', '']
+        assert by_frame['30'] == ['7', '0', '', '0x00100000', '']
+        assert by_frame['31'] == ['14', '', '', '0x00100000', 'aabbccdd']
+        assert by_frame['33'] == ['11', '0', '', '0x00100000', '01020304']
+        assert by_frame['35'] == ['12', '0', '', '0x00200000', '010203']
+        assert by_frame['38'] == ['0', '', '', '', '']
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.loader.module.id', 'homeplug.loader.module.offset',
+                'homeplug.loader.module.size', 'homeplug.loader.nvmp.type',
+                'homeplug.loader.nvmp.memorysize'],
+                'frame.number in {40, 41, 43, 47, 51}')
+        assert rows == [
+            ['40', '0x00000007', '0', '99', '', ''],
+            ['41', '0x00000007', '0', '99', '', ''],
+            ['43', '0x00000007', '', '', '', ''],
+            ['47', '', '', '8192', '', ''],
+            ['51', '', '', '', '1', '1048576'],
+        ]
+
+    def test_homeplug_host(self, cmd_tshark, capture_file, test_env):
+        '''Host request (the reset delay is present only for length 4)
+        and host response (version string, encryption key).'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.hreq.reset.type', 'homeplug.hreq.reset.delay'],
+                'homeplug.hreq.reset')
+        assert rows == [['63', '0', '1024'], ['64', '1', '']]
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.hrsp.version', 'homeplug.hrsp.gnekr.select',
+                'homeplug.hrsp.gnekr.key'], 'frame.number in {66, 67, 68}')
+        assert rows[0][:2] == ['66', 'INT6000-1.0']
+        assert rows[1][:2] == ['67', 'MAC-4.2.0']
+        assert rows[2] == ['68', '', '1', '0x0001020304050607']
+
+    def test_homeplug_misc_mmes(self, cmd_tshark, capture_file, test_env):
+        '''Vendor specific, encryption key, parameters and statistics
+        and transmit characteristics.'''
+        cap = capture_file('homeplug_coverage.pcap.gz')
+        rows = self._fields(cmd_tshark, test_env, cap, ['frame.number',
+                'homeplug.mctrl.rsvd', 'homeplug.vs.oui', 'homeplug.vs.mid',
+                'homeplug.snk.eks', 'homeplug.snk.nek', 'homeplug.psr.rxbp40',
+                'homeplug.slp.ma', 'homeplug.stc.txeks'],
+                'frame.number in {2, 6, 8, 12, 13, 18}')
+        assert rows[0][:2] == ['2', '1']
+        assert rows[1][:5] == ['6', '0', '0x000102', '5,5', '']
+        assert rows[2][0] == '8' and rows[2][4:6] == ['3', '0001020304050607']
+        assert rows[3][0] == '12' and rows[3][6] == '16909060'
+        assert rows[4][0] == '13' and rows[4][7] == '02:00:00:00:00:09'
+        assert rows[5][0] == '18' and rows[5][8] == '7'
