@@ -680,6 +680,7 @@ static expert_field ei_radiotap_invalid_header_length;
 static expert_field ei_radiotap_data_past_header;
 static expert_field ei_radiotap_present;
 static expert_field ei_radiotap_invalid_data_rate;
+static expert_field ei_radiotap_vendor_ns_too_short;
 
 static dissector_handle_t ieee80211_radio_handle;
 
@@ -1135,7 +1136,7 @@ capture_radiotap(const unsigned char * pd, int offset, int len, capture_packet_i
 	/* skip over other present bitmaps */
 	xpresent = present;
 	while (xpresent & BIT(IEEE80211_RADIOTAP_EXT)) {
-		if (!BYTES_ARE_IN_FRAME(offset, 4, it_len)) {
+		if (!BYTES_ARE_IN_FRAME(offset, len, 4)) {
 			return false;
 		}
 		xpresent = pletohu32(pd + offset);
@@ -3732,6 +3733,14 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			proto_item *vt;
 			const char *manuf_name;
 			uint8_t subns;
+
+			if (iter.this_arg_size < (iter.tlv_mode ? 8 : 6)) {
+				proto_tree_add_expert(item_tree, pinfo,
+						      &ei_radiotap_vendor_ns_too_short,
+						      tvb, offset,
+						      iter.this_arg_size);
+				continue;
+			}
 
 			manuf_name = tvb_get_manuf_name(tvb, offset);
 			subns = tvb_get_uint8(tvb, offset+3);
@@ -7399,6 +7408,7 @@ void proto_register_radiotap(void)
 		{ &ei_radiotap_invalid_header_length, { "radiotap.length.invalid", PI_MALFORMED, PI_ERROR, "The radiotap header length is less than 8 bytes", EXPFILL }},
 		{ &ei_radiotap_present, { "radiotap.present.radiotap_and_vendor", PI_MALFORMED, PI_ERROR, "Both radiotap and vendor namespace specified in bitmask word", EXPFILL }},
 		{ &ei_radiotap_data_past_header, { "radiotap.data_past_header", PI_MALFORMED, PI_ERROR, "Radiotap data goes past the end of the radiotap header", EXPFILL }},
+		{ &ei_radiotap_vendor_ns_too_short, { "radiotap.vendor_ns.too_short", PI_MALFORMED, PI_ERROR, "Vendor namespace item too short", EXPFILL }},
 		{ &ei_radiotap_invalid_data_rate, { "radiotap.vht.datarate.invalid", PI_PROTOCOL, PI_WARN, "Data rate invalid", EXPFILL }},
 	};
 
