@@ -64259,3 +64259,70 @@ class TestDissectGpef:
         assert len(blob) == 1 and len(key) == 1
         assert int(key[0][1]) == 325
         assert int(key[0][0]) == int(blob[0][0]) + 8
+
+
+class TestDissectGprscdr:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *args):
+        out = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('gprscdr_coverage.pcap.gz'), *args, '-Tfields',
+                *[x for f in fields for x in ('-e', f)]), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_gprscdr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 54 frames are GTP (GTP' data record transfer requests and
+        Create PDP Context requests) and every one carries GPRS CDR data;
+        none is malformed or has an error expert info, in one and two
+        passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert len(lines) == 54
+        assert lines.count('GTP') == 54
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'], '-Y', 'gprscdr.GPRSCallEventRecord || gprscdr.GPRSRecord || gprscdr.sCFAddress')
+        assert lines == [str(i) for i in range(1, 55)]
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    *passes, '-Y', '_ws.malformed || _ws.expert.severity == "error"')
+            assert lines == []
+
+    def test_gprscdr_record_types(self, cmd_tshark, capture_file, test_env):
+        '''One record of every type of GPRSCallEventRecord (release 6 and
+        earlier) and GPRSRecord (later releases), twice, then two records
+        in one packet.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gprscdr.GPRSCallEventRecord', 'gprscdr.GPRSRecord'],
+                '-Y', 'frame.number <= 49')
+        call = ['20', '21', '22', '23', '24', '28']
+        rec = ['20', '21', '22', '23', '24', '25', '26', '27', '70', '76', '77', '78', '79',
+               '86', '92', '95', '96', '97']
+        expected = []
+        for rnd in range(2):
+            n = len(expected)
+            expected += [[str(n + 1 + i), v, ''] for i, v in enumerate(call)]
+            n = len(expected)
+            expected += [[str(n + 1 + i), '', v] for i, v in enumerate(rec)]
+        assert [l.split('\t') for l in lines[:48]] == expected
+        assert lines[48].split('\t') == ['49', '', '78,79']
+
+    def test_gprscdr_values(self, cmd_tshark, capture_file, test_env):
+        '''TimeStamp, MSTimeZone, PLMN identifier and the identifier of
+        a ManagementExtension.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gprscdr.mSTimeZone', 'gprscdr.rATType'],
+                '-Y', 'frame.number == 2 || frame.number == 6 || frame.number == 18')
+        assert lines == ['2\t4a00\t2', '6\t4a02\t1,1', '18\t4a03\t1,1,2,0,1']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gprscdr.recordOpeningTime'], '-Y', 'frame.number == 3')
+        assert len(lines) == 1 and lines[0].startswith('3\t2023-05-17T')
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gprscdr.sCFAddress', 'gprscdr.serviceKey'],
+                '-Y', 'frame.number >= 50 && gprscdr.sCFAddress')
+        assert lines == ['50\t91214365f7\t100', '51\t91214365f7\t100',
+                         '52\t91214365f7\t100', '53\t91214365f7\t100']
+
+    def test_gprscdr_management_extension_oid(self, cmd_tshark, capture_file, test_env):
+        '''A record with a ManagementExtension: the OID of the extension
+        is its own (the file scope OID is reset for each
+        ManagementExtension).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['gprscdr.identifier'], '-Y', 'frame.number == 53')
+        assert lines == ['1.3.6.1.4.1.5.1.2.3,1.3.6.1.4.1.20138.1.2.3']
