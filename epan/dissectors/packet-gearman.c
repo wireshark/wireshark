@@ -254,6 +254,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   case GEARMAN_COMMAND_ECHO_REQ:
   case GEARMAN_COMMAND_ECHO_RES:
     if (!tree) break;
+    if (tvb_captured_length_remaining(tvb, curr_offset) == 0) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
     proto_tree_add_item(content_tree, hf_gearman_echo_text, tvb, curr_offset, len, ENC_ASCII);
     break;
@@ -301,6 +302,7 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_tree_add_item(content_tree, hf_gearman_err_code, tvb, curr_offset, len, ENC_ASCII);
 
     curr_offset += len;
+    if (tvb_captured_length_remaining(tvb, curr_offset) == 0) break;
     len = tvb_strnlen( tvb, curr_offset, -1 );
     proto_tree_add_item(content_tree, hf_gearman_err_text, tvb, curr_offset, len, ENC_ASCII);
     break;
@@ -641,7 +643,7 @@ proto_register_gearman(void)
     { &hf_gearman_timeout_value, { "Timeout Value", "gearman.timeout.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_echo_text, { "Echo Text", "gearman.echo_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_err_code, { "Error Code", "gearman.err.code", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
-    { &hf_gearman_err_text, { "Error Text", "gearman.err.text", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} }
+    { &hf_gearman_err_text, { "Error Text", "gearman.err.text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} }
   };
 
   /* Setup protocol subtree array */
