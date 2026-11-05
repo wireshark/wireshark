@@ -354,15 +354,15 @@ dissect_grpc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, grpc_co
         }
 
         message_length = tvb_get_ntohl(tvb, offset + 1);
-        if (tvb_len - offset < GRPC_MESSAGE_HEAD_LEN + message_length) {
+        if (tvb_len - offset - GRPC_MESSAGE_HEAD_LEN < message_length) {
             /* remaining bytes are not enough for dissecting the message body */
             if (pinfo->can_desegment) {
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = GRPC_MESSAGE_HEAD_LEN + message_length - (tvb_len - offset);
+                pinfo->desegment_len = message_length - (tvb_len - offset - GRPC_MESSAGE_HEAD_LEN);
                 return offset;
             }
             proto_tree_add_expert_format_remaining(tree, pinfo, &ei_grpc_body_malformed, tvb, offset,
-                     "GRPC Malformed message data: only %u bytes left, need at least %u bytes.", tvb_len - offset, GRPC_MESSAGE_HEAD_LEN + message_length);
+                     "GRPC Malformed message data: only %u bytes left, need at least %" PRIu64 " bytes.", tvb_len - offset, (uint64_t)GRPC_MESSAGE_HEAD_LEN + message_length);
             break;
         }
         /* ready to add information into protocol columns and tree */
