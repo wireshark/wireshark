@@ -600,6 +600,10 @@ prism_rate_return_sig(wmem_allocator_t *scope, uint32_t rate_phy1, uint32_t rate
                 "[MU_PPDU]");
         }
         break;
+
+    default:
+        result = wmem_strdup_printf(scope, "Unknown preamble type %u", pream_type);
+        break;
     }
 
     return result;
@@ -614,7 +618,7 @@ capture_prism(const unsigned char *pd, int offset, int len, capture_packet_info_
         return false;
 
     /* Some captures with DLT_PRISM have the AVS WLAN header */
-    cookie = pntohu32(pd);
+    cookie = pntohu32(pd + offset);
     if ((cookie == WLANCAP_MAGIC_COOKIE_V1) ||
         (cookie == WLANCAP_MAGIC_COOKIE_V2)) {
         return call_capture_dissector(wlancap_cap_handle, pd, offset, len, cpinfo, pseudo_header);
@@ -648,7 +652,6 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     struct ieee_802_11_phdr phdr;
 
     offset = 0;
-    did = 0;
 
     /* handle the AVS header */
     msgcode = tvb_get_ntohl(tvb, offset);
@@ -710,12 +713,12 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     while (offset < PRISM_HEADER_LENGTH)
     {
         /* DID */
+        did = tvb_get_uint32(tvb, offset, byte_order);
         if (tree) {
             ti_did = proto_tree_add_item(prism_tree, hf_ieee80211_prism_did, tvb, offset, 12, ENC_NA);
             prism_did_tree = proto_item_add_subtree(ti_did, ett_prism_did);
 
             proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_type, tvb, offset, 4, byte_order);
-            did = tvb_get_uint32(tvb, offset, byte_order);
             proto_item_append_text(ti_did, " %s", val_to_str(pinfo->pool, did, prism_did_vals, "Unknown %x") );
         }
         offset += 4;
@@ -840,7 +843,7 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             case PRISM_TYPE1_RATE_SIG_B:
             case PRISM_TYPE2_RATE_SIG_B:
-                if (tree && rate_phy1 && rate_phy2) {
+                if (rate_phy1 && rate_phy2) {
                     proto_item *sig_sub_item;
 
                     proto_tree_add_item(prism_did_tree, hf_ieee80211_prism_did_sig_b, tvb, offset, 4, byte_order);
