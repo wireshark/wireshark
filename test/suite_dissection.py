@@ -58717,3 +58717,246 @@ class TestDissectForce10Oui:
             ['5', '0xffff', 'eth:llc'],
             ['6', '', 'eth:llc:data'],
         ]
+
+
+class TestDissectForces:
+    '''ForCES (RFC 5810) from the synthetic capture
+    forces_coverage.pcapng.gz. ForCES has no default port: frames 1-35 are
+    Exported PDU frames naming the "forces" dissector (frames 1-24) and
+    "forces.tcp" (25-35, two octets of TML before the message); frames
+    36-42 are Ethernet frames (UDP/6700, TCP/6700, SCTP/6700-6702) that
+    need the Decode As entries and SCTP preferences in FORCES_OPTS.'''
+
+    FORCES_OPTS = (
+        '-d', 'udp.port==6700,forces', '-d', 'tcp.port==6700,forces',
+        '-o', 'forces.sctp_high_prio_port:6700',
+        '-o', 'forces.sctp_med_prio_port:6701',
+        '-o', 'forces.sctp_low_prio_port:6702',
+    )
+
+    FORCES_BOGUS = (
+        'forces.length.bad || forces.tlv.type.unknown || '
+        'forces.tlv.length.bad || '
+        'forces.lfbselect.tlv.type.operation.path.length.bad || '
+        'forces.lfbselect.tlv.type.operation.type.unsupported || '
+        'forces.redirect.tlv.redirect.data.tlv.length.bad')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *names, passes=(),
+               opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('forces_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + n for n in names),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_forces_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 35 Exported PDU frames and, with the Decode As entries and
+        preferences, the 7 Ethernet frames are ForCES. None is malformed
+        or has a ForCES expert info, in one and two passes. Without the
+        options the Ethernet frames are plain UDP, TCP and SCTP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame',
+                           '_ws.col.protocol')
+        assert len(rows) == 42
+        # frames 20, 21 and 33 end in the ICMP packet that is redirected
+        assert [r[1] for r in rows[35:]] == [
+            'UDP', 'UDP', 'TCP', 'TCP', 'SCTP', 'SCTP', 'SCTP']
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'forces',
+                               passes=passes, opts=self.FORCES_OPTS)
+            assert [int(r[0]) for r in rows] == list(range(1, 43))
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || ' + self.FORCES_BOGUS,
+                               passes=passes,
+                               opts=self.FORCES_OPTS)
+            assert rows == []
+
+    def test_forces_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The ForCES fields are the same in one and two passes.'''
+        names = ('forces.flags.version', 'forces.messagetype', 'forces.length',
+                 'forces.sid', 'forces.did', 'forces.correlator',
+                 'forces.Flags', 'forces.tlv.type', 'forces.tlv.length',
+                 'forces.lfbselect.tlv.type.lfb.classid',
+                 'forces.lfbselect.tlv.type.operation.type',
+                 'forces.lfbselect.tlv.type.operation.path.type',
+                 'forces.lfbselect.tlv.type.operation.path.data.flags',
+                 'forces.lfbselect.tlv.type.operation.path.data.IDs',
+                 'forces.redirect.tlv.meta.data.tlv.meta.data.ilv',
+                 'forces.teardown.reason', 'forces.astreason.tlv.teardown.reason',
+                 'ip.src', 'ip.dst', 'icmp.type')
+        one = self.fields(cmd_tshark, capture_file, test_env, 'forces', *names,
+                          opts=self.FORCES_OPTS)
+        two = self.fields(cmd_tshark, capture_file, test_env, 'forces', *names,
+                          opts=self.FORCES_OPTS, passes=('-2',))
+        assert len(one) == 42
+        assert one == two
+
+    def test_forces_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''The same messages in UDP/6700, TCP/6700 (with the TML octets) and
+        SCTP on the three priority channel ports decode like the Exported
+        PDU ones: frames 36, 37 (ConfigResponse, QueryResponse), 38, 39
+        (Heartbeat, Query), 40-42 (Heartbeat, Query, AssociationSetup).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number >= 36', 'forces.messagetype',
+                           'forces.correlator', opts=self.FORCES_OPTS)
+        assert rows == [
+            ['36', '19', '0x0000000000000020'],
+            ['37', '20', '0x0000000000000022'],
+            ['38', '15', '0x0000000000000032'],
+            ['39', '4', '0x0000000000000021'],
+            ['40', '15', '0x0000000000000032'],
+            ['41', '4', '0x0000000000000021'],
+            ['42', '1', '0x0000000000000001'],
+        ]
+
+    def test_forces_header(self, cmd_tshark, capture_file, test_env):
+        '''The common header and the flags of the Config message with a
+        selector chain (frame 14).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 14', '_ws.col.info',
+                           'forces.flags.version', 'forces.messagetype',
+                           'forces.length', 'forces.sid', 'forces.did',
+                           'forces.correlator', 'forces.flags.ack',
+                           'forces.flags.pri', 'forces.flags.rsrvd',
+                           'forces.flags.em', 'forces.flags.at',
+                           'forces.flags.tp', 'forces.flags.reserved')
+        assert rows == [['14', 'Message Type: Config, Total Length:  212 Bytes',
+                         '1', '3', '212', '10.0.0.1', '10.0.0.2',
+                         '0x000000000000001f', '3', '5', '2', '3', '1', '1',
+                         '23130']]
+
+    def test_forces_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The message types of frames 1-24 and the Info column of those
+        that are not shown as the redirected ICMP packet (frames 20, 21);
+        an unknown type is shown as hex.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number <= 24', 'forces.messagetype')
+        assert [int(r[1]) for r in rows] == \
+            [1, 17, 17, 17, 17, 2, 2, 2, 2, 2, 2, 2, 3, 3, 19, 4, 20, 5, 4,
+             6, 6, 15, 15, 7]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 6, 14, 15, 16, 17, 18, 22, 24}',
+                           '_ws.col.info')
+        assert [r[1] for r in rows] == [
+            'Message Type: AssociationSetup, Total Length:  24 Bytes',
+            'Message Type: AssociationTeardown, Total Length:  32 Bytes',
+            'Message Type: Config, Total Length:  212 Bytes',
+            'Message Type: ConfigResponse, Total Length:  72 Bytes',
+            'Message Type: Query, Total Length:  68 Bytes',
+            'Message Type: QueryResponse, Total Length:  80 Bytes',
+            'Message Type: EventNotification, Total Length:  64 Bytes',
+            'Message Type: Heartbeat, Total Length:  24 Bytes',
+            'Message Type: Unknown messagetype 0x7, Total Length:  24 Bytes']
+
+    def test_forces_association_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''ASResult (frames 2-5) and ASTreason (frames 6-12) TLVs.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number >= 2 && frame.number <= 12',
+                           'forces.tlv.type', 'forces.tlv.length',
+                           'forces.teardown.reason',
+                           'forces.astreason.tlv.teardown.reason')
+        assert rows == [
+            ['2', '16', '8', '0', ''], ['3', '16', '8', '1', ''],
+            ['4', '16', '8', '2', ''], ['5', '16', '8', '7', ''],
+            ['6', '17', '8', '', '0'], ['7', '17', '8', '', '1'],
+            ['8', '17', '8', '', '2'], ['9', '17', '8', '', '3'],
+            ['10', '17', '8', '', '4'], ['11', '17', '8', '', '597'],
+            ['12', '17', '8', '', '99'],
+        ]
+
+    def test_forces_lfbselect(self, cmd_tshark, capture_file, test_env):
+        '''LFB select TLV with the 15 operation types (frame 13) and with
+        a selector chain of path data TLVs and other path TLV types (frame
+        14).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 13',
+                           'forces.lfbselect.tlv.type.lfb.classid',
+                           'forces.fbselect.tlv.type.lfb.instanceid',
+                           'forces.lfbselect.tlv.type.operation.type',
+                           'forces.lfbselect.tlv.type.operation.length',
+                           'forces.lfbselect.tlv.type.operation.path.data.IDcount')
+        assert rows == [['13', '0.0.0.16', '0.0.0.1',
+                         ','.join(str(i) for i in range(15)),
+                         ','.join(['24'] * 15), ','.join(['3'] * 15)]]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 14',
+                           'forces.lfbselect.tlv.type.operation.type',
+                           'forces.lfbselect.tlv.type.operation.path.type',
+                           'forces.lfbselect.tlv.type.operation.path.length',
+                           'forces.lfbselect.tlv.type.operation.path.data.flags',
+                           'forces.lfbselect.tlv.type.operation.path.data.IDcount')
+        assert rows == [[
+            '14', '1,2,5,7,9,12,13,14,11',
+            '272,272,272,272,272,272,274,272,275,273,276,277,2457',
+            '16,12,12,12,8,12,8,12,12,8,8,4,8',
+            '0x8000,0x8000,0x0000,0x0000,0x0000,0x8000,0x8000',
+            '2,1,1,1,0,1,1']]
+
+    def test_forces_redirect(self, cmd_tshark, capture_file, test_env):
+        '''The Redirect TLV with one and two Meta Data ILVs (frames 20 and
+        21) and the redirected IP packet (an ICMP echo request) which is
+        dissected inside it.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {20, 21}',
+                           'forces.redirect.tlv.meta.data.tlv.length',
+                           'forces.redirect.tlv.meta.data.tlv.meta.data.ilv.id',
+                           'forces.redirect.tlv.meta.data.tlv.meta.data.ilv.length',
+                           'forces.redirect.tlv.redirect.data.tlv.length',
+                           'ip.src', 'ip.dst', 'icmp.type')
+        assert rows == [
+            ['20', '16', '0x00000011', '8', '36', '10.1.1.1', '10.2.2.2', '8'],
+            ['21', '32', '0x00000011,0x00000012', '8,8', '36', '10.1.1.1',
+             '10.2.2.2', '8'],
+        ]
+
+    def test_forces_tcp(self, cmd_tshark, capture_file, test_env):
+        '''The "forces.tcp" dissector skips the two TML octets: frames 25-34
+        decode like the corresponding "forces" frames.'''
+        one = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {1, 2, 6, 14, 15, 16, 17, 18, 21, 22, 24}',
+                          'forces.messagetype', 'forces.length',
+                          'forces.correlator', 'forces.Flags')
+        two = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 25 && frame.number <= 35',
+                          'forces.messagetype', 'forces.length',
+                          'forces.correlator', 'forces.Flags')
+        assert [r[1:] for r in one] == [r[1:] for r in two]
+        assert len(two) == 11
+
+    @staticmethod
+    def cubic_pcap(path, size):
+        '''A pcap with one Exported PDU frame naming "forces": a LFB select
+        TLV of Operation TLVs (type 0x8000, length 8) and Path Data TLVs
+        (type 0x0110, length 8) that overlap, so that every loop could
+        walk to the end of the packet. Not valid data: size is the length
+        of the ForCES message.'''
+        U1 = struct.pack('>HH', 0x8000, 8)
+        U0 = struct.pack('>HH', 0x0110, 8)
+        k = max(4, (size - 24 - 4 - 8 - 56) // 8)
+        body = struct.pack('>II', 1, 1) + (U1 + U0) * k + U1 + U0 + b'\0' * 4
+        body += b'\0' * 52
+        body += b'\0' * ((-len(body)) % 4)
+        tlv = struct.pack('>HH', 0x1000, (4 + len(body)) // 4) + body
+        total = 24 + len(tlv)
+        msg = struct.pack('>BBH', 0x10, 0x03, total // 4) + struct.pack('>II', 1, 2)
+        msg += b'\0' * 12 + tlv
+        frame = struct.pack('>HH', 12, 8) + b'forces\0\0' + struct.pack('>HH', 0, 0) + msg
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 252))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(frame), len(frame)))
+            f.write(frame)
+
+    def test_forces_cubic_time(self, cmd_tshark, test_env, tmp_path):
+        '''A 12 KB message of overlapping LFB select, Operation and Path
+        Data TLVs is rejected at once. Before "ForCES: Fix cubic time in
+        nested LFB select TLV loops" each of the three nested loops walked
+        to the end of the packet (6 KB took 9 seconds, 12 KB over a
+        minute).'''
+        pcap = str(tmp_path / 'forces_cubic.pcap')
+        self.cubic_pcap(pcap, 12000)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env, timeout=30)
+        assert stdout.split('\t')[0] == 'ForCES'
+        assert 'Malformed' in stdout
