@@ -58572,3 +58572,108 @@ class TestDissectFmpNotify:
         assert [int(r[1]) for r in rows[:22]] == [
             0, 5, 12, 13, 22, 28, 79, 500, 501, 502, 503, 504, 505, 506,
             507, 508, 509, 510, 511, 512, 600, 7777]
+
+
+class TestDissectFmtp:
+    '''FMTP (Flight Message Transfer Protocol) over TCP, from the synthetic
+    capture fmtp_coverage.pcap.gz. FMTP is a TCP heuristic dissector; the
+    capture uses TCP port 8500, which nothing else claims, so no Decode As
+    is needed.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *names, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fmtp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + n for n in names),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fmtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The 22 frames with an FMTP PDU decode as FMTP; none is malformed
+        or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fmtp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 56
+        assert protocols.count('FMTP') == 22
+        assert protocols.count('TCP') == 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fmtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || (fmtp && _ws.expert)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fmtp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The FMTP fields and the Info column are the same in one and two
+        passes.'''
+        names = ('fmtp.version', 'fmtp.reserved', 'fmtp.length', 'fmtp.type',
+                 '_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, 'fmtp', *names)
+        two = self.fields(cmd_tshark, capture_file, test_env, 'fmtp', *names,
+                          passes=('-2',))
+        assert len(one) == 22
+        assert one == two
+
+    def test_fmtp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Identification messages show their text, system messages their
+        name (or the code), the others only the type; PDUs split over
+        several segments are reassembled (frames 5, 21, 25, 35) and two
+        PDUs in one segment are both dissected (frames 19, 27).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'fmtp',
+                           'fmtp.length', 'fmtp.type', '_ws.col.info')
+        assert rows == [
+            ['5', '14', '3', 'Identification message (ENXX-EGLL)'],
+            ['6', '14', '3', 'Identification message (EGLL-ENXX)'],
+            ['7', '5', '3', 'Identification message ()'],
+            ['8', '7', '4', 'System message (Startup)'],
+            ['9', '7', '4', 'System message (Startup)'],
+            ['10', '7', '4', 'System message (Heartbeat)'],
+            ['11', '7', '4', 'System message (Heartbeat)'],
+            ['12', '7', '4', 'System message (Shutdown)'],
+            ['13', '7', '4', 'System message (Unknown (0x3939))'],
+            ['14', '9', '4', 'System message (Heartbeat)'],
+            ['15', '76', '1', 'Operational message'],
+            ['16', '10', '1', 'Operational message'],
+            ['17', '27', '2', 'Operator message'],
+            ['18', '5', '2', 'Operator message'],
+            ['19', '7,8', '4,1', 'Operational message'],
+            ['21', '105', '1', 'Operational message'],
+            ['25', '14', '3', 'Identification message (LATE-DATA)'],
+            ['27', '35,7', '1,4', 'Operational messageSystem message (Heartbeat)'],
+            ['35', '10245', '1', 'Operational message'],
+            ['51', '14', '3', 'Identification message (EGLL-ENXX)'],
+            ['52', '14', '3', 'Identification message (ENXX-EGLL)'],
+            ['53', '7', '4', 'System message (Heartbeat)'],
+        ]
+
+    def test_fmtp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''A first PDU with a wrong version, reserved octet, length (below
+        the header or above 10245), type, or fewer than five octets is not
+        taken by the heuristic (frames 40-46); an unknown type in an
+        FMTP conversation is not dissected either (frame 36).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {36, 40, 41, 42, 43, 44, 45, 46}',
+                           '_ws.col.protocol')
+        assert rows == [[str(n), 'TCP'] for n in (36, 40, 41, 42, 43, 44, 45, 46)]
+
+    def test_fmtp_tree(self, cmd_tshark, capture_file, test_env):
+        '''The tree of a system message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fmtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12', '-V', '-O', 'fmtp',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = [i for i, l in enumerate(lines)
+                 if l.startswith('Flight Message Transfer Protocol')][0]
+        assert lines[start:start + 5] == [
+            'Flight Message Transfer Protocol (FMTP), System message (00)',
+            '    Version: 2',
+            '    Reserved: 0',
+            '    Length: 7',
+            '    Type: System message (4)',
+        ]
