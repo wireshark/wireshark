@@ -60550,3 +60550,121 @@ class TestDissectFtp:
         rows = self.rows(cmd_tshark, capture_file, test_env, 'ftp-data.setup-method && ipv6',
                          'ftp-data.setup-method', 'ftp-data.command', passes=('-2',))
         assert rows == [['EPASV', 'LIST'], ['EPRT', 'RETR v6.txt']]
+
+
+class TestDissectFw1:
+    '''Check Point FW-1 monitor files (packet-fw1.c) from the synthetic
+    capture fw1_coverage.pcap.gz: 42 Exported PDU frames whose payload is
+    an "fw monitor" header followed by an Ethernet payload.'''
+
+    COLUMN = ('-o', 'gui.column.format:"No.","%m","IfDir","%I"')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fw1_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_fw1_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 42 frames are dissected as FW-1 without malformed packets or
+        error expert infos, in one and in two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'fw1',
+                                '-Tfields', '-eframe.number', passes=passes)
+            assert len(lines) == 42
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y',
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                '-Tfields', '-eframe.number', passes=passes)
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_fw1_iflist_first_pass_only(self, cmd_tshark, capture_file, test_env):
+        '''The interface list of frame 1 holds only eth0 and that of frame 3
+        eth0, eth1 and eth2, in both passes. It used to grow on the second
+        pass ("FW-1: Update the interface list only in the first pass").'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *self.COLUMN,
+                                '-Y', 'frame.number <= 3', '-Tfields',
+                                '-eframe.number', '-e_ws.col.if_dir', passes=passes)
+            got = {l.split('\t')[0]: l.split('\t')[1].split() for l in lines}
+            assert got['1'] == ['i', 'eth0']
+            assert got['2'] == ['eth0', 'O', 'eth1']
+            assert got['3'] == ['eth0', 'eth1', 'i', 'eth2']
+
+    def test_fw1_directions(self, cmd_tshark, capture_file, test_env):
+        '''The six inspection points i, I, o, O, e and E and two unknown
+        direction characters; the list marks the direction left or right
+        of the interface name.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, *self.COLUMN,
+                            '-Y', 'frame.number in {4..11}', '-Tfields',
+                            '-eframe.number', '-efw1.direction', '-efw1.interface',
+                            '-e_ws.col.if_dir')
+        got = [l.split('\t') for l in lines]
+        assert [g[1] for g in got] == list('iIoOeExX'.replace('X', '?'))
+        assert {g[2] for g in got} == {'eth0', 'eth1', 'eth2'}
+        marks = [' '.join(g[3].split()) for g in got]
+        assert marks[0] == 'i eth0 eth1 eth2'
+        assert marks[1] == 'eth0 I eth1 eth2'
+        assert marks[2] == 'eth0 o eth1 eth2'
+        assert marks[3] == 'O eth0 eth1 eth2'
+        assert marks[4] == 'eth0 e eth1 eth2'
+        assert marks[5] == 'E eth0 eth1 eth2'
+        assert marks[6] == 'eth0 eth1 eth2'
+
+    def test_fw1_payload_types(self, cmd_tshark, capture_file, test_env):
+        '''The ethertype dissector gets ARP, IPv6, a VLAN tag and an unknown
+        type; a trailer after the IP packet is shown as fw1.trailer.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env,
+                            '-Y', 'frame.number in {12, 13, 14, 16}', '-Tfields',
+                            '-eframe.number', '-efw1.type', '-earp.opcode', '-eipv6.dst',
+                            '-evlan.id', '-efw1.trailer')
+        assert lines == [
+            '12\t0x0806\t1\t\t\t',
+            '13\t0x86dd\t\t2001:db8::2\t\t',
+            '14\t0x8100\t\t\t5\t',
+            '16\t0x0800\t\t\t\t010203040506',
+        ]
+
+    def test_fw1_interface_names(self, cmd_tshark, capture_file, test_env):
+        '''A name of ten characters without a NUL, and more than 20
+        interfaces: only the first 20 are listed.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, *self.COLUMN,
+                            '-Y', 'frame.number in {17, 42}', '-Tfields',
+                            '-eframe.number', '-efw1.interface', '-e_ws.col.if_dir')
+        assert lines[0].split('\t')[1] == 'abcdefghij'
+        names = lines[1].split('\t')[2].split()
+        assert names[:4] == ['eth0', 'eth1', 'eth2', 'abcdefghij']
+        assert names[-1] == 'ge-18'
+        assert len(names) == 20
+
+    def test_fw1_chain_position(self, cmd_tshark, capture_file, test_env):
+        '''With fw1.iflist_with_chain the chain position byte is shown and
+        added to the list.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, *self.COLUMN,
+                            '-o', 'fw1.iflist_with_chain:TRUE',
+                            '-Y', 'frame.number in {4, 5}', '-Tfields',
+                            '-efw1.chain', '-e_ws.col.if_dir')
+        assert [' '.join(l.split()) for l in lines] == [
+            'k ik eth0 eth1 eth2', 'k eth0 Ik eth1 eth2']
+
+    def test_fw1_uuid(self, cmd_tshark, capture_file, test_env):
+        '''With fw1.with_uuid the interface name is six characters and a
+        four byte UUID follows. At the default preferences the UUID is part
+        of the name and gives a warning (frame 18).'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env,
+                            '-o', 'fw1.with_uuid:TRUE',
+                            '-Y', 'frame.number in {18, 19}', '-Tfields',
+                            '-efw1.interface', '-efw1.uuid')
+        assert lines == ['eth3\t16909060', 'eth4\t0']
+        lines = self.tshark(cmd_tshark, capture_file, test_env,
+                            '-Tfields', '-eframe.number', '-efw1.interface', '-e_ws.expert.message')
+        assert [l for l in lines if l.endswith('stray characters')] == ['18\teth3\tTrailing stray characters']
+
+    def test_fw1_summary_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The protocol tree line shows the interface list, or only
+        "FW1 Monitor" when fw1.summary_in_tree is off.'''
+        tree = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3', '-V')
+        line = [l for l in tree if l.startswith('FW1 Monitor')][0]
+        assert line.split() == ['FW1', 'Monitor', 'eth0', 'eth1', 'i', 'eth2']
+        tree = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3',
+                           '-V', '-o', 'fw1.summary_in_tree:FALSE')
+        assert 'FW1 Monitor' in tree
