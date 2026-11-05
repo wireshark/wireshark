@@ -77390,3 +77390,49 @@ class TestDissectIeee8023:
                 '-eframe.protocols', '-eccsds.apid',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['18\teth:ccsds\t291', '19\teth:ccsds\t291']
+
+
+class TestDissectIeee802a:
+    '''IEEE 802a OUI Extended Ethertype (0x88b7) from the synthetic capture
+    ieee802a_coverage.pcap.gz: the OUI table lookup (known and unknown
+    OUIs, registered and unregistered PIDs).'''
+
+    def test_ieee802a_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 8 frames decode as ieee802a (two as ECP) without malformed
+        packets or expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802a_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert sum(1 for p in protocols if p.endswith(':ieee802a:ecp')) == 2
+        assert sum(1 for p in protocols if 'ieee802a' in p) == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee802a_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ieee802a_oui_pid(self, cmd_tshark, capture_file, test_env):
+        '''The OUI (decimal) and PID: ieee802a.pid is shown for every OUI
+        without a registered PID table; the 802.1Qbg OUI (6975 = 0x001b3f)
+        uses the ECP PID field, so ieee802a.pid is not shown for it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802a_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eieee802a.oui',
+                '-eieee802a.pid', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t6975\t\tECP',
+            '2\t6975\t\tIEEE802a',
+            '3\t12\t0x0102\tIEEE802a',
+            '4\t174779\t0x1234\tIEEE802a',
+            '5\t12\t0xffff\tIEEE802a',
+            '6\t6975\t\tECP',
+            '7\t32962\t0x0000\tIEEE802a',
+            '8\t94\t0x0800\tIEEE802a',
+        ]
