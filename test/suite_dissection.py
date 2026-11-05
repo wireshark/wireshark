@@ -64051,3 +64051,92 @@ class TestDissectGnutella:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 ['frame.number', 'gnutella.query.search'], '-Y', 'frame.number == 9')
         assert lines == ['9\t']
+
+
+class TestDissectGoose:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *args):
+        out = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('goose_coverage.pcap.gz'), *args, '-Tfields',
+                *[x for f in fields for x in ('-e', f)]), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_goose_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-18 are GOOSE (ethertype 0x88b8) and 19-25 R-GOOSE (CLTP
+        over UDP, found by the heuristic); none is malformed or has an
+        error expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert lines == ['GOOSE'] * 18 + ['R-GOOSE'] * 7
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    *passes, '-Y', '_ws.malformed || _ws.expert.severity == "error"')
+            assert lines == []
+
+    def test_goose_header(self, cmd_tshark, capture_file, test_env):
+        '''APPID, length, reserved bits and the PDU of the GOOSE frames,
+        also with a VLAN tag and with several PDUs in one frame.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'goose.appid', 'goose.length', 'goose.reserve1.s_bit',
+                 'goose.simulation', 'goose.stNum', 'goose.sqNum'], '-Y', 'frame.number <= 7')
+        assert [l.split('\t') for l in lines] == [
+            ['1', '0x1000', '184', 'False', '', '1', '0'],
+            ['2', '0x1001', '60', 'True', 'True', '2', '5'],
+            ['3', '0x1002', '60', 'True', 'False', '1', '0'],
+            ['4', '0x1003', '57', 'False', 'True', '1', '0'],
+            ['5', '0x1004', '57', 'False', '', '1', '0'],
+            ['6', '0x1005', '258', 'False', '', '3,4', '0,0'],
+            ['7', '0x1006', '260', 'False', '', '4294967295', '4294967295']]
+
+    def test_goose_data_types(self, cmd_tshark, capture_file, test_env):
+        '''The Data choices of allData: arrays and structures with
+        integers, unsigned, booleans, an octet string, a visible string,
+        BCD and an object identifier.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['goose.integer', 'goose.unsigned', 'goose.boolean', 'goose.octet_string',
+                 'goose.visible_string', 'goose.bcd', 'goose.objId', 'goose.numDatSetEntries'],
+                '-Y', 'frame.number == 1')
+        assert lines == ['1,-2,-1000\t300,65535\tTrue,False\tdeadbeef\tvisible\t1234\t1.0.61850.7.2\t0']
+
+    def test_goose_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''S bit set with the simulation attribute clear (frame 3) is a
+        warning.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'], '-Y', 'goose.invalid_sim')
+        assert lines == ['3']
+
+    def test_goose_management(self, cmd_tshark, capture_file, test_env):
+        '''GSE management PDUs: the four requests, not supported and the
+        four positive responses, a response without datSet and a negative
+        response.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'goose.stateID', 'goose.ident', 'goose.offset', 'goose.reference',
+                 'goose.error', 'goose.references_item', 'goose.responseNegative', 'goose.datSet'],
+                '-Y', 'frame.number >= 8')
+        assert [l.split('\t') for l in lines if l.split('\t')[0] in [str(i) for i in range(8, 19)]] == [
+            ['8', '1', 'GCB1', '', '', '', '', '', ''],
+            ['9', '2', 'GCB1', '', '', '', 'ref/one,ref/two', '', ''],
+            ['10', '3', 'GCB2', '', '', '', '', '', ''],
+            ['11', '4', 'GCB2', '', '', '', 'x/y', '', ''],
+            ['12', '5', '', '', '', '', '', '', ''],
+            ['13', '11', 'GCB1', '3', 'ref/one', '1', '', '', 'DS1'],
+            ['14', '12', 'GCB1', '3', 'ref/one', '1', '', '', 'DS1'],
+            ['15', '13', 'GCB1', '3', 'ref/one', '1', '', '', 'DS1'],
+            ['16', '14', 'GCB1', '3', 'ref/one', '1', '', '', 'DS1'],
+            ['17', '20', 'GCB1', '3', 'ref/one', '1', '', '', ''],
+            ['18', '21', 'GCB1', '', '', '', '', '2', '']]
+
+    def test_rgoose(self, cmd_tshark, capture_file, test_env):
+        '''R-GOOSE: session header, security information, one or two
+        APDUs, padding and the HMAC octets, a sample value APDU that is
+        not decoded further.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'rgoose.spdu_id', 'rgoose.session_hdr_len', 'rgoose.spdu_num',
+                 'rgoose.init_v_len', 'rgoose.payload_len', 'rgoose.pdu_tag', 'rgoose.appid',
+                 'rgoose.padding_len', 'rgoose.hmac'], '-Y', 'rgoose.spdu_id')
+        assert [l.split('\t') for l in lines] == [
+            ['19', '0xa1', '35', '1', '12', '58', '0x81', '0x3000', '', ''],
+            ['20', '0xa1', '35', '1', '12', '182', '0x81', '0x3001', '0x06', '000102030405060708090a0b0c0d0e0f'],
+            ['21', '0xa1', '35', '2', '12', '367', '0x81,0x81', '0x3002,0x3003', '', '202122232425262728292a2b2c2d2e2f'],
+            ['22', '0xa1', '35', '3', '12', '14', '0x82', '0x3004', '', ''],
+            ['23', '0xa1', '23', '1', '0', '182', '0x81', '0x3005', '0x00', ''],
+            ['24', '0xa1', '35', '4', '12', '182', '0x81', '0x3006', '', ''],
+            ['25', '0xa1', '35', '5', '12', '15', '0x81', '0x3007', '', '']]
