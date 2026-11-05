@@ -74260,3 +74260,95 @@ class TestDissectIanaOui:
             ), encoding='utf-8', env=test_env)
         assert 'PID: SCSP (0x0005)' in stdout
         assert 'PID: Unknown (0x00ff)' in stdout
+
+
+class TestDissectIapp:
+    def test_iapp_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 19 frames are IAPP and none is malformed; frame 16 (no PDUs)
+        has the only expert info (a note), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert protocols.count('IAPP') == 19
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iapp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iapp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['16\tNo PDUs found']
+
+    def test_iapp_info(self, cmd_tshark, capture_file, test_env):
+        '''Message types, versions and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eiapp.version',
+                '-eiapp.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t1\t0\tAnnounce Request(0) (version=1)'
+        assert lines[1] == '2\t1\t1\tAnnounce Response(1) (version=1)'
+        assert lines[4] == '5\t1\t2\tHandover Request(2) (version=1)'
+        assert lines[5] == '6\t1\t3\tHandover Response(3) (version=1)'
+        assert lines[16] == '17\t2\t9\tUnknown Packet(9) (version=2)'
+
+    def test_iapp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''PDU values of frame 1: SSID, BSSID, capabilities, intervals,
+        message ID, PHY, regulatory domain, OUI; FHSS channel decoding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1', '-Tfields', '-eiapp.pdu.ssid',
+                '-eiapp.pdu.bytes', '-eiapp.pdu.uint', '-eiapp.pdu.phytype',
+                '-eiapp.pdu.regdomain', '-eiapp.pdu.oui_ident',
+                '-eiapp.cap.forwarding', '-eiapp.cap.wep',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t')[:5] == ['ExampleNet', '0200000000a1',
+                '30,1000,42,6,100', '2', '48']
+        assert stdout.split('\t')[6:] == ['True', 'True\n']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 7 && frame.number <= 12',
+                '-Tfields', '-eframe.number', '-eiapp.pdu.phytype',
+                '-eiapp.pdu.regdomain',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\t0\t16', '8\t1\t32', '9\t2\t49', '10\t3\t50', '11\t4\t64', '12\t9\t153']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8', '-V', '-O', 'iapp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Pattern set 2, sequence 7' in stdout
+        assert 'Pattern set 1, sequence 4' in stdout
+
+    def test_iapp_authinfo(self, cmd_tshark, capture_file, test_env):
+        '''ELSA authentication info with every item type, and the
+        user name shown with its item length (fixed: it used 1).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 13 && frame.number <= 15',
+                '-Tfields', '-eframe.number', '-eiapp.auth.string',
+                '-eiapp.auth.status', '-eiapp.auth.uint',
+                '-eiapp.auth.ipaddr', '-eiapp.auth.trailer',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('13\talice,provider.example\t1\t'
+                '1000,2000,300000,400000,3600,7200,1048576,86400,1,2\t'
+                '192.0.2.77\t' + 'aa' * 16)
+        assert lines[1] == '14\talice\t\t\t\t'
+        assert lines[2] == '15\ta-longer-account!\t\t\t\t'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iapp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 13', '-V', '-O', 'iapp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Status: Authenticated' in stdout
+        assert '3600 seconds' in stdout
+        assert 'Unknown PDU Type (85)' in stdout
