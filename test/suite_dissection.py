@@ -63218,3 +63218,114 @@ class TestDissectGmr1Bcch:
             '29\t1\t291\t85',
             '30\t7\t8191\t255',
         ]
+
+
+class TestDissectGmr1Common:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmr1_common_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmr1_common_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gmr1_common_info(self, cmd_tshark, capture_file, test_env):
+        '''Paging Responses with a Classmark 2 IE (frames 1-14, 27), Immediate Assignment Type 3
+        (15-21) and Paging Request Type 3 (22-26) carry the common IEs.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.dtap || gmr1.ccch', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 U, func=UI (DTAP) (RR) Paging Response',
+            '2 U, func=UI (DTAP) (RR) Paging Response',
+            '3 U, func=UI (DTAP) (RR) Paging Response',
+            '4 U, func=UI (DTAP) (RR) Paging Response',
+            '5 U, func=UI (DTAP) (RR) Paging Response',
+            '6 U, func=UI (DTAP) (RR) Paging Response',
+            '7 U, func=UI (DTAP) (RR) Paging Response',
+            '8 U, func=UI (DTAP) (RR) Paging Response',
+            '9 U, func=UI (DTAP) (RR) Paging Response',
+            '10 U, func=UI (DTAP) (RR) Paging Response',
+            '11 U, func=UI (DTAP) (RR) Paging Response',
+            '12 U, func=UI (DTAP) (RR) Paging Response',
+            '13 U, func=UI (DTAP) (RR) Paging Response',
+            '14 U, func=UI (DTAP) (RR) Paging Response',
+            '15 (CCCH) (RR) Immediate Assignment Type 3',
+            '16 (CCCH) (RR) Immediate Assignment Type 3',
+            '17 (CCCH) (RR) Immediate Assignment Type 3',
+            '18 (CCCH) (RR) Immediate Assignment Type 3',
+            '19 (CCCH) (RR) Immediate Assignment Type 3',
+            '20 (CCCH) (RR) Immediate Assignment Type 3',
+            '21 U, func=UI (DTAP) (RR) Immediate Assignment Type 3',
+            '22 (CCCH) (RR) Paging Request Type 3',
+            '23 (CCCH) (RR) Paging Request Type 3',
+            '24 (CCCH) (RR) Paging Request Type 3',
+            '25 (CCCH) (RR) Paging Request Type 3',
+            '26 U, func=UI (DTAP) (RR) Paging Request Type 3',
+            '27 U, func=UI (DTAP) (RR) Paging Response',
+            '28 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+        ]
+
+    def test_gmr1_common_classmark_2(self, cmd_tshark, capture_file, test_env):
+        '''Classmark 2 shows as many octets as its length says (0 to 4 here) and the
+        mobile identity after it is still found.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number <= 14 || frame.number == 27', '-Tfields',
+                              '-eframe.number', '-egmr1.common.cm2.spare1', '-egmr1.common.cm2.revision',
+                              '-egmr1.common.cm2.mes_type', '-egmr1.common.cm2.sms_cap',
+                              '-egmr1.common.cm2.a5_3', '-egmr1.common.cm2.a5_2_gmr1',
+                              '-egsm_a.ie.mobileid.type')
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0\t0\t0\t0\t4',
+            '2\t1\t3\t7\t1\t1\t1\t4',
+            '3\t0\t2\t7\t0\t0\t0\t4',
+            '4\t0\t1\t0\t1\t0\t0\t4',
+            '5\t0\t2\t2\t0\t0\t1\t4',
+            '6\t0\t3\t5\t0\t1\t1\t4',
+            '7\t0\t0\t7\t1\t0\t0\t4',
+            '8\t1\t0\t0\t0\t0\t0\t4',
+            '9\t\t\t\t\t\t\t4',
+            '10\t0\t2\t7\t\t\t\t4',
+            '11\t0\t2\t7\t0\t\t\t4',
+            '12\t0\t2\t7\t0\t0\t0\t4',
+            '13\t0\t2\t7\t0\t0\t0\t4',
+            '14\t0\t2\t7\t\t\t\t1',
+            '27\t0\t2\t7\t\t\t\t4',
+        ]
+
+    def test_gmr1_common_spare_half_octet(self, cmd_tshark, capture_file, test_env):
+        '''The spare half octet is the high nibble only (not the whole octet with the
+        page mode in the low nibble).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 15 && frame.number <= 21', '-Tfields',
+                              '-eframe.number', '-egmr1.common.spare_nibble')
+        assert stdout.splitlines() == [
+            '15\t0x00', '16\t0x00', '17\t0x05', '18\t0x0a', '19\t0x0f', '20\t0x0f', '21\t0x07',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                              '-egsm_a.key_seq', '-egmr1.common.spare_nibble')
+        assert stdout.splitlines() == [
+            '1\t0\t0x00', '2\t1\t0x01', '3\t2\t0x02', '4\t3\t0x03',
+            '5\t4\t0x04', '6\t5\t0x05', '7\t6\t0x06', '8\t7\t0x07',
+        ]
+
+    def test_gmr1_common_classmark_2_length(self, cmd_tshark, capture_file, test_env):
+        '''A Classmark 2 of length 1 shows only its first octet and the mobile
+        identity that follows is decoded (it used to read three octets).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 27', '-Tfields', '-egmr1.common.cm2.mes_type',
+                              '-egmr1.common.cm2.sms_cap', '-egmr1.common.cm2.cm3_presence',
+                              '-egsm_a.ie.mobileid.type', '-e_ws.col.info')
+        assert stdout.rstrip('\n').split('\t')[:4] == ['7', '', '', '4']
+
+    def test_gmr1_common_skip_indicator(self, cmd_tshark, capture_file, test_env):
+        '''The skip indicator and protocol discriminator of the CCCH.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 22 && frame.number <= 25', '-Tfields',
+                              '-eframe.number', '-egmr1.skip_ind', '-egmr1.l3_protocol_discriminator')
+        assert stdout.splitlines() == ['22\t0\t6', '23\t1\t6', '24\t5\t6', '25\t15\t6']
