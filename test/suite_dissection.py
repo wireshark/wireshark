@@ -69983,3 +69983,68 @@ class TestDissectH450:
         assert sum(r[3] != '' for r in rows) == 12
         rows = self.h450_fields(cmd_tshark, capture_file, test_env, 'h450.operation', filt='frame.number == 168')
         assert rows == [['168', '7,7']]
+
+
+class TestDissectH450Ros:
+    '''The Remote Operations APDUs of H.450 (packet-h450-ros.c) from the
+    synthetic capture h450_ros_coverage.pcap.gz: 185 H.225.0 Facility
+    messages (Q.931 in TPKT over TCP port 1720) whose h4501SupplementaryService
+    items carry aligned PER encoded invoke, return result, return error and
+    reject APDUs. Frames 1-126 are the operations and errors of the H.450
+    tables, 127-168 ROS specifics (invoke ids over 0-65535, linked ids,
+    result and error ids, local codes of every size, global codes, open
+    types of length 0, up to five APDUs in one item), 169-185 network
+    facility extensions.'''
+
+    @staticmethod
+    def ros_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h450_ros_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h450_ros_protocols(self, cmd_tshark, capture_file, test_env):
+        '''185 frames, none malformed or with an error expert info, in one
+        and two passes.'''
+        rows = self.ros_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 185
+        assert {r[1] for r in rows} == {'H.225.0'}
+        for passes in ((), ('-2',)):
+            rows = self.ros_fields(cmd_tshark, capture_file, test_env,
+                                   filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h450_ros_invoke_ids(self, cmd_tshark, capture_file, test_env):
+        '''Invoke ids 0, 1, 127, 128, 255, 256, 32767 and 65535 (frames
+        127-134), then linked ids 0, 1, 127, 128, 70000, -1 and -129.'''
+        rows = self.ros_fields(cmd_tshark, capture_file, test_env, 'h450.ros.invokeIdConstrained',
+                               'h450.ros.linkedId', filt='frame.number >= 127 && frame.number <= 141')
+        assert [r[1] for r in rows[:8]] == ['0', '1', '127', '128', '255', '256', '32767', '65535']
+        assert [r[2] for r in rows[8:]] == ['0', '1', '127', '128', '70000', '-1', '-129']
+
+    def test_h450_ros_result_and_error_ids(self, cmd_tshark, capture_file, test_env):
+        '''Return result and return error with ids 0, 255, 256, 65536 and
+        -5; the result has no opcode and result, the error has code 1.'''
+        rows = self.ros_fields(cmd_tshark, capture_file, test_env, 'h450.ros.invokeId', 'h450.ros.local',
+                               filt='frame.number >= 142 && frame.number <= 151')
+        assert [r[1] for r in rows] == ['0', '0', '255', '255', '256', '256', '65536', '65536', '-5', '-5']
+        assert [r[2] for r in rows] == ['', '1'] * 5
+
+    def test_h450_ros_codes(self, cmd_tshark, capture_file, test_env):
+        '''Local codes of several sizes and global (object identifier)
+        codes the H.450 tables do not know are reported as undecoded.'''
+        rows = self.ros_fields(cmd_tshark, capture_file, test_env, 'h450.ros.local', 'h450.ros.global',
+                               '_ws.expert.message', filt='frame.number >= 152 && frame.number <= 164')
+        assert [r[1] for r in rows[:9]] == ['0', '127', '128', '255', '256', '1000', '65535', '70000', '-1']
+        assert rows[9][2] == '1.3.6.1.4.1.9999,1.3.6.1.4.1.9999,1.3.6.1.4.1.9999'
+        assert rows[10][2].split(',')[0] == '0.0.8.450.1.1.7'
+        assert rows[12][3].startswith('Undecoded INV: 1.3.6.1.4.1.1000000.3,Undecoded RES:')
+
+    def test_h450_ros_several_apdus(self, cmd_tshark, capture_file, test_env):
+        '''Frames 165-168: three APDUs (invoke, result, error), two
+        results, four and five invokes in one H.450 item.'''
+        rows = self.ros_fields(cmd_tshark, capture_file, test_env, 'h450.operation',
+                               filt='frame.number >= 165 && frame.number <= 168')
+        assert [r[1] for r in rows] == ['7,7', '9,8', '7,7,7,7', '7,7,7,7,7']
