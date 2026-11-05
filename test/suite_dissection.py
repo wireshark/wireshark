@@ -75439,3 +75439,64 @@ class TestDissectIdn:
                 '-Tfields', '-eidn.total_size', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '65535\tAudio samples with zero channels or zero sample length'
+
+
+class TestDissectIdp:
+    def test_idp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IDP over Ethernet (type 0x0600) and Cisco HDLC (protocol
+        0x0600); SPP is the next protocol of two frames. No frame is
+        malformed or has a warning or error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('IDP') == 10
+        assert protocols.count('SPP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('idp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_idp_header(self, cmd_tshark, capture_file, test_env):
+        '''Packet types, socket names, hop counts and lengths.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idp_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eidp.packet_type',
+                '-eidp.dst.socket', '-eidp.src.socket', '-eidp.len',
+                '-eidp.hops', '-eidp.dst.net', '-eidp.src.node',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t1\t0x0001\t0x0001\t49\t0\t0x00000002\taa:00:00:00:00:01'
+        assert lines[3] == '4\t4\t0x0005\t0x0005\t38\t3\t0x00000002\taa:00:00:00:00:01'
+        assert lines[8] == '9\t255\t0x0bbc\t0x1234\t42\t15\t0x00000002\taa:00:00:00:00:01'
+        assert lines[9] == '10\t4\t0x0bbc\t0xffff\t30\t0\t0xffffffff\taa:00:00:00:00:01'
+
+    def test_idp_spp(self, cmd_tshark, capture_file, test_env):
+        '''IDP type 5 is handed to SPP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idp_coverage.pcapng.gz'),
+                '-Y', 'spp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\tSPP Acknowledgment Required',
+            '6\tSPP System Packet: Send Ack',
+        ]
+
+    def test_idp_padding_and_chdlc(self, cmd_tshark, capture_file, test_env):
+        '''The IDP length field ends the datagram, so the padding after it
+        (frame 11) is not part of the payload; frame 12 arrives over
+        Cisco HDLC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('idp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 11',
+                '-Tfields', '-eframe.number', '-eidp.len', '-edata.len',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['11\t36\t6\tIDP', '12\t45\t15\tIDP']
