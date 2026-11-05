@@ -75581,3 +75581,125 @@ class TestDissectIdrp:
                 '-Tfields', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert 'No path attributes' in stdout
+
+
+class TestDissectIec104:
+    '''IEC 60870-5-104 (TCP 2404), the shared ASDU dissector with the
+    IEC 60870-5-7 authentication ASDUs, and IEC 60870-5-101 / -103 (TCP
+    2405 / 2406, Decode As) from the synthetic capture
+    iec104_coverage.pcap.gz. The authentication fields hold constant
+    placeholder octets, no real keys, MACs or challenges.'''
+
+    DECODE_AS = ('-d', 'tcp.port==2405,iec60870_101',
+                 '-d', 'tcp.port==2406,iec60870_5_103')
+
+    def test_iec104_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Per-protocol frame counts and no malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 630
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['IEC 60870-5-104'] == 11
+        assert counts['IEC 60870-5 ASDU'] == 262
+        assert counts['IEC 60870-5-101'] == 10
+        assert counts['IEC 60870-5-103'] == 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS,
+                    '-r', capture_file('iec104_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iec104_asdu_types(self, cmd_tshark, capture_file, test_env):
+        '''All defined ASDU type identifications of the 104 profile
+        (monitor, command, parameter, file and security types) and a set of
+        undefined ones are present.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'tcp.port == 2404 && iec60870_asdu.typeid',
+                '-Tfields', '-eiec60870_asdu.typeid',
+            ), encoding='utf-8', env=test_env)
+        types = {int(t) for line in stdout.splitlines() for t in line.split(',')}
+        defined = (set(range(1, 22)) | set(range(30, 42)) | set(range(45, 52))
+                   | set(range(58, 65)) | {70, 100, 101, 103, 104, 105, 106, 107}
+                   | set(range(110, 114)) | set(range(120, 128)) | set(range(81, 88)))
+        assert defined <= types
+        assert {22, 29, 42, 65, 71, 80, 88, 108, 109, 114, 119, 128, 200, 255} <= types
+
+    def test_iec104_apci(self, cmd_tshark, capture_file, test_env):
+        '''U, S and I frames: the U functions, the sequence numbers and
+        APDUs sharing a TCP segment or split over two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'iec60870_104.utype',
+                '-Tfields', '-eframe.number', '-eiec60870_104.utype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0x00000001', '6\t0x00000002', '8\t0x00000004', '10\t0x00000008',
+            '12\t0x00000010', '14\t0x00000020', '16\t0x00000030',
+            '524\t0x00000010,0x00000020', '528\t0x00000010']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'frame.number in {514, 517, 520, 522}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        # two APDUs in one segment; two split APDUs; noise before the start byte
+        assert 'IOA=1 | <- I (92,155) ASDU=1 M_DP_NA_1 Spont   IOA=2' in lines[0]
+        assert 'M_ME_NC_1' in lines[1] and 'M_ME_TF_1' in lines[2]
+        assert '<ERR prefix 3 bytes>' in lines[3]
+
+    def test_iec104_authentication_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An authentication challenge sent in two ASDU segments (frames
+        482 and 484) is reassembled; the placeholder data is not checked.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'frame.number in {480, 482, 484}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].endswith('S_CH_NA_1 Spont   IOA=0 EOA')
+        assert lines[1].endswith('[ASDU fragment, 16 bytes]')
+        assert lines[2].endswith('S_CH_NA_1 Spont   IOA=0 EOA')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'frame.number == 484', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '[2 ASDU Segments (34 bytes): #482(16), #484(18)]' in stdout
+
+    def test_iec104_sq_and_cot(self, cmd_tshark, capture_file, test_env):
+        '''Frames 22, 24 and 26 are M_SP_NA_1 with one object, two objects
+        (SQ=0) and three objects at consecutive addresses (SQ=1).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22, 24, 26}',
+                '-Tfields', '-eframe.number', '-eiec60870_asdu.numix',
+                '-eiec60870_asdu.ioa', '-eiec60870_asdu.causetx',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t1\t1000\t2',
+            '24\t2\t1000,1010\t3',
+            '26\t3\t1000,1001,1002\t4',
+        ]
+
+    def test_iec101_iec103(self, cmd_tshark, capture_file, test_env):
+        '''IEC 101 and 103 frames (single character, fixed and variable
+        length) need Decode As for TCP 2405 and 2406; without it they are
+        TCP payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'iec60870_101 || iec60870_5_103',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('iec104_coverage.pcap.gz'),
+                '-Y', 'iec60870_101 && iec60870_asdu.typeid == 100',
+                '-Tfields', '-eframe.number', '-eiec60870_101.linkaddr',
+                '-eiec60870_asdu.addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['569\t5\t9', '576\t5\t9']
