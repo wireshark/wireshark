@@ -58464,3 +58464,111 @@ class TestDissectFmp:
         assert status == [0, 5, 12, 13, 22, 28, 79, 500, 501, 502, 503,
                           504, 505, 506, 507, 508, 509, 510, 511, 512, 600,
                           7777, 0]
+
+
+class TestDissectFmpNotify:
+    '''FMP/NOTIFY (File Mapping Protocol notifications, ONC-RPC program
+    1001912 version 2) over UDP, from the synthetic capture
+    fmp_notify_coverage.pcap.gz. It is found by the RPC UDP heuristic.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *names, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('fmp_notify_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + n for n in names),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fmp_notify_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is FMP/NOTIFY and none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fmp_notify_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 76
+        assert protocols.count('FMP/NOTIFY') == 76
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fmp_notify_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fmp_notify_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The FMP/NOTIFY fields are the same in one and two passes.'''
+        names = ('fmp_notify.notify_procedure', 'fmp_notify.status',
+                 'fmp_notify.sessHandle', 'fmp_notify.fmpFHandle',
+                 'fmp_notify.msgNum', 'fmp_notify.firstLogBlk',
+                 'fmp_notify.numBlksReq', 'fmp_notify.fileSize',
+                 'fmp_notify.cookie', 'fmp_notify.fsID',
+                 'fmp_notify.extentListLength', 'fmp_notify.numBlks',
+                 'fmp_notify.volID', 'fmp_notify.startOffset',
+                 'fmp_notify.extentState', 'fmp_notify.handleListLength',
+                 'fmp.revokeHandleListReason')
+        one = self.fields(cmd_tshark, capture_file, test_env, 'fmp_notify', *names)
+        two = self.fields(cmd_tshark, capture_file, test_env, 'fmp_notify',
+                          *names, passes=('-2',))
+        assert len(one) == 76
+        assert one == two
+
+    def test_fmp_notify_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure is dissected as call and reply.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'fmp_notify',
+                           'fmp_notify.notify_procedure')
+        procs = {}
+        for r in rows[:22]:
+            procs[int(r[1])] = procs.get(int(r[1]), 0) + 1
+        assert procs == {0: 2, 1: 2, 2: 2, 3: 2, 4: 2, 5: 10, 6: 2}
+        assert sorted(set(int(r[1]) for r in rows)) == list(range(0, 8))
+
+    def test_fmp_notify_request_done(self, cmd_tshark, capture_file, test_env):
+        '''RequestDone carries its status in the request: with an OK
+        (or other non-error) status the handles and the extent list
+        follow, an error status ends the request.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'fmp_notify.notify_procedure == 5 && frame.number < 20 && '
+                           'frame.number % 2 == 1',
+                           'fmp_notify.status', 'fmp_notify.cookie',
+                           'fmp_notify.extentListLength', 'fmp_notify.firstLogBlk',
+                           'fmp_notify.numBlks', 'fmp_notify.volID',
+                           'fmp_notify.startOffset', 'fmp_notify.extentState')
+        assert rows == [
+            ['11', '0', '0x0000005a', '3', '0,16,32', '16,16,8',
+             '1,2,3', '0,4096,8192', '0,1,2'],
+            ['13', '0', '0x0000005b', '0', '', '', '', '', ''],
+            ['15', '28', '0x0000005c', '3', '0,16,32', '16,16,8',
+             '1,2,3', '0,4096,8192', '0,1,2'],
+            ['17', '508', '', '', '', '', '', '', ''],
+            ['19', '5', '', '', '', '', '', '', ''],
+        ]
+
+    def test_fmp_notify_handle_list(self, cmd_tshark, capture_file, test_env):
+        '''revokeHandleList with each reason (and an unknown one) and 3,
+        1, 0 and 2 file handles.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'fmp_notify.notify_procedure == 7 && frame.number < 31 && '
+                           'frame.number % 2 == 1',
+                           'fmp.revokeHandleListReason',
+                           'fmp_notify.handleListLength',
+                           'fmp_notify.fmpFHandle')
+        assert rows == [
+            ['23', '0', '3', '464d5046494c4548414e444c452d3031,'
+                             '464d5046494c4548414e444c452d3032,4833'],
+            ['25', '1', '1', '464d5046494c4548414e444c452d3031'],
+            ['27', '2', '0', ''],
+            ['29', '3', '2', '464d5046494c4548414e444c452d3031,'
+                             '464d5046494c4548414e444c452d3031'],
+        ]
+
+    def test_fmp_notify_status(self, cmd_tshark, capture_file, test_env):
+        '''Replies with every status value.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number >= 31 && frame.number % 2 == 0 && fmp_notify.status',
+                           'fmp_notify.status')
+        assert [int(r[1]) for r in rows[:22]] == [
+            0, 5, 12, 13, 22, 28, 79, 500, 501, 502, 503, 504, 505, 506,
+            507, 508, 509, 510, 511, 512, 600, 7777]
