@@ -64140,3 +64140,65 @@ class TestDissectGoose:
             ['23', '0xa1', '23', '1', '0', '182', '0x81', '0x3005', '0x00', ''],
             ['24', '0xa1', '35', '4', '12', '182', '0x81', '0x3006', '', ''],
             ['25', '0xa1', '35', '5', '12', '15', '0x81', '0x3007', '', '']]
+
+
+class TestDissectGopher:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *args):
+        out = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('gopher_coverage.pcap.gz'), *args, '-Tfields',
+                *[x for f in fields for x in ('-e', f)]), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_gopher_protocols(self, cmd_tshark, capture_file, test_env):
+        '''29 of the 113 frames are Gopher (14 requests, 15 responses); none is
+        malformed or has an error expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert len(lines) == 113
+        assert lines.count('Gopher') == 29
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    *passes, '-Y', '_ws.malformed || _ws.expert.severity == "error"')
+            assert lines == []
+
+    def test_gopher_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests (directory list, selector, search) and responses (menu
+        or other data).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', '_ws.col.info'], '-Y', 'gopher')
+        assert [l.split('\t') for l in lines][:12] == [
+            ['4', 'Request: [Directory list]'], ['5', 'Response: [Directory list]'],
+            ['12', 'Request: /docs/readme.txt'], ['13', 'Response'],
+            ['20', 'Request: /search\\\\tgopher protocol'], ['21', 'Response: [Directory list]'],
+            ['28', 'Request: [Directory list]'], ['29', 'Response: [Directory list]'],
+            ['36', 'Request: /a'], ['37', 'Response'],
+            ['44', 'Request: /b'], ['45', 'Response']]
+
+    def test_gopher_menu(self, cmd_tshark, capture_file, test_env):
+        '''A menu with every item type, with host and port per item.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['gopher.directory.type', 'gopher.directory.host', 'gopher.directory.port'],
+                '-Y', 'frame.number == 5')
+        types, hosts, ports = lines[0].split('\t')
+        assert types.split(',') == ["'%s'" % t for t in '+0123456789ghiIsT']
+        assert hosts.split(',') == ['host%d.example.org' % i for i in range(17)]
+        assert ports.split(',') == [str(70 + i) for i in range(17)]
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('gopher_coverage.pcap.gz'), '-Y', 'frame.number == 29',
+                '-V', '-O', 'gopher'), encoding='utf-8', env=test_env)
+        assert "Type: Informational message ('i')" in stdout
+        assert "Type: Error ('3')" in stdout
+        assert 'Directory item: Welcome' in stdout
+
+    def test_gopher_lines_without_tab(self, cmd_tshark, capture_file, test_env):
+        '''A response whose first line has no TAB is not a menu (the result
+        of the TAB search was ignored before the fix), and neither is one
+        with an informational line without tabs. A menu stops at the first
+        line that is not an item.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                ['frame.number', 'gopher.directory.name', 'gopher.unknown'],
+                '-Y', 'frame.number == 37 || frame.number == 45 || frame.number == 53')
+        assert lines == [
+            '37\t\t0abcdefghij\\r\\n1x\\tsel\\thost.example\\t70\\r\\n',
+            '45\t\tiInformational line without tabs\\r\\n.\\r\\n',
+            '53\tok\t']
