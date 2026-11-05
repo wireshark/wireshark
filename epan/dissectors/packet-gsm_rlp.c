@@ -189,7 +189,7 @@ dissect_gsmrlp_xid(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 		proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_type, tvb, cur, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_len, tvb, cur, 1, ENC_BIG_ENDIAN);
 		if (len)
-			proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_val, tvb, cur + 1, len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(xid_tree, hf_gsmrlp_xid_p_val, tvb, cur + 1, len, ENC_NA);
 		cur += 1 + len;
 		if (type == XID_P_DELIMITER)
 			break;
@@ -304,7 +304,7 @@ proto_register_gsmrlp(void)
 	      { "XID Parameter Length", "gsm_rlp.xid.param_len", FT_UINT8, BASE_DEC,
 		NULL, 0x0f, NULL, HFILL }},
 	    { &hf_gsmrlp_xid_p_val,
-	      { "XID Parameter Value", "gsm_rlp.xid.param_value", FT_UINT8, BASE_DEC,
+	      { "XID Parameter Value", "gsm_rlp.xid.param_value", FT_BYTES, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 	};
 	static int *ett[] = {
