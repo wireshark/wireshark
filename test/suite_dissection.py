@@ -65805,3 +65805,62 @@ class TestDissectGsmBsslap:
                 '-Y', 'frame.number == 6', '-Tfields',
                 '-egsm_bsslap.cell_id_disc', '-egsm_a.bssmap.cell_ci')
         assert lines == ['0,1,2,3,1\t0x1234,0x1234,0x1234,0x1234']
+
+
+class TestDissectGsmBssmapLe:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_bssmap_le_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_gsm_bssmap_le_messages(self, cmd_tshark, capture_file, test_env):
+        '''All BSSMAP-LE messages with the elements the dissector decodes,
+        named by Exported PDUs (bssap_le with its header, and the bare
+        gsm_bssmap_le), decode without warnings or malformed packets in
+        one and two passes.'''
+        types = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_bssmap_le', '-Tfields', '-egsm_bssmap_le.msgtype')
+        assert len(types) == 52
+        assert {t: types.count(t) for t in sorted(set(types))} == {
+            '0x20': 1, '0x21': 1, '0x2a': 8, '0x2b': 8, '0x2d': 7, '0x2e': 7,
+            '0x2f': 8, '0x30': 3, '0x31': 2, '0x3a': 7}
+        protocols = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('BSSAP-LE') == 24
+        assert protocols.count('BSSAP-LE/BSSLAP') == 5
+        for passes in ((), ('-2',)):
+            assert self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number') == []
+
+    def test_gsm_bssmap_le_apdu(self, cmd_tshark, capture_file, test_env):
+        '''The APDU with protocol id 1 carries BSSLAP (TA Request and
+        Reject); the LLP and SMLCPP ids and id 0 are not decoded.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'bsslap', '-Tfields', '-eframe.number',
+                '-egsm_bssmap_le.apdu_protocol_id', '-egsm_bsslap.msg_type')
+        assert lines == ['1\t1\t1', '2\t1\t10', '23\t1\t1', '24\t1\t10',
+                         '31\t1\t1', '32\t1\t10', '36\t1\t1', '37\t1\t10',
+                         '39\t1\t1', '40\t1\t10']
+
+    def test_gsm_bssmap_le_elements(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of the LCS QoS, Multilateration Timing Advance
+        (in symbol periods), Positioning Data, LMU identity and LCS Cause.'''
+        def fields(flt, *names):
+            return self._tshark(cmd_tshark, capture_file, test_env, '-Y', flt,
+                    '-Tfields', '-eframe.number', *('-e' + n for n in names))
+        assert fields('gsm_bssmap_le.lcsQos.horizontalAccuracy',
+                'gsm_bssmap_le.lcsQos.horizontalAccuracy',
+                'gsm_bssmap_le.lcsQos.verticalAccuracy',
+                'gsm_bssmap_le.lcsQos.responseTimeCategory') == [
+            '1\t0x55\t0x2a\t0x02', '3\t0x10\t\t0x03']
+        assert fields('gsm_bssmap_le.mta', 'gsm_bssmap_le.mta')[:4] == [
+            '1\t0', '2\t954', '3\t4095', '4\t561']
+        assert fields('gsm_bssmap_le.lmu_id', 'gsm_bssmap_le.lmu_id') == ['43\t060102,060102']
+        assert fields('gsm_bssmap_le.pos_data.pos_method',
+                'gsm_bssmap_le.pos_data.pos_method',
+                'gsm_bssmap_le.pos_data.usage') == ['9\t0x03,0x0c,0x18\t0x03,0x01,0x01']
+        assert fields('gsm_bssmap_le.lcsCauseValue',
+                'gsm_bssmap_le.lcsCauseValue',
+                'gsm_bssmap_le.diagnosticValue')[:2] == ['9\t0x00\t', '10\t0x01\t0x00']
