@@ -71616,3 +71616,80 @@ class TestDissectHip:
                              'udp.port == 10500', 'frame.number',
                              'hip.packet_type', 'hip.checksum.status')
         assert lines == ['39\t1\t1', '40\t2\t1', '41\t16\t1', '42\t1\t1']
+
+
+class TestDissectHipercontracer:
+    '''HiPerConTracer over ICMP and ICMPv6 (heuristics enabled by
+    default) and over UDP and TCP (heuristics disabled by default), from
+    the synthetic capture hipercontracer_coverage.pcap.gz.'''
+
+    HEUR = ('--enable-heuristic', 'hipercontracer_udp',
+            '--enable-heuristic', 'hipercontracer_tcp')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(),
+                heur=False):
+        args = [cmd_tshark, *passes]
+        if heur:
+            args += list(TestDissectHipercontracer.HEUR)
+        args += ['-r', capture_file('hipercontracer_coverage.pcap.gz'),
+                 '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_hipercontracer_frames(self, cmd_tshark, capture_file, test_env):
+        '''By default the ICMP and ICMPv6 frames decode (1-8 and 16-18),
+        and no frame is malformed or has an error expert info, in one and
+        two passes. With the UDP and TCP heuristics frames 19, 20, 24
+        and 25 decode as well.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'hipercontracer', 'frame.number', passes=passes)
+            assert [int(n) for n in lines] == [1, 2, 3, 4, 5, 6, 7, 8, 16, 17, 18]
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'hipercontracer', 'frame.number', passes=passes,
+                                 heur=True)
+            assert [int(n) for n in lines] == [1, 2, 3, 4, 5, 6, 7, 8, 16, 17, 18,
+                                               19, 20, 24, 25]
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                 'frame.number', passes=passes, heur=True)
+            assert lines == []
+
+    def test_hipercontracer_padding_80(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8 has 80 octets with zeros after the 64th. The padding
+        check looked 16 octets too far (64 instead of 48) and rejected
+        it; see "HiPerConTracer: Fix the zero padding length check".'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 8', 'hipercontracer.magic_number',
+                             'hipercontracer.send_ttl', 'hipercontracer.round',
+                             'hipercontracer.checksum_tweak')
+        assert lines == ['0x5ca1ab1e\t6\t3\t0x3333']
+
+    def test_hipercontracer_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''A 2.x (nanosecond) and a 1.x (microsecond) time stamp.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {1, 3}', 'frame.number',
+                             'hipercontracer.send_timestamp',
+                             'hipercontracer.send_timestamp_unixts_ns')
+        assert lines == [
+            '1\t2026-05-28T20:26:40.123456789Z\t1780000000123456789',
+            '3\t2026-05-28T20:26:41.654321000Z\t1780000001654321000',
+        ]
+
+    def test_hipercontracer_rejected(self, cmd_tshark, capture_file, test_env):
+        '''TTL 0, time stamps of 1976 or after 2099, non-zero padding, a
+        short payload and a Kerberos wrap token are not HiPerConTracer.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'icmp && !hipercontracer', 'frame.number')
+        assert [int(n) for n in lines] == list(range(9, 16))
+
+    def test_hipercontracer_seq_number(self, cmd_tshark, capture_file, test_env):
+        '''ICMP has a checksum tweak, UDP and TCP a sequence number.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hipercontracer.seq_number', 'frame.number',
+                             'hipercontracer.seq_number', 'hipercontracer.send_ttl',
+                             heur=True)
+        assert lines == ['19\t7\t10', '20\t8\t10', '24\t9\t11', '25\t10\t11']
