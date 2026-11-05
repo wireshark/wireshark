@@ -343,7 +343,7 @@ static int
 dissect_flags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context, btle_context_t *context)
 {
     uint8_t flags, channel;
-    bool dir;
+    bool dir = false;
     proto_item *flags_item, *item;
     proto_tree *flags_tree;
 

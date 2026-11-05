@@ -11679,6 +11679,7 @@ dissect_s1ap_UE_HistoryInformationFromTheUE(tvbuff_t *tvb _U_, uint32_t offset _
   if (!parameter_tvb)
     return offset;
 
+  volatile uint32_t saved_offset = offset;
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_HistoryInformationFromTheUE);
     TRY {
@@ -11689,6 +11690,7 @@ dissect_s1ap_UE_HistoryInformationFromTheUE(tvbuff_t *tvb _U_, uint32_t offset _
     }
     ENDTRY;
   }
+  offset = saved_offset;
 
 
   return offset;

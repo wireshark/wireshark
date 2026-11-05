@@ -793,7 +793,7 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, pack
 	proto_item *ti;
 
 	unsigned leading_zero_bits, bit_offset, start_offset, length;
-	uint32_t codenum, mask, value, tmp;
+	uint32_t codenum, mask = 0, value = 0, tmp;
 	int32_t  se_value = 0;
 	int      b;
 	char    *str;

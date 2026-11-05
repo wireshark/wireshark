@@ -9834,7 +9834,7 @@ dissect_ReadAuditableEventsRsp_block(tvbuff_t* tvb, int offset,
     uint16_t u16NumberOfEntries;
 
     proto_item* sub_item;
-    proto_tree* sub_tree;
+    proto_tree* sub_tree = NULL;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,

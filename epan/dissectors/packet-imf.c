@@ -723,7 +723,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   unsigned end_offset = 0;
   int t_offset;
   unsigned max_length;
-  bool end_offset_found;
+  bool end_offset_found = false;
   char *key;
   bool last_field = false;
   tvbuff_t *next_tvb;

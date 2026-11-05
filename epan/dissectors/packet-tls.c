@@ -2711,8 +2711,8 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, uint32_t offse
                                SslSession *session, bool is_from_server)
 {
     unsigned record_length = offset_end - offset;
-    unsigned msg_length;
-    uint8_t msg_type;
+    unsigned msg_length = 0;
+    uint8_t msg_type = 0;
     uint16_t version;
 
     if (record_length < 16) {
