@@ -66676,3 +66676,75 @@ class TestDissectGsmRlp:
                             'gsm_l2rcop.addr', flt='gsm_l2rcop',
                             extra=('-ogsm_rlp.decode_as_l2rcop:FALSE',))
         assert rows == []
+
+
+class TestDissectGsmRUus1:
+    # Frames 1-53 are GSM A DTAP messages in GSMTAP (reached with the default
+    # preferences), frames 54-61 Q.931 over LAPD (user-user information
+    # reaches GSM-R only with gsm-r-uus1.dissect_q931_u2u:TRUE).
+    @staticmethod
+    def uus1_run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_r_uus1_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_r_uus1_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and two
+        passes, with and without the Q.931 preference.'''
+        run = TestDissectGsmRUus1.uus1_run
+        stdout = run(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 61
+        for prefs in ((), ('-o', 'gsm-r-uus1.dissect_q931_u2u:TRUE')):
+            for passes in ((), ('-2',)):
+                stdout = run(cmd_tshark, capture_file, test_env, *prefs, *passes,
+                        '-Y', '_ws.malformed || _ws.expert.severity == 0x800000',
+                        '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+        stdout = run(cmd_tshark, capture_file, test_env, '-Y', 'gsm-r-uus1', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 50    # frames 1-50 (46 and 47 only get the protocol item)
+        stdout = run(cmd_tshark, capture_file, test_env, '-o', 'gsm-r-uus1.dissect_gsm_a_u2u:FALSE',
+                '-Y', 'gsm-r-uus1', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_gsm_r_uus1_elda_bit_offset(self, cmd_tshark, capture_file, test_env):
+        '''The eLDA height, speed, heading, time, distance and scale are read
+        relative to the element ("GSM-R UUS1: Fix ELDA bit offset, heuristic
+        return and heading type"; frame 48 holds two eLDA elements, the
+        second one at offset 16, frame 49 is the all-ones heading 630).'''
+        run = TestDissectGsmRUus1.uus1_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 26 || frame.number == 48 || frame.number == 49',
+                '-Tfields', '-eframe.number', '-egsm-r-uus1.elda.height',
+                '-egsm-r-uus1.elda.speed', '-egsm-r-uus1.elda.heading',
+                '-egsm-r-uus1.elda.e_time', '-egsm-r-uus1.elda.distance',
+                '-egsm-r-uus1.elda.scale')
+        assert stdout.splitlines() == [
+            '26\t100\t50\t90\t7\t1000\t1',
+            '48\t100,200\t50,70\t90,110\t7,70\t1000,2000\t1,2',
+            '49\t8091\t630\t630\t2047\t16383\t3',
+        ]
+
+    def test_gsm_r_uus1_elements(self, cmd_tshark, capture_file, test_env):
+        '''Presentation of functional number and the CHPC elements.'''
+        run = TestDissectGsmRUus1.uus1_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 5 || frame.number == 25',
+                '-Tfields', '-eframe.number', '-egsm-r-uus1.pfn.digits',
+                '-egsm-r-uus1.chpc.t_dur', '-egsm-r-uus1.chpc.pl_call',
+                '-egsm-r-uus1.chpc.ack_cause')
+        assert stdout.splitlines() == ['1\t1234567\t\t\t', '5\t\t36000\t3\t', '25\t\t\t\t0']
+
+    def test_gsm_r_uus1_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The Q.931 user-user heuristic claims a payload only when it is
+        GSM-R (frame 60, a PFN) and not an unknown element (frame 59, which
+        stays Data; both are reproducers of the fix).'''
+        run = TestDissectGsmRUus1.uus1_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-o', 'gsm-r-uus1.dissect_q931_u2u:TRUE',
+                '-Y', 'frame.number >= 59', '-Tfields', '-eframe.number',
+                '-egsm-r-uus1.elem_tag', '-edata.len')
+        assert stdout.splitlines() == ['59\t\t4', '60\t5\t', '61\t\t']
+        # without the preference nothing in the Q.931 frames is GSM-R
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 54 && gsm-r-uus1', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
