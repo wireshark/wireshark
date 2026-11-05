@@ -65864,3 +65864,82 @@ class TestDissectGsmBssmapLe:
         assert fields('gsm_bssmap_le.lcsCauseValue',
                 'gsm_bssmap_le.lcsCauseValue',
                 'gsm_bssmap_le.diagnosticValue')[:2] == ['9\t0x00\t', '10\t0x01\t0x00']
+
+
+class TestDissectGsmCbch:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_cbch_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_cbch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is GSMTAP carrying CBCH and none is malformed or has
+        a warning or error expert info, in one and two passes.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 41
+        assert protocols.count('GSMTAP CBCH') == 36
+        assert protocols.count('GSMTAP CBCH Cell Broadcast') == 5
+        for passes in ((), ('-2',)):
+            stdout = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x00400000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_cbch_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Blocks are reassembled into a cell broadcast message in the
+        block with the last block flag, also when the blocks arrive out of
+        order or one is repeated.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-egsm_cbch.reassembled.length',
+                '-egsm_cbch.fragment.count', '-egsm_cbs.serial_number',
+                '-Y', 'gsm_cbch.fragment.count')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['4', '6', '7', '11', '13', '14', '18',
+                                        '22', '26', '30', '34', '39']
+        assert rows[0][1:3] == ['89', '4']
+        assert rows[1][1:3] == ['45', '2']
+        assert rows[2][1:3] == ['23', '1']
+        assert rows[10][1:3] == ['89', '4']
+        assert rows[11][1:3] == ['89', '5']
+        assert [r[3] for r in rows if r[3]] == ['0x1234', '0x2234',
+                '0x3234', '0x4234', '0x4234']
+
+    def test_gsm_cbch_schedule_slots(self, cmd_tshark, capture_file, test_env):
+        '''The slots of the scheduling messages: new messages, repeats,
+        free slots and the other slots up to the End Slot.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-egsm_cbch.schedule_begin',
+                '-egsm_cbch.sched_end', '-egsm_cbch.slot',
+                '-Y', 'gsm_cbch.sched_type')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert list(rows) == ['11', '13', '14', '18', '22', '26', '30']
+        assert rows['11'][0:2] == ['1', '60']
+        # 7 new slots (1-7), the other slots 3, 4, 8 and up, capped at 48
+        slots = rows['11'][2].split(',')
+        assert slots[:11] == ['1', '2', '3', '4', '5', '6', '7', '3', '4', '8', '9']
+        assert slots[-1] == '48' and len(slots) == 50
+        assert rows['13'][0:2] == ['2', '20']
+        assert rows['14'][0:2] == ['1', '40']
+        # begin slot 0 and 49 and an unknown type are ignored
+        assert rows['18'] == ['0', '5', '']
+        assert rows['22'] == ['49', '60', '']
+        assert rows['26'] == ['', '', '']
+
+    def test_gsm_cbch_end_slot_spare_bits(self, cmd_tshark, capture_file, test_env):
+        '''The spare bits of the End Slot octet (0xc5) are not part of the
+        End Slot: only slots 1-5 are listed, not 48 of them.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-egsm_cbch.sched_spare', '-egsm_cbch.sched_end',
+                '-egsm_cbch.slot', '-Y', 'frame.number == 30')
+        assert stdout.strip() == '3\t5\t1,2,3,4,5'
+
+    def test_gsm_cbch_notes(self, cmd_tshark, capture_file, test_env):
+        '''The NULL message and a reserved sequence number give notes.'''
+        stdout = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                '-Y', '_ws.expert')
+        assert stdout.splitlines() == ['40\tNULL message',
+                                       '41\tReserved Sequence Number']
