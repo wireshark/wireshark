@@ -71269,3 +71269,83 @@ class TestDissectHdfsdata:
                             'hdfsdata.last', 'hdfsdata.chunklength', 'hdfsdata.crc64')
         assert rows == [['20', '76', '0', '0', '0', '64', '1234605616436508552'],
                         ['21', '44', '64', '1', '1', '32', '1234605616436508552']]
+
+
+class TestDissectHdmi:
+    '''HDMI DDC traffic (EDID reads and HDCP register access) carried in
+    I2C messages, pcap link type 209, from the synthetic capture
+    hdmi_coverage.pcap.gz. HDMI is reached through Decode As of the I2C
+    message table. The EDID blocks and HDCP values are made up.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-d', 'i2c.message,hdmi',
+                '-r', capture_file('hdmi_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hdmi_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-12 are HDMI (4 of them continue as HDCP); frames 13-15
+        have other I2C addresses and are not decoded as HDMI. No malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdmi')
+        assert [r[0] for r in rows] == [str(n) for n in range(1, 13)]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdmi && hdcp')
+        assert [r[0] for r in rows] == ['9', '10', '11', '12']
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hdmi_edid_request(self, cmd_tshark, capture_file, test_env):
+        '''EDID requests with their offsets, and the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdmi.edid.offset', 'hdmi.addr', 'hdmi.edid.offset', '_ws.col.info')
+        assert rows == [['1', '0xa0', '0x00', 'EDID request'],
+                        ['3', '0xa0', '0x80', 'EDID request'],
+                        ['6', '0xa0', '0xff', 'EDID request']]
+
+    def test_hdmi_edid(self, cmd_tshark, capture_file, test_env):
+        '''EDID header fields: manufacturer id, product code, serial
+        number, week, year (a week of 255 selects the model year) and
+        version. Frame 5 does not start with the EDID header and is not
+        decoded further.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdmi.edid.hdr', 'hdmi.edid.manf_id', 'hdmi.edid.manf_prod_code',
+                            'hdmi.edid.serial_num', 'hdmi.edid.manf_week',
+                            'hdmi.edid.manf_year', 'hdmi.edid.model_year',
+                            'hdmi.edid.version')
+        assert rows == [
+            ['2', 'ZZX', '0x1234', '66051', '10', '20', '', '259'],
+            ['4', 'ABC', '0xbeef', '3735928559', '255', '', '25', '260'],
+            ['7', 'QRS', '0x0000', '0', '1', '0', '', '512'],
+            ['8', 'AAA', '0x0001', '1', '52', '36', '', '259']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 5 && !hdmi.edid.hdr', '_ws.col.info')
+        assert rows == [['5', '']]
+
+    def test_hdmi_edid_text(self, cmd_tshark, capture_file, test_env):
+        '''The year is shown with the offset from 1990 and the version as major.minor.'''
+        stdout = subprocess.check_output((cmd_tshark, '-d', 'i2c.message,hdmi',
+                '-r', capture_file('hdmi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 4}', '-V'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'Year of manufacture: 20 (year 2010)' in stdout
+        assert 'Model year: 25 (year 2015)' in stdout
+        assert 'EDID Version: 1.03' in stdout
+        assert 'EDID Version: 1.04' in stdout
+
+    def test_hdmi_hdcp(self, cmd_tshark, capture_file, test_env):
+        '''HDCP data on the addresses 0x74 and 0x75 is passed to HDCP; the
+        direction is taken from the address.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp', 'hdmi.addr', '_ws.col.info', '_ws.col.def_src')
+        assert rows == [
+            ['9', '0x74', 'request B_ksv', 'Transmitter'],
+            ['10', '0x75', 'send B_ksv', 'Receiver'],
+            ['11', '0x74', 'request B_caps', 'Transmitter'],
+            ['12', '0x75', 'send B_caps', 'Receiver']]
