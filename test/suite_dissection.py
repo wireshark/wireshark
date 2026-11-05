@@ -68575,3 +68575,52 @@ class TestDissectPfcpSession:
                     for cols in (row.split() for row in stdout.splitlines())
                     if cols and cols[0].isdigit()]
             assert rows == [['001010000000003', '1', '3']]
+
+
+class TestDissectH235:
+    '''H.235 security messages from the synthetic capture
+    h235_coverage.pcap.gz (93 frames).  ClearTokens, CryptoH323Tokens and
+    integrity check values in H.225.0 RAS (frames 1-37, UDP 1719) and call
+    signalling (38-53, Q.931 in TPKT on TCP 1720); the H.245 connection
+    announced by a Connect (54-93) carries H.235 security capabilities
+    with MIKEY (H.235.7) and an SRTP crypto capability (H.235.8).  Octet
+    and bit strings are constant placeholders; nothing is real key
+    material.'''
+
+    @staticmethod
+    def h235_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h235_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h235_protocols(self, cmd_tshark, capture_file, test_env):
+        '''93 frames; none is malformed or has an error expert info, in one
+        and two passes.'''
+        rows = self.h235_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 93
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.225.0') == 51
+        assert protocols.count('H.245') == 30
+        assert protocols.count('H.245/MIKEY') == 6
+        for passes in ((), ('-2',)):
+            rows = self.h235_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h235_tokens(self, cmd_tshark, capture_file, test_env):
+        '''ClearTokens in RAS and call signalling are dissected by H.235.'''
+        rows = self.h235_fields(cmd_tshark, capture_file, test_env, 'h235.tokenOID', filt='h235.tokenOID')
+        assert len(rows) >= 30
+        assert all(int(r[0]) <= 53 for r in rows)
+        rows = self.h235_fields(cmd_tshark, capture_file, test_env, 'h235.generalID', filt='h235.generalID')
+        assert len(rows) >= 20
+
+    def test_h235_mikey(self, cmd_tshark, capture_file, test_env):
+        '''MIKEY in a generic H.235 security capability (OID 0.0.8.235.0.3.x,
+        parameter 0) goes to the MIKEY dissector.'''
+        rows = self.h235_fields(cmd_tshark, capture_file, test_env, 'mikey.type', filt='mikey')
+        assert [r[0] for r in rows] == ['62', '63', '64', '66', '68', '70']
+        assert all(r[1] == '0' for r in rows)
