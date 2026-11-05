@@ -77307,3 +77307,86 @@ class TestDissectIeee8021cb:
             '9\t' + '5a' * 100,
             '10\t' + 'a5' * 6,
         ]
+
+
+class TestDissectIeee8023:
+    '''The 802.3 payload dissection (length field instead of an ethertype)
+    done by eth, 802.1Q, VNTAG and the Gigamon header, from the synthetic
+    capture ieee8023_coverage.pcapng.gz.'''
+
+    CCSDS_PREFS = ('-o', 'eth.ccsds_heuristic_length:TRUE',
+                   '-o', 'eth.ccsds_heuristic_version:TRUE',
+                   '-o', 'eth.ccsds_heuristic_header:TRUE',
+                   '-o', 'eth.ccsds_heuristic_bit:TRUE')
+
+    def test_ieee8023_protocols(self, cmd_tshark, capture_file, test_env):
+        '''19 frames; LLC / IPX payloads below eth, vlan, vntag and gmhdr,
+        no malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 19
+        assert sum(1 for p in protocols if ':ipx' in p) == 6
+        assert sum(1 for p in protocols if ':llc:stp' in p) == 5
+        assert sum(1 for p in protocols if 'vlan' in p) == 3
+        assert sum(1 for p in protocols if 'vntag' in p) == 3
+        assert sum(1 for p in protocols if 'gmhdr' in p) == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            # -V: a full tree, so items that are not referenced still throw
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_ieee8023_trailers(self, cmd_tshark, capture_file, test_env):
+        '''The octets after the length (padding and trailers) are shown
+        by the layer that carries the length field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                '-Y', 'eth.trailer || vlan.trailer || vntag.trailer || gmhdr.trailer',
+                '-Tfields', '-eframe.number', '-eeth.trailer', '-evlan.trailer',
+                '-evntag.trailer', '-egmhdr.trailer',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\tc3c3c3c3c3c3\t\t\t',
+            '7\t\t00000000\t\t',
+            '8\t\t999999999999\t\t',
+            '10\t\t\t0000\t',
+            '12\t\t\t010203\t',
+            '13\t\t\t\t0000000000',
+            '15\t\t\t\t55555555',
+        ]
+
+    def test_ieee8023_fcs_interface(self, cmd_tshark, capture_file, test_env):
+        '''Frames 16 and 17 arrive on an interface with a 4 octet FCS: the
+        length field covers the payload only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                '-Y', 'frame.interface_id == 1',
+                '-Tfields', '-eframe.number', '-eeth.len', '-eeth.fcs',
+                '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t38\t0x00000000\tSTP',
+            '17\t33\t0xdeadbeef\tIPX',
+        ]
+
+    def test_ieee8023_ccsds(self, cmd_tshark, capture_file, test_env):
+        '''Frames 18 and 19 are LLC with the defaults and CCSDS Space
+        Packets with the eth CCSDS heuristics enabled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 18', '-Tfields', '-eframe.number',
+                '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['18\teth:llc:data', '19\teth:llc:data']
+        stdout = subprocess.check_output((cmd_tshark, *self.CCSDS_PREFS,
+                '-r', capture_file('ieee8023_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 18', '-Tfields', '-eframe.number',
+                '-eframe.protocols', '-eccsds.apid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['18\teth:ccsds\t291', '19\teth:ccsds\t291']
