@@ -73737,3 +73737,29 @@ class TestDissectHttp2Coverage:
         out = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 7', '-Tfields', '-e_ws.expert.message')
         assert out == ['Wireshark must be built with nghttp2 for HTTP/2 HEADERS support']
+
+
+class TestDissectHttp3Coverage:
+    '''HTTP/3 is only reached from QUIC after the ALPN "h3" has been seen
+    in a decrypted handshake, so no synthetic capture can reach it
+    without QUIC keys or ciphertext. These tests only check that the
+    dissector is registered with its main fields.'''
+
+    def test_http3_registered(self, cmd_tshark, test_env):
+        '''HTTP3 is a registered protocol with its frame, stream and
+        settings fields.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env, timeout=120)
+        names = {line.split('\t')[2] for line in stdout.splitlines()
+                 if line.startswith('F\t') and len(line.split('\t')) > 2}
+        for name in ('http3.frame_type', 'http3.frame_length',
+                     'http3.settings.id', 'http3.settings.value'):
+            assert name in names
+
+    def test_http3_not_decoded_without_quic(self, cmd_tshark, capture_file, test_env):
+        '''A UDP/TCP capture with other traffic has no HTTP3 layer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('http2-data-reassembly.pcap'),
+                '-Y', 'http3',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == ''
