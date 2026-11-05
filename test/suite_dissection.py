@@ -66824,3 +66824,106 @@ class TestDissectGsmSim:
                 '-Y', 'frame.number == 129 || frame.number == 130',
                 '-Tfields', '-eframe.number', '-egsm_sim.fcp.len', '-egsm_sim.fcp.file_id')
         assert stdout.splitlines() == ['129\t2,2\t0x3f00', '130\t2,2\t0x3f00']
+
+
+class TestDissectGsmSms:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_sms_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_sms_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SMS TPDUs in RP-DATA, RP-ACK and RP-ERROR in CP-DATA in LAPDm in
+        GSMTAP, and in SIP MESSAGEs; nothing is malformed and there is no
+        warning, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 216
+        assert protocols.count('GSM SMS') == 211
+        assert protocols.count('LAPDm') == 3
+        assert protocols.count('WSP') == 2
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x00400000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_sms_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Deliver, submit, status report, command and the reports.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.tp-mti', '-Tfields', '-egsm_sms.tp-mti')
+        mti = stdout.split()
+        assert (mti.count('0'), mti.count('1'), mti.count('2')) == (23, 157, 31)
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.dis_field.st_error', '-Tfields',
+                '-egsm_sms.dis_field.st_error')
+        assert stdout.split() == (['0'] * 4 + ['1'] * 4 + ['2'] * 4 + ['3'] * 4 + ['0'] * 7)
+
+    def test_gsm_sms_validity_period(self, cmd_tshark, capture_file, test_env):
+        '''Relative validity periods of every range and the enhanced
+        formats.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.vp.validity_period', '-Tfields', '-eframe.number',
+                '-egsm_sms.vp.validity_period', '-egsm_sms.sms_text',
+                '-egsm_sms.tp.user_data_length')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1] for r in rows[:9]] == ['0', '11', '143', '144', '167', '168', '196', '197', '255']
+        assert rows[9][1:] == ['167', 'VPE relative', '12']
+        assert rows[10][1:] == ['30', 'VPE seconds', '11']
+
+    def test_gsm_sms_enhanced_vp_relative(self, cmd_tshark, capture_file, test_env):
+        '''An enhanced validity period with the relative format is 7 octets
+        long, so the user data that follows is decoded correctly (fixed in
+        "GSM SMS: Fix enhanced validity period length and small errors").'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 18', '-Tfields', '-egsm_sms.tp-vpf',
+                '-egsm_sms.tp.user_data_length', '-egsm_sms.sms_text')
+        assert stdout.strip() == '1\t12\tVPE relative'
+
+    def test_gsm_sms_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Concatenated messages in 7 bit, UCS2 and 8 bit coding, in both
+        directions, out of order, with a repeated part, and in SIP.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.reassembled.length', '-Tfields', '-eframe.number',
+                '-egsm_sms.reassembled.length', '-egsm_sms.fragment.count',
+                '-egsm_sms.sms_text')
+        assert stdout.splitlines() == [
+            '137\t32\t3\tFirst part, ,second part, ,last part.',
+            '139\t24\t2\tPart A,Part B',
+            '141\t13\t2\t',
+            '143\t11\t2\tfirst,second',
+            '146\t6\t3\tone,two',
+            '157\t36\t3\tDeliver one, ,deliver two, ,deliver three',
+            '159\t20\t2\tDele ,Delf ',
+            '215\t15\t2\tIMS one, ,IMS two',
+        ]
+        # the reassembled 8 bit message is dissected as WSP
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'wsp', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['133', '141']
+
+    def test_gsm_sms_udh(self, cmd_tshark, capture_file, test_env):
+        '''The information elements of the user data header.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.ie_identifier', '-Tfields', '-egsm_sms.ie_identifier')
+        ids = [i for l in stdout.split() for i in l.split(',')]
+        assert sorted(set(ids)) == [
+            '0x00', '0x01', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09',
+            '0x0a', '0x0b', '0x0c', '0x0d', '0x0e', '0x0f', '0x10', '0x11',
+            '0x12', '0x13', '0x14', '0x17', '0x1a', '0x1f', '0x20', '0x21',
+            '0x22', '0x23', '0x24', '0x25', '0x70', '0xc0']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.dis_field_udh.gsm.fill_bits', '-Tfields',
+                '-eframe.number')
+        assert len(stdout.split()) >= 6
+
+    def test_gsm_sms_scts_timezone(self, cmd_tshark, capture_file, test_env):
+        '''The time zone octet of the service centre time stamp (sign in
+        bit 3).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_sms.scts.timezone && gsm_sms.tp-oa', '-Tfields',
+                '-egsm_sms.tp-oa', '-egsm_sms.scts.timezone')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert {r[1] for r in rows} == {'8', '41', '10'}
