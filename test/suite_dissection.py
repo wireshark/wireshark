@@ -69534,3 +69534,161 @@ class TestDissectH264:
         rows = self.h264_fields(cmd_tshark, capture_file, test_env, 'h264.nal_unit_type',
                                 filt='h264.nal_unit_type && frame.number >= 98')
         assert [r[1] for r in rows] == ['7,8,6,9,5', '7,8'] + [str(t) for t in range(20)] + ['28', '31', '5,1', '7,7,7,8']
+
+
+class TestDissectH265:
+    '''H.265 (HEVC) from the synthetic capture h265_coverage.pcapng.gz:
+    SIP/SDP with sprop-vps/-sps/-pps (frames 1-3) and the RTP stream they
+    announce (frames 4-62), then Exported PDU "h265" frames with VPS, SPS
+    and PPS variants (63-107) and "h265_bytestream" (108-110).'''
+
+    @staticmethod
+    def h265_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h265_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def h265_tree(cmd_tshark, capture_file, test_env, passes=()):
+        return subprocess.check_output(
+            [cmd_tshark, *passes, '-r', capture_file('h265_coverage.pcapng.gz'), '-V'],
+            encoding='utf-8', env=test_env, timeout=120)
+
+    def test_h265_protocols(self, cmd_tshark, capture_file, test_env):
+        '''110 frames: 107 H.265 (RTP and Exported PDU) and 3 SIP/SDP.
+        None is malformed or has an error expert info, in one and two
+        passes (checked on the full tree: the EOS/EOB dissection only fails
+        when the tree is built).'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 110
+        protocols = [r[1] for r in rows]
+        assert {p: protocols.count(p) for p in set(protocols)} == {'H.265': 107, 'SIP/SDP': 3}
+        for passes in ((), ('-2',)):
+            text = self.h265_tree(cmd_tshark, capture_file, test_env, passes)
+            assert 'Malformed Packet' not in text
+            assert 'Severity level: Error' not in text
+
+    def test_h265_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The slice segment header depends on the last SPS and PPS; every
+        SPS and PPS of the capture has the same picture size, CTB size,
+        dependent slice setting and number of extra slice header bits, so
+        one and two passes give the same tree.'''
+        assert (self.h265_tree(cmd_tshark, capture_file, test_env) ==
+                self.h265_tree(cmd_tshark, capture_file, test_env, ('-2',)))
+
+    def test_h265_sdp_sprop(self, cmd_tshark, capture_file, test_env):
+        '''sprop-vps, sprop-sps and sprop-pps of the SDP are dissected;
+        a SEI NAL in sprop-pps is "unspecified media format specific
+        parameter" (frame 3).'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.type', 'h265.general_profile_idc',
+                                'h265.pic_width_in_luma_samples', 'h265.chroma_format_idc', filt='sdp')
+        assert rows == [['1', '', '1,1', '1280', '1'],
+                        ['2', '', '1,5', '1280', '3'],
+                        ['3', '', '1', '', '']]
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='frame.number <= 3 && _ws.expert')
+        assert rows == [['3', '[Unspecified media format specific parameter]']]
+
+    def test_h265_rtp_nal_types(self, cmd_tshark, capture_file, test_env):
+        '''NAL unit types of the RTP packets: parameter sets, AUD, SEI,
+        slices, EOS/EOB/filler, FU (the fragment type, also for the
+        start+end FUs that carry a whole SPS, PPS, VPS and SEI), AP, PACI
+        and the reserved types.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.type', filt='frame.number in {4..62}')
+        types = [r[1] for r in rows]
+        assert types == ['35', '32', '33', '34', '39', '39', '40', '19', '20', '1', '1', '36', '37', '38',
+                         '49', '49', '49', '49', '49', '49', '49', '49', '49', '49', '49', '48', '50',
+                         '22', '24', '31', '41', '47', '51', '63', '10', '11', '12', '13', '14', '15',
+                         '1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '16', '17', '18', '21',
+                         '22', '23', '35', '35']
+        # type of the fragmented NAL unit in the FU header (frames 18-22)
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.nal_unit_type',
+                                filt='frame.number in {18..22}')
+        assert [r[1] for r in rows] == ['19', '19', '19', '1', '0']
+
+    def test_h265_sei(self, cmd_tshark, capture_file, test_env):
+        '''SEI payload type and size, also the ones that need several 0xff
+        bytes (payload type 300, size 270).'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.payloadtype', 'h265.payloadsize',
+                                filt='frame.number in {8, 9, 10}')
+        assert rows == [['8', '5,1', '20,3'], ['9', '300,255', '270,0'], ['10', '3', '2']]
+
+    def test_h265_slice_header(self, cmd_tshark, capture_file, test_env):
+        '''slice_segment_address (8 bits for the 1280x720 picture with 64x64
+        CTBs) of the independent (51) and dependent (128) slice segments,
+        and the slice type.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.slice_segment_address', 'h265.slice_type',
+                                filt='frame.number in {11, 12, 13, 14}')
+        assert rows == [['11', '', '2'], ['12', '51', '2'], ['13', '128', ''], ['14', '', '1']]
+
+    def test_h265_hrd_layer_set_idx(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "H.265: Fix palette initializer and bit width
+        handling": hrd_layer_set_idx (ue(v)) was registered as FT_UINT8 and
+        asserted.  The 32 bit vps_time_scale and vps_num_units_in_tick
+        were added with a length of 1 bit.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.hrd_layer_set_idx',
+                                'h265.vps_num_units_in_tick', 'h265.vps_time_scale',
+                                filt='frame.number in {66, 67, 68}')
+        assert rows == [['66', '0,3,15,15', '1001', '60000'],
+                        ['67', '0', '1001', '60000'],
+                        ['68', '0,300', '1', '25']]
+
+    def test_h265_palette_initializers(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of the palette predictor initializer fixes: the SPS
+        initializers were added with (1 << BitDepth) - 1 bits (255 for 8 bit
+        video, a dissector bug), the PPS count was decoded as se(v).'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.sps_palette_predictor_initializer',
+                                filt='frame.number in {88, 89}')
+        assert rows == [['88', '1,2,3,1,2,3,1,2,3'], ['89', '100,200']]
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.pps_num_palette_predictor_initializers',
+                                'h265.pps_palette_predictor_initializer', 'h265.monochrome_palette_flag',
+                                filt='frame.number in {101, 102, 103, 106, 107}')
+        assert rows == [['101', '4', '10,20,30,40,10,20,30,40,10,20,30,40', '0'],
+                        ['102', '2', '7,8', '1'],
+                        ['103', '0', '', ''],
+                        ['106', '1', '1,1,1', '0'],
+                        ['107', '1', '200,200,200', '0']]
+
+    def test_h265_long_term_refs(self, cmd_tshark, capture_file, test_env):
+        '''lt_ref_pic_poc_lsb_sps is log2_max_pic_order_cnt_lsb_minus4 + 4
+        bits wide: 8 bits in frame 80, 16 bits in frame 81 (12 is the
+        largest accepted value).'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.log2_max_pic_order_cnt_lsb_minus4',
+                                'h265.lt_ref_pic_poc_lsb_sps', 'h265.num_short_term_ref_pic_sets',
+                                filt='frame.number in {80, 81}')
+        assert rows == [['80', '4', '10,5', '3'], ['81', '12', '4660', '1']]
+
+    def test_h265_sps_values(self, cmd_tshark, capture_file, test_env):
+        '''Chroma format, bit depth, conformance window and VUI.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.chroma_format_idc',
+                                'h265.bit_depth_luma_minus8', 'h265.conf_win_right_offset',
+                                'h265.sar_width', 'h265.vui_time_scale',
+                                filt='frame.number in {79, 82, 89, 93}')
+        assert rows == [['79', '0', '2', '2', '', ''],
+                        ['82', '2', '0', '', '4', '60000'],
+                        ['89', '0', '4', '', '', ''],
+                        ['93', '3', '8', '1048576', '', '']]
+
+    def test_h265_pps_tiles(self, cmd_tshark, capture_file, test_env):
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.num_tile_columns_minus1',
+                                'h265.column_width_minus1', 'h265.row_height_minus1',
+                                filt='frame.number in {95, 96}')
+        assert rows == [['95', '3', '', ''], ['96', '2', '5,6', '3,4']]
+
+    def test_h265_undecoded_extensions(self, cmd_tshark, capture_file, test_env):
+        '''The multilayer and 3D extensions are "not decoded yet" (one
+        expert info each), as are AP and PACI payloads (no expert) and
+        EOS/EOB/filler data.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='_ws.expert && h265')
+        frames = [r[1:] and r[0] for r in rows]
+        assert frames == ['15', '16', '17', '87', '92', '100', '106', '109']
+
+    def test_h265_bytestream(self, cmd_tshark, capture_file, test_env):
+        '''Annex B byte streams: 3 and 4 byte start codes, leading zero
+        bytes.'''
+        rows = self.h265_fields(cmd_tshark, capture_file, test_env, 'h265.type', filt='frame.number >= 108')
+        assert rows == [['108', '32,33,34,35,19'], ['109', '1,1,36'], ['110', '40']]
