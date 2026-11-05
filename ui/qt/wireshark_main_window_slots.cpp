@@ -2551,6 +2551,9 @@ void WiresharkMainWindow::connectViewMenuActions()
         }
     });
 
+    connect(main_ui_->actionViewAppearanceMode, &QAction::triggered, this,
+            [this]() { cycleAppearanceMode(); });
+
     connect(main_ui_->actionViewTimeDisplaySecondsWithHoursAndMinutes, &QAction::triggered, this,
             [this](bool checked) { setTimeDisplaySecondsWithHoursAndMinutes(checked); });
 

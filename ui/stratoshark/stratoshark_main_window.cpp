@@ -76,6 +76,7 @@ DIAG_ON(frame-larger-than=)
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/themed_icon.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/workspace_state.h>
 #include <ui/qt/utils/software_update.h>
@@ -430,6 +431,18 @@ StratosharkMainWindow::StratosharkMainWindow(QWidget *parent) :
     connect(file_set_dialog_, &FileSetDialog::fileSetOpenCaptureFile, this, [=](QString cf_path) { openCaptureFile(cf_path); });
 
     initMainToolbarIcons();
+
+    // Here rather than in initMainToolbarIcons(), which runs again on every
+    // palette change and would add another spacer each time.
+    QWidget *appearance_spacer = new QWidget(main_ui_->mainToolBar);
+    appearance_spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    appearance_mode_spacer_ = main_ui_->mainToolBar->addWidget(appearance_spacer);
+    main_ui_->mainToolBar->addAction(main_ui_->actionViewAppearanceMode);
+    connect(ThemeManager::instance(), &ThemeManager::themeChanged,
+            this, &StratosharkMainWindow::updateAppearanceModeAction);
+    connect(mainApp, &MainApplication::preferencesChanged,
+            this, &StratosharkMainWindow::updateAppearanceModeButton);
+    updateAppearanceModeButton();
 
     main_ui_->displayFilterToolBar->insertWidget(main_ui_->actionNewDisplayFilterExpression, df_combo_box_);
 
@@ -2082,6 +2095,59 @@ void StratosharkMainWindow::initMainToolbarIcons()
     // main_ui_->actionViewRedissect->setIcon(ContrastAdaptIcon("file-reload"));
 
     main_ui_->actionNewDisplayFilterExpression->setIcon(ThemedIcon("list-add"));
+
+    updateAppearanceModeAction();
+}
+
+void StratosharkMainWindow::cycleAppearanceMode()
+{
+    ThemeManager::ThemeMode next;
+    switch (ThemeManager::instance()->mode()) {
+    case ThemeManager::ThemeMode::System:
+        recent.gui_color_scheme = COLOR_SCHEME_LIGHT;
+        next = ThemeManager::ThemeMode::Light;
+        break;
+    case ThemeManager::ThemeMode::Light:
+        recent.gui_color_scheme = COLOR_SCHEME_DARK;
+        next = ThemeManager::ThemeMode::Dark;
+        break;
+    case ThemeManager::ThemeMode::Dark:
+    default:
+        recent.gui_color_scheme = COLOR_SCHEME_DEFAULT;
+        next = ThemeManager::ThemeMode::System;
+        break;
+    }
+    write_recent();
+    ThemeManager::instance()->setMode(next);
+}
+
+void StratosharkMainWindow::updateAppearanceModeAction()
+{
+    QString icon_name;
+    QString tool_tip;
+    switch (ThemeManager::instance()->mode()) {
+    case ThemeManager::ThemeMode::Light:
+        icon_name = QStringLiteral("appearance-light");
+        tool_tip = tr("Appearance mode: Light. Click to switch to Dark.");
+        break;
+    case ThemeManager::ThemeMode::Dark:
+        icon_name = QStringLiteral("appearance-dark");
+        tool_tip = tr("Appearance mode: Dark. Click to switch to System.");
+        break;
+    case ThemeManager::ThemeMode::System:
+    default:
+        icon_name = QStringLiteral("appearance-system");
+        tool_tip = tr("Appearance mode: System. Click to switch to Light.");
+        break;
+    }
+    main_ui_->actionViewAppearanceMode->setIcon(ThemedIcon(icon_name));
+    main_ui_->actionViewAppearanceMode->setToolTip(tool_tip);
+}
+
+void StratosharkMainWindow::updateAppearanceModeButton()
+{
+    appearance_mode_spacer_->setVisible(prefs.gui_appearance_mode_toolbar_button);
+    main_ui_->actionViewAppearanceMode->setVisible(prefs.gui_appearance_mode_toolbar_button);
 }
 
 void StratosharkMainWindow::initShowHideMainWidgets()

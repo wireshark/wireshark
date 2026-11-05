@@ -59,6 +59,9 @@ The following snippet shows examples of each element:
 If you add, modify, or remove an icon please update this list to match.
 
 [unstyled]
+* appearance-dark.svg: {raw-assets-url-prefix}Weather%20Moon/SVG/ic_fluent_weather_moon_24_regular.svg[Weather Moon]
+* appearance-light.svg: {raw-assets-url-prefix}Weather%20Sunny/SVG/ic_fluent_weather_sunny_24_regular.svg[Weather Sunny]
+* appearance-system.svg: {raw-assets-url-prefix}Desktop/SVG/ic_fluent_desktop_24_regular.svg[Desktop]
 * bookmark-capture.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]
 * bookmark-display.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]
 * bookmark-match.svg: Modified {raw-assets-url-prefix}Bookmark/SVG/ic_fluent_bookmark_24_filled.svg[Bookmark]

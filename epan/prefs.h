@@ -288,6 +288,8 @@ typedef struct _e_prefs {
 
     bool          gui_packet_details_show_byteview; /**< If true, show the byte view panel alongside packet details */
 
+    bool          gui_appearance_mode_toolbar_button; /**< If true, show the appearance mode button in the main toolbar */
+
     /* Capture device settings */
     char         *capture_device;               /**< Name of the default capture interface */
     char         *capture_devices_linktypes;    /**< Per-interface link-type selections (name:linktype pairs) */

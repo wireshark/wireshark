@@ -246,6 +246,7 @@ private:
     QWidget                   *previous_focus_;    /**< Widget that held focus before an overlay or dialog was shown. */
     FileSetDialog             *file_set_dialog_;   /**< Modeless file-set management dialog. */
     QActionGroup              *show_hide_actions_; /**< Action group for show/hide main-widget toggle actions. */
+    QAction                   *appearance_mode_spacer_ = nullptr; /**< Toolbar action of the spacer before the appearance mode button. */
     QActionGroup              *time_display_actions_;   /**< Action group for timestamp display format actions. */
     QActionGroup              *time_precision_actions_;  /**< Action group for timestamp precision actions. */
     FunnelStatistics          *funnel_statistics_;  /**< Lua funnel statistics manager. */
@@ -341,6 +342,18 @@ private:
 
     /** @brief Sizes the main toolbar icons for the current zoom level. */
     void updateMainToolbarIconSize();
+
+    /**
+     * @brief Switches to the next appearance mode (System, Light, Dark)
+     * and saves it in recent_common.
+     */
+    void cycleAppearanceMode();
+
+    /** @brief Sets the appearance mode action's icon and tooltip for the current mode. */
+    void updateAppearanceModeAction();
+
+    /** @brief Shows or hides the appearance mode button as set by gui.appearance_mode_toolbar_button. */
+    void updateAppearanceModeButton();
 
     /** @brief Connects show/hide actions for main UI panels (packet list, tree, bytes). */
     void initShowHideMainWidgets();

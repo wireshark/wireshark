@@ -3726,6 +3726,11 @@ prefs_register_modules(void)
         "Show the byte view in the packet details dialog",
         &prefs.gui_packet_details_show_byteview);
 
+    prefs_register_bool_preference(gui_module, "appearance_mode_toolbar_button",
+        "Show the appearance mode button in the main toolbar",
+        "Show a button at the right end of the main toolbar that switches the appearance mode between System, Light and Dark",
+        &prefs.gui_appearance_mode_toolbar_button);
+
     /* Console
      * These are preferences that can be read/written using the
      * preference module API.  These preferences still use their own
@@ -4374,6 +4379,8 @@ prefs_set_global_defaults(wmem_allocator_t* pref_scope, const char** col_fmt, in
     /* set the default values for the packet dialog */
     prefs.gui_packet_dialog_layout   = layout_vertical;
     prefs.gui_packet_details_show_byteview = true;
+
+    prefs.gui_appearance_mode_toolbar_button = false;
 }
 
 /*
