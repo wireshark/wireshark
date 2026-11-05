@@ -60331,3 +60331,222 @@ class TestDissectFtdiMpsse:
         rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {445, 447, 453, 457}',
                          'frame.number', 'ftdi-ft.reassembled.in')
         assert rows == [['445', '447'], ['447', ''], ['453', '457'], ['457', '']]
+
+
+class TestDissectFtp:
+    '''FTP (TCP 21) and FTP-DATA (PASV, PORT, EPSV and EPRT data
+    connections, TCP 20) from the synthetic capture ftp_coverage.pcap.gz.
+    Frames 1-334 decode cleanly. Frames 335 on (the last session) carry
+    invalid EPRT and EPSV arguments, whose expert infos are in the
+    Malformed group.'''
+
+    CLEAN = 'frame.number <= 334'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ftp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def rows(self, cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', filt,
+                            '-Tfields', *('-e' + f for f in fields), passes=passes)
+        return [l.split('\t') for l in lines]
+
+    def test_ftp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-334: 224 FTP, 29 FTP-DATA, 2 TLS and 79 TCP frames, no
+        malformed packets or error expert infos in one and two passes, and
+        the same Info column in both.'''
+        cols = []
+        for passes in ((), ('-2',)):
+            protos = self.rows(cmd_tshark, capture_file, test_env, self.CLEAN,
+                               '_ws.col.protocol', passes=passes)
+            counts = {}
+            for p in protos:
+                counts[p[0]] = counts.get(p[0], 0) + 1
+            assert counts == {'FTP': 224, 'FTP-DATA': 29, 'TCP': 79, 'TLSv1.2': 2}
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            self.CLEAN + ' && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                            'frame.number', passes=passes)
+            assert bad == []
+            cols.append(self.rows(cmd_tshark, capture_file, test_env, self.CLEAN + ' && (ftp || ftp-data)',
+                                  'frame.number', '_ws.col.info', passes=passes))
+        assert cols[0] == cols[1]
+
+    def test_ftp_eprt_expert_offset(self, cmd_tshark, capture_file, test_env):
+        '''Invalid EPRT and EPSV arguments give an expert info on the
+        argument and the frame is not malformed. The expert item used to
+        start at "offset - linelen - 1", which wrapped around and threw an
+        exception ("FTP: Bound the working directory and fix several
+        smaller problems"). Frame 335 is the EPRT reproducer, frame 360 the
+        EPSV one (followed by a continuation line).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {335, 360}',
+                         'frame.number', 'frame.protocols', '_ws.col.info', '_ws.expert.message',
+                         passes=('-2',))
+        assert rows[0] == ['335', 'eth:ethertype:ip:tcp:ftp', 'Request: EPRT |9|192.0.2.9|2000|',
+                           'EPRT arguments must have the form: |<family>|<addr>|<port>|']
+        assert rows[1] == ['360', 'eth:ethertype:ip:tcp:ftp',
+                           'Response: 229 Entering Extended Passive Mode (|||abc)',
+                           'EPSV arguments must have the form (|||<port>|)']
+        # the 17 invalid EPRT and EPSV lines of the last session
+        bad = self.rows(cmd_tshark, capture_file, test_env, '_ws.expert.message contains "must have the form"',
+                        'frame.number', passes=('-2',))
+        assert len(bad) == 17
+
+    def test_ftp_working_directory(self, cmd_tshark, capture_file, test_env):
+        '''The working directory follows CWD, CDUP and PWD; ".", ".." and
+        repeated slashes are normalised and a failed CWD changes nothing.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'ftp.response.code in {250, 257} && frame.number <= 56',
+                         'frame.number', 'ftp.current-working-directory')
+        cwd = {int(r[0]): r[1] for r in rows}
+        assert cwd[18] == '/'                # after PWD
+        assert cwd[22] == '/pub'
+        assert cwd[24] == '/pub/docs/v1'     # CWD ./docs//v1/
+        assert cwd[26] == '/pub/docs/v1/sub'
+        assert cwd[28] == '/pub/docs/v1'     # CWD ..
+        assert cwd[30] == '/pub/docs'        # CDUP
+        assert cwd[32] == '/pub/docs'        # CWD .
+        assert cwd[34] == '/'                # CWD ../../../..
+        assert cwd[36] == '/srv/ftp'
+        assert cwd[38] == '/srv/ftp/a/c'     # CWD a/./b/../c
+        assert cwd[40] == '/'
+        assert cwd[42] == '/data'
+        assert cwd[46] == '/data'            # 250 after DELE, CWD failed with 550
+        assert cwd[48] == '/srv/ftp/'
+        assert cwd[50] == '/srv/ftp/x'
+        assert cwd[54] == '/a"b'             # PWD reply with a doubled quote
+        assert cwd[56] == '/a"b/new'
+        # relative paths below an empty working directory
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {248, 250, 252, 254, 256, 258}',
+                         'frame.number', 'ftp.current-working-directory')
+        assert rows == [['248', '/orphan'], ['250', '/'], ['252', '/top'], ['254', '/'],
+                        ['256', '/'], ['258', '/']]
+
+    def test_ftp_working_directory_limit(self, cmd_tshark, capture_file, test_env):
+        '''A working directory longer than 4096 bytes is not stored: the
+        conversation keeps the old one and the frame gets the warning
+        ftp.path_too_long (frames 298-310). Before the fix every frame
+        kept a copy of the growing path.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'ftp.path_too_long',
+                             'frame.number', passes=passes)
+            assert [r[0] for r in rows] == ['298', '300', '304', '306', '310']
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {296, 298, 300, 302, 308, 310}',
+                         'frame.number', 'ftp.current-working-directory')
+        cwd = {int(r[0]): r[1] for r in rows}
+        assert len(cwd[296]) == 3603         # 4 x 900 characters and 3 separators
+        assert cwd[298] == cwd[296]          # the fifth CWD was refused
+        assert cwd[300] == cwd[296]
+        assert len(cwd[302]) < len(cwd[296])  # CDUP removes a directory
+        assert cwd[308] == '/short'
+        assert cwd[310] == '/short'          # a CWD of 5000 bytes is refused
+
+    def test_ftp_data_connection_setup(self, cmd_tshark, capture_file, test_env):
+        '''PASV, PORT, EPSV and EPRT replies and requests give addresses
+        and ports (also behind NAT and over IPv6).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'frame.number in {58, 80, 156, 165, 179, 188, 197, 206, 268, 276}',
+                         'frame.number', 'ftp.passive.ip', 'ftp.passive.port', 'ftp.passive.nat',
+                         'ftp.active.cip', 'ftp.active.port', 'ftp.active.nat', 'ftp.eprt.af',
+                         'ftp.eprt.ip', 'ftp.eprt.ipv6', 'ftp.eprt.port', 'ftp.epsv.ip',
+                         'ftp.epsv.ipv6', 'ftp.epsv.port')
+        got = {r[0]: r[1:] for r in rows}
+        assert got['58'][:2] == ['192.0.2.2', '5000']
+        assert got['80'][:3] == ['198.51.100.7', '5002', 'True']          # NAT
+        assert got['156'][3:5] == ['192.0.2.1', '51210']
+        assert got['165'][3:6] == ['198.51.100.9', '51211', 'True']       # NAT
+        assert got['179'][-3] == '192.0.2.2' and got['179'][-1] == '6446'
+        assert got['188'][6:9] == ['1', '192.0.2.1', '']
+        assert got['197'][6:8] == ['1', '192.0.2.2']
+        assert got['206'][6] == '2' and got['206'][8] == '2001:db8::77'
+        assert got['268'][-2:] == ['2001:db8::2', '6500']
+        assert got['276'][6] == '2' and got['276'][8] == '2001:db8::2' and got['276'][9] == '51400'
+
+    def test_ftp_data_streams(self, cmd_tshark, capture_file, test_env):
+        '''FTP-DATA frames name the method that set up the connection and
+        the command they answer; the command frame summarises the
+        transfer (second pass: the summary is added on the frames seen
+        again).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'ftp-data.setup-method',
+                         'frame.number', 'ftp-data.setup-method', 'ftp-data.command',
+                         'ftp-data.command-frame', passes=('-2',))
+        methods = {r[0]: r[1:] for r in rows}
+        assert methods['64'] == ['PASV', 'RETR file.bin', '59']
+        assert methods['77'] == ['PASV', 'LIST', '72']
+        assert methods['163'] == ['PORT', 'RETR active.txt', '158']
+        assert methods['185'] == ['EPASV', 'RETR extended.bin', '180']
+        assert methods['204'] == ['EPRT', 'RETR eprt-server.txt', '199']
+        assert methods['283'] == ['EPRT', 'RETR v6.txt', '278']
+        # NOOP before LIST: the data connection is tied to LIST
+        assert methods['77'][1] == 'LIST'
+        # RETR with and without a name
+        assert methods['145'][1] == 'RETR' and methods['154'][1] == 'RETR '
+        # command frames: frames, bytes, first, last, duration (ms), kbit/s
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {59, 120, 323}',
+                         'frame.number', 'ftp.command-response.frames', 'ftp.command-response.bytes',
+                         'ftp.command-response.first-frame-num', 'ftp.command-response.last-frame-num',
+                         'ftp.command-response.duration', 'ftp.command-response.bitrate',
+                         passes=('-2',))
+        assert rows == [
+            ['59', '3', '3000', '64', '66', '100', '240'],
+            ['120', '2', '20', '125', '126', '3', '53'],
+            # the second frame has an earlier time stamp: no duration or rate
+            ['323', '2', '38', '328', '329', '', ''],
+        ]
+        # unsolicited data on port 20 has no setup method and no command
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {314, 315}',
+                         '_ws.col.protocol', 'ftp-data.setup-method', 'ftp-data.command', passes=('-2',))
+        assert rows == [['FTP-DATA', '', ''], ['FTP-DATA', '', '']]
+
+    def test_ftp_text_and_binary_data(self, cmd_tshark, capture_file, test_env):
+        '''Text data is shown line by line, binary data is not.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {64, 77}',
+                         'frame.number', 'data-text-lines')
+        assert rows[0] == ['64', '']
+        assert rows[1][0] == '77' and rows[1][1] != ''
+
+    def test_ftp_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export Objects lists the files of RETR, STOR, STOU and APPE and
+        not the LIST, NLST and MLSD output; a command without a name is
+        "(MISSING)".'''
+        out = tmp_path / 'objects'
+        out.mkdir()
+        subprocess.check_call((cmd_tshark, '-r', capture_file('ftp_coverage.pcap.gz'), '-q',
+                               '--export-objects', 'ftp-data,' + str(out)),
+                              env=test_env, timeout=120)
+        sizes = {p.name: p.stat().st_size for p in out.iterdir()}
+        assert sizes == {
+            'file.bin': 3000, 'natted.txt': 32, 'upload.txt': 51, 'log.txt': 20,
+            '(MISSING)': 40, '(MISSING)(1)': 10, '(MISSING)(2)': 10,
+            'active.txt': 18, 'extended.bin': 80, 'eprt-server.txt': 26,
+            'v6.txt': 9, 'backwards.txt': 38,
+        }
+        assert (out / 'file.bin').read_bytes() == b''.join(
+            bytes((i + j) & 0xff for j in range(1000)) for i in range(3))
+
+    def test_ftp_credentials(self, cmd_tshark, capture_file, test_env):
+        '''The credentials tap reports the PASS of a conversation with a
+        USER, not the PASS without one, and not the second USER.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-q', '-zcredentials')
+        rows = [l.split() for l in lines if l.startswith(('11 ', '265 ')) or ' FTP ' in l]
+        assert [(r[0], r[2], r[-1]) for r in rows] == [('11', 'anonymous', '7'), ('265', 'v6user', '263')]
+
+    def test_ftp_auth_tls(self, cmd_tshark, capture_file, test_env):
+        '''A 234 reply after AUTH TLS starts TLS (frames 240-241); the 234
+        after AUTH SSL does not.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'tls', 'frame.number',
+                         'tls.handshake.type')
+        assert rows == [['240', '1'], ['241', '2']]
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {237, 239}',
+                         '_ws.col.protocol', 'ftp.response.code')
+        assert rows == [['FTP', '234'], ['FTP', '234']]
+
+    def test_ftp_ipv6(self, cmd_tshark, capture_file, test_env):
+        '''FTP over IPv6: EPSV and EPRT with IPv6 addresses.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'ipv6 && (ftp || ftp-data)',
+                         '_ws.col.protocol')
+        assert len(rows) == 17
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'ftp-data.setup-method && ipv6',
+                         'ftp-data.setup-method', 'ftp-data.command', passes=('-2',))
+        assert rows == [['EPASV', 'LIST'], ['EPRT', 'RETR v6.txt']]
