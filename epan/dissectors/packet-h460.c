@@ -19,6 +19,8 @@
 #include <epan/packet.h>
 #include <epan/oids.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
 
 #include "packet-per.h"
@@ -31,6 +33,9 @@ void proto_reg_handoff_h460(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h460;
+static expert_field ei_h460_ras_nesting;
+
+#define H460_MAX_RAS_NESTING 8
 
 /* --- Module NUMBER-PORTABILITY --- --- ---                                  */
 
@@ -1947,7 +1952,15 @@ dissect_ras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   int offset = 0;
 
   if (h225_ras_handle) {
+    unsigned depth = p_get_proto_depth(pinfo, proto_h460);
+
+    if (depth >= H460_MAX_RAS_NESTING) {
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_h460_ras_nesting, tvb, offset);
+      return tvb_reported_length(tvb);
+    }
+    p_set_proto_depth(pinfo, proto_h460, depth + 1);
     call_dissector(h225_ras_handle, tvb, pinfo, tree);
+    p_set_proto_depth(pinfo, proto_h460, depth);
     offset += tvb_reported_length_remaining(tvb, offset);
   }
   return offset;
@@ -2120,6 +2133,11 @@ dissect_h460_name(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree, void 
 /*--- proto_register_h460 ----------------------------------------------*/
 void proto_register_h460(void) {
   h460_feature_t *ftr;
+  expert_module_t *expert_h460;
+
+  static ei_register_info ei[] = {
+    { &ei_h460_ras_nesting, { "h460.ras_nesting", PI_PROTOCOL, PI_WARN, "RAS nested too deeply in H.460.17", EXPFILL }},
+  };
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -2934,6 +2952,8 @@ void proto_register_h460(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_h460, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_h460 = expert_register_protocol(proto_h460);
+  expert_register_field_array(expert_h460, ei, array_length(ei));
 
   h460_name_handle = register_dissector("h460", dissect_h460_name, proto_h460);
   for (ftr=h460_feature_tab; ftr->id; ftr++) {
