@@ -3737,7 +3737,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
         /* KIM & LVL */
         proto_tree_add_bitmask(icmp6_tree, tvb, rpl_offset, hf_icmpv6_rpl_secure_flag,
                             ett_icmpv6_flag_secure, rpl_secure_flags2, ENC_BIG_ENDIAN);
-        kim = tvb_get_uint8(tvb, rpl_offset) & RPL_SECURE_KIM >> 6;
+        kim = (tvb_get_uint8(tvb, rpl_offset) & RPL_SECURE_KIM) >> 6;
         lvl = tvb_get_uint8(tvb, rpl_offset) & RPL_SECURE_LVL;
         rpl_offset += 1;
 
@@ -4846,7 +4846,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
             {
-                char orig_datagram_length = tvb_get_uint8(tvb, offset);
+                uint8_t orig_datagram_length = tvb_get_uint8(tvb, offset);
                 if (orig_datagram_length) {
                   /* RFC 4884 Original datagram length */
                   proto_tree_add_item(icmp6_tree, hf_icmpv6_length, tvb, offset, 1, ENC_NA);
