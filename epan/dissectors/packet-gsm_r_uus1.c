@@ -436,7 +436,7 @@ de_gsm_r_uus1_elda(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint
     curr_offset += 3;
 
     /* TODO: would be nice to add masks to the items below and dispense with messy calls to get bit values with explicit offsets */
-    bit_offset = 55;
+    bit_offset = (offset + 2) * 8 + 55;
 
     /* Height, Speed, Heading */
 
@@ -603,9 +603,9 @@ static bool
 dissect_gsm_r_uus1_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     if (dissect_gsm_r_uus1(tvb, pinfo, tree, data) > 0)
-        return false;
+        return true;
 
-    return true;
+    return false;
 }
 
 
@@ -788,7 +788,7 @@ proto_register_gsm_r_uus1(void)
         },
         { &hf_gsm_r_uus1_elda_heading,
           { "Heading (deg)", "gsm-r-uus1.elda.heading",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gsm_r_uus1_elda_e_time,
