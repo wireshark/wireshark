@@ -68173,3 +68173,48 @@ class TestDissectH1:
             ['24', '6', '03080101000000047061796c6f6164'],
             ['27', '16', 'deadbeefdeadbeefdeadbeefdeadbeef'],
         ]
+
+
+class TestDissectH221Nonstd:
+    '''Microsoft NetMeeting H.221 non-standard parameters (t35 0xb5, 0x00,
+    manufacturer 0x534c) in H.225 RAS (frames 1-19) and in H.245 on the
+    connection announced by a Setup (frames 21-28), from the synthetic
+    capture h221_nonstd_coverage.pcap.gz.'''
+
+    @staticmethod
+    def ns_fields(cmd_tshark, capture_file, test_env, filt='frame', passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('h221_nonstd_coverage.pcap.gz'), '-Y', filt, '-Tfields',
+                '-eframe.number', '-eh221nonstd.netmeeting.codec', '-eh221nonstd.netmeeting.non_standard',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h221_nonstd_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''28 frames; none is malformed or has an error expert info, in one
+        and two passes.  Frame 13 holds a 23 octet item: it threw an
+        exception before "Require 24 bytes before reading the codec".'''
+        assert len(self.ns_fields(cmd_tshark, capture_file, test_env)) == 28
+        for passes in ((), ('-2',)):
+            rows = self.ns_fields(cmd_tshark, capture_file, test_env,
+                                  filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h221_nonstd_codecs(self, cmd_tshark, capture_file, test_env):
+        '''Codec names are looked up when the 0x0100 marker is at offset
+        22; otherwise the octets are shown as non-standard data.'''
+        rows = self.ns_fields(cmd_tshark, capture_file, test_env)
+        codecs = {int(r[0]): r[1] for r in rows}
+        assert [codecs[i] for i in range(1, 11)] == [
+            '0x00000111', '0x00000200', '0x00000211', '0x00000311', '0x00000411',
+            '0x00001100', '0x00003100', '0x0000feff', '0x00009999', '0x00000111']
+        assert [bool(r[2]) for r in rows if int(r[0]) in (11, 12)] == [True, True]
+        # 23, 22, 10 and 1 octets, another manufacturer / country / object identifier: nothing
+        for n in (13, 14, 15, 16, 17, 18, 19):
+            assert rows[n - 1][1:] == ['', '']
+
+    def test_h221_nonstd_h245(self, cmd_tshark, capture_file, test_env):
+        '''The same parameters in H.245 NonStandardMessages (frames 21-28).'''
+        rows = self.ns_fields(cmd_tshark, capture_file, test_env, filt='h245')
+        assert [r[0] for r in rows] == [str(i) for i in range(21, 29)]
+        assert [r[1] for r in rows[:4]] == ['0x00000111', '0x00000200', '0x00000211', '0x00000311']
+        assert [bool(r[2]) for r in rows[4:6]] == [True, True]
