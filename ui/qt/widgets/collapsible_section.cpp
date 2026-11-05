@@ -28,8 +28,6 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
     toggleButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     toggleButton->setIcon(ThemedIcon("section-collapsed"));
     toggleButton->setText(title);
-    toggleButton->setCheckable(true);
-    toggleButton->setChecked(false);
     toggleButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     // Horizontal line after header
@@ -74,12 +72,11 @@ CollapsibleSection::CollapsibleSection(const QString &title, QWidget *parent)
      * section at hh regardless of policy. */
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    /* Use clicked (not toggled): clicked is only emitted on user interaction,
-     * while toggled also fires on programmatic setChecked(). setExpanded()
-     * already calls onToggle() explicitly after setChecked(), so a toggled
-     * connection would invoke onToggle() twice. */
+    /* The expanded state lives in expanded_, not in a checkable button:
+     * the windows11 style paints the label of a checked tool button in its
+     * text-on-accent colour, which would recolour the title on expand. */
     connect(toggleButton, &QToolButton::clicked, this,
-            &CollapsibleSection::onToggle);
+            [this]() { onToggle(!expanded_); });
 
     /* The title font and the title row height derive from the application
      * font and the zoom level, so measure and pin them again when either
@@ -113,7 +110,7 @@ void CollapsibleSection::applyTitleMetrics()
 void CollapsibleSection::refreshTitleMetrics()
 {
     applyTitleMetrics();
-    if (!toggleButton->isChecked())
+    if (!expanded_)
     {
         setMinimumHeight(titleH_);
         setMaximumHeight(titleH_);
@@ -163,13 +160,12 @@ void CollapsibleSection::setHeaderTrailingWidget(QWidget *widget)
 
 void CollapsibleSection::setExpanded(bool expanded)
 {
-    toggleButton->setChecked(expanded);
     onToggle(expanded);
 }
 
 bool CollapsibleSection::isExpanded() const
 {
-    return toggleButton->isChecked();
+    return expanded_;
 }
 
 void CollapsibleSection::setTitle(const QString &title)
@@ -194,6 +190,7 @@ QFont CollapsibleSection::titleButtonFont() const
 
 void CollapsibleSection::onToggle(bool checked)
 {
+    expanded_ = checked;
     toggleButton->setIcon(ThemedIcon(checked ? "section-expanded"
                                              : "section-collapsed"));
 
