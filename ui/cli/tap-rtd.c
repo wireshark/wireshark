@@ -88,6 +88,17 @@ rtd_draw(void *arg)
 	printf("=====================================================================================================\n");
 }
 
+static void
+rtd_finish(void *arg)
+{
+	rtd_data_t *rtd_data = (rtd_data_t *)arg;
+	rtd_t *ui = (rtd_t *)rtd_data->user_data;
+
+	free_rtd_table(&ui->rtd.stat_table);
+	g_free((char *)ui->filter);
+	g_free(ui);
+}
+
 static bool
 init_rtd_tables(register_rtd_t* rtd, const char *filter)
 {
@@ -102,9 +113,11 @@ init_rtd_tables(register_rtd_t* rtd, const char *filter)
 
 	rtd_table_dissector_init(rtd, &ui->rtd.stat_table, NULL, NULL);
 
-	error_string = register_tap_listener(get_rtd_tap_listener_name(rtd), &ui->rtd, filter, 0, NULL, get_rtd_packet_func(rtd), rtd_draw, NULL);
+	error_string = register_tap_listener(get_rtd_tap_listener_name(rtd), &ui->rtd, filter, 0, NULL, get_rtd_packet_func(rtd), rtd_draw, rtd_finish);
 	if (error_string) {
 		free_rtd_table(&ui->rtd.stat_table);
+		g_free((char *)ui->filter);
+		g_free(ui);
 		cmdarg_err("Couldn't register srt tap: %s", error_string->str);
 		g_string_free(error_string, TRUE);
 		return false;
