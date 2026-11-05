@@ -62843,3 +62843,108 @@ class TestDissectGlusterd:
         ops = {int(x) for x in stdout.replace(',', '\n').split()}
         assert {0, 3, 15, 30, 57}.issubset(ops)
         assert {1, 2, 5, 14, 18}.issubset(ops)
+
+
+class TestDissectGlusterfs:
+    # glusterfs_coverage.pcap.gz: the FOP program (1298437) as RPC. Frames
+    # 1-172 are version 310 over UDP, 173-381 version 330 and 382-632 version
+    # 400 over TCP, 633-636 the reproducers of the dict/lock owner fixes.
+    LOOKUP_NAMELESS = ['294', '501']
+
+    def test_glusterfs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure of the three versions decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 636
+        assert protocols.count('GlusterFS') == 630
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_glusterfs_versions(self, cmd_tshark, capture_file, test_env):
+        '''Frames per program version, and the procedure names.'''
+        for vers, count in (('310', 172), ('330', 206), ('400', 252)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                    '-Y', 'rpc.programversion == %s' % vers,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == count
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                '-Y', 'rpc.programversion == 400 && rpc.msgtyp == 0',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = [line.split(',')[0] for line in stdout.splitlines()]
+        for name in ('IPC', 'LEASE', 'GETACTIVELK', 'SETACTIVELK', 'ICREATE',
+                     'NAMELINK', 'PUT', 'COPY_FILE_RANGE', 'COMPOUND'):
+            assert 'V400 %s Call' % name in infos
+
+    def test_glusterfs_lookup_nameless(self, cmd_tshark, capture_file, test_env):
+        '''A LOOKUP by GFID has an empty base name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                '-Y', '_ws.col.info contains "nameless"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == self.LOOKUP_NAMELESS
+
+    def test_glusterfs_dict_iattx(self, cmd_tshark, capture_file, test_env):
+        '''An iattx dict value (type 8) is an IATTX inside the dict. It was
+        added to the parent tree as "Pre-operation parent IATT" and the
+        previous item was stretched over it.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 633',
+                    '-Tfields', '-eglusterfs.iattx', '-eglusterfs.preparent_iatt',
+                    '-eglusterfs.dict_value', '-eglusterfs.ia_size',
+                ), encoding='utf-8', env=test_env)
+            iattx, preparent, values, size = stdout.rstrip('\n').split('\t')
+            assert iattx == '1' and preparent == ''
+            assert values == 'val1'
+            assert size == '4096'
+
+    def test_glusterfs_lock_owner_padding(self, cmd_tshark, capture_file, test_env):
+        '''The lock owner (opaque<>) of 5 octets is followed by 3 octets of
+        padding; the client UID and the lock flags after it were read three
+        octets too early.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 635',
+                    '-Tfields', '-eglusterfs.flock.owner',
+                    '-eglusterfs.client_uid', '-eglusterfs.lk_flags',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['4142434445\tuid\t0x00000055']
+
+    def test_glusterfs_dict_values(self, cmd_tshark, capture_file, test_env):
+        '''Dict value types of version 4 (integers, strings, opaque data)
+        and of the old dict.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_coverage.pcap.gz'), '-V',
+                '-Y', 'glusterfs.dict_xdr_size || glusterfs.dict_size',
+            ), encoding='utf-8', env=test_env)
+        for v in ('k-int: -5', 'k-uint: 1099511627776', 'k-str: str',
+                  'key1: value', 'abcd: val1'):
+            assert v in stdout
+
+    def test_glusterfs_readdirp(self, cmd_tshark, capture_file, test_env):
+        '''READDIRP replies list directory entries with their IATT.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glusterfs_coverage.pcap.gz'),
+                '-Y', 'glusterfs.entry.path',
+                '-Tfields', '-eframe.number', '-eglusterfs.entry.path',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) >= 6
+        assert all(len(r[1].split(',')) in (1, 2) for r in rows)
