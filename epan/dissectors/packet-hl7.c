@@ -944,7 +944,7 @@ dissect_hl7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
          * transmission. If this is the case we display these trailing bytes
          * as 'Data' and we will dissect the next complete message.
          */
-        if (tvb_get_uint8(tvb, 0) != LLP_SOB) {
+        if (tvb_get_uint8(tvb, offset) != LLP_SOB) {
             tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, offset);
             call_data_dissector(new_tvb, pinfo, tree);
             return tvb_reported_length(tvb);
