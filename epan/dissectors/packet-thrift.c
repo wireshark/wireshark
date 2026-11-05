@@ -163,7 +163,6 @@ static int hf_thrift_i8;
 static int hf_thrift_i16;
 static int hf_thrift_i32;
 static int hf_thrift_i64;
-static int hf_thrift_u64;
 static int hf_thrift_uuid;
 static int hf_thrift_binary;
 static int hf_thrift_string;
@@ -1394,8 +1393,8 @@ dissect_thrift_raw_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
                 break;
         }
         if (varint > (uint64_t)INT32_MAX) {
-            len_item = proto_tree_add_uint64(header_tree, hf_thrift_u64, tvb, offset, len_len, varint);
-            expert_add_info(pinfo, len_item, &ei_thrift_varint_too_large);
+            proto_tree_add_expert_format(header_tree, pinfo, &ei_thrift_varint_too_large, tvb, offset, len_len,
+                    "Expected length should be lower or equal to %d, found %" PRIu64 " which is too large.", INT32_MAX, varint);
             return THRIFT_REQUEST_REASSEMBLY;
         }
         str_len = (int32_t)varint;
@@ -2464,8 +2463,8 @@ dissect_thrift_compact_binary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_item_set_end(proto_tree_get_parent(header_tree), tvb, *offset);
     }
     if (varint > (uint64_t)INT32_MAX) {
-        pi = proto_tree_add_uint64(header_tree, hf_thrift_u64, tvb, *offset, len_len, varint);
-        expert_add_info(pinfo, pi, &ei_thrift_varint_too_large);
+        proto_tree_add_expert_format(header_tree, pinfo, &ei_thrift_varint_too_large, tvb, *offset, len_len,
+                "Expected length should be lower or equal to %d, found %" PRIu64 " which is too large.", INT32_MAX, varint);
         return THRIFT_REQUEST_REASSEMBLY;
     }
     str_len = (int32_t)varint;
@@ -3808,11 +3807,6 @@ proto_register_thrift(void)
             { "Integer64", "thrift.i64",
                 FT_INT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
-        },
-        { &hf_thrift_u64,
-            { "Unsigned64", "thrift.u64",
-                FT_UINT64, BASE_DEC, NULL, 0x0,
-                "Usually an unsigned varint", HFILL }
         },
         { &hf_thrift_double,
             { "Double", "thrift.double",
