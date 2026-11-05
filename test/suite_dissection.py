@@ -77034,3 +77034,134 @@ class TestDissectWlancap:
             '59\t\t\t\t',
             '60\t\t\t\t',
         ]
+
+
+class TestDissectIeee802154:
+    # The capture holds DLT 195 (FCS), 230 (no FCS), 283 (TAP), 215 (non-ASK PHY),
+    # Linux SLL, Ethernet with the 802.15.4 ethertype and ZEP.  Secured frames carry
+    # placeholder MICs; no keys are used.  Helpers are static methods.
+    @staticmethod
+    def write_pcap(path, linktype, packets):
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, linktype))
+            for i, pkt in enumerate(packets):
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(pkt), len(pkt)))
+                f.write(pkt)
+
+    @staticmethod
+    def data_frame():
+        # 802.15.4-2006 data frame, short addresses, PAN ID compression, no FCS
+        return struct.pack('<HBHHH', 0x1861 | 0x0000, 1, 0x1234, 0x0001, 0x0002) + b'\x10hello'
+
+    def test_ieee802154_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame and protocol counts; nothing is malformed or an error, in
+        one and two passes, and the tree is the same in both.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 713
+        assert sum(p.startswith('wpan-tap') for p in protocols) == 89
+        assert sum(p.startswith('wpan-nonask-phy') for p in protocols) == 4
+        assert sum(':zep' in p for p in protocols) == 5
+        assert sum('eapol' in p for p in protocols) == 3
+        assert sum('zbee_nwk' in p for p in protocols) == 2
+        trees = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            trees.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee802154_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert trees[0] == trees[1]
+
+    def test_ieee802154_mic_longer_than_frame(self, cmd_tshark, capture_file, test_env):
+        '''A secured frame that is shorter than header plus MIC is reported
+        (it made a negative payload length before the fix) and is not malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                '-Y', '_ws.expert.message contains "too small to include the MIC"',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 3
+        assert all(l.split('\t')[1:] == ['Packet was too small to include the MIC', ''] for l in lines)
+
+    def test_ieee802154_tap_header_length(self, cmd_tshark, tmp_path, test_env):
+        '''A TAP header length below 4 is not a TAP header (the TLV length
+        wrapped); the frame is left to the data dissector.'''
+        pcap = str(tmp_path / 'tap_len.pcap')
+        packets = [struct.pack('<BBH', 0, 0, n) + self.data_frame() for n in (0, 1, 2, 3)]
+        self.write_pcap(pcap, 283, packets)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Tfields', '-eframe.protocols', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 4
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'wpan-tap.length',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_ieee802154_tap_truncated_tlv(self, cmd_tshark, tmp_path, test_env):
+        '''A one byte TLV at the end of the TLV area whose padding is
+        outside of it is a malformed packet (and the padding check does not
+        allocate: the memory leaked when the item threw).'''
+        pcap = str(tmp_path / 'tap_tlv.pcap')
+        tlv = struct.pack('<HHB', 0, 1, 1)
+        packets = [struct.pack('<BBH', 0, 0, 4 + len(tlv)) + tlv + self.data_frame() + b'\0\0' for _ in range(5)]
+        self.write_pcap(pcap, 283, packets)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Y', '_ws.malformed', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 5
+
+    def test_ieee802154_beacon_gts(self, cmd_tshark, capture_file, test_env):
+        '''GTS descriptors in beacons: 10 frames each for 1, 2 and 7 slots.'''
+        for slots in (1, 2, 7):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                    '-Y', 'wpan.gts.count == %d' % slots, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 10
+
+    def test_ieee802154_nested_mpx(self, cmd_tshark, capture_file, test_env):
+        '''802.15.4 frames inside MPX payload IEs (multiplex ID 0x809a):
+        three levels inside the outer frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                '-Y', 'frame.protocols contains "wpan:wpan:wpan:wpan"',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().endswith('wpan:wpan:wpan:wpan:data')
+
+    def test_ieee802154_ack_tracking(self, cmd_tshark, capture_file, test_env):
+        '''With ACK tracking the requests point at their ACKs and the ACKs at
+        their requests (11 pairs; the ACKs from or to other addresses and
+        the one after the timeout are not matched).'''
+        for field in ('wpan.ack_in', 'wpan.ack_to'):
+            stdout = subprocess.check_output((cmd_tshark, '-2',
+                    '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                    '-o', 'wpan.802154_ack_tracking:TRUE',
+                    '-Y', field, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 11
+
+    def test_ieee802154_static_address(self, cmd_tshark, capture_file, test_env):
+        '''A static short to extended address mapping (UAT) is shown as
+        pre-configured on frames from that source.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                '-o', 'uat:802154_addresses:"2","1234",0011223344556677',
+                '-Y', 'wpan.src64 == 00:11:22:33:44:55:66:77', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 488
+        stdout = subprocess.check_output((cmd_tshark, '-c', '40',
+                '-r', capture_file('ieee802154_coverage.pcapng.gz'),
+                '-o', 'uat:802154_addresses:"2","1234",0011223344556677', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert '[Origin: Pre-configured]' in stdout
