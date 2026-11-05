@@ -21,6 +21,7 @@ function print_usage() {
 	printf "\\t--install-deb-deps: install packages required to build the .deb file\\n"
 	printf "\\t--install-test-deps: install packages required to run all tests\\n"
 	printf "\\t--install-qt6-deps: force installation of packages required to use Qt6\\n"
+	printf "\\t--install-stratoshark: install packages required to build Stratoshark and the Falco Events plugin\\n"
 	printf "\\t--install-all: install everything\\n"
 	printf "\\t[other]: other options are passed as-is to apt\\n"
 }
@@ -50,6 +51,7 @@ DEBDEPS=0
 TESTDEPS=0
 ADD_QT6=0
 HAVE_ADD_QT=0
+STRATOSHARK=0
 OPTIONS=
 for arg; do
 	case $arg in
@@ -69,12 +71,16 @@ for arg; do
 		--install-qt6-deps)
 			ADD_QT6=1
 			;;
+		--install-stratoshark)
+			STRATOSHARK=1
+			;;
 		--install-all)
 			ADDITIONAL=1
 			DEBDEPS=1
 			TESTDEPS=1
 			ADD_QT6=1
 			HAVE_ADD_QT=1
+			STRATOSHARK=1
 			;;
 		*)
 			OPTIONS="$OPTIONS $arg"
@@ -231,12 +237,15 @@ add_package ADDITIONAL_LIST libbcg729-dev ||
 add_package ADDITIONAL_LIST libcpuinfo-dev ||
     echo "libcpuinfo-dev is unavailable"
 
-# libsinsp and libscap, required by Stratoshark. Their headers include uthash.h,
-# which libfalcosecurity0-dev neither ships nor depends on.
+# libsinsp and libscap, required by Stratoshark and the Falco Events plugin.
+# Their headers include uthash.h, which libfalcosecurity0-dev neither ships
+# nor depends on.
 # Debian >= bookworm, Ubuntu >= 23.04. CMake rejects a version too old for Stratoshark.
-add_package ADDITIONAL_LIST libfalcosecurity0-dev &&
-add_package ADDITIONAL_LIST uthash-dev ||
-    echo "libfalcosecurity0-dev or uthash-dev is unavailable"
+STRATOSHARK_LIST=""
+add_package STRATOSHARK_LIST libfalcosecurity0-dev ||
+    echo "libfalcosecurity0-dev is unavailable" >&2
+add_package STRATOSHARK_LIST uthash-dev ||
+    echo "uthash-dev is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
@@ -256,6 +265,11 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
 
+if [ $STRATOSHARK -ne 0 ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $STRATOSHARK_LIST"
+fi
+
 # shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
@@ -272,4 +286,9 @@ fi
 if [ $TESTDEPS -eq 0 ]
 then
 	printf "\n*** Test deps not installed. Rerun with --install-test-deps to have them.\n"
+fi
+
+if [ $STRATOSHARK -eq 0 ]
+then
+	printf "\n*** Stratoshark deps not installed. Rerun with --install-stratoshark to have them.\n"
 fi
