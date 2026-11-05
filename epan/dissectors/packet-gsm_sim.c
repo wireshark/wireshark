@@ -1849,6 +1849,9 @@ get_ber_tlv_len(tvbuff_t *tvb, int offset, uint32_t *len, uint8_t *len_size)
 
 	if (*len & 0x80) {
 		int n = *len & 0x7F;
+		if (n > 4)
+			n = 4;
+		*len = 0;
 		while (n--) {
 			*len = (*len << 8) | tvb_get_uint8(tvb, offset++);
 			(*len_size)++;
@@ -2828,6 +2831,12 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		gsm_sim_trans->rsp_frame = pinfo->num;
 	}
 
+	if (offset < 0 || tvb_len < (unsigned)offset + 2) {
+		/* Too short for a status word */
+		proto_tree_add_expert_remaining(sim_tree, pinfo, &ei_unknown_bytes, tvb, offset < 0 ? 0 : (unsigned)offset);
+		return tvb_captured_length(tvb);
+	}
+
 	if ((tvb_len-offset) > 2) {
 		tvbuff_t *subtvb;
 		unsigned apdu_len;
@@ -2858,9 +2867,11 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			}
 			break;
 		case 0x76: /* SUSPEND UICC */
-			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(sim_tree, hf_suspend_uicc_resume_token, tvb, offset+2, apdu_len - 2, ENC_NA);
+			if (apdu_len >= 2) {
+				proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_unit, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(sim_tree, hf_suspend_uicc_max_time_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(sim_tree, hf_suspend_uicc_resume_token, tvb, offset+2, apdu_len - 2, ENC_NA);
+			}
 			break;
 		case 0x88: /* RUN GSM ALGORITHM / AUTHENTICATE */
 			if (p2 == 0) {
