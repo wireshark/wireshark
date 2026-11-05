@@ -206,7 +206,7 @@ proto_register_h261(void)
 				FT_UINT8,
 				BASE_DEC,
 				NULL,
-				0x0,
+				0x1F,
 				NULL, HFILL
 			}
 		},
