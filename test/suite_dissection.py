@@ -68994,3 +68994,66 @@ class TestDissectH248AnnexC:
                                         'h248.ctx.term.nsap', 'h248.ctx.term', filt='frame.number == 14',
                                         extra=('-o', 'h248.ctx_info:TRUE'))
         assert rows == [['14', '00000001,00000001', '39840f0007880000000000000000010102030400,39840f0007880000000000000000010102030400', '01,09']]
+
+
+class TestDissectH248AnnexE:
+    '''H.248.1 Annex E (generic, tonegen, tonedet, dg, cg, cd, al, ct, nt,
+    rtp and tdmc packages) inside binary H.248 on UDP 2945, from the
+    synthetic capture h248_annex_e_coverage.pcapng.gz: frames 1-18 are
+    messages with the events, signals and properties of the packages
+    (including the root and dd packages, which the dissector does not
+    register), 19-57 the package sweep (every table entry, three passes)
+    and 58-127 messages built from the H.248 ASN.1 module with these
+    packages.'''
+
+    @staticmethod
+    def h248_annex_e_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_annex_e_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_annex_e_protocols(self, cmd_tshark, capture_file, test_env):
+        '''127 H.248 frames, none malformed or with an error expert info
+        in one and two passes.'''
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 127
+        assert {r[1] for r in rows} == {'H.248'}
+        for passes in ((), ('-2',)):
+            rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env,
+                                            filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                            passes=passes)
+            assert rows == []
+
+    def test_h248_annex_e_generic(self, cmd_tshark, capture_file, test_env):
+        '''Generic package: the cause event and the service change event
+        (method, and the package and signal ids of the parameter that is
+        a package name).'''
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, 'h248.generic.cause.gencause',
+                                        'h248.generic.sc.meth', filt='frame.number <= 5')
+        assert rows == [['1', '0x00000001', ''], ['2', '', '0'], ['3', '', '1'], ['4', '', '2'], ['5', '', '3']]
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, 'h248.generic.sc.sig_id',
+                                        filt='frame.number <= 5 && h248.generic.sc.sig_id')
+        assert len(rows) == 4
+
+    def test_h248_annex_e_tone_and_line(self, cmd_tshark, capture_file, test_env):
+        '''Tone generation, alerting line and TDM circuit values.'''
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, 'h248.tonegen.pt.tl',
+                                        filt='frame.number == 7')
+        assert rows == [['7', '0x0005']]
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, 'h248.tdmc.gain', 'h248.tdmc.ec',
+                                        filt='frame.number == 15')
+        assert rows == [['15', '0x00000002', 'True']]
+        rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, 'h248.al.ev.onhook.init',
+                                        filt='frame.number == 9')
+        assert rows == [['9', 'True,False']]
+
+    def test_h248_annex_e_package_counts(self, cmd_tshark, capture_file, test_env):
+        '''Frames that carry a field of the package.'''
+        for filt, count in (('h248.generic.cause.gencause', 4), ('h248.tonegen.pt.tl', 5),
+                            ('h248.tonedet.evt.tl', 7), ('h248.cg.pt.tl', 18), ('h248.tdmc.gain', 5),
+                            ('h248.generic.sc.meth', 7)):
+            rows = self.h248_annex_e_fields(cmd_tshark, capture_file, test_env, filt=filt)
+            assert len(rows) == count, filt
