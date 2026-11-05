@@ -14,6 +14,7 @@
 #include "packet-link16.h"
 
 void proto_register_link16(void);
+void proto_reg_handoff_link16(void);
 
 /* Elmasry, G., (2012), Tactical Wireless Communications and Networks: Design Concepts and Challenges, Wiley, ISBN 9781119951766. */
 enum {
@@ -187,6 +188,8 @@ static int hf_link16_contlabel;
 
 static int ett_link16;
 
+static dissector_handle_t link16_handle;
+
 static int * const link16_initial_word_fields[] = {
     &hf_link16_wordformat,
     &hf_link16_label,
@@ -292,7 +295,15 @@ void proto_register_link16(void)
     proto_link16 = proto_register_protocol("Link 16", "LINK16", "link16");
     proto_register_field_array(proto_link16, hf, array_length (hf));
     proto_register_subtree_array(ett, array_length(ett));
-    register_dissector("link16", dissect_link16, proto_link16);
+    link16_handle = register_dissector("link16", dissect_link16, proto_link16);
+
+}
+
+void
+proto_reg_handoff_link16(void)
+{
+    dissector_add_uint_range_with_preference("tcp.port", "", link16_handle);
+    dissector_add_uint_range_with_preference("udp.port", "", link16_handle);
 }
 
 /*
