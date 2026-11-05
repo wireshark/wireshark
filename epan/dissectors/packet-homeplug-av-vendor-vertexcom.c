@@ -215,7 +215,9 @@ static const value_string vertexcom_val_str_deviceid[] = {
 
 static bool dissect_vs_get_version_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                        proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_VERSION_CNF) {
         return false;
@@ -288,7 +290,9 @@ static int hf_vs_reset_cnf_result;
 
 static bool dissect_vs_reset_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                  proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_RESET_CNF) {
         return false;
@@ -357,7 +361,9 @@ static const range_string vertexcom_rval_str_phy_address[] = {
 
 static bool dissect_vs_get_eth_phy_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                        proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_ETH_PHY_CNF) {
         return false;
@@ -442,7 +448,9 @@ static int hf_vs_eth_stats_cnf_tx_carrier_errors;
 
 static bool dissect_vs_eth_stats_req(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_ETH_STATS_REQ) {
         return false;
@@ -461,7 +469,9 @@ static bool dissect_vs_eth_stats_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_eth_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_ETH_STATS_CNF) {
         return false;
@@ -657,7 +667,9 @@ static const value_string vertexcom_val_str_ready_for_plc[] = {
 
 static bool dissect_vs_get_status_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                       proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_STATUS_CNF) {
         return false;
@@ -808,7 +820,9 @@ static const value_string vertexcom_val_str_snr_result[] = {
 
 static bool dissect_vs_get_snr_req(tvbuff_t* tvb, packet_info* pinfo,
                                    proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_SNR_REQ) {
         return false;
@@ -830,7 +844,9 @@ static bool dissect_vs_get_snr_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_get_snr_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                    proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_SNR_CNF) {
         return false;
@@ -1054,7 +1070,9 @@ static uint32_t ret_tlflag = 0xff;
 
 static bool dissect_vs_get_link_stats_req(tvbuff_t* tvb, packet_info* pinfo,
                                           proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_LINK_STATS_REQ) {
         return false;
@@ -1086,7 +1104,9 @@ static bool dissect_vs_get_link_stats_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_get_link_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                           proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_LINK_STATS_CNF) {
         return false;
@@ -1375,7 +1395,9 @@ static const range_string vertexcom_rval_str_nw_info_tei[] = {
 
 static bool dissect_vs_get_nw_info_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                        proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NW_INFO_CNF) {
         return false;
@@ -1552,7 +1574,9 @@ static const value_string vertexcom_val_str_capture_state_result[] = {
 
 static bool dissect_vs_set_capture_state_req(tvbuff_t* tvb, packet_info* pinfo,
                                              proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_CAPTURE_STATE_REQ) {
         return false;
@@ -1576,7 +1600,9 @@ static bool dissect_vs_set_capture_state_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_set_capture_state_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                              proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_CAPTURE_STATE_CNF) {
         return false;
@@ -1674,7 +1700,9 @@ static const value_string vertexcom_val_str_set_nvram_result[] = {
 
 static bool dissect_vs_set_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_NVRAM_REQ) {
         return false;
@@ -1696,7 +1724,9 @@ static bool dissect_vs_set_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_set_nvram_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_NVRAM_CNF) {
         return false;
@@ -1784,7 +1814,9 @@ static const value_string vertexcom_val_str_get_nvram_result[] = {
 
 static bool dissect_vs_get_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NVRAM_REQ) {
         return false;
@@ -1803,7 +1835,9 @@ static bool dissect_vs_get_nvram_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_get_nvram_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_NVRAM_CNF) {
         return false;
@@ -1910,7 +1944,9 @@ static const value_string vertexcom_val_str_pwm_stats_ind_result[] = {
 
 static bool dissect_vs_get_pwm_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                          proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_STATS_CNF) {
         return false;
@@ -1933,7 +1969,9 @@ static bool dissect_vs_get_pwm_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_get_pwm_stats_ind(tvbuff_t* tvb, packet_info* pinfo,
                                          proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_STATS_IND) {
         return false;
@@ -2036,7 +2074,9 @@ static int hf_vs_get_pwm_conf_cnf_pwm_voltage_calibration_bias;
 
 static bool dissect_vs_get_pwm_conf_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                         proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_PWM_CONF_CNF) {
         return false;
@@ -2153,7 +2193,9 @@ static const value_string vertexcom_val_str_pwm_conf_op_code[] = {
 
 static bool dissect_vs_set_pwm_conf_req(tvbuff_t* tvb, packet_info* pinfo,
                                         proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_PWM_CONF_REQ) {
         return false;
@@ -2187,7 +2229,9 @@ static bool dissect_vs_set_pwm_conf_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_set_pwm_conf_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                         proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_PWM_CONF_CNF) {
         return false;
@@ -2297,7 +2341,9 @@ static int hf_vs_pwm_generation_cnf_result;
 
 static bool dissect_vs_pwm_generation_req(tvbuff_t* tvb, packet_info* pinfo,
                                           proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_PWM_GENERATION_REQ) {
         return false;
@@ -2320,7 +2366,9 @@ static bool dissect_vs_pwm_generation_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_pwm_generation_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                           proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_PWM_GENERATION_CNF) {
         return false;
@@ -2423,7 +2471,9 @@ static int hf_vs_spi_stats_cnf_tx_data_error;
 
 static bool dissect_vs_spi_stats_req(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SPI_STATS_REQ) {
         return false;
@@ -2442,7 +2492,9 @@ static bool dissect_vs_spi_stats_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_spi_stats_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                      proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SPI_STATS_CNF) {
         return false;
@@ -2651,7 +2703,9 @@ static int hf_vs_set_tx_cal_cnf_result;
 
 static bool dissect_vs_set_tx_cal_req(tvbuff_t* tvb, packet_info* pinfo,
                                       proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_TX_CAL_REQ) {
         return false;
@@ -2670,7 +2724,9 @@ static bool dissect_vs_set_tx_cal_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_set_tx_cal_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                       proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_TX_CAL_CNF) {
         return false;
@@ -2767,7 +2823,9 @@ static const value_string vertexcom_val_str_file_access_filetype[] = {
 
 static bool dissect_vs_file_access_req(tvbuff_t* tvb, packet_info* pinfo,
                                        proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_FILE_ACCESS_REQ) {
         return false;
@@ -2795,7 +2853,9 @@ static bool dissect_vs_file_access_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_file_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                        proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_FILE_ACCESS_CNF) {
         return false;
@@ -2938,7 +2998,9 @@ static int hf_vs_set_remote_access_cnf_result;
 
 static bool dissect_vs_set_remote_access_req(tvbuff_t* tvb, packet_info* pinfo,
                                              proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_REMOTE_ACCESS_REQ) {
         return false;
@@ -2957,7 +3019,9 @@ static bool dissect_vs_set_remote_access_req(tvbuff_t* tvb, packet_info* pinfo,
 
 static bool dissect_vs_set_remote_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                              proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_SET_REMOTE_ACCESS_CNF) {
         return false;
@@ -3023,7 +3087,9 @@ static int hf_vs_get_remote_access_cnf_status;
 
 static bool dissect_vs_get_remote_access_cnf(tvbuff_t* tvb, packet_info* pinfo,
                                              proto_tree* tree, void* data) {
-    DISSECTOR_ASSERT(data);
+    if (!data) {
+        return false;
+    }
     homeplug_av_vertexcom_context_t* ctx = (homeplug_av_vertexcom_context_t*)data;
     if (ctx->mmtype != HOMEPLUG_AV_MMTYPE_VERTEXCOM_VS_GET_REMOTE_ACCESS_CNF) {
         return false;

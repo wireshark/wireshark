@@ -446,8 +446,12 @@ dissect_uasp_bulk(tvbuff_t *tvb,
     uasp_dissector_t  dissector = NULL;
     uint8_t           endpoint;
     urb_info_t       *urb = (urb_info_t *)data;
-    uasp_conv_info_t *uasp_conv_info = get_uasp_conv_info(urb->conv);
+    uasp_conv_info_t *uasp_conv_info;
 
+    if (!urb)
+        return 0;
+
+    uasp_conv_info = get_uasp_conv_info(urb->conv);
     if (!uasp_conv_info)
         return 0;
 

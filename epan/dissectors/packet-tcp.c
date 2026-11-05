@@ -10442,7 +10442,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tcpd->rev->mss = 1220;
             break;
         default:
-            DISSECTOR_ASSERT_NOT_REACHED();
             break;
         }
     }

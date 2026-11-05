@@ -154,6 +154,9 @@ static int dissect_packetlogger(tvbuff_t *tvb, packet_info *pinfo,
   bluetooth_data_t  *bluetooth_data;
 
   bluetooth_data = (bluetooth_data_t *) data;
+  if (!bluetooth_data) {
+    return 0;
+  }
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, "PKTLOG");
   col_clear (pinfo->cinfo, COL_INFO);

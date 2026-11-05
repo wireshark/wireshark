@@ -97,6 +97,10 @@ dissect_isdn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	static const uint8_t ppp[2] = { 0xFF, 0x03 };
 	conversation_t *conv;
 
+	if (!isdn) {
+		return 0;
+	}
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISDN");
 
 	if (isdn->uton) {

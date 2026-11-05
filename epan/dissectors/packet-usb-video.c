@@ -2023,6 +2023,9 @@ dissect_usb_vid_interrupt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     int  offset = 0;
 
     urb = (urb_info_t *)data;
+    if (!urb || !urb->conv) {
+        return 0;
+    }
     bytes_available = tvb_reported_length_remaining(tvb, offset);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBVIDEO");
