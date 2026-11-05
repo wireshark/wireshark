@@ -269,7 +269,7 @@ proto_register_h263P(void)
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x0003,
+                0x0007,
                 "number of bits that shall be ignored in the last byte of the picture header", HFILL
             }
         },
