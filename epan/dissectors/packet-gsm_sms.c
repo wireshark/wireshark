@@ -268,7 +268,6 @@ static expert_field ei_gsm_sms_message_dissector_not_implemented;
 
 static bool reassemble_sms = true;
 static bool reassemble_sms_with_lower_layers_info = true;
-static proto_tree *g_tree;
 
 /* 3GPP TS 23.038 version 7.0.0 Release 7
  * The TP-Data-Coding-Scheme field, defined in 3GPP TS 23.040 [4],
@@ -444,10 +443,12 @@ sm_fragment_persistent_key(const packet_info *pinfo,
                            const uint32_t id, const void *data)
 {
     const char* addr = (const char*)data;
-    sm_fragment_key *key = g_slice_new(sm_fragment_key);
+    sm_fragment_key *key;
 
     if (addr == NULL)
         return NULL;
+
+    key = g_slice_new(sm_fragment_key);
 
     key->addr_info = wmem_strdup(NULL, addr);
     key->p2p_dir = pinfo->p2p_dir;
@@ -1111,6 +1112,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
     uint16_t    value;
     uint32_t    mins, hours;
     bool        done;
+    bool        relative_only = (vp_form == 2);
 
 
     if (vp_form == 0x00) return;
@@ -1262,7 +1264,7 @@ dis_field_vp(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, uint32_t *offs
     }
     while (!done);
 
-    if (vp_form == 2)
+    if (relative_only)
     {
         (*offset_p)++;
     }
@@ -2960,8 +2962,6 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
         proto_item  *gsm_sms_item;
         proto_tree  *gsm_sms_tree;
-
-        g_tree = tree;
 
         offset = 0;
 
