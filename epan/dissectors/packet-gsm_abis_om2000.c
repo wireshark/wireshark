@@ -672,7 +672,7 @@ dissect_om2k_time(tvbuff_t *tvb, int offset, proto_tree *tree)
 	tmptime.secs   = tval;
 	tmptime.nsecs  = 0;
 
-	proto_tree_add_time(tree, hf_om2k_cal_time, tvb, offset, 6,
+	proto_tree_add_time(tree, hf_om2k_cal_time, tvb, offset - 6, 6,
 			    &tmptime);
 	return 6;
 }
@@ -777,7 +777,7 @@ dissect_om2k_mo_record(tvbuff_t *tvb, packet_info *pinfo, int base_offset, int l
 	proto_tree_add_item(tree, hf_om2k_mo_class, tvb, offset++, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_om2k_mo_instance, tvb, offset++, 1, ENC_NA);
 
-	while (offset < len) {
+	while (offset < base_offset + len) {
 		uint16_t attr_id;
 		uint8_t attr_len;
 
