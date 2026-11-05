@@ -445,6 +445,7 @@ static const value_string fmip6_lla_optcode_value[] = {
 };
 
 /* Mobile Node Identifier Option code */
+#define MIP6_MNID_SUBTYPE_IMSI 3
 static const value_string mip6_mnid_subtype_value[] = {
     {   1, "Network Access Identifier (NAI)" },
     {   2, "IPv6 Address" },
@@ -2269,18 +2270,25 @@ dissect_mip6_opt_mnid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_item* ti;
     unsigned option_len = tvb_reported_length(tvb)-2;
     unsigned offset = 2;
+    uint32_t subtype;
     char *str;
 
     opt_tree = mip6_var_option_header(tree, pinfo, tvb, proto_mip6_option_mnid, ett_mip6_opt_mnid, &ti, option_len, MIP6_MNID_MINLEN);
 
-    proto_tree_add_item(opt_tree, hf_mip6_mnid_subtype, tvb,
-            offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(opt_tree, hf_mip6_mnid_subtype, tvb,
+            offset, 1, ENC_BIG_ENDIAN, &subtype);
     offset++;
 
     if (option_len > 1) {
         /* XXX - Handle each known subtype appropriately. */
         proto_tree_add_item_ret_display_string(opt_tree, hf_mip6_mnid_identifier, tvb, offset, option_len - 1, ENC_NA, pinfo->pool, &str);
         proto_item_append_text(ti, ": %s", str);
+        if (subtype == MIP6_MNID_SUBTYPE_IMSI) {
+            /* RFC 8371: one digit per nibble, high nibble first, padded with 0xf */
+            add_assoc_imsi_item(tvb, pinfo, opt_tree,
+                                (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset, option_len - 1,
+                                                                 ENC_BCD_DIGITS_0_9|ENC_BIG_ENDIAN));
+        }
     }
 
     return tvb_captured_length(tvb);
