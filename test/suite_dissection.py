@@ -71941,3 +71941,126 @@ class TestDissectHislip:
         assert asyn[0] == 58 and 109 in asyn and 123 in asyn
         assert not set(syn) & set(asyn)
         assert len(syn) + len(asyn) == 118
+
+
+class TestDissectHl7:
+    def test_hl7_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HL7 is reached on TCP 2575 and, by its heuristic, on port
+        3000; nothing is malformed and there are no warning or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'hl7', '-Tfields', '-eframe.number', '-etcp.dstport',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 32
+        assert sum(1 for l in lines if l[1] == '3000') == 3
+        assert sum(1 for l in lines if l[1] == '40003') == 1
+        assert sum(1 for l in lines if l[1] == '40000') == 1
+        assert sum(1 for l in lines if l[1] == '2575') == 27
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hl7_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hl7_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message type and trigger event, and the Info column (the
+        event is left out when the message has none).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'hl7 && frame.number >= 4 && frame.number <= 20',
+                '-Tfields', '-eframe.number', '-ehl7.message.type',
+                '-ehl7.event.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '4\tADT\tA01\tADT (A01)'
+        assert lines[1] == '5\tACK\t\tACK'
+        assert lines[2] == '6\tORM\tO01\tORM (O01)'
+        assert lines[10] == '14\tZZZ\tZ99\tZZZ (Z99)'
+        assert lines[12] == '16\tACK\t\tACK'
+        assert lines[13] == '20\tADT,ADT\tA01,A01\tADT (A01), ADT (A01)'
+
+    def test_hl7_tree_text(self, cmd_tshark, capture_file, test_env):
+        '''Descriptions of the message type, event and segments (known
+        and unknown) in the tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4 || frame.number == 14',
+                '-V', '-O', 'hl7',
+            ), encoding='utf-8', env=test_env)
+        assert 'Health Level Seven, Type: Admit Discharge Transfer, Event: Admit/visit notification' in stdout
+        assert 'Health Level Seven, Type: Unknown, Event: Unknown' in stdout
+        assert '    PID (Patient Identification)' in stdout
+        assert '    ZZZ (Unknown Segment)' in stdout
+        assert '        field 4: 123456^^^HOSP^MR' in stdout
+
+    def test_hl7_segment_terminators(self, cmd_tshark, capture_file, test_env):
+        '''Segments ended by CR, LF and CR LF.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24 || frame.number == 25',
+                '-Tfields', '-ehl7.event.type', '-ehl7.segment',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('A04\tMSH|')
+        assert lines[0].count('PV1|1|O') == 1
+        assert lines[1].startswith('A04\tMSH|')
+        assert lines[1].count('PID|1||1') == 1
+
+    def test_hl7_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message over three segments, a segment holding the end of one
+        message and the start of the next, and the heuristic port 3000
+        with the first segment cut short.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'hl7 && frame.number >= 23',
+                '-Tfields', '-eframe.number', '-ehl7.event.type',
+                '-ehl7.segment',
+            ), encoding='utf-8', env=test_env)
+        frames = [l.split('\t')[0] for l in stdout.splitlines()]
+        assert frames[:5] == ['23', '24', '25', '26', '27']
+        assert 44 in [int(f) for f in frames]
+        assert 43 not in [int(f) for f in frames]
+        assert 21 not in [int(f) for f in frames] and 22 not in [int(f) for f in frames]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'frame.number == 43', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert '[TCP segment of a reassembled PDU]' in stdout or 'Len=15' in stdout
+
+    def test_hl7_trailing_bytes_without_sob(self, cmd_tshark, capture_file, test_env):
+        '''A complete message followed by bytes that do not start with the
+        start-of-block byte: the block offset is checked (it was byte 0),
+        and the trailing bytes are shown as Data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28',
+                '-Tfields', '-ehl7.event.type', '-edata.len', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['A01\t21\tHL7']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hl7_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 28 && _ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hl7_display_llp_raw(self, cmd_tshark, capture_file, test_env):
+        '''display_llp shows the start and end of block markers,
+        display_raw the message text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'hl7.display_llp:TRUE', '-o', 'hl7.display_raw:TRUE',
+                '-r', capture_file('hl7_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-ehl7.llp.sob', '-ehl7.llp.eob',
+                '-ehl7.raw', '-ehl7.raw.segment',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '0x0b'
+        assert fields[1] == '0x1c0d'
+        assert fields[2].startswith('MSH|^~\\\\&|RECV|FAC2|SENDER')
+        assert fields[3].split(',')[1] == 'MSA|AA|MSG0001\\r'
