@@ -96,6 +96,15 @@ GANSS-PositioningInstructions/additionalAssistanceDataRequest ABBREV=gANSS-Posit
 
 #.FN_PARS Outcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_OutcomeValue
 
+#.FN_BODY IMSI VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_pcap_IMSI);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+  }
+#.END
+
 #--- Parameterization is not supported in asn2wrs ---
 # Not used yet in PCAP ASN.1
 #ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, PCAP-PROTOCOL-IES : IEsSetParam} ::=

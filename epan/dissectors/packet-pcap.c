@@ -31,6 +31,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-sccp.h"
+#include "packet-e212.h"
 
 #define MAX_SSN 254
 
@@ -1504,6 +1505,7 @@ static int hf_pcap_AvailableSubChannelNumbers_subCh0;
 
 /* Initialize the subtree pointers */
 static int ett_pcap;
+static int ett_pcap_IMSI;
 
 static int ett_pcap_PrivateIE_ID;
 static int ett_pcap_TransactionID;
@@ -4381,8 +4383,14 @@ dissect_pcap_IMEI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, 
 
 static unsigned
 dissect_pcap_IMSI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 8, false, NULL);
+                                       3, 8, false, &parameter_tvb);
+
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_pcap_IMSI);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+  }
 
   return offset;
 }
@@ -19864,6 +19872,7 @@ void proto_register_pcap(void) {
   /* List of subtrees */
   static int *ett[] = {
 		  &ett_pcap,
+		  &ett_pcap_IMSI,
     &ett_pcap_PrivateIE_ID,
     &ett_pcap_TransactionID,
     &ett_pcap_ProtocolIE_Container,

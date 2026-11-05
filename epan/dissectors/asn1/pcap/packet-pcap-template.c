@@ -26,6 +26,7 @@
 #include "packet-ber.h"
 #include "packet-per.h"
 #include "packet-sccp.h"
+#include "packet-e212.h"
 
 #define MAX_SSN 254
 
@@ -43,6 +44,7 @@ static int proto_pcap;
 
 /* Initialize the subtree pointers */
 static int ett_pcap;
+static int ett_pcap_IMSI;
 
 #include "packet-pcap-ett.c"
 
@@ -138,6 +140,7 @@ void proto_register_pcap(void) {
   /* List of subtrees */
   static int *ett[] = {
 		  &ett_pcap,
+		  &ett_pcap_IMSI,
 #include "packet-pcap-ettarr.c"
   };
 
