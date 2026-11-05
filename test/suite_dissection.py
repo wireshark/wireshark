@@ -65674,3 +65674,89 @@ class TestDissectGsmARp:
     def test_gsm_a_rp_extraneous_data(self, cmd_tshark, capture_file, test_env):
         '''Two RP messages have extra octets after the last element (frames 33 and 34).'''
         assert self._frames(cmd_tshark, capture_file, test_env, 'gsm_a.rp.extraneous_data') == [33, 34]
+
+
+class TestDissectGsmARr:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsm_a_rr_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsm_a_rr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''1364 frames (GSMTAP and Exported PDU), none malformed or with an
+        error expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env)
+        assert len(rows) == 1364
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gsm_a_rr_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gsm_a_rr_rach(self, cmd_tshark, capture_file, test_env):
+        '''All 256 values of the channel request reach the RACH dissector.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                          flt='frame.number >= 1 && _ws.col.info contains "(RACH)"')
+        assert len(rows) == 256
+
+    def test_gsm_a_rr_message_coverage(self, cmd_tshark, capture_file, test_env):
+        '''Most RR message types are present (DTAP RR message types and
+        CCCH/SACCH short PD messages).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_a.dtap.msg_rr_type', flt='gsm_a.dtap.msg_rr_type')
+        assert len({r[1] for r in rows}) >= 70
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_a.rr.short_pd_type', flt='gsm_a.rr.short_pd_type')
+        assert len({r[1] for r in rows}) >= 5
+
+    def test_gsm_a_rr_tmgi_mcc_mnc(self, cmd_tshark, capture_file, test_env):
+        '''The TMGI of the IA Rest Octets (frame 1346) decodes with MCC and
+        MNC in the TMGI tree (they ran past the block before the fix).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_a.rr.mobile_country_code', 'gsm_a.rr.mobile_network_code',
+                          flt='frame.number == 1346')
+        assert rows == [['1346', '262', '001']]
+
+    def test_gsm_a_rr_cell_selection_tdd(self, cmd_tshark, capture_file, test_env):
+        '''After the UTRAN TDD ARFCN of the cell selection indicator the
+        next flags are read from the right bit (frame 1347).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_a.rr.tdd_uarfcn', flt='frame.number == 1347')
+        assert rows == [['1347', '10241']]
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_a.rr.nr_of_fdd_cells', flt='frame.number in {1353, 1354}')
+        assert rows == [['1353', '2,11'], ['1354', '5,26']]
+
+    def test_gsm_a_rr_short_freq_list(self, cmd_tshark, capture_file, test_env):
+        '''A variable bit map frequency list of 2 octets gives an under-run
+        note and does not wrap around (frame 1348).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          '_ws.expert.message', flt='frame.number == 1348 && !_ws.malformed')
+        assert len(rows) == 1
+        assert 'IE under-runs stated length' in rows[0][1]
+
+    def test_gsm_a_rr_long_immediate_assignment(self, cmd_tshark, capture_file, test_env):
+        '''Immediate Assignment messages of 250, 260 and 300 octets decode
+        with all their padding and no expert info (frames 1349-1351).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                          '_ws.expert.message', flt='frame.number in {1349, 1350, 1351}')
+        assert [(r[1].strip(), r[2] if len(r) > 2 else '') for r in rows] == \
+            [('(DTAP) (RR) Immediate Assignment', '')] * 3
+
+    def test_gsm_a_rr_nri_preference(self, cmd_tshark, capture_file, test_env):
+        '''The NRI of the TLLI in the GPRS Suspension Request (frame 1364)
+        is decoded for lengths 1 to 10 only; a length of 70 gives no
+        dissector bug.'''
+        for n, expected in (('3', ['1364', '7']), ('0', None), ('70', None)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'gsm_a.rr.nri',
+                              flt='frame.number == 1364 && gsm_a.rr.nri',
+                              extra=('-ogsm_a.rr.nri_length:' + n,))
+            assert (rows[0] if rows else None) == expected
