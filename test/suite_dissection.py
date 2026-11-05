@@ -69168,3 +69168,69 @@ class TestDissectH248:
                                                                 '0x00000009']
             assert rows[2][2] == 'abc'
             assert all('AddReq' in r[3] and 'Dissector bug' not in r[3] for r in rows)
+
+
+class TestDissectH248Q1950:
+    '''ITU-T Q.1950 Annex A packages (bcp, bnc cut-through, reuse idle,
+    generic bearer connection, bearer control tunnelling and basic call
+    progress tones with direction) inside binary H.248 on UDP 2945, from the
+    synthetic capture h248_q1950_coverage.pcapng.gz: frames 1-9 are
+    properties, generic bearer signals and events and tones, 10-25 the
+    bearer control tunnelling package carrying BCTP (IPBCP for SDP, binary
+    and text protocols), 26-27 unknown ids, 28-45 the package sweep and
+    46-115 messages built from the H.248 ASN.1 module with these
+    packages.'''
+
+    @staticmethod
+    def h248_q1950_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_q1950_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_q1950_protocols(self, cmd_tshark, capture_file, test_env):
+        '''115 frames (11 with SDP from the IPBCP tunnel), none malformed or
+        with an error expert info in one and two passes.'''
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 115
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.248') == 104
+        assert protocols.count('H.248/SDP') == 11
+        for passes in ((), ('-2',)):
+            rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env,
+                                          filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                          passes=passes)
+            assert rows == []
+
+    def test_h248_q1950_properties_and_signals(self, cmd_tshark, capture_file, test_env):
+        '''The bearer characteristics, cut-through, reuse idle and
+        tunnelling option properties, and the release signal parameters.'''
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, 'h248.bcp.bncchar', 'h248.bcp.bncct',
+                                      'h248.bcp.rii', 'h248.BT.TunOpt', filt='frame.number <= 4')
+        assert rows == [['1', '0x00000000', '0x00000001', '0x00000000', '1'],
+                        ['2', '0x00000001', '0x00000002', '0x00000001', '2'],
+                        ['3', '0x00000002', '0x00000003', '0x00000000', '3'],
+                        ['4', '0x00000003', '0x00000001', '0x00000001', '1']]
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env,
+                                      'h248.GB.BNCChang.RelBNC.Generalcause', 'h248.GB.BNCChang.RelBNC.Reset',
+                                      filt='frame.number == 7')
+        assert rows == [['7', '0x00000001,0x00000002,0x00000003,0x00000004,0x00000005,0x00000006', 'True,False']]
+
+    def test_h248_q1950_bctp(self, cmd_tshark, capture_file, test_env):
+        '''The tunnelled BCTP: IPBCP (tunnelled protocol 0x20) is dissected
+        as SDP, other protocols as data; a value that is not an octet
+        string is shown as bytes.'''
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, 'bctp.tpi', 'sdp.ipbcp.command',
+                                      filt='frame.number >= 10 && frame.number <= 23')
+        assert [r[1] for r in rows] == ['0x0020', '0x0020', '0x0020', '0x0020', '0x0017', '0x0017', '0x0023',
+                                        '0x0023', '0x0022', '0x0022', '0x0020', '0x0020', '0x0020', '0x0020']
+        assert [r[2] for r in rows][:2] == ['Request', 'Request']
+        assert [r[2] for r in rows][-2:] == ['Accepted', 'Accepted']
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, 'bctp.tpi', 'data.data',
+                                      filt='frame.number == 14')
+        assert rows == [['14', '0x0017', '010203']]
+        rows = self.h248_q1950_fields(cmd_tshark, capture_file, test_env, 'bctp.tpi',
+                                      filt='(frame.number == 24 || frame.number == 25) && bctp')
+        assert rows == []
