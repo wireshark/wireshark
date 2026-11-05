@@ -23,6 +23,7 @@
 #include <wsutil/wslog.h>
 #include <wsutil/str_util.h>
 #include <wsutil/array.h>
+#include <wsutil/pint.h>
 
 /* for dissect_mscldap_string */
 #include "packet-ldap.h"
@@ -530,16 +531,16 @@ static e_guid_t uuid_dcerpc_netlogon = {
 static uint16_t ver_dcerpc_netlogon = 1;
 
 static unsigned dissect_dcerpc_8bytes (tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_,
-                                   proto_tree *tree, const uint8_t *drep,
+                                   proto_tree *tree, const uint8_t *drep _U_,
                                    int hfindex, uint64_t *pdata)
 {
     uint64_t data;
 
-    data = ((drep[0] & DREP_LITTLE_ENDIAN)
-            ? tvb_get_letoh64 (tvb, offset)
-            : tvb_get_ntoh64 (tvb, offset));
+    /* These fields are FT_BYTES, not integers; keep the octets in the
+     * order they were sent, as the key and sequence calculations use
+     * them as octet strings. */
+    tvb_memcpy(tvb, &data, offset, 8);
 
-    /* These fields are FT_BYTES, hence the byte order doesn't matter */
     if (tree) {
         proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_NA);
     }
@@ -8233,16 +8234,17 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, unsigned offset,
             }
             else
             {
-                uint32_t c1 = (uint32_t)(vars->client_challenge & UINT32_MAX);
-                uint32_t c2 = (uint32_t)((vars->client_challenge >> 32) & UINT32_MAX);
-                uint32_t s1 = (uint32_t)(vars->server_challenge & UINT32_MAX);
-                uint32_t s2 = (uint32_t)((vars->server_challenge >> 32) & UINT32_MAX);
-                uint32_t sum1 = c1 + s1;
-                uint32_t sum2 = c2 + s2;
-                uint64_t sum = (uint64_t)sum1 | ((uint64_t)sum2 << 32);
+                /* Each challenge is added as a pair of little-endian
+                 * 32-bit integers */
+                const uint8_t *client_challenge = (const uint8_t*)&vars->client_challenge;
+                const uint8_t *server_challenge = (const uint8_t*)&vars->server_challenge;
+                uint8_t sum[8];
+
+                phtoleu32(&sum[0], pletohu32(&client_challenge[0]) + pletohu32(&server_challenge[0]));
+                phtoleu32(&sum[4], pletohu32(&client_challenge[4]) + pletohu32(&server_challenge[4]));
 
                 used_method = "DES";
-                ws_log_buffer((uint8_t*)&sum, 8,"SUM for DES");
+                ws_log_buffer(sum, 8,"SUM for DES");
                 ws_log_buffer((uint8_t*)&vars->client_challenge,8,"Client challenge");
                 ws_log_buffer((uint8_t*)&vars->server_challenge,8,"Server challenge");
                 ws_log_buffer((uint8_t*)&server_cred,8,"Server creds");
@@ -8254,7 +8256,7 @@ netlogon_dissect_netrserverauthenticate023_reply(tvbuff_t *tvb, unsigned offset,
                     memset(session_key, 0, 16);
 
                     used_md4 = &pass_list[i];
-                    crypt_des_ecb(buf, (unsigned char*)&sum, used_md4->md4);
+                    crypt_des_ecb(buf, sum, used_md4->md4);
                     crypt_des_ecb((unsigned char*)session_key, buf, used_md4->md4+9);
 
                     crypt_des_ecb(buf,(unsigned char*)&vars->server_challenge,session_key);
