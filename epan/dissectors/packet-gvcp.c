@@ -777,7 +777,7 @@ static const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_MAX_PACKET_COUNT(0), "[SCMPC0 (Stream Channel Max Packet Count #0)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(0), "[SCMBSL0 (Stream Channel Max Block Size (High) #0)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(0), "[SCMBSH0 (Stream Channel Max Block Size (Low) #0)]" },
-	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(0), "SCEBA0 (Stream Channel Extended Bootstrap Address #0)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(0), "[SCEBA0 (Stream Channel Extended Bootstrap Address #0)]" },
 	{ GVCP_SC_DESTINATION_PORT(1), "[SCP1 (Stream Channel #1 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(1), "[SCPS1 (Stream Channel #1 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(1), "[SCPD1 (Stream Channel #1 Packet Delay)]" },
@@ -790,7 +790,7 @@ static const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_MAX_PACKET_COUNT(1), "[SCMPC1 (Stream Channel Max Packet Count #1)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(1), "[SCMBSL1 (Stream Channel Max Block Size (High) #1)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(1), "[SCMBSH1 (Stream Channel Max Block Size (Low) #1)]" },
-	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(1), "SCEBA1 (Stream Channel Extended Bootstrap Address #1)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(1), "[SCEBA1 (Stream Channel Extended Bootstrap Address #1)]" },
 	{ GVCP_SC_DESTINATION_PORT(2), "[SCP2 (Stream Channel #2 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(2), "[SCPS2 (Stream Channel #2 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(2), "[SCPD2 (Stream Channel #2 Packet Delay)]" },
@@ -803,7 +803,7 @@ static const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_MAX_PACKET_COUNT(2), "[SCMPC2 (Stream Channel Max Packet Count #2)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(2), "[SCMBSL2 (Stream Channel Max Block Size (High) #2)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(2), "[SCMBSH2 (Stream Channel Max Block Size (Low) #2)]" },
-	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(2), "SCEBA2 (Stream Channel Extended Bootstrap Address #2)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(2), "[SCEBA2 (Stream Channel Extended Bootstrap Address #2)]" },
 	{ GVCP_SC_DESTINATION_PORT(3), "[SCP3 (Stream Channel #3 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(3), "[SCPS3 (Stream Channel #3 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(3), "[SCPD3 (Stream Channel #3 Packet Delay)]" },
@@ -816,7 +816,7 @@ static const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_MAX_PACKET_COUNT(3), "[SCMPC3 (Stream Channel Max Packet Count #3)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(3), "[SCMBSL3 (Stream Channel Max Block Size (High) #3)]" },
 	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(3), "[SCMBSH3 (Stream Channel Max Block Size (Low) #3)]" },
-	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(3), "SCEBA3 (Stream Channel Extended Bootstrap Address #3)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(3), "[SCEBA3 (Stream Channel Extended Bootstrap Address #3)]" },
 	{ GVCP_MANIFEST_TABLE, "[Manifest Table]" },
 	{ GVCP_ACTION_GROUP_KEY(0), "[Action Group Key #0]" },
 	{ GVCP_ACTION_GROUP_MASK(0), "[Action Group Mask #0]" },
@@ -1859,6 +1859,9 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 	bool is_custom_register = false;
 	uint32_t addr = 0;
 
+	if (length < 4)
+		return;
+
 	addr = tvb_get_ntohl(tvb, startoffset);
 	address_string = get_register_name_from_address(addr, pinfo->pool, gvcp_info, &is_custom_register);
 
@@ -2340,7 +2343,7 @@ static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, int startoffset, int length, gvcp_conv_info_t *gvcp_info)
 {
-	if (length > 0)
+	if (length >= 4)
 	{
 		uint32_t addr = 0;
 		const char *address_string = NULL;
@@ -2362,7 +2365,7 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 			for (stream_channel_count = 0; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
 			{
-				if (startoffset == GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
+				if (addr == (uint32_t)GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
 				{
 					gvcp_info->extended_bootstrap_address[stream_channel_count] = tvb_get_ntohl(tvb, offset);
 					break;
