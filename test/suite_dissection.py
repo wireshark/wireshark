@@ -74596,3 +74596,168 @@ class TestDissectIcep:
                 '29\tICEP\t\t78797a',
                 '35\tICEP\t\t6f6b',
             ]
+
+
+class TestDissectIcmp:
+    '''ICMP from the synthetic capture icmp_coverage.pcap.gz: echo with
+    every timestamp encoding and request/response tracking, the error
+    messages with RFC 4884 lengths and multi-part extensions, router
+    advertisement with Mobile IP extensions, timestamp, mask,
+    Photuris and Extended Echo messages.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=('-2',)):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('icmp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_icmp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode as ICMP (or the IP fragment that carries
+        one) without malformed packets or error expert infos, in one
+        and two passes. Frames 69 and 70 carry the expert info of the
+        nested error messages, which is in the malformed group.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 204
+        assert protocols.count('ICMP') == 203
+        assert protocols.count('IPv4') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icmp_coverage.pcap.gz'),
+                    '-Y', '(_ws.malformed && !icmp.nested_error) || '
+                          '_ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_icmp_nested_error(self, cmd_tshark, capture_file, test_env):
+        '''An error message inside an error message is not dissected
+        any further and carries an expert info (before "ICMP: Bound
+        error nesting and fix extension lengths" the nesting was
+        unbounded).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.nested_error',
+                            '_ws.expert.message')
+        assert [r[0] for r in rows] == ['69', '70']
+        for r in rows:
+            assert 'ICMP error message nested inside an ICMP error message' in r[1]
+        # Frame 70 has four levels, only the outer two are dissected
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 70',
+                            'icmp.type')
+        assert rows == [['70', '11,11']]
+
+    def test_icmp_fixed_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The unknown Mobile IP extension adds its data length (it used
+        length - 4) and the unknown AFI of an interface information
+        object takes the rest of the object (it was negative).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'icmp.mip.content || icmp.int_info.ipunknown',
+                            'icmp.mip.content', 'icmp.int_info.ipunknown')
+        assert rows == [
+            ['119', '070809', ''],
+            ['120', '070809', ''],
+            ['122', 'aabb', ''],
+            ['180', '', '01020304'],
+        ]
+
+    def test_icmp_echo_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Echo requests and replies are paired, also for a reply with
+        checksum 0xffff; unanswered requests are flagged and broadcast
+        and multicast requests are not tracked.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.resp_in', 'icmp.resp_in')
+        assert [int(r[0]) + 1 for r in rows] == [int(r[1]) for r in rows]
+        assert len(rows) == 18
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.resp_to', 'icmp.resp_to')
+        assert [int(r[0]) - 1 for r in rows] == [int(r[1]) for r in rows]
+        assert len(rows) == 18
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.no_resp')
+        assert [r[0] for r in rows] == ['23', '30', '36']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {28, 29}', '_ws.col.info')
+        assert rows[0][1].endswith('(broadcast)')
+        assert rows[1][1].endswith('(multicast)')
+        # Frame 27 repeats the reply of 25/26: no second pairing
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 27', 'icmp.resp_to')
+        assert rows == [['27', '']]
+
+    def test_icmp_echo_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''The first eight octets (or sixteen) of an echo payload are
+        shown as a timestamp when they look like one: little and big
+        endian timeval, 32 and 64 bit; not for far away values.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'icmp.data_time', 'icmp.data_time')
+        assert [r[0] for r in rows] == ['1', '2', '3', '4', '5', '6', '7', '8', '13', '14']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 3, 5, 7} && icmp.data_time_relative',
+                            'icmp.data_time_relative')
+        assert len(rows) == 4
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {9, 10} && icmp.data_time')
+        assert rows == []
+        # never_timestamp turns it off
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('icmp_coverage.pcap.gz'),
+                '-o', 'icmp.never_timestamp:TRUE',
+                '-Y', 'icmp.data_time', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+
+    def test_icmp_timestamp_messages(self, cmd_tshark, capture_file, test_env):
+        '''The originate/receive/transmit timestamps are shown as given.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {196, 197, 199, 201, 202}',
+                            'icmp.originate_timestamp', 'icmp.receive_timestamp',
+                            'icmp.transmit_timestamp')
+        assert rows == [
+            ['196', '3600000', '0', '0'],
+            ['197', '3600000', '3600000', '3600000'],
+            ['199', '256', '65536', '0'],
+            ['201', '1000', '3892510720', '1000'],
+            ['202', '2147483653', '133', '4294967295'],
+        ]
+
+    def test_icmp_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Multi-part extension objects: MPLS stack, interface
+        information (name, index, MTU, address), Extended Echo
+        interface identification.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {166, 167}',
+                            'icmp.mpls.label')
+        assert rows == [['166', '1000'], ['167', '16,1048575']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 173',
+                            'icmp.int_info.name', 'icmp.int_info.index', 'icmp.int_info.mtu',
+                            'icmp.int_info.ipv4')
+        assert rows == [['173', 'eth0', '9', '1500', '10.1.1.1']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {124, 125, 126, 127}',
+                            'icmp.int_ident.name', 'icmp.int_ident.index', 'icmp.int_ident.ipv4')
+        assert rows == [
+            ['124', 'eth0', '', ''],
+            ['125', '', '7', ''],
+            ['126', '', '', '192.0.2.5'],
+            ['127', '', '', '192.0.2.5,192.0.2.6'],
+        ]
+        # The 5th interface information object is flagged
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 186',
+                            'icmp.int_info.role')
+        assert rows == [['186', '0,1,2,3,0']]
+        # Checksums: good, bad and absent
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.ext.checksum_bad',
+                            'icmp.ext.checksum.status')
+        assert [r[0] for r in rows] == ['135', '191']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmp.ext.checksum.status == 3')
+        assert [r[0] for r in rows] == ['131', '165', '190']
+
+    def test_icmp_router_advertisement(self, cmd_tshark, capture_file, test_env):
+        '''Router advertisement with addresses and Mobile IP extensions.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 116',
+                            'icmp.router_address', 'icmp.pref_level')
+        assert rows == [['116', '192.0.2.1,192.0.2.2', '0,-5']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 119',
+                            'icmp.mip.type', 'icmp.mip.coa', 'icmp.mip.prefixlength',
+                            'icmp.mip.challenge')
+        assert rows == [['119', '16,0,19,24,153,152,16', '192.0.2.9,192.0.2.10',
+                         '24,16,8', '01020304']]
