@@ -63670,3 +63670,229 @@ class TestDissectGmr1Rach:
             '77\t96\t\t\t\t12\t',
             '78\t120\t\t\t\t31\t',
         ]
+
+
+class TestDissectGmr1Rr:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmr1_rr_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmr1_rr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    @staticmethod
+    def _runs(stdout):
+        '''(message type, count) for consecutive frames of one message type.'''
+        runs = []
+        for t in stdout.split():
+            if runs and runs[-1][0] == t:
+                runs[-1][1] += 1
+            else:
+                runs.append([t, 1])
+        return [tuple(r) for r in runs]
+
+    def test_gmr1_rr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''158 frames: 73 RR messages on the CCCH (frames 1-73), 4 CCCH frames that
+        are not RR messages (74-77, shown as data), 81 RR messages on a DCCH (78-158).'''
+        for flt, count in (('gmr1.ccch', 73), ('gmr1.dtap', 81)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                                  '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output(stdout) == count
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'data', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['74', '75', '77']
+
+    def test_gmr1_rr_ccch_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types on the CCCH: the messages with decoders first, then the named
+        messages without one and unknown types.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.ccch', '-Tfields', '-egmr1.rr.msg_type')
+        assert self._runs(stdout) == [('0x3f', 13), ('0x3a', 6), ('0x39', 3), ('0x3e', 3), ('0x3d', 2), ('0x24', 16), ('0x3b', 1), ('0x3c', 1), ('0x2a', 1), ('0x29', 1), ('0x2f', 1), ('0x2b', 1), ('0x2c', 1), ('0x0e', 1), ('0x21', 1), ('0x22', 1), ('0x12', 1), ('0x16', 1), ('0x13', 1), ('0x14', 1), ('0x15', 1), ('0x11', 1), ('0x01', 1), ('0x02', 1), ('0x04', 1), ('0x40', 1), ('0x41', 1), ('0x42', 1), ('0x43', 1), ('0x44', 1), ('0x45', 1), ('0x46', 1), ('0x4f', 1), ('0x01', 1), ('0x77', 1), ('0xee', 1)]
+
+    def test_gmr1_rr_dcch_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types on a DCCH. 0x3e and 0x3b are the Extended Immediate Assignment
+        [Reject] there, not the CCCH messages with the same numbers.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.dtap', '-Tfields', '-egmr1.rr.msg_type')
+        assert self._runs(stdout) == [('0x35', 8), ('0x32', 4), ('0x2e', 6), ('0x0d', 16), ('0x27', 5), ('0x10', 1), ('0x17', 1), ('0x10', 1), ('0x17', 1), ('0x10', 1), ('0x17', 1), ('0x3f', 1), ('0x3a', 1), ('0x39', 1), ('0x3d', 1), ('0x24', 1), ('0x3e', 1), ('0x3b', 1), ('0x3c', 1), ('0x2a', 1), ('0x29', 1), ('0x2f', 1), ('0x2b', 1), ('0x2c', 1), ('0x0e', 1), ('0x21', 1), ('0x22', 1), ('0x12', 1), ('0x16', 1), ('0x13', 1), ('0x14', 1), ('0x15', 1), ('0x11', 1), ('0x01', 1), ('0x02', 1), ('0x04', 1), ('0x40', 1), ('0x41', 1), ('0x42', 1), ('0x43', 1), ('0x44', 1), ('0x45', 1), ('0x46', 1), ('0x4f', 1), ('0x7a', 1), ('0xfe', 1), ('0x35', 1)]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 23 || frame.number == 44 || frame.number == 128 || frame.number == 129',
+                              '-Tfields', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '(CCCH) (RR) Immediate Assignment Type 2',
+            '(CCCH) (RR) Immediate Assignment Reject Type 2',
+            'U, func=UI (DTAP) (RR) Extended Immediate Assignment',
+            'U, func=UI (DTAP) (RR) Extended Imm. Assignment Reject',
+        ]
+
+    def test_gmr1_rr_immediate_assignment(self, cmd_tshark, capture_file, test_env):
+        '''The MES information flag selects the elements: the GPS discriminator
+        unless the assignment type is 2, no channel description for type 3, the position
+        update information for the idle (bit 2) and dedicated (bit 3) mode and a request
+        reference for each of MES2 to MES4.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number <= 13', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.mes_info_flag.1.ab', '-egmr1.rr.gps_discriminator',
+                              '-egmr1.rr.chan_desc.arfcn', '-egmr1.rr.pos_upd_info.valid',
+                              '-egmr1.rr.req_ref.fn')
+        assert stdout.splitlines() == [
+            '1\t0\t0xbeef\t1234\t\t66',
+            '2\t1\t0xbeef\t1234\t\t66',
+            '3\t2\t\t1234\t\t66',
+            '4\t3\t0xbeef\t\t\t66',
+            '5\t1\t0xbeef\t1234\t1\t66',
+            '6\t2\t\t1234\t0\t66',
+            '7\t0\t0xbeef\t1234\t1,0\t66',
+            '8\t3\t0xbeef\t\t\t66,67',
+            '9\t2\t\t1234\t\t66,68',
+            '10\t0\t0xbeef\t1234\t1\t66,69',
+            '11\t1\t0xbeef\t1234\t1,0\t66,67,68,69',
+            '12\t2\t\t1234\t1,0\t66,67,68,69',
+            '13\t0\t0xbeef\t1234\t\t66',
+        ]
+
+    def test_gmr1_rr_immediate_assignment_reject(self, cmd_tshark, capture_file, test_env):
+        '''Reject cause: wait indication for MES1 only for cause 0, the BCCH carrier
+        when the low bit is set, the MSC ID for cause 0x17.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 14 && frame.number <= 19', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.reject_cause.cause', '-egmr1.rr.reject_cause.b',
+                              '-egmr1.rr.wait_ind.timeout', '-egmr1.rr.bcch_carrier.arfcn', '-egmr1.rr.msc_id')
+        assert stdout.splitlines() == [
+            '14\t0\t0\t30,5,6,7\t\t',
+            '15\t0\t1\t30,5,6,7\t1500\t',
+            '16\t18\t0\t5,6,7\t\t',
+            '17\t23\t0\t5,6,7\t\t42',
+            '18\t23\t1\t5,6,7\t1500\t42',
+            '19\t19\t0\t5,6,7\t\t',
+        ]
+
+    def test_gmr1_rr_paging_request_3(self, cmd_tshark, capture_file, test_env):
+        '''Frames 28-43 carry every TMSI availability mask: a TMSI and a paging
+        information element for each bit set, a GPS almanac element for each bit clear.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 28 && frame.number <= 43', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.tmsi_ptmsi', '-egmr1.rr.paging_info.msc_id')
+        assert stdout.splitlines() == [
+            '28\t\t',
+            '29\t0xa0000001\t9',
+            '30\t0xa0000002\t10',
+            '31\t0xa0000001,0xa0000002\t9,10',
+            '32\t0xa0000003\t11',
+            '33\t0xa0000001,0xa0000003\t9,11',
+            '34\t0xa0000002,0xa0000003\t10,11',
+            '35\t0xa0000001,0xa0000002,0xa0000003\t9,10,11',
+            '36\t0xa0000004\t12',
+            '37\t0xa0000001,0xa0000004\t9,12',
+            '38\t0xa0000002,0xa0000004\t10,12',
+            '39\t0xa0000001,0xa0000002,0xa0000004\t9,10,12',
+            '40\t0xa0000003,0xa0000004\t11,12',
+            '41\t0xa0000001,0xa0000003,0xa0000004\t9,11,12',
+            '42\t0xa0000002,0xa0000003,0xa0000004\t10,11,12',
+            '43\t0xa0000001,0xa0000002,0xa0000003,0xa0000004\t9,10,11,12',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 28', '-Tfields', '-egmr1.rr.gps_almanac.pn')
+        assert stdout.split() == ['3,4,5,6']
+
+    def test_gmr1_rr_packet_immediate_assignment(self, cmd_tshark, capture_file, test_env):
+        '''Immediate Assignment Type 2 and 3 with their packet parameters.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 23 && frame.number <= 27', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.pkt_pwr_ctrl_prm.par', '-egmr1.rr.usf.value',
+                              '-egmr1.rr.pkt_imm_ass_2_prm.ac.rlc_dblk_gnt',
+                              '-egmr1.rr.pkt_imm_ass_3_prm.tfi', '-egmr1.rr.persistence_lvl.p1')
+        assert stdout.splitlines() == [
+            '23\t33\t0x2a\t90\t\t',
+            '24\t61\t0x2a\t90\t\t',
+            '25\t63\t0x2a\t90\t\t',
+            '26\t12\t\t\t0x5a\t9',
+            '27\t60\t\t\t0x5a\t9',
+        ]
+
+    def test_gmr1_rr_no_trailing_data(self, cmd_tshark, capture_file, test_env):
+        '''A decoded CCCH message is not followed by a second, spurious Data item
+        (the dissector fell through into its error label).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.ccch && data', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_gmr1_rr_rlc_blocks_granted_in_subtree(self, cmd_tshark, capture_file, test_env):
+        '''"RLC Data Blocks Granted" is part of the "GMPRS Terminal type A or C"
+        subtree, with the other access parameters (it was one level up).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 23', '-V')
+        lines = stdout.splitlines()
+        def indent(text):
+            line = next(l for l in lines if text in l)
+            return len(line) - len(line.lstrip())
+        assert indent('RLC Data Blocks Granted: 90') == indent('Starting Frame Number: 9')
+        assert indent('Starting Frame Number: 9') > indent('GMPRS Terminal type A or C')
+
+    def test_gmr1_rr_ciphering(self, cmd_tshark, capture_file, test_env):
+        '''Ciphering Mode Command (cipher mode setting and response in one octet),
+        Ciphering Mode Complete with the optional mobile identity and GPS timestamp.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 78 && frame.number <= 85', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.ciph_mode_setting.algo', '-egmr1.rr.ciph_mode_setting.sc',
+                              '-egmr1.rr.ciph_resp.cr')
+        assert stdout.splitlines() == [
+            '78\t0\t0\t0',
+            '79\t1\t1\t1',
+            '80\t2\t0\t0',
+            '81\t3\t1\t1',
+            '82\t4\t0\t0',
+            '83\t5\t1\t1',
+            '84\t6\t0\t0',
+            '85\t7\t1\t1',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 86 && frame.number <= 89', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.gps_timestamp', '-egsm_a.ie.mobileid.type')
+        assert stdout.splitlines() == [
+            '86\t42\t4',
+            '87\t65535\t',
+            '88\t\t4',
+            '89\t\t',
+        ]
+
+    def test_gmr1_rr_channel_release_causes(self, cmd_tshark, capture_file, test_env):
+        '''Channel Release with the RR causes the dissector names.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 96 && frame.number <= 111', '-Tfields', '-eframe.number',
+                              '-egmr1.rr.cause')
+        assert stdout.splitlines() == [
+            '96\t0',
+            '97\t1',
+            '98\t2',
+            '99\t3',
+            '100\t4',
+            '101\t5',
+            '102\t9',
+            '103\t10',
+            '104\t11',
+            '105\t65',
+            '106\t95',
+            '107\t96',
+            '108\t97',
+            '109\t98',
+            '110\t111',
+            '111\t51',
+        ]
+
+    def test_gmr1_rr_not_rr_is_data(self, cmd_tshark, capture_file, test_env):
+        '''CCCH frames that are too short or have another protocol discriminator
+        show the Info of the discriminator and a Data item.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 74 && frame.number <= 77', '-Tfields', '-eframe.number',
+                              '-e_ws.col.info', '-edata.len')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '74 (CCCH) (MM) 4',
+            '75 2',
+            '76',
+            '77 (CCCH) (DTRS) 4',
+        ]
