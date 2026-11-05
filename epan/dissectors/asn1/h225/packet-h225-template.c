@@ -42,6 +42,7 @@
 #include "packet-h235.h"
 #include "packet-h245.h"
 #include "packet-h323.h"
+#include "packet-e212.h"
 #include "packet-q931.h"
 #include "packet-tls.h"
 
@@ -248,6 +249,18 @@ static void h225_set_cs_type(packet_info *pinfo, h225_packet_info* h225_pi, h225
   } else {
     h225_pi->frame_label = wmem_strdup(pinfo->pool, val_to_str_const(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
+}
+
+/* Add the IMSI of an ANSI-41-UIM or GSM-UIM to the IMSI tap */
+static void
+h225_add_assoc_imsi(tvbuff_t *imsi_tvb, asn1_ctx_t *actx, proto_tree *tree)
+{
+  if (!imsi_tvb || tvb_reported_length(imsi_tvb) == 0)
+    return;
+
+  add_assoc_imsi_item(imsi_tvb, actx->pinfo, tree,
+                      (const char *)tvb_get_string_enc(actx->pinfo->pool, imsi_tvb, 0,
+                                                       tvb_reported_length(imsi_tvb), ENC_ASCII));
 }
 
 #include "packet-h225-fn.c"

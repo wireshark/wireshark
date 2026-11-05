@@ -47,6 +47,7 @@
 #include "packet-h235.h"
 #include "packet-h245.h"
 #include "packet-h323.h"
+#include "packet-e212.h"
 #include "packet-q931.h"
 #include "packet-tls.h"
 
@@ -410,7 +411,7 @@ static int hf_h225_pISNSpecificNumber;            /* NULL */
 static int hf_h225_localNumber;                   /* NULL */
 static int hf_h225_ansi_41_uim;                   /* ANSI_41_UIM */
 static int hf_h225_gsm_uim;                       /* GSM_UIM */
-static int hf_h225_imsi;                          /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_imsi;                          /* T_imsi */
 static int hf_h225_min;                           /* TBCD_STRING_SIZE_3_16 */
 static int hf_h225_mdn;                           /* TBCD_STRING_SIZE_3_16 */
 static int hf_h225_msisdn;                        /* TBCD_STRING_SIZE_3_16 */
@@ -424,6 +425,7 @@ static int hf_h225_systemAccessType;              /* OCTET_STRING_SIZE_1 */
 static int hf_h225_qualificationInformationCode;  /* OCTET_STRING_SIZE_1 */
 static int hf_h225_sesn;                          /* TBCD_STRING_SIZE_16 */
 static int hf_h225_soc;                           /* TBCD_STRING_SIZE_3_16 */
+static int hf_h225_imsi_01;                       /* T_imsi_01 */
 static int hf_h225_tmsi;                          /* OCTET_STRING_SIZE_1_4 */
 static int hf_h225_imei;                          /* TBCD_STRING_SIZE_15_16 */
 static int hf_h225_hplmn;                         /* TBCD_STRING_SIZE_1_4 */
@@ -1265,6 +1267,18 @@ static void h225_set_cs_type(packet_info *pinfo, h225_packet_info* h225_pi, h225
   }
 }
 
+/* Add the IMSI of an ANSI-41-UIM or GSM-UIM to the IMSI tap */
+static void
+h225_add_assoc_imsi(tvbuff_t *imsi_tvb, asn1_ctx_t *actx, proto_tree *tree)
+{
+  if (!imsi_tvb || tvb_reported_length(imsi_tvb) == 0)
+    return;
+
+  add_assoc_imsi_item(imsi_tvb, actx->pinfo, tree,
+                      (const char *)tvb_get_string_enc(actx->pinfo->pool, imsi_tvb, 0,
+                                                       tvb_reported_length(imsi_tvb), ENC_ASCII));
+}
+
 /*--- Cyclic dependencies ---*/
 
 /* EnumeratedParameter -> Content -> Content/compound -> EnumeratedParameter */
@@ -2031,6 +2045,20 @@ dissect_h225_TBCD_STRING(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *act
 
 
 static unsigned
+dissect_h225_T_imsi(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *imsi_tvb = NULL;
+
+  offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
+                                                      3, 16, false, "0123456789#*abc", 15,
+                                                      &imsi_tvb);
+  h225_add_assoc_imsi(imsi_tvb, actx, tree);
+
+  return offset;
+}
+
+
+
+static unsigned
 dissect_h225_TBCD_STRING_SIZE_3_16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_size_constrained_type(tvb, offset, actx, tree, hf_index, dissect_h225_TBCD_STRING,
                                                 "TBCD_STRING", 3, 16, false);
@@ -2092,7 +2120,7 @@ dissect_h225_OCTET_STRING_SIZE_1(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
 
 
 static const per_sequence_t ANSI_41_UIM_sequence[] = {
-  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_T_imsi },
   { &hf_h225_min            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { &hf_h225_mdn            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
@@ -2111,6 +2139,20 @@ static unsigned
 dissect_h225_ANSI_41_UIM(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h225_ANSI_41_UIM, ANSI_41_UIM_sequence);
+
+  return offset;
+}
+
+
+
+static unsigned
+dissect_h225_T_imsi_01(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *imsi_tvb = NULL;
+
+  offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
+                                                      3, 16, false, "0123456789#*abc", 15,
+                                                      &imsi_tvb);
+  h225_add_assoc_imsi(imsi_tvb, actx, tree);
 
   return offset;
 }
@@ -2137,7 +2179,7 @@ dissect_h225_TBCD_STRING_SIZE_15_16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
 
 
 static const per_sequence_t GSM_UIM_sequence[] = {
-  { &hf_h225_imsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
+  { &hf_h225_imsi_01        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_T_imsi_01 },
   { &hf_h225_tmsi           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_OCTET_STRING_SIZE_1_4 },
   { &hf_h225_msisdn         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_3_16 },
   { &hf_h225_imei           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h225_TBCD_STRING_SIZE_15_16 },
@@ -9439,6 +9481,10 @@ void proto_register_h225(void) {
         "TBCD_STRING_SIZE_16", HFILL }},
     { &hf_h225_soc,
       { "soc", "h225.soc",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "TBCD_STRING_SIZE_3_16", HFILL }},
+    { &hf_h225_imsi_01,
+      { "imsi", "h225.imsi",
         FT_STRING, BASE_NONE, NULL, 0,
         "TBCD_STRING_SIZE_3_16", HFILL }},
     { &hf_h225_tmsi,

@@ -141,6 +141,8 @@ DisplayName/language                          ABBREV=displayName_language
 ExtendedAliasAddress/address                  ABBREV=extAliasAddress
 Endpoint/remoteExtensionAddress/_item         ABBREV=remoteExtensionAddress.item
 AdmissionConfirm/remoteExtensionAddress/_item ABBREV=ac_remoteExtensionAddress_item
+ANSI-41-UIM/imsi                              BLURB="TBCD_STRING_SIZE_3_16"
+GSM-UIM/imsi                                  BLURB="TBCD_STRING_SIZE_3_16"
 
 #.VIRTUAL_ASSGN
 Language           Setup-UUIE/language
@@ -355,6 +357,24 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     h225_pi->dialedDigits[len] = '\0';
     h225_pi->is_destinationInfo = false;
   }
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY ANSI-41-UIM/imsi
+  tvbuff_t *imsi_tvb = NULL;
+
+  offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
+                                                      3, 16, false, "0123456789#*abc", 15,
+                                                      &imsi_tvb);
+  h225_add_assoc_imsi(imsi_tvb, actx, tree);
+#.END
+#----------------------------------------------------------------------------------------
+#.FN_BODY GSM-UIM/imsi
+  tvbuff_t *imsi_tvb = NULL;
+
+  offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
+                                                      3, 16, false, "0123456789#*abc", 15,
+                                                      &imsi_tvb);
+  h225_add_assoc_imsi(imsi_tvb, actx, tree);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY H245TransportAddress/ipAddress/ip  VAL_PTR = &value_tvb
