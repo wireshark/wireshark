@@ -73959,3 +73959,122 @@ class TestDissectHttpUrlencoded:
                          '_ws.col.info', passes=('-2',))
         assert 'POST /form/0 HTTP/1.1  (application/x-www-form-urlencoded)' in rows[0][0]
         assert 'application/x-www-form-urlencoded' not in rows[2][0]
+
+
+class TestDissectHyperdhtCoverage:
+    '''More HyperDHT coverage. The captures of TestHyperdht cover the
+    commands; this one adds the wide compact integer forms, the dht-rpc
+    internal commands, handshake and holepunch modes (relay roles), unknown
+    commands and errors, and datagrams the heuristic must reject.'''
+
+    def test_hyperdht_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''89 datagrams: 65 are HyperDHT; 24 are not (21 that the heuristic
+        rejects and three junk datagrams on a conversation that was already
+        claimed). No frame is malformed or has an error expert info.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 89
+        assert protocols.count('HyperDHT') == 65
+        assert protocols.count('UDP') == 24
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_hyperdht_coverage_expert_items(self, cmd_tshark, capture_file, test_env):
+        '''The expert items of the capture: unknown commands and errors,
+        trailing bytes, and requests or replies without their partner.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\tUnrecognized command,No response captured for this request',
+            '33\tUnrecognized command',
+            '35\tUnrecognized command',
+            '37\tUnrecognized command',
+            '38\tUnrecognized error code',
+            '51\tNo response captured for this request',
+            '52\tNo response captured for this request',
+            '55\tNo response captured for this request',
+            '56\tNo response captured for this request',
+            '57\tNo response captured for this request',
+            '81\tTrailing data after end of message',
+            '82\tTrailing data after end of message',
+            '84\tUnrecognized error code',
+            '85\tNo request captured for this response',
+            '86\tNo request captured for this response',
+        ]
+
+    def test_hyperdht_coverage_wide_integers(self, cmd_tshark, capture_file, test_env):
+        '''Compact integers in the 0xfd, 0xfe and 0xff forms: commands
+        (frames 24, 26, 28, 33, 35, 37), error codes (25, 27, 29, 38).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Y', 'frame.number in {24,25,26,27,28,29,33,35,37,38}',
+                '-Tfields', '-eframe.number', '-ehyperdht.command', '-ehyperdht.error',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '24\t4\t\tReq ANNOUNCE',
+            '25\t\t16\tReply ANNOUNCE Error=SEQ_REUSED',
+            '26\t4\t\tReq ANNOUNCE',
+            '27\t\t17\tReply ANNOUNCE Error=SEQ_TOO_LOW',
+            '28\t4\t\tReq ANNOUNCE',
+            '29\t\t1\tReply ANNOUNCE Error=UNKNOWN_COMMAND',
+            '33\t600\t\tReq UNKNOWN (600)',
+            '35\t70000\t\tReq UNKNOWN (70000)',
+            '37\t5000000000\t\tReq UNKNOWN (5000000000)',
+            '38\t\t300\tReply UNKNOWN (5000000000) Error=UNKNOWN (300)',
+        ]
+
+    def test_hyperdht_coverage_internal_commands(self, cmd_tshark, capture_file, test_env):
+        '''dht-rpc commands: PING_NAT (port 51001 and 0), DELAYED_PING (250
+        ms) and DOWN_HINT; a value shorter than the command's field is
+        ignored without an item (frames 15, 17, 19).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 21 && hyperdht.flag.internal',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ehyperdht.ping_nat.port', '-ehyperdht.delayed_ping.delay',
+                '-ehyperdht.down_hint.node.ipv4',
+            ), encoding='utf-8', env=test_env)
+        lines = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines[1][0] == 'Req PING'
+        assert lines[7] == ['Req DOWN_HINT', '', '', '203.0.113.9']
+        assert lines[9] == ['Req DELAYED_PING', '', '250', '']
+        assert lines[11] == ['Req PING_NAT', '51001', '', '']
+        assert lines[13] == ['Req PING_NAT', '0', '', '']
+        assert lines[15] == ['Req PING_NAT', '', '', '']
+        assert lines[17] == ['Req DOWN_HINT', '', '', '']
+        assert lines[19] == ['Req DELAYED_PING', '', '', '']
+        assert lines[21] == ['Req UNKNOWN (9)', '', '', '']
+
+    def test_hyperdht_coverage_modes(self, cmd_tshark, capture_file, test_env):
+        '''Every handshake and holepunch mode, including the ones a request
+        does not carry (FROM_SECOND_RELAY, REPLY and an unknown 9).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('hyperdht_coverage.pcap.gz'),
+                '-Y', 'frame.number in {39,40,41,42,43,44,45,46,47,48,49,50}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '39\tReq PEER_HANDSHAKE Mode=FROM_CLIENT',
+            '40\tReply PEER_HANDSHAKE Mode=REPLY',
+            '41\tReq PEER_HOLEPUNCH Mode=FROM_CLIENT',
+            '42\tReply PEER_HOLEPUNCH Mode=REPLY',
+            '43\tReq PEER_HANDSHAKE Mode=FROM_SERVER',
+            '44\tReq PEER_HOLEPUNCH Mode=FROM_SERVER',
+            '45\tReq PEER_HANDSHAKE Mode=FROM_RELAY',
+            '46\tReq PEER_HOLEPUNCH Mode=FROM_RELAY',
+            '47\tReq PEER_HANDSHAKE Mode=FROM_SECOND_RELAY',
+            '48\tReq PEER_HOLEPUNCH Mode=FROM_SECOND_RELAY',
+            '49\tReq PEER_HANDSHAKE Mode=REPLY',
+            '50\tReq PEER_HOLEPUNCH Mode=REPLY',
+        ]
