@@ -61781,3 +61781,131 @@ class TestDissectGelf:
             '13\ta1a2a3a4a5a6a7a8\t3\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 3, count 4',
             '14\ta1a2a3a4a5a6a7a8\t1\t4\tChunked packet: id: a1a2a3a4a5a6a7a8, number 1, count 4, JSON',
         ]
+
+
+class TestDissectGeneve:
+    '''Geneve on its default UDP port 6081, from the synthetic capture
+    geneve_coverage.pcap.gz.'''
+
+    def test_geneve_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 34 frames are Geneve, with no malformed packets in one and
+        two passes; the unknown versions (frames 9 and 10) and the
+        invalid option length (frame 34) get warnings, nothing else does.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 34
+        assert all(p.startswith('Geneve') for p in protocols)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geneve_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geneve_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '9\tUnknown version 1',
+                '10\tUnknown version 3',
+                '34\tlength of 44 is past end of options',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('geneve_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+
+    def test_geneve_header(self, cmd_tshark, capture_file, test_env):
+        '''VNI, protocol type, flags and the encapsulated protocols.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10',
+                '-Tfields', '-eframe.number', '-egeneve.version', '-egeneve.vni',
+                '-egeneve.proto_type', '-egeneve.flags', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1], r[2], r[3], r[4]) for r in rows] == [
+            ('1', '0', '0x123456', '0x6558', '0x00'),
+            ('2', '0', '0x000001', '0x0800', '0x00'),
+            ('3', '0', '0x000002', '0x86dd', '0x00'),
+            ('4', '0', '0x000003', '0x1234', '0x00'),
+            ('5', '0', '0xabcdef', '0x6558', '0x80'),
+            ('6', '0', '0x000004', '0x6558', '0x40'),
+            ('7', '0', '0x000005', '0x6558', '0x3f'),
+            ('8', '0', '0x000006', '0x6558', '0x00'),
+            ('9', '1', '0x000007', '0x6558', '0x00'),
+            ('10', '3', '0x000007', '0x6558', '0x00'),
+        ]
+        assert rows[1][5:] == ['Geneve/UDP', 'Encapsulated IPv4, 1234 → 4321 Len=10']
+        assert rows[2][5:] == ['Geneve/IPv6', 'Encapsulated IPv6, IPv6 no next header']
+        assert rows[3][5:] == ['Geneve/', 'Encapsulated 0x1234 (unknown), ']
+
+    def test_geneve_options(self, cmd_tshark, capture_file, test_env):
+        '''Google, Cilium and cPacket options, and unknown ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Y', 'geneve.option.class',
+                '-Tfields', '-eframe.number', '-egeneve.option.class',
+                '-egeneve.option.type', '-egeneve.option.length',
+                '-egeneve.option.gcp.vnid', '-egeneve.option.gcp.direction',
+                '-egeneve.option.gcp.profile', '-egeneve.option.gcp.timestamp',
+                '-egeneve.option.gcp.project_number', '-egeneve.option.gcp.network_id',
+                '-egeneve.option.gcp.primary_ip4', '-egeneve.option.cilium.service.ipv4',
+                '-egeneve.option.cilium.service.ipv6', '-egeneve.option.cilium.service.port',
+                '-egeneve.option.cPacket.packetid', '-egeneve.option.cPacket.orig_len',
+                '-egeneve.option.cPacket.version', '-egeneve.option.unknown.data',
+            ), encoding='utf-8', env=test_env)
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert len(rows) == 23
+        assert rows[11][:5] == ['0x0132', '0x01', '8,8', '146464512', 'True']
+        assert rows[12][3:5] == ['74565', 'False']
+        assert rows[15][5] == '1234605616436508552'
+        assert rows[19][6] == '2023-11-14T22:13:20.123456789Z'
+        assert rows[20][7:9] == ['123456789012', '987654321098']
+        assert rows[21][9] == '10.1.2.3'
+        assert rows[23][10] == '10.96.0.1' and rows[23][12] == '8080'
+        assert rows[24][11] == 'fd00::1' and rows[24][12] == '443'
+        assert rows[26][13:16] == ['3405643777', '1500', '2']
+        assert rows[28][:3] == ['0x0000', '0x01', '8,8']
+        assert rows[28][16] == '01020304'
+
+    def test_geneve_gcp_profile_length(self, cmd_tshark, capture_file, test_env):
+        '''The GCP profile option is a number only when its data is 8
+        octets; other lengths are shown as unknown data (before the fix
+        a 4 or 12 octet profile option threw an exception, and the data
+        subset given to vendor dissectors was 4 octets too long).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Y', 'geneve.option.type == 3',
+                '-Tfields', '-eframe.number', '-egeneve.option.length',
+                '-egeneve.option.gcp.profile', '-egeneve.option.unknown.data',
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\t12,12\t1234605616436508552\t',
+            '16\t8,8\t\t00000000',
+            '17\t16,16\t\t000000000000000000000000',
+            '18\t4,4\t\t<MISSING>',
+        ]
+
+    def test_geneve_option_classes(self, cmd_tshark, capture_file, test_env):
+        '''Several options in one header, and the class names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Y', 'frame.number == 32',
+                '-Tfields', '-egeneve.option.class', '-egeneve.option.type',
+                '-egeneve.option.length', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0105,0x0132,0x0145,0x016a\t0x01,0x11,0x02,0x00\t28,8,8,4,8']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('geneve_coverage.pcap.gz'),
+                '-Y', 'frame.number == 23', '-V', '-O', 'geneve',
+            ), encoding='utf-8', env=test_env)
+        assert 'Cilium Service IP, Class: Cilium (0x014b) Type: 0x81 (Critical)' in stdout
