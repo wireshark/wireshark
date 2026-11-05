@@ -119,7 +119,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                            NULL, 0, 0, hdcp_trans->resp_frame,
                            "Request to get the content of register %s, "
                            "response in frame %d",
-                           val_to_str_const(hdcp_trans->rqst_type,
+                           val_to_str(pinfo->pool, hdcp_trans->rqst_type,
                                hdcp_reg, "unknown (0x%x)"),
                            hdcp_trans->resp_frame);
                     proto_item_set_generated(it);
@@ -162,7 +162,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         hdcp_trans = (hdcp_transaction_t *)wmem_tree_lookup32_le(
                 transactions, pinfo->num);
         if (hdcp_trans) {
-            if (hdcp_trans->resp_frame==0) {
+            if (hdcp_trans->resp_frame==0 && !PINFO_FD_VISITED(pinfo)) {
                 /* there's a pending request, this packet is the response */
                 hdcp_trans->resp_frame = pinfo->num;
             }
@@ -170,13 +170,13 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             if (hdcp_trans->resp_frame== pinfo->num) {
                 /* we found the request that corresponds to our response */
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "send %s",
-                        val_to_str_const(hdcp_trans->rqst_type,
+                        val_to_str(pinfo->pool, hdcp_trans->rqst_type,
                             hdcp_reg, "unknown (0x%x)"));
                 it = proto_tree_add_uint_format(hdcp_tree, hf_hdcp_resp_to,
                         NULL, 0, 0, hdcp_trans->rqst_frame,
                         "Response to frame %d (content of register %s)",
                         hdcp_trans->rqst_frame,
-                        val_to_str_const(hdcp_trans->rqst_type,
+                        val_to_str(pinfo->pool, hdcp_trans->rqst_type,
                             hdcp_reg, "unknown (0x%x)"));
                 proto_item_set_generated(it);
                 switch (hdcp_trans->rqst_type) {
