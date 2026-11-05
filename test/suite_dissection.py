@@ -63074,3 +63074,48 @@ class TestDissectGlusterPmap:
                 '52743234', '34123456', '123451501', '1238463', '1238433']
         assert vers.split(',') == ['2', '400', '330', '1', '1', '1', '2', '3']
         assert gfsid == '0x0000000000001111'
+
+
+class TestDissectGmhdr:
+    # gmhdr_coverage.pcap.gz: frames 1-47 carry the Gigamon header
+    # (ethertype 0x22e5), 48-55 the header as an Ethernet trailer, 56-59 the
+    # timestamp trailer, 60-62 trailers that are not recognized; frames 63 and 64 are the reproducers of the fix
+    # for the header length 0 and the field longer than the header (error
+    # expert infos by design).
+    REPRO = ['63', '64']
+
+    def test_gmhdr_frames(self, cmd_tshark, capture_file, test_env):
+        '''The Gigamon header and trailers decode without malformed packets
+        or error expert infos in one and two passes, except in the two
+        reproducer frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gmhdr_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-egmhdr.etype',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 64
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gmhdr_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == self.REPRO
+        for flt, count in (('eth.type == 0x22e5', 47 + 2),
+                           ('gmtrailer', 4), ('gmhdr && eth.type != 0x22e5', 8)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('gmhdr_coverage.pcap.gz'),
+                    '-Y', flt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == count, flt
+
+    def test_gmhdr_zero_length(self, cmd_tshark, capture_file, test_env):
+        '''A header length of 0 is reported with an expert info; the
+        length - 1 went to the TLV loop as 65535 and the loop read the
+        IPv4 payload as fields.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gmhdr_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 63',
+                    '-Tfields', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['Header length 0 invalid']
