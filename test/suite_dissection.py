@@ -71182,3 +71182,90 @@ class TestDissectHdfs:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {21, 22}',
                             'hdfs.paramvalnum', 'hdfs.fileperm', 'hdfs.paramtype')
         assert rows == [['21', '', '', 'long'], ['22', '', '', 'x']]
+
+
+class TestDissectHdfsdata:
+    '''HDFS datanode data transfer protocol (block read and write) over
+    TCP, from the synthetic capture hdfsdata_coverage.pcap.gz. HDFSDATA
+    has no default port; it is selected with Decode As of tcp.port
+    (50010 and 40001 here). The client name, the access tokens and the
+    data are made-up placeholders.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-d', 'tcp.port==50010,hdfsdata',
+                '-d', 'tcp.port==40001,hdfsdata',
+                '-r', capture_file('hdfsdata_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hdfsdata_frames(self, cmd_tshark, capture_file, test_env):
+        '''17 frames are HDFSDATA; frames 6, 12 and 13 are read response
+        fragments that are reassembled into frames 7 and 14. No malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata')
+        assert [r[0] for r in rows] == ['4', '5', '7', '8', '9', '10', '11', '14', '18',
+                                        '19', '20', '21', '22', '23', '24', '25']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'tcp.len in {15, 29} && !hdfsdata', '_ws.col.protocol')
+        assert rows == [['6', 'TCP'], ['12', 'TCP'], ['13', 'TCP']]
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hdfsdata_read_request(self, cmd_tshark, capture_file, test_env):
+        '''Block read request: command 81, block id, start offset, client id.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata.cmd == 81',
+                            'hdfsdata.version', 'hdfsdata.blockid', 'hdfsdata.startoffset',
+                            'hdfsdata.blocklen', 'hdfsdata.clientid')
+        assert rows == [['4', '17', '1152921504606846977', '0', '1048576',
+                         'DFSClient_placeholder']]
+
+    def test_hdfsdata_write_request(self, cmd_tshark, capture_file, test_env):
+        '''Block write requests: pipeline, client id, nodes and tokens.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata.cmd == 80',
+                            'hdfsdata.pipelinenum', 'hdfsdata.clientid', 'hdfsdata.currentpipeline',
+                            'hdfsdata.node', 'hdfsdata.tokenid', 'hdfsdata.tokenpassword',
+                            'hdfsdata.chunksize')
+        assert rows == [['18', '3', 'DFSClient_placeholder', '2', '256,257', 'tok-id', 'tok-pw', '512'],
+                        ['23', '3', 'DFSClient_placeholder', '0', '', '', '', '512']]
+
+    def test_hdfsdata_read_response(self, cmd_tshark, capture_file, test_env):
+        '''Read response: first fragment (status, checksum type, chunk
+        size) and second fragment with the data length and the crc
+        field, reassembled from separate segments (frame 14 with the
+        data in a third segment).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata.chunksize && !hdfsdata.cmd',
+                            'hdfsdata.checksumtype', 'hdfsdata.chunksize', 'hdfsdata.datalength',
+                            'hdfsdata.datalen', 'hdfsdata.crc32')
+        assert rows == [['7', '1', '512', '260', '256', '-1430532899'],
+                        ['14', '0', '0', '104', '100', '']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 7 && hdfsdata.rest == "' + 'D' * 256 + '"')
+        assert len(rows) == 1
+
+    def test_hdfsdata_short_messages(self, cmd_tshark, capture_file, test_env):
+        '''Status codes (2 octets), pipeline status (1), finish request (4)
+        and the end packet (8 zero octets).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdfsdata.status && !hdfsdata.checksumtype', 'hdfsdata.status')
+        assert rows == [['5', '6'], ['11', '0'], ['19', '6']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdfsdata.pipelinestatus', 'hdfsdata.pipelinestatus')
+        assert rows == [['10', '0'], ['22', '0']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata.end', 'hdfsdata.end')
+        assert rows == [['8', '0'], ['25', '4294967295']]
+
+    def test_hdfsdata_write_packets(self, cmd_tshark, capture_file, test_env):
+        '''Data packets of a write: the first four octets are the length of
+        everything after the first 21 octets.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdfsdata.packetsize',
+                            'hdfsdata.packetsize', 'hdfsdata.startoffset', 'hdfsdata.seqnum',
+                            'hdfsdata.last', 'hdfsdata.chunklength', 'hdfsdata.crc64')
+        assert rows == [['20', '76', '0', '0', '0', '64', '1234605616436508552'],
+                        ['21', '44', '64', '1', '1', '32', '1234605616436508552']]
