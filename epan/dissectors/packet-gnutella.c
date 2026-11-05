@@ -685,7 +685,7 @@ void proto_register_gnutella(void) {
 		},
 		{ &hf_gnutella_header_size,
 			{ "Length", "gnutella.header.size",
-			FT_UINT8, BASE_DEC, NULL, 0,
+			FT_UINT32, BASE_DEC, NULL, 0,
 			"Gnutella Descriptor Payload Length", HFILL }
 		},
 		{ &hf_gnutella_pong_port,
