@@ -61176,3 +61176,108 @@ class TestDissectGdb:
             '31\t29,31\t714174746163686564',
             '32\t30,32\t31',
         ]
+
+
+class TestDissectGdsdb:
+    @staticmethod
+    def gdsdb_rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gdsdb_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gdsdb_frames(self, cmd_tshark, capture_file, test_env):
+        '''123 frames in one pass (115 in two: the segments that only start
+        a PDU are not handed to GDS DB again) and none is malformed or has
+        an error expert info.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env, 'gdsdb')
+        assert len(rows) == 123
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env, 'gdsdb', passes=('-2',))
+        assert len(rows) == 115
+        for passes in ((), ('-2',)):
+            rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity == "error"', passes=passes)
+            assert rows == []
+
+    def test_gdsdb_all_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode 0-91 is in the capture.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env, 'gdsdb',
+                'gdsdb.opcode', passes=('-2',))
+        opcodes = set()
+        for r in rows:
+            opcodes.update(int(o) for o in r[1].split(','))
+        assert opcodes == set(range(92))
+
+    def test_gdsdb_connect(self, cmd_tshark, capture_file, test_env):
+        '''op_connect fields and the preferred versions.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 4', 'gdsdb.connect.operation',
+                'gdsdb.connect.version', 'gdsdb.connect.client',
+                'gdsdb.connect.filename', 'gdsdb.connect.count',
+                'gdsdb.connect.pref.version', 'gdsdb.connect.pref.arch',
+                'gdsdb.connect.pref.maxtype', 'gdsdb.connect.pref.weight',
+                'gdsdb.connect.userid', '_ws.col.info')
+        assert rows == [['4', '19', '3', '36', '/db/test.fdb', '1', '10', '1', '5', '2',
+                '\x01\x04user\x04\x04host', 'Connect: \\\\001\\\\004user\\\\004\\\\004host']]
+        # 255 preferences and padded names (frames 9, 8)
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {8,9}', 'gdsdb.connect.filename',
+                'gdsdb.connect.count', 'gdsdb.connect.pref')
+        assert rows[0][1:3] == ['a', '3']
+        assert rows[1][1:3] == ['abc', '255']
+        assert len(rows[1][3].split(',')) == 255
+
+    def test_gdsdb_connect_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An op_connect split over two segments is reassembled (the
+        handler's "need more data" result was reported as an invalid
+        length before the fix), also a PDU in many small segments.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {16,23}', 'tcp.segment', 'gdsdb.opcode',
+                'gdsdb.connect.filename', 'gdsdb.attach.database_path',
+                '_ws.expert.message', passes=('-2',))
+        assert rows == [
+            ['16', '15,16', '1', '/db/split.fdb', '', ''],
+            ['23', '20,21,22,23', '19', '', '/db/test.fdb', ''],
+        ]
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {137,139}', 'tcp.segment', 'gdsdb.opcode',
+                'gdsdb.response.datasize', 'gdsdb.prepare.querystr',
+                passes=('-2',))
+        assert rows == [
+            ['137', '135,136,137', '9', '100', ''],
+            ['139', '138,139', '68', '', 'select xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx from t'],
+        ]
+
+    def test_gdsdb_several_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in one segment, and an unknown opcode after a
+        valid PDU.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {11,42,147}', 'gdsdb.opcode', '_ws.col.info')
+        assert rows == [
+            ['11', '3,53,3', 'Accept, Connect request, Accept'],
+            ['42', '25,25,19', 'Send, Send, Attach: /db/test.fdb'],
+            ['147', '3', 'Accept'],
+        ]
+
+    def test_gdsdb_response_status_vector(self, cmd_tshark, capture_file, test_env):
+        '''Response data and a status vector with every argument type.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 45', 'gdsdb.response.blobid',
+                'gdsdb.response.data', 'gdsdb.status_vector.arg',
+                'gdsdb.status_vector.error_code', 'gdsdb.status_vector.number',
+                'gdsdb.status_vector.string', 'gdsdb.status_vector.sql_state')
+        assert rows == [['45', '0x1122334455667788', '64617461646174613132',
+                '1,4,2,5,19,7,0', '335544321,13', '7', 'table,interpreted text', '42000']]
+
+    def test_gdsdb_other_messages(self, cmd_tshark, capture_file, test_env):
+        '''Receive with directions, prepare statement, info with both item
+        lists, free statement.'''
+        rows = self.gdsdb_rows(cmd_tshark, capture_file, test_env,
+                'gdsdb.receive.direction', 'gdsdb.opcode',
+                'gdsdb.receive.direction', 'gdsdb.receive.offset')
+        assert rows == [
+            ['36', '26', '1', '16'],
+            ['37', '73', '0,1,2', '1,2,3'],
+        ]
