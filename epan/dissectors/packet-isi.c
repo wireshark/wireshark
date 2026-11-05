@@ -811,6 +811,7 @@ static int dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 	proto_item *item;
 	proto_tree *tree;
 	uint8_t cmd, code;
+	uint8_t imsi_len;
 
 	item = proto_tree_add_item(isitree, hf_isi_sim_payload, tvb, 0, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_isi_msg);
@@ -892,23 +893,17 @@ static int dissect_isi_sim(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 
 			When regrouped, we should have something that looks like 0x02|0x34|0x10|0x07|0x33|0x56|0x94|0x23
 
-			Can we use the E212 dissector?
-				No, it appears that the current version of the dissector is hard-coded in a way that ignores all of our set-up work. :(
+			This is the value part of a 3GPP TS 24.008 Mobile Identity: the low nibble
+			of the first octet holds the odd/even indicator and the type of identity,
+			so the E.212 dissector decodes it when it skips the first nibble.
 
 			*/
 
 			code = tvb_get_uint8(tvb, 1);
 			switch(code) {
 				default:
-					proto_tree_add_item(tree, hf_isi_sim_imsi_length, tvb, 3, 1, ENC_BIG_ENDIAN);
-
-					/*
-					next_tvb = tvb_new_subset_remaining(tvb, 0);
-					proto_tree_add_item(tree, hf_isi_sim_imsi_byte_1, next_tvb, 4, 1, ENC_LITTLE_ENDIAN);
-					dissect_e212_mcc_mnc(next_tvb, pinfo, tree, 4, false );
-					proto_tree_add_item(tree, hf_E212_msin, tvb, 2, 7, ENC_BIG_ENDIAN);
-
-					*/
+					proto_tree_add_item_ret_uint8(tree, hf_isi_sim_imsi_length, tvb, 3, 1, ENC_BIG_ENDIAN, &imsi_len);
+					dissect_e212_imsi(tvb, pinfo, tree, 4, imsi_len, true);
 
 					col_set_str(pinfo->cinfo, COL_INFO, "Read IMSI Response");
 					break;
