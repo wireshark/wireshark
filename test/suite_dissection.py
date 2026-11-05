@@ -1377,6 +1377,92 @@ class TestDissectGit:
         # git packets, might be required.
         assert stdout == '50\t\t\n\t0\t\n\t\t\n\t1,0\t\n'
 
+    GIT_COVERAGE_CAP = 'git_coverage.pcap.gz'
+
+    def test_git_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''53 frames, 24 of them Git, no malformed packets and no error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.GIT_COVERAGE_CAP),
+                    '-Y', 'git', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 24
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.GIT_COVERAGE_CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_git_empty_pkt_line(self, cmd_tshark, capture_file, test_env):
+        '''An empty pkt-line (0004) is valid. Frame 10 (git://) has one at
+        the start of the segment; frame 38 (HTTP body) has two, one of them
+        followed by a pkt-line whose data starts with 0x01. Before "Git:
+        Handle empty pkt-lines and unrecognized length prefixes" these
+        were malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.GIT_COVERAGE_CAP),
+                '-Y', 'frame.number in {10, 38, 41}',
+                '-Tfields', '-eframe.number', '-egit.length',
+                '-egit.sideband_control_code', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('10\t0x0004,0x000d,0x000c,0x000e,0x0009,0x0009,0x0005\t0x01')
+        assert lines[1].startswith('38\t0x0004,0x000a,0x000e,0x000b,0x0004,0x0006,0x000e\t0x01,0x02,0x03,0x01')
+        assert lines[2].startswith('41\t0x0205,0x000a\t0x01,0x02')
+        assert all(l.split('\t')[-1] == '' for l in lines)
+
+    def test_git_versions_and_special_packets(self, cmd_tshark, capture_file, test_env):
+        '''git.version is the character of the "version N" line (49 or
+        50); flush, delimiter and response-end are 0, 1 and 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.GIT_COVERAGE_CAP),
+                '-Y', 'frame.number in {5, 9, 10, 26, 36}',
+                '-Tfields', '-eframe.number', '-egit.version', '-egit.packet_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t50\t0',
+            '9\t\t0,2',
+            '10\t49,49\t0',
+            '26\t49\t0',
+            '36\t50\t0,0',
+        ]
+
+    def test_git_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 775-octet pkt-line sent in three segments is dissected in
+        its last one (frame 14); the pkt-line whose length field is split
+        over two segments in frame 18. HTTP bodies come out of HTTP
+        reassembly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.GIT_COVERAGE_CAP),
+                '-Y', 'frame.number in {14, 16, 18}',
+                '-Tfields', '-eframe.number', '-egit.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t0x0305',
+            '16\t0x001c',
+            '18\t0x0011',
+        ]
+
+    def test_git_http_media_types(self, cmd_tshark, capture_file, test_env):
+        '''Advertisement, request and result bodies reach Git by media
+        type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.GIT_COVERAGE_CAP),
+                '-Y', 'git.upload_pack_advertisement || git.upload_pack_request || git.upload_pack_result',
+                '-Tfields', '-eframe.number', '-egit.upload_pack_advertisement',
+                '-egit.upload_pack_request', '-egit.upload_pack_result',
+                '-ehttp.content_type',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        kinds = [(r[0], 'adv' if r[1] else 'req' if r[2] else 'res') for r in rows]
+        assert kinds[0] == ('36', 'adv')
+        assert kinds[1] == ('37', 'req')
+        assert [k for _, k in kinds].count('res') >= 5
+        assert rows[-1][4].startswith('application/x-git-upload-pack-result') \
+            or rows[-1][4].startswith('application/x-git-upload-pack-request')
+
 class TestDissectTls:
     @staticmethod
     def check_tls_handshake_reassembly(cmd_tshark, capture_file, test_env,
