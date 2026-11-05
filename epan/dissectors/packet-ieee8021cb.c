@@ -43,6 +43,7 @@ static int hf_ieee8021cb_seq;
 
 /* Encapsulated protocol */
 static int hf_ieee8021cb_etype;
+static int hf_ieee8021cb_trailer;
 
 static int ett_ieee8021cb;
 
@@ -77,7 +78,7 @@ int dissect_ieee8021cb(tvbuff_t *tvb, packet_info *pinfo,
 {
     proto_tree       *ptree   = NULL;
     uint16_t          seq, pro;
-    ethertype_data_t  ethertype_data;
+    ethertype_data_t  ethertype_data = { 0 };
     proto_tree       *ieee8021cb_tree;
 
     /* add info to column display */
@@ -100,6 +101,7 @@ int dissect_ieee8021cb(tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text(ptree, ", SEQ: %u", seq);
 
     ethertype_data.fh_tree        = ieee8021cb_tree;
+    ethertype_data.trailer_id     = hf_ieee8021cb_trailer;
     ethertype_data.fcs_len        = 0;
     ethertype_data.etype          = pro;
     ethertype_data.payload_offset = IEEE8021CB_LEN;
@@ -123,7 +125,10 @@ proto_register_ieee8021cb(void)
                 NULL, 0x0, NULL, HFILL }},
         { &hf_ieee8021cb_etype, {
                 "Type", "ieee8021cb.etype", FT_UINT16, BASE_HEX,
-                VALS(etype_vals), 0x0, "Ethertype", HFILL }}
+                VALS(etype_vals), 0x0, "Ethertype", HFILL }},
+        { &hf_ieee8021cb_trailer, {
+                "Trailer", "ieee8021cb.trailer", FT_BYTES, BASE_NONE,
+                NULL, 0x0, NULL, HFILL }}
     };
 
     static int *ett[] = {
