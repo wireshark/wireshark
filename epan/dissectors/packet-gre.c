@@ -267,7 +267,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_t
         case ID_3GPP2_SDI_FLAG:
         {
             value = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(attr_tree, hf_gre_3gpp2_sdi, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_sdi, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "Packet suitable for 1x SDB or HRPD DOS transmission" : "Reserved");
 
@@ -276,17 +276,17 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, packet_info* pinfo, int offset, proto_t
         case ID_3GPP2_SEG:
         {
             value = tvb_get_uint8(tvb,offset) >>6;
-            proto_tree_add_item(attr_tree, hf_gre_3gpp2_seg, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_seg, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",val_to_str(pinfo->pool, value, gre_3gpp2_seg_vals, "0x%02X - Unknown"));
         }
         break;
         case ID_3GPP2_FLOW_CTRL:
         {
             value = tvb_get_uint8(tvb,offset);
-            proto_tree_add_item(attr_tree, hf_gre_3gpp2_fci, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_fci, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item," - %s",
                                    (value & 0x80) ? "XON" : "XOFF");
-            proto_tree_add_item(attr_tree, hf_gre_3gpp2_di, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(attr_tree, hf_gre_3gpp2_di, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(attr_item,"/%s",
                                    (value & 0x40) ? "INDEFINITE" : "TEMPORARY");
         }
@@ -334,7 +334,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 
     int             offset             = 0;
-    gre_hdr_info_t  gre_hdr_info;
+    gre_hdr_info_t  gre_hdr_info = {0};
     uint16_t        type;
     bool            is_ppp             = false;
     bool            is_wccp2           = false;
@@ -470,7 +470,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             for (;;) {
 
                 it_routing = proto_tree_add_item(gre_tree, hf_gre_routing, tvb, offset, -1, ENC_NA);
-                r_tree = proto_item_add_subtree(ti, ett_gre_routing);
+                r_tree = proto_item_add_subtree(it_routing, ett_gre_routing);
 
                 proto_tree_add_item_ret_uint16(r_tree, hf_gre_routing_address_family , tvb, offset, 2, ENC_BIG_ENDIAN, &sre_af);
                 offset += 2;
@@ -673,17 +673,17 @@ proto_register_gre(void)
         },
         { &hf_gre_3gpp2_sdi,
           { "SDI/DOS", "gre.3gpp2_sdi",
-            FT_BOOLEAN, 16, TFS(&gre_3gpp2_sdi_val), 0x8000,
+            FT_BOOLEAN, 8, TFS(&gre_3gpp2_sdi_val), 0x80,
             "Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }
         },
         { &hf_gre_3gpp2_fci,
           { "Flow Control Indicator", "gre.3gpp2_fci",
-            FT_BOOLEAN, 16, TFS(&gre_3gpp2_fci_val), 0x8000,
+            FT_BOOLEAN, 8, TFS(&gre_3gpp2_fci_val), 0x80,
             NULL, HFILL }
         },
         { &hf_gre_3gpp2_di,
           { "Duration Indicator", "gre.3gpp2_di",
-            FT_BOOLEAN, 16, TFS(&gre_3gpp2_di_val), 0x4000,
+            FT_BOOLEAN, 8, TFS(&gre_3gpp2_di_val), 0x40,
             NULL, HFILL }
         },
         { &hf_gre_3gpp2_flow_disc,
@@ -693,7 +693,7 @@ proto_register_gre(void)
         },
         { &hf_gre_3gpp2_seg,
           { "Type", "gre.ggp2_3gpp2_seg",
-            FT_UINT16, BASE_HEX, VALS(gre_3gpp2_seg_vals), 0xc000,
+            FT_UINT8, BASE_HEX, VALS(gre_3gpp2_seg_vals), 0xc0,
             NULL, HFILL }
         },
 
