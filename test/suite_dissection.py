@@ -70924,3 +70924,62 @@ class TestDissectHcrt:
         rows = self._fields(cmd_tshark, capture_file, test_env,
                             'frame.number in {12, 13, 14, 15, 16}', 'hcrt.response_code')
         assert [r[1] for r in rows] == ['0x00', '0x01', '0x02', '0x03', '0x0f']
+
+
+class TestDissectHdcp2:
+    '''HDCP 2.x authentication messages over TCP, from the synthetic
+    capture hdcp2_coverage.pcap.gz. The TCP heuristic dissector is
+    disabled by default and enabled with --enable-heuristic. All key,
+    certificate and signature fields hold constant placeholder bytes.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=(), enable=True):
+        args = [cmd_tshark, *passes]
+        if enable:
+            args += ['--enable-heuristic', 'hdcp2_tcp']
+        args += ['-r', capture_file('hdcp2_coverage.pcap.gz'),
+                 '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hdcp2_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic dissector is disabled by default.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdcp2', enable=False)
+        assert rows == []
+
+    def test_hdcp2_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-27 are HDCP2 messages, one of each of the 12 message
+        ids at least; the TCP segments of frames 28-31 (wrong length,
+        unknown message id, id above 31, no data) are not. No malformed
+        packets and no error expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hdcp2', 'hdcp2.msg_id')
+        assert [r[0] for r in rows] == [str(n) for n in range(4, 28)]
+        assert {r[1] for r in rows} == {'0x02', '0x03', '0x04', '0x05', '0x06', '0x07',
+                                        '0x08', '0x09', '0x0a', '0x0b', '0x13', '0x14'}
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+
+    def test_hdcp2_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the messages with flags.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {5, 6, 7, 16, 24}', '_ws.col.info')
+        assert rows == [['5', 'AKE_Send_Cert, no repeater'],
+                        ['6', 'AKE_Transmitter_Info, locality precompute'],
+                        ['7', 'AKE_Receiver_Info, no locality precompute'],
+                        ['16', 'AKE_Send_Cert, repeater'],
+                        ['24', 'AKE_Receiver_Info, locality precompute']]
+
+    def test_hdcp2_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Warnings for a length below 6, a version other than 2 and
+        non-zero reserved bytes in the certificate.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hdcp2 && _ws.expert', '_ws.expert.message')
+        assert rows == [
+            ['23', 'Length must be at least 6,version must be set to 0x2'],
+            ['24', 'Length must be at least 6,version must be set to 0x2'],
+            ['25', 'reserved bytes must be set to 0x0']]
