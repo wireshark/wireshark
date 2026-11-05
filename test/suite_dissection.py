@@ -74924,3 +74924,68 @@ class TestDissectIcmpv6Coverage:
         assert rows[0][2] == '5,7'
         rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.rr.pco.mp.matchlen.gt128 || icmpv6.rr.pco.mp.matchedlen.gt128')
         assert [r[0] for r in rows] == ['156', '160']
+
+
+class TestDissectIcp:
+    def test_icp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ICP (UDP 3130) and none is malformed or has a
+        warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 25
+        assert protocols.count('ICP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_icp_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode, with the URL of the opcodes that carry one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eicp.url',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        url = 'http://example.org/index.html'
+        assert lines[0] == f'1\tOpcode: ICP_QUERY (1), Req Nr: 1\t{url}'
+        assert lines[4] == f'5\tOpcode: ICP_HIT (2), Req Nr: 5\t{url}'
+        assert lines[10] == f'11\tOpcode: ICP_DENIED (22), Req Nr: 11\t{url}'
+        assert lines[13] == '14\tOpcode: ICP_INVALID (0), Req Nr: 14\t'
+        assert lines[19] == '20\tOpcode: Unknown (99), Req Nr: 20\t'
+        assert lines[20] == f'21\tOpcode: ICP_HIT_OBJ (23), Req Nr: 21\t{url}'
+
+    def test_icp_options(self, cmd_tshark, capture_file, test_env):
+        '''ICP_FLAG_HIT_OBJ and ICP_FLAG_SRC_RTT on queries, and the RTT
+        that follows SRC_RTT in replies.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icp_coverage.pcap.gz'),
+                '-Y', 'icp.option.hit_obj || icp.option.src_rtt || icp.rtt',
+                '-Tfields', '-eframe.number', '-eicp.option.hit_obj',
+                '-eicp.option.src_rtt', '-eicp.rtt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t1\t\t',
+            '3\t\t1\t',
+            '4\t1\t1\t',
+            '12\t\t1\t0',
+            '13\t\t1\t42',
+        ]
+
+    def test_icp_hit_obj(self, cmd_tshark, capture_file, test_env):
+        '''ICP_HIT_OBJ with a 32 octet object and an empty object.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icp_coverage.pcap.gz'),
+                '-Y', 'icp.opcode == 23',
+                '-Tfields', '-eframe.number', '-eicp.object_length',
+                '-eicp.object_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t32\t' + bytes(range(32)).hex(),
+            '22\t0\t<MISSING>',
+        ]
