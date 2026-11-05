@@ -248,10 +248,8 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		m2 = tvb_get_uint8(tvb, offset+1);
 		m3 = tvb_get_uint8(tvb, offset+2);
 
-		ip = m3;
-		ip = (ip<<8)|m2;
-		ip = (ip<<8)|m1;
-		ip = (ip<<8)|m0;
+		/* proto_tree_add_ipv4() takes the address in network byte order */
+		ip = g_htonl(((uint32_t)m0<<24)|(m1<<16)|(m2<<8)|m3);
 		proto_tree_add_ipv4(tree, hf_netmask, tvb, offset, 3, ip);
 
 		offset += 3;
@@ -285,10 +283,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 				m0 = 0;
 			}
 
-			ip = s3;
-			ip = (ip<<8)|s2;
-			ip = (ip<<8)|s1;
-			ip = (ip<<8)|s0;
+			ip = g_htonl(((uint32_t)s0<<24)|(s1<<16)|(s2<<8)|s3);
 			proto_tree_add_ipv4_format(tree, hf_saddr, tvb,
 				old_offset_b, offset-old_offset_b, ip,
 				"%s %d.%d.%d.%d (netmask %d.%d.%d.%d)",
