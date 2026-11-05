@@ -66129,3 +66129,98 @@ class TestDissectGsmGsup:
                 '-ogsup.show_name_as_text:FALSE', '-Y', 'gsup.source_name',
                 '-Tfields', '-eframe.number')
         assert count_output(stdout) > 0
+
+
+class TestDissectGsmIpa:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_ipa_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _rows(text):
+        return [l.split('\t') for l in text.splitlines()]
+
+    def test_gsm_ipa_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Four TCP streams on default IPA ports; none of the 55 frames is
+        malformed or has a warning or error expert info, in one and two
+        passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_ipa', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 37
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsup', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['53', '54']
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_ipa_sub_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The IPA protocol octet of every PDU and the protocol that
+        takes over: ip.access CCM, RSL, OML, SCCP/BSSAP, MGCP (old and
+        through the OSMO EXT header), HSL debug, CTRL and GSUP; PDUs
+        after the first in one segment; frames that do not start with a
+        known type are not IPA.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.len > 0', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-egsm_ipa.protocol')
+        rows = {int(r[0]): r[1:] for r in self._rows(stdout)}
+        assert rows[4] == ['IPA', '0xfe']
+        assert rows[17] == ['RSL', '0x00']
+        assert rows[18] == ['RSL', '0x01']
+        assert rows[19] == ['RSL', '0x1f']
+        assert rows[20] == ['OML', '0xff']
+        assert rows[21] == ['RSL', '0x01,0xfe,0x00']
+        assert rows[22] == ['IPA', '0xfe,0x42']
+        assert rows[23][1:] == [''] and rows[24][1:] == ['']
+        assert rows[29] == ['BSSAP', '0xfd']
+        assert rows[30] == ['MGCP', '0xfc']
+        assert rows[31] == ['IPA', '0xdd']
+        assert rows[32] == ['IPA', '0xdd,0xdd']
+        assert rows[33] == ['MGCP', '0xfd,0xfc']
+        assert rows[38] == ['IPA', '0xee']
+        assert rows[40] == ['MGCP', '0xee']
+        assert rows[53] == ['GSUP', '0xee']
+        assert rows[54] == ['GSUP', '0xee']
+
+    def test_gsm_ipa_ccm_attributes(self, cmd_tshark, capture_file, test_env):
+        '''ip.access CCM message types and attributes. Frame 15 carries
+        an attribute 0 whose length is 0 (the reproducer of "GSM IPA:
+        Guard zero length string attributes"): the length used to wrap
+        to 255 and the frame was malformed.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipaccess', '-Tfields', '-eframe.number',
+                '-eipaccess.msg_type', '-eipaccess.attr_tag',
+                '-eipaccess.attr_string', '-eipaccess.attr_unk')
+        rows = {int(r[0]): r[1:] for r in self._rows(stdout)}
+        assert [rows[n][0] for n in range(4, 16)] == [
+            '0x04', '0x05', '0x06', '0x00', '0x01', '0x07', '0x08', '0x09',
+            '0x0a', '0x0b', '0x42', '0x05']
+        assert rows[4][1:3] == ['0x08,0x07,0x02,0x0a', '']
+        assert rows[5][1:3] == ['0x01,0x05', '1234/0/0,v1.2.3']
+        assert rows[15][1:] == ['0x05,0x01,0x03,0x04', 'abc', '0x7f']
+        assert rows[16][1:3] == ['0x00,0x01', '']
+        assert rows[52][1:3] == ['0x01', 'osmo-ms']
+
+    def test_gsm_ipa_osmo_ext(self, cmd_tshark, capture_file, test_env):
+        '''OSMO EXT sub-protocols: CTRL as text, MGCP, LAC, SMSC, ORC,
+        OAP, an unknown protocol, and HSL debug strings.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_ipa.osmo.protocol', '-Tfields', '-eframe.number',
+                '-egsm_ipa.osmo.protocol', '-egsm_ipa.ctrl.data')
+        rows = self._rows(stdout)
+        assert [r[1] for r in rows] == ['0x00', '0x00', '0x01', '0x02', '0x03',
+                '0x04', '0x06', '0x7f', '0x00', '0x05', '0x05']
+        assert rows[0][2] == r'GET 1 bts.0.trx.0.rf_locked\n'
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_ipa.hsl_debug', '-Tfields', '-eframe.number',
+                '-egsm_ipa.hsl_debug')
+        assert stdout.splitlines() == ['31\thello debug', '32\ttwo,three']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_ipa.hsl_debug', '-Tfields', '-e_ws.col.info',
+                '-ogsm_ipa.hsl_debug_in_info:TRUE')
+        assert stdout.splitlines() == ['HSL Debug hello debug ',
+                'HSL Debug two HSL Debug three ']
