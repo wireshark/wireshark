@@ -67336,3 +67336,134 @@ class TestDissectGsmUm:
             ('31', 'U, func=UI(DTAP) (RR) Channel Release'),
             ('32', 'U, func=UI(DTAP) (RR) RR Status'),
             ('37', 'S, func=RR, N(R)=0')]
+
+
+class TestDissectGssapi:
+    '''GSS-API (packet-gssapi.c) from the synthetic capture
+    gssapi_coverage.pcap.gz: tokens in DNS TSIG (UDP 53) and in DCE/RPC
+    authentication type 9 (TCP 135). All tokens are placeholders; no keys
+    or ciphertext are involved.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, name, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name),
+                '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gssapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 96 frames decode, 65 of them carry a GSS-API blob, without
+        malformed packets or error expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'gss-api', 'gss-api.OID')
+        assert len(rows) == 65
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    'gssapi_coverage.pcap.gz',
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes)
+            assert not rows
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gssapi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 96
+        assert protocols.count('DNS') == 62
+        assert protocols.count('DCERPC') == 7
+        assert protocols.count('SRVSVC') == 18
+
+    def test_gssapi_oids(self, cmd_tshark, capture_file, test_env):
+        '''Each OID selects its subdissector: SPNEGO, Kerberos (with the
+        token ID), user-to-user, IAKERB, NTLMSSP and NEGOEX; an OID
+        without a dissector shows the token object.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz',
+                'frame.number in {1, 3, 4, 9, 11, 27, 31, 47, 48}',
+                'gss-api.OID', 'spnego.krb5.tok_id', 'gss-api.token_object')
+        assert rows == [
+            ['1', '1.3.6.1.5.5.2', '', ''],
+            ['3', '1.2.840.113554.1.2.2', '0x0001', ''],
+            ['4', '1.2.840.113554.1.2.2', '0x0002', ''],
+            ['9', '1.2.840.48018.1.2.2', '0x0001', ''],
+            ['11', '1.2.840.113554.1.2.2.3', '0x0004', ''],
+            ['27', '1.3.6.1.5.2.5', '0x0001', ''],
+            ['31', '1.3.6.1.4.1.311.2.2.10', '', ''],
+            ['47', '1.2.3.4.5', '', '06042a030405010000000000000000000000'],
+            ['48', '1.3.6.1.4.1.311.2.2.30', '', ''],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'frame.number in {31, 32, 33, 39}',
+                'ntlmssp.messagetype')
+        assert rows == [['31', '0x00000001'], ['32', '0x00000002'],
+                        ['33', '0x00000003'], ['39', '0x00000000']]
+
+    def test_gssapi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A Kerberos token announced larger than the first DNS TSIG MAC is
+        reassembled from the following blobs of the conversation
+        (frames 51 and 53 are completed in 55, 57 in 59), and the token
+        is dissected in the last frame. The first pass and -2 agree.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    'gssapi_coverage.pcap.gz',
+                    'frame.number in {51, 53, 55, 57, 59}',
+                    'gss-api.reassembled_in', 'gss-api.segment.count',
+                    'gss-api.OID', passes=passes)
+            if passes:
+                assert rows == [
+                    ['51', '55', '', ''],
+                    ['53', '55', '', ''],
+                    ['55', '', '3', '1.2.840.113554.1.2.2'],
+                    ['57', '59', '', ''],
+                    ['59', '', '2', '1.3.6.1.5.5.2'],
+                ]
+            else:
+                # the first pass shows the OID of the first blob; the
+                # reassembled-in references are added when the frames
+                # are revisited
+                assert [r[0] for r in rows if r[3]] == ['51', '55', '57', '59']
+                assert not any(r[1] for r in rows)
+
+    def test_gssapi_non_application_token(self, cmd_tshark, capture_file, test_env):
+        '''Tokens without the APPLICATION header: CFX Kerberos tokens are
+        recognised by their token ID, NTLMSSP verifiers and signed data
+        by their version, and a token with nothing known about it gets
+        an "Unknown header" expert info (a warning).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'frame.number in {41, 42, 43}',
+                'spnego.krb5.tok_id', 'gss-api.OID')
+        assert rows[:3] == [['41', '0x0405', ''], ['42', '0x0404', ''], ['43', '0x0405', '']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gssapi_coverage.pcap.gz'),
+                '-Y', '_ws.expert.message contains "Unknown header"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['45', '46']
+
+    def test_gssapi_dcerpc_verifier(self, cmd_tshark, capture_file, test_env):
+        '''DCE/RPC authentication type 9: the bind carries a SPNEGO token
+        with NTLMSSP, requests carry an NTLMSSP verifier; a Kerberos
+        connection verifies with wrap tokens with and without the
+        APPLICATION header; NEGOEX has no verifier dissector and shows
+        the bytes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'frame.number in {66, 67, 68, 69, 71}',
+                'gss-api.OID', 'ntlmssp.messagetype', 'ntlmssp.verf.vers')
+        assert rows == [
+            ['66', '1.3.6.1.5.5.2', '0x00000001', ''],
+            ['67', '', '0x00000002', ''],
+            ['68', '', '0x00000003', ''],
+            ['69', '', '', '1'],
+            ['71', '', '', '1'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'gss-api.auth_verifier',
+                'gss-api.auth_verifier')
+        assert [r[0] for r in rows] == ['93', '94', '95', '96']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'gssapi_coverage.pcap.gz', 'frame.number in {80, 82, 84}',
+                'gss-api.OID', 'spnego.krb5.tok_id')
+        assert [r[1:] for r in rows] == [['1.2.840.113554.1.2.2', '0x0102'],
+                                         ['', '0x0102'], ['', '0x0102']]
