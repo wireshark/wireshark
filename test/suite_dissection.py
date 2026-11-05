@@ -58677,3 +58677,43 @@ class TestDissectFmtp:
             '    Length: 7',
             '    Type: System message (4)',
         ]
+
+
+class TestDissectForce10Oui:
+    '''The Force10 OUI (00:01:e8) PID table of LLC/SNAP, from the
+    synthetic capture force10_oui_coverage.pcap.gz. packet-force10-oui.c
+    only registers the table and the llc.force10_pid field; the PID 0x0111
+    (FEFD) is dissected by the FEFD dissector.'''
+
+    def test_force10_oui_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The two FEFD frames, the unknown PIDs and the foreign OUI are
+        not malformed and have no expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('force10_oui_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['FEFD', 'FEFD', 'LLC', 'LLC', 'LLC', 'LLC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('force10_oui_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_force10_oui_pid(self, cmd_tshark, capture_file, test_env):
+        '''llc.force10_pid is present for the Force10 OUI only, and the
+        PID 0x0111 is handed to FEFD.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('force10_oui_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ellc.force10_pid',
+                '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0x0111', 'eth:llc:fefd'],
+            ['2', '0x0111', 'eth:llc:fefd'],
+            ['3', '0x0222', 'eth:llc:data'],
+            ['4', '0x0000', 'eth:llc:data'],
+            ['5', '0xffff', 'eth:llc'],
+            ['6', '', 'eth:llc:data'],
+        ]
