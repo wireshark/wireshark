@@ -72608,3 +72608,96 @@ class TestDissectHomeplug:
         assert rows[3][0] == '12' and rows[3][6] == '16909060'
         assert rows[4][0] == '13' and rows[4][7] == '02:00:00:00:00:09'
         assert rows[5][0] == '18' and rows[5][8] == '7'
+
+
+class TestDissectHomepna:
+    @staticmethod
+    def _write_pcap(path, payloads):
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, p in enumerate(payloads):
+                fr = bytes([2, 0, 0, 0, 0, 1, 2, 0, 0, 0, 0, 2]) + b'\x88\x6c' + p
+                fr += bytes(max(0, 60 - len(fr)))
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_homepna_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-13 and 17-18 reach ARP or UDP through the ethertype,
+        14-15 have no next layer and 16 an unknown ethertype; none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('homepna_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('ARP') == 10
+        assert protocols.count('UDP') == 5
+        assert protocols.count('HomePNA') == 2
+        assert protocols.count('0x1234') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('homepna_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_homepna_fields(self, cmd_tshark, capture_file, test_env):
+        '''Short format types (one octet) and long format types (first
+        octet above 127, two octets), length, data and next ethertype.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('homepna_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ehpna.type', '-ehpna.length',
+                '-ehpna.version', '-ehpna.data', '-ehpna.etype',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 18
+        assert lines[1] == '2\t1\t7\t1\t11223344\t0x0806'
+        assert lines[3] == '4\t3\t11\t1\t0001020304050607\t0x0806'
+        assert lines[7] == '8\t127\t3\t1\t<MISSING>\t0x0800'
+        assert lines[9] == '10\t32769\t8\t3\tdeadbeef00\t0x0800'
+        assert lines[11] == '12\t65535\t3\t1\t<MISSING>\t0x0806'
+        assert lines[13] == '14\t1\t3\t1\t<MISSING>\t0x0000'
+        assert lines[15] == '16\t1\t3\t1\t<MISSING>\t0x1234'
+
+    def test_homepna_type_names(self, cmd_tshark, capture_file, test_env):
+        '''The type is shown with its range_string name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('homepna_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10', '-V', '-O', 'hpna',
+            ), encoding='utf-8', env=test_env)
+        assert 'Type: Vendor-specific long-format (32769)' in stdout
+        assert 'Data: deadbeef00' in stdout
+
+    def test_homepna_no_next_layer(self, cmd_tshark, capture_file, test_env):
+        '''Ethertype 0 ends the HomePNA item at the ethertype so the
+        padding is left to the Ethernet trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('homepna_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14',
+                '-Tfields', '-ehpna.etype', '-eeth.padding',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '0x0000'
+        assert fields[1] == '00' * 40
+
+    def test_homepna_length_too_short(self, cmd_tshark, tmp_path, test_env):
+        '''A control length below 3 wrapped the data length and the next
+        offset; it is now reported and dissection stops.'''
+        pcap = str(tmp_path / 'hpna_len.pcap')
+        self._write_pcap(pcap, [
+            bytes([0x01, cl, 0x01]) + b'\x00\x00\x08\x00' + bytes(30)
+            for cl in (0, 1, 2)
+        ] + [bytes([0x80, 0x01, 0x00, 0x00, 0x01]) + bytes(30)])
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', pcap, '-Y', 'hpna.length_too_short',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['1', '2', '3', '4']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', pcap, '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['1', '2', '3', '4']
