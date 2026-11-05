@@ -63896,3 +63896,70 @@ class TestDissectGmr1Rr:
             '76',
             '77 (CCCH) (DTRS) 4',
         ]
+
+
+class TestDissectGmrp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmrp_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmrp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed; only frame 23 (a protocol ID other than 1) has an
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert stdout.split() == ['23']
+
+    def test_gmrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 23 frames are GMRP (802.3 + LLC to 01:80:c2:00:00:20); frames 15-23
+        that GMRP does not understand end in a Data item.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['GMRP'] * 23
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'data', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(15, 24)]
+
+    def test_gmrp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Group membership and service requirement attributes with every event.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number <= 14', '-Tfields', '-eframe.number',
+                              '-egmrp.attribute_type', '-egmrp.attribute_length', '-egmrp.attribute_event',
+                              '-egmrp.attribute_value_group_membership',
+                              '-egmrp.attribute_value_service_requirement', '-egmrp.end_of_mark')
+        assert stdout.splitlines() == [
+            '1\t0x01\t8,8\t2,4\t01:00:5e:00:00:01,33:33:00:00:00:02\t\t0x00,0x00',
+            '2\t0x01\t2\t0\t\t\t0x00,0x00',
+            '3\t0x01\t8\t1\t01:00:5e:00:00:01\t\t0x00,0x00',
+            '4\t0x01\t8\t2\t01:00:5e:00:00:01\t\t0x00,0x00',
+            '5\t0x01\t8\t3\t01:00:5e:00:00:01\t\t0x00,0x00',
+            '6\t0x01\t8\t4\t01:00:5e:00:00:01\t\t0x00,0x00',
+            '7\t0x01\t8\t5\t01:00:5e:00:00:01\t\t0x00,0x00',
+            '8\t0x02\t3\t1\t\t0x00\t0x00,0x00',
+            '9\t0x02\t3\t2\t\t0x01\t0x00,0x00',
+            '10\t0x02\t3,3,3\t3,4,5\t\t0x00,0x01,0x00\t0x00,0x00',
+            '11\t0x02\t2\t0\t\t\t0x00,0x00',
+            '12\t0x01,0x02,0x01\t2,8,8,8,3,8\t0,2,2,1,2,3\t01:00:5e:00:00:01,33:33:00:00:00:02,ff:ff:ff:ff:ff:ff,33:33:00:00:00:02\t0x01\t0x00,0x00,0x00,0x00',
+            '13\t0x01\t8\t2\t01:00:5e:00:00:01\t\t',
+            '14\t0x01\t8\t2\t01:00:5e:00:00:01\t\t0x00',
+        ]
+
+    def test_gmrp_tree(self, cmd_tshark, capture_file, test_env):
+        '''Messages and attributes are numbered, with the end of mark in the message.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 12', '-V')
+        lines = stdout.splitlines()
+        start = lines.index('GARP Multicast Registration Protocol')
+        tree = [l for l in lines[start + 1:] if 'Message ' in l or 'Attribute ' in l or 'End of' in l]
+        assert [l.strip() for l in tree] == [
+            'Message 1', 'Attribute 1', 'Attribute 2', 'Attribute 3', 'Attribute 4', 'End of mark',
+            'Message 2', 'Attribute 1', 'End of mark',
+            'Message 3', 'Attribute 1', 'End of mark',
+            'End of pdu',
+        ]
+
+    def test_gmrp_unknown_protocol_id(self, cmd_tshark, capture_file, test_env):
+        '''A protocol ID other than 1 gives a warning and the rest is shown as data.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmrp.protocol_id == 2', '-Tfields', '-eframe.number',
+                              '-e_ws.expert.message', '-edata.len')
+        assert stdout.splitlines() == ['23\tThis version of Wireshark only knows about protocol id = 1\t11']
