@@ -899,9 +899,9 @@ dissect_ofdma_segment(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, voi
   proto_tree_add_item (segment_tree, hf_docsis_segment_request, tvb, 4, 2, ENC_BIG_ENDIAN);
 
   /* Dissect the header check sequence. */
-  /* CRC-CCITT(16+12+5+1). */
-  uint16_t fcs = g_ntohs(crc16_ccitt_tvb(tvb, 6));
-  proto_tree_add_checksum(segment_tree, tvb, 6, hf_docsis_segment_hcs, hf_docsis_segment_hcs_status, &ei_docsis_segment_hcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+  /* CRC-CCITT(16+12+5+1), sent least significant octet first. */
+  uint16_t fcs = crc16_ccitt_tvb(tvb, 6);
+  proto_tree_add_checksum(segment_tree, tvb, 6, hf_docsis_segment_hcs, hf_docsis_segment_hcs_status, &ei_docsis_segment_hcs_bad, pinfo, fcs, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
   proto_tree_add_item (segment_tree, hf_docsis_segment_data, tvb, 8, tvb_reported_length_remaining(tvb, 8), ENC_NA);
 

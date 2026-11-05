@@ -472,15 +472,15 @@ dissect_hcs_field (tvbuff_t * tvb, packet_info * pinfo, proto_tree * docsis_tree
 {
   /* dissect the header check sequence */
   if(docsis_check_fcs){
-    /* CRC-CCITT(16+12+5+1) */
-    uint16_t fcs = g_ntohs(crc16_ccitt_tvb(tvb, (hdrlen - 2)));
-    proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    /* CRC-CCITT(16+12+5+1), sent least significant octet first */
+    uint16_t fcs = crc16_ccitt_tvb(tvb, (hdrlen - 2));
+    proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, fcs, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
-    return (tvb_get_ntohs(tvb, (hdrlen - 2)) == fcs) ? true : false;
+    return (tvb_get_letohs(tvb, (hdrlen - 2)) == fcs) ? true : false;
   }
   else
   {
-    proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    proto_tree_add_checksum(docsis_tree, tvb, (hdrlen - 2), hf_docsis_hcs, hf_docsis_hcs_status, &ei_docsis_hcs_bad, pinfo, 0, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   }
   return true;
 }
