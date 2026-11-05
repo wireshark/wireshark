@@ -76324,3 +76324,129 @@ class TestDissectIeee1905:
         assert one(665, 'ieee1905.wifi_7_agent_capabilities.radio_num_ap_str_records') == '1,0'
         assert one(667, 'ieee1905.rsn_diagnostic_report.rsn_error') == '0'
         assert one(671, 'ieee1905.rsn_diagnostic_report.rsn_error') == '4'
+
+
+class TestDissectNetmon80211:
+    '''NetMon 802.11 capture header (network type 6 of a NetMon 2.1 file)
+    from the synthetic capture netmon_coverage.cap: 49 frames, each a
+    NetMon 802.11 header (version 2, 32 bytes unless noted) followed by a
+    minimal 802.11 frame (null data or ACK, no IEs). The data rate and
+    radio floats are not printed here: tshark formats floats with the
+    decimal separator of the locale, so only integer values are compared.'''
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('netmon_coverage.cap'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_netmon_80211_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 49 frames decode as 802.11 behind the NetMon header without
+        malformed packets or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 49
+        assert set(rows) == {'802.11'}
+        # versions 1, 3, 0 and a length below 32 are skipped (frames 42-45)
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'netmon_802_11', '-Tfields', '-eframe.number')
+        assert len(rows) == 45
+
+    def test_netmon_80211_op_mode(self, cmd_tshark, capture_file, test_env):
+        '''The operation mode bits (frames 1-7); frames 4, 5 and 6 have the
+        monitor mode flag.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 7', '-Tfields', '-eframe.number',
+                '-enetmon_802_11.op_mode', '-enetmon_802_11.op_mode.sta',
+                '-enetmon_802_11.op_mode.ap', '-enetmon_802_11.op_mode.sta_ext',
+                '-enetmon_802_11.op_mode.mon')
+        assert rows == [
+            '1\t0x00000001\t0x00000001\t0x00000000\t0x00000000\t0x00000000',
+            '2\t0x00000002\t0x00000000\t0x00000001\t0x00000000\t0x00000000',
+            '3\t0x00000004\t0x00000000\t0x00000000\t0x00000001\t0x00000000',
+            '4\t0x80000000\t0x00000000\t0x00000000\t0x00000000\t0x00000001',
+            '5\t0x80000004\t0x00000000\t0x00000000\t0x00000001\t0x00000001',
+            '6\t0x80000007\t0x00000001\t0x00000001\t0x00000001\t0x00000001',
+            '7\t0x00000000\t0x00000000\t0x00000000\t0x00000000\t0x00000000',
+        ]
+
+    def test_netmon_80211_phy_channel(self, cmd_tshark, capture_file, test_env):
+        '''PHY type, channel numbers (frequency for 11b/g and 11a only) and
+        centre frequencies (frames 8-28).'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 12 && frame.number <= 28',
+                '-Tfields', '-eframe.number', '-enetmon_802_11.phy_type',
+                '-enetmon_802_11.channel', '-enetmon_802_11.frequency',
+                '-ewlan_radio.channel', '-ewlan_radio.frequency')
+        assert rows == [
+            '12\t4\t6\t\t6\t5030',
+            '13\t5\t6\t\t6\t2437',
+            '14\t6\t6\t\t6\t2437',
+            '15\t7\t6\t\t6\t',
+            '16\t8\t6\t\t6\t',
+            '17\t9\t6\t\t6\t',
+            '18\t4\t36\t\t36\t5180',
+            '19\t5\t11\t\t11\t2462',
+            '20\t6\t1\t\t1\t2412',
+            '21\t7\t6\t\t6\t',
+            '22\t8\t36\t\t36\t',
+            '23\t6\t0\t\t\t',
+            '24\t6\t\t2437\t6\t2437',
+            '25\t4\t\t5180\t36\t5180',
+            '26\t6\t\t1000\t\t1000',
+            '27\t6\t\t4000000\t\t4000000',
+            '28\t6\t999\t\t999\t',
+        ]
+
+    def test_netmon_80211_rssi_rate_flags(self, cmd_tshark, capture_file, test_env):
+        '''RSSI and rate 0 are "unknown"; flags 0xffffffff skips the PHY
+        fields (frame 36); the timestamp and the header lengths.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {29, 30, 31, 32, 35, 36, 37}',
+                '-Tfields', '-eframe.number', '-enetmon_802_11.rssi',
+                '-enetmon_802_11.datarate', '-ewlan_radio.signal_dbm')
+        assert rows == [
+            '29\t0\t108\t',
+            '30\t-100\t108\t-100',
+            '31\t20\t108\t20',
+            '32\t-45\t0\t-45',
+            '35\t-45\t255\t-45',
+            '36\t\t\t',
+            '37\t-45\t108\t-45',
+        ]
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 38, 39, 40, 41}', '-Tfields',
+                '-eframe.number', '-enetmon_802_11.length',
+                '-enetmon_802_11.timestamp', '-ewlan_radio.timestamp')
+        assert rows == [
+            '1\t32\t1234605616436508552\t1234605616436508552',
+            '38\t32\t0\t0',
+            '39\t32\t18446744073709551615\t18446744073709551615',
+            '40\t40\t1234605616436508552\t1234605616436508552',
+            '41\t64\t1234605616436508552\t1234605616436508552',
+        ]
+
+    def test_netmon_80211_skipped_headers(self, cmd_tshark, capture_file, test_env):
+        '''Versions other than 2 and header lengths below 32 are skipped; the
+        802.11 frame follows the header length.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 42 && frame.number <= 45',
+                '-Tfields', '-eframe.number', '-enetmon_802_11.version',
+                '-ewlan.fc.type_subtype')
+        assert rows == ['42\t\t0x0024', '43\t\t0x0024', '44\t\t0x0024', '45\t\t0x0024']
+
+    def test_netmon_80211_other_frames(self, cmd_tshark, capture_file, test_env):
+        '''ACK and a null frame from the DS, with and without monitor mode.'''
+        rows = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 46', '-Tfields', '-eframe.number',
+                '-enetmon_802_11.op_mode.mon', '-ewlan.fc.type_subtype')
+        assert rows == [
+            '46\t0x00000000\t0x001d', '47\t0x00000000\t0x0024',
+            '48\t0x00000001\t0x001d', '49\t0x00000001\t0x0024',
+        ]
