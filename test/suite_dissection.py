@@ -74218,3 +74218,45 @@ class TestDissectI2c:
         assert 'Target address: 0x00 (General Call)' in stdout
         assert 'Bus: I2C-1' in stdout
         assert 'Inter-Integrated Circuit (Data)' in stdout
+
+
+class TestDissectIanaOui:
+    def test_iana_oui_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames are LLC (frame 3 is NHRP, the PID 3 payload), and
+        none is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iana_oui_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('LLC') == 10
+        assert protocols[2] == 'NHRP'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iana_oui_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iana_oui_pid(self, cmd_tshark, capture_file, test_env):
+        '''The PID field of the IANA OUI (00:00:5e) is registered and has
+        the value strings of every known PID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iana_oui_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ellc.iana_pid',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:2] for l in stdout.splitlines()] == [
+            ['1', '0x0001'], ['2', '0x0002'], ['3', '0x0003'],
+            ['4', '0x0004'], ['5', '0x0005'], ['6', '0x0006'],
+            ['7', '0x0007'], ['8', '0x0008'], ['9', '0x0009'],
+            ['10', '0x00ff'], ['11', '0x0005'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iana_oui_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5 || frame.number == 10',
+                '-V', '-O', 'llc',
+            ), encoding='utf-8', env=test_env)
+        assert 'PID: SCSP (0x0005)' in stdout
+        assert 'PID: Unknown (0x00ff)' in stdout
