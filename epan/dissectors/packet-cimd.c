@@ -23,6 +23,9 @@
 
 #include <epan/packet.h>
 #include <epan/charsets.h>
+
+#include "packet-e212.h"
+
 #define CIMD_STX   0x02 /* Start of CIMD PDU */
 #define CIMD_ETX   0x03 /* End of CIMD PDU */
 #define CIMD_COLON 0x3A /* CIMD colon */
@@ -121,6 +124,7 @@ static void dissect_cimd_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree
 static void dissect_cimd_ud(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset);
 static void dissect_cimd_dcs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset);
 static void dissect_cimd_error_code(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset);
+static void dissect_cimd_imsi(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset);
 
 static dissector_handle_t cimd_handle;
 
@@ -398,7 +402,7 @@ static const cimd_pdissect cimd_pc_handles[] = {
   dissect_cimd_parameter,
   dissect_cimd_parameter,
   dissect_cimd_parameter,
-  dissect_cimd_parameter,
+  dissect_cimd_imsi,          /* Originating IMSI */
   dissect_cimd_parameter,
   dissect_cimd_parameter,
   dissect_cimd_dcs,
@@ -448,6 +452,23 @@ static void dissect_cimd_parameter(tvbuff_t *tvb, packet_info* pinfo _U_, proto_
     startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII);
   proto_tree_add_item(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb,
     startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), ENC_ASCII|ENC_NA);
+}
+
+static void dissect_cimd_imsi(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset)
+{
+  /* Set up structures needed to add the param subtree and manage it */
+  proto_tree *param_tree;
+  const uint8_t *imsi_str;
+
+  param_tree = proto_tree_add_subtree(tree, tvb, startOffset + 1, endOffset - (startOffset + 1),
+                                   (*vals_hdr_PC[pindex].ett_p), NULL, cimd_vals_PC[pindex].strptr);
+
+  proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb,
+    startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII);
+  proto_tree_add_item_ret_string(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb,
+    startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), ENC_ASCII,
+    pinfo->pool, &imsi_str);
+  add_assoc_imsi_item(tvb, pinfo, param_tree, (const char *)imsi_str);
 }
 
 static void dissect_cimd_ud(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int pindex, int startOffset, int endOffset)
@@ -688,7 +709,8 @@ dissect_cimd_operation(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsi
 
     tvb_get_string_uint(tvb, offset + 1, CIMD_PC_LENGTH, ENC_STR_DEC, &PC, NULL);
     try_val_to_str_idx(PC, cimd_vals_PC, &idx);
-    if (idx != -1 && tree)
+    /* Dissect without a tree as well, so that the "imsi" tap fires */
+    if (idx != -1)
     {
       (vals_hdr_PC[idx].diss)(tvb, pinfo, cimd_tree, idx, offset, endOffset);
     }
