@@ -70131,3 +70131,62 @@ class TestDissectH460:
         rows = self.h460_fields(cmd_tshark, capture_file, test_env, 'h460.19.TraversalParameters_element',
                                 filt='h460.19.TraversalParameters_element')
         assert [r[0] for r in rows] == ['132', '133', '134']
+
+
+class TestDissectH501:
+    '''H.501 (TPKT over UDP and TCP port 2099) from the synthetic capture
+    h501_coverage.pcap.gz: 152 H.501 messages (frames 1-118 UDP, 119-153
+    TCP) made by a generator driven by the ASN.1 sources of H.501, H.225
+    and H.235, covering every message type of MessageBody.'''
+
+    @staticmethod
+    def h501_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h501_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h501_protocols(self, cmd_tshark, capture_file, test_env):
+        '''153 frames: 152 H.501, one TCP segment of a split message; none
+        is malformed or has an error expert info, in one and two passes.'''
+        rows = self.h501_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 153
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.501') == 152
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            rows = self.h501_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h501_message_types(self, cmd_tshark, capture_file, test_env):
+        '''All 32 message types of the H.501 MessageBody occur (one per generated alternative).'''
+        rows = self.h501_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', filt='h501')
+        assert len({r[1] for r in rows}) == 32
+
+    def test_h501_price_info(self, cmd_tshark, capture_file, test_env):
+        '''Frame 118 is an accessConfirmation with route information that
+        carries a PriceInfoSpec with a PriceElement.'''
+        rows = self.h501_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'h501.currency',
+                                'h501.amount', filt='h501.amount')
+        assert [r[0] for r in rows] == ['118']
+        assert rows[0][1] == 'accessConfirmation'
+        assert rows[0][2] != '' and rows[0][3] != ''
+
+    def test_h501_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Frame 151 holds two H.501 messages in one TCP segment; frames
+        152 and 153 are one message in two segments, reassembled in 153.'''
+        rows = self.h501_fields(cmd_tshark, capture_file, test_env, 'h501.sequenceNumber',
+                                'tcp.reassembled_in', filt='frame.number >= 151', passes=('-2',))
+        assert rows[0][1].count(',') == 1
+        assert rows[1][2] == '153' and rows[1][1] == ''
+        assert rows[2][1] != '' and rows[2][2] == ''
+
+    def test_h501_no_desegment(self, cmd_tshark, capture_file, test_env):
+        '''Without TCP desegmentation of H.501 the split message does not
+        decode as H.501 and does not crash.'''
+        rows = self.h501_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
+                                filt='frame.number >= 152', extra=('-o', 'h501.desegment:FALSE'))
+        assert len(rows) == 2
