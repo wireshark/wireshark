@@ -74761,3 +74761,166 @@ class TestDissectIcmp:
                             'icmp.mip.challenge')
         assert rows == [['119', '16,0,19,24,153,152,16', '192.0.2.9,192.0.2.10',
                          '24,16,8', '01020304']]
+
+
+class TestDissectIcmpv6Coverage:
+    '''ICMPv6 from the synthetic capture icmpv6_coverage.pcap.gz: echo
+    with request/response tracking, error messages with RFC 4884
+    extensions, MLD, Neighbor Discovery and its options, Mobile IPv6,
+    FMIPv6, Router Renumbering, Node Information, RPL, ILNP, 6LoWPAN-ND
+    duplicate address messages, MPL and Extended Echo.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=('-2',)):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('icmpv6_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_icmpv6_frames(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos in one and two passes. The ICMPv6 messages are in 246
+        frames; one is an IPv6 fragment, one a Teredo ping and two
+        carry HiPerConTracer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('icmpv6_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 250
+        assert protocols.count('ICMPv6') == 246
+        assert protocols.count('ICMPv6, HiPerConTracer') == 2
+        assert protocols.count('IPv6') == 1
+        assert protocols.count('Teredo') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('icmpv6_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_icmpv6_unreach_length(self, cmd_tshark, capture_file, test_env):
+        '''The RFC 4884 length octet is unsigned: a length of 129 words
+        (1032 octets) is followed by the extension header. Before
+        "ICMPv6: Use uint8_t for the original datagram length" the
+        offset went backwards where char is signed and the frame was
+        malformed.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'icmpv6.length == 129 && icmp.ext',
+                            '_ws.malformed', 'icmp.ext.class', 'icmp.ext.version')
+        assert rows == [['66', '', '2', '2']]
+        # The other frames with a length octet and an extension
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'icmpv6.length == 16 && icmp.ext.class', 'icmp.ext.class')
+        assert rows == [['64', '1'], ['65', '2']]
+
+    def test_icmpv6_echo_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Echo requests and replies are paired in two passes;
+        unanswered requests are flagged, multicast ones are not
+        tracked; the replies of frames 20 and 23 have no request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.resp_in', 'icmpv6.resp_in')
+        assert len(rows) == 15
+        assert all(int(r[0]) + 1 == int(r[1]) for r in rows)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.resp_to', 'icmpv6.resp_to')
+        assert len(rows) == 15
+        assert all(int(r[0]) - 1 == int(r[1]) for r in rows)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.no_resp')
+        assert [r[0] for r in rows] == ['19', '25', '26', '30']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {20, 23, 24}',
+                            'icmpv6.resp_to', '_ws.col.info')
+        assert rows[0][1] == '' and rows[1][1] == ''
+        assert rows[2][2].endswith('(multicast)')
+        # Frame 30 is the reassembly of the two IPv6 fragments 29 and 30
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 29', '_ws.col.info')
+        assert 'IPv6 fragment' in rows[0][1]
+
+    def test_icmpv6_echo_data(self, cmd_tshark, capture_file, test_env):
+        '''Echo payloads: timestamps in four encodings, HiPerConTracer by
+        the heuristic subdissector, the Teredo nonce.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.data_time', 'icmpv6.data_time')
+        assert [r[0] for r in rows] == ['1', '2', '3', '4', '5', '6', '7', '8']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hipercontracer',
+                            'hipercontracer.send_ttl', 'hipercontracer.round')
+        assert rows == [['15', '3', '1'], ['16', '3', '1']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 39',
+                            '_ws.col.protocol', 'icmpv6.nonce')
+        assert rows == [['39', 'Teredo', '01020304']] or rows == [['39', 'Teredo', '01:02:03:04']]
+
+    def test_icmpv6_errors(self, cmd_tshark, capture_file, test_env):
+        '''Error messages: Destination Unreachable codes, Time Exceeded,
+        Packet Too Big (MTU), Parameter Problem (pointer), the contained
+        datagram, and the nested error.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'icmpv6.type == 1 && icmpv6.code < 8', 'icmpv6.code')
+        assert [r[1] for r in rows][:8] == ['0', '1', '2', '3', '4', '5', '6', '7']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.type == 2', 'icmpv6.mtu')
+        assert rows == [['57', '1280']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.type == 4', 'icmpv6.pointer')
+        assert [r[1] for r in rows] == ['40'] * 5
+        # Frame 67: an ICMPv6 error inside an error is shown (type 1,1)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 67', 'icmpv6.type')
+        assert rows == [['67', '1,1']]
+
+    def test_icmpv6_mld(self, cmd_tshark, capture_file, test_env):
+        '''MLDv2 queries with the floating point response code and QQI,
+        and MLDv2 reports with records.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.mld.qqi',
+                            'icmpv6.mld.maximum_response_code', 'icmpv6.mld.qqi', 'icmpv6.mld.nb_sources')
+        assert rows == [
+            ['72', '10000', '125', '0'],
+            ['73', '140384', '144', '2'],
+            ['74', '4455424', '31744', '1'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.mldr.nb_mcast_records',
+                            'icmpv6.mldr.nb_mcast_records', 'icmpv6.mldr.mar.record_type')
+        assert rows == [['75', '1', '1'], ['76', '6', '2,3,4,5,6,9'], ['77', '0', '']]
+
+    def test_icmpv6_nd_options(self, cmd_tshark, capture_file, test_env):
+        '''Neighbor Discovery options: DNS lists, captive portal, PREF64
+        prefixes of every length, PvD ID, the DNR option.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {87, 88, 89, 93, 94, 95}',
+                            'icmpv6.opt.dnssl', 'icmpv6.opt.rdnss', 'icmpv6.opt.captive_portal',
+                            'icmpv6.opt.pref64.prefix', 'icmpv6.opt.pvd_id.fqdn', 'icmpv6.opt.dnr.adn')
+        assert rows[0][1:3] == ['example.com,sub.example.net,a.b', '2001:db8::1,2001:db8::1,2001:db8::2']
+        assert rows[1][3] == 'https://example.net/captive,https://example.net/cp.json'
+        assert rows[2][4] == ('102:304:506:708:90a:b0c::,102:304:506:708::,102:304:506:700::,'
+                              '102:304:506::,102:304:500::,102:304::')
+        assert rows[3][5] == 'pvd.example.net,pvd.example.org,pvd.a,x.example.com'
+        assert rows[4][6] == 'dns.example.net'
+        assert rows[5][6] == 'dns.example.net,doh.example'
+        # The Hop Limit and checksum warnings of the last two frames
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.nd.hlim.invalid')
+        assert [r[0] for r in rows] == ['249']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.checksum.status == 0')
+        assert '250' in [r[0] for r in rows]
+
+    def test_icmpv6_rpl(self, cmd_tshark, capture_file, test_env):
+        '''RPL control messages: every code, secure variants, metric
+        container, DAO/DCO options, P2P route discovery.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.type == 155',
+                            'icmpv6.code')
+        codes = [r[1] for r in rows]
+        assert len(codes) == 32
+        for c in ('0', '1', '2', '3', '4', '5', '7', '8', '128', '129', '130', '131', '132', '133', '138'):
+            assert c in codes
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.rpl.dio.rank',
+                            'icmpv6.rpl.dio.rank')
+        assert len(rows) == 11 and all(r[1] == '256' for r in rows)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.rpl.p2p.dro.zero || icmpv6.rpl.p2p.hop_by_hop')
+        assert [r[0] for r in rows] == ['201', '204', '205', '207']
+
+    def test_icmpv6_other(self, cmd_tshark, capture_file, test_env):
+        '''Node Information, MPL seeds and buffered messages.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.ni.reply.node_name',
+                            'icmpv6.ni.reply.node_name')
+        assert rows == [['170', 'node.example.org,alias.example']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.mpl.seed_info.seed_id',
+                            'icmpv6.mpl.seed_info.seed_id', 'icmpv6.mpl.seed_info.sequence')
+        assert [r[1] for r in rows] == ['fe80::1', '1234', '00:01:02:03:04:05:06:07,2001:db8::1',
+                                        '00:01:02:03:04:05:06:07,fe80::1']
+        assert rows[0][2] == '5,7'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.rr.pco.mp.matchlen.gt128 || icmpv6.rr.pco.mp.matchedlen.gt128')
+        assert [r[0] for r in rows] == ['156', '160']
