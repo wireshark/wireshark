@@ -68924,3 +68924,73 @@ class TestDissectH248_7:
         rows = self.h248_7_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
                                   filt='frame.number == 5')
         assert 'AddReq' in rows[0][1]
+
+
+class TestDissectH248AnnexC:
+    '''H.248.1 Annex C (package 0x0000, media stream properties) inside
+    binary H.248 on UDP 2945, from the synthetic capture
+    h248_annex_c_coverage.pcapng.gz: frames 1-10 the codec property, 11-14
+    bearer information references and NSAP addresses of terminations in a
+    context, 15-36 the SDP lines, 37-41 ATM, user service information and
+    other properties, 42-98 the package sweep (every property of the
+    package, three passes) and 99-168 messages built from the H.248 ASN.1
+    module with this package.'''
+
+    @staticmethod
+    def h248_annex_c_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h248_annex_c_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_annex_c_protocols(self, cmd_tshark, capture_file, test_env):
+        '''168 frames, none malformed or with an error expert info in one
+        and two passes and with the context tracking.'''
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 168
+        assert {r[1] for r in rows} <= {'H.248', 'H.248/SDP', 'H.248/SDP/SDP'}
+        for passes, extra in (((), ()), (('-2',), ()), ((), ('-o', 'h248.ctx_info:TRUE')),
+                              (('-2',), ('-o', 'h248.ctx_info:TRUE'))):
+            rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env,
+                                            filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                            passes=passes, extra=extra)
+            assert rows == []
+
+    def test_h248_annex_c_codec(self, cmd_tshark, capture_file, test_env):
+        '''The codec property (ACodec) is an octet string with the codec
+        identification; a non-octet string value does not throw (see the
+        malformed capture used for the coverage, "H.248 Annex C: Check for
+        a NULL tvb in acodec").'''
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'h248.annexc.ACodec',
+                                        filt='frame.number <= 10')
+        assert [r[1] for r in rows] == ['0101', '010803', '010a01', '0201', '020281', '02038182', '0204818243', '010b02', '0106', '010c04']
+
+    def test_h248_annex_c_sdp(self, cmd_tshark, capture_file, test_env):
+        '''SDP lines of Annex C: the connection information and the media
+        port that are taken from the c and m lines.'''
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'sdp.connection_info',
+                                        filt='frame.number >= 15 && frame.number <= 36 && sdp.connection_info')
+        assert rows == [['22', 'IN IP4 192.0.2.1'], ['23', 'IN IP6 2001:db8::2']]
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'sdp.media.port',
+                                        filt='frame.number >= 15 && frame.number <= 36 && sdp.media.port')
+        assert rows == [['30', '5004'], ['31', '0'], ['36', '65535']]
+
+    def test_h248_annex_c_atm(self, cmd_tshark, capture_file, test_env):
+        '''Virtual path and channel identifiers and the user service
+        information.'''
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'h248.annexc.vci',
+                                        filt='frame.number == 37')
+        assert rows == [['37', '32,65535']]
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'h248.annexc.USI',
+                                        filt='frame.number == 38')
+        assert rows == [['38', '8090a3,8890,04038090a3,8090a3']]
+
+    def test_h248_annex_c_term_references(self, cmd_tshark, capture_file, test_env):
+        '''With context tracking the bearer information reference and NSAP
+        address are shown for each termination of the context.'''
+        rows = self.h248_annex_c_fields(cmd_tshark, capture_file, test_env, 'h248.ctx.term.bir',
+                                        'h248.ctx.term.nsap', 'h248.ctx.term', filt='frame.number == 14',
+                                        extra=('-o', 'h248.ctx_info:TRUE'))
+        assert rows == [['14', '00000001,00000001', '39840f0007880000000000000000010102030400,39840f0007880000000000000000010102030400', '01,09']]
