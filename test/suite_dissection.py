@@ -70435,3 +70435,59 @@ class TestDissectHazelcast:
                             'hazelcast.nameLength', 'hazelcast.keys', 'hazelcast.values')
         assert rows[0][0:4] == ['332', '700', '900', '300']
         assert len(rows[0][4]) == 1400 and len(rows[0][5]) == 1800
+
+
+class TestDissectHciH1:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hci_h1_coverage.btsnoop.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hci_h1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 17 records of the BTSNOOP H1 file go through HCI H1 and
+        none is malformed or has an error expert info, in one and two
+        passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', 'hci_h1.direction')
+        assert len(rows) == 17
+        assert all(r[1] in ('0', '1') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes)
+            assert rows == []
+
+    def test_hci_h1_channels(self, cmd_tshark, capture_file, test_env):
+        '''The record flags give the channel and the direction: a sent
+        command/event record is a command, a received one an event, the
+        rest is ACL data; "Sent" and "Rcvd" are in the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 17',
+                            'frame.number', 'hci_h1.direction', '_ws.col.protocol',
+                            '_ws.col.info')
+        assert rows[0] == ['1', '0', 'HCI_CMD', 'Sent Reset']
+        assert rows[1] == ['2', '1', 'HCI_EVT', 'Rcvd Command Complete (Reset)']
+        assert rows[8] == ['9', '0', 'L2CAP', 'Sent Connection Request (<NONE>, SCID: 0x0040)']
+        assert rows[9][0:3] == ['10', '1', 'L2CAP']
+        assert rows[10] == ['11', '0', 'L2CAP', 'Sent Connection oriented channel']
+        assert rows[12] == ['13', '1', 'L2CAP', 'Rcvd Connection oriented channel']
+        assert rows[16] == ['17', '0', 'HCI_CMD', 'Sent Reset']
+
+    def test_hci_h1_tree(self, cmd_tshark, capture_file, test_env):
+        '''The H1 tree names the direction and the channel type.'''
+        for frame, text in ((1, 'Bluetooth HCI H1 Sent HCI Command'),
+                            (2, 'Bluetooth HCI H1 Rcvd HCI Event'),
+                            (9, 'Bluetooth HCI H1 Sent ACL Data')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('hci_h1_coverage.btsnoop.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V', '-O', 'hci_h1',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert text in lines
+            assert lines[lines.index(text) + 1].startswith('    [Direction: ')
