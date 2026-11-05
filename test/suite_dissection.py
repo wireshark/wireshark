@@ -73109,3 +73109,45 @@ class TestDissectHpsw:
                 '-Y', 'frame.number == 4', '-V', '-O', 'hpsw',
             ), encoding='utf-8', env=test_env)
         assert 'Number of neighbor MAC Addresses: 3' in stdout
+
+
+class TestDissectHpteam:
+    def test_hpteam_clean(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-5 are HP NIC Teaming heartbeats, frame 6 (other PID)
+        is plain LLC; none is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpteam_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert protocols == ['HP NIC Team'] * 5 + ['LLC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hpteam_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hpteam_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the source MAC address of the port, and
+        the data field holds the 63 octets after the SNAP header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpteam_coverage.pcap.gz'),
+                '-Y', 'hpteam',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ellc.hpteam_pid', '-ehpteam.data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 5
+        assert lines[0].startswith('1\tHP NIC Teaming Heartbeat; Port MAC = 02:00:00:00:00:01\t0x0002\t0001')
+        assert lines[1].startswith('2\tHP NIC Teaming Heartbeat; Port MAC = 02:00:00:00:00:02\t0x0002\t')
+        assert lines[3].startswith('4\tHP NIC Teaming Heartbeat; Port MAC = 02:00:00:00:00:02\t0x0002\t010203')
+        assert lines[4].endswith('\t0x0002\t<MISSING>')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpteam_coverage.pcap.gz'),
+                '-Y', 'hpteam.data && frame.number == 1',
+                '-Tfields', '-ehpteam.data',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().replace(':', '')) == 126
