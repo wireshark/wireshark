@@ -66041,3 +66041,91 @@ class TestDissectGsmCbsp:
             '40\t\t\t\t10',
             '46\t\t\t\t35',
         ]
+
+
+class TestDissectGsmGsup:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_gsup_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _by_frame(text):
+        return {int(r[0]): r[1:] for r in (l.split('\t') for l in text.splitlines())}
+
+    def test_gsm_gsup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GSUP in IPA OSMO EXT PDUs on TCP port 3003: 47 frames, 8 of them
+        with two PDUs, none malformed or with a warning or error expert
+        info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsup', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 47
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_gsup_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of the subscriber management, supplementary
+        service, SMS, IMEI check, inter-MSC and ePDG classes, and an
+        unknown message type (0x7f, frame 21).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsup', '-Tfields', '-eframe.number', '-egsup.msg_type')
+        types = [t for r in self._by_frame(stdout).values() for t in r[0].split(',')]
+        assert [int(t) for t in types] == [
+            4, 5, 6, 16, 17, 18, 8, 9, 10, 11, 12, 13, 14, 20, 21, 22, 28, 29,
+            30, 17, 127, 32, 34, 33, 36, 37, 38, 40, 41, 42, 44, 45, 46, 48,
+            49, 50, 50, 52, 54, 53, 56, 57, 58, 60, 61, 62, 64, 68, 71, 75, 78,
+            80, 81, 82, 6]
+
+    def test_gsm_gsup_ie_values(self, cmd_tshark, capture_file, test_env):
+        '''IMSI, PDP addresses (IPv4, IPv6, IPv4v6), APN, cause, session
+        state, message class, access network type, and source and
+        destination names as text.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsup', '-Tfields', '-eframe.number', '-ee212.imsi',
+                '-egsup.pdp_address.ipv4', '-egsup.pdp_address.ipv6',
+                '-egsup.apn', '-egsup.cause', '-egsup.session_state',
+                '-egsup.source_name.text', '-egsup.msg_class', '-egsup.an_type')
+        rows = self._by_frame(stdout)
+        assert rows[4][0] == '262019876543210'
+        assert rows[5][4] == '0x07'
+        assert rows[6][1] == '10.0.0.1,10.0.0.2'
+        assert rows[6][2].count('1011:1213:1415:1617:1819:1a1b:1c1d:1e1f') == 2
+        assert rows[6][3] == ','.join(['example.com'] * 7)
+        assert rows[22][5] == '1' and rows[23][5] == '3'
+        assert rows[36][6:9] == ['MSC-A', '4', '1']
+        assert rows[38][6] == 'A'
+        assert rows[48][1] == '10.1.1.1'
+
+    def test_gsm_gsup_embedded(self, cmd_tshark, capture_file, test_env):
+        '''The sub-dissectors reached from IEs: GSM MAP components of the
+        SS info IE (frames 22-24), the SMS TPDU of the SM-RP-UI IE, BSSAP
+        and RANAP in the AN-APDU IE.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {22, 23, 24, 25, 36, 38}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        rows = self._by_frame(stdout)
+        assert rows[22] == ['GSUP/GSM MAP']
+        assert rows[23] == ['GSUP/GSM MAP']
+        assert rows[24] == ['GSUP/GSM MAP']
+        assert rows[25] == ['GSM SMS']
+        assert rows[36] == ['BSSAP']
+        assert rows[38] == ['RANAP']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_old.localValue', '-Tfields', '-eframe.number',
+                '-egsm_old.localValue')
+        assert self._by_frame(stdout)[22] == ['59']
+
+    def test_gsm_gsup_names_off(self, cmd_tshark, capture_file, test_env):
+        '''With "Show Names as text" off the names stay binary only.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-ogsup.show_name_as_text:FALSE', '-Y', 'gsup.source_name.text',
+                '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-ogsup.show_name_as_text:FALSE', '-Y', 'gsup.source_name',
+                '-Tfields', '-eframe.number')
+        assert count_output(stdout) > 0
