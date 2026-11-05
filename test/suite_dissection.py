@@ -67616,3 +67616,90 @@ class TestDissectGtp:
             rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 424',
                                 'frame.protocols', opts=('-o', 'gtp.dissect_tpdu_as:' + tpdu))
             assert proto in rows[0][0]
+
+
+class TestDissectGtpv2:
+    '''GTPv2-C from the synthetic capture gtpv2_coverage.pcap.gz: every
+    message type, request/response pairs, header variants, grouped IEs,
+    the user location in RADIUS and Diameter, and the JSON 3GPP frames
+    (HTTP).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, passes=(), opts=(), flt=None):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('gtpv2_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_gtpv2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''192 frames: 170 GTPv2 (one with NAS-EPS), 15 RADIUS, 3 Diameter,
+        1 HTTP/JSON, 2 TCP; no malformed packets or error expert infos in
+        one pass and with -2.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 192
+        protos = [r[1] for r in rows]
+        assert protos.count('GTPv2') == 170
+        assert protos.count('GTPv2/NAS-EPS') == 1
+        assert protos.count('RADIUS') == 15
+        assert protos.count('DIAMETER') == 3
+        assert protos.count('HTTP/JSON') == 1
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, passes=passes,
+                                flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert not rows
+
+    def test_gtpv2_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses with the same sequence number are paired
+        (also the retransmitted request: the response belongs to the last
+        one); a response before its request is tied to it on the second pass.'''
+        rows = {r[0]: r[1:] for r in self._fields(cmd_tshark, capture_file, test_env,
+                'gtpv2.response_in', 'gtpv2.response_to', passes=('-2',))}
+        assert rows['116'] == ['117', '']
+        assert rows['117'] == ['', '116']
+        assert rows['123'] == ['', '122']
+        assert rows['158'] == ['', '157']
+        assert rows['154'][1] == '155'    # a response seen before its request
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('gtpv2_coverage.pcap.gz'),
+                '-q', '-z', 'gtpv2,srt'), encoding='utf-8', env=test_env, timeout=120)
+        assert any(l.split()[1:4] == ['Create', 'Session', 'Request'] and l.split()[4] == '4'
+                   for l in out.splitlines())
+
+    def test_gtpv2_echo_not_matched(self, cmd_tshark, capture_file, test_env):
+        '''An Echo Request with the sequence number of a Create Session
+        pair is not shown as its response and does not change the pair
+        ("GTPv2: Bound grouped IE nesting and fix NULL dereferences").'''
+        for passes in ((), ('-2',)):
+            rows = {r[0]: r[1:] for r in self._fields(cmd_tshark, capture_file, test_env,
+                    'gtpv2.response_in', 'gtpv2.response_to', passes=passes)}
+            assert rows['171'] == ['', '']
+            assert rows['170'][1] == '169'
+
+    def test_gtpv2_json_session_tracking(self, cmd_tshark, capture_file, test_env):
+        '''IMSI and Cause IEs decoded for JSON 3GPP (HTTP) have no session
+        arguments; with session tracking on this crashed.'''
+        for opts in ((), ('-o', 'gtp.track_gtp_session:TRUE')):
+            rows = {r[0]: r[1:] for r in self._fields(cmd_tshark, capture_file, test_env,
+                    'gtpv2.cause', 'gtpv2.ie_type', opts=opts)}
+            assert rows['173'] == ['16', '1,2']
+
+    def test_gtpv2_grouped_ies(self, cmd_tshark, capture_file, test_env):
+        '''Grouped IEs: bearer contexts nested inside a PDN connection, and
+        ten levels of bearer contexts (the limit is 16).'''
+        rows = {r[0]: r[1] for r in self._fields(cmd_tshark, capture_file, test_env, 'gtpv2.ie_type')}
+        assert rows['115'].split(',') == ['93'] * 10 + ['73']
+        assert rows['114'].split(',')[:2] == ['93', '109']
+
+    def test_gtpv2_user_location(self, cmd_tshark, capture_file, test_env):
+        '''The 3GPP User Location Info of RADIUS (frames 174-188) and
+        Diameter (190-191) covers every geographic location type;
+        Presence Reporting Area elements are decoded from Diameter (192).'''
+        rows = {r[0]: r[1] for r in self._fields(cmd_tshark, capture_file, test_env, 'gtpv2.glt')}
+        assert [rows[str(n)] for n in range(174, 189)] == \
+            ['0', '1', '2'] + [str(v) for v in range(128, 140)]
+        assert rows['190'] == '0,1,2,128,129,130,131,132'
+        assert rows['191'] == '133,134,135,136,137,138,139'
+        rows = {r[0]: r[1] for r in self._fields(cmd_tshark, capture_file, test_env,
+                'gtpv2.pres_rep_area_action.no_tai')}
+        assert rows['192'] == '2,1,0,0'
