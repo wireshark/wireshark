@@ -73455,3 +73455,103 @@ class TestDissectHsr:
         assert stdout.count('LSDU size: 60 [correct]') == 1
         assert 'LSDU size: 10 [WRONG, should be 64]' in stdout
         assert 'LSDU size: 4095 [WRONG, should be 64]' in stdout
+
+
+class TestDissectHsrp:
+    def test_hsrp_clean(self, cmd_tshark, capture_file, test_env):
+        '''37 frames are HSRP or HSRPv2 (frames 20 and 21 are plain UDP),
+        none is malformed, and frame 19 (unknown TLV in HSRPv1) has the
+        only expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 39
+        assert protocols.count('HSRP') == 20
+        assert protocols.count('HSRPv2') == 17
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hsrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hsrp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '19\tUnknown TLV sequence in HSRPv1 dissection, Type=(9) Len=(28)']
+
+    def test_hsrp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: opcodes and states of HSRPv1, advertisements and
+        the HSRPv2 TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1] for l in stdout.splitlines()}
+        assert [info[str(i)] for i in range(1, 10)] == [
+            'Hello (state Active)', 'Hello (state Standby)', 'Hello (state Speak)',
+            'Hello (state Listen)', 'Hello (state Learn)', 'Hello (state Initial)',
+            'Hello (state Unknown)', 'Coup (state Active)', 'Resign (state Initial)']
+        assert [info[str(i)] for i in range(12, 18)] == [
+            'Advertise (state Dormant)', 'Advertise (state Passive)',
+            'Advertise (state Active)', 'Advertise (state Active)',
+            'Advertise (state Unknown)', 'Unknown']
+        assert info['22'] == 'Hello (state Active)'
+        assert info['23'] == 'Coup (state Standby)'
+        assert info['24'] == 'Resign (state Speak)'
+        assert info['25'] == 'Interface State TLV (Act=10 Pass=20)'
+        assert info['27'] == 'Hello (state Init)'
+        assert info['28'] == 'Unknown (state Unknown)'
+        assert info['20'].startswith('1985 → 5555')
+
+    def test_hsrp_v1_fields(self, cmd_tshark, capture_file, test_env):
+        '''HSRPv1 timers, priority, group, authentication, virtual IP and
+        the MD5 authentication TLV (frame 18).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 10 || frame.number == 18',
+                '-Tfields', '-eframe.number', '-ehsrp.hellotime',
+                '-ehsrp.holdtime', '-ehsrp.priority', '-ehsrp.group',
+                '-ehsrp.auth_data', '-ehsrp.virt_ip',
+                '-ehsrp2.md5_algorithm', '-ehsrp2.md5_key_id',
+                '-ehsrp2.md5_auth_data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t3\t10\t100\t1\tcisco\t192.0.2.254\t\t\t'
+        assert lines[1] == '10\t5\t15\t200\t7\tsecret!\t192.0.2.254\t\t\t'
+        assert lines[2] == '18\t3\t10\t100\t1\tcisco\t192.0.2.254\t1\t1\t' + 'aa' * 16
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 10', '-V', '-O', 'hsrp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Hellotime: Non-Default (5)' in stdout
+        assert 'Holdtime: Non-Default (15)' in stdout
+        assert 'Authentication Data: Non-Default (secret!)' in stdout
+
+    def test_hsrp_v2_fields(self, cmd_tshark, capture_file, test_env):
+        '''HSRPv2 group state, interface state and authentication TLVs
+        over IPv4 and IPv6.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 22 || frame.number == 25 || frame.number == 36',
+                '-Tfields', '-eframe.number', '-ehsrp2.hellotime',
+                '-ehsrp2.holdtime', '-ehsrp2.priority', '-ehsrp2.group',
+                '-ehsrp2.identifier', '-ehsrp2.ipversion', '-ehsrp2.virt_ip',
+                '-ehsrp2.virt_ip_v6', '-ehsrp2.auth_data',
+                '-ehsrp2.active_groups', '-ehsrp2.passive_groups',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '22\t3000\t10000\t100\t1\t00:00:5e:02:01:01\t4\t192.0.2.254\t\tcisco\t\t'
+        assert lines[1] == '25\t1000\t3000\t255\t1\t00:00:5e:02:01:01\t4\t192.0.2.254\t\t\t10\t20'
+        assert lines[2] == '36\t3000\t10000\t100\t1\t00:00:5e:02:01:01\t6\t\t2001:db8::fe\tcisco\t\t'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 25', '-V', '-O', 'hsrp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Hellotime: Non-Default (1000)' in stdout
