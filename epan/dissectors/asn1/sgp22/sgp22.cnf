@@ -67,7 +67,7 @@ VersionType TYPE = FT_STRING
 
 %(DEFAULT_BODY)s
   if (next_tvb) {
-    wmem_strbuf_t *version_str = wmem_strbuf_create(NULL);
+    wmem_strbuf_t *version_str = wmem_strbuf_create(actx->pinfo->pool);
     for (unsigned i = 0; i < %(MAX_VAL)s; i++) {
       uint8_t value = tvb_get_uint8(next_tvb, i);
       if (i < (%(MAX_VAL)s - 1) || value > 0) {

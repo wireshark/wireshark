@@ -799,7 +799,7 @@ dissect_sgp22_VersionType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned off
                                                    3, 3, -1, &next_tvb);
 
   if (next_tvb) {
-    wmem_strbuf_t *version_str = wmem_strbuf_create(NULL);
+    wmem_strbuf_t *version_str = wmem_strbuf_create(actx->pinfo->pool);
     for (unsigned i = 0; i < 3; i++) {
       uint8_t value = tvb_get_uint8(next_tvb, i);
       if (i < (3 - 1) || value > 0) {
