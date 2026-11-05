@@ -65107,3 +65107,99 @@ class TestDissectGsmAbisOml:
                 '-Y', 'frame.number == 456', '-Tfields',
                 '-egsm_abis_oml.fom.testrep.ipa_arfcn', '-egsm_abis_oml.fom.testrep.ipa_rxlev')
         assert stdout.strip() == '291,359\t0,17'
+
+
+class TestDissectGsmAbisPgsl:
+    # P-GSL rides on LAPD SAPI 12, which needs the LAPD preference "Use GSM
+    # SAPI values" (TS 48.056). Frames 1-60 are dissected with the default
+    # Incremental Redundancy setting, frames 61-67 (with the IR header in
+    # DLDATA-IND) need gsm_abis_pgsl.ir:TRUE.
+    @staticmethod
+    def pgsl_run(cmd_tshark, capture_file, test_env, ir, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'lapd.use_gsm_sapi_values:TRUE',
+                '-o', 'gsm_abis_pgsl.ir:' + ir,
+                '-r', capture_file('gsm_abis_pgsl_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_abis_pgsl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is P-GSL; no frame is malformed or has an error expert
+        info in the section that matches the IR preference, in one and two
+        passes.'''
+        run = TestDissectGsmAbisPgsl.pgsl_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'gsm_abis_pgsl', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 67
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 67
+        for ir, first, last in (('FALSE', 1, 60), ('TRUE', 61, 67)):
+            for passes in ((), ('-2',)):
+                stdout = run(cmd_tshark, capture_file, test_env, ir, *passes,
+                        '-Y', '(_ws.malformed || _ws.expert.severity == 0x800000)'
+                        ' && frame.number >= %d && frame.number <= %d' % (first, last),
+                        '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0, (ir, first, last)
+
+    def test_gsm_abis_pgsl_dldata_req_and_status(self, cmd_tshark, capture_file, test_env):
+        '''DLDATA-REQ and STATUS-IND fields.'''
+        run = TestDissectGsmAbisPgsl.pgsl_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'gsm_abis_pgsl.ccu_ta', '-Tfields', '-eframe.number',
+                '-egsm_abis_pgsl.tn_bitmap', '-egsm_abis_pgsl.a_fn_d',
+                '-egsm_abis_pgsl.ccu_ta', '-egsm_abis_pgsl.ack_req')
+        assert stdout.splitlines() == [
+            '1\t0x01\t1000\t0\tFalse',
+            '2\t0x02\t1001\t5\tTrue',
+            '3\t0x04\t1002\t10\tFalse',
+            '4\t0x08\t1003\t63\tTrue',
+        ]
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'gsm_abis_pgsl.cause', '-Tfields', '-eframe.number',
+                '-egsm_abis_pgsl.cause', '-egsm_abis_pgsl.addl_info')
+        assert stdout.splitlines() == [
+            '52\t0\t0x10', '53\t1\t0x11', '54\t2\t0x12', '55\t3\t0x13', '56\t4\t0x14',
+            '60\t1\t0x02',
+        ]
+
+    def test_gsm_abis_pgsl_access_bursts(self, cmd_tshark, capture_file, test_env):
+        '''The four access bursts of a PRACH block: levels, 10-bit access
+        delays, indicators and types (valid bursts only reach RLC/MAC).'''
+        run = TestDissectGsmAbisPgsl.pgsl_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'frame.number == 36', '-Tfields', '-egsm_abis_pgsl.ab.rxlev',
+                '-egsm_abis_pgsl.ab.acc_delay', '-egsm_abis_pgsl.ab.abi',
+                '-egsm_abis_pgsl.ab.type')
+        assert stdout.strip() == '30,31,32,33\t100,1023,5,900\t7,7,7,7\t0,1,2,3'
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'frame.number == 37', '-Tfields', '-egsm_abis_pgsl.ab.abi',
+                '-egsm_abis_pgsl.ab.type')
+        assert stdout.strip() == '0,0,7,0\t0,1,2,3'
+
+    def test_gsm_abis_pgsl_egprs(self, cmd_tshark, capture_file, test_env):
+        '''EGPRS header types 1-3 are passed to the RLC/MAC dissector, which
+        selects the MCS from the header; the data blocks are re-aligned and
+        dissected too.'''
+        run = TestDissectGsmAbisPgsl.pgsl_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'FALSE',
+                '-Y', 'frame.number == 17 || frame.number == 38 || frame.number == 39 || frame.number == 40',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert 'EGPRS DL DATA: MCS8' in lines[0]
+        assert 'EGPRS UL DATA: MCS7' in lines[1]
+        assert 'EGPRS UL DATA: MCS5' in lines[2]
+        assert 'EGPRS UL DATA: MCS3' in lines[3]
+        # the two re-aligned data blocks of header type 1
+        assert 'Len=68 Len=68' in lines[0]
+        assert 'Len=52 Len=52' in lines[1]
+
+    def test_gsm_abis_pgsl_incremental_redundancy(self, cmd_tshark, capture_file, test_env):
+        '''The Incremental Redundancy header of DLDATA-IND (preference).'''
+        run = TestDissectGsmAbisPgsl.pgsl_run
+        stdout = run(cmd_tshark, capture_file, test_env, 'TRUE',
+                '-Y', 'gsm_abis_pgsl.ir_sign_type && frame.number >= 61', '-Tfields', '-eframe.number',
+                '-egsm_abis_pgsl.ir_tfi', '-egsm_abis_pgsl.ir_sign_type',
+                '-egsm_abis_pgsl.data_len')
+        lines = stdout.splitlines()
+        assert [l.split('\t')[0] for l in lines] == ['61', '62', '63', '64', '65', '66']
+        assert [l.split('\t')[2] for l in lines] == ['0', '1', '2', '3', '3', '1']
+        assert [l.split('\t')[3] for l in lines] == ['23', '23', '23', '23', '54', '160']
