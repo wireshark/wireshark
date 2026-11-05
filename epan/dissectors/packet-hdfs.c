@@ -107,6 +107,14 @@ static int ett_hdfs;
 
 static dissector_handle_t hdfs_handle;
 
+/* Compare a packet supplied length string with a literal; the length
+   must match the literal's before the bytes are compared. */
+static bool
+hdfs_str_eq(tvbuff_t *tvb, unsigned offset, const char *str, unsigned len)
+{
+    return len == strlen(str) && tvb_memeql(tvb, offset, (const uint8_t*)str, len) == 0;
+}
+
 /* Parses the parameters of a function.
    Parses the type length which is always in 2 bytes.
    Next the type which is the previously found length.
@@ -132,14 +140,14 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, int param
         proto_tree_add_item(hdfs_tree, hf_hdfs_paramtype, tvb, offset, length, ENC_ASCII);
         offset += length;
 
-        if (offset >= length && (!tvb_memeql(tvb, offset - length, (const uint8_t*)"long", length) || !tvb_memeql(tvb, offset - length, (const uint8_t*)"int", length) ||
-                                 !tvb_memeql(tvb, offset - length, (const uint8_t*)"short", length) || !tvb_memeql(tvb, offset - length, (const uint8_t*)"char", length) ||
-                                 !tvb_memeql(tvb, offset - length, (const uint8_t*)"byte", length) || !tvb_memeql(tvb, offset - length, (const uint8_t*)"float", length)
-                                 || !tvb_memeql(tvb, offset - length, (const uint8_t*)"double", length) || !tvb_memeql(tvb, offset - length, (const uint8_t*)"boolean", length))) {
+        if (offset >= length && (hdfs_str_eq(tvb, offset - length, "long", length) || hdfs_str_eq(tvb, offset - length, "int", length) ||
+                                 hdfs_str_eq(tvb, offset - length, "short", length) || hdfs_str_eq(tvb, offset - length, "char", length) ||
+                                 hdfs_str_eq(tvb, offset - length, "byte", length) || hdfs_str_eq(tvb, offset - length, "float", length)
+                                 || hdfs_str_eq(tvb, offset - length, "double", length) || hdfs_str_eq(tvb, offset - length, "boolean", length))) {
 
-            if (!tvb_memeql(tvb, offset - length, (const uint8_t*)"boolean", length)) {
+            if (hdfs_str_eq(tvb, offset - length, "boolean", length)) {
                 length = 1;
-            } else if (!tvb_memeql(tvb, offset - length, (const uint8_t*)"short", length)) {
+            } else if (hdfs_str_eq(tvb, offset - length, "short", length)) {
                 length = 2;
             } else {
                 length = sizeof(type_name);
@@ -159,7 +167,7 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, int param
             proto_tree_add_item(hdfs_tree, hf_hdfs_paramval, tvb, offset, length, ENC_ASCII);
             offset += length;
 
-            if (!tvb_memeql(tvb, offset - length, (const uint8_t*)"org.apache.hadoop.fs.permission.FsPermission", length)) {
+            if (hdfs_str_eq(tvb, offset - length, "org.apache.hadoop.fs.permission.FsPermission", length)) {
                 proto_tree_add_item(hdfs_tree, hf_hdfs_fileperm, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
@@ -570,11 +578,11 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 offset += length;
 
                 /* responses about block location info */
-                if (!tvb_memeql(tvb, offset - length, (const uint8_t*)"org.apache.hadoop.hdfs.protocol.LocatedBlocks", length)) {
+                if (hdfs_str_eq(tvb, offset - length, "org.apache.hadoop.hdfs.protocol.LocatedBlocks", length)) {
                     dissect_resp_locatedblocks (tvb, hdfs_tree, offset);
 
                     /* responses about file statuses */
-                } else if (!tvb_memeql(tvb, offset - length, (const uint8_t*)"org.apache.hadoop.hdfs.protocol.HdfsFileStatus", length)) {
+                } else if (hdfs_str_eq(tvb, offset - length, "org.apache.hadoop.hdfs.protocol.HdfsFileStatus", length)) {
                     dissect_resp_filestatus (tvb, hdfs_tree, offset);
 
                 } else {
@@ -615,7 +623,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
                     /* authentication length (read out of first 4 bytes) */
                     length = tvb_get_ntohl(tvb, offset);
-                    proto_tree_add_item(hdfs_tree, hf_hdfs_authlen, tvb, offset, 4, ENC_ASCII);
+                    proto_tree_add_item(hdfs_tree, hf_hdfs_authlen, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
 
                     /* authentication (length the number we just got) */
@@ -713,7 +721,7 @@ proto_register_hdfs(void)
         ***********************************************/
         { &hf_hdfs_authlen,
           { "HDFS authentication length", "hdfs.authlen",
-            FT_STRING, BASE_NONE,
+            FT_UINT32, BASE_DEC,
             NULL, 0x0,
             NULL, HFILL }
         },
