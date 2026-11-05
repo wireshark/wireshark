@@ -403,6 +403,8 @@ static void h223_lc_init( void )
 	h223_lc_params_temp = NULL;
 	h245_lc_dissector = NULL;
 	h223_fw_lc_num = 0;
+	h223_fw_lc_params = NULL;
+	h223_rev_lc_params = NULL;
 }
 
 void h245_set_h223_add_lc_handle( h223_add_lc_handle_t handle )
@@ -8590,6 +8592,8 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx
 
   h223_fw_lc_num = 0;
   h223_lc_params_temp = NULL;
+  h223_fw_lc_params = NULL;
+  h223_rev_lc_params = NULL;
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
@@ -10912,11 +10916,11 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 	actx->pinfo->p2p_dir = P2P_DIR_SENT;
   pend = (h223_pending_olc *)wmem_map_lookup( h223_pending_olc_reqs[actx->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
   if (pend) {
-	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
-				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
+	/* The ack and the request come from the packets; add the reverse
+	 * channel only when both of them have one. */
 	if(h223_add_lc_handle) {
 	  (*h223_add_lc_handle)( actx->pinfo, h223_fw_lc_num, pend->fw_channel_params);
-	  if(h223_rev_lc_num)
+	  if(h223_rev_lc_num && pend->rev_channel_params)
 		(*h223_add_lc_handle)( actx->pinfo, h223_rev_lc_num, pend->rev_channel_params);
 	}
   } else {
