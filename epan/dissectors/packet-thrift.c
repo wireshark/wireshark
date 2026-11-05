@@ -416,7 +416,7 @@ thrift_binary_utf8_isprint(tvbuff_t *tvb, unsigned offset, unsigned max_len, boo
             } else if ((current & 0x80) == 0) {
                 if (!g_ascii_isprint(current)) {
                     if (!accept_crlf) {
-                        /* New line and chariot return or not valid in the method name */
+                        /* New line and chariot return are not valid in the method name */
                         return -1;
                     }
                     if (current != '\r' && current != '\n') {
@@ -725,6 +725,7 @@ dissect_thrift_varint(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *
     int64_t varint;
     proto_item *pi;
     int length = thrift_get_varint_enc(tvb, pinfo, tree, *offset, max_length, (uint64_t*)&varint, ENC_VARINT_ZIGZAG);
+    thrift_opt->use_std_dissector = true;
     switch (length) {
     case THRIFT_REQUEST_REASSEMBLY:
         /* Will always return after setting the expert parts. */
