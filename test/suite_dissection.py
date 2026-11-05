@@ -76785,3 +76785,104 @@ class TestDissectRadiotap:
         assert stdout.count('[correct]') == 1
         assert stdout.count('[incorrect, should be 0x') == 1
         assert stdout.count('[cannot verify - not enough data]') == 1
+
+
+class TestDissectRadiotapIter:
+    # The radiotap iterator (packet-ieee80211-radiotap-iter.c) walks the
+    # present words and the field data; these tests look at what it
+    # returns through the radiotap dissector.  Helpers are static
+    # methods so that only the class is copied into the suite.
+    @staticmethod
+    def write_pcap(path, packets):
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 127))
+            for i, pkt in enumerate(packets):
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(pkt), len(pkt)))
+                f.write(pkt)
+
+    def test_radiotap_iter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is radiotap; all but the two 0-length PSDU frames (25 and 27) go to wlan; none is malformed or has an
+        error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_iter_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 85
+        assert protocols.count('radiotap:wlan_radio:wlan') == 83
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radiotap_iter_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_radiotap_iter_alignment(self, cmd_tshark, capture_file, test_env):
+        '''Fields are aligned to their natural boundary relative to the
+        start of the header: the TSFT after a flags byte starts at offset
+        8, the channel after rate and antenna at offset 12.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_iter_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,28,29}',
+                '-Tfields', '-eframe.number', '-eradiotap.length',
+                '-eradiotap.mactime',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines == [
+            ['1', '16', str(0x1111111111111111)],
+            ['28', '17', str(0x2222222222222222)],
+            ['29', '18', str(0x2222222222222222)],
+        ]
+
+    def test_radiotap_iter_vendor_namespaces(self, cmd_tshark, capture_file, test_env):
+        '''Vendor namespaces the iterator does not know are shown as raw
+        data and skipped; the fields after them are decoded from the
+        radiotap namespace again.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_iter_coverage.pcap.gz'),
+                '-Y', 'frame.number in {57,58,62,63}',
+                '-Tfields', '-eframe.number', '-eradiotap.dbm_antsignal',
+                '-eradiotap.vendor_oui', '-eradiotap.vendor_subns',
+                '-eradiotap.vendor_data_len', '-eradiotap.antenna',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '57\t-64\t20722\t1\t4\t1',
+            '58\t-64,-61\t4120,36940\t7,0\t8,0\t',
+            '62\t\t1122867\t2\t30\t',
+            '63\t-64\t20722,20722,20722\t1,2,3\t0,1,2\t',
+        ]
+
+    def test_radiotap_iter_unknown_bits(self, cmd_tshark, capture_file, test_env):
+        '''Present bits of an extended word outside the radiotap
+        namespace table end the iteration without an error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radiotap_iter_coverage.pcap.gz'),
+                '-Y', 'frame.number in {54,55,56}',
+                '-Tfields', '-eframe.number', '-eradiotap.length',
+                '-eradiotap.dbm_antsignal',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['54\t12\t', '55\t17\t-64', '56\t17\t-64']
+
+    def test_radiotap_iter_malformed(self, cmd_tshark, tmp_path, test_env):
+        '''Headers the iterator rejects while walking the data are
+        reported on the present flags.'''
+        null = (struct.pack('<BBH', 0x48, 0x01, 0) + bytes.fromhex('020000000001') +
+                bytes.fromhex('020000000002') + bytes.fromhex('020000000003') + struct.pack('<H', 0))
+        pkts = [
+            # field past the end of the header
+            struct.pack('<BBHI', 0, 0, 8, 1 << 5) + null,
+            # a data bit in a word without a namespace
+            struct.pack('<BBHIII', 0, 0, 22, (1 << 31) | (1 << 30), (1 << 31) | 1, 1) +
+                bytes.fromhex('0050f2') + b'\x01' + struct.pack('<H', 0) + null,
+            # TLV longer than the header
+            struct.pack('<BBHI', 0, 0, 16, 1 << 28) + struct.pack('<HH', 5, 40) + null,
+        ]
+        pcap = str(tmp_path / 'iter_malformed.pcap')
+        self.write_pcap(pcap, pkts)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        for line in stdout.splitlines():
+            assert 'Radiotap data goes past the end of the radiotap header' in line
+        assert len(stdout.splitlines()) == 3
