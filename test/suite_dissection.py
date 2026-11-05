@@ -62653,3 +62653,60 @@ class TestDissectGlbp:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == ('1,2,2\t00:07:b4:00:01:01,00:07:b4:00:01:02\t'
                                   'G: 15, Hello, IPv4, Request/Response?, Request/Response?')
+
+
+class TestDissectGlow:
+    # glow_coverage.pcap.gz: Ember+ Glow PDUs inside S101 frames on TCP port
+    # 9000. Frames 4-67 are the single-packet messages (consumer requests and
+    # provider responses), then keepalives, two frames in one segment and
+    # multi-packet messages.
+
+    def test_glow_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Glow PDU type decodes without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glow_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 83
+        assert protocols.count('Glow') == 71
+        assert protocols.count('S101') == 6
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('glow_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == []
+
+    def test_glow_s101_checksums(self, cmd_tshark, capture_file, test_env):
+        '''All S101 frames have a good CRC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glow_coverage.pcap.gz'),
+                '-Y', 's101.crc.status != 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == []
+
+    def test_glow_multi_packet(self, cmd_tshark, capture_file, test_env):
+        '''A message sent as first, middle and last S101 packets is
+        reassembled and decoded as Glow in the last one.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('glow_coverage.pcap.gz'),
+                '-Y', 'glow && s101.flags == 0x40',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.splitlines()) == 2
+
+    def test_glow_values(self, cmd_tshark, capture_file, test_env):
+        '''Identifiers and values of the tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('glow_coverage.pcap.gz'),
+                '-Y', 'glow.identifier',
+                '-Tfields', '-eglow.identifier',
+            ), encoding='utf-8', env=test_env)
+        ids = set(stdout.replace('\n', ',').split(','))
+        for name in ('Root', 'Device', 'p-int', 'p-real', 'p-enum', 'add', 'qm', 'm1'):
+            assert name in ids
