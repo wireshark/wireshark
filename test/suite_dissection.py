@@ -63119,3 +63119,102 @@ class TestDissectGmhdr:
                     '-Tfields', '-e_ws.expert.message',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['Header length 0 invalid']
+
+
+class TestDissectGmr1Bcch:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmr1_bcch_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmr1_bcch_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gmr1_bcch_info(self, cmd_tshark, capture_file, test_env):
+        '''All frames are BCCH system information 1 or 2; the Info column names the
+        segment that follows segment 1A (SI1) or makes up the block (SI2).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.bcch', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 (BCCH) System Information 1: Segment 1A, Segment 3C',
+            '2 (BCCH) System Information 1: Segment 1A, Segment 2A bis',
+            '3 (BCCH) System Information 1: Segment 1A, Segment 2B bis',
+            '4 (BCCH) System Information 1: Segment 1A, Segment 3A',
+            '5 (BCCH) System Information 1: Segment 1A, Segment 3A',
+            '6 (BCCH) System Information 1: Segment 1A, Segment 3A',
+            '7 (BCCH) System Information 1: Segment 1A, Segment 3A',
+            '8 (BCCH) System Information 1: Segment 1A, Segment 3B bis',
+            '9 (BCCH) System Information 1: Segment 1A, Segment 3C',
+            '10 (BCCH) System Information 1: Segment 1A, Segment 3D',
+            '11 (BCCH) System Information 1: Segment 1A, Segment 3E bis',
+            '12 (BCCH) System Information 1: Segment 1A, Segment 3F',
+            '13 (BCCH) System Information 1: Segment 1A, Segment 3G bis',
+            '14 (BCCH) System Information 1: Segment 1A, Segment 3H',
+            '15 (BCCH) System Information 1: Segment 1A, Segment 3I',
+            '16 (BCCH) System Information 1: Segment 1A, Segment 3J bis',
+            '17 (BCCH) System Information 1: Segment 1A, Segment 3K bis',
+            '18 (BCCH) System Information 1: Segment 1A, Segment 4A',
+            '19 (BCCH) System Information 1: Segment 1A, Segment 4B',
+            '20 (BCCH) System Information 1: Segment 1A, Segment 4C',
+            '21 (BCCH) System Information 1: Segment 1A, Segment 4D',
+            '22 (BCCH) System Information 1: Segment 1A, Segment 4E',
+            '23 (BCCH) System Information 1: Segment 1A, Segment 4F',
+            '24 (BCCH) System Information 1: Segment 1A, Segment 4G',
+            '25 (BCCH) System Information 1: Segment 1A, Segment 4H',
+            '26 (BCCH) System Information 1: Segment 1A, Segment 4I',
+            '27 (BCCH) System Information 1: Segment 1A, Segment 4J',
+            '28 (BCCH) System Information 1: Segment 1A, Segment 4K',
+            '29 (BCCH) System Information 2: Segment 2A',
+            '30 (BCCH) System Information 2: Segment 2A',
+            '31 (BCCH) System Information 2: Segment 2B',
+            '32 (BCCH) System Information 2: Segment 3B',
+            '33 (BCCH) System Information 2: Segment 3E',
+            '34 (BCCH) System Information 2: Segment 3G',
+            '35 (BCCH) System Information 2: Segment 3J',
+            '36 (BCCH) System Information 2: Segment 2B',
+            '37 (BCCH) System Information 1: Segment 1A, Segment 2B bis',
+        ]
+
+    def test_gmr1_bcch_sa_freq_offset_signed(self, cmd_tshark, capture_file, test_env):
+        '''SA_FREQ_OFFSET is a signed octet (0xf6 is -10, not 246).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 1 || frame.number == 3', '-V')
+        assert 'SA_FREQ_OFFSET: -50 Hz (-10)' in stdout
+        assert 'SA_FREQ_OFFSET: -640 Hz (-128)' in stdout
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.bcch.seg1a.syncinfo.sa_freq_offset < 0',
+                              '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1', '3', '6', '13', '14', '15', '16']
+
+    def test_gmr1_bcch_location_area(self, cmd_tshark, capture_file, test_env):
+        '''The segment 3A location area identification: MCC/MNC from BCD, MSC ID
+        and spot beam ID from the LAC.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.bcch.seg3a.lai.mcc', '-Tfields', '-eframe.number',
+                              '-egmr1.bcch.seg3a.lai.mcc', '-egmr1.bcch.seg3a.lai.mnc',
+                              '-egmr1.bcch.seg3a.lai.lac', '-egmr1.bcch.seg3a.lai.msc_id',
+                              '-egmr1.bcch.seg3a.lai.spot_beam_id', '-egmr1.bcch.seg3a.system.sys_id',
+                              '-egmr1.bcch.seg3a.satpos.radius')
+        assert stdout.splitlines() == [
+            '4\t244\t55\t0xabcd\t42\t973\t9\t1000',
+            '5\t999\t1\t0x0001\t0\t1\t9\t-32768',
+            '6\t244\t55\t0xabcd\t42\t973\t9\t-1',
+            '7\t244\t55\t0xabcd\t42\t973\t9\t0',
+        ]
+
+    def test_gmr1_bcch_segment_2a(self, cmd_tshark, capture_file, test_env):
+        '''Segment 2A in SI2 and the 2A bis segment in SI1 (the same fields).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.bcch.seg2a.class_4_version', '-Tfields', '-eframe.number',
+                              '-egmr1.bcch.seg2a.class_4_version', '-egmr1.bcch.seg2a.syncinfo.superframe_num',
+                              '-egmr1.bcch.seg2a.lainfo.sa_bach_config')
+        assert stdout.splitlines() == [
+            '2\t1\t291\t85',
+            '29\t1\t291\t85',
+            '30\t7\t8191\t255',
+        ]
