@@ -18,6 +18,7 @@
 #include <epan/tfs.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 void proto_register_gvsp(void);
 void proto_reg_handoff_gvsp(void);
@@ -1886,7 +1887,11 @@ static void dissect_packet_payload_multipart(proto_tree *gvsp_tree, tvbuff_t *tv
     \brief Dissects a payload packet for GenDC
  */
 
-static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gvsp_packet_info *info)
+#define GVSP_GENDC_MAX_PARTS 1024
+
+static expert_field ei_gvsp_gendc_offsets;
+
+static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gvsp_packet_info *info)
 {
     if (status_with_payload(info) && tvb_reported_length_remaining(tvb, offset))
     {
@@ -1967,12 +1972,25 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
             gvsp_gendc_container_header_component_offsets_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, offset + 72, 8 * component_count, ett_gvsp_gendc_container_header_component_offsets, NULL, "Component Offsets");
 
-            for (uint32_t i = 0; i < component_count; i++)
+            /* Component and part offsets must increase, and the total number
+               of part headers is limited, so that repeated offsets cannot
+               multiply the work */
+            uint64_t prev_component_raw = 0;
+            unsigned total_parts = 0;
+            bool gendc_stop = false;
+
+            for (uint32_t i = 0; i < component_count && !gendc_stop; i++)
             {
-                unsigned component_offset = offset + 16 + (int)tvb_get_uint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
+                uint64_t component_raw = tvb_get_uint64(tvb, offset + 72 + 8 * i, ENC_LITTLE_ENDIAN);
+                if (i > 0 && component_raw <= prev_component_raw) {
+                    expert_add_info(pinfo, gvsp_gendc_container_header_component_offsets_tree, &ei_gvsp_gendc_offsets);
+                    break;
+                }
+                prev_component_raw = component_raw;
+                unsigned component_offset = offset + 16 + (int)component_raw;
                 uint16_t part_count = tvb_get_uint16(tvb, component_offset + 46, ENC_LITTLE_ENDIAN);
 
-                proto_tree* gvsp_gendc_component_header_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, offset + 16 + component_offset, -1, ett_gvsp_gendc_component_header, NULL, "Component Header");
+                proto_tree* gvsp_gendc_component_header_tree = proto_tree_add_subtree(gvsp_gendc_container_descriptor_tree, tvb, component_offset, -1, ett_gvsp_gendc_component_header, NULL, "Component Header");
                 proto_tree* gvsp_gendc_component_header_part_offsets_tree = 0;
 
                 /* GenDC container header component offset */
@@ -2041,12 +2059,20 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
 
                 gvsp_gendc_component_header_part_offsets_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, component_offset + 48, 8 * part_count, ett_gvsp_gendc_part_offsets, NULL, "Part Offsets");
 
+                uint64_t prev_part_raw = 0;
                 for (uint16_t j = 0; j < part_count; j++)
                 {
-                    unsigned part_offset = offset + 16 + (int)tvb_get_uint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
+                    uint64_t part_raw = tvb_get_uint64(tvb, component_offset + 48 + 8 * j, ENC_LITTLE_ENDIAN);
+                    if ((j > 0 && part_raw <= prev_part_raw) || ++total_parts > GVSP_GENDC_MAX_PARTS) {
+                        expert_add_info(pinfo, gvsp_gendc_component_header_part_offsets_tree, &ei_gvsp_gendc_offsets);
+                        gendc_stop = true;
+                        break;
+                    }
+                    prev_part_raw = part_raw;
+                    unsigned part_offset = offset + 16 + (int)part_raw;
                     uint16_t part_type = tvb_get_uint16(tvb, part_offset, ENC_LITTLE_ENDIAN);
 
-                    proto_tree* gvsp_gendc_part_header_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, offset + 16 + part_offset, -1, ett_gvsp_gendc_part_header, NULL, "Part Header");
+                    proto_tree* gvsp_gendc_part_header_tree = proto_tree_add_subtree(gvsp_gendc_component_header_tree, tvb, part_offset, -1, ett_gvsp_gendc_part_header, NULL, "Part Header");
 
                     /* GenDC component header part offset */
                     proto_tree_add_item(gvsp_gendc_component_header_part_offsets_tree, hf_gvsp_gendc_component_header_part_offset_v2_2, tvb, component_offset + 48 + 8 * j, 8, ENC_LITTLE_ENDIAN);
@@ -3627,8 +3653,15 @@ void proto_register_gvsp(void)
 
     gvsp_handle = register_dissector("gvsp", dissect_gvsp, proto_gvsp);
 
+    static ei_register_info ei[] = {
+        { &ei_gvsp_gendc_offsets, { "gvsp.gendc.offsets_invalid", PI_MALFORMED, PI_ERROR, "GenDC offsets do not increase or too many parts", EXPFILL }},
+    };
+    expert_module_t *expert_gvsp;
+
     proto_register_field_array(proto_gvsp, hfgvsp, array_length(hfgvsp));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_gvsp = expert_register_protocol(proto_gvsp);
+    expert_register_field_array(expert_gvsp, ei, array_length(ei));
 
     gvsp_module = prefs_register_protocol(proto_gvsp, NULL);
     prefs_register_obsolete_preference(gvsp_module, "enable_heuristic");
