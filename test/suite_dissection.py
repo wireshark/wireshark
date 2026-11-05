@@ -60720,3 +60720,137 @@ class TestDissectG723:
                             'g723 && udp.port == 20002', '-eframe.number',
                             '-ertp.p_type')
         assert lines == ['21\t4', '22\t4', '23\t4']
+
+
+class TestDissectGaduGadu:
+    @staticmethod
+    def gg_rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gadu_gadu_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def have_zlib(cmd_tshark, test_env):
+        stdout = subprocess.check_output((cmd_tshark, '--version'),
+                encoding='utf-8', env=test_env)
+        return '+zlib' in stdout
+
+    def test_gadu_gadu_frames(self, cmd_tshark, capture_file, test_env):
+        '''118 frames are Gadu-Gadu (the two frames from port 8074 to port
+        8074 are not), none is malformed or has an error expert info and the
+        two passes give the same Info columns.'''
+        infos = []
+        for passes in ((), ('-2',)):
+            rows = self.gg_rows(cmd_tshark, capture_file, test_env, 'gadu-gadu',
+                    '_ws.col.info', passes=passes)
+            assert len(rows) == 118
+            infos.append(rows)
+            rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity == "error"', passes=passes)
+            assert rows == []
+        assert infos[0] == infos[1]
+
+    def test_gadu_gadu_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of PDUs of the 8.0 and the older protocol, of
+        packets that are only named, and of an unknown type.'''
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {4,5,6,11,17,19,45,55,65,67,122,136}', '_ws.col.info')
+        assert rows == [
+            ['4', 'Welcome'], ['5', 'Login request (8.0)'], ['6', 'Login success (8.0)'],
+            ['11', 'Notify list (10.5)'], ['17', 'Send message (8.0)'],
+            ['19', 'Receive message (8.0)'], ['45', 'GG_PONG'],
+            ['55', 'Login request (< 6.0)'], ['65', 'Receive status (6.0)'],
+            ['67', 'Receive status (7.7)'], ['122', 'Unknown recv packet: 99'],
+            ['136', 'Unknown send packet: 99'],
+        ]
+
+    def test_gadu_gadu_unterminated_strings(self, cmd_tshark, capture_file, test_env):
+        '''Texts without the terminating NUL are shown (they threw an
+        exception before the fix) and the length prefix of a UTF-8 string
+        is not part of the description.'''
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number >= 155 && frame.number <= 159',
+                'gadu-gadu.msg.text', 'gadu-gadu.status.description',
+                'gadu-gadu.new_status.description')
+        assert rows == [
+            ['155', 'hello world', '', ''],
+            ['156', '', 'hello', ''],
+            ['157', '', 'no terminator', ''],
+            ['158', 'unterminated', '', ''],
+            ['159', '', 'unterminated status', ''],
+        ]
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {9,15}', 'gadu-gadu.new_status.description',
+                'gadu-gadu.status.description')
+        assert rows == [['9', 'my status', ''], ['15', '', 'status description']]
+
+    def test_gadu_gadu_conversation(self, cmd_tshark, capture_file, test_env):
+        '''The UIN of the login is the generated sender or recipient of the
+        messages of the connection; without a login there is none.'''
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {17,19,69,71,94,96}', 'gadu-gadu.msg.sender',
+                'gadu-gadu.msg.recipient')
+        assert rows == [
+            ['17', '1234', '5678'],
+            ['19', '5678', '1234'],
+            ['69', '4321', '100'],
+            ['71', '100', '4321'],
+            ['94', '100', ''],
+            ['96', '', '100'],
+        ]
+
+    def test_gadu_gadu_login_and_contacts(self, cmd_tshark, capture_file, test_env):
+        '''Login fields and hash types, user data attributes and contacts.'''
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {5,55,83,84,85,86}', 'gadu-gadu.login.uin',
+                'gadu-gadu.login.hash_type', 'gadu-gadu.login.version')
+        assert rows == [
+            ['5', '1234', '0x02', ''],
+            ['55', '4321', '0x01', 'Gadu-Gadu 7.7 (build 3315)'],
+            ['83', '1111', '0x01', 'Gadu-Gadu 7.7 (build 3315)'],
+            ['84', '1111', '0x01', 'Gadu-Gadu 7.7 (build 3315)'],
+            ['85', '1111', '0x02', 'Gadu-Gadu 7.7 (build 3315)'],
+            ['86', '1111', '0x03', 'Gadu-Gadu 7.7 (build 3315)'],
+        ]
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {7,11,25,41}', 'gadu-gadu.user_data.uin',
+                'gadu-gadu.user_data.attr_name', 'gadu-gadu.user_data.attr_val',
+                'gadu-gadu.contact.uin_str', 'gadu-gadu.dcc.filename',
+                'gadu-gadu.pubdir.reply_str')
+        assert rows == [
+            ['7', '1234,5678', 'FirstName,Nick', 'Jan,jk', '', '', ''],
+            ['11', '', '', '', '5678,9999', '', ''],
+            ['25', '', '', '', '', 'file.txt', ''],
+            ['41', '', '', '', '', '', 'FmNumber,1234,FirstName,Jan'],
+        ]
+
+    def test_gadu_gadu_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message over three segments, several PDUs in one segment.'''
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {145,146,147,148}', 'tcp.segment',
+                'gadu-gadu.msg.text', '_ws.col.info')
+        assert rows == [
+            ['145', '143,144,145', 'a message over three segments', 'Receive message (< 8.0)'],
+            ['146', '', '', 'Disconnect acknowledge (< 10.0)'],
+            ['147', '', 'client message', 'Send message (< 8.0)'],
+            ['148', '147,148', '', 'Ping'],
+        ]
+
+    def test_gadu_gadu_userlist_xml(self, cmd_tshark, capture_file, test_env):
+        '''The compressed XML of the contact list is uncompressed and handed
+        to the XML dissector.'''
+        if not self.have_zlib(cmd_tshark, test_env):
+            pytest.skip('zlib is not available')
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {27,29,32,35}', 'xml.tag', '_ws.col.protocol')
+        for r in rows:
+            assert 'ContactBook' in r[1]
+            assert r[2] == 'Gadu-Gadu/XML'
+        assert len(rows) == 4
+        # data that does not decompress is still shown
+        rows = self.gg_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 31', 'xml.tag', 'gadu-gadu.userlist')
+        assert rows == [['31', '', '6e6f74207a6c69622064617461']]
