@@ -151,7 +151,7 @@ dissect_schedule_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree
             valid_message = false;
         }
         proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
-        sched_end = tvb_get_uint8(tvb, offset);
+        sched_end = tvb_get_uint8(tvb, offset) & 0x3F;
         slot_item = proto_tree_add_item(sched_tree, hf_gsm_cbch_sched_end_slot, tvb, offset++, 1, ENC_BIG_ENDIAN);
         if (sched_end < sched_begin)
         {
