@@ -60,6 +60,15 @@ ReturnData
 		dissect_ansi_map_subaddress(parameter_tvb,actx->pinfo,tree, actx);
 	}
 
+# N.S0009 6.5.2.bu IMSI: TBCD coded, Digit 1 in bits A-D of octet 1
+#.FN_BODY IMSIType VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+	if (parameter_tvb){
+		proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_imsitype);
+		dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+	}
+
 # 6.5.2.3 AlertCode
 #.FN_BODY AlertCode VAL_PTR = &parameter_tvb
 	tvbuff_t *parameter_tvb = NULL;

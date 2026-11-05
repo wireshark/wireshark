@@ -7211,7 +7211,8 @@ class TestDissectAnsiMap:
     def test_ansi_map_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every operation, as Invoke and ReturnResult with all of its
         parameters, decodes without malformed packets or error expert infos,
-        in one and two passes.'''
+        in one and two passes. The NewlyAssignedIMSI of frames 308 and 311
+        holds non-decimal digits, which E.212 reports as malformed.'''
         stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
                 '-r', capture_file('ansi_map_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
@@ -7232,7 +7233,23 @@ class TestDissectAnsiMap:
                     '-Y', '_ws.malformed || _ws.expert.severity == error',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
-            assert count_output(stdout) == 0
+            assert stdout.split() == ['308', '311']
+
+    def test_ansi_map_imsi(self, cmd_tshark, capture_file, test_env):
+        '''The IMSI parameters are decoded by E.212 and fire the "imsi" tap.'''
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-eansi_map.imsi', '-ee212.imsi', '-ee212.mcc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '13004021436587f9\t310004123456789\t310'
+        stdout = subprocess.check_output((cmd_tshark, *ANSI_MAP_OPTS,
+                '-r', capture_file('ansi_map_coverage.pcap.gz'),
+                '-q', '-z', 'imsi',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split() for line in stdout.splitlines()]
+        # IMSI and first frame
+        assert ['310004123456789', '9'] in [row[:3:2] for row in rows]
 
     def test_ansi_map_bearer_data_once(self, cmd_tshark, capture_file, test_env):
         '''The SMS bearer data is handed to IS-637/IS-801 once, however

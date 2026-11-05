@@ -85,6 +85,7 @@
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
 #include "packet-ansi_a.h"
+#include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
@@ -318,6 +319,7 @@ static int hf_ansi_map_win_trigger_list;
 /* Initialize the subtree pointers */
 static int ett_ansi_map;
 static int ett_mintype;
+static int ett_imsitype;
 static int ett_digitstype;
 static int ett_billingid;
 static int ett_sms_bearer_data;
@@ -5376,6 +5378,7 @@ void proto_register_ansi_map(void) {
     static int *ett[] = {
         &ett_ansi_map,
         &ett_mintype,
+        &ett_imsitype,
         &ett_digitstype,
         &ett_billingid,
         &ett_sms_bearer_data,

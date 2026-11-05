@@ -90,6 +90,7 @@
 #include "packet-ber.h"
 #include "packet-ansi_map.h"
 #include "packet-ansi_a.h"
+#include "packet-e212.h"
 #include "packet-gsm_map.h"
 #include "packet-tcap.h"
 #include "packet-ansi_tcap.h"
@@ -869,6 +870,7 @@ static int hf_ansi_map_qualificationRequest2Res;  /* QualificationRequest2Res */
 /* Initialize the subtree pointers */
 static int ett_ansi_map;
 static int ett_mintype;
+static int ett_imsitype;
 static int ett_digitstype;
 static int ett_billingid;
 static int ett_sms_bearer_data;
@@ -10854,8 +10856,15 @@ dissect_ansi_map_InterMessageTime(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsi
 
 static unsigned
 dissect_ansi_map_IMSIType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	tvbuff_t *parameter_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	if (parameter_tvb){
+		proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_imsitype);
+		dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+	}
+
 
   return offset;
 }
@@ -19147,6 +19156,7 @@ void proto_register_ansi_map(void) {
     static int *ett[] = {
         &ett_ansi_map,
         &ett_mintype,
+        &ett_imsitype,
         &ett_digitstype,
         &ett_billingid,
         &ett_sms_bearer_data,
