@@ -165,7 +165,7 @@ hclnfsd_decode_obscure(wmem_allocator_t *pool, const char *ident, int ident_len)
 	char *ident_decoded, *ident_out;
 	int j, x, y;
 
-	ident_decoded = (char *)wmem_alloc(pool, ident_len);
+	ident_decoded = (char *)wmem_alloc(pool, ident_len + 1);
 	ident_out = ident_decoded;
 	for (x = -1, j = 0; j < ident_len; j++)
 	{
@@ -176,6 +176,7 @@ hclnfsd_decode_obscure(wmem_allocator_t *pool, const char *ident, int ident_len)
 		ident++;
 		ident_out++;
 	}
+	*ident_out = '\0';
 	return ident_decoded;
 }
 
@@ -219,13 +220,18 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 			proto_item_set_len(ident_item, ident_len);
 
-			ident_decoded = hclnfsd_decode_obscure(pinfo->pool, ident, ident_len);
+			if (ident_len > 2) {
+				ident_decoded = hclnfsd_decode_obscure(pinfo->pool, ident, ident_len);
 
-			username = ident_decoded + 2;
-			password = username + strlen(username) + 1;
+				username = ident_decoded + 2;
+				password = username + strlen(username) + 1;
+				/* the password must stay inside the decoded buffer */
+				if (password > ident_decoded + ident_len)
+					password = ident_decoded + ident_len;
 
-			proto_tree_add_string(ident_tree, hf_hclnfsd_username, tvb, offset, ident_len, username);
-			proto_tree_add_string(ident_tree, hf_hclnfsd_password, tvb, offset, ident_len, password);
+				proto_tree_add_string(ident_tree, hf_hclnfsd_username, tvb, offset, ident_len, username);
+				proto_tree_add_string(ident_tree, hf_hclnfsd_password, tvb, offset, ident_len, password);
+			}
 
 			offset = newoffset;
 		}
