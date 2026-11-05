@@ -135,7 +135,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   h223_fw_lc_params = NULL;
   h223_rev_lc_params = NULL;
 
+  CLEANUP_PUSH(h245_reset_upcoming, NULL);
 %(DEFAULT_BODY)s
+  CLEANUP_POP;
 
   if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
 	h223_pending_olc *pending = wmem_new(wmem_file_scope(), h223_pending_olc);
@@ -228,7 +230,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
 
+  CLEANUP_PUSH(h245_reset_upcoming, NULL);
 %(DEFAULT_BODY)s
+  CLEANUP_POP;
 
   temp = h223_fw_lc_num;
   p2p_dir = %(ACTX)s->pinfo->p2p_dir;
