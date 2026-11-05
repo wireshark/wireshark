@@ -62332,3 +62332,61 @@ class TestDissectGias:
         assert ['IDL:UCO/SystemFault:1.0', 'GIAS'] in got
         assert ['IDL:UCO/InvalidInputParameter:1.0', 'GIAS'] in got
         assert ['IDL:UCO/Unknown:1.0', 'GIOP'] in got
+
+
+class TestDissectGift:
+    '''giFT (TCP 1213) from the synthetic capture gift_coverage.pcap.gz.'''
+
+    CAP = 'gift_coverage.pcap.gz'
+
+    def test_gift_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''28 frames carry giFT lines, without malformed packets or error
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'gift', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 28
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gift_request_response(self, cmd_tshark, capture_file, test_env):
+        '''The direction decides between request and response fields: a
+        frame sent to TCP 1213 is a request, one sent from it a response.
+        Only the first line of a segment is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {4, 5, 8, 10, 13, 21, 33, 34}',
+                '-Tfields', '-eframe.number', '-egift.request_cmd', '-egift.request_arg',
+                '-egift.response_cmd', '-egift.response_arg',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t\t\tATTACH\tserver(giFT) version(0.11.8);',
+            '5\tATTACH\tclient(demo) version(0.1);\t\t',
+            '8\t\t\tITEM(1)\t',
+            '10\tSTATS;\t\t\t',
+            '13\tBYE\t\t\t',
+            '21\t\t\tmulti(1)\t',
+            '33\t\t\tATTACH\tclient(x);',
+            '34\tATTACH\tserver(y);\t\t',
+        ]
+
+    def test_gift_odd_lines(self, cmd_tshark, capture_file, test_env):
+        '''Empty lines have no command and no argument; non-printable
+        characters are escaped in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {14, 15, 22}',
+                '-Tfields', '-eframe.number', '-egift.request_cmd', '-egift.response_cmd',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '14\t\t\tRequest: '
+        assert lines[1] == '15\t\t\tRequest: '
+        assert lines[2].startswith('22\t\tcmd\tResponse: cmd with')
+        assert '\\\\ttab' in lines[2] or '\\ttab' in lines[2]
