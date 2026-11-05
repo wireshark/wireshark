@@ -63482,3 +63482,191 @@ class TestDissectGmr1Dtap:
                               '-Y', 'frame.number == 99', '-Tfields', '-egmr1.rr.msg_type',
                               '-egmr1.dtap.message_elements')
         assert stdout.split() == ['0xc3', '010203']
+
+
+class TestDissectGmr1Rach:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmr1_rach_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmr1_rach_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gmr1_rach_info(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a RACH burst; the Info column shows the establishment cause (and the
+        dialed number of a mobile originated call). Frames 79-84 are not 18 octets long and
+        are shown as invalid.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.rach', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 (RACH) Paging response',
+            '2 (RACH) Paging response',
+            '3 (RACH) Paging response',
+            '4 (RACH) Paging response',
+            '5 (RACH) In response to alerting',
+            '6 (RACH) Unknown (5)',
+            '7 (RACH) Unknown (6)',
+            '8 (RACH) Location update',
+            '9 (RACH) IMSI Detach',
+            '10 (RACH) Supplementary Services',
+            '11 (RACH) Short Message Services',
+            '12 (RACH) Position Verification',
+            '13 (RACH) Emergency Call',
+            '14 (RACH) Mobile Originated Call 123456789012345',
+            '15 (RACH) Mobile Originated Call 123456',
+            '16 (RACH) Mobile Originated Call 12',
+            '17 (RACH) Mobile Originated Call 1234567',
+            '18 (RACH) Mobile Originated Call 12345678901250',
+            '19 (RACH) Mobile Originated Call 1234567890125',
+            '20 (RACH) Mobile Originated Call 123456789012005',
+            '21 (RACH) Mobile Originated Call 001002003004999',
+            '22 (RACH) Mobile Originated Call 99999899799699',
+            '23 (RACH) Mobile Originated Call (Invalid)',
+            '24 (RACH) Mobile Originated Call (Invalid)',
+            '25 (RACH) Mobile Originated Call 1234567890760',
+            '26 (RACH) Mobile Originated Call 0000000000',
+            '27 (RACH) Mobile Originated Call 111222333444555',
+            '28 (RACH) Mobile Originated Call 111222333444555',
+            '29 (RACH) Mobile Originated Call 111222333444555',
+            '30 (RACH) Mobile Originated Call 111222333444555',
+            '31 (RACH) Mobile Originated Call 111222333444555',
+            '32 (RACH) Mobile Originated Call 111222333444555',
+            '33 (RACH) Mobile Originated Call 111222333444555',
+            '34 (RACH) Mobile Originated Call 111222333444555',
+            '35 (RACH) Mobile Originated Call 111222333444555',
+            '36 (RACH) Mobile Originated Call 111222333444555',
+            '37 (RACH) Mobile Originated Call 111222333444555',
+            '38 (RACH) Mobile Originated Call 111222333444555',
+            '39 (RACH) Mobile Originated Call 111222333444555',
+            '40 (RACH) Mobile Originated Call 111222333444555',
+            '41 (RACH) Mobile Originated Call 111222333444555',
+            '42 (RACH) Mobile Originated Call 111222333444555',
+            '43 (RACH) Paging response',
+            '44 (RACH) Paging response',
+            '45 (RACH) Unknown (5)',
+            '46 (RACH) Unknown (5)',
+            '47 (RACH) (GmPRS) Attach/RA Update',
+            '48 (RACH) (GmPRS) Attach/RA Update',
+            '49 (RACH) (GmPRS) Attach/RA Update',
+            '50 (RACH) (GmPRS) Attach/RA Update',
+            '51 (RACH) (GmPRS) Attach/RA Update',
+            '52 (RACH) (GmPRS) Attach/RA Update',
+            '53 (RACH) (GmPRS) Attach/RA Update',
+            '54 (RACH) (GmPRS) Attach/RA Update',
+            '55 (RACH) (GmPRS) Packet Data Transfer',
+            '56 (RACH) (GmPRS) Packet Data Transfer',
+            '57 (RACH) (GmPRS) Packet Data Transfer',
+            '58 (RACH) (GmPRS) Packet Data Transfer',
+            '59 (RACH) (GmPRS) Packet Data Transfer',
+            '60 (RACH) (GmPRS) Packet Data Transfer',
+            '61 (RACH) (GmPRS) Packet Data Transfer',
+            '62 (RACH) (GmPRS) Packet Data Transfer',
+            '63 (RACH) (GmPRS) Packet Data Transfer',
+            '64 (RACH) Paging response',
+            '65 (RACH) Paging response',
+            '66 (RACH) Paging response',
+            '67 (RACH) Paging response',
+            '68 (RACH) Suspend - In Response to Alerting for circuit switched services',
+            '69 (RACH) Suspend - MO Call',
+            '70 (RACH) Resume',
+            '71 (RACH) Suspend - Location Update',
+            '72 (RACH) Suspend - IMSI Detach',
+            '73 (RACH) Suspend - Supplementary Services',
+            '74 (RACH) Suspend - Short Message Services',
+            '75 (RACH) Suspend - Emergency Call',
+            '76 (RACH) Unknown (5)',
+            '77 (RACH) Unknown (12)',
+            '78 (RACH) Unknown (31)',
+            '79 (Invalid)',
+            '80 (Invalid)',
+            '81 (Invalid)',
+            '82 (Invalid)',
+            '83 (Invalid)',
+            '84 (Invalid)',
+        ]
+
+    def test_gmr1_rach_spare_field(self, cmd_tshark, capture_file, test_env):
+        '''The class-2 spare is one bit next to the 7 bit software version.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 43 || frame.number == 44',
+                              '-Tfields', '-eframe.number', '-egmr1.rach.software_version',
+                              '-egmr1.rach.spare')
+        assert stdout.splitlines() == ['43\t127\t0', '44\t0\t1']
+
+    def test_gmr1_rach_dialed_number(self, cmd_tshark, capture_file, test_env):
+        '''The dialed number groups, the padding markers and invalid groups.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'gmr1.rach.number && frame.number <= 26', '-Tfields',
+                              '-eframe.number', '-egmr1.rach.number', '-egmr1.rach.numbering_plan')
+        assert stdout.splitlines() == [
+            '14\t123456789012345\t0',
+            '15\t123456\t1',
+            '16\t12\t2',
+            '17\t1234567\t3',
+            '18\t12345678901250\t4',
+            '19\t1234567890125\t5',
+            '20\t123456789012005\t6',
+            '21\t001002003004999\t7',
+            '22\t99999899799699\t8',
+            '23\t(Invalid)\t9',
+            '24\t(Invalid)\t10',
+            '25\t1234567890760\t11',
+            '26\t0000000000\t12',
+        ]
+
+    def test_gmr1_rach_null_gps_position(self, cmd_tshark, capture_file, test_env):
+        '''A latitude of 0x40000 or a longitude of 0x80000 is a NULL GPS position.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 45 || frame.number == 46', '-V')
+        assert 'NULL GPS Position (latitude == 0x40000)' in stdout
+        assert 'NULL GPS Position (longitude == 0x80000)' in stdout
+
+    def test_gmr1_rach_gmprs(self, cmd_tshark, capture_file, test_env):
+        '''GmPRS channel requests: type 1 (attach and packet data transfer, with
+        class D terminal types) and type 2 (suspend/resume).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number >= 47 && frame.number <= 78', '-Tfields',
+                              '-eframe.number', '-egmr1.rach.gmprs_term_type',
+                              '-egmr1.rach.gmprs_dl_peak_tput', '-egmr1.rach.gmprs_peak_tput',
+                              '-egmr1.rach.gmprs_ul_peak_tput', '-egmr1.rach.gmprs_req_type',
+                              '-egmr1.rach.gmprs_req_type.pag_resp')
+        assert stdout.splitlines() == [
+            '47\t9\t\t\t\t\t',
+            '48\t13\t5\t\t\t\t',
+            '49\t14\t6\t\t\t\t',
+            '50\t15\t7\t\t\t\t',
+            '51\t31\t\t\t\t\t',
+            '52\t72\t\t\t\t\t',
+            '53\t64\t\t\t\t\t',
+            '54\t0\t\t\t\t\t',
+            '55\t9\t\t15\t\t\t',
+            '56\t13\t5\t\t15\t\t',
+            '57\t14\t6\t\t15\t\t',
+            '58\t15\t7\t\t15\t\t',
+            '59\t31\t\t15\t\t\t',
+            '60\t72\t\t15\t\t\t',
+            '61\t64\t\t15\t\t\t',
+            '62\t0\t\t15\t\t\t',
+            '63\t13\t9\t\t0\t\t',
+            '64\t0\t\t\t\t\t0',
+            '65\t8\t\t\t\t\t0',
+            '66\t16\t\t\t\t\t0',
+            '67\t24\t\t\t\t\t0',
+            '68\t32\t\t\t\t4\t',
+            '69\t48\t\t\t\t6\t',
+            '70\t56\t\t\t\t7\t',
+            '71\t64\t\t\t\t8\t',
+            '72\t72\t\t\t\t9\t',
+            '73\t80\t\t\t\t10\t',
+            '74\t88\t\t\t\t11\t',
+            '75\t120\t\t\t\t15\t',
+            '76\t40\t\t\t\t5\t',
+            '77\t96\t\t\t\t12\t',
+            '78\t120\t\t\t\t31\t',
+        ]
