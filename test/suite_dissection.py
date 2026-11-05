@@ -73151,3 +73151,137 @@ class TestDissectHpteam:
                 '-Tfields', '-ehpteam.data',
             ), encoding='utf-8', env=test_env)
         assert len(stdout.strip().replace(':', '')) == 126
+
+
+class TestDissectHsfz:
+    # HSFZ has no default port: enable its TCP and UDP heuristics
+    @staticmethod
+    def hsfz_args():
+        return ('--enable-heuristic', 'hsfz_over_tcp',
+                '--enable-heuristic', 'hsfz_over_udp')
+
+    def test_hsfz_clean(self, cmd_tshark, capture_file, test_env):
+        '''36 frames are HSFZ messages (the first segment of a split
+        message is not dissected on its own), none is malformed or has
+        a warning or an error, in one and two passes.'''
+        args = self.hsfz_args()
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'hsfz', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 36
+        # Without the heuristics nothing is HSFZ
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'hsfz', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *args, *passes,
+                    '-r', capture_file('hsfz_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hsfz_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same HSFZ fields (the TCP
+        reassembly note of the first segment, frame 12, is added by the
+        second pass only).'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(), *passes,
+                    '-r', capture_file('hsfz_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-ehsfz.length', '-ehsfz.ctrlword', '-ehsfz.sourceaddr',
+                    '-ehsfz.targetaddr', '-ehsfz.data',
+                    '-ehsfz.identification_string',
+                ), encoding='utf-8', env=test_env)
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+
+    def test_hsfz_messages(self, cmd_tshark, capture_file, test_env):
+        '''Control words, addresses, data and identification strings of
+        the TCP stream: diagnostic messages (UDS), acknowledgement,
+        alive check, vehicle identification, status and error messages.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(),
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'hsfz && frame.number <= 31',
+                '-Tfields', '-eframe.number', '-ehsfz.length',
+                '-ehsfz.ctrlword', '-ehsfz.sourceaddr', '-ehsfz.targetaddr',
+                '-ehsfz.tester_address_expected',
+                '-ehsfz.tester_address_received', '-ehsfz.data',
+                '-ehsfz.identification_string',
+            ), encoding='utf-8', env=test_env)
+        lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines['4'][:4] == ['5', '0x0001', '0xf4', '0x12']
+        assert lines['5'][:4] == ['4', '0x0002', '0xf4', '0x12']
+        assert lines['5'][6] == '22f1'
+        assert lines['6'][:4] == ['23', '0x0001', '0x12', '0xf4']
+        # Two messages in one segment
+        assert lines['11'][:4] == ['4,4', '0x0001,0x0001', '0xf4,0xf4', '0x12,0x40']
+        # The split message is complete in frame 13
+        assert lines['13'][:4] == ['5', '0x0001', '0xf4', '0x12']
+        assert '12' not in lines
+        assert lines['14'][:4] == ['2', '0x0012', '0xf4', '0x12']
+        assert lines['15'][7] == 'DIAGADR10BMWMAC0090B7000001'
+        assert lines['17'][:2] == ['1', '0x0010']
+        assert lines['19'][6] == '000102'
+        assert lines['20'][7].endswith('BMWVINWTESTVIN0000000001')
+        assert lines['22'][4:6] == ['0xf4', '0xf5']
+        assert lines['25'][:4] == ['2', '0x0043', '0xf4', '0x77']
+        assert lines['26'][6] == '0010'
+        assert lines['28'][:4] == ['2', '0x00ff', '0xf4', '0x12']
+        assert lines['29'][1] == '0x00ff' and lines['29'][2] == ''
+        assert lines['31'][1] == '0x0050'
+
+    def test_hsfz_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the control word, adds the identification
+        string and joins two messages of one segment with " / ".'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(),
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 11, 15, 22, 31, 44, 48, 49}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert lines[0] == '5 HSFZ Acknowledgment'
+        assert lines[1] == ('11 HSFZ Request or Response Request Tester Present SubFunction: 0x00 '
+                            '/ HSFZ Request or Response Request Tester Present SubFunction: 0x00')
+        assert lines[2] == '15 HSFZ Alive check (DIAGADR10BMWMAC0090B7000001)'
+        assert lines[3] == '22 HSFZ Incorrect tester address'
+        assert lines[4] == '31 HSFZ Unknown 0x0050'
+        assert lines[5].startswith('44 HSFZ Vehicle Identification Data (DIAGADR10BMW')
+        assert lines[6] == '48 HSFZ Acknowledgment'
+        assert lines[7] == '49 HSFZ Diagnostic application not ready'
+
+    def test_hsfz_uds_in_ack(self, cmd_tshark, capture_file, test_env):
+        '''With the preference the shortened UDS in an acknowledgement is
+        dissected as UDS; without it the data is shown as bytes.'''
+        for pref, proto in (('FALSE', 'HSFZ'), ('TRUE', 'UDS')):
+            stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(),
+                    '-o', f'hsfz.show_uds_in_ack:{pref}',
+                    '-r', capture_file('hsfz_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 48',
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip() == proto
+
+    def test_hsfz_header_check(self, cmd_tshark, capture_file, test_env):
+        '''The same frames are dissected with the header check preference.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(),
+                '-o', 'hsfz.header_check_heuristic:TRUE',
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'hsfz', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 36
+
+    def test_hsfz_diag_addr_names(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''The Diagnostic Addresses UAT adds the ECU name to the address.'''
+        with open(os.path.join(conf_path, 'HSFZ_diagnostics_addresses'), 'w') as f:
+            f.write('"f4","Tester"\n"12","ECU Engine"\n')
+        stdout = subprocess.check_output((cmd_tshark, *self.hsfz_args(),
+                '-r', capture_file('hsfz_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4', '-V', '-O', 'hsfz',
+            ), encoding='utf-8', env=test_env)
+        assert 'Source Address: 0xf4 (Tester)' in stdout
+        assert 'Target Address: 0x12 (ECU Engine)' in stdout
