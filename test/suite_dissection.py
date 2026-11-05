@@ -72823,3 +72823,103 @@ class TestDissectHpext:
         assert [l.split('\t')[1] for l in lines[0:6]] == ['0x01', '0x81', '0x02', '0x82', '0x03', '0x03']
         assert lines[6].split('\t')[2] == 'switch1'
         assert lines[7].split('\t')[3] == '1.3.6.1.2.1.1.1.0'
+
+
+class TestDissectHpfeeds:
+    '''HPFEEDS has no registered port: the capture uses TCP 20000 and is
+    dissected with "-d tcp.port==20000,hpfeeds".'''
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-d', 'tcp.port==20000,hpfeeds',
+                '-r', capture_file('hpfeeds_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_hpfeeds_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''All five opcodes are present; nothing is malformed or has a
+        warning or error expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hpfeeds', '-Tfields', '-ehpfeeds.opcode')
+        opcodes = stdout.replace(',', ' ').split()
+        assert len(opcodes) == 24
+        assert {op: opcodes.count(op) for op in set(opcodes)} == {
+            '0': 1, '1': 3, '2': 2, '3': 15, '4': 3}
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_hpfeeds_fields(self, cmd_tshark, capture_file, test_env):
+        '''Info (server, nonce), Auth (ident, secret), Subscribe and
+        Publish (ident, channel, payload) and Error fields.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4 && frame.number <= 12',
+                '-Tfields', '-eframe.number', '-ehpfeeds.server',
+                '-ehpfeeds.nonce', '-ehpfeeds.ident', '-ehpfeeds.secret',
+                '-ehpfeeds.channel', '-ehpfeeds.payload', '-ehpfeeds.errmsg')
+        lines = stdout.splitlines()
+        assert lines[0] == '4\thpfeeds-broker\t01020304\t\t\t\t\t'
+        assert lines[1] == '5\t\t\tclient1\t' + '00' * 20 + '\t\t\t'
+        assert lines[2] == '6\t\t\tclient1\t\thoneypot.events\t\t'
+        assert lines[3] == '7\t\t\tclient1\t\ta\t\t'
+        assert lines[5] == '9\t\t\tclient1\t\thoneypot.events\t' + \
+            '00010262696e617279207061796c6f6164\t'
+        assert lines[6] == '10\t\t\tserver\t\tdionaea.capture\t\t'
+        assert lines[7] == '11\t\t\t\t\t\t\tauthentication failed'
+        assert lines[8] == '12\tx\t6e\t\t\t\t\t'
+
+    def test_hpfeeds_json_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The JSON heuristic dissector decodes publish payloads that are
+        JSON (and sees the channel as match string); others stay payload.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'json', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '8\tType Publish, JSON (honeypot.events)',
+            '10\tType Publish, JSON (dionaea.capture)',
+            '20\tType Publish, JSON (chan.b)',
+            '37\tType Publish, JSON (json.again)',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'hpfeeds.try_heuristic:FALSE',
+                '-Y', 'json', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_hpfeeds_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in a segment, a PDU over three segments and a PDU
+        whose length field is split over two segments.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 16 && frame.number <= 23 && hpfeeds',
+                '-Tfields', '-eframe.number', '-ehpfeeds.opcode',
+                '-ehpfeeds.channel')
+        assert stdout.splitlines() == [
+            '16\t1\t',
+            '17\t2,4,3\tchan.a,chan.a',
+            '20\t3\tchan.b',
+            '22\t3\tchan.c',
+            '23\t3\t' + 'c' * 255,
+        ]
+
+    def test_hpfeeds_stats_prefix_channels(self, cmd_tshark, capture_file, test_env):
+        '''Channel names that are prefixes of each other (and an empty
+        name) get their own nodes in the statistics tree: the old code
+        counted "a" and the empty name under "abc".'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-q', '-z', 'hpfeeds,tree')
+        counts = {}
+        for line in stdout.splitlines():
+            fields = line.split()
+            if line.startswith(' ') and len(fields) > 2:
+                counts[fields[0]] = fields[1]
+            elif line.startswith(' ') and len(fields) == 2:
+                pass
+        assert counts['abc'] == '2'
+        assert counts['abcd'] == '1'
+        assert counts['a'] == '2'
+        assert counts['honeypot.events'] == '2'
+        assert counts['Publish'] == '15'
+        assert counts['Subscribe'] == '3'
+        # the empty channel name has its own node: one packet, payload size 7
+        # (the average is printed with the locale's decimal separator)
+        assert any(l.split()[0:3] in (['1', '7.00', '7'], ['1', '7,00', '7'])
+                   for l in stdout.splitlines() if l.startswith(' ') and len(l.split()) > 3)
