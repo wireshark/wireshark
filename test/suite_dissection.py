@@ -59195,3 +59195,104 @@ class TestDissectFoundry:
         assert rows['6'][2:4] == ['100,200', '0x8100,0x9100']
         vlans = rows['7'][4].split(',')
         assert vlans[:2] == ['1', '8'] and len(vlans) == 2 + 2048
+
+
+class TestDissectFpHint:
+    @staticmethod
+    def fph_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fp_hint_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fp_hint_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''The capture is Exported PDU records naming the fp_hint
+        dissector; FP, MAC, RLC and RRC dissect what the hint attaches
+        with no malformed packet and no warning or error expert info, in
+        one and two passes.'''
+        rows = self.fph_fields(cmd_tshark, capture_file, test_env, 'fp_hint.frame_type')
+        assert len(rows) == 27
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fp_hint_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fp_hint_channel_types(self, cmd_tshark, capture_file, test_env):
+        '''Frame type (ATM AAL2, Ethernet, unknown) and channel type
+        (PCH, RACH, FACH, DCH, HS-DSCH, E-DCH, unknown) of every frame.'''
+        rows = self.fph_fields(cmd_tshark, capture_file, test_env,
+                'fp_hint.frame_type', 'fp_hint.channel_type', '_ws.col.protocol')
+        assert [rows[str(i)][1] for i in range(1, 28)] == [
+            '0x00', '0x00', '0x00', '0x00', '0x00',     # PCH
+            '0x01', '0x01',                             # RACH
+            '0x02', '0x02',                             # FACH
+            '0x03', '0x03', '0x03', '0x03', '0x03', '0x03',   # DCH
+            '0x04', '0x04', '0x04',                     # HS-DSCH
+            '0x05', '0x05', '0x05',                     # E-DCH
+            '0x00', '0x03',                             # control frames
+            '0x09',                                     # unknown channel
+            '0x03', '0x03', '0x00']
+        assert [rows[str(i)][0] for i in range(1, 28)] == \
+            ['0x00'] * 24 + ['0x07', '0x01', '0x01']
+        # the ATM frames are dissected by FP; the unknown frame type is
+        # not and the Ethernet frames hold UDP
+        assert rows['24'][2] == 'FP'
+        assert rows['25'][2] == 'FP Hint'
+        assert rows['26'][2] == rows['27'][2] == 'UDP'
+
+    def test_fp_hint_dch_transport_formats(self, cmd_tshark, capture_file, test_env):
+        '''Number of channels and the traffic format (DCH id, number of
+        blocks and size) of the DCH frames; the size 0x1fff means no
+        data.'''
+        rows = self.fph_fields(cmd_tshark, capture_file, test_env,
+                'fp_hint.num_chan', 'fp_hint.dchid', 'fp_hint.tf.n', 'fp_hint.tf.size',
+                extra=('-Y', 'fp_hint.num_chan'))
+        assert rows['10'] == ['1', '1', '1', '64']
+        assert rows['11'] == ['2', '1,5', '1,1', '40,24']
+        assert rows['12'] == ['1', '2', '1', '64']
+        assert rows['13'] == ['1', '2', '0', '']
+        assert rows['14'] == ['3', '1,3,7', '2,0,1', '32,16']
+
+    def test_fp_hint_radio_bearers(self, cmd_tshark, capture_file, test_env):
+        '''U-RNTIs (shown only when not zero), radio bearer ids and the
+        C/T mux, ciphered and deciphered flags of the radio bearers.'''
+        rows = self.fph_fields(cmd_tshark, capture_file, test_env,
+                'fp_hint.rb.urnti', 'fp_hint.rb.rbid', 'fp_hint.rb.ctmux',
+                'fp_hint.rb.ciphered', 'fp_hint.rb.deciphered',
+                extra=('-Y', 'fp_hint.rb.rbid'))
+        assert rows['6'] == ['0x00001001', '3', 'False', 'False', 'False']
+        # the second bearer of frame 7 has no U-RNTI
+        assert rows['7'] == ['0x00001002', '4,17', 'True,False', 'True,False', 'True,True']
+        assert rows['9'][0] == '0x00002002,0x00002003,0x00002004'
+        assert rows['9'][1] == '31,5,0'
+        assert rows['11'] == ['0x00003002', '1', 'False', 'True', 'True']
+        assert rows['14'][0] == '0x00003006'
+
+    def test_fp_hint_hsdsch_edch(self, cmd_tshark, capture_file, test_env):
+        '''MAC-d flow id and MAC-ehs indicator of HS-DSCH, MAC-d flow id and
+        the DDI entries of E-DCH.'''
+        rows = self.fph_fields(cmd_tshark, capture_file, test_env,
+                'fp_hint.macdflowid', 'fp_hint.mac_ehs', 'fp_hint.ddi.value',
+                'fp_hint.ddi.logical', 'fp_hint.ddi.size',
+                extra=('-Y', 'fp_hint.macdflowid'))
+        assert rows['19'] == ['1', '', '', '', '']
+        assert rows['20'] == ['2', '', '1,2', '3,4', '336,144']
+        assert rows['21'] == ['3', '', '1,2,3', '3,4,5', '336,144,0']
+        assert [rows[str(i)][1] for i in (16, 17, 18)] == ['False'] * 3
+
+    def test_fp_hint_content_values(self, cmd_tshark, capture_file, test_env):
+        '''The names of the MAC content values (the CS DTCH name was
+        "PS DTCH" before the fix) and the frame and channel types.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'values'),
+                encoding='utf-8', env=test_env)
+        values = [l.split('\t') for l in stdout.splitlines() if l.startswith('V\tfp_hint.')]
+        content = {l[2]: l[3] for l in values if l[1] == 'fp_hint.rb.content'}
+        assert content == {'0': 'Unknown', '1': 'DCCH', '2': 'PS DTCH', '3': 'CS DTCH'}
+        channel = {l[2]: l[3] for l in values if l[1] == 'fp_hint.channel_type'}
+        assert channel == {'0x0': 'PCH', '0x1': 'RACH', '0x2': 'FACH', '0x3': 'DCH',
+                           '0x4': 'HSDSCH', '0x5': 'E-DCH'}
