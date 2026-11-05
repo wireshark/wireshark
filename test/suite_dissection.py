@@ -65378,3 +65378,74 @@ class TestDissectGsmABssmap:
                 '-Y', 'bsslap', '-Tfields', '-eframe.number',
                 '-egsm_bsslap.msg_type')
         assert lines == ['333\t1', '334\t10', '339\t10', '509\t1', '510\t10']
+
+
+class TestDissectGsmACommon:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gsm_a_common_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _frames(cmd_tshark, capture_file, test_env, flt, *passes):
+        stdout = TestDissectGsmACommon._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                               '-Y', flt, '-Tfields', '-eframe.number')
+        return [int(n) for n in stdout.split()]
+
+    def test_gsm_a_common_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed and no expert info has the error severity, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self._frames(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000', *passes) == []
+
+    def test_gsm_a_common_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame is the same in one and two passes.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_gsm_a_common_protocols(self, cmd_tshark, capture_file, test_env):
+        '''772 frames on the A interface (SCTP, M3UA, SCCP, BSSAP): 288 BSSMAP messages
+        and 483 DTAP messages, of which 115 RR, 41 GMM, 51 SM and 78 MM messages; the
+        elements of all of them are decoded by the common code.'''
+        def count(flt):
+            return len(self._frames(cmd_tshark, capture_file, test_env, flt))
+        assert count('frame') == 772
+        assert count('sccp') == 772
+        assert count('gsm_a.bssmap.msgtype') == 288
+        assert count('gsm_a.dtap') == 483
+        assert count('gsm_a.dtap.msg_rr_type') == 115
+        assert count('gsm_a.dtap.msg_gmm_type') == 41
+        assert count('gsm_a.dtap.msg_sm_type') == 51
+        assert count('gsm_a.dtap.msg_mm_type') == 78
+
+    def test_gsm_a_common_location_estimate(self, cmd_tshark, capture_file, test_env):
+        '''Frames 664-674 are Perform Location Response messages with a Location Estimate
+        of each shape: ellipsoid point, with uncertainty circle and ellipse, polygon, with
+        altitude, with altitude and uncertainty ellipsoid, ellipsoid arc and the four
+        high accuracy shapes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 664 && frame.number <= 674',
+                              '-Tfields', '-egsm_a.gad.location_estimate')
+        assert stdout.split() == ['0', '1', '3', '5', '8', '9', '10', '11', '12', '13', '14']
+
+    def test_gsm_a_common_velocity_estimate(self, cmd_tshark, capture_file, test_env):
+        '''Frames 675-678 carry a Velocity Estimate of each of the four types.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 675 && frame.number <= 678',
+                              '-Tfields', '-egsm_a.gad.velocity_type')
+        assert stdout.split() == ['0', '1', '2', '3']
+
+    def test_gsm_a_common_stats_tap(self, cmd_tshark, capture_file, test_env):
+        '''The BSSMAP statistics table counts the messages by type.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-q', '-z', 'gsm_a,bssmap')
+        rows = {}
+        total = 0
+        for line in stdout.splitlines():
+            cols = [c.strip() for c in line.split('|')]
+            if len(cols) >= 3 and cols[0].isdigit():
+                rows[cols[1]] = int(cols[2])
+                total += int(cols[2])
+        assert rows['Assignment Request'] == 6
+        assert rows['Assignment Complete'] == 1
+        assert rows['Assignment Failure'] == 2
+        assert total == 288
