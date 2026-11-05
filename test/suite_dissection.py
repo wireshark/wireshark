@@ -60157,3 +60157,177 @@ class TestDissectFtdiFt:
             rows = self.rows(cmd_tshark, capture_file, test_env, 'ftdi-mpsse && frame.number in {228, 230, 233, 234, 237}',
                              'frame.number', '_ws.col.info', passes=passes)
             assert [r[0] for r in rows] == ['228', '230', '233', '234', '237']
+
+
+class TestDissectFtdiMpsse:
+    '''FTDI MPSSE (packet-ftdi-mpsse.c) from the synthetic Linux usbmon
+    capture ftdi_mpsse_coverage.pcap.gz (LINKTYPE 220). FTDI FT hands the
+    bulk data of an interface in MPSSE or MCU host bus mode to MPSSE; the
+    chip comes from the bcdDevice of the device descriptor. The capture
+    holds all 256 command bytes for each chip.'''
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ftdi_mpsse_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def rows(self, cmd_tshark, capture_file, test_env, filt, *fields, passes=('-2',)):
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', filt,
+                            '-Tfields', *('-e' + f for f in fields), passes=passes)
+        return [l.split('\t') for l in lines]
+
+    def test_ftdi_mpsse_frames(self, cmd_tshark, capture_file, test_env):
+        '''468 frames, no malformed packets or error expert infos in one and
+        two passes and the same Info and Protocol columns. The six frames
+        that are parts of a reassembly (407, 410, 424, 430, 436, 438) are
+        FTDI FT in both passes.'''
+        infos = []
+        counts = []
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number',
+                                '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            rows = [l.split('\t') for l in lines]
+            assert len(rows) == 468
+            c = {}
+            for r in rows:
+                c[r[1]] = c.get(r[1], 0) + 1
+            counts.append(c)
+            infos.append([(r[0], r[2]) for r in rows])
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                            'frame.number', passes=passes)
+            assert bad == []
+        assert infos[0] == infos[1]
+        assert counts[0] == {'FTDI FT': 42, 'FTDI MPSSE': 198, 'USB': 228}
+        assert counts[1] == counts[0]
+
+    def test_ftdi_mpsse_startup_and_jtag(self, cmd_tshark, capture_file, test_env):
+        '''A typical start-up (loopback off, divisor, GPIO, Send Immediate)
+        and a JTAG-like exchange whose responses are linked to the
+        commands.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {5, 7, 10, 12, 13, 16}',
+                         'frame.number', 'ftdi-mpsse.command', 'ftdi-mpsse.command.in',
+                         'ftdi-mpsse.response.in', 'ftdi-mpsse.bytes_in', 'ftdi-mpsse.bits_in')
+        got = {r[0]: r[1:] for r in rows}
+        assert got['5'][0] == '0x85,0x8a,0x97,0x8d,0x86,0x80,0x82,0x87'
+        assert got['7'][0] == '0x4b,0x39,0x6b,0x87'
+        assert got['7'][2] == '10,12'                    # responses of 0x39 and 0x6b
+        assert got['10'][1] == '7' and got['10'][3] == '11223344'
+        assert got['12'][1] == '7' and got['12'][4] == '0x80'
+        assert got['13'][2] == '16,16'                   # Read Low and High Byte
+        assert got['16'][1] == '13,13'
+
+    def test_ftdi_mpsse_all_commands(self, cmd_tshark, capture_file, test_env):
+        '''All 256 command bytes on each chip: the number of Bad Command
+        responses equals the number of Bad Commands sent, and every
+        command is parsed (256 commands per TX URB).'''
+        for tx, rx, bad in ((17, 20, 162), (21, 24, 162), (41, 44, 158), (45, 48, 158), (53, 56, 161),
+                            (67, 70, 174), (83, 86, 162)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number == %d' % tx,
+                             'ftdi-mpsse.command')
+            assert len(rows[0][0].split(',')) == 256
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number == %d' % rx,
+                             'ftdi-mpsse.bad_command.error')
+            assert len(rows[0][0].split(',')) == bad
+
+    def test_ftdi_mpsse_chip_specific_commands(self, cmd_tshark, capture_file, test_env):
+        '''0x8A-0x8D, 0x8E, 0x94-0x97 only on the H chips, 0x9E only on the
+        FT232H, 0x86 on FT2232D and the H chips, CPU mode commands in MCU
+        mode, and an FT232R/FT232B without any chip specific command.'''
+        def commands(frame, text):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == %d' % frame, '-V',
+                                passes=('-2',))
+            return sum(1 for l in lines if text in l)
+        # command 0x9E: valid on the FT232H (frame 53), bad on the FT2232H (17) and the FT2232D (67)
+        assert commands(53, 'Command: Set I/O to only drive on a') == 1
+        assert commands(17, 'Command: Set I/O to only drive on a') == 0
+        assert commands(67, 'Command: Set I/O to only drive on a') == 0
+        # 0x8E and 0x86 on the FT2232D
+        assert commands(17, 'Command: Clock For n bits with no data transfer') == 1
+        assert commands(67, 'Command: Clock For n bits with no data transfer') == 0
+        assert commands(67, 'Command: Set TCK/SK Divisor') == 1
+        assert commands(17, 'Command: Set clk divisor') == 1
+        # the CPU mode commands only in MCU mode (frames 41, 45, 59)
+        for frame, n in ((41, 4), (45, 4), (59, 4), (17, 0), (53, 0)):
+            assert commands(frame, 'Command: CPUMode ') == n
+        # FT232R/FT232B: no H-only commands
+        assert commands(399, 'Command: Clock For n') == 0
+        # undocumented but accepted data shifting commands: 80 of them on every chip
+        assert commands(17, 'Undocumented Data Shifting Command') == 80
+
+    def test_ftdi_mpsse_pin_names(self, cmd_tshark, capture_file, test_env):
+        '''The pin names ADBUS/ACBUS/BDBUS/BCBUS in Set/Read Data Bits depend
+        on the chip and the interface.'''
+        def text(frame):
+            return '\n'.join(self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == %d' % frame,
+                                         '-V', passes=('-2',)))
+        assert '[ADBUS0]' in text(5) and '[ACBUS7]' in text(5)             # FT2232H A
+        assert '[BDBUS3]' in text(27) and '[BCBUS3]' in text(27)           # FT2232H B
+        assert '[ADBUS' not in text(35) and 'GPIOL0 Input' in text(35)       # FT2232H C: no names
+        assert '[ACBUS3]' in text(53) and '[ACBUS7]' not in text(67)      # FT232H, FT2232D has 4 ACBUS pins
+        assert '[ACBUS3]' in text(67) and '[ADBUS7]' in text(67)
+        assert '[BDBUS' not in text(73) and '[ADBUS' not in text(73)      # FT2232D interface B
+        assert '[BDBUS7]' in text(89) and '[BCBUS' not in text(89)         # FT4232H: low byte only
+        assert '[CDBUS' not in text(95) and '[DDBUS' not in text(101)
+
+    def test_ftdi_mpsse_clock_divisor(self, cmd_tshark, capture_file, test_env):
+        '''The maximum clock for the divisors 0, 5, 0x100, 0x1000 and 0xffff
+        in MHz, kHz and Hz (the decimal separator follows the locale).'''
+        out = '\n'.join(self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {31, 77}',
+                                   '-V', passes=('-2',)))
+        import re
+        dot = r'[.,]'
+        for pat in (r'Divisor: 0x0000, TCK Max: 30 MHz \(60 MHz master clock\) or 6 MHz',
+                    r'Divisor: 0x0005, TCK Max: 5 MHz \(60 MHz master clock\) or 1 MHz',
+                    r'Divisor: 0x0100, TCK Max: 116%s731515625 kHz \(60 MHz master clock\) or 23%s3463027344 kHz' % (dot, dot),
+                    r'Divisor: 0x1000, TCK Max: 7%s32243115234 kHz' % dot,
+                    r'Divisor: 0xffff, TCK Max: 457%s763671875 Hz \(60 MHz master clock\) or 91%s552734375 Hz' % (dot, dot),
+                    r'Divisor: 0x0000, TCK/SK Max: 6 MHz',
+                    r'Divisor: 0xffff, TCK/SK Max: 91%s552734375 Hz' % dot):
+            assert re.search(pat, out), pat
+
+    def test_ftdi_mpsse_reassembly_ft232r(self, cmd_tshark, capture_file, test_env):
+        '''The FT232R stream (frames 109-394) is cut into 7 octet TX and 5
+        octet RX URBs: commands and responses that span URBs are
+        reassembled and all responses are linked to their commands.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number >= 109 && frame.number <= 394 && ftdi-ft.reassembled.in',
+                         'frame.number', 'ftdi-ft.reassembled.in')
+        assert len(rows) > 20
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {109, 111}',
+                         'frame.number', 'ftdi-mpsse.response.in')
+        assert rows[0][1] == '230,230,232,232,232,234,234'
+
+    def test_ftdi_mpsse_bad_command_search(self, cmd_tshark, capture_file, test_env):
+        '''Frames 405-440: a Bad Command response with junk in front of it
+        (warning "Skipped response data"), a response split into FA and the
+        command code, and the reproducer of the reassembly assertion
+        ("FTDI FT: Fix assertion in reassembly and repeated state
+        updates"): Bad Command 0x00 answered by RX FA, RX FA, RX 00.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'ftdi-mpsse.skipped_response_data', 'frame.number')
+        assert [r[0] for r in rows] == ['418', '422', '440']
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {433, 440}',
+                         'frame.number', 'ftdi-mpsse.command.in', 'ftdi-mpsse.response.in')
+        assert rows == [['433', '', '440'], ['440', '433,433', '440']]
+        # a preliminary command, a response before the end of the output (frames 405-414)
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {411, 414}',
+                         'frame.number', 'ftdi-mpsse.command.in', 'ftdi-mpsse.response.in')
+        assert rows == [['411', '', '414'], ['414', '411', '']]
+
+    def test_ftdi_mpsse_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "FTDI MPSSE: Fix assertions reachable from
+        crafted packets" decode cleanly and give the same result in both
+        passes: a partial 0x31 completed in the next URB after Read Low
+        Byte (frames 445-447), a preliminary command left when the device
+        is re-enumerated as another chip (453-461) and Clock Data Bytes In
+        with length 0xFFFF, which needs 0x10000 octets (467).'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 443',
+                                '-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.col.protocol',
+                                passes=passes)
+            infos = [l.split('\t')[:2] for l in lines]
+            assert ['467', 'INTERFACE A TX 3 bytes'] in infos
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {445, 447, 453, 457}',
+                         'frame.number', 'ftdi-ft.reassembled.in')
+        assert rows == [['445', '447'], ['447', ''], ['453', '457'], ['457', '']]
