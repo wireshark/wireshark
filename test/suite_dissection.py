@@ -60854,3 +60854,170 @@ class TestDissectGaduGadu:
         rows = self.gg_rows(cmd_tshark, capture_file, test_env,
                 'frame.number == 31', 'xml.tag', 'gadu-gadu.userlist')
         assert rows == [['31', '', '6e6f74207a6c69622064617461']]
+
+
+class TestDissectGbcs:
+    @staticmethod
+    def gbcs_rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gbcs_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gbcs_frames(self, cmd_tshark, capture_file, test_env):
+        '''58 frames have a GBCS message (the others are tunnel PUT/GET
+        without data, a frame the ZigBee tunnel does not accept and so
+        on), 44 a GBZ payload and 8 the tunnel header. None is malformed
+        or has an error expert info, in one and two passes.'''
+        for filt, count in (('gbcs_message', 58), ('gbcs_gbz', 44), ('gbcs_tunnel', 8)):
+            for passes in ((), ('-2',)):
+                rows = self.gbcs_rows(cmd_tshark, capture_file, test_env, filt, passes=passes)
+                assert len(rows) == count, (filt, passes)
+        for passes in ((), ('-2',)):
+            rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity == "error"', passes=passes)
+            assert rows == []
+
+    def test_gbcs_grouping_header(self, cmd_tshark, capture_file, test_env):
+        '''Grouping header: CRA flag, message code, date time and the
+        supplementary remote party fields.'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number <= 10', 'gbcs_message.grouping_header.cra_flag',
+                'gbcs_message.grouping_header.message_code',
+                'gbcs_message.grouping_header.date_time',
+                'gbcs_message.grouping_header.supplementary_remote_party_id',
+                'gbcs_message.grouping_header.supplementary_remote_party_counter',
+                'gbcs_message.grouping_header.supplementary_remote_party_originator_counter',
+                'gbcs_message.grouping_header.supplementary_remote_party_ka_certificate')
+        assert rows == [
+            ['1', '0x01', '0x0007', '', '', '', '', ''],
+            ['2', '0x02', '0x001a', '', '', '', '', ''],
+            ['3', '0x01', '0x0019', '2024-05-17T13:45:30.000000000Z', '', '', '', ''],
+            ['4', '0x01', '0x0008', '', '33:33:33:33:33:33:33:33', '', '', ''],
+            ['5', '0x01', '0x000a', '', '00:00:00:00:00:00:00:05', '6', '', ''],
+            ['6', '0x01', '0x000b', '', '00:00:00:00:00:00:00:05', '6', '7', ''],
+            ['7', '0x01', '0x000c', '', '00:00:00:00:00:00:00:05', '6', '7', '3082010063657274'],
+            ['8', '0x01', '0x0099', '', '', '', '', ''],
+            ['9', '0x01', '0x0013', '', '', '', '', ''],
+            ['10', '0x07', '0x0004', '', '', '', '', ''],
+        ]
+
+    def test_gbcs_gbz_components(self, cmd_tshark, capture_file, test_env):
+        '''GBZ use case components: plain ones are handed to ZCL, encrypted
+        ones show the (placeholder) payload and MAC; more components than
+        subtrees.'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {1,3,4,5,11}', 'gbcs_gbz.components',
+                'gbcs_gbz.extended_header_control', 'gbcs_gbz.from_date_time',
+                'gbcs_gbz.security_control', 'gbcs_gbz.invocation_counter',
+                'gbcs_gbz.additional_frame_counter', 'gbcs_gbz.mac')
+        assert rows[0] == ['1', '1', '0x01', '', '', '', '', '']
+        assert rows[1][:4] == ['3', '2', '0x10,0x01', '2024-12-26T11:52:32.000000000Z']
+        assert rows[2] == ['4', '1', '0x03', '', '0x30', '0x00000007', '1', '000000000000000000000000']
+        assert rows[3][:3] == ['5', '1', '0x13'] and rows[3][4:7] == ['0x30', '0x00000008', '2']
+        assert rows[4][:2] == ['11', '34']
+        assert len(rows[4][2].split(',')) == 34
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 1', 'zbee_zcl.cmd.id', '_ws.col.info')
+        assert rows[0][1] == '0x00'
+        assert rows[0][2] == 'Command, CS01a Apply Pre-payment Top Up to an ESME'
+
+    def test_gbcs_gbz_alerts(self, cmd_tshark, capture_file, test_env):
+        '''GBZ alerts: firmware verification, future dated command, billing
+        data log (with a component), integrity issue warning.'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number >= 12 && frame.number <= 19', 'gbcs_gbz.alert_code',
+                'gbcs_gbz.firmware_alert_start', 'gbcs_gbz.future_alert_start',
+                'gbcs_gbz.message_code', 'gbcs_gbz.originator_counter',
+                'gbcs_gbz.integrity_issue_warning', 'gbcs_gbz.extended_header_control',
+                '_ws.col.info')
+        assert [r[:2] for r in rows] == [
+            ['12', '0x8f1c'], ['13', '0x8f72'], ['14', '0x8f66'], ['15', '0x8f67'],
+            ['16', '0x8f0a'], ['17', '0x81a0'], ['18', '0x8f35'], ['19', '0x0001'],
+        ]
+        assert rows[0][2] == '0x8000' and rows[1][2] == '0x8001'
+        assert rows[2][3:6] == ['0x0e', '0x0019', '9']
+        assert rows[3][3] == ''
+        assert rows[4][7] == '0x01'
+        assert rows[5][6] == '0x0004'
+        assert rows[0][8] == 'Alert, Unknown Use Case, Firmware Verification Failed'
+        assert rows[7][8] == 'Alert, Unknown Use Case, Unknown alert'
+
+    def test_gbcs_gbz_length_check(self, cmd_tshark, capture_file, test_env):
+        '''Components whose length is smaller than their own header give an
+        invalid length warning and are skipped (the length wrapped around
+        before the fix).'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'gbcs_gbz.invalid_length', 'gbcs_gbz.extended_header_length',
+                'gbcs_gbz.transaction', 'gbcs_gbz.mac')
+        assert [r[0] for r in rows] == [str(n) for n in range(50, 63)]
+        assert [r[1] for r in rows] == ['0', '1', '2', '0', '3', '6', '0', '5', '12', '23', '0', '10', '27']
+        assert all(r[2] == '' and r[3] == '' for r in rows)
+
+    def test_gbcs_other_payloads(self, cmd_tshark, capture_file, test_env):
+        '''General ciphering with MAC header and MAC, DLMS and ASN.1 payloads.'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {20,21}', 'gbcs_message.mac_header.security_control_byte',
+                'gbcs_message.mac_header.invocation_counter',
+                'gbcs_message.mac_header.business_originator_id',
+                'gbcs_message.mac_header.date_time',
+                'gbcs_message.mac_header.other_info', 'gbcs_message.mac_header.key_info',
+                'gbcs_message.krp', 'gbcs_message.mac')
+        assert rows[0][1:] == ['0x30', '0x00000001', '', '', '', '', '', '000000000000000000000000']
+        assert rows[1][1:5] == ['0x30', '0x00000001', '44:44:44:44:44:44:44:44', '2024-05-17T13:45:30.000000000Z']
+        assert rows[1][5:7] == ['6f69', '6b69']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gbcs_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {22,23,24,25,26}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('GBCS DLMS') == 3
+        assert stdout.count('GBCS ASN.1') == 2
+
+    def test_gbcs_block_transfer(self, cmd_tshark, capture_file, test_env):
+        '''General block transfer: three blocks with acknowledges are
+        reassembled into the GBZ command of frame 32, a single block is
+        dissected at once, a streaming block is not completed, and the
+        message that contains a block of its own message id on the second
+        pass is not dissected without end.'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number >= 28 && frame.number <= 36',
+                'gbcs_message.gbt_header.block_number',
+                'gbcs_message.gbt_header.block_number_ack',
+                'gbcs_message.gbt_header.block_control.last_block',
+                'gbcs_message.gbt_header.block_control.streaming',
+                'gbcs_message.gbt_header.block_control.window',
+                'gbcs_message.gbt.reassembled.in', 'gbcs_message.gbt.block.count',
+                '_ws.col.info', passes=('-2',))
+        assert rows == [
+            ['28', '1', '0', 'False', 'False', '3', '32', '', 'GBT block 1'],
+            ['29', '0', '1', 'False', 'False', '0', '', '', ''],
+            ['30', '2', '0', 'False', 'False', '0', '32', '', 'GBT block 2'],
+            ['31', '0', '2', 'False', 'False', '0', '', '', ''],
+            ['32', '3', '0', 'True', 'False', '0', '', '3', 'Command, CS01a Apply Pre-payment Top Up to an ESME'],
+            ['33', '1', '0', 'True', 'False', '0', '', '1', 'Response, ECS02 Set ESME Payment Mode to Credit'],
+            ['34', '1', '0', 'False', 'True', '0', '', '', 'GBT block 1'],
+            ['35', '1', '0', 'True', 'False', '0', '', '1', 'Response, CS06 Activate Firmware'],
+            ['36', '1,1', '0,0', 'True,False', 'False,False', '0,0', '36', '1', 'GBT block 1'],
+        ]
+
+    def test_gbcs_tunnel(self, cmd_tshark, capture_file, test_env):
+        '''The tunnel commands, directly (Exported PDU) and through the
+        ZigBee SE tunneling cluster (IEEE 802.15.4 frames 44-49).'''
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'gbcs_tunnel', 'gbcs_tunnel.command', 'gbcs_tunnel.remaining',
+                'zbee_zcl_se.tun.tunnel_id')
+        assert rows == [
+            ['37', '0x01', '', ''], ['38', '0x02', '3', ''], ['39', '0x02', '0', ''],
+            ['40', '0x03', '', ''], ['43', '0x03', '', ''],
+            ['44', '0x01', '', '0x0005'], ['45', '0x02', '1', '0x0005'],
+            ['46', '0x03', '', '0x0005'],
+        ]
+        rows = self.gbcs_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {47,48,49}', '_ws.col.protocol', '_ws.col.info')
+        assert rows == [
+            ['47', 'GBCS GBZ', 'Command, ECS01a Set Tariff and Price on ESME'],
+            ['48', 'GBCS GBZ', 'Response, ECS02 Set ESME Payment Mode to Credit'],
+            ['49', 'ZigBee SE', 'ZCL Tunneling: Transfer Data, Seq: 6'],
+        ]
