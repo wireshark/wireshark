@@ -42,6 +42,7 @@
 
 #include "packet-ber.h"
 #include "packet-dns.h"
+#include "packet-e212.h"
 #include "packet-x509af.h"
 #include "packet-x509if.h"
 #include "packet-icmp.h"    /* same transaction_t used for both v4 and v6 */
@@ -1159,6 +1160,7 @@ static const value_string nd_opt_hai_option_code_val[] = {
     { 0, NULL }
 };
 
+#define ND_OPT_MN_OPTION_CODE_IMSI 2
 static const value_string nd_opt_mn_option_code_val[] = {
     { 1, "NAI" },
     { 2, "IMSI" },
@@ -2605,9 +2607,10 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
             case ND_OPT_MOBILE_NODE_ID: /* Mobile Node Identifier Option (30) */
             {
                 uint8_t mn_len;
+                uint32_t mn_option_code;
                 int padd_length;
                 /* Option-Code */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mn_option_code, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(icmp6opt_tree, hf_icmpv6_opt_mn_option_code, tvb, opt_offset, 1, ENC_BIG_ENDIAN, &mn_option_code);
                 opt_offset += 1;
 
                 /* MN Length */
@@ -2616,6 +2619,11 @@ static unsigned dissect_icmpv6_nd_opt(tvbuff_t *tvb, unsigned offset, packet_inf
 
                 /* MN Value */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mn_value, tvb, opt_offset, mn_len, ENC_NA);
+                if (mn_option_code == ND_OPT_MN_OPTION_CODE_IMSI) {
+                    /* RFC 5271 section 3: an ASCII string of decimal digits */
+                    add_assoc_imsi_item(tvb, pinfo, icmp6opt_tree,
+                                        (const char *)tvb_get_string_enc(pinfo->pool, tvb, opt_offset, mn_len, ENC_ASCII));
+                }
                 opt_offset += mn_len;
 
                 /* Padding... */
