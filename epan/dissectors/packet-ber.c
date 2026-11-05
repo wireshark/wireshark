@@ -1183,8 +1183,8 @@ get_ber_identifier(tvbuff_t *tvb, unsigned offset, int8_t *ber_class, bool *pc, 
     if (tmp_tag == 0x1F) {
         tmp_tag = 0;
 
-        unsigned int remaining = tvb_reported_length_remaining(tvb, offset);
-        ws_log_buffer(tvb_get_ptr(tvb, offset, remaining), remaining, "BER bytes");
+        ws_log_buffer(tvb_get_ptr(tvb, offset, tvb_captured_length_remaining(tvb, offset)),
+                      tvb_captured_length_remaining(tvb, offset), "BER bytes");
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             t = tvb_get_uint8(tvb, offset);
             offset += 1;
