@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 
 void proto_register_homepna(void);
 void proto_reg_handoff_homepna(void);
@@ -30,6 +31,8 @@ static int hf_homepna_etype;
 static int hf_homepna_trailer;
 
 static int ett_homepna;
+
+static expert_field ei_homepna_length_too_short;
 
 static dissector_handle_t ethertype_handle;
 
@@ -112,6 +115,11 @@ dissect_homepna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(homepna_tree, hf_homepna_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
+    if (control_length < 3) {
+        proto_tree_add_expert(homepna_tree, pinfo, &ei_homepna_length_too_short, tvb, offset, 0);
+        return tvb_captured_length(tvb);
+    }
+
     proto_tree_add_item(homepna_tree, hf_homepna_data, tvb, offset, control_length-3, ENC_NA);
     offset += (control_length-2);
 
@@ -167,9 +175,17 @@ proto_register_homepna(void)
         &ett_homepna,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_homepna_length_too_short, { "hpna.length_too_short", PI_MALFORMED, PI_ERROR,
+            "Length too short", EXPFILL }},
+    };
+    expert_module_t *expert_homepna;
+
     proto_homepna = proto_register_protocol("HomePNA, wlan link local tunnel", "HomePNA", "hpna");
     proto_register_field_array(proto_homepna, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_homepna = expert_register_protocol(proto_homepna);
+    expert_register_field_array(expert_homepna, ei, array_length(ei));
 
     homepna_handle = register_dissector("hpna", dissect_homepna, proto_homepna);
 }
