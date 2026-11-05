@@ -270,6 +270,16 @@ GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
 
   offset = tvb_len;
 
+#.FN_BODY IRI-Parameters/proSeRelayIMSI VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+
+%(DEFAULT_BODY)s
+  /* coded according to 3GPP TS 29.274 */
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_HI2Operations_prose_relay_imsi);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+  }
+
 #.FN_BODY EPSCorrelationNumber
   unsigned tvb_len;
   proto_item *item;

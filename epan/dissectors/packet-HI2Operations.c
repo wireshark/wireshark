@@ -228,7 +228,7 @@ static int hf_HI2Operations_requesting_Node_Type;  /* Requesting_Node_Type */
 static int hf_HI2Operations_serving_System_Identifier;  /* OCTET_STRING */
 static int hf_HI2Operations_proSeTargetType;      /* ProSeTargetType */
 static int hf_HI2Operations_proSeRelayMSISDN;     /* OCTET_STRING_SIZE_1_9 */
-static int hf_HI2Operations_proSeRelayIMSI;       /* OCTET_STRING_SIZE_3_8 */
+static int hf_HI2Operations_proSeRelayIMSI;       /* T_proSeRelayIMSI */
 static int hf_HI2Operations_proSeRelayIMEI;       /* OCTET_STRING_SIZE_8 */
 static int hf_HI2Operations_extendedLocParameters;  /* ExtendedLocParameters */
 static int hf_HI2Operations_locationErrorCode;    /* LocationErrorCode */
@@ -557,6 +557,7 @@ static int ett_HI2Operations_eps_apn_ambr;
 static int ett_HI2Operations_eps_uli;
 static int ett_HI2Operations_eps_tft;
 static int ett_HI2Operations_eps_network;
+static int ett_HI2Operations_prose_relay_imsi;
 static int ett_HI2Operations_CommunicationIdentifier;
 static int ett_HI2Operations_Network_Identifier;
 static int ett_HI2Operations_Network_Element_Identifier;
@@ -3501,9 +3502,18 @@ dissect_HI2Operations_ProSeTargetType(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static unsigned
-dissect_HI2Operations_OCTET_STRING_SIZE_3_8(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_HI2Operations_T_proSeRelayIMSI(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *parameter_tvb;
+
   offset = dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset,
-                                                   3, 8, hf_index, NULL);
+                                                   3, 8, hf_index, &parameter_tvb);
+
+  /* coded according to 3GPP TS 29.274 */
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_HI2Operations_prose_relay_imsi);
+    dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+  }
+
 
   return offset;
 }
@@ -4467,7 +4477,7 @@ static const ber_sequence_t IRI_Parameters_sequence[] = {
   { &hf_HI2Operations_serving_System_Identifier, BER_CLASS_CON, 66, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING },
   { &hf_HI2Operations_proSeTargetType, BER_CLASS_CON, 67, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ProSeTargetType },
   { &hf_HI2Operations_proSeRelayMSISDN, BER_CLASS_CON, 68, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_1_9 },
-  { &hf_HI2Operations_proSeRelayIMSI, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_3_8 },
+  { &hf_HI2Operations_proSeRelayIMSI, BER_CLASS_CON, 69, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_proSeRelayIMSI },
   { &hf_HI2Operations_proSeRelayIMEI, BER_CLASS_CON, 70, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_OCTET_STRING_SIZE_8 },
   { &hf_HI2Operations_extendedLocParameters, BER_CLASS_CON, 71, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_ExtendedLocParameters },
   { &hf_HI2Operations_locationErrorCode, BER_CLASS_CON, 72, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_LocationErrorCode },
@@ -5466,7 +5476,7 @@ void proto_register_HI2Operations(void) {
     { &hf_HI2Operations_proSeRelayIMSI,
       { "proSeRelayIMSI", "HI2Operations.proSeRelayIMSI",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_3_8", HFILL }},
+        NULL, HFILL }},
     { &hf_HI2Operations_proSeRelayIMEI,
       { "proSeRelayIMEI", "HI2Operations.proSeRelayIMEI",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -6757,6 +6767,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_eps_uli,
     &ett_HI2Operations_eps_tft,
     &ett_HI2Operations_eps_network,
+    &ett_HI2Operations_prose_relay_imsi,
     &ett_HI2Operations_CommunicationIdentifier,
     &ett_HI2Operations_Network_Identifier,
     &ett_HI2Operations_Network_Element_Identifier,

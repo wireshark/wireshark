@@ -47,6 +47,7 @@ static int ett_HI2Operations_eps_apn_ambr;
 static int ett_HI2Operations_eps_uli;
 static int ett_HI2Operations_eps_tft;
 static int ett_HI2Operations_eps_network;
+static int ett_HI2Operations_prose_relay_imsi;
 #include "packet-HI2Operations-ett.c"
 
 #include "packet-HI2Operations-fn.c"
@@ -78,6 +79,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_eps_uli,
     &ett_HI2Operations_eps_tft,
     &ett_HI2Operations_eps_network,
+    &ett_HI2Operations_prose_relay_imsi,
 #include "packet-HI2Operations-ettarr.c"
   };
 
