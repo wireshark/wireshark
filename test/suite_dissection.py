@@ -70572,3 +70572,101 @@ class TestDissectHciH4:
             '    [Direction: Sent (0x00)]',
             '    HCI Packet Type: HCI Command (0x01)',
         ]
+
+
+class TestDissectHciMon:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hci_mon_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hci_mon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''124 frames on two interfaces (link type 254), 95 of them
+        HCI_MON itself and the rest HCI packets inside it; none is
+        malformed or has an error expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', '_ws.col.protocol')
+        assert len(rows) == 124
+        assert [r[1] for r in rows].count('HCI_MON') == 95
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes)
+            assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.expert',
+                            'frame.number', '_ws.expert.message')
+        assert [r[0] for r in rows] == ['38', '63', '105', '108', '109', '110', '111']
+        assert all(r[1] == 'Unknown data' for r in rows)
+
+    def test_hci_mon_index(self, cmd_tshark, capture_file, test_env):
+        '''New Index (bus, type, address, name) and Index Info.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 12 && hci_mon.opcode <= 10',
+                            'frame.number', 'hci_mon.adapter_id', 'hci_mon.opcode',
+                            'hci_mon.bus', 'hci_mon.type', 'hci_mon.bd_addr',
+                            'hci_mon.adapter_name', 'hci_mon.manufacturer')
+        assert rows[0] == ['1', '0', '0', '0x00', '0x01', '06:05:04:03:02:01', 'hci0', '']
+        assert rows[2] == ['3', '0', '10', '', '', '01:02:03:04:05:06', '', '0x000f']
+        assert rows[3] == ['4', '0', '0', '0x01', '0x03', '04:05:06:07:08:09', 'hci0-amp', '']
+        assert rows[4][0:3] == ['5', '1', '0'] and rows[4][6] == 'a-name-l'
+
+    def test_hci_mon_directions(self, cmd_tshark, capture_file, test_env):
+        '''Index messages are "Info", even opcodes are sent and odd ones
+        received.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 1 || frame.number == 2 || frame.number == 13 || frame.number == 14',
+                            'frame.number', '_ws.col.info')
+        assert rows == [
+            ['1', 'Info Adapter Id: 0, Opcode: New Index'],
+            ['2', 'Sent Adapter Id: 0, Opcode: Open Index'],
+            ['13', 'Sent Reset'],
+            ['14', 'Rcvd Command Complete (Reset)'],
+        ]
+
+    def test_hci_mon_text_messages(self, cmd_tshark, capture_file, test_env):
+        '''System notes and user logging (priority, ident, message).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 39 && frame.number <= 51',
+                            'frame.number', 'hci_mon.system_note', 'hci_mon.priority',
+                            'hci_mon.ident_length', 'hci_mon.ident', 'hci_mon.message')
+        assert rows[0][0:2] == ['39', 'Bluetooth subsystem version 2.22']
+        assert rows[1][0:2] == ['40', 'no terminator']
+        assert rows[3] == ['42', '', '0', '11', 'bluetoothd', 'message 0']
+        assert rows[10] == ['49', '', '7', '11', 'bluetoothd', 'message 7']
+        assert rows[12] == ['51', '', '6', '0', '', 'text without an ident']
+
+    def test_hci_mon_control(self, cmd_tshark, capture_file, test_env):
+        '''Control open (cookie, format, version, flags, command name),
+        control events by value and control close.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 52 && frame.number <= 56',
+                            'frame.number', 'hci_mon.cookie', 'hci_mon.format',
+                            'hci_mon.version', 'hci_mon.version_minor', 'hci_mon.flags',
+                            'hci_mon.command_length', 'hci_mon.command')
+        assert rows[1] == ['53', '0x00001001', '0x0001', '2', '22', '0x00000001', '16', 'bluetoothd']
+        assert rows[4][0:2] == ['56', '0x00002000'] and rows[4][6] == '0'
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hci_mon.event',
+                            'frame.number', 'hci_mon.event')
+        assert rows[0] == ['64', '0x0001']
+        assert rows[0x26 - 1] == ['101', '0x0026']
+        assert rows[-1] == ['105', '0x0001']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hci_mon.opcode == 15', 'frame.number', 'hci_mon.cookie')
+        assert rows == [['106', '0x00001002'], ['107', '0x00001003']]
+
+    def test_hci_mon_hci(self, cmd_tshark, capture_file, test_env):
+        '''HCI packets without the H4 type octet, per adapter and
+        interface.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 13 && frame.number <= 24',
+                            'frame.number', '_ws.col.protocol')
+        assert [r[1] for r in rows] == [
+            'HCI_CMD', 'HCI_EVT', 'HCI_CMD', 'HCI_EVT', 'L2CAP', 'L2CAP',
+            'L2CAP', 'L2CAP', 'HCI_SCO', 'HCI_SCO', 'HCI_ISO', 'HCI_ISO']
