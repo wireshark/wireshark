@@ -64326,3 +64326,139 @@ class TestDissectGprscdr:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 ['gprscdr.identifier'], '-Y', 'frame.number == 53')
         assert lines == ['1.3.6.1.4.1.5.1.2.3,1.3.6.1.4.1.20138.1.2.3']
+
+
+class TestDissectGprsLlc:
+    '''GPRS LLC (link-layer type 169, LINKTYPE_GPRS_LLC), from the
+    synthetic capture gprs_llc_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gprs_llc_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gprs_llc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 80 frames are LLC frames; no malformed packets or error
+        expert infos in one and two passes; the only expert infos are the
+        warnings for U frames without information field (frames 62-65).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame')
+        assert len(rows) == 80
+        # the dummy UI command and the invalid address have no LLC tree
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs')
+        assert len(rows) == 78
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gprs_llc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gprs_llc_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['%d\tNo Information Field' % n for n in (62, 63, 64, 65)]
+
+    def test_gprs_llc_sapi_and_formats(self, cmd_tshark, capture_file, test_env):
+        '''The SAPI, the frame format and the sub-dissector reached from the
+        SAPI (GMM and SMS in DTAP, SNDCP).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 4 || frame.number == 10 || frame.number == 28 || frame.number == 51 || frame.number == 62 || frame.number == 69 || frame.number == 77',
+                            '_ws.col.info')
+        assert [(r[0], r[1].strip()) for r in rows] == [
+            ('1', ''),
+            ('2', 'Invalid packet - Protocol Discriminator bit is set to 1'),
+            ('3', 'SAPI: Reserved 0, UI, protected, non-ciphered information, N(U) = 0'),
+            ('4', 'SAPI: LLGMM, UI, protected, non-ciphered information, N(U) = 7(DTAP) (GMM) P-TMSI Reallocation Complete'),
+            ('10', 'SAPI: LLSMS, UI, protected, non-ciphered information, N(U) = 49(DTAP) (SMS) CP-ACK'),
+            ('28', 'SN-UNITDATA N-PDU 1121 (segment 7)'),
+            ('51', 'SAPI: LLGMM, I, SACK, N(S) = 9, N(R) = 10, k = 32(DTAP) (GMM) P-TMSI Reallocation Complete'),
+            ('62', 'SAPI: LLGMM, U, DM-response'),
+            ('69', 'SAPI: LL5, U, XID'),
+            ('77', 'SAPI: LL5, U, FRMR'),
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs.dummy_ui')
+        assert rows == [['1']]
+
+    def test_gprs_llc_fcs(self, cmd_tshark, capture_file, test_env):
+        '''Correct, incorrect, incorrect due to ciphering and not computed
+        (frame truncated by the capture) FCS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gprs_llc_coverage.pcap.gz'),
+                '-V', '-O', 'llcgprs',
+            ), encoding='utf-8', env=test_env)
+        frame = None
+        status = {}
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = int(line.split(':')[0].split()[1])
+            elif line.startswith('    FCS: '):
+                if '(correct)' in line:
+                    status[frame] = 'correct'
+                elif 'maybe due to ciphering' in line:
+                    status[frame] = 'ciphering'
+                elif '(incorrect, should be 0x' in line:
+                    status[frame] = 'incorrect'
+                else:
+                    assert 'Not enough data' in line
+                    status[frame] = 'not computed'
+        assert status[3] == 'correct'
+        assert [n for n, s in status.items() if s == 'incorrect'] == [19, 20, 21, 29, 52]
+        assert [n for n, s in status.items() if s == 'ciphering'] == [22]
+        assert [n for n, s in status.items() if s == 'not computed'] == [28]
+        assert status[23] == 'correct'      # ciphered but the FCS is valid
+        assert len(status) == 78            # all but the dummy UI and the invalid address
+
+    def test_gprs_llc_xid_length_offset(self, cmd_tshark, capture_file, test_env):
+        '''The second length octet of an XID parameter (XL bit set) is the
+        octet after the first (it was added at the first octet).'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gprs_llc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 72 || frame.number == 73', '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env)
+
+        def positions(o, key, out):
+            # collect the offset of every raw value of the field
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if k == key:
+                        out.append(v[1])
+                    else:
+                        positions(v, key, out)
+            elif isinstance(o, list):
+                for v in o:
+                    positions(v, key, out)
+
+        got = {}
+        for p in json.loads(stdout):
+            layer = p['_source']['layers']['llcgprs']
+            xl, len2 = [], []
+            positions(layer, 'llcgprs.xidxl_raw', xl)
+            positions(layer, 'llcgprs.xidlen2_raw', len2)
+            got[p['_source']['layers']['frame']['frame.number']] = (xl, len2)
+        # the XL octet is at offset 2 (after address and control), the second length octet at 3
+        assert got == {'72': ([2], [3]), '73': ([2, 74], [3])}
+
+    def test_gprs_llc_tom_sack_frmr(self, cmd_tshark, capture_file, test_env):
+        '''TOM envelopes (protocol, remaining length, header, capsule),
+        the R bitmap of SACK frames and the FRMR information field.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 30 && frame.number <= 37',
+                            'llcgprs.tompd', 'llcgprs.romrl', 'llcgprs.tomhead', 'llcgprs.tomdata')
+        assert [r[:5] for r in rows[:3]] == [
+            ['30', '0x01', '0', '', '0x63,0x61,0x70,0x73,0x75,0x6c,0x65'],
+            ['31', '0x02', '2', '0xaa,0xbb', '0x63,0x61,0x70,0x73,0x75,0x6c,0x65'],
+            ['32', '0x00', '15', '', ''],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs.k', 'llcgprs.k', 'llcgprs.sackrbits')
+        # k is shown masked to 5 bits; the R bitmap has k octets
+        assert [(r[0], len(r[2].split(','))) for r in rows] == [('51', 32), ('52', 1)]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs.sackrbits && llcgprs.s1s2 == 3 && !llcgprs.k',
+                            'llcgprs.sackrbits')
+        assert rows == [['56', '0xaa,0x55,0xff']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'llcgprs.frmrvs', 'llcgprs.frmrvs', 'llcgprs.frmrvr',
+                            'llcgprs.frmrcr', 'llcgprs.frmrw1', 'llcgprs.frmrw2', 'llcgprs.frmrw3', 'llcgprs.frmrw4')
+        assert rows == [['77', '511', '257', '1', '1', '1', '1', '1'], ['78', '0', '0', '0', '1', '1', '1', '1']]
