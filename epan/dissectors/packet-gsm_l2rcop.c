@@ -22,6 +22,7 @@ static int hf_l2rcop_sa;
 static int hf_l2rcop_sb;
 static int hf_l2rcop_x;
 static int hf_l2rcop_addr;
+static int hf_l2rcop_ext_addr;
 static int hf_l2rcop_break;
 static int hf_l2rcop_break_ack;
 
@@ -86,7 +87,7 @@ dissect_l2rcop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 			/* This "cannot happen"; let's abort processing right now. */
 			if (addr == 0)
 				return reported_len;
-			proto_tree_add_uint(l2rcop_tree, hf_l2rcop_addr, tvb, cur, 1, addr);
+			proto_tree_add_uint(l2rcop_tree, hf_l2rcop_ext_addr, tvb, cur, 1, addr);
 			add_characters(l2rcop_tree, pinfo, tvb, cur+1, addr);
 			cur += 1 + addr;
 			break;
@@ -126,6 +127,9 @@ proto_register_gsm_l2rcop(void)
 		    NULL, HFILL }},
 		{ &hf_l2rcop_addr,
 		  { "Address", "gsm_l2rcop.addr", FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(addr_vals), 0x1f,
+		    NULL, HFILL }},
+		{ &hf_l2rcop_ext_addr,
+		  { "Extended Address", "gsm_l2rcop.ext_addr", FT_UINT8, BASE_DEC, NULL, 0x3f,
 		    NULL, HFILL }},
 		{ &hf_l2rcop_break,
 		  { "Break", "gsm_l2rcop.break", FT_UINT8, BASE_DEC, NULL, 0x00,
