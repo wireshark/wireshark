@@ -71524,3 +71524,95 @@ class TestDissectHicp:
                              'hicp && udp.length > 60000', 'frame.number',
                              'udp.length', '_ws.col.protocol')
         assert lines == ['62\t65008\tHICP']
+
+
+class TestDissectHip:
+    '''HIP (Host Identity Protocol) over IP protocol 139 and UDP 10500, from
+    the synthetic capture hip_coverage.pcap.gz. HITs, keys, signatures and
+    HMACs in the capture are constant placeholder octets. Frames 1-38 are
+    IPv4/IPv6 protocol 139, frames 39-42 are UDP-encapsulated.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hip_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_hip_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 42 frames decode as HIP without malformed packets or error
+        expert infos (bad checksums included), in one and two passes.
+        The warnings are for unknown Host Identity algorithms (frames 11
+        and 28) and invalid Host Identity lengths (frames 29-36).'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'hip',
+                                 'frame.number', passes=passes)
+            assert len(lines) == 42
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                 'frame.number', passes=passes)
+            assert lines == []
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.expert.severity == 0x00600000',
+                                 'frame.number', passes=passes)
+            assert [int(n) for n in lines] == [11, 28] + list(range(29, 37))
+
+    def test_hip_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type; version 2 frames.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hip.packet_type', 'hip.packet_type')
+        counts = {t: lines.count(str(t)) for t in set(lines)}
+        assert counts == {'1': 5, '2': 14, '3': 13, '4': 1, '16': 5,
+                          '17': 1, '18': 1, '19': 1, '85': 1}
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hip.version == 2', 'frame.number')
+        assert [int(n) for n in lines] == list(range(22, 29)) + list(range(32, 38))
+
+    def test_hip_second_dh_group(self, cmd_tshark, capture_file, test_env):
+        '''The second Diffie-Hellman group ID has its own value; it
+        repeated the first ("HIP: Fix the preferred locator bit and second
+        DH group ID").'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {3, 4, 5}', 'frame.number',
+                             'hip.tlv.dh_group_id', 'hip.tlv.dh_pv_length')
+        assert lines == ['3\t3\t192', '4\t3,4\t192,64', '5\t1,11\t48,256']
+
+    def test_hip_preferred_locator(self, cmd_tshark, capture_file, test_env):
+        '''The Preferred bit is bit 0 of the locator reserved octet; the
+        test used (reserved >> 31).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hip_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {14, 15}', '-V', '-O', 'hip',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.count('Reserved: 0x1 (Preferred)') == 2
+            assert stdout.count('Reserved: 0x0 \n') == 2
+
+    def test_hip_host_id(self, cmd_tshark, capture_file, test_env):
+        '''Host Identity: RSA with a domain name (frame 3) and NAI (frame
+        6), version 2 RSA (22, with FQDN), RSA with a three octet e_len
+        and a NAI (23), DSA, ECDSA and ECDSA_LOW.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hip.fqdn || hip.nai', 'frame.number', 'hip.fqdn',
+                             'hip.nai')
+        got = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert got['3'] == ['host.example.net', '']
+        assert got['6'] == ['', 'user@example.net']
+        assert got['22'] == ['v2.example.net', '']
+        assert got['23'] == ['', 'alice@example.net']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'hip.tlv.host_id_algorithm', 'frame.number',
+                             'hip.tlv.host_id_algorithm',
+                             'hip.tlv.host_id_ecdsa_curve')
+        assert lines[0:2] == ['22\t5\t', '23\t5\t']
+        assert '26\t7\t1' in lines
+
+    def test_hip_udp_encapsulation(self, cmd_tshark, capture_file, test_env):
+        '''UDP 10500 with four null octets; checksum zero (not checked) and
+        a valid non-zero checksum.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'udp.port == 10500', 'frame.number',
+                             'hip.packet_type', 'hip.checksum.status')
+        assert lines == ['39\t1\t1', '40\t2\t1', '41\t16\t1', '42\t1\t1']
