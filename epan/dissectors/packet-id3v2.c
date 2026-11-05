@@ -59,6 +59,7 @@ static int ett_id3v2;
 static int ett_id3v2_frame;
 
 static expert_field ei_id3v2_undecoded;
+static expert_field ei_id3v2_bad_frame_size;
 
 #define ID3V2_MIN_LENGTH 10
 
@@ -368,13 +369,18 @@ dissect_id3v2_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 		char *text_value;
 
 		text_value = tvb_get_stringz_enc(pinfo->pool, tvb, offset, &text_length, ENC_UTF_8);
-		proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_owner, tvb, offset, text_length, ENC_ISO_8859_1);
-		offset += text_length;
-		proto_item_append_text(frame_item, " (Owner: %s)", text_value);
+		if (size < text_length) {
+			proto_tree_add_expert_format(frame_tree, pinfo, &ei_id3v2_bad_frame_size, tvb, offset, size,
+				"Owner identifier is longer than the frame");
+			offset += size;
+		} else {
+			proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_owner, tvb, offset, text_length, ENC_ISO_8859_1);
+			offset += text_length;
+			proto_item_append_text(frame_item, " (Owner: %s)", text_value);
 
-		DISSECTOR_ASSERT(size >= text_length);
-		proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_id, tvb, offset, size-text_length, ENC_NA);
-		offset += (size-text_length);
+			proto_tree_add_item(frame_tree, hf_id3v2_frame_ufi_id, tvb, offset, size-text_length, ENC_NA);
+			offset += (size-text_length);
+		}
 	} else if (!strcmp(frame_id, "APIC")) {
 		dissect_id3v2_apic_frame(tvb, pinfo, frame_tree, offset, size);
 		offset += size;
@@ -415,10 +421,10 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 		return 0;
 
 	/* Check if any of the high bits of the (synchsafe int) size are set */
-	if (tvb_get_uint8(tvb, 7) & 0x80 ||
+	if (tvb_get_uint8(tvb, 6) & 0x80 ||
+	    tvb_get_uint8(tvb, 7) & 0x80 ||
 	    tvb_get_uint8(tvb, 8) & 0x80 ||
-	    tvb_get_uint8(tvb, 9) & 0x80 ||
-	    tvb_get_uint8(tvb, 10) & 0x80)
+	    tvb_get_uint8(tvb, 9) & 0x80)
 		return 0;
 
 	/* Looks like this is ID3v2... */
@@ -482,7 +488,7 @@ proto_register_id3v2(void)
 		FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 	    { &hf_id3v2_frame_size,
 	      { "Frame Size", "id3v2.frame.size",
-		FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+		FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	    { &hf_id3v2_frame_flags,
 	      { "Frame Flags", "id3v2.frame.flags",
 		FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -536,6 +542,10 @@ proto_register_id3v2(void)
 	};
 
 	static ei_register_info ei[] = {
+	    { &ei_id3v2_bad_frame_size,
+	      { "id3v2.expert.bad_frame_size", PI_MALFORMED, PI_ERROR,
+		"Bad frame size", EXPFILL }
+	    },
 	    { &ei_id3v2_undecoded,
 	      { "id3v2.expert.undecoded", PI_UNDECODED, PI_NOTE,
 		"Undecoded frame", EXPFILL }
