@@ -68218,3 +68218,129 @@ class TestDissectH221Nonstd:
         assert [r[0] for r in rows] == [str(i) for i in range(21, 29)]
         assert [r[1] for r in rows[:4]] == ['0x00000111', '0x00000200', '0x00000211', '0x00000311']
         assert [bool(r[2]) for r in rows[4:6]] == [True, True]
+
+
+class TestDissectH223:
+    '''H.223 multiplex (ITU-T H.223 level 2) carried in IAX2 circuits and in
+    RTP CLEARMODE, with H.245 on VC 0, from the synthetic capture
+    h223_coverage.pcap.gz.  Frames 54-61 are TCP port 5555 and are H.223
+    only with Decode As.'''
+
+    @staticmethod
+    def h223_fields(cmd_tshark, capture_file, test_env, *fields, filt='h223', passes=(), opts=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('h223_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h223_protocols(self, cmd_tshark, capture_file, test_env):
+        '''61 frames: 32 H.223, 16 H.245 (on VC 0), 2 IAX2, 2 SIP, 1 RTP and
+        8 TCP; none is malformed or has an error expert info, in one and
+        two passes.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 61
+        protocols = [r[1] for r in rows]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'H.223': 32, 'H.245': 16, 'IAX2': 2, 'SIP/SDP': 2, 'RTP': 1, 'TCP': 8}
+        for passes in ((), ('-2',)):
+            rows = self.h223_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h223_sublist_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''MC 5 is one sublist whose last element has an untilClosingFlag
+        repeat count.  Its size was computed as 0 (it skipped the first
+        element), which hit DISSECTOR_ASSERT(length != 0) in
+        mux_element_sublist_size().  Frame 17 decodes: VC 0 twice.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.mc', 'h223.mux.vc',
+                                filt='frame.number == 17')
+        assert rows == [['17', '5', '0,0']]
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, '_ws.expert.message',
+                                filt='frame.number == 17 && _ws.expert')
+        assert rows == []
+
+    def test_h223_mux_lists(self, cmd_tshark, capture_file, test_env):
+        '''The virtual circuits of the MUX-PDUs follow the multiplex table
+        sent by H.245: finite and until-closing elements, sublists with
+        finite and until-closing repeat counts, nested sublists.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.mc', 'h223.mux.vc',
+                                filt='frame.number in {13, 14, 15, 16, 18, 19}')
+        assert rows == [
+            ['13', '2', '5,3'],
+            ['14', '3', '5,6,5,6,5,6,3'],
+            ['15', '4', '3,5,3,5,3,5'],
+            ['16', '6', '5,6,5,6,3,5,6,5,6,3,5,6,5,6,3'],
+            ['18', '7', '3'],
+            ['19', '8', '3'],      # MC 8 was defined twice in one H.245 PDU: the last wins
+        ]
+
+    def test_h223_no_entry(self, cmd_tshark, capture_file, test_env):
+        '''MC 9 has no table entry (never defined) and MC 15 an entry without element list:
+        both are shown as deactivated data; the huge nested sublist after
+        the second MultiplexEntrySend (size above 32 bits) is not
+        dissected and does not loop.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.mc', 'h223.mux.vc',
+                                filt='frame.number in {20, 21, 39}')
+        assert rows == [['20', '9', ''], ['21', '15', ''], ['39', '14', '']]
+
+    def test_h223_payload_length_field(self, cmd_tshark, capture_file, test_env):
+        '''h223.mux.mpl is an unsigned 8 bit field without a mask: 255 shows
+        as 255 (it was FT_UINT16 with mask 0xf00f).'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.mpl',
+                                filt='frame.number in {33, 14}')
+        assert rows == [['14', '16'], ['33', '255']]
+
+    def test_h223_al2_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frame 12 carries the two fragments of an AL2 PDU with sequence
+        number 1; frame 11 one with sequence number 0.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.al2.seqno', 'h223.mux.vc',
+                                'h223.al.reassembled.length', filt='frame.number in {11, 12}')
+        assert rows == [['11', '0', '1', ''], ['12', '1', '1,1', '6']]
+
+    def test_h223_golay(self, cmd_tshark, capture_file, test_env):
+        '''A header with a corrected bit error, with three corrected errors
+        and one that cannot be corrected (frames 29-31).'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('h223_coverage.pcap.gz'),
+                '-Y', 'frame.number in {29, 30, 31}', '-V', '-O', 'h223'),
+            encoding='utf-8', env=test_env, timeout=120)
+        raws = [l.strip() for l in stdout.splitlines() if 'Raw value:' in l]
+        assert raws == ['Raw value: 0x9df071 (errors are 0x000010)',
+                        'Raw value: 0xddf160 (errors are 0x400101)',
+                        'Raw value: 0x8320ee (uncorrectable errors)']
+
+    def test_h223_stuffing_and_extra(self, cmd_tshark, capture_file, test_env):
+        '''Frame 28 holds two stuffing PDUs; frame 32 a PDU with data
+        beyond the payload length.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.stuffing', 'h223.mux.extra',
+                                filt='frame.number in {28, 32}')
+        assert rows == [['28', '1,1', ''], ['32', '', '1']]
+
+    def test_h223_mux_redefinition(self, cmd_tshark, capture_file, test_env):
+        '''A later MultiplexEntrySend redefines MC 1 (frame 37): the data
+        of frame 38 now goes to VC 2; frame 42 redefines it again in the
+        same frame, before the data PDU.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.mc', 'h223.mux.vc',
+                                filt='frame.number in {38, 42, 43}')
+        assert rows == [['38', '1', '2'], ['42', '0,1', '0,1'], ['43', '1', '1']]
+
+    def test_h223_rtp_clearmode(self, cmd_tshark, capture_file, test_env):
+        '''The conversation (RTP CLEARMODE) path: MultiplexEntrySend,
+        OpenLogicalChannel and Ack from both sides, then data.'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, 'h223.mux.vc', 'h223.al2.seqno',
+                                filt='h223 && frame.number >= 44 && frame.number <= 52')
+        assert [r[0] for r in rows] == ['46', '47', '48', '49', '50', '51', '52']
+        assert rows[2][1:] == ['1', '0']
+        assert rows[3][1:] == ['2,3,2,3,2,3', '']
+
+    def test_h223_tcp(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As, TCP port 5555 carries H.223 whose PDUs are split
+        over segments (desegmentation).'''
+        rows = self.h223_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'h223.mux.mc',
+                                filt='frame.number >= 54', opts=('-d', 'tcp.port==5555,h223'))
+        assert [(r[0], r[1]) for r in rows] == [
+            ('54', '(No complete PDUs)'), ('55', 'multiplexEntrySend '), ('56', 'openLogicalChannel '),
+            ('57', ''), ('58', 'openLogicalChannelAck '), ('59', '(No complete PDUs)'),
+            ('60', ''), ('61', '')]
+        assert rows[-1][2] == '0,0,0'
