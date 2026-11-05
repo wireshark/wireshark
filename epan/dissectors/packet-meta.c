@@ -312,6 +312,7 @@ static uint16_t evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pac
     sscop_payload_info *p_sscop_info;
     proto_item         *cell_item, *imsi_item, *imei_item;
     proto_tree         *cell_tree, *imsi_tree, *imei_tree;
+    const uint8_t      *imsi_str;
 
     id          = tvb_get_letohs(tvb, offs); offs += 2;
     type        = tvb_get_uint8(tvb, offs); offs++;
@@ -341,11 +342,12 @@ static uint16_t evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pac
                 offs, 1, nsapi);
             break;
         case META_ID_IMSI:
-            imsi_item = proto_tree_add_item(meta_tree, hf_meta_item_imsi_digits, tvb,
-                offs, 8, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN);
+            imsi_item = proto_tree_add_item_ret_string(meta_tree, hf_meta_item_imsi_digits, tvb,
+                offs, 8, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &imsi_str);
             imsi_tree = proto_item_add_subtree(imsi_item, ett_meta_imsi);
             proto_tree_add_item(imsi_tree, hf_meta_item_imsi_value,
                 tvb, offs, 8, ENC_LITTLE_ENDIAN);
+            add_assoc_imsi_item(tvb, pinfo, meta_tree, (const char *)imsi_str);
             break;
         case META_ID_IMEI:
             imei_item = proto_tree_add_item(meta_tree, hf_meta_item_imei_digits, tvb,
