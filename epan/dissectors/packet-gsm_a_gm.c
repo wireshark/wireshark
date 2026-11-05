@@ -1166,6 +1166,10 @@ de_gmm_rec_npdu_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_
 	curr_offset = offset;
 
 	if (len == 0) return 0;
+	if (len < 2) {
+		proto_tree_add_expert(tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, offset, len);
+		return len;
+	}
 
 	do
 	{
@@ -3438,6 +3442,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uin
 			curr_bits_length  -= bits_needed;
 			oct		 <<= bits_needed;
 			bits_in_oct	  -= bits_needed;
+			bit_offset	  += bits_needed;
 		}
 
 
@@ -5135,12 +5140,12 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 					proto_tree_add_bitmask_list_ret_uint64(pco_tree, tvb, ie_offset, 1, ind, ENC_BIG_ENDIAN, &flags);
 					ie_offset++;
 					if (flags & 0x01) {
-						proto_tree_add_item_ret_uint(tree, hf_gsm_a_gm_sm_pco_pvs_dnn_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
+						proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_pvs_dnn_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
 						ie_offset++;
 						ie_offset += de_nas_5gs_cmn_dnn(tvb, pco_tree, pinfo, ie_offset, field_len, NULL, 0);
 					}
 					if (flags & 0x02) {
-						proto_tree_add_item_ret_uint(tree, hf_gsm_a_gm_sm_pco_pvs_s_nssai_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
+						proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_pvs_s_nssai_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN, &field_len);
 						ie_offset++;
 						de_nas_5gs_cmn_s_nssai(tvb, pco_tree, pinfo, ie_offset, field_len, NULL, 0);
 					}
@@ -5207,7 +5212,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 				if (link_dir == P2P_DIR_UL && e_len >= 2) {
 					uint8_t field_len;
 
-					proto_tree_add_item_ret_uint8(tree, hf_gsm_a_gm_sm_pco_pvs_s_nssai_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &field_len);
+					proto_tree_add_item_ret_uint8(pco_tree, hf_gsm_a_gm_sm_pco_pvs_s_nssai_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &field_len);
 					de_nas_5gs_cmn_s_nssai(tvb, pco_tree, pinfo, curr_offset + 1, field_len, NULL, 0);
 				}
 				break;
@@ -5215,8 +5220,10 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t offset, 
 			{
 				if (e_len > 0) {
 					if (prot >= 0xff00) {
-						dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, E212_NONE, true);
-						if ((e_len - 3) > 0) {
+						if (e_len >= 3) {
+							dissect_e212_mcc_mnc(tvb, pinfo, pco_tree, curr_offset, E212_NONE, true);
+						}
+						if (e_len > 3) {
 							proto_tree_add_item(pco_tree, hf_gsm_a_gm_pco_app_spec_info, tvb, curr_offset+3, e_len-3, ENC_NA);
 						}
 					} else {
@@ -6226,7 +6233,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 
 		tf_tree = proto_item_add_subtree(tf_pf, ett_sm_tft);
 
-		if ((curr_offset-offset)<1) {
+		if ((curr_offset - offset) >= len) {
 			proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 			return (len);
 		}
@@ -6249,7 +6256,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 			curr_offset++;
 			curr_len--;
 
-			if ((curr_offset-offset) < 1) {
+			if ((curr_offset - offset) >= len) {
 				proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 				return (len);
 			}
@@ -6257,7 +6264,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 			curr_offset++;
 			curr_len--;
 
-			if ((curr_offset-offset)<1) {
+			if ((curr_offset - offset) >= len) {
 				proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 				return (len);
 			}
@@ -6275,7 +6282,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 			while (pf_length > 0) {
 				proto_item *tf;
 				proto_tree *comp_tree;
-				if ((curr_offset-offset) < 1) {
+				if ((curr_offset - offset) >= len) {
 					proto_tree_add_expert(tf_tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, 1);
 					return (len);
 				}
@@ -6446,6 +6453,11 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 		proto_item_set_len(tf_pf, curr_offset - prev_offset);
 	}
 
+	if ((curr_offset - offset) > len) {
+		proto_tree_add_expert(tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, offset, len);
+		return (len);
+	}
+
 	/* The parameters list contains a variable number of parameters that might need to be
 	 * transferred in addition to the packet filters. If the parameters list is included, the E
 	 * bit is set to 1; otherwise, the E bit is set to 0.
@@ -6454,7 +6466,15 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
 		count = 0;
 		while (curr_len) {
 			proto_tree *tf_tree;
+			if ((curr_offset - offset) + 2 > len) {
+				proto_tree_add_expert(tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, len - (curr_offset - offset));
+				return (len);
+			}
 			pf_length = tvb_get_uint8(tvb, curr_offset+1);
+			if ((unsigned)pf_length > len - (curr_offset - offset) - 2) {
+				proto_tree_add_expert(tree, pinfo, &ei_gsm_a_gm_not_enough_data, tvb, curr_offset, len - (curr_offset - offset));
+				return (len);
+			}
 			tf_tree   = proto_tree_add_subtree_format(tree, tvb, curr_offset, pf_length+2, ett_sm_tft, NULL, "Parameter %d", count);
 			param     = tvb_get_uint8(tvb, curr_offset);
 			proto_tree_add_item(tf_tree, hf_gsm_a_sm_tft_param_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
