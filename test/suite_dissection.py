@@ -76886,3 +76886,151 @@ class TestDissectRadiotapIter:
         for line in stdout.splitlines():
             assert 'Radiotap data goes past the end of the radiotap header' in line
         assert len(stdout.splitlines()) == 3
+
+
+class TestDissectWlancap:
+    '''AVS WLAN capture header (DLT_IEEE802_11_RADIO_AVS, wlancap) from the
+    synthetic capture wlancap_coverage.pcap.gz: 64 frames, each an AVS v0, v1
+    or v2 header (or a version that is skipped) followed by a minimal 802.11
+    frame (null data or ACK, no IEs).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('wlancap_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_wlancap_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 64 frames decode as 802.11 behind the AVS header without
+        malformed packets or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-eframe.number', '-e_ws.col.protocol', '-ewlancap.version',
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes)
+            assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-e_ws.col.protocol')
+        assert len(rows) == 64
+        assert set(rows) == {'802.11'}
+        # The version 3 and 9 frames are skipped without a wlancap tree.
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'wlancap', '-eframe.number')
+        assert len(rows) == 62
+
+    def test_wlancap_data_rate_overflow(self, cmd_tshark, capture_file, test_env):
+        '''A data rate of 50000 (units of 100 kb/s) is 5000 Mb/s; it
+        overflowed a 32 bit variable before "WLANCAP: Fix data rate
+        overflow and capture offset" and decoded as a bogus rate.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlancap.data_rate', '-ewlan_radio.data_rate',
+                '-Y', 'frame.number in {31, 32}')
+        assert rows == [
+            '31\t5000000000\t5000',
+            '32\t4295000000\t4295',
+        ]
+        # The column text is computed without a tree as well
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlancap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {30, 31, 32}',
+                '-o', 'gui.column.format:"No.","%m","Rate","%x"',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        # The rate column uses the locale's decimal separator.
+        assert [[t.replace(',', '.') for t in r.split()]
+                for r in stdout.splitlines()] == [
+            ['30', '54.0'], ['31', '5000.0'], ['32', '4295.0']]
+
+    def test_wlancap_rates(self, cmd_tshark, capture_file, test_env):
+        '''Rates in units of 100 kb/s and in b/s; rates that are not a
+        multiple of 500 kb/s do not set the radio data rate. (Display
+        filters are used for the fractional rates, as tshark prints floats
+        with the decimal separator of the locale.)'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlancap.data_rate',
+                '-Y', 'frame.number in {22, 23, 24, 25, 26, 27, 28}')
+        assert rows == [
+            '22\t0', '23\t5500000', '24\t1100000', '25\t1000000',
+            '26\t5500000', '27\t100000', '28\t10000000',
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-Y', 'wlan_radio.data_rate == 5.5')
+        assert rows == ['23', '26']
+        # frames without a radio data rate: 0, 1.1 and 0.1 Mb/s
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number',
+                '-Y', '!wlan_radio.data_rate && frame.number in {22, 24, 27}')
+        assert rows == ['22', '24', '27']
+
+    def test_wlancap_channel_frequency(self, cmd_tshark, capture_file, test_env):
+        '''Channel numbers, frequencies in MHz and in kHz, FHSS hop fields.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlan_radio.channel', '-ewlan_radio.frequency',
+                '-ewlancap.channel', '-ewlancap.channel_frequency',
+                '-Y', 'frame.number in {14, 15, 16, 17, 18, 19, 20, 21}')
+        assert rows == [
+            '14\t6\t2437\t6\t',
+            '15\t36\t5180\t36\t',
+            '16\t0\t\t0\t',
+            '17\t255\t\t255\t',
+            '18\t6\t2437\t\t2437',
+            '19\t36\t5180\t\t5180',
+            '20\t\t9000\t\t9000',
+            '21\t\t\t\t2412000',
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlan_radio.fhss.hop_set',
+                '-ewlan_radio.fhss.hop_pattern', '-ewlan_radio.fhss.hop_index',
+                '-Y', 'wlan_radio.phy == 1')
+        assert rows == ['2\t0x00\t0x00\t0x00', '13\t0x03\t0x05\t0x09']
+
+    def test_wlancap_ssi(self, cmd_tshark, capture_file, test_env):
+        '''Signal and noise for the SSI types none, normalized, dBm and raw
+        RSSI, with and without noise data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('wlancap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 33 && frame.number <= 43',
+                '-o', 'gui.column.format:"No.","%m","RSSI","%e"',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            '   33', '   34', '   35 50 (norm)', '   36 50 (norm)',
+            '   37 -40 dBm', '   38 -40 dBm', '   39 50 (raw)', '   40 50 (raw)',
+            '   41', '   42', '   43 -50 dBm'
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlan_radio.signal_dbm', '-ewlan_radio.noise_dbm',
+                '-Y', 'frame.number in {37, 38, 43}')
+        assert rows == ['37\t-40\t-90', '38\t-40\t', '43\t-50\t']
+
+    def test_wlancap_preamble_and_phy(self, cmd_tshark, capture_file, test_env):
+        '''The short preamble flag is only set for 11b frames; an 11g frame
+        with a DSSS data rate is reported as 11b.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlan_radio.phy', '-ewlan_radio.short_preamble',
+                '-Y', 'frame.number in {44, 45, 46, 47, 48, 29, 30}')
+        assert rows == [
+            '29\t4\tFalse',
+            '30\t6\t',
+            '44\t4\t',
+            '45\t4\tTrue',
+            '46\t4\tFalse',
+            '47\t4\t',
+            '48\t6\t',
+        ]
+
+    def test_wlancap_versions(self, cmd_tshark, capture_file, test_env):
+        '''Version 2 has the sequence, drops and receiver address fields;
+        versions above 2 are skipped using the header length.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-ewlancap.sequence', '-ewlancap.drops',
+                '-ewlancap.receiver_addr', '-ewlancap.version',
+                '-Y', 'frame.number in {11, 12, 13, 58, 59, 60}')
+        assert rows == [
+            '11\t\t\t\t1',
+            '12\t\t\t\t0',
+            '13\t7\t0\t02:00:00:00:00:02\t2',
+            '58\t4294967295\t12345\t02:00:00:00:00:02\t2',
+            '59\t\t\t\t',
+            '60\t\t\t\t',
+        ]
