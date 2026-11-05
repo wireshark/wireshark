@@ -69375,3 +69375,63 @@ class TestDissectH263:
         rows = self.h263_fields(cmd_tshark, capture_file, test_env, 'h263.psc', 'h263.tr2', 'h263.gbsc',
                                 'h263.gn', filt='frame.number >= 32')
         assert rows == [['32', '0x00000020', '3', '', ''], ['33', '', '', '0x00000001', '9']]
+
+
+class TestDissectH263p:
+    '''H.263+ (RFC 4629) carried in RTP dynamic payload types named
+    "H263-1998" and "H263-2000" by the SDP of a SIP INVITE, from the
+    synthetic capture h263p_coverage.pcap.gz.'''
+
+    @staticmethod
+    def h263p_fields(cmd_tshark, capture_file, test_env, *fields, filt='h263p', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h263p_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h263p_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the SIP INVITE, frames 2-26 are H.263+ without
+        malformed packets or error expert infos, in one and two passes.'''
+        rows = self.h263p_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame')
+        assert len(rows) == 26
+        assert rows[0][1] == 'SIP/SDP'
+        assert all(r[1].strip() == 'H.263 RFC4629' for r in rows[1:])
+        for passes in ((), ('-2',)):
+            rows = self.h263p_fields(cmd_tshark, capture_file, test_env,
+                                     filt='_ws.malformed || _ws.expert.severity >= error', passes=passes)
+            assert rows == []
+
+    def test_h263p_pebit_mask(self, cmd_tshark, capture_file, test_env):
+        '''PEBIT is 3 bits wide (mask 0x0007); with the old mask 0x0003
+        frame 3 (7) showed 3 and frames 8 and 9 (4, 5) showed 0 and 1.'''
+        rows = self.h263p_fields(cmd_tshark, capture_file, test_env, 'h263p.pebit',
+                                 filt='frame.number in {2, 3, 4, 5, 6, 7, 8, 9}')
+        assert [r[1] for r in rows] == ['0', '7', '1', '2', '3', '4', '5', '6']
+
+    def test_h263p_start_codes(self, cmd_tshark, capture_file, test_env):
+        '''P=1 payloads: GOB start codes (frames 4-9, 12-15; 14 and 15 are the
+        EOS codes), picture start codes (10, 11, 24), EOSBS and a payload
+        without a start code decode no layer.'''
+        rows = self.h263p_fields(cmd_tshark, capture_file, test_env, 'h263p.p', 'h263.psc', 'h263.gbsc',
+                                 'h263.gn', filt='h263p.p == 1')
+        by = {r[0]: r[1:] for r in rows}
+        assert by['4'] == ['True', '', '0x00000001', '1']
+        assert by['10'][1:3] == ['0x00000020', '']
+        assert by['14'] == ['True', '', '0x00000001', '31']       # EOS 0xfc
+        assert by['15'] == ['True', '', '0x00000001', '31']       # EOS 0xfe
+        assert by['16'] == ['True', '', '', '']                   # EOSBS
+        assert by['17'] == ['True', '', '', '']                   # no start code
+        assert by['24'][1] == '0x00000020,0x00000020'
+
+    def test_h263p_vrc_and_extra_header(self, cmd_tshark, capture_file, test_env):
+        '''The VRC octet (TID, Trun, S) and the extra picture header whose
+        length is PLEN.'''
+        rows = self.h263p_fields(cmd_tshark, capture_file, test_env, 'h263p.tid', 'h263p.trun', 'h263p.s',
+                                 filt='h263p.v == 1')
+        assert rows == [['18', '0', '0', '0'], ['19', '5', '9', '1'], ['20', '7', '15', '0'],
+                        ['22', '2', '1', '0'], ['24', '0', '8', '1']]
+        rows = self.h263p_fields(cmd_tshark, capture_file, test_env, 'h263p.plen', 'h263.tr2',
+                                 filt='h263p.extra_hdr')
+        assert rows == [['21', '5', '77'], ['22', '5', '77'], ['23', '5', '77'], ['24', '5', '3,3']]
