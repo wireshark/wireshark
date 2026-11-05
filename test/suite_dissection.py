@@ -64911,3 +64911,76 @@ class TestDissectGrpc:
         rows = self._fields(cmd_tshark, capture_file, test_env, (),
                             'frame.number in {66, 70, 73}', 'grpc.message_length')
         assert rows == [['66', '13,13'], ['70', '13,13,16'], ['73', '13,13']]
+
+
+class TestDissectGsmAbisOm2000:
+    @staticmethod
+    def om2k_run(cmd_tshark, capture_file, test_env, *args):
+        # OM2000 is reached through the OML dissector with the Ericsson
+        # dialect on LAPD with the GSM SAPI values (SAPI 62)
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'lapd.use_gsm_sapi_values:TRUE',
+                '-o', 'gsm_abis_oml.oml_dialect:om2000',
+                '-r', capture_file('gsm_abis_om2000_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_abis_om2000_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is OM2000; none is malformed or has an error expert
+        info, in one and two passes.'''
+        run = TestDissectGsmAbisOm2000.om2k_run
+        stdout = run(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 299
+        assert protocols.count('OM2000') == 299
+        for passes in ((), ('-2',)):
+            stdout = run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == 0x800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_abis_om2000_mo_record(self, cmd_tshark, capture_file, test_env):
+        '''The MO Record loop stops at the end of the record ("GSM OM2000: Fix
+        MO Record loop bound and time item offset"; frame 296 is the
+        reproducer, frame 258 a longer record).'''
+        run = TestDissectGsmAbisOm2000.om2k_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 296 || frame.number == 258',
+                '-Tfields', '-eframe.number', '-egsm_abis_om2000.unknown.val',
+                '-egsm_abis_om2000.mo_if.class', '-egsm_abis_om2000.mo_if.instance')
+        assert stdout.splitlines() == [
+            '258\taabb,<MISSING>,010203\t0x01,0x01\t0,2',
+            '296\taabb\t0x00,0x01\t0,2',
+        ]
+
+    def test_gsm_abis_om2000_calendar_time(self, cmd_tshark, capture_file, test_env):
+        '''A Calendar Time that ends the message is dissected inside the
+        packet (frame 297; before the fix the item was added six octets too
+        late and the frame was malformed). The time shown depends on the
+        time zone, so only its position is checked.'''
+        run = TestDissectGsmAbisOm2000.om2k_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 297 && gsm_abis_om2000.cal_time && !_ws.malformed',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == ['297']
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 297', '-T', 'pdml')
+        size = [l for l in stdout.splitlines() if 'name="gsm_abis_om2000.cal_time"' in l]
+        assert len(size) == 1
+        assert 'size="6"' in size[0]
+
+    def test_gsm_abis_om2000_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Accordance information that is not "as requested", a rejected
+        request and an Enable Result whose MO state is not ENABLED are
+        reported.'''
+        run = TestDissectGsmAbisOm2000.om2k_run
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 264 && frame.number <= 267 && gsm_abis_om2000.not_performed',
+                '-Tfields', '-eframe.number', '-egsm_abis_om2000.aip')
+        assert stdout.splitlines() == ['265\t0x01', '266\t0x03', '267\t0x09']
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_abis_om2000.ena_res_disabled', '-Tfields', '-eframe.number',
+                '-egsm_abis_om2000.mo_state')
+        assert stdout.splitlines() == ['190\t0', '191\t1', '193\t3', '194\t9']
+        stdout = run(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_abis_om2000.reject', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 34
