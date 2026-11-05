@@ -87,12 +87,18 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	/* reserved, must be 0x20 0x00 0x00 0x00 */
 	/*offset += 4;*/
 
-	/* sid */
-	dissect_nt_sid(tvb, pinfo, old_offset+4+sid_offset, tree, "sid", NULL, -1);
+	/* sid and certificate must lie inside this key */
+	if ((uint64_t)sid_offset >= length1 - 4 ||
+	    (uint64_t)cert_offset + cert_length > length1 - 4) {
+		expert_add_info(pinfo, length_item, &ei_gpef_efskey_length);
+	} else {
+		/* sid */
+		dissect_nt_sid(tvb, pinfo, old_offset+4+sid_offset, tree, "sid", NULL, -1);
 
-	/* certificate */
-	next_tvb = tvb_new_subset_length(tvb, old_offset+4+cert_offset, cert_length);
-	(void)dissect_x509af_Certificate(false, next_tvb, 0, &asn1_ctx, tree, hf_gpef_efskey_certificate);
+		/* certificate */
+		next_tvb = tvb_new_subset_length(tvb, old_offset+4+cert_offset, cert_length);
+		(void)dissect_x509af_Certificate(false, next_tvb, 0, &asn1_ctx, tree, hf_gpef_efskey_certificate);
+	}
 
 
 	offset = old_offset + length1;
