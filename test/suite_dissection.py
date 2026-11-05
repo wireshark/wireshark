@@ -74443,3 +74443,63 @@ class TestDissectIax2:
         assert stdout.splitlines() == [
             '102\t2', '103\t2', '104\t0', '105\t0', '106\t1', '107\t1500',
             '108\t1', '109\t2']
+
+
+class TestDissectIcap:
+    '''ICAP (TCP 1344) from the synthetic capture icap_coverage.pcapng.gz:
+    OPTIONS, REQMOD and RESPMOD exchanges with encapsulated HTTP, preview
+    and continuation data, error responses and odd header lines.'''
+
+    CAP = 'icap_coverage.pcapng.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        out = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectIcap.CAP), '-Y', filt,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_icap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, no malformed packets or error expert infos in
+        one and two passes, the same Info column in both.'''
+        cols = []
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol', passes=passes)
+            counts = {}
+            for r in rows:
+                counts[r[0]] = counts.get(r[0], 0) + 1
+            assert counts == {'ICAP': 32, 'TCP': 21, 'HTTP': 16}
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number', passes=passes)
+            assert bad == []
+            cols.append(self.rows(cmd_tshark, capture_file, test_env, 'icap', 'frame.number', '_ws.col.info',
+                                  passes=passes))
+        assert cols[0] == cols[1]
+
+    def test_icap_message_types(self, cmd_tshark, capture_file, test_env):
+        '''OPTIONS, REQMOD, RESPMOD and responses are told apart; data without
+        a start line is a continuation.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'icap.options', 'frame.number', '_ws.col.info')
+        assert [r[0] for r in rows[:3]] == ['4', '6', '8']
+        assert rows[0][1] == 'OPTIONS icap://icap.example.net/reqmod ICAP/1.0'
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'icap.response', 'frame.number', '_ws.col.info')
+        infos = [r[1] for r in rows]
+        assert 'ICAP/1.0 204 No Content' in infos
+        assert 'ICAP/1.0 100 Continue' in infos
+        assert 'ICAP/1.1 505 ICAP version not supported by server' in infos
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'icap.respmod', 'frame.number')
+        assert len(rows) >= 2
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {22, 23, 24}',
+                         '_ws.col.info')
+        assert rows == [['Continuation']] * 3
+
+    def test_icap_encapsulated_http(self, cmd_tshark, capture_file, test_env):
+        '''The HTTP message after the ICAP headers is dissected, down to
+        the form body of a POST.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'icap && http.request.method == "POST"',
+                         'frame.number', 'http.request.uri', 'urlencoded-form.key', passes=('-2',))
+        assert rows == [['14', '/upload', 'a,b'], ['15', '/upload', 'a,b']]
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'icap && http.response.code == 403',
+                         'frame.number', passes=('-2',))
+        assert rows == [['17']]
