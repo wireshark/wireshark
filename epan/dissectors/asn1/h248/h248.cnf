@@ -327,6 +327,8 @@ SigParameterV1/value                ABBREV=sig_param_value
 #.FN_BODY WildcardField
     tvbuff_t* new_tvb;
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
+    if (!new_tvb || tvb_captured_length(new_tvb) < 1)
+        return offset;
     tree = proto_item_add_subtree(actx->created_item,ett_wildcard);
     proto_tree_add_item(tree,hf_h248_term_wild_type,new_tvb,0,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(tree,hf_h248_term_wild_level,new_tvb,0,1,ENC_BIG_ENDIAN);
