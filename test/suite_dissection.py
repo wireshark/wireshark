@@ -67916,3 +67916,64 @@ class TestDissectGvcp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['7']
+
+
+class TestDissectGvrp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gvrp_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gvrp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed; only frame 17 (a protocol ID other than 1) has an
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert stdout.split() == ['17']
+
+    def test_gvrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 17 frames are GVRP (802.3 + LLC to 01:80:c2:00:00:21); frames 11-17
+        that GVRP does not understand end in a Data item.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['GVRP'] * 17
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'data', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(11, 18)]
+
+    def test_gvrp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''VID attributes with every event, Leave All and several messages.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number <= 10', '-Tfields', '-eframe.number',
+                              '-egvrp.attribute_type', '-egvrp.attribute_length', '-egvrp.attribute_event',
+                              '-egvrp.attribute_value', '-egvrp.end_of_mark')
+        assert stdout.splitlines() == [
+            '1\t0x01\t4\t1\t100\t1,1',
+            '2\t0x01\t4\t2\t200\t1,1',
+            '3\t0x01\t4\t3\t300\t1,1',
+            '4\t0x01\t4\t4\t400\t1,1',
+            '5\t0x01\t4\t5\t500\t1,1',
+            '6\t0x01\t2\t0\t\t1,1',
+            '7\t0x01\t4,4,4\t2,2,4\t1,2,4094\t1,1',
+            '8\t0x01,0x01\t2,4,4,4\t0,2,1,3\t10,20,30\t1,1,1',
+            '9\t0x01\t4\t2\t5\t',
+            '10\t0x01\t4\t2\t5\t1',
+        ]
+
+    def test_gvrp_tree(self, cmd_tshark, capture_file, test_env):
+        '''Messages and attributes are numbered, with the end of mark in the message.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 8', '-V')
+        lines = stdout.splitlines()
+        start = lines.index('GARP VLAN Registration Protocol')
+        tree = [l.strip() for l in lines[start + 1:] if 'Message ' in l or 'Attribute ' in l or 'End of' in l]
+        assert tree == ['Message 1', 'Attribute 1', 'Attribute 2', 'Attribute 3', 'End of Mark',
+                        'Message 2', 'Attribute 1', 'End of Mark', 'End of Mark']
+
+    def test_gvrp_not_understood(self, cmd_tshark, capture_file, test_env):
+        '''Unknown attribute types, bad lengths or events and a protocol ID other than 1
+        show the rest as data (the protocol ID also gives a warning).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'data', '-Tfields',
+                              '-eframe.number', '-edata.len', '-e_ws.expert.message')
+        assert stdout.splitlines() == [
+            '11\t6\t', '12\t1\t', '13\t2\t', '14\t3\t', '15\t2\t', '16\t4\t',
+            '17\t7\tWarning: this version of Wireshark only knows about protocol id = 1',
+        ]
