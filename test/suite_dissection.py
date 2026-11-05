@@ -74352,3 +74352,94 @@ class TestDissectIapp:
         assert 'Status: Authenticated' in stdout
         assert '3600 seconds' in stdout
         assert 'Unknown PDU Type (85)' in stdout
+
+
+class TestDissectIax2:
+    '''Inter-Asterisk eXchange v2 (UDP 4569) from the synthetic capture
+    iax2_coverage.pcapng.gz: full, mini voice, mini video and trunk
+    frames, every IAX subclass and information element, call tracking and
+    the trunk call counting. Authentication fields hold constant
+    placeholder text.'''
+
+    def test_iax2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 109 frames are IAX2 (92 full, 5 mini voice, 4 mini video, 8
+        trunk frames) and decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols', '-eiax2.packet_type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 109
+        assert all(':udp:iax2' in r[0] for r in rows)
+        counts = {t: [r[1] for r in rows].count(t) for t in set(r[1] for r in rows)}
+        assert counts == {'0': 5, '1': 92, '2': 4, '3': 8}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iax2_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iax2_new_ies(self, cmd_tshark, capture_file, test_env):
+        '''The calling and called number, the sequence of IAX subclasses
+        of call 1 and the apparent address warning (frame 78: an IPv6
+        address is not supported).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eiax2.iax.calling_number', '-eiax2.iax.called_number',
+                '-eiax2.iax.username', '-eiax2.iax.language',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['5551234\t5559876\ttestuser\ten']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 6', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [line.split(' ')[-1] for line in stdout.splitlines()]
+        assert info == ['NEW', 'CALLTOKEN', 'AUTHREQ', 'AUTHREP', 'ACCEPT', 'ACK']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', '_ws.expert.severity >= 0x00600000',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '78\tNot supported in IAX dissector: peer address family of 10']
+
+    def test_iax2_call_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Frames of call 1 carry the call identifier, source and
+        destination call numbers and timestamps; the mini frame of the
+        caller (frame 24) takes the codec of the last full voice frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {20, 23, 24}',
+                '-Tfields', '-eframe.number', '-eiax2.call', '-eiax2.src_call',
+                '-eiax2.dst_call', '-eiax2.timestamp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t1\t1000\t2000\t300',
+            '23\t1\t1000\t2000\t330',
+            '24\t1\t1000\t\t340',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {20, 24}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].endswith('Raw 16-bit Signed Linear (16000 Hz) PCM')
+
+    def test_iax2_trunk(self, cmd_tshark, capture_file, test_env):
+        '''Trunk frames count their distinct calls; frame 107 has 1500
+        entries (counting them was quadratic before "IAX2: Do not assert
+        on a repeated frame in desegment_iax()") and frame 108 declares
+        more data than it has.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iax2_coverage.pcapng.gz'),
+                '-Y', 'iax2.trunk.ncalls',
+                '-Tfields', '-eframe.number', '-eiax2.trunk.ncalls',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '102\t2', '103\t2', '104\t0', '105\t0', '106\t1', '107\t1500',
+            '108\t1', '109\t2']
