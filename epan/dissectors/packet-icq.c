@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 
@@ -115,6 +116,7 @@ static int ett_icq_body_parts;
 
 static expert_field ei_icq_unknown_meta_subcmd;
 static expert_field ei_icq_unknown_command;
+static expert_field ei_icq_too_deep;
 
 /* This is not IANA registered */
 #define UDP_PORT_ICQ    4000
@@ -807,8 +809,13 @@ icqv5_srv_multi(proto_tree *tree, /* Tree to put the data in */
     for (i = 0; i < num; i++) {
         pktSz = tvb_get_letohs(tvb, offset);
         offset += 2;
-        // We recurse here, but we'll run out of packet before we run out of stack.
+        if (pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+            proto_tree_add_expert(tree, pinfo, &ei_icq_too_deep, tvb, offset, 0);
+            return;
+        }
+        increment_dissection_depth(pinfo);
         dissect_icqv5Server(tvb, offset, pinfo, tree, pktSz);
+        decrement_dissection_depth(pinfo);
         offset += pktSz;
     }
 }
@@ -830,7 +837,7 @@ icqv5_srv_meta_user(proto_tree *tree, /* Tree to put the data in */
     sstree = proto_item_add_subtree(ti, ett_icq_body_parts);
     result = tvb_get_uint8(tvb, offset + SRV_META_USER_RESULT);
     proto_tree_add_uint_format_value(sstree, hf_icq_meta_user_result, tvb, offset + SRV_META_USER_RESULT,
-                result, 1, "%s", (result==0x0a)?"Success":"Failure");
+                1, result, "%s", (result==0x0a)?"Success":"Failure");
 
     /* Skip the META_USER header */
     offset += 3;
@@ -1350,6 +1357,7 @@ proto_register_icq(void)
     static ei_register_info ei[] = {
         { &ei_icq_unknown_meta_subcmd, { "icq.unknown_meta_subcmd", PI_UNDECODED, PI_WARN, "Unknown meta subcmd", EXPFILL }},
         { &ei_icq_unknown_command, { "icq.unknown_command", PI_UNDECODED, PI_WARN, "Unknown command", EXPFILL }},
+        { &ei_icq_too_deep, { "icq.too_deep", PI_PROTOCOL, PI_WARN, "Multi packet nesting too deep", EXPFILL }},
     };
 
     expert_module_t *expert_icq;
