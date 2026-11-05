@@ -94,7 +94,7 @@ static const h248_pkg_param_t  h248_an_apv_params[] = {
 	{ 0x0003, &hf_h248_an_apv_av, h248_param_ber_octetstring, NULL },
 	{ 0x0004, &hf_h248_an_apv_num, h248_param_ber_integer, NULL },
 	{ 0x0005, &hf_h248_an_apv_spi, h248_param_ber_integer, NULL },
-	{ 0x0006, &hf_h248_an_apv_sp, h248_param_ber_integer, NULL },
+	{ 0x0006, &hf_h248_an_apv_sp, h248_param_ber_octetstring, NULL },
 	{ 0x0007, &hf_h248_an_apv_di, h248_param_ber_integer, NULL },
 	{ 0, NULL, NULL, NULL}
 };
