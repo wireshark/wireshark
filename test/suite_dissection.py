@@ -68873,3 +68873,54 @@ class TestDissectH2483gpp:
                                      'h248.package_3GCSD.actprot.localpeer',
                                      filt='frame.number >= 15 && frame.number <= 18')
         assert [r[1:] for r in rows] == [['0', ''], ['1', ''], ['0', ''], ['', '1']]
+
+
+class TestDissectH248_7:
+    '''H.248.7 (package an, Announcement) signals apf and apv inside binary
+    H.248 on UDP 2945, from the synthetic capture h248_7_coverage.pcapng.gz:
+    frames 1-14 are announcement signals with all their parameters (the
+    specific parameters of apv as an octet string, parameter ids of 1 to 4
+    octets, unknown signal and parameter), 15-16 the package sweep and 17-71
+    messages built from the H.248 ASN.1 module with this package.'''
+
+    @staticmethod
+    def h248_7_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_7_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_7_protocols(self, cmd_tshark, capture_file, test_env):
+        '''71 H.248 frames, none malformed or with an error expert info
+        in one and two passes.'''
+        rows = self.h248_7_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 71
+        assert {r[1] for r in rows} == {'H.248'}
+        for passes in ((), ('-2',)):
+            rows = self.h248_7_fields(cmd_tshark, capture_file, test_env,
+                                      filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h248_7_apf(self, cmd_tshark, capture_file, test_env):
+        '''Announcement Play Fixed: name, cycles, variant and direction.'''
+        rows = self.h248_7_fields(cmd_tshark, capture_file, test_env, 'h248.an.apf.an', 'h248.an.apf.noc',
+                                  'h248.an.apf.av', 'h248.an.apf.di', filt='frame.number <= 4')
+        assert rows == [['1', '7', '0x00000000', 'variant0', '0x00000001'],
+                        ['2', '8', '0x00000001', 'variant1', '0x00000002'],
+                        ['3', '9', '0x00000002', 'variant2', '0x00000003'],
+                        ['4', '10', '0x00000003', 'variant3', '0x00000000']]
+
+    def test_h248_7_apv_specific_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The specific parameters (sp) of Announcement Play Variable are a
+        string. The integer decoder used for them asserted in the BER code
+        for a string field ("H.248.7: Decode the apv specific parameters as
+        octet string").'''
+        rows = self.h248_7_fields(cmd_tshark, capture_file, test_env, 'h248.an.apv.an', 'h248.an.apv.sp',
+                                  'h248.an.apv.num', filt='h248.an.apv.sp && frame.number <= 8')
+        assert rows == [['5', '100', 'abc', '0x00000005'], ['6', '101', '', '0x00000005'],
+                        ['7', '102', 'a,b;c=d', '0x00000005'], ['8', '103', '', '0x00000005']]
+        rows = self.h248_7_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                                  filt='frame.number == 5')
+        assert 'AddReq' in rows[0][1]
