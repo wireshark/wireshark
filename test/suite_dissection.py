@@ -64812,3 +64812,102 @@ class TestDissectGre:
             ['37', 'False', '255', '1', '2'],
             ['38', 'True', '1', '1', '1'],
         ]
+
+
+class TestDissectGrpc:
+    '''gRPC and gRPC-Web carried in HTTP/1.1 (media types application/grpc*,
+    HTTP/2 needs nghttp2 and is covered by TestDissectGprpc), from the
+    synthetic capture grpc_coverage.pcap.gz. The unary gRPC-Web calls of
+    TestDissectGrpcWeb are not repeated.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, passes, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('grpc_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_grpc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''88 frames, no malformed packets or error expert infos in one
+        and two passes; the warnings are the undecompressable message of
+        frame 10 (one pass only) and the three overflowing message lengths.'''
+        assert len(self._fields(cmd_tshark, capture_file, test_env, (), 'frame')) == 88
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, passes,
+                                '_ws.malformed || _ws.expert.severity == "error"')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, passes,
+                                '_ws.expert.severity == "warning"', '_ws.expert.message')
+            # In the second pass of -2 the grpc-encoding of an HTTP/1 message is not
+            # available any more, so the bad gzip message of frame 10 is not tried
+            # (a dissector issue, see the README).
+            first = [] if passes else [['10', 'Body decompression failed']]
+            assert rows == first + [
+                ['77', 'GRPC Malformed message data: only 11 bytes left, need at least 4294967300 bytes.'],
+                ['82', 'GRPC Malformed message data: only 11 bytes left, need at least 4294967296 bytes.'],
+                ['87', 'GRPC Malformed message data: only 11 bytes left, need at least 4294967297 bytes.'],
+            ]
+
+    def test_grpc_length_overflow(self, cmd_tshark, capture_file, test_env):
+        '''Message lengths close to 2^32 do not wrap the length check (the
+        message is reported as incomplete, and no GRPC message is shown).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {77, 82, 87}', 'grpc.message_length', '_ws.malformed')
+        assert rows == [['77', '', ''], ['82', '', ''], ['87', '', '']]
+
+    def test_grpc_protocol_types_and_trailers(self, cmd_tshark, capture_file, test_env):
+        '''gRPC, gRPC-Web and gRPC-Web-Text over HTTP/1.1; gRPC-Web trailer
+        frames; several messages in one body.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {4, 5, 19, 26, 40, 41}',
+                            'grpc.frame_type', 'grpc.message_length')
+        assert rows == [
+            ['4', '0', '9'],
+            ['5', '0,1', '13,34'],
+            ['19', '0', '9'],
+            ['26', '0', '9'],
+            ['40', '0,0,0', '9,0,8'],
+            ['41', '0,0', '13,13'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('grpc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5', '-V', '-O', 'grpc',
+            ), encoding='utf-8', env=test_env)
+        assert 'GRPC-Web Message: /helloworld.Greeter/SayHello, Response (Trailer)' in stdout
+        assert 'grpc-status: 0' in stdout
+        rows = self._fields(cmd_tshark, capture_file, test_env, (), 'frame.number in {4, 19, 26}',
+                            '_ws.col.protocol')
+        assert [r[1].split('/')[0] for r in rows] == ['GRPC-Web', 'GRPC-Web-Text', 'GRPC']
+
+    def test_grpc_compression(self, cmd_tshark, capture_file, test_env):
+        '''gzip and deflate messages are uncompressed; a compressed message
+        without a usable grpc-encoding is shown as data only.'''
+        for frame, text in (
+                (8, 'Message-encoded entity body (gzip): 30 bytes -> 204 bytes'),
+                (32, 'Message-encoded entity body (deflate): 18 bytes -> 204 bytes')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('grpc_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V', '-O', 'grpc',
+                ), encoding='utf-8', env=test_env)
+            assert text in stdout
+        for frame in (42, 44, 46):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('grpc_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V', '-O', 'grpc',
+                ), encoding='utf-8', env=test_env)
+            assert 'Compressed Flag: Compressed (1)' in stdout
+            assert 'Message-encoded entity body' not in stdout
+
+    def test_grpc_json_detection(self, cmd_tshark, capture_file, test_env):
+        '''JSON by content type (+json) and detected in application/grpc.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {34, 35, 36, 37, 38, 39}', '_ws.col.protocol')
+        assert [r[1] for r in rows] == ['GRPC/JSON'] * 6
+
+    def test_grpc_streaming_chunks(self, cmd_tshark, capture_file, test_env):
+        '''Chunked responses: messages split over chunks are reassembled and
+        shown in the chunk that completes them.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, (),
+                            'frame.number in {66, 70, 73}', 'grpc.message_length')
+        assert rows == [['66', '13,13'], ['70', '13,13,16'], ['73', '13,13']]
