@@ -566,9 +566,6 @@ static const value_string sccp_isni_ti_values [] = {
   { ANSI_ISNI_TYPE_1,   "Type one ISNI parameter format" },
   { 0,                  NULL } };
 
-/* Laded from e212 hf*/
-static int hf_assoc_imsi;
-
 /* Initialize the protocol and registered fields */
 static int proto_sccp;
 static int hf_sccp_message_type;
@@ -2848,8 +2845,7 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
     proto_item_set_generated(pi);
     proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
     if(sccp_info->assoc->imsi){
-      proto_item *pi2 = proto_tree_add_string(sccp_tree, hf_assoc_imsi, tvb, 0, 0, sccp_info->assoc->imsi);
-      proto_item_set_generated(pi2);
+      add_assoc_imsi_item(tvb, pinfo, sccp_tree, sccp_info->assoc->imsi);
     }
     if (sccp_info->assoc->msgs) {
       sccp_msg_info_t *m;
@@ -4271,7 +4267,6 @@ proto_reg_handoff_sccp(void)
     ss7pc_address_type = address_type_get_by_name("AT_SS7PC");
 
     initialised = true;
-    hf_assoc_imsi = proto_registrar_get_id_byname("e212.assoc.imsi");
   }
 
   default_handle = find_dissector(default_payload);
