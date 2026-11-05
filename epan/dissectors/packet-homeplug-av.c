@@ -2394,8 +2394,8 @@ static const value_string homeplug_av_st_iotecha_suppress_data_vals[] = {
 };
 
 static void
-adc_bitmask_base(char *buf, uint8_t value) {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%d)",
+adc_bitmask_base(char *buf, uint32_t value) {
+    snprintf(buf, ITEM_LABEL_LENGTH, "%s, %s, %s (%u)",
                (value & 0x01) ? "true" : "false",
                (value & 0x02) ? "true" : "false",
                (value & 0x04) ? "true" : "false",
@@ -2475,6 +2475,10 @@ dissect_homeplug_av_mmhdr(ptvcursor_t *cursor, uint8_t *homeplug_av_mmver, uint1
         if (homeplug_av_mmtype_msb_is_vendor(msb)
             || homeplug_av_mmtype_msb_is_manufacturer(msb)) {
             offset += 3;
+        } else if (!mmv) {
+            /* Public management frame in HomePlug AV 1.0 has the
+             * fragmentation information after the header */
+            offset += 2;
         }
         ptvcursor_advance(cursor, offset);
         return;
@@ -4788,8 +4792,10 @@ dissect_homeplug_av_gp_cm_atten_char_ind(ptvcursor_t *cursor, packet_info *pinfo
                 avg += val;
                 ptvcursor_advance(cursor, 1);
             }
-            avg /= numgroups;
-            col_append_fstr(pinfo->cinfo, COL_INFO, " (Groups = %d, Avg. Attenuation = %.2f dB)", numgroups, avg);
+            if (numgroups > 0) {
+                avg /= numgroups;
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (Groups = %d, Avg. Attenuation = %.2f dB)", numgroups, avg);
+            }
         }
         ptvcursor_pop_subtree(cursor);
     }
@@ -4988,15 +4994,15 @@ dissect_homeplug_av_gp_cm_slac_user_data(ptvcursor_t *cursor) {
         /* Get Length and Type from TLV Header */
         TypeLen = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
         Length = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK;
-        Type = TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK;
+        Type = (TypeLen & HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK) >> 9;
         /* If type and length is null_type - don't add anything and exit */
         if (TypeLen == 0)
             break;
         it = ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
         ptvcursor_push_subtree(cursor, it, ett_homeplug_av_gp_cm_slac_user_data_tlv);
         {
-            ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_type, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_MASK, ENC_LITTLE_ENDIAN);
-            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_length, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_LENGTH_MASK, ENC_LITTLE_ENDIAN);
+            ptvcursor_add_no_advance(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_type, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
+            ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_length, HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_HEADER_SIZE, ENC_LITTLE_ENDIAN);
             if (Type == HOMEPLUG_AV_GP_CM_SLAC_USER_DATA_TLV_TYPE_VENDOR_RESERVED) {
                 ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_oui, 3, ENC_LITTLE_ENDIAN);
                 ptvcursor_add(cursor, hf_homeplug_av_gp_cm_slac_user_data_tlv_subtype, 1, ENC_NA);
@@ -5069,7 +5075,7 @@ dissect_homeplug_av_st_iotecha_stp_discover_tlv(ptvcursor_t *cursor) {
         /* Get Length and Type from TLV Header */
         TypeLen = tvb_get_uint16(ptvcursor_tvbuff(cursor),ptvcursor_current_offset(cursor),ENC_LITTLE_ENDIAN);
         Length = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_LENGTH_MASK;
-        Type = TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK;
+        Type = (TypeLen & HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_MASK) >> 10;
         /* If type is null_type - don't add anything and exit */
         if (Type == HOMEPLUG_AV_ST_IOTECHA_STP_DISCOVER_TLV_TYPE_NULL)
             break;
@@ -5469,6 +5475,8 @@ dissect_homeplug_av_st_iotecha_stp_user_message_ind(ptvcursor_t *cursor, packet_
                       hf_homeplug_av_st_iotecha_user_message_info,
                       null_offset - ptvcursor_current_offset(cursor),
                       ENC_ASCII);
+        /* skip the terminating NUL */
+        ptvcursor_advance(cursor, 1);
     }
 
     if (tvb_find_uint8_remaining(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor) + 1, 0, &null_offset)) {
