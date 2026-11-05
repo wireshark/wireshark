@@ -2839,8 +2839,9 @@ proto_register_ebhscr(void)
 void
 proto_reg_handoff_ebhscr(void)
 {
-	can_handle = find_dissector_add_dependency("can-hostendian", proto_ebhscr);
-	can_fd_handle = find_dissector_add_dependency("canfd", proto_ebhscr);
+	/* The CAN ID and flags field is little-endian */
+	can_handle = find_dissector_add_dependency("can-littleendian", proto_ebhscr);
+	can_fd_handle = find_dissector_add_dependency("canfd-littleendian", proto_ebhscr);
 
 	eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_ebhscr);
 	eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_ebhscr);

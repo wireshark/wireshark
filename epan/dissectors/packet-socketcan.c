@@ -833,6 +833,22 @@ dissect_socketcan_fd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 static int
+dissect_socketcan_classic_littleendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    return dissect_socketcan_common(tvb, pinfo, tree,
+                                    byte_swap ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN,
+                                    ENC_LITTLE_ENDIAN, /* Not used, as this is CAN classic, not CAN XL */
+                                    PACKET_TYPE_CAN);
+}
+
+static int
+dissect_socketcan_fd_littleendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    return dissect_socketcan_common(tvb, pinfo, tree,
+                                    byte_swap ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN,
+                                    ENC_LITTLE_ENDIAN, /* Not used, as this is CAN FD, not CAN XL */
+                                    PACKET_TYPE_CAN_FD);
+}
+
+static int
 dissect_socketcan_xl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     return dissect_socketcan_common(tvb, pinfo, tree,
                                     byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN,
@@ -984,9 +1000,16 @@ proto_register_socketcan(void) {
      */
     socketcan_classic_handle = register_dissector("can-hostendian", dissect_socketcan_classic, proto_can);
     socketcan_bigendian_handle = register_dissector("can-bigendian", dissect_socketcan_bigendian, proto_can);
+    /*
+     * For protocols that carry SocketCAN frames with the CAN ID and
+     * flags field in little-endian order regardless of the host, such
+     * as EBHSCR.
+     */
+    register_dissector("can-littleendian", dissect_socketcan_classic_littleendian, proto_can);
 
     proto_canfd = proto_register_protocol("Controller Area Network FD", "CANFD", "canfd");
     socketcan_fd_handle = register_dissector("canfd", dissect_socketcan_fd, proto_canfd);
+    register_dissector("canfd-littleendian", dissect_socketcan_fd_littleendian, proto_canfd);
 
     proto_canxl = proto_register_protocol("Controller Area Network XL", "CANXL", "canxl");
     socketcan_xl_handle = register_dissector("canxl", dissect_socketcan_xl, proto_canxl);
