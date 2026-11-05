@@ -73763,3 +73763,149 @@ class TestDissectHttp3Coverage:
                 '-Y', 'http3',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == ''
+
+
+class TestDissectHttpCoverage:
+    '''HTTP, SSDP and HTTP over SCTP from the synthetic capture
+    http_coverage.pcapng.gz. Frames 1-827 decode cleanly (no malformed
+    packets or error expert infos). Frames 828 on carry expert infos
+    (warnings), the reproducers of "HTTP: Do not assert on Content-Length
+    in streaming chunk mode", pipelined responses and messages that run to
+    the end of the stream (their TCP reassembly differs between one pass
+    and two).'''
+
+    CLEAN = 'frame.number <= 827'
+    CAP = 'http_coverage.pcapng.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=(), extra=()):
+        out = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectHttpCoverage.CAP), *extra, '-Y', filt,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=180)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_http_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-827: protocol counts, no malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, self.CLEAN, '_ws.col.protocol')
+        counts = {}
+        for r in rows:
+            counts[r[0]] = counts.get(r[0], 0) + 1
+        assert counts['HTTP'] == 587
+        assert counts['TCP'] == 191
+        assert counts['DoH'] == 8
+        assert counts['WebSocket'] == 6
+        assert counts['SSDP'] == 5
+        assert counts['HTTP2'] == 8
+        assert counts['SSTP'] == 1
+        assert counts['IPP'] == 2
+        for passes in ((), ('-2',)):
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            self.CLEAN + ' && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                            'frame.number', passes=passes)
+            assert bad == []
+
+    def test_http_no_assertion(self, cmd_tshark, capture_file, test_env):
+        '''No frame of the capture hits a dissector assertion, including the
+        reproducers of the streaming chunk mode fix (frames 898-915: a
+        Content-Length with chunked and a streaming type, and two
+        pipelined requests in both orders).'''
+        for passes in ((), ('-2',)):
+            bad = self.rows(cmd_tshark, capture_file, test_env,
+                            '_ws.expert.message contains "assertion" || _ws.expert.message contains "Dissector bug"',
+                            'frame.number', passes=passes)
+            assert bad == []
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                             'frame.number >= 898 && frame.number <= 915 && http.request.uri == "/svc/M"',
+                             'frame.number', passes=passes)
+            assert len(rows) >= 2
+
+    def test_http_te_and_length(self, cmd_tshark, capture_file, test_env):
+        '''Content-Length together with Transfer-Encoding is reported and
+        the Content-Length ignored in streaming chunk mode.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'frame.number >= 898 && frame.number <= 915 && http.te_and_length',
+                         'frame.number', passes=('-2',))
+        assert len(rows) >= 1
+
+    def test_http_passes_agree(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the clean frames is the same in one and two
+        passes, except for frames that TCP shows as part of a reassembled
+        message in the second pass.'''
+        fields = ('frame.number', '_ws.col.info', 'http.response.code', 'http.request.uri')
+        one = self.rows(cmd_tshark, capture_file, test_env, self.CLEAN, *fields)
+        two = self.rows(cmd_tshark, capture_file, test_env, self.CLEAN, *fields, passes=('-2',))
+        skip = {r[0] for r in self.rows(cmd_tshark, capture_file, test_env,
+                                        self.CLEAN + ' && tcp.reassembled_in', 'frame.number', passes=('-2',))}
+        one = [r for r in one if r[0] not in skip]
+        two = [r for r in two if r[0] not in skip]
+        assert len(one) > 700
+        assert one == two
+
+    def test_http_request_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''Range requests match their responses by the first byte of the
+        range (frames 355-376), the others by order.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         'frame.number >= 355 && frame.number <= 376 && http.request_in',
+                         'frame.number', 'http.request_in', passes=('-2',))
+        assert rows == [['364', '359'], ['366', '360'], ['372', '371'], ['374', '373']]
+
+    def test_http_decompression(self, cmd_tshark, features, capture_file, test_env):
+        '''Content-Encoding gzip, deflate, x-gzip and x-deflate are
+        decompressed (frames 286-294), br and zstd when supported.'''
+        frames = {286: 'gzip', 288: 'deflate', 290: 'x-gzip', 292: 'x-deflate', 294: 'GZIP'}
+        if features.have_brotli:
+            frames[296] = 'br'
+        if features.have_zstd:
+            frames[298] = 'zstd'
+        for fnum, enc in frames.items():
+            out = subprocess.check_output((cmd_tshark, '-2', '-r', capture_file(self.CAP),
+                    '-Y', 'frame.number == %d' % fnum, '-O', 'http'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert 'Content-encoded entity body (%s)' % enc in out
+            assert ' -> ' in out
+        # xpress is handled by the dissector itself
+        out = subprocess.check_output((cmd_tshark, '-2', '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 300', '-O', 'http'), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Content-encoded entity body (xpress)' in out and ' -> ' in out
+
+    def test_http_chunked(self, cmd_tshark, capture_file, test_env):
+        '''Chunk sizes of single and reassembled chunked messages.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {235, 237, 247}',
+                         'frame.number', 'http.chunk_size', passes=('-2',))
+        assert rows == [['235', '7,8,5,0'], ['237', '12,0'], ['247', '300,300,100,0']]
+
+    def test_http_connect(self, cmd_tshark, capture_file, test_env):
+        '''CONNECT tunnels: the proxied host and port, the nested tunnel.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'http.proxy_connect_host and frame.number in {382, 393, 404, 423}',
+                         'frame.number', 'http.proxy_connect_host', 'http.proxy_connect_port', passes=('-2',))
+        assert rows == [['382', 'secure.example.com', '443'], ['393', 'inner.example.com', '80'],
+                        ['404', 'unknown.example.com', '9999'],
+                        ['423', 'outer.example.com,next.example.com', '80,8080']]
+
+    def test_http_upgrade(self, cmd_tshark, capture_file, test_env):
+        '''WebSocket frames after the 101 response, HTTP/2 after an h2c upgrade.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'websocket.opcode', 'frame.number',
+                         'websocket.opcode', passes=('-2',))
+        assert [r[1] for r in rows] == ['1', '1', '9', '10', '2', '8']
+        rows = self.rows(cmd_tshark, capture_file, test_env, '_ws.col.protocol == "HTTP2" && frame.number <= 827', 'frame.number', passes=('-2',))
+        assert len(rows) == 8
+
+    def test_http_custom_header(self, cmd_tshark, capture_file, test_env):
+        '''A header from the custom header field table gets its own field.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'http.header.X-Request-Id', 'frame.number',
+                         'http.header.X-Request-Id', passes=('-2',),
+                         extra=('-o', 'uat:custom_http_header_fields:"X-Request-Id","Request identifier"'))
+        assert rows == [['4', 'abc-123'], ['5', 'abc-123']]
+
+    def test_http_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The statistics trees run, including the referer chain that is
+        followed for at most 64 levels.'''
+        for z in ('http,tree', 'http_req,tree', 'http_srv,tree', 'http_seq,tree'):
+            out = subprocess.check_output((cmd_tshark, '-q', '-r', capture_file(self.CAP), '-z', z),
+                                          encoding='utf-8', env=test_env, timeout=180)
+            assert 'HTTP' in out
+        out = subprocess.check_output((cmd_tshark, '-q', '-r', capture_file(self.CAP), '-z', 'http,tree'),
+                                      encoding='utf-8', env=test_env, timeout=180)
+        assert '404 Not Found' in out and '200 OK' in out
