@@ -68524,6 +68524,27 @@ class TestDissectGtpSession:
             rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
             assert ['001010000000001', '1', '4'] in rows
 
+    def test_gtp_session_sessionless_message(self, cmd_tshark, capture_file, test_env):
+        '''An S11 Create Session Response without its request (frame 7)
+        carries the PGW S5/S8 F-TEID of a session. It does not take the
+        F-TEID over, so the Modify Bearer Request to that TEID (frame 8)
+        still gets the session and its IMSI.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number >= 5',
+                    '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '2\t001010000000002',
+                '2\t001010000000002',
+                '\t',
+                '2\t001010000000002',
+            ]
+            rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
+            assert ['001010000000002', '5', '8'] in rows
+
 
 # PFCP session tracking is off by default.
 PFCP_SESSION_OPTS = ('-o', 'pfcp.track_pfcp_session:TRUE')

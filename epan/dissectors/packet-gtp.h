@@ -170,6 +170,7 @@ typedef struct session_args {
     address last_ip;
     uint8_t last_cause;
     const char *imsi;
+    wmem_list_t *replaced_list; /* <teid,ip> mappings that fill_map() replaced */
 } session_args_t;
 
 /* Relation between frame -> session */
@@ -202,9 +203,19 @@ bool teid_exists(uint32_t teid, wmem_list_t *teid_list);
 bool ip_exists(address ip, wmem_list_t *ip_list);
 
 /**
- * Fills the frame_map or frame_map_deint according to the deinterlacing mode
+ * Fills the frame_map or frame_map_deint according to the deinterlacing mode.
+ * The mappings it replaces are added to replaced_list (if not NULL), for
+ * restore_frame_info().
  */
-void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv);
+void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_list_t *replaced_list);
+
+/**
+ * If frame has no session, puts back the mappings in replaced_list that
+ * belong to a session, so that a message without a session (e.g. a response
+ * whose request is not in the capture) does not take over the TEIDs of a
+ * session. Call it on the first pass, after the session of frame is known.
+ */
+void restore_frame_info(uint32_t frame, wmem_list_t *replaced_list);
 
 bool is_cause_accepted(uint8_t cause, uint32_t version);
 

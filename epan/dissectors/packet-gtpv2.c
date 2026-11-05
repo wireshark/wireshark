@@ -9650,6 +9650,11 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
         }
     }
 
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /* Do not let a message without a session take over the TEIDs of a session */
+        restore_frame_info(pinfo->num, args->replaced_list);
+    }
+
     /* Add the IMSI without a tree as well, so that the "imsi" tap gets it */
     session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
     if (session) {
@@ -9842,6 +9847,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         /* We create the auxiliary lists */
         args->teid_list = wmem_list_new(pinfo->pool);
         args->ip_list = wmem_list_new(pinfo->pool);
+        args->replaced_list = wmem_list_new(pinfo->pool);
     }
 
     /*
@@ -9955,11 +9961,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     if (args && !PINFO_FD_VISITED(pinfo)) {
         /* We insert the lists inside the table*/
         if(is_deinterlacing_supported(pinfo)) {
-            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0);
+            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0, args->replaced_list);
         }
         else {
             // no deinterlacing supported/asked
-            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1);
+            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, args->replaced_list);
         }
         cause_aux = args->last_cause;
     }
