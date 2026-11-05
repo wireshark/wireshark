@@ -227,6 +227,14 @@ static bool fast_start;
 static olc_info_t *upcoming_olc;
 static channel_info_t *upcoming_channel;
 
+/* Called when an exception unwinds out of an OpenLogicalChannel(Ack), so
+ * that no pointer into freed packet memory is left behind. */
+static void h245_reset_upcoming(void *dummy _U_)
+{
+  upcoming_olc = NULL;
+  upcoming_channel = NULL;
+}
+
 /* NonStandardParameter */
 static const char *nsiOID;
 static uint32_t h221NonStandard;
