@@ -71349,3 +71349,105 @@ class TestDissectHdmi:
             ['10', '0x75', 'send B_ksv', 'Receiver'],
             ['11', '0x74', 'request B_caps', 'Transmitter'],
             ['12', '0x75', 'send B_caps', 'Receiver']]
+
+
+class TestDissectHI2Operations:
+    '''HI2Operations (ETSI TS 101 671 / 3GPP TS 33.128 handover interface 2,
+    IRIsContent in BER) and the UUS1-Content heuristic, from the synthetic
+    capture HI2Operations_coverage.pcapng.gz. Frames 1-60 are Exported
+    PDU frames that name the dissector "HI2Operations", frames 61-66 are
+    TCP 1720 with Q.931 SETUP messages whose User-user IE carries
+    UUS1-Content. The keys of the MediaDecryption-info are placeholders.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('HI2Operations_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_hi2operations_frames(self, cmd_tshark, capture_file, test_env):
+        '''60 IRIsContent PDUs and 3 UUS1-Content PDUs decode without
+        malformed packets or error expert infos, in one and two passes.
+        The warnings are for an APN that is not label-encoded (frame 34)
+        and a ULI that is too short (frame 36).'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'HI2Operations.IRIsContent', 'frame.number',
+                                 passes=passes)
+            assert [int(n) for n in lines] == list(range(1, 61))
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'frame.protocols contains "HI2operations" && tcp',
+                                 'frame.number', passes=passes)
+            assert [int(n) for n in lines] == [64, 65, 66]
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                 'frame.number', passes=passes)
+            assert lines == []
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'HI2Operations.IRIsContent && _ws.expert.severity == 0x00600000',
+                                 'frame.number', 'gtpv2.apn', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == ['34', '36']
+
+    def test_hi2operations_iris_sequence(self, cmd_tshark, capture_file, test_env):
+        '''An EpsIRISequence of three records (Begin, Report, End) and an
+        empty one.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'HI2Operations.epsIRISequence', 'frame.number',
+                             'HI2Operations.EpsIRIContent')
+        assert lines == ['59\t1,4,2', '60\t']
+
+    def test_hi2operations_header(self, cmd_tshark, capture_file, test_env):
+        '''Domain ID, LIID and EPS events.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {1, 3}', 'frame.number',
+                             'HI2Operations.hi2epsDomainId',
+                             'HI2Operations.lawfulInterceptionIdentifier',
+                             'HI2Operations.ePSevent')
+        assert lines == ['1\t0.4.0.2.2.4.8.16.1\tLIID-0001\t16',
+                         '3\t0.4.0.2.2.4.8.16.1\t' + 'L' * 25 + '\t18']
+
+    def test_hi2operations_correlation_number(self, cmd_tshark, capture_file, test_env):
+        '''An EPS correlation number above 2^63 is shown as an unsigned
+        value; it was formatted with PRId64.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('HI2Operations_coverage.pcapng.gz'),
+                '-Y', 'HI2Operations.ePSCorrelationNumber', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'ePSCorrelationNumber: fedcba9876543210 (18364758544493064720)' in stdout
+        assert 'ePSCorrelationNumber: 01020304 (16909060)' in stdout
+
+    def test_hi2operations_apn(self, cmd_tshark, capture_file, test_env):
+        '''Label-encoded APNs decode with dots, including the PMIP APN of
+        frame 41, whose string was added with the length of the whole
+        PDU instead of that of the APN (see "HI2Operations: Fix APN
+        length, PRIu64 and an uninitialised tvb"); the non-compliant APN
+        of frame 34 is shown as UTF-8 with a warning.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'gtpv2.apn',
+                             'frame.number', 'gtpv2.apn')
+        got = dict(l.split('\t') for l in lines)
+        assert got['33'] == 'internet.foo.com'
+        assert got['41'] == 'internet.foo.com'
+        assert got['42'] == 'internet.foo.com'
+        assert got['34'].endswith('plain.apn')
+        assert got['35'] == 'a'
+
+    def test_hi2operations_imei(self, cmd_tshark, capture_file, test_env):
+        '''An 8 octet IMEI is BCD coded, others are ASCII.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'HI2Operations.imei', 'frame.number',
+                             'HI2Operations.imei')
+        assert lines == ['6\t3510325476981032', '7\t490154203237518']
+
+    def test_hi2operations_uus1(self, cmd_tshark, capture_file, test_env):
+        '''UUS1-Content found by the HI3CCLinkData heuristic in the
+        User-user IE (discriminator 0); the bearer capability is decoded
+        by the Q.931 dissector.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number >= 64', 'frame.number',
+                             'HI2Operations.direction_Indication',
+                             'HI2Operations.bearer_capability')
+        assert [l.split('\t')[0:3] for l in lines] == [
+            ['64', '1', '8890a3'], ['65', '2', ''], ['66', '0', '80']]
