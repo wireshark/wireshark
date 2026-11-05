@@ -201,7 +201,9 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
-    if (reassembled && pinfo->num < reassembled->reassembled_in) {
+    if (reassembled && (pinfo->num < reassembled->reassembled_in ||
+            (pinfo->num == reassembled->reassembled_in &&
+             pinfo->curr_layer_num != reassembled->reas_in_layer_num))) {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_fragment, tvb, offset, -1, ENC_NA);
         proto_item_set_generated(pitem);
 
@@ -217,17 +219,19 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     NULL, ttree);
         }
 
-        switch(urb->transfer_type)
-        {
-        case URB_CONTROL:
-            call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, bluetooth_data);
-            break;
-        case URB_INTERRUPT:
-            call_dissector_with_data(bthci_evt_handle, next_tvb, pinfo, tree, bluetooth_data);
-            break;
-        case URB_BULK:
-            call_dissector_with_data(bthci_acl_handle, next_tvb, pinfo, tree, bluetooth_data);
-            break;
+        if (next_tvb) {
+            switch(urb->transfer_type)
+            {
+            case URB_CONTROL:
+                call_dissector_with_data(bthci_cmd_handle, next_tvb, pinfo, tree, bluetooth_data);
+                break;
+            case URB_INTERRUPT:
+                call_dissector_with_data(bthci_evt_handle, next_tvb, pinfo, tree, bluetooth_data);
+                break;
+            case URB_BULK:
+                call_dissector_with_data(bthci_acl_handle, next_tvb, pinfo, tree, bluetooth_data);
+                break;
+            }
         }
     } else {
         pitem = proto_tree_add_item(ttree, hf_bthci_usb_packet_unknown_fragment, tvb, offset, -1, ENC_NA);
