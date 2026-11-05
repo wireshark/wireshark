@@ -65943,3 +65943,101 @@ class TestDissectGsmCbch:
                 '-Y', '_ws.expert')
         assert stdout.splitlines() == ['40\tNULL message',
                                        '41\tReserved Sequence Number']
+
+
+class TestDissectGsmCbsp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_cbsp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_cbsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''59 frames are CBSP, the rest TCP; nothing is malformed and the
+        only warning is the unhandled coding scheme of the fix reproducer,
+        in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 64
+        assert protocols.count('CBSP') == 59
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x00400000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert stdout.splitlines() == ['13\tUnhandled encoding 0 of CBS String']
+
+    def test_gsm_cbsp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type 1-23 and an unknown type; PDUs split over
+        segments and several PDUs in one segment are reassembled.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'cbsp', '-Tfields', '-ecbsp.msg_type')
+        types = [int(t.split(',')[0]) for t in stdout.split()]
+        assert sorted(set(types)) == list(range(1, 24)) + [66]
+        assert len(types) == 59
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 60', '-Tfields', '-ecbsp.msg_type')
+        assert stdout.strip() == '22,23'
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 63', '-Tfields', '-ecbsp.new_serial_nr',
+                '-ecbsp.cb_page_content')
+        assert stdout.startswith('0x1248\tA segmented message')
+
+    def test_gsm_cbsp_cell_lists(self, cmd_tshark, capture_file, test_env):
+        '''Cell lists of every discriminator.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 6, 7, 8, 9, 10, 14}',
+                '-Tfields', '-eframe.number', '-ecbsp.cell_id_disc',
+                '-ecbsp.lac', '-ecbsp.ci')
+        assert stdout.splitlines() == [
+            '4\t0\t0x1001,0x1001\t0x0001,0x0002',
+            '6\t1\t0x2001,0x2002\t0x0005,0x0006',
+            '7\t2\t\t0x0007,0x0008',
+            '8\t4\t0x3001,0x3002\t',
+            '9\t5\t0x4001,0x4002\t',
+            '10\t6\t\t',
+            '14\t0,1,2,4,5,6,6\t0x1001,0x2001,0x3001,0x4001\t0x0001,0x0005,0x0007',
+        ]
+
+    def test_gsm_cbsp_content(self, cmd_tshark, capture_file, test_env):
+        '''The message content in 7 bit, UCS2 and 8 bit coding with and
+        without a language indication.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'cbsp.cb_page_content && frame.number < 13',
+                '-Tfields', '-eframe.number', '-ecbsp.dcs',
+                '-ecbsp.cb_page_content', '-egsm_cbs.language')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['4', '6', '7', '8', '9', '10', '11', '12']
+        assert rows[0][1] == '0x0f' and rows[0][2].startswith('Hello from the CBC, testing CBSP')
+        assert rows[2][1:] == ['0x11', 'Bonjour', 'fr']
+        assert rows[3][1:] == ['0x48', 'Grüße Ünï', '']
+        assert rows[4][1:] == ['0x44', '8 bit text \x01\x02', '']
+        assert rows[6][1:] == ['0x11', 'Hej', 'en']
+        assert rows[7][2].startswith('Hello Svenska')
+
+    def test_gsm_cbsp_reserved_dcs(self, cmd_tshark, capture_file, test_env):
+        '''A reserved coding scheme (0xa0) leaves the content undecoded
+        instead of asserting (fixed in "GSM CBSP: Fix a NULL dereference
+        for unsupported coding schemes").'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 13', '-Tfields', '-ecbsp.dcs',
+                '-ecbsp.user_info_len', '-ecbsp.cb_page_content',
+                '-e_ws.expert.message')
+        assert stdout.strip('\n') == '0xa0\t5\t\tUnhandled encoding 0 of CBS String'
+
+    def test_gsm_cbsp_lists(self, cmd_tshark, capture_file, test_env):
+        '''Failure list causes, broadcast and radio resource load lists,
+        warning and keep-alive periods in seconds.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {14, 19, 38, 40, 46}',
+                '-Tfields', '-eframe.number', '-ecbsp.cause',
+                '-ecbsp.num_bcast_compl', '-ecbsp.rr_load1',
+                '-ecbsp.keepalive_rep_period')
+        assert stdout.splitlines() == [
+            '14\t0x00,0x01,0x02,0x03,0x00,0x02\t\t\t',
+            '19\t\t\t10,11\t',
+            '38\t\t\t\t0',
+            '40\t\t\t\t10',
+            '46\t\t\t\t35',
+        ]
