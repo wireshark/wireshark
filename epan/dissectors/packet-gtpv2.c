@@ -26,6 +26,8 @@
 #include <epan/tap.h>
 #include <epan/srt_table.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
+#include <epan/prefs.h>
 #include <proto.h>
 #include <unit_strings.h>
 
@@ -940,6 +942,7 @@ static expert_field ei_gtpv2_mbms_session_duration_secs;
 static expert_field ei_gtpv2_ie;
 static expert_field ei_gtpv2_int_size_not_handled;
 static expert_field ei_gtpv2_apn_too_long;
+static expert_field ei_gtpv2_ie_nesting_too_deep;
 
 static int gtpv2_tap;
 
@@ -1998,7 +2001,7 @@ dissect_gtpv2_imsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
     imsi_str =  dissect_e212_imsi(tvb, pinfo, tree,  offset, length, false);
     proto_item_append_text(item, "%s", imsi_str);
 
-    if (g_gtp_session) {
+    if (g_gtp_session && args) {
         args->imsi = imsi_str;
     }
 }
@@ -2166,7 +2169,7 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 
     /* Cause value octet 5 */
     tmp = tvb_get_uint8(tvb, offset);
-    if (g_gtp_session) {
+    if (g_gtp_session && args) {
         args->last_cause = tmp;
     }
     proto_tree_add_item(tree, hf_gtpv2_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4795,7 +4798,7 @@ dissect_gtpv2_mm_context_gsm_t(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* 16 to h Authentication Triplet [0..4] */
     if (num_triplet) {
-        dissect_gtpv2_authentication_triplets(tvb, tree, offset, num_triplet);
+        offset = dissect_gtpv2_authentication_triplets(tvb, tree, offset, num_triplet);
     }
 
     /*
@@ -4896,7 +4899,7 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     }
 
     /* s+1 Length of Higher bitrates than 16 Mbps flag */
-    if (offset ==length) {
+    if (offset < length) {
         hbr_len = tvb_get_uint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_higher_br_16mb_flg_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -9185,7 +9188,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uns
         gcr.rep_frame = 0;
 
         conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
-        gcr.conv_id = conv->conv_index;
+        gcr.conv_id = conv ? conv->conv_index : 0;
 
         break;
     case GTPV2_CREATE_SESSION_RESPONSE:
@@ -9213,15 +9216,12 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uns
         gcr.rep_frame = pinfo->num;
 
         conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
-        gcr.conv_id = conv->conv_index;
+        gcr.conv_id = conv ? conv->conv_index : 0;
 
         break;
     default:
-        gcr.is_request = false;
-        gcr.req_frame = 0;
-        gcr.rep_frame = 0;
-        gcr.conv_id = 0;
-        break;
+        /* Not a request or a response we track */
+        return NULL;
     }
 
     gcrp = (gtpv2_msg_hash_t *)wmem_map_lookup(gtpv2_info->matched, &gcr);
@@ -9269,7 +9269,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uns
             gcrp->is_request = true;
 
             conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
-            gcrp->conv_id = conv->conv_index;
+            gcrp->conv_id = conv ? conv->conv_index : 0;
 
             wmem_map_insert(gtpv2_info->unmatched, gcrp, gcrp);
             return NULL;
@@ -9303,7 +9303,7 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uns
                     gcrp->is_request = false;
 
                     conv = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
-                    gcrp->conv_id = conv->conv_index;
+                    gcrp->conv_id = conv ? conv->conv_index : 0;
 
                     wmem_map_insert(gtpv2_info->matched, gcrp, gcrp);
                 }
@@ -9390,7 +9390,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     conversation_t  *conversation;
                     conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
 
-                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation->conv_index, &frame_teid_cp, 0) == 1)) {
+                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, &frame_teid_cp, 0) == 1)) {
 
                         /* Then we have to set its session ID */
                         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
@@ -9477,8 +9477,11 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
     }
 }
 
-void
-dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsigned offset, uint8_t message_type, session_args_t * args, uint8_t parent_ie)
+#define GTPV2_MAX_IE_NESTING 16
+
+static void
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_gtpv2_ie_common_impl(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsigned offset, uint8_t message_type, session_args_t * args, uint8_t parent_ie)
 {
     proto_tree *ie_tree;
     proto_item *ti;
@@ -9505,7 +9508,12 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         }
         type    = tvb_get_uint8(tvb, offset);
         length  = tvb_get_ntohs(tvb, offset + 1);
-        remaining_length = remaining_length -4;
+        if (remaining_length < 4) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, offset, remaining_length,
+                "Not enough data left for IE header, %u bytes", remaining_length);
+            return;
+        }
+        remaining_length = remaining_length - 4;
         if (remaining_length < length) {
             proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, offset+4, remaining_length,
                 "Less data left than indicated by length %u, remaining length %i", length, remaining_length);
@@ -9578,6 +9586,24 @@ dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
         offset += length;
     }
+}
+
+void
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsigned offset, uint8_t message_type, session_args_t * args, uint8_t parent_ie)
+{
+    unsigned depth = p_get_proto_depth(pinfo, proto_gtpv2);
+
+    /* Grouped IEs can nest without limit; stop well before the generic
+     * dissection depth limit (which would raise an assertion). */
+    if (depth >= GTPV2_MAX_IE_NESTING ||
+        pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_gtpv2_ie_nesting_too_deep, tvb, offset);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_gtpv2, depth + 1);
+    dissect_gtpv2_ie_common_impl(tvb, pinfo, tree, offset, message_type, args, parent_ie);
+    p_set_proto_depth(pinfo, proto_gtpv2, depth);
 }
 
 static int
@@ -13270,6 +13296,7 @@ void proto_register_gtpv2(void)
         { &ei_gtpv2_mbms_session_duration_secs, { "gtpv2.mbms_session_duration_secs.unknown", PI_PROTOCOL, PI_WARN, "Seconds out of allowed range", EXPFILL }},
         { &ei_gtpv2_ie, { "gtpv2.ie_type.reserved", PI_PROTOCOL, PI_WARN, "IE type Zero is Reserved and should not be used", EXPFILL }},
         { &ei_gtpv2_int_size_not_handled, { "gtpv2.ie_type.int_size_not_handled", PI_PROTOCOL, PI_WARN, "Integer size not handled yet", EXPFILL } },
+        { &ei_gtpv2_ie_nesting_too_deep, { "gtpv2.ie_nesting_too_deep", PI_PROTOCOL, PI_ERROR, "Grouped IE nesting too deep", EXPFILL }},
         { &ei_gtpv2_apn_too_long, { "gtpv2.apn_too_long", PI_PROTOCOL, PI_WARN, "APN encoding has more than 100 octets", EXPFILL } },
     };
 
