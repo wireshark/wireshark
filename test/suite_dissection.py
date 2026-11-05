@@ -65530,3 +65530,82 @@ class TestDissectGsmADtap:
             stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', f'gsm_a.dtap.cause == {cause}',
                                   '-Tfields', '-eframe.number')
             assert count_output(stdout) >= 1, cause
+
+
+class TestDissectGsmAGm:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_a_gm_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_gsm_a_gm_messages(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames with GMM (200) and SM (149) messages of every
+        type; nothing is malformed and there is no warning, in one and two
+        passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number')
+        assert len(stdout.split()) == 349
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.dtap.msg_gmm_type', '-Tfields', '-egsm_a.dtap.msg_gmm_type')
+        types = stdout.split()
+        assert len(types) == 200
+        assert len(set(types)) == 23
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.dtap.msg_sm_type', '-Tfields', '-egsm_a.dtap.msg_sm_type')
+        types = stdout.split()
+        assert len(types) == 149
+        assert len(set(types)) == 29
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x00400000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_a_gm_ra_capability(self, cmd_tshark, capture_file, test_env):
+        '''MS Radio Access Capability with every access technology type.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.gm.gmm.acc_tech_type', '-Tfields',
+                '-egsm_a.gm.gmm.acc_tech_type', '-egsm_a.gm.gmm.acc_cap_struct_len')
+        techs = set()
+        n = 0
+        for line in stdout.splitlines():
+            techs.update(line.split('\t')[0].split(','))
+            n += len(line.split('\t')[1].split(','))
+        assert techs == {'0', '1', '2', '3', '4', '5', '6', '7', '8', '10', '11', '14', '15'}
+        assert n >= 190
+
+    def test_gsm_a_gm_pco_operator_specific(self, cmd_tshark, capture_file, test_env):
+        '''Operator specific PCO containers (id 0xff00 and above) of length
+        3 or more show the PLMN and application data; shorter ones (2 and 1
+        octets) are accepted without reading beyond them (fixed in "GSM A
+        GM: Fix PCO and TFT length handling and small errors").'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 70', '-Tfields', '-egsm_a.gm.sm.pco_pid',
+                '-egsm_a.gm.sm.app_spec_info')
+        pids, info = stdout.rstrip('\n').split('\t')
+        pids = pids.split(',')
+        for p in ('0xff00', '0xff01', '0xff02', '0xff03'):
+            assert p in pids
+        assert info == '617070'
+
+    def test_gsm_a_gm_pco_ids(self, cmd_tshark, capture_file, test_env):
+        '''Many different PCO container ids in both directions.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.gm.sm.pco_pid', '-Tfields', '-egsm_a.gm.sm.pco_pid')
+        ids = {i for l in stdout.split() for i in l.split(',')}
+        assert len(ids) == 68
+        for i in ('0xc021', '0xc023', '0x8021', '0x0001', '0x000d', '0x0016', '0x0031', '0x0032', '0x0058'):
+            assert i in ids
+
+    def test_gsm_a_gm_tft_pdp_address(self, cmd_tshark, capture_file, test_env):
+        '''Traffic flow templates of every operation code and PDP
+        addresses of each type.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.gm.sm.tft.op_code', '-Tfields', '-egsm_a.gm.sm.tft.op_code')
+        ops = stdout.split()
+        assert sorted(set(ops)) == ['1', '2', '3', '4', '5', '6', '7']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'gsm_a.gm.sm.pdp_type_number', '-Tfields', '-egsm_a.gm.sm.pdp_type_number')
+        nums = {i for l in stdout.split() for i in l.split(',')}
+        assert nums == {'0', '1', '9', '33', '48', '87', '119', '141'}
