@@ -61281,3 +61281,117 @@ class TestDissectGdsdb:
             ['36', '26', '1', '16'],
             ['37', '73', '0,1,2', '1,2,3'],
         ]
+
+
+class TestDissectGdt:
+    @staticmethod
+    def gdt_rows(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('gdt_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gdt_frames(self, cmd_tshark, capture_file, test_env):
+        '''89 frames carry GDT (SCTP payload protocol identifier 49, one
+        frame with another identifier does not) and none is malformed or
+        has an error expert info, in one and two passes. The protocol
+        column is the same without a tree.'''
+        for passes in ((), ('-2',)):
+            rows = self.gdt_rows(cmd_tshark, capture_file, test_env, 'gdt.version', passes=passes)
+            assert len(rows) == 89
+            rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity == "error"', passes=passes)
+            assert rows == []
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gdt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('GDT') == 89
+        assert protocols.count('SCTP') == 1
+
+    def test_gdt_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields: sequence flags, error codes, hop info and
+        encryption info.'''
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number <= 22', 'gdt.version', 'gdt.sequence_num',
+                'gdt.sequence_flag', 'gdt.status', 'gdt.current_hop',
+                'gdt.max_hops', 'gdt.enc_type')
+        assert rows[0] == ['1', '1', '5', '0', '', '', '', '']
+        assert rows[1] == ['2', '2', '300', '1', '', '', '', '']
+        assert [r[3] for r in rows[2:10]] == ['0', '1', '2', '3', '4', '5', '6', '7']
+        assert [r[4] for r in rows[10:19]] == ['0', '1', '2', '3', '4', '5', '6', '7', '255']
+        assert rows[18] == ['19', '1', '5', '0', '255', '3', '8', '']
+        assert rows[19] == ['20', '1', '5', '0', '', '', '', '616573']
+        assert rows[20] == ['21', '1', '5', '0', '0', '1', '16', '706c61696e']
+        assert rows[21] == ['22', '70000', '70000', '0', '', '', '', '']
+
+    def test_gdt_end_points(self, cmd_tshark, capture_file, test_env):
+        '''End point descriptors with and without an id, and the uuid.'''
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {1,2}', 'gdt.type', 'gdt.end_point_id', 'gdt.uuid')
+        assert rows == [
+            ['1', 'stp,sgn', 'stp-1', '000102030405060708090a0b0c0d0e0f'],
+            ['2', 'a,b', 'id', '000102030405060708090a0b0c0d0e0f'],
+        ]
+
+    def test_gdt_bodies(self, cmd_tshark, capture_file, test_env):
+        '''Every kind of message body is dissected.'''
+        expected = {
+            'gdt.encrypted_data': 5,      # the body of frames 20, 21, 23, 88 and 89
+            'gdt.packet_fwd_element': 4,  # 3 + the parameter types
+            'gdt.filter_element': 2,
+            'gdt.data_retention_element': 4,
+            'gdt.conf_element': 8,
+            'gdt.stats_element': 2,
+            'gdt.auth_element': 2,
+            'gdt.reg_element': 2,
+            'gdt.ntfy_element': 2,
+            'gdt.data_element': 26,
+            'gdt.routing_element': 3,
+            'gdt.service_msg_element': 7,
+            'gdt.state_msg_element': 2,
+        }
+        for field, count in expected.items():
+            rows = self.gdt_rows(cmd_tshark, capture_file, test_env, field)
+            assert len(rows) == count, field
+
+    def test_gdt_bodies_values(self, cmd_tshark, capture_file, test_env):
+        '''Payload types, actions, service and state messages.'''
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {24,29,30,31,33,38,47,49,73,78,85}',
+                'gdt.payload_type', 'gdt.dr_action', 'gdt.action',
+                'gdt.message_type', 'gdt.service_id', 'gdt.service_action',
+                'gdt.stmch_id')
+        assert rows == [
+            ['24', '4', '', '', '', '', '', ''],
+            ['29', '11', '0', '', '', '', '', ''],
+            ['30', '1', '', '', '', '', '', ''],
+            ['31', '', '2', '', '', '', '', ''],
+            ['33', '', '', '0', '', '', '', ''],
+            ['38', '', '', '5', '', '', '', ''],
+            ['47', '', '', '', '3', '', '', ''],
+            ['49', '0', '', '', '', '', '', ''],
+            ['73', '1000', '', '', '', '', '', ''],
+            ['78', '', '', '', '', '42', '2', ''],
+            ['85', '', '', '', '', '', '', '6d616368696e65'],
+        ]
+
+    def test_gdt_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameters with several values, one value, none or an empty one.'''
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 24', 'gdt.parameter_type_id', 'gdt.value_item')
+        assert rows == [['24', '6000,6001,6004,500,6015',
+                '6461656d6f6e,69642d31,69642d32,3139322e302e322e31,<MISSING>,78']]
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 87', 'gdt.parameter_type_id')
+        assert rows[0][1].split(',')[:4] == ['6000', '6010', '6020', '6100']
+        assert rows[0][1].split(',')[-1] == '99999'
+
+    def test_gdt_two_chunks(self, cmd_tshark, capture_file, test_env):
+        '''Two DATA chunks in one SCTP packet give two GDT messages.'''
+        rows = self.gdt_rows(cmd_tshark, capture_file, test_env,
+                'frame.number == 88', 'gdt.version', 'gdt.encrypted_data')
+        assert rows == [['88', '1,1', '7365636f6e64']]
