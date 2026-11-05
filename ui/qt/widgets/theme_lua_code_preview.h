@@ -33,7 +33,7 @@ class QTextDocument;
 /**
  * Static copy of the Lua Debugger script editor for the Theme Designer.
  *
- * Shows the udpdelta.lua example of the Lua debugger chapter of the
+ * Shows the udprtt.lua example of the Lua debugger chapter of the
  * Developer's Guide, highlighted by the debugger's own LuaSyntaxHighlighter,
  * with a breakpoint, the line the debugger is paused on and a selection, so
  * every color of the theme's @c code section is on screen.  Colors come only
