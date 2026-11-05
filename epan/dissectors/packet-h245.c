@@ -344,6 +344,14 @@ static bool fast_start;
 static olc_info_t *upcoming_olc;
 static channel_info_t *upcoming_channel;
 
+/* Called when an exception unwinds out of an OpenLogicalChannel(Ack), so
+ * that no pointer into freed packet memory is left behind. */
+static void h245_reset_upcoming(void *dummy _U_)
+{
+  upcoming_olc = NULL;
+  upcoming_channel = NULL;
+}
+
 /* NonStandardParameter */
 static const char *nsiOID;
 static uint32_t h221NonStandard;
@@ -8595,9 +8603,11 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx
   h223_fw_lc_params = NULL;
   h223_rev_lc_params = NULL;
 
+  CLEANUP_PUSH(h245_reset_upcoming, NULL);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannel, OpenLogicalChannel_sequence);
 
+  CLEANUP_POP;
 
   if(h223_fw_lc_num != 0 && h223_fw_lc_params) {
 	h223_pending_olc *pending = wmem_new(wmem_file_scope(), h223_pending_olc);
@@ -10903,9 +10913,11 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
 
+  CLEANUP_PUSH(h245_reset_upcoming, NULL);
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
 
+  CLEANUP_POP;
 
   temp = h223_fw_lc_num;
   p2p_dir = actx->pinfo->p2p_dir;
