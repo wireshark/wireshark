@@ -59074,3 +59074,73 @@ class TestDissectFortinetFgcp:
                 'ip.proto', 'udp.dstport', extra=('-Y', 'fortinet_fgcp.session.magic'))
         assert rows == [['15', '0x2a2a', '0x0001', '17', '4003'],
                         ['16', '0x2a2b', '0x0002', '17', '4001']]
+
+
+class TestDissectFortinetSso:
+    @staticmethod
+    def sso_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fortinet_sso_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_fortinet_sso_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The UDP datagrams to port 8002 whose length field matches are
+        FSSO (heuristic); a wrong length, another port and a one octet
+        datagram are plain UDP. No malformed packets or expert infos, in
+        one and two passes.'''
+        rows = self.sso_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 18
+        assert [rows[str(i)][0] for i in range(1, 19)] == ['FSSO'] * 15 + ['UDP'] * 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fortinet_sso_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fortinet_sso_strings(self, cmd_tshark, capture_file, test_env):
+        '''Host/domain/user, domain/user/version for keep alives, and
+        strings with fewer than the expected "/" separators (the fix:
+        they used to underflow). The Info column shows the string.'''
+        rows = self.sso_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_sso.host', 'fortinet_sso.domain', 'fortinet_sso.user',
+                'fortinet_sso.version', '_ws.col.info', extra=('-Y', 'fortinet_sso'))
+        assert rows['1'] == ['WS-01', 'CORP', 'alice', '', 'WS-01/CORP/alice']
+        assert rows['3'] == ['', 'CORP', 'KeepAlive', '1.0', 'CORP/KeepAlive/1.0']
+        assert rows['4'] == ['', 'CORP', 'KeepAlive', '2.1', 'CORP/KeepAlive/2.1']
+        assert rows['9'] == ['nouser', '', '', '', 'nouser']
+        assert rows['10'] == ['host', 'domain', '', '', 'host/domain']
+        assert rows['11'] == ['', 'domainonly', '', '', 'domainonly']
+        assert rows['12'] == ['', 'dom', 'user', '', 'dom/user']
+        assert rows['13'] == ['', '', '', '', '//']
+        assert rows['14'] == ['', '', '', '', '/']
+
+    def test_fortinet_sso_trailer(self, cmd_tshark, capture_file, test_env):
+        '''An extra IPv4 address, the 0x2002 form and the TS Agent port
+        ranges after the string.'''
+        rows = self.sso_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_sso.unknown.ipv4', 'fortinet_sso.tsagent.port_range.number',
+                'fortinet_sso.tsagent.port_range.min', 'fortinet_sso.tsagent.port_range.max',
+                extra=('-Y', 'fortinet_sso'))
+        assert rows['1'][0:2] == ['10.1.2.3', '']
+        assert rows['2'] == ['', '', '', '']
+        assert rows['4'][0] == '10.1.2.3'
+        assert rows['5'][0] == '10.9.8.7,10.9.8.6'
+        assert rows['6'] == ['', '2', '1024,2000', '1999,2999']
+        assert rows['7'] == ['', '0', '', '']
+        assert rows['8'][1] == '8'
+        assert rows['8'][2] == ','.join(str(5000 + 100 * i) for i in range(8))
+        assert rows['8'][3] == ','.join(str(5099 + 100 * i) for i in range(8))
+
+    def test_fortinet_sso_header(self, cmd_tshark, capture_file, test_env):
+        '''Length, client address and payload length.'''
+        rows = self.sso_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_sso.length', 'fortinet_sso.client_ip',
+                'fortinet_sso.payload_length', extra=('-Y', 'fortinet_sso'))
+        assert rows['1'] == ['33', '192.0.2.77', '17']
+        assert rows['2'] == ['27', '192.0.2.78', '15']
+        assert rows['3'] == ['31', '255.255.255.255', '19']
