@@ -74141,3 +74141,80 @@ class TestDissectHyperscsi:
             '15\t1\t0\tFalse\t1\t0',
             '16\t0\t1\tTrue\t0\t1',
         ]
+
+
+class TestDissectI2c:
+    def test_i2c_clean(self, cmd_tshark, capture_file, test_env):
+        '''The capture has 33 frames: 20 I2C events, 9 I2C data frames and
+        4 Kontron IPMB frames (decoded as IPMB). None is malformed or has
+        an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i2c_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 33
+        assert protocols.count('I2C Event') == 20
+        assert protocols.count('I2C Write') + protocols.count('I2C Read') == 9
+        assert protocols.count('IPMB') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('i2c_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_i2c_events(self, cmd_tshark, capture_file, test_env):
+        '''Every state event, the detached event with each error flag and
+        unknown events.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i2c_coverage.pcapng.gz'),
+                '-Y', 'i2c.event',
+                '-Tfields', '-eframe.number', '-ei2c.bus', '-ei2c.event',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 20
+        assert lines[0] == ['1', '0', '0x00000001', 'Promiscuous mode is enabled']
+        assert lines[5][1:3] == ['5', '0x00000020']
+        assert lines[10] == ['11', '1', '0x00000020',
+                'The I2C controller is detached from an I2C bus']
+        assert lines[11][3] == 'The I2C controller is detached from an I2C bus: unable to drive data LO'
+        assert lines[16][3].endswith('physically disconnected from the bus')
+        assert lines[17][3].endswith('undiagnosed failure')
+        assert lines[18][3] == '<unknown state event>'
+        assert lines[19][3] == '<unknown state event>'
+
+    def test_i2c_data(self, cmd_tshark, capture_file, test_env):
+        '''Target address (7 bit, general call), direction, flags and bus
+        of the data frames, and the Kontron IPMB frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i2c_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 21',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ei2c.addr', '-ei2c.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\tI2C Write, 4 bytes\t0x50\t0x00000000',
+            '22\tI2C Read, 17 bytes\t0x50\t0x00000001',
+            '23\tI2C Write, 12 bytes\t0x20\t0x00000000',
+            '24\tI2C Read, 5 bytes\t0x7f\t0x00000001',
+            '25\tI2C Write, 2 bytes\t0x00\t0x00000000',
+            '26\tI2C Write, 1 bytes\t0x00\t0x00000000',
+            '27\tI2C Write, 2 bytes\t0x78\t0x00000010',
+            '28\tI2C Read, 3 bytes\t0x21\t0x00002001',
+            '29\tI2C Write, 2 bytes\t0x21\t0x00004000',
+            '30\tI2C, 9 bytes\t0x10\t',
+            '31\tI2C, 24 bytes\t0x40\t',
+            '32\tI2C, 13 bytes\t0x10\t',
+            '33\tI2C, 9 bytes\t0x00\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i2c_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 25 || frame.number == 30',
+                '-V', '-O', 'i2c',
+            ), encoding='utf-8', env=test_env)
+        assert 'Target address: 0x00 (General Call)' in stdout
+        assert 'Bus: I2C-1' in stdout
+        assert 'Inter-Integrated Circuit (Data)' in stdout
