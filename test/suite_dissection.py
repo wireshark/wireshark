@@ -71805,3 +71805,139 @@ class TestDissectHiqnet:
             '60\t0x0100,0x0005\t124,25',
             '62\t0x0129\t37',
         ]
+
+
+class TestDissectHislip:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hislip_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_hislip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''HiSLIP on TCP 4880 (118 frames); nothing is malformed or has an
+        error expert info in one and two passes. The only warnings are
+        the wrong prologue (frames 54 and 133, after StartTLS) and the
+        non-zero message parameter of an unknown message (frame 37).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hislip', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 118
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'hislip.wrongprologue || hislip.msgnotnull',
+                    '-Tfields', '-eframe.number')
+            assert stdout.split() == ['37', '54', '133']
+
+    def test_hislip_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Info column: control codes of the response messages and the
+        data shown (at most 60 octets).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hislip', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['4'] == 'Initialize hislip0'
+        assert info['5'] == ('InitializeResponse [Overlap Mode: Prefer Synchronized, '
+                             'Encryption: Optional, Initial Encryption: Not Required]')
+        assert info['8'] == ('InitializeResponse [Overlap Mode: Prefer Overlap, '
+                             'Encryption: Mandatory, Initial Encryption: Required]')
+        assert info['12'] == 'Data ' + 'x' * 60
+        assert info['20'] == 'Error [Unrecognized Message Type] unrecognized message'
+        assert info['35'] == 'FatalError [Device defined errors]'
+        assert info['36'] == 'reserved for future use'
+        assert info['44'] == 'GetSaslMechanismListResponse PLAIN SCRAM-SHA-256'
+        assert info['47'] == 'AuthenticationResult [Success] ok'
+        assert info['49'] == 'AuthenticationResult [Failure] denied'
+        assert info['59'] == 'AsyncInitializeResponse'
+        assert info['61'] == 'AsyncInitializeResponse [Capability: Secure Connection]'
+        assert info['63'] == 'AsyncLock [Request Exclusive]'
+        assert info['65'] == 'AsyncLock [Request Shared]'
+        assert info['69'] == 'AsyncLock [Release]'
+        assert info['78'] == 'AsyncLockInfoResponse [Exclusive lock granted]'
+        assert info['97'] == 'AsyncServiceRequest STB (0x40)'
+        assert info['105'] == 'AsyncStartTLSResponse [Success]'
+
+    def test_hislip_max_message_size(self, cmd_tshark, capture_file, test_env):
+        '''The maximum message size is shown in Mbytes (the decimal
+        separator depends on the locale); other payload lengths are
+        shown as data.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hislip.messagetype == 15 || hislip.messagetype == 16',
+                '-Tfields', '-eframe.number', '-ehislip.maxmsgsize',
+                '-e_ws.col.info')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:2] == ['91', '1048576']
+        assert lines[1][:2] == ['92', '67108864']
+        assert lines[0][2] in ('AsyncMaximumMessageSize Max Message Size: 1.00 Mbytes',
+                               'AsyncMaximumMessageSize Max Message Size: 1,00 Mbytes')
+        assert lines[1][2] in ('AsyncMaximumMessageSizeResponse Max Message Size: 64.00 Mbytes',
+                               'AsyncMaximumMessageSizeResponse Max Message Size: 64,00 Mbytes')
+        assert lines[2] == ['93', '', 'AsyncMaximumMessageSize']
+
+    def test_hislip_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''GetDescriptorsResponse: TLS versions, TLS information, last
+        error, an IVI and a vendor descriptor and an empty one.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 40', '-Tfields',
+                '-ehislip.descriptor.type', '-ehislip.descriptor.length',
+                '-ehislip.descriptor.tls_version', '-ehislip.descriptor.tls_info',
+                '-ehislip.descriptor.tls_last_error', '-ehislip.descriptor.raw_data')
+        assert stdout.splitlines() == [
+            '0,1,2,3,128,1\t6,22,8,3,6,0\t0x0303,0x0304,0x0302\t'
+            'TLS_AES_256_GCM_SHA384\tno error\t010203,76656e646f72']
+
+    def test_hislip_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched, also for a second
+        response to the same request and a retransmitted request; the
+        same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 123 && frame.number <= 125 && hislip',
+                    '-Tfields', '-eframe.number', '-ehislip.request',
+                    '-ehislip.response')
+            # hf names: hislip.request is the response frame shown in a request;
+            # only known to the request on the second pass
+            first = '125' if passes else ''
+            assert stdout.splitlines() == ['123\t' + first + '\t', '124\t\t123', '125\t\t123']
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'hislip.retrans', '-Tfields', '-eframe.number',
+                    '-ehislip.retrans')
+            assert stdout.splitlines() == ['7\t6', '104\t102', '107\t106']
+
+    def test_hislip_tls_state(self, cmd_tshark, capture_file, test_env):
+        '''After StartTLS a plaintext HiSLIP frame clears the TLS flag, so
+        a frame with another prologue is still HiSLIP; it was handed to
+        TLS on the second pass (-2) only. Directly after StartTLS the
+        bytes go to the TLS dissector in both passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number == 54 || frame.number == 133 || '
+                          'frame.number == 140 || frame.number == 141',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+            assert stdout.splitlines() == ['54\tHiSLIP', '133\tHiSLIP', '140\tSSL', '141\tSSL']
+
+    def test_hislip_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment, a PDU over three segments and a
+        header split after three octets.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 114 && frame.number <= 119',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ehislip.messagetype')
+        assert stdout.splitlines() == [
+            '114\tHiSLIP\t0x06,0x07', '115\tTCP\t', '116\tTCP\t', '117\tHiSLIP\t0x06',
+            '118\tTCP\t', '119\tHiSLIP\t0x07']
+
+    def test_hislip_sync_async(self, cmd_tshark, capture_file, test_env):
+        '''The first message of a connection decides whether it is the
+        synchronous or the asynchronous channel.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hislip.syn', '-Tfields', '-eframe.number')
+        syn = [int(x) for x in stdout.split()]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'hislip.asyn', '-Tfields', '-eframe.number')
+        asyn = [int(x) for x in stdout.split()]
+        assert syn[0] == 4 and 54 in syn and 114 in syn and 129 in syn
+        assert asyn[0] == 58 and 109 in asyn and 123 in asyn
+        assert not set(syn) & set(asyn)
+        assert len(syn) + len(asyn) == 118
