@@ -70802,3 +70802,66 @@ class TestDissectHciUsb:
                                 '_ws.malformed || _ws.expert.severity >= 0x00800000',
                                 'frame.number', passes=passes, name=name)
             assert rows == []
+
+
+class TestDissectHclnfsd:
+    '''HCLNFSD (Hummingbird NFS daemon, ONC RPC program 0x2f00dbad) over
+    UDP, from the synthetic capture hclnfsd_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hclnfsd_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_hclnfsd_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 56 frames are HCLNFSD calls and replies without malformed
+        packets or error expert infos, in one and two passes. Every one
+        of the 18 procedures is called.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'hclnfsd',
+                            'hclnfsd.procedure_v1')
+        assert len(rows) == 56
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'rpc.msgtyp == 0', 'hclnfsd.procedure_v1')
+        assert len(rows) == 28
+        assert {r[1] for r in rows} == {'0', '1', '2', '3', '4', '5', '6', '7', '8',
+                                        '20', '21', '22', '23', '24', '30', '31',
+                                        '32', '105'}
+
+    def test_hclnfsd_authorize_ident(self, cmd_tshark, capture_file, test_env):
+        '''The AUTHORIZE ident is decoded only when it is longer than two
+        octets (frames 13, 15 and 19 have 2, 1 and 1 octets); before
+        "HCLNFSD: Fix a heap over-read decoding the authorize ident" the
+        decoder ran over the end of its buffer, and it also showed a
+        username for the one octet ident.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hclnfsd.username && hclnfsd.password && '
+                            'hclnfsd.authorize.ident.obscure')
+        assert [r[0] for r in rows] == ['7', '9', '11', '17']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hclnfsd.authorize.ident.obscure && !hclnfsd.username',
+                            'hclnfsd.authorize.ident.obscure')
+        assert rows == [['13', 'AB'], ['15', 'A'], ['19', 'a']]
+
+    def test_hclnfsd_authorize_reply(self, cmd_tshark, capture_file, test_env):
+        '''An AUTHORIZE reply with status 0 shows the uid, gid and the
+        list of gids; a non-zero status ends the reply.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {8, 10}', 'hclnfsd.uid',
+                            'hclnfsd.gids', 'hclnfsd.gid')
+        assert rows == [['8', '1001', '3', '100,100,200,300'], ['10', '', '', '']]
+
+    def test_hclnfsd_printq(self, cmd_tshark, capture_file, test_env):
+        '''The GET_PRINTQ reply lists the two print jobs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hclnfsd.job_id', 'hclnfsd.print_jobs', 'hclnfsd.job_id',
+                            'hclnfsd.jobstatus', 'hclnfsd.size')
+        assert rows == [['50', '1', '11,12', '2,2', '4096,4096']]
