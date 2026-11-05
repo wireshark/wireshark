@@ -68624,3 +68624,90 @@ class TestDissectH235:
         rows = self.h235_fields(cmd_tshark, capture_file, test_env, 'mikey.type', filt='mikey')
         assert [r[0] for r in rows] == ['62', '63', '64', '66', '68', '70']
         assert all(r[1] == '0' for r in rows)
+
+
+class TestDissectH245:
+    '''H.245 from the synthetic capture h245_coverage.pcap.gz: H.245 messages
+    of every type on TCP connections announced by an H.225.0 h245Address
+    (frames 1-495 random valid messages, 496-556 logical channel flows and
+    generic messages, 557-562 media on the announced channels, 563-566 split
+    and joined TPKTs, tunnelled and fast start H.245 in H.225.0 at the end)
+    and h245_stale_coverage.pcap.gz (reproducer for the stale
+    upcoming_channel fix).'''
+
+    @staticmethod
+    def h245_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=(),
+                    cap='h245_coverage.pcap.gz'):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file(cap), '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h245_protocols(self, cmd_tshark, capture_file, test_env):
+        '''582 frames; none is malformed or has an error expert info, in one
+        and two passes.'''
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 582
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.245') == 452
+        assert protocols.count('H.225.0') == 30
+        assert protocols.count('H.225.0/H.245') == 6
+        for passes in ((), ('-2',)):
+            rows = self.h245_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h245_media_channels(self, cmd_tshark, capture_file, test_env):
+        '''The mediaChannel / mediaControlChannel of an OpenLogicalChannelAck
+        (frame 501, 526, 514) set up the RTP, RTCP, SRTP and T.38
+        conversations that the media packets 557-562 use.'''
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', 'rtp.setup-frame',
+                                'rtcp.setup-frame', 't38.setup-frame', 't38.setup-method',
+                                filt='frame.number >= 557 && frame.number <= 562')
+        assert [r[1] for r in rows] == ['RTP', 'RTP', 'RTP', 'RTCP', 'T.38', 'SRTP']
+        assert [r[2] for r in rows[:3]] == ['501'] * 3
+        assert rows[3][3] == '501'
+        assert rows[4][4:] == ['514', 'H245']
+        assert rows[5][2] == '526'
+
+    def test_h245_olc_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of an OpenLogicalChannel with its codec; with the
+        shorttypes and prepand preferences.'''
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                                filt='frame.number >= 500 && frame.number <= 501')
+        assert [r[1] for r in rows] == ['openLogicalChannel (g711U) ', 'openLogicalChannelAck ']
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                                filt='frame.number >= 500 && frame.number <= 501',
+                                extra=('-o', 'h245.shorttypes:TRUE', '-o', 'h245.prepand:TRUE'))
+        assert [r[1] for r in rows] == ['OLC (g711U) ', 'OLCAck ']
+
+    def test_h245_h239_generic_messages(self, cmd_tshark, capture_file, test_env):
+        '''GenericMessage 0.0.8.239.2: subMessageIdentifier is translated.'''
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, 'h245.subMessageIdentifier.standard',
+                                filt='h245.subMessageIdentifier.standard')
+        assert len(rows) == 11
+        assert sorted(set(r[1] for r in rows)) == ['1', '2', '3', '4', '5', '6', '77']
+
+    def test_h245_tunnelled(self, cmd_tshark, capture_file, test_env):
+        '''H.245 tunnelled in h245Control of Facility messages (last frames) is dissected as H.225.0/H.245.'''
+        rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='h245 && h225')
+        assert len(rows) >= 6
+        assert {r[1] for r in rows} <= {'H.225.0/H.245', 'H.225.0'}
+
+    def test_h245_stale_upcoming_channel(self, cmd_tshark, capture_file, test_env):
+        '''A truncated OpenLogicalChannelAck (frame 1, tunnelled in a
+        Facility) is malformed; the H.460.21 transmit capability in the
+        following RAS GatekeeperRequest (frame 2) has an H.245 UnicastAddress
+        and used to write through a dangling upcoming_channel pointer
+        (use after free, detected by ASAN / valgrind).  Both frames must
+        dissect, in one and two passes, with -V.'''
+        for passes in ((), ('-2',)):
+            rows = self.h245_fields(cmd_tshark, capture_file, test_env, '_ws.malformed', 'h225.gatekeeperRequest_element',
+                                    passes=passes, cap='h245_stale_coverage.pcap.gz')
+            assert [r[0] for r in rows] == ['1', '2']
+            assert rows[0][1] != '' and rows[0][2] == ''
+            assert rows[1][1] == '' and rows[1][2] != ''
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('h245_stale_coverage.pcap.gz'), '-V'),
+                                      encoding='utf-8', env=test_env, timeout=300)
+        assert 'tsapIdentifier: 6000' in out
