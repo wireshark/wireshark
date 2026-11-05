@@ -184,8 +184,9 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 			len = tvb_get_uint8(tvb, offset+1);
 			proto_tree_add_item(tree, hf_ipaccess_attr_tag,
 					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_ipaccess_attr_string,
-					    tvb, offset+3, len-1, ENC_ASCII);
+			if (len >= 1)
+				proto_tree_add_item(tree, hf_ipaccess_attr_string,
+						    tvb, offset+3, len-1, ENC_ASCII);
 			break;
 		case 0x01:	/* a single-byte request for a certain attr */
 			len = 0;
