@@ -419,9 +419,9 @@ llc_gprs_dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_item *llcgprs_tree
 
 			if (byte1 & 0x80) {
 				/* length continued into byte 2 */
-				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location,
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_len2, tvb, location+1,
 					1, byte2);
-				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location,
+				proto_tree_add_uint(uinfo_tree, hf_llcgprs_xid_spare, tvb, location+1,
 					1, byte2);
 
 				/* be sure to account for the second byte of length */
@@ -663,7 +663,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			{
 				unsigned loop_count;
 				uint8_t r_byte;
-				uint16_t location = offset;
+				unsigned location = offset;
 				ctrl_f_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, sack_length,
 								      ett_llcgprs_sframe, NULL, "SACK FRAME: length = %u", sack_length);
 				/* display the R Bitmap */
@@ -801,9 +801,9 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (tree)
 			{
 				uint8_t tom_byte = 0;
-				uint8_t remaining_length = 0;
+				unsigned remaining_length = 0;
 				uint8_t tom_pd = 0;
-				int loop_counter = 0;
+				unsigned loop_counter = 0;
 
 				tom_byte = tvb_get_uint8(tvb, offset);
 				remaining_length = (tom_byte >> 4) & 0x0F;
@@ -871,9 +871,9 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			if (tree)
 			{
 				uint8_t tom_byte = 0;
-				uint8_t remaining_length = 0;
+				unsigned remaining_length = 0;
 				uint8_t tom_pd = 0;
-				int loop_counter = 0;
+				unsigned loop_counter = 0;
 
 				tom_byte = tvb_get_uint8(tvb, offset);
 				remaining_length = (tom_byte >> 4) & 0x0F;
@@ -950,9 +950,9 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 				if (tree)
 				{
 					uint8_t tom_byte = 0;
-					uint8_t remaining_length = 0;
+					unsigned remaining_length = 0;
 					uint8_t tom_pd = 0;
-					int loop_counter = 0;
+					unsigned loop_counter = 0;
 
 					tom_byte = tvb_get_uint8(tvb, offset);
 					remaining_length = (tom_byte >> 4) & 0x0F;
@@ -1059,7 +1059,7 @@ dissect_llcgprs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			{
 				uint32_t fld_vars = 0;
 				uint16_t cf_byte = 0;
-				int loop_counter = 0;
+				unsigned loop_counter = 0;
 				int location = 0;
 
 				ui_tree = proto_tree_add_subtree_format(llcgprs_tree, tvb, offset, (llc_data_length-2),
