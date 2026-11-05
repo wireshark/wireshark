@@ -65449,3 +65449,84 @@ class TestDissectGsmACommon:
         assert rows['Assignment Complete'] == 1
         assert rows['Assignment Failure'] == 2
         assert total == 288
+
+
+class TestDissectGsmADtap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gsm_a_dtap_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gsm_a_dtap_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed and no expert info has the error severity, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                  '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gsm_a_dtap_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame is the same in one and two passes.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_gsm_a_dtap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''775 frames: A interface (SCTP, M3UA, SCCP, BSSAP). 10 of them are
+        SCCP connection set up (frames 1-2, and 3 connections at the end), the
+        other 765 have a DTAP message. The group and broadcast call control
+        messages are decoded (they need the subtree arrays registered by the fix).'''
+        def count(flt):
+            return count_output(self._tshark(cmd_tshark, capture_file, test_env,
+                                             '-Y', flt, '-Tfields', '-eframe.number'))
+        assert count('frame') == 775
+        assert count('sccp') == 775
+        assert count('gsm_a.dtap') == 765
+        assert count('gsm_a.dtap.msg_gcc_type') == 72
+        assert count('gsm_a.dtap.msg_bcc_type') == 66
+        assert count('gsm_a.dtap.msg_cc_type') == 329
+        assert count('gsm_a.dtap.msg_mm_type') == 196
+        assert count('gsm_a.dtap.msg_ss_type') == 23
+        assert count('gsm_a.dtap.msg_tp_type') == 69
+        assert count('gsm_a.dtap.msg_sms_type') == 7
+
+    def test_gsm_a_dtap_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of a group call control, a test procedure and a call control frame.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number in {3, 60, 684, 700}', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '3 DT1 (DTAP) (GCC) Immediate Setup',
+            '60 DT1 (DTAP) (GCC) Get Status',
+            '684 DT1 (DTAP) (TP) Close UE Test Loop',
+            '700 DT1 (DTAP) (TP) Reset UE Positioning Stored Information']
+
+    def test_gsm_a_dtap_mbms_short_transmission_identity(self, cmd_tshark, capture_file, test_env):
+        '''Frame 684 is a Close UE Test Loop with mode 3: the MBMS short transmission
+        identity item covers the octet after the mode octet (it covered the mode octet
+        before the fix) and the shown value is the 5 bit identity plus one.'''
+        import xml.etree.ElementTree as ET
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number==684', '-Tpdml')
+        fields = {f.get('name'): f for f in ET.fromstring(stdout).iter('field')}
+        mode = fields['gsm_a.dtap.ue_test_loop_mode']
+        ident = fields['gsm_a_dtap.mbms_short_transmission_identity']
+        assert mode.get('show') == '2'
+        assert int(ident.get('pos')) == int(mode.get('pos')) + 1
+        assert ident.get('size') == '1'
+        assert ident.get('show') == '2'
+
+    def test_gsm_a_dtap_emergency_number_list(self, cmd_tshark, capture_file, test_env):
+        '''Frame 704 is a Location Updating Accept with an Emergency Number List
+        of two entries of 3 octets (service category and two octets of digits).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number==704',
+                              '-Tfields', '-egsm_a.dtap.emerg_num_info_length', '-e_ws.col.info')
+        assert stdout.split('\t')[0] == '3,3'
+        assert 'Location Updating Accept' in stdout
+
+    def test_gsm_a_dtap_causes(self, cmd_tshark, capture_file, test_env):
+        '''Cause values of the "Normal call clearing", "User busy" and a "Treat as"
+        range (cause 2) are present.'''
+        for cause in (16, 17, 2):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', f'gsm_a.dtap.cause == {cause}',
+                                  '-Tfields', '-eframe.number')
+            assert count_output(stdout) >= 1, cause
