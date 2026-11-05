@@ -72759,3 +72759,67 @@ class TestDissectHpErm:
         assert lines[8].split('\t')[1:4] == ['0x8100', '4094', '']
         assert lines[9].split('\t')[1:4] == ['0x0806', '', '1']
         assert lines[11].split('\t')[1] == '0x88b5'
+
+
+class TestDissectHpext:
+    def test_hpext_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Twelve frames: HPEXT is reached through LLC DSAP 0xF8 and hands
+        the payload to RMP, HPSW, SNMP or the data dissector. None is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpext_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('RMP') == 6
+        assert protocols.count('HP') == 1
+        assert protocols.count('SNMP') == 1
+        assert protocols.count('HPEXT') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('hpext_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_hpext_header(self, cmd_tshark, capture_file, test_env):
+        '''Reserved, DXSAP and SXSAP, with the names of the known SAPs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpext_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ehpext.reserved',
+                '-ehpext.dxsap', '-ehpext.sxsap',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x000000\t0x0608\t0x0609'
+        assert lines[6] == '7\t0x000000\t0x0623\t0x0623'
+        assert lines[7] == '8\t0x000000\t0x165a\t0x165a'
+        assert lines[10] == '11\t0xabcdef\t0x0001\t0x165a'
+
+    def test_hpext_info(self, cmd_tshark, capture_file, test_env):
+        '''Unknown SAPs are printed as hex, known ones by name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpext_coverage.pcap.gz'),
+                '-Y', 'hpext && !rmp && !hpsw && !snmp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 4
+        assert lines[0].endswith('; HPEXT; DXSAP 1234, SXSAP abcd')
+        assert lines[1].endswith('; HPEXT; DXSAP RBOOT Destination Service Access Point, '
+                                 'SXSAP RBOOT Source Service Access Point')
+        assert lines[2].endswith('; HPEXT; DXSAP 0001, SXSAP SNMP')
+        assert lines[3].endswith('; HPEXT; DXSAP 00ff, SXSAP HP Switch Protocol')
+
+    def test_hpext_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''The DXSAP selects RMP (both 0x0608 and 0x0609), HPSW and SNMP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hpext_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ermp.type', '-ehpsw.device_name',
+                '-esnmp.name',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[1] for l in lines[0:6]] == ['0x01', '0x81', '0x02', '0x82', '0x03', '0x03']
+        assert lines[6].split('\t')[2] == 'switch1'
+        assert lines[7].split('\t')[3] == '1.3.6.1.2.1.1.1.0'
