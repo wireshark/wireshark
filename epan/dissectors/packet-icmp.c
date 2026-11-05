@@ -166,6 +166,8 @@ static int ett_icmp_ext_object;
 /* MPLS extensions */
 static int ett_icmp_mpls_stack_object;
 
+static expert_field ei_icmp_nested_error;
+static expert_field ei_icmp_ext_obj_len_invalid;
 static expert_field ei_icmp_type_deprecated;
 static expert_field ei_icmp_resp_not_found;
 static expert_field ei_icmp_checksum;
@@ -609,7 +611,7 @@ dissect_mip_extensions(tvbuff_t * tvb, int offset, proto_tree * tree)
 		default:
 			/* data, if any */
 			if (length != 0) {
-				proto_tree_add_item(mip_tree, hf_icmp_mip_content, tvb, offset, length - 4, ENC_NA);
+				proto_tree_add_item(mip_tree, hf_icmp_mip_content, tvb, offset, length, ENC_NA);
 				offset += length;
 			}
 
@@ -760,7 +762,7 @@ dissect_mpls_stack_entry_object(tvbuff_t * tvb, int offset,
 
 /* Dissect Interface Information Object RFC 5837*/
 static bool
-dissect_interface_information_object(tvbuff_t * tvb, int offset,
+dissect_interface_information_object(tvbuff_t * tvb, packet_info *pinfo, int offset,
 				     proto_tree * ext_object_tree,
 				     proto_item * tf_object)
 {
@@ -855,7 +857,7 @@ dissect_interface_information_object(tvbuff_t * tvb, int offset,
 			offset += 16;
 			break;
 			default: /* Unknown ?! */
-			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipunknown, tvb, offset, offset - obj_end_offset, ENC_NA);
+			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipunknown, tvb, offset, obj_end_offset - offset, ENC_NA);
 			return false;
 		}
 
@@ -865,6 +867,11 @@ dissect_interface_information_object(tvbuff_t * tvb, int offset,
 	if (name_flag) {
 		if (obj_end_offset >= offset + 1) {
 			int_name_length = tvb_get_uint8(tvb, offset);
+			if (int_name_length < 1) {
+				expert_add_info_format(pinfo, tf_object, &ei_icmp_ext_obj_len_invalid,
+						       "Invalid interface name sub-object length: 0 (minimum 1)");
+				return unknown_object;
+			}
 			int_name_object_tree = proto_tree_add_subtree(ext_object_tree, tvb,
 						 offset, int_name_length, ett_icmp_interface_name, NULL,
 						 "Interface Name Sub-Object");
@@ -1060,6 +1067,7 @@ dissect_icmp_extension(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 		case INTERFACE_INFORMATION_OBJECT_CLASS:
 			unknown_object =
 			    dissect_interface_information_object(tvb,
+								 pinfo,
 								 offset,
 								 ext_object_tree,
 								 tf_object);
@@ -1777,7 +1785,15 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			}
 		}
 
-		call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
+		if (save_in_error_pkt) {
+			/* An error message inside an error message; do not
+			   dissect the embedded datagram any further, to bound
+			   the nesting. */
+			proto_tree_add_expert(icmp_tree, pinfo, &ei_icmp_nested_error, next_tvb, 0, -1);
+			call_data_dissector(next_tvb, pinfo, icmp_tree);
+		} else {
+			call_dissector(ip_handle, next_tvb, pinfo, icmp_tree);
+		}
 
 		/* Restore the "we're inside an error packet" flag. */
 		pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -2412,6 +2428,8 @@ void proto_register_icmp(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_icmp_ext_obj_len_invalid, { "icmp.ext.object.length.invalid", PI_MALFORMED, PI_WARN, "Invalid extension object length", EXPFILL }},
+		{ &ei_icmp_nested_error, { "icmp.nested_error", PI_MALFORMED, PI_WARN, "ICMP error message nested inside an ICMP error message", EXPFILL }},
 		{ &ei_icmp_type_deprecated, { "icmp.type.deprecated", PI_DEPRECATED, PI_NOTE, "Type is deprecated", EXPFILL }},
 		{ &ei_icmp_resp_not_found, { "icmp.resp_not_found", PI_SEQUENCE, PI_WARN, "Response not found", EXPFILL }},
 		{ &ei_icmp_checksum, { "icmp.checksum_bad", PI_CHECKSUM, PI_WARN, "Bad checksum", EXPFILL }},
