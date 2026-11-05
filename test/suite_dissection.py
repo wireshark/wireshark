@@ -67977,3 +67977,139 @@ class TestDissectGvrp:
             '11\t6\t', '12\t1\t', '13\t2\t', '14\t3\t', '15\t2\t', '16\t4\t',
             '17\t7\tWarning: this version of Wireshark only knows about protocol id = 1',
         ]
+
+
+class TestDissectGvsp:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.Protocol',
+                '-e_ws.col.Info',
+            ), encoding='utf-8', env=test_env)
+        return {int(l.split('\t')[0]): l.split('\t')[1:]
+                for l in stdout.splitlines()}
+
+    def test_gvsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GVSP is reached through the stream port that the GVCP register
+        write in frame 1 announces; the UDP 55555/55556 frames only match
+        the heuristic dissector, which is disabled by default.  None of
+        the frames is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.Protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 228
+        assert protocols.count('GVCP') == 2
+        assert protocols.count('GVSP') == 213
+        assert protocols.count('UDP') == 13
+        for passes in ((), ('-2',), ('--enable-heuristic', 'gvsp_udp'),
+                ('-2', '--enable-heuristic', 'gvsp_udp')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gvsp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gvsp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristic dissector enabled the plain UDP frames of the
+        stream on port 55555 and a short leader on 55556 are GVSP; frames
+        with a bad status, format or payload type stay UDP.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          '--enable-heuristic', 'gvsp_udp')
+        assert [rows[n][0] for n in range(216, 229)] == [
+            'GVSP', 'GVSP', 'GVSP', 'GVSP', 'UDP', 'UDP', 'UDP', 'UDP',
+            'UDP', 'UDP', 'UDP', 'UDP', 'GVSP']
+        assert rows[216][1] == 'LEADER [Block ID: 90 Packet ID: 0] IMAGE '
+        assert rows[219][1] == 'ALLIN [Block ID: 90 Packet ID: 3] RAW DATA '
+
+    def test_gvsp_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Info of the image block, the 16 bit and the extended ids, flags
+        and the unknown formats.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env)
+        assert rows[1][1].startswith('> WRITEREG_CMD [SCP0 (Stream Channel #0 Port)] Value=0x0000C35A')
+        assert rows[3] == ['GVSP', 'LEADER [Block ID: 1 Packet ID: 0] IMAGE ']
+        assert rows[4][1] == 'PAYLOAD [Block ID: 1 Packet ID: 1] '
+        assert rows[7][1] == 'TRAILER [Block ID: 1 Packet ID: 4] IMAGE '
+        assert rows[11][1] == 'ALLIN [Block ID: 2 Packet ID: 0] IMAGE '
+        assert rows[150][1] == ('TRAILER [Block ID: 8589934665 Packet ID: 70000] '
+                                'EXTENDED CHUNK DATA (obsolete with v2.0) ')
+        assert rows[179][1] == 'PAYLOAD [Block ID: 83 Packet ID: 5] [PACKET_RESEND] '
+        assert rows[180][1] == 'PAYLOAD [Block ID: 83 Packet ID: 6] [BLOCK_DROPPED] '
+        assert rows[181][1] == 'PAYLOAD [Block ID: 83 Packet ID: 7] [RANGE_ERROR] '
+        assert rows[182][1] == ('PAYLOAD [Block ID: 83 Packet ID: 8] [RANGE_ERROR] '
+                                '[BLOCK_DROPPED] [PACKET_RESEND] ')
+        assert rows[184][1] == 'H264 [Block ID: 83 Packet ID: 5] [PACKET_RESEND] '
+        assert rows[185][1] == 'MULTI-ZONE [Block ID: 83 Packet ID: 5] '
+        assert rows[189][1] == ('Unknown Format (0x9) [Block ID: 83 Packet ID: 0] '
+                                'Unknown Payload Type (0x0) ')
+
+    def test_gvsp_image(self, cmd_tshark, capture_file, test_env):
+        '''Image leader AOI and the 16 bit ids, file name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-egvsp.sizex', '-egvsp.sizey',
+                '-egvsp.blockid16', '-egvsp.packetid24',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['640', '480', '2', '0\n']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'gvsp.filename && frame.number < 30',
+                '-Tfields', '-eframe.number', '-egvsp.filename',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['24', 'image.bin', '27', 'image.bin', '28', 'image.bin']
+
+    def test_gvsp_multipart(self, cmd_tshark, capture_file, test_env):
+        '''A multi-part leader with all the data types and the trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 190',
+                '-Tfields', '-egvsp.numparts', '-egvsp.multipartdatatype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '13', '0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,'
+                  '0x0009,0x000a,0x000b,0x000c,0x8000']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 194',
+                '-Tfields', '-egvsp.multipartdatatype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007,0x0008,'
+            '0x0009,0x000a,0x000b,0x000c,0x8000']
+
+    def test_gvsp_gendc(self, cmd_tshark, capture_file, test_env):
+        '''The GenDC container descriptor of frame 209: three components
+        with two and three parts of every part header type.  The component
+        and part headers sit at the offsets the descriptor gives (they
+        started in the wrong place before "GVSP: Limit the work done for
+        GenDC component and part offsets").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 209',
+                '-Tfields',
+                '-egvsp.gendc.container.header.signature',
+                '-egvsp.gendc.container.header.componentcount',
+                '-egvsp.gendc.container.header.componentoffset',
+                '-egvsp.gendc.component.header.partcount',
+                '-egvsp.gendc.header.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            'GNDC', '0x00000003',
+            '0x0000000000000050,0x0000000000000110,0x0000000000000218',
+            '0x0002,0x0003,0x0003',
+            '0x1000,0x2000,0x4200,0x4100,0x2000,0x4001,0x4000,0x4201,'
+            '0x2000,0x4202,0x4203,0x9999']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('gvsp_coverage.pcap.gz'),
+                '-Y', 'gvsp.gendc.part.header.flags.xml.zip',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['209', '212', '214']
+        rows = self._rows(cmd_tshark, capture_file, test_env)
+        assert rows[208][1] == 'LEADER [Block ID: 34359738457 Packet ID: 0] GENDC '
+        assert rows[209][1] == 'GENDC [Block ID: 34359738457 Packet ID: 1] '
