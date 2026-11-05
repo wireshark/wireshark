@@ -270,7 +270,7 @@ dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
 
     encap_proto = tvb_get_ntohs(tvb, IEEE8021AH_LEN - 2);
     proto_tree_add_uint(tree, hf_ieee8021ah_etype, tvb,
-                        IEEE8021AD_LEN - 2, 2, encap_proto);
+                        IEEE8021AH_LEN - 2, 2, encap_proto);
 
     /* 802.1ah I-tags are always followed by an ethertype; call next
        dissector based on ethertype */
