@@ -68806,3 +68806,70 @@ class TestDissectH248_2:
         rows = self.h248_2_fields(cmd_tshark, capture_file, test_env, 'h248.package_eventid', 'h248.2.dtt.val',
                                   filt='frame.number == 15 || frame.number == 16')
         assert rows == [['15', '0x0002', ''], ['16', '0x0001,0x0002,0x0003', '1']]
+
+
+class TestDissectH2483gpp:
+    '''The 3GPP TS 29.232 packages (3G User Plane, Circuit Switched Data,
+    TFO Control, IP transport, Interface Type) inside binary H.248 on UDP
+    2945, from the synthetic capture h248_3gpp_coverage.pcapng.gz: frames
+    1-28 are messages with all properties, events and signals of the
+    packages (bearer capabilities of several lengths, short and long
+    codecs), 29-38 the package sweep and 39-93 messages built from the
+    H.248 ASN.1 module with these packages.'''
+
+    @staticmethod
+    def h248_3gpp_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('h248_3gpp_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h248_3gpp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''93 H.248 frames, none malformed or with an error expert info
+        in one and two passes.'''
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 93
+        assert {r[1] for r in rows} == {'H.248'}
+        for passes in ((), ('-2',)):
+            rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env,
+                                         filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                         passes=passes)
+            assert rows == []
+
+    def test_h248_3gpp_user_plane(self, cmd_tshark, capture_file, test_env):
+        '''3G User Plane mode and IP transport / interface type values.'''
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, 'h248.package_3GUP.Mode',
+                                     filt='frame.number <= 5')
+        assert [r[1] for r in rows] == ['1', '2', '1', '2', '70000']
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, 'h248.package_threegiptra.udport',
+                                     'h248.package_threegint.ipint', filt='frame.number == 7')
+        assert rows == [['7', '49170', '1,2']]
+
+    def test_h248_3gpp_plmnbc(self, cmd_tshark, capture_file, test_env):
+        '''The bearer capability is decoded from the octet string itself:
+        values of 0, 1, 2, 5, 3 and 8 octets, where a short one used to
+        compute a negative length from the outer value.'''
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, 'h248.package_3GCSD.plmnbc',
+                                     filt='frame.number >= 8 && frame.number <= 14')
+        assert [r[1] for r in rows] == ['60', '6004020100', '6004', '<MISSING>', '600402010000000000', 'a08400',
+                                        '0406600402010000']
+
+    def test_h248_3gpp_tfo_codecs(self, cmd_tshark, capture_file, test_env):
+        '''The optimal codec is decoded with the length of its own octet
+        string (frames 21-27) and the codec lists with every codec.'''
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env,
+                                     'h248.package_3GTFO.codec_modify.optimalcodec',
+                                     filt='frame.number >= 21 && frame.number <= 27')
+        assert [r[1] for r in rows] == ['0204', '0108', '020181', '0101', '02038182', '010a01', '3000']
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, 'h248.package_3GTFO.codeclist',
+                                     filt='frame.number == 20')
+        assert rows == [['20', '010101020103010501060107,0101,300100']]
+
+    def test_h248_3gpp_events(self, cmd_tshark, capture_file, test_env):
+        '''Circuit switched data events and signal, TFO status event.'''
+        rows = self.h248_3gpp_fields(cmd_tshark, capture_file, test_env, 'h248.package_3GCSD.protres.result',
+                                     'h248.package_3GCSD.actprot.localpeer',
+                                     filt='frame.number >= 15 && frame.number <= 18')
+        assert [r[1:] for r in rows] == [['0', ''], ['1', ''], ['0', ''], ['', '1']]
