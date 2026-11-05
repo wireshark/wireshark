@@ -63329,3 +63329,156 @@ class TestDissectGmr1Common:
                               '-Y', 'frame.number >= 22 && frame.number <= 25', '-Tfields',
                               '-eframe.number', '-egmr1.skip_ind', '-egmr1.l3_protocol_discriminator')
         assert stdout.splitlines() == ['22\t0\t6', '23\t1\t6', '24\t5\t6', '25\t15\t6']
+
+
+class TestDissectGmr1Dtap:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('gmr1_dtap_coverage.pcap.gz'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_gmr1_dtap_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_gmr1_dtap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are LAPSat; the GMR-1 DTAP dissector shows the 85 RR
+        messages, the other 14 messages (frames 82-94 and 96) have other protocol
+        discriminators, 12 of them are decoded by the GSM DTAP dissector.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['LAPSat'] * 99
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'gmr1.dtap', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 85
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', '!gmr1.dtap && gsm_a.dtap', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in list(range(82, 91)) + [93, 94, 96]]
+
+    def test_gmr1_dtap_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame: LAPSat frame type, the protocol discriminator and
+        the message. Frames 97 and 98 are I frames, 95 and 96 use SAPI 3.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'lapsat', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '2 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '3 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '4 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '5 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '6 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '7 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '8 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '9 U, func=UI (DTAP) (RR) Ciphering Mode Complete',
+            '10 U, func=UI (DTAP) (RR) Ciphering Mode Complete',
+            '11 U, func=UI (DTAP) (RR) Ciphering Mode Complete',
+            '12 U, func=UI (DTAP) (RR) Ciphering Mode Complete',
+            '13 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '14 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '15 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '16 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '17 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '18 U, func=UI (DTAP) (RR) Assignment Command 1',
+            '19 U, func=UI (DTAP) (RR) Channel Release',
+            '20 U, func=UI (DTAP) (RR) Channel Release',
+            '21 U, func=UI (DTAP) (RR) Channel Release',
+            '22 U, func=UI (DTAP) (RR) Channel Release',
+            '23 U, func=UI (DTAP) (RR) Channel Release',
+            '24 U, func=UI (DTAP) (RR) Channel Release',
+            '25 U, func=UI (DTAP) (RR) Channel Release',
+            '26 U, func=UI (DTAP) (RR) Channel Release',
+            '27 U, func=UI (DTAP) (RR) Channel Release',
+            '28 U, func=UI (DTAP) (RR) Channel Release',
+            '29 U, func=UI (DTAP) (RR) Channel Release',
+            '30 U, func=UI (DTAP) (RR) Channel Release',
+            '31 U, func=UI (DTAP) (RR) Channel Release',
+            '32 U, func=UI (DTAP) (RR) Channel Release',
+            '33 U, func=UI (DTAP) (RR) Channel Release',
+            '34 U, func=UI (DTAP) (RR) Channel Release',
+            '35 U, func=UI (DTAP) (RR) Paging Response',
+            '36 U, func=UI (DTAP) (RR) Paging Response',
+            '37 U, func=UI (DTAP) (RR) Paging Response',
+            '38 U, func=UI (DTAP) (RR) Paging Response',
+            '39 U, func=UI (DTAP) (RR) Paging Response',
+            '40 U, func=UI (DTAP) (RR) Channel Mode Modify',
+            '41 U, func=UI (DTAP) (RR) Channel Mode Modify Acknowledge',
+            '42 U, func=UI (DTAP) (RR) Channel Mode Modify',
+            '43 U, func=UI (DTAP) (RR) Channel Mode Modify Acknowledge',
+            '44 U, func=UI (DTAP) (RR) Channel Mode Modify',
+            '45 U, func=UI (DTAP) (RR) Channel Mode Modify Acknowledge',
+            '46 U, func=UI (DTAP) (RR) Immediate Assignment',
+            '47 U, func=UI (DTAP) (RR) Immediate Assignment Reject Type 1',
+            '48 U, func=UI (DTAP) (RR) Position Verification Notify',
+            '49 U, func=UI (DTAP) (RR) Immediate Assignment Type 3',
+            '50 U, func=UI (DTAP) (RR) Paging Request Type 3',
+            '51 U, func=UI (DTAP) (RR) Extended Immediate Assignment',
+            '52 U, func=UI (DTAP) (RR) Extended Imm. Assignment Reject',
+            '53 U, func=UI (DTAP) (RR) Immediate Assignment Reject Type 3',
+            '54 U, func=UI (DTAP) (RR) Assignment Command 2',
+            '55 U, func=UI (DTAP) (RR) Assignment Complete',
+            '56 U, func=UI (DTAP) (RR) Assignment Failure',
+            '57 U, func=UI (DTAP) (RR) Handover Command',
+            '58 U, func=UI (DTAP) (RR) Handover Complete',
+            '59 U, func=UI (DTAP) (RR) TtT Signalling Link Failure',
+            '60 U, func=UI (DTAP) (RR) Paging Request Type 1',
+            '61 U, func=UI (DTAP) (RR) Paging Request Type 2',
+            '62 U, func=UI (DTAP) (RR) RR Status',
+            '63 U, func=UI (DTAP) (RR) Classmark Change',
+            '64 U, func=UI (DTAP) (RR) Classmark Enquiry',
+            '65 U, func=UI (DTAP) (RR) Position Update Request',
+            '66 U, func=UI (DTAP) (RR) Position Update Accept',
+            '67 U, func=UI (DTAP) (RR) Link Correction Message',
+            '68 U, func=UI (DTAP) (RR) Power Control Parameters Update',
+            '69 U, func=UI (DTAP) (RR) Guard Time Violation',
+            '70 U, func=UI (DTAP) (RR) Extended Channel Request',
+            '71 U, func=UI (DTAP) (RR) Information Request',
+            '72 U, func=UI (DTAP) (RR) Information Response Position',
+            '73 U, func=UI (DTAP) (RR) Information Response Version',
+            '74 U, func=UI (DTAP) (RR) Information Response Spot Beam Selection',
+            '75 U, func=UI (DTAP) (RR) Information Response Power Control',
+            '76 U, func=UI (DTAP) (RR) Information Response Vendor Specific',
+            '77 U, func=UI (DTAP) (RR) Information Response Current Beam',
+            '78 U, func=UI (DTAP) (RR) Information Response Error',
+            '79 U, func=UI (DTAP) (RR) Message Type (0x7a)',
+            '80 U, func=UI (DTAP) (RR) Message Type (0xfe)',
+            '81 U, func=UI (DTAP) (RR) Ciphering Mode Command',
+            '82 U, func=UI(DTAP) (CC) Alerting',
+            '83 U, func=UI(DTAP) (CC) Call Proceeding',
+            '84 U, func=UI(DTAP) (CC) Connect',
+            '85 U, func=UI(DTAP) (CC) Release Complete',
+            '86 U, func=UI(DTAP) (MM) CM Service Accept',
+            '87 U, func=UI(DTAP) (MM) Authentication Reject',
+            '88 U, func=UI(DTAP) (MM) Location Updating Reject',
+            '89 U, func=UI(DTAP) (MM) TMSI Reallocation Complete',
+            '90 U, func=UI(DTAP) (SM) Deactivate PDP Context Accept',
+            '91 U, func=UI(DTAP) (Reserved)',
+            '92 U, func=UI(DTAP) (Reserved)',
+            '93 U, func=UI(DTAP) (GMM) P-TMSI Reallocation Complete',
+            '94 U, func=UI(DTAP) (SMS) CP-ACK',
+            '95 U, func=UI (DTAP) (RR) Channel Release',
+            '96 U, func=UI(DTAP) (CC) Alerting',
+            '97 I, N(R)=0, N(S)=0 (DTAP) (RR) Channel Release',
+            '98 I P, N(R)=0, N(S)=26 (DTAP) (RR) Channel Release',
+            '99 U, func=UI (DTAP) (RR) Message Type (0xc3)',
+        ]
+
+    def test_gmr1_dtap_protocol_discriminator_offset(self, cmd_tshark, capture_file, test_env):
+        '''The protocol discriminator item covers the first octet of the message
+        (it was highlighting the message type octet).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 95', '-Tpdml')
+        from xml.etree import ElementTree
+        root = ElementTree.fromstring(stdout)
+        pos = {f.get('name'): int(f.get('pos')) for f in root.iter('field')
+               if f.get('name') in ('gmr1.dtap.protocol_discriminator', 'gmr1.rr.msg_type', 'gmr1.rr.cause')}
+        assert pos == {'gmr1.dtap.protocol_discriminator': 0, 'gmr1.rr.msg_type': 1, 'gmr1.rr.cause': 2}
+
+    def test_gmr1_dtap_unknown_message(self, cmd_tshark, capture_file, test_env):
+        '''An unknown RR message type is named by its number and its octets are
+        shown as message elements.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 99', '-Tfields', '-egmr1.rr.msg_type',
+                              '-egmr1.dtap.message_elements')
+        assert stdout.split() == ['0xc3', '010203']
