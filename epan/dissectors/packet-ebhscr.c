@@ -749,6 +749,7 @@ static expert_field ei_ebhscr_info_status_flag;
 static expert_field ei_ebhscr_err_channel_flag;
 static expert_field ei_ebhscr_warn_mjr_hdr_status_flag;
 static expert_field ei_ebhscr_warn_csi2_hdr_error_flag;
+static expert_field ei_ebhscr_lin_payload_length;
 
 static dissector_handle_t ebhscr_handle;
 
@@ -868,7 +869,7 @@ static int dissect_ebhscr_nmea(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
 	call_data_dissector(next_tvb, pinfo, tree);
-	nmea_str = tvb_get_string_enc(pinfo->pool, tvb, 32, ebhscr_length, ENC_UTF_8);
+	nmea_str = tvb_get_string_enc(pinfo->pool, tvb, 32, MIN(ebhscr_length, ebhscr_current_payload_length), ENC_UTF_8);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", "NMEA:", nmea_str);
 	return tvb_captured_length(tvb);
 }
@@ -963,6 +964,11 @@ static int dissect_ebhscr_lin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ebh
 	lin_pid_tree = proto_item_add_subtree(ti, ett_lin_payload);
 	proto_tree_add_bitmask_list(lin_pid_tree, tvb, 32, 1, lin_payload_pid_bits, ENC_BIG_ENDIAN);
 
+	if (ebhscr_current_payload_length < 2) {
+		expert_add_info(pinfo, ti, &ei_ebhscr_lin_payload_length);
+		return tvb_captured_length(tvb);
+	}
+
 	proto_tree_add_item(lin_payload_tree, hf_lin_payload_data, tvb, EBHSCR_HEADER_LENGTH + 1, ebhscr_current_payload_length - 2, ENC_NA);
 	proto_tree_add_item(lin_payload_tree, hf_lin_payload_checksum, tvb, EBHSCR_HEADER_LENGTH + ebhscr_current_payload_length - 1, 1, ENC_BIG_ENDIAN);
 
@@ -1008,7 +1014,7 @@ static int dissect_ebhscr_flexray_frame_packet(tvbuff_t *tvb, packet_info *pinfo
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
 	tvbuff_t *fr_tvb, *hdr_tvb;
 	uint8_t channel;
-	uint8_t header_data[2U];
+	uint8_t *header_data;
 
 	ti = proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_status, tvb, 2, 2, ENC_BIG_ENDIAN);
 	flexray_status_tree = proto_item_add_subtree(ti, ett_ebhscr_status);
@@ -1029,6 +1035,7 @@ static int dissect_ebhscr_flexray_frame_packet(tvbuff_t *tvb, packet_info *pinfo
 
 	fr_tvb = tvb_new_composite();
 
+	header_data = (uint8_t *)wmem_alloc(pinfo->pool, 2U);
 	header_data[0] = 0x01;
 	channel = tvb_get_uint8(tvb, 1);
 
@@ -1072,7 +1079,7 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 	proto_item *ti;
 	proto_tree *flexray_mhdr_tree, *flexray_mhdr_sub_tree, *flexray_status_tree;
 	uint8_t symbol_length, channel;
-	uint8_t flexray_symbol_packet[2U];
+	uint8_t *flexray_symbol_packet;
 
 	ti = proto_tree_add_item(ebhscr_packet_header_tree, hf_ebhscr_status, tvb, 2, 2, ENC_BIG_ENDIAN);
 	flexray_status_tree = proto_item_add_subtree(ti, ett_ebhscr_status);
@@ -1095,6 +1102,7 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 
 	symbol_length = tvb_get_uint8(tvb, 28) & 0x7F;
 
+	flexray_symbol_packet = (uint8_t *)wmem_alloc(pinfo->pool, 2U);
 	flexray_symbol_packet[0] = 0x02;
 
 	channel = tvb_get_uint8(tvb, 1);
@@ -1105,7 +1113,7 @@ static int dissect_ebhscr_flexray_symbol_packet(tvbuff_t *tvb, packet_info *pinf
 
 	flexray_symbol_packet[1] = symbol_length;
 
-	symbol_tvb = tvb_new_real_data(flexray_symbol_packet, 2U, 2U);
+	symbol_tvb = tvb_new_child_real_data(tvb, flexray_symbol_packet, 2U, 2U);
 	call_dissector(flexray_handle, symbol_tvb, pinfo, tree);
 
 	return tvb_captured_length(tvb);
@@ -2788,6 +2796,10 @@ proto_register_ebhscr(void)
 		{ &ei_ebhscr_frame_header,
 			{ "ebhscr.frame_header", PI_MALFORMED, PI_ERROR,
 			"Frame Header is malformed", EXPFILL }
+		},
+		{ &ei_ebhscr_lin_payload_length,
+			{ "ebhscr.lin.payload_length", PI_MALFORMED, PI_ERROR,
+			"LIN payload is too short for data and checksum", EXPFILL }
 		},
 		{ &ei_ebhscr_err_status_flag,
 			{ "ebhscr.sts.err.status", PI_PROTOCOL, PI_WARN,
