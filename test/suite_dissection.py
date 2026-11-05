@@ -77719,3 +77719,66 @@ class TestDissectIgmp:
             '53\t10.0.0.1\t10.0.0.2',
             '55\t10.0.0.1,10.0.1.1\t10.0.0.2,10.0.1.2',
         ]
+
+
+class TestDissectIgrp:
+    def test_igrp_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 8 frames are IGRP; none is malformed, and the only expert
+        info is the unknown version warning of frame 7, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert protocols.count('IGRP') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('igrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('igrp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '7\tUnknown Version, The dissection may be inaccurate']
+
+    def test_igrp_info(self, cmd_tshark, capture_file, test_env):
+        '''Request, response, and the unknown opcode and version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igrp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eigrp.version',
+                '-eigrp.command', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t2\tRequest',
+            '2\t1\t1\tResponse',
+            '3\t1\t1\tResponse',
+            '4\t1\t1\tResponse',
+            '5\t1\t1\tResponse',
+            '6\t1\t3\tUnknown version or opcode',
+            '7\t2\t1\tUnknown version or opcode',
+            '8\t1\t1\tResponse',
+        ]
+
+    def test_igrp_routes(self, cmd_tshark, capture_file, test_env):
+        '''Interior routes take the first octet of the IPv4 source address
+        (none over IPv6), system and exterior routes have a zero last
+        octet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('igrp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eigrp.interior_routes',
+                '-eigrp.system_routes', '-eigrp.exterior_routes',
+                '-eigrp.network', '-eigrp.hop_count', '-eigrp.mtu',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[1] == '2\t2\t1\t1\t192.0.1.0,192.0.2.0,10.0.0.0,172.16.0.0\t0,1,3,255\t1500,1500,1500,576'
+        assert lines[2].startswith('3\t0\t2\t0\t192.168.1.0,192.168.2.0')
+        assert lines[3].startswith('4\t0\t0\t1\t198.51.100.0\t0\t65535')
+        assert lines[4].startswith('5\t1\t0\t0\t172.0.9.9')
+        assert lines[7].startswith('8\t1\t0\t0\t0.1.0.0')
