@@ -76173,3 +76173,154 @@ class TestDissectIeee1722:
                 '-Y', 'frame.number == 91', '-Tfields', '-e_ws.col.protocol',
                 '-etscf.data_len', '-e_ws.malformed')
         assert rows == ['TSCF (v0)\t8\t']
+
+
+class TestDissectIeee1905:
+    @staticmethod
+    def _fields(cmd_tshark, capture, test_env, *args):
+        '''Run tshark with the given extra arguments and return stdout.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _write_pcap(path, frames):
+        '''Write Ethernet frames to a classic pcap file.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, fr in enumerate(frames):
+                f.write(struct.pack('<IIII', 1000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_ieee1905_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 705 frames are decoded as IEEE 1905 (the Wi-Fi DPP, EAP and
+        EAPOL dissectors set the protocol column of four of them), nothing is
+        malformed and the only expert infos are four warnings, in one and
+        two passes.'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, cap, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 705
+        assert protocols.count('ieee1905') == 701
+        assert protocols.count('wifi_dpp') == 2
+        assert protocols.count('EAP') == 1
+        assert protocols.count('EAPOL') == 1
+        for passes in ((), ('-2',)):
+            stdout = self._fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self._fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
+                    '-e_ws.expert.message', '-E', 'separator=/t')
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                ['697', 'TLV has extra data or an incorrect length'],
+                ['699', 'TLV has extra data or an incorrect length'],
+                ['700', 'TLV is too short'],
+                ['701', 'TLV is too short'],
+            ]
+
+    def test_ieee1905_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Info column, TLV types and decoded fields are the same in one and
+        two passes (only the "Reassembled in" item of the earlier fragments
+        appears in the second pass, so the fragments field is left out).'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        args = ('-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eieee1905.tlv_type',
+                '-eieee1905.tlv_length')
+        one = self._fields(cmd_tshark, cap, test_env, *args)
+        two = self._fields(cmd_tshark, cap, test_env, '-2', *args)
+        assert one == two
+        assert count_output(one) == 705
+        one = self._fields(cmd_tshark, cap, test_env, '-V', '-O', 'ieee1905', '-Y', 'frame.number >= 628')
+        two = self._fields(cmd_tshark, cap, test_env, '-2', '-V', '-O', 'ieee1905', '-Y', 'frame.number >= 628')
+        # Same trees apart from the reassembly items
+        strip = lambda text: [l for l in text.splitlines() if 'Reassembled in' not in l]
+        assert strip(one) == strip(two)
+
+    def test_ieee1905_qos_descriptor_short(self, cmd_tshark, capture_file, test_env):
+        '''A QoS Management Descriptor TLV shorter than its 14 byte fixed
+        part gets an expert info and is skipped (the length used to
+        underflow and the TLV ran past its end).'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, cap, test_env,
+                '-Y', 'frame.number == 697 && ieee1905.tlv.extra_data && !_ws.malformed',
+                '-Tfields', '-eieee1905.tlv_type')
+        assert stdout.split() == ['0xdc,0x00']
+
+    def test_ieee1905_mic_too_short(self, cmd_tshark, tmp_path, test_env):
+        '''A MIC TLV too short for its fixed part and the MIC it declares
+        is reported with an error expert info (check_mic_tlv() used to copy
+        past the end of its buffer). The frame is built here because the
+        malformed capture is not part of the tree. No keys are involved.'''
+        eth = bytes.fromhex('0180c2000013' '020000000001') + struct.pack('>H', 0x893a)
+        cmdu = bytes([0, 0]) + struct.pack('>HHBB', 0, 1, 0, 0x80)
+        data = bytearray(b'\x41' * 43)
+        data[9:11] = struct.pack('>H', 32)
+        frame = (eth + cmdu + bytes([0xab]) + struct.pack('>H', 1) + b'\x11'
+                 + bytes([0xfe]) + struct.pack('>H', len(data)) + bytes(data)
+                 + b'\x00\x00\x00')
+        pcap = str(tmp_path / 'mic.pcap')
+        self._write_pcap(pcap, [frame])
+        stdout = self._fields(cmd_tshark, pcap, test_env,
+                '-Y', 'ieee1905.mic.too_short', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1']
+
+    def test_ieee1905_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragmented CMDUs are reassembled in the last fragment, also when
+        the fragments are on a VLAN, interleaved with another message or
+        out of order. The reassembled message holds the same TLVs.'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, cap, test_env,
+                '-Y', 'frame.number >= 682 && frame.number <= 696',
+                '-Tfields', '-eframe.number', '-eieee1905.fragments',
+                '-eieee1905.tlv_type', '-E', 'separator=/t')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        reassembled = [r[0] for r in rows if r[1]]
+        assert reassembled == ['684', '688', '691', '692', '695']
+        for r in rows:
+            if r[1]:
+                assert r[2] == '0x01,0x0b,0x82,0x00'
+        stdout = self._fields(cmd_tshark, cap, test_env,
+                '-Y', 'frame.number == 685', '-Tfields', '-e_ws.col.info')
+        assert stdout.strip() == ('Topology response (Message ID: 683, '
+                                  'Fragment ID: 0, VLAN ID: 7)')
+
+    def test_ieee1905_tunneled(self, cmd_tshark, capture_file, test_env):
+        '''The Tunneled TLV is handed to the 802.11 management dissector
+        according to the Tunneled Message Type TLV.'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        stdout = self._fields(cmd_tshark, cap, test_env,
+                '-Y', 'frame.number >= 655 && frame.number <= 664',
+                '-Tfields', '-eframe.number',
+                '-eieee1905.tunneled_message_type.tunneled_payload_type',
+                '-e_ws.col.info', '-E', 'separator=/t')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['655', '0', 'Tunnelled, SSID="test"'],
+            ['656', '1', 'Tunnelled, SSID="test"'],
+            ['657', '2', 'BSS Transition Management Query, Dialog Token=1'],
+            ['658', '3', 'BSS Transition Management Request, Dialog Token=1'],
+            ['659', '4', 'Tunnelled, Dialog Token=1'],
+            ['660', '5', 'Tunnelled'],
+            ['661', '6', 'Tunnelled'],
+            ['662', '7', 'Tunnelled'],
+            ['663', '9', 'Tunnelled'],
+            ['664', '', 'Tunnelled'],
+        ]
+
+    def test_ieee1905_values(self, cmd_tshark, capture_file, test_env):
+        '''A few decoded values from the deeply nested TLVs: HE MCS sets,
+        client steering lists, Wi-Fi 7 records, L2 neighbor and scan result.'''
+        cap = capture_file('ieee1905_coverage.pcap.gz')
+        def one(frame, field):
+            stdout = self._fields(cmd_tshark, cap, test_env,
+                    '-Y', f'frame.number == {frame}', '-Tfields', f'-e{field}')
+            return stdout.strip()
+        assert [one(f, 'ieee1905.ap_he_capability.he_mcs_count') for f in (636, 637, 638)] == ['4', '8', '12']
+        assert one(641, 'ieee1905.steering_req.sta_count') == '2'
+        assert one(641, 'ieee1905.steering_req.target_bssid') == '020000000031,020000000032'
+        assert one(641, 'ieee1905.steering_req.target_channel') == '6,36'
+        assert one(635, 'ieee1905.l2_neighbor.neighbor_behind_mac_addr') == '02:00:00:00:00:62,02:00:00:00:00:63'
+        assert one(644, 'ieee1905.channel_scan_result.ssid') == 'net-one,net-two'
+        assert one(665, 'ieee1905.wifi_7_agent_capabilities.radio_num_ap_str_records') == '1,0'
+        assert one(667, 'ieee1905.rsn_diagnostic_report.rsn_error') == '0'
+        assert one(671, 'ieee1905.rsn_diagnostic_report.rsn_error') == '4'
