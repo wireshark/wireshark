@@ -132,6 +132,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
   h223_fw_lc_num = 0;
   h223_lc_params_temp = NULL;
+  h223_fw_lc_params = NULL;
+  h223_rev_lc_params = NULL;
 
 %(DEFAULT_BODY)s
 
@@ -237,11 +239,11 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_SENT;
   pend = (h223_pending_olc *)wmem_map_lookup( h223_pending_olc_reqs[%(ACTX)s->pinfo->p2p_dir], GINT_TO_POINTER(temp) );
   if (pend) {
-	DISSECTOR_ASSERT( ( h223_rev_lc_num &&  pend->rev_channel_params)
-				   || (!h223_rev_lc_num && !pend->rev_channel_params) );
+	/* The ack and the request come from the packets; add the reverse
+	 * channel only when both of them have one. */
 	if(h223_add_lc_handle) {
 	  (*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_fw_lc_num, pend->fw_channel_params);
-	  if(h223_rev_lc_num)
+	  if(h223_rev_lc_num && pend->rev_channel_params)
 		(*h223_add_lc_handle)( %(ACTX)s->pinfo, h223_rev_lc_num, pend->rev_channel_params);
 	}
   } else {
