@@ -70190,3 +70190,149 @@ class TestDissectH501:
         rows = self.h501_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
                                 filt='frame.number >= 152', extra=('-o', 'h501.desegment:FALSE'))
         assert len(rows) == 2
+
+
+class TestDissectHartip:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('hartip_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_hartip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''169 of the 171 frames are HART_IP (the first two segments of
+        a PDU split over three are TCP), none is malformed or has an
+        error expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '',
+                            'frame.number', '_ws.col.protocol')
+        assert len(rows) == 171
+        assert [r[1] for r in rows].count('HART_IP') == 169
+        assert [r[0] for r in rows if r[1] == 'TCP'] == ['150', '151']
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                'frame.number', passes=passes)
+            assert rows == []
+
+    def test_hartip_session_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Session initiate fields, the error codes and the expert infos
+        for an empty keep alive and an unexpected body.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 8',
+                            'frame.number', 'hart_ip.session_init.master_type',
+                            'hart_ip.session_init.inactivity_close_timer',
+                            'hart_ip.error.error_code', '_ws.expert.message')
+        assert rows[0] == ['1', '1', '900000', '', '']
+        assert rows[3] == ['4', '0', '60000', '', '']
+        assert rows[4] == ['5', '', '', '', 'No data']
+        assert rows[5] == ['6', '', '', '', 'Unexpected message body']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hart_ip.error.error_code && frame.number < 100',
+                            'frame.number', 'hart_ip.error.error_code')
+        assert rows == [['8', '0'], ['9', '1'], ['10', '2'], ['11', '9'], ['12', '2']]
+
+    def test_hartip_udp_three_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Three PDUs in one UDP datagram (frame 166) are all dissected
+        at their own offset: the offset was added up instead of assigned,
+        and the protocol item was always put at offset 0. The command 48
+        body of 24 octets has one device-specific status, not two.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 166',
+                            'hart_ip.transaction_id', 'hart_ip.pt.rsp.device_sp_status')
+        assert rows == [['11,12,13', '101112131415']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hartip_coverage.pcap.gz'),
+                '-Y', 'frame.number == 166', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        import xml.etree.ElementTree as ET
+        protos = [(p.get('pos'), p.get('size')) for p in
+                  ET.fromstring(stdout).iter('proto') if p.get('name') == 'hart_ip']
+        assert protos == [('42', '8'), ('50', '48'), ('98', '25')]
+
+    def test_hartip_udp_conversation(self, cmd_tshark, capture_file, test_env):
+        '''A session initiate over UDP port 5094 makes the traffic
+        between the client port and the server's reply port 5095
+        HART-IP, which has no dissector of its own.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'udp.port == 5095',
+                            'frame.number', '_ws.col.protocol', 'hart_ip.message_id')
+        assert rows == [['159', 'HART_IP', '0'], ['160', 'HART_IP', '3'],
+                        ['161', 'HART_IP', '3'], ['164', 'HART_IP', '0'],
+                        ['165', 'HART_IP', '2'], ['166', 'HART_IP', '2,3,3'],
+                        ['167', 'HART_IP', '2,9']]
+
+    def test_hartip_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A response split over three TCP segments is reassembled in
+        the last one, followed by a second PDU in the same segment.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 150 && frame.number <= 152',
+                            'frame.number', 'tcp.segment', '_ws.col.info')
+        assert rows[0][1] == '' and rows[1][1] == ''
+        assert rows[2] == ['152', '150,151,152',
+            'Pass Through Response, Sequence Number 53 | '
+            'Keep Alive Request, Sequence Number 54']
+
+    def test_hartip_strings(self, cmd_tshark, capture_file, test_env):
+        '''Packed ASCII message, tag and descriptor of commands 12, 13,
+        17 and 18, and the 32 octet long tag of command 22.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hart_ip.pt.rsp.message || hart_ip.pt.rsp.tag',
+                            'frame.number', 'hart_ip.pt.rsp.message',
+                            'hart_ip.pt.rsp.tag', 'hart_ip.pt.rsp.descriptor')
+        assert rows == [
+            ['63', 'HELLO WORLD MESSAGE 12345 ABCDEF', '', ''],
+            ['64', 'ANOTHER MESSAGE                 ', '', ''],
+            ['66', '', 'TAG-001 ', 'DESCRIPTOR ABC  '],
+            ['67', '', 'TAG-002 ', 'DESC            '],
+            ['69', '', 'LONG TAG 0123456789ABCDEFGHIJKLM', ''],
+        ]
+
+    def test_hartip_command_178_and_77(self, cmd_tshark, capture_file, test_env):
+        '''Command 178 carries commands 3, 9, 48 and an unknown one;
+        command 77 carries an embedded frame with a short or a unique
+        address.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 120',
+                            'hart_ip.pt.rsp.number_of_commands',
+                            'hart_ip.pt.rsp.command_number')
+        assert rows == [['5', '3,9,48,48,99']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hart_ip.pt.command == 77',
+                            'frame.number', 'hart_ip.pt.rsp.unique_id',
+                            'hart_ip.pt.rsp.poll_address')
+        assert rows[:4] == [['112', '', '3'], ['113', '2611223344', ''],
+                            ['114', '', '3'], ['115', '2611223344', '']]
+
+    def test_hartip_command_48_sizes(self, cmd_tshark, capture_file, test_env):
+        '''The second 11 octet status of command 48 needs a body of 25
+        octets (it was shown for 24 as well).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'hart_ip.pt.command == 48 && frame.number < 100',
+                            'frame.number', 'hart_ip.pt.rsp.device_sp_status')
+        counts = [(r[0], len(r[1].split(',')) if r[1] else 0) for r in rows]
+        assert counts == [('87', 0), ('88', 1), ('89', 1), ('90', 1),
+                          ('91', 1), ('92', 1), ('93', 1), ('94', 1),
+                          ('95', 2), ('96', 0)]
+
+    def test_hartip_stats(self, cmd_tshark, capture_file, test_env):
+        '''Statistics tree: totals by message type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('hartip_coverage.pcap.gz'),
+                '-q', '-z', 'hart_ip,tree',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split() for l in stdout.splitlines()]
+        def count(*prefix):
+            for l in lines:
+                if l[:len(prefix)] == list(prefix):
+                    return int(l[len(prefix)])
+            return None
+        assert count('Total', 'HART_IP', 'Packets') == 176
+        assert count('Request', 'Packets') == 55
+        assert count('Response', 'Packets') == 111
+        assert count('Error', 'Packets') == 8
+        assert count('Publish', 'Packets') == 2
