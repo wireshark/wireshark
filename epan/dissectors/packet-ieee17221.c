@@ -2850,8 +2850,8 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
    uint16_t mr_counter;
 
    float frequency;
-   int freq_mult;
-   int base_freq;
+   uint32_t freq_mult;
+   uint32_t base_freq;
 
    proto_item *aem_tree;
    /* used in creation of descriptor subtree */
@@ -3107,8 +3107,8 @@ dissect_17221_aem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             frequency = freq_mult == 0 ? 1 :
                freq_mult == 1 ? 1 / (float)1.001 :
                freq_mult == 2 ? (float)1.001 :
-               freq_mult == 3 ? 24 / 25 :
-               freq_mult == 4 ? 54 / 24 : 0;
+               freq_mult == 3 ? 24.0f / 25.0f :
+               freq_mult == 4 ? 25.0f / 24.0f : 0;
 
             frequency *= base_freq;
             proto_tree_add_float(mr_subtree, hf_aem_frequency, tvb, mr_offset, 4, frequency);
