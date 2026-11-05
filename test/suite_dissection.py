@@ -77782,3 +77782,275 @@ class TestDissectIgrp:
         assert lines[3].startswith('4\t0\t0\t1\t198.51.100.0\t0\t65535')
         assert lines[4].startswith('5\t1\t0\t0\t172.0.9.9')
         assert lines[7].startswith('8\t1\t0\t0\t0.1.0.0')
+
+
+class TestDissectIke:
+    '''IKEv1 and IKEv2 (UDP and TCP 500, UDP 4500 with the non-ESP marker,
+    RFC 8229 TCP encapsulation) from the synthetic captures
+    ike_coverage.pcap.gz and ike_tcp_coverage.pcap.gz. All Encrypted
+    payloads, hashes, signatures and key exchange values are constant
+    placeholder bytes, so only the cleartext structure is dissected.'''
+
+    @staticmethod
+    def ike_fields(cmd_tshark, capture_file, test_env, name, flt, fields, *opts):
+        '''Run tshark with a display filter and return a list of rows,
+        each row a list of the requested field values.'''
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file(name), '-Y', flt, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def ike_pcap(frames):
+        '''A pcap with one UDP frame (port 500) per IKE message.'''
+        def csum(b):
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return (~s) & 0xffff
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for i, p in enumerate(frames):
+            udp = struct.pack('!HHHH', 500, 500, 8 + len(p), 0) + p
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), i + 1, 0, 64, 17, 0,
+                             bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+            ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:]
+            fr = bytes.fromhex('020000000002020000000001') + b'\x08\x00' + ip + udp
+            out += struct.pack('<IIII', 1000 + i, 0, len(fr), len(fr)) + fr
+        return out
+
+    def test_ike_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 89 frames decode without malformed packets or error expert
+        infos, in one and two passes; the Info column is the same.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ike_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ike_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120))
+        assert outputs[0] == outputs[1]
+        protocols = [l.split('\t')[1] for l in outputs[0].splitlines()]
+        assert len(protocols) == 89
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'IKE': 84, 'EAP': 2, 'TCP': 3}
+
+    def test_ike_depth_and_short_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''Frames 85 (IKEv1) and 86 (IKEv2) carry 300 header-only Vendor ID
+        payloads; each payload used to leak one level of dissection depth
+        (a DISSECTOR_ASSERT after 250, "ISAKMP: Fix dissection depth and
+        fragment decryption failure"). Frames 57-63 hold IKEv2 Encrypted
+        payloads of 0, 2, 3, 4, 5, 24 and 64 octets, which are shown
+        without keys; the IV is only taken from 4 octets on.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {85, 86}',
+                ('frame.number', 'ike.nextpayload'))
+        assert [(r[0], len(r[1].split(','))) for r in rows] == [('85', 301), ('86', 301)]
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {57, 58, 59, 60, 61, 62, 63}',
+                ('frame.number', 'ike.enc.iv', 'ike.enc.data'))
+        assert [(r[0], r[1] != '', r[2] != '') for r in rows] == [
+            ('57', False, True), ('58', False, True), ('59', False, True),
+            ('60', True, True), ('61', True, True), ('62', True, True),
+            ('63', True, True)]
+
+    def test_ike_v1_main_mode(self, cmd_tshark, capture_file, test_env):
+        '''The attributes of the IKEv1 Phase 1 transforms in frame 1 and
+        the Vendor IDs with their decoded trailers.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number == 1',
+                ('ike.ike.attr.encryption_algorithm', 'ike.ike.attr.hash_algorithm',
+                 'ike.ike.attr.authentication_method', 'ike.ike.attr.authentication_method_china',
+                 'ike.ike.attr.group_description', 'ike.ike.attr.key_length',
+                 'ike.ike.attr.life_duration', 'ike.ike.attr.life_duration64',
+                 'ike.vid_string', 'ike.vid.cp.product', 'ike.vid.cisco_unity.minor',
+                 'ike.vid.ms_nt5_isakmpoakley', 'ike.vid.aruba_via_auth_profile',
+                 'ike.vid.fortinet.fortigate.build', 'ike.vid.watchguard.firebox_version'))
+        assert len(rows) == 1
+        r = rows[0]
+        assert r[0] == '7,128,129,129,5'
+        assert r[1] == '2,20'
+        assert r[2] == '1'
+        assert r[3] == '10,1,10'
+        assert r[4] == '14'
+        assert r[5] == '256,128'
+        assert r[6] == '28800,5,1,258,66051,16909060'
+        assert r[7] == '4328719365,1108152157446,283686952306183,72623859790382856'
+        assert r[8].split(',')[:4] == [
+            'RFC 3947 Negotiation of NAT-Traversal in the IKE',
+            'RFC 3706 DPD (Dead Peer Detection)', 'XAUTH', 'Cisco Fragmentation']
+        assert r[8].count('Unknown Vendor ID') == 3
+        assert r[9] == '1'
+        assert r[10] == '2'
+        assert r[11] == '3'
+        assert r[12] == 'sample'
+        assert r[13] == '1234'
+        assert r[14] == 'version=12'
+
+    def test_ike_v1_exchanges(self, cmd_tshark, capture_file, test_env):
+        '''Identification types, configuration (mode config, XAUTH) and
+        notify/delete payloads of IKEv1.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number == 9',
+                ('ike.id.type', 'ike.id.data.fqdn', 'ike.id.data.user_fqdn',
+                 'ike.id.data.key_id'))
+        assert rows == [['1,2,3,4,5,6,7,8,9,11,12,10', 'gw.example.org',
+                         'user@example.org', '6b65792d6964656e746966696572']]
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {22, 23}',
+                ('frame.number', 'ike.cfg.attr.internal_ip4_address',
+                 'ike.cfg.attr.application_version', 'ike.cfg.attr.xauth.user_name',
+                 'ike.cfg.attr.unity.banner', 'ike.cfg.attr.fortinet.dns_suffix'))
+        assert rows == [
+            ['22', '192.0.2.1,192.0.2.2', 'Synthetic VPN 1.0', '', '', ''],
+            ['23', '', '', 'alice', 'Welcome banner', 'example.org']]
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {16, 17, 20}',
+                ('frame.number', 'ike.notify.msgtype', 'ike.delete.spi'))
+        assert [r[:2] for r in rows] == [['16', '24576'], ['17', '24576'], ['20', '']]
+        assert rows[2][2].count(',') == 2
+
+    def test_ike_cisco_fragments(self, cmd_tshark, capture_file, test_env):
+        '''Cisco IKE fragmentation: three fragments are reassembled and
+        the Aggressive Mode message is dissected from the last one.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {27, 28, 29}',
+                ('frame.number', 'ike.frag.seq', 'ike.frag.last', 'ike.id.data.fqdn',
+                 'ike.fragments'))
+        assert [r[:4] for r in rows] == [
+            ['27', '1', '0', ''], ['28', '2', '0', ''], ['29', '3', '1', 'client.example.org']]
+
+    def test_ike_gdoi(self, cmd_tshark, capture_file, test_env):
+        '''GDOI (RFC 6407): KEK and TEK payloads in the SA payload, directly
+        in the chain, Key Download and Sequence Number.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'ike.sak.spi',
+                ('frame.number', 'ike.sak.spi', 'ike.sat.protocol_id',
+                 'ike.sat.dst_id_data', 'ike.kd.num_pkt', 'ike.seq.seq'))
+        assert rows == [
+            ['31', '303132333435363738393a3b3c3d3e3f', '1,2', '6473742e74657374,6473742e74657374',
+             '2', '77'],
+            ['34', '303132333435363738393a3b3c3d3e3f', '1,2', '6473742e74657374,6473742e74657374',
+             '', '']]
+
+    def test_ike_v2_init_and_nat(self, cmd_tshark, capture_file, test_env):
+        '''IKE_SA_INIT with NAT detection: the hashes are recomputed from the
+        SPIs, address and port of the frame (IPv4 frame 46, IPv6 frame 50).
+        Frame 47 has two payloads that differ (NAT detected).'''
+        for frame in ('46', '50'):
+            rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                    'ike_coverage.pcap.gz', f'frame.number == {frame}',
+                    ('ike.notify.data',))
+            assert len(rows) == 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ike_coverage.pcap.gz'), '-V',
+                '-Y', 'frame.number in {46, 50}',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('[correct, NAT was not detected]') == 4
+        assert 'NAT detected' not in stdout
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'ike.notify.nat_payload.sha1_mismatch',
+                ('frame.number',))
+        assert rows == [['47']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ike_coverage.pcap.gz'), '-V', '-Y', 'frame.number == 47',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('NAT was detected') >= 2
+        assert stdout.count('[malformed: notify_data length 3]') == 2
+
+    def test_ike_v2_auth_payloads(self, cmd_tshark, capture_file, test_env):
+        '''IKE_AUTH payloads in the clear: IDs, certificates, Certificate
+        Request, AUTH, configuration, traffic selectors.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {54, 55}',
+                ('frame.number', 'ike.id.type', 'ike.cert.x509.url', 'ike.auth.method',
+                 'ike.auth.data.sig.asn1.len', 'ike.ts.type', 'ike.ts.start_fc',
+                 'ike.cfg.attr.internal_ip4_address', 'ike.cfg.attr.application_version'))
+        assert rows == [
+            ['54', '2,1', 'http://ca.example.org/cert.der', '14', '15',
+             '7,7,8,8,9,1,7,7,8,8,9,1', '66051,66051', '', ''],
+            ['55', '3,5,9,11,13,12,4', '', '1,14,14,2', '0,200',
+             '7,7,8,8,9,1', '66051', '192.0.2.1', 'Synthetic 2.0']]
+
+    def test_ike_v2_notify(self, cmd_tshark, capture_file, test_env):
+        '''Notify payloads of frame 77: redirect, authentication lifetime,
+        ROHC, 3GPP and Fortinet private types.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number == 77',
+                ('ike.notify.data.auth_lifetime', 'ike.notify.data.redirect.new_resp_gw_ident.ipv4',
+                 'ike.notify.data.redirect.new_resp_gw_ident.fqdn',
+                 'ike.notify.data.rohc.attr.mrru', 'ike.notify.priv.3gpp.device_identity_imei',
+                 'ike.notify.priv.3gpp.device_identity_imeisv', 'ike.notify.priv.3gpp.emergency_call_mcc',
+                 'ike.notify.priv.3gpp.backoff_timer_len', 'ike.notify.data.fortinet.network_overlay_id',
+                 'ike.notify.data.fortinet.forticlient_connect.type',
+                 'ike.notify.data.fortinet.forticlient_connect.emsid',
+                 'ike.notify.priv.3gpp.unknown_device_identity'))
+        assert rows == [['3725', '192.0.2.2', 'gw.test.net', '1500', '4321876543210987',
+                         '432187654321098765', '3100', '1', '305419896',
+                         'VER,FCTVER,UID,IP,MAC,HOST,USER,OSVER,REG_STATUS,EMSSN,EMSID,OTHER',
+                         '7', '1']]
+
+    def test_ike_v2_fragments(self, cmd_tshark, capture_file, test_env):
+        '''Encrypted Fragment payloads without keys: the fragment numbers
+        are shown and no reassembly is attempted.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'ike.frag.number',
+                ('frame.number', 'ike.frag.number', 'ike.frag.total'))
+        assert rows == [['65', '1', '3'], ['66', '2', '3'], ['67', '3', '3'],
+                        ['68', '1', '3'], ['69', '2', '3'], ['70', '3', '3'],
+                        ['71', '1', '1']]
+
+    def test_ike_udp4500_and_tcp(self, cmd_tshark, capture_file, test_env):
+        '''IKE after the 4 octet non-ESP marker on UDP 4500 (frame 40) and
+        over TCP 500 (frames 44, 45); the RFC 8229 stream on TCP 4500 is
+        detected from the "IKETCP" prefix. The prefix frame sent by the
+        client is shown as TCP in the first pass: the heuristic takes it
+        without dissecting it (frame 4); the second pass shows it as
+        IKETCP, so only frames 5-9 are checked.'''
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_coverage.pcap.gz', 'frame.number in {40, 44, 45}',
+                ('frame.number', '_ws.col.protocol', 'ike.exchangetype'))
+        assert rows == [['40', 'IKE', '5'], ['44', 'IKE', '5'], ['45', 'IKE', '5']]
+        rows = self.ike_fields(cmd_tshark, capture_file, test_env,
+                'ike_tcp_coverage.pcap.gz', 'frame.number >= 5',
+                ('frame.number', '_ws.col.protocol', '_ws.col.info'))
+        assert rows == [
+            ['5', 'IKETCP', 'MAGIC PACKET'],
+            ['6', 'IKE', 'IKE_SA_INIT MID=00 Initiator Request'],
+            ['7', 'IKE', 'IKE_SA_INIT MID=00 Responder Response'],
+            ['8', 'ESP', 'ESP (SPI=0xc0de0001)'],
+            ['9', 'IKE', 'INFORMATIONAL MID=01 Initiator Request']]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ike_tcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ike_skf_null_cipher(self, cmd_tshark, test_env, tmp_path):
+        '''An Encrypted Fragment payload without data, with an IKEv2
+        decryption table entry for NULL encryption and NONE integrity (no
+        key material), used to trip DISSECTOR_ASSERT(tvb &&
+        tvb->initialized) in tvb_reported_length(): the decrypted tvb was
+        used without a NULL check ("ISAKMP: Fix dissection depth and
+        fragment decryption failure").'''
+        skf = struct.pack('!BBHHH', 35, 0, 8, 1, 1)
+        hdr = (b'\x11' * 8 + b'\x22' * 8 +
+               struct.pack('!BBBBII', 53, 0x20, 35, 0x08, 1, 28 + len(skf)))
+        pcap = tmp_path / 'ike_skf_null.pcap'
+        pcap.write_bytes(self.ike_pcap([hdr + skf]))
+        table = ('uat:ikev2_decryption_table:'
+                 '1111111111111111,2222222222222222,,,"NULL [RFC2410]",,,"NONE [RFC4306]"')
+        stdout = subprocess.check_output((cmd_tshark, '-o', table,
+                '-r', str(pcap), '-Tfields', '-e_ws.col.info', '-eike.frag.number',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            'IKE_AUTH MID=01 Initiator Request (fragment 1/1)\t1\t'
+            'Not enough data in IKEv2 Encrypted payload']
