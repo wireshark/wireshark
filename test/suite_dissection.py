@@ -66601,3 +66601,78 @@ class TestDissectGsmRlcmac:
                             flt='frame.number in {130..132} || frame.number in {159, 176}')
         assert rows == [['130', '31', '', ''], ['131', '', '0', ''], ['132', '', '', '505'],
                         ['159', '55', '4', ''], ['176', '31', '', '']]
+
+
+class TestDissectGsmRlp:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsm_rlp_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsm_rlp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is GSM RLP in GSMTAP and none is malformed or has
+        an expert info, in one and two passes (the FCS of every frame is
+        correct).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_rlp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('GSM-RLP') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gsm_rlp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gsm_rlp_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-17 are U frames (SABM, UA, DISC, DM, NULL, UI, TEST,
+        REMAP, an unknown type and XID), 18-21 S frames (RR, REJ, RNR, SREJ) and 22-30 IS frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlp.ftype', 'gsm_rlp.u_ftype',
+                            'gsm_rlp.s_ftype', 'gsm_rlp.fcs.status')
+        assert [r[1] for r in rows] == ['0x00'] * 17 + ['0x01'] * 4 + ['0x02'] * 9
+        assert [r[2] for r in rows[:9]] == ['0x07', '0x0c', '0x08', '0x03',
+                                             '0x0f', '0x00', '0x1c', '0x11', '0x05']
+        assert [r[3] for r in rows[17:21]] == ['0x00', '0x02', '0x01', '0x03']
+        assert all(r[4] == '1' for r in rows)
+
+    def test_gsm_rlp_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''N(S) and N(R) of an S frame (N(R) only) and of IS frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlp.n_s', 'gsm_rlp.n_r',
+                            flt='frame.number in {19, 23, 30}')
+        assert rows == [['19', '', '25'], ['23', '7', '35'], ['30', '61', '63']]
+
+    def test_gsm_rlp_xid_value_bytes(self, cmd_tshark, capture_file, test_env):
+        '''The XID parameter value is a byte string for lengths 1 to 15
+        (it was FT_UINT8 before the fix).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_rlp.xid.param_value',
+                            flt='gsm_rlp.xid.param_value')
+        assert [r[1] for r in rows] == [
+            '01,20,20,0034,0f,0019,00000000,01,0001', '00,aabb', '0102',
+            '010203', '0102030405', '0102030405060708',
+            '0102030405060708090a0b0c0d0e0f']
+
+    def test_gsm_rlp_l2rcop_payload(self, cmd_tshark, capture_file, test_env):
+        '''IS frames are decoded as L2RCOP, with the 6 bit extended address
+        in its own field, and as data with the preference off.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_l2rcop.addr', 'gsm_l2rcop.ext_addr',
+                            flt='gsm_l2rcop')
+        assert len(rows) == 9
+        assert rows[7] == ['29', '27,31', '37']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'gsm_l2rcop.addr', flt='gsm_l2rcop',
+                            extra=('-ogsm_rlp.decode_as_l2rcop:FALSE',))
+        assert rows == []
