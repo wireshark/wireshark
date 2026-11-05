@@ -25,7 +25,8 @@ uncompress_chunk(tvbuff_t *tvb, int offset, unsigned in_size, wmem_array_t *obuf
 {
 	unsigned in_off = 0, out_off = 0, out_start = 0;
 	uint8_t flags;
-	unsigned i, j, val, pos;
+	unsigned i, j, pos;
+	uint8_t val;
 
 	out_start = wmem_array_get_count(obuf);
 
