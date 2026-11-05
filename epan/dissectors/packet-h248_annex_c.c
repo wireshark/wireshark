@@ -744,6 +744,8 @@ static void dissect_h248_annexc_acodec(proto_tree* tree,
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 	dissect_ber_octet_string(implicit_p ? *((bool*)implicit_p) : false, &asn1_ctx, tree, tvb, 0, hfid, &new_tvb);
 
+	if (!new_tvb)
+		return;
 	tree = proto_item_add_subtree(asn1_ctx.created_item,ett_codec);
 	len = tvb_reported_length(new_tvb);
 	dissect_codec_mode(tree,new_tvb,0,len);
