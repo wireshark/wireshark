@@ -67246,3 +67246,93 @@ class TestDissectGsmtapLog:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['10']
+
+
+class TestDissectGsmUm:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *fields, flt=None, extra=()):
+        args = [cmd_tshark, *extra, '-r', capture_file('gsm_um_coverage.xml.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_gsm_um_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The Gammu DCT3 trace opens with the GSM Um link layer; 34 frames
+        end in GSM Um and 11 in LAPDm (SDCCH, SACCH and FACCH), none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('gsm_um_coverage.xml.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 45
+        assert protocols.count('GSM Um') == 34
+        assert protocols.count('LAPDm') == 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('gsm_um_coverage.xml.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_gsm_um_bands(self, cmd_tshark, capture_file, test_env):
+        '''Downlink frames show ARFCN, band and downlink frequency; the
+        edges of every band and the unknown band are covered.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_um.arfcn', 'gsm_um.band', 'gsm_um.frequency',
+                          flt='frame.number <= 20')
+        assert [r[1:] for r in rows] == [
+            ['1', 'P-GSM 900', '935200'], ['124', 'P-GSM 900', '959800'],
+            ['0', 'E-GSM 900', '935000'], ['975', 'E-GSM 900', '925200'],
+            ['1023', 'E-GSM 900', '934800'], ['955', 'R-GSM 900', '921200'],
+            ['974', 'R-GSM 900', '925000'], ['512', 'DCS 1800', '1805200'],
+            ['885', 'DCS 1800', '1879800'], ['810', 'DCS 1800', '1864800'],
+            ['259', 'GSM 450', '460600'], ['293', 'GSM 450', '467400'],
+            ['306', 'GSM 480', '489000'], ['340', 'GSM 480', '495800'],
+            ['128', 'GSM 850', '869200'], ['251', 'GSM 850', '893800'],
+            ['200', 'GSM 850', '883600'], ['900', 'Unknown', '0'],
+            ['500', 'Unknown', '0'], ['1100', 'Unknown', '0']]
+
+    def test_gsm_um_pcs1900_preference(self, cmd_tshark, capture_file, test_env):
+        '''With dcs1800 off ARFCN 512-810 is PCS 1900 and 811-885 is unknown.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_um.band', 'gsm_um.frequency',
+                          flt='frame.number in {8, 9, 10}',
+                          extra=('-ogsm_um.dcs1800:FALSE',))
+        assert [r[1:] for r in rows] == [
+            ['PCS 1900', '1930200'], ['Unknown', '0'], ['PCS 1900', '1989800']]
+
+    def test_gsm_um_downlink_fields(self, cmd_tshark, capture_file, test_env):
+        '''BSIC, TDMA frame, error, timeshift and the L2 pseudo length of
+        downlink frames; uplink frames have none of them.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'gsm_um.direction', 'gsm_um.channel', 'gsm_um.bsic',
+                          'gsm_um.frame', 'gsm_um.error', 'gsm_um.timeshift',
+                          'gsm_um.l2_pseudo_len',
+                          flt='frame.number in {2, 21, 25, 45}')
+        assert rows == [
+            ['2', 'Downlink', 'BCCH', '7', '1001', '1', '3', '22'],
+            ['21', 'Downlink', 'CCCH', '3', '5', '0', '0', '9'],
+            ['25', 'Uplink', 'CCCH', '', '', '', '', ''],
+            ['45', 'Downlink', 'BCCH', '63', '2147483647', '255', '65535', '22']]
+
+    def test_gsm_um_payloads(self, cmd_tshark, capture_file, test_env):
+        '''CCCH/BCCH downlink goes to DTAP (an empty block is not
+        dissected), uplink CCCH is data, SDCCH/SACCH/FACCH go to LAPDm.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                          flt='frame.number in {1, 22, 23, 24, 25, 29, 31, 32, 37}')
+        assert [(r[0], r[1].strip()) for r in rows] == [
+            ('1', '(DTAP) (RR) System Information Type 3'),
+            ('22', ''),
+            ('23', '(DTAP) (RR) Immediate Assignment Reject'),
+            ('24', '(DTAP) (RR) Paging Request Type 2'),
+            ('25', ''),
+            ('29', 'U F, func=SABM'),
+            ('31', 'U, func=UI(DTAP) (RR) Channel Release'),
+            ('32', 'U, func=UI(DTAP) (RR) RR Status'),
+            ('37', 'S, func=RR, N(R)=0')]
