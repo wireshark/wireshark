@@ -37,6 +37,7 @@
 #include <epan/addr_resolv.h>
 #include <epan/tfs.h>
 
+#include "packet-e212.h"
 #include "packet-radius.h"
 
 /* Forward declarations */
@@ -521,6 +522,8 @@ static value_string_ext a11_rohc_profile_vals_ext = VALUE_STRING_EXT_INIT(a11_ro
 */
 
 
+#define A11_MSID_TYPE_IMSI 0x0006
+
 /* 3GPP2 A.S0008-C v4.0, 3GPP2 A.S0019-A v2.0 */
 static const value_string a11_ses_msid_type_vals[] =
 {
@@ -547,6 +550,8 @@ static void
 decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned offset, unsigned ext_len, proto_item *ext_len_item)
 {
     uint8_t     msid_len;
+    uint32_t    msid_type;
+    bool        msid_valid = false;
     unsigned    msid_start_offset;
     uint8_t     msid_num_digits;
     uint8_t     msid_index;
@@ -602,7 +607,7 @@ decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned off
                     "Cannot decode MSID Type - SSE too short");
         return;
     }
-    proto_tree_add_item(ext_tree, hf_a11_ses_msid_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(ext_tree, hf_a11_ses_msid_type, tvb, offset, 2, ENC_BIG_ENDIAN, &msid_type);
     offset  += 2;
     ext_len -= 2;
 
@@ -652,9 +657,13 @@ decode_sse(proto_tree *ext_tree, packet_info *pinfo, tvbuff_t *tvb, unsigned off
 
         msid_digits[msid_num_digits + 1] = '\0';
         p_msid = msid_digits + 1;
+        msid_valid = true;
     }
 
     proto_tree_add_string(ext_tree, hf_a11_ses_msid, tvb, msid_start_offset, msid_len, p_msid);
+    if (msid_valid && msid_type == A11_MSID_TYPE_IMSI) {
+        add_assoc_imsi_item(tvb, pinfo, ext_tree, p_msid);
+    }
 }
 
 static void
@@ -1558,362 +1567,340 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      tvb_ip_to_str(pinfo->pool, tvb, 8),
                      tvb_ip_to_str(pinfo->pool, tvb, 12));
 
-        if (tree) {
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* flags */
-            proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
-                                   ett_a11_flags, a11_flags, ENC_NA);
-            offset += 1;
+        /* flags */
+        proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
+                               ett_a11_flags, a11_flags, ENC_NA);
+        offset += 1;
 
-            /* lifetime */
-            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset +=2;
+        /* lifetime */
+        proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset +=2;
 
-            /* home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* home agent address */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* home agent address */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care of Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care of Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case REGISTRATION_REPLY:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Reply:   PDSN=%s, Code=%u",
                       tvb_ip_to_str(pinfo->pool, tvb, 8), tvb_get_uint8(tvb,1));
 
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reply Code */
-            proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+        /* Reply Code */
+        proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-            /* Registration Lifetime */
-            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+        /* Registration Lifetime */
+        proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent Address */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent Address */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
-        } /* if tree */
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
         break;
     case REGISTRATION_UPDATE:
         col_add_fstr(pinfo->cinfo, COL_INFO,"Reg Update:  PDSN=%s",
                      tvb_ip_to_str(pinfo->pool, tvb, 8));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 3;
+        /* Reserved */
+        offset += 3;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent Address */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent Address */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case REGISTRATION_ACK:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Reg Ack:     PCF=%s Status=%u",
                      tvb_ip_to_str(pinfo->pool, tvb, 8),
                      tvb_get_uint8(tvb,3));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 2;
+        /* Reserved */
+        offset += 2;
 
-            /* Ack Status */
-            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+        /* Ack Status */
+        proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care of Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care of Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case SESSION_UPDATE: /* IOS4.3 */
         col_add_fstr(pinfo->cinfo, COL_INFO,"Ses Update:  PDSN=%s",
                      tvb_ip_to_str(pinfo->pool, tvb, 8));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 3;
+        /* Reserved */
+        offset += 3;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent Address */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent Address */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case SESSION_ACK: /* IOS4.3 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Ses Upd Ack: PCF=%s, Status=%u",
                      tvb_ip_to_str(pinfo->pool, tvb, 8),
                      tvb_get_uint8(tvb,3));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 2;
+        /* Reserved */
+        offset += 2;
 
-            /* Ack Status */
-            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+        /* Ack Status */
+        proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care of Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care of Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case CAPABILITIES_INFO: /* IOS5.1 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info: PDSN=%s, PCF=%s",
                      tvb_ip_to_str(pinfo->pool, tvb, 8),
                      tvb_ip_to_str(pinfo->pool, tvb, 12));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 3;
+        /* Reserved */
+        offset += 3;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent Address */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent Address */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care of Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care of Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case CAPABILITIES_INFO_ACK: /* IOS5.1 */
         col_add_fstr(pinfo->cinfo, COL_INFO, "Cap Info Ack: PCF=%s",
                      tvb_ip_to_str(pinfo->pool, tvb, 8));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 3;
+        /* Reserved */
+        offset += 3;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care of Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care of Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case BC_SERVICE_REQUEST:
         col_add_fstr(pinfo->cinfo, COL_INFO, "Service Request: PCF=%s ",
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8));
 
-        if (tree) {
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 4;
+        /* type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 4;
 
-            /* home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care-of-Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care-of-Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
 
     case BC_SERVICE_REPLY:
-       col_add_fstr(pinfo->cinfo, COL_INFO, "Service Response: BSN=%s ",
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Service Response: BSN=%s ",
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8));
 
-       if (tree) {
-           ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-           a11_tree = proto_item_add_subtree(ti, ett_a11);
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-           /* type */
-           proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-           offset += 3;
+        /* type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 3;
 
-           /* Reply Code */
-           proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-           offset += 1;
+        /* Reply Code */
+        proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-           /* home address */
-           proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-           offset += 4;
+        /* home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-           /* Home Agent */
-           proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-           offset += 4;
+        /* Home Agent */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-           /* Identifier - assumed to be an NTP time here */
-           proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-           offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-       } /* if tree */
-       break;
-       case BC_REGISTRATION_REQUEST:
-           col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Request: BSN=%s ",
+        break;
+    case BC_REGISTRATION_REQUEST:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Request: BSN=%s ",
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8));
 
-           if (tree) {
-               ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-               a11_tree = proto_item_add_subtree(ti, ett_a11);
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-               /* type */
-               proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-               offset += 1;
+        /* type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-               /* flags */
-               proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
-                                      ett_a11_flags, a11_flags, ENC_NA);
-               offset += 1;
+        /* flags */
+        proto_tree_add_bitmask(a11_tree, tvb, offset, hf_a11_flags,
+                               ett_a11_flags, a11_flags, ENC_NA);
+        offset += 1;
 
-               /* lifetime */
-               proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
-               offset +=2;
+        /* lifetime */
+        proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset +=2;
 
-               /* home address */
-               proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-               offset += 4;
+        /* home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-               /* Home Agent */
-               proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-               offset += 4;
+        /* Home Agent */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-               /* Care-of-Address */
-               proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-               offset += 4;
+        /* Care-of-Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-               /* Identifier - assumed to be an NTP time here */
-               proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
-               offset += 8;
+        offset += 8;
 
-           } /* if tree */
-           break;
+        break;
 
 
     case BC_REGISTRATION_REPLY:
@@ -1921,101 +1908,95 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8),
             tvb_get_uint8(tvb, offset + 1));
 
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reply Code */
-            proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+        /* Reply Code */
+        proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-            /* Registration Lifetime */
-            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
+        /* Registration Lifetime */
+        proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
-            offset += 8;
-        } /* if tree */
+        offset += 8;
 
         break;
     case BC_REGISTRATION_UPDATE:
         col_add_fstr(pinfo->cinfo, COL_INFO,"BC Reg Update:  BSN=%s",
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 3;
+        /* Reserved */
+        offset += 3;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Home Agent */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home Agent */
+        proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        offset += 8;
 
-        } /* if tree */
         break;
     case BC_REGISTRATION_ACK:
         col_add_fstr(pinfo->cinfo, COL_INFO, "BC Reg Acknowledge:     PCF=%s Status=%u",
             tvb_ip_to_str(pinfo->pool, tvb, offset + 8),
             tvb_get_uint8(tvb, offset + 3));
-        if (tree) {
-            /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
-            a11_tree = proto_item_add_subtree(ti, ett_a11);
+        /* Add Subtree */
+        ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
+        a11_tree = proto_item_add_subtree(ti, ett_a11);
 
-            /* Type */
-            proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
-            offset += 1;
+        /* Type */
+        proto_tree_add_uint(a11_tree, hf_a11_type, tvb, offset, 1, type);
+        offset += 1;
 
-            /* Reserved */
-            offset += 2;
+        /* Reserved */
+        offset += 2;
 
-            /* Ack Status */
-            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
+        /* Ack Status */
+        proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-            /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Home address */
+        proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Care-of-Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
+        /* Care-of-Address */
+        proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-            /* Identifier - assumed to be an NTP time here */
-            proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+        /* Identifier - assumed to be an NTP time here */
+        proto_tree_add_item(a11_tree, hf_a11_ident, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 
-            offset += 8;
+        offset += 8;
 
-        } /* if tree */
         break;
 
     default:
@@ -2023,10 +2004,8 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         break;
     } /* End switch */
 
-    if (tree && a11_tree) {
-        if (tvb_reported_length_remaining(tvb, offset) > 0)
-            dissect_a11_extensions(tvb, pinfo, offset, a11_tree);
-    }
+    if (tvb_reported_length_remaining(tvb, offset) > 0)
+        dissect_a11_extensions(tvb, pinfo, offset, a11_tree);
     return tvb_reported_length(tvb);
 } /* dissect_a11 */
 
