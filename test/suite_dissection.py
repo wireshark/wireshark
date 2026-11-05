@@ -58960,3 +58960,117 @@ class TestDissectForces:
             ), encoding='utf-8', env=test_env, timeout=30)
         assert stdout.split('\t')[0] == 'ForCES'
         assert 'Malformed' in stdout
+
+
+class TestDissectFortinetFgcp:
+    @staticmethod
+    def fgcp_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('fortinet_fgcp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_fortinet_fgcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Heartbeat and session frames decode without malformed packets
+        or expert infos, in one and two passes.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 16
+        assert protocols.count('FGCP-HB') == 14
+        # the session frames carry IPv4 and UDP
+        assert protocols[14:] == ['UDP', 'UDP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fortinet_fgcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fortinet_fgcp_heartbeat_header(self, cmd_tshark, capture_file, test_env):
+        '''Mode, flags, group, port and serial number, and the Info column.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_fgcp.hb.mode', 'fortinet_fgcp.hb.flag',
+                'fortinet_fgcp.hb.gn', 'fortinet_fgcp.hb.group_id',
+                'fortinet_fgcp.hb.port', 'fortinet_fgcp.hb.sn',
+                '_ws.col.info', extra=('-Y', 'fortinet_fgcp.hb.magic'))
+        assert rows[0] == ['1', '1', '0x00', 'cluster-1', '7', 'ha1', 'FGT60E0000000001',
+                           'Cluster: cluster-1(7) - monitor: ha1 - SN: FGT60E0000000001']
+        assert rows[2][3:6] == ['cluster-1', '7', 'ha2']
+        assert rows[3][1:4] == ['1', '0x00', 'inventory']
+        # flags: unknown bits only, authentication, encryption, both
+        flags = {r[0]: r[2] for r in rows}
+        assert flags['7'] == '0xfc'
+        assert flags['8'] == '0x02'
+        assert flags['10'] == '0x01'
+        assert flags['11'] == '0x03'
+        # a mode that is neither A/A nor A/P
+        assert [r[1] for r in rows if r[0] == '14'] == ['9']
+
+    def test_fortinet_fgcp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''TLV types and lengths, and the single octet and checksum TLVs.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_fgcp.hb.tlv.type', 'fortinet_fgcp.hb.tlv.length',
+                'fortinet_fgcp.hb.tlv.vcluster_id', 'fortinet_fgcp.hb.tlv.priority',
+                'fortinet_fgcp.hb.tlv.override', extra=('-Y', 'fortinet_fgcp.hb.tlv'))
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['2'] == ['0x000b,0x000c,0x000d,0x000d', '1,1,1,1', '1', '128', '1,0']
+        assert by_frame['3'][0:2] == ['0x003c,0x0000', '48,0']
+        assert by_frame['5'][0:2] == ['0x002a,0x0099', '10,5']
+        assert by_frame['7'][0:4] == ['0x000b,0x000c,0x000d,0x002a', '1,1,1,32', '2', '16']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fortinet_fgcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3',
+                '-V', '-O', 'fortinet_fgcp_hb',
+            ), encoding='utf-8', env=test_env)
+        assert 'TLV: (t=60,l=48) HA Checksum' in stdout
+        assert 'TLV: (t=0,l=0) End of TLV' in stdout
+
+    def test_fortinet_fgcp_interface_inventory(self, cmd_tshark, capture_file, test_env):
+        '''The zlib compressed interface inventory is decompressed and the
+        interface flags are decoded.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_fgcp.hb.tlv.interface_inventory.number',
+                'fortinet_fgcp.hb.tlv.interface_inventory.name',
+                'fortinet_fgcp.hb.tlv.interface_inventory.flag',
+                extra=('-Y', 'fortinet_fgcp.hb.tlv.interface_inventory.number'))
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['4'] == ['5', 'port1,port2,wan1,ha1,mgmt', '0x0f,0x03,0x05,0x00,0x08']
+        assert by_frame['5'] == ['0', '', '']
+        # not a zlib stream: the count is shown but there is nothing to decode
+        assert by_frame['6'] == ['3', '', '']
+        assert by_frame['7'] == ['2', 'port1,port2', '0x0f,0x03']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fortinet_fgcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'fortinet_fgcp_hb',
+            ), encoding='utf-8', env=test_env)
+        assert ('Interface: port1, Admin Status: UP, Operation Status: UP, '
+                'Link Monitored: Yes, HA Eligible: Yes') in stdout
+        assert 'Interface: wan1, Admin Status: UP, Link Monitored: Yes' in stdout
+        assert 'Interface: mgmt, HA Eligible: Yes' in stdout
+
+    def test_fortinet_fgcp_encrypted_and_authentication(self, cmd_tshark, capture_file, test_env):
+        '''An encrypted payload is only shown as bytes; the 32 octets of
+        the authentication flag follow the TLVs and are only shown.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_fgcp.hb.tlv.type', 'fortinet_fgcp.hb.payload_encrypted',
+                'fortinet_fgcp.hb.authentication',
+                extra=('-Y', 'fortinet_fgcp.hb.flag.encryption || fortinet_fgcp.hb.flag.authentication'))
+        by_frame = {r[0]: r[1:] for r in rows}
+        auth = ''.join('%02x' % v for v in range(0xa0, 0xc0))
+        assert by_frame['8'] == ['0x000c', '', auth]
+        assert by_frame['9'] == ['', '', auth]
+        assert by_frame['10'][0] == '' and len(by_frame['10'][1]) == 128 and by_frame['10'][2] == ''
+        assert by_frame['11'][0] == '' and len(by_frame['11'][1]) == 128 and by_frame['11'][2] == auth
+        assert by_frame['13'] == ['0x0000', '', auth]
+
+    def test_fortinet_fgcp_session(self, cmd_tshark, capture_file, test_env):
+        '''The session frames have a magic number and type and carry IPv4.'''
+        rows = self.fgcp_fields(cmd_tshark, capture_file, test_env,
+                'fortinet_fgcp.session.magic', 'fortinet_fgcp.session.type',
+                'ip.proto', 'udp.dstport', extra=('-Y', 'fortinet_fgcp.session.magic'))
+        assert rows == [['15', '0x2a2a', '0x0001', '17', '4003'],
+                        ['16', '0x2a2b', '0x0002', '17', '4001']]
