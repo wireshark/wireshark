@@ -2034,6 +2034,7 @@ dissect_mip6_opt_vsm_3gpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case 16:
         proto_tree_add_item_ret_display_string(tree, hf_mip6_opt_3gpp_imsi, tvb, offset, len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &imsi_str);
         proto_item_append_text(hdr_item," %s", imsi_str);
+        add_assoc_imsi_item(tvb, pinfo, tree, imsi_str);
         break;
     /* 17, PDN Connection ID */
     case 17:
