@@ -160,6 +160,12 @@ g_conform = None
 lexer = None
 in_oid = False
 quiet = False
+# EXTENSIBILITY IMPLIED of the module being parsed (X.680 12.4)
+ext_implied = False
+# Type references "modulereference.typereference" (X.680 14.6)
+external_type_refs = []
+# The module being parsed
+parsed_module = None
 
 class LexError(Exception):
     def __init__(self, tok, filename=None):
@@ -273,14 +279,14 @@ reserved_words = {
 #    'EXCEPT'      : 'EXCEPT',
     'EXPLICIT'    : 'EXPLICIT',
     'EXPORTS'     : 'EXPORTS',
-#    'EXTENSIBILITY' : 'EXTENSIBILITY',
+    'EXTENSIBILITY' : 'EXTENSIBILITY',
     'EXTERNAL'    : 'EXTERNAL',
     'FALSE'       : 'FALSE',
     'FROM'        : 'FROM',
     'GeneralizedTime' : 'GeneralizedTime',
     'IDENTIFIER'  : 'IDENTIFIER',
     'IMPLICIT'    : 'IMPLICIT',
-#    'IMPLIED'     : 'IMPLIED',
+    'IMPLIED'     : 'IMPLIED',
     'IMPORTS'     : 'IMPORTS',
     'INCLUDES'    : 'INCLUDES',
     'INSTANCE'    : 'INSTANCE',
@@ -870,25 +876,34 @@ class EthCtx:
         self.oassign_cls.setdefault(oassign.cls, []).append(ident)
 
     #--- eth_import_type --------------------------------------------------------
-    def eth_import_type(self, ident, mod, proto):
+    def eth_import_type(self, ident, mod, proto, shadowed=False):
         #print ("eth_import_type(ident='%s', mod='%s', prot='%s')" % (ident, mod, proto))
-        if ident in self.type:
-            #print ("already defined '%s' import=%s, module=%s" % (ident, str(self.type[ident]['import']), self.type[ident].get('module', '-')))
-            if not self.type[ident]['import'] and (self.type[ident]['module'] == mod) :
+        key = ident
+        if ident in self.type or shadowed:
+            #print ("already defined '%s' import=%s, module=%s" % (ident, str(self.type.get(ident, {}).get('import')), self.type.get(ident, {}).get('module', '-')))
+            if ident in self.type and not self.type[ident]['import'] and (self.type[ident]['module'] == mod) :
                 return  # OK - already defined
-            elif self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
+            elif ident in self.type and self.type[ident]['import'] and (self.type[ident]['import'] == mod) :
                 return  # OK - already imported
-            else:
+            elif (mod, ident) in external_type_ref_names():
+                # The name is imported from another module too, or the
+                # importing module defines a type with this name: the type
+                # can only be referenced as "mod.ident".
+                key = qualified_type_name(mod, ident)
+                if key in self.type:
+                    return  # OK - already imported
+            elif ident in self.type:
                 raise DuplicateError("type", ident)
-        self.type[ident] = {'import'  : mod, 'proto' : proto,
-                            'ethname' : '' }
+        self.type[key] = {'import'  : mod, 'proto' : proto,
+                          'ethname' : '', 'ident' : ident }
+        ident = key
         self.type[ident]['attr'] = { 'TYPE' : 'FT_NONE', 'DISPLAY' : 'BASE_NONE',
                                      'STRINGS' : 'NULL', 'BITMASK' : '0' }
-        mident = "$%s$%s" % (mod, ident)
+        mident = "$%s$%s" % (mod, self.type[ident]['ident'])
         if self.conform.check_item('TYPE_ATTR', mident):
             self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', mident))
         else:
-            self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', ident))
+            self.type[ident]['attr'].update(self.conform.use_item('TYPE_ATTR', self.type[ident]['ident']))
         if self.conform.check_item('IMPORT_TAG', mident):
             self.conform.copy_item('IMPORT_TAG', ident, mident)
         self.type_imp.append(ident)
@@ -1142,9 +1157,42 @@ class EthCtx:
         self.eth_value_ord1 = []
         self.eth_vexport_ord = []
 
+    #--- eth_type_fn ------------------------------------------------------------
+    # The function of a type, and its template for TYPE_REF_FN
+    def eth_type_fn(self, t):
+        return self.eth_type[t].get('fn', 'dissect_%s_%s' % (self.eth_type[t]['proto'], t))
+
+    def eth_type_ref_fn(self, t):
+        return self.eth_type[t].get('fn', 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s')
+
+    #--- eth_resolve_external_type_refs -----------------------------------------
+    def eth_resolve_external_type_refs(self):
+        # The references "Module.Type" of the module whose imports are
+        # registered, to a type imported under its qualified name.
+        for tr in external_type_refs:
+            if tr.ref_module == self.Module() and qualified_type_name(tr.module, tr.ident) in self.type:
+                tr.val = qualified_type_name(tr.module, tr.ident)
+
+    #--- eth_check_external_type_refs -------------------------------------------
+    def eth_check_external_type_refs(self):
+        # A reference "Module.Type" is resolved by the type name, since all
+        # the types of a dissector share one name space: Type must be defined
+        # in Module or imported from it.
+        for tr in external_type_refs:
+            t = self.type.get(tr.val)
+            if t and (t['import'] == tr.module or (not t['import'] and t.get('module') == tr.module)):
+                continue
+            if getattr(tr, 'in_constraint', False):
+                # The contents of a constraint are only informative: ignore it.
+                tr.unresolved = True
+                continue
+            raise Exception("Type reference %s.%s: %s is not defined in %s or imported from it" % (tr.module, tr.ident, tr.ident, tr.module))
+
     #--- eth_prepare ------------------------------------------------------------
     def eth_prepare(self):
         self.eproto = asn2c(self.proto)
+
+        self.eth_check_external_type_refs()
 
         #--- dummy types/fields for PDU registration ---
         nm = 'NULL'
@@ -1204,6 +1252,9 @@ class EthCtx:
             self.eth_type[nm] = { 'import' : self.type[t]['import'],
                                   'proto' : asn2c(self.type[t]['proto']),
                                   'attr' : {}, 'ref' : []}
+            if t != self.type[t].get('ident', t):
+                # "Module.Type": the function has the name of the type
+                self.eth_type[nm]['fn'] = 'dissect_%s_%s' % (self.eth_type[nm]['proto'], asn2c(self.type[t]['ident']))
             self.eth_type[nm]['attr'].update(self.conform.use_item('ETYPE_ATTR', nm))
             self.type[t]['ethname'] = nm
         for t in self.type_ord: # dummy import for missing type reference
@@ -1886,7 +1937,7 @@ class EthCtx:
                 par=(('tvb', off_par,'&asn1_ctx', 'tree', self.eth_hf[f]['fullname']),)
             else:
                 par=((),)
-            out += self.eth_fn_call('dissect_%s_%s' % (self.eth_type[t]['proto'], t), ret=ret_par, par=par)
+            out += self.eth_fn_call(self.eth_type_fn(t), ret=ret_par, par=par)
             if self.Per():
                 out += '  offset += 7; offset >>= 3;\n'
             out += '  return offset;\n'
@@ -2886,6 +2937,8 @@ class EthCnf:
                 par = get_par(line, 2, 2, fn=fn, lineno=lineno)
                 if not par:
                     continue
+                if is_import and par[0] in self.table['MODULE']:
+                    continue  # given before the .IMPORT
                 self.add_item('MODULE', par[0], proto=par[1], fn=fn, lineno=lineno)
             elif ctx == 'IMPORT_TAG':
                 if empty.match(line):
@@ -3913,9 +3966,13 @@ class Constraint (Node):
 
     def GetContents(self, ectx):
         contents = None
+        if ectx.Ber():
+            # The BER functions of BIT and OCTET STRING do not dissect
+            # their contents (see the default bodies).
+            return None
         if self.IsContents():
             if self.type == 'Contents':
-                if self.subtype.type == 'Type_Ref':
+                if self.subtype.type == 'Type_Ref' and not getattr(self.subtype, 'unresolved', False):
                     contents = self.subtype.val
             elif self.type == 'Intersection':
                 if self.subtype[0].IsContents() and not self.subtype[1].IsContents():
@@ -4012,13 +4069,15 @@ class Module_Body (Node):
         # Exports
         ectx.eth_exports(self.exports)
         # Imports
+        # (the types of the module shadow imported types with the same name)
+        local_types = {a.name for a in self.assign_list if isinstance(a, Type) and a.IsNamed()}
         for i in self.imports:
             mod = i.module.val
             proto = ectx.conform.use_item('MODULE', mod, val_dflt=mod)
             ectx.eth_module_dep_add(ectx.Module(), mod)
             for s in i.symbol_list:
                 if isinstance(s, Type_Ref):
-                    ectx.eth_import_type(s.val, mod, proto)
+                    ectx.eth_import_type(s.val, mod, proto, shadowed=s.val in local_types)
                 elif isinstance(s, Value_Ref):
                     ectx.eth_import_value(s.val, mod, proto)
                 elif isinstance(s, Class_Ref):
@@ -4026,6 +4085,7 @@ class Module_Body (Node):
                 else:
                     msg = 'Unknown kind of imported symbol %s from %s' % (str(s), mod)
                     warnings.warn_explicit(msg, UserWarning, '', 0)
+        ectx.eth_resolve_external_type_refs()
         # AssignmentList
         for a in self.assign_list:
             a.eth_reg('', ectx)
@@ -4111,12 +4171,15 @@ class Type_Ref (Type):
         #print "GetTTag(%s)\n" % self.val;
         if ectx.type[self.val]['import']:
             if 'ttag' not in ectx.type[self.val]:
-                ttag = ectx.get_ttag_from_all(self.val, ectx.type[self.val]['import'])
-                if not ttag and not ectx.conform.check_item('IMPORT_TAG', self.val):
-                    msg = 'Missing tag information for imported type %s from %s (%s)' % (self.val, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
+                ident = ectx.type[self.val].get('ident', self.val)
+                ttag = ectx.get_ttag_from_all(ident, ectx.type[self.val]['import'])
+                if ident != self.val and ectx.conform.check_item('IMPORT_TAG', self.val):
+                    ident = self.val    # from "$Module$Type"
+                if not ttag and not ectx.conform.check_item('IMPORT_TAG', ident):
+                    msg = 'Missing tag information for imported type %s from %s (%s)' % (ident, ectx.type[self.val]['import'], ectx.type[self.val]['proto'])
                     warnings.warn_explicit(msg, UserWarning, '', 0)
                     ttag = ('-1/*imported*/', '-1/*imported*/')
-                ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', self.val, val_dflt=ttag)
+                ectx.type[self.val]['ttag'] = ectx.conform.use_item('IMPORT_TAG', ident, val_dflt=ttag)
             return ectx.type[self.val]['ttag']
         else:
             return ectx.type[self.val]['val'].GetTag(ectx)
@@ -4140,7 +4203,7 @@ class Type_Ref (Type):
         t = ectx.type[self.val]['ethname']
         pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
         pars['TYPE_REF_TNAME'] = t
-        pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+        pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
         if self.HasSizeConstraint():
             (pars['MIN_VAL'], pars['MAX_VAL'], pars['EXT']) = self.eth_get_size_constr(ectx)
         elif self.HasValueConstraint():
@@ -4209,7 +4272,7 @@ class SelectionType (Type):
             t = ectx.type[self.seltype]['ethname']
             pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
             pars['TYPE_REF_TNAME'] = t
-            pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+            pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
         return pars
 
     def eth_type_default_body(self, ectx, tname):
@@ -4256,7 +4319,7 @@ class TaggedType (Type):
         t = ectx.type[self.val_name]['ethname']
         pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
         pars['TYPE_REF_TNAME'] = t
-        pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+        pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
         (pars['TAG_CLS'], pars['TAG_TAG']) = self.GetTag(ectx)
         if self.HasImplicitTag(ectx):
             pars['TAG_IMPL'] = 'true'
@@ -4310,11 +4373,11 @@ class SqType (Type):
                 opt = 'ASN1_NOT_OPTIONAL'
         if ectx.Ber():
             (tc, tn) = val.GetTag(ectx)
-            out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
-                  % ('&'+fullname, tc, tn, opt, ectx.eth_type[t]['proto'], t)
+            out = '  { %-24s, %-13s, %s, %s, %s },\n' \
+                  % ('&'+fullname, tc, tn, opt, ectx.eth_type_fn(t))
         elif ectx.Per() or ectx.Oer():
-            out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
-                  % ('&'+fullname, ext, opt, ectx.eth_type[t]['proto'], t)
+            out = '  { %-24s, %-23s, %-17s, %s },\n' \
+                  % ('&'+fullname, ext, opt, ectx.eth_type_fn(t))
         else:
             out = ''
         return out
@@ -4961,11 +5024,11 @@ class ChoiceType (Type):
                     opt = '0'
             if (ectx.Ber()):
                 (tc, tn) = e.GetTag(ectx)
-                out = '  { %3s, %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
-                      % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
+                out = '  { %3s, %-24s, %-13s, %s, %s, %s },\n' \
+                      % (vval, '&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type_fn(t))
             elif (ectx.Per() or ectx.Oer()):
-                out = '  { %3s, %-24s, %-23s, dissect_%s_%s },\n' \
-                      % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type[t]['proto'], t)
+                out = '  { %3s, %-24s, %-23s, %s },\n' \
+                      % (vval, '&'+ectx.eth_hf[ef]['fullname'], ext, ectx.eth_type_fn(t))
             else:
                 out = ''
             return out
@@ -5265,7 +5328,7 @@ class OpenType (Type):
             t = ectx.type[t]['ethname']
             pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
             pars['TYPE_REF_TNAME'] = t
-            pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+            pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
         else:
             pars['TYPE_REF_FN'] = 'NULL'
         return pars
@@ -5446,7 +5509,7 @@ class OctetStringType (Type):
                     t = ectx.type[t]['ethname']
                     pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
                     pars['TYPE_REF_TNAME'] = t
-                    pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+                    pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
             else:
                 pars['TYPE_REF_FN'] = 'NULL'
         return pars
@@ -5956,7 +6019,7 @@ class BitStringType (Type):
                     t = ectx.type[t]['ethname']
                     pars['TYPE_REF_PROTO'] = ectx.eth_type[t]['proto']
                     pars['TYPE_REF_TNAME'] = t
-                    pars['TYPE_REF_FN'] = 'dissect_%(TYPE_REF_PROTO)s_%(TYPE_REF_TNAME)s'
+                    pars['TYPE_REF_FN'] = ectx.eth_type_ref_fn(t)
             else:
                 pars['TYPE_REF_FN'] = 'NULL'
         return pars
@@ -6120,12 +6183,14 @@ def p_modulereference (t):
 
 # 12.1
 def p_ModuleDefinition (t):
-    'ModuleDefinition : ModuleIdentifier DEFINITIONS TagDefault ASSIGNMENT ModuleBegin BEGIN ModuleBody END'
-    t[0] = Module (ident = t[1], tag_def = t[3], body = t[7])
+    'ModuleDefinition : ModuleIdentifier DEFINITIONS TagDefault ExtensionDefault ASSIGNMENT ModuleBegin BEGIN ModuleBody END'
+    t[0] = Module (ident = t[1], tag_def = t[3], body = t[8])
 
 def p_ModuleBegin (t):
     'ModuleBegin : '
-    if t[-4].val == 'Remote-Operations-Information-Objects':
+    global parsed_module
+    parsed_module = t[-5].val
+    if t[-5].val == 'Remote-Operations-Information-Objects':
         x880_module_begin()
 
 def p_TagDefault_1 (t):
@@ -6138,6 +6203,18 @@ def p_TagDefault_2 (t):
     'TagDefault : '
     # 12.2 The "TagDefault" is taken as EXPLICIT TAGS if it is "empty".
     t[0] = Default_Tags (dfl_tag = 'EXPLICIT')
+
+# 12.4 With EXTENSIBILITY IMPLIED, the SEQUENCE, SET, CHOICE and ENUMERATED
+# types of the module have an extension marker.
+def p_ExtensionDefault_1 (t):
+    'ExtensionDefault : EXTENSIBILITY IMPLIED'
+    global ext_implied
+    ext_implied = True
+
+def p_ExtensionDefault_2 (t):
+    'ExtensionDefault : '
+    global ext_implied
+    ext_implied = False
 
 def p_ModuleIdentifier_1 (t):
     'ModuleIdentifier : modulereference DefinitiveIdentifier' # name, oid
@@ -6331,7 +6408,19 @@ def p_DefinedValue_2(t):
 # 13.6
 def p_ExternalTypeReference (t):
     'ExternalTypeReference : modulereference DOT type_ref'
-    t[0] = Node ('ExternalTypeReference', module = t[1], typ = t[3])
+    # A reference to the type, resolved by eth_resolve_external_type_refs()
+    # and checked by eth_check_external_type_refs()
+    t[0] = t[3]
+    t[0].module = t[1]
+    t[0].ident = t[3].val
+    t[0].ref_module = parsed_module
+    external_type_refs.append(t[0])
+
+def external_type_ref_names():
+    return {(tr.module, tr.ident) for tr in external_type_refs}
+
+def qualified_type_name(module, ident):
+    return module + '.' + ident
 
 def p_ExternalValueReference (t):
     'ExternalValueReference : modulereference DOT identifier'
@@ -6512,7 +6601,7 @@ def p_EnumeratedType (t):
 
 def p_Enumerations_1 (t):
     'Enumerations : Enumeration'
-    t[0] = { 'val' : t[1], 'ext' : None }
+    t[0] = { 'val' : t[1], 'ext' : [] if ext_implied else None }
 
 def p_Enumerations_2 (t):
     'Enumerations : Enumeration COMMA ELLIPSIS ExceptionSpec'
@@ -6611,12 +6700,16 @@ def p_NullValue (t):
 def p_SequenceType_1 (t):
     'SequenceType : SEQUENCE LBRACE RBRACE'
     t[0] = SequenceType (elt_list = [])
+    if ext_implied:
+        t[0].ext_list = []
 
 def p_SequenceType_2 (t):
     'SequenceType : SEQUENCE LBRACE ComponentTypeLists RBRACE'
     t[0] = SequenceType (elt_list = t[3]['elt_list'])
     if 'ext_list' in t[3]:
         t[0].ext_list = t[3]['ext_list']
+    elif ext_implied:
+        t[0].ext_list = []
     if 'elt_list2' in t[3]:
         t[0].elt_list2 = t[3]['elt_list2']
 
@@ -6764,12 +6857,16 @@ def p_SequenceOfType (t):
 def p_SetType_1 (t):
     'SetType : SET LBRACE RBRACE'
     t[0] = SetType (elt_list = [])
+    if ext_implied:
+        t[0].ext_list = []
 
 def p_SetType_2 (t):
     'SetType : SET LBRACE ComponentTypeLists RBRACE'
     t[0] = SetType (elt_list = t[3]['elt_list'])
     if 'ext_list' in t[3]:
         t[0].ext_list = t[3]['ext_list']
+    elif ext_implied:
+        t[0].ext_list = []
     if 'elt_list2' in t[3]:
         t[0].elt_list2 = t[3]['elt_list2']
 
@@ -6789,6 +6886,8 @@ def p_ChoiceType (t):
     'ChoiceType : CHOICE LBRACE AlternativeTypeLists RBRACE'
     if 'ext_list' in t[3]:
         t[0] = ChoiceType (elt_list = t[3]['elt_list'], ext_list = t[3]['ext_list'])
+    elif ext_implied:
+        t[0] = ChoiceType (elt_list = t[3]['elt_list'], ext_list = [])
     else:
         t[0] = ChoiceType (elt_list = t[3]['elt_list'])
 
@@ -7984,8 +8083,10 @@ def p_ComponentIdList_2 (t):
 
 # 11.1
 def p_ContentsConstraint (t):
-    'ContentsConstraint : CONTAINING type_ref'
+    '''ContentsConstraint : CONTAINING type_ref
+                          | CONTAINING ExternalTypeReference'''
     t[0] = Constraint(type = 'Contents', subtype = t[2])
+    t[2].in_constraint = True
 
 
 #--- ITU-T Recommendation X.683 -----------------------------------------------
