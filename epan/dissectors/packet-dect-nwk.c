@@ -2055,9 +2055,10 @@ static int dissect_dect_nwk_s_ie_multi_keypad(tvbuff_t *tvb, unsigned offset, ui
 	return offset;
 }
 
-static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offset, proto_tree *tree, void _U_ *data)
+static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void _U_ *data)
 {
 	uint8_t value_length, identity_type, ipui_type;
+	const uint8_t *imsi_str;
 	unsigned bit_offset, no_of_bits, overflow_bits_in_last_byte, no_of_bytes;
 	bool bcd_last_byte_odd;
 	proto_tree_add_item_ret_uint8(tree, hf_dect_nwk_s_ie_portable_identity_type, tvb, offset, 1, ENC_NA, &identity_type);
@@ -2093,8 +2094,10 @@ static int dissect_dect_nwk_s_ie_portable_identity(tvbuff_t *tvb, unsigned offse
 						ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN | ENC_BCD_SKIP_FIRST | (bcd_last_byte_odd ? ENC_BCD_ODD_NUM_DIG : 0));
 					break;
 				case DECT_NWK_IPUI_TYPE_R:
-					proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi, tvb, offset, no_of_bytes,
-						ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN | ENC_BCD_SKIP_FIRST | (bcd_last_byte_odd ? ENC_BCD_ODD_NUM_DIG : 0));
+					proto_tree_add_item_ret_string(tree, hf_dect_nwk_s_ie_portable_identity_ipui_r_imsi, tvb, offset, no_of_bytes,
+						ENC_BCD_DIGITS_0_9 | ENC_BIG_ENDIAN | ENC_BCD_SKIP_FIRST | (bcd_last_byte_odd ? ENC_BCD_ODD_NUM_DIG : 0),
+						pinfo->pool, &imsi_str);
+					add_assoc_imsi_item(tvb, pinfo, tree, (const char *)imsi_str);
 					break;
 				case DECT_NWK_IPUI_TYPE_S:
 					proto_tree_add_item(tree, hf_dect_nwk_s_ie_portable_identity_ipui_s_number, tvb, offset, no_of_bytes,
@@ -2581,7 +2584,7 @@ static int dissect_dect_nwk_s_ie(tvbuff_t *tvb, unsigned offset, packet_info *pi
 				dissect_dect_nwk_s_ie_nwk_assigned_identity(tvb, offset, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_PORTABLE_IDENTITY:
-				dissect_dect_nwk_s_ie_portable_identity(tvb, offset, field_tree, data);
+				dissect_dect_nwk_s_ie_portable_identity(tvb, offset, pinfo, field_tree, data);
 				break;
 			case DECT_NWK_S_IE_RAND:
 				proto_tree_add_item(field_tree,hf_dect_nwk_s_ie_rand_rand_field, tvb, offset, element_length, ENC_NA);
