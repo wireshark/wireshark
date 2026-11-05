@@ -76568,3 +76568,103 @@ class TestDissectPrism:
                 '    GroupID 63 [SU_PPDU] [TxBF]') in text
         assert 'SIG Field VHT NSTS 1 2 0 3 BW 80 MHz [SGI] [LDPC] [STBC] GroupID 5 [MU_PPDU]' in text
         assert len(text) == 56  # frames 14-65 and 70-73
+
+
+class TestDissectWlanRadio:
+    # The captures reach wlan_radio through radiotap (DLT 127).
+    def test_wlan_radio_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is radiotap; all but the 8 frames with a 0-length
+        PSDU go on to wlan_radio and wlan.  Nothing is malformed or an
+        error, in one and two passes, and the full tree is identical.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radio_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 2115
+        assert protocols.count('radiotap:wlan_radio:wlan') == 2107
+        trees = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radio_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            trees.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radio_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert trees[0] == trees[1]
+
+    def test_wlan_radio_mcs_76(self, cmd_tshark, capture_file, test_env):
+        '''The last HT MCS index, 76, has a data rate (and a duration) like
+        the others (it had none, as the check was "<" instead of "<=").'''
+        known = 'wlan_radio.11n.mcs_index == 76 && wlan_radio.11n.bandwidth && wlan_radio.11n.short_gi'
+        counts = []
+        for display_filter in (known, known + ' && wlan_radio.data_rate',
+                               known + ' && wlan_radio.duration'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('radio_coverage.pcap.gz'),
+                    '-Y', display_filter, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            counts.append(count_output(stdout))
+        # the 8th frame has STBC streams, so that no duration is calculated
+        assert counts == [8, 8, 7]
+
+    def test_wlan_radio_timing(self, cmd_tshark, capture_file, test_env):
+        '''PHY, duration, preamble, start and end of the first 11b frames
+        and the inter frame space to the previous frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('radio_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-ewlan_radio.phy',
+                '-ewlan_radio.duration', '-ewlan_radio.preamble',
+                '-ewlan_radio.start_tsf', '-ewlan_radio.end_tsf',
+                '-ewlan_radio.ifs',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t4\t416\t192\t999649\t1000065\t',
+            '2\t4\t336\t96\t1000440\t1000776\t375',
+            '3\t4\t352\t192\t1000797\t1001149\t21',
+            '4\t4\t472\t96\t1001185\t1001657\t36',
+        ]
+
+    def test_wlan_radio_counts(self, cmd_tshark, capture_file, test_env):
+        '''Items of the PHY types, the assumptions made for the duration
+        and the negative inter frame spaces.'''
+        for display_filter, count in (
+                ('wlan_radio.11be.user', 298),
+                ('wlan_radio.11ax.mcs', 789),
+                ('wlan_radio.snr', 4),
+                ('wlan_radio.assumed.short_preamble', 18),
+                ('wlan_radio.fhss.hop_set', 2),
+                ('wlan_radio.ifs < 0', 6),
+                ('wlan_radio.duration', 641),
+            ):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('radio_coverage.pcap.gz'),
+                    '-Y', display_filter, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == count, display_filter
+
+    def test_wlan_radio_ampdu(self, cmd_tshark, capture_file, test_env):
+        '''A-MPDU subframes are found by their TSFs.  The first subframe
+        is only known as part of the aggregate when the second has been
+        seen, so a one pass dissection does not show it, a two pass
+        dissection does (and shows 65 us for the first two subframes,
+        48 us for the next two, and so on).'''
+        fields = ('-Tfields', '-eframe.number', '-ewlan_radio.aggregate.duration')
+        counts = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('radio_coverage_ampdu.pcap.gz'),
+                    '-Y', 'wlan_radio.aggregate', *fields,
+                ), encoding='utf-8', env=test_env)
+            counts.append(count_output(stdout))
+        assert counts == [90, 135]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('radio_coverage_ampdu.pcap.gz'),
+                '-Y', 'frame.number <= 7', *fields,
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t65', '2\t65', '3\t48', '4\t48', '5\t54', '6\t54', '7\t54']
