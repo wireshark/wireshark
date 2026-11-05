@@ -30514,16 +30514,18 @@ class TestDissectCpha:
 
 class TestDissectCql:
     def test_cql_protocols(self, cmd_tshark, capture_file, test_env):
-        '''134 of 158 frames are CQL, none is malformed or has an error
-        expert info in one and two passes; the only warnings are the
-        unknown request opcode and result kind (frames 112, 115).'''
+        '''134 of 158 frames are CQL (131 without LZ4, as the LZ4
+        compressed v5 frames 156-158 are not found), none is malformed or
+        has an error expert info in one and two passes; the only warnings
+        are the unknown request opcode and result kind (frames 112, 115).'''
+        version = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('cql_coverage.pcap.gz'),
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         protocols = stdout.split()
         assert len(protocols) == 158
-        assert protocols.count('CQL') == 134
+        assert protocols.count('CQL') == (134 if '+LZ4' in version else 131)
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('cql_coverage.pcap.gz'),
