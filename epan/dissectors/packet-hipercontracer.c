@@ -114,7 +114,7 @@ heur_dissect_hipercontracer(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
   // https://github.com/dreibh/hipercontracer/blob/master/src/traceserviceheader.h
   // After the 16 octets of mandatory header, up to the next 48 octets are 0.
-  unsigned offset = tvb_skip_uint8(message_tvb, 16, 64, '\0');
+  unsigned offset = tvb_skip_uint8(message_tvb, 16, 48, '\0');
   if (offset != MIN(64U, length))
     return false;
 
