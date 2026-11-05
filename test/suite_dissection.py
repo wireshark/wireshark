@@ -59436,3 +59436,138 @@ class TestDissectFpp:
                 '_ws.col.def_src', '_ws.col.def_dst', extra=('-Y', ' || '.join('frame.number == ' + n for n in ('12', '14', '17', '31', '33'))))
         for n in ('12', '14', '17', '31', '33'):
             assert rows[n] == ['02:00:00:00:00:01', '02:00:00:00:00:02']
+
+
+class TestDissectFractalGeneratorProtocol:
+    def test_fractalgeneratorprotocol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is FractalGeneratorProtocol and none is malformed
+        or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('FractalGeneratorProtocol') == 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_fractalgeneratorprotocol_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message type, flags and length of every frame, reached through
+        both the PPI 32 and the legacy PPI 0x29097601.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esctp.data_payload_proto_id',
+                '-efractalgeneratorprotocol.message_type',
+                '-efractalgeneratorprotocol.message_flags',
+                '-efractalgeneratorprotocol.message_length',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '32', '1', '0', '60', 'FractalGenerator Parameter '],
+            ['2', '688485889', '1', '0', '60', 'FractalGenerator Parameter '],
+            ['3', '32', '1', '3', '60', 'FractalGenerator Parameter '],
+            ['4', '32', '1', '0', '60', 'FractalGenerator Parameter '],
+            ['5', '32', '2', '0', '16', 'FractalGenerator Data '],
+            ['6', '32', '2', '0', '20', 'FractalGenerator Data '],
+            ['7', '688485889', '2', '128', '48', 'FractalGenerator Data '],
+            ['8', '32', '85', '0', '8', 'Unknown FractalGeneratorProtocol message type '],
+            ['9', '32', '2', '0', '816', 'FractalGenerator Data '],
+            ['10', '32', '2', '0', '32', 'FractalGenerator Data '],
+            ['11', '32', '1', '0', '60', 'FractalGenerator Parameter '],
+        ]
+
+    def test_fractalgeneratorprotocol_parameter(self, cmd_tshark, capture_file, test_env):
+        '''The integer parameters of the parameter messages and the
+        algorithm names (the doubles are not checked: their text depends
+        on the locale).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-Y', 'fractalgeneratorprotocol.message_type == 1',
+                '-Tfields', '-eframe.number',
+                '-efractalgeneratorprotocol.parameter_width',
+                '-efractalgeneratorprotocol.parameter_height',
+                '-efractalgeneratorprotocol.parameter_maxiterations',
+                '-efractalgeneratorprotocol.parameter_algorithmid',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '640', '480', '100', '1'],
+            ['2', '1024', '768', '255', '1'],
+            ['3', '800', '600', '500', '2'],
+            ['4', '16', '16', '10', '99'],
+            ['11', '320', '200', '50', '1'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 3 || frame.number == 4',
+                '-V', '-O', 'fractalgeneratorprotocol',
+            ), encoding='utf-8', env=test_env)
+        assert 'AlgorithmID: Mandelbrot: z_{n+1} = z_n^2 + c (1)' in stdout
+        assert 'AlgorithmID: Mandelbrot-N: z_{n+1} = z_n^N + c (2)' in stdout
+        assert 'Flags: 3' in stdout
+        assert 'AlgorithmID: Unknown (99)' in stdout
+
+    def test_fractalgeneratorprotocol_data(self, cmd_tshark, capture_file, test_env):
+        '''The data messages: start x and y, the number of points and a
+        buffer of points * 4 octets (none for 0 points).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-Y', 'fractalgeneratorprotocol.message_type == 2',
+                '-Tfields', '-eframe.number',
+                '-efractalgeneratorprotocol.data_start_x',
+                '-efractalgeneratorprotocol.data_start_y',
+                '-efractalgeneratorprotocol.data_points',
+                '-efractalgeneratorprotocol.buffer',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:5] for l in lines if l[0] != '9'] == [
+            ['5', '0', '0', '0', ''],
+            ['6', '10', '20', '1', '00070e15'],
+            ['7', '100', '200', '8', '00070e151c232a31383f464d545b626970777e858c939aa1a8afb6bdc4cbd2d9'],
+            ['10', '5', '5', '4', '00070e151c232a31383f464d545b6269'],
+        ]
+        frame9 = [l for l in lines if l[0] == '9'][0]
+        assert frame9[1:4] == ['0', '0', '200']
+        assert len(frame9[4]) == 1600
+
+    def test_fractalgeneratorprotocol_buffer_length(self, cmd_tshark, capture_file, test_env):
+        '''A point count of 0x4001 asks for 0x10004 octets of data; the
+        length used to be truncated to 4 octets. The data is missing, so
+        the frame is malformed instead of showing a 4 octet buffer.
+        (Uses the malformed capture of the bug, built here.)'''
+        import tempfile
+        pcap = os.path.join(tempfile.mkdtemp(), 'fgp.pcap')
+        msg = struct.pack('!BBH', 2, 0, 24) + struct.pack('!III', 1, 2, 0x4001) + b'\x11' * 8
+        chunk = struct.pack('!BBHIHHI', 0, 3, 16 + len(msg), 1, 0, 0, 0x29097601) + msg
+        sctp = struct.pack('!HHII', 9910, 9911, 1, 0) + chunk
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(sctp), 1, 0, 64, 132, 0,
+                         bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        eth = bytes([2, 0, 0, 0, 0, 2, 2, 0, 0, 0, 0, 1]) + b'\x08\x00'
+        frame = eth + ip + sctp
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Y', '_ws.malformed', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        os.unlink(pcap)
+        assert stdout.split() == ['1']
+
+    def test_fractalgeneratorprotocol_stat(self, cmd_tshark, capture_file, test_env):
+        '''The statistics tap counts messages and bytes per message type
+        (the share and rate columns are decimal numbers and not checked).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('fractalgeneratorprotocol_coverage.pcap.gz'),
+                '-q', '-z', 'fractalgeneratorprotocol,stat',
+            ), encoding='utf-8', env=test_env)
+        rows = [[c.strip() for c in l.split('|')] for l in stdout.splitlines()
+                if l.startswith('FractalGenerator ')]
+        assert [r[:2] + [r[3]] for r in rows] == [
+            ['FractalGenerator Parameter', '5', '300'],
+            ['FractalGenerator Data', '5', '932'],
+        ]
