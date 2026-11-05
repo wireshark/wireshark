@@ -43,4 +43,15 @@ SemiOctetString
 	proto_tree_add_string(tree, hf_smrse_Octet_Format, tvb, start_offset, offset-start_offset, tmpstr);
 #.END
 
+#.FN_BODY IMSI-Address VAL_PTR = &parameter_tvb
+	tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+	/* Assume that the IMSI is semi-octet (TBCD) coded, as the MAP IMSI */
+	if (parameter_tvb && tvb_reported_length(parameter_tvb) > 0) {
+		proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_smrse_imsi);
+		dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+	}
+#.END
+
 

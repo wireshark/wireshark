@@ -16,6 +16,7 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
+#include "packet-e212.h"
 
 #define TCP_PORT_SMRSE 4321 /* Not IANA registered */
 
@@ -34,6 +35,7 @@ static int hf_smrse_Octet_Format;
 
 /* Initialize the subtree pointers */
 static int ett_smrse;
+static int ett_smrse_imsi;
 #include "packet-smrse-ett.c"
 
 
@@ -146,6 +148,7 @@ void proto_register_smrse(void) {
   /* List of subtrees */
   static int *ett[] = {
     &ett_smrse,
+    &ett_smrse_imsi,
 #include "packet-smrse-ettarr.c"
   };
 

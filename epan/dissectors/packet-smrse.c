@@ -21,6 +21,7 @@
 #include <wsutil/array.h>
 
 #include "packet-ber.h"
+#include "packet-e212.h"
 
 #define TCP_PORT_SMRSE 4321 /* Not IANA registered */
 
@@ -64,6 +65,7 @@ static int hf_smrse_ms_address;                   /* SMS_Address */
 
 /* Initialize the subtree pointers */
 static int ett_smrse;
+static int ett_smrse_imsi;
 static int ett_smrse_SMR_Bind;
 static int ett_smrse_SMS_Address;
 static int ett_smrse_T_address_value;
@@ -216,8 +218,16 @@ dissect_smrse_SMR_Bind(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 
 static unsigned
 dissect_smrse_IMSI_Address(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	tvbuff_t *parameter_tvb = NULL;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+	/* Assume that the IMSI is semi-octet (TBCD) coded, as the MAP IMSI */
+	if (parameter_tvb && tvb_reported_length(parameter_tvb) > 0) {
+		proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_smrse_imsi);
+		dissect_e212_imsi(parameter_tvb, actx->pinfo, subtree, 0, tvb_reported_length(parameter_tvb), false);
+	}
 
   return offset;
 }
@@ -651,6 +661,7 @@ void proto_register_smrse(void) {
   /* List of subtrees */
   static int *ett[] = {
     &ett_smrse,
+    &ett_smrse_imsi,
     &ett_smrse_SMR_Bind,
     &ett_smrse_SMS_Address,
     &ett_smrse_T_address_value,
