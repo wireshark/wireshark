@@ -76,7 +76,7 @@ capture_wlancap(const unsigned char *pd, int offset, int len, capture_packet_inf
   if (!BYTES_ARE_IN_FRAME(offset, len, sizeof(uint32_t)*2))
     return false;
 
-  length = pntohu32(pd+sizeof(uint32_t));
+  length = pntohu32(pd + offset + sizeof(uint32_t));
 
   if (!BYTES_ARE_IN_FRAME(offset, len, length))
     return false;
@@ -353,7 +353,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     uint32_t channel;
     unsigned   frequency;
     int     calc_channel;
-    uint32_t datarate;
+    uint64_t datarate;
     uint32_t ssi_type;
     int32_t dbm;
     uint32_t antnoise;
@@ -497,23 +497,23 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
 
     col_add_fstr(pinfo->cinfo, COL_TX_RATE, "%u.%u",
-                   datarate / 1000000,
-                   ((datarate % 1000000) > 500000) ? 5 : 0);
+                   (unsigned)(datarate / 1000000),
+                   ((datarate % 1000000) >= 500000) ? 5 : 0);
     if (datarate != 0) {
       /* 0 is obviously bogus; it may be used for "unknown" */
       /* Can this be expressed in .5 MHz units? */
       if ((datarate % 500000) == 0) {
         /* Yes. */
         phdr.has_data_rate = true;
-        phdr.data_rate = datarate / 500000;
+        phdr.data_rate = (uint16_t)(datarate / 500000);
       }
     }
     if (tree) {
       proto_tree_add_uint64_format_value(wlan_tree, hf_wlancap_data_rate, tvb, offset, 4,
                                    datarate,
                                    "%u.%u Mb/s",
-                                   datarate/1000000,
-                                   ((datarate % 1000000) > 500000) ? 5 : 0);
+                                   (unsigned)(datarate/1000000),
+                                   ((datarate % 1000000) >= 500000) ? 5 : 0);
     }
     offset+=4;
 
