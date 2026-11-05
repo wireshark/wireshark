@@ -11674,19 +11674,22 @@ dtap_rr_ec_paging_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint
 {
     uint64_t imsi_digits;
     uint8_t i;
-    wmem_strbuf_t *imsi_str;
+    wmem_strbuf_t *imsi_strbuf;
+    const char *imsi_str;
     uint32_t sav_bit_offset;
 
     proto_tree_add_bits_ret_val(tree, hf_gsm_a_rr_ec_imsi_digits, tvb, curr_bit_offset, 4, &imsi_digits, ENC_BIG_ENDIAN);
     curr_bit_offset += 4;
     sav_bit_offset = curr_bit_offset;
-    imsi_str = wmem_strbuf_new_sized(pinfo->pool, (size_t)imsi_digits+2);
+    imsi_strbuf = wmem_strbuf_new_sized(pinfo->pool, (size_t)imsi_digits+2);
     for (i = 0; i <= (uint8_t)imsi_digits; i++) {
-        wmem_strbuf_append_c(imsi_str, digits[tvb_get_bits8(tvb, curr_bit_offset, 4)]);
+        wmem_strbuf_append_c(imsi_strbuf, digits[tvb_get_bits8(tvb, curr_bit_offset, 4)]);
         curr_bit_offset += 4;
     }
-    proto_tree_add_string(tree, hf_gsm_a_rr_ec_imsi, tvb, sav_bit_offset,
-                          (curr_bit_offset-sav_bit_offset+7)>>3, wmem_strbuf_finalize(imsi_str));
+    imsi_str = wmem_strbuf_finalize(imsi_strbuf);
+    proto_tree_add_string(tree, hf_gsm_a_rr_ec_imsi, tvb, sav_bit_offset >> 3,
+                          ((curr_bit_offset + 7) >> 3) - (sav_bit_offset >> 3), imsi_str);
+    add_assoc_imsi_item(tvb, pinfo, tree, imsi_str);
     return curr_bit_offset;
 }
 
