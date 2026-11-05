@@ -69841,3 +69841,58 @@ class TestDissectH283:
         rows = self.h283_fields(cmd_tshark, capture_file, test_env, 'h283.seqNumber',
                                 filt='h283.ack_element && frame.number >= 63')
         assert [r[1] for r in rows] == ['0', '1', '2']
+
+
+class TestDissectH323:
+    '''H.323 Annex M4 (RasTunnelledSignallingMessage) and Annex R
+    (RobustnessData) generic data from the synthetic capture
+    h323_coverage.pcap.gz: 111 frames of H.225.0 RAS (UDP 1719) and call
+    signalling (Q.931 in TPKT, TCP 1720).  Frames 1-32 carry robustness
+    data in RAS, 33-77 tunnelled signalling messages in RAS, 78-80 both and
+    other identifiers, 84-103 robustness data in Setup, Connect, Status and
+    StatusInquiry, 104-111 tunnelled messages in the UU-PDU and in generic
+    data.'''
+
+    @staticmethod
+    def h323_fields(cmd_tshark, capture_file, test_env, *fields, filt='frame', passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('h323_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_h323_protocols(self, cmd_tshark, capture_file, test_env):
+        '''111 frames; none is malformed or has an error expert info, in
+        one and two passes.'''
+        rows = self.h323_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 111
+        protocols = [r[1] for r in rows]
+        assert protocols.count('H.225.0') == 103
+        assert protocols.count('Q.931') == 5
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            rows = self.h323_fields(cmd_tshark, capture_file, test_env,
+                                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_h323_robustness_data(self, cmd_tshark, capture_file, test_env):
+        '''RobustnessData (GenericData 1/1) is dissected in RAS and in call
+        signalling.'''
+        rows = self.h323_fields(cmd_tshark, capture_file, test_env, 'h323.versionID', filt='h323.versionID')
+        frames = [int(r[0]) for r in rows]
+        assert frames == list(range(1, 33)) + [78, 80] + list(range(84, 104))
+        assert all(1 <= int(r[1]) <= 256 for r in rows)
+
+    def test_h323_tunnelled_signalling(self, cmd_tshark, capture_file, test_env):
+        '''RasTunnelledSignallingMessage (GenericData 1000/1) is dissected in
+        RAS; Q.931 (QSIG, 1.3.12.9) tunnelled in the UU-PDU goes to the
+        Q.931 dissector.'''
+        rows = self.h323_fields(cmd_tshark, capture_file, test_env, 'h323.messageContent', filt='h323.messageContent')
+        frames = [int(r[0]) for r in rows]
+        assert frames == list(range(33, 79)) + [80] + list(range(104, 112))
+        rows = self.h323_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', '_ws.col.info',
+                                filt='frame.number >= 104 && frame.number <= 108')
+        assert [r[1] for r in rows] == ['Q.931'] * 5
+        assert 'SETUP' in rows[0][2]
+        assert 'RELEASE COMPLETE' in rows[1][2]
