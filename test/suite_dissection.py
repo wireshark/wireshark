@@ -75703,3 +75703,87 @@ class TestDissectIec104:
                 '-eiec60870_asdu.addr',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['569\t5\t9', '576\t5\t9']
+
+
+class TestDissectIeee1609dot2:
+    '''IEEE 1609.2 secured messages (OER) from the synthetic capture
+    ieee1609dot2_coverage.pcapng.gz, carried in Exported PDU frames that name
+    the dissector "ieee1609dot2.data". All signatures, hashes, keys and
+    ciphertexts are constant placeholder octets; nothing is verified or
+    decrypted.'''
+
+    def test_ieee1609dot2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 23 PDUs decode without malformed packets or expert infos at
+        warning level or above, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 23
+        assert all(p.startswith('exported_pdu:ieee1609dot2') for p in protocols)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ieee1609dot2_header_info(self, cmd_tshark, capture_file, test_env):
+        '''PSID, hash algorithm and the content choice of the signed PDUs;
+        the location of frame 11 and its formatted latitude and longitude.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {5, 6, 7, 11}',
+                '-Tfields', '-eframe.number', '-eieee1609dot2.hashId',
+                '-eieee1609dot2.hiPsid', '-eieee1609dot2.latitude',
+                '-eieee1609dot2.longitude', '-eieee1609dot2.elevation',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t0\t32\t\t\t',
+            '6\t1\t36\t\t\t',
+            '7\t2\t37\t\t\t',
+            '11\t0\t32\t486000000\t22000000\t3000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {11, 12, 13}', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert any(f'48°36\'0{sep}000"N (486000000)' in stdout for sep in '.,')
+        assert any(f'2°12\'0{sep}000"E (22000000)' in stdout for sep in '.,')
+        assert any(f'3°18\'0{sep}000"S (-33000000)' in stdout for sep in '.,')
+        assert 'W (-151000000)' in stdout
+        assert 'unavailable(900000001)' in stdout
+        assert 'unavailable(1800000001)' in stdout
+
+    def test_ieee1609dot2_certificates(self, cmd_tshark, capture_file, test_env):
+        '''Certificates in the signer: explicit and implicit, with every
+        region form, and the application permissions with a service
+        specific permission (frame 16, SSP of the CA basic service).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'ieee1609dot2.certificate',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['16', '17', '18', '19', '20']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 16', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'name: testcert' in stdout
+        assert 'circularRegion (0)' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 20', '-Tfields', '-eieee1609dot2.duration',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 7
+
+    def test_ieee1609dot2_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''Encrypted data: recipients of every kind and an SM4 ciphertext.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ieee1609dot2_coverage.pcapng.gz'),
+                '-Y', 'ieee1609dot2.recipients',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['21', '22', '23']
