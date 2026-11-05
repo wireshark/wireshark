@@ -921,15 +921,19 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                         proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventseqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
                         str_len = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
                         proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventtime, tvb, offset, str_len, ENC_UCS_2|ENC_BIG_ENDIAN);
                         offset += str_len;
                         str_len = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
                         proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventdate, tvb, offset, str_len, ENC_UCS_2|ENC_BIG_ENDIAN);
                         offset += str_len;
                         str_len = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
                         proto_tree_add_item(hiqnet_event_tree, hf_hiqnet_eventinfo, tvb, offset, str_len, ENC_UCS_2|ENC_BIG_ENDIAN);
                         offset += str_len;
                         str_len = tvb_get_ntohs(tvb, offset);
+                        offset += 2;
                         proto_tree_add_item(
                             hiqnet_event_tree, hf_hiqnet_eventadddata, tvb, offset, str_len, ENC_NA);
                         offset += str_len;
@@ -958,7 +962,7 @@ dissect_hiqnet_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                 while (objcount > 0) {
                     hiqnet_object_tree = proto_tree_add_subtree(
                         hiqnet_payload_tree, tvb, offset, -1, ett_hiqnet, NULL, "Object");
-                    hiqnet_display_vdobjectaddr(hiqnet_header_tree, hf_hiqnet_vdobject, tvb, offset);
+                    hiqnet_display_vdobjectaddr(hiqnet_object_tree, hf_hiqnet_vdobject, tvb, offset);
                     offset += 4;
                     proto_tree_add_item_ret_uint16(hiqnet_object_tree, hf_hiqnet_paramcount, tvb, offset, 2, ENC_BIG_ENDIAN, &paramcount);
                     offset += 2;
