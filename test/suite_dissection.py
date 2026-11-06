@@ -81646,3 +81646,60 @@ class TestDissectIpnet:
             '11\t62\t\t2001:db8::1\t40000\t',
             '12\t5000\t192.0.2.1\t\t40000\t22',
         ]
+
+
+class TestDissectIpoib:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, name, dfilter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file(name)]
+        if dfilter:
+            args += ['-Y', dfilter]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ipoib_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames of the pcap and the snoop capture are IPoIB, none is
+        malformed or has an error expert info in one and two passes.'''
+        for name, count in (('ipoib_coverage.pcap.gz', 9), ('ipoib_coverage.snoop.gz', 5)):
+            for passes in ((), ('-2',)):
+                assert self._fields(cmd_tshark, capture_file, test_env, name,
+                                    '_ws.malformed || _ws.expert.severity >= error',
+                                    passes=passes) == []
+            assert len(self._fields(cmd_tshark, capture_file, test_env, name, 'ipoib')) == count
+
+    def test_ipoib_pcap_header(self, cmd_tshark, capture_file, test_env):
+        '''The 40 octet pseudo header: a destination address when the first
+        two octets are zero, otherwise a Global Route Header.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipoib_coverage.pcap.gz',
+                             'ipoib', 'ipoib.type', 'ipoib.reserved', 'ipoib.daddr.qpn',
+                             'ipoib.dgid', 'ipoib.grh.ipver', 'ipoib.grh.tclass',
+                             'ipoib.grh.flowlabel', 'ipoib.grh.sqpn', 'ipoib.grh.sgid',
+                             'frame.protocols')
+        assert lines[0] == '1\t0x0800\t0x0000\t0x000102\tfe80::2:c903:1:2\t\t\t\t\t\tipoib:ip:udp:data'
+        assert lines[1] == '2\t0x0800\t0x0000\t\tfe80::2:c903:1:2\t6\t18\t13398\t0x000a0b\tfe80::1:c903:1:1\tipoib:ip:udp:data'
+        assert lines[2] == '3\t0x86dd\t0x0000\t\tfe80::2:c903:1:2\t6\t255\t1048575\t0xffffff\tfe80::1:c903:1:1\tipoib:ipv6:udp:data'
+        assert lines[6].startswith('7\t0x1234\t0xbeef\t0x000102\t')
+        assert lines[6].endswith('\tipoib')
+
+    def test_ipoib_next_protocol(self, cmd_tshark, capture_file, test_env):
+        '''IPv4, IPv6, ARP, RARP and an unknown type.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipoib_coverage.pcap.gz',
+                             'ipoib', '_ws.col.protocol')
+        assert [l.split('\t')[1] for l in lines] == [
+            'UDP', 'UDP', 'UDP', 'ARP', 'ARP', 'RARP', 'IPoIB', 'UDP', 'ICMP']
+
+    def test_ipoib_snoop(self, cmd_tshark, capture_file, test_env):
+        '''A snoop capture has no pseudo header: the IPoIB header starts the
+        frame.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipoib_coverage.snoop.gz',
+                             'ipoib', 'ipoib.type', 'ipoib.grh', 'ipoib.daddr', 'frame.protocols')
+        assert lines == [
+            '1\t0x0800\t\t\tipoib:ip:udp:data',
+            '2\t0x0800\t\t\tipoib:ip:udp:data',
+            '3\t0x86dd\t\t\tipoib:ipv6:udp:data',
+            '4\t0x0806\t\t\tipoib:arp',
+            '5\t0x1234\t\t\tipoib',
+        ]
