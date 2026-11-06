@@ -547,8 +547,36 @@ The initial generation step is only required the first time a build directory is
 builds will regenerate the build files as required.
 
 To use a different generator modify the `-G` parameter.
-`cmake -G` lists all the CMake supported generators, but only Visual Studio is supported for Wireshark builds.
+`cmake -G` lists all the CMake supported generators, but only Visual Studio, Ninja, and Ninja Multi-Config are supported for Wireshark builds.
 32-bit builds are no longer supported.
+
+[#ChWindowsNinja]
+[TIP]
+.Building with Ninja and ccache
+====
+With https://ccache.dev/[ccache], builds can reuse the results of earlier compilations even when
+doing a clean build or using different build directories, for example switching between branches.
+The Visual Studio generator can't use ccache, but the Ninja generators can. Ninja can also
+be a good choice if you are familiar with it on other platforms.
+
+The Ninja build system is installed with the “{cpp} CMake tools for Windows” component of Visual Studio,
+and the Visual Studio Command Prompt puts it on the path.
+Install ccache 4.6 or later, e.g. with `winget install Ccache.Ccache` or `choco install -y ccache`, and generate the build files with
+
+[source,cmd]
+----
+cd C:\Development\wsbuild64
+cmake -G "Ninja Multi-Config" -DENABLE_CCACHE=ON ..\wireshark
+----
+
+Ninja Multi-Config builds each configuration in its own `run\<configuration>` directory, as Visual Studio does.
+The Ninja generator builds a single configuration, which you choose with `-DCMAKE_BUILD_TYPE`, e.g. `-DCMAKE_BUILD_TYPE=RelWithDebInfo`, in `run`.
+
+With ccache, Debug and RelWithDebInfo builds put the debug information in each object file (`/Z7`)
+instead of in a PDB file for each target's objects. This makes the build somewhat slower on the
+first run with a cold cache, but the compilation time is much faster for subsequent runs.
+The linker still writes a PDB file for each executable and DLL.
+====
 
 The CMake generation process will download the required 3rd party libraries (apart from Qt)
 as required, then test each library for usability before generating the build files.
@@ -605,8 +633,19 @@ cd C:\Development\wsbuild64
 msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx
 ----
 
+If you generated the build files with one of the <<ChWindowsNinja,Ninja generators>>, build Wireshark with
+
+[source,cmd]
+----
+cd C:\Development\wsbuild64
+cmake --build . --config RelWithDebInfo
+----
+
+`cmake --build` works with the Visual Studio generator too.
+With the Ninja generator, which builds only one configuration, you can leave out `--config` or run `ninja`.
+
 TIP: If compilation fails for suspicious reasons after you changed some source
-files try to clean the build files by doing `Build > Clean solution` (or running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx /t:Clean`)
+files try to clean the build files by doing `Build > Clean solution` (or running `msbuild /m /p:Configuration=RelWithDebInfo Wireshark.slnx /t:Clean` or `cmake --build . --config RelWithDebInfo clean`)
 and then building the solution again.
 
 The build files produced by CMake will regenerate themselves if required by changes in the source tree.
@@ -626,6 +665,8 @@ build the `all_guides` target, e.g.
 cd C:\Development\wsbuild64
 msbuild doc\all_guides.vcxproj
 ----
+
+or, with any generator, `cmake --build . --config RelWithDebInfo --target all_guides`.
 
 Detailed information to build these guides can be found in the file
 wsrepofile:doc/README.documentation.adoc[] in the Wireshark sources.
@@ -668,6 +709,15 @@ msbuild /m /p:Configuration=RelWithDebInfo wireshark_nsis.vcxproj
 ----
 
 to build a Wireshark installer.
+With the <<ChWindowsNinja,Ninja generators>>, run
+
+[source,cmd]
+----
+cmake --build . --config RelWithDebInfo --target wireshark_nsis_prep
+cmake --build . --config RelWithDebInfo --target wireshark_nsis
+----
+
+instead.
 If you sign your executables you should do so between the “wireshark_nsis_prep” and “wireshark_nsis” steps.
 To sign your installer you should place the signing batch script on the path. It must be named "sign-wireshark.bat".
 It should be autodetected by CMake, to always require signing set the -DENABLE_SIGNED_NSIS=On CMake option.
