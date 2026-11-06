@@ -1419,7 +1419,10 @@ static tvbuff_t *add_send_fragment(rdma_conv_info_t *p_rdma_conv_info,
         /* Only one SEND fragment, no need to reassemble */
         return tvb;
     } else if (pinfo->fd->visited) {
-        return get_reassembled_data(tvb, 0, pinfo, tree);
+        new_tvb = get_reassembled_data(tvb, 0, pinfo, tree);
+        /* Same as on the first pass: if there is no reassembled data
+         * then dissect the fragment as it is */
+        return new_tvb ? new_tvb : tvb;
     } else if (first_frag) {
         /* Start of multi-SEND message */
         p_send_info = wmem_new(wmem_file_scope(), send_info_t);
@@ -1484,12 +1487,14 @@ packet_is_rpcordma(tvbuff_t *tvb)
 {
     unsigned size, len = tvb_reported_length(tvb);
     uint32_t xid_rpc;
-    uint32_t xid = tvb_get_ntohl(tvb, 0);
-    uint32_t msg_type = tvb_get_ntohl(tvb, 12);
+    uint32_t xid, msg_type;
     unsigned offset;
 
     if (len < MIN_RPCRDMA_HDR_SZ)
         return 0;
+
+    xid = tvb_get_ntohl(tvb, 0);
+    msg_type = tvb_get_ntohl(tvb, 12);
 
     switch (msg_type) {
     case RDMA_MSG:
