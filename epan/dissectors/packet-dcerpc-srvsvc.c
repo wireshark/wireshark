@@ -2134,6 +2134,8 @@ srvsvc_dissect_sec_desc_buf(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, 
 	}
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 		hf_srvsvc_sec_desc_buf_len, &len);
+	/* An array of these would loop on a length that wraps the offset */
+	tvb_ensure_bytes_exist64(tvb, offset, len);
 	dissect_nt_sec_desc(tvb, offset, pinfo, tree, drep, true, len,
 		NULL);
 	offset += len;
