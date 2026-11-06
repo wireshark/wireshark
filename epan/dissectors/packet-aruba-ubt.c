@@ -369,7 +369,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
         case Unknown:/* Unknown, because type 0 is undefined */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_unknown, tvb, offset, optlen, ENC_NA);
-            offset += optlen;
             break;
 
         case GREKey:/* Type 1: GRE Key */
@@ -380,7 +379,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " grekey:%u", val);
-            offset += optlen;
             break;
 
         case FirmwareVersion:/* Type 2: Firmware version */
@@ -388,7 +386,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding Firmware version as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_firmwareversion, tvb, offset, optlen, ENC_ASCII);
             proto_item_append_text(tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII));
-            offset += optlen;
             break;
 
         case UserKey:/* Type 3: User key */
@@ -399,7 +396,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " userkey:%u", val);
-            offset += optlen;
             break;
 
         case SACMode:/* Type 4: SAC Mode */
@@ -410,7 +406,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " sacMode:%u", val);
-            offset += optlen;
             break;
 
         case SACIPAddress:/* Type 5: SAC IP Address */
@@ -426,7 +421,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_padding, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 proto_tree_add_item(message_subtree2, hf_ubt_dt_sacipv6, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-                offset += IPv6_ADDR_SIZE;
                 break;
 
             case TYPE_IPV4:
@@ -435,17 +429,14 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 proto_tree_add_item(message_subtree2, hf_ubt_dt_sacipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_padding, tvb, offset, 12, ENC_NA);
-                offset += 12;
                 break;
 
             case TYPE_NOT_ASSIGNED:
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_unassigned, tvb, offset, IP_SIZE - 2, ENC_NA);
-                offset += IP_SIZE - 2;
                 break;
 
             default:
                 proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
-                offset += IP_SIZE - 2;
 
             }
             break;
@@ -455,7 +446,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding Heartbeat timeout as proto_item to the tree */
             proto_tree_add_item_ret_uint(message_subtree2, hf_ubt_dt_heartbeattimeout, tvb, offset, optlen, ENC_BIG_ENDIAN, &val);
             proto_item_append_text(tlv, ": %u", val);
-            offset += optlen;
             break;
 
         case UserMAC:/* Type 7: User MAC Address */
@@ -466,7 +456,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " usermac:%s", tvb_get_ether_name(tvb, offset));
-            offset += optlen;
             break;
 
         case UserVLAN:/* Type 8: User VLAN */
@@ -477,7 +466,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " vlan:%u", val);
-            offset += optlen;
             break;
 
         case Flags:/* Type 9: Flags */
@@ -508,7 +496,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " flags:%u", val);
-            offset += optlen;
             break;
 
         case TunnelMTU:/* Type 10: Tunnel MTU */
@@ -519,7 +506,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " mtu:%u", val);
-            offset += optlen;
             break;
 
         case UserRole:/* Type 11: User Role */
@@ -531,7 +517,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " role:%s", userrole);
-            offset += optlen;
             break;
 
         case ReasonCode:/* Type 12: Reason Code */
@@ -542,7 +527,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " reason:%u", val);
-            offset += optlen;
             break;
 
         case Nodelist:/* Type 13: Nodelist */
@@ -746,7 +730,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             proto_tree_add_item_ret_boolean(message_subtree2, hf_ubt_dt_status, tvb, offset, optlen, ENC_BIG_ENDIAN, &bool_val);
             proto_item_append_text(tlv, ": %u(%s)", bool_val, bool_val ? "Success" : "Failure");
             col_append_fstr(pinfo->cinfo, COL_INFO, " status:%02d(%s)", bool_val, bool_val ? "Success" : "Failure");
-            offset += optlen;
             break;
 
         case MCASTKey:/* Type 16: MCAST Key */
@@ -757,7 +740,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* appending to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, " mcastkey:%u", val);
-            offset += optlen;
             break;
 
         case ServerIP:/* Type 17: Server IP Address */
@@ -773,7 +755,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_padding, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 proto_tree_add_item(message_subtree2, hf_ubt_dt_serveripv6, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-                offset += IPv6_ADDR_SIZE;
                 break;
 
             case TYPE_IPV4:
@@ -782,17 +763,14 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
                 proto_tree_add_item(message_subtree2, hf_ubt_dt_serveripv4, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_padding, tvb, offset, 12, ENC_NA);
-                offset += 12;
                 break;
 
             case TYPE_NOT_ASSIGNED:
                 proto_tree_add_item(message_subtree2, hf_ubt_ip_unassigned, tvb, offset, IP_SIZE - 2, ENC_NA);
-                offset += IP_SIZE - 2;
                 break;
 
             default:
                 proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, IP_SIZE - 2, "Invalid IP Type");
-                offset += IP_SIZE - 2;
 
             }
             break;
@@ -803,7 +781,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             tlv_item = proto_tree_add_item_ret_uint(message_subtree2, hf_ubt_dt_userauthmethod, tvb, offset, optlen, ENC_BIG_ENDIAN, &val);
             proto_item_append_text(tlv, ": %u(%s)", val, val_to_str(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
             proto_item_append_text(tlv_item, "(%s)", val_to_str(pinfo->pool, val, ubt_authmethod_vals, "Unknown Type (%02d)"));
-            offset += optlen;
             break;
 
         case Username:/* Type 19: Username */
@@ -811,7 +788,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding username as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_username, tvb, offset, optlen, ENC_ASCII);
             proto_item_append_text(tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII));
-            offset += optlen;
             break;
 
         case UserPortName:/* Type 20: User Port name */
@@ -819,7 +795,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding user port name as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_userportname, tvb, offset, optlen, ENC_ASCII);
             proto_item_append_text(tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII));
-            offset += optlen;
             break;
 
         case SwitchName:/* Type 21: Switch Name */
@@ -827,7 +802,6 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
             /* adding Switch name as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_switchname, tvb, offset, optlen, ENC_ASCII);
             proto_item_append_text(tlv, ": %s", tvb_get_string_enc(pinfo->pool, tvb, offset, optlen, ENC_ASCII));
-            offset += optlen;
             break;
 
         case SilentClientVLANs:/* Type 22: Silent Client VLANs */
@@ -849,12 +823,10 @@ dissect_ubt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 
             /* adding Max Msgs as proto_item to the tree */
             proto_tree_add_item(message_subtree2, hf_ubt_dt_maxmsgs, tvb, offset, optlen, ENC_NA);
-            offset += optlen;
             break;
 
         default:
             proto_tree_add_expert_format(message_subtree2, pinfo, &ei_ubt_unknown, tvb, offset, optlen, "Unknown");
-            offset += optlen;
         }
         /* Some values are decoded with a fixed size; go on after the TLV */
         offset = tlv_end;
