@@ -152,8 +152,12 @@ ilnp_build_filter(packet_info *pinfo, void *user_data _U_)
 {
     address src_nid, dst_nid;
 
-    alloc_address_wmem(pinfo->pool, &src_nid, AT_ILNP_NID, 8, pinfo->net_src.data);
-    alloc_address_wmem(pinfo->pool, &dst_nid, AT_ILNP_NID, 8, pinfo->net_dst.data);
+    if (pinfo->net_src.type != AT_IPv6 || pinfo->net_dst.type != AT_IPv6)
+        return NULL;
+
+    /* The NID is the low 64 bits of the IPv6 address. */
+    alloc_address_wmem(pinfo->pool, &src_nid, AT_ILNP_NID, 8, (const uint8_t *)pinfo->net_src.data + 8);
+    alloc_address_wmem(pinfo->pool, &dst_nid, AT_ILNP_NID, 8, (const uint8_t *)pinfo->net_dst.data + 8);
 
     return ws_strdup_printf("ilnp.nid eq %s and ilnp.nid eq %s",
                 address_to_str(pinfo->pool, &src_nid),
