@@ -198,6 +198,11 @@ isis_dissect_authentication_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *
         }
         break;
     case 3:
+        if ( length < 2 ) {
+            proto_tree_add_expert_format(tree, pinfo, auth_expert, tvb, offset, length,
+                "CRYPTO_AUTH (3), too short for Key ID (%d vs 2)", length);
+            break;
+        }
         proto_tree_add_item(tree, hf_key_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         length -= 2;

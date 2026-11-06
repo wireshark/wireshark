@@ -727,10 +727,10 @@ dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         offset += 2;
         length -= 2;
 
-        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_snpa, tvb, offset, 6, ENC_NA);
+        proto_tree_add_item(tree, hf_isis_hello_trill_neighbor_snpa, tvb, offset, size, ENC_NA);
 
-        offset += 6;
-        length -= 6;
+        offset += size;
+        length -= size;
     }
 }
 

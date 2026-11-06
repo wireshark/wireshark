@@ -2073,7 +2073,7 @@ dissect_isis_trill_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
                 break;
             case FAD_EXCLUDE_SRLG:
                 local_offset = offset;
-                local_len = sublen;
+                local_len = tlv_len;
                 while (local_len >= 4) {
                     proto_tree_add_item(subtree, hf_isis_lsp_clv_flex_algo_srlg_value, tvb, local_offset, 4, ENC_BIG_ENDIAN);
                     local_len -= 4;
@@ -2371,9 +2371,14 @@ dissect_lsp_hostname_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree
  *      void, will modify proto_tree if not null.
  */
 static void
-dissect_lsp_srlg_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+dissect_lsp_srlg_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     isis_data_t *isis _U_, int length)
 {
+    if (length < 16) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
+                                     "Short SRLG TLV (%d vs 16)", length);
+        return;
+    }
 
     proto_tree_add_item(tree, hf_isis_lsp_srlg_system_id, tvb, offset, 6, ENC_NA);
     offset += 6;
@@ -2391,7 +2396,7 @@ dissect_lsp_srlg_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, in
     offset += 4;
 
     length -= 16;
-    while(length){
+    while(length >= 4){
         proto_tree_add_item(tree, hf_isis_lsp_srlg_value, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         length -= 4;
@@ -2957,7 +2962,7 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
     while (i < sub_tlv_len) {
         clv_code = tvb_get_uint8(tvb, i+tlv_offset);
         clv_len  = tvb_get_uint8(tvb, i+1+tlv_offset);
-        ti_subclvs = proto_tree_add_item(tree, hf_isis_lsp_sl_sub_tlv, tvb, tlv_offset, clv_len+2, ENC_NA);
+        ti_subclvs = proto_tree_add_item(tree, hf_isis_lsp_sl_sub_tlv, tvb, i+tlv_offset, clv_len+2, ENC_NA);
         proto_item_append_text(ti_subclvs, " %s",
                                val_to_str_const(clv_code, isis_lsp_sl_sub_tlv_vals, "Unknown capability sub-tlv type"));
         subtree = proto_item_add_subtree(ti_subclvs, ett_isis_lsp_sl_sub_tlv);
@@ -4274,8 +4279,8 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
         /* and spit it out */
         proto_tree_add_string( tree, hf_isis_lsp_area_address_str, tvb, offset, (mylen+1)/2 + 1, sbuf);
 
-        offset += mylen + 1;
-        length -= mylen;    /* length already adjusted for len fld*/
+        offset += (mylen + 1)/2 + 1;
+        length -= (mylen + 1)/2;    /* length already adjusted for len fld*/
     }
 }
 
@@ -4671,7 +4676,7 @@ dissect_lsp_mac_reachability(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *
         else if (is_avaya && count == 2)
             proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_fanmcast, tvb, offset, 6, ENC_NA);
         else
-            proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_mac, tvb, offset + 5, 6, ENC_NA);
+            proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_mac, tvb, offset, 6, ENC_NA);
         offset += 6;
     }
 }
@@ -4716,6 +4721,12 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
         }
 	subtype = tvb_get_uint8(tvb, offset);
 	sublength = tvb_get_uint8(tvb, offset + 1);
+        if (sublength + 2 > subtlvbytes) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, subtlvbytes,
+                                         "Sub-TLV length too large for remaining bytes (%u vs %u)",
+                                         sublength + 2, subtlvbytes);
+            return;
+        }
         subtlvtree = proto_tree_add_subtree_format(tree, tvb, offset, sublength + 2, ett_isis_lsp_clv_avaya_ipvpn_subtlv, &ti, "%s",
                                     val_to_str_const(subtype, isis_lsp_avaya_ipvpn_subtlv_code_vals, "Unknown"));
         proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvtype, tvb, offset, 1, ENC_NA);
