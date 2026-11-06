@@ -83140,3 +83140,176 @@ class TestDissectIrdma:
         assert rows == [['53', '0x8000', '4660', '', ''], ['54', '0x8001', '4660', '', ''],
                         ['55', '0x8002', '', '', ''], ['56', '', '', '0xa000', '7'],
                         ['57', '', '', '0xa001', '']]
+
+
+class TestDissectIscsi:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iscsi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The PDUs of every session decode as iSCSI (heuristic on ports
+        3260 and 860, conversations from TargetAddress keys) without
+        malformed packets or errors, in one and two passes. The TCP frames
+        are segments of reassembled PDUs, a PDU with a huge data segment
+        length and the traffic to a port that is not an iSCSI port.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('iSCSI') == 103
+        assert protocols.count('TCP') == 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iscsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iscsi_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the login, SCSI, task management, text,
+        logout, reject and several PDUs in one segment.'''
+        rows = dict((f[0], f[1]) for f in self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'iscsi', '-eframe.number', '-e_ws.col.info'))
+        assert rows['4'] == 'Login Command'
+        assert rows['5'] == 'Login Response (Success) '
+        assert rows['12'] == 'Login Response (Target moved temporarily) '
+        assert rows['18'] == 'NOP Out, Task Management Function (Abort Task) '
+        assert rows['20'] == 'Task Management Function Response (Task management function not supported) '
+        assert rows['24'] == 'SCSI Read(10) LUN: 0x01 1024 bytes (8 blocks) at LBA: 0x00000000 '
+        assert rows['26'] == ('SCSI Data In (Good) SCSI Response LUN: 0x01 Read(10), '
+                              '512 bytes (1 blocks) (Good) ')
+        assert rows['35'] == 'Ready To Transfer LUN: 0x01, OK to write 8192 bytes (16 blocks) '
+        assert rows['44'] == 'Ready To Transfer <missing request> '
+        assert rows['47'] == 'SCSI Response (Check Condition)  LUN:0x02 '
+        assert rows['49'] == 'SCSI Variable Length CDB LUN: 0x00 '
+        assert rows['52'].startswith('Asynchronous Message (A SCSI asynchronous event')
+        assert rows['56'] == 'Reject (Data (payload) digest error) '
+        assert rows['68'] == 'NOP In, SCSI Response (Good) <missing request>'
+        assert rows['78'] == 'Logout Command (Remove connection for recovery) '
+
+    def test_iscsi_reject_header(self, cmd_tshark, capture_file, test_env):
+        '''A Reject dissects the header of the rejected PDU from its data
+        segment only (frame 55), and Rejects with an empty data segment
+        do not nest (frame 57 holds thirty of them): the PDUs behind a
+        Reject used to be dissected again as its rejected header.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 55 && frame.number <= 57', '-eframe.number',
+                '-eiscsi.opcode', '-eiscsi.reject.reason')
+        assert rows[0] == ['55', '0x3f,0x01', '0x04']
+        assert rows[1] == ['56', '0x3f', '0x02']
+        assert rows[2][1] == ','.join(['0x3f'] * 30)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 55', '-V', '-O', 'iscsi',
+            ), encoding='utf-8', env=test_env)
+        assert '    Rejected Header' in stdout
+        assert stdout.count('iSCSI (SCSI Command)') == 1
+
+    def test_iscsi_flags_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The Flags of a SCSI Command, SCSI Response and Data Out are in the
+        iSCSI tree (they were added to the parent tree).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24', '-V', '-O', 'iscsi',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('iSCSI (SCSI Command) ')
+        assert lines[start + 1].startswith('    ..00 0001 = Opcode: SCSI Command (0x01)')
+        flags = [l for l in lines[start:] if l.lstrip().startswith('Flags: ')]
+        assert flags == ['    Flags: 0xc1, F, R, Attr: Simple']
+        assert '        .... .001 = Attr: Simple (0x1)' in lines[start:]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 39 || frame.number == 45', '-V', '-O', 'iscsi',
+            ), encoding='utf-8', env=test_env)
+        assert len([l for l in stdout.splitlines() if l.startswith('    Flags: ')]) == 2
+
+    def test_iscsi_login_keys(self, cmd_tshark, capture_file, test_env):
+        '''Login keys: numeric keys are 32 bit fields (they were 8 bit and
+        lost the high bits), OFMarker is matched by its own name (it was
+        matched with the length of IFMarker), TargetAddress opens
+        conversations for the addresses it names.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-eiscsi.login.max_burst_length',
+                '-eiscsi.login.first_burst_length', '-eiscsi.login.max_recv_data_segment_length',
+                '-eiscsi.login.max_connections', '-eiscsi.login.of_marker',
+                '-eiscsi.login.if_marker', '-eiscsi.login.default_time_to_retain',
+                '-eiscsi.login.initialr2t', '-eiscsi.keyvalue')
+        assert rows == [['262144', '65536', '8192', '1', 'No', 'No', '20', 'No', 'X-vendor.key=abc']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 11', '-eiscsi.login.target_address',
+                '-eiscsi.login.target_portal_group_tag')
+        assert rows[0][0] == ('198.51.100.5:3261,1,[2001:db8::5]:3262,1,iscsi.example.net:3263,'
+                              '198.51.100.6,[2001:db8::6],[2001:db8::7,198.51.100.8:3264,'
+                              '[2001:db8::8]:3265')
+        # streams to 198.51.100.5:3261, [2001:db8::5]:3262, 198.51.100.8:3264 and
+        # [2001:db8::8]:3265 are iSCSI, the connection to port 24000 is not
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.len > 0 && (tcp.port == 3261 || tcp.port == 3262 || tcp.port == 3264 || tcp.port == 3265 || tcp.port == 24000)',
+                '-eframe.number', '-etcp.dstport', '-e_ws.col.protocol')
+        assert [r[2] for r in rows if r[1] in ('3261', '3262', '3264', '3265')] == ['iSCSI'] * 4
+        assert [r[2] for r in rows if r[1] == '24000'] == ['TCP']
+
+    def test_iscsi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Data Out PDUs of 4144 octets split over four and three TCP
+        segments are reassembled.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'iscsi.opcode == 5 && tcp.reassembled.length',
+                '-eframe.number', '-etcp.reassembled.length')
+        assert rows == [['39', '4144'], ['43', '4144']]
+
+    def test_iscsi_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Commands are matched to their Data-In, R2T, Data-Out and
+        Response PDUs in the second pass.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'iscsi', '-eframe.number', '-eiscsi.request_frame',
+                '-eiscsi.response_frame', '-eiscsi.data_in_frame', '-eiscsi.r2t_frame',
+                '-eiscsi.data_out_frame'))
+        assert rows['24'] == ['', '29', '28', '', '']
+        assert rows['29'] == ['24', '', '28', '', '']
+        assert rows['34'] == ['', '45', '', '40', '43']
+        assert rows['35'] == ['34', '45', '', '', '43']
+        assert rows['43'] == ['34', '45', '', '40', '']
+        assert rows['45'] == ['34', '', '', '40', '43']
+        assert rows['30'] == ['', '33', '33', '', '']
+        assert rows['44'] == ['', '', '', '', '']
+
+    def test_iscsi_digests(self, cmd_tshark, capture_file, test_env):
+        '''Header and data digests are detected from the first PDU and
+        checked: frame 95 has a bad header digest and frame 96 a bad data
+        digest.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'iscsi.headerdigest32 || iscsi.datadigest32',
+                '-eframe.number', '-eiscsi.headerdigest32', '-eiscsi.datadigest32')
+        assert len(rows) == 22
+        assert rows[0] == ['86', '0xe6f519af', '']
+        assert rows[1] == ['87', '0xe63abd00', '0xdb7d9366']
+        bad = [r[0] for r in rows if r[1] == '0x928cc903' or r[2] == '0x99bbc75e']
+        assert bad == ['95', '96']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iscsi_coverage.pcap.gz'),
+                '-Y', 'iscsi', '-V', '-O', 'iscsi',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('(Bad CRC32, should be') == 2
+        assert stdout.count('(Good CRC32)') == 30
+
+    def test_iscsi_ahs_and_sense(self, cmd_tshark, capture_file, test_env):
+        '''Additional header segments (extended CDB, bidirectional read
+        length, unknown), a volume set addressing LUN and the sense data
+        of a Check Condition.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'iscsi.ahs.type', '-eframe.number', '-eiscsi.ahs.type',
+                '-eiscsi.ahs.length', '-eiscsi.ahs.bidir.length')
+        assert [r[:2] for r in rows] == [['49', '1,3'], ['50', '2'], ['94', '1']]
+        assert rows[1][3] == '4096'
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 14 || frame.number == 15', '-eframe.number', '-e_ws.col.info')
+        assert rows[0][1].startswith('SCSI Write(10) LUN: 0x05 512 bytes')
+        assert rows[1][1] == 'SCSI Response (Check Condition)  LUN:0x05 '
