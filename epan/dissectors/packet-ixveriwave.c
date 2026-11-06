@@ -45,6 +45,12 @@ typedef struct ifg_info {
 
 static frame_end_data previous_frame_data;
 
+static void
+ixveriwave_init(void)
+{
+    memset(&previous_frame_data, 0, sizeof(previous_frame_data));
+}
+
 /* static int ieee80211_mhz2ieee(int freq, int flags); */
 
 #define COMMON_LENGTH_OFFSET 2
@@ -1053,7 +1059,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     {
         float flttmp;
         frameformat = tvb_get_uint8(tvb, offset+33)& 0x03;
-        legacy_type = tvb_get_uint8(tvb, offset+33)& 0x04 >>2;
+        legacy_type = (tvb_get_uint8(tvb, offset+33) & 0x04) >> 2;
 
         if(cmd_type ==3)
             offset += 1;
@@ -4225,6 +4231,7 @@ framing signal deasserted.  this is caused by software setting the drain all reg
     };
 
     proto_ixveriwave = proto_register_protocol("ixveriwave", "ixveriwave", "ixveriwave");
+    register_init_routine(ixveriwave_init);
     proto_register_field_array(proto_ixveriwave, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
