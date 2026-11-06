@@ -52,7 +52,6 @@ dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_tree *fh_tree;
   proto_item *ti;
   tvbuff_t *next_tvb;
-  uint32_t pktlen;
   uint8_t family;
 
   /* load the top pane info. This should be overwritten by
@@ -75,8 +74,8 @@ dissect_ipnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_tree_add_item(fh_tree, hf_zdst, tvb, 20, 4, ENC_BIG_ENDIAN);
   }
 
-  pktlen = tvb_get_ntohl(tvb, 4);
-  next_tvb = tvb_new_subset_remaining(tvb, tvb_captured_length(tvb) - pktlen);
+  /* The payload follows the fixed 24-byte header. */
+  next_tvb = tvb_new_subset_remaining(tvb, 24);
 
   family = tvb_get_uint8(tvb, 1);
   switch (family) {
