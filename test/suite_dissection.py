@@ -83313,3 +83313,59 @@ class TestDissectIscsi:
                 '-Y', 'frame.number == 14 || frame.number == 15', '-eframe.number', '-e_ws.col.info')
         assert rows[0][1].startswith('SCSI Write(10) LUN: 0x05 512 bytes')
         assert rows[1][1] == 'SCSI Response (Check Condition)  LUN:0x05 '
+
+
+class TestDissectIsdn:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isdn_coverage.i4b.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_isdn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 15 records of the i4b trace are dissected as ISDN, without
+        malformed packets or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 15
+        assert all(r[0].split(':')[0] == 'isdn' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isdn_coverage.i4b.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_isdn_channel_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The D channel is dissected as LAPD (and Q.931), a B channel
+        whose first frame is a V.120 SABME as V.120 and one that starts with
+        0xFF 0x03 as PPP in HDLC framing; the direction and channel fields
+        of the ISDN header. One and two passes give the same result.'''
+        expected = [
+            ['1', 'isdn:lapd', '0', 'True'], ['2', 'isdn:lapd', '0', 'False'],
+            ['3', 'isdn:lapd:q931', '0', 'True'], ['4', 'isdn:lapd', '0', 'False'],
+            ['5', 'isdn:lapd:q931', '0', 'False'], ['6', 'isdn:lapd:q931', '0', 'True'],
+            ['7', 'isdn:lapd', '0', 'True'], ['8', 'isdn:lapd', '0', 'False'],
+            ['9', 'isdn:v120', '1', 'True'], ['10', 'isdn:v120', '1', 'False'],
+            ['11', 'isdn:v120:data', '1', 'True'], ['12', 'isdn:v120', '1', 'False'],
+            ['13', 'isdn:ppp:lcp', '2', 'True'], ['14', 'isdn:ppp:lcp', '2', 'False'],
+            ['15', 'isdn:ppp:lcp', '2', 'True'],
+        ]
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-eframe.number', '-eframe.protocols', '-eisdn.channel', '-eisdn.direction')
+            assert [[r[0], r[1].replace('eth:ethertype:', ''), r[2], r[3]] for r in rows] == expected
+
+    def test_isdn_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the LAPD, Q.931, V.120 and PPP frames.'''
+        rows = dict((r[0], r[1]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-e_ws.col.info'))
+        assert rows['1'] == 'TEI:64 U P, func=SABME | '
+        assert rows['3'] == 'TEI:64 I, N(R)=0, N(S)=0 | SETUP'
+        assert rows['5'] == 'TEI:64 I, N(R)=1, N(S)=0 | CONNECT'
+        assert rows['9'] == 'U F, func=SABME'
+        assert rows['11'] == 'I, N(R)=0, N(S)=0'
+        assert rows['13'] == 'Configuration Request'
+        assert rows['15'] == 'Echo Request'
