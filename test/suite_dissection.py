@@ -81593,3 +81593,56 @@ class TestDissectIpmiVita:
             'Address Key: 0xff (255)',
             'Site Type: Unknown (0xff)',
         ]
+
+
+class TestDissectIpnet:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('ipnet_coverage.pcap.gz')]
+        if dfilter:
+            args += ['-Y', dfilter]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ipnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames are IPNET, none is malformed or has an error
+        expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= error',
+                                passes=passes) == []
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipnet')) == 12
+
+    def test_ipnet_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields and the dissector chosen by the address family.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipnet',
+                             'ipnet.version', 'ipnet.family', 'ipnet.htype',
+                             'ipnet.ifindex', 'ipnet.grifindex', 'ipnet.zsrc',
+                             'ipnet.zdst', 'frame.protocols')
+        assert lines[0] == '1\t1\t2\t0\t2\t3\t0\t0\tipnet:ip:udp:data'
+        assert lines[1] == '2\t1\t26\t1\t2\t3\t0\t0\tipnet:ipv6:udp:data'
+        assert lines[2] == '3\t1\t2\t2\t7\t9\t5\t6\tipnet:ip:udp:data'
+        assert lines[3] == '4\t1\t26\t0\t2\t3\t0\t0\tipnet:ipv6:ipv6.hopopts:udp:data'
+        assert lines[4] == '5\t1\t99\t0\t2\t3\t0\t0\tipnet'
+        assert lines[5] == '6\t2\t2\t7\t2\t3\t0\t0\tipnet:ip:udp:data'
+        assert lines[6] == '7\t1\t2\t1\t4294967295\t4294967295\t4294967295\t4294967295\tipnet:ip:udp:data'
+
+    def test_ipnet_pktlen_ignored(self, cmd_tshark, capture_file, test_env):
+        '''The payload follows the 24 octet header whatever the data length
+        field says: 0, 20, larger than the frame, or a snap-length
+        truncated frame (the offset used to be captured length minus
+        that field).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {8, 9, 10, 11, 12}',
+                             'ipnet.pktlen', 'ip.src', 'ipv6.src', 'udp.srcport',
+                             'udp.length')
+        assert lines == [
+            '8\t0\t192.0.2.1\t\t40000\t22',
+            '9\t20\t192.0.2.1\t\t40000\t22',
+            '10\t1500\t192.0.2.1\t\t40000\t1480',
+            '11\t62\t\t2001:db8::1\t40000\t',
+            '12\t5000\t192.0.2.1\t\t40000\t22',
+        ]
