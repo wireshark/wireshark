@@ -79079,3 +79079,78 @@ class TestDissectInfinibandSdp:
             'SDP\tRC Send Only QP=0x000240 (SDP Data)',
             'SDP\tRC Send Only QP=0x000140 (SDP DisConn)',
             'SDP\tRC Send Only QP=0x000fff (SDP Data)']
+
+
+class TestDissectInterlink:
+    '''Interlink (packet-interlink.c) from the synthetic capture
+    interlink_coverage.pcap.gz: UDP datagrams that start with the "ILNK"
+    magic are found by the heuristic dissector (no port is registered).
+    The header carries version, command, sequence and flags; a block
+    header carries type, version and length.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('interlink_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_interlink_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-25 are Interlink, 26-29 (no or a wrong magic) are
+        plain UDP; no malformed packets or error expert infos in one and
+        two passes.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'interlink',
+                'frame.number')
+        assert lines == [str(n) for n in range(1, 26)]
+        lines = self._fields(cmd_tshark, capture_file, test_env, '!interlink',
+                'frame.number', '_ws.col.protocol')
+        assert lines == ['26\tUDP', '27\tUDP', '28\tUDP', '29\tUDP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('interlink_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_interlink_header(self, cmd_tshark, capture_file, test_env):
+        '''Command (Data, Ack, unknown) and sequence of frames 1-4.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 4', 'frame.number', 'interlink.id',
+                'interlink.cmd', 'interlink.seq', 'interlink.length',
+                '_ws.col.info')
+        assert lines == [
+            '1\tILNK\t1\t1\t15\tType: 1, Version: 1',
+            '2\tILNK\t2\t1\t0\tType: 1, Version: 1',
+            '3\tILNK\t3\t2\t1\tType: 1, Version: 1',
+            '4\tILNK\t0\t65535\t200\tType: 1, Version: 1',
+        ]
+
+    def test_interlink_flags(self, cmd_tshark, capture_file, test_env):
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {5, 6, 7, 8, 10}', 'frame.number',
+                'interlink.flags', 'interlink.flags.req_ack',
+                'interlink.flags.inc_ack_port')
+        assert lines == [
+            '5\t0x0000\tFalse\tFalse',
+            '6\t0x0001\tTrue\tFalse',
+            '7\t0x0002\tFalse\tTrue',
+            '8\t0x0003\tTrue\tTrue',
+            '10\t0xfffc\tFalse\tFalse',
+        ]
+
+    def test_interlink_block_types(self, cmd_tshark, capture_file, test_env):
+        '''The block type and version are shown in the Info column; no
+        sub-dissector is registered, so the data dissector gets the rest.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {11, 14, 15}', 'frame.number',
+                '_ws.col.info', 'data.len')
+        assert lines == [
+            '11\tType: 0, Version: 0\t6',
+            '14\tType: 16, Version: 3\t7',
+            '15\tType: 255, Version: 255\t8',
+        ]
