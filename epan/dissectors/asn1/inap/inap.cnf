@@ -136,7 +136,7 @@ static unsigned dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, unsigne
 #.TABLE2_FTR
   default:
     proto_tree_add_expert_format_remaining(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-                                 tvb, offset, "Unknown returnErrorData %d", opcode);
+                                 tvb, offset, "Unknown returnErrorData %d", errorCode);
   }
   return offset;
 }
@@ -244,8 +244,8 @@ static const inap_err_t inap_err_tab[] = {
   if (obj_id){
     offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-    call_data_dissector(tvb, actx->pinfo, ext_tree);
-    offset = tvb_reported_length_remaining(tvb,offset);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), actx->pinfo, ext_tree);
+    offset += tvb_reported_length_remaining(tvb, offset);
   }
   is_ExtensionField = false;
 
@@ -378,7 +378,8 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
     ett = ett_inap_additionalCallingPartyNumber;
   } else if (hf_index == hf_inap_assistingSSPIPRoutingAddress) {
     ett = ett_inap_assistingSSPIPRoutingAddress;
-  } else if (hf_index == hf_inap_correlationID) {
+  } else if (hf_index == hf_inap_correlationID ||
+             hf_index == hf_inap_bcsmEventCorrelationID) {
     ett = ett_inap_correlationID;
     digits = (opcode != opcode_assistRequestInstructions) ? true : false;
   } else if (hf_index == hf_inap_calledAddressValue) {
@@ -413,6 +414,9 @@ dissect_isup_called_party_number_parameter(parameter_tvb, actx->pinfo, tree, NUL
   } else if (hf_index == hf_inap_digitsResponse) {
     ett = ett_inap_digitsResponse;
     digits = true;
+  } else {
+    /* Unknown user of Digits: leave it as an OCTET STRING. */
+    return offset;
   }
 
   subtree = proto_item_add_subtree(actx->created_item, ett);
