@@ -80643,3 +80643,163 @@ class TestDissectIpmiChassis:
         # OEM (0x60, 0x7f), reserved (0x08, 0x09, 0x32) selectors
         assert len(stdout.splitlines()) == 17
         assert '149\t0x08\t' in stdout.splitlines() and '153\t0x60\t' in stdout.splitlines()
+
+
+class TestDissectIpmiPicmg:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                *args, '-r', capture_file('ipmi_picmg_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _data(cmd_tshark, capture_file, test_env, number):
+        '''The items of the Data subtree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                '-r', capture_file('ipmi_picmg_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % number, '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = len(lines) - lines[::-1].index('Intelligent Platform Management Bus')
+        lines = lines[start:]
+        first = lines.index('    Data') + 1
+        last = [i for i, l in enumerate(lines) if l.startswith('    Data checksum')][-1]
+        return [l[8:] for l in lines[first:last]]
+
+    def test_picmg_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an IPMI message in RMCP, none is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 1481
+        assert protocols.count('IPMB') == 1481
+        for passes in ((), ('-2',)):
+            # severity 0x00800000 is an error
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_picmg_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the command set is used as a request and as a
+        response, with every completion code of the capture.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command')
+        assert len(stdout.split()) == 749
+        assert sorted(set(stdout.split())) == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c', '0x0d', '0x0e', '0x0f', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x18', '0x19', '0x1a', '0x1b', '0x1c', '0x1d', '0x1e', '0x1f', '0x20', '0x21', '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2c', '0x2d', '0x2e', '0x2f', '0x30', '0x31', '0x32', '0x33', '0x34', '0x35', '0x36', '0x37', '0x38', '0x3e', '0x3f', '0x40', '0x41', '0x42', '0x43', '0x44', '0x45', '0x46', '0x47', '0x48']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command', '-eipmi.header.completion')
+        rsp = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rsp) == 732
+        assert sorted(set(r[0] for r in rsp)) == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c', '0x0d', '0x0e', '0x0f', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x18', '0x19', '0x1a', '0x1b', '0x1c', '0x1d', '0x1e', '0x1f', '0x20', '0x21', '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2c', '0x2d', '0x2e', '0x2f', '0x30', '0x31', '0x32', '0x33', '0x34', '0x34,0x34,0x34,0x17', '0x34,0x34,0x34,0x2f', '0x35', '0x36', '0x37', '0x38', '0x3e', '0x3f', '0x40', '0x41', '0x42', '0x43', '0x44', '0x45', '0x46', '0x47', '0x48']
+        codes = {}
+        for r in rsp:
+            codes[r[1]] = codes.get(r[1], 0) + 1
+        assert codes == {'0x00': 523, '0x00,0x00,0x00,0x00': 2, '0x80': 14, '0x81': 10, '0x82': 3, '0x83': 4, '0xc0': 44, '0xc1': 44, '0xcc': 44, '0xd5': 44}
+
+    def test_picmg_matching(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests by the address,
+        sequence number and command; the request gets "Response in" only
+        in the second pass.'''
+        for passes, expected in (((), 0), (('-2',), 382)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ipmi.response_in', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == expected
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 382
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number', '-eipmi.response_to')
+        assert count_output(stdout) == 382
+        assert stdout.splitlines()[0].split() == ['2', '1']
+
+    def test_picmg_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes differ only by the "Response in" lines
+        of the requests.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-V').splitlines()
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-V').splitlines()
+        assert [l for l in two if not l.startswith('    [Response in: ')] == one
+        assert len(two) - len(one) == 382
+
+    def test_ipmi_picmg_ipmb_state(self, cmd_tshark, capture_file, test_env):
+        '''Set IPMB State shows IPMB-A and IPMB-B from their own octets
+        (IPMB-B was decoded from the IPMB-A octet before "IPMI: Fix
+        offsets in PICMG IPMB state and Shelf Manager address").'''
+        assert self._data(cmd_tshark, capture_file, test_env, 1) == [
+            'IPMB-A State: Link #1, Local Control',
+            '    0000 001. = Link: Link #1 (0x01)',
+            '    .... ...1 = State: Local Control State',
+            'IPMB-B State: Link #3, Override',
+            '    0000 011. = Link: Link #3 (0x03)',
+            '    .... ...0 = State: Override State (Isolate)',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 5) == [
+            "IPMB-A State: Don't change (0xff)",
+            'IPMB-B State: Link #2, Override',
+            '    0000 010. = Link: Link #2 (0x02)',
+            '    .... ...0 = State: Override State (Isolate)',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.header.command == 0x09 && !ipmi.header.completion',
+                '-Tfields', '-eframe.number', '-eipmi.picmg09.ipmba',
+                '-eipmi.picmg09.ipmbb')
+        assert stdout.splitlines()[:3] == [
+            '1\t0x03\t0x06',
+            '3\t0x03\t0xff',
+            '5\t0xff\t0x04',
+        ]
+
+    def test_ipmi_picmg_shelf_manager_address(self, cmd_tshark, capture_file, test_env):
+        '''Get Shelf Manager IPMB Address: the backup address is the
+        second octet (it showed the active address before the fix).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 8', '-Tfields',
+                '-eipmi.picmg1b.addr_active', '-eipmi.picmg1b.addr_backup')
+        assert stdout.split() == ['0x10', '0x12']
+
+    def test_ipmi_picmg_bused_resource(self, cmd_tshark, capture_file, test_env):
+        '''The meaning of the Bused Resource Control status depends on
+        the command of the request and on its direction (to or from the
+        Shelf Manager).'''
+        for number, expected in (
+                (358, ['Command: Request (0x00)',
+                       'Bused Resource ID: Metallic Test Bus #1 (0x00)']),
+                (359, ['Status: Busy (0x01)']),
+                (360, ['Command: Release (0x01)',
+                       'Bused Resource ID: Metallic Test Bus #1 (0x00)']),
+                (361, ['Status: Refused (0x01)']),
+                (369, ['Command: Notify (0x02)',
+                       'Bused Resource ID: Synch clock group #1 (0x02)']),
+                (370, ['Status: Deny (0x02)'])):
+            assert self._data(cmd_tshark, capture_file, test_env, number) == expected
+
+    def test_ipmi_picmg_power_and_address(self, cmd_tshark, capture_file, test_env):
+        '''Get Power Level with the 20 power draw octets that are the
+        maximum, and Get Shelf Manager IP Addresses with an IP address.'''
+        data = self._data(cmd_tshark, capture_file, test_env, 9)
+        assert data[:5] == [
+            'Dynamic Power Configuration, Power Level: 1',
+            '    1... .... = Dynamic Power Configuration: True',
+            '    .... 0001 = Power Level: 1',
+            'Delay to stable power: 5',
+            'Power multiplier: 1.0W',
+        ]
+        assert data[5:] == ['Power Draw [%d]: %d.0W (0x%02x)' % (i, i, i) for i in range(1, 21)]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-Tfields',
+                '-eipmi.picmg21.ip_addr', '-eipmi.picmg21.rmcp_port')
+        assert stdout.split() == ['192.168.1.7', '623']
+
+    def test_ipmi_picmg_nested(self, cmd_tshark, capture_file, test_env):
+        '''Responses three Send Message levels down: no request data is
+        kept that deep, so the status and the property data are shown as
+        they are.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 13 || frame.number == 14', '-Tfields', '-eframe.number',
+                '-eipmi.picmg17.status', '-eipmi.picmg2f.prop_data')
+        assert stdout.splitlines() == ['13\t0x00\t', '14\t\t0102']
