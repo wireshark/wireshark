@@ -80058,3 +80058,57 @@ class TestDissectIperf:
             '105\t1\t1000000\t2023-11-14T22:13:20.000000000+0000\t0\t0xc0000000',
             '106\t1\t1999999\t2023-11-14T22:13:20.999999000+0000\t0\t0xc0000000',
         ]
+
+
+class TestDissectIpfc:
+    '''IP over Fibre Channel (packet-ipfc.c, pcap link type 122) from the
+    synthetic capture ipfc_coverage.pcap.gz: the 16 octet network header
+    followed by LLC/SNAP carrying IPv4, ARP, IPv6 and other LLC SAPs.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ipfc_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ipfc_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 14 frames carry the IPFC network header, decode without
+        malformed packets or error expert infos in one and two passes,
+        and hand the payload to LLC.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipfc',
+                'frame.number', '_ws.col.protocol')
+        assert [l.split('\t')[1] for l in lines] == [
+            'ICMP'] * 7 + ['UDP', 'ARP', 'ARP', 'IPv6', 'ICMP', 'SNA', 'LLC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ipfc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ipfc_network_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Network DA/SA are 8 octet names; the first nibble (name address
+        authority) selects the display format.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 4, 10}', 'frame.number',
+                'ipfc.nh.da', 'ipfc.nh.sa')
+        assert lines == [
+            '1\t00:00:00:c0:ff:ee:00:01\t00:00:00:c0:ff:ee:00:02',
+            '2\t10:00:00:c0:ff:ee:00:01\t10:00:00:c0:ff:ee:00:02',
+            '4\t50:00:00:c0:ff:ee:00:01\t50:00:00:c0:ff:ee:00:02',
+            '10\tff:ff:ff:ff:ff:ff:ff:ff\t10:00:00:c0:ff:ee:00:04',
+        ]
+
+    def test_ipfc_payload(self, cmd_tshark, capture_file, test_env):
+        '''LLC/SNAP IPv4 and ARP payloads reach their dissectors.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip || arp', 'frame.number', 'ip.src', 'arp.dst.proto_ipv4')
+        assert lines[0] == '1\t192.0.2.1\t'
+        assert lines[7] == '8\t192.0.2.1\t'
+        assert lines[8] == '9\t\t192.0.2.2'
