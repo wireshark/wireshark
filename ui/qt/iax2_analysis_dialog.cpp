@@ -61,8 +61,6 @@ enum {
     length_col_
 };
 
-static const QRgb color_rtp_warn_ = 0xffdbbf;
-
 enum { iax2_analysis_type_ = 1000 };
 class Iax2AnalysisTreeWidgetItem : public QTreeWidgetItem
 {
@@ -91,21 +89,21 @@ public:
             bg_color = ThemeManager::instance()->color(ThemeManager::ExpertError);
         } else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
             status = QObject::tr("Payload changed to PT=%1").arg(statinfo->pt);
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
             status = QObject::tr("Incorrect timestamp");
             /* color = COLOR_WARNING; */
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
             &&  !(statinfo->flags & STAT_FLAG_FIRST)
             &&  !(statinfo->flags & STAT_FLAG_PT_CN)
             &&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
             &&  !(statinfo->flags & STAT_FLAG_MARKER)) {
             status = QObject::tr("Marker missing?");
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else {
             if (statinfo->flags & STAT_FLAG_MARKER) {
-                bg_color = color_rtp_warn_;
+                bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
             }
         }
 
