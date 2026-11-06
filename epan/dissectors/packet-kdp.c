@@ -75,7 +75,7 @@ static int dissect_kdp(tvbuff_t *tvb,
   proto_tree *kdp_tree;
   unsigned body_len;
   uint8_t version;
-  uint8_t header_len = 0;
+  unsigned header_len = 0;
   uint8_t packet_flags = 0;
   uint8_t packet_errors = 0;
   uint32_t sequence_number = UINT32_MAX;
@@ -146,7 +146,7 @@ static int dissect_kdp(tvbuff_t *tvb,
         offset = offset + 4;
       }
 
-      while (offset < ((body_len > 0) ? header_len - 4 : header_len)) {
+      while ((unsigned)offset < ((body_len > 0) ? header_len - 4 : header_len)) {
         uint8_t option_number;
         uint8_t option_len = 0;
 
