@@ -973,7 +973,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *pcb_tree, *inf_tree;
     bool has_cid, has_nad = false;
     uint8_t s_cmd = S_CMD_NONE;
-    uint8_t inf_len;
+    int inf_len;
 
     pcb = tvb_get_uint8(tvb, offset);
     block_type = (pcb & 0xC0) >> 6;
@@ -998,7 +998,7 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(pcb_tree, hf_iso14443_cid_following,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
-            has_nad = ((pcb & 0x40) != 0);
+            has_nad = ((pcb & 0x04) != 0);
             proto_tree_add_item(pcb_tree, hf_iso14443_nad_following,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
@@ -1045,8 +1045,8 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     switch (block_type) {
         case I_BLOCK_TYPE:
             inf_len = crc_dropped ?
-                tvb_reported_length_remaining(tvb, offset) :
-                tvb_reported_length_remaining(tvb, offset) - 2;
+                (int)tvb_reported_length_remaining(tvb, offset) :
+                (int)tvb_reported_length_remaining(tvb, offset) - 2;
             break;
 
         /* R-blocks have no payload */
