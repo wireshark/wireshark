@@ -496,7 +496,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /*
          * Find the end of the line.
          */
-        bool linelen_found = tvb_find_line_end_remaining(tvb, offset, &linelen , &next_offset);
+        tvb_find_line_end_remaining(tvb, offset, &linelen , &next_offset);
         if (next_offset == offset) {
             /*
              * XXX - we really want the "show data a
@@ -509,7 +509,7 @@ dissect_irc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             break;
         }
 
-        if (linelen_found == false)
+        if (linelen != 0)
         {
             if (pinfo->match_uint == pinfo->destport)
             {
