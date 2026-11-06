@@ -910,39 +910,30 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
         switch(stat_type){
             case BMP_STAT_PREFIX_REJ:
                 proto_tree_add_item(subtree, hf_stat_data_prefix_rej, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_PREFIX_DUP:
                 proto_tree_add_item(subtree, hf_stat_data_prefix_dup, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_WITHDRAW_DUP:
                 proto_tree_add_item(subtree, hf_stat_data_withdraw_dup, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_CLUSTER_LOOP:
                 proto_tree_add_item(subtree, hf_stat_data_cluster_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_AS_LOOP:
                 proto_tree_add_item(subtree, hf_stat_data_as_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_INV_ORIGINATOR:
                 proto_tree_add_item(subtree, hf_stat_data_inv_originator, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_AS_CONFED_LOOP:
                 proto_tree_add_item(subtree, hf_stat_data_as_confed_loop, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_ROUTES_ADJ_RIB_IN:
                 proto_tree_add_item(subtree, hf_stat_data_routes_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_LOC_RIB:
                 proto_tree_add_item(subtree, hf_stat_data_routes_loc_rib, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_PER_ADJ_RIB_IN:
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -950,7 +941,6 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_adj_rib_in, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_PER_LOC_RIB:
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -958,27 +948,21 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(subtree, hf_stat_data_routes_per_loc_rib, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_UPDATE_TREAT:
                 proto_tree_add_item(subtree, hf_stat_data_update_treat, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_PREFIXES_TREAT:
                 proto_tree_add_item(subtree, hf_stat_data_prefixes_treat, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_DUPLICATE_UPDATE:
                 proto_tree_add_item(subtree, hf_stat_data_duplicate_update, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
             break;
             case BMP_STAT_ROUTES_PRE_ADJ_RIB_OUT:
                 proto_tree_add_item(subtree, hf_stat_data_routes_pre_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_POST_ADJ_RIB_OUT:
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_PRE_PER_ADJ_RIB_OUT:
                 proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -986,7 +970,6 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(subtree, hf_stat_data_routes_pre_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             case BMP_STAT_ROUTES_POST_PER_ADJ_RIB_OUT:
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -994,7 +977,6 @@ dissect_bmp_stat_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(subtree, hf_stat_data_routes_post_per_adj_rib_out, tvb, offset, 8, ENC_BIG_ENDIAN);
-                offset += 8;
             break;
             default:
                 expert_add_info(pinfo, ti, &ei_stat_data_unknown);
