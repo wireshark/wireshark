@@ -378,7 +378,7 @@ static int ett_isdn_sup_MLPPLFBArg;
 static int ett_isdn_sup_MLPPParams;
 static int ett_isdn_sup_MLPPLFBResp;
 
-/* static expert_field ei_isdn_sup_unsupported_arg_type; */
+static expert_field ei_isdn_sup_unsupported_arg_type;
 static expert_field ei_isdn_sup_unsupported_result_type;
 static expert_field ei_isdn_sup_unsupported_error_type;
 
@@ -2813,7 +2813,7 @@ dissect_isdn_sup_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     offset = op_ptr->arg_pdu(tvb, pinfo, isdn_sup_tree, NULL);
   else
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-      proto_tree_add_expert_remaining(tree, pinfo, &ei_isdn_sup_unsupported_error_type, tvb, offset);
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_isdn_sup_unsupported_arg_type, tvb, offset);
       offset += tvb_reported_length_remaining(tvb, offset);
     }
 
@@ -3716,9 +3716,7 @@ void proto_register_isdn_sup(void) {
   };
 
   static ei_register_info ei[] = {
-#if 0
     { &ei_isdn_sup_unsupported_arg_type, { "isdn_sup.unsupported.arg_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ARGUMENT TYPE (ETSI sup)", EXPFILL }},
-#endif
     { &ei_isdn_sup_unsupported_result_type, { "isdn_sup.unsupported.result_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED RESULT TYPE (ETSI sup)", EXPFILL }},
     { &ei_isdn_sup_unsupported_error_type, { "isdn_sup.unsupported.error_type", PI_UNDECODED, PI_WARN, "UNSUPPORTED ERROR TYPE (ETSI sup)", EXPFILL }},
   };
