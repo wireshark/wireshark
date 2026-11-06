@@ -81439,3 +81439,51 @@ class TestDissectIpmiTransport:
                 '-Y', 'frame.number == 8 || frame.number == 9', '-Tfields',
                 '-eframe.number', '-eipmi.tr02.param_data', '-eipmi.tr11.param_data')
         assert stdout.splitlines() == ['8\t010203\t', '9\t\t010203']
+
+
+class TestDissectIpmiUpdate:
+    '''IPMI NetFn Firmware Update commands (Pigeon Point Systems OEM
+    commands, named but not decoded) from the synthetic capture
+    ipmi_update_coverage.pcapng.gz. They exist only with
+    ipmi.dissect_bus_commands:TRUE and ipmi.selected_oem:pps.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+    PPS = (*BUS, '-o', 'ipmi.selected_oem:pps')
+
+    @staticmethod
+    def update_info(cmd_tshark, capture_file, test_env, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_update_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', '-e_ws.col.info']
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_update_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and
+        two passes, with and without the OEM selection.'''
+        for extra in ((), self.BUS, self.PPS):
+            for passes in ((), ('-2',)):
+                rows = self.update_info(cmd_tshark, capture_file, test_env,
+                        extra=(*extra, *passes),
+                        flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+                assert rows == []
+
+    def test_ipmi_update_commands(self, cmd_tshark, capture_file, test_env):
+        '''With the PPS selection the update commands 0-6 are named; command
+        7 is unknown. Without it NetFn 8 has no commands.'''
+        rows = self.update_info(cmd_tshark, capture_file, test_env, extra=self.PPS)
+        assert len(rows) == 20
+        names = [r[1] for r in rows if r[1].startswith('Req, ')]
+        assert names == [
+            'Req, [PPS OEM] Upgrade Status', 'Req, [PPS OEM] Upgrade Start',
+            'Req, [PPS OEM] Upgrade Prepare', 'Req, [PPS OEM] Upgrade Write',
+            'Req, [PPS OEM] Upgrade Complete', 'Req, [PPS OEM] Restore Backup',
+            'Req, [PPS OEM] Query Backup Version', 'Req, Unknown command',
+            'Req, [PPS OEM] Upgrade Status', 'Req, [PPS OEM] Upgrade Write']
+        assert rows[17][1] == ('Rsp, [PPS OEM] Upgrade Status, Command response could not '
+                               'be provided: device in firmware update mode (d1h)')
+        rows = self.update_info(cmd_tshark, capture_file, test_env, extra=self.BUS,
+                                flt='frame.number <= 2')
+        assert rows == [['1', 'Req, Unknown command'],
+                        ['2', 'Rsp, Unknown command, Command Completed Normally (00h)']]
