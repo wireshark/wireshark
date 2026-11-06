@@ -710,7 +710,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, unsigned offset, 
         } else if (tvb_strneql(keyvalue_tvb, 0, "MaxRecvDataSegmentLength=", strlen("MaxRecvDataSegmentLength=")) == 0) {
             proto_tree_add_uint(tt, hf_iscsi_Login_MaxRecvDataSegmentLength, keyvalue_tvb, 0, len,
                                 (int)strtol(value, NULL, 0));
-        } else if (tvb_strneql(keyvalue_tvb, 0, "OFMarker=", strlen("IFMarker=")) == 0) {
+        } else if (tvb_strneql(keyvalue_tvb, 0, "OFMarker=", strlen("OFMarker=")) == 0) {
             proto_tree_add_string(tt, hf_iscsi_Login_OFMarker, keyvalue_tvb, 0, len, value);
         } else if (tvb_strneql(keyvalue_tvb, 0, "SendTargets=", strlen("SendTargets=")) == 0) {
             proto_tree_add_string(tt, hf_iscsi_Login_SendTargets, keyvalue_tvb, 0, len, value);
@@ -1105,7 +1105,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
                 NULL
             };
 
-            proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
+            proto_tree_add_bitmask(ti, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
 
             if(b&0x40){
                 cdata->itlq.task_flags|=SCSI_DATA_READ;
@@ -1184,7 +1184,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             NULL
         };
 
-        proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
+        proto_tree_add_bitmask(ti, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
         proto_tree_add_item(ti, hf_iscsi_SCSIResponse_Response, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ti, hf_iscsi_SCSIResponse_Status, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
@@ -1436,7 +1436,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
             NULL
         };
 
-        proto_tree_add_bitmask(tree, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
+        proto_tree_add_bitmask(ti, tvb, offset + 1, hf_iscsi_Flags, ett_iscsi_Flags, flags, ENC_NA);
 
         if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
             proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
@@ -1672,13 +1672,22 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned 
         proto_tree_add_item(ti, hf_iscsi_DataSN, tvb, offset + 36, 4, ENC_BIG_ENDIAN);
         offset = handleHeaderDigest(iscsi_session, ti, tvb, offset, 48);
 
-        next_opcode = tvb_get_uint8(tvb, offset) & OPCODE_MASK;
+        /* The data segment holds the header of the rejected PDU. */
+        if (data_segment_len >= 48 &&
+            tvb_captured_length_remaining(tvb, offset) >= 48 &&
+            wmem_list_count(pinfo->layers) + 16 < prefs.gui_max_tree_depth) {
+            tvbuff_t *rej_tvb = tvb_new_subset_length_caplen(tvb, offset,
+                    MIN(data_segment_len, (unsigned)tvb_captured_length_remaining(tvb, offset)),
+                    MIN(data_segment_len, (unsigned)tvb_reported_length_remaining(tvb, offset)));
 
-        tt = proto_tree_add_subtree(ti, tvb, offset, -1, ett_iscsi_RejectHeader, NULL, "Rejected Header");
+            next_opcode = tvb_get_uint8(rej_tvb, 0) & OPCODE_MASK;
 
-        increment_dissection_depth(pinfo);
-        dissect_iscsi_pdu(tvb, pinfo, tt, offset, next_opcode, 0, iscsi_session, conversation);
-        decrement_dissection_depth(pinfo);
+            tt = proto_tree_add_subtree(ti, rej_tvb, 0, -1, ett_iscsi_RejectHeader, NULL, "Rejected Header");
+
+            increment_dissection_depth(pinfo);
+            dissect_iscsi_pdu(rej_tvb, pinfo, tt, 0, next_opcode, 0, iscsi_session, conversation);
+            decrement_dissection_depth(pinfo);
+        }
     } else if(opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I0 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I1 ||
               opcode == ISCSI_OPCODE_VENDOR_SPECIFIC_I2 ||
@@ -3223,27 +3232,27 @@ proto_register_iscsi(void)
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_TargetPortalGroupTag,
           { "Target Portal Group Tag", "iscsi.login.target_portal_group_tag",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_MaxBurstLength,
           { "Max Burst Length", "iscsi.login.max_burst_length",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_FirstBurstLength,
           { "First Burst Length", "iscsi.login.first_burst_length",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_DefaultTime2Wait,
           { "Default Time To Wait", "iscsi.login.default_time_to_wait",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_DefaultTime2Retain,
           { "Default Time To Retain", "iscsi.login.default_time_to_retain",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_MaxOutstandingR2T,
           { "Max Outstanding R2T", "iscsi.login.max_outstanding_r2t",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_ErrorRecoveryLevel,
           { "Error Recovery Level", "iscsi.error_recovery_level",
@@ -3251,11 +3260,11 @@ proto_register_iscsi(void)
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_MaxConnections,
           { "Max Connections", "iscsi.login.max_connections",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_Login_MaxRecvDataSegmentLength,
           { "Max Recv Data Segment Length", "iscsi.login.max_recv_data_segment_length",
-            FT_UINT8, BASE_DEC, NULL,
+            FT_UINT32, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
         { &hf_iscsi_KeyValue,
           { "KeyValue", "iscsi.keyvalue",
