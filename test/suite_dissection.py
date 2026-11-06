@@ -79627,3 +79627,131 @@ class TestDissectIpdc:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['42\t1,2\t7,7', '45\t3\t7',
                                        '46\t0,1\t8,8']
+
+
+class TestDissectIpdr:
+    '''IPDR/SP on TCP 4737 from the synthetic capture ipdr_coverage.pcap.gz.
+    The SAMIS-TYPE-1 records of session 1 are decoded with
+    -o ipdr.sessions.samis_type_1:1 (the preference is empty by default).'''
+
+    SAMIS = ('-o', 'ipdr.sessions.samis_type_1:1')
+
+    def test_ipdr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every IPDR/SP message of version 2 is dissected; no malformed
+        frames and no error expert infos in one and two passes, with and
+        without the SAMIS-TYPE-1 preference. The connection with version
+        3 is not IPDR.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 42
+        assert protocols.count('IPDR/SP') == 33
+        for opts in ((), self.SAMIS):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                        '-r', capture_file('ipdr_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.short || '
+                              '_ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_ipdr_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of the protocol is dissected, and an unknown
+        message id is a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr', '-Tfields', '-eipdr.message_id',
+            ), encoding='utf-8', env=test_env)
+        ids = [int(i) for l in stdout.splitlines() for i in l.split(',')]
+        assert sorted(set(ids)) == [1, 3, 5, 6, 7, 8, 9, 16, 19, 20, 21, 22,
+                                    23, 26, 27, 29, 30, 32, 33, 35, 48, 49,
+                                    64, 127]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.message_id == 127 && _ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '37\tUnknown message ID'
+
+    def test_ipdr_connect(self, cmd_tshark, capture_file, test_env):
+        '''CONNECT and CONNECT_RESPONSE carry the vendor id.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.vendor_id', '-Tfields', '-eframe.number',
+                '-eipdr.vendor_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\tACME', '5\tCOLL']
+
+    def test_ipdr_samis_type_1(self, cmd_tshark, capture_file, test_env):
+        '''A DATA record of session 1 is decoded as SAMIS-TYPE-1 with the
+        preference and left as raw bytes without it (and for session 2; REQUEST and RESPONSE
+        always carry raw records).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.data_record', '-Tfields', '-eframe.number',
+                '-eipdr.session_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['18', '1', '20', '2', '21', '1', '22', '1',
+                                  '23', '1', '24', '1', '25', '1,1', '28', '1',
+                                  '30', '1', '31', '1']   # 30, 31: REQUEST, RESPONSE
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 18',
+                '-Tfields', '-eipdr.cmts_host_name', '-eipdr.cm_mac_address',
+                '-eipdr.channel_id', '-eipdr.service_class_name',
+                '-eipdr.service_direction', '-eipdr.cm_reg_status',
+                '-eipdr.octets_passed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('cmts1.example.com\t02:aa:bb:cc:dd:01\t'
+                                  '1,2,3\tBestEffort\t1\t8\t123456789')
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20', '-Tfields', '-eipdr.data_record',
+                '-eipdr.cmts_host_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '01020304'
+
+    def test_ipdr_samis_ipv6_length(self, cmd_tshark, capture_file, test_env):
+        '''The CMTS IPv6 address is shown only when its length is 16 (it
+        was added for any non-zero length before "IPDR: Check lengths
+        before skipping over them", which threw for length 4: frame 22).
+        The CM IPv6 address is an address (16 octets) or a string.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.cmts_ipv6_addr', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['18', '23', '24', '25', '28']
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.cm_ipv6_addr_string', '-Tfields',
+                '-eframe.number', '-eipdr.cm_ipv6_addr_string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['21', 'fe80::1', '22', '2001:db8::2']
+
+    def test_ipdr_samis_channel_set(self, cmd_tshark, capture_file, test_env):
+        '''An empty channel set (frame 21) and one of 256 channels (frame
+        24) are warnings; 255 channels (frame 23) are shown.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'ipdr.sf_ch_set.too_big', '-Tfields',
+                '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['21', '24']
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'frame.number == 23', '-Tfields', '-eipdr.channel_id',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.strip().split(',')) == 255
+
+    def test_ipdr_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment (frame 25) and one PDU over three
+        segments (decoded in frame 28).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.SAMIS,
+                '-r', capture_file('ipdr_coverage.pcap.gz'),
+                '-Y', 'frame.number in {25, 28}', '-Tfields',
+                '-eframe.number', '-eipdr.sequence_num', '-eipdr.channel_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['25\t7,8\t1,2', '28\t9\t9']
