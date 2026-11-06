@@ -676,7 +676,7 @@ static void
 rq5b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	static int * const byte1[] = { &hf_ipmi_stor_5b_log_type, NULL };
-	uint8_t v = tvb_get_uint8(tvb, 0);
+	uint8_t v = tvb_get_uint8(tvb, 0) & 0x0f;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_stor_5b_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
