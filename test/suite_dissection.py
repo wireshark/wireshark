@@ -81745,3 +81745,190 @@ class TestDissectIpos:
             '9\t0x0031\t1\t3\t0x06\t2\tsll:ipos:redback:ip:udp:data',
             '10\t0x0035\t4\t1\t0x0a\t3\tsll:ipos:redback',
         ]
+
+
+class TestDissectIpp:
+    '''IPP over HTTP (Content-Type application/ipp and TCP port 631 without
+    a Content-Type), the HTTP NOTIFY container and Exported PDU, from the
+    synthetic capture ipp_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def ipp_frames(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ipp_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def ipp_tree(cmd_tshark, capture_file, test_env, frame):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == %d' % frame, '-O', 'ipp',
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_ipp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''59 IPP frames, no malformed packets or error expert infos in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 84
+        assert protocols.count('IPP') == 59
+        assert protocols.count('TCP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ipp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ipp_requests_and_status_classes(self, cmd_tshark, capture_file, test_env):
+        '''Request operations and the responses of every status class
+        (successful, informational, redirection, client error, server
+        error, unknown).'''
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'frame.number in {11,12,15,16,17,18,19,20,22,26,28,43,44}',
+                              '_ws.col.info')
+        assert out == [
+            '11\tIPP Request (Print-URI)',
+            '12\tIPP Response (successful-ok)',
+            '15\tIPP Request (Create-Job)',
+            '16\tIPP Response (0x0100)',
+            '17\tIPP Request (Send-Document)',
+            '18\tIPP Response (0x0200)',
+            '19\tIPP Request (Send-URI)',
+            '20\tIPP Response (0x0300)',
+            '22\tIPP Response (client-error-bad-request)',
+            '26\tIPP Response (server-error-internal-error)',
+            '28\tIPP Response (server-error-operation-not-supported)',
+            '43\tIPP Request (0x7fff)',
+            '44\tIPP Response (client-error-not-possible)',
+        ]
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 16)
+        assert 'status-code: Informational (0x0100)' in tree
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 18)
+        assert 'status-code: Redirection (0x0200)' in tree
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 20)
+        assert 'status-code: Unknown (0x0300)' in tree
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 26)
+        assert 'status-code: Server Error (server-error-internal-error)' in tree
+
+    def test_ipp_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are paired by request-id: the response
+        knows its request in one pass, the request learns its response
+        in the second pass. A response without a request, a request
+        without a response and a response that comes in three TCP
+        segments are covered.'''
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'frame.number in {4,5,45,46,70,73}', 'ipp.response_to')
+        assert out == ['4\t', '5\t4', '45\t', '46\t', '70\t', '73\t70']
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'frame.number in {4,9,46,70}', 'ipp.response_in',
+                              passes=('-2',))
+        assert out == ['4\t5', '9\t10', '46\t', '70\t73']
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'ipp.response_to == 4', 'ipp.response_time')
+        assert out == ['5\t1.001000000'] or out == ['5\t1,001000000']
+
+    def test_ipp_attribute_values(self, cmd_tshark, capture_file, test_env):
+        '''The attribute tree texts of frame 5 (Get-Printer-Attributes
+        response) for the value syntaxes: sets of integers, ranges,
+        enums with named values, dateTime, resolution, rangeOfInteger,
+        octetString and out-of-band values.'''
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 5)
+        for text in (
+                'printer-state (enum): idle',
+                'printer-is-accepting-jobs (boolean): true',
+                'bad-boolean (boolean): ???',
+                'copies-default (1setOf integer): 1,2,3',
+                'int-range-len8 (integer): 1-99',
+                'int-len3-multi (1setOf integer): ???,8,1-2',
+                'operations-supported (1setOf enum): Print-Job,Get-Printer-Attributes,'
+                'CUPS-Get-Default,unknown-7777',
+                'finishings-default (1setOf enum): none,staple-top-left,unknown-999',
+                'orientation-requested-default (enum): landscape',
+                'print-quality-default (enum): normal',
+                'printer-current-time (dateTime): 2026-11-06T12:40:15.3+1000',
+                'bad-sign-time (dateTime): 2026-01-02T03:04:05.6?0030',
+                'printer-resolution-supported (1setOf resolution): '
+                '600x600dpi,200x100dpcm,1x2unknown',
+                'copies-supported (rangeOfInteger): 1-999',
+                'range-multi (1setOf rangeOfInteger): 1-5,7,???,3',
+                "octet-multi (1setOf octetString): 'one','two',''",
+                "printer-name (1setOf nameWithoutLanguage): 'synth','synth2'",
+                'oob-unsupported (unsupported)',
+                'oob-notsettable (not-settable)',
+                'unknown-tag-named (unknown-50)',
+                'job-attributes-tag',
+                'unsupported-attributes-tag',
+                'subscription-attributes-tag',
+                'event-notification-attributes-tag',
+                'resource-attributes-tag',
+                'document-attributes-tag',
+                'unknown-0b',
+                'end-of-attributes-tag'):
+            assert text in tree, text
+
+    def test_ipp_collections(self, cmd_tshark, capture_file, test_env):
+        '''Collections: nested, sets of collections, empty, member names
+        that do not fit the 176 and 1024 octet buffers ("...") and one
+        that fills the buffer exactly.'''
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 5)
+        assert ('media-col-ready (collection): '
+                '{media-size{x-dimension,y-dimension},media-type,media-source}') in tree
+        assert 'media-col-database (1setOf collection): {a},{b},{c}' in tree
+        assert 'empty-collection (collection): {}' in tree
+        assert ('collection {' + 'm' * 100 + ',...}') in tree
+        assert ('collection {outer{' + 'p' * 90 + ',' + 'q' * 70 + '},...}') in tree
+        assert ('collection {' + 'a' * 100 + '...}') in tree
+        assert ('collection {' + 'x' * 174 + '}') not in tree
+        assert ('collection {' + 'x' * 173) in tree
+        assert 'collection {member-000-' in tree and ',...}' in tree
+
+    def test_ipp_document_data(self, cmd_tshark, capture_file, test_env):
+        '''The document after end-of-attributes of a Print-Job request is
+        left to the data dissector.'''
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env, 'frame.number == 9',
+                              'ipp.operation_id', 'data.len')
+        assert out == ['9\t0x0002\t118']
+
+    def test_ipp_without_content_type(self, cmd_tshark, capture_file, test_env):
+        '''Port 631 without a Content-Type (also a chunked response),
+        another port with the Content-Type and a response reassembled
+        from three TCP segments.'''
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'frame.number in {59,60,61,62,68,69,70,73}',
+                              '_ws.col.info', 'ipp.request_id')
+        assert out == [
+            '59\tIPP Request (Get-Printer-Attributes)\t20',
+            '60\tIPP Response (successful-ok)\t20',
+            '61\tIPP Request (Get-Printer-Attributes)\t21',
+            '62\tIPP Response (successful-ok)\t21',
+            '68\tIPP Request (Get-Printer-Attributes)\t30',
+            '69\tIPP Response (successful-ok)\t30',
+            '70\tIPP Request (Get-Printer-Attributes)\t31',
+            '73\tIPP Response (successful-ok)\t31',
+        ]
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 62)
+        assert "printer-name (nameWithoutLanguage): 'chunked'" in tree
+        assert 'printer-state (enum): processing' in tree
+        tree = self.ipp_tree(cmd_tshark, capture_file, test_env, 73)
+        assert 'keyword-99 (keyword): ' in tree
+
+    def test_ipp_notify_and_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An HTTP NOTIFY request and IPP handed over by Exported PDU have
+        no request/response media container; they still decode.'''
+        out = self.ipp_frames(cmd_tshark, capture_file, test_env,
+                              'frame.number in {79,80,83,84}',
+                              '_ws.col.info', 'ipp.request_id', 'exported_pdu.prot_name')
+        assert out == [
+            '79\tIPP Response (0x001c)\t40\t',
+            '80\tIPP Response (successful-ok)\t40\t',
+            '83\tIPP Response (0x000b)\t50\tipp',
+            '84\tIPP Response (successful-ok)\t50\tipp',
+        ]
