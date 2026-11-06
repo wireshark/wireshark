@@ -80302,3 +80302,228 @@ class TestDissectIpmiBridge:
         assert sum('OEM Command' in n for n in names) == 63
         assert [info[str(n)] for n in (179, 181, 183, 185)] == ['Req, Unknown command'] * 4
         assert info['189'] == 'Req, [ICMB] Get ICMB Address'
+
+
+class TestDissectIpmi:
+    '''IPMI: IPMB, KCS and TMode headers, request/response matching,
+    Type/Length strings, timestamps and bridged messages, from the
+    synthetic capture ipmi_coverage.pcapng.gz. The commands are only
+    dissected with ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def ipmi_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def ipmb(rs_sa, netfn, rq_sa, seq, cmd, data):
+        def cks(b):
+            return (-sum(b)) & 0xff
+        h1 = bytes([rs_sa, netfn << 2])
+        h2 = bytes([rq_sa, seq << 2, cmd]) + bytes(data)
+        return h1 + bytes([cks(h1)]) + h2 + bytes([cks(h2)])
+
+    @staticmethod
+    def exp_pcap(path, messages, name=b'ipmi'):
+        '''A pcap file of Exported PDU records (link-layer type 252)
+        naming the given dissector.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 252))
+            for i, m in enumerate(messages):
+                rec = (struct.pack('>HH', 12, len(name)) + name
+                       + struct.pack('>HH', 0, 0) + m)
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(rec), len(rec)))
+                f.write(rec)
+
+    def test_ipmi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frames decode as IPMB, KCS and TMode without malformed
+        packets or error expert infos, in one and two passes, with and
+        without the bus commands. The KCS and TMode dissectors do not
+        set the protocol column, so the 4 Exported PDU frames of them
+        (17-20) have an empty one.'''
+        for bus in ((), self.BUS):
+            rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                                    '_ws.col.protocol', extra=bus)
+            protocols = [r[1] for r in rows]
+            assert len(protocols) == 1215
+            assert protocols.count('IPMB') == 1207
+            assert protocols.count('KCS') == 2
+            assert protocols.count('TMode') == 2
+            assert protocols.count('') == 4
+            for passes in ((), ('-2',)):
+                rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                        extra=(*bus, *passes),
+                        flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+                assert rows == []
+
+    def test_ipmi_bus_commands_off(self, cmd_tshark, capture_file, test_env):
+        '''By default the commands are not dissected; the data is shown
+        as "Bus command data".'''
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                                'ipmi.bus_command_data', 'ipmi.header.command',
+                                flt='ipmi.bus_command_data')
+        assert len(rows) == 1214
+        assert all(r[1] and not r[2] for r in rows)
+
+    def test_ipmi_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to requests of the same sequence number
+        and addresses, in any order; an answer after the response
+        timeout (frame 34) and a response without a request (35) are not
+        matched. The message checksums are verified (frames 42, 43).'''
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.response_to', 'ipmi.response_in',
+                extra=(*self.BUS, '-2'), flt='frame.number >= 1 && frame.number <= 43')
+        matched = {r[0]: (r[1], r[2]) for r in rows if r[1] or r[2]}
+        assert matched['1'] == ('', '2') and matched['2'] == ('1', '')
+        assert matched['3'] == ('', '4') and matched['4'] == ('3', '')
+        # frame 33 is answered after 6 s (34) and 35 answers nothing
+        assert '33' not in matched and '34' not in matched and '35' not in matched
+        # the second request (37) is answered first, then the first (36)
+        assert matched['36'] == ('', '39') and matched['37'] == ('', '38')
+        assert matched['38'] == ('37', '') and matched['39'] == ('36', '')
+        assert matched['40'] == ('', '41') and matched['41'] == ('40', '')
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {42, 43}', '-V', '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Header Checksum: 0xc9 (incorrect, expected 0xc8)' in lines
+        assert 'Data checksum: 0x1b (incorrect, expected 0x1a)' in lines
+        assert 'Header Checksum: 0x63 (correct)' in lines
+
+    def test_ipmi_request_list_bound(self, cmd_tshark, capture_file, test_env):
+        '''Only the last 1024 unmatched requests are kept. Of 1030
+        requests (frames 182-1211) the responses to the first two are not
+        matched, those to the 7th and the last are. Before "IPMI: Bound
+        nesting, FRU Unicode length and request list" every response
+        scanned the whole list (quadratic time).'''
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.response_to', extra=self.BUS, flt='frame.number >= 1212')
+        assert rows == [['1212', ''], ['1213', ''], ['1214', '188'], ['1215', '1211']]
+
+    def test_ipmi_typelen_6bit(self, cmd_tshark, capture_file, test_env):
+        '''FRU Type/Length strings of every type; the 6-bit ASCII
+        decoder skips three octets per four characters ("ABCDE" was shown
+        as "ABCDX") and the Type field of the Type/Length byte shows the
+        type, not 0.'''
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.picmg03.shelf_type', 'ipmi.picmg03.shelf_length',
+                'ipmi.picmg03.shelf_address', extra=self.BUS,
+                flt='ipmi.picmg03.shelf_address')
+        assert rows == [
+            ['82', '0', '6', '12 AB CD 01 23 EF'],
+            ['83', '1', '4', '12345 -.'],
+            ['84', '2', '9', 'ABCDEFGHIJKL'],
+            ['85', '2', '4', 'ABCDE'],
+            ['86', '2', '5', 'ABCDEF'],
+            ['87', '2', '2', '!)'],
+            ['88', '2', '5', 'P$C,S0'],
+            ['89', '3', '7', 'Shelf 1'],
+            ['90', '3', '5', 'a\\\\x01b\\\\xe9c'],
+            ['91', '3', '0', ''],
+            ['92', '3', '1', 'A'],
+            ['93', '3', '62', 'B' * 62],
+        ]
+
+    def test_ipmi_typelen_unicode(self, cmd_tshark, capture_file, test_env):
+        '''With "FRU Language Code is English" off, type 3 strings are
+        Unicode; an odd length gets 6 characters per two octets and no
+        more (it wrote 3 octets past the buffer before "IPMI: Bound
+        nesting, FRU Unicode length and request list").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-o', 'ipmi.fru_langcode_is_english:FALSE',
+                '-r', capture_file('ipmi_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 89 && frame.number <= 93',
+                '-Tfields', '-eframe.number', '-eipmi.picmg03.shelf_address',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][0] == '89' and lines[0][1].startswith('\\\\U5368\\\\U656c\\\\U6620')
+        assert lines[3] == ['92', '']
+        assert lines[4] == ['93', '\\\\U4242' * 31]
+
+    def test_ipmi_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''Timestamps below 0x20000000 are seconds since the device
+        started, above that absolute times; 0xffffffff is invalid.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 94 && frame.number <= 99', '-V',
+                '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        times = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Time:')]
+        assert times == [
+            'Time: Unspecified/Invalid',
+            "Time: 1 hour, 8 minutes, 16 seconds since SEL device's initialization",
+            "Time: 6213 days, 18 hours, 48 minutes, 32 seconds since SEL device's initialization",
+            'Time: Jan  5, 1987 18:48:33 UTC',
+            'Time: Jul  4, 2020 04:05:20 UTC',
+        ]
+
+    def test_ipmi_bridged_messages(self, cmd_tshark, capture_file, test_env):
+        '''Send Message and Get Message carry IPMB messages, nested to
+        any depth up to the limit; the command of the innermost message
+        is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 100', '-V', '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '        Embedded message: Req, Get Device ID' in stdout.splitlines()
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 151', '-V', '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert sum('Embedded message: Req, Send Message' in l for l in lines) == 3
+        assert any('Embedded message: Req, Get Auxiliary Log Status' in l for l in lines)
+
+    def test_ipmi_helpers_of_other_files(self, cmd_tshark, capture_file, test_env):
+        '''Commands of other files that use the saved request data
+        (Get Auxiliary Log Status) show the data of their request, but
+        not when nested more than 3 levels deep.'''
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st5a.ts_add', 'ipmi.st5a.num_entries', extra=self.BUS,
+                flt='ipmi.st5a.num_entries')
+        assert [r[0] for r in rows] == ['156']
+        rows = self.ipmi_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st5a.unknown', extra=self.BUS, flt='ipmi.st5a.unknown')
+        assert [r[0] for r in rows] == ['152', '160']
+
+    def test_ipmi_nesting_limit(self, cmd_tshark, test_env, tmp_path):
+        '''Send Message nested 32000 times (8 octets per level) stops at
+        32 levels with an expert info. Before "IPMI: Bound nesting, FRU
+        Unicode length and request list" this overflowed the stack.'''
+        msg = self.ipmb(0x20, 6, 0x81, 1, 0x01, b'')
+        for _ in range(32000):
+            msg = self.ipmb(0x20, 6, 0x81, 1, 0x34, b'\x00' + msg)
+        pcap = str(tmp_path / 'ipmi_nest.pcap')
+        self.exp_pcap(pcap, [msg])
+        for extra in ((), ('-V',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.BUS, *extra,
+                    '-r', pcap, '-Y', 'ipmi.nesting_too_deep',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == ['1\tReq, Send Message']
+
+    def test_ipmi_i2c_decode_as(self, cmd_tshark, test_env, tmp_path):
+        '''IPMB over I2C (link-layer type 209) is decoded with Decode As;
+        a master-receive transaction (flags bit 0) is not IPMB.'''
+        pcap = str(tmp_path / 'ipmi_i2c.pcap')
+        msg = self.ipmb(0x20, 6, 0x81, 1, 0x01, b'')
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 209))
+            for i, flags in enumerate((0, 1)):
+                rec = bytes([1]) + struct.pack('>I', flags) + msg
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(rec), len(rec)))
+                f.write(rec)
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-d', 'i2c.message,ipmi', '-r', pcap,
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\tIPMB\tReq, Get Device ID'
+        assert lines[1].startswith('2\tI2C Read\t')
