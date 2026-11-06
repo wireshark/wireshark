@@ -192,6 +192,9 @@ private:
     /** Flag indicating whether SI units are used. */
     bool si_units_;
 
+    /** X-axis width at the last tick count fit. */
+    int x_axis_width_ = -1;
+
     /** Flag indicating if the graph legend is visible. */
     bool legend_visible_;
 
@@ -367,6 +370,13 @@ private:
      * @param units The units format to apply.
      */
     void setAxisUnits(QCPAxis *axis, format_size_units_e units);
+
+    /**
+     * @brief Lowers the X-axis tick count while its tick labels overlap.
+     *
+     * Restores the default tick count when the axis width changes.
+     */
+    void fitXAxisTicks();
 
     /**
      * @brief Pans the axes by a specific pixel offset.

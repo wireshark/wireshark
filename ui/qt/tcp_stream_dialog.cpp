@@ -427,6 +427,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, const CaptureFile& cf, tcp_gra
     connect(sp->yAxis, SIGNAL(rangeChanged(QCPRange)), this, SLOT(transformYRange(QCPRange)));
 
     connect(sp, &QCustomPlot::beforeReplot, this, &TCPStreamDialog::fillLegend);
+    connect(sp, &QCustomPlot::afterReplot, this, &TCPStreamDialog::fitXAxisTicks);
 
     this->setResult(QDialog::Accepted);
 }
@@ -994,6 +995,36 @@ void TCPStreamDialog::setAxisUnits(QCPAxis *axis, format_size_units_e units)
         if (si_ticker) {
             axis->setTicker(QSharedPointer<QCPAxisTicker>(new QCPAxisTicker));
         }
+    }
+}
+
+void TCPStreamDialog::fitXAxisTicks()
+{
+    static const int default_tick_count = QCPAxisTicker().tickCount();
+    QCustomPlot *sp = ui->streamPlot;
+    QCPAxis *axis = sp->xAxis;
+    QSharedPointer<QCPAxisTicker> ticker = axis->ticker();
+    const int axis_width = axis->axisRect()->width();
+
+    if (axis_width != x_axis_width_) {
+        x_axis_width_ = axis_width;
+        if (ticker->tickCount() != default_tick_count) {
+            ticker->setTickCount(default_tick_count);
+            sp->replot(QCustomPlot::rpQueuedReplot);
+            return;
+        }
+    }
+
+    const QVector<QString> labels = axis->tickVectorLabels();
+    const QFontMetrics fm(axis->tickLabelFont());
+    int label_width = 0;
+    for (const QString &label : labels) {
+        label_width = qMax(label_width, fm.horizontalAdvance(label));
+    }
+    if (ticker->tickCount() > 1 &&
+            labels.size() * (label_width + fm.averageCharWidth() * 2) > axis_width) {
+        ticker->setTickCount(ticker->tickCount() - 1);
+        sp->replot(QCustomPlot::rpQueuedReplot);
     }
 }
 
