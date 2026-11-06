@@ -109,6 +109,7 @@ static expert_field ei_iuup_ack_nack;
 static expert_field ei_iuup_time_align;
 static expert_field ei_iuup_procedure_indicator;
 static expert_field ei_iuup_pdu_type;
+static expert_field ei_iuup_too_many_rfcis;
 
 static wmem_map_t* circuits;
 
@@ -376,12 +377,15 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
             bit_offset += rfci->subflow[i].len;
         }
 
+        if (bit_offset == 0)
+            break;
+
         offset += (bit_offset / 8) + ((bit_offset % 8) ? 1 : 0);
 
     } while (offset <= last_offset);
 }
 
-static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int* offset, iuup_circuit_t *iuup_circuit) {
+static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offset, iuup_circuit_t *iuup_circuit) {
     proto_item* pi;
     proto_tree* pt;
     uint8_t oct;
@@ -393,7 +397,10 @@ static unsigned dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree*
         iuup_rfci_t *rfci = wmem_new0(wmem_file_scope(), iuup_rfci_t);
         unsigned len = 0;
 
-        DISSECTOR_ASSERT(c < 64);
+        if (c >= 64) {
+            expert_add_info(pinfo, tree, &ei_iuup_too_many_rfcis);
+            break;
+        }
 
         pi = proto_tree_add_item(tree,hf_iuup_init_rfci_ind,tvb,*offset,-1,ENC_NA);
         pt = proto_item_add_subtree(pi,ett_rfci);
@@ -779,17 +786,19 @@ static int dissect_iuup(tvbuff_t *tvb_in, packet_info *pinfo, proto_tree *tree, 
 static bool dissect_iuup_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data) {
     int len = tvb_captured_length(tvb);
 
+    if (len < 3) return false;
+
     uint8_t first_octet =  tvb_get_uint8(tvb,0);
     uint8_t second_octet =  tvb_get_uint8(tvb,1);
     uint8_t octet_array[] = {first_octet, second_octet};
     uint16_t hdrcrc6 = tvb_get_uint8(tvb, 2) >> 2;
 
-    if (crc6_0X6F(hdrcrc6, octet_array, second_octet)) return false;
+    if (crc6_0X6F(hdrcrc6, octet_array, 2)) return false;
 
     switch ( first_octet & 0xf0 ) {
         case 0x00: {
             if (len<7) return false;
-            if (update_crc10_by_bytes_iuup(tvb, 4, len-4) ) return false;
+            if (update_crc10_by_bytes_iuup(tvb, 2, len-4) ) return false;
             break;
         }
         case 0x10:
@@ -952,6 +961,7 @@ void proto_register_iuup(void) {
         { &ei_iuup_ack_nack, { "iuup.ack.malformed", PI_MALFORMED, PI_ERROR, "Malformed Ack/Nack", EXPFILL }},
         { &ei_iuup_time_align, { "iuup.time_align.malformed", PI_MALFORMED, PI_ERROR, "Malformed Time Align", EXPFILL }},
         { &ei_iuup_procedure_indicator, { "iuup.procedure.malformed", PI_MALFORMED, PI_ERROR, "Malformed Procedure", EXPFILL }},
+        { &ei_iuup_too_many_rfcis, { "iuup.rfci.too_many", PI_MALFORMED, PI_ERROR, "Too many RFCIs (more than 64)", EXPFILL }},
         { &ei_iuup_pdu_type, { "iuup.pdu_type.malformed", PI_MALFORMED, PI_ERROR, "Malformed PDU Type", EXPFILL }},
     };
 
