@@ -25,9 +25,11 @@ void proto_reg_handoff_ib_sdp(void);
 
 static dissector_handle_t ib_sdp_handle;
 
-/* If the service-id is non-zero after being ANDed with the following mask then
-   this is SDP traffic */
-#define SERVICE_ID_MASK 0x0000000000010000
+/* SDP service IDs are 0x000000000001 followed by the 16 bit port. Compare all
+   the upper 48 bits so that IP CM service IDs (0x01 ULP, 0x06 TCP or 0x11 UDP
+   in the top bytes of the low 32 bits) are not taken for SDP. */
+#define SERVICE_ID_MASK  UINT64_C(0xFFFFFFFFFFFF0000)
+#define SERVICE_ID_SDP   UINT64_C(0x0000000000010000)
 
 static int proto_infiniband;   /* we'll need the Infiniband protocol index for conversation data */
 
@@ -118,9 +120,9 @@ static const range_string mid_meanings[] = {
     { SinkAvail, SinkAvail, "SinkAvail" },
     { SrcAvail, SrcAvail, "SrcAvail" },
     { Data, Data, "Data" },
-    { 0x00001111, 0x00111111, "Reserved" },
-    { 0x01000000, 0x01111111, "Experimental" },
-    { 0x10000000, 0x11111100, "Reserved" },
+    { 0x0F, 0x3F, "Reserved" },
+    { 0x40, 0x7F, "Experimental" },
+    { 0x80, 0xFC, "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -200,7 +202,7 @@ dissect_ib_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rrch, tvb, local_offset, 48, ENC_NA);
             break;
         case ModeChange:
-            proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, ENC_NA);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, ENC_NA);
             break;
         case SrcAvailCancel:
             break;
@@ -266,7 +268,7 @@ dissect_ib_sdp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     if (!convo_data)
         return false;
 
-    if (!(convo_data->service_id & SERVICE_ID_MASK))
+    if ((convo_data->service_id & SERVICE_ID_MASK) != SERVICE_ID_SDP)
         return false;   /* the service id doesn't match that of SDP - nothing for us to do here */
 
     dissect_ib_sdp(tvb, pinfo, tree, data);
