@@ -17,6 +17,7 @@
 #include "packet-socketcan.h"
 #include <epan/wmem_scopes.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-isobus.h"
 #include "data-isobus.h"
 
@@ -364,19 +365,34 @@ struct address_reassemble_table {
 
 static wmem_map_t *addressIdentifierTable;
 
-static struct reassemble_identifier * findIdentifierFor(wmem_list_t *reassembleIdentifierTable, uint32_t frameIndex) {
-    wmem_list_frame_t *currentItem = wmem_list_head(reassembleIdentifierTable);
+/* Entries are appended in frame order, so on the first pass only the
+ * last one can match; later passes use what the first pass stored. */
+static struct reassemble_identifier *
+findIdentifierFor(wmem_list_t *reassembleIdentifierTable, packet_info *pinfo) {
+    struct reassemble_identifier *found = NULL;
 
-    while (currentItem != NULL) {
-        struct reassemble_identifier *currentData = (struct reassemble_identifier *)wmem_list_frame_data(currentItem);
-        if (frameIndex <= currentData->endFrameId && frameIndex >= currentData->startFrameId)
-        {
-            return currentData;
-        } else {
-            currentItem = wmem_list_frame_next(currentItem);
+    if (PINFO_FD_VISITED(pinfo)) {
+        return (struct reassemble_identifier *)p_get_proto_data(wmem_file_scope(), pinfo, proto_isobus, 0);
+    }
+
+    wmem_list_frame_t *tail = wmem_list_tail(reassembleIdentifierTable);
+    if (tail != NULL) {
+        struct reassemble_identifier *currentData = (struct reassemble_identifier *)wmem_list_frame_data(tail);
+        if (pinfo->num <= currentData->endFrameId && pinfo->num >= currentData->startFrameId) {
+            found = currentData;
         }
     }
-    return NULL;
+    if (found != NULL && p_get_proto_data(wmem_file_scope(), pinfo, proto_isobus, 0) == NULL) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_isobus, 0, found);
+    }
+    return found;
+}
+
+static void
+rememberIdentifierFor(packet_info *pinfo, struct reassemble_identifier *identifier) {
+    if (!PINFO_FD_VISITED(pinfo) && p_get_proto_data(wmem_file_scope(), pinfo, proto_isobus, 0) == NULL) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_isobus, 0, identifier);
+    }
 }
 
 static gboolean
@@ -398,19 +414,18 @@ address_combination_hash(const void *p) {
 }
 
 static struct address_reassemble_table * findAddressIdentifierFor(uint8_t src_address, uint8_t dst_address) {
-    struct address_combination *addrCombi = wmem_new(wmem_file_scope(), struct address_combination);
+    struct address_combination lookupKey = { src_address, dst_address };
     struct address_reassemble_table *foundItem;
 
-    addrCombi->src_address = src_address;
-    addrCombi->dst_address = dst_address;
-
-    foundItem = (struct address_reassemble_table *)wmem_map_lookup(addressIdentifierTable, addrCombi);
+    foundItem = (struct address_reassemble_table *)wmem_map_lookup(addressIdentifierTable, &lookupKey);
 
     if (foundItem != NULL) {
         return foundItem;
     } else {
         /* nothing found so create a new one */
+        struct address_combination *addrCombi = wmem_new(wmem_file_scope(), struct address_combination);
         struct address_reassemble_table *newItem;
+        *addrCombi = lookupKey;
         newItem = wmem_new(wmem_file_scope(), struct address_reassemble_table);
         newItem->identifierCounter = 0;
         newItem->reassembleIdentifierTable = wmem_list_new(wmem_file_scope());
@@ -668,7 +683,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
             address_reassemble_table_item = findAddressIdentifierFor(src_addr, pdu_specific);
         }
 
-        identifier = findIdentifierFor(address_reassemble_table_item->reassembleIdentifierTable, pinfo->num);
+        identifier = findIdentifierFor(address_reassemble_table_item->reassembleIdentifierTable, pinfo);
     }
 
     if (pdu_format == TP_DATA_MANAGEMENT) {
@@ -700,6 +715,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 reassembleIdentifierTableEntry->endFrameId = pinfo->num;
 
                 wmem_list_append(address_reassemble_table_item->reassembleIdentifierTable, reassembleIdentifierTableEntry);
+                rememberIdentifierFor(pinfo, reassembleIdentifierTableEntry);
             }
 
             fragment_add_seq(&isobus_reassembly_table, tvb, 5, pinfo, seqnr, NULL, 0, 3, true, 0);
@@ -774,6 +790,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 reassembleIdentifierTableEntry->endFrameId = pinfo->num;
 
                 wmem_list_append(address_reassemble_table_item->reassembleIdentifierTable, reassembleIdentifierTableEntry);
+                rememberIdentifierFor(pinfo, reassembleIdentifierTableEntry);
             }
 
             fragment_add_seq(&isobus_reassembly_table, tvb, 5, pinfo, seqnr, NULL, 0, 3, true, 0);
@@ -809,6 +826,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 struct reassemble_identifier *lastIdentifier = (struct reassemble_identifier *)wmem_list_frame_data(lastItem);
                 lastIdentifier->endFrameId = pinfo->num;
                 identifier = lastIdentifier;
+                rememberIdentifierFor(pinfo, identifier);
             }
         }
 
@@ -831,7 +849,7 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data) 
                 uint8_t pdu_format_reassembled = (uint8_t)((id_reassembled >> 8) & 0xff);
 
                 uint32_t pgn_reassembled;
-                if (pdu_format < 240) {
+                if (pdu_format_reassembled < 240) {
                     pgn_reassembled = id_reassembled & 0x03ff00;
                 } else {
                     pgn_reassembled = id_reassembled & 0x03ffff;
