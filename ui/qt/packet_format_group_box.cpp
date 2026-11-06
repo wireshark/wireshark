@@ -54,42 +54,11 @@ PacketFormatTextGroupBox::PacketFormatTextGroupBox(QWidget *parent) :
     QStyleOption style_opt;
     int cb_label_offset =  pf_ui_->detailsCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
 
-    // Indent the checkbox under the "Packet summary" checkbox
-    pf_ui_->includeColumnHeadingsCheckBox->setStyleSheet(QStringLiteral(
-                      "QCheckBox {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
-
-    // Indent the radio buttons under the "Packet details" checkbox
-    pf_ui_->allCollapsedButton->setStyleSheet(QStringLiteral(
-                      "QRadioButton {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
-    pf_ui_->asDisplayedButton->setStyleSheet(QStringLiteral(
-                      "QRadioButton {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
-    pf_ui_->allExpandedButton->setStyleSheet(QStringLiteral(
-                      "QRadioButton {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
-
-    // Indent the checkbox under the "Bytes" checkbox
-    pf_ui_->includeDataSourcesCheckBox->setStyleSheet(QStringLiteral(
-                      "QCheckBox {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
-
-    pf_ui_->timestampCheckBox->setStyleSheet(QStringLiteral(
-                      "QCheckBox {"
-                      "  padding-left: %1px;"
-                      "}"
-                      ).arg(cb_label_offset));
+    // Indent the options under the "Summary line", "Details" and "Bytes"
+    // checkboxes so that they line up with the checkbox labels
+    pf_ui_->summaryOptionsLayout->setContentsMargins(cb_label_offset, 0, 0, 0);
+    pf_ui_->detailsOptionsLayout->setContentsMargins(cb_label_offset, 0, 0, 0);
+    pf_ui_->bytesOptionsLayout->setContentsMargins(cb_label_offset, 0, 0, 0);
 }
 
 PacketFormatTextGroupBox::~PacketFormatTextGroupBox()
