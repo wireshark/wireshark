@@ -79755,3 +79755,173 @@ class TestDissectIpdr:
                 '-eframe.number', '-eipdr.sequence_num', '-eipdr.channel_id',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['25\t7,8\t1,2', '28\t9\t9']
+
+
+class TestDissectIperf3:
+    '''iPerf3 control and data connections over TCP port 5201, UDP data
+    and connect messages on port 5201 and the Exported PDU entry points,
+    from the synthetic capture iperf3_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def iperf3_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('iperf3_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_iperf3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''62 iPerf3 frames, none malformed or with an error expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iperf3_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 115
+        assert protocols.count('iPerf3') == 62
+        assert protocols.count('iPerf3/JSON') == 4
+        assert protocols.count('iPerf3/JSON/JSON') == 1
+        assert protocols.count('UDP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iperf3_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iperf3_control_connection(self, cmd_tshark, capture_file, test_env):
+        '''Cookie, state codes and the JSON of the parameter and the result
+        exchange of the control connection (frames 4-8, 27-34); the other
+        state codes of frames 42-56.'''
+        for passes in ((), ('-2',)):
+            out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                     'iperf3.state || iperf3.cookie || iperf3.prejson',
+                                     'iperf3.cookie', 'iperf3.state', 'iperf3.prejson',
+                                     passes=passes)
+            assert out[:15] == [
+                '4\tcookie001xxxxxxxxxxxxxxxxxxxxxxxxxxx\t\t',
+                '5\t\t9\t',
+                '6\t\t\t81',
+                '8\t\t10\t',
+                '12\tcookie001xxxxxxxxxxxxxxxxxxxxxxxxxxx\t\t',
+                '21\tcookie001xxxxxxxxxxxxxxxxxxxxxxxxxxx\t\t',
+                '27\t\t1\t',
+                '28\t\t2\t',
+                '29\t\t4\t',
+                '30\t\t13\t',
+                '31\t\t\t176',
+                '32\t\t\t177',
+                '33\t\t14\t',
+                '34\t\t16\t',
+                '40\tcookie002xxxxxxxxxxxxxxxxxxxxxxxxxxx\t\t',
+            ]
+
+    def test_iperf3_state_codes(self, cmd_tshark, capture_file, test_env):
+        '''All the state codes, signed and unknown ones.'''
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number >= 45 && frame.number <= 56',
+                                 '_ws.col.info')
+        assert [o.split('\t')[1].split(' ', 3)[-1] for o in out] == [
+            'Unknown 99(99)', 'ACCESS_DENIED(-1)', 'SERVER_ERROR(-2)',
+            'SERVER_TERMINATE(11)', 'CLIENT_TERMINATE(12)', 'RESULT_REQUEST(3)',
+            'STREAM_BEGIN(5)', 'STREAM_RUNNING(6)', 'STREAM_END(7)',
+            'ALL_STREAMS_END(8)', 'IPERF_START(15)', 'Unknown 0(0)',
+        ]
+
+    def test_iperf3_several_pdus_in_a_segment(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in one TCP segment: state, length and JSON of the
+        parameter exchange (frame 41), the two results (frame 43) and two
+        states (frame 44).'''
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {41,43,44}',
+                                 '_ws.col.protocol', 'iperf3.state', 'iperf3.prejson')
+        assert out == [
+            '41\tiPerf3/JSON\t9,10\t81',
+            '43\tiPerf3/JSON/JSON\t\t176,177',
+            '44\tiPerf3\t14,16\t',
+        ]
+
+    def test_iperf3_data_connections(self, cmd_tshark, capture_file, test_env):
+        '''A connection that starts with a cookie already seen on a
+        control connection is a data connection: the cookie is decoded,
+        the payload after it is left to the data dissector.'''
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {12,13,14,15,21,22}',
+                                 '_ws.col.protocol', 'iperf3.cookie')
+        assert out == [
+            '12\tiPerf3\tcookie001xxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            '13\tTCP\t',
+            '14\tTCP\t',
+            '15\tTCP\t',
+            '21\tiPerf3\tcookie001xxxxxxxxxxxxxxxxxxxxxxxxxxx',
+            '22\tTCP\t',
+        ]
+
+    def test_iperf3_exported_pdu_mixed_conversations(self, cmd_tshark, capture_file, test_env):
+        '''iperf3_udp handed the packets of a TCP conversation (frames 71,
+        72, 76) and iperf3_tcp handed those of a UDP conversation (79,
+        80) are left alone: they used to read the conversation data of
+        the other kind (heap overread, then an assertion on the next
+        TCP segment). The segment of frame 77 decodes as TCP, the UDP
+        packet in frame 81 on a UDP conversation decodes.'''
+        for passes in ((), ('-2',)):
+            out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                     'frame.number in {70,71,72,76,77,79,80,81,82,83}',
+                                     'exported_pdu.prot_name', 'iperf3.cookie',
+                                     'iperf3.sequence', passes=passes)
+            assert out == [
+                '70\t\tcookie003xxxxxxxxxxxxxxxxxxxxxxxxxxx\t',
+                '71\tiperf3_udp\t\t',
+                '72\tiperf3_udp\t\t',
+                '76\tiperf3_udp\t\t',
+                '77\t\tAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\t',
+                '79\tiperf3_tcp\t\t',
+                '80\tiperf3_tcp\t\t',
+                '81\tiperf3_udp\t\t2',
+                '82\tiperf3_udp\t\t',
+                '83\tiperf3_tcp\t\t',
+            ]
+
+    def test_iperf3_udp_connect_messages(self, cmd_tshark, capture_file, test_env):
+        '''The connect message and reply in both byte orders and the
+        legacy ones; four octets of anything else are not iPerf3.'''
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number >= 84 && frame.number <= 90',
+                                 '_ws.col.protocol', 'iperf3.init_msg')
+        assert out == [
+            '84\tiPerf3\t0x39383736', '85\tiPerf3\t0x36373839',
+            '86\tiPerf3\t0x15cd5b07', '87\tiPerf3\t0xb168de3a',
+            '88\tiPerf3\t0x075bcd15', '89\tiPerf3\t0x3ade68b1',
+            '90\tUDP\t',
+        ]
+
+    def test_iperf3_udp_data_and_loss(self, cmd_tshark, capture_file, test_env):
+        '''UDP data: time and sequence number, 32 and 64 bit counters,
+        and the loss/out-of-order detection per conversation (it needs
+        the first pass to build the set; the result is the same in two
+        passes and is not reported with the preference off).'''
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'iperf3.sec && frame.number >= 91 && frame.number <= 112',
+                                 'iperf3.sequence', 'iperf3.sec', 'iperf3.usec')
+        assert out[:3] == ['91\t1\t1700000000\t123456', '92\t2\t1700000000\t124456',
+                           '93\t3\t1700000000\t125456']
+        assert out[-6:] == ['107\t1\t1700000010\t0', '108\t2\t1700000010\t500000',
+                            '109\t1\t-5\t250000', '110\t2\t-5\t250001',
+                            '111\t1\t-5\t250002', '112\t1\t6\t0']
+        for passes in ((), ('-2',)):
+            out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                     'iperf3.outoforder', passes=passes)
+            assert out == ['94', '96', '97', '98', '100', '102', '104', '106', '111', '112']
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'iperf3.outoforder', opts=('-o', 'iperf3.detect_udp_errors:FALSE'))
+        assert out == []
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {109,110,112}', 'iperf3.sequence',
+                                 opts=('-o', 'iperf3.udp_sequence_64bit:TRUE'))
+        assert out == ['109\t1', '110\t2', '112\t4294967300']
+        out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {113,114,115}', '_ws.col.protocol')
+        assert out == ['113\tUDP', '114\tUDP', '115\tUDP']
