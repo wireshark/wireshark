@@ -203,6 +203,7 @@ static int hf_iso15765_autosar_ack;
 static int ett_iso15765;
 
 static expert_field ei_iso15765_message_type_bad;
+static expert_field ei_iso15765_too_many_segments;
 
 static int proto_iso15765;
 static dissector_handle_t iso15765_handle_can;
@@ -885,9 +886,14 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
         if (iso15765_frame != NULL) {
             if (!(pinfo->fd->visited)) {
                 DISSECTOR_ASSERT(frag_id < 16);
-                uint16_t tmp = iso15765_frame->frag_id_high[frag_id]++;
-                /* Make sure that we assert on using more than 4096 (16*255) segments.*/
-                DISSECTOR_ASSERT(iso15765_frame->frag_id_high[frag_id] != 0);
+                uint16_t tmp = iso15765_frame->frag_id_high[frag_id];
+                /* Do not wrap around when using more than 4096 (16*255) segments. */
+                if (tmp == UINT8_MAX) {
+                    expert_add_info(pinfo, iso15765_tree, &ei_iso15765_too_many_segments);
+                    iso15765_frame->error = true;
+                } else {
+                    iso15765_frame->frag_id_high[frag_id]++;
+                }
                 frag_id += tmp * 16;
 
                 /* Save the frag_id for subsequent dissection */
@@ -928,10 +934,12 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t b
                         iso15765_frame->last_byte_seen += len;
                         if (iso15765_frame->last_byte_seen >= iso15765_frame->len) {
                             iso15765_info->last = true;
-                            len -= (iso15765_frame->last_byte_seen - iso15765_frame->len);
+                            /* Missing frames can push last_byte_seen well past len. */
+                            uint32_t excess = MIN(iso15765_frame->last_byte_seen - iso15765_frame->len, len);
+                            len -= excess;
 
                             /* Determine how many bytes were needed to calculate padding latter. */
-                            iso15765_info->bytes_used = data_length - (iso15765_frame->last_byte_seen - iso15765_frame->len);
+                            iso15765_info->bytes_used = data_length - excess;
                         }
 
                     }
@@ -1153,6 +1161,8 @@ proto_register_iso15765(void) {
     static ei_register_info ei[] = {
         { &ei_iso15765_message_type_bad, {
             "iso15765.message_type.bad", PI_MALFORMED, PI_ERROR, "Bad Message Type value", EXPFILL } },
+        { &ei_iso15765_too_many_segments, {
+            "iso15765.too_many_segments", PI_MALFORMED, PI_ERROR, "Too many segments with the same sequence number", EXPFILL } },
     };
 
     module_t *iso15765_module;
