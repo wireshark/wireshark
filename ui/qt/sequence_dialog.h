@@ -384,7 +384,7 @@ private:
     QPushButton *reset_button_;
 
     /** @brief Button to open or interact with the RTP player. */
-    QToolButton *player_button_;
+    QPushButton *player_button_;
 
     /** @brief Button to export the diagram. */
     QPushButton *export_button_;

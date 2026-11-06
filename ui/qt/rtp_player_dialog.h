@@ -136,9 +136,9 @@ public:
      * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
      * @param button_box Caller's QDialogButtonBox.
      * @param dialog The dialog the button belongs to.
-     * @return Pointer to the new "Play call" QToolButton.
+     * @return Pointer to the new "Play Streams" button.
      */
-    static QToolButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
+    static QPushButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
 
 #ifdef QT_MULTIMEDIA_LIB
     /**
@@ -706,10 +706,10 @@ private:
     QPushButton *read_btn_;
 
     /** @brief Toolbar button for filtering inaudible streams. */
-    QToolButton *inaudible_btn_;
+    QPushButton *inaudible_btn_;
 
     /** @brief Toolbar button for triggering analysis functions. */
-    QToolButton *analyze_btn_;
+    QPushButton *analyze_btn_;
 
     /** @brief Push button to prepare display filters. */
     QPushButton *prepare_btn_;

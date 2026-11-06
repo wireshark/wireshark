@@ -55,7 +55,6 @@
 #endif // QT_MULTIMEDIA_LIB
 
 #include <QPushButton>
-#include <QToolButton>
 
 #include <ui/qt/utils/themes/themed_icon.h>
 #include "main_application.h"
@@ -255,15 +254,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     read_btn_->setEnabled(false);
     connect(read_btn_, &QPushButton::pressed, this, &RtpPlayerDialog::on_actionReadCapture_triggered);
 
-    inaudible_btn_ = new QToolButton();
-    ui->buttonBox->addButton(inaudible_btn_, QDialogButtonBox::ActionRole);
-    inaudible_btn_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    inaudible_btn_->setPopupMode(QToolButton::MenuButtonPopup);
-
-    connect(ui->actionInaudibleButton, &QAction::triggered, this, &RtpPlayerDialog::on_actionSelectInaudible_triggered);
-    inaudible_btn_->setDefaultAction(ui->actionInaudibleButton);
-    // Overrides text striping of shortcut undercode in QAction
-    inaudible_btn_->setText(ui->actionInaudibleButton->text());
+    inaudible_btn_ = ui->buttonBox->addButton(ui->actionInaudibleButton->text(), QDialogButtonBox::ActionRole);
+    inaudible_btn_->setToolTip(ui->actionInaudibleButton->toolTip());
     inaudible_btn_->setEnabled(false);
     inaudible_btn_->setMenu(ui->menuInaudible);
 
@@ -345,25 +337,16 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 }
 
 // _U_ is used when no QT_MULTIMEDIA_LIB is available
-QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog _U_)
+QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog _U_)
 {
     if (!button_box) return NULL;
 
-    QAction *ca;
-    QToolButton *player_button = new QToolButton();
-    button_box->addButton(player_button, QDialogButtonBox::ActionRole);
-    player_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    player_button->setPopupMode(QToolButton::MenuButtonPopup);
-
-    ca = new QAction(tr("&Play Streams"), player_button);
-    ca->setToolTip(tr("Open RTP player dialog"));
-    ca->setIcon(ThemedIcon("media-playback-start"));
-    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
-    player_button->setDefaultAction(ca);
-    // Overrides text striping of shortcut undercode in QAction
-    player_button->setText(ca->text());
+    QPushButton *player_button = button_box->addButton(tr("&Play Streams"), QDialogButtonBox::ActionRole);
+    player_button->setToolTip(tr("Open RTP player dialog"));
+    player_button->setIcon(ThemedIcon("media-playback-start"));
 
 #if defined(QT_MULTIMEDIA_LIB)
+    QAction *ca;
     QMenu *button_menu = new QMenu(player_button);
     button_menu->setToolTipsVisible(true);
     ca = button_menu->addAction(tr("&Set playlist"));
