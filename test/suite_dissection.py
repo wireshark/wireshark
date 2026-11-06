@@ -81077,3 +81077,102 @@ class TestDissectIpmiSession:
             ['36', '01020304', '0506', '0x01020304', '16'],
             ['37', '01020304', '0506', '0x01020304', '16'],
         ]
+
+
+class TestDissectIpmiStorage:
+    '''IPMI NetFn Storage commands (FRU, SDR repository, SEL, auxiliary
+    log status) from the synthetic capture ipmi_storage_coverage.pcapng.gz.
+    The commands are only dissected with ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def stor_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_storage_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_storage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IPMB and none is malformed or has an error
+        expert info, in one and two passes. Get/Set SEL Time UTC Offset
+        and an unknown command are not decoded.'''
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                                '_ws.col.protocol', extra=self.BUS)
+        assert len(rows) == 171
+        assert all(r[1] == 'IPMB' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                    extra=(*self.BUS, *passes),
+                    flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.header.command', extra=self.BUS,
+                flt='ipmi.parser_not_implemented')
+        assert rows == [['165', '0x5c'], ['166', '0x5d'], ['168', '0x7f'], ['169', '0x7f']]
+
+    def test_ipmi_storage_fru_and_sdr(self, cmd_tshark, capture_file, test_env):
+        '''FRU area size and access mode, Read FRU Data, SDR repository
+        information with every kind of timestamp, Clear SDR Repository.'''
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st10.size', 'ipmi.st10.access', extra=self.BUS,
+                flt='ipmi.st10.size')
+        assert rows == [['2', '512', 'False'], ['4', '4096', 'True'], ['171', '512', 'False']]
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st11.ret_count', 'ipmi.st11.data', extra=self.BUS,
+                flt='ipmi.st11.data')
+        assert rows == [['6', '8', '0001020304050607'], ['8', '1', 'aa']]
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st20.ts_add', 'ipmi.st20.rec_count', extra=self.BUS,
+                flt='ipmi.st20.ts_add')
+        assert [r[1] for r in rows] == ['4294967295', '4096', '536870912', '536870913',
+                                        '1593835520', '0']
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st27.clr', 'ipmi.st27.action', extra=self.BUS,
+                flt='ipmi.st27.clr')
+        assert [r[1:] for r in rows] == [['CLR', '0xaa'], ['CLR', '0x00'], ['XYZ', '0x55']]
+
+    def test_ipmi_storage_sel(self, cmd_tshark, capture_file, test_env):
+        '''Get SEL Entry returns the next record ID and the record (or
+        part of it); Clear SEL status.'''
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st43.next', 'ipmi.st43.data', extra=self.BUS,
+                flt='ipmi.st43.data')
+        assert rows == [['92', '0x0002', '0100020000005f20000401126fa00102'],
+                        ['94', '0xffff', '00005f2000040112']]
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st47.status', extra=self.BUS, flt='ipmi.st47.status')
+        assert rows == [['118', '0x00'], ['120', '0x01']]
+
+    def test_ipmi_storage_aux_log_status(self, cmd_tshark, capture_file, test_env):
+        '''The Get Auxiliary Log Status response is decoded by the log type
+        of its request (the type is the low nibble); without a request
+        or with an unknown type it is shown as unknown. Set Auxiliary Log
+        Status with reserved bits set in the first byte is log type 0
+        (it was shown as an unknown type before "IPMI: Mask the log type
+        in Set Auxiliary Log Status").'''
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st5a.num_entries', 'ipmi.st5a.iana', 'ipmi.st5a.unknown',
+                extra=self.BUS, flt='frame.number >= 141 && frame.number <= 151 && '
+                '(ipmi.st5a.num_entries || ipmi.st5a.iana || ipmi.st5a.unknown)')
+        assert rows == [
+            ['142', '12', '', ''],
+            ['144', '', '0x000157', ''],
+            ['146', '', '0x000157', ''],
+            ['148', '', '', '010000000200000003000000'],
+            ['150', '2', '', ''],
+            ['151', '5', '', ''],
+        ]
+        rows = self.stor_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.st5b.log_type', 'ipmi.st5b.num_entries', 'ipmi.st5b.iana',
+                'ipmi.st5b.unknown', extra=self.BUS, flt='ipmi.st5b.log_type')
+        assert rows[:5] == [
+            ['152', '0x00', '7', '', ''],
+            ['154', '0x00', '7', '', ''],      # first byte 0x10
+            ['156', '0x01', '', '0x000157', ''],
+            ['158', '0x02', '', '0x000157', ''],
+            ['160', '0x03', '', '', '01020304'],
+        ]
+        assert rows[5][4] == '01020304'
