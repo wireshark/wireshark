@@ -2272,7 +2272,7 @@ blf_read_canxlchannelframe(blf_params_t *params, int *err, char **err_info, int6
 
         if (object_length < (data_start - block_start) + (int)sizeof(canxlheader) + payload_length) {
             ws_debug("shortening canxl for can/canfd payload because buffer is too short.");
-            object_length = (data_start - block_start) + (int)sizeof(canxlheader) + payload_length;
+            payload_length = (uint16_t)(object_length - (data_start - block_start) - (int)sizeof(canxlheader));
         }
 
         if (canfd) {
