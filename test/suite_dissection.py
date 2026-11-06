@@ -82435,3 +82435,236 @@ class TestDissectIpsiCtl:
                 '20\t1\tInvalid PDU length 0 (less than 6)\tPDUS=0, Seq=0xffffffff',
                 '21\t1\tInvalid PDU length 5 (less than 6)\tPDUS=0, Seq=0xffffffff',
             ]
+
+
+class TestDissectIpv6Coverage:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        '''Run tshark over the IPv6 coverage capture, return the output
+        lines of the given fields (tab separated) for matching frames.'''
+        args = [cmd_tshark, *passes, '-r', capture_file('ipv6_coverage.pcapng.gz')]
+        if dfilter:
+            args += ['-Y', dfilter]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ipv6_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, in one and
+        two passes; frame counts per protocol.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= error',
+                                 passes=passes)
+            assert lines == []
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'frame')) == 144
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipv6')) == 135
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipv6.hopopts')) == 36
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipv6.dstopts')) == 23
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipv6.routing')) == 26
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipv6.fraghdr')) == 13
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'exported_pdu')) == 6
+
+    def test_ipv6_coverage_header(self, cmd_tshark, capture_file, test_env):
+        '''Traffic class, flow label, hop limit and payload length.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {1, 2, 3}',
+                             'ipv6.tclass', 'ipv6.tclass.dscp', 'ipv6.tclass.ecn',
+                             'ipv6.flow', 'ipv6.hlim', 'ipv6.plen')
+        assert lines == [
+            '1\t0x00000000\t0\t0\t0x000000\t64\t21',
+            '2\t0x000000b9\t46\t1\t0x0abcde\t1\t21',
+            '3\t0x000000c3\t48\t3\t0x000001\t64\t21',
+        ]
+
+    def test_ipv6_coverage_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Addresses with structure: SLAAC, 6to4, Teredo, ISATAP, NAT64.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {8, 9, 10, 11, 12, 13}',
+                             'ipv6.src_slaac_mac', 'ipv6.dst_slaac_mac',
+                             'ipv6.src_6to4_gw_ipv4', 'ipv6.src_6to4_sla_id',
+                             'ipv6.src_ts_ipv4', 'ipv6.src_tc_port', 'ipv6.src_tc_ipv4',
+                             'ipv6.dst_isatap_ipv4',
+                             'ipv6.dst_embed_ipv4', 'ipv6.src_embed_ipv4')
+        assert lines == [
+            '8\t00:11:22:33:44:55\t00:11:22:33:44:66\t\t\t\t\t\t\t\t',
+            '9\t\t\t192.0.2.4\t1\t\t\t\t\t\t',
+            '10\t\t\t\t\t65.54.227.120\t40000\t192.0.2.45\t\t\t',
+            '11\t\t\t\t\t\t\t\t198.51.100.2\t\t',
+            '12\t\t\t\t\t\t\t\t\t192.0.2.33\t',
+            '13\t\t\t\t\t\t\t\t\t\t198.51.100.5',
+        ]
+
+    def test_ipv6_coverage_address_space(self, cmd_tshark, capture_file, test_env):
+        '''Address space and multicast flags and scope.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {7, 14, 18, 19, 20, 21}',
+                             'ipv6.dst_addr_space', 'ipv6.dst_multicast_scope',
+                             'ipv6.dst_multicast_flags')
+        assert lines == [
+            '7\tMulticast\t0x0002\t0x0000',
+            '14\tUnique Local Unicast\t\t',
+            '18\tReserved by IETF\t\t',
+            '19\tMulticast\t0x0005\t0x0001',
+            '20\tMulticast\t0x000e\t0x0003',
+            '21\tMulticast\t0x000e\t0x0007',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipv6_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 24', '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'Source address must not be a multicast address' in stdout
+
+    def test_ipv6_coverage_hopopts(self, cmd_tshark, capture_file, test_env):
+        '''Hop-by-hop options: Quick-Start TTL difference, Path MTU, MPL
+        seed identifiers, and IOAM.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.opt.qs_ttl_diff',
+                             'ipv6.opt.qs_func', 'ipv6.opt.qs_rate', 'ipv6.opt.qs_ttl',
+                             'ipv6.opt.qs_ttl_diff')
+        assert lines == ['42\t0\t10\t60\t1']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {52, 53, 54, 55}',
+                             'ipv6.opt.mpl.seed_id')
+        assert [len(l.split('\t')[1]) if '\t' in l else 0 for l in lines] == [0, 4, 16, 32]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.opt.ioam.trace.node.oss.scid',
+                             'ipv6.opt.ioam.trace.node.oss.scid',
+                             'ipv6.opt.ioam.trace.ns', 'ipv6.opt.ioam.trace.node.oss.len')
+        assert lines == ['60\t0x000007\t3\t1', '61\t0x000001\t4\t0']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.opt.ioam.dex.ns',
+                             'ipv6.opt.ioam.dex.ns', 'ipv6.opt.ioam.dex.extflag.flowid',
+                             'ipv6.opt.ioam.dex.extflag.seqnum')
+        assert lines == ['66\t9\t77\t88', '67\t9\t\t']
+
+    def test_ipv6_coverage_jumbo(self, cmd_tshark, capture_file, test_env):
+        '''Jumbograms (payload length 0): the length comes from the
+        Jumbo Payload option, also after Pad1 options.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.opt.jumbo', 'ipv6.plen', 'ipv6.opt.jumbo',
+                             '_ws.col.info')
+        assert lines == [
+            '68\t0\t70000\tIPv6 no next header',
+            '69\t0\t65536\tIPv6 no next header',
+        ]
+
+    def test_ipv6_coverage_opt_start(self, cmd_tshark, capture_file, test_env):
+        '''An option at offset 258 that decodes fewer octets than its
+        length keeps its remaining data as unknown data. With a uint8_t
+        option start the data was dissected as further options and the
+        hidden Router Alert option appeared.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number == 91',
+                             'ipv6.opt.rpl.sender_rank', 'ipv6.opt_unknown_data',
+                             'ipv6.opt.router_alert')
+        assert lines == ['91\t0x0064\t0502123401020000\t']
+
+    def test_ipv6_coverage_routing(self, cmd_tshark, capture_file, test_env):
+        '''Routing types 0, 2, 3 (RPL), 4 (SRH), 5 and 6 (CRH).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {92, 93, 95, 97, 103, 109, 112, 114, 115}',
+                             'ipv6.routing.type', 'ipv6.routing.segleft')
+        assert lines == [
+            '92\t0\t2', '93\t0\t0', '95\t2\t1', '97\t3\t4', '103\t4\t2',
+            '109\t5\t3', '112\t6\t2', '114\t1\t0', '115\t253\t0']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {97, 98, 99, 100, 101, 102}',
+                             'ipv6.routing.rpl.addr_count')
+        assert lines == ['97\t4', '98\t4', '99\t2', '100\t0', '101\t4', '102\t1']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.routing.srh.last_entry',
+                             'ipv6.routing.srh.last_entry', 'ipv6.routing.srh.tag',
+                             'ipv6.routing.srh.tlv.hmac.key_id')
+        assert lines == [
+            '103\t2\t1234\t', '104\t0\tbeef\t', '105\t1\t1234\t0x0000cafe',
+            '106\t0\t1234\t0x00000001', '107\t0\t1234\t0x00000000', '108\t0\t1234\t']
+
+    def test_ipv6_coverage_crh(self, cmd_tshark, capture_file, test_env):
+        '''A Compact Routing Header whose SIDs are all non-zero ends at the
+        last SID; the payload after it is dissected (it was malformed
+        before the fix).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {109, 110, 111, 112, 113}',
+                             'ipv6.routing.crh16.sid', 'ipv6.routing.crh32.sid',
+                             '_ws.col.protocol')
+        assert lines == [
+            '109\t17,34,51,68\t\tUDP',
+            '110\t4369,8738\t\tUDP',
+            '111\t\t286331153\tUDP',
+            '112\t\t256,512,768\tUDP',
+            '113\t4369,8738\t\tUDP',
+        ]
+
+    def test_ipv6_coverage_routing_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The routing type dissectors are called with NULL data from
+        Exported PDU (a NULL dereference before the fix): all six frames
+        are dissected without a crash.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'exported_pdu', 'exported_pdu.dis_table_val')
+        assert [l.split('\t')[0] for l in lines] == [
+            '137', '138', '139', '140', '141', '142']
+        assert [l.split('\t')[1] for l in lines] == ['0', '2', '3', '4', '5', '6']
+
+    def test_ipv6_coverage_fragments(self, cmd_tshark, capture_file, test_env):
+        '''Reassembly of fragments, also out of order, interleaved and with
+        a header before the fragment header and a following header.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {116, 117, 118, 119, 120, 121}',
+                             'ipv6.fraghdr.offset', 'ipv6.fraghdr.more',
+                             'udp.length', 'ipv6.reassembled.length')
+        assert lines == [
+            '116\t0\tTrue\t\t',
+            '117\t6\tFalse\t\t',
+            '118\t3\tTrue\t56\t56',
+            '119\t0\tFalse\t48\t',
+            '120\t0\tTrue\t\t',
+            '121\t4\tFalse\t48\t56',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {124, 125, 126}',
+                             '_ws.col.protocol')
+        assert lines == ['124\tUDP', '125\tUDP', '126\tIPv6']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ipv6.fraghdr.reserved_octet == 0x55',
+                             'ipv6.fraghdr.reserved_bits')
+        assert lines == ['127\t3']
+
+    def test_ipv6_coverage_carriers(self, cmd_tshark, capture_file, test_env):
+        '''IPv6 in IPv6, IPv4 in IPv6, IPv6 in IPv4, extension headers
+        carried directly in IPv4 (the data argument is then an IPv4
+        header), IPv6 in GTP-U through the IP heuristic dissector, AH,
+        DLT_NULL and DLT_RAW.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {128, 129, 130, 131, 132, 133, 135, 136, 143, 144}',
+                             'frame.protocols')
+        assert lines == [
+            '128\teth:ethertype:ipv6:ipv6:udp:data',
+            '129\teth:ethertype:ipv6:ip:udp:data',
+            '130\teth:ethertype:ip:ipv6:udp:data',
+            '131\teth:ethertype:ip:ipv6.dstopts:udp:data',
+            '132\teth:ethertype:ip:ipv6.routing:udp:data',
+            '133\teth:ethertype:ip:ipv6.fraghdr:udp:data',
+            '135\teth:ethertype:ipv6:ah:udp:data',
+            '136\teth:ethertype:ip:udp:gtp:ip:udp:data',
+            '143\tnull:ipv6:udp:data',
+            '144\traw:ipv6:ipv6.hopopts:udp:data',
+        ]
+
+    def test_ipv6_coverage_ilnp_nonce(self, cmd_tshark, capture_file, test_env):
+        '''The ILNP nonce destination option calls the ILNP dissector.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'ilnp', 'ipv6.opt.ilnp_nonce', 'ilnp.nonce')
+        assert [l.split('\t')[0] for l in lines] == ['89', '90']
+        assert [l.split('\t')[1] for l in lines] == ['11223344', '1122334455667788']
+
+    def test_ipv6_coverage_conversations(self, cmd_tshark, capture_file, test_env):
+        '''The IPv6 conversation table has the main pair and the tunnel.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipv6_coverage.pcapng.gz'),
+                '-q', '-z', 'conv,ipv6',
+            ), encoding='utf-8', env=test_env)
+        assert 'IPv6 Conversations' in stdout
+        assert grep_output(stdout, '2001:db8:aa::1 +<-> 2001:db8:aa::2 +0 0 bytes +2 ')
