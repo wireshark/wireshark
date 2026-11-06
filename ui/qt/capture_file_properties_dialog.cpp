@@ -163,7 +163,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
     table_row_begin = "<tr>\n";
     table_ul_row_begin = "<tr style=\"border-bottom: 1px solid gray;\">\n";
     table_row_end = "</tr>\n";
-    table_vheader_tmpl = "<td width=\"16%\">%1:</td>"; // <th align="left"> looked odd
+    table_vheader_tmpl = "<td width=\"16%\" style=\"white-space: nowrap; padding-right: 8px;\">%1:</td>"; // <th align="left"> looked odd
     table_hheader16_tmpl = "<td width=\"16%\"><u>%1</u></td>";
     table_hheader25_tmpl = "<td width=\"25%\"><u>%1</u></td>";
     table_data_tmpl = "<td>%1</td>";
