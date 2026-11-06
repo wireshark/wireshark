@@ -420,22 +420,22 @@ static dissector_table_t dhcpv6_enterprise_opts_dissector_table;
 #define DHCPV4_RESPONSE         21  /* [RFC7341] */
 #define ADDR_REG_INFORM         36  /* [RFC9686] */
 #define ADDR_REG_REPLY          37  /* [RFC9686] */
-/* TODO: add support the following message types
-#define ACTIVELEASEQUERY        22  [RFC7653]
-#define STARTTLS                23  [RFC7653]
-#define BNDUPD                  24  [RFC8156]
-#define BNDREPLY                25  [RFC8156]
-#define POOLREQ                 26  [RFC8156]
-#define POOLRESP                27  [RFC8156]
-#define UPDREQ                  28  [RFC8156]
-#define UPDREQALL               29  [RFC8156]
-#define UPDDONE                 30  [RFC8156]
-#define CONNECT                 31  [RFC8156]
-#define CONNECTREPLY            32  [RFC8156]
-#define DISCONNECT              33  [RFC8156]
-#define STATE                   34  [RFC8156]
-#define CONTACT                 35  [RFC8156]
-                                38-255 Unassigned
+/* TODO: add support the following message types */
+#define ACTIVELEASEQUERY        22  /* [RFC7653] */
+#define STARTTLS                23  /* [RFC7653] */
+#define BNDUPD                  24  /* [RFC8156] */
+#define BNDREPLY                25  /* [RFC8156] */
+#define POOLREQ                 26  /* [RFC8156] */
+#define POOLRESP                27  /* [RFC8156] */
+#define UPDREQ                  28  /* [RFC8156] */
+#define UPDREQALL               29  /* [RFC8156] */
+#define UPDDONE                 30  /* [RFC8156] */
+#define CONNECT                 31  /* [RFC8156] */
+#define CONNECTREPLY            32  /* [RFC8156] */
+#define DISCONNECT              33  /* [RFC8156] */
+#define STATE                   34  /* [RFC8156] */
+#define CONTACT                 35  /* [RFC8156] */
+/*                                 38-255 Unassigned
 *********************************************************************************************/
 
 static const value_string msgtype_vals[] = {
@@ -460,6 +460,20 @@ static const value_string msgtype_vals[] = {
     { RECONFIGURE_REPLY,             "Reconfigure-reply" },
     { DHCPV4_QUERY,                  "4o6 Query" },
     { DHCPV4_RESPONSE,               "4o6 Response" },
+    { ACTIVELEASEQUERY,              "Active Leasequery" },
+    { STARTTLS,                      "StartTLS" },
+    { BNDUPD,                        "Binding update" },
+    { BNDREPLY,                      "Binding acknowledgement" },
+    { POOLREQ,                       "Pool request" },
+    { POOLRESP,                      "Pool response" },
+    { UPDREQ,                        "Update request" },
+    { UPDREQALL,                     "Update request all" },
+    { UPDDONE,                       "Update done" },
+    { CONNECT,                       "Connect" },
+    { CONNECTREPLY,                  "Connect acknowledgement" },
+    { DISCONNECT,                    "Disconnect" },
+    { STATE,                         "State" },
+    { CONTACT,                       "Contact" },
     { ADDR_REG_INFORM,               "Address Registration Inform" },
     { ADDR_REG_REPLY,                "Address Registration Reply" },
     { 0, NULL }
