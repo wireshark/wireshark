@@ -597,7 +597,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1,0,0">
      <property name="spacing">
       <number>6</number>
      </property>
@@ -619,17 +619,11 @@
      </item>
      <item>
       <widget class="QComboBox" name="interfaceComboBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>350</width>
-         <height>0</height>
-        </size>
+       <property name="minimumContentsLength">
+        <number>24</number>
        </property>
        <item>
         <property name="text">
@@ -640,11 +634,11 @@
      </item>
      <item>
       <widget class="QComboBox" name="adapterComboBox">
-       <property name="minimumSize">
-        <size>
-         <width>320</width>
-         <height>0</height>
-        </size>
+       <property name="sizeAdjustPolicy">
+        <enum>QComboBox::AdjustToMinimumContentsLengthWithIcon</enum>
+       </property>
+       <property name="minimumContentsLength">
+        <number>24</number>
        </property>
        <item>
         <property name="text">
