@@ -13,7 +13,7 @@
 #include "main_application.h"
 
 #include <ui/time_shift.h>
-#include <ui/qt/utils/color_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 
 #include <QStyleOption>
 
@@ -32,17 +32,8 @@ TimeShiftDialog::TimeShiftDialog(QWidget *parent, capture_file *cf) :
     QStyleOption style_opt;
     int rb_label_offset =  ts_ui_->shiftAllButton->style()->subElementRect(QStyle::SE_RadioButtonContents, &style_opt).left();
     int cb_label_offset =  ts_ui_->shiftAllButton->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
-    setStyleSheet(QStringLiteral(
-                      "QCheckBox#setTwoCheckBox {"
-                      "  margin-left: %1px;"
-                      "}"
-                      "QLabel#extrapolateLabel {"
-                      "  margin-left: %2px;"
-                      "}"
-                      )
-                  .arg(rb_label_offset)
-                  .arg(rb_label_offset + cb_label_offset)
-                  );
+    ts_ui_->setTwoLayout->setContentsMargins(rb_label_offset, 0, 0, 0);
+    ts_ui_->extrapolateLayout->setContentsMargins(rb_label_offset + cb_label_offset, 0, 0, 0);
 
     if (cap_file_) {
         if (cap_file_->current_frame) {
@@ -96,20 +87,8 @@ void TimeShiftDialog::enableWidgets()
         enable_apply = true;
     }
 
-    if (syntax_err_.isEmpty()) {
-        ts_ui_->errorLabel->clear();
-        ts_ui_->errorLabel->setStyleSheet(" QLabel { margin-top: 0.5em; }");
-    } else {
-        ts_ui_->errorLabel->setText(syntax_err_);
-        ts_ui_->errorLabel->setStyleSheet(QStringLiteral(
-                    "QLabel {"
-                    "  margin-top: 0.5em;"
-                    "  background-color: %2;"
-                    "}"
-                    )
-                .arg(ColorUtils::warningBackground().name())
-                );
-    }
+    ts_ui_->errorLabel->setText(syntax_err_);
+    ThemeManager::setNoticeState(ts_ui_->errorLabel, syntax_err_.isEmpty() ? QString() : QStringLiteral("error"));
     apply_button_->setEnabled(enable_apply);
 }
 

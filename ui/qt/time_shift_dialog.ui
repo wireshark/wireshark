@@ -18,8 +18,8 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0,2">
+     <item row="0" column="0">
       <widget class="QRadioButton" name="shiftAllButton">
        <property name="text">
         <string>Shift all packets by</string>
@@ -29,170 +29,109 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1" colspan="3">
       <widget class="SyntaxLineEdit" name="shiftAllTimeLineEdit"/>
      </item>
-     <item>
+     <item row="1" column="1" colspan="3">
       <widget class="QLabel" name="label_6">
        <property name="text">
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[-][[hh:]mm:]ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_4">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+     <item row="2" column="0">
       <widget class="QRadioButton" name="setOneButton">
        <property name="text">
         <string>Set the time for packet</string>
        </property>
       </widget>
      </item>
-     <item>
+     <item row="2" column="1">
       <widget class="SyntaxLineEdit" name="setOneFrameLineEdit"/>
      </item>
-     <item>
+     <item row="2" column="2">
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>to</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="SyntaxLineEdit" name="setOneTimeLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
+     <item row="2" column="3">
+      <widget class="SyntaxLineEdit" name="setOneTimeLineEdit"/>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QCheckBox" name="setTwoCheckBox">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="text">
-        <string>…then set packet</string>
-       </property>
-      </widget>
+     <item row="3" column="0">
+      <layout class="QHBoxLayout" name="setTwoLayout">
+       <item>
+        <widget class="QCheckBox" name="setTwoCheckBox">
+         <property name="text">
+          <string>…then set packet</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-     <item>
+     <item row="3" column="1">
       <widget class="SyntaxLineEdit" name="setTwoFrameLineEdit"/>
      </item>
-     <item>
+     <item row="3" column="2">
       <widget class="QLabel" name="setTwoToLabel">
        <property name="text">
         <string>to</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="SyntaxLineEdit" name="setTwoTimeLineEdit">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-      </widget>
+     <item row="3" column="3">
+      <widget class="SyntaxLineEdit" name="setTwoTimeLineEdit"/>
      </item>
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>28</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
+     <item row="4" column="0" colspan="3">
+      <layout class="QHBoxLayout" name="extrapolateLayout">
+       <item>
+        <widget class="QLabel" name="extrapolateLabel">
+         <property name="text">
+          <string>and extrapolate the time for all other packets</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_4">
-     <item>
-      <widget class="QLabel" name="extrapolateLabel">
-       <property name="text">
-        <string>and extrapolate the time for all other packets</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>60</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
+     <item row="4" column="3">
       <widget class="QLabel" name="label_5">
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="4">
+      <widget class="QRadioButton" name="unshiftAllButton">
+       <property name="text">
+        <string>Undo all shifts</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
-    <widget class="QRadioButton" name="unshiftAllButton">
+    <widget class="QLabel" name="errorLabel">
      <property name="text">
-      <string>Undo all shifts</string>
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <item>
-      <widget class="QLabel" name="errorLabel">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_5">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
