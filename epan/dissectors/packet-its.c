@@ -8521,7 +8521,7 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *act
   uint8_t version = tvb_get_uint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
-    return test_offset;
+    return test_offset << 3;
   }
   // Lets try it that way, regarless of version value...
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -8532,10 +8532,10 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *act
   its_header_t *its_hdr = its_get_private_data(actx->pinfo);
   int data_offset = dissector_try_uint(its_msgid_subdissector_table, (its_hdr->version << 16)+its_hdr->msgId, next_tvb, actx->pinfo, tree);
   if (!data_offset) {
-    proto_tree_add_expert(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0,  - 1);
+    proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0);
     data_offset = call_data_dissector(next_tvb, actx->pinfo, tree);
   }
-  offset += data_offset;
+  offset += data_offset << 3;
 
 
   return offset;
@@ -25808,7 +25808,7 @@ dsrc_velocity_fmt(char *s, uint32_t v)
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     double vms = v * 0.02;
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%u)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %dkm/h (%u)",
             vms, (int)lround(vms * 3.6), v);
   }
 }
@@ -31282,8 +31282,8 @@ void proto_register_its(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ivi_LaneIds_item,
-      { "LaneID", "ivi.LaneID_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "LaneID", "ivi.LaneID",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_ivi_LanePositions_item,
       { "LanePosition", "ivi.LanePosition",
@@ -34045,8 +34045,8 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, VALS(cpmv1_LongitudinalLanePositionConfidence_vals), 0,
         NULL, HFILL }},
     { &hf_cpmv1_laneID,
-      { "laneID", "cpmv1.laneID_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "laneID", "cpmv1.laneID",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_cpmv1_longitudinalLanePosition,
       { "longitudinalLanePosition", "cpmv1.longitudinalLanePosition_element",
@@ -34105,36 +34105,36 @@ void proto_register_its(void)
         FT_UINT32, BASE_DEC, VALS(cpmv1_OtherSublassType_vals), 0,
         "OtherSublassType", HFILL }},
     { &hf_cpmv1_nodeOffsetPointxy,
-      { "nodeOffsetPointxy", "cpmv1.nodeOffsetPointxy_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "nodeOffsetPointxy", "cpmv1.nodeOffsetPointxy",
+        FT_UINT32, BASE_DEC, VALS(dsrc_NodeOffsetPointXY_vals), 0,
         NULL, HFILL }},
     { &hf_cpmv1_nodeOffsetPointZ,
       { "nodeOffsetPointZ", "cpmv1.nodeOffsetPointZ",
         FT_UINT32, BASE_DEC, VALS(cpmv1_NodeOffsetPointZ_vals), 0,
         NULL, HFILL }},
     { &hf_cpmv1_node_Z1,
-      { "node-Z1", "cpmv1.node_Z1_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z1", "cpmv1.node_Z1",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B10", HFILL }},
     { &hf_cpmv1_node_Z2,
-      { "node-Z2", "cpmv1.node_Z2_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z2", "cpmv1.node_Z2",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B11", HFILL }},
     { &hf_cpmv1_node_Z3,
-      { "node-Z3", "cpmv1.node_Z3_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z3", "cpmv1.node_Z3",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B12", HFILL }},
     { &hf_cpmv1_node_Z4,
-      { "node-Z4", "cpmv1.node_Z4_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z4", "cpmv1.node_Z4",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B13", HFILL }},
     { &hf_cpmv1_node_Z5,
-      { "node-Z5", "cpmv1.node_Z5_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z5", "cpmv1.node_Z5",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B14", HFILL }},
     { &hf_cpmv1_node_Z6,
-      { "node-Z6", "cpmv1.node_Z6_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "node-Z6", "cpmv1.node_Z6",
+        FT_INT32, BASE_DEC, NULL, 0,
         "Offset_B16", HFILL }},
 
 /* --- Module CPM-PDU-Descriptions --- --- ---                                */
