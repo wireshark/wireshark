@@ -1032,7 +1032,9 @@ Commit Check:
 
 Ubuntu GCC Build:
   extends: .build-ubuntu
-  rules: !reference [.if-merge-request]
+  rules:
+    - !reference [.if-merge-request]
+    - !reference [.if-daily-schedule]
   variables:
     CC: "gcc"
     CXX: "g++"
@@ -1176,7 +1178,9 @@ Clang ASAN Build:
   extends: .build-ubuntu
   tags:
     - saas-linux-medium-amd64
-  rules: !reference [.if-plain-merge-request]
+  rules:
+    - !reference [.if-plain-merge-request]
+    - !reference [.if-daily-schedule]
   needs:
     - job: "Commit Check"
       optional: true
