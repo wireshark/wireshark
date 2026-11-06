@@ -961,22 +961,24 @@ Commit Check:
 
 # Run only the coverage tests of suite_dissection.py that the changes can
 # affect (see test/dissection_select.py); every other test still runs. In
-# a merge request pipeline, including merge trains, the changes are those
-# since the MR's diff base; after a merge (a push to the default branch)
-# they are those since the previous tip of the branch. It sets
-# CHANGED_SINCE, which the test jobs pass to pytest. Other pipelines, and
-# any pipeline whose base is not available, run everything.
+# a merged results pipeline, including merge trains, the changes are those
+# since the head of the target branch, so that what the target branch
+# gained after the MR branched off does not count; in other merge request
+# pipelines they are those since the MR's diff base. After a merge (a push
+# to the default branch) they are those since the previous tip of the
+# branch. It sets CHANGED_SINCE, which the test jobs pass to pytest. Other
+# pipelines, and any pipeline whose base is not available, run everything.
 .changed-since:
   script:
     - |
       CHANGED_SINCE=""
-      base=""
+      bases=""
       if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ]; then
-        base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
+        bases="${CI_MERGE_REQUEST_TARGET_BRANCH_SHA:-} ${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
       elif [ "$CI_PIPELINE_SOURCE" = "push" ] && [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-        base="${CI_COMMIT_BEFORE_SHA:-}"
+        bases="${CI_COMMIT_BEFORE_SHA:-}"
       fi
-      if [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ]; then
+      if [ -n "$(echo $bases)" ]; then
         # The clone is shallow; fetch enough history to find the base, both
         # of the MR and of the checked-out commit (in a merge train that is
         # a new commit on top of the target branch and the MRs before it).
@@ -984,7 +986,15 @@ Commit Check:
           git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$CI_MERGE_REQUEST_IID/head" || true
         fi
         git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$CI_PIPELINE_ID" || true
-        if git -C "$CI_PROJECT_DIR" merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
+        base=""
+        for b in $bases; do
+          [ "$b" = "0000000000000000000000000000000000000000" ] && continue
+          if git -C "$CI_PROJECT_DIR" merge-base --is-ancestor "$b" HEAD 2>/dev/null; then
+            base=$b
+            break
+          fi
+        done
+        if [ -n "$base" ]; then
           CHANGED_SINCE="--changed-since=$base"
           # The tests run git as "user" in a checkout owned by root. Git
           # ignores safe.directory in the repository's own config and "user"
@@ -1001,13 +1011,14 @@ Commit Check:
   script:
     - |
       $ChangedSince = @()
-      $base = ""
+      $bases = @()
       if ($env:CI_PIPELINE_SOURCE -eq "merge_request_event") {
-        $base = "$env:CI_MERGE_REQUEST_DIFF_BASE_SHA"
+        $bases = @("$env:CI_MERGE_REQUEST_TARGET_BRANCH_SHA", "$env:CI_MERGE_REQUEST_DIFF_BASE_SHA")
       } elseif ($env:CI_PIPELINE_SOURCE -eq "push" -and $env:CI_COMMIT_BRANCH -eq $env:CI_DEFAULT_BRANCH) {
-        $base = "$env:CI_COMMIT_BEFORE_SHA"
+        $bases = @("$env:CI_COMMIT_BEFORE_SHA")
       }
-      if ($base -and $base -ne "0000000000000000000000000000000000000000") {
+      $bases = @($bases | Where-Object { $_ -and $_ -ne "0000000000000000000000000000000000000000" })
+      if ($bases.Count -gt 0) {
         # A failing git command must not stop the job; it only means
         # that everything runs.
         $savedPreference = $ErrorActionPreference
@@ -1021,9 +1032,12 @@ Commit Check:
           $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$($env:CI_MERGE_REQUEST_IID)/head" 2>&1
         }
         $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$($env:CI_PIPELINE_ID)" 2>&1
-        $null = git -C "$env:CI_PROJECT_DIR" merge-base --is-ancestor $base HEAD 2>&1
-        if ($LASTEXITCODE -eq 0) {
-          $ChangedSince = @("--changed-since=$base")
+        foreach ($base in $bases) {
+          $null = git -C "$env:CI_PROJECT_DIR" merge-base --is-ancestor $base HEAD 2>&1
+          if ($LASTEXITCODE -eq 0) {
+            $ChangedSince = @("--changed-since=$base")
+            break
+          }
         }
         $ErrorActionPreference = $savedPreference
       }
