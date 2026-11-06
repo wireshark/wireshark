@@ -78693,3 +78693,262 @@ class TestDissectIndigocareNetrix:
         assert lines[6] == '47\tUnexpected header 5'
         assert lines[8] == '49\tUnexpected header 34999'
         assert lines[10] == '51\tUnexpected header 37000'
+
+
+class TestDissectInfiniband:
+    '''InfiniBand (RRoCE over UDP 4791, RoCE v1 over ethertype 0x8915 and
+    ERF INFINIBAND / INFINIBAND_LINK records) from the synthetic capture
+    infiniband_coverage.pcapng.gz (made up addresses, see
+    mkinfiniband.py). Frames 1-58 every transport opcode, 59-87 AETH,
+    DCT, unknown opcodes and payload dispatch, 88-256 management
+    datagrams, 257-322 connection management and RC send reassembly (SMB
+    Direct), 323-349 RoCE v1 and LRH, 350-429 ERF records, 430-438 the
+    reproducers of the fixes.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('infiniband_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=300)
+
+    def test_infiniband_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or expert infos,
+        in one and two passes, with the same protocol and info columns.'''
+        columns = []
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+            columns.append(stdout)
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        assert columns[0] == columns[1]
+        protocols = [l.split('\t')[0] for l in columns[0].splitlines()]
+        assert len(protocols) == 438
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'RRoCE': 309, 'InfiniBand Link': 79, 'RoCE': 18,
+                          'InfiniBand': 15, 'SMBDirect': 10, 'UDP': 4,
+                          'IPv4': 2, 'ARP': 1}
+
+    def test_infiniband_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-58 carry every RC, UC, UD and RD (DCT) opcode with the
+        extended transport headers of its header sequence.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 58', '-Tfields', '-einfiniband.bth.opcode')
+        assert stdout.split() == [
+            '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
+            '16', '17', '18', '19', '20', '23', '28', '29', '32', '33', '34', '35',
+            '36', '37', '38', '39', '40', '41', '42', '43', '64', '65', '66', '67',
+            '68', '69', '70', '71', '72', '73', '74', '75', '76', '77', '78', '79',
+            '80', '81', '82', '83', '84', '92', '93', '100', '101']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'infiniband.bth.opcode in {3, 15, 17, 19, 28, 41, 67, 75, 82, 100} '
+                      '&& frame.number <= 58',
+                '-Tfields', '-einfiniband.bth.opcode', '-e_ws.col.info',
+                '-einfiniband.reth', '-einfiniband.aeth', '-einfiniband.atomiceth',
+                '-einfiniband.feth', '-einfiniband.immdt', '-einfiniband.rdeth',
+                '-einfiniband.deth')
+        names = ('RETH', 'AETH', 'AtomicETH', 'FETH', 'IMMDT', 'RDETH', 'DETH')
+        headers = {}
+        for line in stdout.splitlines():
+            f = line.split('\t')
+            headers[f[0]] = (f[1].split(' QP=')[0].strip(),
+                             [n for n, v in zip(names, f[2:]) if v])
+        assert headers == {
+            '3': ('RC Send Last Immediate', ['IMMDT']),
+            '15': ('RC RDMA Read Response Last', ['AETH']),
+            '17': ('RC Acknowledge', ['AETH']),
+            '19': ('RC Compare Swap', ['AtomicETH']),
+            '28': ('RC Flush', ['RETH', 'FETH']),
+            '41': ('UC RDMA Write Last Immediate', ['IMMDT']),
+            '67': ('DC Last Immediate', ['IMMDT', 'RDETH', 'DETH']),
+            '75': ('DC RDMA Write Only Immediate', ['RETH', 'IMMDT', 'RDETH', 'DETH']),
+            '82': ('DC Atomic Acknowledge', ['AETH', 'RDETH']),
+            '100': ('UD Send Only', ['DETH']),
+        }
+
+    def test_infiniband_aeth_syndromes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 59-71: ACK credits, RNR NAK timers, reserved and NAK error
+        codes (shown in the Info column for NAKs).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 59 && frame.number <= 71',
+                '-Tfields', '-e_ws.col.info', '-einfiniband.aeth.syndrome.opcode')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1] for r in rows] == ['0', '0', '1', '2', '3', '3', '3', '3', '3', '3', '1', '0', '2']
+        errors = [r[0].split('[')[1].split(']')[0] for r in rows if '[' in r[0]]
+        assert errors == ['Invalid Request', 'PSN Sequence Error', 'Remote Access Error',
+                          'Remote Operational Error', 'Invalid RD Request', 'Unknown (9)']
+
+    def test_infiniband_payload_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''Frames 76-87: the Ethernet over IB heuristic (IPv4, ARP, an
+        unknown ethertype, a non zero reserved field), Mellanox EoIB (a
+        complete frame and fragments) and an RC send that neither accepts.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 76 && frame.number <= 87',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            'UDP', 'ARP', 'RRoCE', 'RRoCE', 'RRoCE', 'UDP', 'RRoCE', 'RRoCE',
+            'RRoCE', 'RRoCE', 'RRoCE', 'RRoCE']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {76, 77, 81}', '-Tfields', '-eframe.protocols')
+        assert [l.split('infiniband:')[1] for l in stdout.splitlines()] == [
+            'ethertype:ip:udp:data', 'ethertype:arp',
+            'infiniband.eoib:eth:ethertype:ip:udp:data']
+
+    def test_infiniband_management(self, cmd_tshark, capture_file, test_env):
+        '''Frames 88-256: management classes (subnet management, directed
+        route, administration, performance, communication, vendor,
+        application and reserved).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'infiniband.mad.mgmtclass', '-Tfields', '-einfiniband.mad.mgmtclass')
+        classes = stdout.split()
+        counts = {c: classes.count(c) for c in set(classes)}
+        assert counts['0x01'] == 68 and counts['0x81'] == 17 and counts['0x03'] == 58
+        assert counts['0x04'] == 11 and counts['0x07'] == 36
+        for c in ('0x00', '0x02', '0x05', '0x06', '0x08', '0x09', '0x0a', '0x0f',
+                  '0x10', '0x20', '0x2f', '0x30', '0x40', '0x4f', '0x50', '0x60',
+                  '0x80', '0x82', '0xff'):
+            assert counts[c] == 1
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {88, 89, 90, 91, 92, 104, 153, 170, 228, 230, 240, 250}',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'UD Send Only QP=0x000000 SubnGet(NodeDescription)',
+            'UD Send Only QP=0x000000 SubnSet(NodeInfo)',
+            'UD Send Only QP=0x000000 SubnGetResp(SwitchInfo)',
+            'UD Send Only QP=0x000000 SubnTrap(GUIDInfo)',
+            'UD Send Only QP=0x000000 SubnTrapResp(PortInfo)',
+            'UD Send Only QP=0x000000 SubnTrap(Notice)',
+            'UD Send Only QP=0x000000 SubnGet(NodeDescription)',
+            'UD Send Only QP=0x000001 SubnAdmGet(ClassPortInfo)',
+            'PERF (ClassPortInfo)',
+            'PERF (PortCounters)',
+            'VENDOR (Unknown Attribute)',
+            'RESERVED (Unknown Attribute)']
+
+    def test_infiniband_multipath_gids(self, cmd_tshark, capture_file, test_env):
+        '''MultiPathRecord source and destination GID counts.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'infiniband.multipathrecord.sgidcount', '-Tfields', '-eframe.number',
+                '-einfiniband.multipathrecord.sgidcount', '-einfiniband.multipathrecord.dgidcount')
+        assert stdout.splitlines() == ['191\t0x01\t0x01', '201\t0x00\t0x00',
+                '202\t0x01\t0x01', '203\t0x02\t0x03', '204\t0x03\t0x02']
+
+    def test_infiniband_cm(self, cmd_tshark, capture_file, test_env):
+        '''Connection management: IP CM service ids (port shown), the plain
+        service id, and the REQ/REP/RTU/DREQ/DREP/REJ names.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'infiniband.cm.req.serviceid', '-Tfields', '-eframe.number',
+                '-einfiniband.cm.req.serviceid', '-einfiniband.cm.req.serviceid.dport',
+                '-einfiniband.cm.req.localqpn')
+        assert stdout.splitlines() == [
+            '257\t0x0000000001061389\t0x1389\t0x000710',
+            '267\t0x0000000001061f90\t0x1f90\t0x000730',
+            '277\t0x0000000000000abc\t\t0x000750',
+            '284\t0x0000000000000abc\t\t0x000751',
+            '300\t0x0000000000000abc\t\t0x000780',
+            '301\t0x0000000000000abc\t\t0x000780',
+            '303\t0x0000000000000445\t\t0x000a20',
+            '430\t0x0000000000000abc\t\t0x000100']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 257 && frame.number <= 266 && infiniband.mad.attributeid',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'CM: ConnectRequest', 'CM: ConnectReply', 'CM: ReadyToUse',
+            'CM: DisconnectRequest', 'CM: DisconnectReply']
+
+    def test_infiniband_rc_send_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SMB Direct data messages are reassembled by the InfiniBand RC
+        send reassembly: 4 fragments (355 octets) in frames 307-310, and
+        shorter messages in 312-313, 314-315 and 321-322 (the one without
+        a CM exchange).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'infiniband.rc_send.reassembled_in || infiniband.rc_send.reassembled.length',
+                '-Tfields', '-eframe.number', '-einfiniband.rc_send.reassembled_in',
+                '-einfiniband.rc_send.fragment.count', '-einfiniband.rc_send.reassembled.length',
+                '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '307\t310\t\t\tRRoCE', '308\t310\t\t\tRRoCE', '309\t310\t\t\tRRoCE',
+            '310\t\t4\t355\tSMBDirect', '312\t313\t\t\tRRoCE', '313\t\t2\t169\tSMBDirect',
+            '314\t315\t\t\tRRoCE', '315\t\t2\t138\tSMBDirect',
+            '321\t322\t\t\tRRoCE', '322\t\t2\t148\tSMBDirect']
+
+    def test_infiniband_rc_send_incomplete(self, cmd_tshark, capture_file, test_env):
+        '''Frames 435-437 (the reproducer of "InfiniBand: Fix uninitialized
+        read and multi-pass state in CM and RC send"): an SMB Direct stream
+        whose SEND FIRST and SEND MIDDLE are never completed. The first
+        pass cleared the visited flag and added the fragments to the
+        reassembly again on later passes. Nothing is reassembled, and the
+        frames look the same in both passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 435 && frame.number <= 437', '-Tfields',
+                    '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-einfiniband.rc_send.reassembled_in', '-einfiniband.rc_send.fragment.count')
+            out.append(stdout)
+        assert out[0] == out[1]
+        assert out[0].splitlines() == [
+            '435\tSMBDirect\tDataMessage\t\t',
+            '436\tRRoCE\tRC Send First QP=0x000b00 \t\t',
+            '437\tRRoCE\tRC Send Middle QP=0x000b00 \t\t']
+
+    def test_infiniband_trap259(self, cmd_tshark, capture_file, test_env):
+        '''Frame 438: Trap 259 DataValid and SWLIDADDR are 16 bit fields.
+        They were registered as IPv6 addresses before the fix, which made
+        the frame malformed.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 438 && !_ws.malformed', '-Tfields',
+                '-einfiniband.trap.datavalid', '-einfiniband.trap.swlidaddr',
+                '-einfiniband.trap.pkey', '-einfiniband.trap.portno')
+        assert stdout.splitlines() == ['0x1234\t0xbeef\t0x8001\t0x07']
+
+    def test_infiniband_cm_ipv4_req_ipv6_rep(self, cmd_tshark, capture_file, test_env):
+        '''Frames 430-434: a CM REP over IPv6 whose transaction id and
+        destination hash to the key of an IPv4 REQ. The REP used 16 bytes of
+        a GID that had only 4 bytes set (uninitialised heap before the fix;
+        run under valgrind or ASAN to see it).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 430 && frame.number <= 434', '-Tfields',
+                '-e_ws.col.protocol', '-e_ws.col.info', '-eip.src', '-eipv6.src')
+        assert stdout.splitlines() == [
+            'RRoCE\tCM: ConnectRequest\t192.0.2.1\t',
+            'RRoCE\tCM: ConnectReply\t\t2001:db8::2',
+            'RRoCE\tRC Send Only QP=0x000100 \t\t2001:db8::2',
+            'RRoCE\tRC Send Only QP=0x000200 \t\t2001:db8::1',
+            'RRoCE\tRC Send Only QP=0x000200 \t192.0.2.1\t']
+
+    def test_infiniband_roce_and_erf(self, cmd_tshark, capture_file, test_env):
+        '''RoCE v1 (GRH) frames 323-328, LRH frames 334-349 (local, global,
+        IPv6 and raw next headers) and ERF link packets: flow control,
+        reserved operands and link packets that look like route packets.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 323 && frame.number <= 328', '-Tfields',
+                '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['RoCE'] * 6
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 351 && frame.number <= 354', '-Tfields',
+                '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'InfiniBand Link\t Normal Flow Control',
+            'InfiniBand Link\t Flow Control Init',
+            'InfiniBand Link\tUnknown (0x2)',
+            'InfiniBand Link\tUnknown (0x7)']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 334 && frame.number <= 349', '-Tfields',
+                '-e_ws.col.protocol')
+        assert set(stdout.split()) <= {'InfiniBand', 'RRoCE', 'IPv6', 'UDP', 'ARP', 'IPv4'}
+
+    def test_infiniband_decode_as_ip_proto(self, cmd_tshark, capture_file, test_env):
+        '''RRoCE without UDP is not reached by default (frames 329-330 are
+        plain IPv4); Decode As ip.proto 254 selects InfiniBand.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 329 && frame.number <= 330',
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['IPv4', 'IPv4']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-d', 'ip.proto==254,infiniband',
+                '-Y', 'frame.number >= 329 && frame.number <= 330',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == ['RRoCE\tRC Send Only QP=0x000820 ',
+                                       'RRoCE\tUD Send Only QP=0x000820 ']
