@@ -429,14 +429,14 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	}
 	/* CTS flag is present? */
 	if (cts_delta_length != 0) {    /* need to test whether cts_delta_flag is true or false */
-		cts_flag = tvb_get_bits8(tvb, AU_HEADERS_LENGTH_SIZE*8 + header_len, 1); /*fetch 1 bit CTS flag  */
+		cts_flag = tvb_get_bits8(tvb, poffset->offset_bytes*8 + poffset->offset_bits + header_len, 1); /*fetch 1 bit CTS flag  */
 		header_len += 1;         /* add CTS flag bit */
 		if (cts_flag == 1)
 			header_len += cts_delta_length; /* add CTS delta length bits if CTS flag SET */
 	}
 	/* DTS flag is present? */
 	if (dts_delta_length != 0) { /* need to test whether dts_delta_flag is true or false */
-		dts_flag = tvb_get_bits8(tvb, AU_HEADERS_LENGTH_SIZE*8 + header_len, 1); /*fetch 1 bit DTS flag */
+		dts_flag = tvb_get_bits8(tvb, poffset->offset_bytes*8 + poffset->offset_bits + header_len, 1); /*fetch 1 bit DTS flag */
 		header_len += 1;      /* add DTS flag bit */
 		if (dts_flag == 1)
 			header_len += dts_delta_length; /* add DTS delta length bits if DTS flag SET */
@@ -774,7 +774,7 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_cts_delta,
-		  { "CTS delta", "ismacryp.cts_delta", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "CTS delta", "ismacryp.cts_delta", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_cts_flag,
@@ -782,7 +782,7 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_dts_delta,
-		  { "DTS delta", "ismacryp.dts_delta", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "DTS delta", "ismacryp.dts_delta", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_dts_flag,
@@ -794,7 +794,7 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_stream_state,
-		  { "Stream state", "ismacryp.stream_state", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "Stream state", "ismacryp.stream_state", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_au_is_encrypted,
@@ -810,15 +810,15 @@ void proto_register_ismacryp (void)
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_padding_bitcount,
-		  { "Padding_bitcount bits", "ismacryp.padding_bitcount", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "Padding_bitcount bits", "ismacryp.padding_bitcount", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_padding,
-		  { "Padding bits", "ismacryp.padding", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "Padding bits", "ismacryp.padding", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_reserved_bits,
-		  { "Reserved bits", "ismacryp.reserved", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+		  { "Reserved bits", "ismacryp.reserved", FT_UINT64, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_ismacryp_unused_bits,
