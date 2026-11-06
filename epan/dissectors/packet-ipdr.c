@@ -107,6 +107,7 @@ static int ett_ipdr_sf_ch_set;
 
 static expert_field ei_ipdr_message_id;
 static expert_field ei_ipdr_sf_ch_set;
+static expert_field ei_ipdr_len;
 
 static range_t *global_sessions_samis_type_1;
 
@@ -226,6 +227,10 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_cmts_host_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len > 0) {
         proto_tree_add_item(samis_type_1_tree, hf_ipdr_cmts_host_name, tvb, offset, len, ENC_ASCII);
         offset += len;
@@ -242,13 +247,21 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_cmts_ipv6_addr_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
-    if (len > 0) {
-        proto_tree_add_item(samis_type_1_tree, hf_ipdr_cmts_ipv6_addr, tvb, offset, len, ENC_NA);
-        offset += len;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
     }
+    if (len == 16) {
+        proto_tree_add_item(samis_type_1_tree, hf_ipdr_cmts_ipv6_addr, tvb, offset, len, ENC_NA);
+    }
+    offset += len;
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_cmts_md_if_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len > 0) {
         proto_tree_add_item(samis_type_1_tree, hf_ipdr_cmts_md_if_name, tvb, offset, len, ENC_ASCII);
         offset += len;
@@ -266,6 +279,10 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_cm_ipv6_addr_string_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len == 16) {
         proto_tree_add_item(samis_type_1_tree, hf_ipdr_cm_ipv6_addr, tvb, offset, len, ENC_NA);
     } else if (len > 0) {
@@ -276,6 +293,10 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_cm_ipv6_ll_addr_string_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len == 16) {
         proto_tree_add_item(samis_type_1_tree, hf_ipdr_cm_ipv6_ll_addr, tvb, offset, len, ENC_NA);
     } else if (len > 0) {
@@ -299,8 +320,12 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     offset += 8;
 
     len = tvb_get_ntohl(tvb, offset);
-    ti = proto_tree_add_item(samis_type_1_tree, hf_ipdr_sf_ch_set, tvb, offset, len + 4, ENC_NA);
+    ti = proto_tree_add_item(samis_type_1_tree, hf_ipdr_sf_ch_set, tvb, offset, (len > (unsigned)tvb_reported_length_remaining(tvb, offset + 4)) ? (unsigned)tvb_reported_length_remaining(tvb, offset) : len + 4, ENC_NA);
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len > 0 && len <= 255) {
         sf_ch_set_tree = proto_item_add_subtree(ti, ett_ipdr_sf_ch_set);
         proto_item_append_text (ti, ": ");
@@ -330,6 +355,10 @@ dissect_ipdr_samis_type_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item_ret_uint(samis_type_1_tree, hf_ipdr_service_class_name_len, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
     proto_item_append_text(ti, " bytes");
     offset += 4;
+    if (len > (unsigned)tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, ti, &ei_ipdr_len);
+        return tvb_captured_length(tvb);
+    }
     if (len > 0) {
         proto_tree_add_item(samis_type_1_tree, hf_ipdr_service_class_name, tvb, offset, len, ENC_ASCII);
         offset += len;
@@ -633,6 +662,7 @@ proto_register_ipdr(void)
 
     static ei_register_info ei[] = {
         { &ei_ipdr_message_id, { "ipdr.message_id.unknown", PI_PROTOCOL, PI_WARN, "Unknown message ID", EXPFILL }},
+        { &ei_ipdr_len, { "ipdr.length.invalid", PI_MALFORMED, PI_ERROR, "Length runs past the end of the data", EXPFILL }},
         { &ei_ipdr_sf_ch_set, { "ipdr.sf_ch_set.too_big", PI_PROTOCOL, PI_WARN, "SF Channel Set Too Big", EXPFILL }},
     };
 
