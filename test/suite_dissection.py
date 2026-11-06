@@ -83369,3 +83369,91 @@ class TestDissectIsdn:
         assert rows['11'] == 'I, N(R)=0, N(S)=0'
         assert rows['13'] == 'Configuration Request'
         assert rows['15'] == 'Echo Request'
+
+
+class TestDissectIsdnSup:
+    '''ISDN supplementary services (ETSI ROSE components in Q.931 FACILITY
+    messages in LAPD frames, link type LINUX_LAPD), from the synthetic
+    capture isdn_sup_coverage.pcap.gz. 185 frames. The local (ETSI)
+    operation codes are only dispatched to ISDN-SUP with the Q.932
+    preference q932.facility_encoding:ETSI; frames 156-168 carry the
+    Freephone operations with global operation codes, which are reached
+    at default preferences.'''
+
+    ETSI = ('-o', 'q932.facility_encoding:ETSI')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=(), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                '-r', capture_file('isdn_sup_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_isdn_sup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are Q.931 FACILITY messages; 135 of them reach
+        ISDN-SUP with the ETSI preference, 12 at default preferences. No
+        malformed packets or error expert infos, in one and two passes.'''
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                '-eframe.number')) == 185
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.protocols contains "isdn_sup"', '-eframe.number', opts=self.ETSI)
+        assert len(out) == 135
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.protocols contains "isdn_sup"', '-eframe.number')
+        assert out == [str(n) for n in range(156, 168)]
+        # at default preferences the local codes are decoded as QSIG (and
+        # fail); the global Freephone frames are clean
+        for opts, flt in (((), 'frame.number >= 156 && frame.number <= 167'),
+                          (self.ETSI, 'frame')):
+            for passes in ((), ('-2',)):
+                out = self._fields(cmd_tshark, capture_file, test_env,
+                        '(%s) && (_ws.malformed || _ws.expert.severity >= 0x00800000)' % flt,
+                        '-eframe.number', opts=opts, passes=passes)
+                assert count_output('\n'.join(out)) == 0
+
+    def test_isdn_sup_operations_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every operation and error code of the ETSI supplementary
+        services tables is dissected.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'isdn_sup.operation', '-eisdn_sup.operation', opts=self.ETSI)
+        ops = {int(x) for line in out for x in line.split(',')}
+        assert ops == {1, 2, 3, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 18, 19, 24,
+                       25, 26, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 43, 44, 45, 46}
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'isdn_sup.error', '-eisdn_sup.error', opts=self.ETSI)
+        errs = {int(x) for line in out for x in line.split(',')}
+        assert errs == {0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18,
+                        19, 20, 21, 23, 24, 26, 28, 29, 30, 31, 32, 44, 46, 48}
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1', '-e_ws.col.info', '-eisdn_sup.operation',
+                opts=self.ETSI)
+        assert out == ['TEI:64 I, N(R)=0, N(S)=0 | FACILITY\t30']
+
+    def test_isdn_sup_unsupported_types(self, cmd_tshark, capture_file, test_env):
+        '''An argument for an operation without argument PDU is reported
+        with the unsupported argument type expert info (it used the error
+        type one, "ISDN-SUP: Use the argument type expert info for
+        unsupported arguments"); the result and error ones are used for
+        results and errors of operations and errors that have no PDU.'''
+        for field, frames in (
+                ('arg_type', ['91', '93']),
+                ('result_type', ['116', '117', '118', '119']),
+                ('error_type', ['152', '153', '154', '155'])):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    'isdn_sup.unsupported.' + field, '-eframe.number',
+                    opts=self.ETSI)
+            assert out == frames
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 91', '-e_ws.expert.message', opts=self.ETSI)
+        assert out == ['UNSUPPORTED ARGUMENT TYPE (ETSI sup)']
+
+    def test_isdn_sup_freephone(self, cmd_tshark, capture_file, test_env):
+        '''The Freephone operations with global operation codes
+        0.4.0.210.1.1-4 are dissected at default preferences, three
+        encodings each; an unregistered global code is left undecoded.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 156 && frame.number <= 168',
+                '-eframe.number', '-e_ws.expert.message')
+        assert out[:12] == [str(n) + '\t' for n in range(156, 168)]
+        assert out[12] == '168\tUndecoded INV: 0.4.0.210.1.9'
