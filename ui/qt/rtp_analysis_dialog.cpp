@@ -297,6 +297,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     save_menu->addSeparator();
     save_menu->addAction(ui->actionSaveGraph);
     export_btn->setMenu(save_menu);
+    ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
 
     WiresharkMainWindow* ws_main_window = qobject_cast<WiresharkMainWindow*>(&parent);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &RtpAnalysisDialog::updateWidgets);
