@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/asn1.h>
 #include "packet-kerberos.h"
 #include "packet-ike.h"
@@ -75,6 +76,7 @@ static int ett_decrypt_kink_encrypt;
 
 static expert_field ei_kink_payload_length_small;
 static expert_field ei_kink_payload_length_mismatch;
+static expert_field ei_kink_too_many_payloads;
 
 
 /* Define the kink type value */
@@ -271,12 +273,21 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+#define KINK_MAX_PAYLOAD_DEPTH 64
+
 /* This part call the dissect payload function by next_payload value.
  * This function called by the respective function again.
  */
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, uint8_t next_payload, proto_tree *kink_tree){
+  if (next_payload != KINK_DONE &&
+      (pinfo->dissection_depth >= KINK_MAX_PAYLOAD_DEPTH ||
+       pinfo->dissection_depth + wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth)) {
+    proto_tree_add_expert(kink_tree, pinfo, &ei_kink_too_many_payloads, tvb, offset, 0);
+    return;
+  }
+  increment_dissection_depth(pinfo);
   switch(next_payload){
   case KINK_DONE:
     break;
@@ -308,6 +319,7 @@ control_payload(packet_info *pinfo, tvbuff_t *tvb, int offset, uint8_t next_payl
     dissect_payload_kink_not_defined(pinfo, tvb, offset, kink_tree);
     break;
   }
+  decrement_dissection_depth(pinfo);
 }
 
 static void
@@ -973,6 +985,7 @@ proto_register_kink(void) {
 
   static ei_register_info ei[] = {
      { &ei_kink_payload_length_small, { "kink.payload_length_small", PI_PROTOCOL, PI_WARN, "This Payload Length is too small", EXPFILL }},
+     { &ei_kink_too_many_payloads, { "kink.too_many_payloads", PI_PROTOCOL, PI_WARN, "Too many chained payloads, not dissecting further", EXPFILL }},
      { &ei_kink_payload_length_mismatch, { "kink.payload_length_mismatch", PI_PROTOCOL, PI_WARN, "This Payload Length is mismatch", EXPFILL }},
   };
 
@@ -988,7 +1001,6 @@ proto_register_kink(void) {
 }
 
 void proto_reg_handoff_kink(void) {
-  // If this is ever streamed (transported over TCP) we need to add recursion checks.
   dissector_add_uint_with_preference("udp.port", KINK_PORT, kink_handle);
 }
 
