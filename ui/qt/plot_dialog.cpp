@@ -1756,7 +1756,7 @@ void PlotDialog::on_moveDownwardsToolButton_clicked()
     }
 }
 
-void PlotDialog::on_rightButtonBox_helpRequested()
+void PlotDialog::on_leftButtonBox_helpRequested()
 {
     mainApp->helpTopicAction(HELP_STATS_PLOT_DIALOG);
 }

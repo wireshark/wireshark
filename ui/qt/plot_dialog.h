@@ -579,7 +579,7 @@ private slots:
     void on_moveDownwardsToolButton_clicked();
 
     /** @brief Open the dialog help page. */
-    void on_rightButtonBox_helpRequested();
+    void on_leftButtonBox_helpRequested();
 
     /** @brief Reset both axes (action triggered from menu or shortcut). */
     void on_actionReset_triggered() { resetAxes(); }

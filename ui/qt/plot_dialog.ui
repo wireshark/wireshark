@@ -91,7 +91,7 @@
      <item>
       <widget class="QDialogButtonBox" name="leftButtonBox">
        <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Reset</set>
+        <set>QDialogButtonBox::StandardButton::Help|QDialogButtonBox::StandardButton::Reset</set>
        </property>
       </widget>
      </item>
@@ -178,7 +178,7 @@
         <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Close|QDialogButtonBox::StandardButton::Help|QDialogButtonBox::StandardButton::Save</set>
+        <set>QDialogButtonBox::StandardButton::Close|QDialogButtonBox::StandardButton::Save</set>
        </property>
       </widget>
      </item>
