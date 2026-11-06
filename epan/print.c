@@ -112,7 +112,7 @@ static void write_specified_fields(fields_format format,
                                    FILE *fh,
                                    json_dumper *dumper);
 static void print_escaped_xml(FILE *fh, const char *unescaped_string);
-static void print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas);
+static void append_escaped_csv(wmem_strbuf_t *buf, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas);
 
 typedef void (*proto_node_value_writer)(proto_node *, write_json_data *);
 static void write_json_index(json_dumper *dumper, epan_dissect_t *edt);
@@ -2102,11 +2102,11 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
 }
 
 static void
-print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas)
+append_escaped_csv(wmem_strbuf_t *buf, const char *unescaped_string, char delimiter, char quote_char, bool escape_wsp, bool escape_formulas)
 {
     char *formula_string = NULL;
 
-    if (fh == NULL || unescaped_string == NULL) {
+    if (buf == NULL || unescaped_string == NULL) {
         return;
     }
 
@@ -2127,7 +2127,7 @@ print_escaped_csv(FILE *fh, const char *unescaped_string, char delimiter, char q
     } else {
         escaped_string = ws_escape_csv(NULL, unescaped_string, true, quote_char, true, escape_wsp);
     }
-    fputs(escaped_string, fh);
+    wmem_strbuf_append(buf, escaped_string);
     wmem_free(NULL, escaped_string);
     g_free(formula_string);
 }
@@ -2882,9 +2882,12 @@ static void proto_tree_get_node_field_values_split(proto_node *node, void *data)
 static void output_csv_row(output_fields_t *fields, GPtrArray **bucket,
                            GPtrArray **global_values, FILE *fh)
 {
+    /* Build the row, then write it with one call. See write_specified_fields(). */
+    wmem_strbuf_t *line = wmem_strbuf_new_sized(NULL, fields->fields->len);
+
     for (unsigned i = 0; i < fields->fields->len; ++i) {
         if (0 != i) {
-            fputc(fields->separator, fh);
+            wmem_strbuf_append_c(line, fields->separator);
         }
         /* Use instance-specific value if present, else global */
         GPtrArray *fv_p = bucket ? bucket[i] : NULL;
@@ -2896,10 +2899,12 @@ static void output_csv_row(output_fields_t *fields, GPtrArray **bucket,
                 wmem_strbuf_append_c(buf, fields->aggregator);
                 wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
             }
-            print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
+            append_escaped_csv(line, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
             wmem_strbuf_destroy(buf);
         }
     }
+    fwrite(wmem_strbuf_get_str(line), 1, wmem_strbuf_get_len(line), fh);
+    wmem_strbuf_destroy(line);
 }
 
 /* Write fields in split mode: one CSV row per message instance */
@@ -3044,9 +3049,16 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
 
     switch (format) {
     case FORMAT_CSV:
+    {
+        /* Build the row, then write it with one call. Each stdio call
+         * locks the stream, and with many fields a call per separator
+         * and value can cost more than formatting the values.
+         */
+        wmem_strbuf_t *line = wmem_strbuf_new_sized(NULL, fields->fields->len);
+
         for(i = 0; i < fields->fields->len; ++i) {
             if (0 != i) {
-                fputc(fields->separator, fh);
+                wmem_strbuf_append_c(line, fields->separator);
             }
             if (NULL != fields->field_values[i]) {
                 GPtrArray *fv_p;
@@ -3060,14 +3072,17 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
                         wmem_strbuf_append_c(buf, fields->aggregator);
                         wmem_strbuf_append(buf, (char *)g_ptr_array_index(fv_p, j));
                     }
-                    print_escaped_csv(fh, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
+                    append_escaped_csv(line, wmem_strbuf_get_str(buf), fields->separator, fields->quote, fields->escape, fields->escape_formulas);
                     wmem_strbuf_destroy(buf);
                 }
                 g_ptr_array_free(fv_p, true);  /* get ready for the next packet */
                 fields->field_values[i] = NULL;
             }
         }
+        fwrite(wmem_strbuf_get_str(line), 1, wmem_strbuf_get_len(line), fh);
+        wmem_strbuf_destroy(line);
         break;
+    }
     case FORMAT_XML:
         for(i = 0; i < fields->fields->len; ++i) {
             char *field = (char *)g_ptr_array_index(fields->fields, i);
