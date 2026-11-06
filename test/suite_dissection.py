@@ -80984,3 +80984,96 @@ class TestDissectIpmiSe:
         stdout = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 4', '-Tfields', '-eipmi.se13.data')
         assert stdout.split() == ['010203']
+
+
+class TestDissectIpmiSession:
+    '''IPMI v1.5 and v2.0 (RMCP+) session wrappers in RMCP class IPMI on
+    UDP 623, from the synthetic capture ipmi_session_coverage.pcapng.gz.
+    The authentication codes and payloads are placeholders.'''
+
+    @staticmethod
+    def sess_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_session_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_session_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frames decode as IPMB (IPMI messages) or RMCP+ (the other
+        payload types, encrypted payloads) without malformed packets or
+        error expert infos, in one and two passes, with and without the
+        bus commands.'''
+        for bus in ((), ('-o', 'ipmi.dissect_bus_commands:TRUE')):
+            rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                                    '_ws.col.protocol', extra=bus)
+            protocols = [r[1] for r in rows]
+            assert len(protocols) == 39
+            assert protocols.count('IPMB') == 19
+            assert protocols.count('RMCP+') == 20
+            for passes in ((), ('-2',)):
+                rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                        extra=(*bus, *passes),
+                        flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+                assert rows == []
+
+    def test_ipmi_session_v15(self, cmd_tshark, capture_file, test_env):
+        '''IPMI v1.5: the sequence number comes before the session ID,
+        the authentication code (16 octets) is present unless the type is
+        NONE, and the message length is one octet. Data after the
+        message is shown as a trailer.'''
+        rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                'ipmi_session.authtype', 'ipmi_session.id', 'ipmi_session.sequence',
+                'ipmi_session.authcode', 'ipmi_session.msg.len', 'ipmi_session.trailer',
+                flt='frame.number <= 12')
+        assert rows[0] == ['1', '0x00', '0x00000000', '0x00000000', '', '9', '']
+        assert rows[2] == ['3', '0x01', '0x11223344', '0x00000001',
+                           'a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5', '9', '']
+        assert [r[1] for r in rows[2:10:2]] == ['0x01', '0x02', '0x04', '0x05']
+        assert rows[10] == ['11', '0x00', '0x11223344', '0x00000009', '', '9', '000102']
+        assert rows[11][5] == '0'
+
+    def test_ipmi_session_rmcp_plus(self, cmd_tshark, capture_file, test_env):
+        '''RMCP+: the payload type (with the encryption and authentication
+        bits), session ID, sequence number and a 2 octet message length.
+        An encrypted payload is shown as data; the trailer after the
+        message is the confidentiality trailer or authentication code.'''
+        rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                'ipmi_session.payloadtype', 'ipmi_session.payloadtype.enc',
+                'ipmi_session.payloadtype.auth', 'ipmi_session.id',
+                'ipmi_session.msg.len', 'ipmi_session.trailer',
+                flt='frame.number >= 13 && frame.number <= 19')
+        assert [r[1:5] for r in rows] == [
+            ['0x00', 'False', 'False', '0x00000000'],
+            ['0x00', 'False', 'False', '0x00000000'],
+            ['0x00', 'False', 'True', '0xa0a1a2a3'],
+            ['0x00', 'False', 'True', '0xa0a1a2a3'],
+            ['0x00', 'True', 'False', '0xa0a1a2a3'],
+            ['0x00', 'True', 'True', '0xa0a1a2a3'],
+            ['0x00', 'False', 'False', '0x00000001'],
+        ]
+        assert rows[3][6] == 'a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a500000000'
+        assert rows[6][6] == '010203'
+
+    def test_ipmi_session_payload_types(self, cmd_tshark, capture_file, test_env):
+        '''Payload types other than IPMI (SOL, session setup, RAKP, OEM
+        handles, unknown) are named in the Info column and left as
+        data; the OEM Explicit type has an IANA number and payload ID.'''
+        rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.info', flt='frame.number >= 20 && frame.number <= 31')
+        assert [r[1].split('payload type: ')[1] for r in rows] == [
+            'SOL (serial over LAN)', 'RMCP+ Open Session Request',
+            'RMCP+ Open Session Response', 'RAKP Message 1', 'RAKP Message 2',
+            'RAKP Message 3', 'RAKP Message 4', 'OEM0 (OEM Payload)',
+            'OEM3 (OEM Payload)', 'OEM7 (OEM Payload)', 'Unknown', 'Unknown']
+        rows = self.sess_fields(cmd_tshark, capture_file, test_env,
+                'ipmi_session.oem.iana', 'ipmi_session.oem.payloadid',
+                'ipmi_session.id', 'ipmi_session.msg.len',
+                flt='ipmi_session.oem.iana')
+        assert rows == [
+            ['34', '00001bcd', '0200', '0x01020304', '16'],
+            ['35', '01020304', '0506', '0x01020304', '9'],
+            ['36', '01020304', '0506', '0x01020304', '16'],
+            ['37', '01020304', '0506', '0x01020304', '16'],
+        ]
