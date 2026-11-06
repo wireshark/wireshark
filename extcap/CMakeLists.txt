@@ -53,7 +53,7 @@ macro(set_common_executable_properties _executable _application)
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap/${_application_lower}
 		)
 		if(ENABLE_APPLICATION_BUNDLE)
-			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+			if(GENERATOR_IS_MULTI_CONFIG)
 				# Xcode
 				set_target_properties(${_executable} PROPERTIES
 					RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/$<CONFIG>/${_application}.app/Contents/MacOS/extcap

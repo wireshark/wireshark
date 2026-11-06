@@ -144,15 +144,15 @@ set(WIX_CANDLE_DEFINES
 	-dWiresharkMajorVersion=${PROJECT_MAJOR_VERSION}
 	-dWiresharkMinorVersion=${PROJECT_MINOR_VERSION}
 	-dAssetDir=${CMAKE_SOURCE_DIR}/packaging/wix
-	-dBuildOutputDir=${EXECUTABLE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}
+	-dBuildOutputDir=${DATAFILE_DIR}
 	-dStagingDatafileDir=${WIRESHARK_DATAFILE_DIR}
 	-dDiameterDir=${WIRESHARK_DATAFILE_DIR}/diameter
 	-dQualcommDir=${WIRESHARK_DATAFILE_DIR}/qualcomm
 	-dIconDir=${CMAKE_SOURCE_DIR}/resources/icons
-	-dQtTranslationDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
+	-dQtTranslationDir=${DATAFILE_DIR}/translations
 	-dRadiusDictDir=${WIRESHARK_DATAFILE_DIR}/radius
-	-dSnmpMibDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
-	-dUsersGuideDir=${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/doc/wsug_html_chunked
+	-dSnmpMibDir=${DATAFILE_DIR}/snmp/mibs
+	-dUsersGuideDir=${DATAFILE_DIR}/doc/wsug_html_chunked
 	${d_smi_dir}
 	${d_mmdbresolve_exe}
 	${d_vcredist_min_version}
@@ -215,7 +215,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# SNMPMibs.wxs. Collects all MIBs in "output" snmp/mibs
 		# directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/SNMPMibs.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/snmp/mibs
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${DATAFILE_DIR}/snmp/mibs
 					${WIX_HEAT_FLAGS} -cg CG.Plugins.SNMP -dr dirSnmpMibs -var var.SnmpMibDir
 					-out ${_wix_binary_dir}/SNMPMibs.wxs
 		)
@@ -247,7 +247,7 @@ macro( ADD_WIX_PACKAGE_TARGET )
 		# QtTranslation.wxs. Collects all Qt translation files in
 		# "output" translations directory. Generated with heat.exe
 		add_custom_command(OUTPUT ${_wix_binary_dir}/QtTranslation.wxs
-			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${ARCHIVE_OUTPUT_PATH}/${CMAKE_CFG_INTDIR}/translations
+			COMMAND ${WIX_HEAT_EXECUTABLE} dir ${DATAFILE_DIR}/translations
 					${WIX_HEAT_FLAGS} -cg CG.QtTranslations -dr dirTranslations -var var.QtTranslationDir
 					-out ${_wix_binary_dir}/QtTranslation.wxs
 		)
