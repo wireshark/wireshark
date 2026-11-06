@@ -1661,6 +1661,10 @@ ws_find_package(ZLIBNG ENABLE_ZLIBNG HAVE_ZLIBNG)
     ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
 #endif()
 
+# zstd compression. Find it before minizip-ng, which has its own copy of
+# the zstd DLL in our Windows vcpkg bundle.
+ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
+
 # Minizip-ng compression
 ws_find_package(Minizipng ENABLE_MINIZIPNG HAVE_MINIZIPNG)
 
@@ -1677,9 +1681,6 @@ ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4 "1.8.0")
 
 # Snappy compression
 ws_find_package(SNAPPY ENABLE_SNAPPY HAVE_SNAPPY)
-
-# zstd compression
-ws_find_package(ZSTD ENABLE_ZSTD HAVE_ZSTD "1.0.0")
 
 # Enhanced HTTP/2 dissection
 ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2 "1.11.0")
