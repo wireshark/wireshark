@@ -80250,3 +80250,55 @@ class TestDissectIpmiApp:
         lines = [l.strip() for l in stdout.splitlines()]
         assert lines.count('Embedded message: Rsp, Send Message, Command Completed Normally') == 2
         assert 'Embedded message: Rsp, Get Device ID, Command Completed Normally' in lines
+
+
+class TestDissectIpmiBridge:
+    '''IPMI NetFn Bridge (ICMB) commands, which are named but not decoded,
+    from the synthetic capture ipmi_bridge_coverage.pcapng.gz. The
+    commands are only dissected with ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def bridge_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_bridge_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_bridge_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IPMB and none is malformed or has an error
+        expert info, in one and two passes. A command with data has a
+        "parser not implemented" warning.'''
+        rows = self.bridge_fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.col.protocol', extra=self.BUS)
+        assert len(rows) == 190
+        assert all(r[1] == 'IPMB' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.bridge_fields(cmd_tshark, capture_file, test_env,
+                    extra=(*self.BUS, *passes),
+                    flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+        rows = self.bridge_fields(cmd_tshark, capture_file, test_env,
+                extra=self.BUS, flt='ipmi.parser_not_implemented')
+        assert len(rows) == 188
+
+    def test_ipmi_bridge_command_names(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the table is named; commands outside it are
+        "Unknown command"; the response shows its completion code.'''
+        rows = self.bridge_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.info', extra=self.BUS)
+        info = {r[0]: r[1] for r in rows}
+        assert info['1'] == 'Req, [ICMB] Get Bridge State'
+        assert info['2'] == 'Rsp, [ICMB] Get Bridge State, Invalid Command (c1h)'
+        assert info['4'] == 'Rsp, [ICMB] Set Bridge State, Command Completed Normally (00h)'
+        assert info['35'] == 'Req, [ICMB] Bridge Request'
+        assert info['36'] == 'Rsp, [ICMB] Bridge Request, Invalid Command (c1h)'
+        assert info['177'] == 'Req, [ICMB] Error Report'
+        names = [i for n, i in info.items() if int(n) <= 178 and i.startswith('Req, ')]
+        assert len(names) == 89
+        assert sum('OEM Command' in n for n in names) == 63
+        assert [info[str(n)] for n in (179, 181, 183, 185)] == ['Req, Unknown command'] * 4
+        assert info['189'] == 'Req, [ICMB] Get ICMB Address'
