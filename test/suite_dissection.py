@@ -78952,3 +78952,130 @@ class TestDissectInfiniband:
                 '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
         assert stdout.splitlines() == ['RRoCE\tRC Send Only QP=0x000820 ',
                                        'RRoCE\tUD Send Only QP=0x000820 ']
+
+
+class TestDissectInfinibandSdp:
+    '''Infiniband SDP (Sockets Direct Protocol) from the synthetic capture
+    infiniband_sdp_coverage.pcapng.gz: RRoCE (UDP 4791) and RoCE v1
+    connections whose CM service id is 0x0000000000010000 | port. The Hello
+    and HelloAck travel in the private data of the CM REQ and REP, the other
+    messages in RC sends; the Infiniband heuristics find them without Decode
+    As. Frames 1-123 are three connections (RRoCE v4, v6 and RoCE v1) with
+    every MID in both directions, 124-152 flags, MID ranges, Hello
+    variants, 153-157 traffic that is not SDP, 158-161 the reproducers of
+    the fixes.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('infiniband_sdp_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=300)
+
+    def test_sdp_frames(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or expert infos in one and two passes, with
+        the same protocol and info columns. The CM messages are shown as
+        SDP too (their private data holds the Hello and HelloAck; the
+        all zero private data of the RTU and the disconnect messages also
+        passes as a Hello).'''
+        columns = []
+        for passes in ((), ('-2',)):
+            columns.append(self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info'))
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        assert columns[0] == columns[1]
+        protocols = [l.split('\t')[0] for l in columns[0].splitlines()]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'SDP': 156, 'RRoCE': 5}
+        infos = columns[0].splitlines()
+        assert infos[0] == 'SDP\tCM: ConnectRequest(SDP Hello)'
+        assert infos[1] == 'SDP\tCM: ConnectReply(SDP HelloAck)'
+        assert infos[3] == 'SDP\tRC Send Only QP=0x000200 (SDP Hello)'
+
+    def test_sdp_mids(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-41: the MID of every message of the RRoCE v4 connection,
+        in both directions, and the message names in the Info column.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 41', '-Tfields', '-einfiniband_sdp.bsdh.mid')
+        mids = ['0x00', '0x01', '0x00'] + [m for m in (
+            '0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08',
+            '0x09', '0x0a', '0x0b', '0x0c', '0x0d', '0x0e', '0xfd', '0xfe', '0xff')
+            for _ in (0, 1)] + ['0x00', '0x00']
+        assert stdout.split() == mids
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4 && frame.number <= 39 && frame.number % 2 == 0',
+                '-Tfields', '-e_ws.col.info')
+        assert [l.split('(SDP ')[1].rstrip(')') for l in stdout.splitlines()] == [
+            'Hello', 'HelloAck', 'DisConn', 'AbortConn', 'SendSm', 'RdmaWrCompl',
+            'RdmaRdCompl', 'ModeChange', 'SrcAvailCancel', 'SinkAvailCancel',
+            'SinkCancelAck', 'ChRcvBuf', 'ChRcvBufAck', 'SuspComm', 'SuspCommAck',
+            'SinkAvail', 'SrcAvail', 'Data']
+
+    def test_sdp_hello_header(self, cmd_tshark, capture_file, test_env):
+        '''The Hello header of the CM REQ (frame 1): version, IP version,
+        capability bits, advertisements, receive sizes, port, addresses.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-Tfields',
+                '-einfiniband_sdp.hh.majv', '-einfiniband_sdp.hh.minv',
+                '-einfiniband_sdp.hh.ipv', '-einfiniband_sdp.hh.cap',
+                '-einfiniband_sdp.hh.cap_invalidate', '-einfiniband_sdp.hh.cap_extmaxadverts',
+                '-einfiniband_sdp.hh.maxadverts', '-einfiniband_sdp.hh.desremrcvsz',
+                '-einfiniband_sdp.hh.localrcvsz', '-einfiniband_sdp.hh.localport',
+                '-einfiniband_sdp.hh.src_ip', '-einfiniband_sdp.hh.dst_ip',
+                '-einfiniband_sdp.hh.extmaxadverts')
+        assert stdout.splitlines() == [
+            '0x01\t0x00\t0x04\t0x03\t0x01\t0x01\t0x1f\t32768\t16384\t5000\t'
+            '::192.0.2.1\t::192.0.2.2\t0x0102']
+
+    def test_sdp_flags(self, cmd_tshark, capture_file, test_env):
+        '''Frames 127-133: every flag combination of the BSDH.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 127 && frame.number <= 133', '-Tfields',
+                '-einfiniband_sdp.bsdh.flags', '-einfiniband_sdp.bsdh.oobpres',
+                '-einfiniband_sdp.bsdh.oobpend', '-einfiniband_sdp.bsdh.reqpipe')
+        assert stdout.splitlines() == [
+            '0x00\t0x00\t0x00\t0x00', '0x01\t0x01\t0x00\t0x00', '0x02\t0x00\t0x01\t0x00',
+            '0x04\t0x00\t0x00\t0x01', '0x07\t0x01\t0x01\t0x01', '0xf8\t0x00\t0x00\t0x00',
+            '0xff\t0x01\t0x01\t0x01']
+
+    def test_sdp_mid_ranges(self, cmd_tshark, capture_file, test_env):
+        '''MIDs 0x0f-0x3f and 0x80-0xfc are Reserved, 0x40-0x7f Experimental.
+        The range strings were binary numbers written in hexadecimal and
+        matched nothing ("Unknown") before "InfiniBand SDP: Fix MID ranges
+        and ModeChange subtree".'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 134 && frame.number <= 142 || frame.number >= 159',
+                '-Tfields', '-einfiniband_sdp.bsdh.mid', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1].split('(SDP ')[1].rstrip(')')) for r in rows] == [
+            ('0x0f', 'Reserved'), ('0x10', 'Reserved'), ('0x3f', 'Reserved'),
+            ('0x40', 'Experimental'), ('0x41', 'Experimental'), ('0x7f', 'Experimental'),
+            ('0x80', 'Reserved'), ('0x81', 'Reserved'), ('0xfc', 'Reserved'),
+            ('0x20', 'Reserved'), ('0x50', 'Experimental'), ('0xa0', 'Reserved')]
+
+    def test_sdp_mode_change_subtree(self, cmd_tshark, capture_file, test_env):
+        '''The ModeChange header is a child of the SDP item, like the other
+        headers, not of the BSDH item (frame 18).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 18', '-V', '-O', 'infiniband_sdp')
+        lines = stdout.splitlines()
+        bsdh = [l for l in lines if l.strip() == 'BSDH'][0]
+        mch = [l for l in lines if l.strip() == 'ModeChange Header'][0]
+        assert len(bsdh) - len(bsdh.lstrip()) == len(mch) - len(mch.lstrip()) == 4
+
+    def test_sdp_not_sdp(self, cmd_tshark, capture_file, test_env):
+        '''Frames 153-157: a connection with the iSER service id and a frame
+        without a connection are not SDP; with Decode As they are.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 153 && frame.number <= 157',
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['RRoCE'] * 5
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'infiniband.try_heuristic_first:FALSE', '-d', 'infiniband,infiniband_sdp',
+                '-Y', 'frame.number >= 155 && frame.number <= 157',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'SDP\tRC Send Only QP=0x000240 (SDP Data)',
+            'SDP\tRC Send Only QP=0x000140 (SDP DisConn)',
+            'SDP\tRC Send Only QP=0x000fff (SDP Data)']
