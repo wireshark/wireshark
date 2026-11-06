@@ -1289,4 +1289,7 @@ proto_register_WMIO (void)
     proto_WMIO = proto_register_protocol ("WMIO", "WMIO", "WMIO");
     proto_register_field_array (proto_WMIO, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    /* The marshaler list is per file; register before any packet
+     * needs it, not only when an IWbemServices reply is seen. */
+    register_init_routine(register_dcom_wmio);
 }
