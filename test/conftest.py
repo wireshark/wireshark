@@ -42,6 +42,48 @@ def pytest_addoption(parser):
     parser.addoption('--enable-release', action='store_true',
         help='Enable release tests'
     )
+    parser.addoption('--changed-since', metavar='REF',
+        help='Skip the coverage classes of suite_dissection.py that the files'
+             ' changed since REF cannot affect (see test/dissection_select.py)'
+    )
+    parser.addoption('--changed-since-sample', metavar='N', type=int, default=25,
+        help='With --changed-since, the number of other coverage classes to run'
+             ' when files outside the dissectors that tshark uses changed'
+             ' (default %(default)s)'
+    )
+
+
+def _dissection_skip(config):
+    '''Coverage classes to skip with --changed-since, computed once.'''
+    if not hasattr(config, '_dissection_skip'):
+        ref = config.getoption('--changed-since')
+        if ref:
+            import dissection_select
+            config._dissection_skip = dissection_select.select(
+                ref, config.getoption('--changed-since-sample'))
+        else:
+            config._dissection_skip = (set(), None)
+    return config._dissection_skip
+
+
+def pytest_report_header(config):
+    return _dissection_skip(config)[1]
+
+
+def pytest_collection_modifyitems(config, items):
+    skip = _dissection_skip(config)[0]
+    if not skip:
+        return
+    keep, drop = [], []
+    for item in items:
+        if item.cls is not None and item.cls.__name__ in skip and \
+                os.path.basename(str(item.fspath)) == 'suite_dissection.py':
+            drop.append(item)
+        else:
+            keep.append(item)
+    if drop:
+        config.hook.pytest_deselected(items=drop)
+        items[:] = keep
 
 @pytest.fixture(scope='session')
 def capture_interface(request, cmd_dumpcap):

@@ -172,6 +172,25 @@ $ pytest --skip-missing-programs dumpcap,rawshark
 $ pytest --skip-missing-programs all
 ----
 
+The coverage tests in _suite_dissection.py_, the classes whose captures
+all have "_coverage" in their file name, can be limited to those that a
+change can affect. With `--changed-since` pytest skips the coverage
+classes whose dissectors are not among the files changed since the given
+commit, counting uncommitted changes too:
+
+[source,sh]
+----
+# Run only the coverage tests affected by the changes on this branch
+$ pytest --changed-since origin/master
+----
+
+Every other test still runs, and all of them run when a file outside the
+dissectors changed. _test/dissection_map.json_ lists the dissector files
+each coverage class exercises. After adding or changing coverage captures
+or their tests, regenerate it with
+`tools/gen-dissection-map.py --program-path /path/to/wireshark/build/run`;
+a class missing from the map always runs.
+
 To open a Python debugger (PDB) on failing tests, use the `--pdb` option and
 disable parallelism with the `-n0` option:
 
