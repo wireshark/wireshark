@@ -78116,3 +78116,90 @@ class TestDissectIlnp:
         assert grep_output(stdout, r'1111\+2222\+3333\+4444 +<-> aaaa\+bbbb\+cccc\+dddd +2 .* 6 .* 8 ')
         assert 'ILNP Endpoints' in stdout
         assert grep_output(stdout, r'All Node Identifiers +11 ')
+
+
+class TestDissectIlp:
+    '''ILP (OMA SUPL, unaligned PER) over TCP port 7276 and over HTTP (media
+    type application/oma-supl-ilp), from the synthetic capture
+    ilp_coverage.pcap.gz. 310 frames: handshakes, one PDU per segment,
+    several PDUs in one segment, PDUs split over two and three segments
+    (frames 253-267) and 20 HTTP POST requests with 20 responses
+    (frames 271-310) carrying ILP.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ilp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ilp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol counts, and no malformed packets or error expert
+        infos in the ILP frames and the RRLP and LPP payloads they carry,
+        in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                'frame', '-e_ws.col.protocol')
+        assert len(protocols) == 310
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['ILP'] == 260
+        assert counts['ILP/RRLP'] == 19
+        assert counts['ILP/LPP'] + counts['ILP/LPP/LPP'] + counts['ILP/LPP/LPP/LPP'] == 16
+        assert counts['TCP'] == 15
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    'ilp && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-eframe.number', passes=passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_ilp_messages(self, cmd_tshark, capture_file, test_env):
+        '''All ten ILP messages are decoded (Info column), over TCP and
+        over HTTP.'''
+        info = self._fields(cmd_tshark, capture_file, test_env,
+                'ilp', '-e_ws.col.info')
+        assert len(info) == 295
+        names = {n: sum(1 for i in info if i.strip() == n) for n in (
+            'msPREQ', 'msPRES', 'msPRPT', 'msPLREQ', 'msPLRES', 'msPINIT',
+            'msPAUTH', 'msPALIVE', 'msPEND', 'msPMESS')}
+        assert sum(names.values()) == 295
+        assert all(n > 10 for n in names.values())
+        for flt, n in (('ilp && !http', 255), ('ilp && http', 40),
+                       ('ilp && http.request', 20), ('ilp && http.response', 20)):
+            out = self._fields(cmd_tshark, capture_file, test_env, flt, '-eframe.number')
+            assert len(out) == n
+
+    def test_ilp_set_id(self, cmd_tshark, capture_file, test_env):
+        '''The SET identities: the IMSI goes to the E.212 dissector, the
+        MSISDN to E.164, and the MDN is shown as digits.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {5, 10, 11}', '-eframe.number',
+                '-eilp.imsi', '-ee212.imsi', '-eilp.msisdn', '-ee164.msisdn',
+                '-eilp.mobile_directory_number')
+        assert out == [
+            '5\t13200621436587f9\t310260123456789\t\t\t',
+            '10\t\t\t9421436587ffffff\t4912345678\t',
+            '11\t\t\t\t\t0123456789012345',
+        ]
+
+    def test_ilp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split over two segments (a first segment with the length
+        and part of the PDU) and over three segments (the first segment is
+        one octet, shorter than the length header) is dissected in its last
+        segment.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 253 && frame.number <= 267',
+                '-eframe.number', '-e_ws.col.protocol')
+        assert [o.split('\t')[1] for o in out] == [
+            'TCP', 'ILP', 'TCP', 'ILP', 'TCP', 'ILP',
+            'TCP', 'TCP', 'ILP/LPP/LPP/LPP',
+            'TCP', 'TCP', 'ILP', 'TCP', 'TCP', 'ILP']
+
+    def test_ilp_payloads(self, cmd_tshark, capture_file, test_env):
+        '''RRLP and LPP payloads of PosPayLoad and MultiPosPayLoad are
+        handed to their dissectors.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'rrlp', '-eframe.number')
+        assert len(out) == 19
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'lpp', '-eframe.number')
+        assert len(out) == 16
