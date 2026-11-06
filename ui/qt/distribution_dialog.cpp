@@ -22,7 +22,6 @@
 #include "progress_frame.h"
 #include <ui/qt/models/distribution_model.h>
 #include <ui/qt/models/percent_bar_delegate.h>
-#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/plot_theme.h>
 #include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/widgets/qcustomplot.h>
@@ -330,13 +329,7 @@ void DistributionDialog::checkFields()
         ui->fieldsErrorLabel->hide();
     } else {
         ui->fieldsErrorLabel->setText(message);
-        ui->fieldsErrorLabel->setStyleSheet(QStringLiteral(
-                    "QLabel {"
-                    "  background-color: %1;"
-                    "}"
-                    )
-                .arg(ColorUtils::warningBackground().name())
-                );
+        ThemeManager::setNoticeState(ui->fieldsErrorLabel, "error");
         ui->fieldsErrorLabel->show();
     }
     updateWidgets();

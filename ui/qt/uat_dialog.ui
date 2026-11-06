@@ -16,9 +16,6 @@
    </item>
    <item>
     <widget class="QLabel" name="hintLabel">
-     <property name="styleSheet">
-      <string notr="true">QLabel { color: red; }</string>
-     </property>
      <property name="text">
       <string/>
      </property>
