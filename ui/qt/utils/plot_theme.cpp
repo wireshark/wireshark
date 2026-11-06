@@ -75,9 +75,14 @@ void PlotTheme::apply(QCustomPlot *plot)
     }
 
     if (plot->legend) {
+        const QColor selected = ColorMath::ensureContrast(tm->color(ThemeManager::PaletteHighlight),
+                                                          base, ColorMath::activeRatios().nonText);
         plot->legend->setBrush(QBrush(base));
         plot->legend->setBorderPen(recolored(plot->legend->borderPen(), border));
         plot->legend->setTextColor(text);
+        plot->legend->setSelectedTextColor(text);
+        plot->legend->setSelectedBorderPen(recolored(plot->legend->selectedBorderPen(), selected));
+        plot->legend->setSelectedIconBorderPen(recolored(plot->legend->selectedIconBorderPen(), selected));
     }
 
     const QList<QCPLayoutElement *> elements = plot->plotLayout()->elements(true);
