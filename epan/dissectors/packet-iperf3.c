@@ -328,7 +328,7 @@ static int
 dissect_iperf3_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* The dissector needs a conversation, e.g. missing when called from Exported PDU */
-    if (find_conversation_pinfo(pinfo, 0) == NULL)
+    if (pinfo->ptype != PT_TCP || find_conversation_pinfo(pinfo, 0) == NULL)
         return 0;
 
     /*
@@ -418,7 +418,7 @@ dissect_iperf3_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     uint32_t nbytes = tvb_reported_length(tvb);
 
     /* The dissector needs a conversation, e.g. missing when called from Exported PDU */
-    if (find_conversation_pinfo(pinfo, 0) == NULL)
+    if (pinfo->ptype != PT_UDP || find_conversation_pinfo(pinfo, 0) == NULL)
         return 0;
 
     uint64_t maybe_sequence_num;
