@@ -448,6 +448,17 @@ def check_scap_event_block_options(request, cmd_strato, capture_file, test_env):
                 '-e', 'sysdig.event_data_len',
                 '-e', 'frame.comment',
             ), encoding='utf-8', env=test_env)
+
+    # libsinsp versions before 0.21 can't read this capture, because its
+    # section header block has options. The dissector reports that instead of
+    # extracting fields, so it can't tell which events are internal.
+    unreadable = subprocess.check_output((cmd_strato,
+            '-r', capture_file('curl_google_comments.scap.gz'),
+            '-Y', 'frame.number == 1 && falcoevents.capture_unreadable',
+            '-Tfields',
+            '-e', 'frame.number',
+        ), encoding='utf-8', env=test_env)
+    dump_comments_real.sinsp_can_read = unreadable.strip() == ''
     return dump_comments_real
 
 
@@ -463,6 +474,8 @@ class TestFileFormatScap:
 
     def test_scap_event_block_options_no_internal(self, check_scap_event_block_options):
         '''Check that hiding internal events hides their options too.'''
+        if not check_scap_event_block_options.sinsp_can_read:
+            pytest.skip('libsinsp cannot read this capture, so internal events are unknown')
         proc_stdout = check_scap_event_block_options('FALSE')
         assert 'Internal block comment' not in proc_stdout
         assert proc_stdout.strip().splitlines() == [
