@@ -285,7 +285,8 @@ workflow:
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
     - ninja
     - ninja test-programs
-    - pytest --enable-stratoshark --disable-capture --junitxml=../macos_tests.xml
+    - !reference [.changed-since, script]
+    - pytest --enable-stratoshark --disable-capture --junitxml=../macos_tests.xml $CHANGED_SINCE
   needs: []
 
 .build-mingw:
@@ -955,7 +956,7 @@ Commit Check:
     reports:
       junit: commit_checks.xml
 
-# In a merge request pipeline, other than a merge train, run only the
+# In a merge request pipeline, including merge trains, run only the
 # coverage tests of suite_dissection.py that the MR can affect (see
 # test/dissection_select.py); every other test still runs. It sets
 # CHANGED_SINCE, which the test jobs add to PYTEST_ADDOPTS. When the diff
@@ -966,10 +967,12 @@ Commit Check:
       CHANGED_SINCE=""
       base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
       if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ] && \
-         [ "$CI_MERGE_REQUEST_EVENT_TYPE" != "merge_train" ] && \
          [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ]; then
-        # The clone is shallow; fetch enough history to find the base.
+        # The clone is shallow; fetch enough history to find the base, both
+        # of the MR and of the checked-out commit (in a merge train that is
+        # a new commit on top of the target branch and the MRs before it).
         git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$CI_MERGE_REQUEST_IID/head" || true
+        git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$CI_PIPELINE_ID" || true
         if git -C "$CI_PROJECT_DIR" merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
           CHANGED_SINCE="--changed-since=$base"
           # The tests run git as "user" in a checkout owned by root. Git
@@ -980,6 +983,35 @@ Commit Check:
         fi
       fi
       echo "CHANGED_SINCE=$CHANGED_SINCE"
+
+# PowerShell version of .changed-since for the Windows jobs. It sets
+# $ChangedSince, the extra pytest arguments (empty: run everything).
+.changed-since-windows:
+  script:
+    - |
+      $ChangedSince = @()
+      $base = "$env:CI_MERGE_REQUEST_DIFF_BASE_SHA"
+      if ($env:CI_PIPELINE_SOURCE -eq "merge_request_event" -and $base -and
+          $base -ne "0000000000000000000000000000000000000000") {
+        # A failing git command must not stop the job; it only means
+        # that everything runs.
+        $savedPreference = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        # The checkout may belong to another user than the one running
+        # git; Git ignores safe.directory in the repository's own config.
+        $env:GIT_CONFIG_COUNT = "1"
+        $env:GIT_CONFIG_KEY_0 = "safe.directory"
+        $env:GIT_CONFIG_VALUE_0 = "*"
+        $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$($env:CI_MERGE_REQUEST_IID)/head" 2>&1
+        $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$($env:CI_PIPELINE_ID)" 2>&1
+        $null = git -C "$env:CI_PROJECT_DIR" merge-base --is-ancestor $base HEAD 2>&1
+        if ($LASTEXITCODE -eq 0) {
+          $ChangedSince = @("--changed-since=$base")
+        }
+        $ErrorActionPreference = $savedPreference
+      }
+      $global:LASTEXITCODE = 0
+      Write-Output "CHANGED_SINCE=$ChangedSince"
 
 Ubuntu GCC Build:
   extends: .build-ubuntu
@@ -1172,7 +1204,8 @@ Windows Build:
     - msbuild -property:Configuration=Debug Wireshark.slnx
     - msbuild -property:Configuration=Debug test-programs.vcxproj
     - C:\Windows\py.exe -m pip install --quiet jsonschema
-    - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml
+    - !reference [.changed-since-windows, script]
+    - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml @ChangedSince
     # Test CMake install code. The installation is tested in "Windows Install Test".
     # Run the cpack next to the cmake in use. Chocolatey also has a "cpack" command.
     - $cpack = Join-Path (Split-Path (Get-Command cmake).Source) cpack.exe
