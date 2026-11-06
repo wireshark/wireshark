@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_ipsictl(void);
 void proto_reg_handoff_ipsictl(void);
@@ -33,6 +34,8 @@ static int hf_ipsictl_type;
 static int hf_ipsictl_sequence;
 static int hf_ipsictl_field1;
 static int hf_ipsictl_data;
+
+static expert_field ei_ipsictl_bad_length;
 
 static int ett_ipsictl;
 static int ett_ipsictl_pdu;
@@ -75,6 +78,13 @@ static int dissect_ipsictl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     magic = tvb_get_ntohs(tvb, loffset); loffset+=2;
     length = tvb_get_ntohs(tvb, loffset); loffset+=2;
+    if (length < 6)
+    {
+      /* Too short to hold the type, sequence and field1 words */
+      proto_tree_add_expert_format_remaining(ipsictl_tree, pinfo, &ei_ipsictl_bad_length,
+        tvb, offset, "Invalid PDU length %u (less than 6)", length);
+      break;
+    }
     llength=length;
     remaining_length-=4;
     if (remaining_length>=2)
@@ -214,8 +224,17 @@ void proto_register_ipsictl(void)
     &ett_ipsictl_pdu
   };
 
+  static ei_register_info ei[] = {
+    { &ei_ipsictl_bad_length,
+      { "ipsictl.bad_length", PI_MALFORMED, PI_ERROR,
+        "Invalid PDU length", EXPFILL }},
+  };
+  expert_module_t *expert_ipsictl;
+
   proto_ipsictl = proto_register_protocol("IPSICTL", "IPSICTL", "ipsictl");
   proto_register_field_array(proto_ipsictl, hf, array_length(hf));
+  expert_ipsictl = expert_register_protocol(proto_ipsictl);
+  expert_register_field_array(expert_ipsictl, ei, array_length(ei));
   proto_register_subtree_array(ett, array_length(ett));
 
   ipsictl_handle = register_dissector("ipsictl", dissect_ipsictl, proto_ipsictl);
