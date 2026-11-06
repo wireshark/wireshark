@@ -261,6 +261,7 @@ typedef struct {
                                      XXX - allowed to default to session level if not
                                      overridden if only one media desc, but this is
                                      not implemented yet. */
+    char* key_mgmt;             /**< The key management data from the "a=key-mgmt:" line. */
     transport_media_pt_t media; /**< Information about payload numbers for this media. */
 
     /*
@@ -1500,6 +1501,7 @@ typedef struct {
 #define SDP_RTCP                11
 #define SDP_RTCP_MUX            12
 #define SDP_CONTROL             13
+#define SDP_KEY_MGMT            14
 
 static const sdp_names_t sdp_media_attribute_names[] = {
     { "Unknown-name"},    /* 0 Pad so that the real headers start at index 1 */
@@ -1516,6 +1518,7 @@ static const sdp_names_t sdp_media_attribute_names[] = {
     { "rtcp" },           /* 11 */
     { "rtcp-mux" },       /* 12 */
     { "control" },        /* 13 */
+    { "key-mgmt" },       /* 14 */
 };
 
 static int find_sdp_media_attribute_names(tvbuff_t *tvb, int offset, unsigned len)
@@ -2123,6 +2126,18 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
                                 tvb, offset, -1, ENC_UTF_8);
             break;
+        case SDP_KEY_MGMT:  {
+                if (media_desc) {
+                    media_desc->key_mgmt = wmem_ascii_strdown(wmem_file_scope(), attribute_value, -1);
+                }
+                tvbuff_t   *key_tvb;
+                proto_item *key_ti;
+                key_tvb = tvb_new_subset_remaining(tvb, offset);
+                key_ti = proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
+                                             tvb, offset, -1, ENC_UTF_8);
+                dissect_key_mgmt(key_tvb, pinfo, key_ti);
+                break;
+            }
         default:
             /* No special treatment for values of this attribute type, just add as one item. */
             proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
