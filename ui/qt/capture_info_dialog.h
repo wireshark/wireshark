@@ -128,6 +128,11 @@ private slots:
      */
     void stopCapture();
 
+    /**
+     * @brief Slot triggered when help is requested from the button box.
+     */
+    void on_buttonBox_helpRequested();
+
 private:
     /** Pointer to the generated UI elements. */
     Ui::CaptureInfoDialog *ui;

@@ -54,6 +54,7 @@ private slots:
 
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_accepted();
+    void on_buttonBox_helpRequested();
 
     void rowCountChanged();
     void invalidField(const QModelIndex &index, const QString &errMessage);

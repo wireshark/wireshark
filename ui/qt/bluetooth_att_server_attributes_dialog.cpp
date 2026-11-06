@@ -21,6 +21,8 @@
 
 #include "ui/simple_dialog.h"
 
+#include "main_application.h"
+
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -75,6 +77,7 @@ BluetoothAttServerAttributesDialog::BluetoothAttServerAttributesDialog(QWidget &
     ui(new Ui::BluetoothAttServerAttributesDialog)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     connect(ui->tableTreeWidget, &QTreeWidget::customContextMenuRequested, this, &BluetoothAttServerAttributesDialog::tableContextMenu);
@@ -435,4 +438,9 @@ void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
 void BluetoothAttServerAttributesDialog::on_buttonBox_clicked(QAbstractButton *)
 {
 /*    if (button == foo_button_) */
+}
+
+void BluetoothAttServerAttributesDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG);
 }

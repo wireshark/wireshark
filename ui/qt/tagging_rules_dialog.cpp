@@ -43,6 +43,7 @@ TaggingRulesDialog::TaggingRulesDialog(QWidget *parent) :
     tagRuleDelegate_(this)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 4 / 5);
 
     setWindowTitle(mainApp->windowTitleString(tr("Tagging Rules %1").arg(get_profile_name())));
@@ -383,6 +384,11 @@ void TaggingRulesDialog::on_buttonBox_accepted()
     if (coloring_accepted_cb_)
         coloring_accepted_cb_();
     done(QDialog::Accepted);
+}
+
+void TaggingRulesDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_TAGGING_RULES_DIALOG);
 }
 
 void TaggingRulesDialog::fontSizeChanged(int idx)

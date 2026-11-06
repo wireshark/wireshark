@@ -336,6 +336,21 @@ topic_action_url(topic_action_e action)
     case(HELP_STATS_DISTRIBUTION_DIALOG):
         url = user_guide_url("ChStatDistribution.html");
         break;
+    case(HELP_TAGGING_RULES_DIALOG):
+        url = user_guide_url("ChCustTaggingSection.html");
+        break;
+    case(HELP_STATS_RESOLVED_ADDRESSES_DIALOG):
+        url = user_guide_url("ChStatResolvedAddresses.html");
+        break;
+    case(HELP_BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG):
+        url = user_guide_url("ChWirelessBluetoothATTServerAttributes.html");
+        break;
+    case(HELP_BLUETOOTH_DEVICES_DIALOG):
+        url = user_guide_url("ChWirelessBluetoothDevices.html");
+        break;
+    case(HELP_BLUETOOTH_HCI_SUMMARY_DIALOG):
+        url = user_guide_url("ChWirelessBluetoothHCISummary.html");
+        break;
 
     case(TOPIC_ACTION_NONE):
     default:

@@ -38,6 +38,7 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, QString captur
     file_name_(tr("[no file]"))
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     QStringList title_parts = QStringList() << tr("Resolved Addresses");
@@ -242,4 +243,9 @@ void ResolvedAddressesDialog::saveAs()
     }
 
     addressView->saveAs();
+}
+
+void ResolvedAddressesDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_STATS_RESOLVED_ADDRESSES_DIALOG);
 }
