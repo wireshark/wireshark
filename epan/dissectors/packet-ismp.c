@@ -392,7 +392,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree 
 										ett_ismp_edp_neighbors_leaf, NULL, "Neighbor%d", (neighbors_count+1));
 
 				proto_tree_add_item(edp_neighbors_leaf_tree, hf_ismp_neighborhood_mac_address, tvb, offset, 6, ENC_NA);
-				proto_tree_add_item(edp_neighbors_leaf_tree, hf_ismp_assigned_neighbor_state, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_neighbors_leaf_tree, hf_ismp_assigned_neighbor_state, tvb, offset + 6, 4, ENC_BIG_ENDIAN);
 				offset += 10;
 				neighbors_count++;
 			}
