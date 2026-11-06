@@ -79470,3 +79470,160 @@ class TestDissectIpCoverage:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert '192.0.2.20' in stdout and '192.0.2.31' in stdout
         assert 'IPv4 Conversations' in stdout
+
+
+class TestDissectIpdc:
+    '''IPDC (IP Device Control) on TCP 6668 from the synthetic capture
+    ipdc_coverage.pcap.gz. Not the DVB IPDC (IP datacast) protocol.'''
+
+    @staticmethod
+    def ipdc_tree(cmd_tshark, capture_file, test_env, frame):
+        '''The lines of the IPDC "IPDC tags" subtree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % frame,
+                '-V', '-O', 'ipdc',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    IPDC tags')
+        return [l.strip() for l in lines[start + 1:]
+                if l.startswith('        ') and not l.startswith('         ')]
+
+    def test_ipdc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every data frame is IPDC (one carries a Q.931 message in a tag);
+        no malformed frames and no error expert infos, in one and two
+        passes, with and without TCP reassembly in IPDC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 47
+        assert protocols.count('IPDC') == 40
+        assert protocols.count('Q.931') == 1
+        for opts in ((), ('-o', 'ipdc.desegment_ipdc_messages:FALSE')):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                        '-r', capture_file('ipdc_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.short || '
+                              '_ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                if opts:
+                    # without reassembly the PDU over three segments is cut
+                    assert count_output(stdout) <= 3
+                else:
+                    assert count_output(stdout) == 0
+
+    def test_ipdc_message_codes(self, cmd_tshark, capture_file, test_env):
+        '''The message codes are named; an undefined code is UNDEFINED.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'ipdc', '-Tfields', '-eipdc.message_code',
+            ), encoding='utf-8', env=test_env)
+        codes = {c for l in stdout.splitlines() for c in l.split(',') if c}
+        assert len(codes) == 54
+        assert '0x0123' in codes and '0x00ff' in codes
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert 'SS -> GW: RCSI: Request inbound call setup' in stdout
+        assert 'TID=101' in stdout and 'r=0 s=2' in stdout
+
+    def test_ipdc_ack(self, cmd_tshark, capture_file, test_env):
+        '''A PDU of only four octets is an acknowledgement.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-Tfields', '-eipdc.nr', '-eipdc.ns', '-eipdc.length',
+                '-eipdc.message_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n') == '0\t1\t4\t'
+
+    def test_ipdc_integer_tags(self, cmd_tshark, capture_file, test_env):
+        '''Unsigned integer and byte tags of one to four octets, defined
+        and undefined enumerations, more than four octets (ignored).'''
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 19)
+        assert tags == [
+            'Protocol version (0x01): IPDC Version 0.12',
+            'Protocol version (0x01): 77',
+            'Maximum number of modules (slot cards) supported (0x04): 258',
+            'Module number (0x07): 66051',
+            'Line number (0x0d): 16909060',
+            'Primary SS TCP port (0x1c): 0',
+            'Module type (0x0a): Router Card',
+            'Module type (0x0a): 255',
+            'Module status (0x0c): 1',
+            'end of tags',
+        ]
+
+    def test_ipdc_ip_addresses(self, cmd_tshark, capture_file, test_env):
+        '''IP addresses of four octets, with a port (six octets) and
+        invalid lengths (warnings).'''
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 34)
+        assert tags[:2] == ['Primary SS IP address (0x1b): 192.0.2.7:6668',
+                            'DTMF send IP address (0x3a): 192.0.2.8:80']
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 35)
+        assert [t for t in tags if t.startswith(('Primary', 'Destination'))] == [
+            'Primary SS IP address (0x1b): Invalid IP address length 5',
+            'Destination listen IP address (0x5d): Invalid IP address length 0',
+            'Destination send IP address (0x5f): Invalid IP address length 8',
+        ]
+
+    def test_ipdc_status_arrays(self, cmd_tshark, capture_file, test_env):
+        '''Line status and channel status arrays with defined and
+        undefined values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 36',
+                '-Tfields', '-eipdc.line_status', '-eipdc.channel_status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('0,1,2,3,4,5,6,9\t'
+                                  '0,1,2,3,4,5,6,7,8,9,10,99')
+
+    def test_ipdc_encoding_types(self, cmd_tshark, capture_file, test_env):
+        '''Receive and send encoding types of one and two octets.'''
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 37)
+        assert tags[:4] == [
+            'Receive Encoding Type (0x6f): PCMU (G.711 mu-law)',
+            'Send Encoding Type (0x70): PCMA (G.711 A-law)',
+            'Receive Encoding Type (0x6f): G.729A',
+            'Receive Encoding Type (0x6f): 7',
+        ]
+        assert tags[-2:] == ['Receive Encoding Type (0x6f): UNDEFINED',
+                            'end of tags']
+
+    def test_ipdc_q931(self, cmd_tshark, capture_file, test_env):
+        '''A Q.931 message in tag 0xa2 is dissected as Q.931.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'q931', '-Tfields', '-eframe.number',
+                '-eq931.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '38\t0x05'
+
+    def test_ipdc_unknown_tags_and_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Unknown tags and octet tags are shown as bytes; data after the
+        end-of-tags octet is flagged.'''
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 39)
+        assert tags == ['0x25: Requested line state',
+                        '0xb2: Calling Party Info1',
+                        '0xb3: Called Party Info2',
+                        '0x06: UNDEFINED', '0xee: UNDEFINED', 'end of tags']
+        tags = self.ipdc_tree(cmd_tshark, capture_file, test_env, 40)
+        assert tags == ['Protocol version (0x01): IPDC Version 0.15',
+                        'data trailing end of tags']
+
+    def test_ipdc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment (frame 42), a PDU over three segments
+        (decoded in frame 45) and an acknowledgement followed by a PDU
+        (frame 46).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ipdc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 45, 46}',
+                '-Tfields', '-eframe.number', '-eipdc.ns', '-eipdc.nr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['42\t1,2\t7,7', '45\t3\t7',
+                                       '46\t0,1\t8,8']
