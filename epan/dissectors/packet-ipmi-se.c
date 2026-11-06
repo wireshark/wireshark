@@ -1237,6 +1237,7 @@ ssi_12_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		s_tree = proto_tree_add_subtree(tree, tvb, 0, 1, ett_ipmi_se_evt_evd_byte2, NULL, "Details");
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_event, tvb, 0, 1, ENC_NA);
 		proto_tree_add_item(s_tree, hf_ipmi_se_12_timestamp_clock_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		return true;
 	}
 	return false;
 }
@@ -1428,6 +1429,7 @@ ssi_2a_2(proto_tree *tree, tvbuff_t *tvb, const struct sensor_info *si _U_,
 		ti = proto_tree_add_item(tree, hf_ipmi_se_2a_user_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		if ((d & 0x3f) == 0)
 			proto_item_append_text(ti, " (unspecified)");
+		return true;
 	}
 	return false;
 }
