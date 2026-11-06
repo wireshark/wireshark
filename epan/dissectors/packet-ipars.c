@@ -127,12 +127,13 @@ dissect_ipars(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 case EOMi:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMi");                              break;
                 case EOMu:  snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMu");                              break;
                 case EOMpb: snprintf(eom_msg, MAX_EOM_MSG_SIZE, "EOMpb");                             break;
-                default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ia);    break;
+                default:    snprintf(eom_msg, MAX_EOM_MSG_SIZE, "Unknown EOM type (0x%2.2X)", ipars_eomtype);    break;
             }
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 4, 1, "%s", eom_msg);
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, tvb, 5, 1, "Good BCC");
         } else {
             next_tvb = tvb_new_subset_remaining(tvb, 3);
+            bytes = tvb_captured_length(next_tvb);
             proto_tree_add_protocol_format(ipars_tree, proto_ipars, next_tvb,
                 0,
                 bytes, "Data (%d byte%s)", bytes,
