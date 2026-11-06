@@ -3558,10 +3558,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           {
             uint16_t family;
             uint16_t addr_len = optlen - 4;
+            /* Initialize bytes, the largest member; {0} initializes only
+             * the first member (always strictly true, made explicit in C23);
+             * Clang 18, GCC 15 and later no longer clear the rest of the
+             * union, which the address may not fill. */
             union {
               uint32_t addr;
               uint8_t bytes[16];
-            } ip_addr = {0};
+            } ip_addr = {.bytes = {0}};
 
             proto_tree_add_item_ret_uint16(rropt_tree, hf_dns_opt_client_family, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &family);
             cur_offset += 2;
