@@ -2935,6 +2935,7 @@ static dissector_handle_t       gsm_sms_handle; /* SMS TPDU */
 static dissector_handle_t       ranap_handle;
 static dissector_handle_t       dtap_handle;
 static dissector_handle_t       map_handle;
+static dissector_handle_t       map_ber_handle;
 static dissector_handle_t       bssap_handle;
 static dissector_table_t        map_prop_arg_opcode_table; /* proprietary operation codes */
 static dissector_table_t        map_prop_res_opcode_table; /* proprietary operation codes */
@@ -24909,6 +24910,14 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
   return tvb_captured_length(tvb);
 }
 
+/* Entry point for the BER OID registrations (reached from ACSE/PRES). The
+ * data pointer they pass is not a tcap_private_t, so do not forward it. */
+static int
+dissect_gsm_map_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  return dissect_gsm_map(tvb, pinfo, tree, NULL);
+}
+
 static int
 dissect_gsm_map_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
@@ -25397,85 +25406,85 @@ void proto_reg_handoff_gsm_map(void) {
     bssap_handle = find_dissector_add_dependency("gsm_a_bssmap", proto_gsm_map);
 
     oid_add_from_string("itu(0) administration(2) japan(440)","0.2.440" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_handle, proto_gsm_map,"networkLocUpContext-v3");
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_handle, proto_gsm_map,"networkLocUpContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_handle, proto_gsm_map,"networkLocUpContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.3", map_handle, proto_gsm_map,"locationCancellationContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.2", map_handle, proto_gsm_map,"locationCancellationContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.1", map_handle, proto_gsm_map,"locationCancellationContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.3", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.2", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.1", map_handle, proto_gsm_map,"roamingNumberEnquiryContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.4.3", map_handle, proto_gsm_map,"istAlertingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.3", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.2", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.1", map_handle, proto_gsm_map,"locationInfoRetrievalContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.6.4", map_handle, proto_gsm_map,"callControlTransferContext-v4" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.6.3", map_handle, proto_gsm_map,"callControlTransferContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_handle, proto_gsm_map,"reportingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_handle, proto_gsm_map,"callCompletionContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_handle, proto_gsm_map,"serviceTerminationContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.3", map_handle, proto_gsm_map,"resetContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_handle, proto_gsm_map,"resetContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_handle, proto_gsm_map,"resetContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_handle, proto_gsm_map,"handoverControlContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.2", map_handle, proto_gsm_map,"handoverControlContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.1", map_handle, proto_gsm_map,"handoverControlContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.12.3", map_handle, proto_gsm_map,"sIWFSAllocationContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.3", map_handle, proto_gsm_map,"equipmentMngtContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.2", map_handle, proto_gsm_map,"equipmentMngtContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.1", map_handle, proto_gsm_map,"equipmentMngtContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.3", map_handle, proto_gsm_map,"infoRetrievalContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.2", map_handle, proto_gsm_map,"infoRetrievalContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.1", map_handle, proto_gsm_map,"infoRetrievalContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.3", map_ber_handle, proto_gsm_map,"networkLocUpContext-v3");
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.2", map_ber_handle, proto_gsm_map,"networkLocUpContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.1.1", map_ber_handle, proto_gsm_map,"networkLocUpContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.3", map_ber_handle, proto_gsm_map,"locationCancellationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.2", map_ber_handle, proto_gsm_map,"locationCancellationContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.2.1", map_ber_handle, proto_gsm_map,"locationCancellationContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.3", map_ber_handle, proto_gsm_map,"roamingNumberEnquiryContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.2", map_ber_handle, proto_gsm_map,"roamingNumberEnquiryContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.3.1", map_ber_handle, proto_gsm_map,"roamingNumberEnquiryContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.4.3", map_ber_handle, proto_gsm_map,"istAlertingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.3", map_ber_handle, proto_gsm_map,"locationInfoRetrievalContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.2", map_ber_handle, proto_gsm_map,"locationInfoRetrievalContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.5.1", map_ber_handle, proto_gsm_map,"locationInfoRetrievalContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.6.4", map_ber_handle, proto_gsm_map,"callControlTransferContext-v4" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.6.3", map_ber_handle, proto_gsm_map,"callControlTransferContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.7.3", map_ber_handle, proto_gsm_map,"reportingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.8.3", map_ber_handle, proto_gsm_map,"callCompletionContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.9.3", map_ber_handle, proto_gsm_map,"serviceTerminationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.3", map_ber_handle, proto_gsm_map,"resetContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.2", map_ber_handle, proto_gsm_map,"resetContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.10.1", map_ber_handle, proto_gsm_map,"resetContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.3", map_ber_handle, proto_gsm_map,"handoverControlContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.2", map_ber_handle, proto_gsm_map,"handoverControlContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.11.1", map_ber_handle, proto_gsm_map,"handoverControlContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.12.3", map_ber_handle, proto_gsm_map,"sIWFSAllocationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.3", map_ber_handle, proto_gsm_map,"equipmentMngtContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.2", map_ber_handle, proto_gsm_map,"equipmentMngtContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.13.1", map_ber_handle, proto_gsm_map,"equipmentMngtContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.3", map_ber_handle, proto_gsm_map,"infoRetrievalContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.2", map_ber_handle, proto_gsm_map,"infoRetrievalContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.14.1", map_ber_handle, proto_gsm_map,"infoRetrievalContext-v1" );
     /* fallback to infoRetrieval(14) version1(1) and not interVlrInfoRetrieval(15) version1(1) */
-    /*register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_handle, proto_gsm_map,"map-ac interVlrInfoRetrieval(15) version1(1)" );*/
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.15.2", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.15.3", map_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.3", map_handle, proto_gsm_map,"subscriberDataMngtContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.2", map_handle, proto_gsm_map,"subscriberDataMngtContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.1", map_handle, proto_gsm_map,"subscriberDataMngtContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.3", map_handle, proto_gsm_map,"tracingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.2", map_handle, proto_gsm_map,"tracingContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.1", map_handle, proto_gsm_map,"tracingContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.18.2", map_handle, proto_gsm_map,"networkFunctionalSsContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.18.1", map_handle, proto_gsm_map,"networkFunctionalSsContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.19.2", map_handle, proto_gsm_map,"networkUnstructuredSsContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.3", map_handle, proto_gsm_map,"shortMsgGatewayContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.2", map_handle, proto_gsm_map,"shortMsgGatewayContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.1", map_handle, proto_gsm_map,"shortMsgGatewayContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.3", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.2", map_handle, proto_gsm_map,"shortMsgMO-RelayContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.1", map_handle, proto_gsm_map,"shortMsgRelayContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.22.3", map_handle, proto_gsm_map,"subscriberDataModificationNotificationContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.23.2", map_handle, proto_gsm_map,"shortMsgAlertContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.23.1", map_handle, proto_gsm_map,"shortMsgAlertContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.3", map_handle, proto_gsm_map,"mwdMngtContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.2", map_handle, proto_gsm_map,"mwdMngtContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.1", map_handle, proto_gsm_map,"mwdMngtContext-v1" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.25.3", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.25.2", map_handle, proto_gsm_map,"shortMsgMT-RelayContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.26.2", map_handle, proto_gsm_map,"imsiRetrievalContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.27.2", map_handle, proto_gsm_map,"msPurgingContext-v2" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.27.3", map_handle, proto_gsm_map,"msPurgingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.28.3", map_handle, proto_gsm_map,"subscriberInfoEnquiryContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.29.3", map_handle, proto_gsm_map,"anyTimeInfoEnquiryContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.31.3", map_handle, proto_gsm_map,"groupCallControlContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.32.3", map_handle, proto_gsm_map,"gprsLocationUpdateContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.33.4", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v4" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.33.3", map_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.34.3", map_handle, proto_gsm_map,"failureReportContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.35.3", map_handle, proto_gsm_map,"gprsNotifyContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.36.3", map_handle, proto_gsm_map,"ss-InvocationNotificationContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.37.3", map_handle, proto_gsm_map,"locationSvcGatewayContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.38.3", map_handle, proto_gsm_map,"locationSvcEnquiryContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.39.3", map_handle, proto_gsm_map,"authenticationFailureReportContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.40.3", map_handle, proto_gsm_map,"secureTransportHandlingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.41.3", map_handle, proto_gsm_map,"shortMsgMT-Relay-VGCS-Context-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.42.3", map_handle, proto_gsm_map,"mm-EventReportingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.43.3", map_handle, proto_gsm_map,"anyTimeInfoHandlingContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.44.3", map_handle, proto_gsm_map,"resourceManagementContext-v3" );
-    register_ber_oid_dissector_handle("0.4.0.0.1.0.45.3", map_handle, proto_gsm_map,"groupCallInfoRetrievalContext-v3" );
+    /*register_ber_oid_dissector_handle("0.4.0.0.1.0.15.1", map_ber_handle, proto_gsm_map,"map-ac interVlrInfoRetrieval(15) version1(1)" );*/
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.15.2", map_ber_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.15.3", map_ber_handle, proto_gsm_map,"interVlrInfoRetrievalContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.3", map_ber_handle, proto_gsm_map,"subscriberDataMngtContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.2", map_ber_handle, proto_gsm_map,"subscriberDataMngtContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.16.1", map_ber_handle, proto_gsm_map,"subscriberDataMngtContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.3", map_ber_handle, proto_gsm_map,"tracingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.2", map_ber_handle, proto_gsm_map,"tracingContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.17.1", map_ber_handle, proto_gsm_map,"tracingContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.18.2", map_ber_handle, proto_gsm_map,"networkFunctionalSsContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.18.1", map_ber_handle, proto_gsm_map,"networkFunctionalSsContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.19.2", map_ber_handle, proto_gsm_map,"networkUnstructuredSsContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.3", map_ber_handle, proto_gsm_map,"shortMsgGatewayContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.2", map_ber_handle, proto_gsm_map,"shortMsgGatewayContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.20.1", map_ber_handle, proto_gsm_map,"shortMsgGatewayContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.3", map_ber_handle, proto_gsm_map,"shortMsgMO-RelayContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.2", map_ber_handle, proto_gsm_map,"shortMsgMO-RelayContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.21.1", map_ber_handle, proto_gsm_map,"shortMsgRelayContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.22.3", map_ber_handle, proto_gsm_map,"subscriberDataModificationNotificationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.23.2", map_ber_handle, proto_gsm_map,"shortMsgAlertContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.23.1", map_ber_handle, proto_gsm_map,"shortMsgAlertContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.3", map_ber_handle, proto_gsm_map,"mwdMngtContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.2", map_ber_handle, proto_gsm_map,"mwdMngtContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.24.1", map_ber_handle, proto_gsm_map,"mwdMngtContext-v1" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.25.3", map_ber_handle, proto_gsm_map,"shortMsgMT-RelayContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.25.2", map_ber_handle, proto_gsm_map,"shortMsgMT-RelayContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.26.2", map_ber_handle, proto_gsm_map,"imsiRetrievalContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.27.2", map_ber_handle, proto_gsm_map,"msPurgingContext-v2" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.27.3", map_ber_handle, proto_gsm_map,"msPurgingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.28.3", map_ber_handle, proto_gsm_map,"subscriberInfoEnquiryContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.29.3", map_ber_handle, proto_gsm_map,"anyTimeInfoEnquiryContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.31.3", map_ber_handle, proto_gsm_map,"groupCallControlContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.32.3", map_ber_handle, proto_gsm_map,"gprsLocationUpdateContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.33.4", map_ber_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v4" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.33.3", map_ber_handle, proto_gsm_map,"gprsLocationInfoRetrievalContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.34.3", map_ber_handle, proto_gsm_map,"failureReportContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.35.3", map_ber_handle, proto_gsm_map,"gprsNotifyContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.36.3", map_ber_handle, proto_gsm_map,"ss-InvocationNotificationContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.37.3", map_ber_handle, proto_gsm_map,"locationSvcGatewayContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.38.3", map_ber_handle, proto_gsm_map,"locationSvcEnquiryContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.39.3", map_ber_handle, proto_gsm_map,"authenticationFailureReportContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.40.3", map_ber_handle, proto_gsm_map,"secureTransportHandlingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.41.3", map_ber_handle, proto_gsm_map,"shortMsgMT-Relay-VGCS-Context-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.42.3", map_ber_handle, proto_gsm_map,"mm-EventReportingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.43.3", map_ber_handle, proto_gsm_map,"anyTimeInfoHandlingContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.44.3", map_ber_handle, proto_gsm_map,"resourceManagementContext-v3" );
+    register_ber_oid_dissector_handle("0.4.0.0.1.0.45.3", map_ber_handle, proto_gsm_map,"groupCallInfoRetrievalContext-v3" );
     /* Private extension container */
     register_ber_oid_dissector("1.3.12.2.1006.53.2.1.3", dissect_gsm_mapext_PlmnContainer, proto_gsm_map,"alcatel-E10-MAP-extension-PlmnContainer" );
     register_ber_oid_dissector("0.34.0",dissect_NokiaMAP_ext_IsdArgExtension,proto_gsm_map,"Nokia ISD Extension");
@@ -33331,12 +33340,12 @@ void proto_register_gsm_map(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         "ActiveSS_List", HFILL }},
     { &hf_NokiaMAP_Extensions_traceReference,
-      { "traceReference", "NokiaMAP-Extensions.traceReference_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "traceReference", "NokiaMAP-Extensions.traceReference",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_NokiaMAP_Extensions_traceType,
-      { "traceType", "NokiaMAP-Extensions.traceType_element",
-        FT_NONE, BASE_NONE, NULL, 0,
+      { "traceType", "NokiaMAP-Extensions.traceType",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_NokiaMAP_Extensions_omc_Id,
       { "omc-Id", "NokiaMAP-Extensions.omc_Id",
@@ -34453,6 +34462,7 @@ void proto_register_gsm_map(void) {
   proto_gsm_map_ms = proto_gsm_map_dialogue = proto_gsm_map = proto_register_protocol("GSM Mobile Application", "GSM_MAP", "gsm_map");
 
   map_handle = register_dissector("gsm_map", dissect_gsm_map, proto_gsm_map);
+  map_ber_handle = create_dissector_handle(dissect_gsm_map_ber, proto_gsm_map);
   register_dissector("gsm_map_sccp", dissect_gsm_map_sccp, proto_gsm_map);
 
   /* Register fields and subtrees */
