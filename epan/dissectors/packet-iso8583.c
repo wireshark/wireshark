@@ -591,11 +591,13 @@ static char *get_bit(const struct iso_type *data_type, int hf, packet_info *pinf
     {
       case ASCII_CHARSET:
       {
+        uint32_t prefix_len = len;
+
         checksize(len);
 
-        offset += len;
-        if (!tvb_get_string_uint(tvb, offset, len, ENC_STR_DEC, &len, NULL))
+        if (!tvb_get_string_uint(tvb, offset, prefix_len, ENC_STR_DEC, &len, NULL))
           return NULL;
+        offset += prefix_len;
         break;
       }
       case NUM_NIBBLE_CHARSET:
