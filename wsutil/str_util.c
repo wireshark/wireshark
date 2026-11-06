@@ -1469,7 +1469,6 @@ format_text_internal(wmem_allocator_t *allocator,
     }
     if (printable_bytes) {
         FMTBUF_PUTBYTES(prev, printable_bytes);
-        printable_bytes = 0;
     }
 
     FMTBUF_ENDSTR;
