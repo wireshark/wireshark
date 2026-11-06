@@ -1735,6 +1735,8 @@ typedef struct {
     uint32_t req_qp,
             resp_qp;            /* QP number of requester/responder, respectively */
     uint64_t service_id;         /* service id for this connection */
+    address_type addr_type;      /* type of the GIDs/addresses (from the REQ) */
+    int addr_len;                /* number of valid bytes in req_gid/resp_gid */
 } connection_context;
 
 /* holds a table of connection contexts being negotiated by CM. the key is a obtained
@@ -2821,10 +2823,9 @@ static tvbuff_t *parse_PAYLOAD_reassemble_tvb(packet_info *pinfo,
                                                 pinfo,
                                                 proto_infiniband,
                                                 rc_send_id);
-    if (fd_head == NULL) {
+    if (fd_head == NULL && !PINFO_FD_VISITED(pinfo)) {
             fd_head_not_cached = true;
 
-            pinfo->fd->visited = 0;
             fd_head = fragment_add_seq_next(&infiniband_rc_send_reassembly_table,
                                             tvb, 0, pinfo,
                                             conversation->conv_index,
@@ -3574,6 +3575,7 @@ create_conv_and_add_proto_data(packet_info *pinfo, uint64_t service_id,
 {
     conversation_t *conv;
     conversation_infiniband_data *proto_data;
+    address lid_addr;
 
     proto_data = wmem_new0(wmem_file_scope(), conversation_infiniband_data);
     proto_data->service_id = service_id;
@@ -3585,8 +3587,8 @@ create_conv_and_add_proto_data(packet_info *pinfo, uint64_t service_id,
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 
     /* next, register the conversation using the LIDs */
-    set_address(addr, AT_IB, sizeof(uint16_t), wmem_memdup(pinfo->pool, &lid, sizeof lid));
-    conv = conversation_new(pinfo->num, addr, addr,
+    set_address(&lid_addr, AT_IB, sizeof(uint16_t), wmem_memdup(pinfo->pool, &lid, sizeof lid));
+    conv = conversation_new(pinfo->num, &lid_addr, &lid_addr,
                             CONVERSATION_IBQP, port, port, options);
     conversation_add_proto_data(conv, proto_infiniband, proto_data);
 }
@@ -3605,14 +3607,18 @@ static void save_conversation_info(packet_info *pinfo, uint8_t *local_gid, uint8
         uint64_t *hash_key = g_new(uint64_t, 1);
 
         /* create a new connection context and store it in the hash table */
-        connection = g_new(connection_context, 1);
+        connection = g_new0(connection_context, 1);
 
         if (pinfo->dst.type == AT_IPv4) {
             memcpy(&(connection->req_gid), local_gid, 4);
             memcpy(&(connection->resp_gid), remote_gid, 4);
+            connection->addr_type = AT_IPv4;
+            connection->addr_len = 4;
         } else {
             memcpy(&(connection->req_gid), local_gid, GID_SIZE);
             memcpy(&(connection->resp_gid), remote_gid, GID_SIZE);
+            connection->addr_type = (pinfo->dst.type == AT_IPv6) ? AT_IPv6 : AT_IB;
+            connection->addr_len = GID_SIZE;
         }
         connection->req_lid = local_lid;
         connection->resp_lid = remote_lid;
@@ -3865,16 +3871,9 @@ attach_connection_to_pinfo(packet_info *pinfo, connection_context *connection,
        sides, but rather we register the same conversation twice - once for
        each side of the Reliable Connection. */
 
-    if (pinfo->dst.type == AT_IPv4) {
-        set_address(&req_addr, AT_IPv4, 4, connection->req_gid);
-        set_address(&resp_addr, AT_IPv4, 4, connection->resp_gid);
-    } else if (pinfo->dst.type == AT_IPv6) {
-        set_address(&req_addr, AT_IPv6, GID_SIZE, connection->req_gid);
-        set_address(&resp_addr, AT_IPv6, GID_SIZE, connection->resp_gid);
-    } else {
-        set_address(&req_addr, AT_IB, GID_SIZE, connection->req_gid);
-        set_address(&resp_addr, AT_IB, GID_SIZE, connection->resp_gid);
-    }
+    /* use the address type and length recorded when the REQ was seen */
+    set_address(&req_addr, connection->addr_type, connection->addr_len, connection->req_gid);
+    set_address(&resp_addr, connection->addr_type, connection->addr_len, connection->resp_gid);
 
     /* create conversations:
      * first for client to server direction so that upper level protocols
@@ -4847,7 +4846,7 @@ static int parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, int *o
         break;
         case 259:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 259 DataDetails");
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_DataValid, tvb, local_offset, 2, ENC_NA);
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_DataValid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_LIDADDR1, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
@@ -4866,7 +4865,7 @@ static int parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, int *o
             local_offset += 16;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2, tvb, local_offset, 16, ENC_NA);
             local_offset += 16;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_SWLIDADDR, tvb, local_offset, 2, ENC_NA);
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_SWLIDADDR, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             local_offset += 2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_PORTNO, tvb, local_offset, 1, ENC_BIG_ENDIAN);
             local_offset += 1;
@@ -6454,6 +6453,7 @@ skip_lrh:
             case  RDETH_RETH_PAYLD:
                 offset += 4; /* RDETH */
                 offset += 16; /* RETH */
+                break;
             default:
                 break;
         }
@@ -6486,6 +6486,12 @@ skip_lrh:
     }
 
     return;
+}
+
+static void
+infiniband_cleanup(void)
+{
+    g_hash_table_remove_all(CM_context_table);
 }
 
 static void
@@ -8712,7 +8718,7 @@ void proto_register_infiniband(void)
         /* Trap 259 */
         { &hf_infiniband_Trap_DataValid, {
                 "DataValid", "infiniband.trap.datavalid",
-                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_Trap_PKEY, {
                 "PKEY", "infiniband.trap.pkey",
@@ -8720,7 +8726,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_Trap_SWLIDADDR, {
                 "SWLIDADDR", "infiniband.trap.swlidaddr",
-                FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}
+                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* ClassPortInfo in Performance class */
         { &hf_infiniband_PerfMgt_ClassPortInfo, {
@@ -9102,6 +9108,7 @@ void proto_register_infiniband(void)
     reassembly_table_register(&infiniband_rc_send_reassembly_table,
         &addresses_ports_reassembly_table_functions);
 
+    register_cleanup_routine(infiniband_cleanup);
     register_shutdown_routine(infiniband_shutdown);
 }
 
