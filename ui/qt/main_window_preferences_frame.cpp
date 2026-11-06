@@ -44,16 +44,10 @@ MainWindowPreferencesFrame::MainWindowPreferencesFrame(QWidget *parent) :
     pref_prepend_window_title_ = prefFromPrefPtr(&prefs.gui_prepend_window_title);
 
     QStyleOption style_opt;
-    QString indent_ss = QStringLiteral(
-                "QRadioButton, QLineEdit, QLabel {"
-                "  margin-left: %1px;"
-                "}"
-                ).arg(ui->geometryCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left());
-    ui->foStyleLastOpenedRadioButton->setStyleSheet(indent_ss);
-    ui->foStyleSpecifiedRadioButton->setStyleSheet(indent_ss);
-    ui->foStyleCWDRadioButton->setStyleSheet(indent_ss);
-    ui->maxFilterLineEdit->setStyleSheet(indent_ss);
-    ui->maxRecentLineEdit->setStyleSheet(indent_ss);
+    int indent = ui->geometryCheckBox->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left();
+    ui->gridLayout->setContentsMargins(indent, 0, 0, 0);
+    ui->horizontalLayout_2->setContentsMargins(indent, 0, 0, 0);
+    ui->horizontalLayout_3->setContentsMargins(indent, 0, 0, 0);
 
     int num_entry_width = ui->maxFilterLineEdit->fontMetrics().height() * 3;
     int num_entry_height = ui->maxFilterLineEdit->fontMetrics().height();
