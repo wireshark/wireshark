@@ -117,7 +117,7 @@ pdu_store(packet_info *pinfo, wmem_tree_t *multisegment_pdus, uint32_t first_fra
 {
     struct ippusb_multisegment_pdu *msp;
 
-    msp = wmem_new(wmem_file_scope(), struct ippusb_multisegment_pdu);
+    msp = wmem_new0(wmem_file_scope(), struct ippusb_multisegment_pdu);
     msp->first_frame = first_frame;
     msp->finished = false;
     msp->reassembled = false;
@@ -194,7 +194,7 @@ static reassembly_table ippusb_reassembly_table;
 
 /* Main dissector function */
 static int
-dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     int offset = 0;
     int ret = 0;
@@ -248,7 +248,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             ippusb_last_pdu = -1;
         }
 
-        ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, data);
+        ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, tvb, pinfo, tree, true, NULL);
     }
     else if (global_ippusb_reassemble) {
         /* If reassembly is wanted */
@@ -274,7 +274,8 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
             }
             else {
 
-                previous_msp = (struct ippusb_multisegment_pdu *)wmem_tree_lookup32_le(ippusbd->multisegment_pdus, ippusb_last_pdu);
+                previous_msp = ippusb_last_pdu >= 0 ?
+                    (struct ippusb_multisegment_pdu *)wmem_tree_lookup32_le(ippusbd->multisegment_pdus, (uint32_t)ippusb_last_pdu) : NULL;
 
                 if (previous_msp) {
                     previous_msp->nxtpdu = pinfo->num;
@@ -333,7 +334,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         pinfo->can_desegment = 0;
 
                         if(processed_tvb){
-                            ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                            ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, NULL);
                             col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
                         }
                     }
@@ -396,7 +397,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, NULL);
 
                     if (current_msp->document & MSP_DOCUMENT_TRUNCATED) {
                         col_append_str(pinfo->cinfo, COL_INFO, " Document Truncated");
@@ -415,7 +416,7 @@ dissect_ippusb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (processed_tvb) {
                     pinfo->can_desegment = 0;
 
-                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, data);
+                    ret = dissector_try_uint_new(ippusb_dissector_table, HTTP, processed_tvb, pinfo, tree, true, NULL);
 
                     col_append_str(pinfo->cinfo, COL_INFO, " Reassembled Data");
 
@@ -449,6 +450,12 @@ is_http_header(unsigned first_linelen, const unsigned char *first_line) {
     else {
         return false;
     }
+}
+
+static void
+ippusb_cleanup(void)
+{
+    ippusb_last_pdu = -1;
 }
 
 static void
@@ -530,6 +537,8 @@ proto_register_ippusb(void)
     register_shutdown_routine(ippusb_shutdown);
 
     ippusb_handle = register_dissector("ippusb", dissect_ippusb, proto_ippusb);
+
+    register_cleanup_routine(&ippusb_cleanup);
 }
 
 void
