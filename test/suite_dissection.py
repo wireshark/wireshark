@@ -80527,3 +80527,119 @@ class TestDissectIpmi:
         lines = stdout.splitlines()
         assert lines[0] == '1\tIPMB\tReq, Get Device ID'
         assert lines[1].startswith('2\tI2C Read\t')
+
+
+class TestDissectIpmiChassis:
+    '''IPMI NetFn Chassis commands (capabilities, status, control,
+    identify, power restore policy, restart cause, system boot options,
+    POH counter) from the synthetic capture ipmi_chassis_coverage.pcapng.gz.
+    The commands are only dissected with ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def chs_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_chassis_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_chassis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IPMB and none is malformed or has an error
+        expert info, in one and two passes. Set Front Panel Buttons
+        Enables, Set Power Cycle Interval and an unknown command are not
+        decoded (parser not implemented).'''
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                               '_ws.col.protocol', extra=self.BUS)
+        assert len(rows) == 264
+        assert all(r[1] == 'IPMB' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                    extra=(*self.BUS, *passes),
+                    flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                extra=self.BUS, flt='ipmi.parser_not_implemented')
+        assert [r[0] for r in rows] == ['71', '73', '75']
+
+    def test_ipmi_chassis_capabilities_bridge_address(self, cmd_tshark, capture_file, test_env):
+        '''A Get Chassis Capabilities response of exactly 5 data bytes
+        has no bridge device address and decodes (it was reported as
+        malformed before "IPMI: Show the bridge address in Get Chassis
+        Capabilities"); a 6th byte is the bridge device address.'''
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch00.sm', 'ipmi.ch00.bridge', extra=self.BUS,
+                flt='ipmi.ch00.sm')
+        assert rows == [['2', '0x26', ''], ['4', '0x00', '0x28'],
+                        ['6', '0x33', '0x34'], ['264', '0x26', '']]
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch05.sm', 'ipmi.ch05.bridge', extra=self.BUS,
+                flt='ipmi.ch05.sm')
+        assert rows == [['7', '0x26', ''], ['9', '0x26', '0x28']]
+
+    def test_ipmi_chassis_status(self, cmd_tshark, capture_file, test_env):
+        '''Get Chassis Status with and without the front panel buttons
+        byte.'''
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch01.cur_pwr.policy', 'ipmi.ch01.cur_pwr.powered',
+                'ipmi.ch01.fpb.standby_allowed', extra=self.BUS,
+                flt='ipmi.ch01.cur_pwr.policy')
+        assert [r[0] for r in rows] == ['12', '14', '16', '18', '20', '22', '24', '26']
+        assert rows[0][1:] == ['0x01', 'True', 'False']
+        assert rows[1][1:] == ['0x02', 'True', '']          # frame 14 has only 3 data bytes
+        assert rows[3][1:] == ['0x03', 'True', 'True']
+
+    def test_ipmi_chassis_control_and_policy(self, cmd_tshark, capture_file, test_env):
+        '''Chassis Control values, Chassis Identify with 0, 1 and 2 data
+        bytes, power restore policy and system restart cause.'''
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch02.chassis_control', extra=self.BUS,
+                flt='ipmi.ch02.chassis_control')
+        assert [r[1] for r in rows] == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05']
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch04.interval', 'ipmi.ch04.perm_on', extra=self.BUS,
+                flt='ipmi.ch04.interval')
+        assert [r[1:] for r in rows] == [['15', ''], ['15', 'True'], ['0', 'False']]
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch07.cause', 'ipmi.ch07.chan', extra=self.BUS,
+                flt='ipmi.ch07.cause')
+        # the cause is the low nibble of the byte (0x4c and 0xf3 have reserved bits set)
+        assert [r[1] for r in rows] == ['0x00', '0x05', '0x0b', '0x0c', '0x03']
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.ch0f.minpercnt', 'ipmi.ch0f.counter', extra=self.BUS,
+                flt='ipmi.ch0f.counter')
+        assert [r[1:] for r in rows] == [['60', '123456']]
+
+    def test_ipmi_chassis_boot_options(self, cmd_tshark, capture_file, test_env):
+        '''Set System Boot Options and Get System Boot Options decode every
+        parameter (the boot flags, the boot initiator information with
+        its timestamp and the mailbox), and name OEM and reserved
+        parameter selectors.'''
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.bootopt05.bootdev', 'ipmi.bootopt05.permanent',
+                'ipmi.bootopt05.boottype', extra=self.BUS,
+                flt='ipmi.bootopt05.bootdev')
+        assert len(rows) == 16
+        assert rows[0] == ['121', '0x0f', 'True', 'True']
+        assert rows[2] == ['125', '0x00', 'False', 'False']
+        assert rows[4] == ['129', '0x05', 'False', 'False']
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.bootopt06.chan_num', 'ipmi.bootopt06.session_id',
+                extra=self.BUS, flt='ipmi.bootopt06.session_id')
+        assert len(rows) == 8
+        assert rows[0] == ['137', '4', '808464432'] and rows[2] == ['141', '15', '7']
+        rows = self.chs_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.bootopt07.block_selector', 'ipmi.bootopt07.block_data',
+                extra=self.BUS, flt='ipmi.bootopt07.block_selector')
+        assert [r[0] for r in rows] == ['145', '147', '242', '244']
+        assert rows[0] == ['145', '0x01', '000102030405060708090a0b0c0d0e0f']
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_chassis_coverage.pcapng.gz'),
+                '-Y', 'ipmi.ch08.data || ipmi.ch09.rs_param_data', '-Tfields',
+                '-eframe.number', '-eipmi.ch08.selector', '-eipmi.ch09.rs_param_select',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        # OEM (0x60, 0x7f), reserved (0x08, 0x09, 0x32) selectors
+        assert len(stdout.splitlines()) == 17
+        assert '149\t0x08\t' in stdout.splitlines() and '153\t0x60\t' in stdout.splitlines()
