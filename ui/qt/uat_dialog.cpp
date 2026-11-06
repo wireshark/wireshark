@@ -19,6 +19,7 @@
 
 #include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/theme_manager.h>
 #include <ui/qt/utils/themes/themed_icon.h>
 
 #include <QDesktopServices>
@@ -255,6 +256,7 @@ void UatDialog::checkForErrorHint(const QModelIndex &current, const QModelIndex 
     }
 
     ui->hintLabel->clear();
+    ThemeManager::setNoticeState(ui->hintLabel, QString());
 }
 
 bool UatDialog::trySetErrorHintFromField(const QModelIndex &index)
@@ -263,6 +265,7 @@ bool UatDialog::trySetErrorHintFromField(const QModelIndex &index)
     if (!data.isNull()) {
         // use HTML instead of PlainText because that handles wordwrap properly
         ui->hintLabel->setText("<small><i>" + html_escape(data.toString()) + "</i></small>");
+        ThemeManager::setNoticeState(ui->hintLabel, "error");
         return true;
     }
     return false;
