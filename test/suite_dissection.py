@@ -79245,3 +79245,228 @@ class TestDissectIpars:
             '18\tIpars,Unknown format - Data (3 bytes)',
             '21\tIpars,Unknown format - Data (1 byte)',
         ]
+
+
+class TestDissectIpCoverage:
+    '''IPv4 (packet-ip.c) from the synthetic capture ip_coverage.pcap.gz:
+    header fields, every option, fragments and reassembly, the generic
+    "ip" handler (IP-in-IP) and the IP heuristic (GTP-U). Frames 1-195
+    decode without malformed packets and without error expert infos;
+    frames 196-200 are the CIPSO tag-bound reproducers (expert info
+    error, no exception).'''
+
+    LAST_CLEAN = 195
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ip_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''195 frames decode as IP without malformed packets or error
+        expert infos, in one and two passes.'''
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ip_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 195', '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 195
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['IPv4'] == 170
+        assert counts['ICMP'] == 7
+        assert counts['GTP'] == 5
+        assert counts['GTP/IPv4'] == 2
+        assert counts['GTP/IPv6'] == 1
+        assert counts['IPv6'] == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ip_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 195 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ip_lsr_short(self, cmd_tshark, capture_file, test_env):
+        '''Loose source route options of 4 and 5 octets (frames 107, 108)
+        hold no address: the destination stays the header destination
+        instead of being read from the option's own type, length and
+        pointer octets (fixed in "IP: Fix short LSR/SSR options and CIPSO
+        tag bounds"). The valid option in frame 106 names the final
+        destination.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {106, 107, 108, 109}',
+                'frame.number', 'ip.dst', 'ip.opt.len', 'ip.cur_rt')
+        assert lines == [
+            '106\t198.51.100.7\t7\t192.0.2.2',
+            '107\t192.0.2.2\t4\t',
+            '108\t192.0.2.2\t5\t',
+            '109\t192.0.2.2\t3\t',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {107, 108}', 'frame.number', 'ip.subopt_too_long')
+        assert len(lines) == 2
+        assert lines[0].split('\t')[0] == '107'
+
+    def test_ip_cipso_tag_past_end(self, cmd_tshark, capture_file, test_env):
+        '''A CIPSO tag whose length runs one octet past the end of the
+        option (frames 196-200, one per tag type 1, 2, 5, 6 and 7) is
+        reported with an expert info instead of an exception.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 196', 'frame.number', '_ws.malformed',
+                'ip.cipso.tag_type', 'ip.cipso.malformed')
+        assert len(lines) == 5
+        for line, (num, tag) in zip(lines, ((196, 1), (197, 2), (198, 5),
+                                            (199, 6), (200, 7))):
+            f = line.split('\t')
+            assert f[0] == str(num)
+            assert f[1] == ''           # not malformed
+            assert f[2] == str(tag)
+
+    def test_ip_cipso_categories(self, cmd_tshark, capture_file, test_env):
+        '''CIPSO category lists of the four tag types that carry them.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.cipso.categories', 'frame.number', 'ip.cipso.categories')
+        assert [l.split('\t')[1] for l in lines] == [
+            '0,15,26', 'ERROR PARSING CATEGORIES', '1,2,65535', '10-20,30',
+            '10-20,33-0', '0,15,26',
+        ]
+
+    def test_ip_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments in order, out of order and with a missing fragment:
+        the reassembled datagram is dissected in the last fragment that
+        completes it; incomplete datagrams stay fragments.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.fragment.count', 'frame.number', 'ip.fragment.count',
+                'ip.reassembled.length', '_ws.col.protocol')
+        assert lines == [
+            '56\t2\t17\tIPv4',
+            '155\t3\t3000\tICMP',
+            '158\t3\t3000\tICMP',
+            '161\t3\t3000\tICMP',
+            '164\t3\t2008\tUDP',
+            '166\t2\t1600\tIPv4',
+            '170\t2\t25\tIPv4',
+            '172\t2\t17\tIPv4',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {153, 154, 167, 168}', 'frame.number',
+                '_ws.col.info')
+        assert lines[0].startswith('153\tFragmented IP protocol (proto=ICMP 1, off=0')
+        assert lines[1].startswith('154\tFragmented IP protocol (proto=ICMP 1, off=1000')
+        assert lines[2].startswith('167\tFragmented IP protocol (proto=ICMP 1, off=0')
+
+    def test_ip_no_defragment(self, cmd_tshark, capture_file, test_env):
+        '''With reassembly disabled the first fragment is dissected and
+        the others are shown as fragments.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.fragment.count || frame.number == 153 || frame.number == 155',
+                'frame.number', '_ws.col.protocol',
+                opts=('-o', 'ip.defragment:FALSE'))
+        assert lines == ['153\tICMP', '155\tIPv4']
+
+    def test_ip_source_route(self, cmd_tshark, capture_file, test_env):
+        '''LSR with the pointer at the first, a middle and the last
+        address, and an exhausted route (frames 90-93): the final
+        destination is the last address while the route is in use.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {90, 91, 92, 93, 94}', 'frame.number',
+                'ip.dst', 'ip.cur_rt', 'ip.opt.ptr')
+        assert lines == [
+            '90\t10.0.0.3\t192.0.2.2\t4',
+            '91\t10.0.0.3\t192.0.2.2\t8',
+            '92\t10.0.0.3\t192.0.2.2\t12',
+            '93\t192.0.2.2\t\t16',
+            '94\t192.0.2.2\t\t255',
+        ]
+
+    def test_ip_ttl_expert(self, cmd_tshark, capture_file, test_env):
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.ttl.lncb || ip.ttl.too_small', 'frame.number', 'ip.ttl',
+                'ip.dst')
+        assert lines == [
+            '40\t3\t192.0.2.2',
+            '41\t0\t192.0.2.2',
+            '42\t64\t224.0.0.5',
+            '45\t1\t224.0.0.18',
+            '50\t2\t224.0.0.1',
+        ]
+
+    def test_ip_tso_and_zero_data(self, cmd_tshark, capture_file, test_env):
+        '''Total length 0 is taken from the frame (TSO support is on by
+        default); a header with no data is flagged.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {7, 10}', 'frame.number', 'ip.len',
+                'ip.zero_data_length')
+        assert lines[0].split('\t')[:2] == ['7', '20']
+        assert lines[0].split('\t')[2] != ''
+        assert lines[1].split('\t') == ['10', '29', '']
+
+    def test_ip_options(self, cmd_tshark, capture_file, test_env):
+        '''Security, router alert, Quick-Start and time stamp options.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.opt.qs_func', 'frame.number', 'ip.opt.qs_func',
+                'ip.opt.qs_rate', 'ip.opt.qs_ttl_diff')
+        assert lines[0] == '129\t0\t10\t4'
+        assert lines[3] == '132\t8\t0\t'
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.opt.time_stamp', 'frame.number', 'ip.opt.time_stamp',
+                'ip.opt.flag')
+        assert lines[0] == '134\t100,0\t0x00'
+        assert lines[4] == '138\t1000,5\t0x01'
+        assert lines[5] == '139\t1000,5\t0x03'
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ip.opt.ra && frame.number <= 125', 'frame.number', 'ip.opt.ra')
+        assert lines == ['124\t0', '125\t1']
+
+    def test_ip_generic_handler(self, cmd_tshark, capture_file, test_env):
+        '''IP-in-IP goes through the generic handler, which picks the IP
+        version from the first octet; GTP-U carries IPv4 and IPv6 found
+        by the IP heuristic dissector.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 177 && frame.number <= 183', 'frame.number',
+                'ip.version', 'ipv6.version', '_ws.col.protocol')
+        assert [l.split('\t')[0] + ':' + l.split('\t')[3] for l in lines] == [
+            '177:IPv4', '178:IPv6', '179:IPv4', '180:IPv6', '181:GTP/IPv4',
+            '182:GTP/IPv4', '183:GTP/IPv6',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {184, 185, 186, 187, 188}', 'frame.number',
+                '_ws.col.protocol')
+        assert lines == ['184\tGTP', '185\tGTP', '186\tGTP', '187\tGTP', '188\tGTP']
+
+    def test_ip_stream_ids(self, cmd_tshark, capture_file, test_env):
+        '''Conversation (stream) numbers are assigned per address pair.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 189 && frame.number <= 194', 'frame.number',
+                'ip.src', 'ip.dst', 'ip.stream')
+        streams = [l.split('\t')[3] for l in lines]
+        assert len(set(streams)) == 6
+        assert [int(s) for s in streams] == list(range(int(streams[0]), int(streams[0]) + 6))
+
+    def test_ip_stt_heuristic_first(self, cmd_tshark, capture_file, test_env):
+        '''A TCP segment to port 7471: with "try heuristic first" the STT
+        heuristic dissector of the IP list takes it before TCP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 195', 'frame.number', '_ws.col.protocol')
+        assert lines == ['195\tTCP']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 195', 'frame.number', '_ws.col.protocol',
+                'stt.context_id', opts=('-o', 'ip.try_heuristic_first:TRUE'))
+        assert lines == ['195\tARP\t0x0000000000001234']
+
+    def test_ip_conversation_table(self, cmd_tshark, capture_file, test_env):
+        '''The IPv4 conversation table counts the packets of a pair.'''
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ip_coverage.pcap.gz'),
+                '-q', '-z', 'conv,ip',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '192.0.2.20' in stdout and '192.0.2.31' in stdout
+        assert 'IPv4 Conversations' in stdout
