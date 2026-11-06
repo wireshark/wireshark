@@ -1219,7 +1219,7 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t s
     * cyclic data starts immediately after the interpolation control field in the controller to device
     * direction */
    uint32_t command_data_set = tvb_get_uint8(tvb, offset + 4);
-   bytes_used += dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos, size - bytes_used);
+   dissect_cmd_data_set(command_data_set, header_tree, tvb, offset + bytes_used, lreal_pos, size - bytes_used);
 
    /* The following block starts after this one, not after the bits. */
    return offset + size;
@@ -1265,7 +1265,7 @@ dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, uint32_t offset, uint32_t
       bytes are truncated actual data, not the status block. */
    if (!act_stopped) {
       uint8_t status_data_set = tvb_get_uint8(tvb, offset + 6);
-      bytes_used += dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used, size - bytes_used);
+      dissect_status_data_set(status_data_set, header_tree, tvb, offset + bytes_used, size - bytes_used);
    }
 
    return offset + size;
