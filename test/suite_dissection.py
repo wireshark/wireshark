@@ -82369,3 +82369,69 @@ class TestDissectIpsecUdp:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'udpencap.nat_keepalive',
                             ['frame.number', 'udp.length'])
         assert rows == [['7', '9'], ['8', '9'], ['14', '9']]
+
+
+class TestDissectIpsiCtl:
+    '''IPSI control (packet-ipsi-ctl.c, TCP 5010) from the synthetic
+    capture ipsi_ctl_coverage.pcap.gz: PDUs with the 0x0300 magic, several
+    PDUs in one segment, short headers and data, and the initialization
+    message without magic. Frames 1-19 decode without error expert
+    infos; frames 20 and 21 are the reproducers of the PDU length fix.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ipsi_ctl_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ipsictl_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-19 decode as IPSICTL; frames 1-19 have no malformed
+        packets and no error expert infos in one and two passes.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'ipsictl && frame.number <= 19', 'frame.number', '_ws.col.info')
+        assert len(lines) == 18
+        assert lines[0] == '2\tInitialization'
+        assert lines[1] == '3\tPDUS=1, Seq=0x0001'
+        assert lines[5] == '7\tPDUS=2, Seq=0x0010-0x0011'
+        assert lines[6] == '8\tPDUS=3, Seq=0x0020-0x0022'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ipsi_ctl_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 19 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ipsictl_pdu_fields(self, cmd_tshark, capture_file, test_env):
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {4, 5, 7}', 'frame.number', 'ipsictl.length',
+                'ipsictl.type', 'ipsictl.sequence', 'ipsictl.field1',
+                'ipsictl.data')
+        assert lines == [
+            '4\t0x000a\t0x0001\t0x0002\t0x0004\taabbccdd',
+            '5\t0x000e\t0x0010\t0x0003\t0x1234\t7061796c6f616421',
+            '7\t0x0006,0x0008\t0x0001,0x0002\t0x0010,0x0011\t0x0000,0x0001\t<MISSING>,6162',
+        ]
+
+    def test_ipsictl_length_below_6(self, cmd_tshark, capture_file, test_env):
+        '''A PDU length below 6 (frames 20, 21) is reported with an error
+        expert info and the rest of the segment is skipped; before the fix
+        the data length became negative (an exception with a tree, an
+        offset moving backwards without one).'''
+        for opts in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 20', 'frame.number', 'ipsictl.bad_length',
+                    '_ws.expert.message', '_ws.col.info', opts=opts)
+            # (the expert info is in the "malformed" group, so _ws.malformed
+            # is set too; there is no exception: the frame still has a
+            # dissected PDUS summary)
+            assert lines == [
+                '20\t1\tInvalid PDU length 0 (less than 6)\tPDUS=0, Seq=0xffffffff',
+                '21\t1\tInvalid PDU length 5 (less than 6)\tPDUS=0, Seq=0xffffffff',
+            ]
