@@ -82042,3 +82042,207 @@ class TestDissectIppusb:
             '37\tIPPUSB Request (Get-Printer-Attributes) Reassembled Data\tapplication/ipp\tchunked',
             '46\tIPPUSB Response (successful-ok) Reassembled Data\tapplication/ipp\tchunked',
         ]
+
+
+class TestDissectIpsec:
+    '''IPsec (AH, ESP, IPComp, ESP over UDP port 4500) from the synthetic
+    capture ipsec_coverage.pcapng.gz.  The ESP payloads are plain
+    (NULL encryption) with constant placeholder ICV bytes; the SA table
+    in the capture holds only NULL encryption and no real keys.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, *prefs, two=False):
+        args = [cmd_tshark]
+        if two:
+            args.append('-2')
+        for p in prefs:
+            args += ['-o', p]
+        args += ['-r', capture_file('ipsec_coverage.pcapng.gz'), '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    HEUR = 'esp.enable_null_encryption_decode_heuristic:TRUE'
+    DECODE = 'esp.enable_encryption_decode:TRUE'
+    AUTH = 'esp.enable_authentication_check:TRUE'
+
+    def test_ipsec_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Default preferences: AH (also over IPv6 and as an Exported PDU),
+        IPComp and ESP frames; no malformed frames and no error expert
+        infos in one and two passes.'''
+        for flt, count in (('ah', 18), ('ipcomp', 12), ('esp', 84), ('udpencap', 6)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, flt, ['frame.number'])
+            assert len(rows) == count, flt
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                ['frame.number'], two=two)
+            assert rows == []
+
+    def test_ipsec_ah(self, cmd_tshark, capture_file, test_env):
+        '''AH length field, ICV size and the next header dissectors.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 16',
+                            ['frame.number', 'ah.length', 'ah.icv', '_ws.col.protocol'])
+        icv = {r[0]: (r[1], 0 if r[2] in ('', '<MISSING>') else len(r[2]) // 2) for r in rows}
+        assert icv['1'] == ('4', 12)      # 12 octet ICV
+        assert icv['2'] == ('5', 16)
+        assert icv['4'] == ('1', 0)       # no ICV at all
+        assert icv['5'] == ('2', 4)
+        assert icv['12'] == ('7', 24)
+        protos = {r[0]: r[3] for r in rows}
+        assert protos['3'] == 'ICMP'
+        assert protos['10'] == 'AH'       # next header 253 has no dissector: data
+        assert protos['15'] == 'ICMPv6'   # AH over IPv6
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 114',
+                            ['frame.number', 'ah.spi', 'esp.spi', '_ws.col.protocol'])
+        assert rows == [['114', '0x00001111', '0x00001234', 'ESP']]    # AH followed by ESP
+
+    def test_ipsec_ipcomp(self, cmd_tshark, capture_file, test_env):
+        '''IPComp: DEFLATE payloads are inflated and dissected, other
+        compression algorithms and unknown CPIs are left as data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 17 && frame.number <= 26',
+                            ['frame.number', 'ipcomp.cpi', 'udp.port', '_ws.col.protocol'])
+        d = {r[0]: r[1:] for r in rows}
+        assert d['17'] == ['0x0002', '40000,9', 'DISCARD']     # raw DEFLATE
+        assert d['18'] == ['0x0002', '40000,9', 'DISCARD']     # zlib wrapped
+        assert d['19'] == ['0x0002', '', 'TCP']
+        assert d['21'][0] == '0x0003' and d['21'][2] == 'IPComp'   # LZS: not inflated
+        assert d['23'][0] == '0x1234'
+        assert d['26'][2] == 'ICMPv6'
+
+    def test_ipsec_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''ESP sequence analysis within an SPI: gaps, repeats, a number below
+        the expected one and the wrap-around; same result in two passes.'''
+        expected = [
+            ['32', '5', '4', '31', 'Wrong Sequence Number for SPI 00005000 - 1 missing'],
+            ['33', '5', '6', '32', 'Wrong Sequence Number for SPI 00005000 - 5 repeated'],
+            ['34', '4', '6', '33', 'Wrong Sequence Number for SPI 00005000 - 2 less than expected'],
+            ['38', '4294967295', '8', '37', 'Wrong Sequence Number for SPI 00005000 - 4294967287 missing'],
+            ['44', '9', '8', '42', 'Wrong Sequence Number for SPI 00005002 - 1 missing'],
+            ['46', '3', '2', '45', 'Wrong Sequence Number for SPI 00005003 - 1 missing'],
+        ]
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'esp.sequence-analysis.expected-sn && frame.number <= 48',
+                                ['frame.number', 'esp.sequence', 'esp.sequence-analysis.expected-sn',
+                                 'esp.sequence-analysis.previous-frame', '_ws.expert.message'], two=two)
+            assert rows == expected
+        # the preference switches it off
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'esp.sequence-analysis.expected-sn',
+                            ['frame.number'], 'esp.do_esp_sequence_analysis:FALSE')
+        assert rows == []
+
+    def test_ipsec_null_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''NULL-encryption heuristic: ICV lengths 12, 16, 24 and 32, padding,
+        inner protocols; frames the heuristic must not accept.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 49 && frame.number <= 71',
+                            ['frame.number', 'esp.icv', 'esp.pad_len', 'esp.protocol'], self.HEUR)
+        d = {r[0]: (len(r[1]) // 2, r[2], r[3]) for r in rows}
+        assert d['49'] == (12, '1', '0x11')
+        assert d['50'] == (16, '1', '0x11')
+        assert d['51'] == (24, '1', '0x11')
+        assert d['52'] == (32, '1', '0x11')
+        assert d['53'] == (12, '2', '0x06')        # TCP
+        assert d['54'] == (12, '2', '0x01')        # ICMP
+        assert d['55'] == (16, '1', '0x04')        # IPv4 in ESP
+        assert d['56'] == (12, '1', '0x29')        # IPv6 in ESP
+        assert d['57'] == (12, '1', '0x3a')        # ICMPv6
+        assert [d[str(n)][1] for n in (58, 59, 60, 61)] == ['1', '0', '3', '2']   # padding 0..3
+        # Not accepted: padding that is not 1, 2, 3 ..., an inner dissector that rejects the data,
+        # no ICV and no valid trailer, a pad length past the packet, a packet that is too short
+        for n in range(64, 72):
+            assert d[str(n)] == (0, '', ''), n
+        # padding preference: all-zero padding, then any padding
+        for pref, accepted in (('esp.padding:zero', ['65']), ('esp.padding:any', ['65', '66', '67'])):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 65 && frame.number <= 67 && esp.pad_len',
+                                ['frame.number'], self.HEUR, pref)
+            assert [r[0] for r in rows] == accepted
+        # bogus padding is flagged with an expert info
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'esp.pad.bogus', ['frame.number'],
+                            self.HEUR, 'esp.padding:any')
+        assert [r[0] for r in rows] == ['65', '66', '67']
+
+    def test_ipsec_sa_table(self, cmd_tshark, capture_file, test_env):
+        '''The SA table of the capture (DSB) with NULL encryption: addresses,
+        wildcards, SPI forms, ICV lengths from the authentication algorithm,
+        Any protocol and IPv6.  Frames 27/28 (SA filters with a mask) and 74/89 are
+        left out: a "/mask" is cut off the filter string while it is evaluated, so
+        the result depends on the pass (see the README).'''
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '(frame.number >= 72 && frame.number <= 98) || frame.number == 110',
+                                ['frame.number', 'esp.icv', 'esp.pad_len', 'esp.protocol'], self.DECODE, two=two)
+            d = {r[0]: (len(r[1]) // 2, r[2], r[3]) for r in rows}
+            assert d['72'] == (0, '1', '0x11')
+            assert d['73'] == (12, '1', '0x11')      # ANY 96 bit
+            assert d['75'] == (8, '1', '0x11')       # ANY 64 bit, SPI with a wildcard
+            assert d['76'] == (24, '1', '0x11')      # SPI in decimal, ANY 192 bit
+            assert d['77'] == (32, '1', '0x11')      # ANY 256 bit
+            assert d['78'] == (12, '1', '0x11')      # 64-bit sequence numbers
+            assert d['80'] == (0, '1', '0x11')       # 10.1.2.3 -> 10.4.5.6
+            assert d['81'] == (12, '2', '0x01')
+            # no matching SA, a pad length that is too large, no dissector, a payload shorter than the ICV
+            for n in (82, 83, 84, 85, 86, 91, 92, 98):
+                assert d[str(n)][1:] == ('', ''), n
+            assert d['88'] == (0, '1', '0x11')       # IPv6
+            assert d['90'] == (16, '2', '0x06')
+            assert d['93'] == (0, '1', '0x11')       # protocol Any, IPv6
+            assert d['94'] == (12, '1', '0x11')      # protocol Any, IPv4
+            assert d['95'] == (12, '1', '0x11')      # unused key strings
+            assert d['110'] == (0, '1', '0x11')      # Exported PDU: no addresses, protocol Any SA
+        # Authentication check only: the payload is shown without the ICV
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 72 && frame.number <= 81',
+                            ['frame.number', 'esp.icv', 'data.len'], self.AUTH)
+        assert [r[2] for r in rows] == ['32', '32', '', '32', '32', '32', '32', '32', '32', '28']
+
+    def test_ipsec_twofish_bad_length(self, cmd_tshark, capture_file, test_env):
+        '''A TWOFISH-CBC SA with ciphertext that is not a multiple of the block
+        size.  The block size used to be unset, so the data went to
+        libgcrypt, which failed: a dissector bug exception, and the freed
+        cipher handle was used by the next packet.  Now every packet
+        reports the invalid length.'''
+        for two in (False, True):
+            args = [cmd_tshark, '-2'] if two else [cmd_tshark]
+            stdout = subprocess.check_output(args + ['-r', capture_file('ipsec_coverage.pcapng.gz'),
+                    '-o', self.DECODE, '-Y', 'esp.spi == 0x7779',
+                    '-Tfields', '-eframe.number', '-eesp.encrypted_data', '-e_ws.expert.message',
+                    '-e_ws.malformed'], encoding='utf-8', env=test_env, timeout=120)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['101', '102', '103']
+            for r in rows:
+                assert len(r[1]) == 40      # 20 octets, no exception
+                assert r[2] == '' and r[3] == ''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('ipsec_coverage.pcapng.gz'),
+                '-o', self.DECODE, '-Y', 'frame.number == 103', '-V'),
+                encoding='utf-8', env=test_env, timeout=120)
+        assert 'Invalid length, ciphertext should be a multiple of block size (16)' in stdout
+        # the algorithm name comes from a lookup by value, not by array index
+        assert '<TWOFISH-CBC>' in stdout
+
+    def test_ipsec_dsb_regressions(self, cmd_tshark, capture_file, test_env):
+        '''The capture carries ESP secrets blocks that used to read past
+        the end of a heap buffer (no NUL terminator) and to overflow a stack
+        buffer (IPv6 filter with 5-digit groups).  Both are loaded and
+        used with the SA preferences on.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'esp.spi == 0x7777 || esp.spi == 0x7778',
+                            ['frame.number', '_ws.malformed'], self.DECODE, self.AUTH)
+        assert [r[0] for r in rows] == ['99', '100']
+
+    def test_ipsec_udp_encapsulation(self, cmd_tshark, capture_file, test_env):
+        '''UDP port 4500: ESP, NAT keepalive and IKE with the non-ESP marker;
+        Exported PDU frames that name esp, ah and ipcomp.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'udpencap',
+                            ['frame.number', 'udpencap.nat_keepalive', 'udpencap.non_esp_marker',
+                             'esp.spi', '_ws.col.protocol'])
+        assert rows == [
+            ['104', '', '', '0x00005100', 'ESP'],
+            ['105', '', '', '0x00005100', 'ESP'],
+            ['106', '1', '', '', 'UDPENCAP'],
+            ['107', '', '1', '', 'IKE'],
+            ['108', '', '', '0x00005101', 'ESP'],
+            ['109', '', '', '0x00006003', 'ESP'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'exported_pdu',
+                            ['frame.number', 'exported_pdu.prot_name', '_ws.col.protocol'])
+        assert [r[:2] for r in rows] == [['110', 'esp'], ['111', 'esp'], ['112', 'ah'], ['113', 'ipcomp']]
