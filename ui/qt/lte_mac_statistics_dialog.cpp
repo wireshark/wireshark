@@ -718,7 +718,7 @@ void LteMacStatisticsDialog::updateCommonStats(const mac_3gpp_tap_info *tap_info
 void LteMacStatisticsDialog::drawCommonStats()
 {
     if (!commonStatsCurrent_) {
-        QString stats_tables = "<html><head></head><body>\n";
+        QString stats_tables = "<html><head><style>th { padding-right: 8px; }</style></head><body>\n";
         stats_tables += QStringLiteral("<table>\n");
         stats_tables += QStringLiteral("<tr><th align=\"left\">System</th> <td align=\"left\"> Max UL UEs/TTI=%1</td>").arg(commonStats_.max_ul_ues_in_tti);
         stats_tables += QStringLiteral("<td align=\"left\">Max DL UEs/TTI=%1</td></tr>\n").arg(commonStats_.max_dl_ues_in_tti);
