@@ -83028,3 +83028,115 @@ class TestDissectIrc:
         assert [r[0] for r in rows] == ['15', '18', '25', '26']
         assert rows[0][1].count('Tag data outside of NOTICE or PRIVMSG command') == 2
         assert rows[1][1].count('Numeric command not allowed in request') == 3
+
+
+class TestDissectIrdma:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irdma_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_irdma_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Endpoint, QP and Link messages of the exported PDUs decode as
+        RDMA without malformed packets or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 57
+        assert protocols.count('RDMA-EP') == 52
+        assert protocols.count('RDMA-QP') == 3
+        assert protocols.count('RDMA-Link') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('irdma_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_irdma_reuse_analysis_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''REUSEBUF frames keep the time since the previous frame of the
+        stream in the second pass: dissect_reuse_msg added a second
+        analysis record that replaced the one with the time.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'irdma.ep.type == 0x22',
+                    '-eframe.number', '-eirdma.ep.time_delta')
+            assert [r[0] for r in rows] == ['8', '13', '14', '16', '20', '21', '22',
+                                            '40', '41', '42', '48']
+            assert all(r[1] for r in rows)
+
+    def test_irdma_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column and expert infos of the connection, analysis and
+        management frames.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-e_ws.col.info', '-e_ws.expert.message'))
+        assert rows['1'] == ['40000 → 930 [CONNREQ]', 'Connection request (CONNREQ): server port 930']
+        assert rows['2'] == ['930 → 40000 [CONNACK]', 'Connection acknowledgement (CONNACK): server port 930']
+        assert rows['11'] == ['[Retransmission] 40000 → 930 [DATA]', 'Duplicate data packet (retransmission)']
+        assert rows['27'] == ['[Retransmission] 40000 → 930 [RECVACK]', 'Duplicate data packet (retransmission)']
+        assert rows['29'] == ['40000 → 930 [MOVEREQ]', 'Link switch']
+        assert rows['33'] == ['40000 → 930 [DATA]', 'Packet received from prior link']
+        assert rows['34'][0] == '930 → 40000 [UNKNOWN (0x30)]'
+        assert rows['53'][0] == 'Echo request     qp= 3, id=4660'
+        assert rows['55'][0] == 'Unknown message (0x8002) qp= 3'
+        assert rows['56'][0] == 'Link Status, groups=7'
+        assert rows['57'][0] == 'Unknown message (0xA001)'
+
+    def test_irdma_streams(self, cmd_tshark, capture_file, test_env):
+        '''Streams are keyed by the group ID and the ports; a CONNREQ after
+        a CLOSE starts a new stream.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'irdma.ep.stream',
+                '-eframe.number', '-eirdma.ep.stream', '-eirdma.ep.linkseq')
+        streams = [r[1] for r in rows]
+        assert streams == ['0'] * 35 + ['1'] * 4 + ['2'] * 3 + ['3'] * 6 + ['4', '5', '6', '6']
+        assert [r[2] for r in rows[28:35]] == ['2', '2', '2', '2', '1', '2', '2']
+        assert [r[2] for r in rows[35:39]] == ['3'] * 4
+
+    def test_irdma_receive_buffer_analysis(self, cmd_tshark, capture_file, test_env):
+        '''The receive buffer estimate follows the buffer messages and the
+        data and reuse messages.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'irdma.ep.analysis.rcvbuf', '-eframe.number',
+                '-eirdma.ep.analysis.rcvbuf', '-eirdma.ep.analysis.rcvbuf.active',
+                '-eirdma.ep.analysis.rcvbuf.max'))
+        assert rows['7'] == ['130960', '65424', '65536']
+        assert rows['8'] == ['131072', '65536', '65536']
+        assert rows['9'] == ['127952', '62416', '65536']
+        assert rows['17'] == ['122880', '57344', '65536']
+        assert rows['32'] == ['65504', '65504', '65504']
+
+    def test_irdma_fields(self, cmd_tshark, capture_file, test_env):
+        '''Addresses of the pseudo header (IPv4, IPv6) and fields of the
+        connect, buffer, link move, close and user RDMA messages.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-eirdma.ipv4.src', '-eirdma.ipv4.dst', '-eirdma.ipv6.src',
+                '-eirdma.ipv6.dst', '-eirdma.qpidx'))
+        assert rows['1'] == ['192.0.2.1', '192.0.2.2', '', '', '3']
+        assert rows['43'] == ['', '', '2001:db8::1', '2001:db8::2', '5']
+        assert rows['49'][:2] == ['192.0.2.1', '192.0.2.2']
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 3 || frame.number == 9 || '
+                      'frame.number == 23 || frame.number == 29 || frame.number == 35',
+                '-eframe.number', '-eirdma.ep.sndbufsize', '-eirdma.ep.usrblksize',
+                '-eirdma.ep.rbuf.key', '-eirdma.ep.rbuf.addr', '-eirdma.ep.rcvbufsize',
+                '-eirdma.ep.buffer.flags', '-eirdma.ep.seqnum', '-eirdma.ep.bufid',
+                '-eirdma.ep.offset', '-eirdma.ep.length', '-eirdma.ep.ulength',
+                '-eirdma.ep.blength', '-eirdma.ep.recvid', '-eirdma.ep.reason'))
+        assert rows['1'][:2] == ['16', '4']
+        assert rows['3'][2:5] == ['0x00000011,0x00000012',
+                                  '0x0000000000001000,0x0000000000002000', '16']
+        assert rows['9'][6:10] == ['2', '0', '112', '3000']
+        assert rows['23'][2:4] == ['0x00000031', '0x0000000000006000']
+        assert rows['23'][10:13] == ['8192', '4096', '1']
+        assert rows['29'][4:6] == ['49168', '0x0c']
+        assert rows['35'][-1] == '5'
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'irdma.qp.type || irdma.link.type', '-eframe.number',
+                '-eirdma.qp.type', '-eirdma.qp.echo.id', '-eirdma.link.type',
+                '-eirdma.link.status.groups')
+        assert rows == [['53', '0x8000', '4660', '', ''], ['54', '0x8001', '4660', '', ''],
+                        ['55', '0x8002', '', '', ''], ['56', '', '', '0xa000', '7'],
+                        ['57', '', '', '0xa001', '']]
