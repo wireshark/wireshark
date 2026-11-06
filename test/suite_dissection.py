@@ -82311,3 +82311,61 @@ class TestDissectIpsecTcp:
                             ['frame.number', 'tcpencap.proto', 'tcpencap.seq'],
                             '-d', 'tcp.port==62002,tcpencap', '-d', 'tcp.port==62005,tcpencap')
         assert rows == [['27', '0x06', '0x0001'], ['48', '0x32', '0x0004']]
+
+
+class TestDissectIpsecUdp:
+    '''UDP encapsulation of IPsec packets (NAT traversal, UDP port 4500): ESP,
+    NAT keepalive and IKE with the non-ESP marker, from the synthetic
+    capture ipsec_udp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, two=False):
+        args = [cmd_tshark] + (['-2'] if two else [])
+        args += ['-r', capture_file('ipsec_udp_coverage.pcap.gz'), '-Y', display_filter, '-Tfields']
+        args += ['-e' + f for f in fields]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_ipsec_udp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is UDPENCAP; ESP, keepalive and IKE (IPv4 and IPv6);
+        no malformed frames or error expert infos in one and two passes.'''
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'udpencap',
+                                ['frame.number', 'udpencap.nat_keepalive', 'udpencap.non_esp_marker',
+                                 'esp.spi', '_ws.col.protocol'], two=two)
+            assert rows == [
+                ['1', '', '', '0x00008000', 'ESP'],
+                ['2', '', '', '0x00008000', 'ESP'],
+                ['3', '', '', '0x00008000', 'ESP'],
+                ['4', '', '', '0xffffffff', 'ESP'],
+                ['5', '', '', '0x00000001', 'ESP'],
+                ['6', '', '', '0x00000100', 'ESP'],
+                ['7', '1', '', '', 'UDPENCAP'],
+                ['8', '1', '', '', 'UDPENCAP'],
+                ['9', '', '', '0xff000000', 'ESP'],      # first octet 0xff but more data: ESP
+                ['10', '', '1', '', 'IKE'],
+                ['11', '', '1', '', 'IKE'],
+                ['12', '', '1', '', 'IKE'],
+                ['13', '', '', '0x00009000', 'ESP'],
+                ['14', '1', '', '', 'UDPENCAP'],
+                ['15', '', '1', '', 'IKE'],
+            ]
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                ['frame.number'], two=two)
+            assert rows == []
+
+    def test_ipsec_udp_ike(self, cmd_tshark, capture_file, test_env):
+        '''The four octet non-ESP marker is skipped: IKE starts after it, the
+        UDPENCAP item covers only the marker.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'ike',
+                            ['frame.number', 'udpencap.non_esp_marker', 'ike.exchangetype', 'ike.version'])
+        assert [r[0] for r in rows] == ['10', '11', '12', '15']
+        assert [r[2] for r in rows] == ['34', '34', '2', '34']
+        assert rows[2][3] in ('0x10', '16')
+
+    def test_ipsec_udp_keepalive_length(self, cmd_tshark, capture_file, test_env):
+        '''The keepalive is one octet, covered by its own field.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'udpencap.nat_keepalive',
+                            ['frame.number', 'udp.length'])
+        assert rows == [['7', '9'], ['8', '9'], ['14', '9']]
