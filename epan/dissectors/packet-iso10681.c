@@ -124,6 +124,7 @@ static int ett_iso10681;
 static int ett_iso10681_bandwidth_control;
 
 static expert_field ei_iso10681_message_type_bad;
+static expert_field ei_iso10681_too_many_segments;
 
 static int proto_iso10681;
 static dissector_handle_t iso10681_handle_flexray;
@@ -335,16 +336,22 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
         /* Get frame information */
         iso10681_frame = (iso10681_frame_t *)wmem_map_lookup(iso10681_frame_table, GUINT_TO_POINTER(iso10681_info->seq));
         if (iso10681_frame != NULL) {
-            if (type == ISO10681_TYPE_LAST_FRAME) {
-                frag_id = iso10681_frame->last_frag_id + 1;
-            }
-
             if (!(pinfo->fd->visited)) {
-                DISSECTOR_ASSERT(frag_id < 16);
-                uint16_t tmp = iso10681_frame->frag_id_high[frag_id]++;
-                /* Make sure that we assert on using more than 4096 (16*255) segments.*/
-                DISSECTOR_ASSERT(iso10681_frame->frag_id_high[frag_id] != 0);
-                frag_id += tmp * 16;
+                if (type == ISO10681_TYPE_LAST_FRAME) {
+                    /* Already an absolute fragment id */
+                    frag_id = iso10681_frame->last_frag_id + 1;
+                } else {
+                    DISSECTOR_ASSERT(frag_id < 16);
+                    uint16_t tmp = iso10681_frame->frag_id_high[frag_id];
+                    /* Do not wrap around when using more than 4096 (16*255) segments. */
+                    if (tmp == UINT8_MAX) {
+                        expert_add_info(pinfo, iso10681_tree, &ei_iso10681_too_many_segments);
+                        iso10681_frame->error = true;
+                    } else {
+                        iso10681_frame->frag_id_high[frag_id]++;
+                    }
+                    frag_id += tmp * 16;
+                }
 
                 /* Save the frag_id for subsequent dissection */
                 iso10681_info->frag_id = frag_id;
@@ -366,7 +373,8 @@ dissect_iso10681(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t f
                     if (iso10681_frame->offset >= iso10681_frame->len) {
                         iso10681_info->last = true;
                         iso10681_frame->complete = true;
-                        len -= (iso10681_frame->offset - iso10681_frame->len);
+                        /* Clamp, the excess can be larger than this frame. */
+                        len -= MIN(iso10681_frame->offset - iso10681_frame->len, len);
                     }
                 }
                 pinfo->fragmented = true;
@@ -492,6 +500,9 @@ proto_register_iso10681(void) {
     static ei_register_info ei[] = {
         {
             &ei_iso10681_message_type_bad, { "iso10681.message_type.bad", PI_MALFORMED, PI_ERROR, "Bad Message Type value", EXPFILL }
+        },
+        {
+            &ei_iso10681_too_many_segments, { "iso10681.too_many_segments", PI_MALFORMED, PI_ERROR, "Too many segments with the same sequence number", EXPFILL }
         },
     };
 
