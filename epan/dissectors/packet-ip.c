@@ -1014,7 +1014,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     case 1:
       /* restrictive bitmap, see CIPSO draft section 3.4.2 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
-         ((offset + (int)taglen - 1) > offset_max)) {
+         ((offset + (int)taglen) > offset_max)) {
         expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return offset;
       }
@@ -1060,7 +1060,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     case 2:
       /* enumerated categories, see CIPSO draft section 3.4.3 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
-         ((offset + (int)taglen - 1) > offset_max)) {
+         ((offset + (int)taglen) > offset_max)) {
         expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return offset;
       }
@@ -1090,7 +1090,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     case 5:
       /* ranged categories, see CIPSO draft section 3.4.4 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
-         ((offset + (int)taglen - 1) > offset_max)) {
+         ((offset + (int)taglen) > offset_max)) {
         expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return offset;
       }
@@ -1131,7 +1131,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     case 6:
       /* permissive categories, see FIPS 188 section 6.9 for tag format */
       if ((taglen < 4) || (taglen > CIPSO_TAG_LEN_MAX) ||
-         ((offset + (int)taglen - 1) > offset_max)) {
+         ((offset + (int)taglen) > offset_max)) {
         expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return offset;
       }
@@ -1142,7 +1142,7 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     case 7:
       /* free form, see FIPS 188 section 6.10 for tag format */
       if ((taglen < 2) || (taglen > CIPSO_TAG_LEN_MAX) ||
-         ((offset + (int)taglen - 1) > offset_max)) {
+         ((offset + (int)taglen) > offset_max)) {
         expert_add_info(pinfo, tag_item, &ei_ip_cipso_tag);
         return offset;
       }
@@ -1738,6 +1738,10 @@ get_dst_offset(tvbuff_t *tvb, int offset, unsigned length)
         /* Hmm, what if you have both options? */
         uint8_t ptr;
 
+        /* Type, length, pointer and at least one address. */
+        if (len < 3 + 4) {
+          return 0;
+        }
         ptr = tvb_get_uint8(tvb, offset + 2);
         if (ptr < 4 || (ptr & 3) || (ptr > len)) {
           return 0;
