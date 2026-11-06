@@ -203,8 +203,8 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
 
 void SCTPChunkStatisticsDialog::contextMenuEvent(QContextMenuEvent * event)
 {
-    selected_point = event->pos();
-    QTableWidgetItem *item = ui->tableWidget->itemAt(selected_point.x(), selected_point.y()-60);
+    selected_point = ui->tableWidget->viewport()->mapFrom(this, event->pos());
+    QTableWidgetItem *item = ui->tableWidget->itemAt(selected_point);
     if (item) {
         ctx_menu_.popup(event->globalPos());
     }
@@ -273,7 +273,7 @@ void SCTPChunkStatisticsDialog::on_actionHideChunkType_triggered()
 {
     int row;
 
-    QTableWidgetItem *itemPoint = ui->tableWidget->itemAt(selected_point.x(), selected_point.y()-60);
+    QTableWidgetItem *itemPoint = ui->tableWidget->itemAt(selected_point);
     if (itemPoint) {
         row = itemPoint->row();
         ui->tableWidget->hideRow(row);
