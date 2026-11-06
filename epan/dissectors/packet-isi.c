@@ -1151,7 +1151,7 @@ static int dissect_isi_gss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitre
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item _U_, proto_tree *tree)
+static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo, proto_item *item _U_, proto_tree *tree)
 {
 	int i;
 	double tmp_double;
@@ -1165,6 +1165,11 @@ static void dissect_isi_gps_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_it
 	for(i=0; i<pkgcount; i++) {
 		uint8_t sptype = tvb_get_uint8(tvb, offset+1);
 		uint8_t splen = tvb_get_uint8(tvb, offset+3);
+
+		if (splen < 4) {
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_isi_len, tvb, offset);
+			break;
+		}
 		proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, offset, splen, ett_isi_msg, NULL, "Subpacket (%s)", val_to_str(pinfo->pool, sptype, isi_gps_sub_id, "unknown: 0x%x"));
 
 		proto_tree_add_item(subtree, hf_isi_gps_sub_type, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -1478,7 +1483,7 @@ static int dissect_isi_ss(tvbuff_t *tvb, packet_info *pinfo, proto_item *isitree
 	return tvb_captured_length(tvb);
 }
 
-static void dissect_isi_network_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_item *item _U_, proto_tree *tree)
+static void dissect_isi_network_status(tvbuff_t *tvb, packet_info *pinfo, proto_item *item _U_, proto_tree *tree)
 {
 	int i;
 	int offset = 0x03; /* subpackets start here */
@@ -1490,6 +1495,10 @@ static void dissect_isi_network_status(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	for(i=0; i<pkgcount; i++) {
 		uint8_t sptype = tvb_get_uint8(tvb, offset+0);
 		uint8_t splen = tvb_get_uint8(tvb, offset+1);
+		if (splen < 2) {
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_isi_len, tvb, offset);
+			break;
+		}
 
 		proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, offset, splen, ett_isi_msg, NULL, "Subpacket (%s)", val_to_str(pinfo->pool, sptype, isi_network_status_sub_id, "unknown: 0x%x"));
 
@@ -1540,6 +1549,10 @@ static void dissect_isi_network_cell_info_ind(tvbuff_t *tvb, packet_info *pinfo,
 	for(i=0; i<pkgcount; i++) {
 		uint8_t sptype = tvb_get_uint8(tvb, offset+0);
 		uint8_t splen = tvb_get_uint8(tvb, offset+1);
+		if (splen < 2) {
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_isi_len, tvb, offset);
+			break;
+		}
 
 		proto_tree *subtree = proto_tree_add_subtree_format(tree, tvb, offset, splen, ett_isi_msg, NULL, "Subpacket (%s)", val_to_str(pinfo->pool, sptype, isi_network_cell_info_sub_id, "unknown: 0x%x"));
 
