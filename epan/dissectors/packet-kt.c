@@ -190,6 +190,8 @@ dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_uint(tree, hf_kt_size, tvb, new_offset, 4, size);
             new_offset += 4;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, size);
             proto_tree_add_item(tree, hf_kt_log, tvb, new_offset, size, ENC_NA);
             new_offset += size;
         }
@@ -251,6 +253,8 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
             proto_tree_add_item(rec_tree, hf_kt_xt, tvb, new_offset, 8, ENC_BIG_ENDIAN);
             new_offset += 8;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
@@ -258,6 +262,8 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
             }
             new_offset += ksiz;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, vsiz);
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
@@ -314,6 +320,8 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, rnum);
             new_offset += 4;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, nsiz);
             proto_tree_add_item(tree, hf_kt_name, tvb, new_offset, nsiz, ENC_ASCII);
             new_offset += nsiz;
 
@@ -331,6 +339,8 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
                 new_offset += 4;
 
+                /* Throws if the length claimed in the packet is not there. */
+                tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
@@ -338,6 +348,8 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
                 }
                 new_offset += ksiz;
 
+                /* Throws if the length claimed in the packet is not there. */
+                tvb_ensure_bytes_exist64(tvb, new_offset, vsiz);
                 proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
@@ -380,6 +392,8 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_uint(rec_tree, hf_kt_vsiz, tvb, new_offset, 4, vsiz);
             new_offset += 4;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
@@ -387,6 +401,8 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             }
             new_offset += ksiz;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, vsiz);
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
@@ -445,6 +461,8 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
                 proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
                 new_offset += 4;
 
+                /* Throws if the length claimed in the packet is not there. */
+                tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
@@ -495,6 +513,8 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
             proto_tree_add_time(rec_tree, hf_kt_xt_resp, tvb, new_offset, 8, &ts);
             new_offset += 8;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
@@ -502,6 +522,8 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
             }
             new_offset += ksiz;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, vsiz);
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII);
@@ -557,6 +579,8 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_uint(rec_tree, hf_kt_ksiz, tvb, new_offset, 4, ksiz);
             new_offset += 4;
 
+            /* Throws if the length claimed in the packet is not there. */
+            tvb_ensure_bytes_exist64(tvb, new_offset, ksiz);
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII);
