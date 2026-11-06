@@ -80112,3 +80112,141 @@ class TestDissectIpfc:
         assert lines[0] == '1\t192.0.2.1\t'
         assert lines[7] == '8\t192.0.2.1\t'
         assert lines[8] == '9\t\t192.0.2.2'
+
+
+class TestDissectIpmiApp:
+    '''IPMI NetFn Application commands (Get Device ID, self test, ACPI
+    power state, watchdog, message flags, Get/Send Message, channel
+    authentication and session commands) from the synthetic capture
+    ipmi_app_coverage.pcapng.gz. The commands are only dissected with
+    ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def app_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_app_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_app_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IPMB and none is malformed or has an error
+        expert info, in one and two passes. The commands without a
+        decoder have a "parser not implemented" warning.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                               '_ws.col.protocol', extra=self.BUS)
+        assert len(rows) == 220
+        assert all(r[1] == 'IPMB' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                    extra=(*self.BUS, *passes),
+                    flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                extra=self.BUS, flt='ipmi.parser_not_implemented')
+        assert len(rows) == 81
+
+    def test_ipmi_app_device_id(self, cmd_tshark, capture_file, test_env):
+        '''Get Device ID responses, with and without the auxiliary firmware
+        revision.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app01.manufacturer', 'ipmi.app01.product',
+                'ipmi.app01.ipmi.version', 'ipmi.app01.fw.aux',
+                extra=self.BUS, flt='ipmi.app01.product')
+        assert rows[:3] == [
+            ['2', '343', '0x1234', '2', '01020304'],
+            ['4', '0', '0x0000', '81', ''],
+            ['6', '16777215', '0xffff', '21', '09090909'],
+        ]
+
+    def test_ipmi_app_self_test(self, cmd_tshark, capture_file, test_env):
+        '''Get Self Test Results: a pass, "not implemented", reserved,
+        the failure bitfield (all bits, none, some) and device-specific
+        results.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app04.self_test_result', 'ipmi.app04.fail',
+                'ipmi.app04.fail.sel', 'ipmi.app04.fail.oper_fw',
+                extra=self.BUS, flt='ipmi.app04.self_test_result')
+        assert [r[1:3] for r in rows] == [
+            ['0x55', '0x00'], ['0x56', '0x00'], ['0xff', '0x00'], ['0x57', '0xff'],
+            ['0x57', '0x00'], ['0x57', '0xa5'], ['0x58', '0x12'], ['0x60', '0x34']]
+        assert rows[3][3:] == ['True', 'True'] and rows[4][3:] == ['False', 'False']
+        assert rows[5][3:] == ['True', 'True']
+
+    def test_ipmi_app_guid(self, cmd_tshark, capture_file, test_env):
+        '''Get Device GUID: the fields are shown in IPMI (reversed) order.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app08.guid', extra=self.BUS, flt='ipmi.app08.guid')
+        assert rows == [['38', 'ffeeddcc-bbaa-9988-7766-554433221100']]
+
+    def test_ipmi_app_watchdog(self, cmd_tshark, capture_file, test_env):
+        '''Set and Get Watchdog Timer.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app24.timer_use.timer_use', 'ipmi.app24.timer_action.timeout',
+                'ipmi.app24.pretimeout', 'ipmi.app24.initial_countdown',
+                extra=self.BUS, flt='ipmi.app24.initial_countdown')
+        assert [r[1:] for r in rows] == [['0x04', '0x03', '5', '10000'], ['0x01', '0x00', '0', '0']]
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app25.timer_use.started', 'ipmi.app25.initial_countdown',
+                'ipmi.app25.present_countdown',
+                extra=self.BUS, flt='ipmi.app25.initial_countdown')
+        assert [r[1:] for r in rows][:2] == [['True', '10000', '1000'], ['True', '0', '0']]
+
+    def test_ipmi_app_get_send_message(self, cmd_tshark, capture_file, test_env):
+        '''Get Message and Send Message carry IPMB messages for every
+        channel and tracking mode, also a message inside a response.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app34.track', 'ipmi.app34.chan', extra=self.BUS,
+                flt='ipmi.app34.chan')
+        assert [r[1:] for r in rows][:5] == [
+            ['0x00', '0'], ['0x01', '1'], ['0x02', '3'], ['0x00', '15'], ['0x00', '0']]
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_app_coverage.pcapng.gz'),
+                '-Y', 'ipmi.app33.msg || ipmi.app34.msg', '-Tfields', '-eipmi.header.command',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('0x01') >= 15 and '0x34,0x24' in stdout
+
+    def test_ipmi_app_session_commands(self, cmd_tshark, capture_file, test_env):
+        '''Get Channel Authentication Capabilities, Get Session
+        Challenge, Activate Session, Set Session Privilege Level and
+        Close Session.'''
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app38.rs_oem_iana', 'ipmi.app38.rs_oem_aux',
+                extra=self.BUS, flt='ipmi.app38.rs_oem_iana')
+        assert [r[1:] for r in rows] == [['0', '0x00'], ['197121', '0x09'], ['0', '0x00']]
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app39.temp_session', 'ipmi.app39.challenge',
+                extra=self.BUS, flt='ipmi.app39.temp_session')
+        assert rows[0][1:] == ['0x04030201', 'a0a1a2a3a4a5a6a7a8a9aaabacadaeaf']
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app3a.outbound_seq', 'ipmi.app3a.session_id', 'ipmi.app3a.inbound_seq',
+                extra=self.BUS, flt='ipmi.app3a.outbound_seq || ipmi.app3a.session_id')
+        assert [r[1:] for r in rows] == [
+            ['0x00001000', '', ''], ['', '0x20202020', '0x00000030'],
+            ['0x00000001', '', ''], ['', '0x00000000', '0x00000000']]
+        rows = self.app_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.app3c.session_id', 'ipmi.app3c.session_handle',
+                extra=self.BUS, flt='ipmi.app3c.session_id')
+        assert [r[1:] for r in rows] == [['0x20202020', ''], ['0x00000000', '0x07']]
+
+    def test_ipmi_app_nested_send_message(self, cmd_tshark, capture_file, test_env):
+        '''Send Message inside Send Message (the nesting that overflowed
+        the stack before "IPMI: Bound nesting, FRU Unicode length and
+        request list") decodes down to the innermost command.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_app_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 217', '-V', '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('Embedded message: Req, Send Message') == 4
+        assert 'Embedded message: Req, Get Device ID' in lines
+        stdout = subprocess.check_output((cmd_tshark, *self.BUS,
+                '-r', capture_file('ipmi_app_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 220', '-V', '-O', 'ipmb',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('Embedded message: Rsp, Send Message, Command Completed Normally') == 2
+        assert 'Embedded message: Rsp, Get Device ID, Command Completed Normally' in lines
