@@ -430,7 +430,7 @@ rs00(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_chs_00_sel_dev_addr, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_00_sm_dev_addr, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 
-	if (tvb_captured_length(tvb) >= 5) {
+	if (tvb_captured_length(tvb) > 5) {
 		proto_tree_add_item(tree, hf_ipmi_chs_00_bridge_dev_addr, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	}
 }
