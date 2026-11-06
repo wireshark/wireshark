@@ -363,14 +363,16 @@ void LuaDebuggerPauseOverlay::paintEvent(QPaintEvent *)
     const int card_y = static_cast<int>(height() * kCardVerticalPosition);
     const QRectF card_rect(card_x, card_y, card_w, g.cardHeight);
 
-    const QColor card_bg = dark ? QColor(40, 40, 46, 230) : QColor(255, 255, 255, 222);
-    const QColor card_border = dark ? QColor(255, 255, 255, 40) : QColor(0, 0, 0, 35);
+    ThemeManager *theme = ThemeManager::instance();
+    QColor card_bg = theme->color(ThemeManager::OverlayCardBackground);
+    card_bg.setAlpha(dark ? 230 : 222);
+    const QColor card_border = theme->color(ThemeManager::OverlayCardBorder);
 
     painter.setPen(QPen(card_border, 1.0));
     painter.setBrush(card_bg);
     painter.drawRoundedRect(card_rect, g.cardCornerRadius, g.cardCornerRadius);
 
-    const QColor text_color = dark ? QColor(220, 220, 225) : QColor(50, 50, 55);
+    const QColor text_color = palette().color(QPalette::Text);
 
     /* Pause icon in the card's text colour. */
     QPalette glyph_palette = palette();
