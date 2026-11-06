@@ -654,7 +654,7 @@ dissect_iwarp_atomic(tvbuff_t *tvb, proto_tree *atomic_tree, uint32_t offset,
 			proto_tree_add_item(atomic_tree, hf_iwarp_rdma_atomic_original_request_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(atomic_tree, hf_iwarp_rdma_atomic_original_remote_data_value, tvb, offset, 8, ENC_BIG_ENDIAN);
-			offset += 4;
+			offset += 8;
 		break;
 	}
 	return offset;
