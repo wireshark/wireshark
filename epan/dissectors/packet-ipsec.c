@@ -234,7 +234,7 @@ static const value_string esp_encryption_type_vals[] = {
 static const char *
 esp_get_encr_algo_name(int esp_encr_algo)
 {
-  return esp_encryption_type_vals[esp_encr_algo].strptr;
+  return val_to_str_const((uint32_t)esp_encr_algo, esp_encryption_type_vals, "Unknown");
 }
 
 
@@ -259,7 +259,7 @@ static const value_string esp_authentication_type_vals[] = {
 static const char *
 esp_get_auth_algo_name(int esp_auth_algo)
 {
-  return esp_authentication_type_vals[esp_auth_algo].strptr;
+  return val_to_str_const((uint32_t)esp_auth_algo, esp_authentication_type_vals, "Unknown");
 }
 
 
@@ -715,16 +715,17 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
   int j =0;
   int ipv6_len = 0;
   bool found = false;
+  bool invalid = false;
 
   ipv6_len = (int) strlen(ipv6_address);
   if(ipv6_len  != 0)
     {
-      while ( (cpt_suffix < IPSEC_STRLEN_IPV6) && (ipv6_len - cpt -1 >= 0) && (found == false))
+      while ( (cpt_suffix < IPSEC_STRLEN_IPV6) && (ipv6_len - cpt -1 >= 0) && (found == false) && !invalid)
         {
           if(ipv6_address[ipv6_len - cpt - 1] == ':')
             {
               /* Add some 0 to the prefix; */
-              for(j = cpt_seg; j < 4; j++)
+              for(j = cpt_seg; j < 4 && cpt_suffix < IPSEC_STRLEN_IPV6; j++)
                 {
                   suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = '0';
                   cpt_suffix ++;
@@ -749,6 +750,11 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
                     cpt++;
                   }
             }
+          else if (cpt_seg >= 4)
+            {
+              /* A group has at most 4 hex digits. */
+              invalid = true;
+            }
           else
             {
               suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = g_ascii_toupper(ipv6_address[ipv6_len - cpt - 1]);
@@ -758,9 +764,14 @@ static int get_ipv6_suffix(char* ipv6_suffix, char *ipv6_address)
             }
         }
 
-      if(cpt_suffix % 4 != 0)
+      if (invalid)
         {
-          for(j = cpt_seg; j < 4; j++)
+          cpt = 0;
+          cpt_suffix = 0;
+        }
+      else if(cpt_suffix % 4 != 0)
+        {
+          for(j = cpt_seg; j < 4 && cpt_suffix < IPSEC_STRLEN_IPV6; j++)
             {
               suffix[IPSEC_STRLEN_IPV6 -1 -cpt_suffix] = '0';
               cpt_suffix ++;
@@ -858,11 +869,12 @@ get_full_ipv6_addr(wmem_allocator_t* scope, char* ipv6_addr_expanded, char *ipv6
       if(mask <= 4 * i || ipv6_addr_expanded[i] == '*')
         ipv6_addr_expanded[i] = '*';
       else {
-        if(sscanf(ipv6_addr_expanded + i, "%X", &addr_byte) == EOF)
+        /* Mask this one hex digit. */
+        if(sscanf(ipv6_addr_expanded + i, "%1X", &addr_byte) != 1)
            break;
         addr_byte &= (0x0F << (4 * (i + 1) - mask));
         addr_byte &= 0x0F;
-        snprintf(ipv6_addr_expanded + i, 4, "%X", addr_byte);
+        ipv6_addr_expanded[i] = "0123456789ABCDEF"[addr_byte];
       }
     }
   }
@@ -1006,22 +1018,23 @@ get_full_ipv4_addr(char* ipv4_address_expanded, char *ipv4_address)
 
     }
 
-    for(i = 0; i < IPSEC_STRLEN_IPV4; i++)
+    ipv4_address_expanded[cpt] = '\0';
+    for(i = 0; i < cpt; i++)
     {
       if(4 * (i + 1) > mask)
       {
         if(mask <= 4 * i || ipv4_address_expanded[i] == '*')
           ipv4_address_expanded[i] = '*';
         else {
-          if(sscanf(ipv4_address_expanded + i, "%X", &addr_byte) == EOF)
+          /* Mask this one hex digit. */
+          if(sscanf(ipv4_address_expanded + i, "%1X", &addr_byte) != 1)
              return false;
           addr_byte &= (0x0F << (4 * (i + 1) - mask));
           addr_byte &= 0x0F;
-          snprintf(ipv4_address_expanded + i, 4, "%X", addr_byte);
+          ipv4_address_expanded[i] = "0123456789ABCDEF"[addr_byte];
         }
       }
     }
-    ipv4_address_expanded[cpt] = '\0';
   }
 
   return done_flag;
@@ -1402,7 +1415,7 @@ capture_ah(const unsigned char *pd, int offset, int len, capture_packet_info_t *
   if (!BYTES_ARE_IN_FRAME(offset, len, 2))
     return false;
   nxt = pd[offset];
-  advance = 8 + ((pd[offset+1] - 1) << 2);
+  advance = (int)(((unsigned)pd[offset+1] + 2) << 2);
   if (!BYTES_ARE_IN_FRAME(offset, len, advance))
     return false;
   offset += advance;
@@ -2044,7 +2057,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           */
 
           /* Fix parameters for TWOFISH-CBC */
-          esp_iv_len = 16;
+          esp_iv_len = esp_block_len = 16;
           crypt_mode_libgcrypt = GCRY_CIPHER_MODE_CBC;
 
           switch(esp_encr_key_len * 8)
@@ -2283,6 +2296,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
                 if (err) {
                   gcry_cipher_close(*cipher_hd);
+                  *cipher_hd_created = false;
                   REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%u) failed: %s\n",
                                        gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_encr_key_len, gcry_strerror(err));
                 }
@@ -2347,6 +2361,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
           if (err) {
             gcry_cipher_close(*cipher_hd);
+            *cipher_hd_created = false;
             REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_set%s() failed: %s\n",
                                  gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt,
                                  (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR) ? "ctr" : "iv",
@@ -2370,6 +2385,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             if (err) {
               gcry_cipher_close(*cipher_hd);
+              *cipher_hd_created = false;
               REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_authenticate() failed: %s\n",
                                    gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
             }
@@ -2383,6 +2399,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
           if (err)
           {
             gcry_cipher_close(*cipher_hd);
+            *cipher_hd_created = false;
             REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
                                  gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gcry_strerror(err));
           }
@@ -2406,6 +2423,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
               err = gcry_cipher_gettag(*cipher_hd, esp_icv_computed, tag_len);
               if (err) {
                 gcry_cipher_close(*cipher_hd);
+                *cipher_hd_created = false;
                 REPORT_DISSECTOR_BUG("<IPsec/ESP Dissector> Error in Algorithm %s:  gcry_cipher_gettag failed: %s",
                                      gcry_md_algo_name(crypt_algo_libgcrypt), gcry_strerror(err));
               }
@@ -2561,7 +2579,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (sn_length == IPSEC_SA_ESN && g_esp_do_sequence_analysis) {
           spi_status *status = (spi_status*)wmem_map_lookup(esp_sequence_analysis_hash,
                                                                 GUINT_TO_POINTER((unsigned)spi));
-          if (status && !status->firstValidSN) {
+          if (status && !PINFO_FD_VISITED(pinfo) && !status->firstValidSN) {
             status->firstValidSN = sequence_number;
           }
         }
