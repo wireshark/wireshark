@@ -80803,3 +80803,53 @@ class TestDissectIpmiPicmg:
                 '-Y', 'frame.number == 13 || frame.number == 14', '-Tfields', '-eframe.number',
                 '-eipmi.picmg17.status', '-eipmi.picmg2f.prop_data')
         assert stdout.splitlines() == ['13\t0x00\t', '14\t\t0102']
+
+
+class TestDissectIpmiPps:
+    '''IPMI NetFn OEM/Group commands of the Pigeon Point Systems defining
+    body (named but not decoded) from the synthetic capture
+    ipmi_pps_coverage.pcapng.gz. The commands are only dissected with
+    ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def pps_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_pps_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_pps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is IPMB and none is malformed or has an error
+        expert info, in one and two passes.'''
+        rows = self.pps_fields(cmd_tshark, capture_file, test_env,
+                               '_ws.col.protocol', extra=self.BUS)
+        assert len(rows) == 154
+        assert all(r[1] == 'IPMB' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.pps_fields(cmd_tshark, capture_file, test_env,
+                    extra=(*self.BUS, *passes),
+                    flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_ipmi_pps_command_names(self, cmd_tshark, capture_file, test_env):
+        '''All 66 PPS commands are named, with the signature 0a 40 00 and
+        the reversed 00 40 0a; other commands and other defining bodies
+        are unknown.'''
+        rows = self.pps_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.info', 'ipmi.header.signature', extra=self.BUS)
+        info = {r[0]: r[1] for r in rows}
+        sig = {r[0]: r[2] for r in rows}
+        assert info['1'] == 'Req, [PPS OEM] Get Status'
+        assert info['3'] == 'Req, [PPS OEM] Get Serial Interface Properties'
+        assert info['131'] == 'Req, [PPS OEM] Set FRU Info Write-Protect State'
+        assert sig['1'] == '0a4000' and sig['133'] == '00400a'
+        assert info['134'] == 'Rsp, [PPS OEM] Get Status, Invalid Command (c1h)'
+        names = [i for n, i in info.items() if int(n) <= 140 and i.startswith('Req, ')]
+        assert len(names) == 70 and all('[PPS OEM]' in n for n in names)
+        assert info['141'] == 'Req, Unknown command'
+        assert info['151'] == 'Req, Unknown command'         # another defining body
+        assert info['153'] == 'Req, [PPS OEM] Get Status'    # Exported PDU
