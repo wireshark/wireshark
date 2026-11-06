@@ -66468,7 +66468,9 @@ class TestDissectGsmMap:
     def test_gsm_map_protocols(self, cmd_tshark, capture_file, test_env):
         '''MTP3/SCCP/TCAP on the MAP subsystem numbers: 920 frames, none
         malformed or with a warning or error expert info, in one and two
-        passes. The last two are the SES/PRES reproducer.'''
+        passes. The last two are the SES/PRES reproducer. Some ISUP
+        geodetic locations carry data with LPRI "location not available",
+        which ISUP reports as not dissected; that warning is expected.'''
         stdout = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Tfields', '-e_ws.col.protocol')
         protocols = stdout.split('\n')[:-1]
@@ -66478,7 +66480,8 @@ class TestDissectGsmMap:
         assert protocols.count('RANAP') == 11
         for passes in ((), ('-2',)):
             stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
-                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x600000',
+                    '-Y', '_ws.malformed || (_ws.expert.severity >= 0x600000'
+                          ' && !isup.not_dissected_yet)',
                     '-Tfields', '-eframe.number')
             assert count_output(stdout) == 0
 
