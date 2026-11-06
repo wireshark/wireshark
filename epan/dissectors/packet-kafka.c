@@ -1218,7 +1218,7 @@ dissect_kafka_regular_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
         if (p_offset) {
-            *p_offset = 2;
+            *p_offset = offset + 2;
         }
         if (p_length) {
             *p_length = 0;
@@ -1701,7 +1701,7 @@ dissect_kafka_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     if (len == 0) {
         expert_add_info(pinfo, record_ti, &ei_kafka_bad_varint);
         return tvb_captured_length(tvb);
-    } else if (size < 6) {
+    } else if (size < 6 || size > (int64_t)tvb_captured_length_remaining(tvb, offset + len)) {
         expert_add_info(pinfo, record_ti, &ei_kafka_bad_record_length);
         return offset + len;
     }
@@ -1843,7 +1843,10 @@ decompress_lz4(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length, t
         tvb_composite_append(composite_tvb,
                              tvb_new_child_real_data(tvb, (uint8_t*)decompressed_buffer, (unsigned)out_size, (int)out_size));
         src_offset += src_size; // bump up the offset for the next iteration
-        DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
+        if (rc > 0 && count + 1 >= MAX_LOOP_ITERATIONS) {
+            // Too many iterations, treat as a decompression failure.
+            goto end;
+        }
     } while (rc > 0 && count++ < MAX_LOOP_ITERATIONS);
 
     ret = true;
@@ -1916,7 +1919,10 @@ decompress_snappy(tvbuff_t *tvb, packet_info *pinfo, int offset, uint32_t length
             tvb_composite_append(composite_tvb, decompressed_chunk_tvb);
             pos += chunk_size;
             count++;
-            DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS, "MAX_LOOP_ITERATIONS exceeded");
+            if (count >= MAX_LOOP_ITERATIONS && pos < length) {
+                // Too many chunks, treat as a decompression failure.
+                goto end;
+            }
         }
         ret = composite_tvb != NULL;
 
@@ -2185,7 +2191,11 @@ dissect_kafka_message_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             show_compression_reduction(tvb, subtree, length, tvb_captured_length(decompressed_tvb));
         }
         for (i=0;i<count;i++) {
-            decompressed_offset = dissect_kafka_record(decompressed_tvb, pinfo, subtree, decompressed_offset, base_offset, first_timestamp);
+            int record_end = dissect_kafka_record(decompressed_tvb, pinfo, subtree, decompressed_offset, base_offset, first_timestamp);
+            if (record_end <= decompressed_offset) {
+                break;
+            }
+            decompressed_offset = record_end;
         }
     } else {
         proto_item_append_text(subtree, " [Cannot decompress records]");
@@ -10826,17 +10836,17 @@ proto_register_kafka_protocol_fields(int protocol)
         },
         { &hf_kafka_forgotten_topic_partition,
             { "Forgotten Topic Partition", "kafka.forgotten_topic_partition",
-                FT_INT64, BASE_DEC, 0, 0,
+                FT_INT32, BASE_DEC, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_fetch_session_id,
             { "Fetch Session ID", "kafka.fetch_session_id",
-                FT_INT64, BASE_DEC, 0, 0,
+                FT_INT32, BASE_DEC, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_fetch_session_epoch,
             { "Fetch Session Epoch", "kafka.fetch_session_epoch",
-                FT_INT64, BASE_DEC, 0, 0,
+                FT_INT32, BASE_DEC, 0, 0,
                 NULL, HFILL }
         },
         { &hf_kafka_require_stable_offset,
