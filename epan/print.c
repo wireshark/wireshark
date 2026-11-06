@@ -82,6 +82,7 @@ struct _output_fields {
     char          aggregator;
     GPtrArray    *fields;
     GPtrArray    *field_dfilters;
+    header_field_info **field_hfinfos; /* NULL entry for a complex expression */
     GHashTable   *field_indicies;
     GPtrArray   **field_values;
     wmem_map_t   *protocolfilter;
@@ -2347,6 +2348,8 @@ void output_fields_free(output_fields_t* fields)
             g_ptr_array_unref(fields->field_dfilters);
         }
 
+        g_free(fields->field_hfinfos);
+
         if (NULL != fields->field_values) {
             g_free(fields->field_values);
         }
@@ -2614,15 +2617,8 @@ bool output_fields_has_cols(output_fields_t* fields)
 }
 
 static void
-output_field_prime_edt(void *data, void *user_data)
+output_field_prime_edt(header_field_info *hfinfo, epan_dissect_t *edt)
 {
-    char *field = (char *)data;
-    epan_dissect_t *edt = (epan_dissect_t*)user_data;
-
-    /* Find a hf. Note in tshark we already converted the protocol from
-     * its alias, if any.
-     */
-    header_field_info *hfinfo = proto_registrar_get_byname(field);
     if (hfinfo) {
         /* Rewind to the first hf of that name. */
         while (hfinfo->same_name_prev_id != -1) {
@@ -2659,23 +2655,33 @@ dfilter_free_cb(void *data)
 void output_fields_prime_edt(epan_dissect_t *edt, output_fields_t* fields)
 {
     if (fields->fields != NULL) {
-        g_ptr_array_foreach(fields->fields, output_field_prime_edt, edt);
-
         if (fields->field_dfilters == NULL) {
             fields->field_dfilters = g_ptr_array_new_full(fields->fields->len, dfilter_free_cb);
+            fields->field_hfinfos = g_new0(header_field_info *, fields->fields->len);
 
             for (size_t i = 0; i < fields->fields->len; ++i) {
                 char *field = (char *)g_ptr_array_index(fields->fields, i);
                 dfilter_t *dfilter = NULL;
 
+                /* Find a hf. Note in tshark we already converted the
+                 * protocol from its alias, if any. Look it up once here,
+                 * not for every packet: the lookup hashes the name, and
+                 * with many fields that can cost more than the dissection.
+                 */
+                fields->field_hfinfos[i] = proto_registrar_get_byname(field);
+
                 /* For now, we only compile a filter for complex expressions.
                  * If it's just a field name, use the previous method.
                  */
-                if (!proto_registrar_get_byname(field)) {
+                if (!fields->field_hfinfos[i]) {
                     dfilter_compile_full(field, &dfilter, NULL, DF_EXPAND_MACROS|DF_OPTIMIZE|DF_RETURN_VALUES, __func__);
                 }
                 g_ptr_array_add(fields->field_dfilters, dfilter);
             }
+        }
+
+        for (size_t i = 0; i < fields->fields->len; ++i) {
+            output_field_prime_edt(fields->field_hfinfos[i], edt);
         }
 
         g_ptr_array_foreach(fields->field_dfilters, output_field_dfilter_prime_edt, edt);
@@ -3287,6 +3293,7 @@ output_fields_t* output_fields_new(void)
     fields->aggregator          = ',';
     fields->fields              = NULL; /*Do lazy initialisation */
     fields->field_dfilters      = NULL;
+    fields->field_hfinfos       = NULL;
     fields->field_indicies      = NULL;
     fields->field_values        = NULL;
     fields->protocolfilter      = NULL;
