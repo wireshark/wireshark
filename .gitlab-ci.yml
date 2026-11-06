@@ -44,6 +44,14 @@ variables:
     --non-interactive --obscure"
   # --no-output
   WS_AQTINSTALL_LOCATION: "aqtinstall@git+https://github.com/miurahr/aqtinstall.git@5be32a75a81513792d95f13065b72cac3381c612"
+  # The ccache release that the Windows jobs download if their image
+  # doesn't have ccache.
+  WS_CCACHE_VERSION: "4.14.2"
+  WS_CCACHE_WINDOWS_X64_SHA256: "6993ce645e53192cec592ee23186200b574ac4c59097ecde8d9cfd681b47ae84"
+  # The Ninja release that the Windows jobs download if their image
+  # doesn't have Ninja.
+  WS_NINJA_VERSION: "1.13.2"
+  WS_NINJA_WINDOWS_X64_SHA256: "07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65"
 
 workflow:
   auto_cancel:
@@ -224,6 +232,53 @@ workflow:
     - mkdir build
     - cd build
   needs: []
+
+# Put Ninja on the path in a Windows job: the one in the image if it has
+# one, otherwise the WS_NINJA_VERSION release, which we download once into
+# the runner's persistent builds directory, next to wireshark-x64-libs.
+# XXX Remove this when the image has Ninja (wireshark-containers!100).
+.windows-ninja:
+  script:
+    - |
+      if (-Not (Get-Command ninja -ErrorAction SilentlyContinue)) {
+        $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)"
+        if (-Not (Test-Path "$ninjaDir\ninja.exe")) {
+          $ninjaZip = "$env:TEMP\ninja-$($env:WS_NINJA_VERSION)-win.zip"
+          Invoke-WebRequest -UseBasicParsing -OutFile $ninjaZip -Uri "https://github.com/ninja-build/ninja/releases/download/v$($env:WS_NINJA_VERSION)/ninja-win.zip"
+          if ((Get-FileHash $ninjaZip -Algorithm SHA256).Hash -ne $env:WS_NINJA_WINDOWS_X64_SHA256) {
+            Write-Host "$ninjaZip doesn't have the expected SHA-256 hash"
+            Exit 1
+          }
+          Expand-Archive -Force $ninjaZip -DestinationPath $ninjaDir
+          Remove-Item $ninjaZip
+        }
+        $env:Path = "$ninjaDir;$env:Path"
+      }
+    - Write-Host "Ninja $(ninja --version)"
+
+# Put ccache on the path in a Windows job: the one in the image if it
+# has one, otherwise the WS_CCACHE_VERSION release, which we download
+# once into the runner's persistent builds directory, next to
+# wireshark-x64-libs.
+.windows-ccache:
+  script:
+    - |
+      if (-Not (Get-Command ccache -ErrorAction SilentlyContinue)) {
+        $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-x86_64"
+        $ccacheDir = "$env:CI_PROJECT_DIR\..\$ccacheName"
+        if (-Not (Test-Path "$ccacheDir\ccache.exe")) {
+          $ccacheZip = "$env:TEMP\$ccacheName.zip"
+          Invoke-WebRequest -UseBasicParsing -OutFile $ccacheZip -Uri "https://github.com/ccache/ccache/releases/download/v$($env:WS_CCACHE_VERSION)/$ccacheName.zip"
+          if ((Get-FileHash $ccacheZip -Algorithm SHA256).Hash -ne $env:WS_CCACHE_WINDOWS_X64_SHA256) {
+            Write-Host "$ccacheZip doesn't have the expected SHA-256 hash"
+            Exit 1
+          }
+          Expand-Archive -Force $ccacheZip -DestinationPath "$env:CI_PROJECT_DIR\.."
+          Remove-Item $ccacheZip
+        }
+        $env:Path = "$ccacheDir;$env:Path"
+      }
+    - ccache --version | Select-Object -First 1
 
 # macOS runners are still beta:
 # https://about.gitlab.com/blog/2021/08/23/build-cloud-for-macos-beta/
@@ -1225,19 +1280,28 @@ Windows Build:
   rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
+  variables:
+    # Keep the cache in the runner's persistent builds directory, next to
+    # wireshark-x64-libs, instead of uploading and downloading it.
+    CCACHE_DIR: "$CI_PROJECT_DIR\\..\\ccache"
+    CCACHE_MAXSIZE: "5G"
   needs:
     - job: "Commit Check"
       optional: true
   script:
-    - cmake -G "Visual Studio 18 2026" -A x64
+    - !reference [.windows-ninja, script]
+    - !reference [.windows-ccache, script]
+    - ccache --zero-stats
+    - cmake -G "Ninja Multi-Config"
+      -DENABLE_CCACHE=ON
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
       -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       ..
-    - msbuild -property:Configuration=Debug Wireshark.slnx
-    - msbuild -property:Configuration=Debug test-programs.vcxproj
+    - cmake --build . --config Debug
+    - cmake --build . --config Debug --target test-programs
     - C:\Windows\py.exe -m pip install --quiet jsonschema
     - !reference [.changed-since-windows, script]
     - C:\Windows\py.exe -m pytest --build-type=Debug --disable-gui --enable-stratoshark --junitxml=../windows_tests.xml @ChangedSince
@@ -1245,6 +1309,9 @@ Windows Build:
     # Run the cpack next to the cmake in use. Chocolatey also has a "cpack" command.
     - $cpack = Join-Path (Split-Path (Get-Command cmake).Source) cpack.exe
     - '& $cpack -G ZIP -C Debug -D CPACK_COMPONENTS_ALL=Unspecified'
+  after_script:
+    - !reference [.windows-ccache, script]
+    - ccache --show-stats
   artifacts:
     when: always
     paths:
