@@ -948,7 +948,7 @@ static const int _ipv6_opt_type_hdr[][2] = {
 static inline int
 ipv6_opt_type_hdr(int type)
 {
-    static const int (*p)[2] = _ipv6_opt_type_hdr;
+    const int (*p)[2] = _ipv6_opt_type_hdr;
 
     for (; (*p)[1] != IPv6_OPT_HDR_ANY; p++) {
         if ((*p)[0] == type) {
@@ -1219,6 +1219,9 @@ static int
 dissect_routing6_rt0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
+
+    if (rt == NULL)
+        return 0;
     proto_item *ti;
     int offset = 0;
     int idx;
@@ -1261,6 +1264,9 @@ static int
 dissect_routing6_mipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
+
+    if (rt == NULL)
+        return 0;
     proto_item *ti;
     int offset = 0;
     const ws_in6_addr *addr;
@@ -1296,6 +1302,9 @@ static int
 dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
+
+    if (rt == NULL)
+        return 0;
     proto_item *ti;
     int offset = 0;
     uint8_t cmprI, cmprE, cmprX, pad;
@@ -1426,7 +1435,10 @@ static int
 dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
-    int offset = 0;
+
+    if (rt == NULL)
+        return 0;
+    unsigned offset = 0;
     int addr_offset;
     uint32_t last_entry, addr_count;
 
@@ -1467,15 +1479,20 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
     int offset, minimum_crh_length;
-    int sid;
+    uint32_t sid;
 
     unsigned sid_count;
     unsigned octets_per_sid;
     unsigned sids_beyond_first_word;
     unsigned sids_per_word;
     struct ws_rthdr* rt = (struct ws_rthdr*)data;
-    bool is_crh16 = rt->hdr.ip6r_type == IPv6_RT_HEADER_COMPACT_16;
-    uint8_t segments_left = rt->hdr.ip6r_segleft;
+    bool is_crh16;
+    uint8_t segments_left;
+
+    if (rt == NULL)
+        return 0;
+    is_crh16 = rt->hdr.ip6r_type == IPv6_RT_HEADER_COMPACT_16;
+    segments_left = rt->hdr.ip6r_segleft;
 
     /* Compute the minimum CRH length measured in 8-octet units, not including
     the first 8 octets */
@@ -1521,21 +1538,23 @@ static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
             tvb, offset + (octets_per_sid * segments_left), octets_per_sid, ENC_BIG_ENDIAN);
         proto_item_set_generated(current_sid_item);
     }
-    sid = is_crh16 ? tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN)
-                   : tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
     proto_tree* segment_ids
         = proto_tree_add_subtree(tree, tvb, 0, -1, 0, NULL, "Segment Identifiers");
-    for (unsigned i = 0; i < sid_count && sid; i++) {
-        if (is_crh16) {
-            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh16_segment_id, tvb, offset,
-                octets_per_sid, sid, "SID[%d] = %d", i, sid);
-        } else {
-            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh32_segment_id, tvb, offset,
-                octets_per_sid, sid, "SID[%d] = %d", i, sid);
-        }
-        offset += octets_per_sid;
+    for (unsigned i = 0; i < sid_count; i++) {
+        if (tvb_reported_length_remaining(tvb, offset) < (int)octets_per_sid)
+            break;
         sid = is_crh16 ? tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN)
                        : tvb_get_uint32(tvb, offset, ENC_BIG_ENDIAN);
+        if (sid == 0)
+            break;
+        if (is_crh16) {
+            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh16_segment_id, tvb, offset,
+                octets_per_sid, sid, "SID[%u] = %u", i, sid);
+        } else {
+            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh32_segment_id, tvb, offset,
+                octets_per_sid, sid, "SID[%u] = %u", i, sid);
+        }
+        offset += octets_per_sid;
     }
 
     return tvb_captured_length(tvb);
@@ -1619,7 +1638,7 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     p_add_ipv6_nxt(pinfo, nxt);
 
     next_tvb = tvb_new_subset_remaining(tvb, total_len);
-    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, WS_IP6_PTR(data));
     return tvb_captured_length(tvb);
 }
 
@@ -1686,7 +1705,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (reassembled) {
                 ipv6_pinfo->frag_plen = 0;
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
+                ipv6_dissect_next(nxt, next_tvb, pinfo, tree, WS_IP6_PTR(data));
                 return tvb_captured_length(tvb);
             }
         }
@@ -1695,7 +1714,7 @@ dissect_fraghdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     p_add_ipv6_nxt(pinfo, nxt);
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
-    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, (ws_ip6 *)data);
+    ipv6_dissect_next(nxt, next_tvb, pinfo, tree, WS_IP6_PTR(data));
     return tvb_captured_length(tvb);
 }
 
@@ -2658,10 +2677,16 @@ dissect_opt_ilnp_nonce(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 */
 static int
-dissect_opt_lio(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *opt_tree,
-                            struct opt_proto_item *opt_ti _U_, uint8_t opt_len)
+dissect_opt_lio(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *opt_tree,
+                            struct opt_proto_item *opt_ti, uint8_t opt_len)
 {
     uint32_t lid_len = 0;
+
+    if (opt_len == 0) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                "Line-Identification Option: Invalid length (%u bytes)", opt_len);
+        return offset;
+    }
 
     proto_tree_add_item_ret_uint(opt_tree, hf_ipv6_opt_lio_len, tvb, offset, 1, ENC_BIG_ENDIAN, &lid_len);
     offset += 1;
@@ -2778,7 +2803,8 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
     proto_item     *pi, *ti, *ti_len;
     int             hf_exthdr_item_nxt, hf_exthdr_item_len, hf_exthdr_item_len_oct;
     int             ett_exthdr_proto;
-    uint8_t         opt_type, opt_len, opt_start;
+    uint8_t         opt_type, opt_len;
+    int             opt_start;
     int             opt_hdr_type;
     const char     *opt_name;
     bool            hopopts;
@@ -2976,7 +3002,7 @@ dissect_hopopts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 hop-by-hop options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip6 *)data, proto_ipv6_hopopts);
+    return dissect_opts(tvb, 0, tree, pinfo, WS_IP6_PTR(data), proto_ipv6_hopopts);
 }
 
 static int
@@ -2984,7 +3010,7 @@ dissect_dstopts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     col_append_sep_str(pinfo->cinfo, COL_INFO, " , ", "IPv6 destination options");
 
-    return dissect_opts(tvb, 0, tree, pinfo, (ws_ip6 *)data, proto_ipv6_dstopts);
+    return dissect_opts(tvb, 0, tree, pinfo, WS_IP6_PTR(data), proto_ipv6_dstopts);
 }
 
 /* return value is > UINT16_MAX, else zero */
