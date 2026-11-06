@@ -79925,3 +79925,136 @@ class TestDissectIperf3:
         out = self.iperf3_fields(cmd_tshark, capture_file, test_env,
                                  'frame.number in {113,114,115}', '_ws.col.protocol')
         assert out == ['113\tUDP', '114\tUDP', '115\tUDP']
+
+
+class TestDissectIperf:
+    '''iPerf2 over TCP and UDP port 5001 (selected with the
+    iperf2.tcp.port and iperf2.udp.port preferences, the dissector has no
+    default port) from the synthetic capture iperf_coverage.pcap.gz.'''
+
+    IPERF_PORTS = ('-o', 'iperf2.tcp.port:5001', '-o', 'iperf2.udp.port:5001')
+
+    @staticmethod
+    def iperf_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        env = test_env.copy()
+        env['TZ'] = 'UTC'
+        stdout = subprocess.check_output((cmd_tshark, *passes, *TestDissectIperf.IPERF_PORTS,
+                '-r', capture_file('iperf_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=env, timeout=120)
+        return stdout.splitlines()
+
+    def test_iperf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''46 iPerf2 frames and 60 TCP frames (handshakes and the first
+        segments of reassembled PDUs); no malformed packets or error
+        expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.IPERF_PORTS,
+                '-r', capture_file('iperf_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 106
+        assert protocols.count('iPerf2') == 46
+        assert protocols.count('TCP') == 60
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.IPERF_PORTS,
+                    '-r', capture_file('iperf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iperf_payload_only(self, cmd_tshark, capture_file, test_env):
+        '''Segments that are all 0123456789 pattern, also with a rotated
+        start and a short trailing block, are payload only.'''
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {4,5,6,7,8,62,70}',
+                                '_ws.col.info', 'iperf2.client.payload')
+        assert [o.split('\t')[0:2] for o in out] == [
+            ['4', ''], ['5', 'Payload only'], ['6', 'Payload only'], ['7', 'Payload only'],
+            ['8', 'Payload only'], ['62', 'Payload only'], ['70', 'Payload only'],
+        ]
+
+    def test_iperf_client_headers(self, cmd_tshark, capture_file, test_env):
+        '''Client header flags, the extended header with its version, the
+        permit key (and the cases that are not a key), the fair queue,
+        isochronous and CCA headers.'''
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {4,21,22,28,29,30,36,37,46,47}',
+                                'iperf2.client.flags', 'iperf2.client.version_major',
+                                'iperf2.client.version_minor', 'iperf2.client.permit_key',
+                                'iperf2.client.fq_ratel', 'iperf2.client.cca_value')
+        assert out == [
+            '4\t0x84000000\t\t\t\t\t',
+            '21\t0xc0000000\t2\t2\t\t\t',
+            '22\t0xc0000000\t2\t1\t\t\t',
+            '28\t0xc0000000\t2\t1\t0123456789ab\t\t',
+            '29\t0xc0000000\t2\t1\t\t\t',
+            '30\t0xc0000000\t2\t1\t\t\t',
+            '36\t0xc0000000\t2\t1\t\t1000\t',
+            '37\t0xc0000000\t2\t1\t\t1000\t',
+            '46\t0xc0000000\t2\t1\t\t1000\tcubic',
+            '47\t0xc0000000\t2\t1\t\t1000\t',
+        ]
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'iperf2.client.isoch_burst_period', 'iperf2.client.isoch_burst_period')
+        assert [o.split('\t')[0] for o in out] == ['102', '103', '104', '105', '106']
+
+    def test_iperf_bounceback_and_time_overflow(self, cmd_tshark, capture_file, test_env):
+        '''Bounceback headers and the microsecond fields that overflowed
+        a signed int when multiplied by 1000: they are reduced modulo
+        one million (0xfffffff0 gives .967280, 0xffffffff .967295). The
+        iperf2.*timestamp fields are generated from the seconds and
+        microseconds.'''
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {53,54,77}',
+                                '_ws.col.info', 'iperf2.client.bb_id', 'iperf2.client.bb_run_time',
+                                'iperf2.client.bb_clienttx_ts', 'iperf2.client.bb_read_ts')
+        assert out == [
+            '53\tBounceback\t7\t100\t2023-11-14T22:13:20.000001000+0000\t2023-11-14T22:13:20.000004000+0000',
+            '54\tBounceback\t7\t100\t1970-01-01T00:00:01.967280000+0000\t1970-01-01T00:00:05.967280000+0000',
+            '77\tBounceback\t7\t100\t2023-11-14T22:13:20.000009000+0000\t2023-11-14T22:13:20.967280000+0000',
+        ]
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {36,47}', 'iperf2.client.start_tv')
+        assert out == ['36\t2023-11-14T22:13:20.967280000+0000',
+                       '47\t2023-11-14T22:13:20.967280000+0000']
+
+    def test_iperf_desegmentation(self, cmd_tshark, capture_file, test_env):
+        '''Headers split over TCP segments are reassembled: the PDU starts
+        at offset 0 of the first segment (it started after the segment
+        before "iPerf: Fix timestamp overflow and desegmentation
+        offset").'''
+        for passes in ((), ('-2',)):
+            out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                    'tcp.reassembled.length', 'tcp.reassembled.length',
+                                    '_ws.col.protocol', passes=passes)
+            assert out == ['61\t24\tiPerf2', '69\t60\tiPerf2', '77\t64\tiPerf2', '85\t60\tiPerf2']
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'tcp.reassembled_in', 'tcp.reassembled_in', passes=('-2',))
+        assert out == ['60\t61', '68\t69', '76\t77', '83\t85', '84\t85']
+
+    def test_iperf_udp(self, cmd_tshark, capture_file, test_env):
+        '''UDP: sequence number, start time (the usec overflow cases of
+        frames 98, 99, 100), upper sequence number, small trip times
+        (frame 101) and the extended headers (frames 102-106).'''
+        out = self.iperf_fields(cmd_tshark, capture_file, test_env,
+                                'udp.dstport == 5001 && frame.number >= 95',
+                                'iperf2.udp.sequence', 'iperf2.udp.usec',
+                                'iperf2.udp.timestamp', 'iperf2.udp.sequence_upper',
+                                'iperf2.client.flags')
+        assert out == [
+            '95\t1\t1000\t2023-11-14T22:13:20.001000000+0000\t0\t0x80000000',
+            '96\t2\t2000\t2023-11-14T22:13:20.002000000+0000\t0\t0xa4000000',
+            '97\t3\t999999\t2023-11-14T22:13:20.999999000+0000\t0\t0x00000000',
+            '98\t-1\t4294967280\t2023-11-14T22:13:20.967280000+0000\t0\t0x80000000',
+            '99\t4\t4294967295\t2023-11-14T22:13:21.967295000+0000\t1\t0x88000000',
+            '100\t5\t2147483648\t2023-11-14T22:13:21.483648000+0000\t1\t0x80000000',
+            '101\t1\t0\t2023-11-14T22:13:20.000000000+0000\t0\t0x80020000',
+            '102\t1\t1000\t2023-11-14T22:13:20.001000000+0000\t0\t0xc0000000',
+            '103\t1\t4294967280\t2023-11-14T22:13:20.967280000+0000\t0\t0xc0000000',
+            '104\t1\t4294967295\t2023-11-14T22:13:20.967295000+0000\t0\t0xc0000000',
+            '105\t1\t1000000\t2023-11-14T22:13:20.000000000+0000\t0\t0xc0000000',
+            '106\t1\t1999999\t2023-11-14T22:13:20.999999000+0000\t0\t0xc0000000',
+        ]
