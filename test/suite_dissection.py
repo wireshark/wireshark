@@ -81487,3 +81487,109 @@ class TestDissectIpmiUpdate:
                                 flt='frame.number <= 2')
         assert rows == [['1', 'Req, Unknown command'],
                         ['2', 'Rsp, Unknown command, Command Completed Normally (00h)']]
+
+
+class TestDissectIpmiVita:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                *args, '-r', capture_file('ipmi_vita_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _data(cmd_tshark, capture_file, test_env, number):
+        '''The items of the Data subtree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                '-r', capture_file('ipmi_vita_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % number, '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = len(lines) - lines[::-1].index('Intelligent Platform Management Bus')
+        lines = lines[start:]
+        first = lines.index('    Data') + 1
+        last = [i for i, l in enumerate(lines) if l.startswith('    Data checksum')][-1]
+        return [l[8:] for l in lines[first:last]]
+
+    def test_vita_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an IPMI message in RMCP, none is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 548
+        assert protocols.count('IPMB') == 548
+        for passes in ((), ('-2',)):
+            # severity 0x00800000 is an error
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_vita_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the command set is used as a request and as a
+        response, with every completion code of the capture.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command')
+        assert len(stdout.split()) == 290
+        assert sorted(set(stdout.split())) == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c', '0x0d', '0x14', '0x15', '0x16', '0x18', '0x1b', '0x1c', '0x1d', '0x1e', '0x1f', '0x20', '0x21', '0x40', '0x41', '0x42', '0x43', '0x44']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command', '-eipmi.header.completion')
+        rsp = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rsp) == 258
+        assert sorted(set(r[0] for r in rsp)) == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08', '0x09', '0x0a', '0x0b', '0x0c', '0x0d', '0x14', '0x15', '0x16', '0x18', '0x1b', '0x1c', '0x1d', '0x1e', '0x1f', '0x20', '0x21', '0x40', '0x41', '0x42', '0x43', '0x44']
+        codes = {}
+        for r in rsp:
+            codes[r[1]] = codes.get(r[1], 0) + 1
+        assert codes == {'0x00': 171, '0x80': 2, '0x81': 1, '0xc0': 21, '0xc1': 21, '0xcc': 21, '0xd5': 21}
+
+    def test_vita_matching(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests by the address,
+        sequence number and command; the request gets "Response in" only
+        in the second pass.'''
+        for passes, expected in (((), 0), (('-2',), 118)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ipmi.response_in', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == expected
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 118
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number', '-eipmi.response_to')
+        assert count_output(stdout) == 118
+        assert stdout.splitlines()[0].split() == ['17', '16']
+
+    def test_vita_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes differ only by the "Response in" lines
+        of the requests.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-V').splitlines()
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-V').splitlines()
+        assert [l for l in two if not l.startswith('    [Response in: ')] == one
+        assert len(two) - len(one) == 118
+
+    def test_ipmi_vita_chassis_address_table(self, cmd_tshark, capture_file, test_env):
+        '''Get Chassis Address Table Info: a request and its matched
+        response, and a request with the "unknown" key and site types.'''
+        assert self._data(cmd_tshark, capture_file, test_env, 16) == [
+            'FRU Device ID: 1 (0x01)',
+            'Address Key Type: Reserved (0x02)',
+            'Address Key: 0x03 (3)',
+            'Site Type: Fan Tray (0x04)',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 17) == [
+            'Hardware Address: 0x01',
+            'IPMB Address: 0x02',
+            'Reserved: 0x03',
+            'FRU Device ID: 4 (0x04)',
+            'Site Number: 5 (0x05)',
+            'Site Type: Alarm Panel (0x06)',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 18) == [
+            'FRU Device ID: 255 (0xff)',
+            'Address Key Type: Unknown (0xff)',
+            'Address Key: 0xff (255)',
+            'Site Type: Unknown (0xff)',
+        ]
