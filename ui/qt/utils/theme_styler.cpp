@@ -151,7 +151,12 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
 {
     QSize size = QProxyStyle::sizeFromContents(type, option, contentsSize, widget);
 #ifdef Q_OS_MACOS
-    // QMacStyle grows a push button above its bezel height once the
+    // QMacStyle gives OK and Cancel buttons a fixed width whatever their
+    // font, and draws the label clipped to the title rect, so a wider font
+    // or a zoomed one crops the label. Widen the button until its title
+    // rect holds the content.
+    //
+    // QMacStyle also grows a push button above its bezel height once the
     // content is taller than the default, and then paints every non-flat
     // push button that is not exactly the bezel height as a square bezel.
     // Keep the bezel height while the zoomed content still fits the
@@ -162,13 +167,17 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
             && baseStyleName() == QLatin1String("macos")) {
         const int bezel = QProxyStyle::sizeFromContents(type, option,
                 QSize(contentsSize.width(), 0), widget).height();
+        QStyleOptionButton probe = *button;
         if (size.height() > bezel) {
-            QStyleOptionButton probe = *button;
             probe.rect = QRect(0, 0, size.width(), bezel);
             const QRect title = QProxyStyle::subElementRect(SE_PushButtonContents, &probe, widget);
             if (contentsSize.height() <= title.height())
                 size.setHeight(bezel);
         }
+        probe.rect = QRect(QPoint(0, 0), size);
+        const QRect title = QProxyStyle::subElementRect(SE_PushButtonContents, &probe, widget);
+        if (title.width() < contentsSize.width())
+            size.rwidth() += contentsSize.width() - title.width();
     }
 #endif
     return size;

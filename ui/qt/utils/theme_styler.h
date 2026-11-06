@@ -53,9 +53,12 @@ public:
      * button and draws it as an opaque square bezel. On the macOS base
      * style the push button height is held at the bezel height as long as
      * the content still fits the bezel's title rect; above that the base
-     * result stands, so the text is never clipped. Both limits are queried
-     * from the base style. On all other styles and controls the base result
-     * is returned unchanged.
+     * result stands, so the text is never clipped. The macOS style also
+     * gives OK and Cancel buttons a fixed width whatever their font, so on
+     * the macOS base style a non-flat push button is widened until its
+     * title rect holds the content. The limits are queried from the base
+     * style. On all other styles and controls the base result is returned
+     * unchanged.
      *
      * @param type The contents type.
      * @param option The style option, may be null.
