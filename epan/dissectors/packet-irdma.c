@@ -1186,7 +1186,7 @@ dissect_reuse_msg(tvbuff_t *tvb, packet_info *pinfo,
             epd->rev_flow->recv_buffer[bufid].indeterminate = 0;
             }
 
-        eppd = (irdmaep_packet_analysis_t *) add_eppd(pinfo);
+        eppd = (irdmaep_packet_analysis_t *) get_or_add_eppd(pinfo);
         analyze_irdmaep_rbuffer(epd->rev_flow, eppd);
         }
     else
