@@ -426,6 +426,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item 
 {
   proto_tree *mbox_tree;
   unsigned    addr_pos, end_pos;
+  unsigned    mbox_end = offset + length;
 
   mbox_tree = proto_item_add_subtree(item, ett_imf_mailbox);
 
@@ -454,7 +455,8 @@ dissect_imf_mailbox(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item 
       (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII);
     }
 
-    if(!tvb_find_uint8_length(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>', &end_pos)) {
+    if(addr_pos + 1 < mbox_end &&
+       tvb_find_uint8_length(tvb, addr_pos + 1, mbox_end - (addr_pos + 1), '>', &end_pos)) {
       (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, ENC_ASCII);
     }
   }
@@ -545,8 +547,8 @@ dissect_imf_siolabel(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item
   proto_item *sub_item = NULL;
   unsigned    item_offset, item_length;
   unsigned    value_offset, value_length;
-  unsigned    end_offset;
-  bool        end_offset_found;
+  unsigned    end_offset, total_end, item_end, eq_offset;
+  bool        end_offset_found, has_value;
   tvbuff_t   *label_tvb;
   char       *type = NULL;
   wmem_strbuf_t  *label_string = wmem_strbuf_new(pinfo->pool, "");
@@ -555,27 +557,38 @@ dissect_imf_siolabel(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item
   tree = proto_item_add_subtree(item, ett_imf_siolabel);
   item_offset = offset;
 
+  total_end = offset + length;
+
   do {
-    end_offset_found = tvb_find_uint8_length(tvb, item_offset, length - (item_offset - offset), ';', &end_offset);
+    end_offset_found = tvb_find_uint8_length(tvb, item_offset, total_end - item_offset, ';', &end_offset);
 
     /* skip leading space */
-    item_offset = tvb_skip_wsp(tvb, item_offset, end_offset);
+    item_offset = tvb_skip_wsp(tvb, item_offset, end_offset - item_offset);
 
     if (end_offset_found == false) {
       /* length is to the end of the buffer */
-      tvb_find_line_end_length(tvb, item_offset, length - (item_offset - offset), &item_length, NULL);
+      tvb_find_line_end_length(tvb, item_offset, total_end - item_offset, &item_length, NULL);
     } else {
       item_length = end_offset - item_offset;
     }
+    item_end = item_offset + item_length;
 
-    tvb_find_uint8_length(tvb, item_offset, length - (item_offset - offset), '=', &value_offset);
-    value_offset  = value_offset +1;
-    value_offset = tvb_skip_wsp(tvb, value_offset, end_offset);
+    /* Every search below is bounded to this item. */
+    has_value = tvb_find_uint8_length(tvb, item_offset, item_length, '=', &eq_offset);
+    value_offset = value_length = 0;
+    if (has_value) {
+      value_offset = tvb_skip_wsp(tvb, eq_offset + 1, item_end - (eq_offset + 1));
+      value_length = item_end - value_offset;
+      if (value_length > 0) {
+        value_length = tvb_skip_wsp_return(tvb, item_end - 1) - value_offset;
+      }
+    }
 
-    value_length = item_length - (value_offset - item_offset);
-    value_length = tvb_skip_wsp_return(tvb, value_offset + value_length - 1);
+    if (!has_value) {
+      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, ENC_ASCII);
+      expert_add_info(pinfo, sub_item, &ei_imf_unknown_param);
 
-    if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
+    } else if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
       const uint8_t* marking;
       proto_tree_add_item_ret_string(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA, pinfo->pool, &marking);
       proto_item_append_text(item, ": %s", marking);
@@ -586,17 +599,17 @@ dissect_imf_siolabel(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item
     } else if (tvb_strneql(tvb, item_offset, "bgcolor", 7) == 0) {
       proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII);
 
-    } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
+    } else if (value_length >= 2 && tvb_strneql(tvb, item_offset, "type", 4) == 0) {
       type = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII);
 
-    } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
+    } else if (value_length >= 2 && tvb_strneql(tvb, item_offset, "label", 5) == 0) {
       char *label = (char*)tvb_get_string_enc(pinfo->pool, tvb, value_offset + 1, value_length - 2, ENC_ASCII); /* quoted */
       wmem_strbuf_append(label_string, label);
 
       if (tvb_get_uint8(tvb, item_offset + 5) == '*') { /* continuations */
         int num;
-        tvb_get_string_int(tvb, item_offset + 6, value_offset - item_offset + 6, ENC_STR_DEC, &num, NULL);
+        tvb_get_string_int(tvb, item_offset + 6, eq_offset - (item_offset + 6), ENC_STR_DEC, &num, NULL);
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
@@ -611,7 +624,7 @@ dissect_imf_siolabel(tvbuff_t *tvb, unsigned offset, unsigned length, proto_item
     if (end_offset_found == true) {
       item_offset = end_offset + 1;
     }
-  } while (end_offset_found == true);
+  } while (end_offset_found == true && item_offset < total_end);
 
   if (type && wmem_strbuf_get_len(label_string) > 0) {
     if (strcmp (type, ":ess") == 0) {
