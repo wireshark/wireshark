@@ -1531,8 +1531,8 @@ dissect_inap_T_value(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
   if (obj_id){
     offset=call_ber_oid_callback(obj_id, tvb, offset, actx->pinfo, ext_tree, NULL);
   }else{
-    call_data_dissector(tvb, actx->pinfo, ext_tree);
-    offset = tvb_reported_length_remaining(tvb,offset);
+    call_data_dissector(tvb_new_subset_remaining(tvb, offset), actx->pinfo, ext_tree);
+    offset += tvb_reported_length_remaining(tvb, offset);
   }
   is_ExtensionField = false;
 
@@ -1752,7 +1752,8 @@ dissect_inap_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
     ett = ett_inap_additionalCallingPartyNumber;
   } else if (hf_index == hf_inap_assistingSSPIPRoutingAddress) {
     ett = ett_inap_assistingSSPIPRoutingAddress;
-  } else if (hf_index == hf_inap_correlationID) {
+  } else if (hf_index == hf_inap_correlationID ||
+             hf_index == hf_inap_bcsmEventCorrelationID) {
     ett = ett_inap_correlationID;
     digits = (opcode != opcode_assistRequestInstructions) ? true : false;
   } else if (hf_index == hf_inap_calledAddressValue) {
@@ -1787,6 +1788,9 @@ dissect_inap_Digits(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
   } else if (hf_index == hf_inap_digitsResponse) {
     ett = ett_inap_digitsResponse;
     digits = true;
+  } else {
+    /* Unknown user of Digits: leave it as an OCTET STRING. */
+    return offset;
   }
 
   subtree = proto_item_add_subtree(actx->created_item, ett);
@@ -9413,15 +9417,12 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
       break;
   default:
     proto_tree_add_expert_format(tree, actx->pinfo, &ei_inap_unknown_returnErrorData,
-                                 tvb, offset, -1, "Unknown returnErrorData %d", opcode);
+                                 tvb, offset, -1, "Unknown returnErrorData %d", errorCode);
   }
   return offset;
 }
 
 
-
-static uint8_t inap_pdu_type;
-static uint8_t inap_pdu_size;
 
 
 static int
@@ -9440,14 +9441,12 @@ dissect_inap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *d
     item = proto_tree_add_item(parent_tree, proto_inap, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_inap);
   }
-  inap_pdu_type = tvb_get_uint8(tvb, offset)&0x0f;
-  /* Get the length and add 2 */
-  inap_pdu_size = tvb_get_uint8(tvb, offset+1)+2;
   opcode = 0;
+  errorCode = 0;
   is_ExtensionField =false;
   dissect_inap_ROS(true, tvb, offset, &asn1_ctx, tree, -1);
 
-  return inap_pdu_size;
+  return tvb_captured_length(tvb);
 }
 
 /*--- proto_reg_handoff_inap ---------------------------------------*/
