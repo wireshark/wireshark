@@ -82746,3 +82746,135 @@ class TestDissectIpvsSyncd:
             '20\t192.0.2.20,192.0.2.20\t020461626364,00\t78,37,36',
             '21\t192.0.2.20\t0000000000000000,00000000\t44,76',
         ]
+
+
+class TestDissectIpx:
+    '''IPX, SPX, IPX RIP, IPX SAP, IPX Message and Serialization from the
+    synthetic capture ipx_coverage.pcapng.gz (one interface per link type:
+    Ethernet, PPP, Null/Loopback, Cisco HDLC, Linux cooked, ARCnet).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, two=False):
+        args = [cmd_tshark] + (['-2'] if two else [])
+        args += ['-r', capture_file('ipx_coverage.pcapng.gz'), '-Y', display_filter, '-Tfields']
+        args += ['-e' + f for f in fields]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_ipx_link_layers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-13 carry the same IPX SAP query over Ethernet II, raw 802.3,
+        802.2 LLC (two SAPs), SNAP, UDP port 213, GRE, PPP, Linux cooked,
+        Null/Loopback, Cisco HDLC and ARCnet; no malformed frames or error
+        expert infos in the whole capture in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'ipx', ['frame.number'])
+        assert len(rows) == 68
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 13',
+                            ['frame.number', 'frame.protocols', 'ipx.src', 'ipx.len'])
+        stacks = [r[1] for r in rows]
+        assert stacks == [
+            'eth:ethertype:ipx', 'eth:ipx', 'eth:llc:ipx', 'eth:llc:ipx', 'eth:llc:ipx',
+            'eth:ethertype:ip:udp:ipx', 'eth:ethertype:ip:gre:ipx', 'ppp:ipx', 'sll:ipx',
+            'null:ipx', 'chdlc:ipx', 'arcnet:ipx', 'arcnet:ipx']
+        assert all(r[2] == '0000a001.02000000000a' and r[3] == '34' for r in rows)
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                ['frame.number'], two=two)
+            assert rows == []
+
+    def test_ipx_header(self, cmd_tshark, capture_file, test_env):
+        '''Checksum, hops, packet type and length (also shorter than the
+        Ethernet frame) and broadcast destinations.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 14 && frame.number <= 22',
+                            ['frame.number', 'ipx.checksum', 'ipx.hops', 'ipx.packet_type', 'ipx.len',
+                             'ipx.dst.node', 'ipx.dst.net'])
+        d = {r[0]: r[1:] for r in rows}
+        assert d['14'] == ['0x1234', '3', '0x00', '39', '02:00:00:00:00:0b', '0x000000000000b002']
+        assert d['15'] == ['0xffff', '0', '0x01', '54', 'ff:ff:ff:ff:ff:ff', '0x0000000000000000']
+        assert d['19'][2] == '0x14' and d['19'][4] == 'ff:ff:ff:ff:ff:ff'
+        assert d['21'][3] == '30'
+
+    def test_ipx_sap(self, cmd_tshark, capture_file, test_env):
+        '''SAP queries and responses.  The hidden flags used to be swapped:
+        a query has ipxsap.request, a response ipxsap.response ("IPX: Fix the
+        SAP request and response flags").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {23, 24, 25, 26, 27, 28, 64, 65}',
+                            ['frame.number', 'ipxsap.packet_type', 'ipxsap.request', 'ipxsap.response',
+                             'ipxsap.server.type', 'ipxsap.server.name', 'ipxsap.server.intermediate_networks'])
+        d = {r[0]: r[1:] for r in rows}
+        assert d['23'][:3] == ['1', 'True', '']
+        assert d['24'][:3] == ['3', 'True', '']
+        assert d['25'] == ['2', '', 'True', '0x0004,0x0107,0x0278,0x0640',
+                           'FS1,RCONSOLE,NDS-TREE,GW-NT', '1,2,3,1']
+        assert d['26'][:3] == ['4', '', 'True']
+        assert d['27'][:3] == ['9', '', '']            # unknown query type: neither flag
+        assert d['28'][3:] == ['0xfffe', 'name' * 12, '16']
+        assert d['64'][:3] == ['1', 'True', '']
+        assert d['65'][:3] == ['2', '', 'True'] and d['65'][4] == 'SERVER'
+
+    def test_ipx_rip_and_misc(self, cmd_tshark, capture_file, test_env):
+        '''RIP request/response routes, serialization number and IPX messages.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'ipxrip',
+                            ['frame.number', 'ipxrip.packet_type', 'ipxrip.request', 'ipxrip.response',
+                             'ipxrip.hops', 'ipxrip.ticks'])
+        d = {r[0]: r[1:] for r in rows}
+        assert d['29'] == ['1', 'True', '', '65535', '65535']
+        assert d['31'] == ['2', '', 'True', '1,2,15', '2,20,270']
+        assert d['33'][0] == '0' and d['34'][0] == '3'        # unknown operations
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'ipxmsg || nw_serial',
+                            ['frame.number', 'ipxmsg.conn', 'ipxmsg.sigchar', 'nw_serial.serial_number'])
+        assert rows == [['35', '', '', '020000000099'], ['36', '5', "'?'", ''], ['37', '5', "'Y'", ''],
+                        ['38', '6', "'!'", ''], ['39', '7', "'A'", '']]
+
+    def test_ipx_spx(self, cmd_tshark, capture_file, test_env):
+        '''SPX: SPX II (no negotiated size in the connection request),
+        flags, end of connection, and retransmission detection (the second
+        packet with the same sequence in the same direction).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'spx',
+                            ['frame.number', 'spx.ctl', 'spx.type', 'spx.seq', 'spx.neg_size', 'spx.rexmt_frame'])
+        d = {r[0]: r[1:] for r in rows}
+        assert d['40'] == ['0xc8', '0x00', '0', '', '']      # SPX II system packet, destination 0xffff: no size
+        assert d['41'][3] == '512'
+        assert d['50'] == ['0x0f', '0x00', '6', '256', '']
+        assert d['51'][1] == '0xfe' and d['52'][1] == '0xff'
+        assert d['49'][3:] == ['', '48'] and d['55'][4] == '54'    # retransmissions
+        assert d['56'][0] == '0x08' and d['56'][3] == ''
+        # a retransmitted frame is not passed on: no data dissector item
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 49 && spx.rexmt_data',
+                            ['frame.number'])
+        assert rows == [['49']]
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'spx.rexmt_frame', ['frame.number'], two=two)
+            assert [r[0] for r in rows] == ['49', '55']      # not 67 or 66: equal hash, other sequence number
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 66 && frame.number <= 68',
+                            ['frame.number', 'spx.seq', 'spx.ack', 'spx.rexmt_frame', '_ws.col.protocol'])
+        assert rows == [['66', '10', '3', '', 'SPX'], ['67', '3', '10', '', 'SPX'], ['68', '1', '1', '', 'MQ']]
+
+    def test_ipx_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''Socket and packet type lookups: SAP by the lower socket, SMB, NCP
+        by socket and by type, NBIPX, MQ over SPX.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 59 && frame.number <= 63',
+                            ['frame.number', '_ws.col.protocol'])
+        assert rows == [['59', 'IPX SAP'], ['60', 'IPX SAP'], ['61', 'IPX SAP'], ['62', 'SMB'], ['63', 'NCP']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {19, 57, 58}',
+                            ['frame.number', '_ws.col.protocol'])
+        assert rows == [['19', 'NBIPX'], ['57', 'MQ'], ['58', 'MQ']]
+
+    def test_ipx_tables(self, cmd_tshark, capture_file, test_env):
+        '''Conversation and endpoint tables (frames per address pair).'''
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('ipx_coverage.pcapng.gz'),
+                '-q', '-z', 'conv,ipx'), encoding='utf-8', env=test_env, timeout=120)
+        conv = {}
+        for line in out.splitlines():
+            if '<->' in line:
+                toks = line.split()
+                conv[(toks[0], toks[2])] = toks[3 + 3 + 3]    # total frames
+        assert len(conv) == 3
+        assert conv[('0000a001.02000000000a', '0000b002.02000000000b')] == '63'
+        assert conv[('0000a001.02000000000a', '0000b002.ffffffffffff')] == '4'
+        assert conv[('0000a001.02000000000a', '00000000.ffffffffffff')] == '1'
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('ipx_coverage.pcapng.gz'),
+                '-q', '-z', 'endpoints,ipx'), encoding='utf-8', env=test_env, timeout=120)
+        eps = {l.split()[0]: l.split()[1] for l in out.splitlines() if l.startswith(('0000', '0000b'))}
+        assert eps['0000a001.02000000000a'] == '68'
+        assert eps['0000b002.02000000000b'] == '63'
