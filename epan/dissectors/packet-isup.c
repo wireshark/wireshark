@@ -3210,6 +3210,7 @@ static expert_field ei_isup_message_type_unknown;
 static expert_field ei_isup_not_dissected_yet;
 static expert_field ei_isup_message_type_no_optional_parameters;
 static expert_field ei_isup_status_subfield_not_present;
+static expert_field ei_isup_apm_addr_len_invalid;
 static expert_field ei_isup_empty_number;
 static expert_field ei_isup_too_many_digits;
 static expert_field ei_isup_opt_par_length_err;
@@ -4143,10 +4144,11 @@ dissect_isup_range_and_status_parameter(tvbuff_t *parameter_tvb, packet_info *pi
 {
   proto_tree *range_tree;
   int offset = 0;
-  uint8_t range, actual_status_length;
+  unsigned range;
+  uint8_t actual_status_length;
 
-  range = tvb_get_uint8(parameter_tvb, 0) + 1;
-  proto_tree_add_uint_format(parameter_tree, hf_isup_range_indicator, parameter_tvb, offset, RANGE_LENGTH, range, "Range: %u", range);
+  range = (unsigned)tvb_get_uint8(parameter_tvb, 0) + 1;
+  proto_tree_add_uint_format(parameter_tree, hf_isup_range_indicator, parameter_tvb, offset, RANGE_LENGTH, (uint8_t)range, "Range: %u", range);
   offset = offset + RANGE_LENGTH;
 
   actual_status_length = tvb_reported_length_remaining(parameter_tvb, offset);
@@ -5002,9 +5004,9 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
           }
           else {
             offset = offset +1;
-            length_indicator = tvb_get_uint8(parameter_tvb, offset);
+            length_indicator = tvb_get_uint8(parameter_tvb, offset) & 0x0f;
             length_indicator = length_indicator << 7;
-            length_indicator = length_indicator & (tempdata & 0x7f);
+            length_indicator = length_indicator + (tempdata & 0x7f);
           }
           offset = dissect_codec(parameter_tvb, bat_ase_element_tree, length_indicator , offset, identifier);
         }
@@ -5180,7 +5182,7 @@ Octet
         Figure 77/Q.763 . Application transport parameter field
 */
 static void
-dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *parameter_tree, proto_item *parameter_item)
 {
 
   uint8_t  si_and_apm_seg_ind;
@@ -5227,7 +5229,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   /* Octet 1a */
   else {
     proto_tree_add_item(parameter_tree, hf_isup_app_transport_param_field16, parameter_tvb, offset, 2, ENC_BIG_ENDIAN);
-    aci16 = (aci16<<8) | (tvb_get_uint8(parameter_tvb, offset) & 0x7f);
+    aci16 = ((tvb_get_uint8(parameter_tvb, offset + 1) & 0x7f) << 7) | (aci16 & 0x7f);
     proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident , parameter_tvb, offset, 2, aci16);
     offset = offset + 2;
   }
@@ -5254,7 +5256,9 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
     octet = tvb_get_uint8(parameter_tvb, offset);
     proto_tree_add_item(parameter_tree, hf_isup_orig_addr_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    if (octet != 0) {
+    if (octet == 1) {
+      expert_add_info(pinfo, parameter_item, &ei_isup_apm_addr_len_invalid);
+    } else if (octet != 0) {
       /* 4b */
       proto_tree_add_item(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       /* nature of address indicator */
@@ -5270,7 +5274,9 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
     octet = tvb_get_uint8(parameter_tvb, offset);
     proto_tree_add_item(parameter_tree, hf_isup_dest_addr_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    if (octet != 0) {
+    if (octet == 1) {
+      expert_add_info(pinfo, parameter_item, &ei_isup_apm_addr_len_invalid);
+    } else if (octet != 0) {
       /* 4b */
       proto_tree_add_item(parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       /* nature of address indicator */
@@ -6662,7 +6668,7 @@ dissect_isup_calling_geodetic_location_parameter(tvbuff_t *parameter_tvb, packet
   uint8_t oct, lpri;
 
   oct = tvb_get_uint8(parameter_tvb, 0);
-  lpri = (oct & 0xc0) >> 2;
+  lpri = (oct & 0x0c) >> 2;
 
   proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_presentation_restricted_ind, parameter_tvb, 0, 1, oct);
   proto_tree_add_uint(parameter_tree, hf_isup_geo_loc_screening_ind, parameter_tvb, 0, 1, oct);
@@ -9739,6 +9745,8 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
   bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                             params explicitly set to true in case statement */
   tap_calling_number            = NULL;
+  tap_called_number             = NULL;
+  tap_cause_value               = 0;
   offset                        = 0;
 
   // We call ourselves for MESSAGE_TYPE_PASS_ALONG.
@@ -10016,6 +10024,8 @@ dissect_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *isup
   bool        opt_part_possible = false; /* default setting - for message types allowing optional
                                              params explicitly set to true in case statement */
   tap_calling_number            = NULL;
+  tap_called_number             = NULL;
+  tap_cause_value               = 0;
   offset                        = 0;
 
   // We call ourselves for MESSAGE_TYPE_PASS_ALONG.
@@ -12230,6 +12240,7 @@ proto_register_isup(void)
     { &ei_isup_format_national_matter, { "isup.format_national_matter", PI_PROTOCOL, PI_NOTE, "Format is a national matter", EXPFILL }},
     { &ei_isup_message_type_unknown, { "isup.message_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Message type (possibly reserved/used in former ISUP version)", EXPFILL }},
     { &ei_isup_not_dissected_yet, { "isup.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
+    { &ei_isup_apm_addr_len_invalid, { "isup.apm_addr_len_invalid", PI_MALFORMED, PI_ERROR, "Address length 1 is too short", EXPFILL }},
     { &ei_isup_status_subfield_not_present, { "isup.status_subfield_not_present", PI_PROTOCOL, PI_NOTE, "Status subfield is not present with this message type", EXPFILL }},
     { &ei_isup_message_type_no_optional_parameters, { "isup.message_type.no_optional_parameters", PI_PROTOCOL, PI_NOTE, "No optional parameters are possible with this message type", EXPFILL }},
     { &ei_isup_empty_number, { "isup.empty_number", PI_PROTOCOL, PI_NOTE, "(empty) number", EXPFILL }},
