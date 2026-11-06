@@ -82939,3 +82939,92 @@ class TestDissectIpxwan:
         assert d['23'][3:6] == ['0', '0x01', '16']                 # Telebit: options 1, slots 16
         assert d['25'][3] == '7'                                   # unknown compression type
         assert d['30'][0] == '0x00,0x80,0x42,0xff'
+
+
+class TestDissectIrc:
+    '''IRC on TCP 6667 and 57000 from the synthetic capture
+    irc_coverage.pcap.gz.'''
+
+    def test_irc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every data frame is IRC; no malformed frames and no error
+        expert infos in one and two passes (warnings for numeric
+        requests and tag data outside NOTICE/PRIVMSG are expected).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 36
+        assert protocols.count('IRC') == 29
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('irc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_irc_complete_lines(self, cmd_tshark, capture_file, test_env):
+        '''Lines that end in CR LF are dissected, not only an unterminated
+        last line ("IRC: Dissect complete lines again"). Frame 4 holds
+        NICK, PRIVMSG with a CTCP ACTION and an unterminated USER.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-Tfields', '-eirc.request.command',
+                '-eirc.request.command_parameter',
+                '-eirc.request.trailer', '-eirc.ctcp.command',
+                '-eirc.ctcp.parameters',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            'NICK,PRIVMSG,USER', 'alice,#chan,a', '\x01ACTION waves\x01',
+            '\x01ACTION', 'waves\x01']
+
+    def test_irc_ctcp(self, cmd_tshark, capture_file, test_env):
+        '''CTCP commands with and without parameters, in requests and
+        responses. With parameters the command starts with the CTCP
+        delimiter (0x01) and the parameters end with it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8, 10, 22}',
+                '-Tfields', '-eframe.number', '-eirc.ctcp.command',
+                '-eirc.ctcp.parameters',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\tVERSION\t',
+            '10\t\x01PING\t123456\x01',
+            '22\t\x01ACTION,VERSION,\x01PING\tdances\x01,1\x01',
+        ]
+
+    def test_irc_responses(self, cmd_tshark, capture_file, test_env):
+        '''Numeric responses with prefix, parameters and trailer, on
+        port 6667 and on port 57000.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irc_coverage.pcap.gz'),
+                '-Y', 'irc.response.num_command == 1 || '
+                      'irc.response.num_command == 353',
+                '-Tfields', '-eframe.number', '-eirc.response.num_command',
+                '-eirc.response.command_parameter', '-eirc.response.trailer',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0] == ['20', '1,2,353,366',
+                           'alice,alice,alice,=,#chan,alice,#chan',
+                           'Welcome to the network alice,'
+                           'Your host is irc.example.com,'
+                           'alice bob @carol,End of /NAMES list.']
+        assert rows[1][0] == '29'
+        assert rows[2] == ['36', '1', 'carol', 'Welcome']
+
+    def test_irc_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Warnings for numeric commands in requests (frame 18) and for tag
+        data outside NOTICE and PRIVMSG (frames 15, 25 and 26).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('irc_coverage.pcap.gz'),
+                '-Y', 'irc && _ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['15', '18', '25', '26']
+        assert rows[0][1].count('Tag data outside of NOTICE or PRIVMSG command') == 2
+        assert rows[1][1].count('Numeric command not allowed in request') == 3
