@@ -81932,3 +81932,113 @@ class TestDissectIpp:
             '83\tIPP Response (0x000b)\t50\tipp',
             '84\tIPP Response (successful-ok)\t50\tipp',
         ]
+
+
+class TestDissectIppusb:
+    '''IPP over USB (usbmon, interface class 07/01/04 and the old HP
+    ff/09/01) from the synthetic capture ippusb_coverage.pcap.gz: single
+    transfer messages, chunked messages reassembled from several bulk
+    transfers (header, chunks, final chunk) and stray transfers.'''
+
+    @staticmethod
+    def ippusb_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ippusb_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ippusb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''11 IPPUSB frames, the other 51 are plain USB; no malformed
+        packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ippusb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 62
+        assert protocols.count('IPPUSB') == 11
+        assert protocols.count('USB') == 51
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ippusb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ippusb_single_transfer(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses that fit one bulk transfer (HTTP header
+        and IPP message ending with the end-of-attributes tag) go to HTTP
+        without reassembly; the old HP class (device 3, frames 55 and
+        62) works as well.'''
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {5,8,9,12,47,55}',
+                                 '_ws.col.info', 'ipp.request_id', 'http.request.uri')
+        assert out == [
+            '5\tIPPUSB Request (Get-Printer-Attributes)\t1\t/ipp/print',
+            '8\tIPPUSB Response (successful-ok)\t1\t',
+            '9\tIPPUSB Request (Get-Job-Attributes)\t2\t/',
+            '12\tIPPUSB Response (successful-ok)\t2\t',
+            '47\tIPPUSB Request (Get-Printer-Attributes)\t6\t/ipp/print',
+            '55\tIPPUSB Request (Get-Printer-Attributes)\t8\t/ipp/print',
+        ]
+
+    def test_ippusb_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Chunked messages are reassembled in the frame of the final
+        chunk, in one and in two passes; the fragments know the frame
+        in the second pass.'''
+        for passes in ((), ('-2',)):
+            out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                     'ippusb.reassembled.length',
+                                     'ippusb.reassembled.length', 'ipp.request_id',
+                                     passes=passes)
+            assert out == [
+                '17\t257\t3',
+                '28\t935\t3',
+                '37\t228\t4',
+                '46\t221\t5',
+                '62\t221\t8',
+            ]
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'ippusb.reassembled_in', 'ippusb.reassembled_in',
+                                 passes=('-2',))
+        assert out == [
+            '13\t17', '15\t17', '20\t28', '22\t28', '24\t28', '26\t28',
+            '31\t37', '33\t37', '35\t37', '40\t46', '42\t46', '44\t46',
+            '58\t62', '60\t62',
+        ]
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number == 28 && ipp.name == "kw-39"',
+                                 'ipp.name')
+        assert len(out) == 1
+        assert out[0].endswith(',kw-38,kw-39')
+
+    def test_ippusb_stray_transfers(self, cmd_tshark, capture_file, test_env):
+        '''A transfer without HTTP header after a finished message (frames
+        30 and 50) is not attached to the previous message: it shows no
+        HTTP or IPP, and the earlier reassembly is unchanged. The lookup
+        used -1 as the frame number 0xFFFFFFFF before "IPPUSB: Initialize
+        the PDU state and pass no data to HTTP".'''
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {30,50}',
+                                 '_ws.col.protocol', 'usb.data_len', 'http', 'ipp',
+                                 'ippusb.reassembled.length', 'ippusb.fragment')
+        assert out == ['30\tUSB\t27\t\t\t\t', '50\tUSB\t15\t\t\t\t']
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number == 28', '_ws.col.info',
+                                 'ippusb.reassembled.length')
+        assert out == ['28\tIPPUSB Response (successful-ok) Reassembled Data\t935']
+
+    def test_ippusb_split_header_and_chunk(self, cmd_tshark, capture_file, test_env):
+        '''A header split over two transfers (frames 31-37) and a chunk
+        split so that its first transfer has the length of the final
+        chunk, 5 octets (frames 40-46).'''
+        out = self.ippusb_fields(cmd_tshark, capture_file, test_env,
+                                 'frame.number in {37,46}', '_ws.col.info',
+                                 'http.content_type', 'http.transfer_encoding')
+        assert out == [
+            '37\tIPPUSB Request (Get-Printer-Attributes) Reassembled Data\tapplication/ipp\tchunked',
+            '46\tIPPUSB Response (successful-ok) Reassembled Data\tapplication/ipp\tchunked',
+        ]
