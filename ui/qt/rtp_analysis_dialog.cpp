@@ -72,10 +72,6 @@ enum {
     status_col_
 };
 
-static const QRgb color_cn_ = 0xbfbfff;
-static const QRgb color_rtp_warn_ = 0xffdbbf;
-static const QRgb color_pt_event_ = 0xefffff;
-
 enum { rtp_analysis_type_ = 1000 };
 class RtpAnalysisTreeWidgetItem : public QTreeWidgetItem
 {
@@ -105,40 +101,40 @@ public:
 
         if (statinfo->pt == PT_CN) {
             status = "Comfort noise (PT=13, RFC 3389)";
-            bg_color = color_cn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertChat);
         } else if (statinfo->pt == PT_CN_OLD) {
             status = "Comfort noise (PT=19, reserved)";
-            bg_color = color_cn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertChat);
         } else if (statinfo->flags & STAT_FLAG_WRONG_SEQ) {
             status = "Wrong sequence number";
             bg_color = ThemeManager::instance()->color(ThemeManager::ExpertError);
         } else if (statinfo->flags & STAT_FLAG_DUP_PKT) {
             status = "Suspected duplicate (MAC address) only delta time calculated";
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if (statinfo->flags & STAT_FLAG_REG_PT_CHANGE) {
             status = QStringLiteral("Payload changed to PT=%1").arg(statinfo->pt);
             if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
                 status.append(" telephone/event");
             }
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if (statinfo->flags & STAT_FLAG_WRONG_TIMESTAMP) {
             status = "Incorrect timestamp";
             /* color = COLOR_WARNING; */
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if ((statinfo->flags & STAT_FLAG_PT_CHANGE)
             &&  !(statinfo->flags & STAT_FLAG_FIRST)
             &&  !(statinfo->flags & STAT_FLAG_PT_CN)
             &&  (statinfo->flags & STAT_FLAG_FOLLOW_PT_CN)
             &&  !(statinfo->flags & STAT_FLAG_MARKER)) {
             status = "Marker missing?";
-            bg_color = color_rtp_warn_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
         } else if (statinfo->flags & STAT_FLAG_PT_T_EVENT) {
             status = QStringLiteral("PT=%1 telephone/event").arg(statinfo->pt);
             /* XXX add color? */
-            bg_color = color_pt_event_;
+            bg_color = ThemeManager::instance()->color(ThemeManager::ExpertNote);
         } else {
             if (statinfo->flags & STAT_FLAG_MARKER) {
-                bg_color = color_rtp_warn_;
+                bg_color = ThemeManager::instance()->color(ThemeManager::ExpertWarn);
             }
         }
 
