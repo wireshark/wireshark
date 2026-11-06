@@ -11613,8 +11613,7 @@ dissect_hs20_anqp_icon_binary_file(proto_tree *tree, packet_info* pinfo, tvbuff_
                                     hs20_icon_download_status_vals,
                                     "Reserved (%u)"));
 
-  icon_type_len = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_hs20_icon_type_length, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_ieee80211_hs20_icon_type_length, tvb, offset, 1, ENC_NA, &icon_type_len);
   offset++;
 
   proto_tree_add_item(tree, hf_ieee80211_hs20_icon_type, tvb, offset, icon_type_len,
@@ -20740,8 +20739,7 @@ dissect_hs20_osen(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
   }
 
   /* Now handle the AKM Suites */
-  akms_count = tvb_get_letohs(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_osen_akm_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint16(tree, hf_ieee80211_osen_akm_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &akms_count);
   offset += 2;
 
   if (akms_count > 0) {
@@ -23756,12 +23754,9 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   tx_pwr_item = proto_tree_add_item(tree, hf_ieee80211_vht_tpe_pwr_info, tvb, offset, 1, ENC_NA);
   tx_pwr_info_tree =  proto_item_add_subtree(tx_pwr_item, ett_vht_tpe_info_tree);
 
-  ti = proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  ti = proto_tree_add_item_ret_uint8(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &opt_ie_cnt);
   unit_ti = proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_unit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tx_pwr_info_tree, hf_ieee80211_vht_tpe_pwr_info_category, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-  opt_ie_cnt = tvb_get_uint8(tvb, offset) & 0x07;
-
   offset += 1;
 
   switch (mtpi) {
@@ -23810,9 +23805,9 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (offset < tag_len) {
         proto_tree *psd_tree;
         uint8_t j;
-        uint8_t ext_cnt = tvb_get_uint8(tvb, offset) & 0x0f;
+        uint8_t ext_cnt;
 
-        proto_tree_add_item(tree, hf_ieee80211_vht_tpe_ext_count, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item_ret_uint8(tree, hf_ieee80211_vht_tpe_ext_count, tvb, offset, 1, ENC_NA, &ext_cnt);
         proto_tree_add_item(tree, hf_ieee80211_vht_tpe_ext_reserved, tvb, offset, 1, ENC_NA);
         offset += 1;
         for (j = 0; j < ext_cnt; j++) {
@@ -26697,8 +26692,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   /* AKM Suites: list can't be 0*/
-  akm_cnt = tvb_get_letohs(tvb, offset);
-  item = proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_akm_suite_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  item = proto_tree_add_item_ret_uint16(tree, hf_ieee80211_tag_wapi_param_set_akm_suite_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &akm_cnt);
   offset += 2;
   if (akm_cnt != 0) {
     proto_item_append_text(ti, " : AKM Suite List:");
@@ -26741,8 +26735,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   /* Multicast Cipher Suites*/
   proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3;
-  mcast_cipher_type = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item_ret_uint8(tree, hf_ieee80211_tag_wapi_param_set_mcast_cipher_suite_type, tvb, offset, 1, ENC_LITTLE_ENDIAN, &mcast_cipher_type);
   offset += 1;
   proto_item_append_text(ti, " Multicast Cipher: %s", val_to_str(pinfo->pool, mcast_cipher_type, ieee80211_wapi_cipher_type, "Reserved: %d"));
 
@@ -26756,8 +26749,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
    * Applicable only for assoc/re-assoc
    */
   if (ftype == MGT_ASSOC_REQ || ftype == MGT_REASSOC_REQ ) {
-    bkid_cnt = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_tag_wapi_param_set_bkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_ieee80211_tag_wapi_param_set_bkid_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &bkid_cnt);
     offset += 2;
     if (bkid_cnt != 0) {
       for (loop_cnt = 0; loop_cnt < bkid_cnt; loop_cnt++) {
@@ -36506,8 +36498,7 @@ ieee80211_tag_fils_indication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
       proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_type, tvb, offset, 1, ENC_NA);
       offset += 1;
 
-      proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_length, tvb, offset, 1, ENC_NA);
-      len = tvb_get_uint8(tvb, offset);
+      proto_tree_add_item_ret_uint8(subtree, hf_ieee80211_tag_fils_indication_public_key_length, tvb, offset, 1, ENC_NA, &len);
       offset += 1;
 
       proto_tree_add_item(subtree, hf_ieee80211_tag_fils_indication_public_key_indicator, tvb, offset, len, ENC_NA);
@@ -37696,7 +37687,7 @@ ieee80211_tag_dmg_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   int offset = 0;
 
   bool isGrant;
-  int num_constraints;
+  uint8_t num_constraints;
   if (tag_len < 14)
   {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 14", tag_len);
@@ -37728,8 +37719,7 @@ ieee80211_tag_dmg_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_tag_tspec_min_duration, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
-  num_constraints = tvb_get_uint8(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_tspec_num_of_constraints, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item_ret_uint8(tree, hf_ieee80211_tag_tspec_num_of_constraints, tvb, offset, 1, ENC_NA, &num_constraints);
   offset += 1;
   while(num_constraints > 0) {
     proto_tree_add_item(tree, hf_ieee80211_tag_tspec_tsconst_start_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -37963,7 +37953,7 @@ ieee80211_tag_switching_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     NULL
   };
 
-  int param_num;
+  uint16_t param_num;
   if (tag_len < 4)
   {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be at least 4", tag_len);

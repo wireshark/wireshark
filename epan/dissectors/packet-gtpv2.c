@@ -5644,8 +5644,7 @@ dissect_gtpv2_pdn_numbers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     uint8_t     nsapi;
     unsigned offset = 0;
 
-    nsapi = (tvb_get_uint8(tvb, offset) & 0x08);
-    nsapi_ti = proto_tree_add_item(tree, hf_gtpv2_nsapi08, tvb, offset, 1, ENC_BIG_ENDIAN);
+    nsapi_ti = proto_tree_add_item_ret_uint8(tree, hf_gtpv2_nsapi08, tvb, offset, 1, ENC_BIG_ENDIAN, &nsapi);
     nsapi_tree = proto_item_add_subtree(nsapi_ti, ett_gtpv2_pdn_numbers_nsapi);
     proto_tree_add_bits_item(nsapi_tree, hf_gtpv2_spare_bits, tvb, offset << 3, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(nsapi_tree, hf_gtpv2_pdn_numbers_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);

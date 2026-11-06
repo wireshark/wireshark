@@ -5537,8 +5537,7 @@ decode_quintuplet(tvbuff_t * tvb, unsigned offset, proto_tree * tree, uint16_t c
 
         proto_tree_add_item(ext_tree_quint, hf_gtp_rand, tvb, offset + q_offset, 16, ENC_NA);
         q_offset = q_offset + 16;
-        xres_len = tvb_get_uint8(tvb, offset + q_offset);
-        proto_tree_add_item(ext_tree_quint, hf_gtp_xres_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(ext_tree_quint, hf_gtp_xres_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN, &xres_len);
         q_offset++;
         proto_tree_add_item(ext_tree_quint, hf_gtp_xres, tvb, offset + q_offset, xres_len, ENC_NA);
         q_offset = q_offset + xres_len;
@@ -5546,8 +5545,7 @@ decode_quintuplet(tvbuff_t * tvb, unsigned offset, proto_tree * tree, uint16_t c
         q_offset = q_offset + 16;
         proto_tree_add_item(ext_tree_quint, hf_gtp_quintuplet_integrity_key, tvb, offset + q_offset, 16, ENC_NA);
         q_offset = q_offset + 16;
-        auth_len = tvb_get_uint8(tvb, offset + q_offset);
-        proto_tree_add_item(ext_tree_quint, hf_gtp_authentication_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(ext_tree_quint, hf_gtp_authentication_length, tvb, offset + q_offset, 1, ENC_BIG_ENDIAN, &auth_len);
         q_offset++;
         proto_tree_add_item(ext_tree_quint, hf_gtp_auth, tvb, offset + q_offset, auth_len, ENC_NA);
 
@@ -5684,8 +5682,7 @@ decode_gtp_mm_cntxt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_
  * document for the used IEI in the MMcontext.
  */
 
-    con_len = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(ext_tree_mm, hf_gtp_container_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(ext_tree_mm, hf_gtp_container_length, tvb, offset, 2, ENC_BIG_ENDIAN, &con_len);
     offset = offset + 2;
 
     if (con_len > 0) {
@@ -6441,8 +6438,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto
 
     offset = offset + 3 + pdp_addr_len;
 
-    ggsn_addr_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &ggsn_addr_len);
 
     switch (ggsn_addr_len) {
     case 4:
@@ -6459,8 +6455,7 @@ decode_gtp_pdp_cntxt(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto
 
     if (gtp_version == 1) {
 
-        ggsn_addr_len = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(ext_tree_pdp, hf_gtp_ggsn_address_length, tvb, offset, 1, ENC_BIG_ENDIAN, &ggsn_addr_len);
 
         switch (ggsn_addr_len) {
         case 4:
@@ -6738,8 +6733,7 @@ decode_gtp_auth_qui(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, pr
 
     proto_tree_add_item(ext_tree, hf_gtp_rand, tvb, offset, 16, ENC_NA);
     offset = offset + 16;
-    xres_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_xres_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_gtp_xres_length, tvb, offset, 1, ENC_BIG_ENDIAN, &xres_len);
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_xres, tvb, offset, xres_len, ENC_NA);
     offset = offset + xres_len;
@@ -6747,8 +6741,7 @@ decode_gtp_auth_qui(tvbuff_t * tvb, unsigned offset, packet_info * pinfo _U_, pr
     offset = offset + 16;
     proto_tree_add_item(ext_tree, hf_gtp_quintuplet_integrity_key, tvb, offset, 16, ENC_NA);
     offset = offset + 16;
-    auth_len = tvb_get_uint8(tvb, offset);
-    proto_tree_add_item(ext_tree, hf_gtp_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint8(ext_tree, hf_gtp_authentication_length, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_len);
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_auth, tvb, offset, auth_len, ENC_NA);
 
