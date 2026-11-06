@@ -779,7 +779,7 @@ dsrc_velocity_fmt(char *s, uint32_t v)
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%u)", v);
   } else {
     double vms = v * 0.02;
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%u)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %dkm/h (%u)",
             vms, (int)lround(vms * 3.6), v);
   }
 }
