@@ -120,6 +120,12 @@ typedef struct {
 /* Maximum nest level where it worth caching data */
 #define MAX_NEST_LEVEL	3
 
+/* Maximum nest level of bridged (Send/Get Message) commands we dissect */
+#define MAX_DISSECT_NEST_LEVEL	32
+
+/* Maximum number of unmatched requests kept per conversation */
+#define MAX_PENDING_REQUESTS	1024
+
 int proto_ipmi;
 static int proto_ipmb;
 static int proto_kcs;
@@ -160,6 +166,7 @@ static int ett_data;
 static int ett_typelen;
 
 static expert_field ei_impi_parser_not_implemented;
+static expert_field ei_ipmi_nesting_too_deep;
 
 static struct ipmi_netfn_root ipmi_cmd_tab[IPMI_NETFN_MAX];
 
@@ -403,6 +410,15 @@ add_request(ipmi_packet_data_t * data, const ipmi_header_t * hdr)
 		/* append request to list */
 		wmem_list_append(data->request_list, rq);
 
+		/* bound the list: drop the oldest request when it grows too big */
+		if (wmem_list_count(data->request_list) > MAX_PENDING_REQUESTS) {
+			wmem_list_frame_t * first = wmem_list_head(data->request_list);
+			ipmi_request_t * old = (ipmi_request_t *) wmem_list_frame_data(first);
+
+			wmem_list_remove_frame(data->request_list, first);
+			wmem_free(wmem_file_scope(), old);
+		}
+
 #ifdef DEBUG
 	fprintf(stderr, "%d, %d: hdr : {\n"
 			"\tchannel=%d\n"
@@ -472,6 +488,13 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			+ !(ctx->flags & IPMI_D_NO_CKS)) {
 		/* don bother with anything */
 		return call_data_dissector(tvb, pinfo, tree);
+	}
+
+	/* stop on too deeply nested (bridged) commands */
+	if (data->next_level >= MAX_DISSECT_NEST_LEVEL ||
+			wmem_list_count(pinfo->layers) + 16 >= prefs.gui_max_tree_depth) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_ipmi_nesting_too_deep, tvb, 0);
+		return tvb_captured_length(tvb);
 	}
 
 	/* save nest level */
@@ -736,7 +759,9 @@ dissect_ipmi_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			data->curr_ccode = cc_val;
 
 			/* call command parser */
+			increment_dissection_depth(pinfo);
 			hnd(data_tvb, pinfo, tmp_tree);
+			decrement_dissection_depth(pinfo);
 		}
 	}
 
@@ -913,7 +938,7 @@ parse_6bit_ascii(char *p, tvbuff_t *tvb, unsigned offs, unsigned len)
 	}
 
 	/* Do we have any characters left? */
-	offs += len / 4;
+	offs += (len / 4) * 3;
 	len &= 0x3;
 	switch (len) {
 	case 3:
@@ -976,7 +1001,7 @@ get_len_unicode(unsigned *clen, unsigned *blen, tvbuff_t *tvb _U_, unsigned offs
 		unsigned len _U_, bool len_is_bytes)
 {
 	if (len_is_bytes) {
-		*clen = len * 3; /* Each 2 bytes result in 6 chars printed: \Uxxxx */
+		*clen = (len / 2) * 6; /* Each 2 bytes result in 6 chars printed: \Uxxxx */
 		*blen = len;
 	} else {
 		*clen = len * 6;
@@ -1043,7 +1068,7 @@ ipmi_add_typelen(packet_info *pinfo, proto_tree *tree, int hf_string, int hf_typ
 
 	s_tree = proto_tree_add_subtree_format(tree, tvb, offs, 1, ett_typelen, NULL,
 			"%s Type/Length byte: %s, %d %s", (proto_registrar_get_nth(hf_string))->name, ptr->desc, len, unit);
-	proto_tree_add_uint_format_value(s_tree, hf_type, tvb, offs, 1, type, "%s (0x%02x)",
+	proto_tree_add_uint_format_value(s_tree, hf_type, tvb, offs, 1, typelen, "%s (0x%02x)",
 			ptr->desc, type);
 	proto_tree_add_uint_format_value(s_tree, hf_length, tvb, offs, 1, len, "%d %s",
 			len, unit);
@@ -1768,6 +1793,7 @@ proto_register_ipmi(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_impi_parser_not_implemented, { "ipmi.parser_not_implemented", PI_UNDECODED, PI_WARN, "[PARSER NOT IMPLEMENTED]", EXPFILL }},
+		{ &ei_ipmi_nesting_too_deep, { "ipmi.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Bridged command nested too deeply", EXPFILL }},
 	};
 
 	module_t *module;
