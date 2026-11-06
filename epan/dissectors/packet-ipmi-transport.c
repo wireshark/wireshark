@@ -965,7 +965,7 @@ lan_18(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_trn_lan18_byte1, byte1, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte2, byte2, ENC_LITTLE_ENDIAN, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_lan18_tout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_trn_lan18_byte4, byte4, ENC_LITTLE_ENDIAN, 0);
+	proto_tree_add_bitmask_text(tree, tvb, 3, 1, NULL, NULL, ett_ipmi_trn_lan18_byte4, byte4, ENC_LITTLE_ENDIAN, 0);
 }
 
 static void
@@ -1074,7 +1074,7 @@ lan_25(tvbuff_t *tvb, proto_tree *tree)
 					byte34, ENC_LITTLE_ENDIAN, 0);
 			break;
 		default:
-			proto_tree_add_item(tree, hf_ipmi_trn_lan25_address, tvb, 2, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_ipmi_trn_lan25_address, tvb, 2, -1, ENC_NA);
 			break;
 	}
 }
@@ -2199,7 +2199,7 @@ static const value_string cc10[] = {
 	{ 0, NULL }
 };
 
-/* Get LAN Configuration Parameters
+/* Get Serial/Modem Configuration Parameters
  */
 static void
 rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -2230,7 +2230,7 @@ rq11(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_uint_format_value(tree, hf_ipmi_trn_11_param, tvb, 1, 1,
 			pno, "%s (0x%02x)", desc, pno);
 	proto_tree_add_item(tree, hf_ipmi_trn_11_set, tvb, 2, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_trn_11_block, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_trn_11_block, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2734,7 +2734,7 @@ proto_register_ipmi_transport(void)
 				"ipmi.lan25.addr_format", FT_UINT8, BASE_HEX, VALS(lan25_af_vals), 0xf0, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan25_address,
 			{ "Address (format unknown)",
-				"ipmi.lan25.address", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+				"ipmi.lan25.address", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan25_uprio,
 			{ "User priority",
 				"ipmi.lan25.uprio", FT_UINT16, BASE_DEC, NULL, 0xe000, NULL, HFILL }},
