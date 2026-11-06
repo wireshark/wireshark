@@ -78203,3 +78203,108 @@ class TestDissectIlp:
         out = self._fields(cmd_tshark, capture_file, test_env,
                 'lpp', '-eframe.number')
         assert len(out) == 16
+
+
+class TestDissectImap:
+    '''IMAP on TCP 143 from the synthetic capture imap_coverage.pcap.gz.'''
+
+    def test_imap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''IMAP, IMAP carrying IMF and the TLS that follows STARTTLS or is
+        found by the heuristic; no malformed packets or error expert
+        infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 115
+        assert protocols.count('IMAP') == 88
+        assert protocols.count('IMAP/IMF') == 4
+        assert protocols.count('TLSv1') == 3
+        assert protocols.count('TLSv1.2') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('imap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_imap_login(self, cmd_tshark, capture_file, test_env):
+        '''LOGIN shows the user name and password and feeds the
+        credentials tap. Before "IMAP: Fix the LOGIN password and COPY
+        folder parsing" every LOGIN was malformed. A quoted password
+        loses its quotes; an unquoted one is shown as it is.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Y', 'imap.request.username',
+                '-Tfields', '-eframe.number', '-eimap.request.username',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7', 'alice', '9', 'bob', '11', 'carol',
+                                  '13', 'dave', '15', 'eve']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 9}',
+                '-Tfields', '-eimap.request.password',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['secret', 'pw']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-q', '-z', 'credentials',
+            ), encoding='utf-8', env=test_env)
+        users = [l.split()[2] for l in stdout.splitlines()
+                 if l.split()[:1] and l.split()[0].isdigit()]
+        assert users == ['alice', 'bob', 'carol', 'dave', 'eve']
+
+    def test_imap_copy_folder(self, cmd_tshark, capture_file, test_env):
+        '''The folder of COPY and UID COPY is shown (it was never shown
+        before the fix); the folder commands name their folder.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Y', 'imap.request.folder',
+                '-Tfields', '-eframe.number', '-eimap.request.command',
+                '-eimap.request.folder',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert ['45', 'COPY', 'Archive'] in rows
+        assert ['49', 'COPY', 'Archive'] in rows
+        assert ['17', 'SELECT', 'INBOX'] in rows
+        assert ['21', 'CREATE', 'Archive'] in rows
+        assert ['35', 'SEARCH', 'ALL'] in rows
+        assert len(rows) == 13
+
+    def test_imap_fetch_imf(self, cmd_tshark, capture_file, test_env):
+        '''A FETCH literal is dissected as IMF, also when it arrives in
+        several segments; the last one carries an IMF sio-label.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Y', 'imf',
+                '-Tfields', '-eframe.number', '-eimf.from',
+                '-eimf.siolabel.marking', '-eimf.siolabel.fgcolor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '68\tAlice <alice@example.com>\t\t',
+            '73\tAlice <alice@example.com>\t\t',
+            '76\tAlice <alice@example.com>\t\t',
+            '82\tAlice <alice@example.com>\t"SECRET"\tred',
+        ]
+
+    def test_imap_tls(self, cmd_tshark, capture_file, test_env):
+        '''TLS after STARTTLS (frame 62) and from the heuristic (the first
+        frame, frame 87, and the second frame, frame 93).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imap_coverage.pcap.gz'),
+                '-Y', 'tls.handshake.type == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['62', '87', '93']
+
+    def test_imap_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests by tag, in both passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('imap_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {6, 8, 46}',
+                    '-Tfields', '-eframe.number', '-eimap.response_to',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['6', '5', '8', '7', '46', '45']
