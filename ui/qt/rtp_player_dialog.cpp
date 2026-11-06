@@ -277,6 +277,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     export_btn_->setToolTip(ui->actionExportButton->toolTip());
     export_btn_->setEnabled(false);
     export_btn_->setMenu(ui->menuExport);
+    ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
 
     // Ordered, unique device names starting with the system default
     QMap<QString, bool> out_device_map; // true == default device

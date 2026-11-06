@@ -362,6 +362,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     export_button_ = ui->buttonBox->addButton(ui->actionExportAsRtpDump->text(), QDialogButtonBox::ActionRole);
     export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
     connect(export_button_, &QPushButton::pressed, this, &RtpStreamDialog::on_actionExportAsRtpDump_triggered);
+    ui->buttonBox->button(QDialogButtonBox::Close)->setDefault(true);
 
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;
