@@ -83578,3 +83578,154 @@ class TestDissectIser:
                 '-Y', 'frame.number >= 56 && frame.number <= 78 || frame.number == 88',
                 '-Tfields', '-e_ws.col.protocol')
         assert stdout.split() == ['RRoCE'] * 23 + ['iSER']
+
+
+class TestDissectIsi:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isi_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_isi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 136 frames (Linux cooked capture, protocol 0x00F5) decode as
+        ISI without malformed packets or errors, in one and two passes, and
+        both passes give the same tree.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert [r[0] for r in rows] == ['ISI'] * 136
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        outputs = [subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isi_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env) for passes in ((), ('-2',))]
+        assert outputs[0] == outputs[1]
+
+    def test_isi_subpacket_lengths(self, cmd_tshark, capture_file, test_env):
+        '''A subpacket length below the size of the subpacket header ends the
+        subpacket loop with a "Broken Length" warning (frames 77-79 are GPS
+        data with lengths 0, 1 and 3, 111-114 network status and cell info
+        with lengths 0 and 1). The loop did not advance and went through all
+        255 announced subpackets over the same bytes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'isi.len.invalid', '-eframe.number', '-e_ws.col.info',
+                '-eisi.gps.sub.type', '-eisi.network.sub.type')
+        assert [r[0] for r in rows] == ['77', '78', '79', '111', '112', '113', '114']
+        assert [r[1] for r in rows] == ['GPS Data'] * 3 + [
+                'Network Status Indication', 'Network Cell Info Indication',
+                'Network Status Indication', 'Network Cell Info Indication']
+        # no subpacket is dissected: the rest of the message is one expert item
+        assert [r[2] for r in rows] == [''] * 7
+        assert [r[3] for r in rows] == [''] * 7
+        for frame in ('77', '111'):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('isi_coverage.pcap.gz'),
+                    '-Y', 'frame.number == ' + frame, '-V', '-O', 'isi',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.count('Subpacket (') == 0
+            assert stdout.count('Broken Length') >= 1
+
+    def test_isi_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every resource: SIM Authentication, SIM,
+        GSS, GPS, Subscriber Services, Network, SMS.'''
+        rows = dict((r[0], r[1]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-e_ws.col.info'))
+        expected = {
+            '1': 'disable SIM startup protection',
+            '7': 'update SIM PIN',
+            '13': 'SIM Authentication with PUK',
+            '22': 'SIM Authentication indication: Config',
+            '29': 'unknown SIM Authentication status response packet',
+            '33': 'Network Information Response: Home PLMN',
+            '38': 'Service Provider Name Response: Invalid Location',
+            '40': 'Read Field Request: Integrated Circuit Card Identification (ICCID)',
+            '46': 'Phonebook Read Request',
+            '50': 'Common Message: PIN Enable OK',
+            '54': 'Service Request: Radio Access Type Read',
+            '57': 'Service Failed Response: Radio Access Type Read',
+            '62': 'Common Message: ISA Entity Not Reachable',
+            '65': 'GPS Status Indication: GPS_DISABLED',
+            '67': 'GPS Status Indication: unknown (0x77)',
+            '68': 'unknown A-GPS packet (0x84)',
+            '73': 'unknown GPS packet (0x33)',
+            '74': 'GPS Data',
+            '81': 'Service Request: GSM Password Registration',
+            '86': 'GSM USSD Send Command Request',
+            '89': 'GSM USSD Message Received Notification',
+            '93': 'Status Indication: Request USSD Start',
+            '96': 'Service Completed Indication: Interrogation',
+            '104': 'Network Selection Request',
+            '106': 'unknown Network packet',
+            '107': 'Network Status Indication',
+            '109': 'Network Cell Info Indication',
+            '115': 'SMS Message Send Response',
+            '118': 'SMS GSM Cell Broadcast Routing Release',
+            '122': 'SMS Message Sending Status: Waiting for Network',
+            '131': '',
+            '135': 'Network Information Request: Read Home PLMN',
+        }
+        for frame, info in expected.items():
+            assert rows[frame] == info, frame
+
+    def test_isi_header(self, cmd_tshark, capture_file, test_env):
+        '''The Phonet header: devices, resource, length, objects and id.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-eisi.rdev', '-eisi.sdev', '-eisi.res', '-eisi.len',
+                '-eisi.robj', '-eisi.sobj', '-eisi.id'))
+        assert rows['1'] == ['0x6c', '0x00', '0x08', '11', '0x00', '0x00', '0']
+        assert rows['74'] == ['0x6c', '0x00', '0x54', '150', '0x00', '0x00', '0']
+        assert rows['132'] == ['0x00', '0x6c', '0x1b', '6', '0x00', '0x00', '0']
+        assert rows['133'] == ['0xff', '0xff', '0x10', '4', '0x00', '0x00', '0']
+        assert rows['134'] == ['0x42', '0x43', '0x77', '4', '0x00', '0x00', '0']
+        assert rows['135'] == ['0x00', '0x6c', '0x09', '5', '0x01', '0x02', '3']
+        # trailing padding behind the ISI message is not part of it
+        assert rows['136'][3] == '5'
+
+    def test_isi_gps_data(self, cmd_tshark, capture_file, test_env):
+        '''Position, date and time, movement, satellite and cell info
+        subpackets of a GPS data message (floating point values may use a
+        decimal comma).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 74', '-eisi.gps.pkgs', '-eisi.gps.sub.type',
+                '-eisi.gps.sub.len', '-eisi.gps.lat', '-eisi.gps.lon', '-eisi.gps.eph',
+                '-eisi.gps.alt', '-eisi.gps.epv', '-eisi.gps.date.year',
+                '-eisi.gps.date.month', '-eisi.gps.date.day', '-eisi.gps.time.hour',
+                '-eisi.gps.time.minute', '-eisi.gps.satellites', '-eisi.gps.sat.prn',
+                '-eisi.gps.sat.used', '-eisi.gps.gsm.mcc', '-eisi.gps.gsm.mnc',
+                '-eisi.gps.gsm.lac', '-eisi.gps.gsm.cid', '-eisi.gps.gsm.ucid')
+        f = [v.replace(',', '.') if i in (3, 4) else v for i, v in enumerate(rows[0])]
+        assert f[:3] == ['7', '0x02,0x03,0x04,0x05,0x07,0x08,0x09', '28,14,18,44,12,12,8']
+        assert f[3:5] == ['1.40625', '-22.5']
+        assert f[6:] == ['280', '50', '2026', '11', '6', '12', '30', '3', '0x0a,0x0b,0x0c',
+                         'False,True,False', '0x00ea,0x00ea', '0x000a,0x000a', '0x1234',
+                         '0x5678', '0x01234567']
+        assert rows[0][5].replace(',', '.').startswith('12.34')
+
+    def test_isi_network_and_sim_fields(self, cmd_tshark, capture_file, test_env):
+        '''Network status subpackets (UTF-16 operator name), cell info
+        subpackets with the GSM band bits, SIM Authentication placeholders,
+        the phonebook tags.'''
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 107 || frame.number == 109',
+                '-eframe.number', '-eisi.network.pkgs', '-eisi.network.sub.type',
+                '-eisi.network.sub.len', '-eisi.network.sub.lac', '-eisi.network.sub.cid',
+                '-eisi.network.sub.msg', '-eisi.network.sub.gsm_band_900'))
+        assert rows['107'] == ['4', '0x00,0x09,0xe3,0x55', '6,10,22,5', '0x1234',
+                               '0x00005678', 'Test Net', '']
+        assert rows['109'][:3] == ['5', '0x46,0x46,0x50,0x47,0x77', '21,24,8,8,6']
+        assert rows['109'][-1] == 'True,False'
+        rows = dict((r[0], r[1:]) for r in self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 7 || frame.number == 13',
+                '-eframe.number', '-eisi.sim.auth.pin', '-eisi.sim.auth.puk',
+                '-eisi.sim.auth.new_pin'))
+        assert rows == {'1': ['0000', '', ''], '7': ['0000', '', '2222'],
+                        '13': ['', '11111111', '2222']}
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 46', '-eisi.sim.pb.tag', '-eisi.sim.pb.location')
+        assert rows == [['0x01,0x02,0x03', '5']]
