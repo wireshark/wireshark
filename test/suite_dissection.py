@@ -80853,3 +80853,134 @@ class TestDissectIpmiPps:
         assert info['141'] == 'Req, Unknown command'
         assert info['151'] == 'Req, Unknown command'         # another defining body
         assert info['153'] == 'Req, [PPS OEM] Get Status'    # Exported PDU
+
+
+class TestDissectIpmiSe:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                *args, '-r', capture_file('ipmi_se_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _data(cmd_tshark, capture_file, test_env, number):
+        '''The items of the Data subtree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                '-r', capture_file('ipmi_se_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % number, '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = len(lines) - lines[::-1].index('Intelligent Platform Management Bus')
+        lines = lines[start:]
+        first = lines.index('    Data') + 1
+        last = [i for i, l in enumerate(lines) if l.startswith('    Data checksum')][-1]
+        return [l[8:] for l in lines[first:last]]
+
+    def test_se_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an IPMI message in RMCP, none is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 1876
+        assert protocols.count('IPMB') == 1876
+        for passes in ((), ('-2',)):
+            # severity 0x00800000 is an error
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_se_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the command set is used as a request and as a
+        response, with every completion code of the capture.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command')
+        assert len(stdout.split()) == 1536
+        assert sorted(set(stdout.split())) == ['0x00', '0x01', '0x02', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x20', '0x21', '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2d', '0x2e', '0x2f', '0x30']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command', '-eipmi.header.completion')
+        rsp = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rsp) == 340
+        assert sorted(set(r[0] for r in rsp)) == ['0x00', '0x01', '0x02', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x20', '0x21', '0x22', '0x23', '0x24', '0x25', '0x26', '0x27', '0x28', '0x29', '0x2a', '0x2b', '0x2d', '0x2e', '0x2f', '0x30', '0x34,0x34,0x34,0x13']
+        codes = {}
+        for r in rsp:
+            codes[r[1]] = codes.get(r[1], 0) + 1
+        assert codes == {'0x00': 262, '0x00,0x00,0x00,0x00': 1, '0x80': 4, '0x81': 5, '0x82': 2, '0x83': 2, '0xc0': 16, '0xc1': 16, '0xcc': 16, '0xd5': 16}
+
+    def test_se_matching(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests by the address,
+        sequence number and command; the request gets "Response in" only
+        in the second pass.'''
+        for passes, expected in (((), 0), (('-2',), 183)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ipmi.response_in', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == expected
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 183
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number', '-eipmi.response_to')
+        assert count_output(stdout) == 183
+        assert stdout.splitlines()[0].split() == ['6', '5']
+
+    def test_se_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes differ only by the "Response in" lines
+        of the requests.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-V').splitlines()
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-V').splitlines()
+        assert [l for l in two if not l.startswith('    [Response in: ')] == one
+        assert len(two) - len(one) == 183
+
+    def test_ipmi_se_event_data(self, cmd_tshark, capture_file, test_env):
+        '''Platform Event data 2 of the System Event (Timestamp Clock
+        Synch) and Session Audit sensors is decoded once, by the sensor
+        specific handler; it was also shown as plain "Event Data 2" before
+        "IPMI: Return true after decoding event data in two sensor
+        handlers".'''
+        assert self._data(cmd_tshark, capture_file, test_env, 1)[-5:] == [
+            '    .... 0101 = Offset: Timestamp Clock Synch (0x05)',
+            'Details',
+            '    0... .... = Event: First of pair',
+            '    .... 0001 = Timestamp clock type: SDR Timestamp Clock updated (0x1)',
+            'Event Data 3: 0x00',
+        ]
+        data = self._data(cmd_tshark, capture_file, test_env, 1)
+        assert [l for l in data if l.startswith('Event Data 2')] == []
+        data = self._data(cmd_tshark, capture_file, test_env, 2)
+        assert data[-3:] == [
+            '    .... 0000 = Offset: Session Activated (0x00)',
+            '..00 0101 = User ID: 5',
+            'Event Data 3: 0x01',
+        ]
+        assert [l for l in data if l.startswith('Event Data 2')] == []
+        data = self._data(cmd_tshark, capture_file, test_env, 3)
+        assert data[-2] == '..00 0000 = User ID: 0 (unspecified)'
+        assert [l for l in data if l.startswith('Event Data 2')] == []
+
+    def test_ipmi_se_pef_parameter(self, cmd_tshark, capture_file, test_env):
+        '''The response of Get PEF Configuration Parameters is decoded
+        for the parameter selected by its request, and the response
+        three Send Message levels down is not (no request data is kept
+        there).'''
+        assert self._data(cmd_tshark, capture_file, test_env, 150) == [
+            'Parameter selector: Number of Alert Strings (0x0b)',
+            '    0... .... = Get Parameter Revision only: False',
+            '    .000 1011 = Parameter selector: Number of Alert Strings (0x0b)',
+            'Set Selector: 0x00',
+            'Block Selector: 0x00',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 151) == [
+            'Parameter revisionPresent: 0, Oldest forward-compatible: 1',
+            '    0000 .... = Present: 0',
+            '    .... 0001 = Oldest forward-compatible: 1',
+            '[.000 1011 = Parameter: Number of Alert Strings]',
+            '.000 0010 = Number of Alert Strings: 2',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-eipmi.se13.data')
+        assert stdout.split() == ['010203']
