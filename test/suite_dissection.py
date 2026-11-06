@@ -83457,3 +83457,124 @@ class TestDissectIsdnSup:
                 '-eframe.number', '-e_ws.expert.message')
         assert out[:12] == [str(n) + '\t' for n in range(156, 168)]
         assert out[12] == '168\tUndecoded INV: 0.4.0.210.1.9'
+
+
+class TestDissectIser:
+    '''iSER (iSCSI Extensions for RDMA) from the synthetic capture
+    iser_coverage.pcapng.gz: RRoCE (UDP 4791) and RoCE v1 connections
+    whose CM service id is 0x0000000001060CBC (IP CM, TCP, port 3260). The
+    iSER HelloReply travels in the private data of the CM REP, the Hello,
+    the HelloReply and the iSCSI control PDUs in RC sends; the Infiniband
+    heuristics find them without Decode As. Frames 1-53 are three
+    connections (RRoCE v4, v6 and RoCE v1), 54-78 invalid iSER headers on
+    an iSER connection, 79-88 traffic that is not iSER, 89-92 the
+    reproducers of the fixes.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('iser_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=300)
+
+    def test_iser_frames(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or expert infos in one and two passes, with
+        the same protocol and info columns.'''
+        columns = []
+        for passes in ((), ('-2',)):
+            columns.append(self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info'))
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        assert columns[0] == columns[1]
+        protocols = [l.split('\t')[0] for l in columns[0].splitlines()]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'iSCSI': 21, 'iSER': 29, 'RRoCE': 40, 'RoCE': 2}
+
+    def test_iser_hello_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-6 of the RRoCE v4 connection: the HelloReply in the CM
+        REP, the Hello in the RTU, HelloReply (also with the REJ flag) and
+        Hello messages in RC sends.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 6 && iser', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-eiser.flags.opcode', '-eiser.flags.rej',
+                '-eiser.ird', '-eiser.ord')
+        assert stdout.splitlines() == [
+            '2\tiSER HelloRply\t0x03\tFalse\t\t0x0008',
+            '3\tiSER Hello\t0x02\t\t0x0010\t',
+            '4\tiSER HelloRply\t0x03\tFalse\t\t0x0008',
+            '5\tiSER HelloRply\t0x03\tTrue\t\t0x0008',
+            '6\tiSER Hello\t0x02\t\t0xffff\t']
+
+    def test_iser_control_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Frames 7-15: control PDUs with every combination of the write and
+        read STag valid flags, handed to the iSCSI dissector.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 7 && frame.number <= 15', '-Tfields', '-eframe.number',
+                '-eiser.flags.opcode', '-eiser.flags.wsv', '-eiser.flags.rsv',
+                '-eiser.write_stag', '-eiser.write_base_offset', '-eiser.read_stag',
+                '-eiser.read_base_offset', '-e_ws.col.protocol')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == [str(n) for n in range(7, 16)]
+        assert [(r[2], r[3]) for r in rows] == [
+            ('False', 'False'), ('True', 'False'), ('False', 'True'), ('True', 'True'),
+            ('False', 'False'), ('True', 'False'), ('False', 'True'), ('True', 'True'),
+            ('True', 'True')]
+        assert rows[8][4:8] == ['0xaabbccdd', '0x000000123456789a', '0x11223344',
+                                '0x0000555555555555']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 7 && frame.number <= 15 && iscsi',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'NOP Out', 'SCSI Test Unit Ready LUN: 0x01 ', 'Text Command',
+            'Logout Command (Close session) ',
+            'SCSI Response LUN: 0x01 Test Unit Ready, 512 bytes (1 blocks) (Good) ',
+            'NOP In', 'SCSI Test Unit Ready LUN: 0x01 ']
+
+    def test_iser_invalid_headers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 56-78 carry invalid iSER headers (flag combinations,
+        opcodes, hello versions, short payloads) on an iSER connection. The
+        heuristic claimed such packets without dissecting them ("iSER:
+        Return whether the heuristic dissector accepted the packet"): the
+        payload was not shown at all. They are plain data now.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 56 && frame.number <= 78', '-Tfields',
+                '-e_ws.col.protocol', '-edata.len')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 23
+        assert [r[0] for r in rows] == ['RRoCE'] * 23
+        assert [r[1] for r in rows] == ['100'] * 21 + ['75', '60']
+
+    def test_iser_not_iser(self, cmd_tshark, capture_file, test_env):
+        '''Frames 79-88: a service id with another TCP port (3261), another
+        protocol number, a non IP CM service id and no connection are not
+        iSER (frames 79-81 are iSER with iser.target_ports set to 3261, but
+        setting that preference makes tshark fail in the test environment,
+        see the README).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 79 && frame.number <= 88', '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['RRoCE'] * 10
+
+    def test_iser_ipv4_req_ipv6_rep(self, cmd_tshark, capture_file, test_env):
+        '''Frames 89-92: a CM REP over IPv6 whose transaction id and
+        destination hash to the key of an IPv4 REQ. The connection keeps the
+        addresses of the REQ (before "InfiniBand: Fix uninitialized read
+        and multi-pass state in CM and RC send" it used 16 bytes of a GID
+        with 4 bytes set), so the iSER Hello over IPv4 to the responder QP
+        is found (frame 91) and the one over IPv6 is not (frame 92).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 89 && frame.number <= 92', '-Tfields',
+                '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'RRoCE\tCM: ConnectRequest', 'RRoCE\tCM: ConnectReply',
+            'iSER\tiSER Hello', 'RRoCE\tRC Send Only QP=0x000200 ']
+
+    def test_iser_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristics tried last and Decode As of the Infiniband
+        payload, iSER is also applied to payloads without a connection
+        (frame 88), and still rejects the invalid headers (frames 56-78).'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'infiniband.try_heuristic_first:FALSE', '-d', 'infiniband,iser',
+                '-Y', 'frame.number >= 56 && frame.number <= 78 || frame.number == 88',
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['RRoCE'] * 23 + ['iSER']
