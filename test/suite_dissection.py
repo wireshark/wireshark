@@ -78308,3 +78308,128 @@ class TestDissectImap:
                     '-Tfields', '-eframe.number', '-eimap.response_to',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['6', '5', '8', '7', '46', '45']
+
+
+class TestDissectImf:
+    '''IMF (Internet Message Format) from the synthetic capture
+    imf_coverage.pcapng.gz: messages in SMTP DATA (TCP 25) and POP3
+    (TCP 110), and Exported PDU frames that name "imf".'''
+
+    def test_imf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message is dissected as IMF, nested ones as IMF/IMF; no
+        malformed or short frames and no error expert infos, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 110
+        assert protocols.count('SMTP/IMF') == 16
+        assert protocols.count('SMTP/IMF/IMF') == 2
+        assert protocols.count('SMTP/IMF/IMF/IMF') == 1
+        assert protocols.count('POP/IMF/IMF') == 1
+        assert protocols.count('/IMF') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('imf_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.short || '
+                          '_ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_imf_siolabel_values(self, cmd_tshark, capture_file, test_env):
+        '''sio-label values are shown (every sio-label item threw an
+        exception before "IMF: Bound the sio-label parsing to each item"),
+        with the quotes of the values kept and the blanks around them
+        removed. Frame 106 is the Exported PDU reproducer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'imf.siolabel.marking',
+                '-Tfields', '-eframe.number', '-eimf.siolabel.marking',
+                '-eimf.siolabel.fgcolor', '-eimf.siolabel.bgcolor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '61\t"SECRET"\tred\tblue',
+            '65\t"TOP SECRET"\t\t',
+            '81\t"A"\t\tx',
+            '106\t"SECRET"\tred\t',
+        ]
+
+    def test_imf_siolabel_unknown(self, cmd_tshark, capture_file, test_env):
+        '''An item without "=" or with an unknown name is an unknown
+        parameter (a warning). A header with 1500 items without "="
+        (the scaled reproducer of the quadratic search) has 1501.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'imf.siolabel.unknown',
+                '-Tfields', '-eframe.number', '-eimf.siolabel.unknown',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['77', '81', '97']
+        assert rows[0][1] == 'unknown=1,noequals'
+        assert rows[1][1] == ',type=a'
+        assert len(rows[2][1].split(',')) == 1501
+
+    def test_imf_siolabel_security_labels(self, cmd_tshark, capture_file, test_env):
+        '''The base64 label of a sio-label is decoded as an ESS or X.411
+        security label, also when it is split over label*0 and label*1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'ess.security_policy_identifier || '
+                      'p1.security_policy_identifier',
+                '-Tfields', '-eframe.number',
+                '-eess.security_policy_identifier',
+                '-ep1.security_policy_identifier',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '65\t1.2.3.4\t', '69\t1.2.3.4\t', '73\t\t1.2.3.4']
+
+    def test_imf_mailbox_address(self, cmd_tshark, capture_file, test_env):
+        '''The address between the angle brackets of a mailbox is shown
+        (it was shown only when no ">" was found).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 106',
+                '-Tfields', '-eimf.display_name', '-eimf.address',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Alice\talice@example.com'
+
+    def test_imf_content_type_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''A multipart body (with a nested message/rfc822 part) and three
+        message/rfc822 levels are dissected through the media type table.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {17, 53, 105}',
+                '-Tfields', '-eframe.number', '-eimf.subject',
+                '-emime_multipart.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\tmultipart,inner message\tmultipart/mixed',
+            '53\tlevel 1,level 2,level 3\t',
+            '105\tmultipart,inner message\tmultipart/mixed',
+        ]
+
+    def test_imf_base64_body(self, cmd_tshark, capture_file, test_env):
+        '''A base64 body is decoded before the text dissector sees it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 21',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('    Line-based text data: text/plain (1 lines)')
+        assert lines[start + 1] == '        Hello world'
+
+    def test_imf_custom_header(self, cmd_tshark, capture_file, test_env):
+        '''A header of the custom table becomes a field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'uat:imf_header_fields:"X-Unknown-Extension","custom",'
+                      '"Unstructured","No"',
+                '-r', capture_file('imf_coverage.pcapng.gz'),
+                '-Y', 'imf.header.X-Unknown-Extension',
+                '-Tfields', '-eframe.number',
+                '-eimf.header.X-Unknown-Extension',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '13\tan unknown header'
