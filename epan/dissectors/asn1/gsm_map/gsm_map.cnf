@@ -1210,6 +1210,9 @@ SendAuthenticationInfoRes						N gsm_map.v3.res.opcode 56
 
 #----------------------------------------------------------------------------------------
 #.TYPE_ATTR
+TraceReference  TYPE = FT_BYTES  DISPLAY = BASE_NONE
+TraceType  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+#.TYPE_ATTR
 SS-Code  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(ssCode_vals)
 Teleservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Teleservice_vals)
 Bearerservice  TYPE = FT_UINT8  DISPLAY = BASE_DEC  STRINGS = VALS(Bearerservice_vals)
