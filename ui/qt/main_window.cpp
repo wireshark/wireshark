@@ -31,6 +31,7 @@
 #include <QMenu>
 #include <glib.h>
 
+#include "distribution_dialog.h"
 #include "funnel_statistics.h"
 #include "main_application.h"
 #include "manager/interface_list_manager.h"
@@ -267,6 +268,19 @@ MainStatusBar *MainWindow::statusBar()
 void MainWindow::setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType)
 {
     emit filterAction(filter, action, filterType);
+}
+
+void MainWindow::showDistributionDialog(const QString &fields)
+{
+    DistributionDialog *dis_dialog = new DistributionDialog(*this, capture_file_, fields);
+    dis_dialog->show();
+    connect(dis_dialog, &DistributionDialog::filterAction, this, &MainWindow::filterAction);
+    connect(dis_dialog, &DistributionDialog::showIOGraph, this, &MainWindow::showIOGraphDialogForFilters);
+}
+
+void MainWindow::statCommandDistribution(const char *arg, void *)
+{
+    showDistributionDialog(QString::fromUtf8(arg));
 }
 
 void MainWindow::filterPackets(QString filter, bool)

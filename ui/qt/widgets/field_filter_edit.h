@@ -27,6 +27,35 @@ public:
      */
     explicit FieldFilterEdit(QWidget *parent = 0);
 
+    /**
+     * @brief Switches between single field mode (default) and list mode.
+     *
+     * In list mode the text is a comma separated list of fields or protocol
+     * names; each one is validated and completed separately.
+     * @param enabled True for list mode.
+     */
+    void setFieldListMode(bool enabled);
+
+    /**
+     * @brief Sets the maximum number of fields accepted in list mode.
+     * @param max_fields The limit, 0 for no limit.
+     */
+    void setMaxFields(int max_fields);
+
+    /**
+     * @brief Returns the entered fields.
+     * @return In list mode the non-empty, trimmed tokens; in single mode the
+     * trimmed text, or an empty list when it is empty.
+     */
+    QStringList fieldList() const;
+
+    /**
+     * @brief Returns the message of the last list mode check.
+     * @return The error or deprecation message, empty when the list is
+     * valid or empty.
+     */
+    QString fieldListMessage() const { return list_message_; }
+
 protected:
     /**
      * @brief Handles key press events, routing them to completion logic.
@@ -69,6 +98,28 @@ private slots:
 private:
     /** The default placeholder text displayed when the line edit is empty. */
     QString placeholder_text_;
+
+    /** True when the text is a comma separated list of fields. */
+    bool list_mode_ = false;
+
+    /** The field limit in list mode, 0 for no limit. */
+    int max_fields_ = 0;
+
+    /** The message of the last list mode check. */
+    QString list_message_;
+
+    /**
+     * @brief Splits list mode text at commas.
+     * @param text The line edit text.
+     * @return An empty list for blank text, else all trimmed tokens, empty ones included.
+     */
+    static QStringList splitFieldList(const QString &text);
+
+    /**
+     * @brief Validates the list mode text and updates the syntax state and message.
+     * @param filter_text The line edit text.
+     */
+    void checkFieldList(const QString &filter_text);
 
     /**
      * @brief Sets the default placeholder text for the line edit.

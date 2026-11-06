@@ -32,8 +32,6 @@ class QTreeWidget;
 class QTreeWidgetItem;
 class QVBoxLayout;
 
-class DisplayFilterEdit;
-
 namespace Ui {
 class TapParameterDialog;
 }
@@ -186,12 +184,6 @@ protected:
     QString displayFilter();
 
     /**
-     * @brief Returns the current display filter object.
-     * @return Current display filter widget.
-     */
-    DisplayFilterEdit *filterEdit() const;
-
-    /**
      * @brief Sets the display filter line edit to the given expression.
      * @param filter Filter expression to display.
      */
@@ -251,14 +243,6 @@ private:
      * @return Filter expression string, or an empty string if no filter applies.
      */
     virtual const QString filterExpression() { return QString(); }
-
-    /**
-     * @brief Converts a QVariant cell value to a plain-text string for clipboard export.
-     * @param var   The QVariant value to convert.
-     * @param width Minimum field width for padding; 0 for no padding.
-     * @return Plain-text representation of @p var.
-     */
-    QString itemDataToPlain(QVariant var, int width = 0);
 
     /**
      * @brief Returns the column data for a tree item as an ordered list of QVariants,

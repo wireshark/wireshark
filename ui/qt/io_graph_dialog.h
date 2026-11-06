@@ -146,13 +146,16 @@ public:
      *                          standalone.
      * @param convFilters       Optional per-conversation display filters to
      *                          populate as additional graph rows.
+     * @param convNames         Legend names for @p convFilters; the filter
+     *                          text is used where a name is missing.
      */
     void initialize(QWidget &parent, uat_field_t *io_graph_fields,
                     QString displayFilter     = QString(),
                     io_graph_item_unit_t value_units = IOG_ITEM_UNIT_PACKETS,
                     QString yfield            = QString(),
                     bool is_sibling_dialog    = false,
-                    const QVector<QString> convFilters = QVector<QString>());
+                    const QVector<QString> convFilters = QVector<QString>(),
+                    const QVector<QString> convNames = QVector<QString>());
 
 
     /**

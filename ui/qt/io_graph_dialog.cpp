@@ -366,7 +366,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, const char* type_
     tracer_ = new QCPItemTracer(iop);
 }
 
-void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QString displayFilter, io_graph_item_unit_t value_units, QString yfield, bool is_sibling_dialog, const QVector<QString> convFilters)
+void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QString displayFilter, io_graph_item_unit_t value_units, QString yfield, bool is_sibling_dialog, const QVector<QString> convFilters, const QVector<QString> convNames)
 {
     QCustomPlot* iop = ui->ioPlot;
 
@@ -424,7 +424,7 @@ void IOGraphDialog::initialize(QWidget& parent, uat_field_t* io_graph_fields, QS
         }
         /* selected conversations from a sibling dialog (typically conversations dialog) */
         for (int i = 0; i < convFilters.size(); ++i) {
-            addGraph(true, false, convFilters.at(i), convFilters.at(i),
+            addGraph(true, false, convNames.value(i, convFilters.at(i)), convFilters.at(i),
                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
         }
     }

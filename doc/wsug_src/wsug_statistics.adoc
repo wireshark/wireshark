@@ -776,17 +776,52 @@ btn:[Close] will close this dialog.
 
 === Distribution Statistics
 
-This window allows to write a filter and get a distribution of the values matching this filter, with their respective
-occurences and percentages. Additionally, an Entropy value (Normalized Shannon) is also computed.
-Only String, Integer, and IP addresses types are currently supported for the filter.
+This window shows how often each value of one or more fields occurs in the capture, with the
+respective counts and percentages. Additionally, an Entropy value (Normalized Shannon) is computed.
+Every field type is supported except protocol items and text-only labels.
 
-You can launch it directly from the Statistics menu, then you can type a filter in the edit box, or by
-a right-click on some field found in the packet details tree, which will display the results for the
-given clicked field.
+You can launch it directly from the Statistics menu, or by a right-click on a field in the packet
+details tree, which opens the dialog with that field already entered. The dialog is also available in
+Stratoshark, where it counts events instead of packets.
 
-Once the dialog is opened, you can edit the input filter and ask for a joint distribution by using the "," (comma)
-character as the separator up to 4 fields.
-For example: ip.ttl,ip.src will show all of the TTLs for each IP seen in the capture.
+The dialog has the following controls:
+
+Fields:: Enter one field name, or up to 4 field names separated by a "," (comma) to get a joint
+distribution. Field names are completed while you type. If an entry cannot be used, for example because
+a field is unknown or has an unsupported type, a message appears below the edit box and btn:[Apply] is
+disabled. For example, `ip.ttl,ip.src` shows all of the TTLs for each IP address seen in the capture.
+
+Display filter:: Optionally limits the statistics to the packets matching this display filter.
+
+btn:[Apply]:: Counts the values of the entered fields and fills the table. The table is not updated
+while you edit the fields until you press btn:[Apply].
+
+Resolve values:: Shows resolved names (for example, enumerated value names) instead of raw values.
+Filters built from a row always use the raw value.
+
+Show chart:: Shows a bar chart of the values with the highest counts beside the table.
+
+The table has a column for each field, followed by Count and Percent columns. Click a column header to
+sort by it; numeric and address fields sort by value. Percentages are relative to the number of
+packets that were counted, not to the sum of the counts. A packet that contains a field more than once
+is counted once for each value, so the percentages can add up to more than 100 %. A line below the
+table summarizes the result: the number of distinct values, the number of packets that contain the
+fields, the number of observations and the Entropy.
+
+Right-click a row to open the context menu:
+
+* btn:[Apply as Filter], btn:[Prepare as Filter], btn:[Find] and btn:[Colorize] build a display filter
+  from the row's values and use it in the main window.
+* btn:[Copy] copies the selected rows as text.
+* btn:[Copy as Filter] copies the display filter of the row.
+* btn:[Save as...] saves the table.
+* btn:[Show in I/O Graph] opens an I/O Graph with one graph for each selected row. If a Display filter
+  was applied, it is combined with each row's filter and also added as a graph.
+
+The btn:[Copy] button along the bottom copies the whole table as text, btn:[Save as...] saves it
+in various formats, and btn:[Show in I/O Graph] opens an I/O Graph for the selected rows, as the
+context menu entry does. The number of rows one I/O Graph can show is limited; the tooltip of the
+button states the limit. btn:[Help] opens this section and btn:[Close] closes the dialog.
 
 .The “Distribution” window
 image::images/ws-stats-distribution.png[{screenshot-attrs}]

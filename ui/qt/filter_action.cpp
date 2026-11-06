@@ -231,6 +231,24 @@ QMenu * FilterAction::createFilterMenu(FilterAction::Action act, QString filter,
     return submenu;
 }
 
+QList<FilterAction *> FilterAction::addActionSubmenus(QMenu *menu, QAction *before)
+{
+    QList<FilterAction *> created;
+    const QList<Action> submenu_actions = {ActionApply, ActionPrepare, ActionFind, ActionColorize};
+
+    for (Action action : submenu_actions) {
+        QMenu *submenu = new QMenu(actionName(action), menu);
+        const QList<ActionType> types = actionTypes(action);
+        for (ActionType type : types) {
+            FilterAction *fa = new FilterAction(submenu, action, type);
+            submenu->addAction(fa);
+            created << fa;
+        }
+        menu->insertMenu(before, submenu);
+    }
+    return created;
+}
+
 void FilterAction::groupTriggered(QAction * action)
 {
     if (action && mainApp)
