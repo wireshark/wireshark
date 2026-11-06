@@ -82246,3 +82246,68 @@ class TestDissectIpsec:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'exported_pdu',
                             ['frame.number', 'exported_pdu.prot_name', '_ws.col.protocol'])
         assert [r[:2] for r in rows] == [['110', 'esp'], ['111', 'esp'], ['112', 'ah'], ['113', 'ipcomp']]
+
+
+class TestDissectIpsecTcp:
+    '''TCP Encapsulation of IPsec Packets (the Cisco VPN 3000 trailer),
+    found by the TCP heuristic dissector, from the synthetic capture
+    ipsec_tcp_coverage.pcap.gz.  The ESP payloads are placeholder bytes.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, *extra, two=False):
+        args = [cmd_tshark] + (['-2'] if two else []) + list(extra)
+        args += ['-r', capture_file('ipsec_tcp_coverage.pcap.gz'), '-Y', display_filter, '-Tfields']
+        args += ['-e' + f for f in fields]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_ipsec_tcp_frames(self, cmd_tshark, capture_file, test_env):
+        '''ESP and ISAKMP in TCPENCAP: trailer fields, protocol and direction;
+        no malformed frames or error expert infos in one and two passes.'''
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'tcpencap',
+                                ['frame.number', 'tcpencap.proto', 'tcpencap.ikedirection',
+                                 'tcpencap.espzero', 'tcpencap.seq', '_ws.col.protocol'], two=two)
+            assert rows == [
+                ['4', '0x32', '', '0x0000', '0x0000', 'ESP'],
+                ['5', '0x32', '', '0x0000', '0x0001', 'ESP'],
+                ['6', '0x32', '', '0x0000', '0x0002', 'ESP'],
+                ['7', '0x32', '', '0x0000', '0x0000', 'ESP'],
+                ['8', '0x11', '0x4000', '', '0x0001', 'IKE'],
+                ['9', '0x11', '0x0000', '', '0x0001', 'IKE'],
+                ['10', '0x32', '', '0x1000', '0x0004', 'ESP'],
+                ['11', '0x32', '', '0x0000', '0x0005', 'ESP'],
+                ['12', '0x32', '', '0x0000', '0x0000', 'ESP'],
+                ['13', '0x32', '', '0x0000', '0xffff', 'ESP'],
+            ]
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                ['frame.number'], two=two)
+            assert rows == []
+
+    def test_ipsec_tcp_inner(self, cmd_tshark, capture_file, test_env):
+        '''The trailer is removed from the encapsulated packet: ESP SPIs and the
+        UDP/ISAKMP header come from the part before it.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'esp || isakmp',
+                            ['frame.number', 'esp.spi', 'isakmp.ispi', 'udp.srcport'])
+        assert [r[:2] for r in rows if r[1]] == [
+            ['4', '0xd0007000'], ['5', '0xd0007000'], ['6', '0xd0007000'], ['7', '0xd0007001'],
+            ['10', '0xd0007000'], ['11', '0x00000000'], ['12', '0xd0007000'], ['13', '0xd0007000']]
+        assert [r[0] for r in rows if r[2]] == ['8', '9']
+        assert all(r[3] == '500' for r in rows if r[2])
+
+    def test_ipsec_tcp_not_tcpencap(self, cmd_tshark, capture_file, test_env):
+        '''Payloads with a wrong trailer protocol, a nonzero first trailer word,
+        direction bits below the top nibble, or too short for the heuristic
+        are not TCPENCAP, nor is a valid NDMP header on port 10000 (frame 20).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'tcp.len > 0 && !tcpencap', ['frame.number', 'tcp.len'])
+        assert rows == [['20', '44'], ['27', '40'], ['34', '40'], ['41', '40'], ['48', '24']]
+
+    def test_ipsec_tcp_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As the payload that the heuristic rejects is forced to
+        TCPENCAP and its trailer is decoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 48 || frame.number == 27',
+                            ['frame.number', 'tcpencap.proto', 'tcpencap.seq'],
+                            '-d', 'tcp.port==62002,tcpencap', '-d', 'tcp.port==62005,tcpencap')
+        assert rows == [['27', '0x06', '0x0001'], ['48', '0x32', '0x0004']]
