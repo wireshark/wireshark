@@ -22,6 +22,7 @@ static int hf_conn_count;
 static int hf_syncid;
 static int hf_size;
 static int hf_resv;
+static int hf_data;
 static int hf_version;
 static int hf_proto;
 static int hf_cport;
@@ -162,6 +163,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 			proto_tree *ctree;
 			uint8_t type;
 			uint16_t size;
+			int conn_start = offset;
 
 			ctree = proto_tree_add_subtree_format(tree, tvb, offset, 36, ett_conn, NULL,
 							      "Connection #%d", conn+1);
@@ -219,6 +221,13 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 
 				proto_tree_add_item(ctree, hf_daddr6, tvb, offset, 16, ENC_NA);
 				offset += 16;
+			}
+
+			/* The per-connection size includes any options or
+			 * persistence engine data following the fixed part. */
+			if (size > offset - conn_start) {
+				proto_tree_add_item(ctree, hf_data, tvb, offset, size - (offset - conn_start), ENC_NA);
+				offset = conn_start + size;
 			}
 
 		} else {
@@ -316,6 +325,10 @@ proto_register_ipvs_syncd(void)
 
 		{ &hf_resv,
 			{ "Reserved", "ipvs.resv", FT_BYTES, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_data,
+			{ "Data", "ipvs.data", FT_BYTES, BASE_NONE,
 			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_version,
