@@ -84,6 +84,11 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
 
     ti_ui_->regexHintLabel->setSmallText(true);
 
+    // The labels in the grid would otherwise space the rows like a label
+    // next to a radio button.
+    ti_ui_->offsetsGridLayout->setVerticalSpacing(style()->combinedLayoutSpacing(
+            QSizePolicy::RadioButton, QSizePolicy::RadioButton, Qt::Vertical));
+
 #ifdef Q_OS_MACOS
     // The grid layout squishes each line edit otherwise.
     int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
@@ -95,6 +100,8 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
     ti_ui_->tagLineEdit->setMinimumHeight(le_height);
     ti_ui_->ppiLineEdit->setMinimumHeight(le_height);
+    // The default spacing leaves too much room between the line edits.
+    ti_ui_->headerGridLayout->setVerticalSpacing(4);
 #endif
 
     on_timestampFormatLineEdit_textChanged(ti_ui_->timestampFormatLineEdit->text());
