@@ -82668,3 +82668,81 @@ class TestDissectIpv6Coverage:
             ), encoding='utf-8', env=test_env)
         assert 'IPv6 Conversations' in stdout
         assert grep_output(stdout, '2001:db8:aa::1 +<-> 2001:db8:aa::2 +0 0 bytes +2 ')
+
+
+class TestDissectIpvsSyncd:
+    '''IPVS connection synchronisation (packet-ipvs-syncd.c, UDP 8848)
+    from the synthetic capture ipvs_syncd_coverage.pcap.gz: version 0
+    and version 1 messages, IPv4 and IPv6 connections, connection flags
+    and options after the fixed part of a version 1 connection.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ipvs_syncd_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ipvs_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 24 frames decode as IPVS without malformed packets or error
+        expert infos, in one and two passes: frames 1-11 are version 0,
+        12-24 version 1.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipvs',
+                'frame.number', '_ws.col.info')
+        assert len(lines) == 24
+        assert [l.split('\t')[1].split()[0] for l in lines] == ['v0'] * 11 + ['v1'] * 13
+        assert lines[1].endswith('3 Connection(s)')
+        assert lines[17].endswith('0 Connection(s)')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ipvs_syncd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ipvs_v0_flags(self, cmd_tshark, capture_file, test_env):
+        '''Version 0 connection flags: connection type, hashed, no output,
+        sequence adjustment (which adds the six sequence fields).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {2, 3, 4, 5, 9}', 'frame.number',
+                'ipvs.flags', 'ipvs.flags.conn_type', 'ipvs.in_seq.initial',
+                'ipvs.out_seq.pdelta')
+        assert lines == [
+            '2\t0x0043,0x0080,0x0100\t0x0003,0x0000,0x0000\t\t',
+            '3\t0x0001\t0x0001\t\t',
+            '4\t0x0002\t0x0002\t\t',
+            '5\t0x0003\t0x0003\t\t',
+            '9\t0x0600\t0x0000\t0x00001000\t0x00000050',
+        ]
+
+    def test_ipvs_v1_connections(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 connections: IPv4 (type 0) and IPv6 (any other type)
+        addresses, version and size from the combined field.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {12, 13, 14}', 'frame.number', 'ipvs.type',
+                'ipvs.caddr', 'ipvs.caddr6', 'ipvs.size.v1')
+        assert lines == [
+            '12\t0\t192.0.2.20\t\t36',
+            '13\t2\t\t2001:db8::1\t72',
+            '14\t0,2,0\t192.0.2.20,192.0.2.20\t2001:db8::1\t36,72,36',
+        ]
+
+    def test_ipvs_v1_options(self, cmd_tshark, capture_file, test_env):
+        '''The per-connection size includes options after the fixed part:
+        the following connection is found at the right place (frame 19,
+        the reproducer of "IPVS-SYNCD: Use the v1 connection size to
+        advance"; before the fix the second connection was decoded from
+        the middle of the first one's options).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {19, 20, 21}', 'frame.number', 'ipvs.caddr',
+                'ipvs.data', 'ipvs.size.v1')
+        assert lines == [
+            '19\t192.0.2.10,192.0.2.11\t011800000000000000000000000000000000000000000000\t60,36',
+            '20\t192.0.2.20,192.0.2.20\t020461626364,00\t78,37,36',
+            '21\t192.0.2.20\t0000000000000000,00000000\t44,76',
+        ]
