@@ -81176,3 +81176,106 @@ class TestDissectIpmiStorage:
             ['160', '0x03', '', '', '01020304'],
         ]
         assert rows[5][4] == '01020304'
+
+
+class TestDissectIpmiTrace:
+    '''HPM.2 trace data blocks (pcap link-layer type 260) from the
+    synthetic capture ipmi_trace_coverage.pcapng.gz. The embedded IPMB,
+    KCS and TMode messages are decoded as commands with
+    ipmi.dissect_bus_commands:TRUE.'''
+
+    BUS = ('-o', 'ipmi.dissect_bus_commands:TRUE')
+
+    @staticmethod
+    def trace_fields(cmd_tshark, capture_file, test_env, *fields, extra=(), flt=None):
+        args = [cmd_tshark, *extra, '-r', capture_file('ipmi_trace_coverage.pcapng.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields', '-eframe.number', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ipmi_trace_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol column names the traced protocol; the 3 blocks
+        shorter than the header are data. No malformed packets or error
+        expert infos, in one and two passes, with and without the bus
+        commands.'''
+        for bus in ((), self.BUS):
+            rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                                     '_ws.col.protocol', extra=bus)
+            protocols = [r[1] for r in rows]
+            assert len(protocols) == 47
+            assert protocols.count('IPMB') == 8
+            assert protocols.count('IPMB-1.0') == 14
+            assert protocols.count('KCS') == 3 and protocols.count('TMode') == 3
+            assert protocols.count('n/a') == 6
+            assert protocols.count('Packet') == 3
+            assert protocols[5:8] == ['SMIC', 'BT-10', 'BT-15']
+            assert protocols[10:11] == ['ICMB-1.0'] and protocols[11:12] == ['IPMI-SMBus']
+            assert protocols[13:18] == ['OEM Protocol 1', 'OEM Protocol 2',
+                                        'OEM Protocol 3', 'OEM Protocol 4', 'Reserved (0x33)']
+            for passes in ((), ('-2',)):
+                rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                        extra=(*bus, *passes),
+                        flt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+                assert rows == []
+
+    def test_ipmi_trace_header(self, cmd_tshark, capture_file, test_env):
+        '''Channel number, block type, timestamp (milliseconds of 1000 or
+        more are shown as 0), data type, the IPMB link number, redundant
+        channel and direction bits and the data length.'''
+        rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.trace.chn.num', 'ipmi.trace.packet.type', 'ipmi.trace.stamp',
+                'ipmi.trace.data.type', 'ipmi.trace.ipmb.link.num',
+                'ipmi.trace.ipmb.red.chn', 'ipmi.trace.dir', 'ipmi.trace.data.len',
+                flt='frame.number <= 5 || frame.number in {20, 21, 22, 23}')
+        assert rows == [
+            ['1', '0', '0', '1000.005000000', '0x01', '0', '0', '0', '7'],
+            ['2', '0', '0', '1000.005000000', '0x01', '5', '1', '1', '19'],
+            ['3', '3', '0', '4294967295.999000000', '0x01', '63', '0', '1', '7'],
+            ['4', '5', '0', '1000.005000000', '0x05', '', '', '0', '2'],
+            ['5', '5', '0', '1000.005000000', '0x05', '', '', '1', '14'],
+            ['20', '0', '0', '0.000000000', '0x01', '0', '0', '0', '7'],
+            ['21', '0', '0', '1.999000000', '0x01', '0', '0', '0', '7'],
+            ['22', '0', '0', '2.000000000', '0x01', '0', '0', '0', '7'],
+            ['23', '0', '0', '3.000000000', '0x01', '0', '0', '0', '7'],
+        ]
+
+    def test_ipmi_trace_embedded_messages(self, cmd_tshark, capture_file, test_env):
+        '''The embedded IPMB, KCS and TMode messages are decoded; other
+        protocol types stay data. Source column of IPMB shows the bus.'''
+        rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.info', extra=self.BUS,
+                flt='frame.number in {1, 2, 4, 5, 6, 9, 10, 19}')
+        assert [r[1] for r in rows] == [
+            'Req, Get Device ID',
+            'Rsp, Get Device ID, Command Completed Normally (00h)',
+            'Req, Get Device ID',
+            'Rsp, Get Device ID, Command Completed Normally (00h)',
+            'Trace Packet Data',
+            'Req, Get Device ID',
+            'Rsp, Get Device ID, Command Completed Normally (00h)',
+            'Req, Get Device ID']
+
+    def test_ipmi_trace_state_and_ascii(self, cmd_tshark, capture_file, test_env):
+        '''Channel state change notifications of IPMB (format and the
+        override and local status bits) and embedded ASCII messages
+        (the text is the Info column).'''
+        rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                'ipmi.trace.data.format', 'ipmi.trace.ipmb.state',
+                'ipmi.trace.ipmb.state.ovr', 'ipmi.trace.ipmb.state.loc',
+                flt='ipmi.trace.ipmb.state')
+        assert [r[1:] for r in rows] == [
+            ['0x00', '0x00', '0', '0'], ['0x00', '0x08', '1', '0'],
+            ['0x00', '0x01', '0', '1'], ['0x00', '0x0a', '1', '2'],
+            ['0x00', '0x05', '0', '5'], ['0x00', '0x0f', '1', '7'],
+            ['0x00', '0x07', '0', '7'], ['0x00', '0x03', '0', '3'],
+            ['0x00', '0x04', '0', '4'], ['0x00', '0x02', '0', '2'],
+            ['0x00', '0x06', '0', '6'], ['0x01', '0x08', '1', '0'],
+        ]
+        rows = self.trace_fields(cmd_tshark, capture_file, test_env,
+                '_ws.col.info', flt='frame.number >= 38 && frame.number <= 42')
+        assert [r[1] for r in rows] == [
+            'IPMB-A bus error', 'x',
+            'a longer message with some text in it, 70 characters of text, here',
+            '', 'text']
