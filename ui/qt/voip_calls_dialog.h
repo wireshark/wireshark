@@ -28,7 +28,6 @@
 #include <QMenu>
 #include <QAbstractButton>
 #include <QPushButton>
-#include <QToolButton>
 
 class SequenceInfo;
 
@@ -232,7 +231,7 @@ private:
     QPushButton *sequence_button_;
 
     /** @brief Tool button for RTP player options. */
-    QToolButton *player_button_;
+    QPushButton *player_button_;
 
     /** @brief Push button to copy data. */
     QPushButton *copy_button_;

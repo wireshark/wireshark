@@ -26,7 +26,7 @@
 #include <QFile>
 #include <QCheckBox>
 #include <QHBoxLayout>
-#include <QToolButton>
+#include <QPushButton>
 
 #include "wireshark_dialog.h"
 
@@ -133,7 +133,7 @@ public:
      * @param dialog Pointer to the RtpBaseDialog.
      * @return The new "Analyze" button.
      */
-    static QToolButton *addAnalyzeButton(QDialogButtonBox *button_box, RtpBaseDialog *dialog);
+    static QPushButton *addAnalyzeButton(QDialogButtonBox *button_box, RtpBaseDialog *dialog);
 
     /**
      * @brief Replace an RTP streams to analyse.
@@ -334,7 +334,7 @@ private:
     QMultiHash<unsigned, tab_info_t *> tab_hash_;
 
     /** Pointer to the player tool button. */
-    QToolButton *player_button_;
+    QPushButton *player_button_;
 
     /** Graph data for QCustomPlot. */
     QList<QCPGraph *>graphs_;

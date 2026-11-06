@@ -34,7 +34,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QToolButton>
 #include <QWidget>
 #include <QCheckBox>
 
@@ -1159,7 +1158,7 @@ tab_info_t *RtpAnalysisDialog::getTabInfoForCurrentTab()
 }
 
 
-QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box,
+QPushButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box,
 #ifdef QT_MULTIMEDIA_LIB
     RtpBaseDialog *dialog
 #else
@@ -1169,21 +1168,12 @@ QToolButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box,
 {
     if (!button_box) return nullptr;
 
-    QToolButton *analysis_button = nullptr;
+    QPushButton *analysis_button = nullptr;
 
 #ifdef QT_MULTIMEDIA_LIB
     QAction *ca;
-    analysis_button = new QToolButton();
-    button_box->addButton(analysis_button, QDialogButtonBox::ActionRole);
-    analysis_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    analysis_button->setPopupMode(QToolButton::MenuButtonPopup);
-
-    ca = new QAction(tr("&Analyze"), analysis_button);
-    ca->setToolTip(tr("Open the analysis window for the selected stream(s)"));
-    connect(ca, &QAction::triggered, dialog, &RtpBaseDialog::rtpAnalysisReplace);
-    analysis_button->setDefaultAction(ca);
-    // Overrides text striping of shortcut undercode in QAction
-    analysis_button->setText(ca->text());
+    analysis_button = button_box->addButton(tr("&Analyze"), QDialogButtonBox::ActionRole);
+    analysis_button->setToolTip(tr("Open the analysis window for the selected stream(s)"));
 
     QMenu *button_menu = new QMenu(analysis_button);
     button_menu->setToolTipsVisible(true);

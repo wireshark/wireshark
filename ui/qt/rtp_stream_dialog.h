@@ -17,7 +17,7 @@
 #include "ui/rtp_stream.h"
 #include "rtp_player_dialog.h"
 
-#include <QToolButton>
+#include <QPushButton>
 #include <QMenu>
 
 namespace Ui {
@@ -202,7 +202,7 @@ private:
     rtpstream_tapinfo_t tapinfo_;
 
     /** @brief Toolbar button to find reverse streams. */
-    QToolButton *find_reverse_button_;
+    QPushButton *find_reverse_button_;
 
     /** @brief Push button to prepare a filter. */
     QPushButton *prepare_button_;
@@ -214,10 +214,10 @@ private:
     QPushButton *copy_button_;
 
     /** @brief Toolbar button to open the analysis dialog. */
-    QToolButton *analyze_button_;
+    QPushButton *analyze_button_;
 
     /** @brief Toolbar button to open the player dialog. */
-    QToolButton *player_button_;
+    QPushButton *player_button_;
 
     /** @brief The context menu for the stream list. */
     QMenu ctx_menu_;
