@@ -352,6 +352,11 @@ comment #[^\n]*\n
 		if (!yyextra->uat->update_cb(rec,&err)) {
 			g_free(yyextra->error);
 			yyextra->error = err;
+			/* The UAT has its own copy; free the fields parsed into ours. */
+			if (yyextra->uat->free_cb) {
+				yyextra->uat->free_cb(yyextra->record);
+			}
+			memset(yyextra->record, 0, yyextra->uat->record_size);
 			yyterminate();
 		}
 	}
