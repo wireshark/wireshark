@@ -78433,3 +78433,96 @@ class TestDissectImf:
                 '-eimf.header.X-Unknown-Extension',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '13\tan unknown header'
+
+
+class TestDissectInap:
+    '''INAP over TCAP, SCCP, M3UA and SCTP (SSN 106 and 241), from the
+    synthetic capture inap_coverage.pcap.gz. Frames 1-397 are INAP, frame
+    398 is a TCAP Abort.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('inap_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_inap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode as INAP (TCAP for the Abort) without
+        malformed packets or error expert infos, in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                'frame', '-e_ws.col.protocol')
+        assert len(protocols) == 398
+        assert protocols.count('INAP') == 397
+        assert protocols[397] == 'TCAP'
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-eframe.number', passes=passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_inap_bcsm_correlation_id(self, cmd_tshark, capture_file, test_env):
+        '''The bcsmEventCorrelationID of EventReportBCSM and
+        RequestReportBCSMEvent (frames 1 and 2, also in a Begin with a
+        dialogue portion and in the Continue and End of that dialogue)
+        used to reach a dissector assertion in dissect_inap_Digits() when
+        the tree was built ("INAP: Fix a dissector bug assertion on the
+        BCSM correlation ID").'''
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 5', '-eframe.number',
+                    '-einap.bcsmEventCorrelationID', '-e_ws.col.info',
+                    '-e_ws.expert.message', passes=passes)
+            assert out == [
+                '1\t001122\tBegin otid(00001001) eventReportBCSM \t',
+                '2\t001122\tBegin otid(00001002) requestReportBCSMEvent \t',
+                '3\t001122\tBegin otid(00003001) eventReportBCSM \t',
+                '4\t001122\tContinue otid(00002000) dtid(00003001) eventReportBCSM \t',
+                '5\t001122\tEnd dtid(00002000) eventReportBCSM \t',
+            ]
+
+    def test_inap_components(self, cmd_tshark, capture_file, test_env):
+        '''Operation and error names in the Info column, the component
+        type counts and a UDT with an invoke in a TCAP Unidirectional.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {6, 8, 334, 338, 353, 354}', '-eframe.number',
+                '-e_ws.col.info')
+        assert out == [
+            '6\tBegin otid(000102a0) activateServiceFiltering ',
+            '8\tEnd dtid(000202a0) activateServiceFiltering ',
+            '334\tEnd dtid(00040001) cancelFailed ',
+            '338\tEnd dtid(0004000c) taskRefused ',
+            '353\tBegin otid(0000105c) initialDP tBusy Unknown INAP (64) ',
+            '354\tUDT establishTemporaryConnection ',
+        ]
+        for field, n in (('invoke', 333), ('returnResult', 13),
+                         ('returnError', 33), ('reject', 18)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    'inap.%s_element' % field, '-eframe.number')
+            assert len(out) == n
+
+    def test_inap_extension_fields(self, cmd_tshark, capture_file, test_env):
+        '''ExtensionField values are shown as data and the offset moves
+        past them: the following fields decode (frame 350 has five
+        extensions, local and global types).'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 350', '-einap.criticality', '-edata.len',
+                '-einap.global', '-e_ws.col.info')
+        assert out == ['1,2,0\t2,2\t1.2.3.4,1.2.3.7\tBegin otid(00001059) eventReportBCSM ']
+
+    def test_inap_reject_problems(self, cmd_tshark, capture_file, test_env):
+        '''Reject components: general, invoke, return result and return
+        error problems.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 380 && frame.number <= 397',
+                '-eframe.number', '-einap.general', '-einap.invokeProblem',
+                '-einap.problemReturnResult', '-einap.returnErrorProblem')
+        assert out == [
+            '380\t0\t\t\t', '381\t1\t\t\t', '382\t2\t\t\t',
+            '383\t\t0\t\t', '384\t\t1\t\t', '385\t\t2\t\t',
+            '386\t\t3\t\t', '387\t\t4\t\t', '388\t\t5\t\t',
+            '389\t\t\t0\t', '390\t\t\t1\t', '391\t\t\t2\t',
+            '392\t\t\t\t0', '393\t\t\t\t1', '394\t\t\t\t2',
+            '395\t\t\t\t3', '396\t\t\t\t4', '397\t1\t\t\t',
+        ]
