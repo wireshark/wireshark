@@ -12,6 +12,7 @@
 
 #include "ui_theme_welcome_preview.h"
 
+#include <app/application_flavor.h>
 #include <ui/qt/main_application.h>
 #include <ui/qt/utils/themes/theme_stylesheet_loader.h>
 
@@ -76,6 +77,18 @@ ThemeWelcomePreview::ThemeWelcomePreview(QWidget *parent)
     ui->setupUi(this);
 
     ui->headerTitle->setText(mainApp->applicationName());
+
+    QString versionText = application_version();
+    const QString vcsInfo = application_get_vcs_version_info_short();
+    if (!vcsInfo.isEmpty() && versionText != vcsInfo)
+        versionText += " (" + vcsInfo + ")";
+    ui->headerVersion->setText(versionText);
+
+    const QString buildLabel = tr(VERSION_FLAVOR);
+    if (buildLabel.isEmpty())
+        ui->headerBuildLabel->hide();
+    else
+        ui->headerBuildLabel->setText(buildLabel);
 
     // The learn card is the real widget; this widget's sheet styles it.
     ui->learnCard->setStyledByParent(true);
@@ -144,9 +157,11 @@ void ThemeWelcomePreview::setTheme(const QHash<ThemeManager::ThemeToken, ThemeCo
     for (int i = 0; i < ui->openFileSectionRecentList->count(); ++i)
         ui->openFileSectionRecentList->item(i)->setForeground(link);
 
-    ui->updateText->setText(tr("Update available: %1 <b><span style=\"color:%2\">4.8.0</span></b>")
+    const QString updateVersion = QStringLiteral("%1.%2.0").arg(VERSION_MAJOR).arg(VERSION_MINOR + 1);
+    ui->updateText->setText(tr("Update available: %1 <b><span style=\"color:%2\">%3</span></b>")
                               .arg(mainApp->applicationName(),
-                                   tokens.value(ThemeManager::UpdateTextHighlight).forMode(dark).name()));
+                                   tokens.value(ThemeManager::UpdateTextHighlight).forMode(dark).name(),
+                                   updateVersion));
 
     ui->learnCard->setCardLinkColor(tokens.value(ThemeManager::CardLink).forMode(dark));
 

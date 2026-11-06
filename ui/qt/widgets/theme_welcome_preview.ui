@@ -48,9 +48,6 @@
       </item>
       <item>
        <widget class="QLabel" name="headerVersion">
-        <property name="text">
-         <string notr="true">4.7.0</string>
-        </property>
        </widget>
       </item>
       <item>
@@ -65,9 +62,6 @@
       </item>
       <item>
        <widget class="QLabel" name="headerBuildLabel">
-        <property name="text">
-         <string>Development Build</string>
-        </property>
        </widget>
       </item>
      </layout>
