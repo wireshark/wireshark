@@ -18,7 +18,13 @@ endif()
 
 # To keep lemon.c as close to upstream as possible disable all warnings
 if(CMAKE_C_COMPILER_ID MATCHES "MSVC")
-	target_compile_options(lemon PRIVATE /w)
+	# Remove our warning level, e.g. /W3, from CMAKE_C_FLAGS. Otherwise
+	# cl warns that the one we add here overrides it (D9025). Use /W0,
+	# which is equivalent to /w, because the Visual Studio generators
+	# map it to the warning level instead of adding it to the options
+	# after MSBuild's default level, /W1.
+	string(REGEX REPLACE "(^| )/W[0-4]( |$)" " " CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+	target_compile_options(lemon PRIVATE /W0)
 else()
 	target_compile_options(lemon PRIVATE -w)
 endif()
