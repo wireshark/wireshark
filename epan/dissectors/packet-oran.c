@@ -770,6 +770,10 @@ static expert_field ei_oran_beamid_bfws_not_found;
 static expert_field ei_oran_syminc_set_for_uplane;
 static expert_field ei_oran_cplane_entry_not_found;
 static expert_field ei_oran_se12_rb_set;
+static expert_field ei_oran_se5_re_mask_bits_not_covered;
+static expert_field ei_oran_se5_re_mask_bit_repeated;
+static expert_field ei_oran_se5_re_mask_bit_not_in_re_mask;
+static expert_field ei_oran_se5_re_zero_re_mask;
 
 
 /* These are the message types handled by this dissector.  Others have handling in packet-ecpri.c */
@@ -3024,6 +3028,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     proto_item *rb_ti = NULL;
     uint32_t rb;
 
+    uint64_t re_mask;
+    proto_item *re_mask_ti = NULL;
+
     /* Config affecting ext11 bundles (initially unset) */
     ext11_settings_t ext11_settings;
     memset(&ext11_settings, 0, sizeof(ext11_settings));
@@ -3039,7 +3046,6 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 #define MAX_UEIDS 16
     uint32_t ueids[MAX_UEIDS];
     uint32_t number_of_ueids = 0;
-
 
     bool extension_flag = false;
 
@@ -3135,9 +3141,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             };
 
             /* reMask */
-            uint64_t remask;
-            proto_tree_add_bitmask_ret_uint64(c_section_tree, tvb, offset,
-                                              hf_oran_reMask, ett_oran_remask, remask_flags, ENC_BIG_ENDIAN, &remask);
+            re_mask_ti = proto_tree_add_bitmask_ret_uint64(c_section_tree, tvb, offset,
+                                                           hf_oran_reMask, ett_oran_remask, remask_flags, ENC_BIG_ENDIAN, &re_mask);
             offset++;
             /* numSymbol */
             numsymbol_ti = proto_tree_add_item_ret_uint(c_section_tree, hf_oran_numSymbol, tvb, offset, 1, ENC_NA, &numSymbol);
@@ -3860,9 +3865,10 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         break;
                 }
 
+                uint64_t accumulated_mc_scale_re_mask = 0;
                 unsigned bit_offset = offset*8;
                 /* Dissect each set */
-                for (int n=0; n < sets; n++) {
+                for (int s=0; s < sets; s++) {
                     /* Subtree for each set */
                     unsigned set_start_offset = bit_offset/8;
                     proto_item *set_ti = proto_tree_add_string(extension_tree, hf_oran_modcomp_param_set,
@@ -3905,12 +3911,38 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         NULL
                     };
 
-                    /* RE Mask (12 bits) */
-                    proto_tree_add_bitmask_ret_uint64(set_tree, tvb, bit_offset / 8,
-                                                      (n % 2) ? hf_oran_mc_scale_re_mask_even : hf_oran_mc_scale_re_mask,
-                                                      ett_oran_mc_scale_remask,
-                                                      (n % 2) ? remask_flags_even : remask_flags, ENC_BIG_ENDIAN, &mcScaleReMask);
+                    /* RE Mask for set (12 bits) */
+                    proto_item *set_re_mask_ti;
+                    set_re_mask_ti = proto_tree_add_bitmask_ret_uint64(set_tree, tvb, bit_offset / 8,
+                                                                       (s % 2) ? hf_oran_mc_scale_re_mask_even : hf_oran_mc_scale_re_mask,
+                                                                       ett_oran_mc_scale_remask,
+                                                                       (s % 2) ? remask_flags_even : remask_flags, ENC_BIG_ENDIAN, &mcScaleReMask);
                     bit_offset += 12;
+
+                    if (mcScaleReMask == 0) {
+                        /* Shouldn't expect an entry with an entry that doesn't change anything. */
+                        /* Exception (from Table 7.7.5.1-3) is when extLen=4 and this is the 4th set */
+                        if (!(extlen == 4 && s == 3)) {
+                            expert_add_info(pinfo, set_re_mask_ti, &ei_oran_se5_re_zero_re_mask);
+                        }
+                    }
+
+                    if ((mcScaleReMask & re_mask) != mcScaleReMask) {
+                        /* Bits set that were not in reMask! */
+                        expert_add_info_format(pinfo, set_re_mask_ti, &ei_oran_se5_re_mask_bit_not_in_re_mask,
+                                               "SE 5 set references REs (0x%03x) not set in the section reMask (0x%03x)",
+                                               (uint16_t)mcScaleReMask, (uint16_t)re_mask);
+                    }
+
+                    if (accumulated_mc_scale_re_mask & mcScaleReMask) {
+                        /* Bits have already been covered! */
+                        expert_add_info_format(pinfo, set_re_mask_ti, &ei_oran_se5_re_mask_bit_repeated,
+                                               "SE 5 set references REs (0x%03x) already covered by an earlier set",
+                                               (uint16_t)mcScaleReMask);
+                    }
+
+                    /* Add RE bits from this set to accumulated */
+                    accumulated_mc_scale_re_mask |= mcScaleReMask;
 
                     /* csf (1 bit) */
                     bit_offset = dissect_csf(set_tree, tvb, bit_offset, ci_iq_width, &csf);
@@ -3940,6 +3972,13 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 }
 
                 proto_item_append_text(extension_ti, " (%u sets)", sets);
+
+                if (accumulated_mc_scale_re_mask != re_mask) {
+                    /* Complain that not all bits were set */
+                    expert_add_info_format(pinfo, re_mask_ti, &ei_oran_se5_re_mask_bits_not_covered,
+                                           "Section reMask (0x%03x) has bits not covered by any sets (covers 0x%03x)",
+                                           (uint16_t)re_mask, (uint16_t)accumulated_mc_scale_re_mask);
+                }
 
                 /* Reserved (variable-length) */
                 if (reserved_bits) {
@@ -11983,7 +12022,11 @@ proto_register_oran(void)
         { &ei_oran_beamid_bfws_not_found, { "oran_fh_cus.beamid_bfws_not_found", PI_SEQUENCE, PI_WARN, "Have bundle with disableBFWs but no definition found", EXPFILL }},
         { &ei_oran_syminc_set_for_uplane, { "oran_fh_cus.syminc_set_for_uplane", PI_MALFORMED, PI_ERROR, "symInc is prohibited in the U-Plane", EXPFILL }},
         { &ei_oran_cplane_entry_not_found, { "oran_fh_cus.cplane_entry_not_found", PI_SEQUENCE, PI_WARN, "C-plane for this U-plane section not found", EXPFILL }},
-        { &ei_oran_se12_rb_set, { "oran_fh_cus.se12_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set when SE12 is present", EXPFILL }}
+        { &ei_oran_se12_rb_set, { "oran_fh_cus.se12_rb_set", PI_MALFORMED, PI_WARN, "rb should not be set when SE12 is present", EXPFILL }},
+        { &ei_oran_se5_re_mask_bits_not_covered, { "oran_fh_cus.se5_re_mask_bits_not_covered", PI_MALFORMED, PI_WARN, "section reMask bits not covered by SE5 sets", EXPFILL }},
+        { &ei_oran_se5_re_mask_bit_repeated, { "oran_fh_cus.se5_re_mask_bits_repeated", PI_MALFORMED, PI_WARN, "SE5 sets repeat bits", EXPFILL }},
+        { &ei_oran_se5_re_mask_bit_not_in_re_mask, { "oran_fh_cus.se5_re_mask_bitnot_in_re_mask", PI_MALFORMED, PI_WARN, "SE5 set has bit not in section reMask", EXPFILL }},
+        { &ei_oran_se5_re_zero_re_mask, { "oran_fh_cus.se5_re_mask_zero", PI_MALFORMED, PI_WARN, "SE5 set has zero reMask", EXPFILL }}
     };
 
 

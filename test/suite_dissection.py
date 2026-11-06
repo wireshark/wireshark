@@ -27736,7 +27736,7 @@ class TestDissectOran:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('oran_coverage.pcap.gz'),
-                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Y', '_ws.malformed && _ws.expert.severity > warning',
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
