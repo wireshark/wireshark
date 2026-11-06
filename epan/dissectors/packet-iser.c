@@ -247,8 +247,7 @@ dissect_iser(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (!(value_is_in_range(gPORT_RANGE, (uint32_t)(convo_data->service_id & SID_PORT_MASK))))
         return false;   /* the port doesn't match that of iSER - nothing for us to do here */
 
-    dissect_packet(tvb, pinfo, tree, data);
-    return true;
+    return dissect_packet(tvb, pinfo, tree, data) > 0;
 }
 
 void
@@ -347,13 +346,19 @@ proto_register_iser(void)
 void
 proto_reg_handoff_iser(void)
 {
-    heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser, HEURISTIC_ENABLE);
-    heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser, HEURISTIC_ENABLE);
+    static bool initialized = false;
 
-    dissector_add_for_decode_as("infiniband", iser_handle);
+    /* This is also the preference callback, register only once */
+    if (!initialized) {
+        heur_dissector_add("infiniband.payload", dissect_iser, "iSER Infiniband", "iser_infiniband", proto_iser, HEURISTIC_ENABLE);
+        heur_dissector_add("infiniband.mad.cm.private", dissect_iser, "iSER in PrivateData of CM packets", "iser_ib_private", proto_iser, HEURISTIC_ENABLE);
 
-    iscsi_handler = find_dissector_add_dependency("iscsi", proto_iser);
-    proto_ib = proto_get_id_by_filter_name( "infiniband" );
+        dissector_add_for_decode_as("infiniband", iser_handle);
+
+        iscsi_handler = find_dissector_add_dependency("iscsi", proto_iser);
+        proto_ib = proto_get_id_by_filter_name( "infiniband" );
+        initialized = true;
+    }
 }
 
 /*
