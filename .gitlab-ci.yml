@@ -955,6 +955,32 @@ Commit Check:
     reports:
       junit: commit_checks.xml
 
+# In a merge request pipeline, other than a merge train, run only the
+# coverage tests of suite_dissection.py that the MR can affect (see
+# test/dissection_select.py); every other test still runs. It sets
+# CHANGED_SINCE, which the test jobs add to PYTEST_ADDOPTS. When the diff
+# base is not available everything runs.
+.changed-since:
+  script:
+    - |
+      CHANGED_SINCE=""
+      base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
+      if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ] && \
+         [ "$CI_MERGE_REQUEST_EVENT_TYPE" != "merge_train" ] && \
+         [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ]; then
+        # The clone is shallow; fetch enough history to find the base.
+        git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$CI_MERGE_REQUEST_IID/head" || true
+        if git -C "$CI_PROJECT_DIR" merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
+          CHANGED_SINCE="--changed-since=$base"
+          # The tests run git as "user" in a checkout owned by root. Git
+          # ignores safe.directory in the repository's own config and "user"
+          # has no home directory, so set it in the environment, which su
+          # passes on.
+          export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$CI_PROJECT_DIR"
+        fi
+      fi
+      echo "CHANGED_SINCE=$CHANGED_SINCE"
+
 Ubuntu GCC Build:
   extends: .build-ubuntu
   rules: !reference [.if-merge-request]
@@ -983,7 +1009,8 @@ Ubuntu GCC Build:
     - chown -R user .
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
-    - PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,falcodump,rawshark,sshdig su user -c "pytest --junitxml=../ubuntu_tests.xml"
+    - !reference [.changed-since, script]
+    - PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,falcodump,rawshark,sshdig $CHANGED_SINCE" su user -c "pytest --junitxml=../ubuntu_tests.xml"
     # Test CMake install code and CPack config code. Select any one of the archive generators.
     - ninja user_guide_html
     - ninja developer_guide_html
@@ -1117,7 +1144,8 @@ Clang ASAN Build:
     - chown -R user .
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
-    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark" su user -c "pytest --junitxml=../clang_asan_tests.xml"
+    - !reference [.changed-since, script]
+    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark $CHANGED_SINCE" su user -c "pytest --junitxml=../clang_asan_tests.xml"
   artifacts:
     when: always
     reports:
