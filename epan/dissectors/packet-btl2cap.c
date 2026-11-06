@@ -1475,14 +1475,12 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
             switch (option_type) {
             case 0x01: /* MTU */
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
 
                 proto_item_append_text(ti_option, "MTU");
                 break;
 
             case 0x02: /* Flush timeout */
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flushTO, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
 
                 proto_item_append_text(ti_option, "Flush Timeout");
                 break;
@@ -1507,7 +1505,6 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
                 offset += 4;
 
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_delayvariation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
 
                 proto_item_append_text(ti_option, "QOS");
                 break;
@@ -1534,14 +1531,12 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
                 offset += 2;
 
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
 
                 proto_item_append_text(ti_option, "Retransmission and Flow Control");
                 break;
 
             case 0x05: /* FCS */
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_fcs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                offset += 1;
 
                 proto_item_append_text(ti_option, "FCS");
                 break;
@@ -1563,7 +1558,6 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
                 offset += 4;
 
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flush_to_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                offset += 4;
 
                 proto_item_append_text(ti_option, "Extended Flow Specification");
                 break;
@@ -1574,7 +1568,6 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
                     config_data->maxwindowsize = tvb_get_letohs(tvb, offset);
                 }
                 proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_window, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
 
                 proto_item_append_text(ti_option, "Extended Window Size");
                 break;
