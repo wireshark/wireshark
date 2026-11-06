@@ -95,11 +95,22 @@ QFrame[wsNotice="error"] {
  * own `syntaxState` Q_PROPERTY.  Kept as a separate pass from
  * wsValidation because SyntaxLineEdit predates it.
  *
+ * The base rule gives the field the same 1px rounded FieldBorder frame
+ * as FilterEdit.  Without an explicit border, the style sheet style
+ * fills the tint and then draws the native frame inset over it, which
+ * shows up as a double frame.
+ *
  * Integer values match SyntaxLineEdit::SyntaxState declaration order
  * in syntax_line_edit.h:
  *     Empty=0, Busy=1, Invalid=2, Deprecated=3, Valid=4
  * If that enum is reordered, update these selectors in lock-step.
  * ------------------------------------------------------------------- */
+
+SyntaxLineEdit {
+    border: 1px solid wstheme(FieldBorder);
+    border-radius: 3px;
+    padding: 0px 1px;
+}
 
 SyntaxLineEdit[syntaxState="4"] {   /* Valid */
     background-color: wstheme(FilterValid);

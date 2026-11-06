@@ -219,25 +219,29 @@ void DisplayFilterEdit::triggerAlignementAction()
 
 void DisplayFilterEdit::alignActionButtons()
 {
+    if (type_ != DisplayFilterToApply) {
+        SyntaxLineEdit::setStyleSheet(style_sheet_);
+        update();
+        return;
+    }
+
     int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     QSize bksz, cbsz, apsz;
     bksz = apsz = cbsz = QSize(0, 0);
 
-    if (type_ == DisplayFilterToApply) {
-        bookmark_button_->setMinimumHeight(contentsRect().height());
-        bookmark_button_->setMaximumHeight(contentsRect().height());
-        bksz = bookmark_button_->sizeHint();
+    bookmark_button_->setMinimumHeight(contentsRect().height());
+    bookmark_button_->setMaximumHeight(contentsRect().height());
+    bksz = bookmark_button_->sizeHint();
 
-        apsz = apply_button_->sizeHint();
-        apply_button_->setMinimumHeight(contentsRect().height());
-        apply_button_->setMaximumHeight(contentsRect().height());
+    apsz = apply_button_->sizeHint();
+    apply_button_->setMinimumHeight(contentsRect().height());
+    apply_button_->setMaximumHeight(contentsRect().height());
 
-        if (clear_button_->isVisible())
-        {
-            cbsz = clear_button_->sizeHint();
-            clear_button_->setMinimumHeight(contentsRect().height());
-            clear_button_->setMaximumHeight(contentsRect().height());
-        }
+    if (clear_button_->isVisible())
+    {
+        cbsz = clear_button_->sizeHint();
+        clear_button_->setMinimumHeight(contentsRect().height());
+        clear_button_->setMaximumHeight(contentsRect().height());
     }
 
     int leftPadding = frameWidth + 1;
