@@ -137,7 +137,9 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		if (tvb_find_line_end_remaining(tvb, offset, &linelen, &next_offset)) {
 			/*
 			 * Put this line.
+			 * Re-fetch the pointer, it is for the current line.
 			 */
+			line = tvb_get_ptr(tvb, offset, linelen);
 			reqresp_tree = proto_tree_add_subtree(kismet_tree, tvb, offset,
 					next_offset - offset, ett_kismet_reqresp, NULL,
 					tvb_format_text(pinfo->pool, tvb, offset,
@@ -221,10 +223,6 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 							expert_add_info(pinfo, time_item, &ei_time_invalid);
 					}
 				}
-
-				/*offset += (int) (next_token - line);
-				linelen -= (int) (next_token - line);*/
-				line = next_token;
 			}
 		}
 		offset = next_offset;
