@@ -78054,3 +78054,65 @@ class TestDissectIke:
         assert stdout.splitlines() == [
             'IKE_AUTH MID=01 Initiator Request (fragment 1/1)\t1\t'
             'Not enough data in IKEv2 Encrypted payload']
+
+
+class TestDissectIlnp:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('ilnp_coverage.pcapng.gz')]
+        if dfilter:
+            args += ['-Y', dfilter]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ilnp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ILNP is decoded in the ten frames with a nonce option, no frame
+        is malformed or has an error expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= error',
+                                passes=passes) == []
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'frame')) == 12
+        assert [l.split('\t')[0] for l in self._fields(
+            cmd_tshark, capture_file, test_env, 'ilnp')] == [str(i) for i in range(1, 11)]
+
+    def test_ilnp_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Locator and node identifier are the high and low half of the
+        IPv6 address; conversations are keyed on the node identifiers.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {1, 2, 3, 4, 9}',
+                             'ilnp.src_nid', 'ilnp.dst_nid', 'ilnp.src_l64',
+                             'ilnp.dst_l64', 'ilnp.stream', 'ilnp.nonce')
+        assert lines == [
+            '1\t1111+2222+3333+4444\taaaa+bbbb+cccc+dddd\t2001+0db8+0001+0001\t2001+0db8+0002+0002\t0\t11223344',
+            '2\taaaa+bbbb+cccc+dddd\t1111+2222+3333+4444\t2001+0db8+0002+0002\t2001+0db8+0001+0001\t0\t55667788',
+            '3\t1111+2222+3333+4444\taaaa+bbbb+cccc+dddd\t2001+0db8+0009+0009\t2001+0db8+0008+0008\t0\t11223344',
+            '4\t0001+0000+0000+0001\t0002+0000+0000+0002\tfd00+0000+0000+0000\tfd00+0000+0000+0000\t1\t0001020304050607',
+            '9\t0001+0002+0003+0004\t0005+0006+0007+0008\tfe80+0000+0000+0000\tfe80+0000+0000+0000\t2\t' + ''.join('%02x' % i for i in range(250)),
+        ]
+
+    def test_ilnp_options(self, cmd_tshark, capture_file, test_env):
+        '''Empty nonce, two nonce options in one header, after a fragment
+        header; in IPv4 the dissector does nothing.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {5, 6, 7, 12}', 'ilnp.stream', 'ilnp.nonce')
+        assert lines == [
+            '5\t0\t<MISSING>',
+            '6\t0,0\t01020304,0908',
+            '7\t0\taabbccdd',
+            '12\t\t',
+        ]
+
+    def test_ilnp_taps(self, cmd_tshark, capture_file, test_env):
+        '''Conversation, endpoint and statistics tree taps.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ilnp_coverage.pcapng.gz'), '-q',
+                '-z', 'conv,ilnp', '-z', 'endpoints,ilnp', '-z', 'ilnp_nids,tree',
+            ), encoding='utf-8', env=test_env)
+        assert 'ILNP Conversations' in stdout
+        assert grep_output(stdout, r'1111\+2222\+3333\+4444 +<-> aaaa\+bbbb\+cccc\+dddd +2 .* 6 .* 8 ')
+        assert 'ILNP Endpoints' in stdout
+        assert grep_output(stdout, r'All Node Identifiers +11 ')
