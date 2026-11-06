@@ -1233,14 +1233,14 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		case IPX_SAP_GENERAL_QUERY:
 		case IPX_SAP_NEAREST_QUERY:
 			hidden_item = proto_tree_add_boolean(sap_tree,
-						     hf_sap_response,
+						     hf_sap_request,
 						     tvb, 0, 2, 1);
 			proto_item_set_hidden(hidden_item);
 			break;
 		case IPX_SAP_GENERAL_RESPONSE:
 		case IPX_SAP_NEAREST_RESPONSE:
 			hidden_item = proto_tree_add_boolean(sap_tree,
-						     hf_sap_request,
+						     hf_sap_response,
 						     tvb, 0, 2, 1);
 			proto_item_set_hidden(hidden_item);
 			break;
