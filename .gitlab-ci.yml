@@ -663,7 +663,8 @@ Windows x64 Package:
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-x64.exe).Hash.ToLower()
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-x64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
-    - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
+    - !reference [.changed-since-windows, script]
+    - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release @ChangedSince
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -711,7 +712,8 @@ Windows Arm64 Package:
     - $stratosharkNsisSha256 = (Get-FileHash -Algorithm SHA256 .\packaging\nsis\Stratoshark-*-arm64.exe).Hash.ToLower()
     - Set-Content -Path stratoshark-release-info-$($stratosharkVersion)-windows-arm64.ini -Value ("[DEFAULT]`nminimum_system_version = 10.0-19044`nnsis_sha256 = $stratosharkNsisSha256")
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
-    - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
+    - !reference [.changed-since-windows, script]
+    - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release @ChangedSince
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -816,7 +818,8 @@ macOS Universal Package:
         aws s3 cp stratoshark-release-info-*-macos-intel64.ini "s3://$S3_DESTINATION_RELEASE/" ;
       fi
     - cd ..
-    - ninja test
+    - !reference [.changed-since, script]
+    - PYTEST_ADDOPTS="$CHANGED_SINCE" ninja test
   artifacts:
     paths:
       - build/run/*shark-release-info-*-macos-*.ini
@@ -956,22 +959,30 @@ Commit Check:
     reports:
       junit: commit_checks.xml
 
-# In a merge request pipeline, including merge trains, run only the
-# coverage tests of suite_dissection.py that the MR can affect (see
-# test/dissection_select.py); every other test still runs. It sets
-# CHANGED_SINCE, which the test jobs add to PYTEST_ADDOPTS. When the diff
-# base is not available everything runs.
+# Run only the coverage tests of suite_dissection.py that the changes can
+# affect (see test/dissection_select.py); every other test still runs. In
+# a merge request pipeline, including merge trains, the changes are those
+# since the MR's diff base; after a merge (a push to the default branch)
+# they are those since the previous tip of the branch. It sets
+# CHANGED_SINCE, which the test jobs pass to pytest. Other pipelines, and
+# any pipeline whose base is not available, run everything.
 .changed-since:
   script:
     - |
       CHANGED_SINCE=""
-      base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
-      if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ] && \
-         [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ]; then
+      base=""
+      if [ "$CI_PIPELINE_SOURCE" = "merge_request_event" ]; then
+        base="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-}"
+      elif [ "$CI_PIPELINE_SOURCE" = "push" ] && [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
+        base="${CI_COMMIT_BEFORE_SHA:-}"
+      fi
+      if [ -n "$base" ] && [ "$base" != "0000000000000000000000000000000000000000" ]; then
         # The clone is shallow; fetch enough history to find the base, both
         # of the MR and of the checked-out commit (in a merge train that is
         # a new commit on top of the target branch and the MRs before it).
-        git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$CI_MERGE_REQUEST_IID/head" || true
+        if [ -n "${CI_MERGE_REQUEST_IID:-}" ]; then
+          git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$CI_MERGE_REQUEST_IID/head" || true
+        fi
         git -C "$CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$CI_PIPELINE_ID" || true
         if git -C "$CI_PROJECT_DIR" merge-base --is-ancestor "$base" HEAD 2>/dev/null; then
           CHANGED_SINCE="--changed-since=$base"
@@ -990,9 +1001,13 @@ Commit Check:
   script:
     - |
       $ChangedSince = @()
-      $base = "$env:CI_MERGE_REQUEST_DIFF_BASE_SHA"
-      if ($env:CI_PIPELINE_SOURCE -eq "merge_request_event" -and $base -and
-          $base -ne "0000000000000000000000000000000000000000") {
+      $base = ""
+      if ($env:CI_PIPELINE_SOURCE -eq "merge_request_event") {
+        $base = "$env:CI_MERGE_REQUEST_DIFF_BASE_SHA"
+      } elseif ($env:CI_PIPELINE_SOURCE -eq "push" -and $env:CI_COMMIT_BRANCH -eq $env:CI_DEFAULT_BRANCH) {
+        $base = "$env:CI_COMMIT_BEFORE_SHA"
+      }
+      if ($base -and $base -ne "0000000000000000000000000000000000000000") {
         # A failing git command must not stop the job; it only means
         # that everything runs.
         $savedPreference = $ErrorActionPreference
@@ -1002,7 +1017,9 @@ Commit Check:
         $env:GIT_CONFIG_COUNT = "1"
         $env:GIT_CONFIG_KEY_0 = "safe.directory"
         $env:GIT_CONFIG_VALUE_0 = "*"
-        $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$($env:CI_MERGE_REQUEST_IID)/head" 2>&1
+        if ($env:CI_MERGE_REQUEST_IID) {
+          $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/merge-requests/$($env:CI_MERGE_REQUEST_IID)/head" 2>&1
+        }
         $null = git -C "$env:CI_PROJECT_DIR" fetch --quiet --depth 200 origin "refs/pipelines/$($env:CI_PIPELINE_ID)" 2>&1
         $null = git -C "$env:CI_PROJECT_DIR" merge-base --is-ancestor $base HEAD 2>&1
         if ($LASTEXITCODE -eq 0) {
