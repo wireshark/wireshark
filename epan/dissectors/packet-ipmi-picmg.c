@@ -883,7 +883,7 @@ parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, int hf, int hf_
 
 	v = tvb_get_uint8(tvb, offs);
 	if (v == 0xff) {
-		proto_tree_add_uint_format_value(tree, hf, tvb, 0, 1,
+		proto_tree_add_uint_format_value(tree, hf, tvb, offs, 1,
 				v, "Don't change (0xff)");
 	} else {
 		num = v >> 1;
@@ -895,12 +895,12 @@ parse_ipmb_state(proto_tree *tree, tvbuff_t *tvb, unsigned offs, int hf, int hf_
 		} else {
 			desc = "Reserved";
 		}
-		ti = proto_tree_add_uint_format_value(tree, hf, tvb, 0, 1,
+		ti = proto_tree_add_uint_format_value(tree, hf, tvb, offs, 1,
 				v, "%s, %s", desc, (v & 1) ? "Local Control" : "Override");
 		s_tree = proto_item_add_subtree(ti, ett);
-		proto_tree_add_uint_format_value(s_tree, hf_link, tvb, 0, 1, v, "%s (0x%02x)",
+		proto_tree_add_uint_format_value(s_tree, hf_link, tvb, offs, 1, v, "%s (0x%02x)",
 				desc, num);
-		proto_tree_add_item(s_tree, hf_state, tvb, 0, 1, ENC_NA);
+		proto_tree_add_item(s_tree, hf_state, tvb, offs, 1, ENC_NA);
 	}
 }
 
@@ -1351,7 +1351,7 @@ static void
 rs1b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_active, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_backup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_backup, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set Fan Policy
