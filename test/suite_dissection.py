@@ -78605,3 +78605,91 @@ class TestDissectIndigocareIcall:
             '26\tUnexpected header 11',
             '28\tUnexpected header -5',
         ]
+
+
+class TestDissectIndigocareNetrix:
+    '''Netrix (packet-indigocare-netrix.c) from the synthetic capture
+    indigocare_netrix_coverage.pcap.gz. The dissector registers only for
+    Decode As, so every run passes -d tcp.port==7010,netrix. Messages are
+    SOH header STX records ETX [EOT]; a single ACK octet is an
+    acknowledgement.'''
+
+    DECODE_AS = ('-d', 'tcp.port==7010,netrix')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark,
+                *TestDissectIndigocareNetrix.DECODE_AS, *opts,
+                '-r', capture_file('indigocare_netrix_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_netrix_frames(self, cmd_tshark, capture_file, test_env):
+        '''The ACK (frame 1) and the messages of frames 3-43 and 45-51 are
+        Netrix. Frames 2, 44 and 52-54 are rejected (two ACK octets, a
+        message that does not end in ETX/EOT, no SOH, a header that is not
+        a number), each on its own TCP connection because TCP stops
+        offering a connection to a dissector that rejected it; frame 54
+        only gets the protocol tree item. No malformed packets and no
+        error expert infos in one and two passes.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'netrix',
+                'frame.number')
+        assert lines == (['1'] + [str(n) for n in range(3, 44)] +
+                         [str(n) for n in range(45, 52)] + ['54'])
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    *self.DECODE_AS,
+                    '-r', capture_file('indigocare_netrix_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            # (exceptions are error-severity expert infos; the warnings of
+            # this dissector are in the "malformed" group, so _ws.malformed
+            # is not usable here)
+            assert count_output(stdout) == 0
+
+    def test_netrix_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the message types.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 3, 9, 19, 29, 31, 32, 37, 41}',
+                'frame.number', '_ws.col.info')
+        assert lines == [
+            '1\tAck',
+            '3\tSysteminfo: Computername=NETRIX01 IP Address=192.0.2.5 Systeminfo=7.2.1',
+            '9\tGroup Call: Groupnumber=12 Type=Alarm Name=Group 12 Room=Room 9 Location=West wing',
+            '19\tProfile Call: Profilenumber=5 Type=Nurse Name=Profile 5 Room=Room 2 Location=East wing',
+            '29\tGet Conversiontable: Table=Rooms',
+            '31\tGet Conversiontable: No Results',
+            '32\tGet Conversiontable result 0: Key=k1 Value=v1',
+            '37\tSearch Conversiontables: No Results',
+            '41\tBosch Call:',
+        ]
+
+    def test_netrix_result_ranges(self, cmd_tshark, capture_file, test_env):
+        '''Conversion table results are numbered from the first header
+        number of their range; the last numbers of both ranges work.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {33, 34, 39, 40}', 'frame.number', '_ws.col.info')
+        assert lines == [
+            '33\tGet Conversiontable result 7: Key=k2 Value=v2',
+            '34\tGet Conversiontable result 998: Key=last Value=one',
+            '39\tSearch Conversiontables result 99: Table=Beds',
+            '40\tSearch Conversiontables result 998: Table=Last',
+        ]
+
+    def test_netrix_unexpected(self, cmd_tshark, capture_file, test_env):
+        '''Unknown headers and records are reported with a warning; the
+        header numbers just outside the two result ranges are unknown.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'netrix.unexpected.header || netrix.unexpected.record',
+                'frame.number', '_ws.expert.message')
+        assert [l.split('\t')[0] for l in lines] == [
+            '8', '17', '27', '33', '36', '39', '47', '48', '49', '50', '51']
+        assert lines[0] == '8\tUnexpected record 9 with value x'
+        assert lines[6] == '47\tUnexpected header 5'
+        assert lines[8] == '49\tUnexpected header 34999'
+        assert lines[10] == '51\tUnexpected header 37000'
