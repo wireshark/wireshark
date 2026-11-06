@@ -81279,3 +81279,163 @@ class TestDissectIpmiTrace:
             'IPMB-A bus error', 'x',
             'a longer message with some text in it, 70 characters of text, here',
             '', 'text']
+
+
+class TestDissectIpmiTransport:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                *args, '-r', capture_file('ipmi_transport_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def _data(cmd_tshark, capture_file, test_env, number):
+        '''The items of the Data subtree of one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'ipmi.dissect_bus_commands:TRUE',
+                '-r', capture_file('ipmi_transport_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % number, '-V',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = len(lines) - lines[::-1].index('Intelligent Platform Management Bus')
+        lines = lines[start:]
+        first = lines.index('    Data') + 1
+        last = [i for i, l in enumerate(lines) if l.startswith('    Data checksum')][-1]
+        return [l[8:] for l in lines[first:last]]
+
+    def test_transport_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an IPMI message in RMCP, none is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 1773
+        assert protocols.count('IPMB') == 1773
+        for passes in ((), ('-2',)):
+            # severity 0x00800000 is an error
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_transport_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command of the command set is used as a request and as a
+        response, with every completion code of the capture.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command')
+        assert len(stdout.split()) == 1121
+        assert sorted(set(stdout.split())) == ['0x01', '0x02', '0x03', '0x04', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x18', '0x19', '0x1a', '0x1b', '0x1c', '0x20', '0x21', '0x22', '0x30', '0x31', '0x32', '0x33']
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.header.completion',
+                '-Tfields', '-eipmi.header.command', '-eipmi.header.completion')
+        rsp = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rsp) == 652
+        assert sorted(set(r[0] for r in rsp)) == ['0x01', '0x02', '0x03', '0x04', '0x10', '0x11', '0x12', '0x13', '0x14', '0x15', '0x16', '0x17', '0x18', '0x19', '0x1a', '0x1b', '0x1c', '0x20', '0x21', '0x22', '0x30', '0x31', '0x32', '0x33', '0x34,0x34,0x34,0x02', '0x34,0x34,0x34,0x11']
+        codes = {}
+        for r in rsp:
+            codes[r[1]] = codes.get(r[1], 0) + 1
+        assert codes == {'0x00': 593, '0x00,0x00,0x00,0x00': 2, '0x80': 9, '0x81': 5, '0x82': 4, '0x83': 3, '0xc0': 9, '0xc1': 9, '0xcc': 9, '0xd5': 9}
+
+    def test_transport_matching(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to their requests by the address,
+        sequence number and command; the request gets "Response in" only
+        in the second pass.'''
+        for passes, expected in (((), 0), (('-2',), 566)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ipmi.response_in', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == expected
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 566
+        stdout = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'ipmi.response_to', '-Tfields', '-eframe.number', '-eipmi.response_to')
+        assert count_output(stdout) == 566
+        assert stdout.splitlines()[0].split() == ['4', '3']
+
+    def test_transport_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes differ only by the "Response in" lines
+        of the requests.'''
+        one = self._tshark(cmd_tshark, capture_file, test_env, '-V').splitlines()
+        two = self._tshark(cmd_tshark, capture_file, test_env, '-2', '-V').splitlines()
+        assert [l for l in two if not l.startswith('    [Response in: ')] == one
+        assert len(two) - len(one) == 566
+
+    def test_ipmi_transport_lan_destination_type(self, cmd_tshark, capture_file, test_env):
+        '''Set LAN Configuration Parameters, destination type: the retries
+        come from the fourth data octet (they were read from the second one
+        before "IPMI: Fix offsets and field type in Transport commands").'''
+        assert self._data(cmd_tshark, capture_file, test_env, 1)[-6:] == [
+            'Alert Acknowledged: Acknowledged, Destination Type: Unknown',
+            '    1... .... = Alert Acknowledged: Acknowledged',
+            '    .... .001 = Destination Type: Unknown (0x1)',
+            'Timeout/Retry Interval: 4 seconds',
+            'Retries: 5',
+            '    .... .101 = Retries: 5',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-Tfields', '-eipmi.lan18.retries')
+        assert stdout.split() == ['5']
+
+    def test_ipmi_transport_lan_unknown_address(self, cmd_tshark, capture_file, test_env):
+        '''A destination address VLAN tag with an address format that is not
+        known and a six octet address: the address is bytes (it was a one
+        octet number, so any other length made the packet malformed).'''
+        assert self._data(cmd_tshark, capture_file, test_env, 2)[-3:] == [
+            'Address Format: Unknown',
+            '    0010 .... = Address Format: Unknown (0x2)',
+            'Address (format unknown): c0a801070011',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2 && !_ws.malformed', '-Tfields', '-eipmi.lan25.address')
+        assert stdout.split() == ['c0a801070011']
+
+    def test_ipmi_transport_serial_block_selector(self, cmd_tshark, capture_file, test_env):
+        '''Get Serial/Modem Configuration Parameters: the block selector is
+        the fourth octet (the set selector was shown twice before the
+        fix), and the response is decoded for the parameter of its request.'''
+        assert self._data(cmd_tshark, capture_file, test_env, 3)[-3:] == [
+            'Parameter selector: Connection Mode (0x03)',
+            'Set selector: 0x07',
+            'Block selector: 0x09',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 4)[3:] == [
+            'Parameter: Connection Mode',
+            '    Connection Mode: Modem Connect, Terminal Mode: Disabled, PPP Mode: Disabled, Basic Mode: Enabled',
+            '        0... .... = Connection Mode: Modem Connect',
+            '        .... .0.. = Terminal Mode: Disabled',
+            '        .... ..0. = PPP Mode: Disabled',
+            '        .... ...1 = Basic Mode: Enabled',
+        ]
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-Tfields', '-eipmi.tr11.block')
+        assert stdout.split() == ['0x09']
+
+    def test_ipmi_transport_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Reserved parameter selectors and an unknown block selector show
+        the parameter data as it is.'''
+        assert self._data(cmd_tshark, capture_file, test_env, 5)[-2:] == [
+            'Parameter Selector: Reserved (0x90)',
+            'Parameter data: 0102',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 6)[-4:] == [
+            'Parameter Selector: IPv6 DHCPv6 Timing Configuration (0x3f)',
+            'IPv6 Interface selector: 0',
+            'Block selector: 2',
+            'Parameter data: 090909',
+        ]
+        assert self._data(cmd_tshark, capture_file, test_env, 7)[-4:] == [
+            'Parameter Selector: IPv6 NDISC/SLAAC Timing Configuration (0x50)',
+            'IPv6 Interface selector: 0',
+            'Block selector: 1',
+            'Parameter data: 090909',
+        ]
+
+    def test_ipmi_transport_nested(self, cmd_tshark, capture_file, test_env):
+        '''Responses three Send Message levels down: no request data is
+        kept that deep, so the parameter data is shown as it is.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 8 || frame.number == 9', '-Tfields',
+                '-eframe.number', '-eipmi.tr02.param_data', '-eipmi.tr11.param_data')
+        assert stdout.splitlines() == ['8\t010203\t', '9\t\t010203']
