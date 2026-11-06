@@ -2671,7 +2671,6 @@ ax25_dissect_xid(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree
 				pi = proto_tree_add_uint(xt, hf_ax25_xid_pi, tvb, off, 1, pid);
 				expert_add_info_format(pinfo, pi, &ei_ax25_xid_length,
 						"Parameter identifier at the end of the group, without a length");
-				off = end;
 				break;
 			}
 			pl = tvb_get_uint8(tvb, off + 1);
