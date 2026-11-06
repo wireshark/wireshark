@@ -39,11 +39,11 @@ set(STRATOSHARK_NSIS_GENERATED_FILES
 set(STRATOSHARK_NSIS_GENERATED_FILES ${STRATOSHARK_NSIS_GENERATED_FILES} PARENT_SCOPE)
 
 set(STRATOSHARK_NSIS_FILES
-	stratoshark.nsi
-	stratoshark-common.nsh
-	servicelib.nsh
-	NpcapPage.ini
-	USBPcapPage.ini
+	${CMAKE_CURRENT_SOURCE_DIR}/stratoshark.nsi
+	${CMAKE_CURRENT_SOURCE_DIR}/stratoshark-common.nsh
+	${CMAKE_CURRENT_SOURCE_DIR}/servicelib.nsh
+	${CMAKE_CURRENT_SOURCE_DIR}/NpcapPage.ini
+	${CMAKE_CURRENT_SOURCE_DIR}/USBPcapPage.ini
 	${STRATOSHARK_NSIS_GENERATED_FILES}
 	PARENT_SCOPE
 )
@@ -374,7 +374,6 @@ macro( ADD_NSIS_PACKAGE_TARGETS )
 				${STRATOSHARK_NSIS_FILES}
 				copy_data_files
 				user_guide_html
-				${DATAFILE_DIR}/uninstall-stratoshark.exe
 		)
 		set_target_properties(stratoshark_nsis_prep PROPERTIES
 			FOLDER "Packaging"
