@@ -7717,7 +7717,7 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   uint8_t version = tvb_get_uint8(tvb, 0);
   int test_offset = offset;
   if ((test_offset = dissector_try_uint(its_version_subdissector_table, version, tvb, actx->pinfo, tree))) {
-    return test_offset;
+    return test_offset << 3;
   }
   // Lets try it that way, regarless of version value...
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -7728,10 +7728,10 @@ dissect_its_ItsPduHeader(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   its_header_t *its_hdr = its_get_private_data(actx->pinfo);
   int data_offset = dissector_try_uint(its_msgid_subdissector_table, (its_hdr->version << 16)+its_hdr->msgId, next_tvb, actx->pinfo, tree);
   if (!data_offset) {
-    proto_tree_add_expert(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0,  - 1);
+    proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_its_no_sub_dis, next_tvb, 0);
     data_offset = call_data_dissector(next_tvb, actx->pinfo, tree);
   }
-  offset += data_offset;
+  offset += data_offset << 3;
 
 
   return offset;
@@ -22997,7 +22997,7 @@ dsrc_velocity_fmt(char *s, uint32_t v)
     snprintf(s, ITEM_LABEL_LENGTH, "unavailable (%d)", v);
   } else {
     double vms = v * 0.02;
-    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %ukm/h (%d)",
+    snprintf(s, ITEM_LABEL_LENGTH, "%.2fm/s = %dkm/h (%u)",
             vms, (int)lround(vms * 3.6), v);
   }
 }
