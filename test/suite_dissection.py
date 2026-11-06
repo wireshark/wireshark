@@ -51172,6 +51172,60 @@ class TestDissectEap:
         ]
 
 
+class TestDissectEapNoob:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('eap-noob.pcap'), *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_eap_noob_type(self, cmd_tshark, capture_file, test_env):
+        '''EAP type 56 is EAP-NOOB, and the JSON "Type" member gives the message type.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'eap.noob.type', '-Tfields', '-eframe.number',
+                              '-eeap.type', '-eeap.noob.type')
+        assert stdout.splitlines() == ['1\t56\t1', '2\t56\t1', '3\t56\t2', '4\t56\t0']
+
+    def test_eap_noob_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The message type is shown in the Info column, and the JSON dissector
+        does not change the Protocol or Info columns.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 2', '-Tfields',
+                              '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.strip() == ('EAP\tResponse, Nimble Out-of-Band Authentication EAP (EAP-NOOB), '
+                                  'PeerId and PeerState discovery')
+
+    def test_eap_noob_peer(self, cmd_tshark, capture_file, test_env):
+        '''PeerId and PeerState in the common handshake response.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 2', '-Tfields',
+                              '-eeap.noob.peer_id', '-eeap.noob.peer_state')
+        assert stdout.strip() == '07KRU6OgqX0HIeRFldnbSW\t1'
+
+    def test_eap_noob_error(self, cmd_tshark, capture_file, test_env):
+        '''ErrorCode and ErrorInfo in an error notification.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'eap.noob.error_code', '-Tfields', '-eframe.number',
+                              '-eeap.noob.error_code', '-eeap.noob.error_info')
+        assert stdout.strip() == '4\t2002\tState mismatch'
+
+    def test_eap_noob_json(self, cmd_tshark, capture_file, test_env):
+        '''The whole message, including nested objects, is also dissected as JSON.'''
+        stdout = self._tshark(cmd_tshark, capture_file, test_env,
+                              '-Y', 'frame.number == 3', '-Tfields', '-ejson.key')
+        # The JSON dissector adds a nested object's keys before the key of
+        # the object itself, so compare the keys without relying on order.
+        assert sorted(stdout.strip().split(',')) == sorted(
+            ['Type', 'Vers', 'PeerId', 'Cryptosuites', 'Dirs', 'ServerInfo', 'Name', 'Url'])
+
+    def test_eap_noob_invalid_json(self, cmd_tshark, capture_file, test_env):
+        '''A payload that is not a JSON object gets an expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number',
+                                  '-e_ws.expert.message')
+            assert stdout.strip() == '5\tEAP-NOOB message is not a valid JSON object'
+
+
 class TestDissectEapol:
     def test_eapol_protocols(self, cmd_tshark, capture_file, test_env):
         '''Every frame is EAPOL; none is malformed or has a warning or

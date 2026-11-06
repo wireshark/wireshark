@@ -44,6 +44,7 @@ WS_DLL_PUBLIC const value_string eap_code_vals[];
 #define EAP_TYPE_AKA_PRIME  50
 #define EAP_TYPE_GPSK       51
 #define EAP_TYPE_TEAP       55
+#define EAP_TYPE_NOOB       56
 #define EAP_TYPE_EXT       254
 
 WS_DLL_PUBLIC value_string_ext eap_type_vals_ext;

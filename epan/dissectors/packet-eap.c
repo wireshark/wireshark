@@ -17,6 +17,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/wsjson.h>
 
 #include "packet-eap.h"
 #include "packet-eapol.h"
@@ -159,6 +160,12 @@ static int hf_eap_gpsk_pd_payload;
 static int hf_eap_gpsk_payload_mac;
 static int hf_eap_gpsk_failure_code;
 
+static int hf_eap_noob_type;
+static int hf_eap_noob_peer_id;
+static int hf_eap_noob_peer_state;
+static int hf_eap_noob_error_code;
+static int hf_eap_noob_error_info;
+
 static int hf_eap_msauth_tlv_mandatory;
 static int hf_eap_msauth_tlv_reserved;
 static int hf_eap_msauth_tlv_type;
@@ -193,6 +200,7 @@ static expert_field ei_eap_identity_invalid;
 static expert_field ei_eap_retransmission;
 static expert_field ei_eap_bad_length;
 static expert_field ei_eap_tls_fragment_missing;
+static expert_field ei_eap_noob_invalid_json;
 
 static dissector_table_t eap_expanded_type_dissector_table;
 
@@ -204,6 +212,7 @@ static dissector_handle_t peap_handle;
 static dissector_handle_t teap_handle;
 
 static dissector_handle_t ike_handle;
+static dissector_handle_t json_handle;
 
 const value_string eap_code_vals[] = {
   { EAP_REQUEST,  "Request" },
@@ -280,6 +289,7 @@ static const value_string eap_type_vals[] = {
     {  52,         "Password EAP (EAP-pwd)" },
     {  53,         "Encrypted Key Exchange v1 EAP (EAP-EKEv1)" },
     {  55,         "Tunneled EAP protocol" },
+    {  56,         "Nimble Out-of-Band Authentication EAP (EAP-NOOB)" },
     { 254,         "Expanded Type" },
     { 255,         "Experimental" },
     { 0,           NULL }
@@ -554,6 +564,53 @@ static const value_string eap_gpsk_failure_code_vals[] = {
   { 0x00000002, "Authentication Failure" },
   { 0x00000003, "Authorization Failure" },
   { 0, NULL }
+};
+
+/* EAP-NOOB Message Types (RFC 9140, Section 5.2) */
+static const value_string eap_noob_type_vals[] = {
+    { 0, "Error notification" },
+    { 1, "PeerId and PeerState discovery" },
+    { 2, "Initial: Version, cryptosuite, and parameter negotiation" },
+    { 3, "Initial: Exchange of ECDHE keys and nonces" },
+    { 4, "Waiting: Server has not yet received an OOB message" },
+    { 5, "Completion: NoobId discovery" },
+    { 6, "Completion: Authentication and key confirmation with HMAC" },
+    { 7, "Reconnect: Version, cryptosuite, and parameter negotiation" },
+    { 8, "Reconnect: Exchange of ECDHE keys and nonces" },
+    { 9, "Reconnect: Authentication and key confirmation with HMAC" },
+    { 0, NULL }
+};
+
+/* EAP-NOOB peer states (RFC 9140, Section 3.1, Figure 1) */
+static const value_string eap_noob_peer_state_vals[] = {
+    { 0, "Unregistered" },
+    { 1, "Waiting for OOB" },
+    { 2, "OOB Received" },
+    { 3, "Reconnecting" },
+    { 4, "Registered" },
+    { 0, NULL }
+};
+
+/* EAP-NOOB Error Codes (RFC 9140, Section 5.3) */
+static const value_string eap_noob_error_code_vals[] = {
+    { 1001, "Invalid NAI" },
+    { 1002, "Invalid message structure" },
+    { 1003, "Invalid data" },
+    { 1004, "Unexpected message type" },
+    { 1005, "Invalid ECDHE key" },
+    { 2001, "Unwanted peer" },
+    { 2002, "State mismatch, user action required" },
+    { 2003, "Unrecognized OOB message identifier" },
+    { 2004, "Unexpected peer identifier" },
+    { 3001, "No mutually supported protocol version" },
+    { 3002, "No mutually supported cryptosuite" },
+    { 3003, "No mutually supported OOB direction" },
+    { 4001, "HMAC verification failure" },
+    { 5001, "Application-specific error" },
+    { 5002, "Invalid server info" },
+    { 5003, "Invalid server URL" },
+    { 5004, "Invalid peer info" },
+    { 0, NULL }
 };
 
 #define MSAUTH_TLV_MANDATORY 0x8000
@@ -1743,6 +1800,85 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsign
   return offset;
 }
 
+/*
+ * Add the integer member "name" of a JSON object as an unsigned field.
+ * Returns true and sets *value if the member exists and fits in 32 bits.
+ */
+static bool
+eap_noob_add_uint(proto_tree *tree, int hf, tvbuff_t *json_tvb, char *json,
+                  jsmntok_t *object, const char *name, uint32_t *value)
+{
+  int64_t val;
+
+  if (!json_get_int(json, object, name, &val) || val < 0 || val > UINT32_MAX) {
+    return false;
+  }
+  proto_tree_add_uint(tree, hf, json_tvb, 0, tvb_reported_length(json_tvb), (uint32_t)val);
+  if (value) {
+    *value = (uint32_t)val;
+  }
+  return true;
+}
+
+/*
+ * EAP-NOOB - RFC 9140
+ *
+ * Every EAP-NOOB message is a JSON object in UTF-8 (Section 3.3.2). Pull
+ * out the members that identify the message, then hand the whole object
+ * to the JSON dissector so that the remaining members are shown too.
+ */
+static void
+dissect_eap_noob(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
+{
+  tvbuff_t  *json_tvb = tvb_new_subset_length(tvb, offset, size);
+  char      *json;
+  char      *str;
+  int        num_tokens;
+  jsmntok_t *tokens;
+  uint32_t   msg_type;
+
+  json = (char *)tvb_get_string_enc(pinfo->pool, json_tvb, 0, size, ENC_UTF_8);
+  num_tokens = json_parse_len(json, strlen(json), NULL, 0);
+  if (num_tokens <= 0) {
+    proto_tree_add_expert(eap_tree, pinfo, &ei_eap_noob_invalid_json, json_tvb, 0, size);
+    call_data_dissector(json_tvb, pinfo, eap_tree);
+    return;
+  }
+
+  tokens = wmem_alloc_array(pinfo->pool, jsmntok_t, num_tokens);
+  if (json_parse_len(json, strlen(json), tokens, (unsigned)num_tokens) <= 0 ||
+      tokens[0].type != JSMN_OBJECT) {
+    proto_tree_add_expert(eap_tree, pinfo, &ei_eap_noob_invalid_json, json_tvb, 0, size);
+    call_data_dissector(json_tvb, pinfo, eap_tree);
+    return;
+  }
+
+  if (eap_noob_add_uint(eap_tree, hf_eap_noob_type, json_tvb, json, &tokens[0], "Type", &msg_type)) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                    val_to_str(pinfo->pool, msg_type, eap_noob_type_vals, "Unknown message type (%u)"));
+  }
+
+  str = json_get_string(json, &tokens[0], "PeerId");
+  if (str) {
+    proto_tree_add_string(eap_tree, hf_eap_noob_peer_id, json_tvb, 0, size, str);
+  }
+
+  eap_noob_add_uint(eap_tree, hf_eap_noob_peer_state, json_tvb, json, &tokens[0], "PeerState", NULL);
+  eap_noob_add_uint(eap_tree, hf_eap_noob_error_code, json_tvb, json, &tokens[0], "ErrorCode", NULL);
+
+  str = json_get_string(json, &tokens[0], "ErrorInfo");
+  if (str) {
+    proto_tree_add_string(eap_tree, hf_eap_noob_error_info, json_tvb, 0, size, str);
+  }
+
+  /* Keep the JSON dissector from changing the Protocol and Info columns. */
+  col_set_writable(pinfo->cinfo, COL_PROTOCOL, false);
+  col_set_writable(pinfo->cinfo, COL_INFO, false);
+  call_dissector(json_handle, json_tvb, pinfo, eap_tree);
+  col_set_writable(pinfo->cinfo, COL_PROTOCOL, true);
+  col_set_writable(pinfo->cinfo, COL_INFO, true);
+}
+
 static unsigned
 dissect_eap_msauth_tlv(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, unsigned offset, unsigned size)
 {
@@ -2521,6 +2657,13 @@ skip_tls_dissector:
         break; /* EAP_TYPE_GPSK */
 
       /*********************************************************************
+            EAP-NOOB - RFC 9140
+      **********************************************************************/
+      case EAP_TYPE_NOOB:
+        dissect_eap_noob(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_NOOB */
+
+      /*********************************************************************
             EAP-IKEv2 - RFC 5106
       **********************************************************************/
       case EAP_TYPE_IKEV2:
@@ -3273,6 +3416,31 @@ proto_register_eap(void)
       FT_UINT32, BASE_HEX, VALS(eap_gpsk_failure_code_vals), 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_noob_type, {
+      "EAP-NOOB Message Type", "eap.noob.type",
+      FT_UINT32, BASE_DEC, VALS(eap_noob_type_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_noob_peer_id, {
+      "EAP-NOOB PeerId", "eap.noob.peer_id",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_noob_peer_state, {
+      "EAP-NOOB PeerState", "eap.noob.peer_state",
+      FT_UINT32, BASE_DEC, VALS(eap_noob_peer_state_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_noob_error_code, {
+      "EAP-NOOB ErrorCode", "eap.noob.error_code",
+      FT_UINT32, BASE_DEC, VALS(eap_noob_error_code_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_noob_error_info, {
+      "EAP-NOOB ErrorInfo", "eap.noob.error_info",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
     { &hf_eap_data, {
       "EAP Data", "eap.data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -3425,6 +3593,7 @@ proto_register_eap(void)
      { &ei_eap_retransmission, { "eap.retransmission", PI_SEQUENCE, PI_NOTE, "This packet is a retransmission", EXPFILL }},
      { &ei_eap_bad_length, { "eap.bad_length", PI_PROTOCOL, PI_WARN, "Bad length (too small or too large)", EXPFILL }},
      { &ei_eap_tls_fragment_missing, { "eap.tls.fragment.missing", PI_REASSEMBLE, PI_ERROR, "Fragment missing", EXPFILL }},
+     { &ei_eap_noob_invalid_json, { "eap.noob.invalid_json", PI_MALFORMED, PI_ERROR, "EAP-NOOB message is not a valid JSON object", EXPFILL }},
   };
 
   expert_module_t* expert_eap;
@@ -3461,6 +3630,7 @@ proto_reg_handoff_eap(void)
   teap_handle = find_dissector_add_dependency("teap", proto_eap);
 
   ike_handle = find_dissector_add_dependency("ike", proto_eap);
+  json_handle = find_dissector_add_dependency("json", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);
