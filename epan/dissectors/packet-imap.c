@@ -559,7 +559,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
              */
             folderlen = linelen - (folder_next_token - offset);
             folder_offset = folder_next_token;
-            folder_tokenlen = tvb_get_token_len_length(tvb, folder_offset, folderlen, &folder_tokenlen , &folder_next_token);
+            tvb_get_token_len_length(tvb, folder_offset, folderlen, &folder_tokenlen , &folder_next_token);
 
             if (folder_tokenlen != 0)
               proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII);
@@ -572,16 +572,24 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             unsigned usernamelen = linelen - (next_token - offset);
             unsigned username_offset = next_token;
             unsigned username_next_token;
-            unsigned username_tokenlen;
+            unsigned username_tokenlen = 0;
             tvb_get_token_len_length(tvb, next_token, usernamelen, &username_tokenlen, &username_next_token);
             char *username = (char*)tvb_get_string_enc(pinfo->pool, tvb, username_offset, username_tokenlen, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
 
             unsigned passwordlen = linelen - (username_next_token - offset);
             unsigned password_offset = username_next_token;
-            unsigned password_tokenlen;
-            tvb_get_token_len_length(tvb, username_next_token, passwordlen, NULL, &password_tokenlen);
-            const char* password = (char*)tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            unsigned password_tokenlen = 0;
+            tvb_get_token_len_length(tvb, username_next_token, passwordlen, &password_tokenlen, NULL);
+            const char* password;
+            if (password_tokenlen >= 2 &&
+                tvb_get_uint8(tvb, password_offset) == '"' &&
+                tvb_get_uint8(tvb, password_offset + password_tokenlen - 1) == '"') {
+              /* strip the quotes */
+              password = (char*)tvb_get_string_enc(pinfo->pool, tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            } else {
+              password = (char*)tvb_get_string_enc(pinfo->pool, tvb, password_offset, password_tokenlen, ENC_ASCII | ENC_NA);
+            }
             proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
 
             tap_credential_t* auth = wmem_new0(pinfo->pool, tap_credential_t);
