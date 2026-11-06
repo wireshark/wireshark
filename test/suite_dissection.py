@@ -78526,3 +78526,82 @@ class TestDissectInap:
             '392\t\t\t\t0', '393\t\t\t\t1', '394\t\t\t\t2',
             '395\t\t\t\t3', '396\t\t\t\t4', '397\t1\t\t\t',
         ]
+
+
+class TestDissectIndigocareIcall:
+    '''iCall (packet-indigocare-icall.c) from the synthetic capture
+    indigocare_icall_coverage.pcap.gz. The dissector registers only for
+    Decode As, so every run passes -d tcp.port==7000,icall and
+    -d udp.port==7001,icall. Messages are SOH header STX records ETX EOT.'''
+
+    DECODE_AS = ('-d', 'tcp.port==7000,icall', '-d', 'udp.port==7001,icall')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark,
+                *TestDissectIndigocareIcall.DECODE_AS, *opts,
+                '-r', capture_file('indigocare_icall_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_icall_frames(self, cmd_tshark, capture_file, test_env):
+        '''29 of the 31 frames decode as iCall (frames 30 and 31 do not
+        start with SOH); no malformed packets and no error expert infos
+        in one and two passes. Warnings mark unexpected records, headers
+        and message ends (frames 22-28).'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'icall',
+                'frame.number')
+        assert lines == [str(n) for n in range(1, 30)]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'icall.unexpected.header || icall.unexpected.record || icall.unexpected.end',
+                'frame.number')
+        assert lines == [str(n) for n in range(22, 29)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    *self.DECODE_AS,
+                    '-r', capture_file('indigocare_icall_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            # (exceptions are error-severity expert infos; the warnings of
+            # this dissector are in the "malformed" group, so _ws.malformed
+            # is not usable here)
+            assert count_output(stdout) == 0
+
+    def test_icall_records(self, cmd_tshark, capture_file, test_env):
+        '''The ten records of a Call Info message (frame 1) and the Info
+        column built from the room, type, location and names.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1', 'icall.header', 'icall.call.room',
+                'icall.call.type', 'icall.call.addition', 'icall.call.id',
+                'icall.call.task', 'icall.call.location', 'icall.call.name1',
+                'icall.call.name2', 'icall.call.type_numerical',
+                'icall.call.nurse', '_ws.col.info')
+        assert lines == [
+            '10\t101\tEmergency\tBed A\t4711\tAssist\tWard 3\tDoe, John\tRoe, Jane'
+            '\t12\tNurse X\tCall Info: Room=101 Type=Emergency Location=Ward 3'
+            ' Name 1=Doe, John Name 2=Roe, Jane']
+
+    def test_icall_udp_and_padding(self, cmd_tshark, capture_file, test_env):
+        '''The same messages over UDP; data after the EOT is padding.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'udp && icall', 'frame.number', 'icall.call.room')
+        assert lines == ['20\t101', '21\t12']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'icall.padding', 'frame.number', 'icall.padding')
+        assert lines == ['17\t00000000', '18\t70616464696e6720616674657220454f54', '29\t01']
+
+    def test_icall_unexpected(self, cmd_tshark, capture_file, test_env):
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {22, 24, 26, 28}', 'frame.number',
+                '_ws.expert.message')
+        assert lines == [
+            '22\tUnexpected end of packet',
+            '24\tUnexpected record 99 with value who knows',
+            '26\tUnexpected header 11',
+            '28\tUnexpected header -5',
+        ]
