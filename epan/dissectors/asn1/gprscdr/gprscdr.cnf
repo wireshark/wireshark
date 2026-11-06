@@ -52,6 +52,10 @@ GPRSRecord
 # Get the OID
 #.FN_PARS ManagementExtension/identifier FN_VARIANT = _str  VAL_PTR = &obj_id
 
+#.FN_HDR ManagementExtension
+  /* Never use an OID left over from an earlier extension or packet */
+  obj_id = NULL;
+
 #.FN_BODY ManagementExtension/information
 
   proto_tree *ext_tree;
@@ -130,11 +134,14 @@ GPRSRecord
   if (!parameter_tvb)
     return offset;
 
+  if (tvb_captured_length(parameter_tvb) < 2)
+    return offset;
+
   data = tvb_get_uint8(parameter_tvb, 0);
   sign = (data & 0x08) ? '-' : '+';
   data = (data >> 4) + (data & 0x07) * 10;
 
-  data2 = tvb_get_uint8(tvb, 1) & 0x3;
+  data2 = tvb_get_uint8(parameter_tvb, 1) & 0x3;
 
   proto_item_append_text(actx->created_item, " (GMT %%c %%d hours %%d minutes %%s)",
                          sign,
