@@ -81703,3 +81703,45 @@ class TestDissectIpoib:
             '4\t0x0806\t\t\tipoib:arp',
             '5\t0x1234\t\t\tipoib',
         ]
+
+
+class TestDissectIpos:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('ipos_coverage.pcap.gz')]
+        if dfilter:
+            args += ['-Y', dfilter]
+        args += ['-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ipos_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 10 frames are IPOS, none is malformed or has an error expert
+        info in one and two passes; REDBACK follows.'''
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= error',
+                                passes=passes) == []
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipos')) == 10
+        assert len(self._fields(cmd_tshark, capture_file, test_env, 'ipos && redback')) == 10
+
+    def test_ipos_header(self, cmd_tshark, capture_file, test_env):
+        '''Protocol, priority, packet processing engine and slot of the six
+        Linux cooked protocol numbers and the unnamed values.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipos',
+                             'sll.ltype', 'ipos.proto', 'ipos.priority', 'ipos.ppe',
+                             'ipos.slot', 'frame.protocols')
+        assert lines == [
+            '1\t0x0030\t0\t0\t0x04\t1\tsll:ipos:redback:ip:udp:data',
+            '2\t0x0031\t1\t1\t0x06\t2\tsll:ipos:redback:ip:udp:data',
+            '3\t0x0032\t2\t2\t0x0a\t3\tsll:ipos:redback:ip:udp:data',
+            '4\t0x0033\t3\t3\t0x04\t4\tsll:ipos:redback:ip:udp:data',
+            '5\t0x0034\t4\t4\t0x06\t5\tsll:ipos:redback:ip:udp:data',
+            '6\t0x0035\t0\t5\t0x0a\t6\tsll:ipos:redback:ip:udp:data',
+            '7\t0x0031\t5\t15\t0x07\t65535\tsll:ipos:redback:ip:udp:data',
+            '8\t0x0030\t2\t0\t0x04\t1\tsll:ipos:redback',
+            '9\t0x0031\t1\t3\t0x06\t2\tsll:ipos:redback:ip:udp:data',
+            '10\t0x0035\t4\t1\t0x0a\t3\tsll:ipos:redback',
+        ]
