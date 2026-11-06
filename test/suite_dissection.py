@@ -82878,3 +82878,64 @@ class TestDissectIpx:
         eps = {l.split()[0]: l.split()[1] for l in out.splitlines() if l.startswith(('0000', '0000b'))}
         assert eps['0000a001.02000000000a'] == '68'
         assert eps['0000b002.02000000000b'] == '63'
+
+
+class TestDissectIpxwan:
+    '''IPX WAN (IPX socket 0x9004, RFC 1362 and the NLSP specification) from the
+    synthetic capture ipxwan_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, two=False):
+        args = [cmd_tshark] + (['-2'] if two else [])
+        args += ['-r', capture_file('ipxwan_coverage.pcap.gz'), '-Y', display_filter, '-Tfields']
+        args += ['-e' + f for f in fields]
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_ipxwan_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 33 frames are IPXWAN with the expected packet types; no
+        malformed frames or error expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'ipxwan', ['frame.number', 'ipxwan.packet_type'])
+        assert len(rows) == 33
+        assert [r[1] for r in rows[:10]] == ['0', '1', '2', '3', '4', '5', '6', '7', '255', '9']
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                ['frame.number'], two=two)
+            assert rows == []
+
+    def test_ipxwan_nlsp_throughput_offsets(self, cmd_tshark, capture_file, test_env):
+        '''Frame 19 is the reproducer of "IPXWAN: Fix the offsets of the NLSP
+        throughput fields": the NLSP Information option holds delay
+        0x11111111 and throughput 0x22222222, the Raw Throughput Data option
+        request size 0x33333333 and delta time 0x44444444.  The throughput and
+        delta time used to be read from the offset of the first field and
+        repeated delay and request size.'''
+        for two in (False, True):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 19 && frame.number <= 22',
+                                ['frame.number', 'ipxwan.nlsp_information.delay',
+                                 'ipxwan.nlsp_information.throughput',
+                                 'ipxwan.nlsp_raw_throughput_data.request_size',
+                                 'ipxwan.nlsp_raw_throughput_data.delta_time'], two=two)
+            assert rows == [
+                ['19', str(0x11111111), str(0x22222222), str(0x33333333), str(0x44444444)],
+                ['20', '1500', '64000', '', ''],
+                ['21', '', '', '2048', '17'],
+                ['22', '18', '19', '2048', '1700'],
+            ]
+
+    def test_ipxwan_options(self, cmd_tshark, capture_file, test_env):
+        '''Option types and accept values; RIP/SAP information, node number,
+        compression (Telebit and unknown), pad and unknown options.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 11 && frame.number <= 33',
+                            ['frame.number', 'ipxwan.option_num', 'ipxwan.accept_option', 'ipxwan.routing_type',
+                             'ipxwan.compression.type', 'ipxwan.compression.options', 'ipxwan.compression.slots',
+                             'ipxwan.rip_sap_info_exchange.router_name', 'ipxwan.node_number'])
+        d = {r[0]: r[1:] for r in rows}
+        assert [d[str(n)][2] for n in range(11, 17)] == ['0', '1', '2', '3', '4', '9']
+        assert [d[str(n)][1] for n in range(11, 17)] == ['1', '1', '0', '3', '1', '2']
+        assert d['17'][6] == 'ROUTER-A' and d['17'][7] == '02:00:00:00:00:0a'
+        assert d['18'][6] == 'ROUTER-B' and d['18'][1] == '1,1,3,0'
+        assert d['23'][3:6] == ['0', '0x01', '16']                 # Telebit: options 1, slots 16
+        assert d['25'][3] == '7'                                   # unknown compression type
+        assert d['30'][0] == '0x00,0x80,0x42,0xff'
