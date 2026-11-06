@@ -79154,3 +79154,94 @@ class TestDissectInterlink:
             '14\tType: 16, Version: 3\t7',
             '15\tType: 255, Version: 255\t8',
         ]
+
+
+class TestDissectIpars:
+    '''IPARS (packet-ipars.c), reached through the SITA WAN link layer
+    (pcap link type 196, protocol 5 = ALC), from the synthetic capture
+    ipars_coverage.pcap.gz: go-ahead and poll messages, data messages with
+    and without the S1/S2 prefix, the end-of-message types, and the
+    reproducers of the unknown-EOM text and data length fix.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('ipars_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ipars_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 38 frames decode as IPARS without malformed packets or error
+        expert infos, in one and two passes.'''
+        import subprocess
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'ipars',
+                'frame.number', '_ws.col.protocol')
+        assert len(lines) == 38
+        assert {l.split('\t')[1] for l in lines} == {'IPARS'}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ipars_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ipars_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of go-ahead, poll, reset, resend and unsolicited
+        messages.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 8, 9, 10, 11, 12, 14, 19, 22, 31}',
+                'frame.number', '_ws.col.info')
+        assert lines == [
+            '1\tGoAhead',
+            '8\tData Msg - IA: 05 TA: 11',
+            '9\tPlease Resend - IA: 05 TA: 11',
+            '10\tUnsolicited Msg Indicator - IA: 05 TA: 11',
+            '11\tPlease Resend - IA: 05 TA: 11',
+            '12\tUnsolicited Msg Indicator - IA: 05 TA: 11',
+            '14\tData Msg - IA: 0A TA: 20',
+            '19\tData Msg - IA: 31 TA: 20',
+            '22\tPoll IA: 07',
+            '31\tPoll IA: C7',
+        ]
+
+    def test_ipars_eom_types(self, cmd_tshark, capture_file, test_env):
+        '''The EOM type of a go-ahead message with the S1/S2 prefix. An
+        unknown type shows its own value (frames 26-28, 30, 35, 38); it
+        showed the IA value before "IPARS: Fix unknown EOM type text and
+        data length".'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 22 && frame.number <= 31', 'frame.number',
+                'ipars')
+        assert [l.split('\t')[1].split(',')[4] for l in lines] == [
+            'EOMc', 'EOMi', 'EOMu', 'EOMpb', 'Unknown EOM type (0x14)',
+            'Unknown EOM type (0x2A)', 'Unknown EOM type (0x3F)', 'EOMc',
+            'Unknown EOM type (0x00)', 'EOMu']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 38', 'ipars')
+        assert lines == ['Ipars,S1,S2,GoAhead IA: 07,Unknown EOM type (0x2A),Good BCC']
+
+    def test_ipars_data_length(self, cmd_tshark, capture_file, test_env):
+        '''The Data item of a data message counts the bytes after the
+        first three octets (frames 8 and 37: 6 octets, 3 shown); before
+        the fix it showed the length of the whole frame.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {8, 13, 17, 37}', 'frame.number', 'ipars')
+        assert lines == [
+            '8\tIpars,S1,S2,Data (3 bytes)',
+            '13\tIpars,S1,S2,Data (4 bytes)',
+            '17\tIpars,S1,S2,Data (1 byte)',
+            '37\tIpars,S1,S2,Data (3 bytes)',
+        ]
+
+    def test_ipars_unknown_format(self, cmd_tshark, capture_file, test_env):
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {16, 18, 21}', 'frame.number', 'ipars')
+        assert lines == [
+            '16\tIpars,S1,Unknown format - Data (4 bytes)',
+            '18\tIpars,Unknown format - Data (3 bytes)',
+            '21\tIpars,Unknown format - Data (1 byte)',
+        ]
