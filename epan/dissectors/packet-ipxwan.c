@@ -214,7 +214,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 					offset, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(option_tree,
 					hf_ipxwan_throughput, tvb,
-					offset, 4, ENC_BIG_ENDIAN);
+					offset+4, 4, ENC_BIG_ENDIAN);
 			}
 			break;
 
@@ -228,7 +228,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 					offset, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(option_tree,
 					hf_ipxwan_delta_time, tvb,
-					offset, 4, ENC_BIG_ENDIAN);
+					offset+4, 4, ENC_BIG_ENDIAN);
 			}
 			break;
 
