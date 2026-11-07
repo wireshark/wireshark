@@ -89857,3 +89857,87 @@ class TestDissectLbtru:
         out = self._run(cmd_tshark, test_env, '-2', *self.SEQ, '-r', capture_file(self.CAP),
                         '-Y', 'frame.number == 100', '-V')
         assert sum('(list truncated)' in line for line in out) == 1
+
+
+class TestDissectLbttcp:
+    '''Ultra Messaging LBT-TCP (TCP transport) from the synthetic capture
+    lbttcp_coverage.pcap.gz, reached by the default TCP heuristic (source
+    ports 14371-14390, request ports 14391-14395). The channel of the
+    transport is known once its TCP session ID has been seen; the frame
+    that carries the session ID gets its channel tree on the second pass
+    only (lbttcp creates the transport state while LBMC is dissected).'''
+
+    CAP = 'lbttcp_coverage.pcap.gz'
+
+    @staticmethod
+    def _run(cmd_tshark, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args), encoding='utf-8',
+                                       env=test_env, timeout=120).splitlines()
+
+    def test_lbttcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''31 of the 59 frames are LBT-TCP (the others are handshakes and
+        the segments of reassembled PDUs), without malformed packets or
+        error expert infos, in one and two passes, with the same Info.'''
+        cap = capture_file(self.CAP)
+        protocols = self._run(cmd_tshark, test_env, '-r', cap, '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 59 and protocols.count('LBT-TCP') == 31
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        one = self._run(cmd_tshark, test_env, '-r', cap, '-Y', 'lbttcp', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        two = self._run(cmd_tshark, test_env, '-2', '-r', cap, '-Y', 'lbttcp', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert one == two
+
+    def test_lbttcp_channels(self, cmd_tshark, capture_file, test_env):
+        '''Channels and clients: a transport (source address, port and TCP
+        session ID) is one channel for all its clients (client 1, 2);
+        another SID on the same source port, a SID seen first from the
+        client side, and each source port are channels of their own;
+        UIM streams on request ports have no channel.'''
+        out = self._run(cmd_tshark, test_env, '-2', '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {5, 8, 13, 19, 25, 31, 36, 46, 52, 56}', '-Tfields',
+                        '-eframe.number', '-elbttcp.channel.channel', '-elbttcp.channel.client')
+        assert out == [
+            '5\t0x0000000000001000\t1',
+            '8\t0x0000000000001000\t1',
+            '13\t0x0000000000001000\t2',
+            '19\t0x0000000000002000\t1',
+            '25\t0x0000000000002000\t2',
+            '31\t0x0000000000003000\t1',
+            '36\t0x0000000000004000\t1',
+            '46\t\t',
+            '52\t\t',
+            '56\t0x0000000000005000\t1',
+        ]
+
+    def test_lbttcp_sid_channel_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''The first message of a transport (it carries the TCP SID) has
+        no channel tree in the first pass and has one in the second.'''
+        for passes, expected in (((), ''), (('-2',), '0x0000000000001000')):
+            out = self._run(cmd_tshark, test_env, *passes, '-r', capture_file(self.CAP),
+                            '-Y', 'frame.number == 4', '-Tfields', '-elbttcp.channel.channel')
+            assert out == [expected]
+
+    def test_lbttcp_ports_and_tags(self, cmd_tshark, capture_file, test_env):
+        '''Other ports are not LBT-TCP; the store port range and a tag
+        table select the client ports instead.'''
+        cap = capture_file(self.CAP)
+        out = self._run(cmd_tshark, test_env, '-r', cap,
+                        '-o', 'lbttcp.source_port_low:1', '-o', 'lbttcp.source_port_high:2',
+                        '-o', 'lbttcp.request_port_low:1', '-o', 'lbttcp.request_port_high:2',
+                        '-Y', 'lbttcp', '-Tfields', '-eframe.number')
+        assert out == []
+        out = self._run(cmd_tshark, test_env, '-r', cap,
+                        '-o', 'lbttcp.source_port_low:1', '-o', 'lbttcp.source_port_high:2',
+                        '-o', 'lbttcp.request_port_low:1', '-o', 'lbttcp.request_port_high:2',
+                        '-o', 'lbttcp.store_port_low:41001', '-o', 'lbttcp.store_port_high:41001',
+                        '-Y', 'lbttcp', '-Tfields', '-eframe.number')
+        assert out == ['4', '5', '6', '7', '8', '9']
+        out = self._run(cmd_tshark, test_env, '-r', cap, '-o', 'lbttcp.use_lbttcp_domain:TRUE',
+                        '-o', 'uat:lbttcp_domains:"tcp","14371","14371","1","2","0","0"',
+                        '-Y', 'lbttcp.tag', '-Tfields', '-eframe.number', '-elbttcp.tag')
+        assert out[0] == '4\ttcp'
+        assert {t for line in out for t in line.split('\t')[1].split(',')} == {'tcp'}
