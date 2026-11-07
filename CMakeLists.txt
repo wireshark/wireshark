@@ -769,7 +769,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		list(APPEND LOCAL_CFLAGS /MP)
 	endif()
 
-	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
+	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /RELEASE")
 
 	# To do: Add /external:... See https://devblogs.microsoft.com/cppblog/broken-warnings-theory/
 	#
@@ -785,8 +785,11 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	# /Qspectre                         Speculative execution attack mitigation
 	#                                   See https://devblogs.microsoft.com/cppblog/spectre-mitigations-in-msvc/
 	list(APPEND LOCAL_CFLAGS /diagnostics:caret /Zo /utf-8 /guard:cf)
-	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
 	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /STACK:0x800000")
+	# Link every target with Control Flow Guard, including those that don't
+	# use WS_LINK_FLAGS, such as the test programs. CFG turns off incremental
+	# linking, so say so to avoid warning LNK4075.
+	add_link_options(/guard:cf /INCREMENTAL:NO)
 	# /Qspectre depends on the optional "Microsoft.VisualStudio.Component...Spectre" components,
 	# so we need to test for its availability.
 	set(WIRESHARK_COMMON_FLAGS /Qspectre)
