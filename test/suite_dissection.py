@@ -93550,3 +93550,72 @@ class TestDissectM2ua:
                 '-e_ws.col.protocol', '-e_ws.col.info',
                 opts=('-o', 'm2ua.protocol_data_1_tag:draft-7'))
         assert lines == ['MTP3MG (Int. ITU)\tSLTM ']
+
+
+class TestDissectM3ap:
+    '''M3AP (3GPP TS 36.444, MME to MCE) over SCTP, from the synthetic
+    capture m3ap_coverage.pcap.gz.'''
+
+    def test_m3ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is M3AP over SCTP (port 36444, or PPID 44 on
+        another port) and none is malformed or has an error expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m3ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 127
+        assert protocols.count('M3AP') == 127
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('m3ap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_m3ap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure codes 0-7 (all elementary procedures) and the Info
+        text of every message type (18 of them).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m3ap_coverage.pcap.gz'),
+                '-Tfields', '-em3ap.procedureCode', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        codes = set()
+        infos = set()
+        for line in stdout.splitlines():
+            code, info = line.split('\t')
+            codes.update(code.split(','))
+            infos.add(info.strip())
+        assert codes >= {str(i) for i in range(8)}
+        assert 'M3 Setup Request' in infos
+        assert 'MBMS Session Start Request' in infos
+        assert 'Private Message' in infos
+        assert len(infos) == 18
+
+    def test_m3ap_gtpv2_helpers(self, cmd_tshark, capture_file, test_env):
+        '''MBMS Service Area, MBMS Session Duration and the IP address are
+        decoded by the template/.cnf code and the GTPv2 helpers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m3ap_coverage.pcap.gz'),
+                '-Tfields', '-egtpv2.mbms_session_duration_days',
+                '-egtpv2.mbms_service_area_id', '-em3ap.IPAddress_v4',
+                '-em3ap.IPAddress_v6',
+            ), encoding='utf-8', env=test_env)
+        days = set()
+        areas = set()
+        for line in stdout.splitlines():
+            f = line.split('\t')
+            days.update(f[0].split(','))
+            areas.update(f[1].split(','))
+        assert {'0', '5'} <= days
+        assert {'258', '772', '5', '6', '7'} <= areas
+        assert '192.0.2.10' in stdout
+        assert '2021:2223:2425:2627:2829:2a2b:2c2d:2e2f' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m3ap_coverage.pcap.gz'),
+                '-Tfields', '-ee212.mnc',
+            ), encoding='utf-8', env=test_env)
+        mncs = {len(m) for m in stdout.replace(',', ' ').split()}
+        assert mncs == {2, 3}
