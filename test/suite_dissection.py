@@ -89074,3 +89074,134 @@ class TestDissectLbmc:
         assert '1111111111111111 <-> 2222222222222222 [16400]' in text
         assert '1:10.1.1.1:5000 <-> 2:10.2.2.2:6000 [24592]' in text
         assert '4:10.1.1.1:5000 <-> 4:10.2.2.2:5000 [32784]' in text
+
+
+class TestDissectLbmpdm:
+    '''LBMPDM (29West/Informatica Ultra Messaging Pre-Defined Messages) in
+    TCP streams on ports 14371-14390 (the "lbmpdm_tcp" heuristic), from the
+    synthetic capture lbmpdm_coverage.pcap.gz.'''
+
+    @staticmethod
+    def tshark_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('lbmpdm_coverage.pcap.gz'), '-Y', display_filter,
+                '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_lbmpdm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''41 frames are claimed by the heuristic (38 hold a PDM
+        message, 32, 34 and 50 are the first segments of split messages) and decode without malformed packets or error expert infos,
+        in one and two passes.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert [r[0] for r in rows].count('LBMPDM-TCP') == 41
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'lbmpdm_tcp', 'frame.number')
+        assert len(rows) == 38
+        for passes in ((), ('-2',)):
+            rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity == error',
+                                      'frame.number', passes=passes)
+            assert rows == []
+
+    def test_lbmpdm_endianness_and_ids(self, cmd_tshark, capture_file, test_env):
+        '''Stream 1 is big endian, stream 2 little endian; definition ids
+        and message lengths of the first messages.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {4, 6, 22, 44, 47}',
+                                  'frame.number', 'lbmpdm.encoding', 'lbmpdm.def_id', 'lbmpdm.len',
+                                  'lbmpdm.def_major_ver', 'lbmpdm.def_minor_ver')
+        assert rows == [
+            ['4', 'Big-Endian', '100', '1332', '1', '0'],
+            ['6', 'Big-Endian', '100', '623', '1', '0'],
+            ['22', 'Big-Endian', '7', '171', '1', '1'],
+            ['44', 'Little-Endian', '100', '1696', '1', '0'],
+            ['47', 'Little-Endian', '8', '192', '2', '3'],
+        ]
+
+    def test_lbmpdm_definition_and_data_values(self, cmd_tshark, capture_file, test_env):
+        '''The first big endian data message is decoded with the definition
+        of frame 4: fixed required fields, then the fields from the offset
+        table.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                                  'lbmpdm.field.value_int32', 'lbmpdm.field.value_uint32',
+                                  'lbmpdm.field.value_int64', 'lbmpdm.field.value_string',
+                                  'lbmpdm.field.value_fixed_string', 'lbmpdm.field.value_boolean',
+                                  'lbmpdm.segment_ofs.entry.id')
+        assert len(rows) == 1
+        (i32, u32, i64, strings, fixed, booleans, ofs_ids) = rows[0]
+        assert i32.split(',')[:2] == ['-70000', '-1']
+        assert u32.split(',')[0] == '4000000000'
+        assert i64.split(',')[0] == '-1099511627776'
+        assert strings == 'hello world,one,two2'
+        assert fixed.split(',')[0] == 'fixedstr'
+        assert booleans.split(',')[:2] == ['1', '1']
+        assert ofs_ids.split(',')[:3] == ['20', '21', '22']
+
+    def test_lbmpdm_string_field_names(self, cmd_tshark, capture_file, test_env):
+        '''Stream 2 defines its fields with string names.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {44, 47}',
+                                  'frame.number', 'lbmpdm.segment_def.field.str_name')
+        assert rows[0][1].split(',')[:3] == ['f0', 'f1', 'f2']
+        assert rows[1][1] == 'f0,f1,f5'
+
+    def test_lbmpdm_decimal(self, cmd_tshark, capture_file, test_env):
+        '''DECIMAL values: exponents out of range, or that overflow 64
+        bits, are shown raw. An exponent of -64 or less made the divisor
+        10^n wrap to zero and raised SIGFPE before "LBMPDM: Fix crashes and
+        hangs on malformed messages" (frames 15 to 17).'''
+        expected = {
+            6: 'DECIMAL Value: 123.45 (12345e-2)',
+            7: 'DECIMAL Value: -9223372036854775808 (-9223372036854775808e0)',
+            8: 'DECIMAL Value: 9223372036854775807 (9223372036854775807e0)',
+            9: 'DECIMAL Value: 77000 (77e3)',
+            10: 'DECIMAL Value: -77000 (-77e3)',
+            11: 'DECIMAL Value: (1000000000000000000e1)',
+            12: 'DECIMAL Value: (900000000000000000e2)',
+            13: 'DECIMAL Value: (5e19)',
+            14: 'DECIMAL Value: (5e-19)',
+            15: 'DECIMAL Value: (12345e-64)',
+            16: 'DECIMAL Value: (7e-128)',
+            17: 'DECIMAL Value: (7e127)',
+            18: 'DECIMAL Value: (12e18)',
+            19: 'DECIMAL Value: -0.000123456789012345 (-123456789012345e-18)',
+            20: 'DECIMAL Value: 0 (0e0)',
+            21: 'DECIMAL Value: -0.5 (-5e-1)',
+        }
+        for number, text in expected.items():
+            stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('lbmpdm_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % number, '-V'),
+                encoding='utf-8', env=test_env, timeout=120)
+            lines = [line.strip() for line in stdout.splitlines() if 'DECIMAL Value' in line]
+            assert lines[0] == text, number
+            assert len(lines) == 3, number
+
+    def test_lbmpdm_unknown_definition_and_segments(self, cmd_tshark, capture_file, test_env):
+        '''Data for a definition that was never seen, data without an offset
+        table, and an unknown segment type are shown as raw segment data.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {24, 25, 26, 27, 29}',
+                                  'frame.number', 'lbmpdm.segment.data', 'lbmpdm.field',
+                                  'lbmpdm.segment.next_hdr')
+        assert rows == [
+            ['24', '0000004d61626364656600000005736d616c6c', '', '0,255'],
+            ['25', '000000000000000000000000', '', '255'],
+            ['26', '61626364,010203', '', '7,255'],
+            ['27', '', '', ''],
+            ['29', '7878', '', '0,255'],
+        ]
+
+    def test_lbmpdm_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment, and PDUs spread over two or three
+        segments, are reassembled; the definition id of the first message
+        is kept when the definition came earlier.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {31, 33, 36, 51}',
+                                  'frame.number', 'lbmpdm.def_id', 'lbmpdm.field.value_string')
+        assert rows == [
+            ['31', '7,7', 'first,second'],
+            ['33', '7', 'split across two segments'],
+            ['36', '7', 'three'],
+            ['51', '8', 'little two'],
+        ]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {32, 34, 35, 50}',
+                                  'frame.number', 'lbmpdm.def_id')
+        assert rows == [['32', ''], ['34', ''], ['35', ''], ['50', '']]
