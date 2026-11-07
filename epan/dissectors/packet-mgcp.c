@@ -966,10 +966,10 @@ static int tvb_parse_param(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, u
 				if (tvb_get_uint8(tvb, tvb_current_offset+1) != ':')
 				{
 					if (len > (tvb_current_offset + 5 - offset) &&
-						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 1) == 'Q')) &&
+						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 1)) == 'Q') &&
 						(                tvb_get_uint8(tvb, tvb_current_offset + 2) == '-' ) &&
-						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 3) == 'R')) &&
-						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 4) == 'I')) &&
+						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 3)) == 'R') &&
+						(g_ascii_toupper(tvb_get_uint8(tvb, tvb_current_offset + 4)) == 'I') &&
 						(                tvb_get_uint8(tvb, tvb_current_offset + 5) == ':' )
 					) {
 						tvb_current_offset+=4;
@@ -1851,6 +1851,9 @@ dissect_mgcp_localvoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvbu
 		tree = proto_item_add_subtree(item, ett_mgcp_param_localvoicemetrics);
 	}
 
+	if (param_val_len < 9)
+		return;
+
 	/* The XRM/LVM: line */
 	offset += 9; /* skip the XRM/LVM: */
 	tokenline = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, param_val_len - 9, ENC_ASCII);
@@ -2001,6 +2004,9 @@ dissect_mgcp_remotevoicemetrics(proto_tree *parent_tree, packet_info* pinfo, tvb
 	item = proto_tree_add_item(parent_tree, hf_mgcp_param_remotevoicemetrics, tvb, offset, param_type_len+param_val_len, ENC_ASCII);
 		tree = proto_item_add_subtree(item, ett_mgcp_param_remotevoicemetrics);
 	}
+
+	if (param_val_len < 9)
+		return;
 
 	/* The XRM/RVM: line */
 	offset += 9; /* skip the XRM/RVM: */
