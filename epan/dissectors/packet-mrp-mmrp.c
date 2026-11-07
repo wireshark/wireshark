@@ -223,7 +223,6 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         uint8_t attribute_type;
         uint8_t attribute_length;
         uint16_t number_of_values;
-        unsigned offset = 0;
         int vect_attr_len;
         int msg_offset;  /* Use when handling multiple messages.  This points to current msg being decoded. */
         int vect_offset; /* Use when handling multiple vector attributes.  This points to the current vector attribute being decoded. */
@@ -313,7 +312,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset, 6, ENC_NA);
 
                     /* Decode three packed events. */
-                    offset = dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
+                    dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
                                                              MMRP_MAC_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                              number_of_values);
                 }
@@ -328,7 +327,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                     proto_tree_add_item(first_value_tree, hf_mmrp_ser_req, tvb,
                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset, 1, ENC_BIG_ENDIAN);
 
-                    offset = dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
+                    dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
                                                              MMRP_SERVICE_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                              number_of_values);
                 }
@@ -336,13 +335,15 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 vect_offset += vect_attr_len; /* Move to next Vector Attribute, if there is one */
             } /* Multiple VectorAttribute while() */
 
-            proto_tree_add_item(attr_list_tree, hf_mmrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
+            proto_tree_add_item(attr_list_tree, hf_mmrp_end_mark, tvb,
+                                MMRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
 
             msg_offset += vect_offset + 2/* + VectorHeader */ + 2/* + endmark */;
 
         } /* Multiple Message while() */
 
-        proto_tree_add_item(mmrp_tree, hf_mmrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
+        proto_tree_add_item(mmrp_tree, hf_mmrp_end_mark, tvb,
+                            MMRP_ATTRIBUTE_TYPE_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN); /* Message EndMark */
     }
     return tvb_captured_length(tvb);
 }
