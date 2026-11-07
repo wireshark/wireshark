@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_nb_rtpmux(void);
 void proto_reg_handoff_nb_rtpmux(void);
@@ -27,6 +28,8 @@ static int hf_nb_rtpmux_data;
 static int hf_nb_rtpmux_cmp_rtp_sequence_no;
 static int hf_nb_rtpmux_cmp_rtp_timestamp;
 static int hf_nb_rtpmux_cmp_rtp_data;
+
+static expert_field ei_nb_rtpmux_bad_length;
 
 /* Initialize the subtree pointers */
 static int ett_nb_rtpmux;
@@ -108,8 +111,10 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, ENC_BIG_ENDIAN);
             /* Timestamp (TS) */
             proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, ENC_BIG_ENDIAN);
-            if (length != 0)
+            if (length > 3)
                 proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
+            else if (length == 1 || length == 2)
+                proto_tree_add_expert(nb_rtpmux_tree, pinfo, &ei_nb_rtpmux_bad_length, tvb, offset+2, 1);
 
             /* Not trying to decompress... */
 
@@ -122,7 +127,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
             proto_tree_add_item(nb_rtpmux_tree,
                                 hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset+3, 2, ENC_BIG_ENDIAN);
             srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
             proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 
@@ -218,6 +223,12 @@ proto_register_nb_rtpmux(void)
 
     };
 
+    static ei_register_info ei[] = {
+        { &ei_nb_rtpmux_bad_length, { "nb_rtpmux.bad_length", PI_MALFORMED, PI_ERROR,
+            "Length too short for compressed header", EXPFILL }}
+    };
+    expert_module_t *expert_nb_rtpmux;
+
     /* Setup protocol subtree array */
     static int *ett[] = {
         &ett_nb_rtpmux,
@@ -231,6 +242,8 @@ proto_register_nb_rtpmux(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_nb_rtpmux, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_nb_rtpmux = expert_register_protocol(proto_nb_rtpmux);
+    expert_register_field_array(expert_nb_rtpmux, ei, array_length(ei));
 }
 
 void
