@@ -99845,3 +99845,78 @@ class TestDissectMplstpOam:
             ['1', 'False', 'False', '3', '0', '', '', ''],
             ['2', 'False', 'True', '3', '16', '10.0.0.1', '17', '4242'],
         ]
+
+
+class TestDissectMplsY1711:
+    '''ITU-T Y.1711 MPLS OAM (label 14, packet-mpls-y1711.c) from the
+    synthetic capture mpls_y1711_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mpls_y1711_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_y1711_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 31 frames carry a Y.1711 PDU and none is malformed or has an
+        error expert info (warnings and notes are expected), in one and
+        two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_y1711.function_type',
+                          ['frame.number'])
+        assert len(rows) == 31
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpls_y1711_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_y1711_pdus(self, cmd_tshark, capture_file, test_env):
+        '''CV, FDI, BDI and FDD of frames 1-4: function type and fields.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 4',
+                          ['mpls_y1711.function_type', 'mpls_y1711.lsr_id', 'mpls_y1711.lsp_id',
+                           'mpls_y1711.defect_type', 'mpls_y1711.defect_location',
+                           'mpls_y1711.frequency', 'mpls_y1711.bip16', '_ws.col.info'])
+        assert rows == [
+            ['0x01', '192.0.2.1', '7', '', '', '', '0x1234',
+             'MPLS Label Switched Packet (Y.1711: CV)'],
+            ['0x02', '192.0.2.1', '9', '0x0201', '65001', '', '0x4321',
+             'MPLS Label Switched Packet (Y.1711: FDI)'],
+            ['0x03', '192.0.2.1', '9', '0x0102', '65001', '', '0x4321',
+             'MPLS Label Switched Packet (Y.1711: BDI)'],
+            ['0x07', '192.0.2.1', '5', '', '', '0x03', '0xabcd',
+             'MPLS Label Switched Packet (Y.1711: FDD)'],
+        ]
+
+    def test_mpls_y1711_defects_and_frequencies(self, cmd_tshark, capture_file, test_env):
+        '''Defect types of the FDI frames 5-12 (no TTSI: a note) and the FDD
+        frequencies of frames 13-20.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {5..12}',
+                          ['mpls_y1711.defect_type', 'mpls_y1711.ttsi_not_preset'])
+        assert [r[0] for r in rows] == ['0x0000', '0x0101', '0x0202', '0x0203', '0x0204',
+                                        '0x02ff', '0xffff', '0x1234']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_y1711.ttsi_not_preset',
+                          ['frame.number'])
+        assert [int(r[0]) for r in rows] == list(range(5, 13))
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {13..20}',
+                          ['mpls_y1711.frequency'])
+        assert [r[0] for r in rows] == ['0x00', '0x01', '0x02', '0x04', '0x05', '0x06', '0x07', '0xff']
+
+    def test_mpls_y1711_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Reserved and padding octets that are not zero (frames 21-24)
+        and unknown function types (frames 25-30) get expert infos; the
+        clean frames get none.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'mpls_y1711.reserved_not_zero || mpls_y1711.padding_not_zero',
+                          ['frame.number'])
+        assert [int(r[0]) for r in rows] == [21, 22, 23, 24]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_y1711.unknown_pdu',
+                          ['frame.number'])
+        assert [int(r[0]) for r in rows] == list(range(25, 31))
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number in {1..4, 13..20, 31} && _ws.expert', ['frame.number'])
+        assert rows == []
