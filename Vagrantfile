@@ -26,7 +26,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     deb.vm.provision "shell" do |s|
       s.path = 'tools/os_setup/debian-setup.sh'
-      s.args = ['--install-optional', '--assume-yes', '--install-qt6-deps']
+      s.args = ['--install-optional', '--assume-yes', '--install-qt6-deps', '--install-stratoshark']
     end
     deb.vm.provision :shell, inline: "apt-get -y install ccache"
     deb.vm.provision :shell, path: 'vagrant_build.sh', privileged: false

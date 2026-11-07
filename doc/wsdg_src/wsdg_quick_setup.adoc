@@ -81,6 +81,7 @@ The setup script is `tools/os_setup/debian-setup.sh`; its options are:
 * `--install-deb-deps` install packages required to build the .deb file
 * `--install-test-deps` install packages required to run all tests
 * `--install-qt6-deps` force installation of packages required to use Qt6
+* `--install-stratoshark` install libraries required to build Stratoshark and the Falco Events plugin
 * `--install-all` install everything
 * `[other]` other options are passed as-is to apt
 

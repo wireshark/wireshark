@@ -968,9 +968,9 @@ Clang + Code Checks:
     - source /clang-latest.env
     - export PYTHON_MINOR_VERSION="$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')"
     - apt-get update && apt-get --yes install python3-venv "python${PYTHON_MINOR_VERSION}-venv"
-    # XXX The ubuntu-dev image is built from master's debian-setup.sh, so an MR cannot add a
-    # package to the image it runs on. Remove this once the image provides libsinsp.
-    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-optional --yes --no-install-recommends
+    # This job builds Stratoshark, so install its dependencies explicitly. The ubuntu-dev image
+    # only has them after it is rebuilt from master, and this also tests MR changes to the list.
+    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-stratoshark --yes --no-install-recommends
     - python3 -m venv $CI_PROJECT_DIR/.venv
     - source $CI_PROJECT_DIR/.venv/bin/activate
     # build-ubuntu puts us in `build`.
@@ -1059,9 +1059,9 @@ Clang ASAN Build:
       optional: true
   script:
     - source /clang-latest.env
-    # XXX The ubuntu-dev image is built from master's debian-setup.sh, so an MR cannot add a
-    # package to the image it runs on. Remove this once the image provides libsinsp.
-    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-optional --yes --no-install-recommends
+    # This job builds Stratoshark, so install its dependencies explicitly. The ubuntu-dev image
+    # only has them after it is rebuilt from master, and this also tests MR changes to the list.
+    - DEBIAN_FRONTEND=noninteractive ../tools/os_setup/debian-setup.sh --install-stratoshark --yes --no-install-recommends
     - printf "\e[0Ksection_start:%s:cmake_section[collapsed=true]\r\e[0KRunning CMake" "$( date +%s)"
     - cmake --preset=ninja_ccache -DCMAKE_BUILD_TYPE=Debug -DENABLE_ASAN=ON -DENABLE_WERROR=ON -DBUILD_stratoshark=ON ..
     - printf "\e[0Ksection_end:%s:cmake_section\r\e[0K" "$( date +%s)"
