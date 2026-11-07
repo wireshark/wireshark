@@ -85868,3 +85868,156 @@ class TestDissectItsCoverage:
         out = self._fields(cmd_tshark, capture_file, test_env, 'its.speedValue == 16383',
                            'frame.number', 'its.latitude', 'its.longitude')
         assert out == ['514\t900000001\t1800000001', '582\t900000001\t1800000001']
+
+
+class TestDissectIua:
+    '''IUA (ISDN Q.921-User Adaptation Layer, RFC 3057) over SCTP port 9900
+    / payload protocol identifier 1, from the synthetic capture
+    iua_coverage.pcap.gz. Frames 1-4 are the SCTP handshake, frames 5-82
+    carry IUA messages.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *extra):
+        args = [cmd_tshark, '-r', capture_file('iua_coverage.pcap.gz'), *extra, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iua_frames(self, cmd_tshark, capture_file, test_env):
+        '''82 frames, 78 IUA; none is malformed or has an error expert
+        info, in one and two passes, with and without the Implementers
+        Guide preference.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, ['frame.number', 'iua'])
+        assert len(rows) == 82
+        assert [r[0] for r in rows if r[1] != ''] == [str(n) for n in range(5, 83)]
+        for opts in ((), ('-2',), ('-o', 'iua.support_ig:TRUE'),
+                     ('-2', '-o', 'iua.support_ig:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('iua_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iua_info(self, cmd_tshark, capture_file, test_env):
+        '''Class, type and the Info column of the message types.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.message_class', 'iua.message_type', '_ws.col.info'],
+                            '-Y', 'iua')
+        info = {int(r[0]): ' '.join(r[1:]) for r in rows}
+        assert info[5] == '3 1 ASP_UP '
+        assert info[6] == '3 4 ASP_UP_ACK '
+        assert info[7] == '3 3 BEAT '
+        assert info[8] == '3 6 BEAT_ACK '
+        assert info[9] == '3 2 ASP_DOWN '
+        assert info[11] == '3 5 ASP_DOWN_ACK '
+        assert info[14] == '4 1 ASP_ACTIVE '
+        assert info[15] == '4 3 ASP_ACTIVE_ACK '
+        assert info[17] == '4 2 ASP_INACTIVE '
+        assert info[18] == '4 4 ASP_INACTIVE_ACK '
+        assert info[20] == '0 0 ERR '
+        assert info[36] == '0 1 NTFY '
+        assert info[43] == '0 2 TEI_STAT_REQ '
+        assert info[44] == '0 3 TEI_STAT_CON '
+        assert info[45] == '0 4 TEI_STAT_IND '
+        assert info[47] == '0 5 UNKNOWN '
+        assert info[48] == '5 5 EST_REQ '
+        assert info[49] == '5 6 EST_CON '
+        assert info[50] == '5 7 EST_IND '
+        assert info[55] == '5 1 DATA_REQ '
+        assert info[61] == '5 3 U_DATA_REQ '
+        assert info[62] == '5 8 REL_REQ '
+        assert info[63] == '5 9 REL_CON '
+        assert info[64] == '5 10 REL_IND '
+        assert info[68] == '1 1 UNKNOWN '
+        assert info[71] == '9 1 UNKNOWN '
+        assert info[82] == '3,3 3,6 BEAT BEAT_ACK '
+
+    def test_iua_error_codes(self, cmd_tshark, capture_file, test_env):
+        '''Error messages with every defined error code, then an unknown
+        one.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.error_code'],
+                            '-Y', 'iua.error_code')
+        assert [r[1] for r in rows] == [str(c) for c in list(range(1, 16)) + [64]]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iua_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24', '-V', '-O', 'iua',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Error code: Unsupported traffic handling mode (5)' in stdout
+
+    def test_iua_status(self, cmd_tshark, capture_file, test_env):
+        '''Notify with the status types and identifications.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.status_type', 'iua.status_identification'],
+                            '-Y', 'iua.status_type')
+        assert rows == [['36', '1', '1'], ['37', '1', '2'], ['38', '1', '3'], ['39', '1', '4'],
+                        ['40', '2', '1'], ['41', '2', '2'], ['42', '3', '9']]
+
+    def test_iua_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Interface identifiers, ranges, text, heartbeat and release
+        reasons.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.int_interface_identifier',
+                             'iua.text_interface_identifier', 'iua.interface_range_start',
+                             'iua.interface_range_end'],
+                            '-Y', 'frame.number >= 14 && frame.number <= 19')
+        assert rows[0] == ['14', '0x00000005', '', '', '']
+        assert rows[2] == ['16', '', 'PRI-1', '', '']
+        assert rows[3] == ['17', '0x00000005,0x00000006,0x00000007', '', '', '']
+        assert rows[5] == ['19', '', '', '1,10', '4,20']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.release_reason'],
+                            '-Y', 'iua.release_reason')
+        assert [r[1] for r in rows] == ['0x00000000', '0x00000001', '0x00000002',
+                                        '0x00000003', '0x0000004d']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.heartbeat_data'],
+                            '-Y', 'iua.heartbeat_data && frame.number < 10')
+        assert [r[1] for r in rows] == ['62:65:61:74:2d:64:61:74:61:21'.replace(':', '')] * 2
+
+    def test_iua_dlci(self, cmd_tshark, capture_file, test_env):
+        '''The DLCI SAPI (GSM values) and TEI of the data messages.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.dlci_gsm_sapi', 'iua.dlci_tei'],
+                            '-Y', 'iua.dlci_tei && frame.number >= 55 && frame.number <= 61')
+        assert rows == [['55', '0x01', '0x40'], ['56', '0x10', '0x40'],
+                        ['57', '0x0c', '0x40'], ['58', '0x3f', '0x7f'],
+                        ['60', '0x01', '0x00'], ['61', '0x3f', '0x7f']]
+
+    def test_iua_protocol_data_gsm_sapi(self, cmd_tshark, capture_file, test_env):
+        '''With the GSM SAPI values (default) SAPI 0 carries RSL and
+        SAPI 12 P-GSL; the other SAPIs have no dissector.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'frame.protocols'],
+                            '-Y', 'frame.number >= 51 && frame.number <= 58')
+        protos = {int(r[0]): r[1].split(':') for r in rows}
+        for n in (51, 52, 53, 54):
+            assert 'gsm_abis_rsl' in protos[n]
+        assert 'gsm_abis_pgsl' in protos[57]
+        for n in (55, 56, 58):
+            assert protos[n][-2:] == ['iua', 'data']
+
+    def test_iua_protocol_data_q931_x25(self, cmd_tshark, capture_file, test_env):
+        '''Without the GSM SAPI values SAPI 1 carries Q.931 and SAPI 16
+        X.25 (frames 55 and 56).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'frame.protocols', '_ws.col.info'],
+                            '-o', 'iua.use_gsm_sapi_values:FALSE',
+                            '-Y', 'frame.number >= 55 && frame.number <= 56')
+        assert 'q931' in rows[0][1].split(':')
+        assert 'x25' in rows[1][1].split(':')
+        assert rows[0][2] == 'SETUP'
+
+    def test_iua_implementers_guide(self, cmd_tshark, capture_file, test_env):
+        '''The Implementers Guide preference changes the Protocol column
+        and makes the ASP identifier parameter (tag 0x11) known.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.asp_identifier', '_ws.col.protocol'],
+                            '-o', 'iua.support_ig:TRUE', '-Y', 'frame.number == 5')
+        assert rows == [['5', '0x00000007', 'IUA (RFC 3057 + IG)']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iua.asp_identifier', '_ws.col.protocol'],
+                            '-Y', 'frame.number == 5')
+        assert rows == [['5', '', 'IUA (RFC 3057)']]
