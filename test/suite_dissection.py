@@ -93854,3 +93854,115 @@ class TestDissectMaccontrol:
             '18\tUnknown opcode',
             '19\tUnknown opcode',
         ]
+
+
+class TestDissectMacLte:
+    '''MAC-LTE (and MAC-LTE-FRAMED) reached through Exported PDU frames that
+    name "mac-lte-framed", from the synthetic capture
+    mac_lte_coverage.pcap.gz.'''
+
+    # Frames of the capture that matter below
+    DRX_LOOP_FRAMES = (
+        # Exported PDU "mac-lte-framed": DL CCCH RRCConnectionSetup with a DRX
+        # configuration for UEID 7, then UL PDUs at SFN 100, SF 0 and SF 12
+        '000c00106d61632d6c74652d6672616d6564000000000000010103020100030007010060020a00000e',
+        '000c00106d61632d6c74652d6672616d6564000000000000010003020100030007040640011f',
+        '000c00106d61632d6c74652d6672616d656400000000000001000302010003000704064c011f',
+    )
+
+    def test_mac_lte_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 186 frames decode as MAC-LTE (29 end in LTE RRC) without
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 186
+        assert protocols.count('MAC-LTE') == 157
+        assert len([p for p in protocols if p.startswith('LTE RRC')]) == 29
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mac_lte_extended_lcid_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Extended LCIDs up to 95 on a UE that has a per-UE LCID mapping
+        (frames 173 and 174) decode; before "MAC-LTE: Fix OOB read,
+        per-RNTI memory use and a DRX loop" the priority lookup read past
+        the end of the mapping table (heap-buffer-overflow under ASAN).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-Y', 'frame.number in {173, 174}',
+                '-Tfields', '-eframe.number', '-emac-lte.sch.elcid',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['173\t63', '174\t6,7,63']
+
+    def test_mac_lte_drx_sf_loop(self, cmd_tshark, test_env, tmp_path):
+        '''A PDU with a subframe number above 9 for a UE with a DRX
+        configuration does not make mac-lte.show_drx loop forever.'''
+        import struct
+        capture = tmp_path / 'drx_sf_loop.pcap'
+        with open(capture, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 252))
+            for i, hexframe in enumerate(self.DRX_LOOP_FRAMES):
+                frame = bytes.fromhex(hexframe)
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(frame), len(frame)))
+                f.write(frame)
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(capture),
+                '-o', 'mac-lte.show_drx:TRUE',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.split() == ['1', '2', '3']
+
+    def test_mac_lte_rar(self, cmd_tshark, capture_file, test_env):
+        '''Random Access Response: RAPID, timing advance and temporary
+        C-RNTI of frames 5-7 (the second has a backoff indicator, the
+        third two RARs).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6, 7}',
+                '-Tfields', '-eframe.number', '-emac-lte.rar.rapid',
+                '-emac-lte.rar.ta', '-emac-lte.rar.temporary-crnti',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '5\t0x07\t0\t16962',
+            '6\t0x0c\t10\t16962',
+            '7\t0x02,0x3f\t200,1\t16962,65520',
+        ]
+
+    def test_mac_lte_contention_resolution(self, cmd_tshark, capture_file, test_env):
+        '''The contention resolution identity of frame 39 matches the Msg3
+        CCCH of frame 38; frame 42 does not match frame 41; frame 82 has no
+        earlier Msg3. State is kept for later passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                    '-Y', 'mac-lte.control.ue-contention-resolution',
+                    '-Tfields', '-eframe.number',
+                    '-emac-lte.control.ue-contention-resolution.msg3',
+                    '-emac-lte.control.ue-contention-resolution.matches-msg3',
+                    '-emac-lte.control.ue-contention-resolution.identity',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '39\t38\tTrue\t511223344556',
+                '40\t\t\t010203040506',
+                '42\t41\tFalse\t511223344556',
+                '82\t\t\t010203040506',
+            ]
+
+    def test_mac_lte_drx_config(self, cmd_tshark, capture_file, test_env):
+        '''With mac-lte.show_drx the DRX configuration learned from the
+        RRCConnectionSetup is shown on later PDUs of that UE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-o', 'mac-lte.show_drx:TRUE',
+                '-Y', 'frame.number in {134, 135}',
+                '-Tfields', '-eframe.number', '-emac-lte.drx-config.long-cycle',
+                '-emac-lte.drx-config.short-cycle',
+                '-emac-lte.drx-config.onduration-timer',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['134\t10\t5\t3', '135\t10\t5\t3']
