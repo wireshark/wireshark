@@ -212,7 +212,7 @@ dissect_mactelnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     proto_tree_add_item_ret_uint8(mactelnet_control_tree, hf_mactelnet_control_length, tvb, offset, 1, ENC_NA, &datalength);
                     offset += 1;
 
-                    switch (datatype) {
+                    switch (datatype >> 24) {
                         case 1: /* Encryption Key */
                             proto_tree_add_item(mactelnet_control_tree, hf_mactelnet_control_encryption_key, tvb, offset, datalength, ENC_NA);
                             break;
