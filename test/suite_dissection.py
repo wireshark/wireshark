@@ -99649,3 +99649,84 @@ class TestDissectMplsMac:
                           ['frame.protocols'])
         assert [r[0] for r in rows] == ['eth:ethertype:mpls:pwach:mpls_mac',
                                         'eth:ethertype:mpls:mpls_mac']
+
+
+class TestDissectMplsPm:
+    '''MPLS performance monitoring (RFC 6374 loss and delay measurement,
+    packet-mpls-pm.c) over the PW associated channels 0x000A-0x000E, from
+    the synthetic capture mpls_pm_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mpls_pm_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_pm_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 40 frames are PM messages (DLM 10, ILM 3, DM 13, DLM+DM 11,
+        ILM+DM 3) and none is malformed or has an error expert info, in one
+        and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_pm.version',
+                          ['frame.number', '_ws.col.protocol'])
+        assert len(rows) == 40
+        counts = {}
+        for r in rows:
+            counts[r[1]] = counts.get(r[1], 0) + 1
+        assert counts == {'MPLS PM (DLM)': 10, 'MPLS PM (ILM)': 3, 'MPLS PM (DM)': 13,
+                          'MPLS PM (DLM+DM)': 11, 'MPLS PM (ILM+DM)': 3}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpls_pm_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_pm_loss(self, cmd_tshark, capture_file, test_env):
+        '''Loss measurement: the origin timestamp format (null, sequence
+        number, NTP, PTP, unknown), counters, response codes, the T flag
+        with the DS field, and the Info column.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 12',
+                          ['mpls_pm.otf', 'mpls_pm.counter1', 'mpls_pm.counter4',
+                           'mpls_pm.session.id', 'mpls_pm.ds', '_ws.col.info'])
+        assert [r[0] for r in rows[:5]] == ['0', '1', '2', '3', '7']
+        assert rows[0][1:4] == ['1001', '4004', '77']
+        assert rows[6][3:5] == ['5', '46']
+        assert rows[7][3:5] == ['1048575', '63']
+        assert rows[5][5] == 'Response, sid: 77, code: Success (1)'
+        assert rows[8][5] == 'Response, sid: 77, code: Unassigned (63)'
+        for frame, field in ((1, 'null'), (2, 'seq'), (3, 'ntp'), (4, 'ptp'), (5, 'unk')):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                              'frame.number == %d && mpls_pm.origin.timestamp.%s' % (frame, field),
+                              ['frame.number'])
+            assert rows == [[str(frame)]]
+
+    def test_mpls_pm_delay(self, cmd_tshark, capture_file, test_env):
+        '''Delay measurement: queries use the querier timestamp format,
+        responses the responder format (frames 13-22).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {13..22}',
+                          ['mpls_pm.qtf', 'mpls_pm.rtf', 'mpls_pm.rptf'])
+        assert [r[0] for r in rows] == ['0', '1', '2', '3', '7', '2', '2', '2', '2', '2']
+        assert [r[1] for r in rows[5:]] == ['0', '1', '2', '3', '7']
+        for frame, field in ((13, 'timestamp1.null'), (14, 'timestamp1.seq'), (15, 'timestamp1.ntp'),
+                             (16, 'timestamp1.ptp'), (17, 'timestamp1.unk'), (19, 'timestamp1.seq'),
+                             (20, 'timestamp1.ntp'), (21, 'timestamp1.ptp')):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                              'frame.number == %d && mpls_pm.%s' % (frame, field), ['frame.number'])
+            assert rows == [[str(frame)]]
+
+    def test_mpls_pm_combined(self, cmd_tshark, capture_file, test_env):
+        '''Combined loss and delay measurement (DLM+DM, ILM+DM): the formats
+        and the counters in octets (frames 25-38).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {25..38}',
+                          ['mpls_pm.qtf', 'mpls_pm.rtf', 'mpls_pm.rptf', 'mpls_pm.counter1',
+                           'mpls_pm.dflags.b', 'mpls_pm.dflags.x'])
+        assert [r[0] for r in rows[:5]] == ['0', '1', '2', '3', '7']
+        assert [r[1] for r in rows[5:10]] == ['0', '1', '2', '3', '7']
+        assert [r[2] for r in rows[5:10]] == ['0', '1', '2', '3', '7']
+        assert rows[10][4:] == ['True', 'True']
+        assert rows[12][4] == 'True'
+        assert all(r[3] == '1001' for r in rows)
