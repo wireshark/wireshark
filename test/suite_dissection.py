@@ -96211,3 +96211,57 @@ class TestDissectMgcp:
         assert lines == ['58\tMGCP/SDP\tCRCX\t', '60\tMGCP/SDP\t\t200',
                          '70\tMGCP\tNTFY\t', '72\tMGCP\t\t200',
                          '74\tTPKT\t\t', '82\tMGCP\tRSIP\t', '84\tMGCP\t\t200']
+
+
+class TestDissectMidiSysex:
+    '''MIDI System Exclusive messages in Exported PDU frames (dissector name
+    "midi_sysex"), from the synthetic capture midi_sysex_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('midi_sysex_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_midi_sysex_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 14 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_sysex_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 14
+        assert protocols.count('MIDI SysEx') == 13
+        assert protocols.count('X MIDI') == 1
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_midi_sysex_manufacturer(self, cmd_tshark, capture_file, test_env):
+        '''One-octet and three-octet manufacturer IDs, with start and end
+        bytes; frame 13 (ID 00 00 10) goes to the DigiTech dissector.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'midi_sysex',
+                'midi_sysex.start', 'midi_sysex.manufacturer_id', 'midi_sysex.eox')
+        assert lines == [
+            '1\t0xf0\t0x41\t0xf7', '2\t0xf0\t0x43\t0xf7', '3\t0xf0\t0x42\t0xf7',
+            '4\t0xf0\t0x01\t0xf7', '5\t0xf0\t0x7e\t0xf7', '6\t0xf0\t0x7f\t0xf7',
+            '7\t0xf0\t0x7d\t0xf7', '8\t0xf0\t0x002029\t0xf7',
+            '9\t0xf0\t0x00211d\t0xf7', '10\t0xf0\t0x000155\t0xf7',
+            '11\t0xf0\t0x41\t0xf7', '12\t0xf0\t0x002029\t0xf7',
+            '13\t0xf0\t0x000010\t0xf7', '14\t0xf0\t0x41\t0xf7',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'midi.sysex.digitech.procedure_id', 'midi.sysex.digitech.procedure_id')
+        assert lines == ['13\t0x01']
+
+    def test_midi_sysex_undecoded(self, cmd_tshark, capture_file, test_env):
+        '''Manufacturer data nobody decodes gets an "undecoded" expert info;
+        messages without a payload do not.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'midi_sysex.undecoded')
+        assert [l.split('\t')[0] for l in lines] == ['1', '2', '3', '4', '8', '9', '10', '14']
