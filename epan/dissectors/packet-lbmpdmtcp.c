@@ -240,9 +240,14 @@ static unsigned get_lbmpdm_tcp_pdu_length(packet_info * pinfo _U_, tvbuff_t * tv
     int encoding;
     uint32_t packet_len = 0;
 
-    if (!lbmpdm_verify_payload(tvb, offset, &encoding, &packet_len))
+    if (!lbmpdm_verify_payload(tvb, offset, &encoding, &packet_len)
+        || (packet_len < (uint32_t)lbmpdm_get_minimum_length()))
     {
-        packet_len = 0;
+        /*
+         * Never return 0 (tcp_dissect_pdus would reassemble the whole stream
+         * again for every segment); a bogus length makes it report the error.
+         */
+        packet_len = 1;
     }
     return packet_len;
 }
