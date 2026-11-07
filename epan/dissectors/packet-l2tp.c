@@ -1424,6 +1424,7 @@ static l2tpv3_session_t *store_l2_sublayer(wmem_allocator_t* scope, l2tpv3_sessi
 static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
 {
     l2tpv3_session_t *existing = NULL;
+    bool is_new = false;
 
     if (tunnel == NULL || session == NULL)
         return;
@@ -1435,6 +1436,7 @@ static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
     if (!existing) {
         existing = wmem_new0(wmem_file_scope(), l2tpv3_session_t);
         init_session(existing);
+        is_new = true;
     }
 
     if (session->lcce1.id != 0)
@@ -1457,6 +1459,9 @@ static void update_session(l2tpv3_tunnel_t *tunnel, l2tpv3_session_t *session)
 
     if (session->pw_type != L2TPv3_PW_DEFAULT)
         existing->pw_type = session->pw_type;
+
+    if (!is_new)
+        return;
 
     if (tunnel->sessions == NULL) {
         tunnel->sessions = g_slist_append(tunnel->sessions, existing);
@@ -1836,6 +1841,10 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_abis_lower_mode, tvb, offset, 1, ENC_NA);
         break;
     case ERICSSON_TRANSPORT_CONFIG:
+        if (avp_len < 3) {
+            proto_tree_add_expert(l2tp_avp_tree, pinfo, &ei_l2tp_avp_length, tvb, offset, avp_len);
+            break;
+        }
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_overl_thresh, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_groups, tvb, offset+2, 1, ENC_NA);
         /* FIXME: iterate over multiple groups */
@@ -1843,8 +1852,12 @@ static int dissect_l2tp_ericsson_avps(tvbuff_t *tvb, packet_info *pinfo _U_, pro
         dissect_l2tp_ericsson_transp_cfg(tcg_tvb, l2tp_avp_tree);
         break;
     case ERICSSON_TEI_TO_SC_MAP:
+        if (avp_len < 1) {
+            proto_tree_add_expert(l2tp_avp_tree, pinfo, &ei_l2tp_avp_length, tvb, offset, avp_len);
+            break;
+        }
         proto_tree_add_item(l2tp_avp_tree, hf_l2tp_ericsson_tc_num_maps, tvb, offset++, 1, ENC_NA);
-        tcg_tvb = tvb_new_subset_length(tvb, offset, avp_len);
+        tcg_tvb = tvb_new_subset_length(tvb, offset, avp_len - 1);
         offset += dissect_l2tp_ericsson_tei_sc_map(tcg_tvb, l2tp_avp_tree);
         break;
 
@@ -2495,7 +2508,8 @@ static void process_control_avps(tvbuff_t *tvb,
             expert_add_info(pinfo, digest_item, &ei_l2tp_incorrect_digest);
     }
 
-    update_session(tunnel, session);
+    if (!PINFO_FD_VISITED(pinfo))
+        update_session(tunnel, session);
 }
 
 /*
