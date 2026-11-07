@@ -91672,3 +91672,111 @@ class TestDissectLogotypecertextn:
             '20\t2.5.29.19,1.3.6.1.5.5.7.20.1',
             '22\t2.5.29.19,1.3.6.1.5.5.7.20.2',
         ]
+
+
+class TestDissectLon:
+    '''LON (Local Operating Network) PDUs carried in CN/IP over UDP ports
+    1628 and 1629, from the synthetic capture lon_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture, env, flt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture, '-Y', flt, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_lon_frames(self, cmd_tshark, capture_file, test_env):
+        '''86 of the 88 frames are LON; two are CN/IP only (a
+        configuration request and another protocol code); the last one has
+        a CN/IP extension header, which is skipped. Nothing is malformed;
+        the only expert infos are the warnings for unknown PDU types and
+        for the CN/IP request, in one and two passes.'''
+        cap = capture_file('lon_coverage.pcap.gz')
+        assert len(self.fields(cmd_tshark, cap, test_env, 'lon', 'frame.number')) == 86
+        assert len(self.fields(cmd_tshark, cap, test_env, 'cnip', 'frame.number')) == 88
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, cap, test_env,
+                               '_ws.malformed || _ws.expert', 'frame.number',
+                               extra=passes)
+            assert rows == [['69'], ['70'], ['71'], ['78'], ['79'], ['82'], ['83'], ['86']]
+
+    def test_lon_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The five address formats (broadcast, multicast, unicast 2a,
+        multicast 2b and unique ID) and the four domain lengths.'''
+        rows = self.fields(cmd_tshark, capture_file('lon_coverage.pcap.gz'), test_env,
+                           'frame.number == 1 || frame.number == 3 || '
+                           'frame.number == 8 || frame.number == 15 || '
+                           'frame.number == 18',
+                           'frame.number', 'lon.addrfmt', 'lon.domainlen',
+                           'lon.domain', 'lon.srcnet', 'lon.srcnode',
+                           'lon.dstnet', 'lon.dstgrp', 'lon.dstnode',
+                           'lon.grp', 'lon.grpmem', 'lon.uid')
+        assert rows[0][:3] == ['1', '0x00', '0x00']
+        assert rows[0][4:6] == ['0x01', '0x02']
+        assert rows[1][:4] == ['3', '0x00', '0x02', '112233']
+        assert rows[2][:2] == ['8', '0x01']
+        assert rows[3] == ['15', '0x02', '0x02', '112233', '0x01', '0x02', '',
+                           '0x05', '0x06', '0x07', '0x08', '']
+        assert rows[4][:4] == ['18', '0x03', '0x01', '11']
+        assert rows[4][-1] == 'a1a2a3a4a5a6'
+
+    def test_lon_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the PDU format of each frame: APDU,
+        TPDU, SPDU and AuthPDU, with the priority flag and delta backlog.'''
+        rows = self.fields(cmd_tshark, capture_file('lon_coverage.pcap.gz'), test_env,
+                           'frame.number == 1 || frame.number == 21 || '
+                           'frame.number == 22 || frame.number == 57 || '
+                           'frame.number == 72 || frame.number == 80',
+                           'frame.number', '_ws.col.info')
+        assert rows == [
+            ['1', 'Delta_BL: 0 Type: APDU'],
+            ['21', 'Priority Delta_BL: 0 Type: APDU'],
+            ['22', 'Priority Delta_BL: 63 Type: APDU'],
+            ['57', 'Delta_BL: 2 Type: TPDU'],
+            ['72', 'Delta_BL: 3 Type: SPDU'],
+            ['80', 'Delta_BL: 4 Type: AuthPDU'],
+        ]
+
+    def test_lon_mlist(self, cmd_tshark, capture_file, test_env):
+        '''The M_List of REMINDER and REM/MSG PDUs is a byte string of the
+        length in the length field (frames 64 and 65 are the reproducers of
+        "LON: Register M_List as bytes": a length of 8 and of 0 used to
+        raise an error on the unsigned integer field).'''
+        rows = self.fields(cmd_tshark, capture_file('lon_coverage.pcap.gz'), test_env,
+                           'lon.spdu.mlen', 'frame.number', 'lon.pdufmt',
+                           'lon.spdu.mlen', 'lon.spdu.mlist')
+        assert rows == [
+            ['61', '0x00', '0x01', '01'],
+            ['62', '0x00', '0x02', '0102'],
+            ['63', '0x00', '0x04', '01020304'],
+            ['64', '0x00', '0x08', '0102030405060708'],
+            ['65', '0x00', '0x00', ''],
+            ['66', '0x00', '0x03', 'a1a2a3'],
+            ['67', '0x00', '0x00', ''],
+            ['68', '0x00', '0x06', '000102030405'],
+            ['74', '0x01', '0x05', '0001020304'],
+            ['75', '0x01', '0x00', ''],
+            ['76', '0x01', '0x02', '0102'],
+            ['77', '0x01', '0x00', ''],
+        ]
+
+    def test_lon_apdu(self, cmd_tshark, capture_file, test_env):
+        '''Network management service request: unique ID and node name.'''
+        rows = self.fields(cmd_tshark, capture_file('lon_coverage.pcap.gz'), test_env,
+                           'lon.name', 'frame.number', 'lon.name', 'lon.uid',
+                           'lon.code')
+        assert rows == [['48', '4e4f44454e414d45',
+                         'a1a2a3a4a5a6,b0b1b2b3b4b5', '0x7f']]
+
+    def test_lon_unknown_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Unknown TPDU, SPDU and AuthPDU types are warnings.'''
+        rows = self.fields(cmd_tshark, capture_file('lon_coverage.pcap.gz'), test_env,
+                           'lon && _ws.expert', 'frame.number',
+                           '_ws.expert.message')
+        assert rows == [
+            ['69', 'Unexpected TPDU type 3'], ['70', 'Unexpected TPDU type 6'],
+            ['71', 'Unexpected TPDU type 7'], ['78', 'Unexpected SPDU type 1'],
+            ['79', 'Unexpected SPDU type 3'], ['82', 'Unexpected AuthPDU type 1'],
+            ['83', 'Unexpected AuthPDU type 3'],
+        ]
