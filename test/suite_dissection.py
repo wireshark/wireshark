@@ -85073,3 +85073,110 @@ class TestDissectIso15765:
         rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 313',
                                ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
         assert rows == [['exported_pdu:data', 'iso15765', '0322f190']]
+
+
+class TestDissectIso7816:
+    # ISO 7816 is not reached by default: Decode As on the ISO 14443 payload
+    decode_as = ('-d', 'iso14443.subdissector,iso7816')
+
+    def test_iso7816_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 269 frames (APDUs in ISO 14443-4 I-blocks) are ISO 7816
+        and none is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso7816_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 269
+        assert protocols.count('ISO 7816') == 269
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.decode_as,
+                    '-r', capture_file('iso7816_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iso7816_atr(self, cmd_tshark, capture_file, test_env):
+        '''The clock rate conversion (Fi) and baud rate adjustment (Di)
+        of TA1, the interface bytes, historical bytes and TCK of the ATRs
+        (frames 2-64 even, then 66-72).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso7816_coverage.pcap.gz'),
+                '-Y', 'iso7816.atr.init_char && frame.number <= 64',
+                '-Tfields', '-eframe.number', '-eiso7816.atr.ta1.fi',
+                '-eiso7816.atr.ta1.di',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 32
+        assert lines[0] == '2\t372\t1'
+        assert lines[1] == '4\t372\t8'
+        assert lines[3] == '8\t744\t'
+        assert lines[10] == '22\t768\t'
+        assert lines[14] == '30\t\t'
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso7816_coverage.pcap.gz'),
+                '-Y', 'frame.number in {66, 68, 70, 72}',
+                '-Tfields', '-eframe.number', '-eiso7816.atr.k', '-eiso7816.atr.t',
+                '-eiso7816.atr.tck', '-eiso7816.atr.historical_bytes',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '66\t3\t0x01,0x01\t0x5a\t414243',
+            '68\t4\t0x00,0x01\t0x00\t01020304',
+            '70\t2\t\t\t7879',
+            '72\t0\t\t\t']
+
+    def test_iso7816_info(self, cmd_tshark, capture_file, test_env):
+        '''Commands are named by instruction (with the offset, the EF and the
+        record), responses by the instruction they answer; a class byte
+        with a proprietary structure gives no name.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso7816_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 131, 132, 153, 155, 157, 159, 161, 163, '
+                      '165, 166, 187, 189, 193, 213, 239, 240, 265, 267}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tSelect file',
+            '2\tATR, TA(1)=True TB(1)=False TC(1)=False TD(1)=False',
+            '131\tSelect file',
+            '132\tResponse APDU (to Select file)',
+            '153\tRead binary, offset 16',
+            '155\tRead binary',
+            '157\tRead record, EF 1, record 1',
+            '159\tRead record, EF 1',
+            '161\tRead record, EF 2, record 3',
+            '163\tRead record, EF 30',
+            '165\tGet response',
+            '166\tResponse APDU (to Get response)',
+            '187\tVerify',
+            '189\tExternal authenticate',
+            '193\tGet challenge',
+            '213\tUnknown instruction',
+            '239\t',
+            '240\tResponse APDU (to Unknown instruction)',
+            '265\tResponse APDU',
+            '267\tGet data']
+
+    def test_iso7816_transactions(self, cmd_tshark, capture_file, test_env):
+        '''A response is linked to its command and the command to the
+        response (known to the command in the second pass); status words;
+        the Get data P1/P2 ranges.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.decode_as,
+                '-r', capture_file('iso7816_coverage.pcap.gz'),
+                '-Y', 'frame.number in {132, 169, 170, 171, 172, 173, 174, 189, 265}',
+                '-Tfields', '-eframe.number', '-eiso7816.resp_to', '-eiso7816.resp_in',
+                '-eiso7816.apdu.sw1', '-eiso7816.apdu.sw2', '-eiso7816.rfu',
+                '-eiso7816.application_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '132\t131\t\t0x90\t0x00\t\t',
+            '169\t\t170\t\t\t0x0010\t',
+            '170\t169\t\t0x90\t0x00\t\t',
+            '171\t\t172\t\t\t0x0300\t',
+            '172\t171\t\t0x90\t0x00\t\t',
+            '173\t\t174\t\t\t\t0x0142',
+            '174\t173\t\t0x90\t0x00\t\t',
+            '189\t\t190\t\t\t\t',
+            '265\t\t\t0x90\t0x00\t\t']
