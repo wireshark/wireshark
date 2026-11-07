@@ -1796,7 +1796,7 @@ typedef struct LastFrameData {
     bool ndi;
     nstime_t received_time;
     unsigned length;
-    uint8_t  data[MAX_EXPECTED_PDU_LENGTH];
+    uint8_t  *data;     /* file-scope copy, MIN(length, MAX_EXPECTED_PDU_LENGTH) bytes */
 } LastFrameData;
 
 typedef struct DLHarqBuffers {
@@ -2215,6 +2215,11 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         drx_state_t *ue_state = &ue_params->drx_state;
         uint16_t SFN = p_mac_lte_info->sysframeNumber;
         uint16_t SF = p_mac_lte_info->subframeNumber;
+
+        /* Out-of-range values would make the loop below never terminate */
+        if (SF > 9 || SFN > 1023) {
+            return;
+        }
 
         /* Make sure the first time reference has been set */
         if (!ue_state->state_before.firstCycleStartSet) {
@@ -3847,7 +3852,8 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, unsigne
         thisData = &(ueData->harqid[transport_block][harq_id]);
         thisData->inUse = true;
         thisData->length = length;
-        tvb_memcpy(tvb, thisData->data, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+        wmem_free(wmem_file_scope(), thisData->data);
+        thisData->data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
         thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
@@ -3998,7 +4004,8 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
         thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
         thisData->inUse = true;
         thisData->length = tvb_reported_length_remaining(tvb, offset);
-        tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+        wmem_free(wmem_file_scope(), thisData->data);
+        thisData->data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
@@ -4531,7 +4538,7 @@ static void lookup_rlc_channel_from_lcid(uint16_t ueid,
         }
 
         /* Look up setting gleaned from configuration protocol */
-        if (!ue_mappings->mapping[lcid].valid) {
+        if (lcid >= array_length(ue_mappings->mapping) || !ue_mappings->mapping[lcid].valid) {
             return;
         }
 
@@ -5941,7 +5948,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             unsigned byte_shift = (31-i)/8;
                             unsigned bit_shift = i % 8;
                             /* Is entry for scell i present? */
-                            if (scell_bitmap_word & (0x01 << (byte_shift*8 + bit_shift))) {
+                            if (scell_bitmap_word & (1U << (byte_shift*8 + bit_shift))) {
                                 byte = tvb_get_uint8(tvb, curr_offset);
                                 dcphr_cell_tree = proto_tree_add_subtree_format(dcphr_tree, tvb, curr_offset, (!(byte&0x40)?2:1),
                                                     ett_mac_lte_dual_conn_power_headroom_cell, &dcphr_cell_ti, "SCell Index %u PUSCH", i);
@@ -7655,7 +7662,7 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 preamble_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_preamble,
                                                   tvb, 0, 0, ENC_ASCII);
                 preamble_tree = proto_item_add_subtree(preamble_ti, ett_mac_lte_oob);
-                proto_item_set_generated(ti);
+                proto_item_set_generated(preamble_ti);
 
                 ti = proto_tree_add_uint(preamble_tree, hf_mac_lte_context_rapid,
                                          tvb, 0, 0, p_mac_lte_info->rapid);
@@ -7812,7 +7819,7 @@ static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             if (p_mac_lte_info->rnti != 0xFFFF) {
                 expert_add_info_format(pinfo, ti, &ei_mac_lte_context_rnti_type,
                       "SI-RNTI indicated, but value is %u (0x%x) (must be 0x%x)",
-                      p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFE);
+                      p_mac_lte_info->rnti, p_mac_lte_info->rnti, 0xFFFF);
                 return 0;
             }
             break;
@@ -8279,7 +8286,7 @@ static uint8_t get_mac_lte_channel_priority(uint16_t ueid, uint8_t lcid,
     }
 
     /* Won't report value if channel not configured */
-    if (!ue_mappings->mapping[lcid].valid) {
+    if (lcid >= array_length(ue_mappings->mapping) || !ue_mappings->mapping[lcid].valid) {
         return 0;
     }
     else {
@@ -8309,7 +8316,7 @@ uint8_t get_mac_lte_channel_mode(uint16_t ueid, uint8_t drbid)
     }
 
     /* Lcid needs ot have mapping */
-    if (!ue_mappings->mapping[lcid].valid) {
+    if (lcid >= array_length(ue_mappings->mapping) || !ue_mappings->mapping[lcid].valid) {
         return 0;
     }
     rlc_channel_type_t channel_type = ue_mappings->mapping[lcid].channel_type;
