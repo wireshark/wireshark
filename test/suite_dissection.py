@@ -88060,3 +88060,55 @@ class TestDissectKt:
         assert 'Malformed Packet' in stdout
         assert stdout.count('key:') == 0
         assert stdout.count('record') <= 2
+
+
+class TestDissectL1Events:
+    '''Layer 1 Event Messages in an EyeSDN file, from the synthetic
+    capture l1_events_coverage.eyesdn.gz.'''
+
+    def test_l1_events_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a Layer 1 message record. None is malformed
+        or has an error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('l1_events_coverage.eyesdn.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 15
+        assert protocols.count('data-l1-events') == 14
+        assert protocols[14] == ''   # empty record: no protocol in the frame
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('l1_events_coverage.eyesdn.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_l1_events_columns(self, cmd_tshark, capture_file, test_env):
+        '''The source column is NT or TE from the direction bit and the
+        Info column is the first line, only if it ends in a line end.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('l1_events_coverage.eyesdn.gz'),
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 15
+        assert [l[:2] for l in lines] == ['NT', 'TE'] * 7 + ['NT']
+        assert [l[3:] for l in lines[:9]] == [
+            'L1 activated', 'L1 deactivated', '', '', 'first line',
+            'one', '', '', '']
+        assert lines[11] == 'TE\t' + 'a long line of status text ' * 40
+        assert lines[13] == 'TE\tlast record'
+
+    def test_l1_events_lines(self, cmd_tshark, capture_file, test_env):
+        '''A record with several lines gets one text item per line,
+        including the line terminators; an open last line is not shown.'''
+        for frame, items in ((5, ['first line\\n', 'second line\\n', 'third line\\n']),
+                             (6, ['one\\r\\n', 'two\\r\\n'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('l1_events_coverage.eyesdn.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V',
+                ), encoding='utf-8', env=test_env)
+            tree = stdout.split('Layer 1 Event Messages\n')[1]
+            assert [l.strip() for l in tree.splitlines() if l.strip()] == items
