@@ -90252,3 +90252,136 @@ class TestDissectLdapCoverage:
                 '-q', '-z', 'ldap,srt',
             ), encoding='utf-8', env=test_env)
         assert 'Bind' in stdout and 'Search' in stdout and 'Extended' in stdout
+
+
+class TestDissectLdp:
+    CAP = 'ldp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectLdp.CAP), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_ldp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Hellos on UDP 646 and one TCP session on port 646 (no Decode
+        As); no malformed packets or errors in one and two passes. The
+        warnings are the GTSM / targeted hello flag combinations, the
+        unsupported address families and the unknown FEC type.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                             '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 36
+        assert protocols.count("LDP") == 31
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+            stdout = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert stdout.split() == ['3', '4', '14', '15', '36']
+
+    def test_ldp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, several messages in one PDU, vendor-private
+        and experimental messages.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ldp', '-Tfields', '-eframe.number', '-eldp.msg.type')
+        types = dict(l.split('\t') for l in stdout.splitlines())
+        assert types['1'] == '0x0100'
+        assert types['9'] == '0x0200'
+        assert types['11'] == '0x0201'
+        assert types['13'] == '0x0202'
+        assert types['14'] == '0x0300,0x0300,0x0300,0x0301'
+        assert types['16'] == '0x0400,0x0401,0x0400'
+        assert types['18'] == '0x0402,0x0403,0x0404'
+        assert types['19'] == '0x0001,0x0001,0x0001,0x0001'
+        assert types['20'] == '0x0500,0x0501,0x0700,0x0701,0x0702,0x0703,0x0777'
+        assert types['21'] == '0x3e05,0x3f05'
+
+    def test_ldp_gtsm_flags(self, cmd_tshark, capture_file, test_env):
+        '''The Common Hello Parameters flags decide the GTSM expert info.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ldp.msg.tlv.hello.hold', '-Tfields', '-eframe.number',
+                '-eldp.msg.tlv.hello.hold', '-eldp.msg.tlv.hello.targeted',
+                '-eldp.msg.tlv.hello.requested', '-eldp.msg.tlv.hello.gtsm',
+                '-e_ws.expert.message')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:5] for l in lines] == [
+            ['1', '15', 'False', 'False', 'True'],
+            ['2', '15', 'False', 'False', 'False'],
+            ['3', '45', 'True', 'True', 'False'],
+            ['4', '65535', 'True', 'False', 'True'],
+            ['5', '15', 'False', 'False', 'False'],
+            ['36', '45', 'True', 'True', 'False'],
+        ]
+        assert lines[0][5] == 'GTSM is supported by the source'
+        assert lines[3][5] == 'ERROR - Both GTSM and Target Flag are enabled.'
+
+    def test_ldp_fec_wildcard_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''A Label Withdrawal whose only TLV is a 1 byte Wildcard FEC
+        element at the end of the PDU. The P2MP opaque length used to be
+        read 8 bytes into the TLV before the element type was known, so
+        this frame was malformed.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 26', '-Tfields', '-e_ws.malformed',
+                '-eldp.msg.type', '-eldp.msg.tlv.fec.type')
+        assert stdout.split('\t') == ['', '0x0402', '1\n']
+
+    def test_ldp_gen_pwid_aai_type2(self, cmd_tshark, capture_file, test_env):
+        '''The AC ID of a type 2 AAI is at offset 8 (it was read from
+        offset 4, the prefix).'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ldp.msg.tlv.fec.gen.aii.acid', '-Tfields',
+                '-eframe.number', '-eldp.msg.tlv.fec.gen.aii.globalid',
+                '-eldp.msg.tlv.fec.gen.aii.prefix', '-eldp.msg.tlv.fec.gen.aii.acid')
+        assert stdout.splitlines() == ['23\t1,2\t167772161,167772162\t5,6']
+
+    def test_ldp_tlv_lengths_in_multicast_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The IP Multicast Tunnel and MPLS Context Label TLVs are
+        dissected with the length of the TLV, not the rest of the PDU
+        (frame 25 has more TLVs after them).'''
+        import xml.etree.ElementTree as ET
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 25', '-Tpdml')
+        sizes = {}
+        for f in ET.fromstring(stdout).iter('field'):
+            if f.get('show') in ('IP Multicast Label', 'MPLS Context Label'):
+                sizes.setdefault(f.get('show'), []).append(int(f.get('size')))
+        assert sizes == {'IP Multicast Label': [8, 8, 8, 8],
+                         'MPLS Context Label': [16, 16]}
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 25', '-Tfields',
+                '-eldp.msg.tlv.generic.label')
+        assert stdout.split() == ['701']
+
+    def test_ldp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An Address message split over two TCP segments (frames 28 and
+        29), and PDU headers split over segments (frames 32 to 34).'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 28 && frame.number <= 34',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eldp.msg.type', '-eldp.msg.tlv.addrl.addr')
+        lines = stdout.splitlines()
+        assert [l.split('\t')[:3] for l in lines] == [
+            ['28', 'TCP', ''], ['29', 'LDP', '0x0300'], ['30', 'LDP', '0x0201'],
+            ['31', 'LDP', '0x0201'], ['32', 'TCP', ''], ['33', 'LDP', '0x0201'],
+            ['34', 'LDP', '0x0201,0x0201']]
+        addrs = lines[1].split('\t')[3].split(',')
+        assert len(addrs) == 30
+        assert addrs[0] == '10.3.0.1' and addrs[29] == '10.3.29.1'
+
+    def test_ldp_fec_elements(self, cmd_tshark, capture_file, test_env):
+        '''Prefix FEC elements decode their prefix with the unused bits
+        masked, and the pseudowire FEC elements their IDs.'''
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 15', '-Tfields',
+                '-eldp.msg.tlv.fec.pfval', '-eldp.msg.tlv.fec.hoval')
+        assert stdout.split('\t') == [
+            '192.0.2.0,192.0.8.0,2001:db8:0:1::,0.0.0.0', '192.0.2.9,2001:db8::2\n']
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 22', '-Tfields', '-eldp.msg.tlv.fec.pw.pwid',
+                '-eldp.msg.tlv.fec.pw.groupid', '-eldp.msg.tlv.fec.pw.pwtype')
+        assert stdout.splitlines() == ['8738,100,100,5\t17,1,1,1\t0x0005,0x0004,0x0007,0x0005']
