@@ -95122,3 +95122,74 @@ class TestDissectMctp:
             ['6', '0x03', 'False', '0x88b5'],
             ['7', '0x02', 'False', 'NCSI'],
         ]
+
+
+class TestDissectMctpControl:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mctp_control_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mctp_control_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 52 frames are MCTP Control; none is malformed and none has
+        an error expert info, in one and two passes. The three version
+        entries with invalid BCD digits are the only warnings.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['MCTP Control'] * 52
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
+                    '-e_ws.expert.severity')
+            assert lines == ['19\t6291456', '20\t6291456', '21\t6291456']
+
+    def test_mctp_control_bogus_length(self, cmd_tshark, capture_file, test_env):
+        '''A control message shorter than 3 bytes, and a response of 3 bytes
+        (no completion code), are named in the Info column and not decoded.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 49', '-Tfields', '-eframe.number',
+                '-emctpc.command', '-e_ws.col.Info')
+        assert lines == [
+            '49\t\tBogus length 1, minimum 3',
+            '50\t\tBogus length 2, minimum 3',
+            '51\t2\tBogus length 3 for response, minimum 4',
+            '52\t126\tBogus length 3 for response, minimum 4',
+        ]
+
+    def test_mctp_control_version_entries(self, cmd_tshark, capture_file, test_env):
+        '''Version entries: single digit marker, update byte, alpha byte,
+        the "no update" byte and an alpha byte that is not a letter.'''
+        def entries(frame):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', f'frame.number == {frame}', '-V')
+            return [l.split(': ', 1)[1] for l in lines
+                    if 'Version number entry: ' in l]
+        assert entries(16) == ['1.0 (0xf1f0ff00)', '1.3.3 (0xf1f3f300)',
+                               '3.7.10a (0xf3f71061)', '10.11.7 (0x1011f700)']
+        assert entries(17) == ['1.0 (0xf1f0ff01)', '2.1.2 (0xf2f1f2ff)']
+        assert entries(18) == []
+
+    def test_mctp_control_completion_codes(self, cmd_tshark, capture_file, test_env):
+        '''The payload of a response with an error completion code is not
+        decoded (it is left as data); the same payload with Success is, and
+        bytes after a decoded payload are data.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 39 && frame.number <= 47',
+                '-Tfields', '-eframe.number', '-emctpc.cc',
+                '-emctpc.get_eid.eid', '-emctpc.data')
+        assert lines == [
+            '39\t0x01\t\t',
+            '40\t0x02\t\t01 02 03',
+            '41\t0x03\t\t',
+            '42\t0x04\t\t',
+            '43\t0x05\t\t01 02 03',
+            '44\t0x80\t\t01 02 03',
+            '45\t0x06\t\t',
+            '46\t0x00\t0x42\tde ad',
+            '47\t0x03\t\t',
+        ]
