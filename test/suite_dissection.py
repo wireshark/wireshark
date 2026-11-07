@@ -100425,3 +100425,78 @@ class TestDissectMrpMsrp:
                 return dict(pairs)
             json.loads(stdout, object_pairs_hook=hook)
             assert sorted(positions) == expected
+
+
+class TestDissectMsDo:
+    '''MS-DO (Delivery Optimization, TCP 7680 and Exported PDU) from the
+    synthetic capture ms-do_coverage.pcapng.gz.'''
+
+    def test_msdo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-40 decode without malformed packets or error expert
+        infos in one and two passes. Frames 30-35 are the reproducers of
+        the size wrap (message_size 0xFFFFFFFC) and 36-40 the Exported
+        PDU reproducers of the assertion on an unknown direction.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 40
+        assert protocols.count('MS-DO') == 33
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msdo_messages(self, cmd_tshark, capture_file, test_env):
+        '''The handshakes in both directions, the bitfield summary and
+        the piece message.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4, 5, 12, 16, 18}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '4\tHandshake Message (Request)',
+            '5\tHandshake Message (Reply)',
+            '12\tBitField Message (has 16 of 24 pieces)',
+            '16\tPiece Message (piece 3; offset 0x4000; size 0x32)',
+            '18\tUnchoke Message, Choke Message, Have Message (piece 9), KeepAlive Message',
+        ]
+
+    def test_msdo_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A piece message split over four segments (the size field
+        itself is split) is dissected in the last one.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 27',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'Piece Message (piece 1; offset 0x0; size 0x3c), Unchoke Message'
+
+    def test_msdo_unknown_direction(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU sets the ports but not the match value:
+        "Unknown direction" instead of an assertion failure (fixed by
+        "MS-DO: Fix assertion and size overflow").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 36', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'Handshake Message (Unknown direction)'
+
+    def test_msdo_size_wrap(self, cmd_tshark, capture_file, test_env):
+        '''A message size of 0xFFFFFFFC asks for more data (the
+        TCP layer waits for the PDU) instead of wrapping the buffer
+        size check and dissecting past the end.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ms-do_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {30..35}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        infos = stdout.splitlines()
+        assert len(infos) == 6
+        assert all('[TCP PDU reassembled in ' in i for i in infos)
