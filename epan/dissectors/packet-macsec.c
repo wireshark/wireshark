@@ -104,6 +104,7 @@ static int ett_macsec_verify;
 static expert_field ei_macsec_not_processed;
 static expert_field ei_macsec_nonstandard_cipher;
 static expert_field ei_macsec_payload_too_large;
+static expert_field ei_macsec_short_data;
 
 /* Decrypting payload buffer */
 static uint8_t macsec_payload[MAX_PAYLOAD_LEN];
@@ -875,6 +876,10 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     /* If the data's ok, attempt to continue dissection. */
     if (encrypted == false) {
+        if (data_length < ETHERTYPE_LEN) {
+            proto_tree_add_expert(macsec_tree, pinfo, &ei_macsec_short_data, tvb, data_offset, data_length);
+            return tvb_captured_length(tvb);
+        }
         /* The ethertype is the original from the unencrypted data. */
         proto_tree_add_item_ret_uint16(tree, hf_macsec_etype, tvb, data_offset, 2, ENC_BIG_ENDIAN, &ethertype_data.etype);
 
@@ -884,6 +889,11 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         next_tvb = tvb_new_subset_length(tvb, data_offset + 2, data_length - 2);
     } else if (PROTO_CHECKSUM_E_GOOD == icv_check_success) {
         tvbuff_t *plain_tvb;
+
+        if (macsec_payload_len < ETHERTYPE_LEN) {
+            proto_tree_add_expert(macsec_tree, pinfo, &ei_macsec_short_data, tvb, data_offset, data_length);
+            return tvb_captured_length(tvb);
+        }
 
         plain_tvb = tvb_new_child_real_data(next_tvb, (uint8_t *)wmem_memdup(pinfo->pool, macsec_payload, macsec_payload_len),
                                             macsec_payload_len, macsec_payload_len);
@@ -1113,6 +1123,8 @@ proto_register_macsec(void)
             "macsec.nonstandard_cipher", PI_UNDECODED, PI_NOTE, "E bit clear and C bit set indicates a non-standard cipher that modifies the data or uses a ICV other than 16 octets long even in integrity-only mode", EXPFILL }},
         { &ei_macsec_payload_too_large, {
             "macsec.payload_too_large", PI_UNDECODED, PI_NOTE, "Payload is larger than can currently be handled. Contact Wireshark developers if you want this supported", EXPFILL }},
+        { &ei_macsec_short_data, {
+            "macsec.short_data", PI_MALFORMED, PI_ERROR, "Secure Data is too short to contain an EtherType", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
