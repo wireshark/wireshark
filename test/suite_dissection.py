@@ -84261,3 +84261,70 @@ class TestDissectIsisLsp:
                 '-Y', 'frame.number == 51', '-Tfields', '-eisis.clv.key_id',
                 '-eisis.lsp.hostname', '-e_ws.expert.message')
         assert lines == ['\trouter-key\tCRYPTO_AUTH (3), too short for Key ID (1 vs 2)']
+
+
+class TestDissectIsisSnp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_snp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_isis_snp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CSNPs and PSNPs of both levels, none malformed, in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert len(lines) == 32
+        kinds = [l.split('\t')[0] for l in lines]
+        assert kinds.count('ISIS CSNP') == 17
+        assert kinds.count('ISIS PSNP') == 15
+        types = [l.split('\t')[1].split(',')[0] for l in lines]
+        assert types[0:2] == ['L1 CSNP', 'L2 CSNP']
+        assert types[15:17] == ['L1 PSNP', 'L2 PSNP']
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_isis_snp_expert(self, cmd_tshark, capture_file, test_env):
+        '''Only warnings and notes: unknown authentication type, a
+        CRYPTO_AUTH TLV too short for its Key ID (fixed to not read the
+        next TLV) and unknown TLV codes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        unk = 'Dissector for IS-IS CLV (99) code not implemented, Contact Wireshark developers if you want this supported'
+        key = 'CRYPTO_AUTH (3), too short for Key ID (1 vs 2)'
+        assert lines == [
+            '7\tUnknown authentication type',
+            '10\t' + unk,
+            '22\tUnknown authentication type',
+            '25\t' + unk,
+            '31\t' + key,
+            '32\t' + key,
+        ]
+
+    def test_isis_snp_lsp_entries(self, cmd_tshark, capture_file, test_env):
+        '''LSP entries: ID, sequence number, remaining lifetime and
+        checksum, also with system ID lengths 8 and 255.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1,12,16}', '-Tfields', '-eframe.number',
+                '-eisis.csnp.lsp_id', '-eisis.csnp.lsp_seq_num',
+                '-eisis.csnp.lsp_remain_life', '-eisis.csnp.lsp_checksum')
+        assert lines == [
+            '1\t0200.0000.0001.00-00,0200.0000.0002.00-01,0200.0000.0003.00-02'
+            '\t0x00000100,0x00000101,0x00000102\t1200,1199,1198\t0xabc0,0xabc1,0xabc2',
+            '12\t00000200.000000010000,00000200.000000020001'
+            '\t0x00000100,0x00000101\t1200,1199\t0xabc0,0xabc1',
+            '16\t0200.0000.0001.00-00,0200.0000.0002.00-01,0200.0000.0003.00-02'
+            '\t0x00000100,0x00000101,0x00000102\t1200,1199,1198\t0xabc0,0xabc1,0xabc2',
+        ]
+
+    def test_isis_snp_checksum(self, cmd_tshark, capture_file, test_env):
+        '''A valid ISO checksum (status Good = 1) and a zero checksum (not
+        present = 3) in a CSNP and a PSNP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'isis.csnp.checksum.status', '-Tfields', '-eframe.number',
+                '-eisis.csnp.checksum.status')
+        assert lines == ['8\t1', '9\t3', '23\t1', '24\t3']
