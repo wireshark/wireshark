@@ -89742,3 +89742,118 @@ class TestDissectLbtrm:
             '35\t0x01\t0x00\tDATA sqn 0xd Port 14390 ID 0x11223344',
             '36\t0x01\t0x02\tSM sqn 0x7 Port 14390 ID 0x11223344',
         ]
+
+
+class TestDissectLbtru:
+    '''Ultra Messaging LBT-RU (reliable unicast over UDP) from the
+    synthetic capture lbtru_coverage.pcap.gz, reached by the default
+    heuristic (source ports 14380-14389, receiver ports 14360-14379).
+    Frames 55-164 are 110 DATA packets with the same sequence number.'''
+
+    CAP = 'lbtru_coverage.pcap.gz'
+    SEQ = ('-o', 'lbtru.sequence_analysis:TRUE')
+
+    @staticmethod
+    def _run(cmd_tshark, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args), encoding='utf-8',
+                                       env=test_env, timeout=120).splitlines()
+
+    def test_lbtru_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 164 frames are LBT-RU: 130 DATA, 9 SM, 5 NAK, 6 NCF, 7 ACK,
+        4 CREQ and 3 RST, without malformed packets or error expert infos,
+        in one and two passes, with the same output.'''
+        cap = capture_file(self.CAP)
+        protocols = self._run(cmd_tshark, test_env, '-r', cap, '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('LBT-RU') == 164
+        types = self._run(cmd_tshark, test_env, '-r', cap, '-Tfields', '-elbtru.hdr.type')
+        assert {t: types.count(t) for t in set(types)} == {
+            '0x00': 130, '0x02': 9, '0x03': 5, '0x04': 6, '0x05': 7, '0x06': 4, '0x07': 3}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        one = self._run(cmd_tshark, test_env, '-r', cap, '-O', 'lbtru')
+        two = self._run(cmd_tshark, test_env, '-2', '-r', cap, '-O', 'lbtru')
+        assert one == two
+
+    def test_lbtru_rst_and_creq_session_id(self, cmd_tshark, capture_file, test_env):
+        '''The RST reason field is skipped before the options, so the SID
+        option after it (session 0x11223344) is found: the RST belongs to
+        the same channel as the DATA packets (reproducer of the RST option
+        offset fix; before it the SID was read from offset 2).'''
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {1, 4, 36, 37, 38, 39}', '-Tfields',
+                        '-eframe.number', '-elbtru.opt_sid.session_id', '-elbtru.channel.channel',
+                        '-elbtru.hdr.reason', '-elbtru.hdr.request', '-e_ws.col.info')
+        assert out == [
+            '1\t0x11223344\t0x0000000000001001\t\t0x0000\tCREQ SYN',
+            '4\t0x11223344\t0x0000000000001001\t\t\tDATA sqn 0x0 DATA',
+            '36\t0x11223344\t0x0000000000001001\t\t0x0000\tCREQ SYN',
+            '37\t0x11223344\t0x0000000000001001\t\t0x0001\tCREQ Unknown (0x01)',
+            '38\t0x11223344\t0x0000000000001001\t0x0000\t\tRST Default',
+            '39\t0x11223344\t0x0000000000001001\t0x0005\t\tRST Unknown (0x05)',
+        ]
+
+    def test_lbtru_options(self, cmd_tshark, capture_file, test_env):
+        '''SID and CID options in both orders, with the ignore flag, and
+        packets without options (session 0, a
+        separate transport).'''
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {6, 7, 40}', '-Tfields', '-eframe.number',
+                        '-elbtru.opt_sid.session_id', '-elbtru.opt_cid.client_id',
+                        '-elbtru.opt_sid.flags.ignore', '-elbtru.opt_cid.flags.ignore',
+                        '-elbtru.opt_unknown.hdr_len')
+        assert out == [
+            '6\t0x11223344\t0x55667788\tTrue\tTrue\t',
+            '7\t0x11223344\t0x55667788\tFalse\tFalse\t',
+            '40\t\t\t\t\t',
+        ]
+
+    def test_lbtru_clients(self, cmd_tshark, capture_file, test_env):
+        '''Channel and client numbering: two receivers of one source
+        port are clients 1 and 2 of one channel (session), another source
+        port and another session are other channels.'''
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {4, 5, 46, 51, 52, 53}', '-Tfields', '-eframe.number',
+                        '-elbtru.channel.channel', '-elbtru.channel.client')
+        assert out == ['4\t0x0000000000001001\t1', '5\t0x0000000000001001\t1',
+                       '46\t0x0000000000001001\t2', '51\t0x0000000000004001\t1',
+                       '52\t0x0000000000005001\t1', '53\t0x0000000000001001\t1']
+
+    def test_lbtru_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Gaps, out of order and duplicate DATA and SM packets and
+        retransmissions with the sequence analysis preference.'''
+        out = self._run(cmd_tshark, test_env, *self.SEQ, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number <= 32 && (lbtru.analysis.data_sqn_gap || '
+                              'lbtru.analysis.data_ooo_gap || lbtru.analysis.data_duplicate || '
+                              'lbtru.analysis.data_retransmission || lbtru.analysis.sm_sqn_gap || '
+                              'lbtru.analysis.sm_ooo_gap || lbtru.analysis.sm_duplicate)',
+                        '-Tfields', '-eframe.number', '-elbtru.analysis.data_retransmission',
+                        '-elbtru.analysis.data_sqn_gap', '-elbtru.analysis.data_ooo_gap',
+                        '-elbtru.analysis.data_duplicate', '-elbtru.analysis.sm_sqn_gap',
+                        '-elbtru.analysis.sm_ooo_gap', '-elbtru.analysis.sm_duplicate')
+        assert out == [
+            '11\t\t1\t\t\t\t\t',
+            '22\tTrue\t\t\t\t\t\t',
+            '24\t\t\t\tTrue\t\t\t',
+            '25\t\t\t1\tTrue\t\t\t',
+            '26\tTrue\t\t\t\t\t\t',
+            '27\t\t1\t\t\t\t\t',
+            '28\t\t\t1\t\t\t\t',
+            '30\t\t\t\t\t2\t\t',
+            '31\t\t\t\t\t\t2\t',
+            '32\t\t\t\t\t\t2\tTrue',
+        ]
+
+    def test_lbtru_sqn_frame_list_is_bounded(self, cmd_tshark, capture_file, test_env):
+        '''Each of the 110 DATA packets with the same sequence number used
+        to list every other one; now at most 100 are listed and one
+        "list truncated" item follows (second pass, all frames known).'''
+        out = self._run(cmd_tshark, test_env, '-2', *self.SEQ, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number == 100', '-Tfields', '-elbtru.analysis.sqn.frame')
+        assert len(out) == 1 and len(out[0].split(',')) == 101
+        out = self._run(cmd_tshark, test_env, '-2', *self.SEQ, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number == 100', '-V')
+        assert sum('(list truncated)' in line for line in out) == 1
