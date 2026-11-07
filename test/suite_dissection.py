@@ -96799,3 +96799,88 @@ class TestDissectMip6:
         lines = self.fields(cmd_tshark, capture_file, test_env, 'mip6.3gpp.chg_id',
                             'frame.number', 'mip6.3gpp.chg_id')
         assert lines == ['89\t16909060']
+
+
+class TestDissectMip:
+    '''Mobile IP (RFC 5944, UDP 434) from the synthetic capture
+    mip_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('mip_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 74 frames decode without malformed packets, warnings or
+        errors in one and two passes.'''
+        for passes in ((), ('-2',)):
+            protocols = self.fields(cmd_tshark, capture_file, test_env, '',
+                                    '_ws.col.protocol', passes=passes)
+            assert len(protocols) == 74
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts == {'MobileIP': 69, 'UDP': 4, 'ICMP': 1}
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              'frame.number', passes=passes)
+            assert bad == []
+
+    def test_mip_messages(self, cmd_tshark, capture_file, test_env):
+        '''Registration Request, Reply, Revocation and its Acknowledgement.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 2, 11, 26, 27, 28, 29, 30, 31}',
+                            'frame.number', '_ws.col.info', 'mip.life', 'mip.s', 'mip.x',
+                            'mip.code', 'mip.rev.a', 'mip.rev.i', 'mip.ack.i', 'mip.revid')
+        assert lines == [
+            '1\tReg Request: HoA=10.0.0.5 HA=10.0.0.1 CoA=192.0.2.77\t1800\tTrue\tTrue\t\t\t\t\t',
+            '2\tReg Request: HoA=10.0.0.5 HA=10.0.0.1 CoA=192.0.2.77\t1800\tTrue\tFalse\t\t\t\t\t',
+            '11\tReg Reply: HoA=10.0.0.5 HA=10.0.0.1, Code=0\t1800\t\t\t0\t\t\t\t',
+            '26\tReg Reply: HoA=10.0.0.5 HA=10.0.0.1, Code=200\t1800\t\t\t200\t\t\t\t',
+            '27\tReg Revocation: HoA=10.0.0.5 HDA=10.0.0.1 FDA=192.0.2.77\t\t\t\t\tTrue\tTrue\t\t77',
+            '28\tReg Revocation: HoA=10.0.0.5 HDA=10.0.0.1 FDA=192.0.2.77\t\t\t\t\tFalse\tTrue\t\t77',
+            '29\tReg Revocation: HoA=10.0.0.5 HDA=10.0.0.1 FDA=192.0.2.77\t\t\t\t\tFalse\tFalse\t\t77',
+            '30\tReg Revocation Ack: HoA=10.0.0.5\t\t\t\t\t\t\tTrue\t77',
+            '31\tReg Revocation Ack: HoA=10.0.0.5\t\t\t\t\t\t\tFalse\t77',
+        ]
+
+    def test_mip_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Extension lists, vendor extensions (3GPP2 GRE key and DNS
+        servers, old CVSE with its own length layout) and the NAI.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {34, 39, 45, 46, 47, 48, 50, 51, 52}',
+                            'frame.number', 'mip.ext.type', 'mip.ext.cvse.vendor_id',
+                            'mip.ext.cvse.3gpp2_grekey', 'mip.ext.nvse.3gpp2.type17.prim_dns',
+                            'mip.ext.nvse.3gpp2.type17.sec_dns', 'mip.ext.nvse.3gpp2.type16.value',
+                            'mip.nai', 'mip.ext.dynha.ha')
+        assert lines == [
+            '34\t131,32\t\t\t\t\t\tmn@example.org\t',
+            '39\t139,139\t\t\t\t\t\t\t10.0.0.1,10.0.0.1',
+            '45\t148,148,148\t\t\t\t\t\t\t',
+            '46\t38\t12951\t\t\t\t\t\t',
+            '47\t38,132\t5535\t4097\t\t\t\t\t',
+            '48\t38,129\t4491\t\t\t\t\t\t',
+            '50\t37\t4491\t\t\t\t\t\t',
+            '51\t134\t\t\t\t\t1\t\t',
+            '52\t134\t\t\t8.8.8.8\t8.8.4.4\t\t\t',
+        ]
+
+    def test_mip_nat_traversal(self, cmd_tshark, capture_file, test_env):
+        '''NAT traversal tunnel data hands the inner IPv4 packet to IP (68
+        UDP, 69 ICMP), nested once more in frame 72. More than four levels
+        are cut off by "MobileIP: Bound nesting of NAT traversal tunnel
+        data" (the reproducer is in the malformed capture, not here).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 68 && frame.number <= 72',
+                            'frame.number', 'frame.protocols')
+        assert lines == [
+            '68\teth:ethertype:ip:udp:mip:ip:udp:data',
+            '69\teth:ethertype:ip:udp:mip:ip:icmp',
+            '70\teth:ethertype:ip:udp:mip:ip:udp:data',
+            '71\teth:ethertype:ip:udp:mip:ip:udp:data',
+            '72\teth:ethertype:ip:udp:mip:ip:udp:mip:ip:udp:data',
+        ]
