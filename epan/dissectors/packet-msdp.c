@@ -235,8 +235,8 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         if (length > 0) {
                                 expert_add_info_format(pinfo, length_item,
                                     &ei_msdp_tlv_len_too_long,
-                                    "TLV length for KeepAlive > 8");
-                                proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
+                                    "TLV length for SA Request > 8");
+                                proto_tree_add_item(msdp_tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
                                 offset += length;
                         }
                         break;
@@ -253,7 +253,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                 expert_add_info_format(pinfo, length_item,
                                     &ei_msdp_tlv_len_too_long,
                                     "TLV length for KeepAlive > 3");
-                                proto_tree_add_item(tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
+                                proto_tree_add_item(msdp_tree, hf_msdp_trailing_junk, tvb, offset, length, ENC_NA);
                                 offset += length;
                         }
                         break;
@@ -676,7 +676,7 @@ proto_register_msdp(void)
                 },
                 { &hf_msdp_not_entry_count,
                         { "Entry Count",           "msdp.not.entry_count",
-                        FT_UINT24, BASE_HEX, NULL, 0,
+                        FT_UINT8, BASE_DEC, NULL, 0,
                         "Entry Count in Notification messages", HFILL }
                 },
                 { &hf_msdp_not_sprefix_len,
