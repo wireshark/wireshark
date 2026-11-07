@@ -515,9 +515,11 @@ get_lcaf_data(tvbuff_t *tvb, int offset, uint8_t *lcaf_type, uint16_t *len)
     return offset;
 }
 
-const char *
+#define MAX_ADDR_STR_LEVEL 4
+
+static const char *
 // NOLINTNEXTLINE(misc-no-recursion)
-get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16_t *addr_len)
+get_addr_str_level(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16_t *addr_len, unsigned level)
 {
     const char        *notset_str = "not set";
     const char        *addr_str;
@@ -543,17 +545,21 @@ get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16
             if (lcaf_type == LCAF_IID) {
                 iid = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
-                increment_dissection_depth(pinfo);
-                addr_str = get_addr_str(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
-                decrement_dissection_depth(pinfo);
+                if (level >= MAX_ADDR_STR_LEVEL)
+                    return "(nested too deeply)";
+                addr_str = get_addr_str_level(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len, level + 1);
+                if (addr_str == NULL)
+                    addr_str = "(unknown)";
                 return wmem_strdup_printf(pinfo->pool, "[%d] %s", iid, addr_str);
             }
             if (lcaf_type == LCAF_ASN) {
                 asn = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
-                increment_dissection_depth(pinfo);
-                addr_str = get_addr_str(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
-                decrement_dissection_depth(pinfo);
+                if (level >= MAX_ADDR_STR_LEVEL)
+                    return "(nested too deeply)";
+                addr_str = get_addr_str_level(tvb, pinfo, offset + LCAF_HEADER_LEN + 6, afi, &cur_len, level + 1);
+                if (addr_str == NULL)
+                    addr_str = "(unknown)";
                 return wmem_strdup_printf(pinfo->pool, "%s (ASN %d)", addr_str, asn);
             }
             return addr_str;
@@ -569,6 +575,18 @@ get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16
         default:
             return NULL;
     }
+}
+
+const char *
+get_addr_str(tvbuff_t *tvb, packet_info *pinfo, int offset, uint16_t afi, uint16_t *addr_len)
+{
+    return get_addr_str_level(tvb, pinfo, offset, afi, addr_len, 0);
+}
+
+static const char *
+str_or_unk(const char *str)
+{
+    return str ? str : "(unknown)";
 }
 
 static int
@@ -612,9 +630,9 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     if (idx) {
-        proto_item_append_text(ti, str, idx, rloc_str);
+        proto_item_append_text(ti, str, idx, str_or_unk(rloc_str));
     } else {
-        proto_item_append_text(ti, str, rloc_str);
+        proto_item_append_text(ti, str, str_or_unk(rloc_str));
     }
     proto_item_set_len(ti, 2 + addr_len);
 
@@ -677,7 +695,7 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_append_text(ti, ":");
     }
 
-    proto_item_append_text(ti, " %s", hop_str);
+    proto_item_append_text(ti, " %s", str_or_unk(hop_str));
     proto_item_set_len(ti, 4 + addr_len);
 
     if (hop_flags & 0x04)
@@ -687,7 +705,7 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (hop_flags & 0x01)
         proto_item_append_text(ti, ", Strict");
 
-    proto_item_append_text(tip, ", %s", hop_str);
+    proto_item_append_text(tip, ", %s", str_or_unk(hop_str));
 
     return addr_len + 4;
 }
@@ -746,10 +764,10 @@ dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_item_append_text(ti, ":");
     }
 
-    proto_item_append_text(ti, " %s, level %d", entry_str, level);
+    proto_item_append_text(ti, " %s, level %d", str_or_unk(entry_str), level);
     proto_item_set_len(ti, 6 + addr_len);
 
-    proto_item_append_text(tip, ", %s (%d)", entry_str, level);
+    proto_item_append_text(tip, ", %s (%d)", str_or_unk(entry_str), level);
 
     return addr_len + 6;
 }
@@ -827,7 +845,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             default:
                 expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
                         "Unexpected AFI (%d), cannot decode", afi);
-                return -1;
+                return offset;
         }
         i++;
     }
@@ -1241,12 +1259,12 @@ dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     /* Reserved (1 byte) */
     proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
+    proto_item_append_text(tip, ": %d", tvb_get_uint8(tvb, offset));
     offset += 1;
 
     /* Nonce (3 bytes) */
     proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc, tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
+    proto_item_append_text(tip, ": %d", tvb_get_ntoh24(tvb, offset));
     offset += 3;
 
     /* AFI (2 bytes) */
@@ -1371,7 +1389,7 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Source Prefix AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_src, ": %s", src_str);
+    proto_item_append_text(ti_src, ": %s", str_or_unk(src_str));
     proto_item_set_len(ti_src, 2 + addr_len);
 
     ti_grp = proto_tree_add_item(tree, hf_lisp_lcaf_mcinfo_grp, tvb, offset, 2, ENC_NA);
@@ -1403,10 +1421,10 @@ dissect_lcaf_mcast_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Destination Prefix AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_grp, ": %s", grp_str);
+    proto_item_append_text(ti_grp, ": %s", str_or_unk(grp_str));
     proto_item_set_len(ti_grp, 2 + addr_len);
 
-    proto_item_append_text(tir, " ([%d], %s/%d, %s/%d)", iid, src_str, src_masklen, grp_str, grp_masklen);
+    proto_item_append_text(tir, " ([%d], %s/%d, %s/%d)", iid, str_or_unk(src_str), src_masklen, str_or_unk(grp_str), grp_masklen);
     return offset;
 }
 
@@ -1530,7 +1548,7 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Source Prefix AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_src, ": %s", src_str);
+    proto_item_append_text(ti_src, ": %s", str_or_unk(src_str));
     proto_item_set_len(ti_src, 2 + addr_len);
 
     ti_dst = proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst, tvb, offset, 2, ENC_NA);
@@ -1568,10 +1586,10 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Destination Prefix AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_dst, ": %s", dst_str);
+    proto_item_append_text(ti_dst, ": %s", str_or_unk(dst_str));
     proto_item_set_len(ti_dst, 2 + addr_len);
 
-    proto_item_append_text(tir, " (%s/%d, %s/%d)", src_str, src_masklen, dst_str, dst_masklen);
+    proto_item_append_text(tir, " (%s/%d, %s/%d)", str_or_unk(src_str), src_masklen, str_or_unk(dst_str), dst_masklen);
     return offset;
 }
 
@@ -1685,7 +1703,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Key AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_key, ": %s", key_str);
+    proto_item_append_text(ti_key, ": %s", str_or_unk(key_str));
     proto_item_set_len(ti_key, 2 + addr_len);
 
     ti_value = proto_tree_add_item(tree, hf_lisp_lcaf_kv_value, tvb, offset, 2, ENC_NA);
@@ -1728,7 +1746,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Value AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_value, ": %s", value_str);
+    proto_item_append_text(ti_value, ": %s", str_or_unk(value_str));
     proto_item_set_len(ti_value, 2 + addr_len);
 
     return offset;
@@ -1908,7 +1926,8 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, pr
             break;
         default:
             proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
-            return offset + len;
+            offset += len;
+            break;
     }
     decrement_dissection_depth(pinfo);
     return offset;
