@@ -98872,3 +98872,147 @@ class TestDissectMpegDescriptor:
         got = self.values(cmd_tshark, capture_file, test_env,
                           list(expected))
         assert got == expected
+
+
+class TestDissectMpegDsmcc:
+    '''MPEG DSM-CC from the synthetic capture mpeg_dsmcc_coverage.pcap.gz:
+    user-to-network session messages over UDP and TCP port 13819 (frames
+    1-77) and in MPEG-TS sections (table IDs 0x3a-0x3d), download info and
+    data block messages (frames 78-93).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mpeg_dsmcc_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_dsmcc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''81 frames (UDP, the TCP segments with a message and the sections)
+        carry DSM-CC; there are no malformed packets or error expert infos
+        in one and two passes (the capture has TCP notes only).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_dsmcc', 'mpeg_dsmcc.message_id')
+        frames = [int(l.split('\t')[0]) for l in lines]
+        assert len(frames) == 81
+        assert frames[:3] == [1, 2, 3] and frames[-3:] == [91, 92, 93]
+        assert 62 not in frames and 73 not in frames and 74 not in frames
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    opts=passes)
+            assert lines == []
+
+    def test_mpeg_dsmcc_session_messages(self, cmd_tshark, capture_file, test_env):
+        '''The 50 client and server session messages of frames 1-50 in
+        order, the unknown message ID of frame 54 and the ones over TCP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 50 or frame.number in {54, 65, 67, 69, 71}',
+                'mpeg_dsmcc.message_id')
+        ids = [l.split('\t')[1] for l in lines]
+        assert ids == [
+            '0x4010', '0x4011', '0x4020', '0x4021', '0x4022', '0x4023',
+            '0x4032', '0x4033', '0x4042', '0x4043', '0x4060', '0x4061',
+            '0x4062', '0x4063', '0x4070', '0x4071', '0x4072', '0x4073',
+            '0x4082', '0x4090', '0x40a2', '0x40a3', '0x40b0', '0x8012',
+            '0x8013', '0x8020', '0x8021', '0x8022', '0x8023', '0x8030',
+            '0x8031', '0x8040', '0x8041', '0x8050', '0x8051', '0x8060',
+            '0x8061', '0x8062', '0x8063', '0x8070', '0x8071', '0x8072',
+            '0x8073', '0x8082', '0x8092', '0x80a0', '0x80a1', '0x80a2',
+            '0x80a3', '0x80b0', '0x4fff', '0x4010', '0x4011', '0x4020',
+            '0x4021']
+
+    def test_mpeg_dsmcc_session_fields(self, cmd_tshark, capture_file, test_env):
+        '''Session ID, user data, status bytes, resource numbers and the
+        session count.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 9, 11, 23}',
+                'mpeg_dsmcc.un_sess.session_id_session_number',
+                'mpeg_dsmcc.un_sess.uu_data', 'mpeg_dsmcc.un_sess.priv_data',
+                'mpeg_dsmcc.un_sess.status_byte',
+                'mpeg_dsmcc.un_sess.resource_num',
+                'mpeg_dsmcc.un_sess.session_count')
+        assert lines == [
+            '1\t7\t75736572\t70726976\t\t\t',
+            '9\t7\t75736572\t70726976\t\t0005;0006\t',
+            '11\t7\t\t\t01;02;03\t\t',
+            '23\t7;7\t\t\t\t\t2',
+        ]
+
+    def test_mpeg_dsmcc_resources(self, cmd_tshark, capture_file, test_env):
+        '''Frame 51 carries one resource descriptor of every type with a
+        decoder (and an unknown one), frame 53 the MPEG program and the
+        user defined headend, client CA and server CA descriptors.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {51, 53}',
+                'mpeg_dsmcc.un_sess.rsrc_descriptor_type')
+        assert lines[0] == '51\t' + ';'.join('0x%04x' % t for t in (
+            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+             19, 0x1234, 0x7ffe, 0x7fff, 0xf001, 0xf003, 0xf004, 0xf005,
+             0xf006, 0xf007, 0xffff]))
+        assert lines[1] == '53\t0x0003;0xf005;0xf003;0xf003'
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 52', 'mpeg_dsmcc.un_sess.rsrc_headend_flag',
+                'mpeg_dsmcc.un_sess.rsrc_src_ip_addr',
+                'mpeg_dsmcc.un_sess.rsrc_symbol_rate')
+        assert lines == ['52\t2\t192.0.2.1\t6900000']
+
+    def test_mpeg_dsmcc_adaptation(self, cmd_tshark, capture_file, test_env):
+        '''The conditional access (frame 59), user ID (60) and unknown (61)
+        adaptation headers.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {59, 60, 61}',
+                'mpeg_dsmcc.adaptation_header.type',
+                'mpeg_dsmcc.adaptation_header.ca.system_id')
+        assert lines == ['59\t0x01\t0x0b00', '60\t0x02\t', '61\t0x81\t']
+
+    def test_mpeg_dsmcc_download(self, cmd_tshark, capture_file, test_env):
+        '''The download info indication and response with modules, compat
+        descriptors and sub descriptors, the data blocks and the DII of 40
+        modules on several TS packets.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {78, 79, 80, 81, 82}',
+                'mpeg_dsmcc.dii.module_count', 'mpeg_dsmcc.dii.module_id',
+                'mpeg_dsmcc.dii.module_size',
+                'mpeg_dsmcc.dii.compat_desc_count',
+                'mpeg_dsmcc.dii.compat.sub_count',
+                'mpeg_dsmcc.ddb.module_id', 'mpeg_dsmcc.ddb.block_num')
+        assert lines == [
+            '78\t3\t0x0001;0x0002;0x0003\t4096;100;9999\t\t\t\t',
+            '79\t1\t0x0001\t4096\t2\t2;2\t\t',
+            '80\t0\t\t\t\t\t\t',
+            '81\t\t\t\t\t\t0x0001\t0x0000',
+            '82\t\t\t\t\t\t0x0002\t0x0007',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 87', 'mpeg_dsmcc.dii.module_count',
+                'mpeg_dsmcc.dii.module_id')
+        assert lines[0].startswith('87\t40\t0x0000;0x0001;')
+        assert lines[0].count(';') == 39
+
+    def test_mpeg_dsmcc_sections(self, cmd_tshark, capture_file, test_env):
+        '''A section without syntax indicator carries a checksum (frame
+        92); with mpeg_dsmcc.verify_crc only the section of frame 93 with a
+        bad CRC has an invalid CRC expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_dsmcc.checksum', 'mpeg_dsmcc.message_id')
+        assert lines == ['92\t0x4082']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_dsmcc.crc.invalid', 'mpeg_dsmcc.message_id',
+                opts=('-o', 'mpeg_dsmcc.verify_crc:TRUE'))
+        assert lines == ['93\t0x4082']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_dsmcc.crc.invalid')
+        assert lines == []
+
+    def test_mpeg_dsmcc_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Frame 73: a TCP segment on port 13819 that does not start with
+        the protocol discriminator 0x11 is not DSM-CC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_dsmcc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 73', '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'eth:ethertype:ip:tcp:data'
