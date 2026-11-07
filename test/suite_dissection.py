@@ -92431,3 +92431,56 @@ class TestDissectLsc:
             '30\t0x05,0x04,0x05',
             '31\t0x40',
         ]
+
+
+class TestDissectLsd:
+    def test_lsd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 9 frames are LSD (UDP heuristic, port 6771 to the multicast
+        group or an IPv6 destination) and none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 9
+        assert protocols.count('LSD') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lsd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lsd_fields(self, cmd_tshark, capture_file, test_env):
+        '''Host, port, info hash and the optional cookie of every frame,
+        including IPv6, bare LF line ends, mixed case field names and a
+        fourth line that is not a cookie.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsd_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-elsd.header', '-elsd.host',
+                '-elsd.port', '-elsd.infohash', '-elsd.cookie',
+            ), encoding='utf-8', env=test_env)
+        ih = '0123456789abcdef0123456789abcdef01234567'
+        hdr = 'BT-SEARCH * HTTP/1.1'
+        assert stdout.splitlines() == [
+            '1\t%s\t239.192.152.143:6771\t6881\t%s\ta1b2c3d4' % (hdr, ih),
+            '2\t%s\t239.192.152.143:6771\t6881\t%s\t' % (hdr, ih),
+            '3\t%s\t[ff15::efc0:988f]:6771\t51413\t%s\ta1b2c3d4' % (hdr, ih),
+            '4\t%s\t239.192.152.143:6771\t6881\t%s\ta1b2c3d4' % (hdr, ih),
+            '5\t%s\t239.192.152.143:6771\t0\t%s\t' % (hdr, ih),
+            '6\t%s\t239.192.152.143\t65535\t%s\ta1b2c3d4' % (hdr, ih),
+            '7\t%s\t239.192.152.143:6771\t6881\t%s\tx' % (hdr, ih),
+            '8\t%s\t239.192.152.143:6771\t6881\t%s\t' % (hdr, ih),
+            '9\t%s\t239.192.152.143:6771\t6881\t%s\ta1b2c3d4' % (hdr, ih[:20]),
+        ]
+
+    def test_lsd_expert_text(self, cmd_tshark, test_env):
+        '''The expert info for a malformed field is named "Malformed LSD
+        field" (it was "Malformed LDS field").'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env)
+        lines = [l for l in stdout.splitlines() if '\tlsd.malformed_field\t' in l]
+        assert len(lines) == 1
+        assert lines[0].split('\t')[1] == 'Malformed LSD field'
