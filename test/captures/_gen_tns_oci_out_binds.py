@@ -20,10 +20,19 @@ Connection 2, sqlplus 11.2 against an 11g server:
     Frame 4 - "BEGIN :n := 42; END;", binding a NUMBER
     Frame 5 - the reply: the NUMBER 42
 
+Connection 3, an OCI 11.2 client against an 11g server:
+    Frame 6 - "BEGIN UPDATE pyo_drcp_r SET n = :1 WHERE id = :2
+              RETURNING n INTO :3; END;", binding 7 and 99 IN and a
+              NUMBER OUT
+    Frame 7 - the reply: directions IN, IN, OUT and the one OUT value, a
+              NULL with return code 3105, since no row matched
+
 The bytes are what sqlplus and the servers sent, except that the server
 pointer, SCN and sequence counter in frame 5's header are zeroed and its
 value is set to 42, the statement's (it came from a block assigning 7).
-The status that ends each reply is left out.
+Frame 6 is built field by field as the client sends it, and frame 7 is
+the server's with its pointer zeroed. The status that ends each reply is
+left out.
 """
 import os
 import struct
@@ -83,12 +92,36 @@ ASSIGN_REPLY = bytes.fromhex(
     '000000000000000000000000000000000000100702c12b0000'
 )
 
+IN_OUT_BLOCK = bytes.fromhex(
+    '035e052904040000000000feffffffffffffffde00000000000000feffffffff'
+    'ffffff0d00000000000000fefffffffffffffffeffffffffffffff0000000001'
+    '0000000000000000000000feffffffffffffff03000000000000000000000000'
+    '000000feffffffffffffff0000000000000000fefffffffffffffffeffffffff'
+    'fffffffeffffffffffffff0000000000000000fefffffffffffffffeffffffff'
+    'ffffff0000000000000000000000000000000000000000000000000000000000'
+    '000000fe40424547494e205550444154452070796f5f647263705f7220534554'
+    '206e203d203a31205748455245206964203d203a322052455455524e494e4720'
+    '6e20494e540a4f203a333b20454e443b00010000000100000000000000000000'
+    '0000000000000000000000000008000000000000000000000000000000000000'
+    '0000000000010203000016000000000000000000000000000000000000000000'
+    '0000000000000000000000000000010203000016000000000000000000000000'
+    '0000000000000000000000000000000000000000000000010203000016000000'
+    '0000000000000000000000000000000000000000000000000000000000000000'
+    '0702c10802c164fd01'
+)
+IN_OUT_REPLY = bytes.fromhex(
+    '0b010592030000000000010000000000000000000000000000000000e8070000'
+    '0000000000000000000000000000217f000020201007ff210c'
+)
+
 frames = [
     (0, True, OPEN_REFCURSOR),
     (0, False, REFCURSOR_REPLY),
     (0, True, PRINT_REFCURSOR),
     (1, True, ASSIGN),
     (1, False, ASSIGN_REPLY),
+    (2, True, IN_OUT_BLOCK),
+    (2, False, IN_OUT_REPLY),
 ]
 
 
@@ -111,7 +144,7 @@ def tcp_checksum(src: bytes, dst: bytes, seg: bytes) -> int:
     return (~s) & 0xFFFF
 
 
-CLIENTS = [(bytes([10, 0, 0, 1]), 54321), (bytes([10, 0, 0, 3]), 54322)]
+CLIENTS = [(bytes([10, 0, 0, 1]), 54321), (bytes([10, 0, 0, 3]), 54322), (bytes([10, 0, 0, 5]), 54323)]
 SERVER = (bytes([10, 0, 0, 2]), 1521)
 
 

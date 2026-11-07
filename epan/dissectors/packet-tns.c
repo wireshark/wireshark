@@ -5170,8 +5170,9 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			 * 50-byte header, counting the message id, with the bind
 			 * count in its fifth byte and the rest constants and the
 			 * instance's state; one direction byte per bind, as thin
-			 * has them; then a TTI_RXD row of the values in bind order,
-			 * typed by the execute this answers. A scalar is a value as
+			 * has them; then a TTI_RXD row of the OUT and IN OUT values
+			 * in bind order, typed by the execute this answers: an IN
+			 * bind has none. A scalar is a value as
 			 * the client binds it, then a ub2 return code; a REF CURSOR
 			 * comes in its own form. A LOB's and an object's are not
 			 * decoded, and the row stops there. */
@@ -5205,6 +5206,8 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 				const tns_column_t *col = &call->binds[i];
 				int v_start = offset;
 
+				if ( tvb_get_uint8(tvb, dirs + i) == TNS_BIND_DIR_INPUT )
+					continue;
 				if ( tvb_reported_length_remaining(tvb, offset) <= 0 )
 					stop = true;
 				else if ( col->type == TNS_DATATYPE_REFCURSOR )

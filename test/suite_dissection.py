@@ -4507,7 +4507,8 @@ class TestDissectTns:
         '''A server answers an OCI client's PL/SQL block with each bind's
         direction and its OUT value: a REF CURSOR as the describe of its
         columns and the id the client fetches it by, a NUMBER as the
-        value; the block binds a REF CURSOR by id, 0 for a new one.'''
+        value; the block binds a REF CURSOR by id, 0 for a new one. An
+        IN bind has no value in the reply.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_out_binds.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -4525,6 +4526,8 @@ class TestDissectTns:
             ['48', 'ID,NAME', '3', '0', ''],
             ['', '', '0', '', ''],
             ['16', '', '', '0', ''],
+            ['', '', '0', '', ''],
+            ['32,32,16', '', '', '3105', ''],
         ], rows
 
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
