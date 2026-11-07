@@ -9594,7 +9594,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     conversation_t  *conversation;
                     conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
 
-                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, &frame_teid_cp, 0) == 1)) {
+                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, &frame_teid_cp) == 1)) {
 
                         /* Then we have to set its session ID */
                         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));

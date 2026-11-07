@@ -196,10 +196,11 @@ extern wmem_map_t* frame_map_deint;
 
 uint32_t get_frame(address ip, uint32_t teid, uint32_t *frame);
 
-/* Similar to get_frame() but relies on the deinterlacer Map (frame_map_deint)
- * XXX - For now GTP ignores deinterlacing, and GTPv2 supports it.
+/* Similar to get_frame() but relies on the deinterlacer Map (frame_map_deint),
+ * for the <teid,ip> in the conversation convid.
+ * GTP ignores deinterlacing, and GTPv2 supports it.
  */
-uint32_t get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame, bool ignore_conv);
+uint32_t get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame);
 
 /**
  * Makes the <teid,ip> mappings to frame f in frame_map no longer count, e.g.

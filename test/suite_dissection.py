@@ -67716,6 +67716,16 @@ class TestDissectGtp:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 443', 'ipv6.src', 'gtp.message',
                             opts=('-o', 'gtp.track_gtp_session:TRUE', '-o', 'protocols.conversation_deinterlacing_key:VM.'))
         assert rows == [['2001:db8::a', '0x10']]
+        # The same TEIDs and addresses in VLAN 20 (frames 279-287) and
+        # without a VLAN (288-293): the Update PDP Context of 288 is of its
+        # session, as without deinterlacing.
+        for key in ('NONE', 'VM.'):
+            rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 279 && frame.number <= 293 && gtp.session',
+                                'frame.number', 'gtp.session',
+                                opts=('-o', 'gtp.track_gtp_session:TRUE', '-o', 'protocols.conversation_deinterlacing_key:' + key))
+            sessions = {int(r[0]): r[1] for r in rows}
+            assert sessions[279] != sessions[288]
+            assert {sessions[n] for n in range(288, 294)} == {sessions[288]}
 
     def test_gtp_prime(self, cmd_tshark, capture_file, test_env):
         '''GTP' data record transfer: record format, release and the IEs after the Data

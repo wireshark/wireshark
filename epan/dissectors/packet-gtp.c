@@ -2664,62 +2664,18 @@ get_frame(address ip, uint32_t teid, uint32_t *frame) {
 }
 
 uint32_t
-get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame, bool ignore_conv) {
-    uint32_t *value;
-
+get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame) {
     gtp_info_deint_t info;
+    uint32_t value;
+
     info.teid = teid;
     info.convid = convid;
     copy_address_shallow(&info.addr, &ip);
-
-    /*
-     * When not ignoring the IP conversation (deinterlacing is enabled),
-     * look for the exact element matching all properties <teid,convid,addr>
-     */
-    if(!ignore_conv) {
-        value = wmem_map_lookup(frame_map_deint, &info);
-        if (value != NULL) {
-            *frame = GPOINTER_TO_UINT(value);
-            return 1;
-        }
-        return 0;
+    value = lookup_frame(frame_map_deint, &info);
+    if (value) {
+        *frame = value;
+        return 1;
     }
-
-    /*
-     * Otherwise, look for an element matching only properties : <teid,addr>,
-     * as the get_frame() would do with its own Map.
-     * For this, parse the Map until any element looks good.
-     */
-    else {
-        wmem_list_t *frame_map_keys = wmem_map_get_keys(NULL, frame_map_deint);
-        for (wmem_list_frame_t *cur_frame = wmem_list_head(frame_map_keys); cur_frame; cur_frame = wmem_list_frame_next(cur_frame)) {
-            gtp_info_deint_t *comp_info = (gtp_info_deint_t *)wmem_list_frame_data(cur_frame);
-            if(comp_info) {
-
-                /* teid and addr are matching */
-                if( (info.teid == comp_info->teid) && (cmp_address(&info.addr, &comp_info->addr) == 0) ) {
-
-                    gtp_info_deint_t ginfod;
-                    ginfod.teid = teid;
-                    ginfod.convid = comp_info->convid;
-                    copy_address_shallow(&ginfod.addr, &ip);
-
-                    value = wmem_map_lookup(frame_map_deint, &ginfod);
-                    if (value != NULL) {
-                        *frame = GPOINTER_TO_UINT(value);
-                        wmem_destroy_list(frame_map_keys);
-                        return 1;
-                    }
-
-                    /* very unlikely, but keep it safe */
-                    wmem_destroy_list(frame_map_keys);
-                    return 0;
-                }
-            }
-        }
-        wmem_destroy_list(frame_map_keys);
-    }
-
     return 0;
 }
 
@@ -10190,66 +10146,32 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
             } else if (gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP) {
                 /* If this is an error indication then we have to check the session id that belongs to the message with the same data teid and ip */
                 if (gtp_hdr->message == GTP_MSG_ERR_IND) {
-                    if (is_deinterlacing_supported(pinfo)) {
-                        if (get_gtp_session_frame(args->last_ip, args->last_teid, 0, &frame_teid_cp, 1) == 1) {
-                            session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
-                            if (session) {
-                                /* We add the corresponding session to the session list*/
-                                add_gtp_session(pinfo->num, session);
+                    if (get_frame(args->last_ip, args->last_teid, &frame_teid_cp) == 1) {
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        if (session) {
+                            /* We add the corresponding session to the session list*/
+                            add_gtp_session(pinfo->num, session);
 
-                                if (args->imsi) {
-                                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
-                                }
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
                             }
                         }
-                    }
-                    else {
-                        if (get_frame(args->last_ip, args->last_teid, &frame_teid_cp) == 1) {
-                            session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
-                            if (session) {
-                                /* We add the corresponding session to the session list*/
-                                add_gtp_session(pinfo->num, session);
-
-                                if (args->imsi) {
-                                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
-                                }
-                            }
-                        }
-
                     }
                 }
                 else {
                     /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                     the corresponding session ID */
-                    if(is_deinterlacing_supported(pinfo)) {
-                        if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtp_hdr->teid, 0, &frame_teid_cp, 1) == 1)) {
-                            /* Then we have to set its session ID */
-                            session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
-                            if (session) {
-                                /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
-                                add_gtp_session(pinfo->num, session);
+                    if ((get_frame(pinfo->dst, (uint32_t)gtp_hdr->teid, &frame_teid_cp) == 1)) {
+                        /* Then we have to set its session ID */
+                        session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
+                        if (session) {
+                            /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
+                            add_gtp_session(pinfo->num, session);
 
-                                if (args->imsi) {
-                                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
-                                }
-                            }
-                        }
-                    }
-                    else {
-                        if ((get_frame(pinfo->dst, (uint32_t)gtp_hdr->teid, &frame_teid_cp) == 1)) {
-                            /* Then we have to set its session ID */
-                            session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
-                            if (session) {
-                                /* We add the corresponding session to the list so that when a response came we can associate its session ID*/
-                                add_gtp_session(pinfo->num, session);
-
-                                if (args->imsi) {
-                                    imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                                    wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
-                                }
+                            if (args->imsi) {
+                                imsi = wmem_strdup(wmem_file_scope(), args->imsi);
+                                wmem_map_insert(session_imsi, GUINT_TO_POINTER(session), imsi);
                             }
                         }
                     }
@@ -11312,21 +11234,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         }
 
         if (args && !PINFO_FD_VISITED(pinfo)) {
-            /* We insert the lists inside the table*/
-            if(is_deinterlacing_supported(pinfo)) {
-                conversation_t *conv = find_conversation_strat(pinfo,
-                        (pinfo->src.type == AT_IPv6) ? CONVERSATION_IPV6 : CONVERSATION_IP,
-                        NO_PORT_X, false);
-                if (conv) {
-                    fill_map(args->teid_list, args->ip_list, pinfo->num, conv->conv_index, 0, pinfo->pool, args->replaced_list);
-                } else {
-                    fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
-                }
-            }
-            else {
-                // no deinterlacing supported/asked
-                fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
-            }
+            /* We insert the lists inside the table. GTP looks the TEIDs
+             * up without the conversation, so it ignores deinterlacing */
+            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
         }
         /* Use sequence number to track Req/Resp pairs except GTP' message "Data Record Transfer Response".
          * For "Data Record Transfer Response" sequence numbers are analysed inside decoder of TLV "Requests Responded".
