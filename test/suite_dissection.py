@@ -95902,3 +95902,105 @@ class TestDissectMessageAnalyzer:
                 labels[f[2]] = f[1]
         assert labels['message_analyzer.wfp_capture.auth.process_path'] == 'Process Path'
         assert labels['etw.ndis.packet_metadata.data'] == 'Metadata'
+
+
+class TestDissectMeta:
+    '''META (Metadata) headers in Exported PDU frames (dissector name
+    "meta"), from the synthetic capture meta_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('meta_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_meta_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 24 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('meta_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 24
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['META'] == 11
+        assert counts['UDP'] == 4
+        assert counts['ATM'] == 2
+        assert counts['0x0a0b'] == 3
+        assert counts['SSCOP'] == 1
+        assert counts['GPRS-NS'] == 1
+        assert counts['MTP2'] == 1
+        assert counts['FP'] == 1
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_meta_items(self, cmd_tshark, capture_file, test_env):
+        '''Every item of the DXT schema in frame 2.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 2',
+                'meta.direction', 'meta.timestamp', 'meta.phylinkid',
+                'meta.nsapi', 'meta.imsi_digits', 'meta.imei_digits',
+                'meta.apn', 'meta.rat', 'meta.cell', 'meta.signaling',
+                'meta.incomplete', 'meta.deciphered', 'meta.localdevid',
+                'meta.remotedevid', 'meta.tapgroupid', 'meta.tlli',
+                'meta.calling', 'meta.called', 'meta.item.id')
+        assert lines == ['2\t0\t81985529216486895\t12\t5\t1234567890123456\t'
+                         '2345678901234567\tinternet.example\t1\t0x21f3541234050001\t'
+                         'True\tTrue\tTrue\t7\t8\t9\t3222418518\t491234567\t498765432\t'
+                         '0x0005,0x03e7,0x03e6,0x03e5']
+
+    def test_meta_unregistered_protocol(self, cmd_tshark, capture_file, test_env):
+        '''A protocol ID that nothing registers in the meta.proto table (the
+        M3UA, NBAP, CONTAINER, FP CAPTURE and UTRAN CAPSULE IDs, and 0x1234)
+        is passed to the data dissector. It reached a NULL handle and a
+        dissector assertion before "META: Fix NULL handle, uninitialised
+        ATM info and TLLI read".'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {14..19}', 'meta.proto', 'data.len')
+        assert lines == ['14\t61\t12', '15\t69\t12', '16\t127\t12',
+                         '17\t193\t12', '18\t194\t12', '19\t4660\t8']
+
+    def test_meta_tlli(self, cmd_tshark, capture_file, test_env):
+        '''The 4-octet TLLI item is read as 32 bits (it was read as 16).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 20', 'meta.tlli', 'meta.hdrlen')
+        assert lines == ['20\t305419896\t8']
+
+    def test_meta_atm(self, cmd_tshark, capture_file, test_env):
+        '''ERF AAL5 frames give the ATM dissector the VPI/VCI of the ATM
+        header and the AAL (frame 5 is an OAM cell; frame 13, an FP hint, is
+        also handed to ATM); the AAL5 protocol item selects SSCOP or GPRS
+        NS. Frame 11 has no AAL5 protocol item (the ATM info was
+        uninitialised).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'atm', 'atm.vpi', 'atm.vci', 'atm.aal', '_ws.col.protocol')
+        assert lines == [
+            '5\t0\t0\t7\tATM',
+            '6\t1\t32\t4\tSSCOP',
+            '7\t1\t33\t4\tGPRS-NS',
+            '8\t1\t34\t4\t0x0a0b',
+            '9\t1\t35\t4\t0x0a0b',
+            '10\t1\t36\t4\t0x0a0b',
+            '11\t1\t40\t4\tATM',
+            '13\t0\t0\t2\tFP',
+        ]
+
+    def test_meta_schemas(self, cmd_tshark, capture_file, test_env):
+        '''The PCAP schema decodes direction, timestamp, signaling and
+        incomplete items; an unknown schema skips every item.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 21', 'meta.schema', 'meta.direction',
+                'meta.timestamp', 'meta.signaling', 'meta.incomplete',
+                'meta.item.id')
+        assert lines == [
+            '21\t1\t0,1\t99\tTrue\tTrue\t0x012c',
+            '22\t1\t\t\t\t\t',
+            '23\t3\t\t\t\t\t0x0001,0x0002,0x03e8',
+            '24\t3\t\t\t\t\t',
+        ]
