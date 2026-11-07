@@ -46,6 +46,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/media_params.h>
 #include <epan/prefs.h>
 #include <wsutil/str_util.h>
@@ -81,6 +82,9 @@ static int ett_multipart_body;
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_multipart_no_required_parameter;
 static expert_field ei_multipart_decryption_not_possible;
+static expert_field ei_multipart_too_deep;
+
+#define MULTIPART_MAX_NESTING 16
 
 /* Not sure that compact_name exists for multipart, but choose to keep
  * the structure from SIP dissector, all the content- is also from SIP */
@@ -498,8 +502,6 @@ dissect_kerberos_encrypted_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset += 4;
     len = tvb_reported_length_remaining(tvb, offset);
 
-    DISSECTOR_ASSERT(tvb_bytes_exist(tvb, offset, len));
-
     data = (uint8_t *)tvb_memdup(pinfo->pool, tvb, offset, len);
     kerberos_tvb = tvb_new_child_real_data(tvb, data, len, len);
 
@@ -780,7 +782,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                    g_ascii_strncasecmp(content_encoding_str,"x-gzip",6) == 0 ||
                    g_ascii_strncasecmp(content_encoding_str,"x-deflate",9) == 0){
                    /* The body is gzip:ed */
-                    tvbuff_t *uncompress_tvb = tvb_child_uncompress_zlib(tmp_tvb, tmp_tvb, 0, body_len);
+                    tvbuff_t *uncompress_tvb = tvb_child_uncompress_zlib(tmp_tvb, tmp_tvb, 0, tvb_reported_length(tmp_tvb));
                     if (uncompress_tvb) {
                         tmp_tvb = uncompress_tvb;
                         add_new_data_source(pinfo, tmp_tvb, "gunzipped data");
@@ -836,6 +838,12 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     unsigned header_start = 0;
     unsigned body_index = 0;
     bool last_boundary = false;
+    unsigned depth = p_get_proto_depth(pinfo, proto_multipart);
+
+    if (depth >= MULTIPART_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_multipart_too_deep, tvb, 0);
+        return tvb_reported_length(tvb);
+    }
 
     if (m_info == NULL) {
         /*
@@ -874,11 +882,14 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /*
      * Process the encapsulated bodies
      */
+    p_set_proto_depth(pinfo, proto_multipart, depth + 1);
     while (last_boundary == false) {
         if (!process_body_part(subtree, tvb, content_info, m_info, pinfo, &header_start, body_index++, &last_boundary)) {
+            p_set_proto_depth(pinfo, proto_multipart, depth);
             return tvb_reported_length(tvb);
         }
     }
+    p_set_proto_depth(pinfo, proto_multipart, depth);
     /*
      * Process the multipart trailer
      */
@@ -1033,6 +1044,7 @@ proto_register_multipart(void)
 
     static ei_register_info ei[] = {
         { &ei_multipart_no_required_parameter, { "mime_multipart.no_required_parameter", PI_PROTOCOL, PI_ERROR, "The multipart dissector could not find a required parameter.", EXPFILL }},
+        { &ei_multipart_too_deep, { "mime_multipart.too_deep", PI_PROTOCOL, PI_WARN, "Multipart nesting too deep", EXPFILL }},
         { &ei_multipart_decryption_not_possible, { "mime_multipart.decryption_not_possible", PI_UNDECODED, PI_WARN, "The multipart dissector could not decrypt the message.", EXPFILL }},
     };
 
