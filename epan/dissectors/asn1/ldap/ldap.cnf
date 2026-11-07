@@ -197,7 +197,7 @@ int32_t tag;
 
 %(DEFAULT_BODY)s
 
-  if (!parameter_tvb)
+  if (!parameter_tvb || tvb_reported_length(parameter_tvb) == 0)
     return offset;
 
   ldap_info = (ldap_conv_info_t *)actx->private_data;
@@ -462,6 +462,10 @@ ldap_conv_info_t *ldap_info;
   /* extract the value of the octetstring */
   offset = dissect_ber_octet_string(false, actx, tree, tvb, offset, -1, &next_tvb);
 
+  /* An empty constructed OCTET STRING leaves no tvb */
+  if (!next_tvb)
+    return offset;
+
   /* first check if we have a custom attribute type configured */
   if ((hf_id = get_hf_for_header (attr_type)) != NULL)
     proto_tree_add_item (tree, *hf_id, next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
@@ -549,9 +553,11 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_FTR Filter/and/_item
   if(and_filter_string){
-    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,Filter_string);
+    /* Stop growing the display string once it is long enough */
+    if (strnlen(and_filter_string, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+      and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,ldap_display_trunc(actx->pinfo->pool, Filter_string));
   } else {
-    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",Filter_string);
+    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",ldap_display_trunc(actx->pinfo->pool, Filter_string));
   }
 
 #.FN_BODY Filter/and
@@ -574,9 +580,11 @@ ldap_conv_info_t *ldap_info;
 
 #.FN_FTR Filter/or/_item
   if(or_filter_string){
-    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,Filter_string);
+    /* Stop growing the display string once it is long enough */
+    if (strnlen(or_filter_string, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+      or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,ldap_display_trunc(actx->pinfo->pool, Filter_string));
   } else {
-    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",Filter_string);
+    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",ldap_display_trunc(actx->pinfo->pool, Filter_string));
   }
 
 
@@ -597,10 +605,10 @@ ldap_conv_info_t *ldap_info;
   or_filter_string=old_or_filter_string;
 
 #.FN_FTR Filter/present
-  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=*)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=*)",string_or_null(ldap_display_trunc(actx->pinfo->pool, Filter_string)));
 
 #.FN_FTR Filter/not
-  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(ldap_display_trunc(actx->pinfo->pool, Filter_string)));
 
 #.FN_BODY MatchingRuleAssertion/dnAttributes
   bool val;
@@ -626,26 +634,35 @@ ldap_conv_info_t *ldap_info;
                                    string_or_null(ldapvalue_string));
 
 #.FN_FTR SubstringFilter/substrings/_item
-  if (substring_item_final) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s",
-                                      (substring_value?substring_value:"*"),
-                                       substring_item_final);
-  } else if (substring_item_any) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s*",
-                                      (substring_value?substring_value:"*"),
-                                       substring_item_any);
-  } else if (substring_item_init) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s*",
-                                       substring_item_init);
+  if (!substring_buf)
+    substring_buf = wmem_strbuf_new(actx->pinfo->pool, NULL);
+  /* Stop appending once the display string is long enough */
+  if (substring_item_init) {
+    wmem_strbuf_truncate(substring_buf, 0);
+    ldap_substring_append(substring_buf, substring_item_init, "");
+    wmem_strbuf_append_c(substring_buf, '*');
+  } else if (wmem_strbuf_get_len(substring_buf) < ITEM_LABEL_LENGTH) {
+    if (substring_item_final) {
+      if (wmem_strbuf_get_len(substring_buf) == 0)
+        wmem_strbuf_append_c(substring_buf, '*');
+      ldap_substring_append(substring_buf, substring_item_final, "");
+    } else if (substring_item_any) {
+      if (wmem_strbuf_get_len(substring_buf) == 0)
+        wmem_strbuf_append_c(substring_buf, '*');
+      ldap_substring_append(substring_buf, substring_item_any, "*");
+    }
   }
+  substring_value = wmem_strbuf_get_str(substring_buf);
 
 #.FN_BODY SubstringFilter
   proto_tree *tr;
   proto_item *it;
   const char *old_substring_value=substring_value;
+  wmem_strbuf_t *old_substring_buf=substring_buf;
 
   attr_type=NULL;
   substring_value=NULL;
+  substring_buf=NULL;
   substring_item_init=NULL;
   substring_item_any=NULL;
   substring_item_final=NULL;
@@ -659,6 +676,7 @@ ldap_conv_info_t *ldap_info;
                                    string_or_null(substring_value));
   proto_item_append_text(it, "%%s", Filter_string);
   substring_value=old_substring_value;
+  substring_buf=old_substring_buf;
 
 #.FN_BODY Filter
   proto_tree *tr;
@@ -672,6 +690,12 @@ ldap_conv_info_t *ldap_info;
 
   if (Filter_elements++ > MAX_FILTER_ELEMENTS) {
     expert_add_info_format(actx->pinfo, tree, &ei_ldap_too_many_filter_elements, "Found more than %%u filter elements. Giving up.", MAX_FILTER_ELEMENTS);
+    THROW(ReportedBoundsError);
+  }
+
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    expert_add_info_format(actx->pinfo, tree, &ei_ldap_too_many_filter_elements, "Filters nested too deeply. Giving up.");
     THROW(ReportedBoundsError);
   }
 
@@ -764,8 +788,8 @@ ldap_conv_info_t *ldap_info;
 
   int otheroffset = offset;
   if(!implicit_tag){
-    dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
-    otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+    otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
+    otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, otheroffset, &len, NULL);
   } else {
     int32_t remaining=tvb_reported_length_remaining(tvb, offset);
     len=remaining>0 ? remaining : 0;
@@ -782,10 +806,10 @@ ldap_conv_info_t *ldap_info;
       NULL
     };
 
-    proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,
+    proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset, hf_index,
                                             ett_ldap_DirSyncFlagsSubEntry, flags, val, BMT_NO_APPEND);
   } else {
-    proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
+    proto_tree_add_uint(tree, hf_index, tvb, otheroffset, len, 0);
   }
 
 #.FN_BODY SearchResultReference
