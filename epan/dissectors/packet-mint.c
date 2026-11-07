@@ -371,7 +371,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 2;
 		/* Transported user frame */
 		if (offset < packet_length)
-			offset += dissect_eth_frame(tvb, pinfo, tree,
+			offset = dissect_eth_frame(tvb, pinfo, tree,
 				offset, packet_length - offset);
 		break;
 	case MINT_PORT_DATA_FLOOD:
@@ -391,7 +391,7 @@ dissect_mint_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 4;
 		/* Transported user frame */
 		if (offset < packet_length)
-			offset += dissect_eth_frame(tvb, pinfo, tree,
+			offset = dissect_eth_frame(tvb, pinfo, tree,
 				offset, packet_length - offset);
 		break;
 	case MINT_PORT_ROUTER:
@@ -585,9 +585,7 @@ dissect_mint_ethshim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(mint_ethshim_tree, hf_mint_ethshim_length, tvb,
 		offset, 2, ENC_BIG_ENDIAN);
 	packet_length = tvb_get_ntohs(tvb, offset) + 4;
-	offset += 2;
-
-	offset += dissect_mint_common(tvb, pinfo, tree, 4, packet_length, ETHERTYPE_MINT);
+	offset = dissect_mint_common(tvb, pinfo, tree, 4, packet_length, ETHERTYPE_MINT);
 
 	return offset;
 }
