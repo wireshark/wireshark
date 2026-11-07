@@ -92163,3 +92163,114 @@ class TestDissectLppa:
                 '-Y', 'frame.number == 131', '-Tfields', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == 'id-privateMessage'
+
+
+class TestDissectLpp:
+    '''LPP (LTE Positioning Protocol, unaligned PER) from the synthetic
+    capture lpp_coverage.pcap.gz, all in Exported PDU frames: frames 1-378
+    name the "lpp" dissector (378 messages, 91 of them with an LPPe EPDU
+    for the "lppe" dissector), frames 379-385 are LTE RRC BCCH-DL-SCH
+    SystemInformation messages and 386-393 the NR RRC equivalent, with
+    posSIBs that carry LPP assistance data, and 394-395 are the
+    reproducer of "LPP: Reset the ciphered and segmented flags for each
+    posSIB".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('lpp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lpp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol counts of frames 1-378 (LPP alone, with LPPe, with
+        the XML of an LPPe civic location), and no malformed packets or
+        error expert infos in any frame, in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 378', '-e_ws.col.protocol')
+        assert len(protocols) == 378
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['LPP'] == 287
+        assert counts['LPP/LPPe'] == 60
+        assert counts['LPP/LPPe/LPPe'] == 26
+        assert counts['LPP/LPPe/LPPe/LPPe'] == 4
+        assert counts['LPP/LPPe/XML'] == 1
+        assert len(self._fields(cmd_tshark, capture_file, test_env,
+                'frame', '-eframe.number')) == 395
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-eframe.number', passes=passes)
+            assert out == []
+
+    def test_lpp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The message type in the Info column of frames 1-378 (messages
+        without a body have an empty Info).'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 378', '-e_ws.col.info')
+        counts = {}
+        for line in out:
+            key = line.split(' [')[0]
+            counts[key] = counts.get(key, 0) + 1
+        assert counts == {
+            '': 54, 'Abort': 60, 'Error': 66, 'Provide Assistance Data': 36,
+            'Provide Capabilities': 27, 'Provide Location Information': 33,
+            'Request Assistance Data': 22, 'Request Capabilities': 23,
+            'Request Location Information': 57,
+        }
+
+    def test_lpp_epdu(self, cmd_tshark, capture_file, test_env):
+        '''An EPDU with identifier 1 is handed to the LPPe dissector (91
+        frames); 49 frames also carry an EPDU with another identifier
+        (2, 3, 17, 255, 256), which is left undecoded.'''
+        assert len(self._fields(cmd_tshark, capture_file, test_env,
+                'lpp.ePDU_ID == 1 && lppe', '-eframe.number')) == 91
+        assert len(self._fields(cmd_tshark, capture_file, test_env,
+                'lpp.ePDU_ID > 1', '-eframe.number')) == 49
+
+    def test_lpp_pos_sib(self, cmd_tshark, capture_file, test_env):
+        '''Every posSIB type of the LTE (45 types, 7 frames) and NR (56
+        types, 8 frames) SystemInformation messages and the extra
+        elements carry an AssistanceDataSIBelement-r15 whose element is
+        decoded, except for the ciphered or segmented ones (frames 385
+        and 393), whose octets are placeholders and stay undecoded.'''
+        for flt, n in (('frame.number >= 379 && frame.number <= 385', 49),
+                       ('frame.number >= 386 && frame.number <= 393', 60)):
+            out = self._fields(cmd_tshark, capture_file, test_env, flt,
+                    '-elpp.AssistanceDataSIBelement_r15_element')
+            assert sum(len(o.split(',')) for o in out if o) == n
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'lpp.cipherSetID_r15', '-eframe.number')
+        assert out == ['385', '393', '394']
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'lpp.assistanceDataSegmentNumber_r15', '-eframe.number')
+        assert out == ['385', '393']
+
+    def test_lpp_pos_sib_cipher_flag(self, cmd_tshark, capture_file, test_env):
+        '''Frame 394 has two posSib1-1 entries, the first with
+        cipheringKeyData (placeholder bits), the second without; frame 395
+        only the second. The second entry decodes as GNSS-ReferenceTime in
+        both frames. Before the fix the cipher flag of the first entry
+        stayed set and the second entry of frame 394 was left undecoded.'''
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 394', '-eframe.number',
+                    '-elpp.cipherSetID_r15', '-elpp.gnss_TimeOfDay', passes=passes)
+            assert out == ['394\t4660\t0', '395\t\t0']
+
+    def test_lpp_code_phase_rms_error(self, cmd_tshark, capture_file, test_env):
+        '''The codePhaseRMSError labels of frame 20 use the mantissa as a
+        fraction: value 22 is 3.25 <= P < 3.5 (with integer division the
+        range came out as 2 <= P < 2, always a power of two). tshark
+        prints the decimal separator of the locale.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lpp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        labels = [l.strip() for l in stdout.splitlines() if 'codePhaseRMSError' in l]
+        assert [l.replace(',', '.') for l in labels] == [
+            'codePhaseRMSError: 3.250000 <= P < 3.500000 (22)',
+            'codePhaseRMSError: 1.250000 <= P < 1.375000 (11)',
+            'codePhaseRMSError: 7.000000 <= P < 7.500000 (31)',
+        ]
