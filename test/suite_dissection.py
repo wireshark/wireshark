@@ -93767,3 +93767,90 @@ class TestDissectMaap:
             '8\t0x01\t0x00\t0x0000\t0x0000000000000000\t91:e0:f0:00:00:00\t0x0000\t00:00:00:00:00:00\t0x0000',
             '11\t0x02\t0x01\t0x0010\t0x0000000000000001\t91:e0:f0:00:00:00\t0x0004\t91:e0:f0:00:20:00\t0x0001',
         ]
+
+
+class TestDissectMaccontrol:
+    '''MAC Control (ethertype 0x8808): Pause, Gate, Report, Register Req,
+    Register, Register Ack and Class Based Flow Control Pause, from the
+    synthetic capture maccontrol_coverage.pcap.gz.'''
+
+    def test_maccontrol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 19 frames decode as MAC CTRL without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maccontrol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 19
+        assert protocols.count('MAC CTRL') == 19
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('maccontrol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_maccontrol_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Opcode names in the Info column; Pause adds the pause time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maccontrol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        cbfc = 'Class Based Flow Control [CBFC] Pause'
+        assert stdout.splitlines() == [
+            'Pause: pause_time: 65535 quanta',
+            'Pause: pause_time: 0 quanta',
+            'Pause: pause_time: 512 quanta',
+            'Gate', 'Report', 'Register Req', 'Register Req',
+            'Register', 'Register', 'Register Ack', 'Register Ack',
+            cbfc, cbfc, cbfc, cbfc, cbfc,
+            'Unknown', 'Unknown', 'Unknown',
+        ]
+
+    def test_maccontrol_fields(self, cmd_tshark, capture_file, test_env):
+        '''The fields of each opcode: timestamp, pause time, the
+        registration fields and the CBFC enable vector and class pause
+        times.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maccontrol_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 4, 6, 8, 10, 11, 12, 13, 15}',
+                '-Tfields', '-eframe.number', '-emacc.opcode',
+                '-emacc.timestamp', '-emacc.pause_time', '-emacc.reg.flags',
+                '-emacc.regreq.grants', '-emacc.reg.grants',
+                '-emacc.reg.assignedport', '-emacc.regack.assignedport',
+                '-emacc.reg.synctime', '-emacc.regack.synctime',
+                '-emacc.cbfc.enbv', '-emacc.cbfc.pause_time.c0',
+                '-emacc.cbfc.pause_time.c7',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0001\t\t65535\t\t\t\t\t\t\t\t\t\t',
+            '4\t0x0002\t16909060\t\t\t\t\t\t\t\t\t\t\t',
+            '6\t0x0004\t100\t\t0x01\t3\t\t\t\t\t\t\t\t',
+            '8\t0x0005\t200\t\t0x01\t\t3\t4660\t\t22136\t\t\t\t',
+            '10\t0x0006\t300\t\t0x03\t\t\t\t4660\t\t22136\t\t\t',
+            '11\t0x0006\t300\t\t0x09\t\t\t\t65535\t\t65535\t\t\t',
+            '12\t0x0101\t\t\t\t\t\t\t\t\t\t0x00ff\t1\t8',
+            '13\t0x0101\t\t\t\t\t\t\t\t\t\t0x0005\t0\t65535',
+            '15\t0x0101\t\t\t\t\t\t\t\t\t\t0x0180\t9\t9',
+        ]
+
+    def test_maccontrol_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Warnings: Pause and CBFC frames not sent to
+        01-80-C2-00-00-01 (frames 3, 16), a CBFC enable vector with the
+        8 most significant bits set (15), unknown opcodes (17-19).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maccontrol_coverage.pcap.gz'),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        dst = 'Destination address must be 01-80-C2-00-00-01'
+        assert stdout.splitlines() == [
+            '3\t' + dst,
+            '15\t8 MSbs of ENBV must be 0',
+            '16\t' + dst,
+            '17\tUnknown opcode',
+            '18\tUnknown opcode',
+            '19\tUnknown opcode',
+        ]
