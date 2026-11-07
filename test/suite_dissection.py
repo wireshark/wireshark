@@ -87347,3 +87347,92 @@ class TestDissectKingfisher:
         stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 94', '-Tfields', '-e_ws.col.info')
         assert stdout.strip() == '5 > 6 (Send Data Frame)'
+
+
+class TestDissectKink:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kink_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_kink_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 21 frames are KINK; none is malformed or has an error
+        expert info in one and two passes.'''
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 21
+        assert [r[0] for r in rows].count('KINK') == 21
+        for passes in ((), ('-2',)):
+            rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                    *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_kink_header(self, cmd_tshark, capture_file, test_env):
+        '''Message type, A bit, checksum length and transaction ID of the
+        first frames, and the payload chain of each.'''
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 7', '-Tfields', '-e_ws.col.info',
+                '-ekink.A', '-ekink.checkSumLength', '-ekink.transactionId',
+                '-ekink.nextPayload')
+        assert rows == [
+            ['CREATE', '1', '12', '16909060', '14,19,20,0'],
+            ['REPLY', '0', '0', '16909060', '15,20,0'],
+            ['DELETE', '1', '8', '7', '20,0'],
+            ['ACK', '0', '0', '7', '0'],
+            ['GETTGT', '0', '0', '8', '17,0'],
+            ['REPLY', '0', '0', '8', '18,0'],
+            ['REPLY', '0', '0', '9', '18,0'],
+        ]
+
+    def test_kink_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Realm, principal name and TGT, the error code ranges, and a
+        chain with every payload type ending in an unknown payload.'''
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 6, 13, 14}', '-Tfields',
+                '-ekink.realmName', '-ekink.princName', '-ekink.tgt',
+                '-ekink.error_code', '-ekink.nextPayload',
+                '-ekink.qmversion')
+        assert rows[0][:3] == ['EXAMPLE.TEST', '', '']
+        assert rows[1][:3] == ['', 'krbtgt/EXAMPLE.TEST@EXAMPLE.TEST',
+                               'PLACEHOLDER-TGT-BYTES']
+        assert rows[2][3] == '0,1,2,3,4,5,6,7,8191,8192,16383,16384,4294967295'
+        assert rows[3][4] == '17,14,15,16,18,19,20,21,99,0'
+        assert rows[3][5] == '32'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kink_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 13', '-V', '-O', 'kink',
+            ), encoding='utf-8', env=test_env)
+        for text in ('ErrorCode: KINK_OK (0)', 'ErrorCode: KINK_INVDOI (2)',
+                     'ErrorCode: RESERVED (8191)',
+                     'ErrorCode: PRIVATE USE (8192)',
+                     'ErrorCode: This Error Code is not Defined. (4294967295)'):
+            assert text in stdout
+
+    def test_kink_payload_chain_depth(self, cmd_tshark, capture_file, test_env):
+        '''Frames 19-21 (a 64 KiB IPv4 datagram, an Exported PDU and an
+        IPv6 jumbogram, each a chain of thousands of 4 octet payloads) are
+        dissected up to a depth limit and then end with the "Too many
+        chained payloads" warning (a stack overflow in builds that do not
+        optimise the recursion away before the fix).'''
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'kink.too_many_payloads', '-Tfields',
+                '-eframe.number', '-ekink.payloadLength')
+        assert [r[0] for r in rows] == ['19', '20', '21']
+        for r in rows:
+            assert 0 < len(r[1].split(',')) <= 64
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 19', '-Tfields', '-e_ws.col.info',
+                '-e_ws.expert.message')
+        assert rows == [['CREATE',
+                         'Too many chained payloads, not dissecting further']] * 3
+
+    def test_kink_unknown_types(self, cmd_tshark, capture_file, test_env):
+        '''Reserved and unknown message types and a DOI other than IPsec.'''
+        rows = TestDissectKink._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 15 || frame.number == 16',
+                '-Tfields', '-e_ws.col.info', '-ekink.checkSumLength')
+        assert rows == [['RESERVED', '3'], ['unknown', '13']]
