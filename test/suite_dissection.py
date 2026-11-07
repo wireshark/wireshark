@@ -88112,3 +88112,171 @@ class TestDissectL1Events:
                 ), encoding='utf-8', env=test_env)
             tree = stdout.split('Layer 1 Event Messages\n')[1]
             assert [l.strip() for l in tree.splitlines() if l.strip()] == items
+
+
+class TestDissectL2tp:
+    '''L2TP: L2TPv2 over UDP, L2TPv3 over UDP and over IP (protocol 115),
+    control messages with IETF, Cisco, Broadband Forum, Ericsson and
+    CableLabs AVPs, data messages and L2TPv3 sessions, from the synthetic
+    capture l2tp_coverage.pcap.gz. The hidden AVPs, message digests and
+    nonces are placeholder octets; no key is used.'''
+
+    def l2tp_fields(self, cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('l2tp_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', '-Eseparator=|']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('|') for line in stdout.splitlines()]
+
+    def test_l2tp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''162 frames, 161 of them L2TP (frame 56 is a version 1 header
+        that is not L2TP). None is malformed or has an error expert info,
+        in one and two passes.'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env, '', 'frame.protocols')
+        assert len(frames) == 162
+        l2tp = [n + 1 for n, f in enumerate(frames) if ':l2tp' in f[0]]
+        assert len(l2tp) == 161
+        assert 56 not in l2tp
+        for passes in ((), ('-2',)):
+            frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                      'frame.number', passes=passes)
+            assert frames == []
+
+    def test_l2tp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The session state learnt from the control messages gives the
+        same pseudowire types, cookies and Info columns in two passes.'''
+        fields = ('frame.number', '_ws.col.info', 'l2tp.sid', 'l2tp.avp.pseudowire_type',
+                  'l2tp.cookie', 'l2tp.l2_spec_sequence')
+        one = self.l2tp_fields(cmd_tshark, capture_file, test_env, '', *fields)
+        two = self.l2tp_fields(cmd_tshark, capture_file, test_env, '', *fields, passes=('-2',))
+        assert len(one) == 162
+        assert one == two
+
+    def test_l2tp_v2_control(self, cmd_tshark, capture_file, test_env):
+        '''Info column of L2TPv2 control messages: message types, ZLB,
+        the Ericsson and Cisco message types shown by their vendor AVPs,
+        an unknown first AVP and a control message without length bit.'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {1, 2, 4, 6, 7, 18, 21, 28, 32, 34, 35, 36, 37, 38, 39, 40, 41, 44, 45}',
+                                  'frame.number', '_ws.col.info')
+        assert frames == [
+            ['1', 'Control Message - SCCRQ (tunnel id=0, session id=0)'],
+            ['2', 'Control Message - SCCRP (tunnel id=11, session id=0)'],
+            ['4', 'Control Message - ZLB      (tunnel id=11, session id=0)'],
+            ['6', 'Control Message - ICRQ (tunnel id=22, session id=0)'],
+            ['7', 'Control Message - ICRP (tunnel id=11, session id=33)'],
+            ['18', 'Control Message - CDN (tunnel id=22, session id=44)'],
+            ['21', 'Control Message - StopCCN (tunnel id=22, session id=0)'],
+            ['28', 'Control Message - Cisco ACK (ccid=4294967295)'],
+            ['32', 'Control Message - TCRQ'],
+            ['34', 'Control Message - TCN'],
+            ['35', 'Control Message - PN'],
+            ['36', 'Control Message - TCRQ'],
+            ['37', 'Control Message - TCRP'],
+            ['38', 'Control Message - ALTCRQ'],
+            ['39', 'Control Message - ALTCRP'],
+            ['40', 'Control Message - LCCSN'],
+            ['41', 'Control Message - Unknown (0x9)'],
+            ['44', 'Control Message - Hello (tunnel id=22, session id=0)'],
+            ['45', 'Control Message (tunnel id=22, session id=0)'],
+        ]
+
+    def test_l2tp_v2_data(self, cmd_tshark, capture_file, test_env):
+        '''L2TPv2 data messages carry PPP; frames 52 and 53 have no
+        payload (a length of 12 and 8 octets).'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number >= 46 && frame.number <= 56',
+                                  'frame.number', 'frame.protocols')
+        protocols = {int(n): p.replace('eth:ethertype:ip:udp:', '') for n, p in frames}
+        assert protocols == {
+            46: 'l2tp:ppp:lcp', 47: 'l2tp:ppp:lcp', 48: 'l2tp:ppp:lcp', 49: 'l2tp:ppp:lcp',
+            50: 'l2tp:ppp:lcp', 51: 'l2tp:ppp:lcp', 52: 'l2tp', 53: 'l2tp',
+            54: 'l2tp:ppp:ip:data', 55: 'l2tp:ppp:lcp', 56: 'data'}
+
+    def test_l2tp_v3_sessions(self, cmd_tshark, capture_file, test_env):
+        '''The pseudowire type, cookie and L2-specific sublayer of data
+        frames come from the ICRQ/ICRP/ICCN of their session: Ethernet
+        with the default sublayer and a 4/8 octet cookie, AAL5 with the
+        ATM sublayer (an AAL5 frame and an OAM cell), DOCSIS DMPT, Ethernet
+        VLAN without a sublayer, PPP, a session that is not in the tunnel
+        and the same over IP.'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {112, 113, 114, 115, 117, 119, 121, 123, 124, 136, 137, 138, 152, 153, 154, 155, 157}',
+                                  'frame.number', 'l2tp.sid', 'l2tp.avp.pseudowire_type', 'l2tp.cookie')
+        assert frames == [
+            ['112', '0x00000010', '5', '01020304'],
+            ['113', '0x00000090', '5', '0b0c0d0e0f101112'],
+            ['114', '0x00000011', '2', '0102030405060708'],
+            ['115', '0x00000091', '2', '0b0c0d0e'],
+            ['117', '0x00000012', '12', ''],
+            ['119', '0x00000013', '4', '01020304'],
+            ['121', '0x00000014', '7', '0102030405060708'],
+            ['123', '0x00007777', '0', ''],
+            ['124', '0x00000010', '5', ''],
+            ['136', '0x00000030', '5', '00000000'],
+            ['137', '0x000000b0', '5', '0000000000000000'],
+            ['138', '0x00004321', '0', ''],
+            ['152', '0x00000040', '5', '0000000000000000'],
+            ['153', '0x000000c0', '5', '0000000000000000'],
+            ['154', '0x00000041', '2', ''],
+            ['155', '0x000000c1', '2', ''],
+            ['157', '0x00005555', '0', ''],
+        ]
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {112, 114, 115, 117}',
+                                  'frame.number', 'l2tp.l2_spec_def', 'l2tp.l2_spec_atm',
+                                  'l2tp.l2_spec_t', 'l2tp.l2_spec_docsis_dmpt',
+                                  'l2tp.l2_spec_sequence', 'frame.protocols')
+        assert frames == [
+            ['112', '1', '', '', '', '1', 'eth:ethertype:ip:udp:l2tp:ethertype:ip:data'],
+            ['114', '', '1', 'False', '', '1', 'eth:ethertype:ip:udp:l2tp:llc:ip:data'],
+            ['115', '', '1', 'True', '', '2', 'eth:ethertype:ip:udp:l2tp:oamaal'],
+            ['117', '', '', '', '1', '7', 'eth:ethertype:ip:udp:l2tp'],
+        ]
+
+    def test_l2tp_digests(self, cmd_tshark, capture_file, test_env):
+        '''The digests are placeholders, so a digest in a tunnel with a
+        known control connection is reported as incorrect: MD5 and SHA1,
+        over UDP and IP, and a digest of the wrong length for its
+        algorithm. An unknown algorithm and the L2TPv2 digest (no
+        tunnel) are not checked.'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'l2tp.avp.message_digest', 'frame.number', '_ws.expert.message')
+        warned = [int(n) for n, m in frames if 'Incorrect Digest' in m]
+        assert warned == [57, 58, 59, 61, 62, 63, 141, 142, 143, 145]
+        assert [int(n) for n, m in frames if 'Incorrect Digest' not in m] == [27, 64]
+
+    def test_l2tp_vendor_avps(self, cmd_tshark, capture_file, test_env):
+        '''AVPs of vendors without a dissector and unknown AVP types are
+        reported with a warning; the Cisco, Broadband Forum, Ericsson and
+        CableLabs AVPs are decoded.'''
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.expert.message contains "Vendor-Specific"',
+                                  'frame.number')
+        assert [int(f[0]) for f in frames] == [24, 29, 31, 33, 42, 43]
+        frames = self.l2tp_fields(cmd_tshark, capture_file, test_env,
+                                  'l2tp.broadband.actual_dr_up || l2tp.cisco.interface_mtu || l2tp.ericsson.stn_name || l2tp.cablel.frequency',
+                                  'frame.number')
+        assert [int(f[0]) for f in frames] == [29, 30, 32, 42, 127]
+
+    def test_l2tp_ericsson_tei_map(self, cmd_tshark, capture_file, test_env):
+        '''The TEI to SC Map AVP: the subset is the AVP length minus the
+        map count octet. Frame 160 has 5 octets of maps (one map of 3
+        octets); before "L2TP: Fix session list growth and Ericsson AVP
+        length handling" the subset also took the first octet of the next
+        AVP and showed a second map. Frame 161 has two maps, frame 162 an
+        Ericsson Transport Configuration AVP of exactly 3 octets.'''
+        counts = {}
+        for n in (160, 161, 162):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('l2tp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % n, '-V',
+                ), encoding='utf-8', env=test_env)
+            counts[n] = stdout.count('Transport Config Bundling Group')
+            assert 'Malformed' not in stdout
+            assert 'Bad AVP length' not in stdout
+        assert counts == {160: 1, 161: 2, 162: 0}
