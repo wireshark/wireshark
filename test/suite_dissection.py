@@ -89284,3 +89284,195 @@ class TestDissectLbmpdmTcp:
                                         '-o', 'uat:lbmpdm_tcp_domains:"tagA","14371","14375"',
                                         '-o', 'uat:lbmpdm_tcp_domains:"tagB","14380","14385"'))
         assert rows == [['4', 'LBMPDM-TCP', 'tagA'], ['14', 'LBMPDM-TCP', 'tagB'], ['51', 'TCP', '']]
+
+
+class TestDissectLbmr:
+    '''LBMR (29West/Informatica Ultra Messaging topic resolution) over UDP,
+    multicast 224.9.10.11:12965 and unicast ports 14402-14406 to 15380, from
+    the synthetic capture lbmr_coverage.pcap.gz.'''
+
+    @staticmethod
+    def tshark_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=(), passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('lbmr_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_lbmr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 99 frames decode as LBMR without malformed packets, in one and
+        two passes. Only frame 76, a TNWG interest record shorter than its
+        header, gets an error expert info. Ten frames carry an unknown
+        type, option or transport and get a warning.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert [r[0] for r in rows].count('LBMR') == 99
+        for passes in ((), ('-2',)):
+            rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity == error',
+                                      'frame.number', passes=passes)
+            assert rows == [['76']]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'lbmr.analysis.invalid_value',
+                                  'frame.number')
+        assert [r[0] for r in rows] == ['19', '20', '40', '41', '87', '90', '92', '93', '94', '95']
+
+    def test_lbmr_info_column(self, cmd_tshark, capture_file, test_env):
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {1, 3, 4, 5, 7, 8, 11, 21, 43, 44, 45, 47, 51, 62, 65, 74, 88, 90, 92}',
+                                  'frame.number', '_ws.col.info')
+        assert rows == [
+            ['1', 'Unicast Resolver Keepalive'],
+            ['3', 'Receiver Alive'],
+            ['4', 'Source Alive'],
+            ['5', 'TQRs 1 TIRs 0'],
+            ['7', 'TQRs 1 TIRs 0'],
+            ['8', 'TQRs 3 TIRs 0'],
+            ['11', 'TQRs 0 TIRs 1'],
+            ['21', 'TQRs 1 TIRs 3'],
+            ['43', 'Topic Management'],
+            ['44', 'QQRs 2 QIRs 0'],
+            ['45', 'QQRs 0 QIRs 1'],
+            ['47', 'ExtType Proxy Source Election'],
+            ['51', 'ExtType Queue Management'],
+            ['62', 'ExtType Context Information'],
+            ['65', 'ExtType Topic Resolution Request'],
+            ['74', 'ExtType Gateway Message'],
+            ['88', 'ExtType Remote Domain Route'],
+            ['90', 'ExtType Remote Context Information'],
+            ['92', 'ExtType Unknown(0x42)'],
+        ]
+
+    def test_lbmr_queries(self, cmd_tshark, capture_file, test_env):
+        '''Topic and wildcard queries.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'lbmr.tqr.name || lbmr.tqr.pattern',
+                                  'frame.number', 'lbmr.tqr.name', 'lbmr.tqr.pattern', 'lbmr.tqr.pattern_type')
+        assert rows[:5] == [
+            ['7', 'topic/one', '', ''],
+            ['8', 'topic/two,topic/three,topic/four', '', ''],
+            ['9', '', 'topic/.*', '1'],
+            ['10', '', 'orders\\\\..*,x*', '2,0'],
+            ['21', 'topic/mixed', '', ''],
+        ]
+
+    def test_lbmr_advertisements(self, cmd_tshark, capture_file, test_env):
+        '''Advertisements for every transport; the unknown transports get a
+        warning; every transport gets a channel, distinct for distinct
+        transports.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number >= 11 && frame.number <= 20',
+                                  'frame.number', 'lbmr.tir.name', 'lbmr.tir.index', 'lbmr.tir.channel')
+        assert [r[:3] for r in rows] == [
+            ['11', 'topic/tcp', '100'], ['12', 'topic/tcpsid', '101'], ['13', 'topic/lbtrm', '102'],
+            ['14', 'topic/lbtru', '103'], ['15', 'topic/lbtrusid', '104'], ['16', 'topic/ipc', '105'],
+            ['17', 'topic/rdma', '106'], ['18', 'topic/smx', '107'], ['19', 'topic/tcp6', '108'],
+            ['20', 'topic/weird', '109'],
+        ]
+        channels = [r[3] for r in rows]
+        assert channels[8] == '' and channels[9] == ''          # unknown transports
+        assert len(set(channels[:8])) == 8 and '' not in channels[:8]
+        # the same transport again gets the same channel
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number == 22',
+                                  'lbmr.tir.channel')
+        assert rows[0][0].split(',')[0] == channels[0]
+        assert rows[0][0].split(',')[1] == channels[2]
+
+    def test_lbmr_lbtrdma_session_and_port(self, cmd_tshark, capture_file, test_env):
+        '''The LBT-RDMA source string has the session id and the port in
+        the right order ("LBMR: Fix TNWG option loop and swapped LBTRDMA
+        arguments").'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('lbmr_coverage.pcap.gz'),
+                '-q', '-z', 'lbmr_topic_ads_source,tree'),
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'LBT-RDMA:1234abcd:5000[106]' in stdout
+        assert 'LBTRM:10.0.0.1:14390:11223344:224.10.10.10:14400[102]' in stdout
+        assert 'TCP:10.0.0.1:4001:aabbccdd[101]' in stdout
+
+    def test_lbmr_topic_options(self, cmd_tshark, capture_file, test_env):
+        '''The advertisement with all 15 topic options.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number == 41',
+                                  'lbmr.topt.cost.cost', 'lbmr.topt.cost.hop_count',
+                                  'lbmr.topt.domain_id.domain_id', 'lbmr.topt.ume.src_reg_id',
+                                  'lbmr.topt.unknown.type', 'lbmr.topt.len.total_len')
+        assert rows == [['1234', '3', '99', '286331153', '127', '247']]
+
+    def test_lbmr_tnwg_options(self, cmd_tshark, capture_file, test_env):
+        '''A gateway context information message with three options
+        (frame 84) and a TRREQ with four (frame 85): every option is
+        decoded at its own offset.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {84, 85}',
+                                  'frame.number', 'lbmr.tnwg.type', 'lbmr.tnwg.opt_ctxinst.type',
+                                  'lbmr.tnwg.opt_domain.domain_id', 'lbmr.tnwg.opt_address.port',
+                                  'lbmr.tnwg.opt_name.name', 'lbmr.tnwg.opt_ctxinst.instance')
+        assert rows == [
+            ['84', '1', '0x00', '77', '4000', '', '1112131415161718'],
+            ['85', '2', '0x00,0x00', '77', '', 'gw-name', '1112131415161718,1112131415161718'],
+        ]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {74, 77}',
+                                  'frame.number', 'lbmr.tnwg.interest_rec.symbol',
+                                  'lbmr.tnwg.opt.type', 'lbmr.tnwg.opt.len')
+        assert rows == [['74', 'topic/.*,pattern,x,cancel,refresh', '', ''], ['77', '', '0x55', '6']]
+
+    def test_lbmr_queues(self, cmd_tshark, capture_file, test_env):
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {44, 45, 46}',
+                                  'frame.number', 'lbmr.qqr.name', 'lbmr.qir.qname', 'lbmr.qir.tname',
+                                  'lbmr.qir.queue_id', 'lbmr.qir.queue.port', 'lbmr.qir.grp.grp_sz')
+        assert rows == [
+            ['44', 'queue/one,queue/two', '', '', '', '', ''],
+            ['45', '', 'queue/one', 'topic/q', '5', '6000,6001', '2,3'],
+            ['46', 'queue/three', 'queue/two,queue/three', 'topic/q2,topic/q3', '6,7', '6002', '1'],
+        ]
+
+    def test_lbmr_queue_management(self, cmd_tshark, capture_file, test_env):
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'lbmr.qmgmt.pckt_type',
+                                  'frame.number', 'lbmr.qmgmt.pckt_type', 'lbmr.qmgmt.qname',
+                                  'lbmr.qmgmt.il_num_insts', 'lbmr.qmgmt.il_inst.port', 'lbmr.qmgmt.ev.age')
+        assert rows == [
+            ['51', '0x01', 'queue/il', '3', '6200,6201,6202', ''],
+            ['52', '0x01', '', '0', '', ''],
+            ['53', '0x02', '', '', '', ''],
+            ['54', '0x03', 'queue/jrej', '', '', ''],
+            ['55', '0x04', '', '', '', ''],
+            ['56', '0x05', 'queue/ec', '', '', ''],
+            ['57', '0x06', '', '', '', '200'],
+            ['58', '0x07', 'q', '', '', ''],
+            ['59', '0x07', '', '', '', ''],
+            ['60', '0x08', '', '', '', ''],
+            ['61', '0x77', '', '', '', ''],
+        ]
+
+    def test_lbmr_extended_messages(self, cmd_tshark, capture_file, test_env):
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                  'frame.number in {43, 47, 48, 63, 88, 90, 94}',
+                                  'frame.number', 'lbmr.tmb.tmr.name', 'lbmr.tmb.tmr.type',
+                                  'lbmr.pser.topic', 'lbmr.pser.opt.ctxinst.type', 'lbmr.ctxinfo.name',
+                                  'lbmr.remote_domain_route.domain', 'lbmr.rctxinfo.rec.name.name',
+                                  'lbmr.opt.version.version', 'lbmr.opt.src_type.src_type')
+        assert rows == [
+            ['43', 'topic/use/query,topic/use/response,topic/leave,pcre/.*,regex/.*,topic/unknown',
+             '1,1,0,1,1,9', '', '', '', '', '', '', ''],
+            ['47', '', '', 'topic/pser', '', '', '', '', '', ''],
+            ['48', '', '', 'topic/pser2', '0,1', '', '', '', '', ''],
+            ['63', '', '', '', '', 'context-name', '', '', '', ''],
+            ['88', '', '', '', '', '', '1,2,3', '', '', ''],
+            ['90', '', '', '', '', '', '', 'rctx', '', ''],
+            ['94', '', '', '', '', '', '', '', '100794624', '2'],
+        ]
+
+    def test_lbmr_tag_table_and_preferences(self, cmd_tshark, capture_file, test_env):
+        '''The tag table is shown in the info column; a changed multicast
+        group makes the heuristic ignore the default group, but not the
+        unicast frames.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 3, 7}',
+                                  'frame.number', '_ws.col.info', 'lbmr.tag',
+                                  opts=('-o', 'lbmr.use_lbmr_domain:TRUE',
+                                        '-o', 'uat:lbmr_domains:"tagA","12965","224.9.10.11","12965",'
+                                              '"224.9.10.11","14402","14406","15380","0.0.0.0"'))
+        assert rows == [
+            ['1', '[Tag: tagA] Unicast Resolver Keepalive', 'tagA'],
+            ['3', '[Tag: tagA] Receiver Alive', 'tagA'],
+            ['7', '[Tag: tagA] TQRs 1 TIRs 0', 'tagA'],
+        ]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 3, 7}',
+                                  'frame.number', '_ws.col.protocol',
+                                  opts=('-o', 'lbmr.mc_incoming_address:224.9.20.20',
+                                        '-o', 'lbmr.mc_outgoing_address:224.9.20.20'))
+        assert rows == [['1', 'UDP'], ['3', 'LBMR'], ['7', 'UDP']]
