@@ -96671,3 +96671,131 @@ class TestDissectMiop:
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'giop', '-Tfields', '-eframe.number', '-egiop.type')
         assert lines == ['19\t5', '20\t6', '21\t0', '22\t0', '24\t5', '25\t5']
+
+
+class TestDissectMip6:
+    '''Mobile IPv6 and Proxy Mobile IPv6 (mobility header on IPv6 and IPv4
+    next header 135 and 62, and UDP 5436) from the synthetic capture
+    mip6_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('mip6_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mip6_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 103 frames decode, without malformed packets or error
+        expert infos in one and two passes. Frame 85 (MAG IPv6 Address
+        option, 18 octets) only gets a warning: the dissector expects 16.'''
+        for passes in ((), ('-2',)):
+            protocols = self.fields(cmd_tshark, capture_file, test_env, '',
+                                    '_ws.col.protocol', passes=passes)
+            assert len(protocols) == 103
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts == {'MIPv6': 97, 'NEMO': 3, 'AH': 2, 'ICMPv6': 1}
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                              'frame.number', passes=passes)
+            assert bad == []
+            warn = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.expert.severity >= 0x00600000',
+                               'frame.number', passes=passes)
+            assert warn == ['85']
+
+    def test_mip6_nemo_column(self, cmd_tshark, capture_file, test_env):
+        '''The NEMO protocol column follows the R flag of the packet itself:
+        the Binding Update (frame 8) and Binding Acknowledgement (13, 14)
+        with R are NEMO, the ones after them are MIPv6 again, in one and
+        two passes and without a tree. It used to depend on what was
+        dissected before ("MIPv6: Fix several offsets and lengths, drop a
+        global flag").'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {7,8,9,13,14,15,16}',
+                                'frame.number', '_ws.col.protocol', passes=passes)
+            assert lines == ['7\tMIPv6', '8\tNEMO', '9\tMIPv6', '13\tNEMO',
+                             '14\tNEMO', '15\tMIPv6', '16\tMIPv6']
+
+    def test_mip6_localized_routing(self, cmd_tshark, capture_file, test_env):
+        '''Localized Routing Initiation and Acknowledgment are read after
+        the mobility header, not from offset 0 (sequence 5, not 15187).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'mip6.lri.sequence || mip6.lra.sequence',
+                            'frame.number', 'mip6.lri.sequence', 'mip6.lra.sequence',
+                            'mip6.lri.lifetime', 'mip6.lra.lifetime', 'mip6.lra.status')
+        assert lines == [
+            '41\t5\t\t0x0064\t\t',
+            '42\t\t5\t\t0x0064\t0',
+            '43\t\t6\t\t0x0000\t129',
+            '96\t7\t\t0x0064\t\t',
+            '97\t\t7\t\t0x0064\t0',
+        ]
+
+    def test_mip6_home_agent_switch(self, cmd_tshark, capture_file, test_env):
+        '''The Home Agent Switch message returns its length including the
+        mobility header, so the option after the addresses (Binding
+        Refresh Advice, 8) decodes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'mip6.has.address',
+                            'frame.number', 'mip6.has.num_addrs', 'mip6.has.address',
+                            'mip6.bra.interval')
+        assert lines == [
+            '29\t2\t2001:db8::99,2001:db8::1\t',
+            '30\t1\t2001:db8::99\t8',
+            '98\t1\t2001:db8::99\t8',
+        ]
+
+    def test_mip6_option_data_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The data items of the authentication, DNS update and vendor
+        specific options span the whole data (they were two octets short),
+        and the unknown options show their own length.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {52, 56, 58}',
+                            'frame.number', 'mip6.auth.auth_data', 'mip6.dnsu.mn_id',
+                            'mip6.vsm.data')
+        assert lines == [
+            '52\t000102030405060708090a0b\t\t',
+            '56\t\t6d6e2e6578616d706c652e6f7267\t',
+            '58\t\t\t76656e646f722064617461',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 79',
+                            'mip6.mobility_opt', 'mip6.mobility_opt.len')
+        assert lines == ['42,43,44,45,99\t8,4,4,4,3,1']
+
+    def test_mip6_fast_handover_payloads(self, cmd_tshark, capture_file, test_env):
+        '''A Fast Binding Acknowledgment with payload protocol 51 carries an
+        AH (frame 23), nested two levels through AH and a second
+        acknowledgment in frame 24; a Fast Neighbor Advertisement with
+        payload protocol 41 carries an IPv6 packet (frame 26).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {23, 24, 26}',
+                            'frame.number', 'frame.protocols')
+        assert lines == [
+            '23\teth:ethertype:ipv6:mipv6:ah',
+            '24\teth:ethertype:ipv6:mipv6:ah:mipv6:ah',
+            '26\teth:ethertype:ipv6:mipv6:ipv6:icmpv6',
+        ]
+
+    def test_mip6_carriers(self, cmd_tshark, capture_file, test_env):
+        '''Mobility headers over IPv4 (next header 135 and 62), PMIPv6 over
+        UDP 5436 and behind an IPv6 destination options header.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 99',
+                            'frame.number', 'frame.protocols')
+        assert lines == [
+            '99\teth:ethertype:ip:mipv6',
+            '100\teth:ethertype:ip:mipv6',
+            '101\teth:ethertype:ip:udp:mipv6',
+            '102\teth:ethertype:ip:udp:mipv6',
+            '103\teth:ethertype:ipv6:ipv6.dstopts:mipv6',
+        ]
+
+    def test_mip6_3gpp(self, cmd_tshark, capture_file, test_env):
+        '''3GPP vendor specific option: Charging ID (frame 89).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'mip6.3gpp.chg_id',
+                            'frame.number', 'mip6.3gpp.chg_id')
+        assert lines == ['89\t16909060']
