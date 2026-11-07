@@ -159,6 +159,12 @@ dissect_nasdaq_soup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         return tvb_captured_length(tvb);
       }
 
+      if (linelen == 0) {
+        /* Empty line, nothing to dissect; skip it */
+        offset = next_offset;
+        continue;
+      }
+
       nasdaq_soup_type = tvb_get_uint8(tvb, offset);
       if (counter == 0) {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "Nasdaq-SOUP");
