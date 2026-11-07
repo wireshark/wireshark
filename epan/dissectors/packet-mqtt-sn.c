@@ -16,6 +16,8 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 /* MQTT-SN message types. */
 #define MQTTSN_ADVERTISE              0x00
@@ -184,6 +186,11 @@ static int hf_mqttsn_wireless_node_id;
 /* Initialize subtree pointers. */
 static int ett_mqttsn_hdr;
 static int ett_mqttsn_msg;
+
+static expert_field ei_mqttsn_nesting_too_deep;
+
+/* How deeply encapsulated messages may be nested. */
+#define MQTTSN_MAX_NESTING 16
 static int ett_mqttsn_flags;
 
 /* Dissect a single MQTT-SN packet. */
@@ -522,15 +529,23 @@ static void dissect_mqttsn_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                 /* | 1 - Control information | 2:n - Wireless Node ID | n+1:m - MQTT-SN message | */
                 proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_control_info, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_wireless_node_id, tvb, offset, (mqttsn_msg_len - offset), ENC_BIG_ENDIAN);
+                proto_tree_add_item(mqttsn_msg_tree, hf_mqttsn_wireless_node_id, tvb, offset, (mqttsn_msg_len - offset), ENC_NA);
                 offset += (mqttsn_msg_len - offset);
 
                 /* Dissect encapsulated message (if present). */
                 if (tvb_reported_length_remaining(tvb, offset) > 0)
                 {
+                    unsigned depth = p_get_proto_depth(pinfo, proto_mqttsn);
+
+                    if (depth >= MQTTSN_MAX_NESTING) {
+                        proto_tree_add_expert_remaining(mqttsn_msg_tree, pinfo, &ei_mqttsn_nesting_too_deep, tvb, offset);
+                        break;
+                    }
+                    p_set_proto_depth(pinfo, proto_mqttsn, depth + 1);
                     increment_dissection_depth(pinfo);
                     dissect_mqttsn_packet(tvb, pinfo, mqttsn_msg_tree, offset);
                     decrement_dissection_depth(pinfo);
+                    p_set_proto_depth(pinfo, proto_mqttsn, depth);
                 }
 
             /* Default Case */
@@ -717,7 +732,7 @@ void proto_register_mqttsn(void)
         },
         { &hf_mqttsn_wireless_node_id,
             { "Wireless Node ID", "mqttsn.wireless.node.id",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         }
     };
@@ -738,6 +753,12 @@ void proto_register_mqttsn(void)
     /* Register fields and subtrees. */
     proto_register_field_array(proto_mqttsn, hf_mqttsn, array_length(hf_mqttsn));
     proto_register_subtree_array(ett_mqttsn, array_length(ett_mqttsn));
+
+    static ei_register_info ei[] = {
+        { &ei_mqttsn_nesting_too_deep, { "mqttsn.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Encapsulated messages nested too deeply", EXPFILL }},
+    };
+    expert_module_t *expert_mqttsn = expert_register_protocol(proto_mqttsn);
+    expert_register_field_array(expert_mqttsn, ei, array_length(ei));
 }
 
 /* Dissector Handoff */
