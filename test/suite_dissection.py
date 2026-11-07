@@ -96004,3 +96004,85 @@ class TestDissectMeta:
             '23\t3\t\t\t\t\t0x0001,0x0002,0x03e8',
             '24\t3\t\t\t\t\t',
         ]
+
+
+class TestDissectMetamako:
+    '''Metamako Ethernet trailers (found by the disabled-by-default
+    eth.trailer heuristic "metamako_eth") in the synthetic capture
+    metamako_coverage.pcap.gz.'''
+
+    HEUR = ('--enable-heuristic', 'metamako_eth')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=(), timeout=120):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '--enable-heuristic', 'metamako_eth',
+                '-r', capture_file('metamako_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=timeout)
+        return stdout.splitlines()
+
+    def test_metamako_trailers(self, cmd_tshark, capture_file, test_env):
+        '''22 of the 28 frames have a trailer the heuristic accepts (the
+        others have a timestamp too far from the capture time, nanoseconds
+        out of range, seconds below the bound, a short trailer or none),
+        with no malformed packets or error expert infos in one and two
+        passes. The heuristic is off by default.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'metamako',
+                    passes=passes)
+            assert [int(l) for l in lines] == list(range(1, 22)) + [28]
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('metamako_coverage.pcap.gz'),
+                '-Y', 'metamako', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+
+    def test_metamako_header(self, cmd_tshark, capture_file, test_env):
+        '''Flags, device and port of the trailer, the original and the new
+        FCS (checked by default; frames 6, 7 and 18 carry a correct one).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 5, 6, 18, 20}',
+                'metamako.flags', 'metamako.src.device_id', 'metamako.src.port',
+                'metamako.orig_fcs', 'metamako.fcs.status')
+        assert lines == [
+            '1\t0x01\t258\t7\t0xdeadbeef\t',
+            '2\t0x34\t65535\t255\t0xdeadbeef\t',
+            '5\t0x00\t0\t0\t0xdeadbeef\t',
+            '6\t0x01\t258\t7\t0xdeadbeef\t1',
+            '18\t0x07\t258\t7\t0xdeadbeef\t1',
+            '20\t0x03\t258\t7\t0xdeadbeef\t',
+        ]
+
+    def test_metamako_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Each TLV tag decodes: sequence number, sub-nanoseconds, CRC64
+        hash, egress sequence number, tag string and unknown tags; frame 17
+        has six TLVs in one trailer, decoded from the earliest.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {8, 9, 10, 11, 12, 17}',
+                'metamako.seqnum', 'metamako.subns', 'metamako.crchash',
+                'metamako.egrseqnum', 'metamako.tagstring', 'metamako.unknown')
+        assert lines == [
+            '8\t4660\t\t\t\t\t',
+            '9\t\t8388609\t\t\t\t',
+            '10\t\t\t0x0102030405060762\t\t\t',
+            '11\t\t\t\t2748\t\t',
+            '12\t\t\t\t\thello-world-tag\t',
+            '17\t9\t4194304\t0x1112131415161742\t5\t-tag-string-xyz\t010203',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {13, 14, 16}', 'metamako.unknown')
+        assert lines == ['13\t010203', '14\ta1a2a3a4b1b2b3b4c1c2c3', '16\t00112233']
+
+    def test_metamako_many_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Frame 28 has 60000 TLVs. Each one was found by walking back from
+        the end of the trailer (about 19 seconds before "Metamako: Decode
+        trailer TLVs in linear time").'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 28', 'metamako.unknown', timeout=15)
+        assert len(lines) == 1
+        assert lines[0].split('\t')[1].count(',') == 59999
