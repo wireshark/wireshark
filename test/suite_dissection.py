@@ -99730,3 +99730,58 @@ class TestDissectMplsPm:
         assert rows[10][4:] == ['True', 'True']
         assert rows[12][4] == 'True'
         assert all(r[3] == '1001' for r in rows)
+
+
+class TestDissectMplsPsc:
+    '''MPLS-TP protection state coordination (PSC, packet-mpls-psc.c) over
+    the PW associated channel 0x0024, from the synthetic capture
+    mpls_psc_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mpls_psc_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_psc_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 25 frames are PSC and none is malformed or has an error
+        expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_psc', ['frame.number'])
+        assert len(rows) == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpls_psc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_psc_requests(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-16 carry the request codes 0-15; the Info column shows
+        the short name or Unknown-Request for the unassigned codes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 16',
+                          ['mpls_psc.req', '_ws.col.info'])
+        assert [int(r[0]) for r in rows] == list(range(16))
+        short = {0: 'NR', 1: 'DNR', 4: 'WTR', 5: 'MS', 7: 'SD', 10: 'SF', 12: 'FS', 14: 'LO'}
+        assert [r[1] for r in rows] == ['%s(1,1)' % short.get(i, 'Unknown-Request') for i in range(16)]
+
+    def test_mpls_psc_fields(self, cmd_tshark, capture_file, test_env):
+        '''Protection type, R bit, fault and data paths, version and TLV
+        length of frames 17-25.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 17',
+                          ['mpls_psc.ver', 'mpls_psc.req', 'mpls_psc.pt', 'mpls_psc.rev',
+                           'mpls_psc.fpath', 'mpls_psc.dpath', 'mpls_psc.tlvlen'])
+        assert rows == [
+            ['0', '10', '0', '0', '0', '0', '0'],
+            ['0', '10', '1', '1', '1', '1', '0'],
+            ['0', '10', '2', '0', '2', '2', '0'],
+            ['0', '10', '3', '1', '3', '3', '0'],
+            ['0', '12', '2', '1', '2', '2', '0'],
+            ['0', '14', '2', '0', '255', '255', '0'],
+            ['1', '5', '2', '1', '0', '0', '0'],
+            ['3', '7', '2', '1', '0', '0', '4'],
+            ['0', '4', '2', '1', '1', '0', '0'],
+        ]
