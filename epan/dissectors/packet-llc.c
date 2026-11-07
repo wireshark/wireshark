@@ -286,6 +286,13 @@ capture_llc(const unsigned char *pd, int offset, int len, capture_packet_info_t 
 	 * uses extended operation, so we don't need to determine
 	 * whether it's basic or extended operation; is that the case?
 	 */
+	/* The control field is at least 1 byte, and 2 for an I or S frame in extended operation */
+	if (!BYTES_ARE_IN_FRAME(offset, len, 3))
+		return false;
+	if ((pd[offset+1] & SSAP_CR_BIT) && (pd[offset+2] & 0x03) != 0x03 &&
+	    !BYTES_ARE_IN_FRAME(offset, len, 4))
+		return false;
+
 	control = get_xdlc_control(pd, offset+2, pd[offset+1] & SSAP_CR_BIT);
 	llc_header_len += XDLC_CONTROL_LEN(control, true);
 	if (!BYTES_ARE_IN_FRAME(offset, len, llc_header_len))
