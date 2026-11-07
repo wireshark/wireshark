@@ -424,7 +424,6 @@ static int hf_tns_data_wrn_message;
 
 static int hf_tns_data_oci_oer_status;
 static int hf_tns_data_oci_oer_seq;
-static int hf_tns_data_oci_oer_category;
 static int hf_tns_data_oci_oer_error_pos;
 static int hf_tns_data_oci_oer_command;
 static int hf_tns_data_oci_oer_call_seq;
@@ -3924,6 +3923,81 @@ static int dissect_tns_return_params(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	return offset;
 }
 
+/* Decode the return parameters a server sends an OCI client ahead of an
+ * execute's status: thin's block at fixed widths. A ub2 count of ub4
+ * words, the third the statement's cursor; a ub2 length and the
+ * transaction id; a ub2 count of the session settings the statement
+ * changed, each a ub4 length and the key, a ub4 length and the value,
+ * and a ub2 keyword number; then a ub4 registration. Returns the new
+ * offset, or -1 when the block does not fit. */
+static int dissect_tns_oci_return_params(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+	proto_tree *rpa_tree;
+	proto_item *rpa_item;
+	int rpa_start = offset;
+	uint32_t num, len;
+
+	if ( !tvb_bytes_exist(tvb, offset, 2) )
+		return -1;
+	num = tvb_get_letohs(tvb, offset);
+	if ( !tvb_bytes_exist(tvb, offset + 2, num * 4 + 2) )
+		return -1;
+	rpa_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_tns_rpa, &rpa_item, "Return Parameters");
+	proto_tree_add_uint(rpa_tree, hf_tns_data_rpa_num_al8o4, tvb, offset, 2, num);
+	offset += 2;
+	for ( uint32_t i = 0; i < num; i++ )
+	{
+		proto_tree_add_item(rpa_tree, i == 2 ? hf_tns_cursor : hf_tns_data_rpa_al8o4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+	}
+	len = tvb_get_letohs(tvb, offset);
+	offset += 2;
+	if ( len > 0 )
+	{
+		proto_tree_add_item(rpa_tree, hf_tns_data_rpa_al8txl, tvb, offset, len, ENC_NA);
+		offset += len;
+	}
+	proto_tree_add_item_ret_uint(rpa_tree, hf_tns_data_rpa_num_kv, tvb, offset, 2, ENC_LITTLE_ENDIAN, &num);
+	offset += 2;
+	for ( uint32_t i = 0; i < num && tvb_reported_length_remaining(tvb, offset) > 0; i++ )
+	{
+		proto_tree *kv_tree;
+		proto_item *kv_item;
+		const char *text = NULL;
+		int kv_start = offset, start;
+		uint32_t keyword;
+
+		kv_tree = proto_tree_add_subtree_format(rpa_tree, tvb, offset, -1, ett_tns_kv,
+			&kv_item, "Key/Value Pair %u", i + 1);
+		len = tvb_get_letohl(tvb, offset);
+		offset += 4;
+		if ( len > 0 )
+		{
+			start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, NULL);
+			proto_tree_add_item(kv_tree, hf_tns_data_kv_binary, tvb, start + 1, offset - start - 1, ENC_NA);
+		}
+		len = tvb_get_letohl(tvb, offset);
+		offset += 4;
+		if ( len > 0 )
+		{
+			start = offset;
+			offset += get_dalc_custom(tvb, pinfo, offset, &text);
+			proto_tree_add_string(kv_tree, hf_tns_data_kv_text, tvb, start, offset - start, text);
+		}
+		proto_tree_add_item_ret_uint(kv_tree, hf_tns_data_kv_keyword, tvb, offset, 2, ENC_LITTLE_ENDIAN, &keyword);
+		offset += 2;
+		proto_item_append_text(kv_item, ": %s", val_to_str(pinfo->pool, keyword, tns_kv_keywords, "keyword %u"));
+		if ( text )
+			proto_item_append_text(kv_item, " = %s", text);
+		proto_item_set_len(kv_item, offset - kv_start);
+	}
+	/* the registration */
+	offset += 4;
+	proto_item_set_len(rpa_item, offset - rpa_start);
+	return offset;
+}
+
 /* From field version 23.1 ext 1 a call or piggyback header carries a ub8
  * token after its sequence number, which the reply echoes in a TOKEN
  * message. Returns the new offset. */
@@ -5300,11 +5374,17 @@ static int dissect_tns_oci_message(tvbuff_t *tvb, int offset, packet_info *pinfo
 			oer_tree = proto_tree_add_subtree(data_tree, tvb, base, wide ? 144 : full ? 136 : 24, ett_tns_oer, &oer_item,
 				wide ? "Oracle Error Return (OCI, 12c band)" : full ? "Oracle Error Return (OCI)"
 				: "Oracle Error Return (OCI, compact)");
-			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_status, tvb, base + 1, 1, ENC_NA);
+			/* the call status, with the transaction bit set after a
+			 * DML */
+			tns_add_call_status_flags(
+				proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_status, tvb, base + 1, 1, ENC_NA),
+				tvb, base + 1, 1, tvb_get_uint8(tvb, base + 1));
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_seq, tvb, base + 5, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_rowcount, tvb, base + 8, 4, (int32_t)tvb_get_letohl(tvb, base + 8));
 			proto_tree_add_int(oer_tree, hf_tns_data_oer_err_code, tvb, base + 12, 4, (int32_t)err_code);
-			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_category, tvb, base + 18, 1, ENC_NA);
+			/* the statement's cursor, which the return parameters
+			 * ahead of the status carry too */
+			proto_tree_add_item(oer_tree, hf_tns_cursor, tvb, base + 18, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_error_pos, tvb, base + 20, 1, ENC_NA);
 			proto_tree_add_item(oer_tree, hf_tns_data_oci_oer_command, tvb, base + 22, 1, ENC_NA);
 			if ( !full )
@@ -7489,6 +7569,16 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * its return parameters. */
 				tns_call_t *call = tns_answered_call(pinfo);
 				if ( call && (call->func == TTI_ALL8 || call->func == TTI_REEXECUTE
+					|| call->func == TTI_REEXECUTE_AND_FETCH) && tns_is_oci(pinfo) )
+				{
+					int end = dissect_tns_oci_return_params(tvb, pinfo, data_tree, offset);
+					if ( end > 0 )
+					{
+						offset = end;
+						ctx->walk = true;
+					}
+				}
+				else if ( call && (call->func == TTI_ALL8 || call->func == TTI_REEXECUTE
 					|| call->func == TTI_REEXECUTE_AND_FETCH) )
 				{
 					offset = dissect_tns_return_params(tvb, pinfo, data_tree, offset,
@@ -8808,9 +8898,6 @@ void proto_register_tns(void)
 		{ &hf_tns_data_oci_oer_seq, {
 			"End-to-End Sequence", "tns.data_oer.seq", FT_UINT16, BASE_DEC,
 			NULL, 0x0, "A per-session counter the server advances with each reply", HFILL }},
-		{ &hf_tns_data_oci_oer_category, {
-			"Statement Category", "tns.data_oer.category", FT_UINT8, BASE_DEC,
-			NULL, 0x0, "2 for a statement that produces rows or values, 1 for one that does not", HFILL }},
 		{ &hf_tns_data_oci_oer_error_pos, {
 			"Error Position", "tns.data_oer.error_pos", FT_UINT8, BASE_DEC,
 			NULL, 0x0, "Offset into the SQL text of the parse error", HFILL }},

@@ -4535,6 +4535,30 @@ class TestDissectTns:
             ['48', '', '0', '0', ''],
         ], rows
 
+    def test_tns_oci_return_params(self, cmd_tshark, capture_file, test_env):
+        '''A server sends an OCI client the return parameters ahead of an
+        execute's status: the statement's cursor, which the status names
+        too, and the session settings the statement changed. After a DML
+        the status says a transaction is in progress.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_return_params.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_rpa.num_kv',
+            '-T', 'fields',
+            '-e', 'tns.data_rpa.num_kv',
+            '-e', 'tns.data.cursor',
+            '-e', 'tns.data.call_status.txn_in_progress',
+            '-e', 'tns.data_oer.command_type',
+            '-e', 'tns.data_kv.keyword',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['0', '3,4,4', 'False', '47', '', ''],
+            ['0', '3,3', 'True', '2', '', ''],
+            ['18', '2', '', '', '16,9,0,1,2,10,12,7,8,11,57,58,59,60,52,50,61,62', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A
