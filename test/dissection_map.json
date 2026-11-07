@@ -2607,15 +2607,219 @@
    "epan/dissectors/packet-ike.c",
    "epan/dissectors/packet-ipsec.c"
   ],
+  "TestDissectIlnp": [
+   "epan/dissectors/packet-ilnp.c"
+  ],
+  "TestDissectIlp": [
+   "epan/dissectors/packet-ilp.c",
+   "epan/dissectors/packet-rrlp.c"
+  ],
+  "TestDissectImap": [
+   "epan/dissectors/packet-imap.c",
+   "epan/dissectors/packet-imf.c",
+   "epan/dissectors/packet-tls.c"
+  ],
+  "TestDissectImf": [
+   "epan/dissectors/packet-ess.c",
+   "epan/dissectors/packet-imf.c",
+   "epan/dissectors/packet-p1.c"
+  ],
+  "TestDissectInap": [
+   "epan/dissectors/packet-inap.c"
+  ],
+  "TestDissectIndigocareIcall": [
+   "epan/dissectors/packet-indigocare-icall.c"
+  ],
+  "TestDissectIndigocareNetrix": [
+   "epan/dissectors/packet-indigocare-netrix.c"
+  ],
+  "TestDissectInfiniband": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-infiniband.c",
+   "epan/dissectors/packet-smb-direct.c"
+  ],
+  "TestDissectInfinibandSdp": [
+   "epan/dissectors/packet-infiniband_sdp.c"
+  ],
+  "TestDissectInterlink": [
+   "epan/dissectors/packet-interlink.c"
+  ],
+  "TestDissectIpCoverage": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-ip.c",
+   "epan/dissectors/packet-ospf.c",
+   "epan/dissectors/packet-pim.c"
+  ],
+  "TestDissectIpars": [
+   "epan/dissectors/packet-ipars.c"
+  ],
+  "TestDissectIpdc": [
+   "epan/dissectors/packet-ipdc.c",
+   "epan/dissectors/packet-q931.c"
+  ],
+  "TestDissectIpdr": [
+   "epan/dissectors/packet-ipdr.c"
+  ],
+  "TestDissectIperf": [
+   "epan/dissectors/packet-iperf.c"
+  ],
+  "TestDissectIperf3": [
+   "epan/dissectors/packet-iperf3.c"
+  ],
+  "TestDissectIpfc": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-ipfc.c",
+   "epan/dissectors/packet-sna.c"
+  ],
+  "TestDissectIpmi": [
+   "epan/dissectors/packet-i2c.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiApp": [
+   "epan/dissectors/packet-ipmi-app.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiBridge": [
+   "epan/dissectors/packet-ipmi-bridge.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiChassis": [
+   "epan/dissectors/packet-ipmi-chassis.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiPicmg": [
+   "epan/dissectors/packet-ipmi-picmg.c",
+   "epan/dissectors/packet-ipmi.c",
+   "epan/dissectors/packet-x11.c",
+   "epan/dissectors/packet-x25.c",
+   "epan/dissectors/packet-x29.c"
+  ],
+  "TestDissectIpmiPps": [
+   "epan/dissectors/packet-ipmi-pps.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiSe": [
+   "epan/dissectors/packet-ipmi-se.c",
+   "epan/dissectors/packet-ipmi.c",
+   "epan/dissectors/packet-x11.c",
+   "epan/dissectors/packet-x25.c",
+   "epan/dissectors/packet-x29.c"
+  ],
+  "TestDissectIpmiSession": [
+   "epan/dissectors/packet-ipmi-session.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiStorage": [
+   "epan/dissectors/packet-ipmi-storage.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiTrace": [
+   "epan/dissectors/packet-ipmi-trace.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiTransport": [
+   "epan/dissectors/packet-ipmi-transport.c",
+   "epan/dissectors/packet-ipmi.c",
+   "epan/dissectors/packet-x11.c"
+  ],
+  "TestDissectIpmiUpdate": [
+   "epan/dissectors/packet-ipmi-update.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpmiVita": [
+   "epan/dissectors/packet-ipmi-vita.c",
+   "epan/dissectors/packet-ipmi.c"
+  ],
+  "TestDissectIpnet": [
+   "epan/dissectors/packet-ipnet.c"
+  ],
+  "TestDissectIpoib": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-ipoib.c"
+  ],
+  "TestDissectIpos": [
+   "epan/dissectors/packet-ipos.c"
+  ],
+  "TestDissectIpp": [
+   "epan/dissectors/packet-ipp.c"
+  ],
+  "TestDissectIppusb": [
+   "epan/dissectors/packet-ipp.c",
+   "epan/dissectors/packet-ippusb.c"
+  ],
+  "TestDissectIpsec": [
+   "epan/dissectors/packet-ike.c",
+   "epan/dissectors/packet-ipsec.c",
+   "epan/dissectors/packet-x11.c",
+   "epan/dissectors/packet-x29.c"
+  ],
+  "TestDissectIpsecTcp": [
+   "epan/dissectors/packet-ike.c",
+   "epan/dissectors/packet-ipsec-tcp.c",
+   "epan/dissectors/packet-ipsec.c",
+   "epan/dissectors/packet-x11.c"
+  ],
+  "TestDissectIpsecUdp": [
+   "epan/dissectors/packet-ike.c",
+   "epan/dissectors/packet-ipsec-udp.c",
+   "epan/dissectors/packet-ipsec.c"
+  ],
+  "TestDissectIpsiCtl": [
+   "epan/dissectors/packet-ipsi-ctl.c"
+  ],
+  "TestDissectIpv6Coverage": [
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-ipv6.c"
+  ],
+  "TestDissectIpvsSyncd": [
+   "epan/dissectors/packet-ipvs-syncd.c"
+  ],
+  "TestDissectIpx": [
+   "epan/dissectors/packet-ipx.c"
+  ],
+  "TestDissectIpxwan": [
+   "epan/dissectors/packet-ipx.c",
+   "epan/dissectors/packet-ipxwan.c"
+  ],
+  "TestDissectIrc": [
+   "epan/dissectors/packet-irc.c"
+  ],
+  "TestDissectIrdma": [
+   "epan/dissectors/packet-irdma.c"
+  ],
+  "TestDissectIscsi": [
+   "epan/dissectors/packet-iscsi.c"
+  ],
+  "TestDissectIsdn": [
+   "epan/dissectors/packet-isdn.c",
+   "epan/dissectors/packet-ppp.c",
+   "epan/dissectors/packet-q931.c",
+   "epan/dissectors/packet-v120.c"
+  ],
+  "TestDissectIsdnSup": [
+   "epan/dissectors/packet-isdn-sup.c"
+  ],
+  "TestDissectIser": [
+   "epan/dissectors/packet-iscsi.c",
+   "epan/dissectors/packet-iser.c"
+  ],
+  "TestDissectIsi": [
+   "epan/dissectors/packet-isi.c"
+  ],
   "TestDissectLi5g": [
    "epan/dissectors/packet-HI2Operations.c",
    "epan/dissectors/packet-dhcp.c",
+   "epan/dissectors/packet-li-ps-pdu.c",
    "epan/dissectors/packet-li5g.c",
    "epan/dissectors/packet-lix2.c",
    "epan/dissectors/packet-radius.c",
    "epan/dissectors/packet-rtp.c",
    "epan/dissectors/packet-sip.c",
    "epan/dissectors/packet-text-media.c"
+  ],
+  "TestDissectLiPsPdu": [
+   "epan/dissectors/packet-li-ps-pdu.c",
+   "epan/dissectors/packet-syslog.c"
   ],
   "TestDissectNetmon80211": [
    "epan/dissectors/packet-ieee80211.c",
