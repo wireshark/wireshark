@@ -95193,3 +95193,62 @@ class TestDissectMctpControl:
             '46\t0x00\t0x42\tde ad',
             '47\t0x03\t\t',
         ]
+
+
+class TestDissectMctpSmbus:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mctp_smbus_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mctp_smbus_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-10 are MCTP over SMBus (found by the i2c.message
+        heuristic); frames 11-18 fail one of its checks and stay I2C data
+        (read bit, command code, byte count below the minimum, shorter
+        than the byte count, IPMB source address, MCTP header version,
+        snaplen truncation, shorter than the minimum).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mctp.smbus', '-Tfields', '-eframe.number')
+        assert lines == [str(n) for n in range(1, 11)]
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 19
+        assert lines[10:] == ['I2C Write'] * 8 + ['I2C Event']
+
+    def test_mctp_smbus_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one and two
+        passes; the bad PEC and the trailing bytes are warnings.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
+                    '-e_ws.expert.severity')
+            assert lines == ['3\t6291456', '4\t6291456']
+
+    def test_mctp_smbus_pec(self, cmd_tshark, capture_file, test_env):
+        '''PEC status: none, good, bad (frame 3), good when two bytes follow
+        it (frame 4; the PEC is at byte count + 3, not at the end).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 4', '-Tfields', '-eframe.number',
+                '-emctp.smbus.pec.status', '-emctp.smbus.byte_count')
+        assert lines == ['1\t\t8', '2\t1\t8', '3\t0\t8', '4\t1\t8']
+
+    def test_mctp_smbus_inner_messages(self, cmd_tshark, capture_file, test_env):
+        '''The largest byte count (255), a message split over two SMBus
+        transactions, the smallest byte count (6) and other addresses.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 5 && frame.number <= 10',
+                '-Tfields', '-eframe.number', '-emctp.smbus.byte_count',
+                '-emctp.reassembled.length', '-e_ws.col.Info')
+        assert lines == [
+            '5\t9\t\t[0x40->0x20] PLDM Messaging Control and Discovery Request',
+            '6\t255\t\t[0x40->0x20] MCTP message',
+            '7\t7\t\t[0x40->0x20] MCTP message frag 0',
+            '8\t6\t3\t[0x40->0x20] MCTP Get Endpoint ID Request',
+            '9\t6\t\t[0x40->0x20] MCTP message',
+            '10\t8\t\t[0x41->0x21] MCTP Get Endpoint ID Request',
+        ]
