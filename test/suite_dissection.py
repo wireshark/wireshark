@@ -92484,3 +92484,72 @@ class TestDissectLsd:
         lines = [l for l in stdout.splitlines() if '\tlsd.malformed_field\t' in l]
         assert len(lines) == 1
         assert lines[0].split('\t')[1] == 'Malformed LSD field'
+
+
+class TestDissectLsdp:
+    def test_lsdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames are LSDP (UDP port 11430) and none is malformed
+        or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsdp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('LSDP') == 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lsdp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lsdp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: message types, class names, and the name, model
+        and version TXT records of announcements.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsdp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tQuery Message (for broadcast response) [All Classes]',
+            '2\tQuery Message (for unicast response) [Player] [Server] [Multizone Player]'
+            ' [sovi-mfg] [sovi-keypad] [Slave Player] [Web App] [Hub] [Unknown Class]',
+            "3\tAnnounce Message [Player] name='Kitchen' model='N130' version='4.1.2'",
+            "4\tAnnounce Message [Hub] name='Hub' [Server]",
+            '5\tDelete Message [Player] [Multizone Player]',
+            "6\tAnnounce Message [Slave Player] name='Den'Delete Message [Player]"
+            'Query Message (for broadcast response) [Hub]',
+            '7\tAnnounce Message',
+            '8\tAnnounce Message [Unknown Class]',
+            '9\tDelete Message',
+            '10\tQuery Message (for broadcast response)',
+            "11\tAnnounce Message [Web App] name='x%s%n' model='' version='é'",
+        ]
+
+    def test_lsdp_announce(self, cmd_tshark, capture_file, test_env):
+        '''Announcements: a MAC node id is also shown as an address, other
+        lengths only as bytes; IPv4 and IPv6 addresses; TXT records.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsdp_coverage.pcap.gz'),
+                '-Y', 'lsdp.announce',
+                '-Tfields', '-eframe.number', '-elsdp.node_id',
+                '-elsdp.node_id.mac', '-elsdp.announce.addr_ipv4',
+                '-elsdp.announce.addr_ipv6', '-elsdp.announce.count',
+                '-elsdp.announce.record.txt.key',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '3\t0a1b2c3d4e5f\t0a:1b:2c:3d:4e:5f\t192.0.2.9\t\t1\tname,model,version,port'
+        assert lines[1] == '4\t01020304\t\t\t2001:db8::9\t2\tname,'
+        assert [l.split('\t')[0] for l in lines] == ['3', '4', '6', '7', '8', '11']
+        assert lines[4].split('\t')[1:3] == ['<MISSING>', '']
+
+    def test_lsdp_messages_in_one_datagram(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6 holds an announce, a delete and a query message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lsdp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-elsdp.msg.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x41,0x44,0x51'
