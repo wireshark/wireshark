@@ -2848,10 +2848,7 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t 
     /* XXX: This adds all combinations of addresses and TEIDs. It
      * should only add matching pairs for a F-TEID, though this is
      * difficult to determine for GTPv1 (especially if the check_etsi
-     * preference is off) unlike with GTPv2.
-     * It also should not add anything that uses the reserved TEID
-     * (0), such as happens in GTPv2 on S11/S4 interfaces for the
-     * PGW S5/S8 TEID on initial attach, etc.
+     * preference is off) unlike with GTPv2, which uses fill_map_fteids().
      */
     elem_ip = wmem_list_head(ip_list);
     while (elem_ip) {
@@ -2875,6 +2872,45 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t 
             elem_teid = wmem_list_frame_next(elem_teid);
         }
         elem_ip = wmem_list_frame_next(elem_ip);
+    }
+}
+
+void
+fill_map_fteids(wmem_list_t *fteid_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_allocator_t *scope, wmem_list_t *replaced_list) {
+    wmem_list_frame_t *elem;
+    gtp_info_t info;
+    gtp_info_deint_t infod;
+
+    for (elem = wmem_list_head(fteid_list); elem; elem = wmem_list_frame_next(elem)) {
+        const gtp_fteid_t *fteid = (const gtp_fteid_t *)wmem_list_frame_data(elem);
+
+        if (!ignore_conv) {  // deinterlacing was asked
+            infod.teid = fteid->teid;
+            infod.convid = convid;
+            copy_address_shallow(&infod.addr, &fteid->addr);
+            insert_frame_info(frame_map_deint, &infod, true, frame, scope, replaced_list);
+        } else {
+            info.teid = fteid->teid;
+            copy_address_shallow(&info.addr, &fteid->addr);
+            insert_frame_info(frame_map, &info, false, frame, scope, replaced_list);
+        }
+    }
+}
+
+void
+remove_frame_info_fteids(wmem_list_t *fteid_list, uint32_t frame) {
+    wmem_list_frame_t *elem;
+    gtp_info_t info;
+
+    for (elem = wmem_list_head(fteid_list); elem; elem = wmem_list_frame_next(elem)) {
+        const gtp_fteid_t *fteid = (const gtp_fteid_t *)wmem_list_frame_data(elem);
+
+        info.teid = fteid->teid;
+        copy_address_shallow(&info.addr, &fteid->addr);
+        /* Unless a later message took the mapping */
+        if (GPOINTER_TO_UINT(wmem_map_lookup(frame_map, &info)) == frame) {
+            wmem_map_remove(frame_map, &info);
+        }
     }
 }
 

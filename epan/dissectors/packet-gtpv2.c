@@ -3926,6 +3926,22 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
                 copy_address_wmem(pinfo->pool, &args->last_ip, ipv6);
                 wmem_list_prepend(args->ip_list, ipv6);
             }
+            /* The reserved TEID 0 (ex the PGW S5/S8 F-TEID on S11 on an
+             * initial attach) is not of a tunnel */
+            if (args->fteid_list && teid_cp != 0) {
+                if (ipv4 != NULL) {
+                    gtp_fteid_t *fteid = wmem_new(pinfo->pool, gtp_fteid_t);
+                    fteid->teid = teid_cp;
+                    copy_address_shallow(&fteid->addr, ipv4);
+                    wmem_list_append(args->fteid_list, fteid);
+                }
+                if (ipv6 != NULL) {
+                    gtp_fteid_t *fteid = wmem_new(pinfo->pool, gtp_fteid_t);
+                    fteid->teid = teid_cp;
+                    copy_address_shallow(&fteid->addr, ipv6);
+                    wmem_list_append(args->fteid_list, fteid);
+                }
+            }
         }
     }
 }
@@ -9554,8 +9570,8 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 && gtpv2_hdr->message != GTPV2_UPDATE_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_CREATE_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_CREATE_BEARER_RESPONSE
                 && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_RESPONSE)) {
                 /* If the lists are not empty*/
-                if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
-                    remove_frame_info_lists(args->teid_list, args->ip_list, pinfo->num);
+                if (wmem_list_count(args->fteid_list)) {
+                    remove_frame_info_fteids(args->fteid_list, pinfo->num);
                 }
             }
 
@@ -9851,6 +9867,7 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
         args->teid_list = wmem_list_new(pinfo->pool);
         args->ip_list = wmem_list_new(pinfo->pool);
         args->replaced_list = wmem_list_new(pinfo->pool);
+        args->fteid_list = wmem_list_new(pinfo->pool);
     }
 
     /*
@@ -9964,11 +9981,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     if (args && !PINFO_FD_VISITED(pinfo)) {
         /* We insert the lists inside the table*/
         if(is_deinterlacing_supported(pinfo)) {
-            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0, pinfo->pool, args->replaced_list);
+            fill_map_fteids(args->fteid_list, pinfo->num, conversation->conv_index, 0, pinfo->pool, args->replaced_list);
         }
         else {
             // no deinterlacing supported/asked
-            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
+            fill_map_fteids(args->fteid_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
         }
         cause_aux = args->last_cause;
     }

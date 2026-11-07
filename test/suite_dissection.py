@@ -68723,13 +68723,32 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('gtpv2_session.pcap'),
-                    '-Y', 'frame.number >= 11',
+                    '-Y', 'frame.number >= 11 && frame.number <= 13',
                     '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == [
                 '5\t001010000000008',
                 '5\t001010000000008',
+                '\t',
+            ]
+
+    def test_gtp_session_fteid_pairs(self, cmd_tshark, capture_file, test_env):
+        '''Only the TEID and address of each F-TEID of the Create Session
+        Request (frame 14) are mapped, and not the reserved TEID 0 of its
+        PGW S5/S8 F-TEID: the message with TEID 0 to the PGW (frame 15)
+        and the one with the S11 MME TEID to the PGW (frame 16) are not of
+        the session.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number >= 14',
+                    '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '6\t001010000000010',
+                '\t',
                 '\t',
             ]
 
