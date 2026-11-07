@@ -94265,3 +94265,75 @@ class TestDissectMacsec:
                 '1\tSecure Data is too short to contain an EtherType\t',
                 '2\tSecure Data is too short to contain an EtherType\t',
             ]
+
+
+class TestDissectMactelnet:
+    '''MAC-Telnet over UDP port 20561 from the synthetic capture
+    mactelnet_coverage.pcap.gz: a MAC Telnet login with control packets, a
+    Winbox session, pings and end of session.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('mactelnet_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mactelnet_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 32 frames are MAC-Telnet; the packet type counts.'''
+        fr = self.frames
+        assert len(fr(cmd_tshark, capture_file, test_env, 'frame')) == 32
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mactelnet')) == 32
+        counts = {t: len(fr(cmd_tshark, capture_file, test_env, 'mactelnet.type == %d' % t))
+                  for t in (0, 1, 2, 3, 4, 5, 255)}
+        assert counts == {0: 2, 1: 17, 2: 7, 3: 1, 4: 2, 5: 1, 255: 2}
+
+    def test_mactelnet_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               passes=passes) == []
+
+    def test_mactelnet_control_packets(self, cmd_tshark, capture_file, test_env):
+        '''The control packet types are decoded from the type byte:
+        username, terminal type, width and height in frame 7, and the
+        reproducer of "MAC-Telnet: Match control packet types on the type
+        byte" (frame 32: Username "admin"), which showed no string before.'''
+        fr = self.frames
+        assert fr(cmd_tshark, capture_file, test_env, 'frame.number in {7, 32}',
+                  'mactelnet.control_username', 'mactelnet.control_terminaltype',
+                  'mactelnet.control_width', 'mactelnet.control_height') == [
+            ['7', 'admin', 'xterm', '132', '43'],
+            ['32', 'admin', '', '', ''],
+        ]
+        assert fr(cmd_tshark, capture_file, test_env, 'frame.number in {5, 7}',
+                  'mactelnet.control_encryptionkey', 'mactelnet.control_password') == [
+            ['5', '000102030405060708090a0b0c0d0e0f', ''],
+            ['7', '', '00000102030405060708090a0b0c0d0e0f'],
+        ]
+        assert fr(cmd_tshark, capture_file, test_env, 'frame.number in {3, 9, 15, 19}',
+                  'mactelnet.data_type') == [
+            ['3', '0x00000000'],
+            ['9', '0x09000000'],
+            ['15', '0x07000000'],
+            ['19', '0x04000000,0x09000000,0x00000000'],
+        ]
+        assert fr(cmd_tshark, capture_file, test_env, 'mactelnet.control_username == "admin"',
+                  'mactelnet.control_length') == [['7', '17,5,5,2,2'], ['32', '5']]
+
+    def test_mactelnet_directions(self, cmd_tshark, capture_file, test_env):
+        '''Client type and session ID for both directions, and Winbox.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 24, 26}',
+                           'mactelnet.session_id', 'mactelnet.client_type', 'mactelnet.session_bytes',
+                           '_ws.col.info') == [
+            ['1', '0x1234', '0x0015', '0',
+             '02:00:00:00:00:01 > 02:00:00:00:00:02 Direction: Client->Server Type: Start session'],
+            ['2', '0x1234', '0x0015', '0',
+             '02:00:00:00:00:02 > 02:00:00:00:00:01 Direction: Server->Client Type: Acknowledge'],
+            ['24', '0x4321', '0x0f90', '0',
+             '02:00:00:00:00:01 > 02:00:00:00:00:02 Direction: Client->Server Type: Start session'],
+            ['26', '0x4321', '0x0f90', '5',
+             '02:00:00:00:00:01 > 02:00:00:00:00:02 Direction: Client->Server Type: Data'],
+        ]
