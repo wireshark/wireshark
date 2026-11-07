@@ -350,7 +350,8 @@ static const value_string lg8979_pul_output_rl_vals[] = {
 static int
 classify_lg8979_packet(tvbuff_t *tvb)
 {
-    uint8_t func, len, data_len, flags;
+    uint8_t func, data_len, flags;
+    unsigned len;
 
     len = tvb_reported_length(tvb);
     /* If TVB length is equal to 5, this is classified as a 'short response message' */
@@ -378,7 +379,7 @@ classify_lg8979_packet(tvbuff_t *tvb)
         data_len = tvb_get_uint8(tvb, 4);
 
         /* If we have more data in the tvb then should be there, this is a stacked RTU->Master response */
-        if (len > (data_len + 5 + 2)) {
+        if (len > ((unsigned)data_len + 5 + 2)) {
             return LG8979_DIR_RTU_TO_MASTER;
         }
 
