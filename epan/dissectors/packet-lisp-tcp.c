@@ -471,6 +471,9 @@ dissect_lisp_tcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (len < 8) {
         expert_add_info_format(pinfo, til, &ei_lisp_tcp_invalid_length,
                 "Invalid message length (%u < 8)", len);
+    } else if (len > 8 && len < 12) {
+        expert_add_info_format(pinfo, til, &ei_lisp_tcp_invalid_length,
+                "Invalid message length (%u, expected 8 or at least 12)", len);
     } else if (len > 8) {
         /* Message ID (4 bytes) */
         proto_tree_add_item_ret_uint(message_tree, hf_lisp_tcp_message_id, tvb, offset, 4, ENC_BIG_ENDIAN, &id);
