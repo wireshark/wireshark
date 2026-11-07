@@ -98352,3 +98352,69 @@ class TestDissectMpeg1:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env, timeout=60)
         assert count_output(stdout) == 1
+
+
+class TestDissectMpegAudio:
+    '''MPEG Audio from the synthetic capture mpeg_audio_coverage.pcap.gz:
+    audio/mpeg and audio/mp3 bodies in HTTP (MPEG-1/2/2.5 layers I-III,
+    ID3v2 and ID3v1 tags, free-format and junk frames) and MPEG PES
+    packets in MPEG-TS over UDP.'''
+
+    FRAMES = '6,10,14,18,22,26,31,32'
+
+    def test_mpeg_audio_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight frames carry MPEG Audio (six HTTP bodies, two MPEG-TS
+        datagrams), none is malformed or has an error expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_audio_coverage.pcap.gz'),
+                '-Y', 'mpeg-audio',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert ','.join(stdout.split()) == self.FRAMES
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpeg_audio_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpeg_audio_frames(self, cmd_tshark, capture_file, test_env):
+        '''Version, layer, bitrate index, frequency index and channel mode
+        of every frame header, in the order they appear.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_audio_coverage.pcap.gz'),
+                '-Y', 'mpeg-audio.header',
+                '-Tfields', '-eframe.number', '-empeg-audio.version',
+                '-empeg-audio.layer', '-empeg-audio.bitrate',
+                '-empeg-audio.frequency', '-empeg-audio.channel_mode',
+                '-empeg-audio.padding', '-E', 'occurrence=a',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t3,3,3\t1,1,1\t9,5,2\t0,1,2\t1,2,3\tTrue,False,False',
+            '10\t3,3,3,3\t3,3,2,2\t3,2,4,3\t0,1,0,2\t0,1,0,0\t'
+            'True,False,True,False',
+            '14\t2,2,2\t3,2,1\t2,3,4\t0,1,2\t0,0,1\tFalse,True,False',
+            '18\t0,0,0\t3,2,1\t2,3,2\t0,1,2\t0,0,0\tFalse,False,True',
+            '22\t3,3\t1,1\t0,2\t0,0\t0,0\tFalse,False',
+            '31\t3,3,3\t1,1,1\t9,5,2\t0,1,2\t0,0,0\tFalse,False,False',
+            '32\t3\t2\t4\t0\t0\tFalse',
+        ]
+
+    def test_mpeg_audio_id3v1_then_frame(self, cmd_tshark, capture_file, test_env):
+        '''The frame behind an ID3v1 tag is dissected (frame 18: tag
+        between layer II and layer III frames); the tags are decoded.
+        dissect_id3v1() returned a bit offset before "MPEG Audio: Return
+        bytes from dissect_id3v1()" and the dissector skipped 1024 bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_audio_coverage.pcap.gz'),
+                '-Y', 'mpeg-audio.id3v1',
+                '-Tfields', '-eframe.number', '-empeg-audio.title',
+                '-empeg-audio.year', '-empeg-audio.genre',
+                '-empeg-audio.track', '-empeg-audio.layer',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tTitle\t2026\t17\t1\t1,1,1',
+            '18\tMid\t1999\t0\t0\t3,2,1',
+        ]
