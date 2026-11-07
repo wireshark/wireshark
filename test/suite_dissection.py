@@ -102601,3 +102601,146 @@ class TestDissectNavitrol:
             '14\t\t\t192.168.1.50', '15\t\t\t192.168.1.50', '16\t\t\t192.168.1.50',
             '17\t\t\t192.168.1.50', '21\t\t\t', '49\t20301\t3\t', '60\t20400\t3\t',
         ]
+
+
+class TestDissectNbd:
+    '''Network Block Device (NBD) over TCP 10809 and, by heuristic, other
+    ports, from the synthetic capture nbd_coverage.pcap.gz. Frames:
+    1-103 newstyle handshake with option haggling, EXPORT_NAME and every
+    transmission command on port 10809, 104-114 newstyle with the 124
+    zero bytes, 115-123 STARTTLS, 124-178 oldstyle handshake and the
+    transmission phase, 179-190 transmission seen from the middle, and
+    191-222 NBD on ports the dissector does not claim (heuristic).'''
+
+    def test_nbd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''183 frames decode as NBD, 39 are plain TCP, and none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols.count('NBD') == 183
+        assert protocols.count('TCP') == 39
+        assert len(protocols) == 222
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nbd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nbd_structured_reply_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''A structured reply (magic 0x668e33ef) as the first segment on a
+        port that is not NBD is taken by the heuristic and dissected
+        once. It used to fall through without "return true", so TCP
+        also handed the payload to the data dissector ("NBD: Fix
+        structured reply heuristic and query length").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.reply.type == 2 && tcp.port == 41003',
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+                '-enbd.handle', '-enbd.hole_size',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            '206', 'eth:ethertype:ip:tcp:nbd', '0x1122334455667788', '0']
+
+    def test_nbd_meta_context_query(self, cmd_tshark, capture_file, test_env):
+        '''The queries of LIST/SET_META_CONTEXT have a 32 bit length; they
+        used to be read with a 16 bit length and shown empty.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.query',
+                '-Tfields', '-eframe.number', '-enbd.query.num', '-enbd.query',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\t1\tbase:allocation',
+            '21\t2\tbase:allocation,qemu:dirty-bitmap:b0',
+        ]
+
+    def test_nbd_handshake(self, cmd_tshark, capture_file, test_env):
+        '''Handshake info lines, the option names, the replies matched to
+        their option and the No Zeroes flags that decide whether the
+        EXPORT_NAME reply carries 124 zero bytes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4..10,51,52,108..111,128}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = dict(l.split('\t') for l in stdout.splitlines())
+        assert lines['4'] == 'Handshake Start'
+        assert lines['5'] == 'Newstyle Handshake'
+        assert lines['6'] == 'Handshake Flags'
+        assert lines['7'] == 'Client Flags'
+        assert lines['9'] == 'List, Server, List, Server, List, ACK'
+        assert lines['51'] == 'Export Name:disk0'
+        assert lines['52'] == 'Transmission Flags'
+        assert lines['128'] == 'Oldstyle Handshake'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.hnd.flags.no_zeroes || nbd.cli.flags.no_zeroes',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6', '7', '108', '120', '121', '128', '222']
+        # the export reply of the first connection is 10 bytes, the second one 134
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.export.size && !nbd.hnd.magic',
+                '-Tfields', '-eframe.number', '-enbd.reserved',
+            ), encoding='utf-8', env=test_env)
+        reserved = dict((l.split('\t') + [''])[:2] for l in stdout.splitlines())
+        assert reserved['52'] == ''
+        assert len(reserved['111']) >= 124 * 2
+
+    def test_nbd_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests are matched to their replies; handles are reused; a
+        reply without request is shown as unknown.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {53,54,55,69,70,77,78,79}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-enbd.response_in', '-enbd.response_to',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['53'] == ['Read Request  Offset:0x0 Length:512', '54', '']
+        assert rows['54'] == ['Read Response  Success', '', '53']
+        assert rows['55'][0] == 'Write Request  Offset:0x1000 Length:64'
+        assert rows['70'] == ['Write Response  No space left on device', '', '69']
+        assert rows['78'] == ['Read Response  Success', '', '77']
+        assert rows['79'] == ['Unknown (65535) Response  Success', '', '']
+
+    def test_nbd_structured_replies(self, cmd_tshark, capture_file, test_env):
+        '''Every structured reply type, the error ones with the Reply
+        Error note, the trailing bytes with the Unexpected data warning,
+        and the block status extents.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 88 && frame.number <= 102 && nbd.reply.type',
+                '-Tfields', '-eframe.number', '-enbd.reply.type',
+            ), encoding='utf-8', env=test_env)
+        types = [l.split('\t') for l in stdout.splitlines()]
+        assert [t[1] for t in types] == ['1', '2', '0', '32769', '32770', '5', '6', '2']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.data.unexpected',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['15', '48', '93', '99', '169', '175']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'nbd.status_flags',
+                '-Tfields', '-eframe.number', '-enbd.len', '-enbd.status_flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[0] == '97\t20,4096,8192\t0,1'
+
+    def test_nbd_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A write request split in two segments and a read reply split
+        in two are reassembled (second pass, so the first segment knows
+        where the PDU ends).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('nbd_coverage.pcap.gz'),
+                '-Y', 'frame.number in {82,83,85,86,87} && tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['82\t83', '86\t87']
