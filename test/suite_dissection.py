@@ -85652,3 +85652,115 @@ class TestDissectIsup:
                 '-Tfields', '-eisup.message_type',
             ), encoding='utf-8', env=test_env)
         assert sorted(stdout.split()) == ['233', '234', '235', '235', '236', '237']
+
+
+class TestDissectItdm:
+    '''I-TDM (Internal TDM, PICMG SFP.0/SFP.1) over MPLS label 0x99887, from
+    the synthetic capture itdm_coverage.pcap.gz: frames 1-24 are 125
+    usec data flow packets, frames 25-50 control protocol packets (flow
+    0).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *extra):
+        args = [cmd_tshark, '-r', capture_file('itdm_coverage.pcap.gz'), *extra, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_itdm_frames(self, cmd_tshark, capture_file, test_env):
+        '''50 frames: 24 data flow packets and 26 control packets, none
+        malformed or with an expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', '_ws.col.protocol'])
+        assert len(rows) == 50
+        assert [r[1] for r in rows].count('ITDM') == 24
+        assert [r[1] for r in rows].count('ITDM-Control') == 26
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('itdm_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_itdm_data_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the channel commands (with the locations
+        each command has) and the reserved ones.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', '_ws.col.info'],
+                            '-Y', 'frame.number <= 24')
+        info = {int(r[0]): r[1] for r in rows}
+        assert info[1] == 'Flow 5 Chan 100 ACT 1 ACK 0 New Channel ID Loc1 3'
+        assert info[2] == 'Flow 5 Chan 100 ACT 0 ACK 1 New Channel ID Loc1 3'
+        assert info[3] == 'Flow 5 Chan 100 ACT 0 ACK 0 Close Channel ID Loc1 3'
+        assert info[4] == 'Flow 5 Chan 101 ACT 0 ACK 0 Relocate Channel ID Loc1 7 Loc2 9'
+        assert info[5] == 'Flow 5 Chan 102 ACT 0 ACK 0 Cyclic Reaffirmation Loc1 300'
+        assert info[6] == 'Flow 5 Chan 103 ACT 0 ACK 0 Packet Rate Integrity Check'
+        assert info[7] == 'Flow 5 Chan 103 ACT 1 ACK 1 Packet Rate Integrity Check'
+        assert info[8] == 'Flow 6 Chan 200 ACT 0 ACK 0 Reserved'
+        assert info[18] == 'Flow 6 Chan 215 ACT 0 ACK 0 Reserved'
+        assert info[23] == ('Flow 16777215 Chan 16777215 ACT 0 ACK 0 Relocate Channel ID '
+                            'Loc1 511 Loc2 511')
+
+    def test_itdm_data_fields(self, cmd_tshark, capture_file, test_env):
+        '''The common header, command and location fields.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'itdm.timestamp', 'itdm.seqnum', 'itdm.sop_eop',
+                             'itdm.last_pack', 'itdm.pktlen', 'itdm.chksum', 'itdm.uid',
+                             'itdm.ack', 'itdm.act', 'itdm.chcmd', 'itdm.chid',
+                             'itdm.chloc1', 'itdm.chloc2', 'itdm.cxnsize', 'itdm.pktrate'],
+                            '-Y', 'frame.number <= 24')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[1] == ['1000', '1', '3', 'False', '18', '0xbeef', '5', 'False', 'True',
+                               '1', '100', '3', '', '4', '']
+        assert by_frame[4][9:] == ['3', '101', '7', '9', '', '']
+        assert by_frame[6][9:] == ['5', '103', '', '', '', '0x447a0000']
+        assert by_frame[22] == ['1000', '4', '3', 'True', '34', '0xbeef', '9', 'False', 'False',
+                                '1', '7', '1', '', '1', '']
+        assert by_frame[23] == ['65535', '255', '3', 'False', '2047', '0xffff', '16777215',
+                                'False', 'False', '3', '16777215', '511', '511', '', '']
+        assert [by_frame[n][2] for n in (19, 20, 21, 22)] == ['0', '1', '2', '3']
+
+    def test_itdm_control_info(self, cmd_tshark, capture_file, test_env):
+        '''The control protocol commands; the allocated flow ID and the
+        paired transaction ID are only shown for commands other than
+        AFI_REQ.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', '_ws.col.info'],
+                            '-Y', 'frame.number >= 25')
+        info = {int(r[0]): r[1] for r in rows}
+        assert info[25] == 'Flow 0 Command AFI_REQ: Alloc Flow ID Req  TransID 0x1234 '
+        assert info[32] == ("Flow 0 Command Not Used  Alloc'd FlowID 40 TransID 0x1000  "
+                            'Paired TransID 0x2000')
+        assert info[33] == ("Flow 0 Command AFI_RSP: Alloc Flow ID Rsp - Req Accepted.  "
+                            "Alloc'd FlowID 42 TransID 0x1002  Paired TransID 0x2002")
+        assert info[36].startswith('Flow 0 Command AFI_RSP: Reject: Data Mode Field value Not Supported.')
+        assert info[47].startswith('Flow 0 Command DFI_RSP: Reject: Other Flow ID in pair')
+        assert info[48].startswith('Flow 0 Command Reserved ')
+
+    def test_itdm_control_fields(self, cmd_tshark, capture_file, test_env):
+        '''Data modes and packet rates of AFI requests, and the fields that
+        only responses have.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'itdm.ctl_transid', 'itdm.ctl_cmd',
+                             'itdm.ctl_flowid', 'itdm.ctl_dm', 'itdm.ctlemts',
+                             'itdm.ctl_pktrate', 'itdm.ctl_ptid', 'itdm.ctl_cksum'],
+                            '-Y', 'frame.number >= 25')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[25] == ['0x00001234', '1', '', '2', '0', '0x45fa0000', '', '0xcafe']
+        assert by_frame[27][3:5] == ['3', '8']
+        assert by_frame[28][5] == '0x43a6aaab'
+        assert by_frame[29][5] == '0x43fa0000'
+        assert by_frame[30][3] == '0'
+        assert by_frame[32] == ['0x00001000', '0', '40', '2', '0', '0x45fa0000', '0x00002000', '0xcafe']
+        assert by_frame[50] == ['0x00001234', '2', '7', '2', '0', '0x45fa0000', '0x00004321', '0xcafe']
+
+    def test_itdm_payload(self, cmd_tshark, capture_file, test_env):
+        '''Octets after the header (the data PDU of a flow, trailing control
+        bytes) are shown as data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'data.len'],
+                            '-Y', 'data')
+        assert rows == [['19', '16'], ['20', '16'], ['21', '16'], ['22', '16'],
+                        ['23', '6'], ['50', '22']]
