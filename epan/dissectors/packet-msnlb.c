@@ -120,7 +120,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 {
   proto_item  *ti;
   proto_tree  *msnlb_tree = NULL, *msnlb_subtree;
-  uint16_t    offset = 0;
+  unsigned    offset = 0;
   uint32_t    signature;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MS NLB");
