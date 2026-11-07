@@ -526,8 +526,8 @@ dissect_id3v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v1");
 	col_clear(pinfo->cinfo, COL_INFO);
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, true, pinfo);
-	return dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
-			tree, hf_id3v1);
+	return (dissect_mpeg_audio_ID3v1(tvb, 0, &asn1_ctx,
+			tree, hf_id3v1) + 7) >> 3;
 }
 
 static int
