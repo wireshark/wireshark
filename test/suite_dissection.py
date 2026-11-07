@@ -94738,3 +94738,103 @@ class TestDissectMbim:
                 '-embim.descriptor.max_segment_size',
                 '-embim.descriptor.extended_version', '-embim.descriptor.mtu')
         assert lines == ['415\t0x0100\t4096\t1500\t\t', '416\t\t\t\t0x0300\t1500']
+
+
+class TestDissectMbtcp:
+    '''Modbus/TCP (TCP 502), Modbus/UDP (UDP 502), Modbus/TCP Security and
+    Modbus RTU (Exported PDU) from the synthetic capture
+    mbtcp_coverage.pcapng.gz: every function code, the diagnostic
+    subfunctions, exceptions, request/response matching and reassembly.'''
+
+    def test_mbtcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''345 frames decode without malformed packets or warnings in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 345
+        assert protocols.count('Modbus/TCP') == 232
+        assert protocols.count('Modbus/UDP') == 62
+        assert protocols.count('Modbus/TCP Security') == 16
+        assert protocols.count('Modbus RTU') == 21
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mbtcp_request_matching(self, cmd_tshark, capture_file, test_env):
+        '''A response is matched to the most recent request with the same
+        function code, unit and transaction ID (frames 223-228: pipelined
+        requests answered in another order, a reused transaction ID, and a
+        response with another function code that has no request). Modbus
+        used a list of all requests that grew quadratically before "Modbus:
+        Fix quadratic request matching and short PDU handling".'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                    '-Y', 'mbtcp.trans_id >= 1000 && mbtcp.trans_id < 1100',
+                    '-Tfields', '-eframe.number', '-embtcp.trans_id', '-emodbus.request_frame',
+                    '-emodbus.reference_num',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines()[:6] == [
+                '223\t1000,1001,1002\t\t0,1,2',
+                '224\t1002,1000,1001\t223,223,223\t',
+                '225\t1010\t\t16',
+                '226\t1010\t\t32',
+                '227\t1010\t226\t',
+                '228\t1010\t\t',
+            ]
+
+    def test_mbtcp_read_data(self, cmd_tshark, capture_file, test_env):
+        '''Read Coils response: the bit numbers come from the request
+        (base 19, 37 bits); Read Holding Registers: UINT16 registers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {5, 9, 11}',
+                '-Tfields', '-eframe.number', '-emodbus.request_frame',
+                '-emodbus.bitnum', '-emodbus.regval_uint16',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '5\t4\t' + ','.join(str(n) for n in range(19, 56)) + '\t'
+        assert lines[1] == '9\t8\t\t555,0,100'
+        assert lines[2] == '11\t10\t\t1,2,3,4'
+
+    def test_mbtcp_device_id_and_events(self, cmd_tshark, capture_file, test_env):
+        '''Read Device Identification objects and the Get Comm. Event Log
+        events.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                '-Y', 'modbus.object_str_value || modbus.event',
+                '-Tfields', '-eframe.number', '-emodbus.object_id',
+                '-emodbus.object_str_value', '-emodbus.event',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '64\t\t\t32,0,4,129,66,32',
+            '86\t0,1,2\tAcme,MB-1,V1.2\t',
+            '88\t0,1,2,128,129,4,7\tAcme,MB-1,V1.2,Prod\t',
+            '90\t5\tModel\t',
+        ]
+
+    def test_mbtcp_rtu_classification(self, cmd_tshark, capture_file, test_env):
+        '''Raw Modbus RTU without ports: query or response is guessed from
+        the function code and the length; a Write Single Coil cannot be
+        classified.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mbtcp_coverage.pcapng.gz'),
+                '-Y', 'mbrtu && frame.number in {324, 325, 329, 330, 333, 339, 340}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '324 Query: Unit: 1, Func: 3: Read Holding Registers',
+            '325 Response: Unit: 1, Func: 3: Read Holding Registers',
+            '329 Response: Unit: 3, Func: 1: Read Coils',
+            '330 Response: Unit: 3, Func: 1: Read Coils',
+            '333 unknown: Unit: 5, Func: 5: Write Single Coil. Unable to classify as query or response.',
+            '339 Response: Unit: 8, Func: 3: Read Holding Registers. Exception returned',
+            '340 Response: Unit: 8, Func: 43: Encapsulated Interface Transport. Exception returned',
+        ]
