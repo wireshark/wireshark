@@ -623,6 +623,12 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t 
 
 	if (flags & LAPD_HAS_CRC) {
 
+		/* The frame must hold the header and the 2-byte checksum */
+		if (tvb_reported_length(tvb) < (unsigned)lapd_header_len + 2) {
+			lapd_log_abort(tvb, pinfo, lapd_tree, 0, "Frame too short for the checksum");
+			return;
+		}
+
 		/* check checksum */
 		checksum_offset = tvb_reported_length(tvb) - 2;
 
