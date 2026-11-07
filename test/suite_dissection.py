@@ -86759,3 +86759,69 @@ class TestDissectJ1939:
         rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 176',
                                ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
         assert rows == [['exported_pdu:data', 'j1939', '01020304']]
+
+
+class TestDissectJmirror:
+    '''Juniper Packet Mirror (UDP port 30030) from the synthetic capture
+    jmirror_coverage.pcap.gz.'''
+
+    @staticmethod
+    def jm_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('jmirror_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_jmirror_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-6, 8 and 11 are mirror packets; frames 7, 9 and 10
+        are not recognised by the heuristic and stay UDP data. None is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = self.jm_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'jmirror', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['1', '2', '3', '4', '5', '6', '8', '11']
+        stdout = self.jm_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!jmirror', '-Tfields', '-eframe.number', '-eframe.protocols')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['7', 'eth:ethertype:ip:udp:data'],
+            ['9', 'eth:ethertype:ip:udp:data'],
+            ['10', 'eth:ethertype:ip:udp:data']]
+        for passes in ((), ('-2',)):
+            stdout = self.jm_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_jmirror_ids(self, cmd_tshark, capture_file, test_env):
+        '''The mirror and session identifiers.'''
+        stdout = self.jm_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'jmirror', '-Tfields', '-eframe.number',
+                '-ejmirror.mid', '-ejmirror.sid')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0x00000001', '0x00000064'], ['2', '0x00000001', '0x00000064'],
+            ['3', '0x00000002', '0x000000c8'], ['4', '0x00000003', '0x0000012c'],
+            ['5', '0x00000003', '0x0000012d'], ['6', '0x00000004', '0x00000190'],
+            ['8', '0xfffffff0', '0x80000001'], ['11', '0x00000007', '0x000002bc']]
+
+    def test_jmirror_inner_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The mirrored packet is IPv4 (also when the mirror is the
+        sender), IPv6, or PPP in HDLC carrying IPv4, IPv6 or an unknown
+        PPP protocol.'''
+        stdout = self.jm_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'jmirror', '-Tfields', '-eframe.number', '-eframe.protocols')
+        base = 'eth:ethertype:ip:udp:jmirror:'
+        ppp = base + 'pw_hdlc_nocw_hdlc_ppp:ppp:'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', base + 'ip:icmp:data'],
+            ['2', base + 'ip:udp:data'],
+            ['3', base + 'ipv6:udp:data'],
+            ['4', ppp + 'ip:udp:data'],
+            ['5', ppp + 'ipv6:udp:data'],
+            ['6', ppp + 'data'],
+            ['8', base + 'ip:udp:data'],
+            ['11', base + 'ip:icmp:data']]
+
+    def test_jmirror_info(self, cmd_tshark, capture_file, test_env):
+        '''The tree and the protocol column of a mirror packet.'''
+        stdout = self.jm_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 8', '-V', '-O', 'jmirror')
+        assert 'Juniper Packet Mirror, MID: 0xfffffff0 (' in stdout
+        assert '    Jmirror Identifier: 0xfffffff0 (4294967280)' in stdout
+        assert '    Session Identifier: 0x80000001 (2147483649)' in stdout
