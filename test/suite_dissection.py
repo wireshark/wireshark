@@ -86191,3 +86191,156 @@ class TestDissectIuup:
             ['48', 'exported_pdu:iuup'], ['49', 'exported_pdu:iuup']]
         assert rows[1][2] == 'Initialization '
         assert rows[2][2] == 'Data (no CRC)FN: 0 RFCI: 0'
+
+
+class TestDissectIwarpDdpRdmap:
+    '''iWARP DDP/RDMAP (RFC 5040/5041) carried in MPA FPDUs over TCP, from
+    the synthetic capture iwarp_ddp_rdmap_coverage.pcap.gz: frames 1-2 are
+    the MPA Request and Reply, frames 3-59 DDP segments of every RDMAP
+    opcode.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *extra):
+        args = [cmd_tshark, '-r', capture_file('iwarp_ddp_rdmap_coverage.pcap.gz'), *extra, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iwarp_ddp_rdmap_frames(self, cmd_tshark, capture_file, test_env):
+        '''59 frames, all but the MPA handshake and the first half of a
+        split segment (frame 16) carry DDP/RDMAP; none is malformed or has
+        an error expert info, in one and two passes, with and without the
+        Send reassembly.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_ddp_rdmap'])
+        assert len(rows) == 59
+        assert [int(r[0]) for r in rows if r[1] != ''] == [n for n in range(3, 60) if n != 16]
+        for opts in ((), ('-2',), ('-o', 'iwarp_ddp_rdmap.reassemble_iwarp_rdma_send:FALSE'),
+                     ('-2', '-o', 'iwarp_ddp_rdmap.reassemble_iwarp_rdma_send:FALSE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('iwarp_ddp_rdmap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iwarp_ddp_rdmap_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every RDMAP opcode.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.opcode', '_ws.col.info'],
+                            '-Y', 'iwarp_rdma')
+        info = {int(r[0]): r[1:] for r in rows}
+        assert info[3] == ['0x03', '47201 > 47202 Send [last DDP segment]']
+        assert info[4] == ['0x04', '47202 > 47201 Send with Invalidate [last DDP segment]']
+        assert info[5][1] == '47201 > 47202 Send with SE [last DDP segment]'
+        assert info[6][1] == '47201 > 47202 Send with SE and Invalidate [last DDP segment]'
+        assert info[9][1] == '47201 > 47202 Send [more DDP segments]'
+        assert info[18] == ['0x00', '47201 > 47202 Write [last DDP segment]']
+        assert info[19][1] == '47201 > 47202 Write [more DDP segments]'
+        assert info[21] == ['0x02', '47202 > 47201 Read Response [last DDP segment]']
+        assert info[22] == ['0x01', '47201 > 47202 Read Request [last DDP segment]']
+        assert info[24] == ['0x07', '47201 > 47202 Terminate [last DDP segment]']
+        assert info[35] == ['0x0a', '47201 > 47202 Atomic Request [last DDP segment]']
+        assert info[38] == ['0x0b', '47202 > 47201 Atomic Response [last DDP segment]']
+        assert info[44] == ['0x08', '47201 > 47202 Unknown 8 [last DDP segment]']
+        assert info[54] == ['0x0f', '47201 > 47202 Unknown 15 [last DDP segment]']
+
+    def test_iwarp_ddp_rdmap_untagged_header(self, cmd_tshark, capture_file, test_env):
+        '''Queue number, message sequence number and offset of untagged
+        segments, and the Invalidate STag of the invalidating Sends.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_ddp.qn', 'iwarp_ddp.msn', 'iwarp_ddp.mo',
+                             'iwarp_rdma.inval_stag'],
+                            '-Y', 'frame.number >= 3 && frame.number <= 14')
+        assert rows[0] == ['3', '0', '1', '0', '']
+        assert rows[1] == ['4', '0', '2', '0', '4660']
+        assert rows[3] == ['6', '0', '4', '0', '57005']
+        assert rows[5] == ['8', '1', '6', '0', '']
+        assert rows[7] == ['10', '0', '7', '9', '']
+        assert rows[8] == ['11', '0', '7', '18', '']
+
+    def test_iwarp_ddp_rdmap_send_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragmented Sends are reassembled: three segments (frames 9-11),
+        two invalidating ones in the other direction (13-14) and two in one
+        TCP segment (15).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                ['frame.number', 'iwarp_rdma.send.reassembled.length',
+                                 'iwarp_rdma.send.fragment.count'],
+                                *passes, '-Y', 'iwarp_rdma.send.reassembled.length')
+            assert rows == [['11', '28', '3'], ['14', '29', '2'], ['15', '23', '2']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.send.reassembled_in'],
+                            '-2', '-Y', 'iwarp_rdma.send.reassembled_in')
+        assert rows == [['9', '11'], ['10', '11'], ['13', '14'], ['15', '15']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.send.reassembled.length'],
+                            '-o', 'iwarp_ddp_rdmap.reassemble_iwarp_rdma_send:FALSE',
+                            '-Y', 'iwarp_rdma.send.reassembled.length')
+        assert rows == []
+
+    def test_iwarp_ddp_rdmap_tagged(self, cmd_tshark, capture_file, test_env):
+        '''RDMA Write and Read Response (tagged) and Read Request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_ddp.stag', 'iwarp_ddp.tagged_offset'],
+                            '-Y', 'frame.number >= 18 && frame.number <= 21')
+        assert rows == [['18', '0x0000abcd', '0x0000000000010000'],
+                        ['19', '0x0000abcd', '0x0000000000010010'],
+                        ['20', '0x0000abcd', '0x000000000001001a'],
+                        ['21', '0x00000077', '0x0000000000000020']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.sinkstag', 'iwarp_rdma.sinkto',
+                             'iwarp_rdma.rdmardsz', 'iwarp_rdma.srcstag', 'iwarp_rdma.srcto'],
+                            '-Y', 'iwarp_rdma.rr')
+        assert rows == [['22', '0x00000010', '0x0000000000000020', '4096', '0x00000030',
+                         '0x0000000000000040'],
+                        ['23', '0x00000011', '0x0000000000000021', '8192', '0x00000031',
+                         '0x0000000000000041']]
+
+    def test_iwarp_ddp_rdmap_terminate(self, cmd_tshark, capture_file, test_env):
+        '''Terminate messages for each layer and error type, with and
+        without the terminated DDP and RDMA headers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.term_layer',
+                             'iwarp_rdma.term_etype_ddp', 'iwarp_rdma.term_etype_llp',
+                             'iwarp_rdma.term_errcode_ddp_tagged',
+                             'iwarp_rdma.term_errcode_ddp_untagged',
+                             'iwarp_rdma.term_ddp_seg_len'],
+                            '-Y', 'iwarp_rdma.term_layer')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert sorted(by_frame) == list(range(24, 35))
+        assert by_frame[24][0] == '0x00'
+        assert by_frame[26] == ['0x01', '0x01', '', '0x02', '', '002c']      # DDP, tagged buffer error
+        assert by_frame[27] == ['0x01', '0x02', '', '', '0x03', '0032']      # DDP, untagged buffer error
+        assert by_frame[30][0] == '0x02'                                      # LLP layer
+        assert by_frame[32][0] == '0x03'                                      # unknown layer
+
+    def test_iwarp_ddp_rdmap_atomic(self, cmd_tshark, capture_file, test_env):
+        '''Atomic Requests (FetchAdd, CmpSwap, another opcode) and
+        Responses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.atomic.opcode',
+                             'iwarp_rdma.atomic.request_identifier',
+                             'iwarp_rdma.atomic.add_data', 'iwarp_rdma.atomic.swap_data',
+                             'iwarp_rdma.atomic.compare_data',
+                             'iwarp_rdma.atomic.original_request_identifier',
+                             'iwarp_rdma.atomic.original_remote_data_value'],
+                            '-Y', 'frame.number >= 35 && frame.number <= 39')
+        assert rows == [
+            ['35', '0', '1', '4369', '', '8738', '', ''],
+            ['36', '2', '2', '', '4369', '8738', '', ''],
+            ['37', '1', '3', '', '', '8738', '', ''],
+            ['38', '', '', '', '', '', '2', '72623859790382856'],
+            ['39', '', '', '', '', '', '3', '18446744073709551615']]
+
+    def test_iwarp_ddp_rdmap_reserved_bits(self, cmd_tshark, capture_file, test_env):
+        '''Reserved bits, other DDP and RDMAP versions, tagged flag.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.version', 'iwarp_rdma.rsv',
+                             'iwarp_ddp.rsvd', 'iwarp_ddp.dv'],
+                            '-Y', 'frame.number >= 40 && frame.number <= 43')
+        assert rows == [['40', '1', '0x03', '0x0f', '1'],
+                        ['41', '1', '0x00', '0x00', '2'],
+                        ['42', '0', '0x00', '0x00', '1'],
+                        ['43', '3', '0x00', '0x00', '1']]
