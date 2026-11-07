@@ -1127,7 +1127,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
     proto_tree *ti, *ti2, *val_tree, *fec_tree=NULL;
     proto_tree *agi_tree=NULL, *saii_tree=NULL, *taii_tree=NULL;
     uint16_t    family, ix=1, ax;
-    uint16_t    op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
+    uint16_t    op_length;
     uint8_t     addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
     uint8_t     intparam_len, aai_type = 0;
     uint32_t    pwid_len, agi_aii_len;
@@ -1203,7 +1203,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
 
             if ( addr_size < prefix_len_octets) {
                 offset+=addr_size;
-                rem-=addr_size;
+                rem-=4+addr_size;
                 expert_add_info_format(pinfo, ti, &ei_ldp_tlv_fec_len,
                                     "Invalid prefix %u length for family %s",
                                     prefix_len, val_to_str_const(family, afn_vals, "Unknown Family"));
@@ -1278,7 +1278,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
 
             if ( addr_size != host_len) {
                 offset+=addr_size;
-                rem-=addr_size;
+                rem-=4+addr_size;
                 expert_add_info_format(pinfo, ti, &ei_ldp_tlv_fec_len,
                                     "Invalid address length %u length for family %s",
                                     host_len, val_to_str_const(family, afn_vals, "Unknown Family"));
@@ -1498,7 +1498,16 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
         case HSMP_UPSTREAM:
         case HSMP_DOWNSTREAM:
         {
-            if (rem < 4 ){/*not enough*/
+            if (rem < 10 ){/*not enough*/
+                proto_item* inv_length;
+                inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+            }
+
+            /* Opaque length follows the type, family, length and root node address */
+            op_length = tvb_get_ntohs(tvb, offset + 8);
+            if (rem - 10 < (int)op_length) {
                 proto_item* inv_length;
                 inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
                 expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
@@ -2564,9 +2573,14 @@ dissect_tlv_mpls_context_lbl(tvbuff_t *tvb,packet_info *pinfo, unsigned offset, 
 {
     proto_tree *val_tree;
 
+    if (rem < 4) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_ldp_inv_length, tvb, offset, rem,
+                            "Error processing MPLS Context Label: length is %d, should be >= 4", rem);
+        return;
+    }
     proto_tree_add_item(tree, hf_ldp_tlv_ip_mpls_context_srcaddr, tvb,offset, 4, ENC_BIG_ENDIAN);
     val_tree = proto_tree_add_subtree(tree, tvb, offset, rem, ett_ldp_tlv_val, NULL, "MPLS Context Label");
-    dissect_tlv(tvb, pinfo, offset + 4, val_tree, rem);
+    dissect_tlv(tvb, pinfo, offset + 4, val_tree, rem - 4);
 }
 
 static void
@@ -2987,10 +3001,10 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *tree
             /*dissect_tlv_ipv4_interface_id(tvb, offset + 4, tlv_tree, length);*/
             break;
         case TLV_IP_MULTICAST_TUNNEL:
-            dissect_tlv_ip_multicast_tunnel(tvb, offset + 4, tlv_tree, rem);
+            dissect_tlv_ip_multicast_tunnel(tvb, offset + 4, tlv_tree, length);
             break;
         case TLV_MPLS_CONTEXT_LBL:
-            dissect_tlv_mpls_context_lbl(tvb, pinfo, offset + 4, tlv_tree, rem);
+            dissect_tlv_mpls_context_lbl(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
         case TLV_LDP_P2MP_LSP:
             dissect_tlv_ldp_p2mp_lsp(tvb, offset + 4, tlv_tree);
@@ -3384,7 +3398,7 @@ dissect_genpwid_fec_aai_type2_parameter(tvbuff_t *tvb, packet_info *pinfo, unsig
 
     proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_globalid,tvb,offset,4,ENC_BIG_ENDIAN);
     proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_prefix,tvb, offset+4, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_ac_id,tvb, offset+4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(aai_param_tree,hf_ldp_tlv_fec_gen_aai_ac_id,tvb, offset+8, 4, ENC_BIG_ENDIAN);
 }
 
 static int
