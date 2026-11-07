@@ -2633,15 +2633,19 @@ gtp_info_deint_equal(const void *key1, const void *key2)
  */
 static wmem_map_t* rejected_frames;
 
-/* The frame that key maps to in map, or 0 */
+/* frame, or 0 if its mappings in map no longer count */
 static uint32_t
-lookup_frame(wmem_map_t *map, const void *key) {
-    uint32_t frame = GPOINTER_TO_UINT(wmem_map_lookup(map, key));
-
+counted_frame(const wmem_map_t *map, uint32_t frame) {
     if (frame && map == frame_map && wmem_map_contains(rejected_frames, GUINT_TO_POINTER(frame))) {
         return 0;
     }
     return frame;
+}
+
+/* The frame that key maps to in map, or 0 */
+static uint32_t
+lookup_frame(wmem_map_t *map, const void *key) {
+    return counted_frame(map, GPOINTER_TO_UINT(wmem_map_lookup(map, key)));
 }
 
 uint32_t
@@ -2780,34 +2784,64 @@ ip_exists(address ip, wmem_list_t *ip_list) {
 
 /* A <teid,ip> mapping that fill_map() replaced */
 typedef struct {
-    void *key;          /* gtp_info_t or gtp_info_deint_t */
+    const void *key;    /* gtp_info_t or gtp_info_deint_t of the map */
     bool deint;         /* key of frame_map_deint, not of frame_map */
     uint32_t frame;     /* frame that the key mapped to */
 } gtp_replaced_info_t;
 
-/* Insert key -> frame into map. If the key was mapped to another frame,
- * add that mapping to replaced_list, so that restore_frame_info() can put
- * it back.
+/* A copy in file scope of a key of frame_map or frame_map_deint */
+static const void *
+copy_frame_info_key(const void *key, bool deint) {
+    if (deint) {
+        const gtp_info_deint_t *k = (const gtp_info_deint_t *)key;
+        gtp_info_deint_t *copy = wmem_new0(wmem_file_scope(), gtp_info_deint_t);
+
+        copy->teid = k->teid;
+        copy->convid = k->convid;
+        copy_address_wmem(wmem_file_scope(), &copy->addr, &k->addr);
+        return copy;
+    } else {
+        const gtp_info_t *k = (const gtp_info_t *)key;
+        gtp_info_t *copy = wmem_new0(wmem_file_scope(), gtp_info_t);
+
+        copy->teid = k->teid;
+        copy_address_wmem(wmem_file_scope(), &copy->addr, &k->addr);
+        return copy;
+    }
+}
+
+/* Insert key -> frame into map. The key of the map is used if it has one,
+ * so that only a new key is copied. If the key was mapped to another frame,
+ * add that mapping (allocated in scope) to replaced_list, so that
+ * restore_frame_info() can put it back.
  */
 static void
-insert_frame_info(wmem_map_t *map, void *key, bool deint, uint32_t frame, wmem_list_t *replaced_list) {
-    uint32_t old_frame = lookup_frame(map, key);
+insert_frame_info(wmem_map_t *map, const void *key, bool deint, uint32_t frame, wmem_allocator_t *scope, wmem_list_t *replaced_list) {
+    const void *map_key;
+    void *value;
+    uint32_t old_frame = 0;
+
+    if (wmem_map_lookup_extended(map, key, &map_key, &value)) {
+        old_frame = counted_frame(map, GPOINTER_TO_UINT(value));
+    } else {
+        map_key = copy_frame_info_key(key, deint);
+    }
 
     if (old_frame && old_frame != frame && replaced_list) {
-        gtp_replaced_info_t *replaced = wmem_new(wmem_file_scope(), gtp_replaced_info_t);
-        replaced->key = key;
+        gtp_replaced_info_t *replaced = wmem_new(scope, gtp_replaced_info_t);
+        replaced->key = map_key;
         replaced->deint = deint;
         replaced->frame = old_frame;
         wmem_list_append(replaced_list, replaced);
     }
-    wmem_map_insert(map, key, GUINT_TO_POINTER(frame));
+    wmem_map_insert(map, map_key, GUINT_TO_POINTER(frame));
 }
 
 void
-fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_list_t *replaced_list) {
+fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_allocator_t *scope, wmem_list_t *replaced_list) {
     wmem_list_frame_t *elem_ip, *elem_teid;
-    gtp_info_t *gtp_info;
-    gtp_info_deint_t *gtp_infod;
+    gtp_info_t info;
+    gtp_info_deint_t infod;
     uint32_t teid;
     address *ip;
 
@@ -2827,18 +2861,15 @@ fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t 
         while (elem_teid) {
             teid = *(uint32_t*)wmem_list_frame_data(elem_teid);
             if(!ignore_conv) {  // deinterlacing was asked
-
-                gtp_infod = wmem_new0(wmem_file_scope(), gtp_info_deint_t);
-                gtp_infod->teid = teid;
-                gtp_infod->convid = convid;
-                copy_address_wmem(wmem_file_scope(), &gtp_infod->addr, ip);
-                insert_frame_info(frame_map_deint, gtp_infod, true, frame, replaced_list);
+                infod.teid = teid;
+                infod.convid = convid;
+                copy_address_shallow(&infod.addr, ip);
+                insert_frame_info(frame_map_deint, &infod, true, frame, scope, replaced_list);
             }
             else {
-                gtp_info = wmem_new0(wmem_file_scope(), gtp_info_t);
-                gtp_info->teid = teid;
-                copy_address_wmem(wmem_file_scope(), &gtp_info->addr, ip);
-                insert_frame_info(frame_map, gtp_info, false, frame, replaced_list);
+                info.teid = teid;
+                copy_address_shallow(&info.addr, ip);
+                insert_frame_info(frame_map, &info, false, frame, scope, replaced_list);
             }
 
             elem_teid = wmem_list_frame_next(elem_teid);
@@ -11251,14 +11282,14 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         (pinfo->src.type == AT_IPv6) ? CONVERSATION_IPV6 : CONVERSATION_IP,
                         NO_PORT_X, false);
                 if (conv) {
-                    fill_map(args->teid_list, args->ip_list, pinfo->num, conv->conv_index, 0, args->replaced_list);
+                    fill_map(args->teid_list, args->ip_list, pinfo->num, conv->conv_index, 0, pinfo->pool, args->replaced_list);
                 } else {
-                    fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, args->replaced_list);
+                    fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
                 }
             }
             else {
                 // no deinterlacing supported/asked
-                fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, args->replaced_list);
+                fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
             }
         }
         /* Use sequence number to track Req/Resp pairs except GTP' message "Data Record Transfer Response".

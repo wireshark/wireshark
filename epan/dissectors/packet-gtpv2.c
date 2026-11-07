@@ -9964,11 +9964,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
     if (args && !PINFO_FD_VISITED(pinfo)) {
         /* We insert the lists inside the table*/
         if(is_deinterlacing_supported(pinfo)) {
-            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0, args->replaced_list);
+            fill_map(args->teid_list, args->ip_list, pinfo->num, conversation->conv_index, 0, pinfo->pool, args->replaced_list);
         }
         else {
             // no deinterlacing supported/asked
-            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, args->replaced_list);
+            fill_map(args->teid_list, args->ip_list, pinfo->num, 0, 1, pinfo->pool, args->replaced_list);
         }
         cause_aux = args->last_cause;
     }

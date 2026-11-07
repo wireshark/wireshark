@@ -216,9 +216,9 @@ bool ip_exists(address ip, wmem_list_t *ip_list);
 /**
  * Fills the frame_map or frame_map_deint according to the deinterlacing mode.
  * The mappings it replaces are added to replaced_list (if not NULL), for
- * restore_frame_info().
+ * restore_frame_info(); scope (ex pinfo->pool) is used for them.
  */
-void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_list_t *replaced_list);
+void fill_map(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame, uint32_t convid, bool ignore_conv, wmem_allocator_t *scope, wmem_list_t *replaced_list);
 
 /**
  * If frame has no session, puts back the mappings in replaced_list that

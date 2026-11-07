@@ -2473,7 +2473,8 @@ pfcp_remove_session_from_table(void *key, void *val, void *userdata) {
 static void
 pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
     wmem_list_frame_t *elem_ip, *elem_seid;
-    pfcp_info_t *pfcp_info;
+    pfcp_info_t info;
+    const void *map_key;
     uint64_t seid;
     uint32_t session;
     address *ip;
@@ -2485,10 +2486,9 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
         elem_seid = wmem_list_head(seid_list);
         while (elem_seid) {
             seid = *(uint64_t*)wmem_list_frame_data(elem_seid);
-            pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);
-            pfcp_info->seid = seid;
-            copy_address_wmem(wmem_file_scope(), &pfcp_info->addr, ip);
-            if (pfcp_lookup_frame(pfcp_info)) {
+            info.seid = seid;
+            copy_address_shallow(&info.addr, ip);
+            if (pfcp_lookup_frame(&info)) {
                 /* If the seid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
                 /* We look for its session ID */
@@ -2498,7 +2498,14 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
                     wmem_map_foreach(pfcp_session_table, pfcp_remove_session_from_table, GUINT_TO_POINTER(session));
                 }
             }
-            wmem_map_insert(pfcp_frame_map, pfcp_info, GUINT_TO_POINTER(frame));
+            /* Copy the key only if the map does not have it */
+            if (!wmem_map_lookup_extended(pfcp_frame_map, &info, &map_key, NULL)) {
+                pfcp_info_t *pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);
+                pfcp_info->seid = seid;
+                copy_address_wmem(wmem_file_scope(), &pfcp_info->addr, ip);
+                map_key = pfcp_info;
+            }
+            wmem_map_insert(pfcp_frame_map, map_key, GUINT_TO_POINTER(frame));
             elem_seid = wmem_list_frame_next(elem_seid);
         }
         elem_ip = wmem_list_frame_next(elem_ip);
