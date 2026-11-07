@@ -101053,3 +101053,111 @@ class TestDissectMtp2:
                             'mtp3.opc && frame.number in {11, 12, 27, 36}',
                             'frame.number', 'mtp3.opc', 'mtp3.dpc')
         assert lines == ['11\t200\t100', '12\t100\t200', '27\t2\t1', '36\t200\t100']
+
+
+class TestDissectMtp3:
+    '''MTP3 over LINKTYPE_MTP3 from the synthetic capture
+    mtp3_coverage.pcapng.gz. Frames 1-23 are ITU MSUs (the default
+    standard), 24-31 ANSI, 32-36 Chinese ITU, 37-42 Japan (each needs
+    mtp3.standard) and 43-48 SCCP MSUs of every standard for the
+    heuristic standard preference.'''
+
+    SECTIONS = (
+        # first, last, standard, protocol of the first frame
+        (1, 23, 'itu', 'MTP3MG (Int. ITU)'),
+        (24, 31, 'ansi', 'MTP3MG (ANSI)'),
+        (32, 36, 'chinese-itu', 'MTP3MG (Chin. ITU)'),
+        (37, 42, 'japan', 'MTP3 (Japan)'),
+    )
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mtp3_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mtp3_standards(self, cmd_tshark, capture_file, test_env):
+        '''Each section decodes without malformed packets or warnings
+        with its standard, in one and two passes.'''
+        for first, last, std, proto in self.SECTIONS:
+            for passes in ((), ('-2',)):
+                rng = 'frame.number >= %d && frame.number <= %d' % (first, last)
+                lines = self.fields(cmd_tshark, capture_file, test_env, rng,
+                                    'frame.number', '_ws.col.protocol',
+                                    opts=(*passes, '-o', 'mtp3.standard:' + std))
+                assert len(lines) == last - first + 1
+                assert lines[0].split('\t')[1] == proto
+                bad = self.fields(cmd_tshark, capture_file, test_env,
+                                  rng + ' && (_ws.malformed || _ws.expert.severity >= 0x00600000)',
+                                  'frame.number', opts=(*passes, '-o', 'mtp3.standard:' + std))
+                assert count_output('\n'.join(bad)) == 0, (std, bad)
+
+    def test_mtp3_itu_labels(self, cmd_tshark, capture_file, test_env):
+        '''ITU routing label, point codes, SLS and the network indicator.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 16, 21}', 'frame.number',
+                            'mtp3.opc', 'mtp3.dpc', 'mtp3.sls',
+                            'mtp3.network_indicator', 'mtp3.service_indicator')
+        assert lines == [
+            '1\t7109\t4899\t0\t0x00\t0x00',
+            '16\t2001\t1001\t5\t0x01\t0x05',
+            '21\t16383\t16383\t15\t0x00\t0x05',
+        ]
+
+    def test_mtp3_ansi_japan_labels(self, cmd_tshark, capture_file, test_env):
+        '''The three octet ANSI point codes and the Japan 16 bit ones.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {24, 30}', 'frame.number',
+                            'mtp3.ansi_opc', 'mtp3.ansi_dpc', 'mtp3.sls',
+                            opts=('-o', 'mtp3.standard:ansi'))
+        assert lines[0].startswith('24\t4-5-6,263430,0x40506\t1-2-3,66051,0x10203\t9')
+        assert lines[1].startswith('30\t0-0-0,0,0x0\t255-255-255,16777215,0xffffff\t31')
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {37, 42}', 'frame.number',
+                            'mtp3.opc', 'mtp3.dpc', 'mtp3.sls',
+                            opts=('-o', 'mtp3.standard:japan'))
+        assert lines == ['37\t17191\t4666\t9', '42\t1\t65535\t15']
+
+    def test_mtp3_heuristic_standard(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristic standard preference an SCCP MSU is decoded
+        with the standard whose SCCP header fits; the MSU that fits none
+        and the non-SCCP MSU keep the configured standard.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 43', 'frame.number',
+                            '_ws.col.protocol', 'mtp3.heuristic_standard',
+                            opts=('-2', '-o', 'mtp3.heuristic_standard:TRUE'))
+        assert lines == [
+            '43\tSCCPMG (Int. ITU)\t1',
+            '44\tSCCPMG (ANSI)\t2',
+            '45\tSCCPMG (Chin. ITU)\t3',
+            '46\tSCCP (Japan)\t4',
+            '47\tSCCP (Int. ITU)\t1',
+            '48\tISUP(ITU)\t1',
+        ]
+
+    def test_mtp3_msu_statistics(self, cmd_tshark, capture_file, test_env):
+        '''The MTP3 MSU statistics table (all frames, decoded as ITU). Its rows keep a copy of the
+        point codes of the first MSU ("MTP3: Fix over-read when saving
+        MSU statistics addresses"; valgrind showed the over-read).'''
+        stdout = subprocess.check_output((cmd_tshark, '-q',
+                '-r', capture_file('mtp3_coverage.pcapng.gz'),
+                '-z', 'mtp3,msus',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [[c.strip() for c in l.split('|')[:5]] for l in stdout.splitlines()
+                if l.count('|') >= 6 and not l.startswith(('OPC', 'MTP3'))]
+        assert len(rows) == 35
+        assert rows[0] == ['7109', '4899', 'SNM', '1', '7']
+        assert rows[3] == ['7109', '4899', 'SCCP', '1', '22']
+        assert rows[-1] == ['200', '100', 'ISUP', '1', '13']
+
+    def test_mtp3_point_code_structure(self, cmd_tshark, capture_file, test_env):
+        '''ITU point codes in 3-8-3 and 4-3-4-3 form.'''
+        for fmt, text in (('3-8-3', 'OPC: 7109 (3-120-5)'),
+                          ('4-3-4-3', 'OPC: 7109 (6-7-8-5)')):
+            stdout = subprocess.check_output((cmd_tshark, '-V',
+                    '-r', capture_file('mtp3_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 1', '-o', 'mtp3.itu_pc_structure:' + fmt,
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert text in stdout
