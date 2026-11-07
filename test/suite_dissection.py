@@ -98216,3 +98216,84 @@ class TestDissectMp2t:
                 '-r', capture_file('mp2t_coverage.pcapng.gz')),
             encoding='utf-8', env=test_env, timeout=300)
         assert 'Filter: mp2t.stream == 0 && mp2t.pid == 0x0101' in stdout
+
+
+class TestDissectMp4ves:
+    '''MP4V-ES (RFC 6416, MPEG-4 Visual over RTP) from the synthetic
+    capture mp4ves_coverage.pcapng.gz: SDP offers with the MP4V-ES
+    rtpmap and fmtp config= (frames 1-19), RTP payloads (20-57) and
+    Exported PDU mp4ves_config / mp4ves entries (58-74). The H.245
+    generic capability entry points are not covered.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('mp4ves_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mp4ves_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 74
+        assert protocols.count('SIP/SDP') == 19
+        assert protocols.count('MP4V-ES') == 40
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number',
+                    passes=passes)
+            assert rows == []
+
+    def test_mp4ves_config_user_data_length(self, cmd_tshark, capture_file, test_env):
+        '''The 10 octets of user data of frame 63 end at the next start
+        code. The length was computed as twice that, which ran past the
+        end of the configuration before "MP4V-ES: Fix several bit and
+        length calculations".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 63',
+                'mp4ves.profile_and_level_indication', 'mp4ves.user_data', 'mp4ves.start_code')
+        assert rows == [['1', '30313233343536373839', '0xb0,0xb2,0x00,0x20']]
+
+    def test_mp4ves_sdp_config(self, cmd_tshark, capture_file, test_env):
+        '''The fmtp config= of the SDP offers is dissected: profile and
+        level, visual object type, extended pixel aspect ratio, the
+        grayscale layer shape and the user data items (frame 5).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                'mp4ves.profile_and_level_indication', 'mp4ves.aspect_ratio_info',
+                'mp4ves.visual_object_type')
+        assert rows == [['243', '15', '1']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 9',
+                'mp4ves.video_object_layer_shape')
+        assert rows == [['3']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 5',
+                'mp4ves.user_data')
+        assert rows == [['7832363420746573742064617461,0102030405060708090a']]
+
+    def test_mp4ves_aspect_ratio_extended(self, cmd_tshark, capture_file, test_env):
+        '''aspect_ratio_info is four bits wide and 0xf announces the
+        16 bits of extended PAR, so the layer shape that follows is read
+        from the right bit. Frame 4 has an extended PAR and shape 0,
+        frame 10 has aspect_ratio_info 6 and shape 1.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 4 || frame.number == 10',
+                'frame.number', 'mp4ves.aspect_ratio_info', 'mp4ves.video_object_layer_shape')
+        assert rows == [['4', '15', '0'], ['10', '6', '1']]
+
+    def test_mp4ves_rtp_payloads(self, cmd_tshark, capture_file, test_env):
+        '''VOP coding types of frames 22-25, a VS header in an RTP
+        payload (frame 20) and the Exported PDU frame 61.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mp4ves.vop_coding_type',
+                'frame.number', 'mp4ves.vop_coding_type')
+        assert rows == [['22', '0'], ['23', '1'], ['24', '2'], ['25', '3'], ['57', '1'], ['61', '1']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 20',
+                'mp4ves.profile_and_level_indication', 'mp4ves.start_code')
+        assert rows == [['1', '0xb0,0x00,0x20']]
+
+    def test_mp4ves_not_dissected_bits(self, cmd_tshark, capture_file, test_env):
+        '''A layer with vol_control_parameters gets a warning for the
+        bits that are skipped (frames 7, 8 and 17).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.expert.message == "Not dissected bits"',
+                'frame.number')
+        assert [r[0] for r in rows] == ['7', '8', '17']
