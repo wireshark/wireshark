@@ -3221,34 +3221,45 @@ static int dissect_lbmr_tnwg_opts(tvbuff_t * tvb, int offset, int length, packet
 {
     int len_remaining = length;
     int curr_offset = offset;
-    int dissected_len = 0;
     uint8_t type = 0;
     int len_used = 0;
 
     while (len_remaining >= L_LBMR_TNWG_OPT_T)
     {
+        int opt_len = 0;
+        uint8_t opt_hdr_len = tvb_get_uint8(tvb, curr_offset + O_LBMR_TNWG_OPT_T_LEN);
+
+        if (opt_hdr_len < L_LBMR_TNWG_OPT_T)
+        {
+            proto_tree_add_expert_format(tree, pinfo, &ei_lbmr_analysis_length_incorrect, tvb, curr_offset, L_LBMR_TNWG_OPT_T, "TNWG option length %u is shorter than the option header", opt_hdr_len);
+            break;
+        }
         type = tvb_get_uint8(tvb, curr_offset);
         switch (type)
         {
             case LBMR_TNWG_OPT_CTXINST_TYPE:
-                dissected_len += dissect_lbmr_tnwg_ctxinst_opt(tvb, curr_offset, pinfo, tree);
+                opt_len = dissect_lbmr_tnwg_ctxinst_opt(tvb, curr_offset, pinfo, tree);
                 break;
             case LBMR_TNWG_OPT_ADDRESS_TYPE:
-                dissected_len += dissect_lbmr_tnwg_address_opt(tvb, curr_offset, pinfo, tree);
+                opt_len = dissect_lbmr_tnwg_address_opt(tvb, curr_offset, pinfo, tree);
                 break;
             case LBMR_TNWG_OPT_DOMAIN_TYPE:
-                dissected_len += dissect_lbmr_tnwg_domain_opt(tvb, curr_offset, pinfo, tree);
+                opt_len = dissect_lbmr_tnwg_domain_opt(tvb, curr_offset, pinfo, tree);
                 break;
             case LBMR_TNWG_OPT_NAME_TYPE:
-                dissected_len += dissect_lbmr_tnwg_name_opt(tvb, curr_offset, pinfo, tree);
+                opt_len = dissect_lbmr_tnwg_name_opt(tvb, curr_offset, pinfo, tree);
                 break;
             default:
-                dissected_len += dissect_lbmr_tnwg_unknown_opt(tvb, curr_offset, pinfo, tree);
+                opt_len = dissect_lbmr_tnwg_unknown_opt(tvb, curr_offset, pinfo, tree);
                 break;
         }
-        len_remaining -= dissected_len;
-        len_used += dissected_len;
-        curr_offset += dissected_len;
+        if (opt_len < L_LBMR_TNWG_OPT_T)
+        {
+            break;
+        }
+        len_remaining -= opt_len;
+        len_used += opt_len;
+        curr_offset += opt_len;
     }
     return (len_used);
 }
@@ -3310,6 +3321,13 @@ static int dissect_lbmr_tnwg_interest(tvbuff_t * tvb, int offset, packet_info * 
     while (rec_count > 0)
     {
         len_dissected = dissect_lbmr_tnwg_interest_rec(tvb, curr_offset, pinfo, int_tree);
+        if (len_dissected < L_LBMR_TNWG_INTEREST_REC_T)
+        {
+            /* A record shorter than its header would not advance. */
+            expert_add_info_format(pinfo, int_item, &ei_lbmr_analysis_length_incorrect,
+                "TNWG interest record length %d is shorter than the record header", len_dissected);
+            break;
+        }
         curr_offset += len_dissected;
         len += len_dissected;
         rec_count--;
@@ -4042,9 +4060,9 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
                 proto_tree_add_item(lbtrdma_tree, hf_lbmr_tir_lbtrdma_ip, tvb, offset + O_LBMR_TIR_LBTRDMA_T_IP, L_LBMR_TIR_LBTRDMA_T_IP, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lbtrdma_tree, hf_lbmr_tir_lbtrdma_session_id, tvb, offset + O_LBMR_TIR_LBTRDMA_T_SESSION_ID, L_LBMR_TIR_LBTRDMA_T_SESSION_ID, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lbtrdma_tree, hf_lbmr_tir_lbtrdma_port, tvb, offset + O_LBMR_TIR_LBTRDMA_T_PORT, L_LBMR_TIR_LBTRDMA_T_PORT, ENC_BIG_ENDIAN);
-                lbtrdma_transport = lbtrdma_transport_add(&source_addr, port, session_id);
+                lbtrdma_transport = lbtrdma_transport_add(&source_addr, session_id, port);
                 channel = lbtrdma_transport->channel;
-                add_contents_tir(pinfo->pool, contents, topic_name, lbtrdma_transport_source_string(&source_addr, port, session_id), topic_index);
+                add_contents_tir(pinfo->pool, contents, topic_name, lbtrdma_transport_source_string(&source_addr, session_id, port), topic_index);
                 len += L_LBMR_TIR_LBTRDMA_T;
             }
             break;
