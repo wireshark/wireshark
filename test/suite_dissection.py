@@ -84071,3 +84071,74 @@ class TestDissectIsisClv:
                 '-Y', 'frame.number in {4,5,32}', '-Tfields', '-eframe.number',
                 '-eisis.lsp.hostname')
         assert lines == ['4\trouter-one.example', '5\t,x', '32\t' + 'a' * 255]
+
+
+class TestDissectIsisHello:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_hello_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_isis_hello_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are IS-IS hellos (L1 and L2 LAN, point to point), none
+        malformed, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert len(lines) == 33
+        assert all(l.startswith('ISIS HELLO\t') for l in lines)
+        kinds = [l.split('\t')[1].split(',')[0] for l in lines]
+        assert kinds == ['L1 HELLO'] * 17 + ['L2 HELLO'] * 4 + ['P2P HELLO'] * 7 + \
+            ['L1 HELLO'] * 4 + ['P2P HELLO']
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_isis_hello_expert(self, cmd_tshark, capture_file, test_env):
+        '''Only warnings and notes: unknown authentication type, unknown
+        port capability sub-TLV and unknown TLV codes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        unk = 'Dissector for IS-IS CLV (%d) code not implemented, Contact Wireshark developers if you want this supported'
+        assert lines == [
+            '11\tUnknown authentication type',
+            '13\tUnknown Sub-TLV: Type: 99, Length: 2',
+            '17\t%s,%s' % (unk % 250, unk % 99),
+            '19\tUnknown authentication type,%s' % (unk % 145),
+            '21\t%s' % (unk % 143),
+            '25\tUnknown Sub-TLV: Type: 99, Length: 2',
+            '26\t%s' % (unk % 6),
+            '31\tCRYPTO_AUTH (3), too short for Key ID (1 vs 2)',
+        ]
+
+    def test_isis_hello_trill_neighbor_snpa_size(self, cmd_tshark, capture_file, test_env):
+        '''The TRILL neighbor TLV uses the SNPA size for each entry (it
+        always used 6 octets before the fix).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {13,30}', '-Tfields', '-eframe.number',
+                '-eisis.hello.trill_neighbor.size', '-eisis.hello.trill_neighbor.snpa',
+                '-eisis.hello.trill_neighbor.mtu')
+        assert lines[1] == '30\t2\taabb,ccdd,eeff\t1500,1500,1500'
+        assert lines[0].split('\t')[1] == '0,2'
+        assert lines[0].split('\t')[2].split(',')[-3:] == ['aabb', 'ccdd', 'eeff']
+
+    def test_isis_hello_values(self, cmd_tshark, capture_file, test_env):
+        '''Checksum status (good, not present), adjacency state fields,
+        restart and reverse metric values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2,3,15,16,24,25}', '-Tfields', '-eframe.number',
+                '-eisis.hello.checksum.status', '-eisis.hello.adjacency_state',
+                '-eisis.hello.extended_local_circuit_id',
+                '-eisis.hello.neighbor_extended_local_circuit_id',
+                '-eisis.hello.clv_restart.remain_time', '-eisis.hello.clv_restart.neighbor',
+                '-eisis.hello.reverse_metric.metric', '-eisis.hello.reverse_metric.sub_data')
+        assert lines == [
+            '2\t\t\t\t\t\t\t100\t010203',
+            '3\t\t\t\t\t90\t0200.0000.0003\t101\t',
+            '15\t1\t\t\t\t\t\t\t',
+            '16\t3\t\t\t\t\t\t\t',
+            '24\t\t2\t0x0000004e\t\t\t\t\t',
+            '25\t\t0\t0x0000004f\t0x00000050\t90\t0200.0000.0003\t\t',
+        ]
