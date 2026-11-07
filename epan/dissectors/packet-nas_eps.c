@@ -464,6 +464,7 @@ static int ett_nas_eps_ciph_data_set;
 static int ett_nas_eps_wus_assist_info_type;
 
 static expert_field ei_nas_eps_extraneous_data;
+static expert_field ei_nas_eps_replayed_nesting;
 static expert_field ei_nas_eps_unknown_identity;
 static expert_field ei_nas_eps_unknown_type_of_list;
 static expert_field ei_nas_eps_wrong_nb_of_elems;
@@ -2725,12 +2726,22 @@ de_emm_replayed_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     item = proto_tree_add_item(tree, hf_nas_eps_replayed_nas_msg_cont, tvb, offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_replayed_nas_msg_cont);
 
+    /* The specification allows one level only; stop deeper nesting */
+    if (p_get_proto_depth(pinfo, proto_nas_eps) >= 1) {
+        expert_add_info(pinfo, item, &ei_nas_eps_replayed_nesting);
+        return len;
+    }
+
     tvbuff_t *replayed_tvb = tvb_new_subset_length(tvb, offset, len);
+    p_set_proto_depth(pinfo, proto_nas_eps, p_get_proto_depth(pinfo, proto_nas_eps) + 1);
+    increment_dissection_depth(pinfo);
     TRY {
         dissect_nas_eps_emm_msg(replayed_tvb, pinfo, sub_tree, 0, true);
     } CATCH_BOUNDS_ERRORS {
         show_exception(replayed_tvb, pinfo, sub_tree, EXCEPT_CODE, GET_MESSAGE);
     } ENDTRY
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_nas_eps, p_get_proto_depth(pinfo, proto_nas_eps) - 1);
 
     return len;
 }
@@ -9168,6 +9179,7 @@ proto_register_nas_eps(void)
   };
 
     static ei_register_info ei[] = {
+        { &ei_nas_eps_replayed_nesting, { "nas-eps.replayed_nesting", PI_MALFORMED, PI_ERROR, "Nested Replayed NAS message container not dissected", EXPFILL }},
         { &ei_nas_eps_extraneous_data, { "nas-eps.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
         { &ei_nas_eps_unknown_identity, { "nas-eps.emm.unknown_identity", PI_PROTOCOL, PI_WARN, "Type of identity not known", EXPFILL }},
         { &ei_nas_eps_unknown_type_of_list, { "nas-eps.emm.tai_unknown_list_type", PI_PROTOCOL, PI_WARN, "Unknown type of list", EXPFILL }},
