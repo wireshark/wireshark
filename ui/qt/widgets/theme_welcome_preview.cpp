@@ -14,12 +14,18 @@
 
 #include <app/application_flavor.h>
 #include <ui/qt/main_application.h>
+#include <ui/qt/utils/themes/contrast_adapt_icon.h>
 #include <ui/qt/utils/themes/theme_stylesheet_loader.h>
 
+#include <initializer_list>
 #include <iterator>
+#include <utility>
 
 #include <QContextMenuEvent>
+#include <QDate>
+#include <QHBoxLayout>
 #include <QHeaderView>
+#include <QLabel>
 #include <QLayout>
 #include <QMenu>
 #include <QMouseEvent>
@@ -100,6 +106,8 @@ ThemeWelcomePreview::ThemeWelcomePreview(QWidget *parent)
     for (QWidget *w : { ui->welcomeHeader, ui->updateHeader })
         w->setAttribute(Qt::WA_StyledBackground, true);
 
+    ui->openFileSectionRecentList->item(0)->setText(
+        QStringLiteral("capture-%1.pcapng").arg(QDate::currentDate().toString(Qt::ISODate)));
     ui->openFileSectionRecentList->setFixedHeight(ui->openFileSectionRecentList->sizeHintForRow(0) * 2 + 12);
 
     QTreeWidget *tree = ui->interfaceTree;
@@ -109,6 +117,28 @@ ThemeWelcomePreview::ThemeWelcomePreview(QWidget *parent)
     tree->setColumnWidth(1, 90);
     tree->setCurrentItem(tree->topLevelItem(0));
     tree->setFixedHeight(tree->sizeHintForRow(0) * 2 + 4);
+
+    // CaptureFilterEntry's bookmark button and its clear and history buttons,
+    // their palette.base strips and the dividers, at the geometry
+    // FilterExpressionEdit uses.
+    QLineEdit *filter = ui->themePreviewFilter;
+    filter_bookmark_ = new QLabel(filter);
+    filter_bookmark_->setObjectName(QStringLiteral("themePreviewFilterBookmark"));
+    filter_bookmark_->setFixedWidth(19);
+    filter_buttons_ = new QLabel(filter);
+    filter_buttons_->setObjectName(QStringLiteral("themePreviewFilterButtons"));
+    filter_buttons_->setFixedWidth(37);
+    QHBoxLayout *filterLayout = new QHBoxLayout(filter);
+    filterLayout->setContentsMargins(1, 1, 1, 1);
+    filterLayout->setSpacing(0);
+    filterLayout->addWidget(filter_bookmark_);
+    filterLayout->addStretch();
+    filterLayout->addWidget(filter_buttons_);
+    for (QLabel *strip : { filter_bookmark_, filter_buttons_ }) {
+        strip->setContentsMargins(2, 0, 0, 0);
+        strip->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    }
+    filter->setTextMargins(20, 0, 38, 0);
 
     // Static preview: no interaction, no focus.  This also reaches the learn
     // card's links and buttons, which the card creates at run time.
@@ -140,6 +170,14 @@ QString ThemeWelcomePreview::buildStyleSheet(
                       QString::fromLatin1(rw.to));
     }
 
+    sheet += QStringLiteral("QLabel#themePreviewFilterBookmark, QLabel#themePreviewFilterButtons {"
+                            " background-color: palette(base); border: none; }\n"
+                            "QLabel#themePreviewFilterBookmark { border-right: 1px solid %1;"
+                            " border-top-left-radius: 2px; border-bottom-left-radius: 2px; }\n"
+                            "QLabel#themePreviewFilterButtons { border-left: 1px solid %1;"
+                            " border-top-right-radius: 2px; border-bottom-right-radius: 2px; }\n")
+                 .arg(tokens.value(ThemeManager::FieldBorder).forMode(dark).name());
+
     return ThemeStyleSheetLoader::resolvePaletteRoles(sheet, palette);
 }
 
@@ -164,6 +202,35 @@ void ThemeWelcomePreview::setTheme(const QHash<ThemeManager::ThemeToken, ThemeCo
                                    updateVersion));
 
     ui->learnCard->setCardLinkColor(tokens.value(ThemeManager::CardLink).forMode(dark));
+
+    const QHash<ThemeManager::ThemeToken, QColor> colors = ThemeManager::flattenTokens(tokens, dark);
+    // The key render is drawn at a device pixel ratio of 1.
+    const qreal dpr = key_render_ ? 1.0 : devicePixelRatioF();
+    using Glyph = std::pair<const char *, ThemeManager::ThemeToken>;
+    auto glyphs = [&](std::initializer_list<Glyph> list) {
+        QPixmap pixmap(QSize(static_cast<int>(list.size()) * 18 - 4, 14) * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        pixmap.fill(Qt::transparent);
+        QPainter painter(&pixmap);
+        int x = 0;
+        for (const Glyph &glyph : list) {
+            const QString path = QStringLiteral(":/svg_icons/%1.svg").arg(QLatin1String(glyph.first));
+            const QRect rect(x, 0, 14, 14);
+            if (key_render_) {
+                ThemePreviewPick::paintKeyGlyph(&painter, path, rect, glyph.second);
+            } else {
+                ContrastAdaptIcon icon(path, QPalette::Base);
+                icon.setPalette(pal);
+                icon.setTokenColors(colors);
+                icon.paint(&painter, rect);
+            }
+            x += 18;
+        }
+        return pixmap;
+    };
+    filter_bookmark_->setPixmap(glyphs({ { "bookmark-capture", ThemeManager::FilterBookmarkCapture } }));
+    filter_buttons_->setPixmap(glyphs({ { "filter-clear", ThemeManager::FilterClear },
+                                        { "filter-history", ThemeManager::FilterHistory } }));
 
     setStyleSheet(buildStyleSheet(tokens, dark, pal));
 }
@@ -196,6 +263,7 @@ QImage ThemeWelcomePreview::renderPickImage()
 {
     if (!pick_probe_) {
         pick_probe_ = std::make_unique<ThemeWelcomePreview>();
+        pick_probe_->key_render_ = true;
         pick_probe_->setAttribute(Qt::WA_DontShowOnScreen, true);
         pick_probe_->show();
         pick_probe_->setTheme(ThemePreviewPick::keyTokens(), false, ThemePreviewPick::keyPalette());

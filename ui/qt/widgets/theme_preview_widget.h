@@ -145,6 +145,8 @@ private:
 
     /// Never shown copy that paints the key render.
     std::unique_ptr<ThemePreviewWidget> pick_probe_;
+    /// This widget is a pick_probe_: glyphs paint as key shapes.
+    bool key_render_ = false;
 
     /** Pick state; renders through renderPickImage(). */
     ThemePreviewPicker picker_;

@@ -14,9 +14,11 @@
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 
 #include <QHash>
+#include <QIcon>
 #include <QMessageBox>
 #include <QMetaEnum>
 #include <QMouseEvent>
+#include <QPainter>
 #include <QPixmap>
 #include <QVector>
 #include <QWidget>
@@ -415,6 +417,20 @@ QImage ThemePreviewPick::keyCanvas(const QSize &size)
     QImage image(size, QImage::Format_ARGB32_Premultiplied);
     image.fill(Qt::transparent);
     return image;
+}
+
+void ThemePreviewPick::paintKeyGlyph(QPainter *painter, const QString &svg_path, const QRect &rect,
+                                     ThemeManager::ThemeToken token)
+{
+    QImage glyph = QIcon(svg_path).pixmap(rect.size(), painter->device()->devicePixelRatioF())
+                       .toImage().convertToFormat(QImage::Format_ARGB32);
+    const QRgb key = keyColor(token).rgb();
+    for (int y = 0; y < glyph.height(); ++y) {
+        QRgb *line = reinterpret_cast<QRgb *>(glyph.scanLine(y));
+        for (int x = 0; x < glyph.width(); ++x)
+            line[x] = qAlpha(line[x]) >= 0x80 ? key : 0;
+    }
+    painter->drawImage(rect.topLeft(), glyph);
 }
 
 ThemePreviewPick::Layer ThemePreviewPick::layerAt(const QImage &keys, const QPoint &pos, int text_height)

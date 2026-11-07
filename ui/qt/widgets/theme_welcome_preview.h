@@ -24,6 +24,7 @@
 
 class QAction;
 class QContextMenuEvent;
+class QLabel;
 class QMenu;
 class QMouseEvent;
 
@@ -107,12 +108,18 @@ private:
                             bool dark, const QPalette &palette) const;
 
     Ui::ThemeWelcomePreview *ui;
+    /** The capture filter's bookmark button and its divider. */
+    QLabel *filter_bookmark_;
+    /** The capture filter's clear and history buttons and their divider. */
+    QLabel *filter_buttons_;
     /** Pick state; renders through renderPickImage(). */
     ThemePreviewPicker picker_;
     /** Font last passed to setPreviewFont(), so an unchanged font is ignored. */
     QFont preview_font_;
     bool  has_preview_font_ = false;
     std::unique_ptr<ThemeWelcomePreview> pick_probe_;
+    /** This widget is a pick_probe_: glyphs paint as key shapes. */
+    bool key_render_ = false;
 };
 
 #endif // THEME_WELCOME_PREVIEW_H
