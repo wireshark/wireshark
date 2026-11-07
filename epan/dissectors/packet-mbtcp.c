@@ -225,7 +225,8 @@ classify_mbtcp_packet(packet_info *pinfo, range_t *ports)
 static int
 classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb, range_t *ports)
 {
-    uint8_t func, len;
+    uint8_t func;
+    unsigned len;
 
     func = tvb_get_uint8(tvb, 1);
     len = tvb_reported_length(tvb);
@@ -442,6 +443,8 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     mbtcp_tree_item = proto_tree_add_uint(mbtcp_tree, hf_mbtcp_len, tvb, 4, 2, len);
     if (len < 2 || len > 254)
         expert_add_info(pinfo, mbtcp_tree_item, &ei_mbtcp_invalid_length);
+    if (len < 2)
+        return tvb_captured_length(tvb);
     proto_tree_add_item_ret_uint(mbtcp_tree, hf_mbtcp_unitid, tvb, 6, 1, ENC_BIG_ENDIAN, &unit_id);
 
     function_exception_code = tvb_get_uint8(tvb, 7);
@@ -561,7 +564,8 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
     const char    *func_string;
     const char    *pkt_type_str = "";
     const char    *err_str = "";
-    uint16_t      len, calc_crc16;
+    unsigned      len;
+    uint16_t      calc_crc16;
     uint8_t       unit_id, function_code, exception_code, subfunction_code;
     modbus_data_t modbus_data;
 
@@ -570,6 +574,8 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ra
     col_clear(pinfo->cinfo, COL_INFO);
 
     len = tvb_reported_length(tvb);
+    if (len < 4)
+        return tvb_captured_length(tvb);
 
     unit_id = tvb_get_uint8(tvb, 0);
     function_code = tvb_get_uint8(tvb, 1) & 0x7F;
@@ -1618,6 +1624,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (!pinfo->fd->visited) {
         conversation_t       *conversation = NULL;
         modbus_conversation  *modbus_conv_data = NULL;
+        uint32_t              rkey;
 
         /* Find a conversation, create a new if no one exists */
         conversation = find_or_create_conversation(pinfo);
@@ -1626,12 +1633,13 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (modbus_conv_data == NULL){
            modbus_conv_data = wmem_new(wmem_file_scope(), modbus_conversation);
-           modbus_conv_data->modbus_request_frame_data = wmem_list_new(wmem_file_scope());
+           modbus_conv_data->requests = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
            modbus_conv_data->register_format = global_mbus_register_format;
            conversation_add_proto_data(conversation, proto_modbus, (void *)modbus_conv_data);
         }
 
         pkt_info->register_format = modbus_conv_data->register_format;
+        rkey = conv_key | ((uint32_t)function_code << 24);
 
         if (modbus_data->packet_type == QUERY_PACKET) {
             /*create the modbus_request frame. It holds the request information.*/
@@ -1650,38 +1658,23 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             frame_ptr->req_time = pinfo->abs_ts;
 
-            wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
+            /* Keep only the most recent request per key */
+            wmem_map_insert(modbus_conv_data->requests, GUINT_TO_POINTER(rkey), frame_ptr);
         }
         else if (modbus_data->packet_type == RESPONSE_PACKET) {
-            uint8_t               req_function_code;
-            uint16_t              req_transaction_id;
-            uint8_t               req_unit_id;
-            uint32_t              req_frame_num;
             modbus_request_info_t *request_data;
 
-            wmem_list_frame_t *frame = wmem_list_head(modbus_conv_data->modbus_request_frame_data);
-            /* Step backward through all logged instances of request frames, looking for a request frame number that
-            occurred immediately prior to current frame number that has a matching function code,
-            unit-id and transaction identifier */
-            while (frame && !pkt_info->request_found) {
-                request_data = (modbus_request_info_t *)wmem_list_frame_data(frame);
-                req_frame_num = request_data->fnum;
-                req_function_code = request_data->function_code;
-                req_transaction_id = request_data->mbtcp_transid;
-                req_unit_id = request_data->unit_id;
-                if ((pinfo->num > req_frame_num) && (req_function_code == function_code) &&
-                    (req_transaction_id == modbus_data->mbtcp_transid) && (req_unit_id == modbus_data->unit_id)) {
-                    pkt_info->function_code = req_function_code;
-                    pkt_info->reg_base = request_data->base_address;
-                    pkt_info->num_reg = request_data->num_reg;
-                    pkt_info->request_found = true;
-                    pkt_info->req_frame_num = req_frame_num;
-                    pkt_info->req_time = request_data->req_time;
-                }
-                frame = wmem_list_frame_next(frame);
+            /* Look up the most recent request with matching function code,
+            unit-id and transaction identifier that precedes this frame */
+            request_data = (modbus_request_info_t *)wmem_map_lookup(modbus_conv_data->requests, GUINT_TO_POINTER(rkey));
+            if (request_data && (pinfo->num > request_data->fnum)) {
+                pkt_info->function_code = request_data->function_code;
+                pkt_info->reg_base = request_data->base_address;
+                pkt_info->num_reg = request_data->num_reg;
+                pkt_info->request_found = true;
+                pkt_info->req_frame_num = request_data->fnum;
+                pkt_info->req_time = request_data->req_time;
             }
-
-
         }
         p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, conv_key, pkt_info);
 
