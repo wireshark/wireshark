@@ -111,7 +111,7 @@ typedef struct {
 
 /* List contains request data  */
 typedef struct {
-    wmem_list_t *modbus_request_frame_data;
+    wmem_map_t  *requests; /* most recent request per transaction/unit/function */
     int         register_format;
 } modbus_conversation;
 
