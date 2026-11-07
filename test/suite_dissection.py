@@ -102451,3 +102451,85 @@ class TestDissectNatPmp:
             '54\tMap Request: 22-38 -> 40000-40016 [TCP]\t\t',
             '55\tMap Response: 22-30 -> 41000-41008 [TCP]\t\t',
         ]
+
+
+class TestDissectNats:
+    '''NATS on TCP 4222 from the synthetic capture nats_coverage.pcap.gz
+    (97 frames, 6 connections to port 4222 and the reproducers of "NATS:
+    Fix length overflows and headers map lifetime" in frames 80-97).'''
+
+    def test_nats_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts; no malformed packets, warnings or errors in
+        one and two passes (INFO, CONNECT and -ERR without an argument,
+        4 GiB byte counts and header blocks with LF only used to raise
+        exceptions).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 97
+        assert {p: protocols.count(p) for p in set(protocols)} == {'NATS': 77, 'NATS/JSON': 6, 'TCP': 14}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nats_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nats_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Empty INFO/CONNECT/-ERR lines decode with an empty argument and
+        the huge byte counts wait for more data instead of being treated
+        as complete.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 80', '-Tfields', '-eframe.number', '-enats.op',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        ops = {int(l.split('\t')[0]): (l.split('\t') + [''])[1] for l in stdout.splitlines()}
+        assert [ops[n] for n in (80, 82, 84, 86, 88, 90)] == ['INFO', 'CONNECT', '-ERR', 'INFO', 'INFO', '-ERR']
+        # PUB foo 4294967295 and HPUB with 4294967294 header bytes are not dissected as complete messages
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'nats.total_length >= 4294967294', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == []
+
+    def test_nats_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages split over several segments are reassembled.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'tcp.segments && frame.number < 80', '-Tfields', '-eframe.number', '-enats.total_length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['55\t208', '57\t10', '59\t4', '63\t238', '66\t']
+
+    def test_nats_request_response(self, cmd_tshark, capture_file, test_env):
+        '''A message on the reply subject of an earlier request is
+        matched to it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'nats.request.in || nats.response.in', '-Tfields', '-eframe.number',
+                '-enats.request.in', '-enats.response.in',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['25\t24\t', '28\t27\t', '31\t30\t', '32\t31\t', '39\t37\t']
+
+    def test_nats_headers_and_ops(self, cmd_tshark, capture_file, test_env):
+        '''Header names and values (also repeated names), header version
+        parsing, SUB queue group, UNSUB max messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'frame.number in {37, 43, 44}', '-Tfields', '-eframe.number',
+                '-enats.header.name', '-enats.header.value',
+                '-enats.header.version.major', '-enats.header.version.minor',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '37\tA,A,A,B,C\t1,2,3,no-space,spaced\t1\t0',
+            '43\tV\t1\t2\t7',
+            '44\tV\t1\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'nats.subscription.max_msgs || nats.subscription.group',
+                '-Tfields', '-eframe.number', '-enats.subscription.max_msgs', '-enats.subscription.group',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['8\t\tworkers', '12\t10\t']
