@@ -117,11 +117,8 @@ do_get_direction_str(packet_info* pinfo)
     {
         return "Reply";
     }
-    // This shouldn't happen.
-    else
-    {
-        DISSECTOR_ASSERT_NOT_REACHED();
-    }
+    // Can happen with Exported PDU, which sets the ports but not match_uint.
+    return "Unknown direction";
 }
 
 /**
@@ -493,10 +490,10 @@ dissect_do_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* do_tree, unsig
         return true;
     }
 
-    if (buffer_size < message_size + 4)
+    if (message_size > buffer_size - 4)
     {
         // Message size (4 bytes) + required size - current size
-        *desegment_len_ptr = 4 + message_size - buffer_size;
+        *desegment_len_ptr = message_size - (buffer_size - 4);
         return true;
     }
 
