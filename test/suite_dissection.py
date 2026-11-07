@@ -94917,3 +94917,72 @@ class TestDissectMcdata:
         assert fields[0] == '2023-11-14T22:13:20.000000000Z'
         assert fields[1] == '0x21,0x22,0x51,0x52,0x53,0x78,0x79,0x7b,0x7c,0x7e,0x7f,0x7d'
         assert fields[2] == 'Hello MCData'
+
+
+class TestDissectMcNmf:
+    '''MC-NMF (.NET Message Framing) records from the synthetic capture
+    mc-nmf_coverage.pcapng.gz. TCP port 9389 is claimed by both nmf and
+    mc-nmf, so the frames reach MC-NMF through Exported PDU "mc-nmf" with
+    TCP addresses and ports.'''
+
+    def test_mc_nmf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''47 frames: 43 MC-NMF, 2 MS-NNS (negotiate upgrade) and 2 TLS
+        (ssl-tls upgrade) without malformed packets or warnings in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mc-nmf_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('MC-NMF') == 43
+        assert protocols.count('MS-NNS') == 2
+        assert protocols.count('TLSv1.2') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mc-nmf_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mc_nmf_upgrade(self, cmd_tshark, capture_file, test_env):
+        '''After an Upgrade Response for application/negotiate the data
+        goes to MS-NNS (frames 3, 4), after application/ssl-tls to TLS
+        (frames 8, 9), after another protocol it stays MC-NMF (frame 12);
+        the same in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mc-nmf_coverage.pcapng.gz'),
+                    '-Y', 'frame.number <= 12',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-emc-nmf.upgrade',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\tMC-NMF\tapplication/negotiate',
+                '2\tMC-NMF\t',
+                '3\tMS-NNS\t',
+                '4\tMS-NNS\t',
+                '5\tMC-NMF\t',
+                '6\tMC-NMF\tapplication/ssl-tls',
+                '7\tMC-NMF\t',
+                '8\tTLSv1.2\t',
+                '9\tTLSv1.2\t',
+                '10\tMC-NMF\tapplication/x-other',
+                '11\tMC-NMF\t',
+                '12\tMC-NMF\t',
+            ]
+
+    def test_mc_nmf_records(self, cmd_tshark, capture_file, test_env):
+        '''Variable length sizes of the Via (one, two and three octet
+        sizes), unsized envelope chunks, Fault and sized envelope records.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mc-nmf_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 31 && frame.number <= 38',
+                '-Tfields', '-eframe.number', '-emc-nmf.via_length',
+                '-emc-nmf.chunk_length', '-emc-nmf.fault_length',
+                '-emc-nmf.payload_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '31\t130\t\t\t', '32\t20000\t\t\t', '33\t\t\t\t300', '34\t\t\t\t0',
+            '35\t\t9,180,1\t\t', '36\t\t4\t\t', '37\t\t\t8\t', '38\t\t\t0\t',
+        ]
