@@ -48,10 +48,12 @@ variables:
   # doesn't have ccache.
   WS_CCACHE_VERSION: "4.14.2"
   WS_CCACHE_WINDOWS_X64_SHA256: "6993ce645e53192cec592ee23186200b574ac4c59097ecde8d9cfd681b47ae84"
+  WS_CCACHE_WINDOWS_ARM64_SHA256: "47ea5a0ed661bea53962d8fb8ee9a1769092d979a6f7c73d3081499b3305b2ab"
   # The Ninja release that the Windows jobs download if their image
   # doesn't have Ninja.
   WS_NINJA_VERSION: "1.13.2"
   WS_NINJA_WINDOWS_X64_SHA256: "07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65"
+  WS_NINJA_WINDOWS_ARM64_SHA256: "e52f0bdef9dfb1003229dbd6508a508c4073fd017247002adc66e5e806cb0391"
 
 workflow:
   auto_cancel:
@@ -200,6 +202,12 @@ workflow:
 
 .build-windows:
   variables:
+    # Keep the ccache cache in the runner's persistent builds directory,
+    # next to the libraries, instead of uploading and downloading it.
+    # The runners run jobs concurrently, and each slot has its own
+    # directory and so its own cache.
+    CCACHE_DIR: "$CI_PROJECT_DIR\\..\\ccache"
+    CCACHE_MAXSIZE: "5G"
     AQT_HOST: "windows"
     AQT_ARCH: "msvc2022_64"
     VCVARS_ARCH: "64"
@@ -241,12 +249,20 @@ workflow:
   script:
     - |
       if (-Not (Get-Command ninja -ErrorAction SilentlyContinue)) {
-        $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)"
+        if ($env:VCVARS_ARCH -eq "arm64") {
+          $ninjaAsset = "ninja-winarm64"
+          $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)-arm64"
+          $ninjaSha256 = $env:WS_NINJA_WINDOWS_ARM64_SHA256
+        } else {
+          $ninjaAsset = "ninja-win"
+          $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)"
+          $ninjaSha256 = $env:WS_NINJA_WINDOWS_X64_SHA256
+        }
         if (-Not (Test-Path "$ninjaDir\ninja.exe")) {
           Write-Host "Downloading Ninja $($env:WS_NINJA_VERSION) to $ninjaDir"
-          $ninjaZip = "$env:TEMP\ninja-$($env:WS_NINJA_VERSION)-win.zip"
-          Invoke-WebRequest -UseBasicParsing -OutFile $ninjaZip -Uri "https://github.com/ninja-build/ninja/releases/download/v$($env:WS_NINJA_VERSION)/ninja-win.zip"
-          if ((Get-FileHash $ninjaZip -Algorithm SHA256).Hash -ne $env:WS_NINJA_WINDOWS_X64_SHA256) {
+          $ninjaZip = "$env:TEMP\$ninjaAsset-$($env:WS_NINJA_VERSION).zip"
+          Invoke-WebRequest -UseBasicParsing -OutFile $ninjaZip -Uri "https://github.com/ninja-build/ninja/releases/download/v$($env:WS_NINJA_VERSION)/$ninjaAsset.zip"
+          if ((Get-FileHash $ninjaZip -Algorithm SHA256).Hash -ne $ninjaSha256) {
             Write-Host "$ninjaZip doesn't have the expected SHA-256 hash"
             Exit 1
           }
@@ -265,13 +281,19 @@ workflow:
   script:
     - |
       if (-Not (Get-Command ccache -ErrorAction SilentlyContinue)) {
-        $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-x86_64"
+        if ($env:VCVARS_ARCH -eq "arm64") {
+          $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-aarch64"
+          $ccacheSha256 = $env:WS_CCACHE_WINDOWS_ARM64_SHA256
+        } else {
+          $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-x86_64"
+          $ccacheSha256 = $env:WS_CCACHE_WINDOWS_X64_SHA256
+        }
         $ccacheDir = "$env:CI_PROJECT_DIR\..\$ccacheName"
         if (-Not (Test-Path "$ccacheDir\ccache.exe")) {
           Write-Host "Downloading ccache $($env:WS_CCACHE_VERSION) to $ccacheDir"
           $ccacheZip = "$env:TEMP\$ccacheName.zip"
           Invoke-WebRequest -UseBasicParsing -OutFile $ccacheZip -Uri "https://github.com/ccache/ccache/releases/download/v$($env:WS_CCACHE_VERSION)/$ccacheName.zip"
-          if ((Get-FileHash $ccacheZip -Algorithm SHA256).Hash -ne $env:WS_CCACHE_WINDOWS_X64_SHA256) {
+          if ((Get-FileHash $ccacheZip -Algorithm SHA256).Hash -ne $ccacheSha256) {
             Write-Host "$ccacheZip doesn't have the expected SHA-256 hash"
             Exit 1
           }
@@ -685,27 +707,33 @@ Windows x64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 18 2026" -A x64
+    - !reference [.windows-ninja, script]
+    - !reference [.windows-ccache, script]
+    # Show whether the cache from earlier jobs is there.
+    - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
+    - ccache --zero-stats
+    - cmake -G "Ninja Multi-Config"
+      -DENABLE_CCACHE=ON
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
       -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
-    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" Wireshark.slnx
-    - msbuild test-programs.vcxproj
-    - msbuild wireshark_nsis_prep.vcxproj
-    - msbuild stratoshark_nsis_prep.vcxproj
-    - msbuild wireshark_wix_prep.vcxproj
+    - cmake --build . --config RelWithDebInfo
+    - cmake --build . --config RelWithDebInfo --target test-programs
+    - cmake --build . --config RelWithDebInfo --target wireshark_nsis_prep
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis_prep
+    - cmake --build . --config RelWithDebInfo --target wireshark_wix_prep
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild wireshark_nsis.vcxproj
-    - msbuild stratoshark_nsis.vcxproj
-    - msbuild wireshark_wix.vcxproj
+    - cmake --build . --config RelWithDebInfo --target wireshark_nsis
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
+    - cmake --build . --config RelWithDebInfo --target wireshark_wix
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\wix\Wireshark-*.msi
-    - msbuild wireshark_portableapps.vcxproj
+    - cmake --build . --config RelWithDebInfo --target wireshark_portableapps
     - C:\gitlab-builds\bin\sign-files.ps1 -Path packaging\portableapps\WiresharkPortable*.exe
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-x64.exe packaging\nsis\Stratoshark-*-x64.exe packaging\wix\Wireshark-*-x64.msi packaging\portableapps\WiresharkPortable??_*.paf.exe
-    - msbuild pdb_zip_package.vcxproj
+    - cmake --build . --config RelWithDebInfo --target pdb_zip_package
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
@@ -722,6 +750,9 @@ Windows x64 Package:
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - !reference [.changed-since-windows, script]
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release @ChangedSince
+  after_script:
+    - !reference [.windows-ccache, script]
+    - ccache --show-stats --verbose
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -740,22 +771,28 @@ Windows Arm64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - cmake -G "Visual Studio 18 2026" -A arm64
+    - !reference [.windows-ninja, script]
+    - !reference [.windows-ccache, script]
+    # Show whether the cache from earlier jobs is there.
+    - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
+    - ccache --zero-stats
+    - cmake -G "Ninja Multi-Config"
+      -DENABLE_CCACHE=ON
       -DENABLE_LTO=off
       -DBUILD_stratoshark=on
       -DFALCO_PLUGIN_DIR="$FALCO_PLUGIN_DIR"
       -DFALCO_PLUGINS="cloudtrail.dll;gcpaudit.dll;k8saudit.dll"
       -DFALCO_PLUGIN_DLLS="libunwind.dll"
       -DENABLE_SIGNED_NSIS=on ..
-    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" Wireshark.slnx
-    - msbuild test-programs.vcxproj
-    - msbuild wireshark_nsis_prep.vcxproj
-    - msbuild stratoshark_nsis_prep.vcxproj
+    - cmake --build . --config RelWithDebInfo
+    - cmake --build . --config RelWithDebInfo --target test-programs
+    - cmake --build . --config RelWithDebInfo --target wireshark_nsis_prep
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis_prep
     - C:\gitlab-builds\bin\sign-files.ps1 -Recurse -Path run\RelWithDebInfo
-    - msbuild wireshark_nsis.vcxproj
-    - msbuild stratoshark_nsis.vcxproj
+    - cmake --build . --config RelWithDebInfo --target wireshark_nsis
+    - cmake --build . --config RelWithDebInfo --target stratoshark_nsis
     - $plugins = Get-ChildItem run\RelWithDebInfo\plugins\*\*.dll ; signtool verify /q /pa /all run\RelWithDebInfo\*.exe run\RelWithDebInfo\extcap\wireshark\*.exe $plugins run\RelWithDebInfo\libwireshark.dll run\RelWithDebInfo\libwiretap.dll run\RelWithDebInfo\libwsutil.dll packaging\nsis\Wireshark-*-arm64.exe packaging\nsis\Stratoshark-*-arm64.exe
-    - msbuild pdb_zip_package.vcxproj
+    - cmake --build . --config RelWithDebInfo --target pdb_zip_package
     - C:\gitlab-builds\bin\mse-scan.ps1
     - run\RelWithDebInfo\tshark --version
     - rclone config create wireshark @(-split $env:WS_RCLONE_REMOTE_OPTS) --no-output
@@ -771,6 +808,9 @@ Windows Arm64 Package:
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - !reference [.changed-since-windows, script]
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release @ChangedSince
+  after_script:
+    - !reference [.windows-ccache, script]
+    - ccache --show-stats --verbose
   artifacts:
     paths:
       - build/*shark-release-info-*-windows-*.ini
@@ -1282,11 +1322,6 @@ Windows Build:
   rules: !reference [.if-w-w-only-merge-request]
   tags:
     - wireshark-windows-merge-req
-  variables:
-    # Keep the cache in the runner's persistent builds directory, next to
-    # wireshark-x64-libs, instead of uploading and downloading it.
-    CCACHE_DIR: "$CI_PROJECT_DIR\\..\\ccache"
-    CCACHE_MAXSIZE: "5G"
   needs:
     - job: "Commit Check"
       optional: true
