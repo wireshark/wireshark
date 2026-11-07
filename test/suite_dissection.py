@@ -95252,3 +95252,76 @@ class TestDissectMctpSmbus:
             '9\t6\t\t[0x40->0x20] MCTP message',
             '10\t8\t\t[0x41->0x21] MCTP Get Endpoint ID Request',
         ]
+
+
+class TestDissectMdb:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mdb_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mdb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MDB and none is malformed or has an expert
+        info, in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 97
+        assert lines.count('MDB') == 97
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mdb_info(self, cmd_tshark, capture_file, test_env):
+        '''Addresses and Info column of the peripherals: cashless,
+        communications gateway, bill validator, others.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.Source',
+                '-e_ws.col.Destination', '-e_ws.col.Info')
+        rows = {int(l.split('\t')[0]): l.split('\t')[1:] for l in lines}
+        assert rows[2] == ['VMC', 'Cashless #1', 'Reset']
+        assert rows[4] == ['Cashless #1', 'VMC', 'Reader Config Data']
+        assert rows[11] == ['VMC', 'Cashless #1', 'Vend Request (item 7, price 100)']
+        assert rows[31] == ['', '', 'ACK']
+        assert rows[34] == ['', '', 'Invalid ack byte']
+        assert rows[41] == ['VMC', 'Communications Gateway', 'DTS Event']
+        assert rows[75] == ['VMC', 'Bill Validator', 'Level2+ Feature Enable']
+        assert rows[94] == ['VMC', 'Changer', '']
+
+    def test_mdb_bv_expansion_sub_command(self, cmd_tshark, capture_file, test_env):
+        '''The Bill Validator expansion sub-command byte is skipped: the
+        feature bits of Level 2+ Feature Enable are 0x00000002, as fixed in
+        "MDB: Skip the sub-command in Bill Validator expansion commands".'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 75', '-Tfields', '-emdb.bv.exp.opt_feat',
+                '-emdb.chk.status')
+        assert lines == ['0x00000002\t1']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 83', '-Tfields', '-emdb.bv.exp.bill_type_disp',
+                '-emdb.bv.exp.bill_type_num_bills')
+        assert lines == ['2\t5']
+
+    def test_mdb_bv_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Responses of the Bill Validator are matched to the last request.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'mdb.response_in || mdb.response_to', '-Tfields',
+                '-eframe.number', '-emdb.response_in', '-emdb.response_to')
+        rows = [l.split('\t') for l in lines]
+        assert ['53', '54', ''] in rows
+        assert ['54', '', '53'] in rows
+        assert ['85', '86', ''] in rows
+        assert ['86', '', '85'] in rows
+        # a response before any request has no request
+        assert not [r for r in rows if r[0] == '51']
+
+    def test_mdb_bv_fields(self, cmd_tshark, capture_file, test_env):
+        '''Bill Validator setup response and a Cashless peripheral id.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 54', '-Tfields', '-emdb.bv.setup.feature_level',
+                '-emdb.bv.setup.stacker_cap', '-emdb.bv.setup.bill_type_credit')
+        assert lines == ['0x01\t100\t0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 28', '-Tfields', '-emdb.cashless.manuf_code',
+                '-emdb.cashless.serial_number')
+        assert lines == ['ACM\tSN0000000001']
