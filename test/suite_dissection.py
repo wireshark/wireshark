@@ -102744,3 +102744,94 @@ class TestDissectNbd:
                 '-Tfields', '-eframe.number', '-etcp.reassembled_in',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['82\t83', '86\t87']
+
+
+class TestDissectNbifom:
+    '''NBIFOM (Network-Based IP Flow Mobility) container of ESM messages,
+    from the synthetic capture nbifom_coverage.pcap.gz: plain NAS-EPS in
+    GSMTAP (UDP 4729). Frames 1-31 are uplink messages (Activate
+    dedicated EPS bearer context accept/reject, Modify EPS bearer
+    context accept/reject), 32-45 downlink (Modify EPS bearer context
+    request, Deactivate EPS bearer context request). The parameters that
+    are valid in only one direction are decoded only there.'''
+
+    def tshark_fields(self, cmd_tshark, capture_file, test_env, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbifom_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nbifom_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 45 frames carry NBIFOM, none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbifom_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 45
+        assert all(p == 'GSMTAP/NAS-EPS/NBIFOM' for p in protocols)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nbifom_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nbifom_routing_rules(self, cmd_tshark, capture_file, test_env):
+        '''Frame 12 holds six routing rules; the first has every optional
+        field, the others combinations of them.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number == 12', 'nbifom.routing_rule.id',
+            'nbifom.routing_rule.op_code', 'nbifom.routing_rule.prio',
+            'nbifom.routing_rule.src_ipv4_addr', 'nbifom.routing_rule.dst_ipv4_addr',
+            'nbifom.routing_rule.dst_ipv6_addr', 'nbifom.routing_rule.ipsec_spi',
+            'nbifom.routing_rule.prot_type_nxt_hdr', 'nbifom.routing_rule.start_src_port_range',
+            'nbifom.routing_rule.end_dst_port_range', 'nbifom.routing_rule.tos',
+            'nbifom.routing_rule.flow_label')
+        assert rows[0][1:] == [
+            '1,2,3,4,5,6', '0x01,0x02,0x03,0x04,0x00,0x01', '10,20,30,40,50,60',
+            '10.1.2.3,192.168.0.1', '10.4.5.6,192.168.0.2',
+            '1112:1314:1516:1718:191a:1b1c:1d1e:1f20,1:203:405:607:809:a0b:c0d:e0f',
+            '0x12345678,0x00000007', '0x11,0x06', '1024,1', '90', '0x2e,0x10',
+            '0x010203,0x00002a']
+
+    def test_nbifom_direction(self, cmd_tshark, capture_file, test_env):
+        '''RAN rules handling (parameter 6) is decoded in the downlink
+        only, RAN rules status (7) and access usability (8) in the
+        uplink only; the other direction leaves the bytes undecoded.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbifom.param_contents.ran_rules_handling', 'nbifom.param_contents.ran_rules_handling')
+        assert [r[0] for r in rows] == ['37', '38', '39', '43', '44', '45']
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbifom.param_contents.ran_rules_status', 'nbifom.param_contents.ran_rules_status')
+        assert [r[:2] for r in rows] == [['16', '0x01'], ['17', '0x02'], ['18', '0x03'],
+                                         ['19', '0x09'], ['28', '0x01'], ['29', '0x02']]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbifom.param_contents.rem_bytes', 'nbifom.param_contents.rem_bytes')
+        # uplink 6 (15), 0 and 9 (26), extra bytes (27, 28), and the downlink
+        # parameters 5, 7, 8 (36, 40, 41), 0 and 9 (42), extra byte (43)
+        assert [r[0] for r in rows] == ['15', '26', '27', '28', '36', '40', '41', '42', '43']
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbifom.param_contents.access_use_ind.spare',
+            'nbifom.param_contents.access_use_ind.wlan_access_usable_val',
+            'nbifom.param_contents.access_use_ind.3gpp_access_usable_val')
+        assert [r[:3] for r in rows] == [
+            ['20', '0x00', '0x00'], ['21', '0x01', '0x01'], ['22', '0x02', '0x02'],
+            ['23', '0x03', '0x03'], ['24', '0x03', '0x03'], ['25', '0x00', '0x00'],
+            ['29', '0x01', '0x01']]
+
+    def test_nbifom_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Mode, default access and status values.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {1,2,3,4,11}', 'nbifom.param_contents.mode',
+            'nbifom.param_contents.dflt_access', 'nbifom.param_contents.status')
+        assert rows == [
+            ['1', '0x01', '', ''],
+            ['2', '0x02', '0x01', '0x00'],
+            ['3', '', '0x02', '0x1a'],
+            ['4', '', '', '0x22'],
+            ['11', '', '', '0x55'],
+        ]
