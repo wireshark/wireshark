@@ -98496,3 +98496,379 @@ class TestDissectMpegCa:
                 'frame.number == 8', 'mpeg_descr.ca.sys_id')
         assert lines == ['8\t' + ';'.join('0x%04x' % (0x100 + i)
                                           for i in range(14))]
+
+
+class TestDissectMpegDescriptor:
+    '''MPEG descriptors from the synthetic capture
+    mpeg_descriptor_coverage.pcap.gz: the program info and ES info loops
+    of five PMTs in MPEG-TS packets in UDP, with every descriptor that
+    the MPEG descriptor dissector decodes (and tags without a decoder).'''
+
+    @staticmethod
+    def values(cmd_tshark, capture_file, test_env, fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_descriptor_coverage.pcap.gz'),
+                '-Y', 'mpeg_descr.tag', '-Tfields',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        result = {f: [] for f in fields}
+        for line in stdout.splitlines():
+            for f, cell in zip(fields, line.split('\t')):
+                if cell:
+                    result[f] += cell.split(';')
+        return result
+
+    def test_mpeg_descriptor_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Five frames carry PMTs, none is malformed or has an expert
+        info, in one and two passes; 223 descriptors are dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_descriptor_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_pmt'] * 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpeg_descriptor_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        got = self.values(cmd_tshark, capture_file, test_env, ['mpeg_descr.tag'])
+        assert len(got['mpeg_descr.tag']) == 223
+
+    def test_mpeg_descriptor_mpeg2(self, cmd_tshark, capture_file, test_env):
+        '''MPEG-2 descriptors (video, audio, registration, alignment, CA, language, bitrates, STD) and unknown tags.'''
+        expected = {
+            'mpeg_descr.tag':
+                ['0x02', '0x02', '0x02', '0x03', '0x03', '0x05', '0x05', '0x05',
+                '0x06', '0x06', '0x06', '0x06', '0x06', '0x06', '0x09', '0x09',
+                '0x0a', '0x0a', '0x0a', '0x0b', '0x0e', '0x10', '0x11', '0x11',
+                '0x13', '0x13', '0x13', '0x13', '0x14', '0x14', '0x14', '0x14',
+                '0x28', '0x28', '0x3f', '0x3f', '0x40', '0x40', '0x40', '0x40',
+                '0x40', '0x40', '0x41', '0x42', '0x43', '0x43', '0x44', '0x44',
+                '0x45', '0x46', '0x47', '0x47', '0x48', '0x48', '0x49', '0x49',
+                '0x4a', '0x4a', '0x4a', '0x4a', '0x4a', '0x4a', '0x4a', '0x4a',
+                '0x4b', '0x4c', '0x4d', '0x4d', '0x4e', '0x4e', '0x4f', '0x50',
+                '0x50', '0x50', '0x50', '0x50', '0x51', '0x52', '0x53', '0x54',
+                '0x55', '0x56', '0x57', '0x57', '0x57', '0x57', '0x57', '0x57',
+                '0x57', '0x58', '0x58', '0x59', '0x5a', '0x5a', '0x5b', '0x5b',
+                '0x5b', '0x5b', '0x5c', '0x5d', '0x5d', '0x5d', '0x5d', '0x5d',
+                '0x5e', '0x5e', '0x5e', '0x5e', '0x61', '0x61', '0x63', '0x63',
+                '0x63', '0x63', '0x64', '0x64', '0x66', '0x66', '0x69', '0x6a',
+                '0x6a', '0x6f', '0x71', '0x72', '0x72', '0x73', '0x75', '0x76',
+                '0x7d', '0x7e', '0x7f', '0x7f', '0x7f', '0x7f', '0x7f', '0x81',
+                '0x81', '0x81', '0x81', '0x81', '0x81', '0x81', '0x81', '0x81',
+                '0x81', '0x83', '0x83', '0x87', '0x87', '0x87', '0x87', '0x87',
+                '0x87', '0xa2', '0xa2', '0xa2', '0xa2', '0xa2', '0xa2', '0xa2',
+                '0xa2', '0xa7', '0xc4', '0x52', '0x0a', '0xc4', '0x04', '0x07',
+                '0x08', '0x0c', '0x0d', '0x0f', '0x12', '0x15', '0x1b', '0x1c',
+                '0x20', '0x2c', '0x46', '0x60', '0x62', '0x65', '0x67', '0x68',
+                '0x6b', '0x70', '0x74', '0x77', '0x7a', '0x7b', '0x7c', '0xa0',
+                '0xa1', '0xa3', '0xae', '0xb6', '0x80', '0xb4', '0xc0', '0xd0',
+                '0xfe', '0xf0', '0x5f', '0xcc', '0x5f', '0xce', '0xce', '0x5f',
+                '0xce', '0x5f', '0xcc', '0x5f', '0xce', '0x5f', '0xce', '0x05',
+                '0x02', '0x0e', '0x0a', '0x03', '0x6a', '0x59', '0x56'],
+            'mpeg_descr.data':
+                ['0500', '010203', '010203', '010203', '010203', '010203', '010203',
+                '010203', '010203', '010203', '010203', '010203', '010203', '010203',
+                '010203', '010203', '010203', '010203', '010203', '010203', '010203',
+                '010203', '010203', '010203', '010203', '010203', '010203', '010203',
+                '010203', '010203', '010203', '010203', '010203', '010203', '010203',
+                '010203', '010203', '00'],
+            'mpeg_descr.registration.format_identifier':
+                ['0x43554549', '0x48444d56', '0x47413934', '0x48444d56'],
+            'mpeg_descr.video_stream.profile_level_ind':
+                ['72', '68', '74'],
+            'mpeg_descr.video_stream.multiple_frame_rate_flag':
+                ['1', '1', '0', '0'],
+            'mpeg_descr.audio_stream.layer':
+                ['3', '0', '0'],
+            'mpeg_descr.data_stream_alignment.alignment':
+                ['0x00', '0x01', '0x02', '0x03', '0x04', '0x05'],
+            'mpeg_descr.ca.sys_id':
+                ['0x0500', '0x0b00'],
+            'mpeg_descr.ca.pid':
+                ['0x0100', '0x0101'],
+            'mpeg_descr.ca.private':
+                ['010203'],
+            'mpeg_descr.lang.code':
+                ['eng', 'engfradeu', 'eng', 'eng'],
+            'mpeg_descr.lang.type':
+                ['0x00', '0x03', '0x78', '0x00', '0x00'],
+            'mpeg_descr.max_bitrate.rate':
+                ['4660', '4096'],
+            'mpeg_descr.std.leak_valid':
+                ['0', '1'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
+
+    def test_mpeg_descriptor_carousel(self, cmd_tshark, capture_file, test_env):
+        '''Carousel identifier, association tag, AVC video and MPEG-2 extension descriptors.'''
+        expected = {
+            'mpeg_descr.carousel_identifier.id':
+                ['0x00001000', '0x00001001', '0x00001002', '0x00001003'],
+            'mpeg_descr.carousel_identifier.format_id':
+                ['0x01', '0x01', '0x00', '0x00'],
+            'mpeg_descr.carousel_identifier.module_id':
+                ['0x0100', '0x0100'],
+            'mpeg_descr.carousel_identifier.block_size':
+                ['4000', '4000'],
+            'mpeg_descr.carousel_identifier.key_data':
+                ['010203', '<MISSING>'],
+            'mpeg_descr.carousel_identifier.private':
+                ['aabb13', '13', '010203'],
+            'mpeg_descr.assoc_tag.tag':
+                ['0x0040', '0x0041', '0x0042', '0x0043'],
+            'mpeg_descr.assoc_tag.use':
+                ['0x0000', '0x0000', '0x0000', '0x0001'],
+            'mpeg_descr.assoc_tag.transaction_id':
+                ['0x01020304', '0x00000007'],
+            'mpeg_descr.assoc_tag.selector_bytes':
+                ['010203'],
+            'mpeg_descr.assoc_tag.private_bytes':
+                ['cafe', '09'],
+            'mpeg_descr.avc_vid.profile_idc':
+                ['0x64', '0x4d'],
+            'mpeg_descr.avc_vid.level_idc':
+                ['0x28', '0x1f'],
+            'mpeg_descr.iso_ext.tag':
+                ['0x04', '0x02'],
+            'mpeg_descr.iso_ext.data':
+                ['0102'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
+
+    def test_mpeg_descriptor_dvb_si(self, cmd_tshark, capture_file, test_env):
+        '''DVB SI descriptors: names, service list, linkage in every type, NVOD, events.'''
+        expected = {
+            'mpeg_descr.net_name.name_enc':
+                ['<MISSING>', '05', '100007', '11', '15', '1f01', '<MISSING>', '15',
+                '<MISSING>'],
+            'mpeg_descr.net_name.name':
+                ['Net', 'Net', 'Net', 'Net', 'Net', 'Net', 'Net', 'Netz', 'abc'],
+            'mpeg_descr.svc_list.id':
+                ['0x0101', '0x0102', '0x0103'],
+            'mpeg_descr.svc_list.type':
+                ['0x01', '0x19', '0x02'],
+            'mpeg_descr.stuffing':
+                ['ffffffff'],
+            'mpeg_descr.vbi_data.svc_id':
+                ['0x01', '0x02', '0x04', '0x05', '0x09'],
+            'mpeg_descr.vbi_data.line_offset':
+                ['228', '229', '199', '255'],
+            'mpeg_descr.bouquet_name.name':
+                ['Bouquet', 'Plain', 'Bq'],
+            'mpeg_descr.svc.type':
+                ['0x01', '0x19'],
+            'mpeg_descr.svc.provider_name':
+                ['Prov', 'Prov', 'P', 'Pr', 'p', 'p'],
+            'mpeg_descr.svc.svc_name':
+                ['Svc', 'Svc', 'S', 's'],
+            'mpeg_descr.country_avail.country_code':
+                ['GBR', 'DEU', 'FRA'],
+            'mpeg_descr.linkage.type':
+                ['0x08', '0x08', '0x08', '0x08', '0x0d', '0x81', '0x81', '0x04'],
+            'mpeg_descr.linkage.hand_over_type':
+                ['0x01', '0x02', '0x03', '0x00'],
+            'mpeg_descr.linkage.network_id':
+                ['0x0020', '0x0020', '0x0021'],
+            'mpeg_descr.linkage.initial_svc_id':
+                ['0x0030', '0x0031', '0x0031'],
+            'mpeg_descr.linkage.target_evt_id':
+                ['0x0077'],
+            'mpeg_descr.population_id':
+                ['0x0001fff0', '0x0002fff1'],
+            'mpeg_descr.linkage.private_data':
+                ['ff', '0102', '70726976617465'],
+            'mpeg_descr.nvod_ref.sid':
+                ['0x0003', '0x0006'],
+            'mpeg_descr.time_shifted_service.id':
+                ['0x1234'],
+            'mpeg_descr.short_evt.lang_code':
+                ['eng', 'deu'],
+            'mpeg_descr.short_evt.name':
+                ['News'],
+            'mpeg_descr.short_evt.txt':
+                ['At ten'],
+            'mpeg_descr.ext_evt.item_descr':
+                ['Actor', 'Dir'],
+            'mpeg_descr.ext_evt.item':
+                ['Jane', 'Joe'],
+            'mpeg_descr.ext_evt.txt':
+                ['Long text'],
+            'mpeg_descr.tshift_evt.eid':
+                ['0x0304'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
+
+    def test_mpeg_descriptor_dvb_si_more(self, cmd_tshark, capture_file, test_env):
+        '''DVB SI descriptors: component, mosaic, content, telephone, local time offset, subtitling.'''
+        expected = {
+            'mpeg_descr.component.content_type':
+                ['0x0501', '0x0902', '0xeb7f', '0x0b01'],
+            'mpeg_descr.component.tag':
+                ['0x10', '0x11', '0x12', '0x13', '0x07', '0x07', '0x07', '0x07'],
+            'mpeg_descr.component.lang_code':
+                ['eng', 'deu', 'eng', 'eng', 'eng', 'deu', 'eng', 'eng'],
+            'mpeg_descr.component.text':
+                ['MPEG video', 'x', 'NGA', 'Comp', 'Kompo', 'x'],
+            'mpeg_descr.component.nga.channel_layout':
+                ['0x0003'],
+            'mpeg_descr.mosaic.l_cell_id':
+                ['0x0004', '0x0008', '0x000c', '0x0010', '0x0014'],
+            'mpeg_descr.mosaic.cell_link_info':
+                ['0x01', '0x02', '0x03', '0x04', '0x00'],
+            'mpeg_descr.mosaic.e_cell_id':
+                ['0x01', '0x02', '0x03', '0x04'],
+            'mpeg_descr.mosaic.onid':
+                ['0x0001', '0x0004', '0x0007'],
+            'mpeg_descr.mosaic.event_id':
+                ['0x000a'],
+            'mpeg_descr.stream_id.component_tag':
+                ['0x07', '0x01'],
+            'mpeg_descr.ca_id.sys_id':
+                ['0x0500', '0x0b00'],
+            'mpeg_descr.content.nibble_1_2':
+                ['0x10', '0x21', '0xf0'],
+            'mpeg_descr.parental_rating.country_code':
+                ['GBR'],
+            'mpeg_descr.teletext.lang_code':
+                ['eng', 'deu', 'eng'],
+            'mpeg_descr.teletext.page_num':
+                ['136', '0', '136'],
+            'mpeg_descr.phone.number':
+                ['490305123456', '7', '11', '4', '22', '3'],
+            'mpeg_descr.phone.country':
+                ['49', '22'],
+            'mpeg_descr.phone.int_area':
+                ['030', '4'],
+            'mpeg_descr.phone.core':
+                ['3456', '7'],
+            'mpeg_descr.local_time_offset.country_code':
+                ['GBR', 'GBR', 'DEU'],
+            'mpeg_descr.local_time_offset.region_id':
+                ['0x04', '0x04', '0x00'],
+            'mpeg_descr.local_time_offset.polarity':
+                ['0x00', '0x00', '0x01'],
+            'mpeg_descr.subtitling.lang_code':
+                ['eng', 'deu', 'eng'],
+            'mpeg_descr.subtitling.composition_page_id':
+                ['1', '3', '1'],
+            'mpeg_descr.terr_delivery.bandwidth':
+                ['0x01', '0x07'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
+
+    def test_mpeg_descriptor_multilingual(self, cmd_tshark, capture_file, test_env):
+        '''Multilingual names, private data specifiers, partial transport stream, data broadcast, AC-3, TVA, content identifier, ETSI extension.'''
+        expected = {
+            'mpeg_descr.net_name.lang_code':
+                ['eng', 'deu', 'eng', 'eng'],
+            'mpeg_descr.net_name.name_length':
+                ['3', '5', '32'],
+            'mpeg_descr.svc.lang_code':
+                ['eng', 'deu', 'eng', 'eng', 'eng'],
+            'mpeg_descr.private_data_specifier.id':
+                ['0x00000040', '0x00000040', '0x00000040', '0x00000029', '0x00000040',
+                '0x00000000'],
+            'mpeg_descr.ssb.dvb_reserved':
+                ['030000', '03'],
+            'mpeg_descr.partial_transport_stream.peak_rate':
+                ['0x000102', '0x3fffff', '0x000102'],
+            'mpeg_descr.partial_transport_stream.maximum_overall_smoothing_buffer':
+                ['0x0005', '0x3fff'],
+            'mpeg_descr.data_bcast.id':
+                ['0x0005', '0x0006'],
+            'mpeg_descr.data_bcast.text':
+                ['Data'],
+            'mpeg_descr.data_bcast_id.id_selector_bytes':
+                ['010203'],
+            'mpeg_descr.pdc.pil':
+                ['0x001234'],
+            'mpeg_descr.ac3.additional_info':
+                ['696e666f', 'c06672616465756578747261'],
+            'mpeg_descr.ac3.bsid':
+                ['0x08'],
+            'mpeg_descr.app_sig.app_type':
+                ['0x0010', '0x0001'],
+            'mpeg_descr.srv_avail.cid':
+                ['0x0001', '0x0002'],
+            'mpeg_descr.default_authority.name':
+                ['example.invalid'],
+            'mpeg_descr.tva.id':
+                ['0x0001', '0x0002'],
+            'mpeg_descr.content_identifier.crid_bytes':
+                ['6372696431'],
+            'mpeg_descr.xait.onid':
+                ['0x0001'],
+            'mpeg_descr.ext.tag':
+                ['0x06', '0x06', '0x06', '0x0f', '0x0f'],
+            'mpeg_descr.ext.supp_audio.lang_code':
+                ['eng', 'eng'],
+            'mpeg_descr.private_data':
+                ['7064', '7064'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
+
+    def test_mpeg_descriptor_misc(self, cmd_tshark, capture_file, test_env):
+        '''ATSC A/52 AC-3, NorDig logical channel (v1 and v2), logon initialize, RCS content and CI+ private descriptors.'''
+        expected = {
+            'mpeg_descr.ac3.sysa_bsmod':
+                ['0x02', '0x00', '0x00', '0x02', '0x04', '0x02', '0x02', '0x00',
+                '0x00', '0x00'],
+            'mpeg_descr.ac3.sysa_langcode2':
+                ['0x66', '0x66'],
+            'mpeg_descr.ac3.sysa_lang1_bytes':
+                ['fra'],
+            'mpeg_descr.ac3.sysa_lang2_bytes':
+                ['deu', ''],
+            'mpeg_descr.nordig.lcd.svc_list.id':
+                ['0x0101', '0x0102', '0x0101', '0x0102', '0x0201', '0x0001'],
+            'mpeg_descr.nordig.lcd.svc_list.lcn':
+                ['0x3c01', '0x3c02', '0x0001', '0x0002', '0x0007', '0x0001'],
+            'mpeg_descr.nordig.lcd.ch_list.id':
+                ['0x01', '0x02', '0x03', '0x01', '0x01', '0x01', '0x01'],
+            'mpeg_descr.nordig.lcd.ch_list.name':
+                ['List', '', 'x', '', '', 'abc'],
+            'mpeg_descr.nordig.lcd.country_code':
+                ['DEU', 'GBR', 'FRA', 'GBR'],
+            'mpeg_descr.nordig.lcd.ch_list.descriptor_length':
+                ['8', '0', '4', '200'],
+            'mpeg_descr.logon_init.group_id':
+                ['0x01', '0x01', '0x01', '0x01', '0x01', '0x01', '0x01', '0x01'],
+            'mpeg_descr.logon_init.traffic_burst_type':
+                ['1', '1', '0', '1', '0'],
+            'mpeg_descr.logon_init.connectivity':
+                ['0x0001', '0x0000', '0x0001'],
+            'mpeg_descr.logon_init.return_signalling_vci':
+                ['0x0100', '0x0100'],
+            'mpeg_descr.logon_init.cra_level':
+                ['258', '2294018'],
+            'mpeg_descr.logon_init.rdbc_max':
+                ['2097410', '2097410'],
+            'mpeg_descr.rcs_content.tid':
+                ['0x74', '0x75'],
+            'mpeg_descr.ciplus_svc.id':
+                ['0x1234'],
+            'mpeg_descr.ciplus_svc.name':
+                ['Service'],
+            'mpeg_descr.ciplus_prot.num_entries':
+                ['3', '0'],
+            'mpeg_descr.ciplus_prot.brand_id':
+                ['0x0001', '0x0002', '0x0003'],
+        }
+        got = self.values(cmd_tshark, capture_file, test_env,
+                          list(expected))
+        assert got == expected
