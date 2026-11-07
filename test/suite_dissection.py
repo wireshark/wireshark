@@ -99084,3 +99084,133 @@ class TestDissectMpegPat:
                 '_ws.expert', 'mpeg_sect.crc.status',
                 opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
         assert lines == ['5\t0']
+
+
+class TestDissectMpegPes:
+    '''MPEG PES from the synthetic capture mpeg_pes_coverage.pcap.gz: PES
+    packets in MPEG-TS over UDP after a PAT and a PMT. Video with every
+    header field (PTS, DTS, ESCR, trick modes, extensions), nested
+    sequence headers, GOP and pictures, audio, private and padding
+    streams, program stream pack headers, and the H.264 and H.265
+    byte stream handoff from the stream types in the PMT.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_pes_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_pes_protocols(self, cmd_tshark, capture_file, test_env):
+        '''34 frames carry PES packets (frames 2-35 after the PAT and PMT
+        in frame 1) and none is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_pes_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 35
+        assert protocols[0] == 'eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_pat:mpeg_sect:mpeg_pmt'
+        assert sum('mpeg-pes' in p for p in protocols) == 34
+        assert sum(p.endswith('mpeg-audio') for p in protocols) == 2
+        assert sum(p.endswith('h264') for p in protocols) == 1
+        assert sum(p.endswith('h265') for p in protocols) == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpeg_pes_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpeg_pes_streams(self, cmd_tshark, capture_file, test_env):
+        '''The stream ids of the PES packets in each frame: video, the
+        pictures nested in them, audio, private, padding and system
+        streams and the pack headers.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'mpeg-pes', 'mpeg-pes.stream')
+        streams = dict(l.split('\t') for l in lines)
+        assert streams['2'] == '0xe0;0xb3;0xb5;0xb8;0x00'
+        assert streams['3'] == '0xe0;0xb3;0x00'
+        assert streams['4'] == '0xe1;0x00'
+        assert streams['11'] == '0x00;0xb8;0x00'
+        assert streams['24'] == '0xe8;0x00;0xe9;0x00'
+        assert streams['26'] == '0xc1;0xdf'
+        assert streams['33'] == '0xbe;0xbf;0xbb;0xbc'
+        assert streams['34'] == '0xba;0xba;0xba;0xb9'
+        assert streams['35'] == '0xbd;0xe0;0x00'
+
+    def test_mpeg_pes_video_headers(self, cmd_tshark, capture_file, test_env):
+        '''The sequence header, extension, GOP and picture nested in the
+        PES packet of frame 2, and the frame type of the pictures.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 2', 'mpeg-pes.aspect_ratio',
+                'mpeg-pes.frame_rate', 'mpeg-pes.profile_and_level',
+                'mpeg-pes.hour', 'mpeg-pes.minute', 'mpeg-pes.second',
+                'mpeg-pes.frame', 'mpeg-pes.closed_gop',
+                'mpeg-pes.frame_type')
+        assert lines == ['2\t2\t25000\t72\t1\t2\t3\t4\tTrue\t1']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {4,5,6,7}', 'mpeg-pes.frame_type')
+        assert lines == ['4\t1', '5\t2', '6\t3', '7\t4']
+
+    def test_mpeg_pes_time_stamps(self, cmd_tshark, capture_file, test_env):
+        '''PTS and DTS of frame 2 (900000 and 897000 ticks of 90 kHz).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 2', 'mpeg-pes.pts', 'mpeg-pes.dts')
+        # the decimal separator depends on the locale
+        assert lines[0].replace(',', '.') == '2\t10.000000000\t9.966666666'
+
+    def test_mpeg_pes_trick_modes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 13-19: DSM trick mode controls 0-5 and 7.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {13,14,15,16,17,18,19}',
+                'mpeg-pes.trick-mode-control',
+                'mpeg-pes.trick-mode-field-id',
+                'mpeg-pes.trick-mode-rep-cntrl')
+        assert lines == [
+            '13\t0x00\t0x01\t', '14\t0x01\t\t0x15', '15\t0x02\t0x01\t',
+            '16\t0x03\t0x03\t', '17\t0x04\t\t0x03', '18\t0x05\t\t',
+            '19\t0x07\t\t']
+
+    def test_mpeg_pes_extension(self, cmd_tshark, capture_file, test_env):
+        '''Frames 20-23: additional copy info, CRC, the extension flags
+        with private data, pack length, sequence counter and extension 2,
+        and every header field in one packet.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {20,21,23}', 'mpeg-pes.copy-info',
+                'mpeg-pes.crc', 'mpeg-pes.pack-length',
+                'mpeg-pes.sequence', 'mpeg-pes.extension2',
+                'mpeg-pes.length')
+        assert lines == [
+            '20\t1\t4660\t\t\t\t22',
+            '21\t\t\t42\t0x817f\t0x8003\t43',
+            '23\t1\t2\t\t\t\t45',
+        ]
+
+    def test_mpeg_pes_length_zero(self, cmd_tshark, capture_file, test_env):
+        '''A video PES packet with length 0 spans two TS packets and is
+        closed by the next PES start (frame 24, no expert info).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 24', 'mpeg-pes.length')
+        assert lines == ['24\t0;24']
+
+    def test_mpeg_pes_pack_header(self, cmd_tshark, capture_file, test_env):
+        '''Program stream pack headers: mux rate and stuffing length.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 34', 'mpeg-pes.program-mux-rate',
+                'mpeg-pes.stuffing-length')
+        assert lines == ['34\t25200;25200\t0;3']
+
+    def test_mpeg_pes_stream_types(self, cmd_tshark, capture_file, test_env):
+        '''The stream types in the PMT hand the PES payload of PID 0x102
+        to H.264 and PID 0x103 to H.265.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'h264 || h265', 'frame.protocols')
+        assert [l.split('\t')[0] for l in lines] == ['30', '31']
+        assert lines[0].endswith('mpeg-pes:h264')
+        assert lines[1].endswith('mpeg-pes:h265')
