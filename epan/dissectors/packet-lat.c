@@ -985,6 +985,7 @@ dissect_lat_service_announcement(tvbuff_t *tvb, int offset, proto_tree *tree)
 	for (i = 0; i < node_service_len; i++) {
 		proto_tree_add_item(tree, hf_lat_node_service_class,
 		    tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
 	}
 }
 
@@ -1380,6 +1381,7 @@ dissect_lat_response_information(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 	proto_tree_add_item_ret_uint(tree, hf_lat_srvc_count, tvb, offset, 1,
 	    ENC_LITTLE_ENDIAN, &srvc_count);
+	offset += 1;
 
 	for (i = 0; i < srvc_count; i++) {
 		proto_item *srvc_entry_len_ti;
