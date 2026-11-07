@@ -96086,3 +96086,128 @@ class TestDissectMetamako:
                 'frame.number == 28', 'metamako.unknown', timeout=15)
         assert len(lines) == 1
         assert lines[0].split('\t')[1].count(',') == 59999
+
+
+class TestDissectMgcp:
+    '''MGCP over UDP 2427/2727, TCP (plain and ASCII TPKT), piggybacked
+    messages, request/response matching and the parameter parsers, from the
+    synthetic capture mgcp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('mgcp_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mgcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 88 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mgcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 88
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['MGCP'] == 58
+        assert counts['MGCP/SDP'] == 5
+        assert counts['MGCP/SDP/SDP'] == 1
+        assert counts['TPKT'] == 1
+        assert counts['TCP'] == 23
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_mgcp_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched to requests (also provisional ones),
+        duplicate requests and responses are marked, a response without a
+        request is not matched; same result in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {2, 6, 7, 8, 9, 36, 66, 68}',
+                    'mgcp.reqframe', 'mgcp.rspframe', 'mgcp.dup', passes=passes)
+            assert lines == [
+                '2\t1\t\t',
+                '6\t5\t\t',
+                '7\t5\t\t',
+                '8\t5\t\t3',       # duplicate response
+                '9\t\t6\t3',       # duplicate request
+                '36\t\t\t',        # no request
+                '66\t62\t\t51',    # duplicate response over TCP
+                '68\t\t64\t51',    # duplicate request over TCP
+            ]
+
+    def test_mgcp_piggyback(self, cmd_tshark, capture_file, test_env):
+        '''Dot-separated messages in one datagram are all dissected (LF and
+        CRLF line ends).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {37, 38, 39}',
+                'mgcp.req.verb', 'mgcp.rsp.rspcode', 'mgcp.transid')
+        assert lines == ['37\tNTFY\t200\t20,21', '38\tRQNT,DLCX\t200\t22,23,24',
+                         '39\tCRCX,MDCX\t\t25,26']
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 38',
+                '_ws.col.protocol', opts=('-o', 'mgcp.display_mgcp_message_count:TRUE'))
+        assert lines == ['38\tMGCP (3 messages)']
+
+    def test_mgcp_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Local connection options and connection parameters in CRCX frame
+        3 and MDCX frame 5, and the first response with SDP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {3, 5}',
+                'mgcp.param.localconnectionoptions.p',
+                'mgcp.param.localconnectionoptions.a',
+                'mgcp.param.localconnectionoptions.gc',
+                'mgcp.param.connectionparam.ps',
+                'mgcp.param.connectionparam.pcrji',
+                'mgcp.param.connectionparam.x',
+                'mgcp.param.connectionmode', 'mgcp.param.callid')
+        assert lines == [
+            '3\t20\tPCMU;PCMA\t7\t\t\t\trecvonly\tA3C47F21456789F0',
+            '5\t\t\t\t100\t4\tabc\tsendrecv\tA3C47F21456789F0',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                'sdp.media', 'mgcp.param.connectionid')
+        assert lines == ['4\taudio 3456 RTP/AVP 0 8\tFDE234C8']
+
+    def test_mgcp_voice_metrics(self, cmd_tshark, capture_file, test_env):
+        '''Local and remote voice metrics decode; the short "XRM/L" and
+        "XRM/R" lines (frames 41 and 42) and empty values (frames 43, 44)
+        decode without error. Before "MGCP: Check voice metrics length and
+        fix toupper comparisons" the lines shorter than 9 octets wrapped the
+        length.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number == 7',
+                    'mgcp.param.voicemetrics.nlr', 'mgcp.param.voicemetrics.iaj',
+                    'mgcp.param.voicemetrics.jbs', 'mgcp.unknown_parameter',
+                    'mgcp.rsp.malformed_parameter', passes=passes)
+            assert lines == ['7\t1,1\t23,23\t22,22\tXXX=1,XXX=1\tbad,bad']
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {41, 42, 43, 44}', 'mgcp.param.localvoicemetrics',
+                    'mgcp.param.remotevoicemetrics', passes=passes)
+            assert lines == ['41\tXRM/L\t', '42\t\tXRM/R',
+                             '43\tXRM/LVM:,XRM/LVM:NLR=1\tXRM/RVM:,XRM/RVM:JDR=2,,XRM/RVM: bad=,x',
+                             '44\tXRM/LVM\tXRM/RVM']
+
+    def test_mgcp_resource_id(self, cmd_tshark, capture_file, test_env):
+        '''The "DQ-RI:" parameter is recognised in upper and lower case (the
+        comparison of Q, R and I was inside g_ascii_toupper(), so a lower
+        case "dq-ri" was not matched).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 12',
+                'mgcp.param.resourceid', 'mgcp.param.extension',
+                'mgcp.param.extensioncritical', 'mgcp.param.x_osmux')
+        assert lines == ['12\tabc,def\tX-Ext:val,X-OSMUXY:2,X-x:\tX+Crit:val\t1']
+
+    def test_mgcp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''MGCP over TCP: plain, ASCII TPKT (frames 70 and 72) and a
+        continuation that is not a TPKT header (frame 74).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {58, 60, 70, 72, 74, 82, 84}',
+                '_ws.col.protocol', 'mgcp.req.verb', 'mgcp.rsp.rspcode')
+        assert lines == ['58\tMGCP/SDP\tCRCX\t', '60\tMGCP/SDP\t\t200',
+                         '70\tMGCP\tNTFY\t', '72\tMGCP\t\t200',
+                         '74\tTPKT\t\t', '82\tMGCP\tRSIP\t', '84\tMGCP\t\t200']
