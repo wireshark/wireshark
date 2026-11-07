@@ -92857,3 +92857,77 @@ class TestDissectLustre:
             '299\tjob.12345\t\t',
             '301\t\t0x0bd00bd0\tDeprecated Opcode',
         ]
+
+
+class TestDissectLwapp:
+    '''Synthetic LWAPP capture generated with Python struct (mklwapp.py).'''
+
+    def test_lwapp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has LWAPP or LWAPP-L3 and none is malformed or has a
+        warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwapp_coverage.pcap.gz'),
+                '-Y', 'lwapp || lwapp-l3', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 53
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lwapp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lwapp_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, slot ID, flags, fragment ID, RSSI and SNR of the 802.11
+        packets in UDP port 12222.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwapp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 5',
+                '-Tfields', '-eframe.number', '-elwapp.version', '-elwapp.slotId',
+                '-elwapp.flags', '-elwapp.flags.type', '-elwapp.flags.fragment',
+                '-elwapp.flags.fragmentType', '-elwapp.fragmentId', '-elwapp.rssi',
+                '-elwapp.snr', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0x00\tFalse\tFalse\tFalse\t0x00\t0x40\t0x20\tUDP',
+            '2\t1\t5\t0x68\tFalse\tFalse\tFalse\t0x01\t0x30\t0x10\tUDP',
+            '3\t0\t0\t0x03\tFalse\tTrue\tTrue\t0x02\t0x7f\t0x01\tUDP',
+            '4\t3\t0\t0xc2\tFalse\tTrue\tFalse\t0xff\t0x00\t0xff\tUDP',
+            '5\t0\t7\t0x38\tFalse\tFalse\tFalse\t0x09\t0x11\t0x22\tUDP',
+        ]
+
+    def test_lwapp_control(self, cmd_tshark, capture_file, test_env):
+        '''Control messages: the AP identity comes with port 12223 only;
+        types outside the table are "Bad Type".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwapp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8, 9, 42, 43, 44, 45, 46, 47, 48}',
+                '-Tfields', '-eframe.number', '-elwapp.apid', '-elwapp.control.type',
+                '-elwapp.control.seqno', '-elwapp.control.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t02:00:00:00:00:21\t1\t1\t4\tCNTL DISCOVERY_REQUEST',
+            '9\t02:00:00:00:00:22\t2\t2\t4\tCNTL DISCOVERY_REPLY',
+            '42\t02:00:00:00:00:43\t35\t35\t4\tCNTL DATA_TRANSFER_RES',
+            '43\t02:00:00:00:00:20\t0\t7\t0\tCNTL Bad Type: 0x00',
+            '44\t02:00:00:00:00:20\t36\t7\t0\tCNTL RESET_REQ_CLEAR_CONFIG',
+            '45\t02:00:00:00:00:20\t255\t7\t0\tCNTL Bad Type: 0xff',
+            '46\t\t5\t3\t4\tCNTL HANDOFF_REQUEST',
+            '47\t02:00:00:00:00:30\t2\t9\t4\tCNTL DISCOVERY_REPLY',
+            '48\t\t18\t1\t4\tCNTL RRM_CONTROL_REQ',
+        ]
+
+    def test_lwapp_l3_and_nesting(self, cmd_tshark, capture_file, test_env):
+        '''LWAPP-L3 holds an Ethernet frame; LWAPP in LWAPP over an
+        ethertype is decoded up to the limit of 10 levels.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwapp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50, 52, 53}',
+                '-Tfields', '-eframe.number', '-eframe.protocols', '-elwapp.version',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][0:2] == ['50', 'eth:ethertype:ip:udp:lwapp-l3:eth:ethertype:ip:udp:lwapp:data']
+        assert lines[1][0:2] == ['52', 'eth:ethertype:ip:udp:lwapp-l3:eth:ethertype:arp']
+        assert lines[2][0] == '53'
+        assert len(lines[2][2].split(',')) == 10
