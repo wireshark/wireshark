@@ -90987,3 +90987,118 @@ class TestDissectLlcV1:
         stdout = self.run(cmd_tshark, capture_file, test_env,
                 '-Y', 'llc-v1.srsSymbol_List', '-Tfields', '-eframe.number')
         assert count_output(stdout) == 7
+
+
+class TestDissectLldpCoverage:
+    '''Link Layer Discovery Protocol from the synthetic capture
+    lldp_coverage.pcap.gz: the mandatory and optional TLVs and the
+    organizationally specific TLVs of DCBX, IEEE 802.1, 802.3, LLDP-MED,
+    PROFINET, Cisco, 802.1Qbg, Avaya/Extreme, Hytec, IANA and ONOS.'''
+
+    @staticmethod
+    def lldp_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('lldp_coverage.pcap.gz'),
+                '-Y', display_filter,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lldp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 199 frames are LLDP, without malformed packets or error
+        expert infos in one and two passes. The only warning is the
+        deprecated link aggregation TLV (frame 73); two frames that stop
+        at an unknown TLV leave a trailer.'''
+        assert len(self.lldp_fields(cmd_tshark, capture_file, test_env, 'lldp', 'frame.number')) == 199
+        for passes in ((), ('-2',)):
+            assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number',
+                    opts=passes) == []
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'lldp.tlv_deprecated', 'frame.number') == ['73']
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'lldp.incorrect_length || lldp.excess_length || lldp.excess_tlv || lldp.bad_type',
+                'frame.number') == []
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert && !lldp.tlv_deprecated', 'frame.number') == ['196', '198']
+
+    def test_lldp_mandatory_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Chassis ID and Port ID subtypes.'''
+        lines = self.lldp_fields(cmd_tshark, capture_file, test_env, 'frame.number <= 23',
+                'frame.number', 'lldp.chassis.subtype', 'lldp.port.subtype',
+                'lldp.chassis.id.ip4', 'lldp.chassis.id.ip6', 'lldp.port.id.ip4', 'lldp.port.id.ip6')
+        assert len(lines) == 23
+        assert [l.split('\t')[1] for l in lines[:11]] == ['1', '2', '3', '6', '7', '0', '9', '4', '5', '5', '5']
+        assert [l.split('\t')[2] for l in lines[11:]] == ['1', '2', '5', '6', '7', '7', '0', '9', '3', '4', '4', '4']
+        assert lines[8].split('\t')[3] == '192.0.2.1'
+        assert lines[9].split('\t')[4] == '102:304:506:708:90a:b0c:d0e:f10'
+        assert lines[20].split('\t')[5] == '192.0.2.9'
+
+    def test_lldp_ttl_length(self, cmd_tshark, capture_file, test_env):
+        '''Frame 27 has a Time To Live TLV with length 4; the System Name
+        TLV after it ("abc") was lost before "LLDP: Fix TLV length
+        handling in several TLVs". Frames 25 and 26 are shutdown PDUs.'''
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'lldp.tlv.system.name == "abc"', 'frame.number') == ['27']
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 24 && frame.number <= 27',
+                'frame.number', 'lldp.time_to_live', 'lldp.tlv.len') == [
+            '24\t120\t7,7,2,0', '25\t0\t7,7,2,0', '26\t0\t7,7,2', '27\t120\t7,7,4,3,0']
+
+    def test_lldp_optional_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Port description, system name, capabilities, management addresses.'''
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 28',
+                'lldp.tlv.system.name', 'lldp.port.desc') == ['switch-1\tuplink to core']
+        lines = self.lldp_fields(cmd_tshark, capture_file, test_env, 'lldp.mgn.address.len',
+                'frame.number', 'lldp.mgn.addr.ip4', 'lldp.mgn.addr.ip6', 'lldp.mgn.addr.hex',
+                'lldp.mgn.obj.id')
+        assert lines[:4] == [
+            '37\t192.0.2.1\t\t\t',
+            '38\t\t102:304:506:708:90a:b0c:d0e:f10\t\t0.1.3.6.1',
+            '39\t\t\t010203040506\t',
+            '40\t192.0.2.2\t\t\t0.1.3.6.1.4.1.99']
+
+    def test_lldp_organizational_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Spot checks of the organizationally specific TLVs.'''
+        def one(flt, *f):
+            return self.lldp_fields(cmd_tshark, capture_file, test_env, flt, *f)
+        assert one('lldp.ieee.802_1.vlan.name', 'frame.number', 'lldp.ieee.802_1.vlan.id',
+                   'lldp.ieee.802_1.vlan.name')[0] == '46\t300\tvlan3'
+        assert one('lldp.ieee.802_3.max_frame_size', 'frame.number',
+                   'lldp.ieee.802_3.max_frame_size')[0] == '74\t1522'
+        assert one('lldp.media.vlan_id', 'frame.number', 'lldp.media.app_type',
+                   'lldp.media.vlan_id') == ['79\t1\t112', '80\t6\t1280']
+        assert one('lldp.media.civic.value', 'frame.number', 'lldp.media.civic.country',
+                   'lldp.media.civic.value') == ['86\tUS\tCA,San Jose']
+        assert one('lldp.profinet.port_rx_delay_local', 'frame.number',
+                   'lldp.profinet.port_rx_delay_local', 'lldp.profinet.port_rx_delay_remote') == [
+            '101\t100\t200', '102\t0\t0']
+        assert one('lldp.cisco.apicuuid', 'frame.number', 'lldp.cisco.apicid',
+                   'lldp.cisco.apicipv4') == ['126\t1,2\t10.0.0.1,10.0.0.2', '127\t1\t10.0.0.1']
+        # the Port Mode field is 16 bits wide (it was declared as 8 bits)
+        assert one('lldp.cisco.portmode', 'frame.number', 'lldp.cisco.portmode') == ['135\t2']
+        assert one('lldp.iana.mudurl', 'frame.number', 'lldp.iana.mudurl') == [
+            '184\thttps://mud.example.net/dev.json']
+        assert one('lldp.onos.subtype', 'frame.number', 'eth.type', 'lldp.onos.chassis',
+                   'lldp.onos.port', 'lldp.onos.ttl')[:5] == [
+            '188\t0x88cc\tof:0000000000000001\t\t', '189\t0x88cc\t\t7\t',
+            '190\t0x88cc\t\t\t1700000000', '191\t0x88cc\t\t\t',
+            '192\t0x8942\tof:0000000000000002\t\t']
+
+    def test_lldp_preferences(self, cmd_tshark, capture_file, test_env):
+        '''The PROFINET column info shows the name of station and the port
+        ID; with "assume unrecognized TLV" the unknown TLV of the jumbo
+        frame 198 is dissected (the type and length taken together must
+        fit in the frame).'''
+        opts = ('-o', 'lldp.column_info_selection:profinet_special_column_info')
+        lines = self.lldp_fields(cmd_tshark, capture_file, test_env, 'lldp.profinet.subtype == 5',
+                'frame.number', '_ws.col.info', opts=opts)
+        infos = {l.split('\t')[0]: l.split('\t')[1] for l in lines}
+        assert infos['113'] == 'NoS = station-1 Port Id = port-001 '
+        assert infos['114'] == 'NoS = nos-name Port Id = port-002 '
+        assert infos['115'] == 'NoS = 02:00:00:00:00:01 '
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'lldp.tlv.type == 9', 'frame.number') == []
+        assert self.lldp_fields(cmd_tshark, capture_file, test_env,
+                'lldp.tlv.type == 9', 'frame.number',
+                opts=('-o', 'lldp.assume_unrecognized_tlv:TRUE')) == ['198']
