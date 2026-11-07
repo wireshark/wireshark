@@ -86548,3 +86548,116 @@ class TestDissectIxiatrailer:
                 '-Y', 'ixiatrailer.packetlen == 1514 && (frame.number == 9 || frame.number == 10)',
                 '-Tfields', '-eframe.number', '-eeth.trailer')
         assert [l.split('\t')[0] for l in stdout.splitlines()] == ['9', '10']
+
+
+class TestDissectIxveriwave:
+    '''IxVeriWave (WTAP_ENCAP_IXVERIWAVE) from the synthetic VeriWave
+    capture files ixveriwave_coverage.vwr.gz (OCTO WLAN), _s2 (series II
+    WLAN), _s1 (series I WLAN), _eth (series II Ethernet) and _eth1
+    (series I Ethernet). The .vwr reader picks the record layout from the
+    first frame of a file, hence one file per layout.'''
+
+    FILES = (
+        ('ixveriwave_coverage.vwr.gz', 117, 'WLAN'),
+        ('ixveriwave_coverage_s2.vwr.gz', 33, 'WLAN'),
+        ('ixveriwave_coverage_s1.vwr.gz', 27, 'WLAN'),
+        ('ixveriwave_coverage_eth.vwr.gz', 16, 'ETH'),
+        ('ixveriwave_coverage_eth1.vwr.gz', 16, 'ETH'),
+    )
+
+    @staticmethod
+    def vw_tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_ixveriwave_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame of every file has an IxVeriWave header, none is
+        malformed or has an expert info, in one and two passes.'''
+        for name, count, kind in self.FILES:
+            stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                    '-Tfields', '-eframe.number', '-eframe.protocols')
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert len(lines) == count
+            assert all(l[1].split(':')[0] == 'ixveriwave' for l in lines)
+            if kind == 'ETH':
+                assert all(l[1].startswith('ixveriwave:eth:ethertype:') for l in lines)
+            else:
+                assert all(l[1].startswith('ixveriwave:wlan_radio:wlan') or l[1] == 'ixveriwave'
+                           for l in lines)
+            for passes in ((), ('-2',)):
+                stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name, *passes,
+                        '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+
+    def test_ixveriwave_octo_commands(self, cmd_tshark, capture_file, test_env):
+        '''Transmit records (33 and 4 of the VHT frames), and the 34 records with
+        an RF header (RF + receive, frames 84-117); the first frames are beacon, probe
+        request and data frames.'''
+        name = self.FILES[0][0]
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Y', 'ixveriwave.txframe == 1', '-Tfields', '-eframe.number')
+        assert len(stdout.split()) == 37
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Y', 'ixveriwave.RFInfo', '-Tfields', '-eframe.number')
+        assert [int(x) for x in stdout.split()] == list(range(84, 118))
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Y', 'frame.number <= 4', '-Tfields', '-eframe.number',
+                '-ewlan.fc.type_subtype', '-eixveriwave.startt', '-eixveriwave.pktdur')
+        assert stdout.splitlines() == [
+            '1\t0x0008\t1000000\t50', '2\t0x0004\t1000080\t50',
+            '3\t0x0028\t1000170\t50', '4\t0x0020\t1000266\t50']
+
+    def test_ixveriwave_ifg(self, cmd_tshark, capture_file, test_env):
+        '''The inter-frame gap is start time minus the end time of the
+        previous frame; a frame that starts before the previous one ended
+        has a gap that cannot be determined.'''
+        name = self.FILES[0][0]
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Y', 'frame.number == 66 || frame.number == 68', '-V',
+                '-O', 'ixveriwave')
+        assert '[Inter-frame gap (usecs): 31]' in stdout
+        assert '[Inter-frame gap (usecs): Cannot be determined]' in stdout
+
+    def test_ixveriwave_legacy_type(self, cmd_tshark, capture_file, test_env):
+        '''The PFE of an RF + receive record depends on the legacy type bit
+        (bit 2 of the byte at offset 33 of the RF header): 20.981 Hz per
+        unit when set (CCK), 19.073 Hz when clear (OFDM) for frame format
+        0 (fixed in "IxVeriWave: Fix legacy_type precedence and reset state
+        between files").'''
+        name = self.FILES[0][0]
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Y', 'frame.number >= 116', '-Tfields', '-eframe.number',
+                '-eixveriwave.pfe_anta', '-eixveriwave.rfinfo.rfid')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], float(r[1].replace(',', '.')), r[2]) for r in rows] == [
+            ('116', 20981.0, '9'), ('117', 19073.0, '9')]
+
+    def test_ixveriwave_series2_wlan(self, cmd_tshark, capture_file, test_env):
+        '''Series II WLAN: HT and VHT frames (flags), and the latency of a
+        received frame that has a VeriWave signature.'''
+        name = self.FILES[1][0]
+        stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                '-Tfields', '-eframe.number', '-eixveriwave.flags.vht',
+                '-eixveriwave.flags.ht', '-eixveriwave.latency')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows if r[1] == 'True'] == [str(n) for n in (
+            4, 8, 12, *range(16, 31))]
+        assert [r[0] for r in rows if r[2] == 'True'] == [
+            '2', '3', '6', '7', '10', '11', '14', '15']
+        assert rows[30][3] == '997395020'
+
+    def test_ixveriwave_ethernet(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet records: transmitted flag, errors and info flags, a
+        signature with its latency, and VLAN.'''
+        for name, latency in (('ixveriwave_coverage_eth.vwr.gz', '3999991808'),
+                              ('ixveriwave_coverage_eth1.vwr.gz', '3999991808')):
+            stdout = self.vw_tshark(cmd_tshark, capture_file, test_env, name,
+                    '-Tfields', '-eframe.number', '-eixveriwave.vwflags.txframe',
+                    '-eixveriwave.latency', '-eixveriwave.msdu_length',
+                    '-eframe.protocols')
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[1] for r in rows[:12]] == ['False'] * 6 + ['True'] * 6
+            assert rows[0][2] == latency
+            assert rows[0][3] == '86' and rows[3][3] == '46'
+            assert rows[5][4] == 'ixveriwave:eth:ethertype:vlan:ethertype:ip:udp:data'
