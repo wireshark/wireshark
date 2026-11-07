@@ -679,7 +679,12 @@ gcp_trx_t* gcp_trx(gcp_msg_t* m ,uint32_t t_id , gcp_trx_type_t type, packet_inf
                     return trxmsg->trx;
                 }
             }
-            DISSECTOR_ASSERT_NOT_REACHED();
+            /* Not found (e.g. two reassembled messages of one frame share
+             * the same raw offset): use a transaction that is not kept. */
+            t = wmem_new0(pinfo->pool, gcp_trx_t);
+            t->id = t_id;
+            t->type = type;
+            return t;
         } else {
             wmem_tree_key_t key[4];
 
@@ -865,8 +870,6 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
 
     if (persistent) {
         if (m->committed) {
-            DISSECTOR_ASSERT(t->cmds != NULL);
-
             for (cmdctx = t->cmds; cmdctx; cmdctx = cmdctx->next) {
                 cmd = cmdctx->cmd;
                 if (cmd->msg == m && cmd->offset == offset) {
@@ -874,9 +877,15 @@ gcp_cmd_t* gcp_cmd(gcp_msg_t* m, gcp_trx_t* t, gcp_ctx_t* c, gcp_cmd_type_t type
                 }
             }
 
-            DISSECTOR_ASSERT(!"called for a command that does not exist!");
-
-            return NULL;
+            /* Not found: return a command that is not kept. */
+            cmd = wmem_new0(pinfo->pool, gcp_cmd_t);
+            cmd->type = type;
+            cmd->offset = offset;
+            cmd->terms.last = &(cmd->terms);
+            cmd->msg = m;
+            cmd->trx = t;
+            cmd->ctx = c;
+            return cmd;
         } else {
             cmd = wmem_new(wmem_file_scope(), gcp_cmd_t);
             cmdtrx = wmem_new(wmem_file_scope(), gcp_cmd_msg_t);
