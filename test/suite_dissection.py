@@ -94838,3 +94838,82 @@ class TestDissectMbtcp:
             '339 Response: Unit: 8, Func: 3: Read Holding Registers. Exception returned',
             '340 Response: Unit: 8, Func: 43: Encapsulated Interface Transport. Exception returned',
         ]
+
+
+class TestDissectMcdata:
+    '''Mission Critical Data (3GPP TS 24.282) carried as the HTTP bodies
+    application/vnd.3gpp.mcdata-signalling and -payload, from the
+    synthetic capture mcdata_coverage.pcapng.gz.'''
+
+    def test_mcdata_messages(self, cmd_tshark, capture_file, test_env):
+        '''60 frames: 53 HTTP messages with an MCData body (every message
+        type of the dissector), no malformed packets or warnings in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'mcdata', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = [l.split(' | ', 1)[1] for l in stdout.splitlines()]
+        assert len(infos) == 53
+        assert infos.count('Data Payload') == 18
+        assert infos.count('SDS Notification') == 6
+        assert infos.count('FD Notification') == 4
+        assert infos.count('FD HTTP termination') == 8
+        assert infos.count('Unknown Message Type') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mcdata_response_type_values(self, cmd_tshark, capture_file, test_env):
+        '''The extension and release response type values use the low
+        nibble (they showed "Unknown (0xc)" before "MCData: Fix masks,
+        latitude sign and payload return value").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'mcdata.sig.ext.resp.type.value',
+                '-Tfields', '-eframe.number', '-emcdata.sig.ext.resp.type.value',
+                '-emcdata.sig.rel.resp.type.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['6\t0x01,0x02\t0x01,0x02']
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 6',
+            ), encoding='utf-8', env=test_env)
+        assert 'ACCEPTED' in stdout and 'REJECTED' in stdout
+        assert 'RELEASE SUCCESS' in stdout and 'RELEASE FAILED' in stdout
+
+    def test_mcdata_location(self, cmd_tshark, capture_file, test_env):
+        '''Location payloads: the sign of the latitude is taken from the
+        first bit (the same bit as the sign field), latitude and
+        longitude are shown in degrees.'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {46, 47}',
+            ), encoding='utf-8', env=test_env)
+        assert re.search(r'Degrees of latitude: 4194304 \(45[.,]0000[01] degrees\)', stdout)
+        assert re.search(r'Degrees of latitude: 4194304 \(-45[.,]0000[01] degrees\)', stdout)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'mcdata.latitude',
+                '-Tfields', '-eframe.number', '-emcdata.sign.of.latitude',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['46\t0', '47\t1', '48\t0']
+
+    def test_mcdata_information_elements(self, cmd_tshark, capture_file, test_env):
+        '''Frame 4 holds every general information element, the sender
+        time and the extended application ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcdata_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 4',
+                '-Tfields', '-emcdata.sig.date.and.time', '-emcdata.general.iei',
+                '-emcdata.pl.payload.text.val',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '2023-11-14T22:13:20.000000000Z'
+        assert fields[1] == '0x21,0x22,0x51,0x52,0x53,0x78,0x79,0x7b,0x7c,0x7e,0x7f,0x7d'
+        assert fields[2] == 'Hello MCData'
