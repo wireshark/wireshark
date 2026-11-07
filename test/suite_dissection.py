@@ -86021,3 +86021,173 @@ class TestDissectIua:
                             ['frame.number', 'iua.asp_identifier', '_ws.col.protocol'],
                             '-Y', 'frame.number == 5')
         assert rows == [['5', '', 'IUA (RFC 3057)']]
+
+
+class TestDissectIuup:
+    '''IuUP (Iu User Plane) from the synthetic capture
+    iuup_coverage.pcapng.gz. Frames 1-2 are a SIP INVITE and 200 OK whose
+    SDP maps payload type 96 to VND.3GPP.IUFP, frames 3-29 are RTP frames
+    carrying IuUP, frames 30-49 are Exported PDUs naming "iuup" or
+    "find_iuup".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *extra):
+        args = [cmd_tshark, '-r', capture_file('iuup_coverage.pcapng.gz'), *extra, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iuup_frames(self, cmd_tshark, capture_file, test_env):
+        '''49 frames: SIP/SDP, IuUP over RTP, IuUP in Exported PDUs; none
+        is malformed or has an error expert info, in one and two passes,
+        with and without the payload bits dissected.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, ['frame.number', 'iuup'])
+        assert len(rows) == 49
+        assert [r[0] for r in rows if r[1] != ''] == (
+            [str(n) for n in range(3, 42)] + ['47', '48', '49'])
+        for opts in ((), ('-2',), ('-o', 'iuup.dissect_payload:TRUE'),
+                     ('-2', '-o', 'iuup.dissect_payload:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('iuup_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iuup_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The full dissection is the same in one and in two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iuup_coverage.pcapng.gz'),
+                    '-o', 'iuup.dissect_payload:TRUE', '-V',
+                ), encoding='utf-8', env=test_env, timeout=120))
+        assert outs[0] == outs[1]
+
+    def test_iuup_control_info(self, cmd_tshark, capture_file, test_env):
+        '''Procedures and their acknowledgements in the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iuup.procedure', 'iuup.ack', '_ws.col.info'],
+                            '-Y', 'frame.number >= 3 && frame.number <= 18')
+        assert [' '.join(r) for r in rows] == [
+            '3 0 0 Initialization ', '4 0 1 ACK Initialization ',
+            '5 0 0 Initialization ', '6 0 0 Initialization ',
+            '7 0 0 Initialization ', '8 0 0 Initialization ',
+            '9 1 0 Rate Control ', '10 1 1 ACK Rate Control ',
+            '11 1 0 Rate Control ',
+            '12 2 0 Time Alignment ', '13 2 0 Time Alignment ',
+            '14 2 0 Time Alignment ', '15 2 0 Time Alignment ',
+            '16 2 0 Time Alignment ', '17 2 0 Time Alignment ',
+            '18 2 1 ACK Time Alignment ']
+
+    def test_iuup_init(self, cmd_tshark, capture_file, test_env):
+        '''Initialization with 3 subflows, four RFCIs (one with two octet
+        lengths), IPTIs and the supported mode versions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iuup_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 3', '-V', '-O', 'iuup',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for expected in (
+                'Subflows: 3',
+                'TI: IPTIs present in frame (1)',
+                'Chain Indicator: additional frames will be sent for the procedure (1)',
+                'RFCI 4 Initialization',
+                'RFCI 3 LI: two octets used (0x1)',
+                'RFCI 3 Flow 0 Len: 258',
+                'RFCI 3 Flow 1 Len: 4',
+                'RFCI 3 LRI: Last RFCI in current frame (0x1)',
+                'RFCI 2 IPTI: 0x2',
+                'Iu UP Mode Versions Supported: 0x0003',
+                'Version  2: supported (0x1)',
+                'Version  3: not supported (0x0)',
+                'Header CRC: 0x03 [correct]',
+                'Payload CRC: 0x16e'):
+            assert any(l.endswith(expected) for l in lines), expected
+
+    def test_iuup_rate_control(self, cmd_tshark, capture_file, test_env):
+        '''Rate control with 12 RFCI indications in two octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iuup_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 9', '-V', '-O', 'iuup',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Number of RFCI Indicators: 0x0c' in [l.split(' = ')[-1] for l in lines]
+        assert '.1.. .... = RFCI 1: RFCI barred (1)' in lines
+        assert '..0. .... = RFCI 2: RFCI allowed (0)' in lines
+        assert '...1 .... = RFCI 11: RFCI barred (1)' in lines
+
+    def test_iuup_time_alignment(self, cmd_tshark, capture_file, test_env):
+        '''Delay for 1-80 and advance for 129-208, in microseconds.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iuup.time_align', 'iuup.delay', 'iuup.advance'],
+                            '-Y', 'frame.number >= 12 && frame.number <= 16')
+        assert rows == [
+            ['12', '0x0a', '0x00001388', ''],
+            ['13', '0x50', '0x00009c40', ''],
+            ['14', '0x01', '0x000001f4', ''],
+            ['15', '0x81', '', '0x000001f4'],
+            ['16', '0xd0', '', '0x00009c40']]
+
+    def test_iuup_data(self, cmd_tshark, capture_file, test_env):
+        '''Data PDUs with and without payload CRC, frame numbers and RFCIs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iuup.pdu_type', 'iuup.framenum', 'iuup.rfci',
+                             'iuup.payload_crc'],
+                            '-Y', 'iuup.pdu_type < 2 && frame.number <= 29')
+        assert rows[0] == ['19', '0', '0', '0x01', '0x0029']
+        assert rows[1] == ['20', '1', '1', '0x01', '']
+        assert rows[4] == ['23', '0', '4', '0x03', '0x0000']
+        assert rows[9] == ['28', '0', '9', '0x04', '0x01cc']
+        assert len(rows) == 11
+
+    def test_iuup_payload_bits(self, cmd_tshark, capture_file, test_env):
+        '''With the payload preference the bits of each subflow of every
+        Payload Frame are shown with their length in bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iuup_coverage.pcapng.gz'),
+                '-o', 'iuup.dissect_payload:TRUE',
+                '-Y', 'frame.number == 25 || frame.number == 28', '-V', '-O', 'iuup',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('Payload Frame') == 3
+        assert 'RFCI 1 Flow 0: 5a5b5c5d5e5f6061626300 (81 Bits)' in lines
+        assert 'RFCI 1 Flow 2: 7172737475767770 (60 Bits)' in lines
+        assert 'RFCI 1 Flow 0: 1011121314151617181900 (81 Bits)' in lines
+        assert 'RFCI 4 Flow 1: e8 (4 Bits)' in lines
+        assert any(l.startswith('RFCI 4 Flow 0:') and l.endswith('(258 Bits)') for l in lines)
+
+    def test_iuup_undecoded_payload(self, cmd_tshark, capture_file, test_env):
+        '''An RFCI that was not initialized (frame 26) or a circuit without
+        an Initialization (frames 40, 41) leaves the payload undecoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', '_ws.expert.message'],
+                            '-o', 'iuup.dissect_payload:TRUE',
+                            '-Y', '_ws.expert.severity == 0x00600000')
+        assert rows == [['26', 'Undecoded payload'], ['40', 'Undecoded payload'],
+                        ['41', 'Undecoded payload']]
+
+    def test_iuup_find_iuup(self, cmd_tshark, capture_file, test_env):
+        '''find_iuup looks for an IuUP header in the data: frames 37-41 have
+        a few octets before the PDU, frames 42-46 hold no IuUP.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'frame.protocols'],
+                            '-Y', 'frame.number >= 36 && frame.number <= 46')
+        assert [r[1] for r in rows] == ['exported_pdu:iuup'] * 6 + ['exported_pdu:iuup:data'] * 5
+
+    def test_iuup_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frame 46 is the find_iuup input whose second octet (0xff) was
+        used as the length of the 2-octet CRC array (a stack over-read).
+        Frames 47-49 define RFCI 0 without subflows and send data for it:
+        with the payload preference dissect_iuup_payload() looped forever
+        (the call has a timeout).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'frame.protocols', '_ws.col.info'],
+                            '-o', 'iuup.dissect_payload:TRUE',
+                            '-Y', 'frame.number >= 46')
+        assert [r[:2] for r in rows] == [
+            ['46', 'exported_pdu:iuup:data'], ['47', 'exported_pdu:iuup'],
+            ['48', 'exported_pdu:iuup'], ['49', 'exported_pdu:iuup']]
+        assert rows[1][2] == 'Initialization '
+        assert rows[2][2] == 'Data (no CRC)FN: 0 RFCI: 0'
