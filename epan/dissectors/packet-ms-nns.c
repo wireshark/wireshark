@@ -118,9 +118,10 @@ dissect_nns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item_ret_uint(nns_tree, hf_nns_auth_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN, &payload_size);
         offset += 2;
         if ( payload_size > 0) {
-            if ((uint32_t) tvb_reported_length_remaining(tvb, offset) < payload_size) {
+            remaining = tvb_reported_length_remaining(tvb, offset);
+            if ((uint32_t) remaining < payload_size) {
                 pinfo->desegment_offset = offset - 5;
-                pinfo->desegment_len = payload_size;
+                pinfo->desegment_len = payload_size - remaining;
                 return (offset - 5);
             }
             pti = proto_tree_add_item(nns_tree, hf_nns_auth_payload, tvb, offset, payload_size, ENC_NA);
