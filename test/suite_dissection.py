@@ -99502,3 +99502,95 @@ class TestDissectMpls:
         assert rows[2][1] == 'eth:ethertype:mpls:ip:udp:discard'
         assert rows[3][1] == 'eth:ethertype:mpls:ipv6:udp:discard'
         assert rows[4][1] == 'eth:ethertype:mpls:pwach:ip:udp:discard'
+
+
+class TestDissectMplsEcho:
+    '''MPLS Echo (LSP ping, packet-mpls-echo.c) over UDP 3503, MPLS and the
+    PW associated channel 0x0025, from the synthetic capture
+    mpls_echo_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mpls_echo_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_echo_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 66 frames are MPLS Echo and none is malformed or has an
+        error expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls-echo', ['frame.number'])
+        assert len(rows) == 66
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpls_echo_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_echo_headers(self, cmd_tshark, capture_file, test_env):
+        '''Message types, reply modes, return codes, sequence numbers and
+        flags of frames 1-10, and the three transports.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 10',
+                          ['frame.number', 'mpls_echo.msg_type', 'mpls_echo.reply_mode',
+                           'mpls_echo.return_code', 'mpls_echo.sequence', 'mpls_echo.flag_v'])
+        assert [r[1:5] for r in rows] == [
+            ['1', '2', '0', '1'], ['1', '1', '0', '2'], ['2', '4', '8', '3'],
+            ['3', '3', '0', '4'], ['4', '2', '1', '5'], ['5', '2', '0', '6'],
+            ['1', '2', '0', '7'], ['1', '2', '0', '8'], ['1', '2', '0', '9'],
+            ['3', '2', '0', '10']]
+        assert [r[5] for r in rows[:3]] == ['False', 'True', 'True']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {7, 8, 9}',
+                          ['frame.protocols'])
+        assert [r[0] for r in rows] == [
+            'eth:ethertype:ipv6:udp:mpls-echo',
+            'eth:ethertype:mpls:udp:mpls-echo',
+            'eth:ethertype:mpls:pwach:mpls-echo']
+
+    def test_mpls_echo_fec_stack(self, cmd_tshark, capture_file, test_env):
+        '''Every FEC sub-TLV type of frames 11-22, in order, and the Nil FEC
+        labels.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {11..22}',
+                          ['frame.number', 'mpls_echo.tlv.fec.type', 'mpls_echo.tlv.fec.nil_label'])
+        assert [r[1] for r in rows] == [
+            '1,2,3,4', '5,6,7,8', '9,10,10,11', '12,13,14,15', '17,18,22,23', '24,25,34,35',
+            '36,36,36,36,36', '64528,64529,153,1', '1,16', '16', '1,16', '1,15']
+        assert [r[2] for r in rows[8:11]] == ['0', '2,500', '3,16,1000']
+
+    def test_mpls_echo_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The simple TLV types of frames 24-35, including unknown and
+        vendor private types, and the Errored TLVs of frames 36-38.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {24..38}',
+                          ['frame.number', 'mpls_echo.tlv.type', 'mpls_echo.tlv.errored.type'])
+        assert [r[1] for r in rows] == [
+            '3,3,3', '5,4,6,153', '10', '12,13,14,15', '11,11', '11,11', '11',
+            '64513,65535', '7,7', '7,7', '8,8', '8', '9', '9,9,9', '9,9']
+        assert rows[12][2] == '3,64512'
+        assert rows[13][2] == '1,7,9'
+
+    def test_mpls_echo_downstream_mapping(self, cmd_tshark, capture_file, test_env):
+        '''The Downstream Mapping TLV of frames 39-51: address types, hash
+        types and the label elements.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {39..51}',
+                          ['frame.number', 'mpls_echo.tlv.ds_map.hash_type',
+                           'mpls_echo.tlv.ds_map.addr_type', 'mpls_echo.tlv.ds_map.mp_label'])
+        assert [r[1] for r in rows] == ['0', '2', '4', '8', '8', '0', '1', '3', '5', '6', '7', '9', '10']
+        assert [r[2] for r in rows[:5]] == ['1', '2', '3', '4', '5']
+        assert rows[0][3] == '100,0,15'
+        assert rows[4][3] == '1048575'
+
+    def test_mpls_echo_detailed_downstream_mapping(self, cmd_tshark, capture_file, test_env):
+        '''The Detailed Downstream Mapping sub-TLVs of frames 52-64 (label
+        stack, multipath types, stack change with IPv4/IPv6/unspecified
+        peers and a FEC).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {52..64}',
+                          ['frame.number', 'mpls_echo.subtlv.dd_map.multipath_type',
+                           'mpls_echo.subtlv.label', 'mpls_echo.tlv.dd_map.addr_type',
+                           'mpls_echo.tlv.fec.type'])
+        assert [r[1] for r in rows] == ['', '0', '2', '4', '8', '8', '9', '', '', '', '', '5,5', '']
+        assert [r[2] for r in rows[:6]] == ['30,0', '30,0', '30,0', '30,0', '7', '']
+        assert [r[3] for r in rows[:5]] == ['1', '1', '1', '3', '5']
+        assert [r[4] for r in rows[7:10]] == ['1', '1,14', '15']
