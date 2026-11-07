@@ -51,7 +51,8 @@ dissect_mpeg_ca(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     mpeg_ca_tree = proto_item_add_subtree(ti, ett_mpeg_ca);
 
     offset += packet_mpeg_sect_header(tvb, offset, mpeg_ca_tree, &length, NULL);
-    length -= 4;
+    /* End of the descriptors: tvb-relative, 3 header bytes, minus the CRC */
+    length = (length >= 4) ? 3 + length - 4 : 3;
 
     proto_tree_add_item(mpeg_ca_tree, hf_mpeg_ca_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(mpeg_ca_tree, hf_mpeg_ca_version_number, tvb, offset, 3, ENC_BIG_ENDIAN);
