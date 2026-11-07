@@ -98297,3 +98297,58 @@ class TestDissectMp4ves:
         rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.expert.message == "Not dissected bits"',
                 'frame.number')
         assert [r[0] for r in rows] == ['7', '8', '17']
+
+
+class TestDissectMpeg1:
+    '''MPEG1 (RFC 2250 video payload) from the synthetic capture
+    mpeg1_coverage.pcapng.gz: RTP payload type 32 set up by a SIP/SDP
+    INVITE (frames 2-23) and the Exported PDU "mpeg1" (frames 24-25).'''
+
+    def test_mpeg1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 24 payloads decode as MPEG-1 without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg1_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 25
+        assert protocols.count('MPEG-1') == 24
+        assert protocols.count('SIP/SDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpeg1_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert count_output(stdout) == 0
+
+    def test_mpeg1_second_header_byte(self, cmd_tshark, capture_file, test_env):
+        '''AN, N, S, B, E and the picture type come from the third octet
+        of the header; before "MPEG1: Dissect the second RTP header byte
+        with length 1" they were decoded from the fourth octet. Frame 24
+        is the Exported PDU 04 05 a1 00 (AN 1, S 1, picture type I).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg1_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 24',
+                '-Tfields', '-ertp.payload_mpeg_T', '-ertp.payload_mpeg_tr',
+                '-ertp.payload_mpeg_an', '-ertp.payload_mpeg_n',
+                '-ertp.payload_mpeg_s', '-ertp.payload_mpeg_b',
+                '-ertp.payload_mpeg_e', '-ertp.payload_mpeg_p',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.strip().split('\t') == ['1', '5', '1', '0', 'True', 'False', 'False', '1']
+
+    def test_mpeg1_picture_types(self, cmd_tshark, capture_file, test_env):
+        '''The eight picture types of frames 2-9, and the flag frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg1_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 2 && frame.number <= 9',
+                '-Tfields', '-ertp.payload_mpeg_p',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.split() == [str(i) for i in range(8)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg1_coverage.pcapng.gz'),
+                '-Y', 'rtp.payload_mpeg_s == 1 && rtp.payload_mpeg_b == 1 && rtp.payload_mpeg_e == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=60)
+        assert count_output(stdout) == 1
