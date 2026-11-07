@@ -94631,3 +94631,110 @@ class TestDissectMausb:
             '120\t3\tTrue\t16909060\t4095\t3',
             '121\t3\tTrue\t\t16909060\t3',
         ]
+
+
+class TestDissectMbim:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mbim_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mbim_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''416 Exported PDU frames, none malformed and none with an expert
+        info, in one and two passes: control messages for the service and
+        CID combinations the dissector knows, NCM transfer blocks and the
+        USB functional descriptors.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number')
+        assert len(lines) == 416
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+            for hf, n in (('mbim.control', 397), ('mbim.bulk', 17), ('mbim.descriptor', 2)):
+                lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                        '-Y', hf, '-Tfields', '-eframe.number')
+                assert len(lines) == n
+
+    def test_mbim_open_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Open, close and error messages with their Info column.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 6 || (frame.number >= 383 && frame.number <= 389)',
+                '-Tfields', '-eframe.number', '-embim.control.max_control_transfer',
+                '-e_ws.col.Info')
+        assert [' '.join(l.split()) for l in lines] == [
+            '1 4096 OPEN_MSG',
+            '2 OPEN_DONE',
+            '3 64 OPEN_MSG',
+            '4 OPEN_DONE',
+            '5 8 OPEN_MSG',
+            '6 OPEN_DONE',
+            '383 FUNCTION_ERROR_MSG',
+            '384 FUNCTION_ERROR_MSG',
+            '385 HOST_ERROR_MSG',
+            '386 COMMAND_DONE : DEVICE_CAPS',
+            '387 CLOSE_MSG',
+            '388 CLOSE_DONE',
+            '389 Unknown',
+        ]
+
+    def test_mbim_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Commands and answers are matched by transaction id and open
+        count: the answer links back to the request, and with -2 the
+        request shows the answer too.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number == 7 || frame.number == 8',
+                '-Tfields', '-eframe.number', '-embim.control.request_in',
+                '-embim.control.response_in')
+        assert lines == ['7\t\t8', '8\t7\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number == 383', '-Tfields', '-embim.control.request_in')
+        assert lines == ['382']
+
+    def test_mbim_fragments(self, cmd_tshark, capture_file, test_env):
+        '''A command in three fragments, an answer in two and an indication
+        in two are reassembled when the last fragment arrives.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 390 && frame.number <= 397',
+                '-Tfields', '-eframe.number', '-embim.control.fragment.total',
+                '-embim.control.fragment.current', '-embim.control.fragment_count',
+                '-e_ws.col.Info')
+        rows = [l.split('\t') for l in lines]
+        assert [r[0] for r in rows] == [str(n) for n in range(390, 398)]
+        assert [r[1:3] for r in rows] == [['3', '0'], ['3', '1'], ['3', '2'],
+                                           ['1', '0'], ['2', '0'], ['2', '1'],
+                                           ['2', '0'], ['2', '1']]
+        assert rows[0][4].endswith('[Fragment #1 out of 3]')
+        assert rows[2][4].endswith('RADIO_STATE (Set)')
+        assert rows[2][3] == '3' and rows[5][3] == '2' and rows[7][3] == '2'
+        assert rows[7][4].endswith('SUBSCRIBER_READY_STATUS')
+
+    def test_mbim_bulk(self, cmd_tshark, capture_file, test_env):
+        '''NCM transfer blocks, 16 and 32 bit: IP, Ethernet, DSS, and NDP
+        control messages; two NDPs in one block; an unknown signature.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mbim.bulk', '-Tfields', '-eframe.number',
+                '-embim.bulk.total_nb_datagrams', '-e_ws.col.Protocol')
+        assert lines == [
+            '398\t2\tUDP/UDP', '399\t1\tUDP', '400\t1\tUDP', '401\t1\tUDP',
+            '402\t2\tMBIM/', '403\t1\tMBIM NDP Control',
+            '404\t1\tMBIM NDP Control', '405\t1\tMBIM NDP Control',
+            '406\t1\tMBIM', '407\t2\tUDP/UDP', '408\t2\tUDP/UDP', '409\t1\tUDP',
+            '410\t1\tUDP', '411\t1\tMBIM NDP Control', '412\t1\tMBIM',
+            '413\t1\tMBIM NDP Control', '414\t1\tMBIM',
+        ]
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 404', '-Tfields',
+                '-embim.bulk.ndp_control.multiflow.status',
+                '-embim.bulk.ndp_control.multiflow.watermark')
+        assert lines == ['1\t4294967295']
+
+    def test_mbim_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The MBIM functional descriptor and the extended one.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mbim.descriptor', '-Tfields', '-eframe.number',
+                '-embim.descriptor.version', '-embim.descriptor.max_control_message',
+                '-embim.descriptor.max_segment_size',
+                '-embim.descriptor.extended_version', '-embim.descriptor.mtu')
+        assert lines == ['415\t0x0100\t4096\t1500\t\t', '416\t\t\t\t0x0300\t1500']
