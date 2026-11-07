@@ -100557,3 +100557,71 @@ class TestDissectMsdp:
                 '-eudp.dstport',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines()[0] == '9\t5678'
+
+
+class TestDissectMsgpack:
+    '''MessagePack from the synthetic capture msgpack_coverage.pcapng.gz.
+    MsgPack has no port of its own, the frames are Exported PDU frames
+    naming "msgpack" (1-50, one object each) and "dxl" (51-53, the DXL
+    event that hands eight objects to MsgPack with a field label).'''
+
+    def test_msgpack_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 53 frames decode without malformed packets or error
+        expert infos, in one and two passes. Only the unsupported-type
+        frames (49, 53) carry a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 53
+        assert protocols.count('MsgPack') == 52
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                '-Y', 'msgpack.unsupported', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['49']
+
+    def test_msgpack_integers(self, cmd_tshark, capture_file, test_env):
+        '''The 64 bit integers keep their full range.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                '-Y', 'msgpack.integer.u64 || msgpack.integer.64',
+                '-Tfields', '-eframe.number', '-emsgpack.integer.u64',
+                '-emsgpack.integer.64',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '11\t18446744073709551615\t',
+            '15\t\t-9223372036854775808',
+        ]
+
+    def test_msgpack_nesting(self, cmd_tshark, capture_file, test_env):
+        '''31 nested arrays (frame 38) are dissected, to the innermost
+        element; the 32 level limit and the old endless loop on 0xc1 in a
+        32 bit array and unbounded recursion (fixed by "MsgPack: Fix
+        endless loop and unbounded recursion") are in the malformed
+        capture only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 38', '-Tfields', '-emsgpack.type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        types = stdout.strip().split(',')
+        assert types.count('0x91') == 31
+        assert types[-1] == '0x01'
+
+    def test_msgpack_dxl(self, cmd_tshark, capture_file, test_env):
+        '''The DXL event passes its eight objects, the strings are found.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msgpack_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 51', '-Tfields', '-emsgpack.string',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        strings = stdout.strip().split(',')
+        for s in ('msgid', 'client', 'broker', 'b1', 'b2', 'c1', '/reply'):
+            assert s in strings
