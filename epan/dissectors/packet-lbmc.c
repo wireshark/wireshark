@@ -140,6 +140,20 @@ static void lbm_stream_init(void)
     domain_stream_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
+/* Return the first four bytes of an address, or 0 if it does not have them
+   (e.g. AT_NONE from Exported PDU without address tags). memcpy avoids
+   alignment issues. */
+static uint32_t lbmc_addr_key(const address * addr)
+{
+    uint32_t val = 0;
+
+    if ((addr->data != NULL) && (addr->len >= (int)sizeof(uint32_t)))
+    {
+        memcpy((void *) &val, (const void *) addr->data, sizeof(uint32_t));
+    }
+    return (val);
+}
+
 static void lbm_istream_stream_build_key(uint32_t * key_value, wmem_tree_key_t * key, const lbm_istream_entry_t * stream)
 {
     uint32_t val;
@@ -226,10 +240,10 @@ static void lbm_istream_substream_build_key(uint32_t * key_value, wmem_tree_key_
        has any particular alignment) to prevent any alignment issues with assigning to a 32-bit unsigned int
        on certain platforms.
     */
-    memcpy((void *) &val, (const void *) substream->src_addr.data, sizeof(uint32_t));
+    val = lbmc_addr_key(&substream->src_addr);
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_SRC_ADDR] = val;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_SRC_PORT] = (uint32_t) substream->src_port;
-    memcpy((void *) &val, (const void *) substream->dst_addr.data, sizeof(uint32_t));
+    val = lbmc_addr_key(&substream->dst_addr);
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_DST_ADDR] = val;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT] = (uint32_t) substream->dst_port;
     key_value[LBM_ISTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID] = substream->lbm_stream_id;
@@ -319,10 +333,10 @@ static void lbm_dstream_stream_build_key(uint32_t * key_value, wmem_tree_key_t *
        on certain platforms.
     */
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_DOMAIN_1] = stream->domain_1;
-    memcpy((void *) &val, (const void *) (stream->addr_1.data), sizeof(uint32_t));
+    val = lbmc_addr_key(&stream->addr_1);
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_ADDR_1] = val;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_DOMAIN_2] = stream->domain_2;
-    memcpy((void *) &val, (const void *) (stream->addr_2.data), sizeof(uint32_t));
+    val = lbmc_addr_key(&stream->addr_2);
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_ADDR_2] = val;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_PORT_1] = (uint32_t) stream->port_1;
     key_value[LBM_DSTREAM_STREAM_KEY_ELEMENT_PORT_2] = (uint32_t) stream->port_2;
@@ -435,10 +449,10 @@ static void lbm_dstream_substream_build_key(uint32_t * key_value, wmem_tree_key_
        has any particular alignment) to prevent any alignment issues with assigning to a 32-bit unsigned int
        on certain platforms.
     */
-    memcpy((void *) &val, (const void *) substream->src_addr.data, sizeof(uint32_t));
+    val = lbmc_addr_key(&substream->src_addr);
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_SRC_ADDR] = val;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_SRC_PORT] = (uint32_t) substream->src_port;
-    memcpy((void *) &val, (const void *) substream->dst_addr.data, sizeof(uint32_t));
+    val = lbmc_addr_key(&substream->dst_addr);
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_DST_ADDR] = val;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_DST_PORT] = (uint32_t) substream->dst_port;
     key_value[LBM_DSTREAM_SUBSTREAM_KEY_ELEMENT_LBM_STREAM_ID] = substream->lbm_stream_id;
@@ -6247,7 +6261,7 @@ static void lbmc_message_build_key(uint32_t * key_value, wmem_tree_key_t * key, 
 
     key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_HIGH] = (uint32_t) ((message->channel >> 32) & 0xffffffff);
     key_value[LBMC_MESSAGE_KEY_ELEMENT_CHANNEL_LOW] = (uint32_t) (message->channel & 0xffffffff);
-    memcpy((void *) &val, (const void *) message->addr.data, sizeof(uint32_t));
+    val = lbmc_addr_key(&message->addr);
     key_value[LBMC_MESSAGE_KEY_ELEMENT_ADDR] = val;
     key_value[LBMC_MESSAGE_KEY_ELEMENT_PORT] = (uint32_t) message->port;
     key_value[LBMC_MESSAGE_KEY_ELEMENT_FIRST_SQN] = message->first_sqn;
@@ -6318,6 +6332,22 @@ static bool lbmc_message_add_fragment(lbmc_message_entry_t * message, tvbuff_t *
      * the reassembly API. */
     unsigned frag_len = tvb_reported_length_remaining(tvb, data_offset);
     uint32_t total_len, accumulated_len;
+    /* Duplicates (e.g. on a second pass) are accepted before any length check,
+     * overlapping fragments are rejected. */
+    for (cur = message->entry; cur != NULL; cur = cur->next)
+    {
+        if (info->offset == cur->fragment_start)
+        {
+            /* Already have this fragment */
+            return true;
+        }
+        if (((uint64_t)info->offset < (uint64_t)cur->fragment_start + cur->fragment_len) &&
+            (cur->fragment_start < (uint64_t)info->offset + frag_len))
+        {
+            return false;
+        }
+    }
+    cur = NULL;
     if (ckd_add(&total_len, info->offset, frag_len) || total_len > message->total_len) {
         return false;
     }
@@ -6400,7 +6430,6 @@ static void lbmc_init_extopt_reassembled_data(lbmc_extopt_reassembled_data_t * r
     reassembly->reassembly_in_progress = false;
     reassembly->subtype = 0;
     reassembly->len = 0;
-    memset((void *)&(reassembly->data), 0, sizeof(reassembly->data));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -6618,14 +6647,14 @@ static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, int offset, packet_info * p
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     uint8_t hdrlen = 0;
-    uint8_t datalen = 0;
+    int datalen = 0;
     int elem_offset = 0;
     int elem_len = 0;
     uint8_t elem = 0;
     int len_dissected = 0;
 
     hdrlen = tvb_get_uint8(tvb, offset + O_LBMC_APPHDR_CHAIN_HDR_T_HDR_LEN);
-    datalen = hdrlen - L_LBMC_APPHDR_CHAIN_HDR_T;
+    datalen = (int)hdrlen - (int)L_LBMC_APPHDR_CHAIN_HDR_T;
     subtree_item = proto_tree_add_item(tree, hf_lbmc_apphdr_chain, tvb, offset, (int)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_apphdr_chain);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_next_hdr, tvb, offset + O_LBMC_APPHDR_CHAIN_HDR_T_NEXT_HDR, L_LBMC_APPHDR_CHAIN_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
@@ -6649,6 +6678,10 @@ static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, int offset, packet_info * p
         if (elem_len == 0)
         {
             return (len_dissected);
+        }
+        if (elem_len > datalen)
+        {
+            break;
         }
         elem_offset += elem_len;
         datalen -= elem_len;
@@ -8641,8 +8674,8 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             len_dissected += L_LBMC_CNTL_UMQ_ULB_RCV_START_IDX_ASSIGN_HDR_T;
             break;
         case LBMC_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_TYPE:
+            index_len = hdrlen - (L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T);
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_release_assign, tvb, offset, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = hdrlen - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_release_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_rcr_idx, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_RCR_IDX, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_RCR_IDX, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_release_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8661,8 +8694,8 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             len_dissected += L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len;
             break;
         case LBMC_UMQ_IDX_CMD_ULB_RCV_RELEASE_IDX_ASSIGN_TYPE:
+            index_len = hdrlen - (L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T);
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign, tvb, offset, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = hdrlen - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_ulb_release_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_src_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_SRC_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_SRC_ID, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_release_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8682,8 +8715,8 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             len_dissected += L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RELEASE_IDX_ASSIGN_HDR_T + index_len;
             break;
         case LBMC_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_TYPE:
+            index_len = hdrlen - (L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T);
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_reserve_assign, tvb, offset, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = hdrlen - L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_reserve_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_rcr_idx, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_RCR_IDX, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_RCR_IDX, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_reserve_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -8702,8 +8735,8 @@ static int dissect_nhdr_umq_idx_cmd(tvbuff_t * tvb, int offset, packet_info * pi
             len_dissected += L_LBMC_CNTL_UMQ_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len;
             break;
         case LBMC_UMQ_IDX_CMD_ULB_RCV_RESERVE_IDX_ASSIGN_TYPE:
+            index_len = hdrlen - (L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + L_LBMC_CNTL_UMQ_IDX_CMD_HDR_T);
             opt_subtree_item = proto_tree_add_item(subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign, tvb, offset, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T + index_len, ENC_NA);
-            index_len = hdrlen - L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T;
             opt_subtree = proto_item_add_subtree(opt_subtree_item, ett_lbmc_umq_idx_cmd_ulb_reserve_assign);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_src_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_SRC_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_SRC_ID, ENC_BIG_ENDIAN);
             proto_tree_add_item(opt_subtree, hf_lbmc_umq_idx_cmd_ulb_reserve_assign_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_ULB_IDX_CMD_RCV_RESERVE_IDX_ASSIGN_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
@@ -10251,6 +10284,8 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
     int field_offset;
     int data_length;
     proto_item * magic_item = NULL;
+    uint64_t prev_key_offset;
+    uint64_t prev_value_offset;
 
     magic = tvb_get_letohl(tvb, offset + O_LBM_MSG_PROPERTIES_DATA_T_MAGIC);
     encoding = ENC_LITTLE_ENDIAN;
@@ -10290,12 +10325,15 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
         num_fields = tvb_get_ntohs(tvb, offset + O_LBM_MSG_PROPERTIES_DATA_T_NUM_FIELDS);
     }
     field_offset = offset + L_LBM_MSG_PROPERTIES_DATA_T;
+    /* Keys and values must lie after the field table and not go backwards;
+       otherwise every field can point at the same long string. */
+    prev_key_offset = (uint64_t)L_LBM_MSG_PROPERTIES_DATA_T + ((uint64_t)num_fields * L_LBM_MSG_PROPERTIES_HDR_T);
+    prev_value_offset = prev_key_offset;
     for (idx = 0; idx < num_fields; ++idx)
     {
         uint32_t key_offset;
         uint32_t value_offset;
         uint32_t type;
-        int actual_key_offset;
         int actual_value_offset;
         int key_len;
         int value_len;
@@ -10313,14 +10351,21 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
             value_offset = tvb_get_ntohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET);
             type = tvb_get_ntohl(tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE);
         }
-        actual_key_offset = (int) key_offset;
         actual_value_offset = (int) value_offset;
         field_item = proto_tree_add_item(subtree, hf_lbm_msg_properties_hdr, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T, encoding);
         field_tree = proto_item_add_subtree(field_item, ett_lbm_msg_properties_hdr);
         proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_KEY_OFFSET, encoding);
         proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_value_offset, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, L_LBM_MSG_PROPERTIES_HDR_T_VALUE_OFFSET, encoding);
         proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_hash, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_HASH, L_LBM_MSG_PROPERTIES_HDR_T_HASH, encoding);
-        type_item = proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_type, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE, L_LBM_MSG_PROPERTIES_HDR_T_TYPE, encoding);
+        type_item = proto_tree_add_item_ret_uint(field_tree, hf_lbm_msg_properties_hdr_type, tvb, field_offset + O_LBM_MSG_PROPERTIES_HDR_T_TYPE, L_LBM_MSG_PROPERTIES_HDR_T_TYPE, encoding, &type);
+        if ((key_offset < prev_key_offset) || (value_offset < prev_value_offset))
+        {
+            expert_add_info_format(pinfo, field_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC Message Properties key/value offset");
+            break;
+        }
+        /* Keys and values are at least one byte, so the next must start later. */
+        prev_key_offset = (uint64_t)key_offset + 1;
+        prev_value_offset = (uint64_t)value_offset + 1;
         switch (type)
         {
             case LBM_MSG_PROPERTY_BOOLEAN:
@@ -10339,15 +10384,15 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
                 value_len = 8;
                 break;
             case LBM_MSG_PROPERTY_STRING:
-                value_len = (int)tvb_strsize(tvb, actual_value_offset);
+                value_len = (int)tvb_strsize(tvb, offset + value_offset);
                 break;
             default:
                 expert_add_info_format(pinfo, type_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC Message Properties type 0x%08x", type);
                 value_len = 4;
                 break;
         }
-        key_len = (int)tvb_strsize(tvb, actual_key_offset);
-        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key, tvb, offset + actual_key_offset, key_len, encoding);
+        key_len = (int)tvb_strsize(tvb, offset + key_offset);
+        proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key, tvb, offset + key_offset, key_len, encoding);
         switch (type)
         {
             case LBM_MSG_PROPERTY_BOOLEAN:
@@ -10782,7 +10827,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     int lbmc_hdr_len;
     uint32_t msgprop_len = 0;
     lbmc_fragment_info_t frag_info;
-    lbmc_extopt_reassembled_data_t *reassembly;
+    lbmc_extopt_reassembled_data_t *reassembly = NULL;
     bool data_is_umq_cmd_resp;
     bool packet_is_data;
     lbmc_stream_info_t stream_info;
@@ -10908,7 +10953,11 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         frag_info.len = 0;
         proto_item *hdr_frag_item = NULL;
         msgprop_len = 0;
-        reassembly = wmem_new(pinfo->pool, lbmc_extopt_reassembled_data_t);
+        if (reassembly == NULL)
+        {
+            /* Allocated (zeroed) once per call, not once per message. */
+            reassembly = wmem_new0(pinfo->pool, lbmc_extopt_reassembled_data_t);
+        }
         lbmc_init_extopt_reassembled_data(reassembly);
         data_is_umq_cmd_resp = false;
         stream_info.set = false;
@@ -11514,14 +11563,14 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     char * buf = NULL;
 
                     /* Create a new real data tvb of the reassembled data. */
-                    buf = (char *)wmem_alloc(pinfo->pool, (size_t)msg->total_len);
+                    buf = (uint8_t*)wmem_alloc0(pinfo->pool, (size_t)msg->total_len);
                     cur = msg->entry;
                     while (cur != NULL)
                     {
                         memcpy(buf + cur->fragment_start, cur->data, cur->fragment_len);
                         cur = cur->next;
                     }
-                    msg->reassembled_data = tvb_new_real_data(buf, msg->total_len, msg->total_len);
+                    msg->reassembled_data = tvb_new_child_real_data(lbmc_tvb, buf, msg->total_len, msg->total_len);
                     msg_complete = true;
                     /* Create separate data and msgprop tvbs */
                     msg->data = tvb_new_subset_length(msg->reassembled_data, 0, msg->total_len - msg->msgprop_len);
