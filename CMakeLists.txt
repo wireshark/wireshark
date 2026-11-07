@@ -20,6 +20,12 @@ cmake_minimum_required(VERSION 3.22)
 if(POLICY CMP0135)
 	cmake_policy(SET CMP0135 NEW)
 endif()
+# Select the MSVC debug information format with
+# CMAKE_MSVC_DEBUG_INFORMATION_FORMAT, which ENABLE_CCACHE uses. The
+# default is still /Zi.
+if(POLICY CMP0141)
+	cmake_policy(SET CMP0141 NEW)
+endif()
 
 if(WIN32 AND NOT DEFINED ENV{MSYSTEM})
 	set(_project_name Wireshark)
@@ -741,10 +747,7 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		add_definitions("/D_BIND_TO_CURRENT_CRT_VERSION=1")
 	endif()
 
-	# TODO: Re-enable /W3. It was disabled for a year and some warnings crept
-	# in that will fail with /Wx.
 	set(LOCAL_CFLAGS
-		/MP
 		/W3
 
 		# Some of our code requires object files with
@@ -754,6 +757,12 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		# the files, but those are too old anyway.
 		/bigobj
 	)
+	# Compile the sources of each target in parallel. Other generators,
+	# e.g. Ninja, already run a compiler for each source, and ccache
+	# can't cache a compile with more than one source.
+	if(CMAKE_GENERATOR MATCHES "^Visual Studio")
+		list(APPEND LOCAL_CFLAGS /MP)
+	endif()
 
 	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
 
@@ -1848,17 +1857,34 @@ include(ConfigureChecks.cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(ENABLE_CCACHE)
-	if(NOT (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
-		# https://ccache.dev/platform-compiler-language-support.html
+	# https://ccache.dev/platform-compiler-language-support.html
+	if(NOT (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang" OR MSVC))
 		message(WARNING "Ccache is enabled, but your compiler is ${CMAKE_C_COMPILER_ID}."
 		" We wish you the best of luck.")
+	endif()
+	if(CMAKE_GENERATOR MATCHES "^Visual Studio")
+		message(WARNING "Ccache is enabled, but the ${CMAKE_GENERATOR} generator"
+		" doesn't support compiler launchers. Use Ninja instead.")
 	endif()
 	find_program(CCACHE_EXECUTABLE ccache)
 	if(CCACHE_EXECUTABLE)
 		set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
 		set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_EXECUTABLE}")
-		set(CMAKE_C_LINKER_LAUNCHER "${CCACHE_EXECUTABLE}")
-		set(CMAKE_CXX_LINKER_LAUNCHER "${CCACHE_EXECUTABLE}")
+		if(MSVC)
+			# Ccache can cache MSVC compiles only if the debug
+			# information is in each object file (/Z7) instead
+			# of a PDB file shared by the target's objects (/Zi).
+			# The linker still writes the target's PDB file.
+			if(POLICY CMP0141)
+				set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>")
+			else()
+				message(WARNING "Ccache can't cache MSVC compiles that use /Zi."
+				" Use CMake 3.25 or later, which can select /Z7 instead.")
+			endif()
+		else()
+			set(CMAKE_C_LINKER_LAUNCHER "${CCACHE_EXECUTABLE}")
+			set(CMAKE_CXX_LINKER_LAUNCHER "${CCACHE_EXECUTABLE}")
+		endif()
 	endif()
 endif()
 
