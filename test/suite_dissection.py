@@ -100500,3 +100500,60 @@ class TestDissectMsDo:
         infos = stdout.splitlines()
         assert len(infos) == 6
         assert all('[TCP PDU reassembled in ' in i for i in infos)
+
+
+class TestDissectMsdp:
+    '''MSDP (TCP 639) from the synthetic capture msdp_coverage.pcap.gz:
+    every TLV type, the Notification error codes and subcodes with
+    nested messages, SA messages with encapsulated IPv4 packets.'''
+
+    def test_msdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-56 decode as MSDP without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msdp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 56
+        assert protocols.count('MSDP') == 53
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('msdp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msdp_trailing_junk(self, cmd_tshark, capture_file, test_env):
+        '''Trailing junk after an SA Request and a KeepAlive is a child of
+        the MSDP tree, with the right warning (fixed by "MSDP: Fix
+        trailing junk placement, SA Request text and entry count
+        type").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msdp_coverage.pcap.gz'),
+                '-Y', 'msdp.trailing_junk && frame.number < 20',
+                '-Tfields', '-eframe.number', '-emsdp.trailing_junk',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '13\t6a756e6b\tTLV length for SA Request > 8',
+            '19\t7879\tTLV length for KeepAlive > 3',
+        ]
+
+    def test_msdp_notification(self, cmd_tshark, capture_file, test_env):
+        '''The Invalid Entry Count notification shows the count in decimal
+        and a notification nested in a notification is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msdp_coverage.pcap.gz'),
+                '-Y', 'msdp.not.entry_count', '-Tfields', '-eframe.number',
+                '-emsdp.not.entry_count', '-emsdp.not.error_sub',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '30\t5\t1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msdp_coverage.pcap.gz'),
+                '-Y', 'ip.src == 10.1.1.1', '-Tfields', '-eframe.number',
+                '-eudp.dstport',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines()[0] == '9\t5678'
