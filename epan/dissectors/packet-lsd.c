@@ -173,7 +173,7 @@ proto_register_lsd(void)
   };
 
   static ei_register_info ei[] = {
-    { &ei_lsd_field, { "lsd.malformed_field", PI_MALFORMED, PI_ERROR, "Malformed LDS field", EXPFILL }},
+    { &ei_lsd_field, { "lsd.malformed_field", PI_MALFORMED, PI_ERROR, "Malformed LSD field", EXPFILL }},
   };
 
   expert_module_t* expert_lsd;
