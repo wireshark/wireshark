@@ -262,7 +262,7 @@ static void dissect_nats_headers(tvbuff_t* tvb, unsigned offset, unsigned end_of
     len -= next_offset - offset;
     offset = next_offset;
 
-    nats_data->headers_map = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
+    nats_data->headers_map = wmem_map_new(pinfo->pool, g_str_hash, g_str_equal);
 
     while (tvb_find_line_end_length(tvb, offset, len, NULL, &next_offset))
     {
@@ -357,10 +357,11 @@ static int dissect_nats_with_payload(tvbuff_t* tvb, unsigned offset, unsigned ne
 
     body_bytes = total_bytes - header_bytes;
 
-    if (available < total_bytes + EOL_LEN)
+    if ((uint64_t)available < (uint64_t)total_bytes + EOL_LEN)
     {
         pinfo->desegment_offset = offset;
-        pinfo->desegment_len = total_bytes + EOL_LEN - available;
+        uint64_t missing = (uint64_t)total_bytes + EOL_LEN - available;
+        pinfo->desegment_len = (missing > UINT32_MAX) ? DESEGMENT_ONE_MORE_SEGMENT : (uint32_t)missing;
 
         return tvb_reported_length_remaining(tvb, offset);
     }
@@ -876,7 +877,7 @@ static unsigned dissect_nats_info(tvbuff_t* tvb, unsigned offset, unsigned next_
     unsigned features_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned features_length = next_offset - features_offset - EOL_LEN;
+    unsigned features_length = (next_offset > features_offset + EOL_LEN) ? next_offset - features_offset - EOL_LEN : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "INFO");
 
@@ -911,7 +912,7 @@ static unsigned dissect_nats_connect(tvbuff_t* tvb, unsigned offset, unsigned ne
     unsigned features_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned features_length = next_offset - features_offset - EOL_LEN;
+    unsigned features_length = (next_offset > features_offset + EOL_LEN) ? next_offset - features_offset - EOL_LEN : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CONNECT");
 
@@ -972,7 +973,7 @@ static int dissect_nats_err(tvbuff_t* tvb, unsigned offset, unsigned next_offset
     unsigned message_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned message_length = next_offset - message_offset - EOL_LEN;
+    unsigned message_length = (next_offset > message_offset + EOL_LEN) ? next_offset - message_offset - EOL_LEN : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "-ERR");
 
