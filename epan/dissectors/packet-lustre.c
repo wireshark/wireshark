@@ -3615,9 +3615,9 @@ dissect_struct_hsm_progress(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     proto_tree_add_item(tree, hf_lustre_hsm_prog_cookie, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
     offset = dissect_struct_hsm_extent(tvb, offset, tree);
-    proto_tree_add_item(tree, hf_lustre_hsm_prog_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_prog_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_lustre_hsm_prog_errval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_prog_errval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_lustre_hsm_prog_padding1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
