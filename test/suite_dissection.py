@@ -90575,3 +90575,66 @@ class TestDissectLisp:
         stdout = self.tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 45', '-V', '-O', 'lisp')
         assert '(nested too deeply)' in stdout
+
+
+class TestDissectLispData:
+    CAP = 'lisp_data_coverage.pcap.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectLispData.CAP), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_lisp_data_protocols(self, cmd_tshark, capture_file, test_env):
+        '''18 packets on UDP 4341 (no Decode As): 17 LISP data packets and
+        one control packet sent from port 4341 to port 4342; no malformed
+        packets or errors in one and two passes. The two warnings are the
+        invalid flag combinations.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp-data', '-Tfields', '-eframe.number')
+        assert len(stdout.split()) == 17
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['18']
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert stdout.split() == ['14', '15']
+
+    def test_lisp_data_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Nonce, map-version, instance ID and locator-status-bits depend
+        on the N, V, I and L flags.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp-data', '-Tfields', '-eframe.number',
+                '-elisp-data.flags', '-elisp-data.nonce', '-elisp-data.mapver',
+                '-elisp-data.srcmapver', '-elisp-data.dstmapver',
+                '-elisp-data.iid', '-elisp-data.lsb', '-elisp-data.lsb8')
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x80\t1193046\t\t\t\t\t\t'
+        assert lines[1] == '2\t0xc0\t11259375\t\t\t\t\t0x00000003\t'
+        assert lines[4] == '5\t0x10\t\t0x123abc\t291\t2748\t\t\t'
+        assert lines[5] == '6\t0x50\t\t0xfff001\t4095\t1\t\t0x80000001\t'
+        assert lines[6] == '7\t0x08\t\t\t\t\t43981\t\t'
+        assert lines[8] == '9\t0xc8\t1122867\t\t\t\t66051\t\t0xa5'
+        assert lines[9] == '10\t0x58\t\t0x001002\t1\t2\t1\t\t0x0f'
+        assert lines[10] == '11\t0x00\t\t\t\t\t\t\t'
+        assert lines[12] == '13\t0x40\t\t\t\t\t\t0x00000001\t'
+
+    def test_lisp_data_inner_packets(self, cmd_tshark, capture_file, test_env):
+        '''The inner packet is IPv4 or IPv6 (over IPv4 and IPv6 transport);
+        otherwise the dissector stops after the header (frame 16).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp-data', '-Tfields', '-eframe.number', '-eframe.protocols')
+        protos = dict(l.split('\t') for l in stdout.splitlines())
+        assert protos['1'] == 'eth:ethertype:ip:udp:lisp-data:ip:udp:data'
+        assert protos['4'] == 'eth:ethertype:ipv6:udp:lisp-data:ipv6:udp:data'
+        assert protos['5'] == 'eth:ethertype:ip:udp:lisp-data:ipv6:udp:data'
+        assert protos['16'] == 'eth:ethertype:ip:udp:lisp-data'
+        assert protos['17'] == 'eth:ethertype:ipv6:udp:lisp-data:ip:udp:data'
+        assert protos['10'] == 'eth:ethertype:ipv6:udp:lisp-data:ipv6:udp:data'
