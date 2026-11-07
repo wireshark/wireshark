@@ -190,7 +190,9 @@ static int dissect_nano_keepalive(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         if (!memcmp(&ip_addr, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0", 16)) {
             proto_item_append_text(ti, ": (none)");
         } else if (!memcmp(&ip_addr, "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0\xff\xff", 12)) {
-            ip_addr_to_str_buf((ws_in4_addr *)((uint8_t *)&ip_addr + 12), buf, sizeof(buf));
+            ws_in4_addr ip4_addr;
+            memcpy(&ip4_addr, (uint8_t *)&ip_addr + 12, sizeof(ip4_addr));
+            ip_addr_to_str_buf(&ip4_addr, buf, sizeof(buf));
             proto_item_append_text(ti, ": %s:%d", buf, port);
             peers++;
         } else {
@@ -544,7 +546,7 @@ static int dissect_nano_bulk_pull_blocks(tvbuff_t *tvb, proto_tree *nano_tree, i
 {
     proto_tree *vote_tree;
 
-    vote_tree = proto_tree_add_subtree(nano_tree, tvb, offset, 32+4+4, ett_nano_frontier_req, NULL, "Bulk Pull Blocks");
+    vote_tree = proto_tree_add_subtree(nano_tree, tvb, offset, 32+32+1+4, ett_nano_bulk_pull_blocks, NULL, "Bulk Pull Blocks");
 
     proto_tree_add_item(vote_tree, hf_nano_bulk_pull_blocks_min_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
@@ -552,7 +554,7 @@ static int dissect_nano_bulk_pull_blocks(tvbuff_t *tvb, proto_tree *nano_tree, i
     proto_tree_add_item(vote_tree, hf_nano_bulk_pull_blocks_max_hash, tvb, offset, 32, ENC_NA);
     offset += 32;
 
-    proto_tree_add_item(nano_tree, hf_nano_bulk_pull_blocks_mode, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(vote_tree, hf_nano_bulk_pull_blocks_mode, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     proto_tree_add_item(vote_tree, hf_nano_bulk_pull_blocks_max_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
