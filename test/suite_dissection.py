@@ -100888,3 +100888,68 @@ class TestDissectMsnMessenger:
             out = stdout.splitlines()
             start = out.index('MSN Messenger Service')
             assert [l.strip() for l in out[start + 1:start + 1 + len(lines)]] == lines
+
+
+class TestDissectMsNns:
+    '''MS-NNS (.NET NegotiateStream) from the synthetic capture
+    ms-nns_coverage.pcapng.gz. Frames 1-20 are Exported PDU frames naming
+    "ms-nns" (TCP 9389 is claimed by NMF, so MS-NNS is not reached by
+    port); frames 21-55 are the same conversation over TCP 9389, which
+    is NMF by default and MS-NNS when MC-NMF is selected with Decode As.
+    The authentication payloads are placeholder bytes.'''
+
+    DECODE_AS = ('-d', 'tcp.port==9389,mc-nmf')
+
+    def test_msnns_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes, by default and with MC-NMF.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-nns_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 55
+        assert protocols.count('MS-NNS') == 19
+        for opts in ((), ('-2',), self.DECODE_AS, ('-2',) + self.DECODE_AS):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('ms-nns_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msnns_handshake_and_data(self, cmd_tshark, capture_file, test_env):
+        '''The handshake records, the first Handshake Done ending the
+        handshake and the data records after it (Exported PDU).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-nns_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 19', '-Tfields', '-eframe.number',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        infos = dict(l.split('\t') for l in stdout.splitlines())
+        assert [infos[str(n)] for n in range(1, 11)] == [
+            'Handshake In Progress', 'Handshake In Progress',
+            'Handshake In Progress', 'Handshake Done', 'Handshake Done',
+            'Data', 'Data', 'Data', 'Data', 'Data']
+        assert [infos[str(n)] for n in range(11, 15)] == [
+            'Handshake In Progress', 'Handshake Error', 'Unknown Record',
+            'Handshake Error']
+        assert [infos[str(n)] for n in range(15, 20)] == [
+            'Handshake In Progress', 'Handshake Done', 'Data', 'Data', 'Data']
+
+    def test_msnns_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Over MC-NMF a data record and an authentication payload split
+        over two segments are reassembled when MS-NNS asks only for the
+        missing bytes (fixed by "MS-NNS: Request only the missing bytes
+        for authentication payloads"); otherwise it waits for the full
+        payload size again and never completes.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.DECODE_AS,
+                '-r', capture_file('ms-nns_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {34, 43}', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-e_ws.col.info', '-ems-nns.payload_size',
+                '-ems-nns.auth_payload_size',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '34\tMS-NNS\tData\t100\t',
+            '43\tMS-NNS\tHandshake In Progress\t\t50',
+        ]
