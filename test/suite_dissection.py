@@ -91922,3 +91922,95 @@ class TestDissectLoratap:
                 '-Tfields', '-eframe.number', '-eloratap.flags.crc',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['10\t0x02', '11\t0x04', '15\t0x01', '16\t0x00']
+
+
+class TestDissectLorawan:
+    def test_lorawan_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 21 frames are LoRaWAN (in LoRaTap, syncword 0x34) and none
+        is malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 21
+        assert protocols.count('LoRaWAN') == 21
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lorawan_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lorawan_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message type of every frame: join, data up and down, beacons,
+        RFU and proprietary.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Tfields', '-elorawan.msgtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['Join Request'] * 2 + ['Join Accept'] * 2
+            + ['Unconfirmed Data Up', 'Confirmed Data Up'] + ['Unconfirmed Data Up'] * 3
+            + ['Confirmed Data Up', 'Unconfirmed Data Up']
+            + ['Unconfirmed Data Down', 'Confirmed Data Down', 'Unconfirmed Data Down',
+               'Confirmed Data Down', 'Unconfirmed Data Down']
+            + ['Class-B Beacon'] * 2 + ['RFU', 'Proprietary', 'Unconfirmed Data Up'])
+
+    def test_lorawan_mac_commands(self, cmd_tshark, capture_file, test_env):
+        '''The MAC commands in the FOpts field: every uplink and downlink
+        command, ending at an unknown command. (The FPort 0 payload is
+        encrypted and stays undecoded without keys.)'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Y', 'lorawan.mac_commands',
+                '-Tfields', '-eframe.number',
+                '-elorawan.mac_command_uplink', '-elorawan.mac_command_downlink',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t2,3,4,5,6,7,8,9\t',
+            '6\t10,13,16,17,18,19,128\t',
+            '10\t3,255\t',
+            '12\t\t2,3,4,5',
+            '13\t\t6,7,8,9,16',
+            '14\t\t10,13,19',
+            '15\t\t17,18,144',
+        ]
+
+    def test_lorawan_beacon(self, cmd_tshark, capture_file, test_env):
+        '''Class-B beacons of 17 and 19 octets: both CRCs are good.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Y', 'lorawan.msgtype == "Class-B Beacon"',
+                '-Tfields', '-eframe.number', '-eframe.len',
+                '-elorawan.beacon.crc1.status', '-elorawan.beacon.crc2.status',
+                '-elorawan.beacon.rfu2', '-elorawan.beacon.gwspecific.infodesc',
+            ), encoding='utf-8', env=test_env)
+        # 15 octets of LoRaTap header are included in the frame length
+        assert stdout.splitlines() == ['17\t32\t1\t1\t\t0', '18\t34\t1\t1\t00\t1']
+
+    def test_lorawan_missing_keys(self, cmd_tshark, capture_file, test_env):
+        '''Without keys the MIC of a join or data frame is unverified and
+        a note says so.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Y', 'lorawan.missing_keys',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(1, 17)] + ['21']
+
+    def test_lorawan_invalid_key_tables(self, cmd_tshark, capture_file, test_env, conf_path):
+        '''Invalid (non-hexadecimal) entries in the root and session key
+        tables are skipped; they used to crash with a NULL key when a Join
+        Accept or a data frame of the device was dissected.'''
+        with open(os.path.join(conf_path, 'root_keys_lorawan'), 'w') as f:
+            f.write('"0001020304050607","zz"\n')
+        with open(os.path.join(conf_path, 'session_keys_lorawan'), 'w') as f:
+            f.write('"01020304","zz","zz"\n')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lorawan_coverage.pcap.gz'),
+                '-Y', 'lorawan.missing_keys',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, stderr=subprocess.DEVNULL)
+        assert stdout.split() == [str(n) for n in range(1, 17)] + ['21']
