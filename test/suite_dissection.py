@@ -89205,3 +89205,82 @@ class TestDissectLbmpdm:
         rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {32, 34, 35, 50}',
                                   'frame.number', 'lbmpdm.def_id')
         assert rows == [['32', ''], ['34', ''], ['35', ''], ['50', '']]
+
+
+class TestDissectLbmpdmTcp:
+    '''LBMPDM-TCP (PDM messages over TCP, ports 14371-14390 by default),
+    from the synthetic capture lbmpdmtcp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def tshark_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=(), passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('lbmpdmtcp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_lbmpdmtcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''16 frames are LBMPDM-TCP, without malformed packets or error
+        expert infos in one and two passes. The frames on port 5000 and
+        the IPv6 frame to port 14371 are not claimed by the heuristic.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert protocols.count('LBMPDM-TCP') == 16
+        assert protocols[50] == 'TCP'      # frame 51, port 5000
+        assert protocols[54] == 'TCP'      # frame 55, IPv6
+        for passes in ((), ('-2',)):
+            rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity == error',
+                                      'frame.number', passes=passes)
+            assert rows == []
+
+    def test_lbmpdmtcp_channels(self, cmd_tshark, capture_file, test_env):
+        '''Every connection gets its own channel, whichever end sends
+        first and also when both ends have the same address.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'lbmpdm_tcp.channel',
+                                  'frame.number', 'tcp.stream', 'lbmpdm_tcp.channel')
+        by_stream = {}
+        for number, stream, channel in rows:
+            by_stream.setdefault(stream, set()).add(channel.split(',')[0])
+        assert sorted(by_stream) == ['0', '1', '2', '3', '4']
+        assert all(len(c) == 1 for c in by_stream.values())
+        assert len({next(iter(c)) for c in by_stream.values()}) == 5
+
+    def test_lbmpdmtcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment; a PDU over two and over three
+        segments; a PDU followed by the start of the next one.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number >= 37 && frame.number <= 44',
+                                  'frame.number', 'lbmpdm.def_id', 'lbmpdm.field.value_string')
+        assert rows == [
+            ['37', '5,5', 'small,second'],
+            ['38', '', ''],
+            ['39', '5', 'split in two segments'],
+            ['40', '', ''],
+            ['41', '', ''],
+            ['42', '5', 'split in three'],
+            ['43', '5', 'split in three'],
+            ['44', '5', 'tail'],
+        ]
+
+    def test_lbmpdmtcp_decode_as_and_ports(self, cmd_tshark, capture_file, test_env):
+        '''Decode As and the port range preference make the heuristic and
+        the dissector take other ports.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number == 51',
+                                  '_ws.col.protocol', 'lbmpdm.field.value_string',
+                                  opts=('-d', 'tcp.port==5000,lbmpdm_tcp'))
+        assert rows == [['LBMPDM-TCP', 'small']]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {4, 51}',
+                                  'frame.number', '_ws.col.protocol',
+                                  opts=('-o', 'lbmpdm_tcp.port_low:5000', '-o', 'lbmpdm_tcp.port_high:5000'))
+        assert rows == [['4', 'TCP'], ['51', 'LBMPDM-TCP']]
+
+    def test_lbmpdmtcp_tag_table(self, cmd_tshark, capture_file, test_env):
+        '''With the tag table only tagged ports are claimed, and the tag is
+        shown.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env, 'frame.number in {4, 14, 51}',
+                                  'frame.number', '_ws.col.protocol', 'lbmpdm_tcp.tag',
+                                  opts=('-o', 'lbmpdm_tcp.use_lbmpdm_tcp_domain:TRUE',
+                                        '-o', 'uat:lbmpdm_tcp_domains:"tagA","14371","14375"',
+                                        '-o', 'uat:lbmpdm_tcp_domains:"tagB","14380","14385"'))
+        assert rows == [['4', 'LBMPDM-TCP', 'tagA'], ['14', 'LBMPDM-TCP', 'tagB'], ['51', 'TCP', '']]
