@@ -94111,3 +94111,59 @@ class TestDissectMacNr:
         drb = ('-o', 'uat:drb_bearerconfig:"LCID 5","1","AM, SN Len=12","AM, SN Len=12"')
         assert self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.dlsch.lcid == 5 && rlc-nr') == []
         assert len(self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.dlsch.lcid == 5 && rlc-nr', *drb)) > 0
+
+
+class TestDissectMacNrFramed:
+    '''mac-nr-framed: the Exported PDU entry point of MAC-NR, which reads
+    the context header in front of the MAC PDU. It shares the capture
+    mac_nr_coverage.pcapng.gz with TestDissectMacNr (frames 1-151 name
+    "mac-nr-framed"; frames 150 and 151 carry an unknown framing tag).'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('mac_nr_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_mac_nr_framed_frames(self, cmd_tshark, capture_file, test_env):
+        '''The 151 Exported PDU frames (interface 0) go through mac-nr-framed
+        to MAC-NR; the 4 UDP frames do not (the heuristic dissector is
+        disabled by default).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.interface_id == 0', '-Tfields', '-eframe.number')
+        frames = stdout.split()
+        assert len(frames) == 151
+        assert frames[0] == '1' and frames[-1] == '151'
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'mac-nr', '-Tfields', '-eframe.number')
+        assert len(stdout.split()) == 151
+
+    def test_mac_nr_framed_context(self, cmd_tshark, capture_file, test_env):
+        '''The context header becomes the MAC-NR context: frame 15 is a
+        DL-SCH PDU for C-RNTI 0x4601, UE 1, HARQ id 3.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number == 15', '-Tfields', '-emac-nr.direction',
+                          '-emac-nr.rnti-type', '-emac-nr.rnti', '-emac-nr.ueid', '-emac-nr.harqid')
+        assert stdout.strip().split('\t') == ['1', '3', '0x4601', '1', '3']
+
+    def test_mac_nr_framed_second_pass(self, cmd_tshark, capture_file, test_env):
+        '''The second pass finds the context stored by the first pass: the
+        full tree is identical with -2.'''
+        one = self.run(cmd_tshark, capture_file, test_env, '-V')
+        two = self.run(cmd_tshark, capture_file, test_env, '-2', '-V')
+        assert one == two
+        assert 'Unknown UDP framing tag' in one
+
+    def test_mac_nr_framed_unknown_tag(self, cmd_tshark, capture_file, test_env):
+        '''An unknown tag stops the dissection and frees the context struct
+        that was allocated for the frame. The struct was still stored and
+        used (in the second pass again) before "MAC-NR: Fix use after free
+        on an unknown framing tag".'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'frame.number in {150, 151}', '-Tfields', '-eframe.number',
+                              '-e_ws.expert.message', '-emac-nr.direction')
+            assert stdout.splitlines() == [
+                '150\tUnknown UDP framing tag, aborting dissection\t',
+                '151\tUnknown UDP framing tag, aborting dissection\t',
+            ]
