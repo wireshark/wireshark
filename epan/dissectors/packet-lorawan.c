@@ -464,9 +464,13 @@ root_keys_free_cb(void *r)
 	root_key_t *rec = (root_key_t*)r;
 
 	g_free(rec->deveui_string);
-	g_byte_array_free(rec->deveui, true);
+	if (rec->deveui) {
+		g_byte_array_free(rec->deveui, true);
+	}
 	g_free(rec->appkey_string);
-	g_byte_array_free(rec->appkey, true);
+	if (rec->appkey) {
+		g_byte_array_free(rec->appkey, true);
+	}
 }
 
 static bool
@@ -595,12 +599,26 @@ UAT_CSTRING_CB_DEF(session_keys, dev_addr_string, session_key_t)
 UAT_CSTRING_CB_DEF(session_keys, nwkskey_string, session_key_t)
 UAT_CSTRING_CB_DEF(session_keys, appskey_string, session_key_t)
 
+/* The UAT keeps records whose update callback failed, so the key
+ * arrays can be NULL or have the wrong length. */
+static bool
+root_key_ok(const root_key_t *k)
+{
+	return k->deveui && k->deveui->len == 8 && k->appkey && k->appkey->len == 16;
+}
+
+static bool
+session_key_ok(const session_key_t *k)
+{
+	return k->nwkskey && k->nwkskey->len == 16 && k->appskey && k->appskey->len == 16;
+}
+
 static session_key_t *
 get_session_key(uint32_t dev_addr)
 {
 	unsigned i;
 	for (i = 0; i < session_num_keys; i++) {
-		if (session_keys[i].dev_addr == dev_addr) {
+		if (session_key_ok(&session_keys[i]) && session_keys[i].dev_addr == dev_addr) {
 			return &session_keys[i];
 		}
 	}
@@ -612,7 +630,7 @@ get_root_key(const uint8_t *deveui)
 {
 	unsigned i;
 	for (i = 0; i < root_num_keys; i++) {
-		if (root_keys[i].deveui != NULL && memcmp(root_keys[i].deveui->data, deveui, 8) == 0) {
+		if (root_key_ok(&root_keys[i]) && memcmp(root_keys[i].deveui->data, deveui, 8) == 0) {
 			return &root_keys[i];
 		}
 	}
@@ -1016,6 +1034,9 @@ dissect_lorawan_join_accept(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	uint8_t *mic_buffer = (uint8_t *)wmem_alloc0(pinfo->pool, length - 4 + 1);
 	uint32_t mic_check;
 	for (unsigned key_idx = 0; key_idx < root_num_keys; key_idx++) {
+		if (!root_key_ok(&root_keys[key_idx])) {
+			continue;
+		}
 		if (aes128_lorawan_encrypt(root_keys[key_idx].appkey->data, tvb_get_ptr(tvb, current_offset, length), decrypted_buffer, length)) {
 			mic_buffer[0] = tvb_get_uint8(tvb, current_offset - 1); // unencrypted MHDR
 			memcpy(&mic_buffer[1], decrypted_buffer, length - 4); // decrypted Join-Accept
