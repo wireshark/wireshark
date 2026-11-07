@@ -97927,3 +97927,106 @@ class TestDissectMoqLiteCov:
             '2\tGroup datagram(id=1 group=2 ts=3 5 bytes)',
             '11\tGroup datagram(id=9 group=1 ts=1 1197 bytes)',
         ]
+
+
+class TestDissectMoqtCoverage:
+    '''MOQT draft 18 and 22 from the synthetic capture
+    moqt_coverage.pcapng.gz. Every frame is an Exported PDU named
+    moqt-18, moqt-22, moqt or one of their ".datagram" variants (QUIC
+    would need ciphertext). Frames 1-161 draft 18 (setup 1-5, control
+    6-74, subgroup and fetch streams 75-131, datagrams 132-161), frames
+    162-326 draft 22, 327 an empty payload, 328-331 the "moqt" names
+    for the latest draft.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('moqt_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_moqt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes as MOQT (one is an empty payload) without
+        malformed packets or error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 331
+        assert protocols.count('MOQT') == 330
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == []
+
+    def test_moqt_drafts(self, cmd_tshark, capture_file, test_env):
+        '''The draft comes from the Exported PDU name: moqt-18 and moqt-22
+        select their draft, moqt the latest one (22).'''
+        for draft, count in ((18, 161), (22, 169)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    f'moqt.draft == {draft}', 'frame.number')
+            assert len(rows) == count
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 328 && frame.number <= 330', 'moqt.draft')
+        assert rows == [['22']] * 3
+
+    def test_moqt_goaway_request_id(self, cmd_tshark, capture_file, test_env):
+        '''GOAWAY on the control stream carries a Request ID in draft 18
+        (frame 5) and not in draft 22 (frame 167).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 5',
+                '_ws.col.info', 'moqt.request_id', 'moqt.timeout')
+        assert rows == [['SETUP, GOAWAY', '7', '100']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 167',
+                '_ws.col.info', 'moqt.request_id', 'moqt.timeout')
+        assert rows == [['SETUP, GOAWAY', '', '100']]
+
+    def test_moqt_draft22_filters(self, cmd_tshark, capture_file, test_env):
+        '''The draft 22 LOCATION_FILTER types 0-5 (frames 176-181) and
+        the Range Filter deltas resolved to absolute values (frame 182).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 176 && frame.number <= 181 && moqt.location_filter.type',
+                'moqt.location_filter.type')
+        assert [int(r[0], 16) for r in rows] == [0, 1, 2, 3, 4, 5]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 182',
+                'moqt.range.start', 'moqt.range.end')
+        assert rows == [['3,6,5,4,9', '5,6,8']]
+
+    def test_moqt_redirect_and_end_of_range(self, cmd_tshark, capture_file, test_env):
+        '''REQUEST_ERROR REDIRECT carries a URI, namespace and track name;
+        the draft 22 FETCH End of Timed-Out Range marker (frame 293) is
+        known to draft 22 only.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'moqt.status_code == 0x34',
+                'frame.number', 'moqt.uri')
+        assert rows == [['41', 'moqt://other.example'], ['208', 'moqt://other.example']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'moqt.fetch.serialization_flags == 0x20c', 'frame.number')
+        assert rows == [['293']]
+
+    def test_moqt_padding_and_object_ids(self, cmd_tshark, capture_file, test_env):
+        '''Padding streams and datagrams, and Object IDs resolved from
+        the deltas of a subgroup (frame 75: deltas 0, 1, 0, 2 give
+        objects 0, 2, 3, 6).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'moqt.padding', 'frame.number')
+        assert rows == [['130'], ['159'], ['295'], ['324']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 75',
+                '_ws.col.info', 'moqt.object_id')
+        assert rows == [['Subgroup Header (Track Alias 7, Group 10), Object 0, Object 2, Object 3, Object 6',
+                         '0,2,3,6']]
+
+    def test_moqt_truncated_pdu(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''An object whose payload length (10) runs past the end of the
+        PDU cannot be completed by reassembly in an Exported PDU. It is
+        reported as truncated; it was dropped silently before "MoQT:
+        Report a truncated PDU when it cannot be reassembled".'''
+        pdu = bytes([0x10, 0x01, 0x05, 0x80, 0x00, 0x0a]) + b'abc'
+        text_path = result_file('moqt-truncated.txt')
+        capture_path = result_file('moqt-truncated.pcapng')
+        with open(text_path, 'w') as f:
+            f.write('00000000  ' + ' '.join('%02x' % b for b in pdu) + '\n')
+        subprocess.check_call((cmd_text2pcap, '-q', '-P', 'moqt-18', text_path, capture_path),
+                              env=base_env)
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_path,
+                '-Y', 'moqt.truncated', '-Tfields', '-eframe.number'),
+            encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1']
