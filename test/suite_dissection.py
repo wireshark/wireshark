@@ -94526,3 +94526,108 @@ class TestDissectMatter:
             '28\t1,2,3,57005\t-3\t',
             '30\t7\t\t',
         ]
+
+
+class TestDissectMausb:
+    '''Media Agnostic USB over 802.2 LLC/SNAP (Wi-Fi Alliance OUI, PID
+    0x1500) from the synthetic capture mausb_coverage.pcapng.gz.'''
+
+    def test_mausb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''124 frames: 101 management, control and ack packets shown as
+        MAUSB and 23 transfer packets passed to USB, without malformed
+        packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 124
+        assert sum(l.startswith('MAUSB\t') for l in lines) == 101
+        assert sum(l.startswith('USB\t') for l in lines) == 23
+        assert all(l.endswith(':llc:mausb') or l.endswith(':llc:mausb:usb') for l in lines)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mausb_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mausb_capabilities(self, cmd_tshark, capture_file, test_env):
+        '''CapResp: descriptor count, device type and the capability
+        descriptor types (including an unknown type 9).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Y', 'mausb.cap_resp.desc_count',
+                '-Tfields', '-eframe.number', '-emausb.cap_resp.desc_count',
+                '-emausb.cap_resp.dev_type', '-emausb.cap_resp.dev_cap.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t8\t0x00\t0,1,2,3,4,5,9,7',
+            '3\t0\t0x01\t',
+            '4\t1\t0x02\t0',
+            '5\t1\t0x03\t0',
+            '6\t1\t0x07\t0',
+        ]
+
+    def test_mausb_endpoint_handles(self, cmd_tshark, capture_file, test_env):
+        '''EPHandleReq with 8 and 16 octet endpoint descriptors (USB endpoint
+        descriptors are dissected), EPHandleResp with three handles and the
+        handle fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {9, 10, 11, 12}',
+                '-Tfields', '-eframe.number', '-emausb.ep_des_num', '-emausb.ep_des_size',
+                '-eusb.bEndpointAddress', '-emausb.ep_buf_size',
+                '-emausb.ep_handle', '-emausb.ep_handle.dev_addr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t2\t8\t0x81,0x82\t\t\t',
+            '10\t3\t16\t0x02,0x03,0x04\t\t\t',
+            '11\t1\t8\t0x81\t\t\t',
+            '12\t3\t\t\t4096,8192,16384\t0x1063,0x1064,0xffff\t3,3,127',
+        ]
+
+    def test_mausb_cancel_transfer(self, cmd_tshark, capture_file, test_env):
+        '''CancelTransferResp shows the status 0-5 (not the delivered
+        sequence number: the dissector ORs the status with 7 and never
+        reaches that branch).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Y', 'mausb.cancel_transfer.status',
+                '-Tfields', '-eframe.number', '-emausb.cancel_transfer.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [x for n in range(6) for x in (str(58 + n), '0x%06x' % n)]
+
+    def test_mausb_usb_transfers(self, cmd_tshark, capture_file, test_env):
+        '''Control transfers carry the USB setup packet and are matched
+        to the response (frames 100/101 and 103/104); the device
+        descriptor of the response is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {100, 101, 103, 104}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eusb.idVendor',
+                '-eusb.request_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '100\t[GET DESCRIPTOR Request DEVICE]\t\t',
+            '101\t[GET DESCRIPTOR Response DEVICE]\t0x1d6b\t100',
+            '103\t[SET ADDRESS Request]\t\t',
+            '104\t[SET ADDRESS Response]\t\t103',
+        ]
+
+    def test_mausb_isochronous(self, cmd_tshark, capture_file, test_env):
+        '''Isochronous packets: number of headers, I-flags, timestamp and
+        media time/transmission delay.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mausb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {113, 119, 120, 121}',
+                '-Tfields', '-eframe.number', '-emausb.numisohdr', '-emausb.iflag.mtd',
+                '-emausb.timestamp', '-emausb.mtd', '-emausb.numseg',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '113\t1\tFalse\t\t\t0',
+            '119\t2\tFalse\t11259375\t\t291',
+            '120\t3\tTrue\t16909060\t4095\t3',
+            '121\t3\tTrue\t\t16909060\t3',
+        ]
