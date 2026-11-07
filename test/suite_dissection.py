@@ -97455,3 +97455,102 @@ class TestDissectMndp:
             '6\t1,10\t',
             '7\t1,14,14\t2,1',
         ]
+
+
+class TestDissectMojito:
+    # Frames 24 and 25 have a payload length below the 38 byte header;
+    # the heuristic does not take them, so they need Decode As.
+    DECODE_AS = ('-d', 'udp.port==9777,mojito', '-d', 'udp.port==9778,mojito')
+
+    def test_mojito_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-23 are found by the UDP heuristic (enabled by default),
+        none is malformed or has an expert info, in one and two passes.
+        Frames 24-26 stay UDP (Decode As needed, or too short).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mojito_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols == ['Mojito'] * 23 + ['UDP'] * 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mojito_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mojito_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Info column, opcode, payload length and the counts of contacts,
+        DHT values, secondary KUIDs and status codes of frames 1-23.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mojito_coverage.pcap.gz'),
+                '-Y', 'mojito',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-emojito.opcode', '-emojito.payloadlength',
+                '-emojito.contactcount', '-emojito.dhtvaluecount',
+                '-emojito.kuidcount', '-emojito.statuscodecount',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tPING REQUEST\t1\t38\t\t\t\t',
+            '2\tPING REQUEST\t1\t40\t\t\t\t',
+            '3\tPING RESPONSE\t2\t47\t\t\t\t',
+            '4\tPING RESPONSE\t2\t60\t\t\t\t',
+            '5\tPING RESPONSE\t2\t49\t\t\t\t',
+            '6\tPING RESPONSE\t2\t50\t\t\t\t',
+            '7\tSTORE REQUEST\t3\t213\t\t2\t\t',
+            '8\tSTORE REQUEST\t3\t40\t\t0\t\t',
+            '9\tSTORE RESPONSE\t4\t129\t\t\t\t2',
+            '10\tSTORE RESPONSE\t4\t39\t\t\t\t0',
+            '11\tFIND NODE REQUEST\t5\t58\t\t\t\t',
+            '12\tFIND NODE RESPONSE\t6\t121\t2\t\t\t',
+            '13\tFIND NODE RESPONSE\t6\t40\t0\t\t\t',
+            '14\tFIND VALUE REQUEST\t7\t103\t\t\t2\t',
+            '15\tFIND VALUE REQUEST\t7\t63\t\t\t0\t',
+            '16\tFIND VALUE RESPONSE\t8\t231\t\t2\t2\t',
+            '17\tFIND VALUE RESPONSE\t8\t44\t\t0\t0\t',
+            '18\tSTATS REQUEST (DEPRECATED)\t9\t41\t\t\t\t',
+            '19\tSTATS RESPONSE (DEPRECATED)\t10\t38\t\t\t\t',
+            '20\tSTATS RESPONSE (DEPRECATED)\t10\t68\t\t\t\t',
+            '21\tUnknown\t77\t42\t\t\t\t',
+            '22\tUnknown\t77\t38\t\t\t\t',
+            '23\tPING REQUEST\t1\t38\t\t\t\t',
+        ]
+
+    def test_mojito_flags_and_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Header flags of frame 2 and the IPv6 socket addresses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mojito_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2,4,7}',
+                '-Tfields', '-eframe.number', '-emojito.flags',
+                '-emojito.shutdownflag', '-emojito.firewalledflag',
+                '-emojito.socketaddressipv6', '-emojito.opcode.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t0x03\tTrue\tTrue\t\t0000',
+            '4\t0x00\tFalse\tFalse\t2001:db8::1\t',
+            '7\t0x00\tFalse\tFalse\t2001:db8::1\t',
+        ]
+
+    def test_mojito_payload_length_below_header(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As, frames 24 and 25 (payload length 10 and 0) are
+        Mojito PING REQUESTs. The opcode data length was computed as the
+        payload length minus 38 in unsigned arithmetic and wrapped.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mojito_coverage.pcap.gz'),
+                *self.DECODE_AS,
+                '-Y', 'frame.number in {24,25}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info', '-e_ws.malformed', '-emojito.payloadlength',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '24\tMojito\tPING REQUEST\t\t10',
+            '25\tMojito\tPING REQUEST\t\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mojito_coverage.pcap.gz'),
+                *self.DECODE_AS,
+                '-Y', '_ws.malformed || _ws.expert',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
