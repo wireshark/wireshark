@@ -101769,3 +101769,91 @@ class TestDissectMysql:
                           'frame.number >= 74 && frame.number <= 76',
                           'mysql.load_data.filename', 'mysql.load_data.payload')
         assert rows == [['74', '/tmp/x.csv', ''], ['75', '', '312c610a322c620a'], ['76', '', '']]
+
+
+class TestDissectMysqlx:
+    '''MySQL X Protocol on TCP 33060 from the synthetic capture
+    mysqlx_coverage.pcap.gz: every client and server message type with a
+    small protobuf payload, several messages in one segment and messages
+    split over TCP segments. The payloads are decoded by the protobuf
+    dissector from the protobuf/mysqlx*.proto files.'''
+
+    CAP = 'mysqlx_coverage.pcap.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectMysqlx.CAP),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_mysqlx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-45 and 48-49, 51 are MySQLX messages; the segments of the
+        two reassembled messages are TCP. No malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip().split('(')[0] for p in stdout.splitlines()]
+        assert len(protocols) == 51
+        assert protocols.count('mysqlx/PB') == 48
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mysqlx_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The message type is read as a client or a server type by the
+        direction: type 3 is Connection.Close from the client (frame 44) and
+        Session.AuthenticateContinue from the server (frame 7), type 0 is
+        Ok from the server.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mysqlx',
+                          'mysqlx.message_type', 'tcp.dstport')
+        client = [int(t) for r in rows if r[2] == '33060' for t in r[1].split(',')]
+        server = [int(t) for r in rows if r[2] != '33060' for t in r[1].split(',')]
+        assert [r[0] for r in rows][:4] == ['1', '2', '3', '4']
+        assert sorted(set(client)) == [1, 2, 3, 4, 5, 6, 7, 12, 17, 18, 19, 20, 24, 25, 30, 31,
+                                       32, 40, 41, 42, 43, 44, 45, 46]
+        assert sorted(set(server)) == [0, 1, 2, 3, 4, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+
+    def test_mysqlx_info_and_values(self, cmd_tshark, capture_file, test_env):
+        '''The protobuf payload is decoded with the message name from the
+        message type.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number in {5, 6, 24, 34, 38, 42}', '_ws.col.info')
+        assert rows == [
+            ['5', ' (PROTOBUF) Mysqlx.Ok msg=bye'],
+            ['6', ' (PROTOBUF) Mysqlx.Session.AuthenticateStart mech_name=MYSQL41 auth_data initial_response'],
+            ['24', " (PROTOBUF) Mysqlx.Error severity=ERROR code=1146 msg=Table 'x.y' doesn't exist sql_state=42S02"],
+            ['34', ' (PROTOBUF) Mysqlx.Session.Reset keep_open=true'],
+            ['38', ' (PROTOBUF) Mysqlx.Cursor.Open cursor_id=2 stmt fetch_rows=10'],
+            ['42', ' (PROTOBUF) Mysqlx.Connection.Compression uncompressed_size=100 '
+                   'server_messages=RESULTSET_COLUMN_META_DATA payload'],
+        ]
+
+    def test_mysqlx_several_messages_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''Two Row messages (frame 19) and three result set end messages
+        (frame 22) in one segment each.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {19, 22}',
+                          'mysqlx.message_type', 'mysqlx.packet_length')
+        assert rows == [['19', '13,13', '12,4'], ['22', '16,18,15', '1,1,1']]
+
+    def test_mysqlx_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 3100 octet message is split over frames 46-48 (the same segment
+        ends it and carries a second message); a message whose 5 octet
+        header is split after 3 octets is reassembled in frame 51.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 46',
+                          'mysqlx.packet_length', 'mysqlx.message_type', '_ws.col.protocol')
+        assert rows[0][1:] == ['', '', 'TCP']
+        assert rows[1][1:] == ['', '', 'TCP']
+        assert rows[2][1:3] == ['3100,1', '12,7']
+        assert rows[3][1:3] == ['1', '0']
+        assert rows[4][1:] == ['', '', 'TCP']
+        assert rows[5][1:3] == ['15', '0']
