@@ -100060,3 +100060,70 @@ class TestDissectMqtt:
         out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
                           ['mqtt.msg_text'], '-o', 'mqtt.show_msg_as_text:TRUE')
         assert out == ['21.5']
+
+
+class TestDissectMqttsn:
+    '''MQTT-SN from the synthetic capture mqtt_sn_coverage.pcap.gz. MQTT-SN has
+    no default port, so the frames are Exported PDU frames that name the
+    "mqttsn" dissector. Frames 55 and 61 carry an 8 octet Wireless Node ID,
+    the reproducer of "MQTT-SN: Bound encapsulated message nesting, fix
+    the node ID type".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mqtt_sn_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mqttsn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 61 frames are MQTT-SN, without malformed packets or error
+        expert infos in one and two passes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mqttsn', ['frame.number'])
+        assert count_output('\n'.join(out)) == 61
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              ['frame.number'], *passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_mqttsn_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of the specification, the reserved types
+        and an unknown one.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 53',
+                          ['mqttsn.msg.type'])
+        types = [int(t, 16) for t in out]
+        assert sorted(set(types)) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                                      16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 0x7f]
+        assert types.count(0x0c) == 6
+
+    def test_mqttsn_topics(self, cmd_tshark, capture_file, test_env):
+        '''Topic names, short names and predefined topic ids.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {17, 20, 22, 23, 31, 32, 33}',
+                          ['frame.number', 'mqttsn.topic', 'mqttsn.topic.id', 'mqttsn.topic.id.type'])
+        assert out == [
+            '17\tsensors/temp\t0\t',
+            '20\t\t5\t0x00',
+            '22\t\t1\t0x01',
+            '23\tab\t\t0x02',
+            '31\tsensors/#\t\t0x00',
+            '32\t\t1\t0x01',
+            '33\tab\t\t0x02',
+        ]
+
+    def test_mqttsn_encapsulated(self, cmd_tshark, capture_file, test_env):
+        '''Encapsulated messages: an 8 octet Wireless Node ID (frames 55
+        and 61), three levels (58) and 15 levels (60), which are the most
+        before the nesting limit.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 54',
+                          ['frame.number', 'mqttsn.wireless.node.id', 'mqttsn.msg.type'])
+        assert out[0] == '54\t0102\t0xfe,0x16'
+        assert out[1] == '55\t0102030405060708\t0xfe,0x16'
+        assert out[4] == '58\t0a,0b,0c\t0xfe,0xfe,0xfe,0x16'
+        assert out[7] == '61\t0102030405060708\t0xfe,0x16'
+        frame, nodes, types = out[6].split('\t')
+        assert frame == '60'
+        assert nodes == ','.join('%02x' % i for i in range(14, -1, -1))
+        assert types == ','.join(['0xfe'] * 15 + ['0x16'])
