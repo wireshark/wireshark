@@ -3733,8 +3733,12 @@ static int dissect_tns_oci_describe_body(tvbuff_t *tvb, packet_info *pinfo, prot
 			val_to_str_const(col.type, tns_data_types, "unknown"));
 		proto_item_set_len(col_item, offset - col_start);
 	}
-	/* the trailer */
-	offset += 1 + 4;
+	/* The trailer: a byte that closes the column array, so a cursor
+	 * left unopened or closed, with no columns, has none; then the
+	 * describe time as a ub4 length and the value. */
+	if ( num_cols > 0 )
+		offset += 1;
+	offset += 4;
 	offset += 1 + tvb_get_uint8(tvb, offset);
 	offset += 4 * 4;
 	if ( fv_11_2 )
@@ -5075,8 +5079,13 @@ static int dissect_tns_oci_refcursor_out(tvbuff_t *tvb, packet_info *pinfo, prot
 	end = dissect_tns_oci_describe_body(tvb, pinfo, NULL, offset + 1, band_12c, fv_11_2);
 	cursor = tvb_get_letohl(tvb, end);
 	end += 4 + 2;
-	ci = proto_tree_add_bytes_format(tree, hf_tns_data_bind_value, tvb, offset, end - offset, NULL,
-		"Bind %u (REFCURSOR): cursor %u", idx, cursor);
+	/* a cursor the block left unopened, or closed, has no columns */
+	if ( tvb_get_letohl(tvb, offset + 1 + 4) == 0 )
+		ci = proto_tree_add_bytes_format(tree, hf_tns_data_bind_value, tvb, offset, end - offset, NULL,
+			"Bind %u (REFCURSOR): not open", idx);
+	else
+		ci = proto_tree_add_bytes_format(tree, hf_tns_data_bind_value, tvb, offset, end - offset, NULL,
+			"Bind %u (REFCURSOR): cursor %u", idx, cursor);
 	ct = proto_item_add_subtree(ci, ett_tns_value);
 	offset = dissect_tns_oci_describe_body(tvb, pinfo, ct, offset + 1, band_12c, fv_11_2);
 	proto_tree_add_item(ct, hf_tns_cursor, tvb, offset, 4, ENC_LITTLE_ENDIAN);

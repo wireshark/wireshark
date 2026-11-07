@@ -4508,7 +4508,8 @@ class TestDissectTns:
         direction and its OUT value: a REF CURSOR as the describe of its
         columns and the id the client fetches it by, a NUMBER as the
         value; the block binds a REF CURSOR by id, 0 for a new one. An
-        IN bind has no value in the reply.'''
+        IN bind has no value in the reply, and a cursor the block closed
+        has no columns.'''
         stdout = subprocess.check_output((cmd_tshark,
             '-r', capture_file('tns_oci_out_binds.pcap'),
             '-d', 'tcp.port==1521,tns',
@@ -4528,6 +4529,10 @@ class TestDissectTns:
             ['16', '', '', '0', ''],
             ['', '', '0', '', ''],
             ['32,32,16', '', '', '3105', ''],
+            ['', '', '0,0', '', ''],
+            ['48', 'N,S', '3', '0', ''],
+            ['', '', '0,0', '', ''],
+            ['48', '', '0', '0', ''],
         ], rows
 
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
