@@ -88944,3 +88944,133 @@ class TestDissectLbm:
         chans = {l.split('\t')[1] for l in stdout.splitlines() if l.split('\t')[0] in
                  {'7', '8', '9', '10', '11', '12', '13'}}
         assert len(chans) == 1
+
+
+class TestDissectLbmc:
+    '''LBMC (the 29West/Informatica Ultra Messaging message container) in
+    LBT-RM (UDP 14400), LBT-TCP (TCP 14380-14391) and Exported PDU, from the
+    synthetic capture lbmc_coverage.pcapng.gz. Frames 1-2 are topic
+    resolution (LBMR) that name the transports and topics, frames 3-167 are
+    LBT-RM messages (data, fragments, one control message per header type),
+    frames 168-218 are TCP (LBT-TCP transport, session id, UIM streams and
+    payloads that are not LBMC) and frames 219-221 are Exported PDUs
+    without address tags.'''
+
+    CAP = 'lbmc_coverage.pcapng.gz'
+    REASSEMBLE = ('-o', 'lbmc.reassemble_fragments:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args), encoding='utf-8',
+            env=test_env, timeout=120).splitlines()
+
+    def test_lbmc_clean(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed or has an error expert info, with one pass,
+        two passes and fragment reassembly. The protocol column counts are
+        fixed.'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',), self.REASSEMBLE, ('-2',) + self.REASSEMBLE):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'LBMR': 2, 'LBT-RM': 168, 'LBT-TCP': 22, 'TCP': 29}
+
+    def test_lbmc_topic_names(self, cmd_tshark, capture_file, test_env):
+        '''Topic resolution names the LBT-RM and LBT-TCP topics; the TCP
+        session id header (frame 179) selects the session id transport.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'lbmc.topic and frame.number in {3, 4, 172, 173, 174, 179, 180}',
+            '-Tfields', '-eframe.number', '-elbmc.topic', '-elbmc.tidx')
+        assert lines == ['3\ttopic.one\t1', '4\ttopic.one\t1',
+                         '172\ttopic.tcp\t5', '173\ttopic.tcp\t5', '174\ttopic.tcp\t5',
+                         '179\ttopic.tcpsid\t6', '180\ttopic.tcpsid\t6']
+
+    def test_lbmc_message_properties(self, cmd_tshark, capture_file, test_env):
+        '''Message properties of both byte orders. The values of the
+        floating point properties are not checked (locale dependent).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'frame.number in {6, 7}',
+            '-Tfields', '-eframe.number', '-elbmc.lbm_msg_properties.data.num_fields',
+            '-elbmc.lbm_msg_properties.hdr.key', '-elbmc.lbm_msg_properties.hdr.string_value',
+            '-elbmc.lbm_msg_properties.hdr.int_value')
+        assert lines == ['6\t8\tflag,b,s,i,l,f,d,name\tvalue\t70000',
+                         '7\t5\tflag,b,s,i,name\tvalue\t70000']
+
+    def test_lbmc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments are reassembled in the frame with the last piece: in
+        order, out of order with a duplicate, with message properties, as a
+        UMQ command response, and the message of the Exported PDU frames.
+        Frame 41 is the first part of a message that is completed in 42.
+        Without the preference the fragments are shown as they are.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            *self.REASSEMBLE, '-r', capture_file(self.CAP), '-Y', 'lbmc.reassembly',
+            '-Tfields', '-eframe.number', '-elbmc.reassembly.fragment')
+        assert lines == ['26\t24,25,26', '31\t29,28,31,27', '34\t32,33,34', '36\t35,36',
+                         '38\t37,38', '42\t41,42', '167\t167', '221\t220,221']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'lbmc.reassembly')
+        assert lines == []
+
+    def test_lbmc_reassembly_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The two fragments of frames 37 and 38 are not rejected on the
+        second pass (before "LBMC: Fix memory blow-ups, NULL address and
+        fragment handling" each one was an invalid fragment).'''
+        for opts in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                *opts, *self.REASSEMBLE, '-r', capture_file(self.CAP),
+                '-Y', 'lbmc.analysis.invalid_fragment or frame.number in {37, 38} and lbmc.reassembly',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert lines == ['38\t']
+
+    def test_lbmc_extopt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Extended options sent in more than one header: a configuration
+        option, a message selector and an unknown subtype.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'frame.number in {15, 16, 18, 19, 20}',
+            '-Tfields', '-eframe.number', '-elbmc.extopt.subtype',
+            '-elbmc.extopt.reassembled_data.length', '-elbmc.extopt.reassembled_data.msgsel')
+        assert lines == ['15\t256\t\t', '16\t257\t\t', '18\t256,256\t30\t',
+                         '19\t257,257\t7\tabcdef', '20\t1911,1911\t4\t']
+
+    def test_lbmc_umq_command_response_data(self, cmd_tshark, capture_file, test_env):
+        '''A data message with an SQD receiver header with receiver control
+        record index 0 carries a UMQ command response.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'frame.number in {11, 12, 13, 14}',
+            '-Tfields', '-eframe.number', '-elbmc.umq_cmd_resp.resp_type')
+        assert lines == ['11\t1', '12\t2', '13\t3', '14\t4']
+
+    def test_lbmc_exported_pdu_without_address(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDUs without address tags (frames 219-221) are
+        dissected; the stream and fragment keys used to read the missing
+        address and crash tshark.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            *self.REASSEMBLE, '-r', capture_file(self.CAP), '-Y', 'frame.number >= 219',
+            '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-elbmc.stream.stream_id',
+            '-elbmc.frag.offset')
+        assert lines == ['219\tLBT-RM\t7\t', '220\tLBT-RM\t\t0', '221\tLBT-RM\t\t8']
+
+    def test_lbmc_many_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frame 23 holds 600 four byte messages. Every one of them used to
+        allocate a 64 KiB structure from the packet pool.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-Y', 'frame.number == 23',
+            '-Tfields', '-elbmc.type')
+        assert len(lines) == 1 and lines[0].count('8') == 600
+
+    def test_lbmc_uim_streams(self, cmd_tshark, capture_file, test_env):
+        '''The UIM stream messages (frames 184-198) belong to instance and
+        domain streams, which the UIM flow lists.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+            '-r', capture_file(self.CAP), '-q', '-z', 'flow,lbm_uim,network')
+        text = '\n'.join(out)
+        assert '1111111111111111 <-> 2222222222222222 [16400]' in text
+        assert '1:10.1.1.1:5000 <-> 2:10.2.2.2:6000 [24592]' in text
+        assert '4:10.1.1.1:5000 <-> 4:10.2.2.2:5000 [32784]' in text
