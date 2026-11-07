@@ -102533,3 +102533,71 @@ class TestDissectNats:
                 '-Tfields', '-eframe.number', '-enats.subscription.max_msgs', '-enats.subscription.group',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines() == ['8\t\tworkers', '12\t10\t']
+
+
+class TestDissectNavitrol:
+    '''Navitrol (Navitec Systems) from the synthetic capture
+    navitrol_coverage.pcap.gz (117 frames, TCP port 5000). Navitrol has no
+    port of its own, so every run uses -d tcp.port==5000,navitrol.'''
+
+    DECODE_AS = ('-d', 'tcp.port==5000,navitrol')
+
+    def test_navitrol_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts; the only expert info is the warning for the
+        unknown message id in frame 21; no malformed packets in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('navitrol_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 117
+        assert {p: protocols.count(p) for p in set(protocols)} == {'navitrol': 59, 'TCP': 58}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file('navitrol_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file('navitrol_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == ['21']
+
+    def test_navitrol_long_pdu(self, cmd_tshark, capture_file, test_env):
+        '''A 67332 octet error description list (330 entries, reassembled
+        from 1400 octet segments) is one PDU and the next PDU is found right
+        after it. The length was truncated to 16 bits before "Navitrol: Do
+        not truncate the PDU length".'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('navitrol_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 116 && navitrol', '-Tfields', '-eframe.number',
+                '-enavitrol.message_length', '-enavitrol.error_count', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '116\t67332\t330\tError description list',
+            '117\t8\t\tRequest versions',
+        ]
+
+    def test_navitrol_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in one segment, version 1 and version 3 message
+        ids, decoded values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('navitrol_coverage.pcap.gz'),
+                '-Y', 'count(navitrol.message_id) == 3', '-Tfields', '-eframe.number',
+                '-enavitrol.message_id', '-enavitrol.protocol_version',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['58\t11,10,1011\t1,1,3']
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('navitrol_coverage.pcap.gz'),
+                '-Y', 'navitrol.software_version || navitrol.ip_address || navitrol.message_id.unknown',
+                '-Tfields', '-eframe.number', '-enavitrol.software_version',
+                '-enavitrol.comm_version', '-enavitrol.ip_address',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '14\t\t\t192.168.1.50', '15\t\t\t192.168.1.50', '16\t\t\t192.168.1.50',
+            '17\t\t\t192.168.1.50', '21\t\t\t', '49\t20301\t3\t', '60\t20400\t3\t',
+        ]
