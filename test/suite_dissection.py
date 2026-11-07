@@ -92078,3 +92078,88 @@ class TestDissectLpd:
             ('2', '0'), ('4', '1'), ('6', '2'), ('8', '3'), ('17', '2')]
         assert [l[0] for l in lines if l[1] == 'LPD continuation'] == [
             '15', '20', '22']
+
+
+class TestDissectLppa:
+    '''LPPa (LTE Positioning Protocol A) from the synthetic capture
+    lppa_coverage.pcapng.gz: frames 1-170 are Exported PDU frames that name
+    the lppa dissector (every elementary procedure and message, nine
+    variants with every optional component and IE, then one with the
+    mandatory parts only), frames 171-258 are S1AP LPPa transport
+    messages on SCTP port 36412 that carry the same PDUs.'''
+
+    LPPA_FIRST_FRAMES = {
+        1: 2, 31: 6, 61: 7, 91: 3, 101: 4, 111: 5, 121: 0, 131: 1,
+        141: 8, 151: 9, 161: 10,
+    }
+
+    def test_lppa_protocols(self, cmd_tshark, capture_file, test_env):
+        '''170 Exported PDU frames decode as LPPa and 88 S1AP frames as
+        S1AP/LPPa, without malformed packets or error expert infos, in one
+        and two passes. The only warnings are the private IEs, whose
+        local id has no dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols.count('LPPa') == 170
+        assert protocols.count('S1AP/LPPa') == 88
+        assert len(protocols) == 258
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lppa_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lppa_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == [str(n) for n in range(131, 141)] + ['188', '210', '232', '254']
+
+    def test_lppa_procedures(self, cmd_tshark, capture_file, test_env):
+        '''The procedure code of the first frame of each procedure and of
+        the first frame of each S1AP transport procedure.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {%s}' % ','.join(str(n) for n in self.LPPA_FIRST_FRAMES),
+                '-Tfields', '-eframe.number', '-elppa.procedureCode',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        got = {int(f[0]): int(f[1].split(',')[0])
+               for f in (line.split('\t') for line in stdout.splitlines())}
+        assert got == self.LPPA_FIRST_FRAMES
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Y', 's1ap', '-Tfields', '-es1ap.procedureCode',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        codes = stdout.split()
+        assert {c: codes.count(c) for c in set(codes)} == {'44': 22, '45': 22, '46': 22, '47': 22}
+
+    def test_lppa_ies(self, cmd_tshark, capture_file, test_env):
+        '''The IEs of the E-CID Measurement Initiation Request in frame 1
+        and the OTDOA Information Request in frame 31, the private IE of
+        frame 131 and the extension IEs of frames 13 and 173.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 31, 131}',
+                '-Tfields', '-eframe.number', '-elppa.id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t2,3,4,5,11,15,16,19,20',
+            '31\t9,10',
+            '131\t0',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Y', 'lppa.ext_id', '-Tfields', '-eframe.number', '-elppa.ext_id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [line.split('\t')[0] for line in stdout.splitlines()] == \
+            ['13', '16', '19', '173', '195', '217', '239']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lppa_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 131', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'id-privateMessage'
