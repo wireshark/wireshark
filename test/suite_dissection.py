@@ -88508,3 +88508,119 @@ class TestDissectLapbether:
                             fields=('frame.number', 'lapbether.length', 'x25.type'))
         assert lines[0].split('\t')[1] == '105'
         assert lines[-1].split('\t')[1] == '9'
+
+
+class TestDissectLapd:
+    '''LAPD (Q.921) from the synthetic capture lapd_coverage.pcapng.gz:
+    link types 203 and 177, GSMTAP E1T1 (UDP 4729), plain LAPD over UDP
+    9000 (preference only) and the HDLC bit stream with CRC carried in
+    Exported PDU "lapd-bitstream". Frames 187 and 188 are the 3 and 4
+    octet bit stream frames of "LAPD: Check the length of frames that
+    have a CRC".'''
+
+    CAP = 'lapd_coverage.pcapng.gz'
+    BAD = '(_ws.malformed || _ws.expert.severity >= 0x00800000)'
+
+    def test_lapd_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-186 and 189-190 decode without malformed packets or error expert
+        infos in one and two passes; 172 frames are LAPD at default
+        preferences, the 3 UDP frames are not.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '(frame.number <= 186 || frame.number >= 189) && ' + self.BAD,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'lapd && frame.number <= 172',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 172
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number >= 173 && frame.number <= 175 && lapd',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+        # frames 189-190 carry pcapng packet flags with an unknown direction
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number >= 189 && lapd && !lapd.direction',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['189', '190']
+
+    def test_lapd_direction_and_payload(self, cmd_tshark, capture_file, test_env):
+        '''The direction comes from the pcapng flags, the Linux LAPD
+        pseudo-header or GSMTAP; the SAPI selects Q.931, TEI management
+        and X.25.'''
+        def count(flt):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file(self.CAP), '-Y', flt,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            return count_output(stdout)
+        assert count('lapd.direction == 0') == 72
+        assert count('lapd.direction == 1') == 57
+        assert count('q931.message_type == 0x05') == 19
+        assert count('lapd.sapi == 63 && tei_management') == 2
+        assert count('lapd.sapi == 16 && x25') == 3
+        assert count('lapd.control.u_modifier_cmd == 0x1b') == 12
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 141',
+                '-Tfields', '-e_ws.col.def_src', '-e_ws.col.def_dst',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.rstrip('\n').split('\t') == ['Remote Network', 'Local User']
+
+    def test_lapd_preferences(self, cmd_tshark, capture_file, test_env):
+        '''LAPD over UDP 9000 and the GSM SAPI values need preferences.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-o', 'lapd.udp.port:9000',
+                '-Y', 'frame.number >= 173 && frame.number <= 175 && lapd',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-o', 'lapd.use_gsm_sapi_values:TRUE',
+                '-Y', 'gsm_abis_tfp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['137']
+
+    def test_lapd_bitstream(self, cmd_tshark, capture_file, test_env):
+        '''The bit stream frames (176-186): bit stuffing, two frames in one
+        packet, a frame split over two packets (180-183), a bad CRC (184)
+        and a frame longer than the 1024 octet buffer (185, bad CRC as the
+        surplus is dropped).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number >= 176 && frame.number <= 186 && lapd.checksum',
+                '-Tfields', '-eframe.number', '-elapd.checksum.status',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        status = {}
+        for line in stdout.splitlines():
+            num, st = line.split('\t')
+            status[int(num)] = st
+        assert status == {176: '1', 177: '1', 178: '1', 179: '1,1',
+                          182: '1', 183: '1', 184: '0', 185: '0', 186: '1'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 178', '-Tfields', '-eq931.message_type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '0x05'
+
+    def test_lapd_crc_frame_too_short(self, cmd_tshark, capture_file, test_env):
+        '''Frames 187 and 188 are bit stream frames of 3 and 4 octets. They
+        used to make the payload length of the subset tvbuff negative.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'frame.number >= 187 && frame.number <= 188',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '187\tFrame too short for the checksum',
+                '188\tFrame too short for the checksum']
