@@ -97554,3 +97554,69 @@ class TestDissectMojito:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectMoldudp64:
+    def test_moldudp64_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MoldUDP64 (Exported PDU, there is no default
+        port) and none is malformed or has an error expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp64_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('MoldUDP64') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('moldudp64_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || moldudp64.msglen.invalid || '
+                          'moldudp64.count.invalid || moldudp64.end_of_session_extra',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_moldudp64_info_and_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Info column, message count, first sequence number and the block
+        lengths and generated sequence numbers of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp64_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-emoldudp64.count', '-emoldudp64.sequence',
+                '-emoldudp64.msgseq', '-emoldudp64.msglen',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tMoldUDP64 Heartbeat\t0\t1\t\t',
+            '2\tMoldUDP64 Messages\t3\t1\t1,2,3\t5,0,40',
+            '3\tMoldUDP64 Request\t5\t4\t\t',
+            '4\tMoldUDP64 End Of Session\t65535\t9\t\t',
+            '5\tMoldUDP64 Messages\t1\t1000\t1000\t300',
+            '6\tMoldUDP64 Messages\t10\t10\t10,11,12,13,14,15,16,17,18,19\t1,2,3,4,5,6,7,8,9,10',
+            '7\tMoldUDP64 Messages\t1\t20\t20\t65535',
+            '8\tMoldUDP64 Messages\t1\t30\t\t',
+            '9\tMoldUDP64 Messages\t1\t40\t40\t2',
+            '10\tMoldUDP64 Messages\t1\t50\t50\t1',
+        ]
+
+    def test_moldudp64_length_wrap(self, cmd_tshark, capture_file, test_env):
+        '''Frame 7: a message length of 0xFFFF is one block of 65535
+        octets. The block length was a 16 bit value that wrapped to 1, so
+        the loop made a block per octet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp64_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-emoldudp64.msgblock',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len(stdout.strip().split(',')) == 1
+
+    def test_moldudp64_truncated_frame(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8 is captured one octet into the first message length
+        but reported longer. The block loop made no progress and never
+        ended; it now stops and the frame shows as a request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp64_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-e_ws.col.info', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'MoldUDP64 Messages\tNumber of Requested Messages'
