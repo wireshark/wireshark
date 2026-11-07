@@ -26,9 +26,9 @@
  * enriches it in place with the generated tokens:
  *
  *   SectionHeader / SectionHeaderHover   (from brand + QPalette::Mid)
- *   FieldBorder / Separator       (from QPalette::Mid + Base)
+ *   ControlBorder / Border*       (from QPalette::Mid + Base)
  *   Card* / OverlayCard*          (from palette.alternateBase pin or Base,
- *                                 Separator, Highlight, Link)
+ *                                 BorderSeparator, Highlight, Link)
  *   SyntaxKey                     (from QPalette::Mid + Base)
  *   HeaderBackground / HeaderText / HeaderTextMuted
  *                                 (from QPalette Highlight / HighlightedText / Window)
@@ -39,7 +39,7 @@
  *   Filter*                       (from accent + base)
  *   Code*                         (fixed light / dark code editor defaults)
  *   Syntax*                       (from palette.mid + accent)
- *   FieldBorder / Separator / MutedText  (from palette base/mid/text)
+ *   ControlBorder / Border* / MutedText  (from palette base/mid/text)
  *   TextOn*                       (black or white on accent / filter tints)
  *   Diff* / Notice*               (from base + accent)
  *   HighlightColorOrange / HighlightColorGreen  (aliases from accent)

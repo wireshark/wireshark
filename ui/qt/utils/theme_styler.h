@@ -83,7 +83,7 @@ public:
      *
      * At High contrast with the Fusion base style, push button, combo box
      * and line edit frames (PE_PanelButtonCommand, PE_FrameLineEdit) are
-     * painted again in the FieldBorder color.  Fusion's own outline is
+     * painted again in the ControlBorder color.  Fusion's own outline is
      * Window.darker(140), about 2:1, below the non-text contrast target.
      * Native styles (macOS, windows11, windowsvista) draw their frames
      * from their own colors and are left alone.

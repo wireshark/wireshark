@@ -283,7 +283,7 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
     // Fusion outlines buttons, combo boxes and line edits with
     // Window.darker(140), about 2:1 on a light window, which misses the
     // non-text contrast a High control boundary needs.  Paint the frame
-    // again in FieldBorder on Fusion's own geometry.  Fusion also draws
+    // again in ControlBorder on Fusion's own geometry.  Fusion also draws
     // raised or pressed tool buttons through PE_PanelButtonCommand, so a
     // hovered tool button gets the same frame.
     if ((element == PE_PanelButtonCommand || element == PE_FrameLineEdit)
@@ -297,7 +297,7 @@ void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         constexpr qreal fusionFrameRadius = 2.0;
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing, true);
-        painter->setPen(QPen(ThemeManager::instance()->color(ThemeManager::FieldBorder), 1));
+        painter->setPen(QPen(ThemeManager::instance()->color(ThemeManager::ControlBorder), 1));
         painter->setBrush(Qt::NoBrush);
         painter->drawRoundedRect(
                 QRectF(option->rect).adjusted(fusionFrameInset, fusionFrameInset,
@@ -435,7 +435,7 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
                 constexpr int separatorHeight = 1;
                 painter->fillRect(QRect(option->rect.left(), option->rect.bottom(),
                                         option->rect.width(), separatorHeight),
-                                  themeManager->color(ThemeManager::Separator));
+                                  themeManager->color(ThemeManager::BorderSeparator));
             }
             return;
         }

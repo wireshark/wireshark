@@ -634,7 +634,7 @@ void FilterExpressionEdit::paintEvent(QPaintEvent *event)
 
     QMargins margins = inlineMargins();
     const QColor field = tm->color(ThemeManager::PaletteBase);
-    const QColor tint_divider = tm->color(ThemeManager::FieldBorder);
+    const QColor tint_divider = tm->color(ThemeManager::BorderField);
 
     QPainter painter(this);
 

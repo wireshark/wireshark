@@ -380,7 +380,7 @@ In High:
 - Palette roles a theme cannot set (button, tooltip, placeholder text,
   shadow) come from theme tokens, never from the operating system's
   high-contrast colors.
-- Button, combo box and line edit frames use the `FieldBorder` color with
+- Button, combo box and line edit frames use the `ControlBorder` color with
   the Fusion style; the macOS and Windows 11 styles keep their native frames.
 
 Two cases are unreachable at the High ratios and the readable text wins: the

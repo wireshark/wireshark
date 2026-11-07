@@ -1291,7 +1291,8 @@ The file is made of sections:
 The four accent colors `accent.success`, `accent.warning`, `accent.error` and `accent.info` mark states, for example a valid or an invalid display filter.
 * `expert`, `packets`, `conversation`, `palette` and `filter` are optional.
 They set the expert information backgrounds, the packet list states (selected, marked, ignored), the “Follow Stream” client and server colors, the general window, list and selection colors, and the display filter highlighting.
-* `separator`, `graphs` and `fonts` are optional as well.
+* `border`, `graphs` and `fonts` are optional as well.
+`border.field` sets the frame color of text fields, such as the display filter bar, and `border.separator` the color of the dividers between sections.
 
 Every color has two values: one for the light and one for the dark appearance.
 The _Appearance mode_ preference (see <<ChCustPrefsThemeSection>>) decides which of the two is in use.

@@ -178,7 +178,10 @@ ThemeManager::ThemeManager(QObject *parent)
         { "filter", { false, { } } },
         // Code editor surface and syntax colors — every subkey optional;
         // an omitted one gets the editor's fixed light / dark default.
-        { "code", { false, { } } }
+        { "code", { false, { } } },
+        // Text field frames and dividers — every subkey optional;
+        // ThemeTokenHandler derives an omitted one from palette.mid.
+        { "border", { false, { } } }
     };
 
     // convenience mapping from string to QPalette::ColorRole

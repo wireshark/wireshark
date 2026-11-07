@@ -7,7 +7,7 @@
 
 Validates that every bundled `theme.jsonc` under `resources/themes/*/`
 loads cleanly against `resources/themes/theme.schema.json`, and that
-the derived semantic tokens (SectionHeader, FieldBorder, HeaderBackground, hover
+the derived semantic tokens (SectionHeader, ControlBorder, HeaderBackground, hover
 fills, filter validity tints, filter-busy fade) meet WCAG contrast targets
 for every shipped theme in both light and dark modes.
 
@@ -527,7 +527,7 @@ def derived_tokens(theme, mode, reference='generic'):
     '''Return the subset of derived tokens the contrast assertions need.
 
     Mirrors theme_token_handler.cpp's deriveAll() for the new tokens
-    (SectionHeader, FieldBorder, Separator, HeaderBackground, Filter*)
+    (SectionHeader, ControlBorder, Separator, HeaderBackground, Filter*)
     plus the inputs they depend on (HeaderText / HeaderTextMuted), and the
     expert, conversation and update bar tokens the High rules move.
     '''
@@ -582,7 +582,7 @@ def derived_tokens(theme, mode, reference='generic'):
     section_header_hover = readable_text(brand_primary, base)
     field_border   = ensure_contrast(mid, base, NON_TEXT_RATIO)
 
-    explicit_sep = (theme.get('separator') or {}).get(mode)
+    explicit_sep = _pick(theme, 'border', 'separator', mode)
     separator    = explicit_sep or ensure_contrast(
         mix(base, mid, 135 / 255.0), base, DIVIDER_RATIO)
 
@@ -806,8 +806,8 @@ class TestEnsureContrast:
     @pytest.mark.parametrize('color,bg,min_ratio', [
         ('#a8a8a8', '#ffffff', 4.5),   # SectionHeader on light base
         ('#646464', '#1e1e1e', 4.5),   # SectionHeader on dark base
-        ('#a8a8a8', '#ffffff', 3.0),   # FieldBorder on light base
-        ('#646464', '#1e1e1e', 3.0),   # FieldBorder on dark base
+        ('#a8a8a8', '#ffffff', 3.0),   # ControlBorder on light base
+        ('#646464', '#1e1e1e', 3.0),   # ControlBorder on dark base
         ('#5b9ee6', '#000000', 4.5),   # bright primary vs headerText
         ('#0e9aa7', '#000000', 3.0),   # Stratoshark teal vs headerTextMuted
         ('#204a87', '#000000', 4.5),   # already passes — short-circuit
@@ -1388,7 +1388,9 @@ class TestSchemaFlexibility:
                 'busyText':   {'light': '#888888', 'dark': '#aaaaaa'},
                 'history':    {'light': '#555753', 'dark': '#d3d7cf'},
             },
-            'separator': {'light': '#d6e3e6', 'dark': '#1f3338'},
+            'border': {
+                'separator': {'light': '#d6e3e6', 'dark': '#1f3338'},
+            },
         }
         jsonschema.Draft202012Validator(schema).validate(full)
 
@@ -1947,7 +1949,6 @@ class TestThemeWriterCoverage:
         doc = {
             'meta': {'name': 'Maximal', 'version': 1, 'author': 'A',
                      'description': 'D'},
-            'separator': pair,
             'graphs': [pair, pair],
             'fonts': {
                 'regular': {'family': 'Sans', 'size': 12},

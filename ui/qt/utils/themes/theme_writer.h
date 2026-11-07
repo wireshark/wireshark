@@ -40,8 +40,7 @@ public:
      * All settable color keys in the order they are written.  The rows come
      * from ThemeManager::settableKeys() (enum order); the descriptions come
      * from the writer's own table and are shown by the Theme Designer.
-     * Separator is not part of it because it is not inside a section.  Rows
-     * of one section are contiguous; the order of the sections' first rows is
+     * Rows of one section are contiguous; the order of the sections' first rows is
      * the order toJsonc() writes them in.
      */
     static const QList<KeyInfo> &keyTable();

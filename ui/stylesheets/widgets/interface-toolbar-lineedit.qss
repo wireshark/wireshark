@@ -3,7 +3,7 @@
  * toolbar with an inline "apply" button on the right.
  *
  * Rules:
- *   - The field gets the same 1px rounded FieldBorder frame as
+ *   - The field gets the same 1px rounded BorderField frame as
  *     FilterEdit, on every platform, so the frame follows the theme.
  *     (Qt's native macOS style draws no visible frame for embedded
  *     QLineEdits, and a plain padding rule alone would leave the frame
@@ -25,7 +25,7 @@
  * =================================================================== */
 
 InterfaceToolbarLineEdit {
-    border: 1px solid wstheme(FieldBorder);
+    border: 1px solid wstheme(BorderField);
     border-radius: 3px;
     padding: 1px;
 }

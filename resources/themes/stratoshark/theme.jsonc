@@ -136,7 +136,7 @@
 	//
 	// palette.mid maps to the design spec's --color-text-muted (not
 	// --color-border).  Structural roles that previously misused it —
-	// SectionHeader, FieldBorder, hairline borders — now go through
+	// SectionHeader, ControlBorder, hairline borders — now go through
 	// ensureContrast-derived theme tokens or the explicit separator
 	// override below.  The override is kept because palette.mid is
 	// still consumed directly by Qt and by a few QSS rules as a
@@ -163,7 +163,7 @@
 	},
 
 	// -----------------------------------------------------------------
-	// Separator (hairline / divider between cards & sections)
+	// Border: separator (hairline / divider between cards & sections)
 	//
 	// Pinned to palette.midlight — semantically the right role for
 	// hairlines in this theme.  Without this override the derived
@@ -172,9 +172,8 @@
 	// as muted text), producing borders at ~2:1 contrast — too
 	// pronounced for what should read as a quiet divider.
 	// -----------------------------------------------------------------
-	"separator": {
-		"light": "#d6e3e6",
-		"dark":  "#1f3338"
+	"border": {
+		"separator": { "light": "#d6e3e6", "dark": "#1f3338" }
 	},
 
 	// -----------------------------------------------------------------
