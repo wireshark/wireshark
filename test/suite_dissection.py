@@ -99296,3 +99296,101 @@ class TestDissectMpegPmt:
                 '_ws.expert', 'mpeg_sect.crc.status',
                 opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
         assert lines == ['5\t0']
+
+
+class TestDissectMpegSect:
+    '''MPEG SECT from the synthetic capture mpeg_sect_coverage.pcap.gz:
+    sections in MPEG-TS packets over UDP: table IDs without a dissector
+    of their own (the generic section code), sections without syntax
+    indicator, sections that span TS packets, several sections in one
+    TS packet, the longest section, a TDT and an EISS section.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mpeg_sect_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_sect_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Thirteen frames, each a section (frame 9 three, frame 12 two),
+        none malformed or with an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_sect_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        p = 'eth:ethertype:ip:udp:mp2t:'
+        assert stdout.splitlines() == (
+            [p + 'mpeg_sect'] * 6 + [p + 'mpeg_sect', p + 'mpeg_sect',
+             p + 'mpeg_sect:mpeg_sect:mpeg_sect', p + 'mpeg_sect',
+             p + 'mpeg_sect:dvb_tdt',
+             p + 'mpeg_sect:dvb_tdt:mpeg_sect:dvb_tdt',
+             p + 'mpeg_sect:eiss'])
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert', opts=passes)
+            assert lines == []
+
+    def test_mpeg_sect_header(self, cmd_tshark, capture_file, test_env):
+        '''Table ID, syntax indicator and section length of every frame,
+        and the Info column of a section without a dissector.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_sect.tid', 'mpeg_sect.tid', 'mpeg_sect.syntax_indicator',
+                'mpeg_sect.len', 'mpeg_sect.reserved')
+        assert lines == [
+            '1\t0x03\t1\t13\t0x0003', '2\t0x04\t1\t14\t0x0003',
+            '3\t0x05\t1\t15\t0x0003', '4\t0x71\t0\t8\t0x0003',
+            '5\t0x72\t0\t200\t0x0003', '6\t0xc1\t1\t16\t0x0003',
+            '7\t0x7a\t1\t14\t0x0003', '8\t0x06\t1\t780\t0x0003',
+            '9\t0x03;0x04;0x05\t1;0;1\t9;0;4\t0x0003;0x0000;0x0003',
+            '10\t0xc2\t1\t4095\t0x0003', '11\t0x70\t0\t5\t0x0003',
+            '12\t0x70;0x70\t0;0\t5;5\t0x0003;0x0003',
+            '13\t0xe0\t0\t18\t0x0000',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_sect_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 8}',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == [
+            'MPEG SECT', 'MPEG SECT']
+        assert 'Table ID 0x03' in stdout and 'Table ID 0x06' in stdout
+
+    def test_mpeg_sect_crc(self, cmd_tshark, capture_file, test_env):
+        '''The CRC is shown as unverified by default; with
+        mpeg_sect.verify_crc every section with a syntax indicator
+        verifies except the private table of frame 6, which has an
+        invalid CRC expert info. The TS-spanning section of frame 8, the
+        longest section and the EISS section verify.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_sect.crc.status', 'mpeg_sect.crc.status')
+        assert lines == ['1\t2', '2\t2', '3\t2', '6\t2', '7\t2', '8\t2',
+                         '9\t2;2', '10\t2', '13\t2']
+        opts = ('-o', 'mpeg_sect.verify_crc:TRUE')
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_sect.crc.status', 'mpeg_sect.crc.status', opts=opts)
+        assert lines == ['1\t1', '2\t1', '3\t1', '6\t0', '7\t1', '8\t1',
+                         '9\t1;1', '10\t1', '13\t1']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert', '_ws.expert.message', opts=opts)
+        assert len(lines) == 1 and lines[0].startswith('6\tInvalid CRC')
+
+    def test_mpeg_sect_tdt(self, cmd_tshark, capture_file, test_env):
+        '''The TDT uses the MJD helper: MJD 60000 12:34:56, MJD 40587
+        (the UNIX epoch) and MJD 65535 23:59:59.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'dvb_tdt',
+                'dvb_tdt.utc_time')
+        assert lines == [
+            '11\t2023-02-25T12:34:56.000000000Z',
+            '12\t1970-01-01T00:00:00.000000000Z;2038-04-22T23:59:59.000000000Z',
+        ]
+
+    def test_mpeg_sect_eiss(self, cmd_tshark, capture_file, test_env):
+        '''The EISS section reads the section header with its reserved
+        bits through packet_mpeg_sect_header_extra().'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'eiss',
+                'eiss.app_type', 'eiss.org_id', 'eiss.app_id')
+        assert lines == ['13\t0x0008\t0x00000001\t0x0002']
