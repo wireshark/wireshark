@@ -103248,3 +103248,127 @@ class TestDissectNcp2222:
         assert 'Filter: ncp.func' in stdout
         assert 'Resolve Name' in stdout and 'Split Partition' in stdout
         assert 'File Set Lock' in stdout
+
+
+class TestDissectNcp:
+    '''NetWare Core Protocol (NCP) packet types, burst mode, NCP over TCP
+    and IPX, and the service response time statistics, from the
+    synthetic capture ncp_coverage.pcap.gz. Frames 1-7 connection
+    management and LIP echo, 8-85 functions of every statistics group,
+    86-103 NDS, 104-105 another NDS subfunction, 106-149 SecretStore
+    and NMAS, 150-155 watchdog, broadcast and unknown types, 156-171
+    packet burst, 172-189 NCP over TCP and 190-193 NCP over IPX.'''
+
+    def test_ncp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, and no malformed packets or error expert infos
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 193
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'NCP': 127, 'NDS': 18, 'NMAS': 14, 'NSSS': 30, 'TCP': 4}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ncp_srt_sub_verb(self, cmd_tshark, capture_file, test_env):
+        '''The SecretStore and NMAS sub verb of a request is the row of the
+        statistics table. Sub verbs that are no known verb (10,
+        0x80000000, 0xfffffffe, 0x7ffffff0, 0x01000000) get no row; they
+        used to be used as the row index, which crashed tshark or
+        allocated gigabytes ("NCP: Do not use a packet value as an SRT
+        row index"). A tree is needed (-Y), the sub verb is read only
+        while building the tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'ncp', '-q', '-z', 'ncp,srt',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        tables = stdout.split('Filter: ')
+        sss = [t for t in tables if t.startswith('sss.subverb')][0]
+        rows = [l.split()[0] for l in sss.splitlines()[2:] if l.strip() and l.split()[0].isdigit()]
+        assert rows == [str(i) for i in range(10)]
+        assert 'Query Server' in sss and 'Get Service Information' in sss
+        nmas = [t for t in tables if t.startswith('nmas.subverb')][0]
+        rows = [l.split()[0] for l in nmas.splitlines()[2:] if l.strip() and l.split()[0].isdigit()]
+        assert rows == ['0', '2', '4', '6']
+
+    def test_ncp_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''Create/destroy connection, LIP echo, watchdog, broadcast, burst
+        mode with read and write commands and flags, and an unknown packet
+        type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,3,5,6,150,153,155,156,157,158,159,161,162}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'C Create Connection Service'
+        assert info['3'] == 'C LIP Echo Packet'
+        assert info['5'] == 'Large Internet Packet Echo'
+        assert info['6'] == 'C Destroy Connection Service'
+        assert info['150'] == 'Watchdog'
+        assert info['153'] == 'C Server Broadcast Message'
+        assert info['155'] == 'Unknown type (0x1234)'
+        assert info['156'] == 'Burst Read 8192 bytes starting at offset 4096 in file 0x0000abcd'
+        assert info['157'] == 'Burst Write 64 bytes starting at offset 0 in file 0x0000abcd'
+        assert info['158'] == 'Unknown (0x07000000) 16 bytes starting at offset 0 in file 0x0000abcd'
+        assert info['159'] == 'End of Burst'
+        assert info['161'] == 'End of Burst'
+        assert info['162'] == 'Burst mode transfer'
+
+    def test_ncp_functions(self, cmd_tshark, capture_file, test_env):
+        '''Requests of functions in each statistics group and their
+        replies, an NDS ping, NDS verbs and SecretStore sub verbs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8,9,30,86,88,108}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['8'] == ['NCP', 'C File Set Lock']
+        assert rows['9'] == ['NCP', 'R OK']
+        assert rows['30'] == ['NCP', 'C Login User: abcde']
+        assert rows['86'] == ['NDS', 'C Ping for NDS']
+        assert rows['88'] == ['NDS', 'C NDS Resolve Name']
+        assert rows['108'] == ['NSSS', 'C SecretStore - Fragment, Read App Secrets']
+
+    def test_ncp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''NCP over TCP: the signature, two requests in one segment, a
+        request split over two segments (second pass), the packet signature
+        variant, a burst and a watchdog.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 175 && frame.number <= 189 && ncp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-encp.ip.signature',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['175'][0] == 'C File Set Lock'
+        assert rows['177'][0] == 'C Login User: abcde'
+        assert rows['184'][0] == 'C File Set Lock'
+        assert rows['186'][0] == 'End of Burst'
+        assert rows['187'][0] == 'Watchdog'
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['183', '184']
+
+    def test_ncp_ipx(self, cmd_tshark, capture_file, test_env):
+        '''NCP reaches the dissector through IPX socket 0x451 and packet
+        type 0x11 as well.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_coverage.pcap.gz'),
+                '-Y', 'ipx && ncp', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['190', '191', '192', '193']
+        assert rows[0][1] == 'C File Set Lock'
+        assert rows[3][1].startswith('Burst Read 4096 bytes')
