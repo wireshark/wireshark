@@ -84403,3 +84403,61 @@ class TestDissectIsl:
         lines = stdout.splitlines()
         assert lines[12] == '13\t01020304'
         assert lines[0] == '1\t'
+
+
+class TestDissectIsmacryp:
+    def test_ismacryp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the SIP INVITE announcing the dynamic payload types,
+        2-5 are enc-mpeg4-generic (version 1.1), 6-7 enc-isoff-generic
+        (2.0) and 8-9 the generic ISMACRYP payload type (version from the
+        preference). None is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismacryp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            'SIP/SDP', 'ISMACryp_11', 'ISMACryp_11', 'ISMACryp_11', 'ISMACryp_11',
+            'ISMACryp_20', 'ISMACryp_20', 'ISMACryp_11', 'ISMACryp_11']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ismacryp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ismacryp_dts_flag_per_au(self, cmd_tshark, capture_file, test_env):
+        '''The DTS flag of every AU header is read from that header: the
+        AU headers add up to the AU headers length, so the dissector adds
+        no "Error - expected total AU headers size" text, and the DTS
+        deltas are shown (the flag of the second and later AU headers
+        was read from the wrong bit before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismacryp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eismacryp.au_headers.length',
+                '-eismacryp.dts_flag', '-eismacryp.dts_delta', '-eismacryp.rap_flag',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[1] == '2\t52\tFalse,False\t\tTrue,True'
+        assert lines[2] == '3\t106\tTrue,True,False\t2796202,1398101\tTrue,False,True'
+        assert lines[3] == '4\t64\tTrue\t4194303\tFalse'
+        assert lines[4] == '5\t158\tTrue,False,True,False,True,False\t1,1,3\tTrue,True,True,True,True,True'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismacryp_coverage.pcap.gz'),
+                '-V', '-Y', 'ismacryp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Error - expected total AU headers size' not in stdout
+        assert 'Error - zero bit AU header size' not in stdout
+
+    def test_ismacryp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the payload type, mode and the IV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismacryp_coverage.pcap.gz'),
+                '-Y', 'ismacryp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eismacryp.iv',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '2\t(PT=enc-mpeg4-generic), avc-video, IV=0x80 00 00 01\t80000001'
+        assert lines[4] == '6\t(PT=enc-isoff-generic), user mode, IV=0x80 00 00 01\t80000001'
+        assert lines[6] == '8\tManual version, avc-video, IV=0x80 00 00 01\t80000001'
