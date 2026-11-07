@@ -93619,3 +93619,85 @@ class TestDissectM3ap:
             ), encoding='utf-8', env=test_env)
         mncs = {len(m) for m in stdout.replace(',', ' ').split()}
         assert mncs == {2, 3}
+
+
+class TestDissectM3ua:
+    '''M3UA (RFC 4666 and drafts 5-7) over SCTP port 2905 / PPID 3 and TCP
+    port 2905, from the synthetic capture m3ua_coverage.pcap.gz. Frames
+    1-121 are RFC 4666 over SCTP, 122-129 M3UA over TCP, 130-167 draft 5,
+    168-207 draft 6 and 208-247 draft 7 (dissected with -o
+    m3ua.version:draft-N).'''
+
+    BAD = '(_ws.malformed || _ws.expert.severity >= error)'
+    RANGES = {'draft-5': (130, 167), 'draft-6': (168, 207), 'draft-7': (208, 247)}
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('m3ua_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env)
+        return stdout.split('\n')[:-1]
+
+    def test_m3ua_rfc4666_clean(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-129 (SCTP and TCP) have no malformed packets or error
+        expert infos at the default version, in one and two passes. Data
+        messages are handed to SCCP, SCCP management and ISUP.'''
+        for passes in ((), ('-2',)):
+            assert self._run(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 129 && ' + self.BAD, '-eframe.number',
+                    opts=passes) == []
+        protocols = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number <= 129', '-e_ws.col.protocol')
+        assert len(protocols) == 129
+        assert 'ISUP(ITU)' in protocols
+        assert 'SCCP (Int. ITU)' in protocols
+        assert protocols.count('SCCPMG (Int. ITU)') == 5
+        assert protocols.count('MTP3MG (Int. ITU)') == 2
+
+    def test_m3ua_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message names of every class and the error and registration
+        status values.'''
+        infos = [i.strip() for i in self._run(cmd_tshark, capture_file, test_env,
+                'frame.number <= 121', '-e_ws.col.info')]
+        for name, count in (('ERR', 22), ('NTFY', 10), ('DUPU', 21), ('SCON', 6),
+                            ('DUNA', 1), ('DAVA', 1), ('DAUD', 1), ('DRST', 1),
+                            ('ASPAC', 4), ('ASPIA', 1), ('REG_REQ', 4), ('REG_RSP', 17),
+                            ('DEREG_REQ', 1), ('DEREG_RSP', 8)):
+            assert infos.count(name) == count, name
+        status = self._run(cmd_tshark, capture_file, test_env,
+                'm3ua.registration_status', '-em3ua.registration_status')
+        assert status[:14] == [str(i) for i in range(14)]
+
+    def test_m3ua_protocol_data(self, cmd_tshark, capture_file, test_env):
+        '''Protocol Data parameters with service indicators 0, 1, 3, 5 and
+        11 (no dissector: data) in frames 34-41.'''
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number >= 34 && frame.number <= 41',
+                '-eframe.number', '-em3ua.protocol_data_si')
+        assert [l.split('\t')[1] for l in lines] == ['3', '3', '0', '1', '5', '3', '11', '3']
+
+    def test_m3ua_tcp(self, cmd_tshark, capture_file, test_env):
+        '''M3UA over TCP: two PDUs in one segment (frame 128) and a PDU
+        over three segments (frames 126-128).'''
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number >= 123 && frame.number <= 129', '-eframe.number',
+                '-e_ws.col.info')
+        assert lines[0].startswith('123\tASPUP')
+        assert lines[2].startswith('125\tSSA')
+        assert lines[-1].startswith('129\tERR')
+        assert 'ASPUP_ACK' in lines[-2]
+
+    def test_m3ua_drafts(self, cmd_tshark, capture_file, test_env):
+        '''The draft 5, 6 and 7 sections decode without errors with the
+        matching version preference and carry MTP3 or SCCP payloads.'''
+        for version, (first, last) in self.RANGES.items():
+            opts = ('-o', 'm3ua.version:' + version)
+            assert self._run(cmd_tshark, capture_file, test_env,
+                    'frame.number >= %d && frame.number <= %d && %s' % (first, last, self.BAD),
+                    '-eframe.number', opts=opts) == []
+            protocols = self._run(cmd_tshark, capture_file, test_env,
+                    'frame.number >= %d && frame.number <= %d' % (first, last),
+                    '-e_ws.col.protocol', opts=opts)
+            assert len(protocols) == last - first + 1
+            assert protocols.count('M3UA (ID 0%s)' % version[-1]) >= 36
