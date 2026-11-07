@@ -93157,3 +93157,101 @@ class TestDissectLwm:
             '19\t0x03\t\t0x0001\t0x0002\t0x00\t\t100\t255\tRoute Reply',
             '20\t0x03\t\t0x0005\t0x0006\t0x01\t\t100\t50\tRoute Reply',
         ]
+
+
+class TestDissectLwres:
+    '''Synthetic lightweight resolver capture generated with Python struct
+    (mklwres.py). lwres has no default port: the tests use Decode As of
+    UDP port 921. Responses that end in an address, in the "getnamebyaddr
+    parameters" subtree or in SRV/MX/NS records carry slack octets after
+    them, because the dissector adds those items with lengths that reach
+    past the data.'''
+
+    OPTS = ('-d', 'udp.port==921,lwres')
+
+    def test_lwres_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is lwres and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lwres_coverage.pcap.gz'),
+                '-Y', 'lwres', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 35
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('lwres_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lwres_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: request or response, opcode, serial and result.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lwres_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 3, 4, 6, 9, 13, 19, 20, 31, 32, 33, 34}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tREQUEST , opcode=Noop, serial=0x1234',
+            '2\tRESPONSE, opcode=Noop, serial=0x1234, result=Success',
+            '3\tREQUEST , opcode=getaddrbyname, serial=0x1234',
+            '4\tRESPONSE, opcode=getaddrbyname, serial=0x1234, result=Success',
+            '6\tREQUEST , opcode=getnamebyaddr, serial=0x1234',
+            '9\tREQUEST , opcode=getrdatabyname, serial=0x1234',
+            '13\tRESPONSE, opcode=getrdatabyname, serial=0x1234, result=Success',
+            '19\tRESPONSE, opcode=getaddrbyname, serial=0x2001, result=No memory',
+            '20\tRESPONSE, opcode=getaddrbyname, serial=0x2002, result=Timeout',
+            '31\tRESPONSE, opcode=getaddrbyname, serial=0x200d, result=Too large',
+            '32\tRESPONSE, opcode=getaddrbyname, serial=0x2063, result=unknown',
+            '33\tREQUEST , opcode=unknown, serial=0x1234',
+            '34\tRESPONSE, opcode=unknown, serial=0x1234, result=Success',
+        ]
+
+    def test_lwres_getaddrsbyname_response(self, cmd_tshark, capture_file, test_env):
+        '''Real name, two aliases and three addresses.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lwres_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-Tfields', '-elwres.adn.realname', '-elwres.adn.aliasname',
+                '-elwres.adn.addr.addr', '-elwres.adn.naliases', '-elwres.adn.naddrs',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'example.com\twww.example.com,ftp.example.com\t192.0.2.10,192.0.2.11,198.51.100.7\t2\t3'
+        ]
+
+    def test_lwres_getnamebyaddr(self, cmd_tshark, capture_file, test_env):
+        '''The request carries an address, the response a real name and
+        aliases.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lwres_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 7, 8}',
+                '-Tfields', '-eframe.number', '-elwres.adn.addr.family',
+                '-elwres.adn.addr.addr', '-elwres.adn.aliasname', '-elwres.adn.realname',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t2\t192.0.2.10\t\t',
+            '7\t\t\ta.example.com,b.example.com\texample.com',
+            '8\t\t\t\thost',
+        ]
+
+    def test_lwres_rdata_records(self, cmd_tshark, capture_file, test_env):
+        '''A, SRV, MX and NS records of a getrdatabyname response; the last
+        name of the SRV, MX and NS responses is compressed.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lwres_coverage.pcap.gz'),
+                '-Y', 'frame.number in {13, 14, 15, 16, 17, 18}',
+                '-Tfields', '-eframe.number', '-elwres.type', '-elwres.nrdatas',
+                '-elwres.ttl', '-elwres.realname', '-elwres.srv.priority',
+                '-elwres.srv.port', '-elwres.srv.dname', '-elwres.ns.dname',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t1\t2\t3600\texample.com\t\t\t\t',
+            '14\t33\t3\t3600\texample.com\t10,20,30\t5060,5061,389\t'
+            '_sip.example.com,backup.example.com,ptr.example.com\t',
+            '15\t15\t3\t3600\texample.com\t10,20,30\t\t'
+            'mail.example.com,mail2.example.com,ptr.example.com\t',
+            '16\t2\t3\t3600\texample.com\t\t\t\tns1.example.com,ns2.example.com,ptr.example.com',
+            '17\t16\t1\t3600\texample.com\t\t\t\t',
+            '18\t1\t0\t3600\texample.com\t\t\t\t',
+        ]
