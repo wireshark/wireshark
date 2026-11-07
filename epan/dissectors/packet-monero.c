@@ -163,7 +163,10 @@ get_monero_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb,
   length = MONERO_HEADER_LENGTH;
 
   /* add payload length */
-  length += (unsigned)tvb_get_letoh64(tvb, offset+8);
+  uint64_t body_length = tvb_get_letoh64(tvb, offset+8);
+  if (body_length > (uint64_t)(INT_MAX - (MONERO_HEADER_LENGTH)))
+    body_length = (uint64_t)(INT_MAX - (MONERO_HEADER_LENGTH));
+  length += (unsigned)body_length;
 
   return length;
 }
@@ -194,7 +197,7 @@ get_varint(tvbuff_t *tvb, const int offset, uint8_t *length, uint64_t *ret)
   }
 }
 
-static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, uint32_t type);
+static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, int offset, uint32_t type);
 
 // we check for recursion limits due to nested structs
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -239,7 +242,7 @@ static int dissect_encoded_dictionary(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
 // we check for recursion limits due to nested structs
 // NOLINTNEXTLINE(misc-no-recursion)
-static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *ti, int offset, uint32_t type)
+static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, int offset, uint32_t type)
 {
   uint8_t       length;
   uint64_t      size;
@@ -332,12 +335,16 @@ static int dissect_encoded_value(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
       proto_tree_add_int64(tree, hf_monero_payload_item_length, tvb, offset, length, string_length);
       offset += length;
 
+      if (string_length > tvb_reported_length_remaining(tvb, offset)) {
+        proto_tree_add_expert_format_remaining(tree, pinfo, &ei_monero_type_unknown, tvb, offset, "String length %" PRIu64 " exceeds remaining data", string_length);
+        return tvb_reported_length(tvb);
+      }
       proto_tree_add_item(tree, hf_monero_payload_item_value_string, tvb, offset, (int) string_length, ENC_NA);
       offset += (int)string_length;
       break;
 
     case MONERO_PAYLOAD_TYPE_BOOLEAN:
-      proto_tree_add_item(tree, hf_monero_payload_item_value_int64, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_monero_payload_item_value_boolean, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
       break;
 
