@@ -338,9 +338,9 @@ void ThemeTokenHandler::deriveAll(TokenMap &tokens, bool isDarkMode, const QPale
     // fills).  These are full-strength glyph tints, not the alpha bg tints
     // above, so they default to the matching accent verbatim (no mix-with-base).
     // assign()'s only-if-missing semantics let a theme pin explicit values via
-    // theme.filter.bookmark / .bookmarkcapture / .bookmarkmatch / .clear /
+    // theme.filter.bookmarkdisplay / .bookmarkcapture / .bookmarkmatch / .clear /
     // .apply while still guaranteeing every theme has the tokens defined.
-    assign(ThemeManager::FilterBookmark,        tokens.value(ThemeManager::AccentInfo), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info"));
+    assign(ThemeManager::FilterBookmarkDisplay, tokens.value(ThemeManager::AccentInfo), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.info"));
     assign(ThemeManager::FilterBookmarkCapture, tokens.value(ThemeManager::AccentSuccess), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.success"));
     assign(ThemeManager::FilterBookmarkMatch,   tokens.value(ThemeManager::AccentWarning), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.warning"));
     assign(ThemeManager::FilterClear,           tokens.value(ThemeManager::AccentError), QT_TRANSLATE_NOOP("ThemeTokenHandler", "accent.error"));
