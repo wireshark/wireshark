@@ -90921,3 +90921,69 @@ class TestDissectLlcCoverage:
             '182\twlan:llc:arp\t0x0806\t',
             '183\twlan:llc:ip:udp:data\t0x0800\t0xaa',
         ]
+
+
+class TestDissectLlcV1:
+    # E2SM-LLC v1 has no port: E2AP (SCTP 37464, PPID 70) hands the contents
+    # of a RAN function announced as ORAN-E2SM-LLC (OID 1.3.6.1.4.1.53148.1.1.2.5)
+    # to it. The capture has no TCP, UDP or other carrier but E2AP.
+    CAP = 'llc_v1_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectLlcV1.CAP), *args),
+                encoding='utf-8', env=test_env)
+
+    def test_llc_v1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''171 E2AP frames, no malformed packets and no warnings or errors in
+        one and two passes, and the same output both ways.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 171
+        assert all(p.startswith('E2AP') for p in protocols)
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            outputs.append(self.run(cmd_tshark, capture_file, test_env, *passes, '-V'))
+        assert outputs[0] == outputs[1]
+
+    def test_llc_v1_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Every E2SM-LLC PDU the dissector registers with E2AP is decoded:
+        RAN function definition, event trigger, action definition,
+        indication header and message, control header, message and outcome.'''
+        expected = {
+            'RANFunctionDefinition': 26,
+            'EventTrigger': 28,
+            'ActionDefinition': 28,
+            'IndicationHeader': 28,
+            'IndicationMessage': 28,
+            'ControlHeader': 28,
+            'ControlMessage': 28,
+            'ControlOutcome': 32,
+        }
+        for pdu, count in expected.items():
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'llc-v1.E2SM_LLC_%s_element' % pdu, '-Tfields', '-eframe.number')
+            assert count_output(stdout) == count, pdu
+
+    def test_llc_v1_ran_function_mapping(self, cmd_tshark, capture_file, test_env):
+        '''The LLC dissector is chosen from the short name in the E2setupRequest
+        and the OID: 26 RAN functions announce the LLC OID, and the
+        subscription and control PDUs of function 1 are shown as LLC v1.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'e2ap.ranFunctionOID', '-Tfields', '-ee2ap.ranFunctionOID')
+        assert set(stdout.split()) == {'1.3.6.1.4.1.53148.1.1.2.5'}
+        assert count_output(stdout) == 26
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3', '-V')
+        assert '[RANfunction setup frame: 1 (1 -> LLC)]' in stdout
+        assert '[Version (dissector): LLC v1]' in stdout
+
+    def test_llc_v1_srs_symbol_list(self, cmd_tshark, capture_file, test_env):
+        '''SrsSymbol lists are SEQUENCE (SIZE(1|2|4,...)): the generated
+        dissector reads them as a constrained 1..4 length.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'llc-v1.srsSymbol_List', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 7
