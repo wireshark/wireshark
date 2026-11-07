@@ -103170,3 +103170,81 @@ class TestDissectNbt:
         rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
             'frame.number in {80,102}', 'nbss.length', passes=('-2',))
         assert rows == [['80', '65636'], ['102', '131088']]
+
+
+class TestDissectNcp2222:
+    '''The NCP function and subfunction tables (packet-ncp2222.c is
+    generated at build time from tools/dissector_generators/generate-ncp2222.py
+    and packet-ncp2222.inc) from the synthetic capture
+    ncp2222_coverage.pcap.gz: NCP over UDP 524 with a request and a reply
+    for every function and subfunction of the generator, in three
+    variants of the field values (small, any value, all bits set), and
+    NDS requests and replies for every verb and several versions.'''
+
+    def test_ncp2222_protocols(self, cmd_tshark, capture_file, test_env):
+        '''5218 frames (3262 NCP, 1902 NDS, 6 NMAS, 48 NSSS); none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        protocols = stdout.split()
+        assert len(protocols) == 5218
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'NCP': 3262, 'NDS': 1902, 'NMAS': 6, 'NSSS': 48}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+
+    def test_ncp2222_functions(self, cmd_tshark, capture_file, test_env):
+        '''Request and reply info lines of the first and some later
+        definitions, and the number of different functions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,3,4,3301,3302,3303,3315}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'C File Set Lock'
+        assert info['2'] == 'R OK'
+        assert info['3'] == 'C File Release Lock'
+        assert info['3301'] == 'C Set Audit Password'
+        assert info['3303'] == 'C External Audit Append To File'
+        assert info['3315'] == 'C Get Number of NetMan Subjects'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Y', 'ncp.func', '-Tfields', '-encp.func',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert len(set(stdout.split())) == 83
+
+    def test_ncp2222_nds_verbs(self, cmd_tshark, capture_file, test_env):
+        '''Every NDS verb 1-111 is decoded, and the ping for NDS (verb
+        240 in the statistics) gets its tree name in the reply.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Y', 'ncp.ndsverb', '-Tfields', '-encp.ndsverb',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        verbs = set(int(v, 0) for v in stdout.split())
+        assert verbs == set(range(1, 112)) | {240}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Y', 'ncp.nds_tree_name', '-Tfields', '-eframe.number', '-encp.nds_tree_name',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['3322', 'TREE_NAME']
+
+    def test_ncp2222_srt(self, cmd_tshark, capture_file, test_env):
+        '''The statistics tables count the groups, the NDS verbs and the
+        functions (a tree is needed, so -Y).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp2222_coverage.pcap.gz'),
+                '-Y', 'ncp', '-q', '-z', 'ncp,srt',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert 'Filter: ncp.group' in stdout
+        assert 'Filter: ncp.ndsverb' in stdout
+        assert 'Filter: ncp.func' in stdout
+        assert 'Resolve Name' in stdout and 'Split Partition' in stdout
+        assert 'File Set Lock' in stdout
