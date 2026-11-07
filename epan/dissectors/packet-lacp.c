@@ -408,8 +408,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(lacp_tree, hf_lacp_vendor_hp_unknown, tvb, offset, 2, ENC_NA);
         } else {
             /* Not the HP specific extras.  Don't claim the remaining data.  It may actually be an ethernet trailer. */
-            set_actual_length(tvb, tvb_captured_length(tvb) - length_remaining);
-            proto_item_set_len(lacp_item, tvb_captured_length(tvb));
+            set_actual_length(tvb, offset);
+            proto_item_set_len(lacp_item, offset);
         }
     }
     return tvb_captured_length(tvb);
