@@ -9552,6 +9552,26 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, uns
     return gcrp;
 }
 
+/* Maps the TEID of the header and the destination to the frame, so that
+ * the next messages to that TEID get the session that the frame starts.
+ */
+static void
+map_header_teid(packet_info *pinfo, uint32_t teid, uint32_t convid, bool ignore_conv)
+{
+    wmem_list_t *fteid_list;
+    gtp_fteid_t *fteid;
+
+    if (teid == 0) {
+        return;
+    }
+    fteid_list = wmem_list_new(pinfo->pool);
+    fteid = wmem_new(pinfo->pool, gtp_fteid_t);
+    fteid->teid = teid;
+    copy_address_shallow(&fteid->addr, &pinfo->dst);
+    wmem_list_append(fteid_list, fteid);
+    fill_map_fteids(fteid_list, pinfo->num, convid, ignore_conv, pinfo->pool, NULL);
+}
+
 static void
 track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv2_hdr_t * gtpv2_hdr, session_args_t * args)
 {
@@ -9600,6 +9620,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
                         /* If MBEAREQ and not already in the list then we create a new session*/
                         add_gtp_session(pinfo->num, gtp_session_count);
+                        map_header_teid(pinfo, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, false);
 
                         if (args->imsi) {
                             imsi = wmem_strdup(wmem_file_scope(), args->imsi);
@@ -9636,6 +9657,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
                         /* If MBEAREQ and not already in the list then we create a new session*/
                         add_gtp_session(pinfo->num, gtp_session_count);
+                        map_header_teid(pinfo, (uint32_t)gtpv2_hdr->teid, 0, true);
 
                         if (args->imsi) {
                             imsi = wmem_strdup(wmem_file_scope(), args->imsi);

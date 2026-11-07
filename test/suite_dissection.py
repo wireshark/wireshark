@@ -69153,7 +69153,7 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('gtpv2_session.pcap'),
-                    '-Y', 'frame.number >= 17',
+                    '-Y', 'frame.number >= 17 && frame.number <= 18',
                     '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
@@ -69161,6 +69161,18 @@ class TestDissectGtpSession:
                 '2\t001010000000002',
                 '2\t001010000000002',
             ]
+
+    def test_gtp_session_modify_bearer_header_teid(self, cmd_tshark, capture_file, test_env):
+        '''The Modify Bearer Request that starts a session (frame 9) maps
+        its TEID, so the next one to that TEID (frame 19) gets the same
+        session instead of a new one.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number == 9 || frame.number == 19',
+                    '-Tfields', '-egtpv2.session',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['3', '3']
 
 
 # PFCP session tracking is off by default.

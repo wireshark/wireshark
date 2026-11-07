@@ -51,6 +51,10 @@
 #  17  SGW -> PGW  Modify Bearer Command to the PGW S5/S8 TEID: the session
 #                  of its TEID, and a new SGW S5/S8 F-TEID
 #  18  PGW -> SGW  Update Bearer Request to the TEID of that F-TEID
+#
+# UE C again:
+#  19  MME -> SGW  Modify Bearer Request to the S11 SGW TEID of frame 9: the
+#                  session of frame 9, not a new one
 
 import struct
 import sys
@@ -212,6 +216,10 @@ def main():
             f_teid_ie(IF_S5S8_SGW_GTPC, 0x5002, SGW_S5))),
         frame(PGW, SGW_S5, GTPV2_PORT, gtpv2(
             UPDATE_BEARER_REQUEST, 0x5002, 0x70)),
+        # UE C again
+        frame(MME, SGW_S11, GTPV2_PORT, gtpv2(
+            MODIFY_BEARER_REQUEST, 0x2003, 0x31,
+            bearer_context_ie(f_teid_ie(IF_S1U_ENB, 0x4013, ENB)))),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)
