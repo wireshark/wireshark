@@ -84142,3 +84142,122 @@ class TestDissectIsisHello:
             '24\t\t2\t0x0000004e\t\t\t\t\t',
             '25\t\t0\t0x0000004f\t0x00000050\t90\t0200.0000.0003\t\t',
         ]
+
+
+class TestDissectIsisLsp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_lsp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_isis_lsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are L1 or L2 LSPs (also over ethertype 0x22F4 and with
+        system ID lengths 1, 8 and 255), none malformed, in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert len(lines) == 54
+        assert all(l.startswith('ISIS LSP\t') for l in lines)
+        assert sum(1 for l in lines if l.split('\t')[1].startswith('L1 LSP')) == 34
+        assert sum(1 for l in lines if l.split('\t')[1].startswith('L2 LSP')) == 20
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_isis_lsp_expert(self, cmd_tshark, capture_file, test_env):
+        '''Only warnings and notes: reserved metric bit, unknown sub-TLVs and
+        sub-sub-TLVs, a SID/label of bad length, an unknown TLV, an unknown
+        authentication type and a CRYPTO_AUTH TLV too short for its Key ID.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        ssub = 'Unknown Sub-Sub-TLV: Type: 99, Length: 2'
+        assert lines == [
+            '13\tReserve bit not 0',
+            '18\t%s,%s' % (ssub, ssub),
+            '19\t' + ssub,
+            '22\tUnknown SubTlv: Type: 7, Length: 1,SID/Label SubTlv - Bad length: Type: 1, Length: 5,'
+            'Unknown Sub-TLV: Type: 7, Length: 1,Unknown SubTlv: Type: 200, Length: 1',
+            '23\tUnknown SubTlv: Type: 7, Length: 1,SID/Label SubTlv - Bad length: Type: 1, Length: 5,'
+            'Unknown Sub-TLV: Type: 7, Length: 1,Unknown SubTlv: Type: 200, Length: 1',
+            '29\tUnknown Application-Specific SRLG subTLV (99)',
+            '32\tUnknown SubTlv: Type: 100, Length: 1',
+            '33\tUnknown SubTlv: Type: 100, Length: 1',
+            '39\t%s,Unknown Sub-TLV: Type: 99, Length: 1' % ssub,
+            '40\t%s,Unknown Sub-TLV: Type: 99, Length: 1' % ssub,
+            '41\tUnknown Avaya IPVPN subTLV (99): Please report to Wireshark developers.',
+            '48\tDissector for IS-IS CLV (250) code not implemented, Contact Wireshark developers if you want this supported',
+            '51\tCRYPTO_AUTH (3), too short for Key ID (1 vs 2)',
+            '52\tUnknown authentication type',
+        ]
+
+    def test_isis_lsp_header(self, cmd_tshark, capture_file, test_env):
+        '''Checksum status: valid (Good = 1), none or a purged LSP (not
+        present = 3), and the LSP IDs for the different ID lengths.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1,3,4,5,7,8,9}', '-Tfields', '-eframe.number',
+                '-eisis.lsp.checksum.status', '-eisis.lsp.lsp_id')
+        assert lines == [
+            '1\t3\t0200.0000.0001.00-00',
+            '3\t1\t0200.0000.0001.00-00',
+            '4\t1\t0200.0000.0001.00-00',
+            '5\t3\t0200.0000.0001.00-00',
+            '7\t3\t010000',
+            '8\t3\t00000200.000000010000',
+            '9\t3\t0000',
+        ]
+
+    def test_isis_lsp_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the TLV decoding fixes: the third MAC of a MAC
+        reachability TLV, the SRLG TLV that is not 16 + 4n octets long, the
+        Flex-Algo exclude SRLG sub-TLV, prefix neighbors given in semi-octets
+        and an Avaya IPVPN TLV followed by more TLVs.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {42,43,44,45,47}', '-Tfields', '-eframe.number',
+                '-eisis.lsp.mac_reachability.mac', '-eisis.lsp.srlg.value',
+                '-eisis.lsp.flex_algorithm.srlg', '-eisis.lsp.area_address_str',
+                '-eisis.lsp.hostname')
+        assert lines == [
+            '42\t02:00:00:00:00:33\t\t\t\tr1',
+            '43\t\t\t\t\trouter-one-hostname',
+            '44\t\t\t7\t\t',
+            '45\t\t\t\t49000101,49000202\t',
+            '47\t\t\t\t\trouter-6,router-6b',
+        ]
+
+    def test_isis_lsp_sid_label_binding_offsets(self, cmd_tshark, capture_file, test_env):
+        '''Each sub-TLV of the SID/Label binding TLV is at its own offset
+        (all were at the first sub-TLV before the fix).'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_lsp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 46', '-Tjson', '-x', '--no-duplicate-keys',
+            ), encoding='utf-8', env=test_env)
+        layers = json.loads(stdout)[0]['_source']['layers']
+        text = json.dumps(layers)
+        assert 'isis.lsp.sl_binding.subtlv_raw' in text
+        found = []
+        def walk(obj):
+            if isinstance(obj, dict):
+                for k, v in obj.items():
+                    if k == 'isis.lsp.sl_binding.subtlv_raw':
+                        found.append(v if isinstance(v[0], list) else [v])
+                    else:
+                        walk(v)
+            elif isinstance(obj, list):
+                for v in obj:
+                    walk(v)
+        walk(layers)
+        offsets = sorted(set(item[1] for entry in found for item in entry))
+        assert len(offsets) == 2
+        assert offsets[1] - offsets[0] == 5
+
+    def test_isis_lsp_crypto_auth_short_key_id(self, cmd_tshark, capture_file, test_env):
+        '''A CRYPTO_AUTH TLV without room for the Key ID leaves the next TLV
+        (the hostname) intact.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 51', '-Tfields', '-eisis.clv.key_id',
+                '-eisis.lsp.hostname', '-e_ws.expert.message')
+        assert lines == ['\trouter-key\tCRYPTO_AUTH (3), too short for Key ID (1 vs 2)']
