@@ -68728,6 +68728,7 @@ class TestDissectPfcpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
                     '-r', capture_file('pfcp_session.pcap'),
+                    '-Y', 'frame.number <= 3',
                     '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
@@ -68745,7 +68746,35 @@ class TestDissectPfcpSession:
             rows = [[cols[0], cols[2], cols[3]]
                     for cols in (row.split() for row in stdout.splitlines())
                     if cols and cols[0].isdigit()]
-            assert rows == [['001010000000003', '1', '3']]
+            assert sorted(rows) == [['001010000000003', '1', '3'], ['001010000000005', '7', '7']]
+
+    def test_pfcp_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
+        '''With GTP session tracking as well, the GTP-U to the TEID of the
+        Created PDR (frame 4) and to the TEID of the Outer Header Creation
+        (frame 5) gets the IMSI of the PFCP session, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-Y', 'gtp',
+                    '-Tfields', '-egtp.teid', '-ee212.assoc.imsi',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '0x00003101\t001010000000003',
+                '0x00004101\t001010000000003',
+            ]
+
+    def test_pfcp_session_without_imsi(self, cmd_tshark, capture_file, test_env):
+        '''A Session Establishment Request without a User ID (frame 6) starts
+        a session without an IMSI. The next one (frame 7) starts another
+        session, so frame 6 does not get its IMSI.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-Y', 'frame.number >= 6',
+                    '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['2\t', '3\t001010000000005']
 
 
 class TestDissectH235:

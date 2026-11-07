@@ -35,6 +35,7 @@
 #include <wsutil/array.h>
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-gtp.h"
 #include "packet-ip.h"
 
 void proto_register_pfcp(void);
@@ -1666,6 +1667,7 @@ typedef struct pfcp_session_args {
     uint8_t last_cause;
     pfcp_rule_ids_t last_rule_ids;
     const char *imsi;
+    wmem_list_t *teid_list;     /* GTP-U TEIDs (GUINT_TO_POINTER) of the message */
 } pfcp_session_args_t;
 
 typedef struct _pfcp_hdr {
@@ -2626,9 +2628,9 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
 
                 if (args->imsi) {
                     imsi = wmem_strdup(wmem_file_scope(), args->imsi);
-                    wmem_map_insert(pfcp_session_imsi, GUINT_TO_POINTER(pfcp_session_count++), imsi);
+                    wmem_map_insert(pfcp_session_imsi, GUINT_TO_POINTER(pfcp_session_count), imsi);
                 }
-
+                pfcp_session_count++;
             }
             else if (pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE) {
                 /* We have to check if its seid == seid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
@@ -2660,8 +2662,25 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
         imsi = wmem_map_lookup(pfcp_session_imsi, GUINT_TO_POINTER(session));
         if (imsi) {
             add_assoc_imsi_item(tvb, pinfo, tree, imsi);
+
+            if (!PINFO_FD_VISITED(pinfo) && pfcp_is_cause_accepted(args->last_cause)) {
+                /* So that GTP-U with the TEIDs of the message gets the IMSI */
+                for (wmem_list_frame_t *elem = wmem_list_head(args->teid_list); elem; elem = wmem_list_frame_next(elem)) {
+                    gtp_add_teid_imsi(GPOINTER_TO_UINT(wmem_list_frame_data(elem)), imsi);
+                }
+            }
         }
     }
+}
+
+/* Keep a GTP-U TEID of the message for pfcp_track_session() */
+static void
+pfcp_add_teid(packet_info *pinfo, pfcp_session_args_t *args, uint32_t teid)
+{
+    if (!g_pfcp_session || !args || !args->teid_list || PINFO_FD_VISITED(pinfo) || teid == 0) {
+        return;
+    }
+    wmem_list_append(args->teid_list, GUINT_TO_POINTER(teid));
 }
 
 static void
@@ -2859,10 +2878,11 @@ dissect_pfcp_source_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
  * 8.2.3    F-TEID
  */
 static void
-dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args)
 {
     unsigned offset = 0;
     uint64_t fteid_flags_val;
+    uint32_t teid;
 
     static int * const pfcp_fteid_flags[] = {
         &hf_pfcp_fteid_flg_spare,
@@ -2898,8 +2918,9 @@ dissect_pfcp_f_teid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     } else {
 
         /* Octet 6 to 9    TEID */
-        proto_tree_add_item(tree, hf_pfcp_f_teid_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_f_teid_teid, tvb, offset, 4, ENC_BIG_ENDIAN, &teid);
         proto_item_append_text(item, "TEID: 0x%s", tvb_bytes_to_str(pinfo->pool, tvb, offset, 4));
+        pfcp_add_teid(pinfo, args, teid);
         offset += 4;
 
         if ((fteid_flags_val & 0x1) == 1) {
@@ -5223,10 +5244,11 @@ dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
  * 8.2.56   Outer Header Creation
  */
 static void
-dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, uint16_t length, uint8_t message_type _U_, pfcp_session_args_t *args)
 {
     unsigned offset = 0;
     uint64_t value;
+    uint32_t teid;
 
     static int * const outer_hdr_desc[] = {
         &hf_pfcp_outer_hdr_desc_o5_b7_stag,
@@ -5254,7 +5276,8 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
      * Otherwise it shall not be present
      */
     if ((value & 0x0100) || (value & 0x0200)) {
-        proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_outer_hdr_creation_teid, tvb, offset, 4, ENC_BIG_ENDIAN, &teid);
+        pfcp_add_teid(pinfo, args, teid);
         offset += 4;
     }
 
@@ -12493,6 +12516,7 @@ dissect_pfcp_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         /* We create the auxiliary lists */
         args->seid_list = wmem_list_new(pinfo->pool);
         args->ip_list = wmem_list_new(pinfo->pool);
+        args->teid_list = wmem_list_new(pinfo->pool);
     }
 
     /* Do we have a conversation for this connection? */
