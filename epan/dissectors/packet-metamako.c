@@ -168,6 +168,13 @@ validate_metamako_timestamp(nstime_t* metamako_time, packet_info* pinfo)
   return 1;
 }
 
+typedef struct {
+  unsigned len;
+  unsigned bytes;
+  unsigned tag;
+  unsigned pos;
+} tlv_info_t;
+
 static int
 dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
@@ -332,32 +339,37 @@ dissect_metamako(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
   if (metamako_tlv_bytes > 0) {
     parent = proto_tree_add_item(metamako_tree, hf_metamako_trailerext, tvb, captured_trailer_bytes - 12 - metamako_tlv_bytes, metamako_tlv_bytes, ENC_NA);
     extensions_tree = proto_item_add_subtree(parent, ett_metamako_extensions);
-    while (metamako_tlv_count > 0) {
-      metamako_tlv_pos = captured_trailer_bytes - 16;
-      i = metamako_tlv_count;
-      do {
-        /* Read TLV word and decode. */
-        metamako_tlv_firstword = tvb_get_ntohl(tvb, metamako_tlv_pos);
-        metamako_tlv_len = (metamako_tlv_firstword >> 6) & 0x3;
-        metamako_tlv_bytes = (metamako_tlv_len * 4) + 3;
-        metamako_tlv_tag = (metamako_tlv_firstword & 0x1F);
+    /* Walk the TLVs once from the end of the trailer, recording each one,
+     * then decode them from the innermost one outwards (O(N)). */
+    unsigned k = 0;
+    tlv_info_t *tlvs = wmem_alloc_array(pinfo->pool, tlv_info_t, metamako_tlv_count);
+    metamako_tlv_pos = captured_trailer_bytes - 16;
+    while (k < metamako_tlv_count) {
+      /* Read TLV word and decode. */
+      metamako_tlv_firstword = tvb_get_ntohl(tvb, metamako_tlv_pos);
+      metamako_tlv_len = (metamako_tlv_firstword >> 6) & 0x3;
+      metamako_tlv_bytes = (metamako_tlv_len * 4) + 3;
+      metamako_tlv_tag = (metamako_tlv_firstword & 0x1F);
 
-        /* If this is a Secondary Tag Header, decode the tag extensions. */
-        if ((metamako_tlv_firstword & 0x1F) == 0x1F) {
-          metamako_tlv_len = ((metamako_tlv_firstword >> 6) & 0x3FF) + 1;
-          metamako_tlv_bytes = (metamako_tlv_len * 4);
-          metamako_tlv_tag += ((metamako_tlv_firstword >> 16) & 0xFFFF);
-        }
-
-        /* Decrement TLV count. */
-        i--;
-
-        /* Skip over the data if this is not our destination. */
-        if (i != 0)
-          metamako_tlv_pos -= (metamako_tlv_len + 1) * 4;
-      } while (i > 0);
-
+      /* If this is a Secondary Tag Header, decode the tag extensions. */
+      if ((metamako_tlv_firstword & 0x1F) == 0x1F) {
+        metamako_tlv_len = ((metamako_tlv_firstword >> 6) & 0x3FF) + 1;
+        metamako_tlv_bytes = (metamako_tlv_len * 4);
+        metamako_tlv_tag += ((metamako_tlv_firstword >> 16) & 0xFFFF);
+      }
+      tlvs[k].len = metamako_tlv_len;
+      tlvs[k].bytes = metamako_tlv_bytes;
+      tlvs[k].tag = metamako_tlv_tag;
+      tlvs[k].pos = metamako_tlv_pos - (metamako_tlv_len + 1) * 4;
+      k++;
       metamako_tlv_pos -= (metamako_tlv_len + 1) * 4;
+    }
+    while (metamako_tlv_count > 0) {
+      k = metamako_tlv_count - 1;
+      metamako_tlv_len = tlvs[k].len;
+      metamako_tlv_bytes = tlvs[k].bytes;
+      metamako_tlv_tag = tlvs[k].tag;
+      metamako_tlv_pos = tlvs[k].pos;
       /* We've skipped to the i-th TLV, decode it. */
       switch (metamako_tlv_tag) {
       case 0x00:
