@@ -205,7 +205,7 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  *      int                 - length of data processed, or 0 if not LWM.
  *---------------------------------------------------------------
  */
-static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     unsigned    lwm_header_len;
 
@@ -402,7 +402,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         /*An exception will occur if there are not enough bytes for the MIC */
         proto_tree_add_item_ret_uint(lwm_tree, hf_lwm_mic, new_tvb, start, LWM_MIC_LEN, ENC_LITTLE_ENDIAN, &lwm_mic);
 
-        if(lwmes_key_valid)
+        if(lwmes_key_valid && data)
         {
             ieee802154_packet *ieee_packet = NULL;
             int payload_length = 0;
@@ -452,6 +452,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                     expert_add_info(pinfo, lwm_tree, &ei_lwm_decryption_failed);
                     tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
                     call_data_dissector(new_tvb, pinfo, lwm_tree);
+                    break;
                 }
 
                 text_dec = &text[payload_offset];
@@ -481,10 +482,9 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
             if(vmic == lwm_mic)
             {
-                decrypted_tvb = tvb_new_real_data(text,length, length);
+                decrypted_tvb = tvb_new_child_real_data(tvb, text, length, length);
+                add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload");
                 call_data_dissector(decrypted_tvb, pinfo, lwm_tree);
-                /* XXX - needed?
-                   add_new_data_source(pinfo, decrypted_tvb, "Decrypted LWmesh Payload"); */
                 col_append_str(pinfo->cinfo, COL_INFO, ",  MIC SUCCESS");
 
             }
