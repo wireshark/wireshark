@@ -164,6 +164,7 @@ static int hf_mle_tlv_link_forward_series_flags;
 
 static int ett_mle;
 static int ett_mle_tlv;
+static int ett_mle_sub_tlv;
 static int ett_mle_neighbor;
 static int ett_mle_router;
 static int ett_mle_addr_reg;
@@ -611,18 +612,26 @@ dissect_mle_decrypt(tvbuff_t * tvb,
         unsigned char           dec_mic[16];
         unsigned                l_m = captured_len;
         unsigned                l_a;
-        uint8_t                 d_a[256];
+        uint8_t                *d_a;
 
-        DISSECTOR_ASSERT(pinfo->src.len == 16);
-        DISSECTOR_ASSERT(pinfo->dst.len == 16);
-        memcpy(d_a, pinfo->src.data, pinfo->src.len);
-        memcpy(d_a+16, pinfo->dst.data, pinfo->dst.len);
+        /* The authenticated addresses are the IPv6 source and destination. */
+        if (pinfo->src.type != AT_IPv6 || pinfo->dst.type != AT_IPv6 ||
+            pinfo->src.len != 16 || pinfo->dst.len != 16) {
+            *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
+            *decrypt_info->rx_mic_length = M;
+            return ptext_tvb;
+        }
+        d_a = (uint8_t *)wmem_alloc(pinfo->pool, 32 + (size_t)decrypt_info->aux_length + l_m);
+        memcpy(d_a, pinfo->src.data, 16);
+        memcpy(d_a+16, pinfo->dst.data, 16);
 
         tvb_memcpy(tvb, d_a+32, decrypt_info->aux_offset, decrypt_info->aux_length);
         l_a = 32 + decrypt_info->aux_length;
 
         /* Adjust the lengths of the plantext and additional data if unencrypted. */
         if (!IEEE802154_IS_ENCRYPTED(packet->security_level)) {
+            /* The payload is part of the additional authenticated data. */
+            tvb_memcpy(tvb, d_a + l_a, offset, l_m);
             l_a += l_m;
             l_m = 0;
         }
@@ -770,7 +779,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* MIC */
         if (rx_mic_len) {
-            mic_item = proto_tree_add_bytes(header_tree, hf_mle_mic, tvb, 0, rx_mic_len, rx_mic);
+            mic_item = proto_tree_add_bytes(mle_tree, hf_mle_mic, tvb, 0, rx_mic_len, rx_mic);
             proto_item_set_generated(mic_item);
         }
     } else {
@@ -979,7 +988,10 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
                     if ((tlv_len - 1) % (size + 3)) {
                         expert_add_info(pinfo, proto_root, &ei_mle_len_size_mismatch);
-                        proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+                        if (tlv_len > 1) {
+                            proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len - 1, ENC_NA);
+                            offset += tlv_len - 1;
+                        }
                         numNeighbors = 0;
                     } else {
                         numNeighbors = (tlv_len - 1) / (size + 3);
@@ -1043,12 +1055,16 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         offset++;
                         break;
                     case NETWORK_PARAM_ID_BCN_PAYLOAD:
-                        proto_tree_add_item(tlv_tree, hf_mle_tlv_network_bcn_payload, payload_tvb, offset, tlv_len-5, ENC_NA);
-                        offset += tlv_len-5;
+                        if (tlv_len > 5) {
+                            proto_tree_add_item(tlv_tree, hf_mle_tlv_network_bcn_payload, payload_tvb, offset, tlv_len-5, ENC_NA);
+                            offset += tlv_len-5;
+                        }
                         break;
                     default:
-                        proto_tree_add_item(tlv_tree, hf_mle_tlv_network_unknown, payload_tvb, offset, tlv_len-5, ENC_NA);
-                        offset += tlv_len-5;
+                        if (tlv_len > 5) {
+                            proto_tree_add_item(tlv_tree, hf_mle_tlv_network_unknown, payload_tvb, offset, tlv_len-5, ENC_NA);
+                            offset += tlv_len-5;
+                        }
                         break;
                     }
                 }
@@ -1460,6 +1476,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                   /* TLV Length must be 2 */
                   expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
                   proto_tree_add_item(tlv_tree, hf_mle_tlv_unknown, payload_tvb, offset, tlv_len, ENC_NA);
+                  offset += tlv_len;
               } else {
                   proto_tree_add_item(tlv_tree, hf_mle_tlv_csl_clock_accuracy, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                   offset++;
@@ -1475,10 +1492,11 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                 proto_item *sub_item;
                 proto_tree *sub_tree;
                 uint8_t metrics_tlv;
-                while (tvb_offset_exists(payload_tvb, offset)) {
+                unsigned tlv_end = offset + tlv_len;
+                while (offset < tlv_end && tvb_offset_exists(payload_tvb, offset)) {
                     uint8_t sub_tlv = tvb_get_uint8(payload_tvb, offset);
 
-                    sub_tree = proto_tree_add_subtree(tlv_tree, payload_tvb, offset, -1, 1, &sub_item, "Sub TLV");
+                    sub_tree = proto_tree_add_subtree(tlv_tree, payload_tvb, offset, -1, ett_mle_sub_tlv, &sub_item, "Sub TLV");
                     sub_item = proto_tree_add_item(sub_tree, hf_mle_tlv_link_sub_tlv, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     /* Length */
@@ -1554,8 +1572,12 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             case MLE_TLV_LINK_PROBE:
             {
                 proto_item_append_text(ti, ")");
-                proto_tree_add_item(tlv_tree, hf_mle_tlv_link_status, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset++;
+                if (tlv_len < 1) {
+                    expert_add_info(pinfo, proto_root, &ei_mle_tlv_length_failed);
+                } else {
+                    proto_tree_add_item(tlv_tree, hf_mle_tlv_link_status, payload_tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += tlv_len;
+                }
             }
             break;
             case MLE_TLV_SUPERVISION_INTERVAL:
@@ -2472,6 +2494,7 @@ proto_register_mle(void)
     &ett_mle_aux_sec_control,
     &ett_mle_aux_sec_key_id,
     &ett_mle_tlv,
+    &ett_mle_sub_tlv,
     &ett_mle_neighbor,
     &ett_mle_router,
     &ett_mle_addr_reg,
