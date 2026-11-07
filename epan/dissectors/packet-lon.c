@@ -328,7 +328,8 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			length = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_BIG_ENDIAN);
+			if (length > 0)
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			break;
 		case 5: /* REM/MSG */
@@ -336,7 +337,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			if (length > 0)
-				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 			break;
@@ -370,7 +371,8 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			length = tvb_get_uint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_BIG_ENDIAN);
+			if (length > 0)
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			break;
 		case 5: /* REM/MSG */
@@ -378,7 +380,7 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			if (length > 0)
-				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 			break;
@@ -622,7 +624,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_mlist,
 			{"M_List", "lon.spdu.mlist",
-			FT_UINT8, BASE_HEX, NULL, 0,
+			FT_BYTES, BASE_NONE, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_authpdu,
