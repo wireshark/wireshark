@@ -47,7 +47,17 @@ set(CPACK_PACKAGE_HOMEPAGE_URL "https://www.wireshark.org/")
 set(CPACK_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/resources/icons/wireshark.ico")
 set(CPACK_PACKAGE_CONTACT "Wireshark-Dev Mailing List <wireshark-dev@wireshark.org>")
 
-set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION})
+# Use the native architecture names, which on Linux match uname -m.
+# Match the case of the OS name to the package name.
+if(WIN32)
+    set(_cpack_system ${CMAKE_SYSTEM_NAME})
+    set(_cpack_arch ${WIRESHARK_TARGET_PLATFORM})
+else()
+    string(TOLOWER "${CMAKE_SYSTEM_NAME}" _cpack_system)
+    string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" _cpack_arch)
+endif()
+
+set(CPACK_PACKAGE_FILE_NAME ${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${_cpack_system}-${_cpack_arch})
 set(CPACK_PACKAGE_CHECKSUM "SHA256")
 
 if(WIN32)
