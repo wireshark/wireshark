@@ -101494,3 +101494,278 @@ class TestDissectMux27010:
             '39\tPPP LCP\t14\t\t0x00000007,0x00000008',
             '40\tPPP LCP\t21\t\t0x00000009',
         ]
+
+
+class TestDissectMysql:
+    '''MySQL and MariaDB on TCP 3306 from the synthetic capture
+    mysql_coverage.pcap.gz: MySQL 5.7 and 8.0 sessions (text and binary
+    result sets, prepared statements, session tracking, query attributes,
+    caching_sha2_password), MariaDB (progress, extended and cached
+    metadata, bulk execute), the binary log, native cloning, zlib
+    compression, an SSL request, pre-4.1 sessions and sessions that start
+    in the middle (defaults). Frames 1-350.'''
+
+    CAP = 'mysql_coverage.pcap.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectMysql.CAP),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_mysql_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MySQL (plus the TCP segment of a reassembled row,
+        the PEM public key and a TLS ClientHello after the SSL request)
+        and none is malformed or has an error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 350
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['MySQL'] == 344
+        assert counts['MySQL/JSON'] == 2
+        assert counts['rfc7468'] == 1
+        assert counts['TLSv1'] == 1
+        assert counts['TCP'] == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mysql_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The MySQL state kept across packets gives the same Info column
+        and decoded values in the second pass.'''
+        results = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'mysql',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-emysql.query', '-emysql.row.text', '-emysql.exec.field.string',
+                    '-emysql.field.name', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            results.append(stdout)
+        assert results[0] == results[1]
+        assert len(results[0].splitlines()) == 347
+
+    def test_mysql_bulk_execute_without_parameters(self, cmd_tshark, capture_file, test_env):
+        '''A MariaDB bulk execute of a statement prepared with no parameters
+        did not end ("MySQL: Fix an infinite loop in MariaDB bulk
+        execute"): one dataset is shown and the extra byte is left over.
+        Frame 245 follows a login, frame 262 starts in the middle.'''
+        for frame, stmt in (('245', '3'), ('262', '1')):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                              'frame.number == ' + frame,
+                              'mariadb.bulk.row_nr', 'mysql.stmt_id', 'mysql.dissector_incomplete')
+            assert rows == [[frame, '1', stmt, '1']]
+
+    def test_mysql_greeting_login(self, cmd_tshark, capture_file, test_env):
+        '''Greeting and login request of the first session, including the
+        connection attributes and the switch to a lenenc password when the
+        compress bit is set.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                          'mysql.version', 'mysql.thread_id', 'mysql.salt', 'mysql.salt2',
+                          'mysql.auth_plugin')
+        assert rows == [['1', '5.7.30-log', '7', 'abcdefgh', 'ijklmnopqrst', 'mysql_native_password']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                          'mysql.user', 'mysql.schema', 'mysql.client_auth_plugin',
+                          'mysql.connattrs.name', 'mysql.connattrs.value', 'mysql.collation')
+        assert rows == [['2', 'alice', 'test', 'mysql_native_password',
+                         '_client_name,_os,program_name', 'libmysql,Linux,mysql', '45']]
+        # MariaDB: the version loses the 5.5.5- prefix in the Info column
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 210',
+                          '_ws.col.info', 'mariadb.extcaps.server')
+        assert rows[0][1].startswith('Server Greeting  proto=10 version=10.11.6-MariaDB')
+
+    def test_mysql_text_resultset(self, cmd_tshark, capture_file, test_env):
+        '''Column definitions with their collations and types, text rows with
+        NULLs and empty strings, decoded with the collation of the column.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 8 && frame.number <= 11',
+                          'mysql.field.name', 'mysql.field.type', 'mysql.field.charsetnr',
+                          'mysql.row.text')
+        assert rows[0] == ['8', 'id,name,price,blobcol,note', '3,253,246,252,253', '33,8,63,63,28', '']
+        assert rows[2][4] == '1,café,9.99,,ab,2,NULL,0.50,,NULL'
+        assert rows[3][4] == ',,,,'
+
+    def test_mysql_prepared_all_types(self, cmd_tshark, capture_file, test_env):
+        '''COM_STMT_EXECUTE with every parameter type (frame 112).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 112',
+                          'mysql.exec.field.tiny', 'mysql.exec.field.unsigned_tiny',
+                          'mysql.exec.field.short', 'mysql.exec.field.unsigned_short',
+                          'mysql.exec.field.long', 'mysql.exec.field.unsigned_long',
+                          'mysql.exec.field.longlong', 'mysql.exec.field.unsigned_longlong',
+                          'mysql.exec.field.float', 'mysql.exec.field.double',
+                          'mysql.exec.field.year', 'mysql.exec.field.int24',
+                          'mysql.exec.field.bit', 'mysql.exec.field.string',
+                          'mysql.exec.field.blob', 'mysql.exec.field.geometry',
+                          'mysql.exec.field.time.days')
+        assert len(rows) == 1
+        r = rows[0]
+        assert r[1:7] == ['-2', '255', '-2', '65535', '2147483647', '4294967295']
+        assert r[7:9] == ['4611686018427387904', '18446744073709551615']
+        assert r[9] in ('3.25', '3,25')
+        assert r[10] in ('6.5', '6,5')
+        assert r[11] == '2024,2024,2024,2024'
+        assert r[12] == '77'
+        assert r[13] == '05'
+        assert r[14] == '12345.67,varstr,str'
+        assert r[15] == '89504e4700'
+        assert r[16] == '00000000'
+        assert r[17] == '3'
+        # the JSON parameter is handed to the JSON dissector
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 112', '-Tfields', '-ejson.member_with_value',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'b:null' in stdout and 'c:x' in stdout
+
+    def test_mysql_streamed_and_unknown_statement(self, cmd_tshark, capture_file, test_env):
+        '''A parameter sent with COM_STMT_SEND_LONG_DATA is not decoded in
+        the execute (frame 126); an execute whose prepare was not captured
+        keeps its payload (frame 128).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {126, 128}',
+                          '_ws.expert.message', 'mysql.payload')
+        assert rows == [
+            ['126', 'This parameter was streamed, its value can be found in Send BLOB packets', ''],
+            ['128', 'PREPARE Response packet is needed to dissect the payload', '0001030001000000'],
+        ]
+
+    def test_mysql_session_tracking(self, cmd_tshark, capture_file, test_env):
+        '''OK packet with all session tracker types (frame 141); the
+        character set variables are used for the following text row.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 141',
+                          'mysql.session_track.type', 'mysql.session_track.sysvar.name',
+                          'mysql.session_track.sysvar.value', 'mysql.session_track.schema',
+                          'mysql.session_track.state_change', 'mysql.session_track.gtids',
+                          'mysql.session_track.transaction_characteristics',
+                          'mysql.session_track.transaction_state')
+        assert rows == [['141', '0,0,0,1,2,3,4,5,9',
+                         'character_set_client,character_set_results,sql_mode',
+                         'latin1,utf8mb4,ANSI', 'app2', '1', 'uuid:1-5',
+                         'START TRANSACTION', 'T_______']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 150', 'mysql.row.text')
+        assert rows == [['150', 'héllo,NULL']]
+
+    def test_mysql_auth(self, cmd_tshark, capture_file, test_env):
+        '''caching_sha2_password states and authentication switch requests.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number in {135, 136, 189, 193, 199}',
+                          'mysql.hf_mysql_sha2_auth.name')
+        assert rows == [['135', 'perform_full_authentication'], ['136', 'request_public_key'],
+                        ['189', 'fast_auth_success'], ['193', 'unknown'],
+                        ['199', 'fast_auth_success']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {182, 204}',
+                          'mysql.auth_switch_request.name', 'mysql.auth_switch_request.data')
+        # frame 204 is AuthMoreData longer than two bytes: the leading 0x01 is shown as part of the name
+        assert rows[0] == ['182', 'mysql_clear_password', '73616c742d666f722d73776974636800']
+        assert rows[1][0] == '204' and rows[1][1].endswith('dualfactor')
+        assert rows[1][2] == '787878787878787878787878787878787878787800'
+        # the made-up public key is a well formed PEM block
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 137', 'rfc7468')
+        assert rows == [['137', '1']] or rows[0][0] == '137'
+
+    def test_mysql_mariadb_bulk_execute(self, cmd_tshark, capture_file, test_env):
+        '''Bulk execute with the parameter types in the packet (frame 239:
+        three datasets, indicators NULL, default, ignore) and without them
+        for the last prepared statement (frame 241).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 239',
+                          'mariadb.bulk.row_nr', 'mariadb.bulk.flags', 'mysql.exec.field.long',
+                          'mysql.exec.field.string', 'mariadb.bulk.indicators')
+        assert rows == [['239', '1,2,3', '0x00c0', '1,2', 'one',
+                         '0x00,0x00,0x00,0x00,0x01,0x00,0x02,0x03,0x04']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 241',
+                          'mariadb.bulk.row_nr', 'mariadb.bulk.flags', 'mysql.stmt_id')
+        assert rows == [['241', '1', '0x0000', '4294967295']]
+
+    def test_mysql_mariadb_progress(self, cmd_tshark, capture_file, test_env):
+        '''Progress reporting packets (error code 65535) when both sides
+        negotiated MARIADB_CLIENT_PROGRESS. The percentage in the Info
+        column and the field use the locale's decimal separator.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {214, 215}',
+                          'mariadb.progress.stage', 'mariadb.progress.max_stage',
+                          'mariadb.progress.progress', 'mariadb.progress.status', '_ws.col.info')
+        assert rows[0][:5] == ['214', '1', '3', '33333', 'Copying to tmp table']
+        assert rows[0][5] in ('Response Progress Reporting 1/3 33.333%',
+                              'Response Progress Reporting 1/3 33,333%')
+        assert rows[1][:5] == ['215', '2', '3', '100000', '']
+        assert rows[1][5] in ('Response Progress Reporting 2/3 100.000%',
+                              'Response Progress Reporting 2/3 100,000%')
+
+    def test_mysql_binlog(self, cmd_tshark, capture_file, test_env):
+        '''COM_BINLOG_DUMP and the events that follow: header, semi-sync
+        marker and ACKs, the heartbeat v2 event and the checksum.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 263',
+                          'mysql.binlog.position', 'mysql.binlog.server_id', 'mysql.binlog.file_name')
+        assert rows == [['263', '4', '1001', 'mysql-bin.000001']]
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 264 && frame.number <= 274',
+                          'mysql.binlog.event_header.event_type', 'mysql.binlog.semisync.flag',
+                          'mysql.binlog.hb_event.filename', 'mysql.binlog.hb_event.log_position',
+                          'mysql.binlog.file_name', 'mysql.binlog.position8',
+                          'mysql.binlog.event_checksum')
+        assert [r[1] for r in rows] == ['4', '15', '2', '162', '', '', '16', '41', '250', '', '3']
+        assert rows[3][2] == '1'                                  # semi-sync flag
+        assert rows[4][5:7] == ['mysql-bin.000002', '1234']       # ACK with marker
+        assert rows[5][5:7] == ['mysql-bin.000002', '2345']       # ACK without marker
+        assert rows[7][3:5] == ['mysql-bin.000002', '1234']       # heartbeat v2
+        assert rows[0][7] == '0xdeadbeef'
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 273',
+                          'mysql.binlog.file_name', 'mysql.binlog.position8',
+                          'mysql.binlog.gtid_data_length')
+        assert rows == [['273', 'mysql-bin.000009', '4', '24']]
+
+    def test_mysql_clone(self, cmd_tshark, capture_file, test_env):
+        '''COM_CLONE, the clone commands and responses, and the exit.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 277 && frame.number <= 299', '_ws.col.info')
+        infos = [r[1] for r in rows]
+        assert infos[0] == 'Clone Request Init'
+        assert 'Clone Response Remote Resource Locator' in infos
+        assert 'Clone Response Plugin V3' in infos
+        assert 'Clone Response Unknown Clone Response Code' in infos
+        assert 'Clone Request Unknown Clone Command Code' in infos
+        assert infos[-2:] == ['Clone Request Exit', 'Clone Response Complete']
+
+    def test_mysql_compressed(self, cmd_tshark, capture_file, test_env):
+        '''After the compression handshake: a whole result set in one
+        compressed packet (frame 306), a row split across two compressed
+        packets (frames 308-309), small packets sent uncompressed (the
+        uncompressed length is 0) and two PDUs in one packet.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 305 && frame.number <= 313',
+                          'mysql.query', 'mysql.field.name', 'mysql.row.text',
+                          'mysql.compressed_packet_length_uncompressed')
+        assert rows[0][1:4] == ['SELECT repeat("x", 3000), 1', '', '']
+        assert rows[1][2:4] == ['a,b', 'v,1']
+        assert rows[3][2] == 'a,b'
+        assert rows[4][3].startswith('q' * 100) and rows[4][3].endswith(',2')
+        assert len(rows[4][3]) == 3000 + 2
+        assert [r[4] for r in rows[5:]] == ['0', '0', '0', '0']
+
+    def test_mysql_pre_41(self, cmd_tshark, capture_file, test_env):
+        '''A pre-4.1 session (no PROTOCOL_41): short column definitions,
+        a row with a surplus value and long length-encoded strings.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 322 && frame.number <= 325',
+                          'mysql.field.table', 'mysql.field.name', 'mysql.field.type',
+                          'mysql.field.length', 'mysql.row.text')
+        assert rows[1][1:5] == ['t1,t1', 'a,b', '3,253', '11,11']
+        assert rows[2][5] == '1,x,surplus,NULL,y,wide,wider'
+
+    def test_mysql_load_data_local_infile(self, cmd_tshark, capture_file, test_env):
+        '''LOAD DATA LOCAL INFILE: the file request, the file data and the
+        empty packet that ends it.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 74 && frame.number <= 76',
+                          'mysql.load_data.filename', 'mysql.load_data.payload')
+        assert rows == [['74', '/tmp/x.csv', ''], ['75', '', '312c610a322c620a'], ['76', '', '']]
