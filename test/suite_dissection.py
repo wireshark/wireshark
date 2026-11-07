@@ -100127,3 +100127,102 @@ class TestDissectMqttsn:
         assert frame == '60'
         assert nodes == ','.join('%02x' % i for i in range(14, -1, -1))
         assert types == ','.join(['0xfe'] * 15 + ['0x16'])
+
+
+class TestDissectMrcpv2:
+    '''MRCPv2 over TCP 6075 and 30000-30200 from the synthetic capture
+    mrcpv2_coverage.pcap.gz. Frame 4 is the reproducer of "MRCPv2: Fix the
+    dead TCP dissector and PDU length parsing" (a valid SPEAK on the
+    default port, shown as plain TCP before the fix); frames 63 and 64
+    hold a second PDU in a segment, whose length is relative to its start.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mrcpv2_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mrcpv2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''63 MRCPv2 frames, the rest TCP handshakes and segments; no
+        malformed packets and no warnings or errors in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mrcpv2_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 74
+        assert protocols.count('MRCPv2') == 63
+        assert protocols.count('TCP') == 11
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              ['frame.number'], *passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_mrcpv2_dead_dissector(self, cmd_tshark, capture_file, test_env):
+        '''A SPEAK request on TCP 6075 is dissected.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                          ['_ws.col.protocol', '_ws.col.info', 'mrcpv2.Method', 'mrcpv2.reqID',
+                           'mrcpv2.msg_len', 'mrcpv2.Channel-Identifier'])
+        assert out == ['MRCPv2\tRequest: SPEAK\tSPEAK\t543257\t95\t32AECB23433802@speechsynth']
+
+    def test_mrcpv2_line_types(self, cmd_tshark, capture_file, test_env):
+        '''Requests, responses with every status code and events.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mrcpv2.status_code',
+                          ['mrcpv2.status_code'])
+        assert out == ['200', '201'] + [str(c) for c in range(401, 411)] + \
+            ['501', '502', '503', '504', '599', '200', '200']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {21, 37, 38, 39, 44}',
+                          ['frame.number', '_ws.col.info', 'mrcpv2.status_code', 'mrcpv2.request_state',
+                           'mrcpv2.Event'])
+        assert out == [
+            '21\tResponse: (200) IN-PROGRESS\t200\tIN-PROGRESS\t',
+            '37\tResponse: (599) COMPLETE\t599\tCOMPLETE\t',
+            '38\tResponse: (200) PENDING\t200\tPENDING\t',
+            '39\tEvent: SPEECH-MARKER\t\tIN-PROGRESS\tSPEECH-MARKER',
+            '44\tEvent: VERIFICATION-COMPLETE\t\tCOMPLETE\tVERIFICATION-COMPLETE',
+        ]
+
+    def test_mrcpv2_headers(self, cmd_tshark, capture_file, test_env):
+        '''The headers of frames 45-58: every header of the table, header
+        names in any case, a header without a colon, and a message body.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {53, 55, 57, 5}',
+                          ['frame.number', 'mrcpv2.Voice-Name', 'mrcpv2.Speech-Language',
+                           'mrcpv2.Unknown-Header', 'mrcpv2.Data'])
+        assert out == [
+            '5\t\t\t\t<speak>Hello, this is MRCP v2.</speak>\\n ',
+            '53\tvalue-voice-name\t\t\t',
+            '55\tPaul  \ten-GB\t\t',
+            '57\t\t\tX-Vendor-Header: something,a line without a colon\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-Y', 'frame.number >= 45 && frame.number <= 57',
+                '-r', capture_file('mrcpv2_coverage.pcap.gz'), '-Tjson'),
+                encoding='utf-8', env=test_env, timeout=120)
+        keys = {t.split('"')[0] for t in stdout.split('"mrcpv2.')[1:]}
+        keys = {k for k in keys if k[:1].isupper()}
+        assert len(keys) >= 100
+
+    def test_mrcpv2_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Three PDUs in a segment, a PDU in three segments, a PDU that
+        starts in the middle of a segment, another that ends in the next,
+        a version with a two digit major and one with a long minor.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {59, 60, 61, 62, 63, 64, 73, 74}',
+                          ['frame.number', '_ws.col.protocol', 'mrcpv2.Method', 'mrcpv2.msg_len',
+                           'mrcpv2.Version'])
+        assert out == [
+            '59\tMRCPv2\tSPEAK,STOP,PAUSE\t92,72,73\tMRCP/2.0,MRCP/2.0,MRCP/2.0',
+            '60\tTCP\t\t\t',
+            '61\tTCP\t\t\t',
+            '62\tMRCPv2\tSPEAK\t3123\tMRCP/2.0',
+            '63\tMRCPv2\tRECOGNIZE\t235\tMRCP/2.0',
+            '64\tMRCPv2\tSTOP\t72\tMRCP/2.0',
+            '73\tMRCPv2\tSPEAK\t72\tMRCP/02.0',
+            '74\tMRCPv2\tSPEAK\t74\tMRCP/2.0000',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {68, 69}',
+                          ['frame.number', 'tcp.dstport', 'mrcpv2.reqID', 'mrcpv2.status_code'])
+        assert out == ['68\t30100\t1\t', '69\t40001\t1\t200']
