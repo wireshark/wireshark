@@ -35,6 +35,7 @@
 #include "config.h"
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include <epan/uat.h>
@@ -510,6 +511,9 @@ static dissector_handle_t mqtt_handle;
 static heur_dissector_list_t mqtt_topic_subdissector;
 
 /* Initialize the protocol and registered fields */
+#define MQTT_PROTO_DATA_TOPIC   0
+#define MQTT_PROTO_DATA_VERSION 1
+
 static int proto_mqtt;
 
 /* Message */
@@ -811,7 +815,13 @@ static unsigned dissect_mqtt_properties(tvbuff_t *tvb, packet_info *pinfo, proto
 
   const unsigned mqtt_prop_offset = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &vbi, ENC_VARINT_PROTOBUF);
   /* Property Length field can be stored in uint32 */
-  const unsigned mqtt_prop_len = (int)vbi;
+  unsigned mqtt_prop_len = (unsigned)vbi;
+  const unsigned remaining = tvb_reported_length_remaining(tvb, offset + mqtt_prop_offset);
+  if (vbi > remaining)
+  {
+    mqtt_prop_len = remaining;
+    expert_add_info(pinfo, mqtt_tree, &ei_illegal_length);
+  }
 
   /* Add the MQTT branch to the main tree */
   /* hf_property is usually hf_mqtt_property, but can also be
@@ -1009,6 +1019,20 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Add the type to the MQTT tree item */
   proto_item_append_text(mqtt_tree, ", %s", val_to_str_ext(pinfo->pool, mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
+  /* The protocol version is conversation state that later frames change;
+   * remember the value seen at this frame and restore it on later passes. */
+  if (!PINFO_FD_VISITED(pinfo))
+  {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_VERSION,
+                     GUINT_TO_POINTER((unsigned)mqtt->runtime_proto_version + 1));
+  }
+  else
+  {
+    unsigned saved_ver = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_VERSION));
+    if (saved_ver != 0)
+      mqtt->runtime_proto_version = (uint8_t)(saved_ver - 1);
+  }
+
   if ((mqtt_msg_type != MQTT_CONNECT) && (mqtt->runtime_proto_version == 0))
   {
     expert_add_info(pinfo, mqtt_ti, &ei_unknown_version);
@@ -1178,14 +1202,30 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         if (mqtt_properties.topic_alias != 0)
         {
-          if (!pinfo->fd->visited && mqtt_str_len > 0)
+          char *topic = NULL;
+          if (!PINFO_FD_VISITED(pinfo))
           {
-            char *topic = wmem_strdup(wmem_file_scope(), topic_str);
-            wmem_map_insert(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias), topic);
+            if (mqtt_str_len > 0)
+            {
+              topic = wmem_strdup(wmem_file_scope(), topic_str);
+              wmem_map_insert(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias), topic);
+            }
+            else
+            {
+              topic = (char *)wmem_map_lookup(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias));
+            }
+            /* Remember what this frame resolved to, later passes
+             * must not see aliases redefined by later frames. */
+            if (topic != NULL)
+              p_add_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_TOPIC, topic);
           }
           else
           {
-            char *topic = (char *)wmem_map_lookup(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias));
+            topic = (char *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_TOPIC);
+          }
+
+          if (mqtt_str_len == 0)
+          {
             if (topic != NULL)
             {
               topic_str = topic;
@@ -1265,7 +1305,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         if (mqtt_str_len > 0)
         {
           proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
-                                         wmem_epan_scope(), (const uint8_t**)&topic_str);
+                                         pinfo->pool, (const uint8_t**)&topic_str);
           offset += mqtt_str_len;
         }
         else
