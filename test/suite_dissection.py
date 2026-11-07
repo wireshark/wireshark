@@ -100625,3 +100625,74 @@ class TestDissectMsgpack:
         strings = stdout.strip().split(',')
         for s in ('msgid', 'client', 'broker', 'b1', 'b2', 'c1', '/reply'):
             assert s in strings
+
+
+class TestDissectMsMms:
+    '''MS-MMS (Microsoft Media Server, TCP/UDP 1755) from the synthetic
+    capture ms-mms_coverage.pcapng.gz: commands in both directions,
+    TCP data packets, data on the conversations set up by the transport
+    info command, the UDP resend request and Exported PDU frames.'''
+
+    def test_msmms_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 75 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-mms_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 75
+        assert protocols.count('MSMMS') == 62
+        assert protocols.count('TCP') == 12
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ms-mms_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msmms_commands(self, cmd_tshark, capture_file, test_env):
+        '''Commands to the server and to the client.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ms-mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4, 10, 24, 36, 44, 53}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '4\tCommand: seq=000: --> Connect info (NSPlayer/9.0.0.2980; {abcd-1234})',
+            '10\tCommand: seq=006: --> Request server file (\\\\media\\\\clip.wmv)',
+            '24\tCommand: seq=020: <-- Server info (version=\'9.0.0.2980\')',
+            '36\tCommand: seq=025: <-- Transport info ack',
+            '44\tCommand: seq=040: <-- Sending media file now',
+            '53\tCommand: seq=050: --> Connect info (NSPlayer/9.0)',
+        ]
+
+    def test_msmms_conversation_data(self, cmd_tshark, capture_file, test_env):
+        '''The transport info command (UDP \\\\192.0.2.1\\UDP\\5004 and the
+        TCP one) sets up conversations, so the data on UDP 5004 and
+        TCP 5005 is MS-MMS data; so is a data packet that was split.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ms-mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {61, 65, 68, 70}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '61\tData: seq=02000, len=00100',
+            '65\tData: seq=00001, len=00035',
+            '68\tData: seq=00007, len=00035',
+            '70\tRequest to resend packet(s): 5 6 7',
+        ]
+
+    def test_msmms_frame_over_64k(self, cmd_tshark, capture_file, test_env):
+        '''A data packet in a frame of 65,556 octets is dissected (frame
+        73); the length found was truncated to 16 bits and the packet
+        was taken for an incomplete one (fixed by "MS-MMS: Do not
+        truncate the length found to 16 bits").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ms-mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 73', '-Tfields', '-e_ws.col.info',
+                '-emsmms.data.packet-length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'Data: seq=00077, len=00100\t100'
