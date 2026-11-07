@@ -63,7 +63,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    uint16_t    msglen, real_msglen, whole_len;
+    unsigned    msglen, real_msglen, whole_len;
     int         remaining;
     tvbuff_t*   next_tvb;
 
@@ -75,7 +75,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (remaining < 0)
         real_msglen = 0;
-    else if (msglen <= remaining)
+    else if (msglen <= (unsigned)remaining)
         real_msglen = msglen;
     else
         real_msglen = remaining;
@@ -120,7 +120,8 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item *ti;
     proto_tree *moldudp64_tree;
     unsigned    offset            = 0;
-    uint16_t    count, real_count = 0;
+    uint16_t    count;
+    unsigned    real_count = 0, blk_len;
     uint64_t    sequence;
 
     /* Check that there's enough data */
@@ -170,8 +171,11 @@ dissect_moldudp64(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     while (tvb_reported_length(tvb) >= offset + MOLDUDP64_MSGLEN_LEN)
     {
-        offset += dissect_moldudp64_msgblk(tvb, pinfo, moldudp64_tree,
+        blk_len = dissect_moldudp64_msgblk(tvb, pinfo, moldudp64_tree,
                                            offset, sequence++);
+        if (blk_len == 0)
+            break; /* Truncated capture, no progress possible */
+        offset += blk_len;
         real_count++;
     }
 
