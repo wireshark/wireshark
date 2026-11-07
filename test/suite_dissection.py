@@ -84638,3 +84638,118 @@ class TestDissectIsns:
             '59\tDevAttrReg\t3205\t\t50000\t',
             '61\tESI\t50000\t\t\t',
             '62\tSCN\t\t50001\t\t']
+
+
+class TestDissectIso10681:
+    CAPTURE = 'iso10681_coverage.pcapng.gz'
+    IDS = ('-o', 'iso10681.flexray.flexrayids:0xa00-0xeff,0x1000a00-0x1000eff')
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, opts, display_filter, fields):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectIso10681.CAPTURE)]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iso10681_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ISO 10681 needs the FlexRay IDs (or Decode As); no malformed
+        packets or warnings in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), None, ('frame.protocols',))
+        assert len(rows) == 74
+        assert [r[0] for r in rows].count('flexray:data') == 73
+        for opts in (self.IDS, ('-d', 'flexray.subdissector,iso10681')):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, opts, None, ('frame.protocols',))
+            protocols = [r[0] for r in rows]
+            assert protocols.count('exported_pdu:data') == 1
+            if opts == self.IDS:
+                assert protocols.count('flexray:iso10681') == 13
+                assert protocols.count('flexray:iso10681:data') == 59
+                assert protocols.count('flexray:data') == 1
+            for passes in ((), ('-2',)):
+                rows = self.run_fields(cmd_tshark, capture_file, test_env, (*passes, *opts),
+                                       '_ws.malformed || _ws.expert.severity >= warning', ('frame.number',))
+                assert rows == []
+
+    def test_iso10681_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Start Frame, Consecutive Frames 1, 2 and EOB and Last Frames are
+        reassembled: unacknowledged and acknowledged transfers, two
+        channels in parallel, a transfer over several cycles and one with
+        20 segments (the sequence number wraps).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'iso10681.reassembled.length',
+                               ('frame.number', 'iso10681.reassembled.length', 'iso10681.fragment.count'))
+        assert rows == [['5', '32', '4'], ['9', '20', '3'], ['21', '21', '3'], ['26', '24', '3'],
+                        ['27', '24', '3'], ['30', '24', '3'], ['51', '84', '21'], ['72', '4', '1']]
+        # In two passes the first fragments know where the message ends
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, ('-2', *self.IDS), 'frame.number == 1',
+                               ('iso10681.reassembled.in',))
+        assert rows == [['5']]
+
+    def test_iso10681_start_and_consecutive(self, cmd_tshark, capture_file, test_env):
+        '''Addresses, types, lengths and sequence numbers.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'frame.number <= 9',
+                               ('iso10681.target_address', 'iso10681.source_address', 'iso10681.type',
+                                'iso10681.type_ack', 'iso10681.frame_payload_length',
+                                'iso10681.message_length', 'iso10681.sequence_number'))
+        assert rows[0] == ['0x1234', '0x5678', '0x04', '0x00', '8', '32', '']
+        assert rows[2] == ['0x1234', '0x5678', '0x05', '', '8', '', '1']
+        assert rows[3][2] == '0x06' and rows[3][6] == '2'
+        assert rows[4][2] == '0x07' and rows[4][6] == '3'
+        # Acknowledged Start Frame and a Last Frame
+        assert rows[5] == ['0x1234', '0x5678', '0x04', '0x01', '8', '20', '']
+        assert rows[8] == ['0x1234', '0x5678', '0x09', '', '4', '20', '']
+        # The reassembled data (the last frame is cut to the message length)
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'frame.number == 21 || frame.number == 9',
+                               ('data.data', 'data.len'))
+        assert rows == [['404142434445464748494a4b4c4d4e4f50515253', '20'],
+                        ['606162636465666768696a6b6c6d6e6f7071727374', '21']]
+
+    def test_iso10681_flow_control(self, cmd_tshark, capture_file, test_env):
+        '''Every flow status; bandwidth control and buffer size for
+        Continue to Send, ack and byte position for Ack/Retry.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'iso10681.flow_status',
+                               ('frame.number', 'iso10681.flow_status',
+                                'iso10681.bandwidth_control.max_number_pdus_per_cycle',
+                                'iso10681.bandwidth_control.separation_cycle_exp',
+                                'iso10681.buffer_size', 'iso10681.ack', 'iso10681.byte_position'))
+        assert rows[0] == ['2', '3', '1', '3', '256', '', '']
+        assert rows[1] == ['7', '3', '3', '2', '512', '', '']
+        assert rows[3] == ['11', '3', '0', '0', '64', '', '']
+        assert rows[4] == ['12', '3', '31', '7', '65535', '', '']
+        assert rows[2] == ['10', '4', '', '', '', '0x00', '0x0000']
+        assert rows[6] == ['14', '4', '', '', '', '0x01', '0x0010']
+        assert [r[1] for r in rows[7:]] == ['5', '6', '7', '9']
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'frame.number == 18', ('_ws.col.Info',))
+        assert rows == [['Flow Control (Flow Status: unknown (0x9))']]
+
+    def test_iso10681_channels(self, cmd_tshark, capture_file, test_env):
+        '''Two transfers on frame ID 11, channel A and channel B, are kept
+        apart.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS, 'frame.number >= 22 && frame.number <= 27',
+                               ('iso10681.target_address', 'iso10681.reassembled.length'))
+        assert [r[0] for r in rows] == ['0x0101', '0x0303'] * 3
+        assert [r[1] for r in rows] == ['', '', '', '', '24', '24']
+
+    def test_iso10681_last_frame_segments(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: a Last Frame with 16 or more segments (Start Frame,
+        15 Consecutive Frames, Last Frame) hit DISSECTOR_ASSERT(frag_id <
+        16). The 17 frames of the reproducer (52-68) decode cleanly; the
+        announced length (256) is not reached, so nothing is reassembled.
+        A Consecutive Frame after a complete message and frames without a
+        Start Frame are not reassembled either.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IDS,
+                               'frame.number >= 52 && frame.number <= 71',
+                               ('frame.number', 'iso10681.type', 'iso10681.reassembled.length', '_ws.malformed'))
+        assert len(rows) == 20
+        assert rows[0][1] == '0x04' and rows[16][1] == '0x09'
+        assert all(r[2] == '' and r[3] == '' for r in rows)
+
+    def test_iso10681_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "iso10681" has no FlexRay information;
+        the dissector declines and the payload is data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 74',
+                               ('frame.protocols', 'exported_pdu.prot_name'))
+        assert rows == [['exported_pdu:data', 'iso10681']]
