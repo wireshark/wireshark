@@ -251,6 +251,8 @@ init_srt_table_row(srt_stat_table *rst, int indx, const char *procedure)
         }
     }
     rst->procedures[indx].proc_index = indx;
+    /* A row can be initialised again (e.g. on every packet); free the old name. */
+    g_free(rst->procedures[indx].procedure);
     rst->procedures[indx].procedure=g_strdup(procedure);
 }
 
