@@ -102835,3 +102835,109 @@ class TestDissectNbifom:
             ['4', '', '', '0x22'],
             ['11', '', '', '0x55'],
         ]
+
+
+class TestDissectNbipx:
+    '''NetBIOS over IPX (socket 0x455: NBIPX) and the Name Management
+    Protocol over IPX (sockets 0x551 and 0x553: NMPI), from the synthetic
+    capture nbipx_coverage.pcap.gz (IPX over Ethernet, ethertype 0x8137).
+    Frames 1-13 are name operations with the eight IPX networks, 14 is a
+    session packet, 15-19 name operations without them, 20-26 session
+    packets, 27-30 directed datagrams (28 is exactly 50 bytes long and is
+    taken as a name operation with networks), 31-33 other types, and
+    34-48 NMPI.'''
+
+    def test_nbipx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''30 NBIPX, 14 NMPI and 4 SMB frames, none malformed or with an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols.count('NBIPX') == 30
+        assert protocols.count('NMPI') == 14
+        assert protocols.count('SMB') == 4
+        assert len(protocols) == 48
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nbipx_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nbipx_name_operations(self, cmd_tshark, capture_file, test_env):
+        '''Name operations: the info line, the name type flags and the
+        IPX networks that precede the operation (zero ones are skipped).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,3,8,15,19,28}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-enmpi.packettype', '-enmpi.ipx_network',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        nets = '0x0000000000000011,0x0000000000000022,0x00000000deadbeef,0x0000000000000033'
+        assert rows['1'] == ['Find name WORKSTATION1<20>', '0x01', nets]
+        assert rows['2'] == ['Check name WORKSTATION1<20>', '0x03', nets]
+        assert rows['3'] == ['Deregister name WORKSTATION1<20>', '0x05', nets]
+        assert rows['8'][0] == 'Check name GROUP<00>'
+        assert rows['15'] == ['Find name NOROUTES<03>', '0x01', '']
+        assert rows['19'] == ['Deregister name NOROUTES<03>', '0x05', '']
+        # 50 bytes, byte 33 is a name type: networks are assumed
+        assert rows['28'][0] == 'Check name datagram payloa<64>'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-enmpi.name_flags.group', '-enmpi.name_flags.in_use',
+                '-enmpi.name_flags.registered', '-enmpi.name_flags.duplicated',
+                '-enmpi.name_flags.deregistered',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['True', 'True', 'False', 'False', 'False']
+
+    def test_nbipx_session(self, cmd_tshark, capture_file, test_env):
+        '''Session header fields and connection control flags, and the SMB
+        negotiate request found by the NetBIOS heuristic.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Y', 'nmpi.session.src_conn_id && frame.number >= 20',
+                '-Tfields', '-eframe.number', '-enmpi.session.src_conn_id',
+                '-enmpi.session.dest_conn_id', '-enmpi.session.send_seq_number',
+                '-enmpi.session.total_data_length', '-enmpi.session.offset',
+                '-enmpi.session.data_length', '-enmpi.session.recv_seq_number',
+                '-enmpi.session.bytes_received', '-enmpi.conn_control.sys_packet',
+                '-enmpi.conn_control.ack', '-enmpi.conn_control.attention',
+                '-enmpi.conn_control.end_msg', '-enmpi.conn_control.resend',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['22'] == ['0x0202', '0x0101', '3', '100', '0', '8', '2', '40',
+                              'False', 'False', 'True', 'True', 'False']
+        assert rows['23'][5] == '8'      # offset
+        assert rows['23'][-1] == 'True'  # resend
+        assert rows['25'][-5] == 'True'  # system packet
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Y', 'smb.cmd == 0x72',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['20', '21', '29', '44']
+
+    def test_nbipx_nmpi(self, cmd_tshark, capture_file, test_env):
+        '''NMPI opcodes, including unknown ones, on sockets 0x551 and
+        0x553 and the mailslot payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbipx_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 34',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = dict(l.split('\t') for l in stdout.splitlines())
+        assert rows['34'] == 'Claim name NMPINAME<03>'
+        assert rows['35'] == 'Delete name NMPINAME<03>'
+        assert rows['36'] == 'Query name NMPINAME<03>'
+        assert rows['37'] == 'Name NMPINAME<03> found'
+        assert rows['38'] == 'Messenger hangup on NMPINAME<03>'
+        assert rows['39'] == 'Mailslot write to NMPINAME<03>'
+        assert rows['40'] == 'Find mailslot name NMPINAME<03>'
+        assert rows['41'] == 'Mailslot name NMPINAME<03> found'
+        assert rows['42'] == 'Unknown NMPI op 0x00: name NMPINAME<03>'
+        assert rows['43'] == 'Unknown NMPI op 0xaa: name NMPINAME<03>'
