@@ -86893,3 +86893,100 @@ class TestDissectKadm5:
             ['59', '', '21', '749'],
             ['60', '', '21', '40749'],
         ]
+
+
+class TestDissectKafkaCoverage:
+    '''Kafka over TCP port 9092 from the synthetic capture
+    kafka_coverage.pcap.gz: every API key and version the dissector
+    knows (requests and responses, full, sparse and empty payloads),
+    record batches with every compression codec the build supports,
+    old message sets, TCP segmentation. Frames 1655 and 1656 are the
+    reproducer of the record loop fixed in "Kafka: Fix record loop,
+    asserts and field types": they end in a bounds error on purpose.'''
+
+    @staticmethod
+    def kafka_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('kafka_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *(f'-e{f}' for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_kafka_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames but the last two decode as Kafka without malformed
+        packets or error expert infos, in one and two passes. The Snappy
+        batches (frames 1579 and 1582) carry placeholder data, so whether
+        they decode depends on Snappy support in the build; they are left
+        out of the checks.'''
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env, 'kafka',
+                                 '_ws.col.protocol')
+        assert len(rows) == 1608
+        assert set(rows) == {'Kafka'}
+        for passes in ((), ('-2',)):
+            rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 1654 && !(frame.number in {1579, 1582}) && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    'frame.number', passes=passes)
+            assert count_output('\n'.join(rows)) == 0
+            # Request/response matching, counted before the record batch
+            # frames (1547 on), whose decoding depends on the compression
+            # libraries of the build.
+            rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                    'kafka.request_frame && frame.number < 1547',
+                    'frame.number', passes=passes)
+            assert len(rows) == 748
+
+    def test_kafka_api_keys(self, cmd_tshark, capture_file, test_env):
+        '''Every API key of the table appears as a request/response key.'''
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                                 'kafka.api_key', 'kafka.api_key')
+        keys = {int(k) for r in rows for k in r.split(',') if k}
+        assert len(keys) == 56
+        assert {0, 1, 3, 18, 19, 56, 63, 68} <= keys
+
+    @staticmethod
+    def codecs(cmd_tshark, test_env):
+        '''The decompression libraries this tshark was built with.'''
+        version = subprocess.check_output((cmd_tshark, '--version'),
+                encoding='utf-8', env=test_env)
+        return {name for name in ('LZ4', 'Snappy', 'Zstandard')
+                if '+' + name in version}
+
+    def test_kafka_compression(self, cmd_tshark, capture_file, test_env):
+        '''Record batches in gzip, LZ4 and zstd decompress; snappy is
+        only labelled in a build without snappy.'''
+        for codec, frames in ((1, 2), (2, 2), (3, 11), (4, 5)):
+            rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                    f'kafka.batch_codec == {codec}', 'frame.number')
+            assert len(rows) == frames
+        # The number of decoded values depends on the libraries.
+        if self.codecs(cmd_tshark, test_env) != {'LZ4', 'Zstandard'}:
+            return
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                'kafka.message_value', 'frame.number')
+        assert len(rows) == 104
+
+    def test_kafka_loop_limits(self, cmd_tshark, capture_file, test_env):
+        '''An LZ4 frame of 110 blocks and a zstd frame of 120 blocks used to
+        hit DISSECTOR_ASSERT_HINT(count < MAX_LOOP_ITERATIONS); now they
+        are only reported as failed decompressions (frames 1623, 1625).'''
+        if not {'LZ4', 'Zstandard'} <= self.codecs(cmd_tshark, test_env):
+            pytest.skip('Needs tshark with LZ4 and zstd')
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1623 || frame.number == 1625', '_ws.col.info')
+        assert 'lz4 decompression failed' in rows[0]
+        assert 'zstd decompression failed' in rows[1]
+
+    def test_kafka_record_size_loop(self, cmd_tshark, capture_file, test_env):
+        '''A record size of 2^32-5 made the record batch loop dissect the
+        same bytes 0xffffffff times (hang, then out of memory). Now the
+        record is rejected and the packet ends with a bounds error.'''
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 1655 && _ws.malformed && '
+                '_ws.expert.message contains "Invalid record length"', 'frame.number')
+        assert rows == ['1655']
+
+    def test_kafka_fetch_session(self, cmd_tshark, capture_file, test_env):
+        '''The fetch session ID and epoch are 4 byte fields.'''
+        rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
+                'kafka.api_key == 1 && kafka.fetch_session_id', 'kafka.fetch_session_id')
+        assert len(rows) > 0
