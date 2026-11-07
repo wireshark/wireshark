@@ -945,23 +945,29 @@ else() # ! MSVC
 	# Note the distribution might use a GCC spec file or Clang configuration
 	# file, which takes place before our options, so we have to undefine it
 	# first too.
-	if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug" AND NOT "${CMAKE_C_FLAGS}" MATCHES "-D_FORTIFY_SOURCE" AND NOT ENABLE_ASAN AND NOT ENABLE_TSAN)
-		# _FORTIFY_SOURCE requires -O1 or higher, and the Debug
-		# build type has no optimization
+	if(NOT "${CMAKE_C_FLAGS}" MATCHES "-D_FORTIFY_SOURCE" AND NOT ENABLE_ASAN AND NOT ENABLE_TSAN)
 		if((CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0") OR
 		   (CMAKE_C_COMPILER_ID MATCHES "Clang" AND CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "9.0"))
 			# On some gcc < 12.0, test_compiler_flag will report that
 			# -D_FORTIFY_SOURCE=3 is valid, but actually trying to compile
 			# with it will give a warning that it has the same effect as
 			# -D_FORTIFY_SOURCE=2
-			list(APPEND WIRESHARK_COMMON_FLAGS
-			-U_FORTIFY_SOURCE	# For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
-			-D_FORTIFY_SOURCE=3				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
-			)
+			set(_fortify_source_level 3)
 		elseif(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-			list(APPEND WIRESHARK_COMMON_FLAGS
-			-U_FORTIFY_SOURCE	# For dist like Ubuntu, U_FORTIFY_SOURCE must be input before D_FORTIFY_SOURCE
-			-D_FORTIFY_SOURCE=2				# Fortify sources with compile- and run-time checks for unsafe libc usage and buffer overflows. Requires -O1 or higher
+			set(_fortify_source_level 2)
+		endif()
+		if(_fortify_source_level)
+			# Fortify sources with compile- and run-time checks for unsafe
+			# libc usage and buffer overflows. This requires -O1 or higher,
+			# and the Debug configuration has no optimization. Leave it out
+			# of Debug with a generator expression, as CMAKE_BUILD_TYPE is
+			# not set with multi-config generators.
+			# For dist like Ubuntu, -U_FORTIFY_SOURCE must be input before
+			# -D_FORTIFY_SOURCE.
+			set(_fortify_source_condition "$<AND:$<COMPILE_LANGUAGE:C,CXX>,$<NOT:$<CONFIG:Debug>>>")
+			add_compile_options(
+				"$<${_fortify_source_condition}:-U_FORTIFY_SOURCE>"
+				"$<${_fortify_source_condition}:-D_FORTIFY_SOURCE=${_fortify_source_level}>"
 			)
 		endif()
 	endif()
