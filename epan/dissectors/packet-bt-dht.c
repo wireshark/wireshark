@@ -226,8 +226,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
   ti = proto_tree_add_none_format(tree, hf_bencoded_list, tvb, offset, 0, "%s: list...", label);
   sub_tree = proto_item_add_subtree(ti, ett_bencoded_list);
 
-  if (tvb_get_uint8(tvb, offset) != 'l')
-    return 0;
+  DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'l');
   offset += 1;
 
   while (tvb_captured_length_remaining(tvb, offset) > 0)
@@ -727,8 +726,7 @@ dissect_bencoded_dict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     sub_tree = proto_item_add_subtree(ti, ett_bencoded_dict);
   }
 
-  if (tvb_get_uint8(tvb, offset) != 'd')
-    return 0;
+  DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'd');
   offset += 1;
 
   const char * prev_key = NULL;
