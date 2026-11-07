@@ -89941,3 +89941,71 @@ class TestDissectLbttcp:
                         '-Y', 'lbttcp.tag', '-Tfields', '-eframe.number', '-elbttcp.tag')
         assert out[0] == '4\ttcp'
         assert {t for line in out for t in line.split('\t')[1].split(',')} == {'tcp'}
+
+
+class TestDissectLcsap:
+    LCSAP_PROCEDURES = [
+        'id-Ciphering-Key-Data-Delivery', 'id-Connection-Oriented-Information-Transfer',
+        'id-Location-Abort', 'id-Location-Service-Request', 'id-Reset',
+        'id-e-CIDMeasurementInitiation',
+    ]
+
+    def test_lcsap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is LCS-AP over SCTP (port 9082, or PPID 29 on another
+        port) and none is malformed or has an error expert info, in one
+        and two passes. APDUs go to LPP (5 + 1 frames, frame 118 has two
+        APDUs), LPPa (24) and the civic addresses to XML (27).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lcsap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 120
+        assert protocols.count('LCSAP') == 63
+        assert protocols.count('LCSAP/LPP') == 5
+        assert protocols.count('LCSAP/LPP/LPP') == 1
+        assert protocols.count('LCSAP/LPPa') == 24
+        assert protocols.count('LCSAP/XML') == 27
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lcsap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lcsap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure code, as request, response or failure.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lcsap_coverage.pcap.gz'),
+                '-Tfields', '-elcsap.procedureCode',
+            ), encoding='utf-8', env=test_env)
+        codes = stdout.split()
+        assert sorted(set(codes)) == ['0', '1', '2', '3', '4', '5']
+
+    def test_lcsap_payload_type_per_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The payload type of one PDU does not leak into the next one:
+        frame 117 (an APDU without a Payload-Type) is not handed to LPP in
+        one or two passes although frame 119 sets the type later, and both
+        APDUs of frame 118 reach LPP.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lcsap_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 117 && frame.number <= 119',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['117', 'LCSAP', '118', 'LCSAP/LPP/LPP', '119', 'LCSAP']
+
+    def test_lcsap_positioning_and_civic(self, cmd_tshark, capture_file, test_env):
+        '''Positioning method bytes, GNSS ids and the civic address XML.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lcsap_coverage.pcap.gz'),
+                '-Tfields', '-elcsap.pos_method', '-elcsap.gnss_id',
+            ), encoding='utf-8', env=test_env)
+        values = set(stdout.replace('\t', '\n').split())
+        assert values >= {'0', '1', '10', '13', '16'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lcsap_coverage.pcap.gz'),
+                '-Y', 'xml', '-Tfields', '-exml.xmlpi.xml',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('<?xml version="1.0"') == 27
