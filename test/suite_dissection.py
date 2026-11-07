@@ -96351,3 +96351,67 @@ class TestDissectMidiSysexDigitech:
                 'midi.sysex.digitech.ack.procedure_id',
                 'midi.sysex.digitech.procedure_id', 'midi.sysex.digitech.ack.procedure_id')
         assert lines == ['57\t0x7e\t0x41', '58\t0x7f\t0x2b']
+
+
+class TestDissectMih:
+    '''MIH (IEEE 802.21) over Ethernet (0x8917), UDP/TCP 4551, from the
+    synthetic capture mih_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mih_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mih_protocols(self, cmd_tshark, capture_file, test_env):
+        '''179 MIH frames (3 TCP handshake frames are not MIH), none
+        malformed or with an error expert info, in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 182
+        assert lines.count('MIH') == 179
+        assert lines.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mih_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Service, opcode and action id of the first frames.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 6, 11, 14}',
+                '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            'Service Management Confirm "MIH_Capability_Discover"',
+            'Event Service Request "MIH_Link_UP"',
+            'Command Service Response "MIH_MN_HO_Commit"',
+            'Information Service Request "MIH_Push_information"',
+        ]
+
+    def test_mih_nai_mihf_id(self, cmd_tshark, capture_file, test_env):
+        '''A MIHF ID that starts with a backslash is the NAI encoding of a
+        MAC (12 characters), IPv4 (8) or IPv6 (32) address. These lengths
+        were 12, 64 and 128 before "MIH: Fix composite tvb leak and
+        NAI-encoded MIHF ID lengths".'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 79', '-Tfields', '-emih.mihf_id.mac',
+                '-emih.mihf_id.ipv4', '-emih.mihf_id.ipv6', '-emih.mihf_id')
+        assert lines == ['02:00:00:00:00:11\t10.0.0.1\t2001:db8::1\tplain']
+
+    def test_mih_nai_mihf_id_cut(self, cmd_tshark, capture_file, test_env):
+        '''Frame 82 holds an NAI-encoded ID whose length runs past the end
+        of the TLV (the reproducer of the composite tvb leak): it is
+        skipped and the frame is not malformed.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 82', '-Tfields', '-e_ws.malformed',
+                '-emih.mihf_id', '-emih.mihf_id.mac')
+        assert lines == ['\tmihf1@example.org\t']
+
+    def test_mih_fragments(self, cmd_tshark, capture_file, test_env):
+        '''Messages with more fragments or a fragment number are not
+        dissected into TLVs; a TLV longer than the payload is shown as a
+        fragmented TLV.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mih.fragmented_tlv', '-Tfields', '-eframe.number')
+        assert lines == ['57', '58', '59', '60']
