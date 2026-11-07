@@ -634,7 +634,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         add_srt_table_data(ncp_srt_table, (request_val->nds_request_verb), &request_val->req_frame_time, pinfo);
         wmem_free(NULL, tmp_str);
     }
-    if (request_val->ncp_rec->func==0x5c) {
+    if (request_val->ncp_rec->func==0x5c && try_val_to_str(request_val->req_nds_flags, sss_verb_enum)) {
         tmp_str = val_to_str(NULL, request_val->req_nds_flags, sss_verb_enum, "Unknown(%u)");
         i = NCP_SSS_SRT_TABLE_INDEX;
         ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
@@ -642,7 +642,7 @@ ncpstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
         add_srt_table_data(ncp_srt_table, (request_val->req_nds_flags), &request_val->req_frame_time, pinfo);
         wmem_free(NULL, tmp_str);
     }
-    if (request_val->ncp_rec->func==0x5e) {
+    if (request_val->ncp_rec->func==0x5e && try_val_to_str(request_val->req_nds_flags, nmas_subverb_enum)) {
         tmp_str = val_to_str(NULL, request_val->req_nds_flags, nmas_subverb_enum, "Unknown(%u)");
         i = NCP_NMAS_SRT_TABLE_INDEX;
         ncp_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
