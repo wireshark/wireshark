@@ -93701,3 +93701,69 @@ class TestDissectM3ua:
                     '-e_ws.col.protocol', opts=opts)
             assert len(protocols) == last - first + 1
             assert protocols.count('M3UA (ID 0%s)' % version[-1]) >= 36
+
+
+class TestDissectMaap:
+    '''MAAP (IEEE 1722 MAC Address Acquisition Protocol) over IEEE 1722
+    on Ethernet (ethertype 0x22f0, subtype 0xfe) and on UDP port 17220,
+    from the synthetic capture maap_coverage.pcap.gz.'''
+
+    def test_maap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames decode as MAAP, without malformed packets or
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('MAAP') == 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('maap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_maap_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Probe and Announce show the requested range, Defend the
+        conflicting range, other message types only their name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'MAAP_PROBE: req_start=91:e0:f0:00:10:00, cnt=8',
+            'MAAP_DEFEND: conflict_start=91:e0:f0:00:10:04, cnt=2',
+            'MAAP_ANNOUNCE: req_start=91:e0:f0:00:10:00, cnt=8',
+            'Unknown Type(0x00):',
+            'Unknown Type(0x04):',
+            'Unknown Type(0x05):',
+            'Unknown Type(0x0f):',
+            'MAAP_PROBE: req_start=91:e0:f0:00:00:00, cnt=0',
+            'MAAP_PROBE: req_start=91:e0:f0:00:00:00, cnt=64768',
+            'MAAP_PROBE: req_start=91:e0:f0:00:00:00, cnt=4',
+            'MAAP_DEFEND: conflict_start=91:e0:f0:00:20:00, cnt=1',
+            'MAAP_ANNOUNCE: req_start=91:e0:f0:00:00:00, cnt=4',
+        ]
+
+    def test_maap_fields(self, cmd_tshark, capture_file, test_env):
+        '''Message type, version, data length and the 64 bit stream ID,
+        including all-ones values (frame 7) and the UDP encapsulation
+        (frames 10-12).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('maap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 7, 8, 11}',
+                '-Tfields', '-eframe.number', '-emaap.message_type',
+                '-emaap.version', '-emaap.data_length', '-emaap.stream_id',
+                '-emaap.req_start_addr', '-emaap.req_count',
+                '-emaap.conflict_start_addr', '-emaap.conflict_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01\t0x01\t0x0010\t0x1122334455667788\t91:e0:f0:00:10:00\t0x0008\t00:00:00:00:00:00\t0x0000',
+            '2\t0x02\t0x01\t0x0010\t0x1122334455667788\t91:e0:f0:00:10:00\t0x0008\t91:e0:f0:00:10:04\t0x0002',
+            '7\t0x0f\t0x1f\t0x07ff\t0xffffffffffffffff\tff:ff:ff:ff:ff:ff\t0xffff\tff:ff:ff:ff:ff:ff\t0xffff',
+            '8\t0x01\t0x00\t0x0000\t0x0000000000000000\t91:e0:f0:00:00:00\t0x0000\t00:00:00:00:00:00\t0x0000',
+            '11\t0x02\t0x01\t0x0010\t0x0000000000000001\t91:e0:f0:00:00:00\t0x0004\t91:e0:f0:00:20:00\t0x0001',
+        ]
