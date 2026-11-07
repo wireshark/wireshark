@@ -99016,3 +99016,71 @@ class TestDissectMpegDsmcc:
                 '-Y', 'frame.number == 73', '-Tfields', '-eframe.protocols',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'eth:ethertype:ip:tcp:data'
+
+
+class TestDissectMpegPat:
+    '''MPEG PAT (Program Association Table) from the synthetic capture
+    mpeg_pat_coverage.pcap.gz: PATs in MPEG-TS packets on PID 0 in UDP.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mpeg_pat_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_pat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All eight frames carry a PAT (frame 7 two sections), none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_pat_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        p = 'eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_pat'
+        assert stdout.splitlines() == [p] * 6 + [p + ':mpeg_sect:mpeg_pat', p]
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert', opts=passes)
+            assert lines == []
+
+    def test_mpeg_pat_programs(self, cmd_tshark, capture_file, test_env):
+        '''Transport stream ID, version, current/next, section numbers and
+        the programs of the small tables.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 4', 'mpeg_pat.tsid', 'mpeg_pat.version',
+                'mpeg_pat.cur_next_ind', 'mpeg_pat.sect_num',
+                'mpeg_pat.last_sect_num', 'mpeg_pat.prog_num',
+                'mpeg_pat.prog_map_pid')
+        assert lines == [
+            '1\t0x0001\t0x01\tTrue\t0\t0\t0x0000;0x0001\t0x0010;0x1000',
+            '2\t0x1234\t0x02\tTrue\t0\t0\t0x0000;0x0101;0x0102;0xffff\t'
+            '0x0010;0x0100;0x0200;0x1fff',
+            '3\t0x0001\t0x03\tTrue\t0\t0\t\t',
+            '4\t0x0001\t0x1f\tFalse\t1\t2\t0x0007\t0x0700',
+        ]
+
+    def test_mpeg_pat_spanning(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6: a PAT of 60 programs spans two TS packets and every
+        program is dissected; frame 7 has two sections in one TS packet.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 6', 'mpeg_pat.prog_num',
+                'mpeg_pat.prog_map_pid')
+        nums, pids = lines[0].split('\t')[1:]
+        assert nums.split(';') == ['0x%04x' % n for n in range(1, 61)]
+        assert pids.split(';') == ['0x%04x' % (0x100 + n)
+                                   for n in range(1, 61)]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 7', 'mpeg_pat.sect_num',
+                'mpeg_pat.last_sect_num', 'mpeg_pat.prog_num')
+        assert lines == ['7\t0;1\t1;1\t0x0001;0x0002']
+
+    def test_mpeg_pat_crc(self, cmd_tshark, capture_file, test_env):
+        '''With mpeg_sect.verify_crc only the PAT of frame 5 has an
+        invalid CRC expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert', 'mpeg_sect.crc.status',
+                opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
+        assert lines == ['5\t0']
