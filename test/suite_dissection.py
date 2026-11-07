@@ -92336,3 +92336,98 @@ class TestDissectLppe:
                 '-elppe.lppeCompatibilityLevel', '-elppe.majorVersion',
                 '-elppe.lppeMode')
         assert out == ['105\t7\t182\t1', '106\t7\t243\t0', '107\t7\t255\t1']
+
+
+class TestDissectLsc:
+    # LSC has no registered port: Decode As for UDP and TCP port 5000
+    OPTS = ('-d', 'udp.port==5000,lsc', '-d', 'tcp.port==5000,lsc')
+
+    def test_lsc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''46 frames: 44 LSC and 2 TCP segments that hold only the start
+        of a PDU (reassembled in the next frame). None is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lsc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 46
+        assert protocols.count('LSC') == 44
+        assert protocols.count('TCP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('lsc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lsc_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: op code names, unknown op code, and the length
+        warnings for messages longer than the op code needs.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lsc_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 20',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert info[0:6] == [
+            'LSC_STATUS, session 00001000', 'LSC_RESET, session 00001000',
+            'LSC_PAUSE, session 00001000', 'LSC_RESUME, session 00001000',
+            'LSC_JUMP, session 00001000', 'LSC_PLAY, session 00001000']
+        assert info[6:13] == [n + '_REPLY, session 00001000' for n in
+            ('LSC_STATUS', 'LSC_RESET', 'LSC_PAUSE', 'LSC_RESUME', 'LSC_JUMP', 'LSC_PLAY')] + ['LSC_DONE, session 00001000']
+        assert info[15] == 'Unknown op code (0x50), session 00001000'
+        assert info[16:20] == [
+            'Unknown op code (0x50), session 00001000 [Too long]',
+            'LSC_PAUSE, session 00001000 [Too long]',
+            'LSC_STATUS, session 00001000 [Too long]',
+            'LSC_STATUS_REPLY, session 00001000 [Too long]']
+
+    def test_lsc_fields(self, cmd_tshark, capture_file, test_env):
+        '''Operands of the requests and replies: NPT values, scale, status
+        and mode.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lsc_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 4 && frame.number <= 13',
+                '-Tfields', '-eframe.number', '-elsc.op_code',
+                '-elsc.status_code', '-elsc.start_npt', '-elsc.stop_npt',
+                '-elsc.current_npt', '-elsc.scale_num', '-elsc.scale_denum',
+                '-elsc.mode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0x02\t\t5000\t\t\t2\t1\t',
+            '5\t0x05\t\t0\t-1\t\t1\t1\t',
+            '6\t0x06\t\t1000\t2000\t\t-2\t1\t',
+            '7\t0x83\t0x00\t\t\t1234\t1\t1\t0x03',
+            '8\t0x84\t0x00\t\t\t0\t0\t1\t0x00',
+            '9\t0x81\t0x01\t\t\t90000\t1\t1\t0x01',
+            '10\t0x82\t0x04\t\t\t5000\t2\t1\t0x02',
+            '11\t0x85\t0x05\t\t\t0\t1\t1\t0x04',
+            '12\t0x86\t0x10\t\t\t1000\t-2\t1\t0x05',
+            '13\t0x40\t0x40\t\t\t99999\t1\t1\t0x07',
+        ]
+
+    def test_lsc_tcp_pdus(self, cmd_tshark, capture_file, test_env):
+        '''TCP: several PDUs in one segment, PDUs split over two segments
+        (also after one octet), and an unknown op code PDU followed by
+        another PDU: an unknown op code is 8 octets long (before the fix
+        it was 3, which split the rest into malformed PDUs).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('lsc_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 21 && frame.number <= 31',
+                '-Tfields', '-eframe.number', '-elsc.op_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '21\t0x03,0x01',
+            '22\t0x83,0x81',
+            '23\t',
+            '24\t0x02',
+            '25\t',
+            '26\t0x06',
+            '27\t0x82',
+            '28\t0x86',
+            '29\t0x60,0x03',
+            '30\t0x05,0x04,0x05',
+            '31\t0x40',
+        ]
