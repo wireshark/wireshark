@@ -95760,3 +95760,49 @@ class TestDissectMemcache:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'memcache.opcode', '-Tfields', '-ememcache.opcode')
         assert len(set(x for l in lines for x in l[0].split(','))) == 28
+
+
+class TestDissectMesh:
+    '''Mesh header (the 5 octet OLPC mesh header after the Marvell SNAP PID)
+    from the synthetic capture mesh_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('mesh_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_mesh_frames(self, cmd_tshark, capture_file, test_env):
+        '''12 frames; 9 have a mesh header (UI and I frames), the frames with
+        another OUI and the non-information frames have none; no malformed
+        packets and no error expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 12
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'mesh', '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == ['1', '2', '3', '4', '5', '6', '7', '8', '12']
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_mesh_fields(self, cmd_tshark, capture_file, test_env):
+        '''TTL and end-to-end sequence number, and what follows the header.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'mesh', '-Tfields', '-eframe.number', '-emesh.ttl',
+                '-emesh.e2eseq', '-e_ws.col.protocol')
+        assert lines == [
+            ['1', '5', '0x1234', 'UDP'], ['2', '1', '0x0001', 'ARP'],
+            ['3', '64', '0x8000', 'UDP'], ['4', '0', '0x0000', 'ARP'],
+            ['5', '255', '0xffff', 'UDP'], ['6', '128', '0x00ff', 'UDP'],
+            ['7', '9', '0x0009', 'Mesh'], ['8', '3', '0x0003', 'Mesh'],
+            ['12', '2', '0x0002', 'ARP']]
+
+    def test_mesh_not_present(self, cmd_tshark, capture_file, test_env):
+        '''XID and TEST frames with the Marvell OUI and another OUI are not
+        decoded with a mesh header (frames 9-11).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {9, 10, 11}', '-Tfields', '-e_ws.col.protocol')
+        assert [l[0] for l in lines] == ['LLC', 'LLC', 'LLC']
