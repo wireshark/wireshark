@@ -95325,3 +95325,44 @@ class TestDissectMdb:
                 '-Y', 'frame.number == 28', '-Tfields', '-emdb.cashless.manuf_code',
                 '-emdb.cashless.serial_number')
         assert lines == ['ACM\tSN0000000001']
+
+
+class TestDissectMdp:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mdp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MDP (both ethertypes) and none is malformed or
+        has an expert info, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['MDP'] * 8
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mdp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The TLV types of frame 1 and the strings they carry.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-Tfields', '-emdp.type',
+                '-emdp.device_info', '-emdp.network_info', '-emdp.longitude',
+                '-emdp.latitude', '-emdp.type_six', '-emdp.type_seven')
+        assert lines == ['2,3,4,5,6,7,255\tMR42-office-3rd-floor\tQ2XX-ABCD-1234'
+                         '\t-122.40306\t37.78541\t0a1b2c3d4e5f\te0cb4e112233']
+
+    def test_mdp_unknown_tlv_in_tlv_tree(self, cmd_tshark, capture_file, test_env):
+        '''The data of an unknown TLV is in the TLV tree, with its type
+        and length, as fixed in "MDP: Put unknown TLV data in the TLV tree".'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-V', '-O', 'mdp')
+        start = lines.index('Meraki Discovery Protocol')
+        assert lines[start + 2:start + 6] == [
+            '    Unknown type',
+            '        Type: Unknown (9)',
+            '        Length: 4',
+            '        Unknown Data: 01020304',
+        ]
