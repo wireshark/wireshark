@@ -95,7 +95,6 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint32_t     string_length;
     int          logger_version;
     const char  *log;
-    char        *c;
     tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Logcat");
@@ -147,28 +146,35 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     string_length = tvb_strsize(tvb, offset);
     proto_tree_add_item(maintree, hf_logcat_tag, tvb, offset, string_length, ENC_UTF_8);
 
-    set_address_tvb(&pinfo->src, AT_STRINGZ, string_length + 1, tvb, offset);
+    set_address_tvb(&pinfo->src, AT_STRINGZ, string_length, tvb, offset);
     set_address(&pinfo->dst, AT_STRINGZ, 7, "Logcat");
 
     offset += string_length;
     check_length += string_length;
 
-    string_length = length - string_length - 1;
+    if (length < check_length) {
+        proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_reported_length_remaining(tvb, offset));
+        return tvb_captured_length(tvb);
+    }
+    string_length = length - check_length;
     log = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, string_length, ENC_UTF_8);
 
     /* New line characters convert to spaces to ensure column Info display one line */
     if (pref_one_line_info_column) {
-        while ((c = g_utf8_strchr(log, string_length, '\n')))
-            *c = ' ';
-        while ((c = g_utf8_strchr(log, string_length, '\r')))
-            *c = ' ';
+        char *p;
+        for (p = (char*)log; p < log + string_length; p++) {
+            if (*p == '\n' || *p == '\r')
+                *p = ' ';
+        }
     }
 
     subitem = proto_tree_add_item(maintree, hf_logcat_log, tvb, offset, string_length, ENC_UTF_8);
     subtree = proto_item_add_subtree(subitem, ett_logcat_log);
 
-    next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);
-    call_dissector(data_text_lines_handle, next_tvb, pinfo, subtree);
+    if (string_length > 0) {
+        next_tvb = tvb_new_subset_length(tvb, offset, string_length - 1);
+        call_dissector(data_text_lines_handle, next_tvb, pinfo, subtree);
+    }
 
     col_add_str(pinfo->cinfo, COL_INFO, log);
     offset += string_length;
