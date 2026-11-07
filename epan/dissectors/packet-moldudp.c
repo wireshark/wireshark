@@ -60,7 +60,7 @@ dissect_moldudp_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *ti;
     proto_tree *blk_tree;
-    uint16_t    msglen, real_msglen, whole_len;
+    unsigned    msglen, real_msglen, whole_len;
     unsigned    remaining;
     tvbuff_t*   next_tvb;
 
@@ -124,7 +124,8 @@ dissect_moldudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_item *ti;
     proto_tree *moldudp_tree;
     unsigned    offset            = 0;
-    uint16_t    count, real_count = 0;
+    uint16_t    count;
+    unsigned    real_count = 0;
     uint32_t    sequence;
 
     /* Check that there's enough data */
