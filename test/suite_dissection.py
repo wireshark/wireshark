@@ -87260,3 +87260,90 @@ class TestDissectKerberos4:
         assert rows[0] == ['', '',
                 '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656667']
         assert rows[1] == ['aa' * 20, 'bb' * 12, '']
+
+
+class TestDissectKingfisher:
+    '''Kingfisher (TCP and UDP ports 473 and 4058) from the synthetic
+    capture kingfisher_coverage.pcap.gz.'''
+
+    @staticmethod
+    def kf_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kingfisher_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_kingfisher_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-92, 94 and 103-107 are Kingfisher (including the one
+        byte replies found through the conversation); the heuristic
+        rejects frames 1 and 96-99 (a one byte datagram without a
+        conversation, too short, unknown function code, wrong length, bad
+        checksum), frame 93 and 95 (a one byte reply that is not an
+        acknowledgement and garbage on a Kingfisher conversation) and
+        frame 108. No Kingfisher frame is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kf', '-Tfields', '-eframe.number')
+        frames = [int(x) for x in stdout.split()]
+        assert frames == [n for n in range(2, 93)] + [94, 103, 104, 105, 106, 107]
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '!kf && (udp || tcp.len > 0)', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', 'UDP'], ['93', 'UDP'], ['95', 'UDP'], ['96', 'UDP'],
+            ['97', 'UDP'], ['98', 'UDP'], ['99', 'UDP'], ['108', 'TCP']]
+        for passes in ((), ('-2',)):
+            stdout = self.kf_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || kf && _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_kingfisher_function_codes(self, cmd_tshark, capture_file, test_env):
+        '''Each of the 80 function codes of the table, version 2 below
+        0x80 and version 3 from it (frames 2-81).'''
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 2 && frame.number <= 81', '-Tfields',
+                '-ekingfisher.version', '-ekingfisher.function')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 80
+        assert len({r[1] for r in rows}) == 80
+        for ver, fn in rows:
+            assert ver == ('3' if int(fn) & 0x80 else '2')
+        assert rows[0] == ['2', '0'] and rows[-1] == ['3', '227']
+
+    def test_kingfisher_fields(self, cmd_tshark, capture_file, test_env):
+        '''Addresses (16 bit in version 3), message number, request or
+        response, data and checksum.'''
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2 || frame.number == 5 || frame.number == 82 || frame.number == 83',
+                '-Tfields', '-eframe.number', '-ekingfisher.system',
+                '-ekingfisher.target', '-ekingfisher.from', '-ekingfisher.via',
+                '-ekingfisher.length', '-ekingfisher.message_data',
+                '-ekingfisher.checksum.status')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0] == ['2', '7', '10', '20', '0', '8', '', '1']
+        assert rows[1] == ['5', '7', '13', '23', '3', '11', '000102', '1']
+        assert rows[2] == ['82', '7', '4660', '258', '772', '25',
+                           b'named variable'.hex(), '1']
+        assert rows[3][:6] == ['83', '7', '5', '6', '0', '68']
+        assert rows[3][6] == bytes(range(60)).hex()
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2 || frame.number == 3', '-V', '-O', 'kf')
+        assert 'Message Number: 1 (0x10, Response)' in stdout
+        assert 'Message Number: 0 (0x00, Request)' in stdout
+
+    def test_kingfisher_one_byte_replies(self, cmd_tshark, capture_file, test_env):
+        '''One byte acknowledgements (00, 01, 80 and 81) are decoded
+        once a conversation has been set up by a full message, on UDP
+        and TCP; any other byte stays data.'''
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 85 || frame.number == 87 || frame.number == 89 || '
+                      'frame.number == 91 || frame.number == 104 || frame.number == 106',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['85', '(Acknowledgement)'], ['87', '(Negative Acknowledgement)'],
+            ['89', '(Acknowledgement)'], ['91', '(Negative Acknowledgement)'],
+            ['104', '(Acknowledgement)'], ['106', '(Negative Acknowledgement)']]
+        # a full message from the other side on the conversation
+        stdout = self.kf_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 94', '-Tfields', '-e_ws.col.info')
+        assert stdout.strip() == '5 > 6 (Send Data Frame)'
