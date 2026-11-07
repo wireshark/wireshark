@@ -100756,3 +100756,75 @@ class TestDissectMsnip:
                 '-Y', 'msnip.checksum.status == 1', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.split() == [str(n) for n in (1, 2, 3, 4, 5, 6, 7, 8)]
+
+
+class TestDissectMsnlb:
+    '''Microsoft Network Load Balancing heartbeats (Ethernet type 0x886F
+    and Exported PDU) from the synthetic capture msnlb_coverage.pcapng.gz.'''
+
+    def test_msnlb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnlb_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['MS NLB'] * 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('msnlb_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msnlb_membership_heartbeat(self, cmd_tshark, capture_file, test_env):
+        '''The membership heartbeats: version, port rule count and the
+        teaming configuration bits.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnlb_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 4', '-Tfields', '-eframe.number',
+                '-emsnlb.number_of_port_rules',
+                '-emsnlb.teamingcfg.number_of_participants',
+                '-emsnlb.teamingcfg.master', '-emsnlb.teamingcfg.active',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t2\t0x0000000b\tFalse\tTrue',
+            '2\t0\t0x00000000\tFalse\tFalse',
+            '3\t33\t0x0000001f\tTrue\tTrue',
+            '4\t2\t0x00000002\tTrue\tTrue',
+        ]
+
+    def test_msnlb_extended_heartbeat(self, cmd_tshark, capture_file, test_env):
+        '''Host names and addresses of the extended heartbeat.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnlb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {5, 6, 7, 8, 9}', '-Tfields',
+                '-eframe.number', '-emsnlb.host_name', '-emsnlb.host_ipv4',
+                '-emsnlb.host_ipv6',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '5\tnode1.example.test\t\t',
+            '6\ta,node2.example.test,\t\t',
+            '7\tnode3\t192.0.2.77\t',
+            '8\t\t192.0.2.78\t',
+            '9\t\t\t2001:db8::1',
+        ]
+
+    def test_msnlb_frame_over_64k(self, cmd_tshark, capture_file, test_env):
+        '''An extended heartbeat of 65,556 octets (frame 13, and frame 16
+        as Exported PDU) has its 3639 host name entries dissected once;
+        the uint16_t offset wrapped and tshark dissected them forever
+        (fixed by "MSNLB: Use an unsigned offset"), hence the timeout.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnlb_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {13, 16}', '-Tfields',
+                '-eframe.number', '-emsnlb.host_name',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert len(lines) == 2
+        assert lines[0].startswith('13\t')
+        assert lines[0].split('\t')[1].split(',') == ['A'] * 3639
+        assert lines[1].startswith('16\t')
+        assert lines[1].split('\t')[1].split(',') == ['A'] * 3639
