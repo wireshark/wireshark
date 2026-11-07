@@ -3526,10 +3526,23 @@ if(BUILD_stratoshark AND QT_FOUND)
 endif()
 
 if (BUILD_stratoshark AND FALCO_PLUGIN_DIR AND FALCO_PLUGINS)
+	# FALCO_PLUGINS can contain names of files in FALCO_PLUGIN_DIR, or
+	# absolute paths, as documented and as FindSinsp finds them on Windows.
+	# Leave out FALCO_PLUGIN_DLLS, which plugins depend on but which aren't
+	# plugins themselves: falco-events tries to load every DLL that we copy.
 	set (_falco_plugins)
 	foreach(_plugin ${FALCO_PLUGINS})
-		list(APPEND _falco_plugins ${FALCO_PLUGIN_DIR}/${_plugin})
+		get_filename_component(_plugin_name "${_plugin}" NAME)
+		if(_plugin_name IN_LIST FALCO_PLUGIN_DLLS)
+			continue()
+		endif()
+		if(IS_ABSOLUTE "${_plugin}")
+			list(APPEND _falco_plugins "${_plugin}")
+		else()
+			list(APPEND _falco_plugins "${FALCO_PLUGIN_DIR}/${_plugin}")
+		endif()
 	endforeach()
+	unset(_plugin_name)
 	add_custom_target(copy_falco_plugins)
 	add_custom_command(TARGET copy_falco_plugins POST_BUILD
 		# XXX Falco plugins should probably be installed in a path that reflects

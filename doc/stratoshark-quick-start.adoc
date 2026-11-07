@@ -56,7 +56,9 @@ BUILD_falcodump:: Must be enabled for Falco plugin capture.
 BUILD_dumpcalls:: Must be enabled for local capture on Linux.
 BUILD_sshdig:: Must be enabled for remote capture over SSH.
 CMAKE_PREFIX_PATH:: If you installed libsinsp and libscap to a non-standard directory, https://cmake.org/cmake/help/latest/variable/CMAKE_PREFIX_PATH.html[this should point there].
-FALCO_PLUGINS:: Semicolon-separated paths to individual Falco plugins, e.g. `/path/to/libcloudtrail.so`.
+FALCO_PLUGIN_DIR:: The directory that contains the Falco plugins and the DLLs that they depend on.
+FALCO_PLUGINS:: Semicolon-separated Falco plugins, either names of files in `FALCO_PLUGIN_DIR`, e.g. `libcloudtrail.so`, or paths, e.g. `/path/to/libcloudtrail.so`.
+FALCO_PLUGIN_DLLS:: (Windows) Semicolon-separated names of DLLs in `FALCO_PLUGIN_DIR` that the plugins depend on, e.g. `libunwind.dll` for plugins written in Rust.
 --
 
 .Example 1: Building on Linux using Make
