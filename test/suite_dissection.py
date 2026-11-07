@@ -93255,3 +93255,68 @@ class TestDissectLwres:
             '17\t16\t1\t3600\texample.com\t\t\t\t',
             '18\t1\t0\t3600\texample.com\t\t\t\t',
         ]
+
+
+class TestDissectM2ap:
+    '''M2AP (3GPP TS 36.443, MCE to eNB) over SCTP, from the synthetic
+    capture m2ap_coverage.pcap.gz.'''
+
+    def test_m2ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is M2AP over SCTP (port 36443, or PPID 43 on
+        another port) and none is malformed or has an error expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2ap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 197
+        assert protocols.count('M2AP') == 197
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('m2ap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_m2ap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure codes 0-12 (initiating message, outcomes and private
+        message) and the Info text of a few messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2ap_coverage.pcap.gz'),
+                '-Tfields', '-em2ap.procedureCode', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        codes = set()
+        infos = set()
+        for line in stdout.splitlines():
+            code, info = line.split('\t')
+            codes.update(code.split(','))
+            infos.add(info)
+        assert codes >= {str(i) for i in range(13)}
+        assert 'M2 Setup Request' in infos
+        assert 'MBMS Session Start Request' in infos
+        assert 'Private Message' in infos
+        assert len(infos) == 28
+
+    def test_m2ap_ip_address_and_plmn(self, cmd_tshark, capture_file, test_env):
+        '''The IPAddress open type is shown as IPv4 (4 octets) or IPv6 (16
+        octets) and the PLMN identity goes to E.212 with 2 and 3 digit
+        MNCs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2ap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-em2ap.IPAddress_v4', '-em2ap.IPAddress_v6',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() != ''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2ap_coverage.pcap.gz'),
+                '-Tfields', '-em2ap.IPAddress_v6',
+            ), encoding='utf-8', env=test_env)
+        assert '2021:2223:2425:2627:2829:2a2b:2c2d:2e2f' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2ap_coverage.pcap.gz'),
+                '-Tfields', '-ee212.mnc',
+            ), encoding='utf-8', env=test_env)
+        mncs = {len(m) for m in stdout.replace(',', ' ').split()}
+        assert mncs == {2, 3}
