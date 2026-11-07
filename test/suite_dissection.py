@@ -101161,3 +101161,102 @@ class TestDissectMtp3:
                     '-Y', 'frame.number == 1', '-o', 'mtp3.itu_pc_structure:' + fmt,
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert text in stdout
+
+
+class TestDissectMtp3mg:
+    '''MTP3 management and test messages (SI 0, 1 and 2) over
+    LINKTYPE_MTP3, from the synthetic capture mtp3mg_coverage.pcapng.gz.
+    Frames 1-52 are ITU (the default standard), 53-101 ANSI, 102-122
+    Chinese ITU and 123-148 Japan; the others need mtp3.standard.'''
+
+    SECTIONS = (
+        # first, last, standard, "Unknown message" warnings
+        (1, 52, 'itu', 20),
+        (53, 101, 'ansi', 12),
+        (102, 122, 'chinese-itu', 6),
+        (123, 148, 'japan', 14),
+    )
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mtp3mg_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mtp3mg_standards(self, cmd_tshark, capture_file, test_env):
+        '''Every section decodes without malformed packets, in one and
+        two passes; the "Unknown message" warnings are the messages that
+        the standard does not define (ANSI-only cluster messages in ITU,
+        management messages in Japan, ...).'''
+        for first, last, std, unknown in self.SECTIONS:
+            rng = 'frame.number >= %d && frame.number <= %d' % (first, last)
+            for passes in ((), ('-2',)):
+                opts = (*passes, '-o', 'mtp3.standard:' + std)
+                lines = self.fields(cmd_tshark, capture_file, test_env, rng,
+                                    'frame.number', opts=opts)
+                assert len(lines) == last - first + 1
+                bad = self.fields(cmd_tshark, capture_file, test_env,
+                                  rng + ' && _ws.malformed', 'frame.number', opts=opts)
+                assert count_output('\n'.join(bad)) == 0, (std, bad)
+                warn = self.fields(cmd_tshark, capture_file, test_env,
+                                   rng + ' && mtp3mg.unknown_message',
+                                   'frame.number', opts=opts)
+                assert len(warn) == unknown, (std, warn)
+                other = self.fields(cmd_tshark, capture_file, test_env,
+                                    rng + ' && _ws.expert.severity >= 0x00600000 '
+                                    '&& !mtp3mg.unknown_message',
+                                    'frame.number', opts=opts)
+                assert other == []
+
+    def test_mtp3mg_itu_messages(self, cmd_tshark, capture_file, test_env):
+        '''ITU transfer-controlled (point code and congestion status) and
+        the signalling link test messages with their test patterns.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {12, 46, 47}', 'frame.number',
+                            '_ws.col.info', 'mtp3mg.apc', 'mtp3mg.status',
+                            'mtp3mg.test.length', 'mtp3mg.test_pattern')
+        assert lines == [
+            '12\tTFC \t291\t2\t\t',
+            '46\tSLTM \t\t\t5\t4142434445',
+            '47\tSLTA \t\t\t3\t58595a',
+        ]
+
+    def test_mtp3mg_unknown_message_length(self, cmd_tshark, capture_file, test_env):
+        '''The length of an unknown message was kept in 8 bits ("Unknown
+        message (44 bytes)" for 300 octets) before "MTP3MG: Fix Japan RST
+        point code and message length type".'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {51, 52}', 'frame.number',
+                            '_ws.expert.message')
+        assert lines == ['51\tUnknown message (300 bytes)',
+                         '52\tUnknown message (300 bytes)']
+
+    def test_mtp3mg_japan_rst_point_codes(self, cmd_tshark, capture_file, test_env):
+        '''Each point code of a Japan signalling-route-set-test message
+        is shown in the structured form of its own value (the first one
+        was used for all before the fix) and the test pattern of SRT
+        and SRA is checked.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('mtp3mg_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {136, 146, 147}',
+                '-o', 'mtp3.standard:japan', '-o', 'mtp3.japan_pc_structure:7-4-5',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()
+                 if 'Affected Point Code:' in l or 'test message pattern' in l]
+        assert lines == [
+            'Affected Point Code: 2571 (5-0-11)',
+            'Affected Point Code: 3085 (6-0-13)',
+            'Japan test message pattern: 0x7711 (correct)',
+            'Japan test message pattern: 0x1234 (incorrect)',
+        ]
+
+    def test_mtp3mg_ansi_fields(self, cmd_tshark, capture_file, test_env):
+        '''ANSI signalling link codes and the test message with its
+        signalling link code and pattern.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {53, 98, 99}', 'frame.number',
+                            'mtp3mg.slc', 'mtp3mg.test_pattern',
+                            opts=('-o', 'mtp3.standard:ansi'))
+        assert lines == ['53\t5\t', '98\t3\t4142434445', '99\t1\t5859']
