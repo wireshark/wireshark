@@ -93320,3 +93320,90 @@ class TestDissectM2ap:
             ), encoding='utf-8', env=test_env)
         mncs = {len(m) for m in stdout.replace(',', ' ').split()}
         assert mncs == {2, 3}
+
+
+class TestDissectM2pa:
+    '''M2PA (MTP2 Peer-to-Peer Adaptation Layer, RFC 4165 and the drafts)
+    over SCTP port 3565 / PPID 5, from the synthetic capture
+    m2pa_coverage.pcap.gz. Frames 1-28 are RFC 4165 messages (they decode
+    the same with -o m2pa.version:draft-8, except the two empty
+    messages 23 and 26 that draft 8 rejects), 29-44 draft 2 messages
+    (-o m2pa.version:draft-2) and 45-47 the reproducers of "M2PA: Check
+    the message length in RFC 4165 mode".'''
+
+    BAD = '(_ws.malformed || _ws.expert.severity >= error)'
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('m2pa_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_m2pa_rfc4165_clean(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-28 have no malformed packets or error expert infos at
+        the default version, in one and two passes; 9 frames carry MTP3
+        messages (SLTM and COO).'''
+        for passes in ((), ('-2',)):
+            assert self._run(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 28 && ' + self.BAD, '-eframe.number',
+                    opts=passes) == []
+        protocols = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number <= 28', '-e_ws.col.protocol')
+        assert len(protocols) == 28
+        assert protocols.count('M2PA') == 19
+        assert [p for p in protocols if p != 'M2PA'] == ['MTP3MG (Int. ITU)'] * 9
+
+    def test_m2pa_link_status(self, cmd_tshark, capture_file, test_env):
+        '''Link status values 1-9 are named and others are Unknown; the
+        filler of frames 13 and 14 is shown.'''
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2pa.status && frame.number <= 14',
+                '-eframe.number', '-e_ws.col.info', '-em2pa.filler')
+        info = {int(l.split('\t')[0]): l.split('\t')[1].strip() for l in lines}
+        assert info[1] == 'Link Status (Alignment)'
+        assert info[4] == 'Link Status (Ready)'
+        assert info[9] == 'Link Status (Out of Service)'
+        assert info[10] == 'Link Status (Unknown)'
+        assert info[12] == 'Link Status (Unknown)'
+        assert lines[12].endswith('00000000')
+        assert lines[13].endswith('aabbccddeeff1122')
+
+    def test_m2pa_draft8(self, cmd_tshark, capture_file, test_env):
+        '''With the draft-8 version frames 1-28 decode without errors
+        except the two messages without data (23: user data, 26: type 0),
+        which draft 8 reports as an invalid message data length.'''
+        opts = ('-o', 'm2pa.version:draft-8')
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number <= 28 && ' + self.BAD, '-eframe.number', opts=opts)
+        assert lines == ['23', '26']
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number <= 28', '-e_ws.col.protocol', opts=opts)
+        assert lines.count('M2PA (ID 08)') == 19
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2pa.status_v8 == 9', '-eframe.number', opts=opts)
+        assert lines == ['9']
+
+    def test_m2pa_draft2(self, cmd_tshark, capture_file, test_env):
+        '''Frames 29-44 with the draft-2 version: link status, MTP3 user
+        data; the empty messages 42 and 44 are an invalid length.'''
+        opts = ('-o', 'm2pa.version:draft-2')
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'frame.number >= 29 && frame.number <= 44 && ' + self.BAD,
+                '-eframe.number', opts=opts)
+        assert lines == ['42', '44']
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2pa.status_v2', '-eframe.number', '-em2pa.status_v2', opts=opts)
+        assert lines == ['29\t1', '30\t2', '31\t3', '32\t4', '33\t5', '34\t0', '35\t9']
+
+    def test_m2pa_short_length(self, cmd_tshark, capture_file, test_env):
+        '''A message length below the 16 octet header (frames 45-47) is an
+        error expert info instead of a wrapped data length.'''
+        for passes in ((), ('-2',)):
+            lines = self._run(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 45', '-eframe.number',
+                    '-e_ws.expert.message', opts=passes)
+            assert lines == ['45\tInvalid message length: 8',
+                             '46\tInvalid message length: 0',
+                             '47\tInvalid message length: 15']
