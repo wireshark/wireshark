@@ -34,6 +34,7 @@
 #include <epan/packet.h>
 #include <epan/tvbparse.h>
 #include <epan/proto_data.h>
+#include <wsutil/strtoi.h>
 
 #include "packet-e212.h"
 #include "packet-gtpv2.h"
@@ -84,6 +85,7 @@ static int hf_json_3gpp_callbackReference;
 static int hf_json_3gpp_pcscfRestorationCallbackUri;
 static int hf_json_3gpp_deregCallbackUri;
 static int hf_json_3gpp_staleCheckCallbackUri;
+static int hf_json_3gpp_gtpTeid;
 
 
 static int hf_json_3gpp_suppfeat;
@@ -338,6 +340,24 @@ static int hf_json_3gpp_suppfeat_nudm_pp_3_membersdata;
 
 
 /* Functions to sub dissect json content */
+
+/* So that GTP-U with the TEID gets the IMSI of the HTTP2 stream (needs
+ * gtp.track_gtp_session)
+ */
+static void
+json_3gpp_add_teid_imsi(packet_info* pinfo, uint32_t teid)
+{
+	const char *imsi;
+
+	if (PINFO_FD_VISITED(pinfo) || teid == 0 || !proto_is_frame_protocol(pinfo->layers, "http2")) {
+		return;
+	}
+	imsi = http2_get_stream_imsi(pinfo);
+	if (imsi) {
+		gtp_add_teid_imsi(teid, imsi);
+	}
+}
+
 static void
 dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_)
 {
@@ -347,12 +367,23 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 
 	proto_item* ti;
 	proto_tree* sub_tree;
+	session_args_t args = { 0 };
 	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
 	int bin_tvb_length = tvb_reported_length(bin_tvb);
 	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
 	ti = proto_tree_add_item(tree, hf_json_3gpp_binary_data, bin_tvb, 0, bin_tvb_length, ENC_NA);
 	sub_tree = proto_item_add_subtree(ti, ett_json_base64decoded_eps_ie);
-	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, NULL, 0);
+
+	/* With session arguments the F-TEIDs of the IE are kept */
+	args.last_cause = 16;
+	args.teid_list = wmem_list_new(pinfo->pool);
+	args.ip_list = wmem_list_new(pinfo->pool);
+	args.replaced_list = wmem_list_new(pinfo->pool);
+	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, &args, 0);
+
+	for (wmem_list_frame_t *elem = wmem_list_head(args.teid_list); elem; elem = wmem_list_frame_next(elem)) {
+		json_3gpp_add_teid_imsi(pinfo, *(uint32_t *)wmem_list_frame_data(elem));
+	}
 
 	return;
 }
@@ -1350,6 +1381,30 @@ dissect_3gpp_supportfeatures(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 }
 
 static void
+dissect_3gpp_gtp_teid(tvbuff_t* tvb, proto_tree* tree _U_, packet_info* pinfo, int offset, int len, const char* key_str _U_)
+{
+	/* 3GPP TS 29.571 Teid: the 4 octet TEID of a GTP-U tunnel (in ex the
+	 * TunnelInfo of 3GPP TS 29.502) in 8 hexadecimal characters,
+	 *   Pattern: '^[A-Fa-f0-9]{8}$'
+	 */
+	const char *teid_str;
+	uint32_t teid;
+
+	if (len != 8) {
+		return;
+	}
+	teid_str = (const char *)tvb_get_string_enc(pinfo->pool, tvb, offset, len, ENC_ASCII);
+	for (int i = 0; i < len; i++) {
+		if (!g_ascii_isxdigit(teid_str[i])) {
+			return;
+		}
+	}
+	if (ws_hexstrtou32(teid_str, NULL, &teid)) {
+		json_3gpp_add_teid_imsi(pinfo, teid);
+	}
+}
+
+static void
 dissect_3gpp_supi(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len, const char* key_str _U_)
 {
 	tvbuff_t   *supi_tvb;
@@ -1606,6 +1661,12 @@ register_static_headers(void) {
 			{"staleCheckCallbackUri", "json.3gpp.staleCheckCallbackUri",
 				FT_STRING, BASE_NONE, NULL, 0x0,
 				NULL, HFILL}
+		},
+		{
+			&hf_json_3gpp_gtpTeid,
+			{"gtpTeid", "json.3gpp.gtpTeid",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
 		}
 	};
 
@@ -1642,6 +1703,8 @@ register_static_headers(void) {
 		dissect_3gpp_notifyuri,		/* pcscfRestorationCallbackUri */
 		dissect_3gpp_notifyuri,		/* deregCallbackUri */
 		dissect_3gpp_notifyuri,		/* staleCheckCallbackUri */
+
+		dissect_3gpp_gtp_teid,		/* gtpTeid */
 
 		NULL,   /* NONE */
 	};

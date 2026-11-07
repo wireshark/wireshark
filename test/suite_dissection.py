@@ -68817,6 +68817,43 @@ class TestDissectRanapSession:
         ]
 
 
+class TestDissectJson3gppSession:
+    def gtpu_imsi(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('json_3gpp_session.pcap'),
+                '-Y', 'gtp',
+                '-Tfields', '-egtp.teid', '-ee212.assoc.imsi',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_json_3gpp_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
+        '''With GTP session tracking, the GTP-U to the gtpTeid of the
+        hcnTunnelInfo (frame 5) and of the vcnTunnelInfo (frame 6), and to
+        the TEID of the base64 pgwS8uFteid (frame 7), gets the IMSI of the
+        SUPI of the HTTP2 stream, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.gtpu_imsi(cmd_tshark, capture_file, test_env, *GTP_SESSION_OPTS, *passes) == [
+                '0x00008101\t001010000000007',
+                '0x00007101\t001010000000007',
+                '0x00009101\t001010000000007',
+            ]
+
+    def test_json_3gpp_session_without_gtp_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Without GTP session tracking the GTP-U gets no IMSI, and the
+        frames decode without expert infos.'''
+        assert self.gtpu_imsi(cmd_tshark, capture_file, test_env) == [
+            '0x00008101\t',
+            '0x00007101\t',
+            '0x00009101\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS,
+                '-r', capture_file('json_3gpp_session.pcap'),
+                '-Y', '_ws.expert || _ws.malformed',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == ''
+
+
 class TestDissectH235:
     '''H.235 security messages from the synthetic capture
     h235_coverage.pcap.gz (93 frames).  ClearTokens, CryptoH323Tokens and
