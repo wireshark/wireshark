@@ -62,6 +62,9 @@ static int dissect_mac_nr_framed(tvbuff_t *tvb, packet_info *pinfo,
     /* Dissect the fields to populate p_mac_nr */
     if (!dissect_mac_nr_context_fields(p_mac_nr_info, tvb, pinfo, tree,
                                        &offset)) {
+        if (!infoAlreadySet) {
+            wmem_free(wmem_file_scope(), p_mac_nr_info);
+        }
         return offset;
     }
 
