@@ -89476,3 +89476,124 @@ class TestDissectLbmr:
                                   opts=('-o', 'lbmr.mc_incoming_address:224.9.20.20',
                                         '-o', 'lbmr.mc_outgoing_address:224.9.20.20'))
         assert rows == [['1', 'UDP'], ['3', 'LBMR'], ['7', 'UDP']]
+
+
+class TestDissectLbmsrs:
+    '''Ultra Messaging Stateful Resolution Service (SRS) over RSocket on
+    TCP, from the synthetic capture lbmsrs_coverage.pcap.gz. The heuristic
+    accepts a connection to or from 127.0.0.1 (first connection: frames
+    1-80, second: 81-87). The third connection (frames 88-94, 192.0.2.20
+    and .21, port 50002) is only dissected with the address preference or
+    the tag table.'''
+
+    CAP = 'lbmsrs_coverage.pcap.gz'
+    TAG = ('-o', 'lbmsrs.use_lbmsrs_domain:TRUE',
+           '-o', 'uat:lbmsrs_domains:"srs","192.0.2.21","50002"')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args), encoding='utf-8',
+                                       env=test_env, timeout=120).splitlines()
+
+    def test_lbmsrs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 frames decode as LBMSRS (the rest is TCP handshakes, the
+        segments of reassembled frames and the third connection), without
+        malformed packets or error expert infos, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self._fields(cmd_tshark, capture_file, test_env, '-r', cap,
+                                 '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 94
+        assert protocols.count('LBMSRS') == 80
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        one = self._fields(cmd_tshark, capture_file, test_env, '-r', cap, '-Y', 'lbmsrs',
+                           '-Tfields', '-e_ws.col.info', '-elbmsrs.message_id')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-r', cap, '-Y', 'lbmsrs',
+                           '-Tfields', '-e_ws.col.info', '-elbmsrs.message_id')
+        assert one == two
+
+    def test_lbmsrs_rsocket_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every RSocket frame type the dissector knows, and the frame
+        types of frames that carry no SRS message.'''
+        types = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                             '-Y', 'lbmsrs', '-Tfields', '-elbmsrs.rsocket.frame_type',
+                             '-E', 'aggregator=,')
+        seen = {t for line in types for t in line.split(',')}
+        assert seen == {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14',
+                        '48', '0', '63'}
+
+    def test_lbmsrs_setup_resume_token(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6 is a SETUP with the resume flag: a resume token of 8
+        octets (the reproducer of the ENC_STRING review finding), mime
+        types and a stream request as payload.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                           '-Y', 'frame.number == 6', '-Tfields', '-elbmsrs.rsocket.flags.resume',
+                           '-elbmsrs.rsocket.resume.token.len', '-elbmsrs.rsocket.resume.token',
+                           '-elbmsrs.rsocket.mdata_mime_type', '-elbmsrs.rsocket.data_mime_type',
+                           '-e_ws.col.info')
+        assert out == ['True\t8\tTOKEN123\tmime\tdata\tSETUP[SRS STREAM REQUEST]']
+
+    def test_lbmsrs_registration(self, cmd_tshark, capture_file, test_env):
+        '''Registration request (SETUP payload) and response.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                           '-Y', 'frame.number in {5, 13}', '-Tfields', '-eframe.number',
+                           '-elbmsrs.registration_request.app_type',
+                           '-elbmsrs.registration_request.client_addr',
+                           '-elbmsrs.registration_request.client_port',
+                           '-elbmsrs.registration_request.session_id',
+                           '-elbmsrs.registration_request.protocol_version',
+                           '-elbmsrs.registration_request.interest_mode',
+                           '-elbmsrs.registration_response.client_id')
+        assert out == [
+            '5\t0\t192.0.2.7\t14371\t287454020\t2\t0x07\t',
+            '13\t\t\t\t\t\t\t72623859790382856',
+        ]
+
+    def test_lbmsrs_batches(self, cmd_tshark, capture_file, test_env):
+        '''One message per frame for each of the 16 batch messages, a
+        batch with every message, and the counters in the Info column.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                           '-Y', 'frame.number in {46, 47, 56, 62, 63}', '-Tfields',
+                           '-eframe.number', '-e_ws.col.info')
+        assert out == [
+            '46\tPAYLOAD[ SIR:1 ]',
+            '47\tPAYLOAD[ SER:1 ]',
+            '56\tPAYLOAD[ RTI:1 ]',
+            '62\tPAYLOAD[ SIR:1 SER:1 SDR:1 RIR:1 RER:1 RDR:1 WIR:1 WER:1 WDR:1 SLI:1 RTI:1 RTE:1 DMI:1 CNQ:1 CNI:1 CNE:1 ]',
+            '63\tREQUEST_FNF[ SIR:2 SER:1 SDR:1 RIR:3 ]',
+        ]
+        out = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                           '-Y', 'frame.number == 46', '-Tfields', '-elbmsrs.sir.topic',
+                           '-elbmsrs.sir.source', '-elbmsrs.sir.cost', '-elbmsrs.sir.request_ip')
+        assert out == ['topic1\tsource1\t5\t192.0.2.7']
+
+    def test_lbmsrs_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A frame split over three TCP segments (frames 74-76) is dissected
+        once, in the last segment; a PDU split in the middle of a segment
+        (frames 79-80) too.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, '-r', capture_file(self.CAP),
+                           '-Y', 'frame.number in {74, 75, 76, 79, 80}', '-Tfields',
+                           '-eframe.number', '-e_ws.col.info')
+        assert out[-3:] == ['76\tPAYLOAD[ SIR:1 SDR:1 CNI:1 ]',
+                            '79\tREQUEST_FNF[ SDR:1 ]', '80\tREQUEST_FNF[ SDR:1 ]']
+
+    def test_lbmsrs_tag_table(self, cmd_tshark, capture_file, test_env):
+        '''The third connection is not LBMSRS by default; with the address
+        preference or a tag table entry it is.'''
+        cap = capture_file(self.CAP)
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'lbmsrs && frame.number >= 91',
+                '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+        for opts in (self.TAG, ('-o', 'lbmsrs.source_ip_address:192.0.2.21'),
+                     ('-o', 'lbmsrs.source_ip_address:', '-o', 'lbmsrs.source_port:50002')):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', cap,
+                    '-Y', 'lbmsrs && frame.number >= 91', '-Tfields', '-eframe.number',
+                    '-e_ws.col.info'), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 4
+        stdout = subprocess.check_output((cmd_tshark, *self.TAG, '-r', cap, '-Y', 'frame.number == 92',
+                '-Tfields', '-e_ws.col.info'), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.startswith('[Tag: srs]')
