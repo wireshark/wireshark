@@ -97672,3 +97672,61 @@ class TestDissectMoldudp:
                 '-Tfields', '-emoldudp.msgblock',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert len(stdout.strip().split(',')) == 1
+
+
+class TestDissectMonero:
+    '''Monero (Levin protocol) over TCP, found by the heuristic on the
+    Levin signature, from the synthetic capture monero_coverage.pcap.gz:
+    every command, every payload type, varints of every size, reassembly,
+    two PDUs per segment, and a second connection (port 28080).'''
+
+    def test_monero_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Monero PDU decodes without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('monero_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 53
+        assert protocols.count('Monero') == 44
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('monero_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_monero_boolean(self, cmd_tshark, capture_file, test_env):
+        '''BOOLEAN payload values use the boolean field ("Monero: Fix
+        boolean field, string length check and body length"); they were
+        shown as a 64 bit integer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('monero_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-emonero.payload.item.value.boolean',
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+                '-emonero.payload.item.value.int64',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        booleans, int64 = stdout.rstrip('\n').split('\t')
+        assert booleans == 'True;False'
+        assert int64 == '-5497558138880'
+
+    def test_monero_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 3017 octet message in three segments is reassembled in the
+        last one (frame 42); two PDUs in a segment are both dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('monero_coverage.pcap.gz'),
+                '-Y', 'monero.command == 2004 && monero.length == 3017',
+                '-Tfields', '-eframe.number', '-emonero.command',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['42\t2004']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('monero_coverage.pcap.gz'),
+                '-Y', 'frame.number == 39',
+                '-Tfields', '-emonero.command',
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '1003;1007'
