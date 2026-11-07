@@ -196,6 +196,13 @@ uint32_t get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint3
 
 void remove_frame_info(uint32_t f);
 
+/**
+ * Removes the <teid,ip> mappings to frame that fill_map() added for its
+ * teid_list and ip_list (in frame_map). Unlike remove_frame_info(), it does
+ * not go through the whole map.
+ */
+void remove_frame_info_lists(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame);
+
 void add_gtp_session(uint32_t frame, uint32_t session);
 
 bool teid_exists(uint32_t teid, wmem_list_t *teid_list);

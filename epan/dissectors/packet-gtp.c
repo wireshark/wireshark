@@ -2720,6 +2720,23 @@ remove_frame_info(uint32_t f) {
 }
 
 void
+remove_frame_info_lists(wmem_list_t *teid_list, wmem_list_t *ip_list, uint32_t frame) {
+    wmem_list_frame_t *elem_ip, *elem_teid;
+    gtp_info_t info;
+
+    for (elem_ip = wmem_list_head(ip_list); elem_ip; elem_ip = wmem_list_frame_next(elem_ip)) {
+        copy_address_shallow(&info.addr, (address*)wmem_list_frame_data(elem_ip));
+        for (elem_teid = wmem_list_head(teid_list); elem_teid; elem_teid = wmem_list_frame_next(elem_teid)) {
+            info.teid = *(uint32_t*)wmem_list_frame_data(elem_teid);
+            /* Unless a later message took the mapping */
+            if (GPOINTER_TO_UINT(wmem_map_lookup(frame_map, &info)) == frame) {
+                wmem_map_remove(frame_map, &info);
+            }
+        }
+    }
+}
+
+void
 add_gtp_session(uint32_t frame, uint32_t session) {
 
     wmem_map_insert(session_table, GUINT_TO_POINTER(frame), GUINT_TO_POINTER(session));
@@ -10079,15 +10096,12 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
              * XXX: Wouldn't it be better not to insert this information
              * in the first place for other message types, instead of
              * inserting it and then immediately removing it?
-             * At the very least, it would be faster to iterate through the
-             * teid_list and ip_list and remove via keys rather than doing
-             * removal through a reverse lookup.
              */
             if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
                 && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
-                    remove_frame_info(pinfo->num);
+                    remove_frame_info_lists(args->teid_list, args->ip_list, pinfo->num);
                 }
             }
 

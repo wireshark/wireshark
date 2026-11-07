@@ -9555,7 +9555,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_REQUEST && gtpv2_hdr->message != GTPV2_MODIFY_BEARER_RESPONSE)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
-                    remove_frame_info(pinfo->num);
+                    remove_frame_info_lists(args->teid_list, args->ip_list, pinfo->num);
                 }
             }
 

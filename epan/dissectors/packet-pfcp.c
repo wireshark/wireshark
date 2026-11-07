@@ -2376,6 +2376,27 @@ pfcp_remove_frame_info(uint32_t f) {
     wmem_map_foreach_remove(pfcp_frame_map, pfcp_frame_equal, GUINT_TO_POINTER(f));
 }
 
+/* Like pfcp_remove_frame_info(), but only for the <seid,ip> mappings that
+ * pfcp_fill_map() added for the seid_list and ip_list of frame, without
+ * going through the whole map.
+ */
+static void
+pfcp_remove_frame_info_lists(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
+    wmem_list_frame_t *elem_ip, *elem_seid;
+    pfcp_info_t info;
+
+    for (elem_ip = wmem_list_head(ip_list); elem_ip; elem_ip = wmem_list_frame_next(elem_ip)) {
+        copy_address_shallow(&info.addr, (address*)wmem_list_frame_data(elem_ip));
+        for (elem_seid = wmem_list_head(seid_list); elem_seid; elem_seid = wmem_list_frame_next(elem_seid)) {
+            info.seid = *(uint64_t*)wmem_list_frame_data(elem_seid);
+            /* Unless a later message took the mapping */
+            if (GPOINTER_TO_UINT(wmem_map_lookup(pfcp_frame_map, &info)) == frame) {
+                wmem_map_remove(pfcp_frame_map, &info);
+            }
+        }
+    }
+}
+
 
 static void
 pfcp_add_session(uint32_t frame, uint32_t session) {
@@ -2609,9 +2630,6 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
              * XXX: Wouldn't it be better not to insert this information
              * in the first place for other message types, instead of
              * inserting it and then immediately removing it?
-             * At the very least, it would be faster to iterate through the
-             * seid_list and ip_list and remove via keys rather than doing
-             * removal through a reverse lookup.
              */
             if ((pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_ESTABLISHMENT_RESPONSE &&
                 pfcp_hdr->message != PFCP_MSG_SESSION_MODIFICATION_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_MODIFICATION_RESPONSE &&
@@ -2619,7 +2637,7 @@ pfcp_track_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, pfcp_
                 pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_REQUEST && pfcp_hdr->message != PFCP_MSG_SESSION_REPORT_RESPONSE)) {
                 /* If the lists are not empty*/
                 if (wmem_list_count(args->seid_list) && wmem_list_count(args->ip_list)) {
-                    pfcp_remove_frame_info(pinfo->num);
+                    pfcp_remove_frame_info_lists(args->seid_list, args->ip_list, pinfo->num);
                 }
             }
             if (pfcp_hdr->message == PFCP_MSG_SESSION_ESTABLISHMENT_REQUEST){
