@@ -612,6 +612,7 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	proto_item           *ti;
 	mojito_header_data_t  header_data;
 	int                   offset = 0;
+	unsigned              opcode_len;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Mojito");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -624,8 +625,10 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	if (offset == 0) /* Some error occurred */
 		return 0;
 
+	opcode_len = (header_data.payloadlength > MOJITO_HEADER_LENGTH) ?
+			header_data.payloadlength - MOJITO_HEADER_LENGTH : 0;
 	opcode_tree = proto_tree_add_subtree_format(mojito_tree, tvb,
-					  offset, header_data.payloadlength - MOJITO_HEADER_LENGTH,
+					  offset, opcode_len,
 					  ett_mojito_opcode, NULL, "Opcode specific data (%s)",
 					  val_to_str_const(header_data.opcode, opcodeflags, "Unknown"));
 
@@ -664,9 +667,9 @@ dissect_mojito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 	case MOJITO_STATS_REQUEST_DEPRECATED: /* STATS REQUEST (DEPRECATED) */
 	case MOJITO_STATS_RESPONSE_DEPRECATED: /* STATS RESPONSE (DEPRECATED) */
 	default:
-		if (header_data.payloadlength - MOJITO_HEADER_LENGTH > 0)
+		if (opcode_len > 0)
 			proto_tree_add_item(opcode_tree, hf_mojito_opcode_data, tvb,
-					    offset, header_data.payloadlength - MOJITO_HEADER_LENGTH, ENC_NA);
+					    offset, opcode_len, ENC_NA);
 		break;
 	}
 
@@ -681,9 +684,9 @@ static bool dissect_mojito_heuristic (tvbuff_t *tvb, packet_info *pinfo, proto_t
 	  Test to make sure that the length field is there and correct
 	  (tvb_get_letohl(tvb, 20) + 23) == tvb_length(tvb)
 	*/
-	if ((tvb_captured_length(tvb) >= 60) &&
+	if ((tvb_captured_length(tvb) >= 61) &&
 	    (tvb_get_uint8(tvb, 16) == 68) &&
-	    ((tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
+	    (((uint64_t)tvb_get_letohl(tvb, 19) + 23) == tvb_reported_length(tvb)))
 	{
 		dissect_mojito(tvb, pinfo, tree, data);
 		return true;
