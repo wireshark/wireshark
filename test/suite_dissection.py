@@ -90638,3 +90638,103 @@ class TestDissectLispData:
         assert protos['16'] == 'eth:ethertype:ip:udp:lisp-data'
         assert protos['17'] == 'eth:ethertype:ipv6:udp:lisp-data:ip:udp:data'
         assert protos['10'] == 'eth:ethertype:ipv6:udp:lisp-data:ipv6:udp:data'
+
+
+class TestDissectLispTcp:
+    CAP = 'lisp_tcp_coverage.pcap.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectLispTcp.CAP), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_lisp_tcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''One TCP session on port 4342 (no Decode As); no malformed
+        packets, warnings or errors in one and two
+        passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                             '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 48
+        assert protocols.count('LISP') == 45
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp-tcp.message.end_marker', '-Tfields',
+                '-elisp-tcp.message.end_marker')
+        assert set(stdout.split()) == {'0x9facade9', '0x9facade9,0x9facade9'}
+
+    def test_lisp_tcp_info(self, cmd_tshark, capture_file, test_env):
+        '''Every message type, named in the Info column.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp-tcp.message.type', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['4'] == 'Msg: 1, Error Notification'
+        assert info['6'] == 'Msg: 3, Registration for 192.0.2.1/24'
+        assert info['8'] == 'Msg: 5, Registration (RTR)'
+        assert info['9'] == 'Msg: 6, Registration ACK'
+        assert info['14'] == 'Msg: 11, Registration NACK'
+        assert info['19'] == 'Msg: 20, Registration Refresh, Scope: 0 (rejected only)'
+        assert info['25'] == 'Msg: 30, Mapping Notification'
+        assert info['26'] == 'Msg: 31, RLOC Membership Subscribe'
+        assert info['27'] == 'Msg: 32, RLOC Membership Subscribe ACK, Sub ID: 77'
+        assert info['32'] == 'Msg: 37, RLOC Membership Element Add [5000] 192.0.2.1'
+        assert info['33'] == 'Msg: 38, RLOC Membership Element Add [5000] 2001:db8::1'
+        assert info['35'] == 'Msg: 40, RLOC Membership Element Remove'
+        assert info['38'] == 'Msg: 43, RLOC Membership Refresh End'
+        assert info['39'] == 'Msg: 44, Unknown type (5)'
+        assert info['40'] == 'Msg: 45, Unknown type (40)'
+        assert info['42'] == 'Msg: 50, RLOC Membership Subscribe; Msg: 51, RLOC Membership Unsubscribe'
+
+    def test_lisp_tcp_eid_prefixes(self, cmd_tshark, capture_file, test_env):
+        '''The EID prefix of the registration ACKs and NACKs: IPv4, IPv6,
+        MAC, distinguished name and an Instance ID LCAF.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 9 && frame.number <= 13', '-Tfields',
+                '-eframe.number', '-elisp-tcp.message.eid.ipv4',
+                '-elisp-tcp.message.eid.ipv6', '-elisp-tcp.message.eid.mac',
+                '-elisp-tcp.message.eid.dn', '-elisp-tcp.message.eid.prefix.length',
+                '-elisp.lcaf.iid')
+        assert stdout.splitlines() == [
+            '9\t192.0.2.1\t\t\t\t24\t',
+            '10\t\t2001:db8::1\t\t\t24\t',
+            '11\t\t\t02:00:c0:a8:00:01\t\t24\t',
+            '12\t\t\t\teid.example\t24\t',
+            '13\t\t\t\t\t24\t1000',
+        ]
+
+    def test_lisp_tcp_membership(self, cmd_tshark, capture_file, test_env):
+        '''The RLOC membership messages carry the instance ID, the
+        subscribe ID, the error code, the site ID, the RLOC and the
+        request ID.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 26 && frame.number <= 38', '-Tfields',
+                '-eframe.number', '-elisp-tcp.message.iid', '-elisp-tcp.message.sid',
+                '-elisp-tcp.message.err', '-elisp-tcp.message.rloc.ipv4',
+                '-elisp-tcp.message.rloc.ipv6', '-elisp-tcp.message.rid')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['26', '5000', '', '', '', '', '']
+        assert lines[1] == ['27', '5000', '77', '', '', '', '']
+        assert lines[2] == ['28', '5001', '78', '1', '', '', '']
+        assert lines[3] == ['29', '5001', '79', '3', '', '', '']
+        assert lines[4] == ['30', '5001', '80', '9', '', '', '']
+        assert lines[6][:2] == ['32', '5000'] and lines[6][4] == '192.0.2.1'
+        assert lines[7][5] == '2001:db8::1'
+        assert lines[11][6] == '1234' and lines[12][6] == '1234'
+
+    def test_lisp_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one segment (frame 42), a Registration split
+        over two segments (43 and 44), a header split after 2 octets (45
+        and 46) and a message split after 13 octets (47 and 48).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 42', '-Tfields', '-eframe.number',
+                '-elisp-tcp.message.id', '-elisp-tcp.message.type')
+        assert stdout.splitlines() == [
+            '42\t50,51\t22,25', '43\t\t', '44\t52\t17', '45\t\t',
+            '46\t53\t30', '47\t\t', '48\t51\t25']
