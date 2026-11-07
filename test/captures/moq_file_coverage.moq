@@ -1,0 +1,168 @@
+[
+  {
+    "trackNamespace": [
+      "ZXhhbXBsZQ",
+      "dmlkZW8"
+    ],
+    "trackName": "dGVzdC10cmFjaw",
+    "objectID": 7,
+    "groupID": 3,
+    "subgroupID": 1,
+    "forwardingPref": "Subgroup",
+    "objectStatus": 0,
+    "publisherPriority": 10,
+    "receiveTime": 1729457464000,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 0,
+    "dataLength": 8
+  },
+  {
+    "namesSpace": [
+      "YQ",
+      "Yg",
+      "Yw"
+    ],
+    "trackName": "bGVnYWN5",
+    "objectID": 1,
+    "groupID": 2,
+    "subGroup": 5,
+    "forwardingPref": "Datagram",
+    "receiveTime": 1729457464001,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 8,
+    "dataLength": 16
+  },
+  {
+    "trackName": "dHJhY2s",
+    "objectID": 9,
+    "groupID": 4,
+    "receiveTime": 1729457464002,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 24,
+    "dataLength": 4
+  },
+  {
+    "trackName": "dHJhY2syCg",
+    "objectID": 11,
+    "receiveTime": 1729457464003,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 28,
+    "dataLength": 5
+  },
+  {
+    "objectID": 1,
+    "groupID": 1,
+    "receiveTime": 1729457464004,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 33,
+    "dataLength": 6
+  },
+  {
+    "trackName": "bm8tb2JqZWN0",
+    "groupID": 1,
+    "receiveTime": 1729457464005,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 39,
+    "dataLength": 3
+  },
+  {
+    "trackName": "ZW1wdHk",
+    "objectID": 2,
+    "groupID": 2,
+    "subgroupID": 0,
+    "receiveTime": 1729457464006,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 0,
+    "dataLength": 0
+  },
+  {
+    "trackName": "bmVn",
+    "objectID": 0,
+    "groupID": 0,
+    "subgroupID": 0,
+    "objectStatus": 3,
+    "publisherPriority": 255,
+    "receiveTime": -1500,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 42,
+    "dataLength": 2
+  },
+  {
+    "trackName": "a\\u0041",
+    "objectID": 3,
+    "groupID": 1,
+    "subgroupID": 1,
+    "receiveTime": 1729457464007,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 44,
+    "dataLength": 4
+  },
+  {
+    "trackName": "caf\u00e9 \"q\"",
+    "objectID": 4,
+    "groupID": 1,
+    "subgroupID": 2,
+    "forwardingPref": "Sub\\group",
+    "receiveTime": 1729457464008,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 48,
+    "dataLength": 7
+  },
+  {
+    "trackNamespace": "notanarray",
+    "trackName": "YmlnZ2Vy",
+    "objectID": 1099511627776,
+    "groupID": 2199023255552,
+    "subgroupID": 4398046511104,
+    "receiveTime": 1729457464009,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 0,
+    "dataLength": 256
+  },
+  {
+    "trackNamespace": [],
+    "trackName": "bWlk",
+    "objectID": 5,
+    "groupID": 5,
+    "subgroupID": 5,
+    "receiveTime": 1729457464010,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 100,
+    "dataLength": 100
+  },
+  {
+    "trackName": 12,
+    "objectID": "x",
+    "groupID": 1.5,
+    "subgroupID": true,
+    "forwardingPref": 7,
+    "receiveTime": 1729457464011,
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": 10,
+    "dataLength": 3
+  },
+  {
+    "trackName": "c2tpcA",
+    "objectID": 1,
+    "dataOffset": 0,
+    "dataLength": 1
+  },
+  {
+    "trackName": "c2tpcA",
+    "dataFile": "../x.dat",
+    "dataOffset": 0,
+    "dataLength": 1
+  },
+  {
+    "trackName": "c2tpcA",
+    "dataFile": "sub/x.dat",
+    "dataOffset": 0,
+    "dataLength": 1
+  },
+  {
+    "trackName": "c2tpcA",
+    "dataFile": "moq_file_coverage.dat",
+    "dataOffset": -1,
+    "dataLength": 1
+  }
+]

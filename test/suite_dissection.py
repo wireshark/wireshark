@@ -97824,3 +97824,66 @@ class TestDissectMongo:
                 '-E', 'occurrence=a', '-E', 'aggregator=;',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines() == ['42\t36;36', '45\t3052']
+
+
+class TestDissectMoqFile:
+    '''MoQ Object File ("moq_file" Exported PDU records produced by the
+    MoQ wiretap reader) from the synthetic metadata file
+    moq_file_coverage.moq and its object data file
+    moq_file_coverage.dat (both must be in test/captures).'''
+
+    def test_moq_file_records(self, cmd_tshark, capture_file, test_env):
+        '''13 records (the file lists 17 items; four have no valid data
+        file or range and are skipped), without malformed packets or
+        error expert infos, in one and two passes, with the Info text for
+        each combination of track, group, subgroup and object.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('moq_file_coverage.moq'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.col.info',
+                    '-emoq_file.group_id', '-emoq_file.subgroup_id',
+                    '-emoq_file.object_id', '-emoq_file.data_length',
+                    '-E', 'occurrence=a',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 13
+            assert {r[1] for r in rows} == {'MoQ File'}
+            assert rows[0][2] == 'Track dGVzdC10cmFjaw G=3 S=1 O=7, 8 bytes'
+            assert rows[1][2] == 'Track bGVnYWN5 G=2 S=5 O=1, 16 bytes'   # legacy subGroup key
+            assert rows[2][2] == 'Track dHJhY2s G=4 O=9, 4 bytes'
+            assert rows[3][2] == 'Track dHJhY2syCg O=11, 5 bytes'
+            assert rows[4][2] == 'Object data: 6 bytes'
+            assert rows[6][2] == ''                                       # no object bytes
+            assert rows[10][3:6] == ['2199023255552', '4398046511104', '1099511627776']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('moq_file_coverage.moq'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_moq_file_namespace(self, cmd_tshark, capture_file, test_env):
+        '''The legacy "namesSpace" key is accepted, an empty array is shown
+        and a namespace that is not an array is ignored.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moq_file_coverage.moq'),
+                '-Y', 'moq_file.track_namespace',
+                '-Tfields', '-eframe.number', '-emoq_file.track_namespace',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['1', '2', '12']
+        assert 'ZXhhbXBsZQ' in rows[0][1] and 'dmlkZW8' in rows[0][1]
+        assert 'YQ' in rows[1][1] and 'Yw' in rows[1][1]    # from namesSpace
+        assert rows[2][1].replace('\\n', '').replace(' ', '') == '[]'
+
+    def test_moq_file_track_name_decoded_once(self, cmd_tshark, capture_file, test_env):
+        '''The JSON string "a\\\\u0041" is the text a\\u0041; it was
+        unescaped a second time and shown as "aA" ("MoQ-File: Do not
+        unescape the track name twice").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moq_file_coverage.moq'),
+                '-Y', 'frame.number == 9', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Track name (Base64URL): a\\u0041\n' in stdout
+        assert 'aA' not in stdout.split('Track name (Base64URL)')[1].splitlines()[0]
