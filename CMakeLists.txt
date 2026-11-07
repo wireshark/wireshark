@@ -230,6 +230,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 	set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Multi-config generators (Visual Studio, Ninja Multi-Config, Xcode) put the
+# build output in a per-configuration subdirectory, e.g. run/Debug, which
+# build-time paths refer to as $<CONFIG>.
+get_property(GENERATOR_IS_MULTI_CONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+
 # Build type is ignored by multi-config generators.
 if (NOT CMAKE_CONFIGURATION_TYPES)
 	message(STATUS "Using \"${CMAKE_GENERATOR}\" generator and build type \"${CMAKE_BUILD_TYPE}\"")
@@ -1947,15 +1952,15 @@ add_subdirectory( writecap )
 # application bundle, and on UNIX in general if
 # WIRESHARK_RUN_FROM_BUILD_DIRECTORY is set.
 if(ENABLE_APPLICATION_BUNDLE)
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+	if(NOT GENERATOR_IS_MULTI_CONFIG)
 		set(_datafile_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/share/wireshark")
 	else()
 		# Xcode
-		set(_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/share/wireshark")
+		set(_datafile_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/Resources/share/wireshark")
 	endif()
-elseif(NOT CMAKE_CFG_INTDIR STREQUAL ".")
-	# Visual Studio, Xcode, etc.
-	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}")
+elseif(GENERATOR_IS_MULTI_CONFIG)
+	# Visual Studio, Ninja Multi-Config, Xcode, etc.
+	set(_datafile_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>")
 else()
 	# Makefile, Ninja, etc.
 	set(_datafile_dir "${CMAKE_BINARY_DIR}/run")
@@ -1970,11 +1975,11 @@ set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.
 # there. This matches the layout of the macOS application bundles.
 # XXX This must match get_datafile_dir() in wsutil/filesystem.c.
 if(ENABLE_APPLICATION_BUNDLE)
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+	if(NOT GENERATOR_IS_MULTI_CONFIG)
 		set(_bundle_run_dir "${CMAKE_BINARY_DIR}/run")
 	else()
 		# Xcode
-		set(_bundle_run_dir "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}")
+		set(_bundle_run_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>")
 	endif()
 	set(_wireshark_datafile_dir "${_bundle_run_dir}/Wireshark.app/Contents/Resources/share/wireshark")
 	set(_stratoshark_datafile_dir "${_bundle_run_dir}/Stratoshark.app/Contents/Resources/share/stratoshark")
@@ -2021,7 +2026,7 @@ endif()
 # Windows: $DESTDIR/wireshark/plugins/$VERSION
 # macOS app bundle: Wireshark.app/Contents/PlugIns/wireshark
 if(ENABLE_APPLICATION_BUNDLE)
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+	if(NOT GENERATOR_IS_MULTI_CONFIG)
 		set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 		set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/Stratoshark.app/Contents/PlugIns/stratoshark/${PLUGIN_PATH_ID}")
 	else()
@@ -2029,7 +2034,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 		set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 		set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Stratoshark.app/Contents/PlugIns/stratoshark/${PLUGIN_PATH_ID}")
 	endif()
-elseif(MSVC AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
+elseif(MSVC AND GENERATOR_IS_MULTI_CONFIG)
 	set(_wireshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${WIRESHARK_PLUGIN_VERSION_DIR}")
 	set(_stratoshark_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${STRATOSHARK_PLUGIN_VERSION_DIR}")
 else()
@@ -2981,7 +2986,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Add files to the Wireshark application bundle
 	# Wireshark.app/Contents
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+	if(NOT GENERATOR_IS_MULTI_CONFIG)
 		# Not Xcode
 		file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/wireshark/PkgInfo "APPLWshk\n")
 		set(WIRESHARK_BUNDLE_CONTENTS_FILES
@@ -3096,7 +3101,7 @@ if(ENABLE_APPLICATION_BUNDLE)
 
 	# Add files to the Stratoshark application bundle
 	# Stratoshark.app/Contents
-	if(CMAKE_CFG_INTDIR STREQUAL ".")
+	if(NOT GENERATOR_IS_MULTI_CONFIG)
 		# Not Xcode
 		file(WRITE ${CMAKE_BINARY_DIR}/packaging/macosx/stratoshark/PkgInfo "APPLLgry\n")
 		set(STRATOSHARK_BUNDLE_CONTENTS_FILES
@@ -3283,7 +3288,7 @@ if(BUILD_wireshark AND QT_FOUND)
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/WiresharkInfo.plist
 				XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.wireshark.Wireshark"
 		)
-		if(CMAKE_CFG_INTDIR STREQUAL ".")
+		if(NOT GENERATOR_IS_MULTI_CONFIG)
 			# Add a wrapper script which opens the bundle. This is more convenient
 			# and lets Sparkle find our CFBundleIdentifier, but means that you have
 			# to pass the full path to run/Wireshark.app/Contents/MacOS/Wireshark
@@ -3402,7 +3407,7 @@ if(BUILD_stratoshark AND QT_FOUND)
 				MACOSX_BUNDLE_INFO_PLIST ${CMAKE_BINARY_DIR}/packaging/macosx/StratosharkInfo.plist
 				XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.wireshark.Stratoshark"
 		)
-		if(CMAKE_CFG_INTDIR STREQUAL ".")
+		if(NOT GENERATOR_IS_MULTI_CONFIG)
 			# Add a wrapper script which opens the bundle. This is more convenient
 			# and lets Sparkle find our CFBundleIdentifier, but means that you have
 			# to pass the full path to run/Wireshark.app/Contents/MacOS/Stratoshark
@@ -3495,7 +3500,7 @@ function(set_extra_executable_properties _executable _folder)
 		if (_executable MATCHES "strato")
 			set(bundle_name "Stratoshark.app")
 		endif()
-		if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
+		if(GENERATOR_IS_MULTI_CONFIG)
 			# Xcode
 			set_target_properties(${_executable} PROPERTIES
 				RUNTIME_OUTPUT_DIRECTORY run/$<CONFIG>/${bundle_name}/Contents/MacOS
@@ -3986,7 +3991,7 @@ if(ENABLE_APPLICATION_BUNDLE AND ASCIIDOCTOR_FOUND AND (BUILD_wireshark OR BUILD
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE AND BUILD_wireshark)
-	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/Extras")
+	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/Resources/Extras")
 
 	# --preserve-xattr is undocumented but ensures that we install
 	# a signed ChmodBPF script.
