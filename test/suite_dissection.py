@@ -94389,3 +94389,61 @@ class TestDissectManolito:
             ['5', 'Manolito,3.0.1,net0', '12,1234,68719476741,41170,3'],
             ['11', 'after bad int length', ''],
         ]
+
+
+class TestDissectMarker:
+    '''Link Aggregation Marker Protocol over Slow Protocols (ethertype
+    0x8809, subtype 2), from the synthetic capture
+    marker_coverage.pcap.gz.'''
+
+    def test_marker_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All five frames decode as Marker, without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('marker_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 5
+        assert protocols.count('Marker') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('marker_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_marker_info_column(self, cmd_tshark, capture_file, test_env):
+        '''Information and Response PDUs show the system ID, port and
+        transaction ID in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('marker_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Information SysId=02:aa:bb:cc:dd:ee, P=3, TId=100',
+            'Response SysId=02:11:22:33:44:55, P=3, TId=100',
+            'Information SysId=02:aa:bb:cc:dd:ee, P=65535, TId=-1',
+            'Response SysId=02:aa:bb:cc:dd:ee, P=7, TId=7',
+            'Information SysId=02:aa:bb:cc:dd:ee, P=9, TId=9',
+        ]
+
+    def test_marker_fields(self, cmd_tshark, capture_file, test_env):
+        '''The two octet requester pad is a 16 bit field ("Marker:
+        Register the requester pad field as FT_UINT16"); a non-zero pad
+        raises only the warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('marker_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-emarker.version',
+                '-emarker.tlvType', '-emarker.requesterPort',
+                '-emarker.requesterTransId', '-emarker.requesterPad',
+                '-emarker.wrong_pad_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01\t0x01,0x00\t3\t100\t0\t',
+            '2\t0x01\t0x02,0x00\t3\t100\t0\t',
+            '3\t0x02\t0x01,0x00\t65535\t4294967295\t0\t',
+            '4\t0x01\t0x02,0x00\t7\t7\t4660\t1',
+            '5\t0x01\t0x01,0x00\t9\t9\t0\t',
+        ]
