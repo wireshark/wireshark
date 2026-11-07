@@ -87517,3 +87517,52 @@ class TestDissectKismet:
                       'kismet.time == "2100-01-01T00:00:00Z"',
                 '-Tfields', '-eframe.number', '-ekismet.time')
         assert stdout.split('\t')[0].strip() == '13'
+
+
+class TestDissectKlm:
+    '''KLM (Kernel Lock Manager, ONC RPC program 100020 version 1) over
+    UDP and TCP, from the synthetic capture klm_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields):
+        out = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('klm_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_klm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 34 frames are KLM (26 UDP and 8 TCP calls and replies) and
+        none is malformed or has an error expert info, in one and two
+        passes.'''
+        protocols = TestDissectKlm.fields(cmd_tshark, capture_file, test_env,
+                                          'frame', '_ws.col.protocol')
+        assert protocols == ['KLM'] * 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('klm_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_klm_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Each of the four procedures is called, over UDP and over TCP.'''
+        lines = TestDissectKlm.fields(cmd_tshark, capture_file, test_env,
+                                      'klm && rpc.msgtyp == 0', 'klm.procedure_v1')
+        assert [lines.count(str(p)) for p in (1, 2, 3, 4)] == [5, 6, 3, 3]
+        tcp = TestDissectKlm.fields(cmd_tshark, capture_file, test_env,
+                                    'klm && rpc.msgtyp == 0 && tcp', 'klm.procedure_v1')
+        assert tcp == ['1', '2', '3', '4']
+
+    def test_klm_values(self, cmd_tshark, capture_file, test_env):
+        '''A TEST reply that denies the lock carries the holder; the
+        lock of a call holds the server name, pid, offset and length.'''
+        lines = TestDissectKlm.fields(cmd_tshark, capture_file, test_env,
+                                      'frame.number in {1, 2, 3, 4}',
+                                      'klm.servername', 'klm.pid', 'klm.offset',
+                                      'klm.len', 'klm.stats', 'klm.exclusive')
+        assert lines[0] == 'client1\t1234\t0\t4096\t\tTrue'
+        assert lines[1] == '\t\t\t\t0\t'
+        assert lines[3] == '\t4321\t10\t20\t1\tTrue'
