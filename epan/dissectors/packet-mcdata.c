@@ -233,7 +233,7 @@ static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pin
     offset += 2;
     if ((tvb_reported_length_remaining(tvb, offset) < len) || len < 1) {
         expert_add_info(pinfo, tree, &ei_malformed_length);
-        return len;
+        return 2 + MIN((unsigned)len, tvb_reported_length_remaining(tvb, offset));
     }
     uint8_t payload_cont_type;
     proto_tree_add_item_ret_uint8(tree, hf_mcdata_payload_cont_type, tvb, offset, 1, ENC_BIG_ENDIAN, &payload_cont_type);
@@ -259,7 +259,7 @@ static unsigned dissect_payload(unsigned offset, tvbuff_t *tvb, packet_info *pin
             /* convert degrees (X/0x7fffff) * 90 = degrees */
             lat_item = proto_tree_add_item_ret_uint(tree, hf_mcdata_loc_latitude, tvb, offset, 3, ENC_BIG_ENDIAN, &uvalue32);
             deg_lat_str = wmem_strdup_printf(pinfo->pool, "%s%.5f",
-                (uvalue32 & 0x00800000) ? "-" : "",
+                (tvb_get_uint8(tvb, offset) & 0x80) ? "-" : "",
                 ((double)(uvalue32 & 0x7fffff)/8388607.0) * 90);
             proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
             long_item = proto_tree_add_item_ret_int(tree, hf_mcdata_loc_longitude, tvb, offset + 3, 3, ENC_BIG_ENDIAN, &svalue32);
@@ -597,9 +597,9 @@ void proto_register_mcdata(void) {
         { &hf_mcdata_user_ID,                   { "MCData user ID", "mcdata.sig.user.id",   FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_termination_info_type,     { "Termination information type", "mcdata.sig.term.info.type", FT_UINT8, BASE_DEC, VALS(term_info_type_vals), 0, NULL, HFILL }},
         { &hf_mcdata_ext_response_type_iei,     { "Extension response type IEI", "mcdata.sig.ext.resp.type.iei", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
-        { &hf_mcdata_ext_response_type_value,   { "Extension response type value", "mcdata.sig.ext.resp.type.value", FT_UINT8, BASE_HEX, VALS(ext_respone_type_value_vals), 0xF0, NULL, HFILL }},
+        { &hf_mcdata_ext_response_type_value,   { "Extension response type value", "mcdata.sig.ext.resp.type.value", FT_UINT8, BASE_HEX, VALS(ext_respone_type_value_vals), 0x0F, NULL, HFILL }},
         { &hf_mcdata_release_response_type_iei, { "Release response type IEI", "mcdata.sig.rel.resp.type.iei", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
-        { &hf_mcdata_release_response_type_val, { "Release response type value", "mcdata.sig.rel.resp.type.value", FT_UINT8, BASE_HEX, VALS(rel_respone_type_vals), 0xF0, NULL, HFILL }},
+        { &hf_mcdata_release_response_type_val, { "Release response type value", "mcdata.sig.rel.resp.type.value", FT_UINT8, BASE_HEX, VALS(rel_respone_type_vals), 0x0F, NULL, HFILL }},
         { &hf_mcdata_notification_type,         { "Notification type", "mcdata.sig.notification.type", FT_UINT8, BASE_DEC, VALS(notification_type_vals), 0, NULL, HFILL }},
         { &hf_mcdata_app_metadata_container,    { "Application metadata container",  "mcdata.sig.metadata.container",  FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_mcdata_group_id,                  { "MCData group id", "mcdata.sig.mcdata.group.id",   FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
