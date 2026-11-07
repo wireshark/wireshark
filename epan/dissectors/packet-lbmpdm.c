@@ -13,6 +13,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include "packet-lbm.h"
 
 /* Magic number for message header to check if data is big-endian or little-endian. */
@@ -302,6 +303,16 @@ static wmem_tree_t * lbmpdm_definition_table;
 /* Protocol handle */
 static int proto_lbmpdm;
 
+static expert_field ei_lbmpdm_invalid_segment_len;
+static expert_field ei_lbmpdm_invalid_offset_table;
+static expert_field ei_lbmpdm_invalid_def_len;
+static expert_field ei_lbmpdm_invalid_field_len;
+
+/* Largest field id accepted in an offset table (bounds the table size). */
+#define LBMPDM_MAX_OFFSET_TABLE_ID 65535
+/* Largest DECIMAL exponent that is expanded. */
+#define LBMPDM_MAX_DECIMAL_EXPONENT 18
+
 /* Protocol fields */
 static int hf_lbmpdm_magic;
 static int hf_lbmpdm_encoding;
@@ -580,51 +591,61 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, u
             {
                 int64_t mantissa;
                 int8_t exponent;
-                int64_t whole = 0;
-                uint64_t fraction = 0;
+                uint64_t abs_mantissa;
+                uint64_t scale = 1;
                 int8_t shift_count;
 
                 exponent = tvb_get_int8(tvb, offset);
                 mantissa = tvb_get_int64(tvb, offset + 1, encoding);
+                if (exponent > LBMPDM_MAX_DECIMAL_EXPONENT || exponent < -LBMPDM_MAX_DECIMAL_EXPONENT)
+                {
+                    /* Too large to expand, show the raw values. */
+                    proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
+                        "DECIMAL Value: (%" PRId64 "e%d)", mantissa, exponent);
+                    break;
+                }
+                /* Unsigned magnitude, safe for INT64_MIN. */
+                abs_mantissa = (mantissa < 0) ? (0 - (uint64_t)mantissa) : (uint64_t)mantissa;
                 if (exponent >= 0)
                 {
-                    whole = mantissa;
-                    shift_count = exponent;
-                    while (shift_count > 0)
+                    bool overflow = false;
+
+                    for (shift_count = exponent; shift_count > 0; shift_count--)
                     {
-                        whole *= 10;
-                        shift_count--;
+                        if (abs_mantissa > UINT64_MAX / 10)
+                        {
+                            overflow = true;
+                            break;
+                        }
+                        abs_mantissa *= 10;
                     }
-                    proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
-                        "DECIMAL Value: %" PRId64 " (%" PRId64 "e%d)", whole, mantissa, exponent);
-                }
-                else
-                {
-                    uint64_t divisor = 1;
-                    int decimal_digits = -exponent;
-                    shift_count = decimal_digits;
-                    while (shift_count > 0)
+                    if (overflow || abs_mantissa > (uint64_t)INT64_MAX + ((mantissa < 0) ? 1 : 0))
                     {
-                        divisor *= 10;
-                        shift_count--;
-                    }
-                    if (mantissa < 0)
-                    {
-                        whole = -mantissa;
+                        proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
+                            "DECIMAL Value: (%" PRId64 "e%d)", mantissa, exponent);
                     }
                     else
                     {
-                        whole = mantissa;
+                        int64_t whole = (mantissa < 0) ? (int64_t)(0 - abs_mantissa) : (int64_t)abs_mantissa;
+                        proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
+                            "DECIMAL Value: %" PRId64 " (%" PRId64 "e%d)", whole, mantissa, exponent);
                     }
-                    fraction = whole % divisor;
-                    whole /= divisor;
-                    if (mantissa < 0)
+                }
+                else
+                {
+                    uint64_t fraction;
+                    uint64_t whole_mag;
+                    int decimal_digits = -exponent;
+
+                    for (shift_count = decimal_digits; shift_count > 0; shift_count--)
                     {
-                        whole *= -1;
+                        scale *= 10;
                     }
+                    fraction = abs_mantissa % scale;
+                    whole_mag = abs_mantissa / scale;
                     proto_tree_add_none_format(tree, hf_lbmpdm_field_value_decimal, tvb, offset, field_length,
-                        "DECIMAL Value: %" PRId64 ".%0*" PRIu64 " (%" PRId64 "e%d)",
-                        whole, decimal_digits, fraction, mantissa, exponent);
+                        "DECIMAL Value: %s%" PRIu64 ".%0*" PRIu64 " (%" PRId64 "e%d)",
+                        (mantissa < 0) ? "-" : "", whole_mag, decimal_digits, fraction, mantissa, exponent);
                 }
             }
             break;
@@ -660,7 +681,7 @@ static void dissect_field_value(tvbuff_t * tvb, int offset, proto_tree * tree, u
     }
 }
 
-static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_definition_field_t * field, bool string_field_names, int encoding)
+static int dissect_field(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbmpdm_definition_field_t * field, bool string_field_names, int encoding)
 {
     proto_item * field_item = NULL;
     proto_tree * field_tree = NULL;
@@ -720,13 +741,19 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
             value_len = field->fixed_string_len;
         }
         dissect_field_value(tvb, value_offset, field_tree, field->base_type, value_len, encoding);
+        if (field_len == 0 && element_count > 1)
+        {
+            /* Zero-size elements never advance, don't loop element_count times. */
+            expert_add_info(pinfo, field_item, &ei_lbmpdm_invalid_field_len);
+            break;
+        }
         ofs += (int)field_len;
         len_dissected += (int)field_len;
     }
     return (len_dissected);
 }
 
-static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, lbmpdm_msg_definition_id_t * id, int encoding)
+static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbmpdm_msg_definition_id_t * id, int encoding)
 {
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
@@ -768,18 +795,18 @@ static int dissect_segment_data(tvbuff_t * tvb, int offset, packet_info * pinfo 
         /* Handle any fixed required fields first. */
         for (field = def->first_fixed_required; field != NULL; field = field->next_fixed_required)
         {
-            fld_offset += dissect_field(tvb, fld_offset, subtree, field, string_field_names, encoding);
+            fld_offset += dissect_field(tvb, fld_offset, pinfo, subtree, field, string_field_names, encoding);
         }
         /* Step through the offset table. */
         for (idx = 0; idx < id->offset_table->num_flds; ++idx)
         {
             int32_t ofs = id->offset_table->offset_list[idx];
-            if (ofs != -1)
+            if (ofs != -1 && (uint32_t)ofs < (uint32_t)datalen)
             {
                 field = lbmpdm_definition_field_find(def, idx);
                 if (field != NULL)
                 {
-                    (void)dissect_field(tvb, offset + L_LBMPDM_SEG_HDR_T + ofs, subtree, field, string_field_names, encoding);
+                    (void)dissect_field(tvb, offset + L_LBMPDM_SEG_HDR_T + ofs, pinfo, subtree, field, string_field_names, encoding);
                 }
             }
         }
@@ -831,6 +858,16 @@ static int dissect_segment_ofstable(tvbuff_t * tvb, int offset, packet_info * pi
         ofs_list[idx] = (int32_t)tvb_get_uint32(tvb, ofs + O_LBMPDM_OFFSET_ENTRY_T_OFFSET, encoding);
         if (id_list[idx] < 0 || ofs_list[idx] < 0) {
             THROW(ReportedBoundsError);
+        }
+        if (id_list[idx] > LBMPDM_MAX_OFFSET_TABLE_ID)
+        {
+            /* Would need a huge table; the segment cannot describe that many fields. */
+            expert_add_info(pinfo, offset_item, &ei_lbmpdm_invalid_offset_table);
+            if (offset_table != NULL)
+            {
+                *offset_table = NULL;
+            }
+            return (seglen);
         }
         if (id_list[idx] > max_index)
         {
@@ -932,7 +969,19 @@ static int dissect_segment_defn(tvbuff_t * tvb, int offset, packet_info * pinfo,
 
         if (string_field_name)
         {
-            def_len = tvb_get_uint32(tvb, ofs, encoding) + 4;
+            uint64_t wide_len = (uint64_t)tvb_get_uint32(tvb, ofs, encoding) + 4;
+
+            if (wide_len < (uint64_t)L_LBMPDM_FIELD_INFO_T_INT_NAME + 4 || wide_len > (uint64_t)remaining_datalen)
+            {
+                expert_add_info(pinfo, subtree_item, &ei_lbmpdm_invalid_def_len);
+                break;
+            }
+            def_len = (uint32_t)wide_len;
+        }
+        else if ((int)def_len > remaining_datalen)
+        {
+            expert_add_info(pinfo, subtree_item, &ei_lbmpdm_invalid_def_len);
+            break;
         }
         field_item = proto_tree_add_item(subtree, hf_lbmpdm_segment_def_field, tvb, ofs, def_len, ENC_NA);
         field_tree = proto_item_add_subtree(field_item, ett_lbmpdm_segment_def_field);
@@ -1219,6 +1268,11 @@ unsigned lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, unsigned offset, packet_i
     proto_tree_add_item(subtree, hf_lbmpdm_len, tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, L_LBMPDM_MSG_HDR_T_LEN, encoding);
 
     next_hdr = tvb_get_uint8(tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR);
+    if (msglen < L_LBMPDM_MSG_HDR_T)
+    {
+        proto_tree_add_expert(subtree, pinfo, &ei_lbmpdm_invalid_segment_len, tvb, offset + O_LBMPDM_MSG_HDR_T_LEN, L_LBMPDM_MSG_HDR_T_LEN);
+        return (L_LBMPDM_MSG_HDR_T);
+    }
     len_remaining = msglen - L_LBMPDM_MSG_HDR_T;
     ofs = offset + L_LBMPDM_MSG_HDR_T;
     dissected_len = L_LBMPDM_MSG_HDR_T;
@@ -1231,6 +1285,15 @@ unsigned lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, unsigned offset, packet_i
         segments_tree = proto_item_add_subtree(segments_item, ett_lbmpdm_segments);
         while ((this_hdr != PDM_HDR_TYPE_EOM) && (len_remaining >= L_LBMPDM_SEG_HDR_T))
         {
+            uint64_t seg_total = (uint64_t)tvb_get_uint32(tvb, ofs + O_LBMPDM_SEG_HDR_T_LEN, encoding) + L_LBMPDM_SEG_HDR_T;
+
+            if (seg_total < L_LBMPDM_SEG_HDR_T || seg_total > len_remaining
+                || seg_total > tvb_reported_length_remaining(tvb, ofs))
+            {
+                proto_tree_add_expert_format(segments_tree, pinfo, &ei_lbmpdm_invalid_segment_len, tvb, ofs, L_LBMPDM_SEG_HDR_T,
+                    "Invalid segment length, %" PRIu64 " bytes", seg_total);
+                break;
+            }
             next_hdr = tvb_get_uint8(tvb, ofs + O_LBMPDM_SEG_HDR_T_NEXT_HDR);
             switch (this_hdr)
             {
@@ -1407,10 +1470,21 @@ void proto_register_lbmpdm(void)
         &ett_lbmpdm_field
     };
 
+    expert_module_t * expert_module;
+    static ei_register_info ei[] =
+    {
+        { &ei_lbmpdm_invalid_segment_len, { "lbmpdm.invalid_segment_len", PI_MALFORMED, PI_ERROR, "Invalid segment length", EXPFILL } },
+        { &ei_lbmpdm_invalid_offset_table, { "lbmpdm.invalid_offset_table", PI_MALFORMED, PI_ERROR, "Offset table field id too large", EXPFILL } },
+        { &ei_lbmpdm_invalid_def_len, { "lbmpdm.invalid_def_len", PI_MALFORMED, PI_ERROR, "Invalid field definition length", EXPFILL } },
+        { &ei_lbmpdm_invalid_field_len, { "lbmpdm.invalid_field_len", PI_MALFORMED, PI_ERROR, "Array element has zero length", EXPFILL } },
+    };
+
     proto_lbmpdm = proto_register_protocol("LBMPDM Protocol", "LBMPDM", "lbmpdm");
 
     proto_register_field_array(proto_lbmpdm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_module = expert_register_protocol(proto_lbmpdm);
+    expert_register_field_array(expert_module, ei, array_length(ei));
     lbmpdm_definition_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
