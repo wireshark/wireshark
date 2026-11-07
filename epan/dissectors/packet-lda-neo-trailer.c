@@ -199,6 +199,12 @@ extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
       picosec_counter = (picosec_counter << 8) | picosec_buf[i];
    }
 
+   /* Same limit as the _div128 version: the nanoseconds must fit into a
+    * signed 64-bit integer, so that all platforms decode alike. */
+   if ((picosec_counter >> 64) >= 500) {
+      return false;
+   }
+
    /* Calculate picosec and nanosec */
    data->picosec = (uint16_t)(picosec_counter % 1000);
    data->nanosec = picosec_counter / 1000;
@@ -303,7 +309,7 @@ dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (pcs_code == true && port >= LDA_NEO_TRAILER_40G_PORT_ID_MIN && port <= LDA_NEO_TRAILER_40G_PORT_ID_MAX) {
         invalid = true;
         proto_tree_add_expert(pcs_tree, pinfo, &ei_lda_neo_trailer_pcs_code_invalid, tvb,
-                LDA_NEO_TRAILER_PCS_CODE_OFFSET, LDA_NEO_TRAILER_PCS_CODE_LENGTH);
+                offset, LDA_NEO_TRAILER_PCS_CODE_LENGTH);
     } else {
         proto_tree_add_item(pcs_tree, hf_lda_neo_trailer_pcs_code, tvb, offset, LDA_NEO_TRAILER_PCS_CODE_LENGTH,
                 ENC_LITTLE_ENDIAN);
@@ -318,7 +324,7 @@ dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     proto_item *port_id_item = proto_tree_add_item(port_tree, hf_lda_neo_trailer_port_id, tvb, offset,
             LDA_NEO_TRAILER_PORTID_LENGTH, ENC_LITTLE_ENDIAN);
     if (port <= LDA_NEO_TRAILER_40G_PORT_ID_MAX) {
-        if (port > LDA_NEO_TRAILER_40G_PORT_ID_MIN) {
+        if (port >= LDA_NEO_TRAILER_40G_PORT_ID_MIN) {
             lane = (port - LDA_NEO_TRAILER_40G_PORT_ID_MIN) % LDA_NEO_TRAILER_40G_PORT_LANE_COUNT;
 
             proto_tree *port_id_tree = proto_item_add_subtree(port_id_item, ett_lda_neo_trailer_port_id);
@@ -328,7 +334,7 @@ dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     } else {
         invalid = true;
         proto_tree_add_expert(lda_neo_trailer_tree, pinfo, &ei_lda_neo_trailer_port_id_invalid, tvb,
-                LDA_NEO_TRAILER_PORTID_OFFSET, LDA_NEO_TRAILER_PORTID_LENGTH);
+                offset, LDA_NEO_TRAILER_PORTID_LENGTH);
     }
 
     speed = (tvb_get_uint8(tvb, offset) & LDA_NEO_TRAILER_MASK_PORT_SPEED) >> 6;
