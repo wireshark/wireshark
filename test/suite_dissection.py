@@ -85180,3 +85180,84 @@ class TestDissectIso7816:
             '174\t173\t\t0x90\t0x00\t\t',
             '189\t\t190\t\t\t\t',
             '265\t\t\t0x90\t0x00\t\t']
+
+
+class TestDissectIso8583:
+    # ISO 8583 has no registered port
+    decode_as = ('-d', 'tcp.port==8583,iso8583')
+
+    def test_iso8583_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames but the first half of a split message (13) are
+        ISO 8583 and none is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso8583_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 19
+        for n, protos in lines:
+            if n == '13':
+                assert protos == 'eth:ethertype:ip:tcp'
+            else:
+                assert protos == 'eth:ethertype:ip:tcp:iso8583'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.decode_as,
+                    '-r', capture_file('iso8583_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iso8583_llvar_length_prefix(self, cmd_tshark, capture_file, test_env):
+        '''The two digit length prefix of the LLVAR bit 2 is read from the
+        prefix, not from the first digits of the value (the field was
+        malformed before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso8583_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eiso8583.len', '-eiso8583.mti', '-eiso8583.bit2',
+                '-eiso8583.bit3', '-eiso8583.bit4', '-eiso8583.bit35',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            '236', '0200', '4000000000000002', '023758', '000000031677',
+            '4000000000000002=25121010000400000000']
+
+    def test_iso8583_info(self, cmd_tshark, capture_file, test_env):
+        '''Version, message class and the processing and network codes in
+        the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso8583_coverage.pcap.gz'),
+                '-Y', 'iso8583',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\tISO 8583-1:1987\tType 0200 - Financial Messages Proc. cod: 023758'
+        assert '6\tISO 8583-1:1987\tType 0800 - Network Management Net. cod: 301' in lines
+        assert '9\tISO 8583-1:1993\tType 1100 - Authorization Message Proc. cod: 023758' in lines
+        assert '10\tISO 8583-1:1993\tType 1220 - Financial Messages Net. cod: 331' in lines
+        assert '16\tISO 8583-1:1987\tType 0720 - Fee Collection Messages Proc. cod: 023758' in lines
+        assert '17\tISO 8583-1:1987\tType 0920 - Reserved by ISO Proc. cod: 023758' in lines
+
+    def test_iso8583_two_messages_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one segment (12) and one message split over two
+        segments (13, 14).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso8583_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 13, 14}',
+                '-Tfields', '-eframe.number', '-eiso8583.mti', '-eiso8583.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['12\t0500,0510\t32,34', '13\t\t',
+                                       '14\t0200\t88']
+
+    def test_iso8583_second_bitmap(self, cmd_tshark, capture_file, test_env):
+        '''Fields of the second bitmap, and MAC fields 64 and 128.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.decode_as,
+                '-r', capture_file('iso8583_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eiso8583.bit70',
+                '-eiso8583.bit128',
+                '-Y', 'iso8583.bit70 || iso8583.bit128',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t301\t', '7\t331\t', '8\t\t8081828384858687',
+            '10\t331\t8081828384858687', '11\t\t8081828384858687']
