@@ -138,7 +138,6 @@ static lookup_dissector_element_t dissector_lookup_table[] = {
   {"RRC.SI.SIB13-4","rrc.si.sib13-4","rrc.si.sib13-4",0,0,NULL},
   {"RRC.SI.SIB14","rrc.si.sib14","rrc.si.sib14",0,0,NULL},
   {"RRC.SI.SIB15","rrc.si.sib15","rrc.si.sib15",0,0,NULL},
-  {"RRC.SI.SIB15bis","rrc.si.sib15bis","rrc.si.sib15bis",0,0,NULL},
   {"RRC.SI.SIB15-1","rrc.si.sib15-1","rrc.si.sib15-1",0,0,NULL},
   {"RRC.SI.SIB15-1bis","rrc.si.sib15-1bis","rrc.si.sib15-1bis",0,0,NULL },
   {"RRC.SI.SIB15-2","rrc.si.sib15-2","rrc.si.sib15-2",0,0,NULL},
@@ -150,7 +149,7 @@ static lookup_dissector_element_t dissector_lookup_table[] = {
   {"RRC.SI.SIB15-6","rrc.si.sib15-6","rrc.si.sib15-6",0,0,NULL},
   {"RRC.SI.SIB15-7","rrc.si.sib15-7","rrc.si.sib15-7",0,0,NULL},
   {"RRC.SI.SIB15-8","rrc.si.sib15-8","rrc.si.sib15-8",0,0,NULL},
-  {"RRC.SI.SIB18","rrc.si.sib18","rrc.si.sib18",0,0,NULL},
+  {"RRC.SI.SIB15bis","rrc.si.sib15bis","rrc.si.sib15bis",0,0,NULL},
   {"RRC.SI.SIB17","rrc.si.sib17","rrc.si.sib17",0,0,NULL},
   {"RRC.SI.SIB18","rrc.si.sib18","rrc.si.sib18",0,0,NULL},
   {"RRC.SI.SIB2","rrc.si.sib2","rrc.si.sib2",0,0,NULL},
@@ -589,13 +588,13 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     if (prot3gpp_tree)
     {
         /* Set selection length of prot3gpp tree */
-        proto_item_set_len(prot3gpp_tree, offset);
+        proto_item_set_len(ti, offset);
     }
 
     /* Add useful details to protocol tree label */
     protocol_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, protocol_name_start, protocol_name_length, ENC_UTF_8 | ENC_NA);
     /* Set Protocol */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, protocol_name);
+    col_add_str(pinfo->cinfo, COL_PROTOCOL, protocol_name);
     /* To know whether the data following is row byte stream or text data */
     is_hex_data = strcmp(protocol_name, "TXT");
 
