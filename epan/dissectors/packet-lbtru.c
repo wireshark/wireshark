@@ -1068,7 +1068,10 @@ typedef struct
     proto_tree * tree;
     tvbuff_t * tvb;
     uint32_t current_frame;
+    unsigned listed;
 } lbtru_sqn_frame_list_callback_data_t;
+
+#define LBTRU_SQN_FRAME_LIST_MAX 100
 
 static bool dissect_lbtru_sqn_frame_list_callback(const void *key _U_, void * frame, void * user_data)
 {
@@ -1078,6 +1081,13 @@ static bool dissect_lbtru_sqn_frame_list_callback(const void *key _U_, void * fr
 
     if (sqn_frame->frame != cb_data->current_frame)
     {
+        if (cb_data->listed >= LBTRU_SQN_FRAME_LIST_MAX)
+        {
+            transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtru_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" PRIu32 " (list truncated)", sqn_frame->frame);
+            proto_item_set_generated(transport_item);
+            return true;
+        }
+        cb_data->listed++;
         if (sqn_frame->retransmission)
         {
             transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtru_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" PRIu32 " (RX)", sqn_frame->frame);
@@ -1275,6 +1285,8 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         case LBTRU_PACKET_TYPE_RST:
             ei_item = proto_tree_add_item(header_tree, hf_lbtru_hdr_reason, tvb, O_LBTRU_HDR_T_FLAGS_OR_RES, L_LBTRU_HDR_T_FLAGS_OR_RES, ENC_BIG_ENDIAN);
             expert_add_info_format(pinfo, ei_item, &ei_lbtru_analysis_rst, "RST %s", val_to_str(pinfo->pool, flags_or_res, lbtru_rst_reason, "Unknown (0x%04x)"));
+            total_dissected_len += L_LBTRU_HDR_T_FLAGS_OR_RES;
+            ofs += L_LBTRU_HDR_T_FLAGS_OR_RES;
             break;
         default:
             break;
@@ -1368,7 +1380,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 break;
             default:
                 expert_add_info_format(pinfo, next_hdr_item, &ei_lbtru_analysis_unknown_header, "Unrecognized header 0x%02x", next_hdr);
-                fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_unknown, tvb, ofs, L_LBTRU_BASIC_OPT_T + L_LBTRU_CID_OPT_T, ENC_NA);
+                fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_unknown, tvb, ofs, hdrlen, ENC_NA);
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
                 hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
@@ -1489,6 +1501,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                 cb_data.tree = frame_tree;
                                 cb_data.tvb = tvb;
                                 cb_data.current_frame = pinfo->num;
+                                cb_data.listed = 0;
                                 wmem_tree_foreach(sqn->frame, dissect_lbtru_sqn_frame_list_callback, (void *) &cb_data);
                             }
                         }
@@ -1544,6 +1557,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                 cb_data.tree = frame_tree;
                                 cb_data.tvb = tvb;
                                 cb_data.current_frame = pinfo->num;
+                                cb_data.listed = 0;
                                 wmem_tree_foreach(sqn->frame, dissect_lbtru_sqn_frame_list_callback, (void *) &cb_data);
                             }
                         }
