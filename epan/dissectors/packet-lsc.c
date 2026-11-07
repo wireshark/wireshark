@@ -294,7 +294,7 @@ get_lsc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
         break;
       default:
         /* Unrecognized op code */
-        pdu_len = LSC_OPCODE_LEN;
+        pdu_len = LSC_MIN_LEN;
         break;
     }
 
