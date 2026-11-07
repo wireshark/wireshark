@@ -84887,3 +84887,189 @@ class TestDissectIso14443:
         assert stdout.splitlines() == [
             '14\t13\t\t1', '16\t15\t\t1', '18\t17\t\t1', '44\t43\t\t1',
             '50\t\t51\t1', '51\t50\t\t1']
+
+
+class TestDissectIso15765:
+    CAPTURE = 'iso15765_coverage.pcapng.gz'
+    CAN_OPTS = ('-o', 'iso15765.can.ids:0x7e0-0x7e8,0x6a0-0x6af,0x5a0-0x5af,0x7e2-0x7e4',
+                '-o', 'iso15765.can.extended_ids:0x19880000-0x1988ffff')
+    FLEXRAY_OPTS = ('-d', 'flexray.subdissector,iso15765')
+    PDU_OPTS = ('-d', 'udp.port==30490,pdu_transport',
+                '-o', 'uat:ISO15765_pdu_transport_config:"100","0","ffffffff","0","ffffffff","1","ffffffff"',
+                '-o', 'uat:ISO15765_pdu_transport_config:"102","1","ffffffff","1","ffffffff","0","ffffffff"')
+    IPDUM_OPTS = ('-o', 'iso15765.ipdum.pdu.id:0x10-0x11',
+                  '-o', 'uat:AUTOSAR_IPDUM_Messages:"1","2","0","10","PduA","0","64","65535"',
+                  '-o', 'uat:AUTOSAR_IPDUM_Messages:"1","2","1","11","PduB","64","64","65535"',
+                  '-o', 'uat:AUTOSAR_IPDUM_Binding_CAN:"300","0","1"')
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, opts, display_filter, fields):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectIso15765.CAPTURE)]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def all_opts():
+        c = TestDissectIso15765
+        return (*c.CAN_OPTS, *c.FLEXRAY_OPTS, *c.PDU_OPTS, *c.IPDUM_OPTS)
+
+    def test_iso15765_protocols(self, cmd_tshark, capture_file, test_env):
+        '''LIN diagnostic frames reach ISO 15765 by default; no malformed
+        packets or warnings in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), None, ('frame.protocols',))
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 313
+        assert protocols.count('lin:iso15765') == 255
+        assert protocols.count('lin:iso15765:data') == 14
+        # 0x3e and 0x10 are not diagnostic frame IDs
+        assert protocols.count('lin:data') == 2
+        # CAN, FlexRay, UDP and Exported PDU frames are not ISO 15765 without options
+        assert protocols.count('can:data') == 20
+        for opts in ((), self.all_opts()):
+            for passes in ((), ('-2',)):
+                rows = self.run_fields(cmd_tshark, capture_file, test_env, (*passes, *opts),
+                                       '_ws.malformed || _ws.expert.severity >= warning', ('frame.number',))
+                assert rows == []
+
+    def test_iso15765_all_buses(self, cmd_tshark, capture_file, test_env):
+        '''With the CAN IDs, Decode As for FlexRay and PDU Transport and the
+        address tables, ISO 15765 decodes frames of every bus.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.all_opts(), 'iso15765', ('frame.number',))
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.all_opts(), None, ('frame.protocols',))
+        protocols = [r[0] for r in rows]
+        assert protocols.count('can:iso15765') == 7
+        assert protocols.count('can:iso15765:data') == 11
+        assert protocols.count('can:ipdum') == 1
+        assert protocols.count('can:ipdum:data:data') == 1
+        assert len([p for p in protocols if p.startswith('eth:ethertype:ip:udp:pdu_transport')]) == 10
+        assert protocols.count('exported_pdu:data') == 1
+
+    def test_iso15765_single_frames(self, cmd_tshark, capture_file, test_env):
+        '''Single frames: LIN node address, length, padding, data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number <= 6',
+                               ('iso15765.address', 'iso15765.data_length_4bit', 'iso15765.padding', 'data.data'))
+        assert rows[0] == ['0x10', '3', 'cccccc', '22f190']
+        assert rows[1] == ['0x10', '5', 'cc', '62f1904142']
+        assert rows[2] == ['0x10', '0', 'cccccccccccc', '']
+        assert rows[4] == ['0x7f', '2', 'cccccccc', '3e00']
+        assert rows[5] == ['0x10', '6', '', '010203040506']
+
+    def test_iso15765_flow_control(self, cmd_tshark, capture_file, test_env):
+        '''Flow control: status, block size and the separation time in ms
+        and in microseconds (0xF1 to 0xF9).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number >= 7 && frame.number <= 13',
+                               ('iso15765.flow_status', 'iso15765.flow_control.bs',
+                                'iso15765.flow_control.stmin', '_ws.col.Info'))
+        assert rows[1] == ['0x01', '0x04', '20', 'Flow control(Status: 1, Block size: 0x4, Separation time minimum: 20 ms)']
+        assert rows[2][:3] == ['0x02', '0x08', '127']
+        assert rows[3] == ['0x00', '0x02', '100', 'Flow control(Status: 0, Block size: 0x2, Separation time minimum: 100 µs)']
+        assert rows[4][3].endswith('Separation time minimum: 900 µs)')
+        # 0xF0 and 0xFA are plain milliseconds
+        assert rows[5][3].endswith('Separation time minimum: 240 ms)')
+        assert rows[6][3].endswith('Separation time minimum: 250 ms)')
+
+    def test_iso15765_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''First Frame and Consecutive Frames are reassembled, also for two
+        directions in parallel, a 32 bit length and a sequence number wrap.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'iso15765.reassembled.length',
+                               ('frame.number', 'iso15765.reassembled.length'))
+        assert rows == [['17', '20'], ['38', '125'], ['44', '17'], ['45', '23'], ['49', '12'],
+                        ['51', '9'], ['53', '11'], ['268', '12']]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 17',
+                               ('iso15765.padding', 'data.data'))
+        assert rows == [['cccccc', '101112131415161718191a1b1c1d1e1f20212223']]
+        # 125 bytes: 5 + 20 * 6, 21 fragments
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 38',
+                               ('iso15765.fragment.count', 'data.len'))
+        assert rows == [['21', '125']]
+        # First Frame with a 32 bit length (escape sequence 0x10 0x00)
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 46',
+                               ('iso15765.frame_length_12bit', 'iso15765.frame_length_32bit'))
+        assert rows == [['0', '12']]
+        # The same via a second pass shows the reassembly in the first fragment
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, ('-2',), 'frame.number == 14',
+                               ('iso15765.reassembled.in',))
+        assert rows == [['17']]
+
+    def test_iso15765_missing_frames(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: a First Frame announcing 10 bytes followed by a
+        Consecutive Frame with sequence number 5 (frames 1 to 4 missing)
+        made the length underflow. A Consecutive Frame without a First
+        Frame and a late old sequence number are not reassembled.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number >= 55 && frame.number <= 63',
+                               ('frame.number', 'iso15765.reassembled.length', '_ws.malformed'))
+        assert [r[0] for r in rows] == [str(n) for n in range(55, 64)]
+        assert all(r[1] == '' for r in rows)
+        # Up to 200 Consecutive Frames with the same sequence number
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 264',
+                               ('_ws.col.Info',))
+        assert rows == [['Consecutive Frame(Seq: 1)   c7 c8 c9 ca cb cc']]
+
+    def test_iso15765_flexray_types(self, cmd_tshark, capture_file, test_env):
+        '''The FlexRay message types (types 4 to 7) on LIN.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number >= 265 && frame.number <= 270',
+                               ('_ws.col.Info',))
+        assert rows[0] == ['Single Frame Ext(Len: 4)   01 02 03 04']
+        assert rows[1] == ['First Frame Ext(Frame Len: 12)   de']
+        assert rows[2][0].startswith('Consecutive Frame 2(Seq: 1)')
+        assert rows[3][0].startswith('Consecutive Frame 2(Seq: 2)')
+        assert rows[4] == ['Ack Frame(Status: 0, Block size: 0x4, Separation time minimum: 20 ms, Ack: 2, Seq: 1)']
+        assert rows[5] == ['Ack Frame(Status: 1, Block size: 0x4, Separation time minimum: 200 µs, Ack: 3, Seq: 2)']
+
+    def test_iso15765_can(self, cmd_tshark, capture_file, test_env):
+        '''CAN and CAN FD: a segmented transfer and the CAN FD length
+        escapes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.CAN_OPTS,
+                               'iso15765 && frame.number >= 272 && frame.number <= 289',
+                               ('frame.number', 'iso15765.data_length_8bit', 'iso15765.frame_length_32bit',
+                                'iso15765.reassembled.length'))
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['277'] == ['', '', '20']
+        assert by_frame['282'] == ['', '', '9']
+        assert by_frame['283'] == ['12', '', '']
+        assert by_frame['287'] == ['', '', '40']
+        assert by_frame['288'] == ['', '4096', '']
+        assert '290' not in by_frame
+
+    def test_iso15765_flexray(self, cmd_tshark, capture_file, test_env):
+        '''FlexRay: addresses, the extended types and reassembly.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.FLEXRAY_OPTS,
+                               'iso15765 && frame.number >= 292 && frame.number <= 302',
+                               ('frame.number', 'iso15765.source_address', 'iso15765.target_address',
+                                'iso15765.frame_length_32bit', 'iso15765.reassembled.length'))
+        assert len(rows) == 11
+        assert all(r[1:3] == ['0x0012', '0x0034'] for r in rows)
+        by_frame = {r[0]: r[3:] for r in rows}
+        assert by_frame['294'] == ['24', '']
+        assert by_frame['296'] == ['', '24']
+        assert by_frame['301'] == ['', '30']
+
+    def test_iso15765_pdu_transport(self, cmd_tshark, capture_file, test_env):
+        '''PDU Transport: address in the payload, source and target.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.PDU_OPTS,
+                               'iso15765 && frame.number >= 303',
+                               ('frame.number', 'iso15765.address', 'iso15765.source_address',
+                                'iso15765.target_address', 'iso15765.reassembled.length'))
+        assert rows[0] == ['303', '0x42', '', '', '']
+        assert rows[1] == ['305', '', '0x0010', '0x0020', '']
+        assert rows[-1] == ['311', '', '0x0010', '0x0020', '9']
+        assert len(rows) == 4
+
+    def test_iso15765_ipdum(self, cmd_tshark, capture_file, test_env):
+        '''ISO 15765 behind the AUTOSAR I-PduM: two PDUs in one CAN FD frame.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.IPDUM_OPTS,
+                               'frame.number == 290 || frame.number == 291',
+                               ('ipdum.pdu.name', 'iso15765.message_type'))
+        assert rows == [['PduA,PduB', '0x00,0x00'], ['PduA,PduB', '0x01,0x02']]
+
+    def test_iso15765_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "iso15765" has no LIN information: the
+        dissector declines and the payload is data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 313',
+                               ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
+        assert rows == [['exported_pdu:data', 'iso15765', '0322f190']]
