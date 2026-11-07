@@ -2110,7 +2110,8 @@
   ],
   "TestDissectGsmMap": [
    "epan/dissectors/packet-gsm_map.c",
-   "epan/dissectors/packet-gsm_sms.c"
+   "epan/dissectors/packet-gsm_sms.c",
+   "epan/dissectors/packet-isup.c"
   ],
   "TestDissectGsmOsmux": [
    "epan/dissectors/packet-gsm_osmux.c",
@@ -2805,6 +2806,164 @@
   ],
   "TestDissectIsi": [
    "epan/dissectors/packet-isi.c"
+  ],
+  "TestDissectIsisClv": [
+   "epan/dissectors/packet-isis-clv.c",
+   "epan/dissectors/packet-isis-hello.c",
+   "epan/dissectors/packet-isis-lsp.c",
+   "epan/dissectors/packet-isis-snp.c"
+  ],
+  "TestDissectIsisCoverage": [
+   "epan/dissectors/packet-isis-hello.c",
+   "epan/dissectors/packet-isis-lsp.c",
+   "epan/dissectors/packet-isis-snp.c",
+   "epan/dissectors/packet-isis.c"
+  ],
+  "TestDissectIsisHello": [
+   "epan/dissectors/packet-isis-hello.c"
+  ],
+  "TestDissectIsisLsp": [
+   "epan/dissectors/packet-isis-lsp.c"
+  ],
+  "TestDissectIsisSnp": [
+   "epan/dissectors/packet-isis-snp.c"
+  ],
+  "TestDissectIsl": [
+   "epan/dissectors/packet-isl.c"
+  ],
+  "TestDissectIsmacryp": [
+   "epan/dissectors/packet-ismacryp.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectIsmp": [
+   "epan/dissectors/packet-ismp.c"
+  ],
+  "TestDissectIsns": [
+   "epan/dissectors/packet-isns.c"
+  ],
+  "TestDissectIso10681": [
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-flexray.c",
+   "epan/dissectors/packet-iso10681.c"
+  ],
+  "TestDissectIso14443": [
+   "epan/dissectors/packet-iso14443.c"
+  ],
+  "TestDissectIso15765": [
+   "epan/dissectors/packet-autosar-ipdu-multiplexer.c",
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-flexray.c",
+   "epan/dissectors/packet-iso15765.c",
+   "epan/dissectors/packet-pdu-transport.c"
+  ],
+  "TestDissectIso7816": [
+   "epan/dissectors/packet-iso14443.c",
+   "epan/dissectors/packet-iso7816.c"
+  ],
+  "TestDissectIso8583": [
+   "epan/dissectors/packet-iso8583.c"
+  ],
+  "TestDissectIsobus": [
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-isobus.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectIsobusVt": [
+   "epan/dissectors/packet-isobus-vt.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectIsup": [
+   "epan/dissectors/packet-isup.c",
+   "epan/dissectors/packet-q931.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectItdm": [
+   "epan/dissectors/packet-itdm.c"
+  ],
+  "TestDissectItsCoverage": [
+   "epan/dissectors/packet-its.c"
+  ],
+  "TestDissectIua": [
+   "epan/dissectors/packet-gsm_abis_pgsl.c",
+   "epan/dissectors/packet-iua.c",
+   "epan/dissectors/packet-q931.c",
+   "epan/dissectors/packet-rsl.c",
+   "epan/dissectors/packet-x25.c"
+  ],
+  "TestDissectIuup": [
+   "epan/dissectors/packet-iuup.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectIwarpDdpRdmap": [
+   "epan/dissectors/packet-iwarp-ddp-rdmap.c"
+  ],
+  "TestDissectIwarpMpa": [
+   "epan/dissectors/packet-iwarp-mpa.c"
+  ],
+  "TestDissectIxiatrailer": [
+   "epan/dissectors/packet-ixiatrailer.c"
+  ],
+  "TestDissectIxveriwave": [
+   "epan/dissectors/packet-dis.c",
+   "epan/dissectors/packet-ixveriwave.c"
+  ],
+  "TestDissectJ1939": [
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-j1939.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectJmirror": [
+   "epan/dissectors/packet-jmirror.c"
+  ],
+  "TestDissectKadm5": [
+   "epan/dissectors/packet-kadm5.c"
+  ],
+  "TestDissectKafkaCoverage": [
+   "epan/dissectors/packet-kafka.c"
+  ],
+  "TestDissectKdp": [
+   "epan/dissectors/packet-kdp.c"
+  ],
+  "TestDissectKdsp": [
+   "epan/dissectors/packet-ieee80211.c",
+   "epan/dissectors/packet-kdsp.c"
+  ],
+  "TestDissectKerberos4": [
+   "epan/dissectors/packet-ftp.c",
+   "epan/dissectors/packet-kerberos.c",
+   "epan/dissectors/packet-kerberos4.c"
+  ],
+  "TestDissectKingfisher": [
+   "epan/dissectors/packet-kingfisher.c"
+  ],
+  "TestDissectKink": [
+   "epan/dissectors/packet-kink.c"
+  ],
+  "TestDissectKismet": [
+   "epan/dissectors/packet-kismet.c"
+  ],
+  "TestDissectKlm": [
+   "epan/dissectors/packet-klm.c"
+  ],
+  "TestDissectKnet": [
+   "epan/dissectors/packet-knet.c"
+  ],
+  "TestDissectKnxipCoverage": [
+   "epan/dissectors/packet-cemi.c",
+   "epan/dissectors/packet-knxip.c"
+  ],
+  "TestDissectKnxipDecrypt": [
+   "epan/dissectors/packet-knxip.c",
+   "epan/dissectors/packet-knxip_decrypt.c"
+  ],
+  "TestDissectKpasswd": [
+   "epan/dissectors/packet-kpasswd.c"
+  ],
+  "TestDissectKpmV2": [
+   "epan/dissectors/packet-kpm-v2.c"
+  ],
+  "TestDissectKt": [
+   "epan/dissectors/packet-kt.c"
   ],
   "TestDissectLi5g": [
    "epan/dissectors/packet-HI2Operations.c",
