@@ -88280,3 +88280,100 @@ class TestDissectL2tp:
             assert 'Malformed' not in stdout
             assert 'Bad AVP length' not in stdout
         assert counts == {160: 1, 161: 2, 162: 0}
+
+
+class TestDissectLacp:
+    '''LACP (IEEE 802.1AX Link Aggregation Control Protocol) over the Slow
+    Protocols subtype 1 and as vLACP on Ethernet type 0x8103, from the
+    synthetic capture lacp_coverage.pcap.gz.'''
+
+    def test_lacp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are LACP: 24 through Slow Protocols, 4 as vLACP.
+        None is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lacp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('eth:ethertype:slow:lacp') == 24
+        assert protocols.count('eth:ethertype:lacp') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lacp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lacp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the version, system, port, key and the
+        state flags of actor and partner (frames 1, 3-4, 11-13).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lacp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 4, 11, 12, 13, 14}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tv1 ACTOR 02:00:00:00:00:01 P: 1 K: 1 **DCSG*A PARTNER 02:00:00:00:00:02 P: 2 K: 2 **DCSG*A',
+            '3\tv1 ACTOR 02:00:00:00:00:01 P: 10 K: 1 *******A PARTNER 02:00:00:00:00:02 P: 20 K: 2 ****S***',
+            '4\tv1 ACTOR 02:00:00:00:00:01 P: 11 K: 1 ******S* PARTNER 02:00:00:00:00:02 P: 21 K: 2 ***C****',
+            '11\tv1 ACTOR 02:00:00:00:00:01 P: 1 K: 1 EFDCSGSA PARTNER 02:00:00:00:00:02 P: 1 K: 1 ********',
+            '12\tv1 ACTOR 02:00:00:00:00:01 P: 1 K: 1 ******** PARTNER 02:00:00:00:00:02 P: 1 K: 1 EFDCSGSA',
+            '13\tv1 ACTOR 02:00:00:00:00:01 P: 65535 K: 65535 **DCSG*A PARTNER 02:00:00:00:00:02 P: 0 K: 0 **DCSG*A',
+            '14\tv2 ACTOR 02:00:00:00:00:01 P: 1 K: 1 **DCSG*A PARTNER 02:00:00:00:00:02 P: 2 K: 2 **DCSG*A',
+        ]
+
+    def test_lacp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''TLV types of the version 2 frames 15-17 up to the terminator,
+        and the vLACP subtype of frames 25-28.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lacp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 15, 16, 17, 25, 26}',
+                '-Tfields', '-eframe.number', '-elacp.tlv_type',
+                '-elacp.vlacp_subtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x01,0x02,0x03,0x00\t',
+            '15\t0x01,0x02,0x03,0x04,0x00\t',
+            '16\t0x01,0x02,0x03,0x04,0x05,0x06,0x00\t',
+            '17\t0x01,0x02,0x03,0x04,0x07,0x00\t',
+            '25\t0x01,0x02,0x03,0x00\t1',
+            '26\t0x01,0x02,0x03,0x00\t2',
+        ]
+
+    def test_lacp_hp_irf(self, cmd_tshark, capture_file, test_env):
+        '''The HP IRF MAD data after the LACPDU in frames 20 and 21; the
+        0x64 trailers of frames 19 and 22 do not match its length rule and
+        are not claimed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lacp_coverage.pcap.gz'),
+                '-Y', 'lacp.vendor.hp.irf_domain',
+                '-Tfields', '-eframe.number', '-elacp.vendor.hp.irf_domain',
+                '-elacp.vendor.hp.irf_mac', '-elacp.vendor.hp.irf_switch',
+                '-elacp.vendor.hp.irf_port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t1\t02:00:00:00:00:01\t1\t2',
+            '21\t48879\t02:00:00:00:00:02\t5\t8',
+        ]
+
+    def test_lacp_actual_length(self, cmd_tshark, capture_file, test_env):
+        '''A trailer is not claimed by LACP: the LACP item is the 109
+        dissected octets in frames 18 (trailer), 19, 22 and in frame 23,
+        which is truncated by the snapshot length. Before "LACP: Use the
+        dissected length for the actual length" the item of frame 23 was
+        the captured length (120). Frame 20 (HP data) is the LACPDU and
+        its 26 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lacp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 18, 19, 20, 22, 23}',
+                '-Tjson', '-x',
+            ), encoding='utf-8', env=test_env)
+        import json
+        lengths = {}
+        for pkt in json.loads(stdout):
+            layers = pkt['_source']['layers']
+            raw = layers['lacp_raw']
+            lengths[int(layers['frame']['frame.number'])] = raw[2]
+        assert lengths == {1: 109, 18: 109, 19: 109, 20: 135, 22: 109, 23: 109}
