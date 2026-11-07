@@ -90795,3 +90795,129 @@ class TestDissectLix2:
         assert stdout.splitlines() == ['6\t1,1,1,2,2,2']
         stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'ipcp', '-Tfields', '-eframe.number')
         assert stdout.split() == ['6']
+
+
+class TestDissectLlcCoverage:
+    '''Logical-Link Control (802.2) from the synthetic capture
+    llc_coverage.pcapng.gz: U, S and I frames, XID, TEST, SNAP with the
+    OUI handling of dissect_snap(), bridged formats, EPD, and the
+    carriers (802.3, UDP, jumbo, ATM, SLL, PPP, 802.11 mesh).'''
+
+    PROTOCOLS = {
+        'eth:llc': 116,
+        'eth:llc:data': 26,
+        'eth:llc:ip:udp:data': 7,
+        'eth:llc:stp': 4,
+        'wlan:llc:ip:udp:data': 2,
+        'eth:llc:tr:llc:ip:udp:data': 2,
+        'eth:llc:netbios': 2,
+        'eth:llc:ipx:data': 2,
+        'eth:llc:fddi:llc:ip:udp:data': 2,
+        'eth:llc:eth:ethertype:ip:udp:data': 2,
+        'eth:ethertype:ip:udp:llc:ip:udp:data': 2,
+        'wlan:llc:arp': 1,
+        'sll:llc:ip:udp:data': 1,
+        'ppp:llc:ip:udp:data': 1,
+        'llc:stp': 1,
+        'llc:ip:udp:data': 1,
+        'eth:llc:turbocell:eth:ethertype:data': 1,
+        'eth:llc:mesh:data': 1,
+        'eth:llc:turbocell:data': 1,
+        'eth:llc:sna_xid:data': 1,
+        'eth:llc:mesh:ip:udp:data': 1,
+        'eth:llc:hpteam': 1,
+        'eth:llc:ddp:data': 1,
+        'eth:llc:cdp': 1,
+        'eth:llc:atldf': 1,
+        'eth:llc:arp': 1,
+        'eth:ethertype:llc:ip:udp:data': 1,
+    }
+
+    @staticmethod
+    def llc_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('llc_coverage.pcapng.gz'),
+                '-Y', display_filter,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_llc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has an LLC layer; the protocol stacks of the 182
+        frames are the expected ones, without malformed packets or error
+        expert infos in one and two passes.'''
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env, 'frame', 'frame.protocols')
+        assert len(lines) == 183
+        counts = {p: lines.count(p) for p in set(lines)}
+        assert counts == self.PROTOCOLS
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('llc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_llc_control_fields(self, cmd_tshark, capture_file, test_env):
+        '''I frame sequence numbers (extended operation), S frame types
+        and the U frame modifiers.'''
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env,
+                'llc.control.n_s', 'frame.number', 'llc.control.n_s', 'llc.control.n_r')
+        assert lines[:8] == ['74\t0\t0', '75\t1\t3', '76\t127\t127', '77\t2\t1',
+                             '78\t3\t1', '79\t4\t1', '80\t5\t1', '81\t6\t1']
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env,
+                'llc.control.s_ftype', 'frame.number', 'llc.control.s_ftype', 'llc.control.n_r')
+        assert lines[:4] == ['65\t0x0000\t5', '66\t0x0000\t100', '67\t0x0001\t6', '68\t0x0001\t101']
+        assert len(lines) == 10
+        # the 32 U modifier values as command (P clear) and as response
+        assert len(self.llc_fields(cmd_tshark, capture_file, test_env,
+                'llc.control.u_modifier_cmd', 'frame.number')) == 126
+        assert len(self.llc_fields(cmd_tshark, capture_file, test_env,
+                'llc.control.u_modifier_resp', 'frame.number')) == 36
+
+    def test_llc_basic_xid(self, cmd_tshark, capture_file, test_env):
+        '''LLC basic format XID: types and receive window sizes.'''
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env, 'basicxid',
+                'basicxid.llc.xid.format', 'basicxid.llc.xid.types', 'basicxid.llc.xid.wsize')
+        assert len(lines) == 10
+        assert lines[1] == '0x81\t0x01\t5'
+        assert lines[7] == '0x81\t0x07\t29'
+        assert lines[9] == '0x81\t0x03\t63'
+
+    def test_llc_snap_oui(self, cmd_tshark, capture_file, test_env):
+        '''SNAP: OUI 0 with Ethertypes, Cisco CDP, the HP team heartbeat
+        in a TEST frame, bridged Ethernet and the Allied Telesis LDF.'''
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env, 'llc.oui', 'llc.oui')
+        assert len(lines) == 39
+        assert lines.count('0') == 8
+        assert lines.count('32962') == 4
+        assert self.llc_fields(cmd_tshark, capture_file, test_env, 'hpteam',
+                'frame.number', 'llc.control') == ['148\t0x00e3']
+        assert self.llc_fields(cmd_tshark, capture_file, test_env, 'cdp',
+                'cdp.deviceid') == ['sw11']
+        assert self.llc_fields(cmd_tshark, capture_file, test_env, 'atldf',
+                'atldf.vlan', 'atldf.port', 'atldf.ttl', 'atldf.info') == \
+            ['10\t3\t120\tlink discovery']
+        # bridged formats: Ethernet with and without FCS (PID 1 and 7)
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env,
+                'frame.protocols contains "llc:eth:ethertype"', 'frame.number', 'llc.pid')
+        assert lines == ['150\t0x0007', '151\t0x0001']
+
+    def test_llc_epd_and_carriers(self, cmd_tshark, capture_file, test_env):
+        '''EPD (an Ethertype instead of a LLC header) in 802.11 mesh data
+        frames, and LLC over UDP 12000/12004, Ethertype 0x8870, ATM RFC
+        1483, Linux cooked capture and PPP.'''
+        lines = self.llc_fields(cmd_tshark, capture_file, test_env,
+                'frame.number>=174', 'frame.number', 'frame.protocols', 'llc.type', 'llc.dsap')
+        assert lines == [
+            '174\teth:ethertype:ip:udp:llc:ip:udp:data\t\t0x06',
+            '175\teth:ethertype:ip:udp:llc:ip:udp:data\t\t0x06',
+            '176\teth:ethertype:llc:ip:udp:data\t0x0800\t0xaa',
+            '177\tllc:ip:udp:data\t0x0800\t0xaa',
+            '178\tllc:stp\t\t0x42',
+            '179\tsll:llc:ip:udp:data\t\t0x06',
+            '180\tppp:llc:ip:udp:data\t\t0x06',
+            '181\twlan:llc:ip:udp:data\t0x0800\t',
+            '182\twlan:llc:arp\t0x0806\t',
+            '183\twlan:llc:ip:udp:data\t0x0800\t0xaa',
+        ]
