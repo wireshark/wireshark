@@ -91159,3 +91159,82 @@ class TestDissectLlrpCoverage:
                 'frame.number >= 203 && llrp', 'frame.number', 'llrp.type')
         assert [l.split('\t')[0] for l in lines] == ['203', '206', '207', '208']
         assert lines[0].split('\t')[1] == '62,62'
+
+
+class TestDissectLnpdqp:
+    # The capture is SS7 over M3UA with ANSI point codes and SCCP addresses.
+    OPTS = ('-o', 'mtp3.standard:ANSI')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, names, *extra):
+        '''Return one list of field values per frame.'''
+        args = [cmd_tshark, *TestDissectLnpdqp.OPTS, *extra,
+                '-r', capture_file('lnpdqp_coverage.pcap.gz'), '-Tfields']
+        for name in names:
+            args.append('-e' + name)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_lnpdqp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Provide Instruction and Connection Control queries (the ANSI TCAP
+        national operations 0x0301 and 0x0401) decode without malformed
+        packets or error expert infos, and two passes give the same result
+        as one.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert len(rows) == 93
+        assert all(r == ['LNPDQP'] for r in rows)
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('lnpdqp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('lnpdqp_coverage.pcap.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+
+    def test_lnpdqp_needs_ansi_mtp3(self, cmd_tshark, capture_file, test_env):
+        '''With the default (ITU) MTP3 standard the ANSI SCCP addresses do
+        not route to TCAP, so nothing is dissected as LNPDQP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lnpdqp_coverage.pcap.gz'),
+                '-Y', 'lnpdqp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_lnpdqp_digits_by_type(self, cmd_tshark, capture_file, test_env):
+        '''The type of digits picks the field of the Digits parameter:
+        2 calling party, 4 routing number, 7 LATA, 8 carrier; BCD digits
+        are decoded.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['frame.number', 'lnpdqp.callingPartyANI', 'lnpdqp.networkRoutingNumber',
+                            'lnpdqp.originatingLATA', 'lnpdqp.carrierID', 'lnpdqp.bcd_digits',
+                            'lnpdqp.oli', 'lnpdqp.billingIndicators'])
+        by = {r[0]: r for r in rows}
+        # Provide Instruction, digits of type 2, 4, 7 and 8
+        assert by['3'][1] == '0202210a3752551099'
+        assert by['3'][5] == '2015550123,7325550199'
+        assert by['5'][2] == '0402210a0251559999'
+        assert by['8'][3] == '0702210337f2'
+        assert by['9'][4] == '080221042088'
+        # a type with no field of its own: only the generic digits
+        assert by['4'][1:5] == ['', '', '', '']
+        assert by['4'][5] == '2015550123,2015550103'
+        # Connection Control: routing number, billing indicators
+        assert by['19'][2] == '0402210a0251551032'
+        assert by['19'][5] == '2015550123'
+        assert by['19'][7] == '00010203'
+
+    def test_lnpdqp_ia5_digits(self, cmd_tshark, capture_file, test_env):
+        '''Digits with the IA5 encoding show the characters; other encodings
+        and an empty digit string show none.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['frame.number', 'lnpdqp.ia5_digits', 'lnpdqp.bcd_digits', 'lnpdqp.nr_digits'])
+        by = {r[0]: r for r in rows}
+        assert by['29'][1:] == ['ABCDE', '', '5']
+        assert by['30'][1:] == ['12345', '', '5']
+        # encoding 3 is not decoded
+        assert by['31'][1:] == ['', '', '']
