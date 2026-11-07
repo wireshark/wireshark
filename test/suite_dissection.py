@@ -99920,3 +99920,143 @@ class TestDissectMplsY1711:
         rows = self._rows(cmd_tshark, capture_file, test_env,
                           'frame.number in {1..4, 13..20, 31} && _ws.expert', ['frame.number'])
         assert rows == []
+
+
+class TestDissectMqtt:
+    '''MQTT v3.1, v3.1.1 and v5.0 over TCP 1883, with TCP reassembly, topic
+    aliases, content types and the message decoding table, from the
+    synthetic capture mqtt_coverage.pcap.gz. Frames 91-101 hold the
+    reproducers of "MQTT: Fix per-pass state and free SUBSCRIBE topics per
+    packet".'''
+
+    UAT = 'uat:mqtt_message_decoding:'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mqtt_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mqtt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no warnings or errors in one and two
+        passes; the protocol column counts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mqtt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 101
+        assert protocols.count('MQTT') == 81
+        assert protocols.count('MQTT/JSON') == 1
+        assert protocols.count('SparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)') == 1
+        assert protocols.count('TCP') == 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mqtt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mqtt_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type 1-15 is present (PINGREQ x2 + PUBLISH share
+        one segment).'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mqtt', ['mqtt.msgtype'])
+        types = [t for line in out for t in line.split(',')]
+        counts = {int(t): types.count(t) for t in set(types)}
+        assert counts == {1: 6, 2: 4, 3: 26, 4: 5, 5: 5, 6: 5, 7: 5, 8: 4, 9: 3,
+                          10: 3, 11: 3, 12: 5, 13: 3, 14: 5, 15: 3}
+
+    def test_mqtt_versions(self, cmd_tshark, capture_file, test_env):
+        '''The version comes from the CONNECT of the conversation; SUBSCRIBE
+        has the v3.1 header flags only in v3.1 and subscription options
+        only in v5.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mqtt.msgtype == 1',
+                          ['frame.number', 'mqtt.ver', 'mqtt.clientid', 'mqtt.username', 'mqtt.willtopic'])
+        assert out == [
+            '4\t3\tcli3\talice\twill/topic',
+            '23\t4\tcli4\talice\twill/topic',
+            '42\t5\tcli5\tbob\twill/t',
+            '81\t5\tseg\t\t',
+            '94\t5\tc1\t\t',
+            '99\t4\tc2\t\t',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 66',
+                          ['mqtt.subscription_options_qos', 'mqtt.subscription_options_nl',
+                           'mqtt.subscription_options_rap', 'mqtt.subscription_options_retain'])
+        assert out == ['2,1,0\tTrue,True,False\tTrue,False,True\t2,1,0']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mqtt.msgtype == 9',
+                          ['frame.number', 'mqtt.suback.qos', 'mqtt.suback.reason_code'])
+        assert out == ['14\t0,1,2,128\t', '33\t0,1,2,128\t', '67\t\t0,1,2,128,143,151,161']
+
+    def test_mqtt_topic_alias_state(self, cmd_tshark, capture_file, test_env):
+        '''Frames 95-98: a topic alias is defined, used, rebound and used.
+        Each frame keeps the topic that was valid at that frame in the
+        second pass as well; frame 51 uses an alias nobody defined. Frame
+        99 (a v3.1.1 CONNECT in the same conversation) must not change the
+        version of the v5.0 frames before it in the second pass.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              'frame.number in {47, 48, 49, 50, 51, 95, 96, 97, 98}',
+                              ['frame.number', 'mqtt.topic'], *passes)
+            assert out == ['47\talias/aaa', '48\talias/aaa', '49\talias/bbb',
+                           '50\talias/bbb', '51\t', '95\taaa', '96\taaa', '97\tbbb', '98\tbbb']
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              'frame.number in {95, 98} && mqtt.property_len',
+                              ['frame.number', 'mqtt.property_len'], *passes)
+            assert out == ['95\t3', '98\t3']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 51',
+                          ['_ws.expert.message'])
+        assert out == ['Unknown topic alias']
+
+    def test_mqtt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PUBLISH in four TCP segments, three PDUs in one segment and a
+        PDU with a three octet length.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {83, 84, 85, 86, 87, 88}',
+                          ['frame.number', '_ws.col.protocol', 'mqtt.msgtype', 'mqtt.len', 'mqtt.topic'])
+        assert out == [
+            '83\tTCP\t\t\t',
+            '84\tTCP\t\t\t',
+            '85\tTCP\t\t\t',
+            '86\tMQTT\t3\t780\tbig/topic',
+            '87\tMQTT\t12,12,3\t0,0,11\tmulti/x',
+            '88\tMQTT\t3\t20007\thuge',
+        ]
+
+    def test_mqtt_content_type(self, cmd_tshark, capture_file, test_env):
+        '''The Content Type property hands the payload to the media type
+        dissector (JSON) and the topic to the heuristic list (Sparkplug).'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'json',
+                          ['frame.number', 'json.member_with_value'])
+        assert out == ['45\ta:1']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 46',
+                          ['_ws.col.protocol', 'mqtt.topic'])
+        assert out == ['SparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)\tspBv1.0/grp/NDATA/node1']
+
+    def test_mqtt_message_decoding_table(self, cmd_tshark, capture_file, test_env):
+        '''The message decoding table matches topics (Equal to, Contains,
+        Starts with, Ends with, Regular Expression) and can inflate the
+        payload first.'''
+        for crit, pat, frames in (('Equal to', 'v5/json', ['45']),
+                                  ('Contains', 'json', ['45']),
+                                  ('Starts with', 'v5/topic', ['44']),
+                                  ('Ends with', '/json', ['45']),
+                                  ('Regular Expression', '^v5/.*n$', ['45'])):
+            out = self.fields(cmd_tshark, capture_file, test_env, 'mqtt.msg_decoded_as',
+                              ['frame.number'], '-o', f'{self.UAT}"{crit}","{pat}","none","json"')
+            assert out == frames, crit
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mqtt.msg_decoded_as',
+                          ['frame.number', 'mqtt.msg_decoded_as', 'json.member_with_value'],
+                          '-o', f'{self.UAT}"Equal to","zlib/ok","compressed","json"')
+        assert out == ['89\tjson\tz:1']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 90',
+                          ['mqtt.msg_decoded_as'],
+                          '-o', f'{self.UAT}"Equal to","zlib/bad","compressed","json"')
+        assert out == ['']
+
+    def test_mqtt_show_msg_as_text(self, cmd_tshark, capture_file, test_env):
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                          ['mqtt.msg_text'], '-o', 'mqtt.show_msg_as_text:TRUE')
+        assert out == ['21.5']
