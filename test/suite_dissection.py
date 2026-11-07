@@ -90468,3 +90468,110 @@ class TestDissectLg8979:
                     '-elg8979.funccode', '-elg8979.length')
             assert stdout.splitlines() == [
                 'RTU -> Master, Address: 10, Indication Force Report, Accumulator Change Report\t7,12\t4,249']
+
+
+class TestDissectLisp:
+    CAP = 'lisp_coverage.pcap.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectLisp.CAP), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_lisp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is a LISP control message on UDP 4342 (no Decode
+        As); no malformed packets or errors in one and two passes. The
+        warnings are the invalid geo coordinates, the LCAF types that are
+        not decoded and the 520 unknown LCAFs of the depth reproducer.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                             '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 45
+        assert protocols.count('LISP') == 45
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert stdout.split() == ['18', '21', '22', '42']
+
+    def test_lisp_info(self, cmd_tshark, capture_file, test_env):
+        '''Message names, flags shown in the Info column, and the
+        encapsulated messages.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'Map-Request for 192.0.2.1/32'
+        assert info['3'] == 'Map-Request by P-ITR (SMR) (RLOC-probe) (SMR-invoked)'
+        assert info['8'] == 'Map-Request for [7] 2001:db8::1/32'
+        assert info['11'] == 'Map-Reply (RLOC-probe reply) for 2001:db8::1/64'
+        assert info['25'] == 'Map-Register (RTR)'
+        assert info['29'] == 'Map-Notify (RTR) for 192.0.2.1/24'
+        assert info['31'] == 'Map-Referral'
+        assert info['35'] == 'Info-Reply for 192.0.2.1/32'
+        assert info['38'] == 'Encapsulated Map-Request (DDT-originated) for 2001:db8::1/128'
+        assert info['40'] == 'Encapsulated Control Message'
+        assert info['41'] == 'Encapsulated Map-Request (SMR) for 192.0.2.1/32'
+
+    def test_lisp_lcaf_types(self, cmd_tshark, capture_file, test_env):
+        '''Every LCAF type, as locators of Map-Replies (frames 14 to 22).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 14 && frame.number <= 22', '-Tfields',
+                '-eframe.number', '-elisp.lcaf.type')
+        types = []
+        for l in stdout.splitlines():
+            types += l.split('\t')[1].split(',')
+        assert set(types) == {str(t) for t in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 99, 255)}
+        assert len(types) == 7 + 6 + 8 + 6 + 9 + 9 + 9 + 8 + 2
+
+    def test_lisp_authentication_placeholder(self, cmd_tshark, capture_file, test_env):
+        '''Map-Register and Map-Notify with placeholder authentication
+        data (20 zero octets, no key), the xTR-ID and site-ID.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lisp.authlen', '-Tfields', '-eframe.number',
+                '-elisp.authlen', '-elisp.keyid', '-elisp.xtrid', '-elisp.siteid',
+                '-elisp.auth', '-elisp.msrtr.authlen')
+        lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines['24'][:5] == ['20', '0x0001', '000102030405060708090a0b0c0d0e0f',
+                                   '2021222324252627', '00' * 20]
+        assert lines['26'][:2] == ['0', '0x0002']
+        assert lines['29'][5] == '20'
+
+    def test_lisp_nonce_locator(self, cmd_tshark, capture_file, test_env):
+        '''The Nonce Locator item shows the reserved octet and the 3 octet
+        nonce (they were read with 32 bit accessors).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 16', '-V', '-O', 'lisp')
+        assert 'LCAF: Nonce Locator: 0: 13303311, Address: 192.0.2.1' in stdout
+        assert 'LCAF: Nonce Locator: 0: 13303313, Address: 2001:db8::1' in stdout
+
+    def test_lisp_lcaf_depth_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frame 42: a Map-Request whose Source EID is an AFI List of 520
+        LCAFs of an unknown type. Each entry leaked one dissection depth
+        level, so the 501st hit the depth assertion.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 42', '-Tfields', '-e_ws.malformed',
+                '-e_ws.expert.message', '-elisp.lcaf.type')
+        malformed, messages, types = stdout.rstrip('\n').split('\t')
+        assert malformed == ''
+        assert messages.split(',') == ['Not dissected yet (report to wireshark.org)'] * 520
+        assert types.split(',') == ['1'] + ['100'] * 520
+
+    def test_lisp_nested_instance_id_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frames 43 to 45: chains of nested Instance ID and AS Number LCAFs. The address
+        string stops at 4 levels (it used to follow the whole chain, which
+        took memory quadratic or cubic in the chain length).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 43', '-V', '-O', 'lisp')
+        assert 'Source EID: [0] [0] [0] [0] (nested too deeply)' in stdout
+        assert stdout.count('LCAF: Instance ID: 0, Address: [0] [0] [0] [0] (nested too deeply)') > 30
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 44', '-V', '-O', 'lisp')
+        assert '(nested too deeply)' in stdout
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 45', '-V', '-O', 'lisp')
+        assert '(nested too deeply)' in stdout
