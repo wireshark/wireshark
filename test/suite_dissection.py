@@ -93407,3 +93407,66 @@ class TestDissectM2pa:
             assert lines == ['45\tInvalid message length: 8',
                              '46\tInvalid message length: 0',
                              '47\tInvalid message length: 15']
+
+
+class TestDissectM2tp:
+    '''M2TP (MTP2 Tunnelling Protocol) over SCTP port 9908 / PPID 99, from
+    the synthetic capture m2tp_coverage.pcap.gz.'''
+
+    def test_m2tp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''46 frames: 29 are M2TP only, 17 carry an MTP2 signal unit (12
+        MTP2: FISU, LSSU, and 5 MSUs with an MTP3 SLTM message). None is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2tp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 46
+        assert protocols.count('M2TP') == 29
+        assert protocols.count('MTP2') == 12
+        assert protocols.count('MTP3MG (Int. ITU)') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('m2tp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_m2tp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type appears with its acronym in the Info column;
+        the error codes 0-10 of the ERR messages are shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2tp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = [i.strip() for i in stdout.split('\n')[:-1]]
+        assert infos.count('ERR') == 13
+        assert infos.count('ASP_UP') == 6
+        assert infos.count('ASP_DOWN') == 2
+        assert infos.count('BEAT') == 2
+        assert infos.count('ASP_UP_ACK') == 1
+        assert infos.count('ASP_DOWN_ACK') == 1
+        assert infos.count('BEAT_ACK') == 1
+        assert infos.count('reserved') == 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2tp_coverage.pcap.gz'),
+                '-Y', 'm2tp.error_code', '-Tfields', '-em2tp.error_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(i) for i in range(11)] + ['7']
+
+    def test_m2tp_protocol_data(self, cmd_tshark, capture_file, test_env):
+        '''The Protocol Data parameter is handed to MTP2: FISU (LI 0),
+        LSSU (LI 1 and 2), MSU with MTP3 (LI 11).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('m2tp_coverage.pcap.gz'),
+                '-Y', 'mtp2.li', '-Tfields', '-eframe.number', '-emtp2.li',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.split('\n')[:-1]
+        assert len(lines) == 17
+        lis = [l.split('\t')[1] for l in lines]
+        assert lis.count('0') == 5
+        assert lis.count('1') == 4
+        assert lis.count('2') == 3
+        assert lis.count('11') == 5
