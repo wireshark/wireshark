@@ -94010,3 +94010,104 @@ class TestDissectMacLteFramed:
                 ), encoding='utf-8', env=test_env, timeout=120))
         assert outputs[0] == outputs[1]
         assert count_output(outputs[0]) > 100
+
+
+class TestDissectMacNr:
+    '''MAC-NR (and the mac-nr-framed wrapper) from the synthetic capture
+    mac_nr_coverage.pcapng.gz: Exported PDU frames naming "mac-nr-framed"
+    (frames 1-151) and four UDP frames for the heuristic dissector, which
+    is disabled by default (frames 152-155, --enable-heuristic mac_nr_udp).'''
+
+    HEUR = ('--enable-heuristic', 'mac_nr_udp')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, *opts, fields=('frame.number',), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('mac_nr_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mac_nr_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 155 frames are in the capture; MAC-NR is reached through
+        mac-nr-framed for 151 and through the UDP heuristic for 4 more.'''
+        fr = self.frames
+        assert len(fr(cmd_tshark, capture_file, test_env, 'frame')) == 155
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr')) == 151
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr', *self.HEUR)) == 155
+        # transport channels: BCCH on BCH, BCCH on DL-SCH, PCCH, RAR, MSGB
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.rnti-type == 0')) == 2
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.rnti-type == 4')) == 1
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.rnti-type == 1')) == 2
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.rnti-type == 2')) == 3
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.rnti-type == 6')) == 5
+
+    def test_mac_nr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two passes,
+        also with the heuristic dissector enabled.'''
+        for passes in ((), ('-2',)):
+            for opts in ((), self.HEUR):
+                assert self.frames(cmd_tshark, capture_file, test_env, self.BAD, *opts, passes=passes) == []
+
+    def test_mac_nr_unknown_framing_tag(self, cmd_tshark, capture_file, test_env):
+        '''An unknown framing tag after the fixed context fields (frames 150,
+        151 through mac-nr-framed, 154, 155 through the heuristic) gives
+        an expert info and no MAC dissection. The info struct was freed and
+        then stored and used (heap use after free, a segfault in the second
+        pass) before "MAC-NR: Fix use after free on an unknown framing tag".'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.unknown-udp-framing-tag',
+                               passes=passes) == [['150'], ['151']]
+            assert self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.unknown-udp-framing-tag',
+                               *self.HEUR, passes=passes) == [['150'], ['151'], ['154'], ['155']]
+            # the context was not decoded: no direction or RNTI type
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               'frame.number in {150,151,154,155} && (mac-nr.direction || mac-nr.rnti-type)',
+                               *self.HEUR, passes=passes) == []
+
+    def test_mac_nr_heuristic_context(self, cmd_tshark, capture_file, test_env):
+        '''The context tags (RNTI, UEId, HARQ id) and the DL-SCH SDU are
+        decoded from the UDP frames.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {152,153}', *self.HEUR,
+                           fields=('frame.number', 'mac-nr.rnti', 'mac-nr.ueid', 'mac-nr.harqid',
+                                   'mac-nr.direction', 'mac-nr.dlsch.sdu')) == [
+            ['152', '0x4601', '9', '2', '1', '686575726973746963'],
+            ['153', '0x4601', '9', '2', '1', '686575726973746963'],
+        ]
+
+    def test_mac_nr_rar_msgb(self, cmd_tshark, capture_file, test_env):
+        '''RAR subheaders: BI and RAPID, the TA and Temp C-RNTI; MSGB with
+        FallbackRAR and SuccessRAR.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.rar',
+                           fields=('frame.number', 'mac-nr.rar.rapid', 'mac-nr.rar.ta', 'mac-nr.rar.bi')) == [
+            ['6', '', '', '5'],
+            ['7', '7', '291', ''],
+            ['8', '3,60', '291,4095', '10'],
+        ]
+        info = self.frames(cmd_tshark, capture_file, test_env, 'frame.number == 11',
+                           fields=('_ws.col.info',))[0][0]
+        assert info == ('MSGB (MSGB-RNTI=512) (BI=2) FallbackRAR (RAPID=5 TA=291 Temp C-RNTI=16385) '
+                        'SuccessRAR (C-RNTI=16962, TA=291) ')
+
+    def test_mac_nr_control_elements(self, cmd_tshark, capture_file, test_env):
+        '''Short BSR logical channel groups, single entry PHR (including the
+        limits of the value formats), C-RNTI and Multiple Entry PHR.'''
+        fr = self.frames
+        assert fr(cmd_tshark, capture_file, test_env, 'mac-nr.control.bsr.short.lcg',
+                  fields=('frame.number', 'mac-nr.control.bsr.short.lcg')) == [
+            ['89', '0'], ['90', '3'], ['91', '7'], ['92', '6'], ['99', '1'], ['147', '1']]
+        assert fr(cmd_tshark, capture_file, test_env, 'mac-nr.control.se-phr.ph',
+                  fields=('frame.number', 'mac-nr.control.se-phr.ph', 'mac-nr.control.se-phr.pcmax_f_c')) == [
+            ['87', '21', '41'], ['134', '0', '0'], ['135', '63', '63'], ['136', '60', '62']]
+        assert fr(cmd_tshark, capture_file, test_env, 'mac-nr.control.crnti',
+                  fields=('frame.number', 'mac-nr.control.crnti')) == [['88', '0x4601'], ['99', '0x0001']]
+        assert len(fr(cmd_tshark, capture_file, test_env, 'mac-nr.control.me.phr.entry')) == 5
+
+    def test_mac_nr_srb_and_drb(self, cmd_tshark, capture_file, test_env):
+        '''SRB SDUs go through RLC AM, PDCP and RRC by default; LCID 5 is
+        left raw until the DRB table maps it.'''
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'rlc-nr && pdcp-nr && nr-rrc')) == 3
+        drb = ('-o', 'uat:drb_bearerconfig:"LCID 5","1","AM, SN Len=12","AM, SN Len=12"')
+        assert self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.dlsch.lcid == 5 && rlc-nr') == []
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'mac-nr.dlsch.lcid == 5 && rlc-nr', *drb)) > 0
