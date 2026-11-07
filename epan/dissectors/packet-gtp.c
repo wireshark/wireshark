@@ -10119,20 +10119,6 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         /* If the message does not have any session ID */
         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
-            /* If the message is not a CPDPCRES, CPDPCREQ, UPDPREQ, UPDPRES
-             * then we remove its information from teid and ip lists
-             * XXX: Wouldn't it be better not to insert this information
-             * in the first place for other message types, instead of
-             * inserting it and then immediately removing it?
-             */
-            if ((gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP
-                && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ)) {
-                /* If the lists are not empty*/
-                if (wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
-                    remove_frame_info_lists(args->teid_list, args->ip_list, pinfo->num);
-                }
-            }
-
             if (gtp_hdr->message == GTP_MSG_CREATE_PDP_REQ) {
                 /* If CPDPCREQ and not already in the list then we create a new session*/
                 add_gtp_session(pinfo->num, gtp_session_count);
@@ -10181,6 +10167,15 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
     }
 
     if (!PINFO_FD_VISITED(pinfo)) {
+        /* If the message has no session (also not from its TEID) and is not
+         * a CPDPCRES, CPDPCREQ, UPDPREQ or UPDPRES, then we remove its
+         * information from teid and ip lists */
+        if (gtp_version == 1 && !GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(pinfo->num)))
+            && gtp_hdr->message != GTP_MSG_CREATE_PDP_RESP && gtp_hdr->message != GTP_MSG_CREATE_PDP_REQ
+            && gtp_hdr->message != GTP_MSG_UPDATE_PDP_RESP && gtp_hdr->message != GTP_MSG_UPDATE_PDP_REQ
+            && wmem_list_count(args->teid_list) && wmem_list_count(args->ip_list)) {
+            remove_frame_info_lists(args->teid_list, args->ip_list, pinfo->num);
+        }
         /* Do not let a message without a session take over the TEIDs of a session */
         restore_frame_info(pinfo->num, args->replaced_list);
     }

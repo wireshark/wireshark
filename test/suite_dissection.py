@@ -68709,7 +68709,7 @@ class TestDissectGtpSession:
                 '2\t001010000000002',
             ]
             rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
-            assert ['001010000000002', '5', '8'] in rows
+            assert ['001010000000002', '5', '18'] in rows
 
     def test_gtp_session_without_imsi(self, cmd_tshark, capture_file, test_env):
         '''A Modify Bearer Request to an unknown TEID (frame 9) starts a
@@ -68755,7 +68755,7 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('gtpv2_session.pcap'),
-                    '-Y', 'frame.number >= 14',
+                    '-Y', 'frame.number >= 14 && frame.number <= 16',
                     '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
@@ -68763,6 +68763,22 @@ class TestDissectGtpSession:
                 '6\t001010000000010',
                 '\t',
                 '\t',
+            ]
+
+    def test_gtp_session_fteid_of_other_message(self, cmd_tshark, capture_file, test_env):
+        '''The Modify Bearer Command (frame 17) gets its session from its
+        TEID and keeps the new F-TEID it has, so the Update Bearer Request
+        to that F-TEID (frame 18) gets the session too.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number >= 17',
+                    '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '2\t001010000000002',
+                '2\t001010000000002',
             ]
 
 

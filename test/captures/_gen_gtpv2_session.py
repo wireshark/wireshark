@@ -46,6 +46,11 @@
 #                  the session
 #  16  SGW -> PGW  Delete Session Request to the S11 MME TEID of frame 14,
 #                  but to the PGW address: not of the session
+#
+# UE B again:
+#  17  SGW -> PGW  Modify Bearer Command to the PGW S5/S8 TEID: the session
+#                  of its TEID, and a new SGW S5/S8 F-TEID
+#  18  PGW -> SGW  Update Bearer Request to the TEID of that F-TEID
 
 import struct
 import sys
@@ -71,6 +76,8 @@ CREATE_SESSION_REQUEST = 32
 CREATE_SESSION_RESPONSE = 33
 MODIFY_BEARER_REQUEST = 34
 DELETE_SESSION_REQUEST = 36
+MODIFY_BEARER_COMMAND = 64
+UPDATE_BEARER_REQUEST = 97
 DELETE_PDN_CONNECTION_SET_REQUEST = 101
 DOWNLINK_DATA_NOTIFICATION = 176
 
@@ -199,6 +206,12 @@ def main():
             DELETE_PDN_CONNECTION_SET_REQUEST, 0, 0x61)),
         frame(SGW_S5, PGW, GTPV2_PORT, gtpv2(
             DELETE_SESSION_REQUEST, 0x1006, 0x62)),
+        # UE B again
+        frame(SGW_S5, PGW, GTPV2_PORT, gtpv2(
+            MODIFY_BEARER_COMMAND, 0x7001, 0x70,
+            f_teid_ie(IF_S5S8_SGW_GTPC, 0x5002, SGW_S5))),
+        frame(PGW, SGW_S5, GTPV2_PORT, gtpv2(
+            UPDATE_BEARER_REQUEST, 0x5002, 0x70)),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)
