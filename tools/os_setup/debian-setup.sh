@@ -231,6 +231,13 @@ add_package ADDITIONAL_LIST libbcg729-dev ||
 add_package ADDITIONAL_LIST libcpuinfo-dev ||
     echo "libcpuinfo-dev is unavailable"
 
+# libsinsp and libscap, required by Stratoshark. Their headers include uthash.h,
+# which libfalcosecurity0-dev neither ships nor depends on.
+# Debian >= bookworm, Ubuntu >= 23.04. CMake rejects a version too old for Stratoshark.
+add_package ADDITIONAL_LIST libfalcosecurity0-dev &&
+add_package ADDITIONAL_LIST uthash-dev ||
+    echo "libfalcosecurity0-dev or uthash-dev is unavailable"
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries

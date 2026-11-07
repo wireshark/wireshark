@@ -88,7 +88,8 @@ class TestExtcaps:
 
     def test_falcodump(self, request, check_extcap_execution):
         ''' extcap interface tests for falcodump '''
-        check_extcap_execution("falcodump", stratoshark_extcap=True)
+        # Interfaces come from Falco source plugins, which are optional.
+        check_extcap_execution("falcodump", stratoshark_extcap=True, always_present=False)
 
     # if sys.platform == 'linux':
     #     def test_dumpcalls(self, check_extcap_execution):

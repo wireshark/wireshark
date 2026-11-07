@@ -35,6 +35,63 @@ include(CMakeDependentOption)
 if( NOT USE_REPOSITORY)
   find_package(PkgConfig)
   pkg_check_modules(SINSP libsinsp)
+  if(SINSP_FOUND)
+    # The libsinsp and libscap headers include each other as
+    # <libsinsp/...> and <libscap/...>, so we need the directory that
+    # contains libsinsp and libscap. Not every libsinsp.pc provides it:
+    # some list falcosecurity/libsinsp and falcosecurity/libscap instead,
+    # and the ones in Debian trixie and Ubuntu 26.04 compute their prefix
+    # as ${pcfiledir}/../.. from a multiarch libdir, so their include
+    # directory doesn't exist. Drop include directories that don't exist
+    # and look for the headers ourselves.
+    # This was fixed upstream in later versions of the .pc files and
+    # Debian packages.
+    set(_sinsp_pc_include_dirs)
+    set(_sinsp_include_hints)
+    foreach(_dir IN LISTS SINSP_INCLUDE_DIRS)
+      if(IS_DIRECTORY "${_dir}")
+        get_filename_component(_dir "${_dir}" ABSOLUTE)
+        list(APPEND _sinsp_pc_include_dirs "${_dir}")
+        get_filename_component(_parent_dir "${_dir}" DIRECTORY)
+        list(APPEND _sinsp_include_hints "${_dir}" "${_parent_dir}")
+      endif()
+    endforeach()
+    find_path(_sinsp_include_dir NO_CACHE
+      NAMES libsinsp/sinsp.h
+      HINTS ${_sinsp_include_hints}
+      PATH_SUFFIXES falcosecurity
+    )
+    if(_sinsp_include_dir)
+      get_filename_component(_sinsp_include_dir "${_sinsp_include_dir}" ABSOLUTE)
+      list(PREPEND _sinsp_pc_include_dirs "${_sinsp_include_dir}")
+      list(REMOVE_DUPLICATES _sinsp_pc_include_dirs)
+      set(SINSP_INCLUDE_DIRS ${_sinsp_pc_include_dirs})
+      # libscap includes uthash.h, which some packages (e.g. Debian trixie
+      # and Ubuntu 26.04) don't depend on.
+      if(EXISTS "${_sinsp_include_dir}/libscap/uthash_ext.h")
+        find_path(_uthash_include_dir NO_CACHE
+          NAMES uthash.h
+          HINTS ${_sinsp_pc_include_dirs}
+        )
+        if(_uthash_include_dir)
+          get_filename_component(_uthash_include_dir "${_uthash_include_dir}" ABSOLUTE)
+          list(APPEND SINSP_INCLUDE_DIRS "${_uthash_include_dir}")
+          list(REMOVE_DUPLICATES SINSP_INCLUDE_DIRS)
+        else()
+          message(WARNING "The libscap headers require uthash.h, which wasn't found. Install uthash (e.g. uthash-dev).")
+          set(SINSP_INCLUDE_DIRS "")
+        endif()
+        unset(_uthash_include_dir)
+      endif()
+    else()
+      set(SINSP_INCLUDE_DIRS "")
+    endif()
+    unset(_sinsp_include_dir)
+    unset(_sinsp_include_hints)
+    unset(_sinsp_pc_include_dirs)
+    unset(_parent_dir)
+    unset(_dir)
+  endif()
 endif()
 
 # Include both legacy (#include <sinsp.h>) and current (#include <libsinsp/sinsp.h>) paths for now.
