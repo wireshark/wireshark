@@ -1640,7 +1640,7 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, uint
                                 proto_tree_add_item(tlv_tree, hf_mihf_id, tvb, offset+1, mihf_id_len, ENC_ASCII);
                         else
                         {
-                                if(mihf_id_len<tvb_reported_length_remaining(tvb,0) && (mihf_id_len==12 || mihf_id_len==64 || mihf_id_len==128))
+                                if(tvb_bytes_exist(tvb, offset + 1, mihf_id_len) && (mihf_id_len==12 || mihf_id_len==8 || mihf_id_len==32))
                                 {
                                         tvb_mihf_id = tvb_new_composite();
                                         for(i=0; i < mihf_id_len/2; i++)
@@ -1667,10 +1667,10 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, uint
                                                         case 12:  /* checks if the length corresponds to a MAC address */
                                                                 proto_tree_add_item(tlv_tree, hf_mihf_id_mac, tvb_mihf_id, 0, mihf_id_len/2, ENC_NA);
                                                                 break;
-                                                        case 64:  /* checks if the length corresponds to an IPv4 address */
+                                                        case 8:   /* checks if the length corresponds to an IPv4 address */
                                                                 proto_tree_add_item(tlv_tree, hf_mihf_id_ipv4, tvb_mihf_id, 0, mihf_id_len/2, ENC_BIG_ENDIAN);
                                                                 break;
-                                                        case 128: /* checks if the length corresponds to an IPv6 address */
+                                                        case 32:  /* checks if the length corresponds to an IPv6 address */
                                                                 proto_tree_add_item(tlv_tree, hf_mihf_id_ipv6, tvb_mihf_id, 0, mihf_id_len/2, ENC_NA);
                                                                 break;
                                                 }
