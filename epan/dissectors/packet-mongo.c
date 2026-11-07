@@ -725,6 +725,12 @@ dissect_mongo_op_compressed(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, 
 
   opcode = tvb_get_letohl(tvb, offset);
   *effective_opcode = opcode;
+  if (opcode == OP_COMPRESSED) {
+    /* A compressed message cannot contain another one; this also stops
+     * nested decompression. */
+    expert_add_info_format(pinfo, ti, &ei_mongo_unsupported_compression, "Nested OP_COMPRESSED");
+    return tvb_reported_length(tvb);
+  }
   compressor = tvb_get_uint8(tvb, offset + 8);
   offset += 9;
 
@@ -923,7 +929,10 @@ dissect_opcode_types(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_t
     *effective_opcode = opcode;
 
     unsigned recursion_depth = p_get_proto_depth(pinfo, proto_mongo);
-    DISSECTOR_ASSERT(recursion_depth <= BSON_MAX_NESTING);
+    if (recursion_depth > BSON_MAX_NESTING) {
+      proto_tree_add_expert_format_remaining(mongo_tree, pinfo, &ei_mongo_document_recursion_exceeded, tvb, offset, "Message recursion exceeds %u", BSON_MAX_NESTING);
+      return tvb_reported_length(tvb);
+    }
     p_set_proto_depth(pinfo, proto_mongo, recursion_depth + 1);
 
     switch(opcode){
