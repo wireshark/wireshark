@@ -90738,3 +90738,60 @@ class TestDissectLispTcp:
         assert stdout.splitlines() == [
             '42\t50,51\t22,25', '43\t\t', '44\t52\t17', '45\t\t',
             '46\t53\t30', '47\t\t', '48\t51\t25']
+
+
+class TestDissectLix2:
+    # Frames are X2 xIRI PDUs of LI5G (Exported PDU, link type 252) whose
+    # payload is an XIRIPayload of 3GPP TS 33.128.
+    CAP = 'lix2_coverage.pcap.gz'
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectLix2.CAP), *args),
+                encoding='utf-8', env=test_env)
+
+    def test_lix2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 403 frames are LI5G X2 xIRI PDUs whose payload decodes as an
+        XIRIPayload ("xiri"), without malformed packets or warnings, and two
+        passes give the same result as one.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.protocol', '-eframe.protocols')
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 403
+        assert all(r[0] == 'LI5G' for r in rows)
+        assert all(r[1].startswith('exported_pdu:li5g:xiri') for r in rows)
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            outputs.append(self.run(cmd_tshark, capture_file, test_env, *passes, '-V'))
+        assert outputs[0] == outputs[1]
+
+    def test_lix2_events(self, cmd_tshark, capture_file, test_env):
+        '''Every alternative of XIRIEvent turns up: the event choice takes
+        the values 1 to 190 except 16, which the ASN.1 reserves.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Tfields', '-elix2.event')
+        events = {int(v) for line in stdout.splitlines() for v in line.split(',') if v}
+        assert events == set(range(1, 191)) - {16}
+
+    def test_lix2_imsi_msisdn(self, cmd_tshark, capture_file, test_env):
+        '''The IMSI and MSISDN fields (decoded by the E.212 / E.164 helpers)
+        show the digits the generator put in them.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Tfields', '-ee212.imsi')
+        assert {v for line in stdout.splitlines() for v in line.split(',') if v} == {
+            '001010123456789', '310410987654321', '262011234567890', '20404123456789', '23415123456'}
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Tfields', '-ee164.msisdn')
+        assert {v for line in stdout.splitlines() for v in line.split(',') if v} == {
+            '12025550123', '491701234567', '447700900123', '61412345678', '4670123456'}
+
+    def test_lix2_protocol_configuration_options(self, cmd_tshark, capture_file, test_env):
+        '''The request and response PCO octet strings are handed to the GSM
+        session management decoder: PAP and IPCP show up in frame 6 (the first
+        event with both a request and a response PCO).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'pap', '-Tfields', '-eframe.number', '-epap.code')
+        assert stdout.splitlines() == ['6\t1,1,1,2,2,2']
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'ipcp', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['6']
