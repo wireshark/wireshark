@@ -92274,3 +92274,65 @@ class TestDissectLpp:
             'codePhaseRMSError: 1.250000 <= P < 1.375000 (11)',
             'codePhaseRMSError: 7.000000 <= P < 7.500000 (31)',
         ]
+
+
+class TestDissectLppe:
+    '''LPPe (OMA LPP Extensions, unaligned PER) from the synthetic capture
+    lppe_coverage.pcap.gz, all in Exported PDU frames: frames 1-104 name
+    the "lpp" dissector; their EPDU (identifier 1) carries an LPPe message
+    that packet-lpp.c hands to the "lppe" dissector; frames 105-107 name
+    "lppe" directly.'''
+
+    CIVIC = ['11', '35', '43', '63', '82', '91', '101']
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('lppe_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lppe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol counts (LPP with one to three LPPe messages, the
+        XML of a civic location, LPPe alone), and no malformed packets or
+        error expert infos in any frame, in one and two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env,
+                'frame', '-e_ws.col.protocol')
+        assert len(protocols) == 107
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['LPPe'] == 3
+        assert counts['LPP/LPPe'] == 44
+        assert counts['LPP/LPPe/LPPe'] == 36
+        assert counts['LPP/LPPe/LPPe/LPPe'] == 17
+        assert sum(n for p, n in counts.items() if 'XML' in p) == 7
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-eframe.number', passes=passes)
+            assert out == []
+
+    def test_lppe_epdu(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has LPPe messages; 15 frames also carry an EPDU with
+        another identifier (2, 255), which stays undecoded.'''
+        assert len(self._fields(cmd_tshark, capture_file, test_env,
+                'lppe', '-eframe.number')) == 107
+        assert len(self._fields(cmd_tshark, capture_file, test_env,
+                'lpp.ePDU_ID > 1', '-eframe.number')) == 15
+
+    def test_lppe_civic_location_xml(self, cmd_tshark, capture_file, test_env):
+        '''The civicLocation octets of an OMA-LPPe-CivicLocation-pidf-lo go
+        to the XML dissector (7 frames, a small civicAddress document).'''
+        for flt in ('lppe.civicLocation', 'xml'):
+            out = self._fields(cmd_tshark, capture_file, test_env,
+                    flt, '-eframe.number')
+            assert out == self.CIVIC
+
+    def test_lppe_direct(self, cmd_tshark, capture_file, test_env):
+        '''LPPe messages handed to the lppe dissector directly: the
+        compatibility level, major version and mode.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 105', '-eframe.number',
+                '-elppe.lppeCompatibilityLevel', '-elppe.majorVersion',
+                '-elppe.lppeMode')
+        assert out == ['105\t7\t182\t1', '106\t7\t243\t0', '107\t7\t255\t1']
