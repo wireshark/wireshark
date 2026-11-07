@@ -102023,3 +102023,131 @@ class TestDissectNano:
         rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 42',
                           'nano.bulk_pull_blocks.mode', 'nano.bulk_pull_blocks.max_count')
         assert rows == [['42', '1', '0x00000005']]
+
+
+class TestDissectNasdaqItch:
+    '''Nasdaq TotalView-ITCH from the synthetic capture
+    nasdaq_itch_coverage.pcap.gz. ITCH has no port of its own: the capture
+    is a Nasdaq-SoupTCP stream on TCP 6000 (Decode As) whose sequenced and
+    unsequenced data packets carry every ITCH 3.0 message type, the ITCH
+    2.0 forms with the Chi-X big messages and unknown types. Several lines
+    share a segment; the Info column of ITCH frames lists all of them.
+    Prices are shown with the locale's decimal separator in the Info
+    column (accepted below for those values only).'''
+
+    CAP = 'nasdaq_itch_coverage.pcap.gz'
+    DECODE_AS = ('-d', 'tcp.port==6000,nasdaq_soup')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, flt, *fields, opts=(), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                *TestDissectNasdaqItch.DECODE_AS,
+                '-r', capture_file(TestDissectNasdaqItch.CAP),
+                '-Y', flt, '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def _dot(text):
+        '''The decimal comma of a locale as a point (only used on values
+        that are known to hold a decimal number).'''
+        return text.replace(',', '.')
+
+    def test_nasdaq_itch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1, 2, 28 and 29 are SoupTCP, the other 25 are ITCH. No
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 29
+        assert protocols.count('Nasdaq-ITCH') == 25
+        assert protocols.count('Nasdaq-SOUP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nasdaq_itch_time_and_system_events(self, cmd_tshark, capture_file, test_env):
+        '''Second, Milliseconds and System Event messages (frame 3) are
+        version 3.0 messages.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 3',
+                          'nasdaq-itch.version', 'nasdaq-itch.message_type', 'nasdaq-itch.second',
+                          'nasdaq-itch.millisecond', 'nasdaq-itch.system_event', '_ws.col.info')
+        assert rows == [['3', '3|3|3|3', "'T'|'M'|'S'|'S'", '37800', '123', "'O'|'S'",
+                         'Second ; Milliseconds ; System Event ; System Event ']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                          'nasdaq-itch.system_event')
+        assert rows == [['4', "'Q'|'M'|'E'|'C'"]]
+
+    def test_nasdaq_itch_stock_directory_and_trading_action(self, cmd_tshark, capture_file, test_env):
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {5, 6}',
+                          'nasdaq-itch.stock', 'nasdaq-itch.market_category',
+                          'nasdaq-itch.financial_status', 'nasdaq-itch.round_lot_size',
+                          'nasdaq-itch.round_lots_only')
+        assert rows[0] == ['5', 'ABCD  |ABCD  |ABCD  ', "'T'|'Q'|'G'", "'D'|'D'|'D'",
+                           '000100|000100|000100', "'Y'|'Y'|'Y'"]
+        assert rows[1][2] == "'S'|' '|'Q'|'Q'"
+        assert rows[1][3] == "'D'|'D'|'D'|'E'"
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {8, 9}',
+                          'nasdaq-itch.trading_state', 'nasdaq-itch.reserved', 'nasdaq-itch.reason')
+        assert rows[0][1:2] == ['T']
+        assert rows[1][1] == 'H' and rows[1][3] == 'IPO1'
+
+    def test_nasdaq_itch_orders_and_trades(self, cmd_tshark, capture_file, test_env):
+        '''Add Order (with and without MPID), executed, cancel, delete,
+        trade, cross trade, broken trade and NOII messages (frames 9-12).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 9',
+                          'nasdaq-itch.order_reference', 'nasdaq-itch.buy_sell',
+                          'nasdaq-itch.shares', 'nasdaq-itch.price', 'nasdaq-itch.attribution')
+        assert rows[0][1:4] == ['1|2|3', 'B|S|B', '500|100|300']
+        assert [self._dot(p) for p in rows[0][4].split('|')] == ['123.45', '123.46', '100']
+        assert rows[0][5] == 'NSDQ'
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 10',
+                          'nasdaq-itch.executed', 'nasdaq-itch.match', 'nasdaq-itch.printable',
+                          'nasdaq-itch.execution_price', 'nasdaq-itch.canceled')
+        assert rows[0][1:4] == ['200|50|50', '000000123|000000123|000000123', 'Y|N']
+        assert [self._dot(p) for p in rows[0][4].split('|')] == ['123.465', '0.0099']
+        assert rows[0][5] == '100'
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 11',
+                          'nasdaq-itch.cross', 'nasdaq-itch.match')
+        assert rows == [['11', 'O|C', '000000123|000000123|000000123']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 12',
+                          'nasdaq-itch.cross', 'nasdaq-itch.match', 'nasdaq-itch.message', '_ws.col.info')
+        assert rows[0][1:3] == ['O', '000000123']
+        assert rows[0][3].endswith('|unknown message with some text')
+        assert rows[0][4].endswith('Unknown packet type (0x00) ; Unknown packet type (0x59) ')
+
+    def test_nasdaq_itch_version_2(self, cmd_tshark, capture_file, test_env):
+        '''ITCH 2.0 messages start with an 8 digit millisecond time stamp
+        (frames 13-25); the Chi-X big messages a, p, e and x (frames 22-25)
+        have longer share and price fields.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                          'frame.number >= 13 && frame.number <= 25',
+                          'nasdaq-itch.version', 'nasdaq-itch.millisecond', 'nasdaq-itch.message_type',
+                          'nasdaq-itch.shares', 'nasdaq-itch.printable')
+        assert [r[1] for r in rows] == ['2'] * 13
+        assert [r[2] for r in rows] == ['12345678'] * 13
+        assert [r[3] for r in rows] == ["'A'", "'F'", "'E'", "'C'", "'X'", "'D'", "'P'", "'S'", "'T'",
+                                        "'a'", "'p'", "'e'", "'x'"]
+        assert rows[0][4] == '500' and rows[9][4] == '123456' and rows[10][4] == '77'
+        assert rows[0][5] == 'Y' and rows[3][5] == 'Y'
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {22, 23, 24, 25}',
+                          'nasdaq-itch.price', 'nasdaq-itch.executed', 'nasdaq-itch.canceled',
+                          '_ws.col.info')
+        assert self._dot(rows[0][1]) == '123.456789'
+        assert self._dot(rows[0][4]) == 'Add Order (big)21 B qty 123456 <CHIX  > price 123.457 '
+        assert rows[2][2] == '1000' and rows[3][3] == '20'
+        assert rows[2][4] == 'Order Executed (big)21 qty 1000 '
+        assert rows[3][4] == 'Order Cancel (big)21 qty 20 '
+
+    def test_nasdaq_itch_chi_x_off(self, cmd_tshark, capture_file, test_env):
+        '''Without the Chi-X extensions the big messages are unknown.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {22, 23, 24, 25}',
+                          '_ws.col.info', opts=('-o', 'nasdaq_itch.chi_x:FALSE'))
+        assert [r[1] for r in rows] == ['Unknown packet type (0x00) '] * 4
