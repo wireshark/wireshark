@@ -737,11 +737,38 @@ finished:
   return offset;
 }
 
+/* Limit a string that is only used for display */
+static const char *
+ldap_display_trunc(wmem_allocator_t *pool, const char *str)
+{
+  char *trunc;
+
+  if (!str || strnlen(str, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+    return str;
+  /* Do not cut a UTF-8 character in two. */
+  trunc = wmem_strndup(pool, str, ITEM_LABEL_LENGTH);
+  return ws_utf8_truncate(trunc, strlen(trunc));
+}
+
+/* Append str and suffix to buf, taking at most ITEM_LABEL_LENGTH of str */
+static void
+ldap_substring_append(wmem_strbuf_t *buf, const char *str, const char *suffix)
+{
+  size_t len = strnlen(str, ITEM_LABEL_LENGTH);
+
+  /* Do not cut a UTF-8 character in two. */
+  while (len > 0 && ((unsigned char)str[len] & 0xC0) == 0x80)
+    len--;
+  wmem_strbuf_append_len(buf, str, len);
+  wmem_strbuf_append(buf, suffix);
+}
+
 /* This string contains the last Filter item that was decoded */
 static const char *Filter_string;
 static const char *and_filter_string;
 static const char *or_filter_string;
 static const char *substring_value;
+static wmem_strbuf_t *substring_buf;
 static const char *substring_item_init;
 static const char *substring_item_any;
 static const char *substring_item_final;
@@ -1040,6 +1067,7 @@ ldap_frame_end(void)
   substring_item_final = NULL;
   substring_item_init = NULL;
   substring_value = NULL;
+  substring_buf = NULL;
 
   ldm_tree = NULL;
 
@@ -1431,7 +1459,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   int old_offset, offset=0;
   char *str;
   uint16_t itype;
-  uint16_t len;
+  unsigned len;
   uint32_t version;
   int fn_len;
   proto_item *item;

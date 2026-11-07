@@ -936,11 +936,38 @@ finished:
   return offset;
 }
 
+/* Limit a string that is only used for display */
+static const char *
+ldap_display_trunc(wmem_allocator_t *pool, const char *str)
+{
+  char *trunc;
+
+  if (!str || strnlen(str, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+    return str;
+  /* Do not cut a UTF-8 character in two. */
+  trunc = wmem_strndup(pool, str, ITEM_LABEL_LENGTH);
+  return ws_utf8_truncate(trunc, strlen(trunc));
+}
+
+/* Append str and suffix to buf, taking at most ITEM_LABEL_LENGTH of str */
+static void
+ldap_substring_append(wmem_strbuf_t *buf, const char *str, const char *suffix)
+{
+  size_t len = strnlen(str, ITEM_LABEL_LENGTH);
+
+  /* Do not cut a UTF-8 character in two. */
+  while (len > 0 && ((unsigned char)str[len] & 0xC0) == 0x80)
+    len--;
+  wmem_strbuf_append_len(buf, str, len);
+  wmem_strbuf_append(buf, suffix);
+}
+
 /* This string contains the last Filter item that was decoded */
 static const char *Filter_string;
 static const char *and_filter_string;
 static const char *or_filter_string;
 static const char *substring_value;
+static wmem_strbuf_t *substring_buf;
 static const char *substring_item_init;
 static const char *substring_item_any;
 static const char *substring_item_final;
@@ -1322,7 +1349,7 @@ int32_t tag;
                                        &parameter_tvb);
 
 
-  if (!parameter_tvb)
+  if (!parameter_tvb || tvb_reported_length(parameter_tvb) == 0)
     return offset;
 
   ldap_info = (ldap_conv_info_t *)actx->private_data;
@@ -1813,9 +1840,11 @@ dissect_ldap_T_and_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
   offset = dissect_ldap_Filter(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   if(and_filter_string){
-    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,Filter_string);
+    /* Stop growing the display string once it is long enough */
+    if (strnlen(and_filter_string, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+      and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s%s)",and_filter_string,ldap_display_trunc(actx->pinfo->pool, Filter_string));
   } else {
-    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",Filter_string);
+    and_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(&%s)",ldap_display_trunc(actx->pinfo->pool, Filter_string));
   }
 
   return offset;
@@ -1858,9 +1887,11 @@ dissect_ldap_T_or_item(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
   offset = dissect_ldap_Filter(implicit_tag, tvb, offset, actx, tree, hf_index);
 
   if(or_filter_string){
-    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,Filter_string);
+    /* Stop growing the display string once it is long enough */
+    if (strnlen(or_filter_string, ITEM_LABEL_LENGTH + 1) <= ITEM_LABEL_LENGTH)
+      or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s%s)",or_filter_string,ldap_display_trunc(actx->pinfo->pool, Filter_string));
   } else {
-    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",Filter_string);
+    or_filter_string=wmem_strdup_printf(actx->pinfo->pool, "(|%s)",ldap_display_trunc(actx->pinfo->pool, Filter_string));
   }
 
 
@@ -1901,7 +1932,7 @@ static int
 dissect_ldap_T_not(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ldap_Filter(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(!%s)",string_or_null(ldap_display_trunc(actx->pinfo->pool, Filter_string)));
 
   return offset;
 }
@@ -1966,18 +1997,25 @@ dissect_ldap_T_substringFilter_substrings_item(bool implicit_tag _U_, tvbuff_t *
                                  T_substringFilter_substrings_item_choice, hf_index, ett_ldap_T_substringFilter_substrings_item,
                                  NULL);
 
-  if (substring_item_final) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s",
-                                      (substring_value?substring_value:"*"),
-                                       substring_item_final);
-  } else if (substring_item_any) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s%s*",
-                                      (substring_value?substring_value:"*"),
-                                       substring_item_any);
-  } else if (substring_item_init) {
-    substring_value=wmem_strdup_printf(actx->pinfo->pool, "%s*",
-                                       substring_item_init);
+  if (!substring_buf)
+    substring_buf = wmem_strbuf_new(actx->pinfo->pool, NULL);
+  /* Stop appending once the display string is long enough */
+  if (substring_item_init) {
+    wmem_strbuf_truncate(substring_buf, 0);
+    ldap_substring_append(substring_buf, substring_item_init, "");
+    wmem_strbuf_append_c(substring_buf, '*');
+  } else if (wmem_strbuf_get_len(substring_buf) < ITEM_LABEL_LENGTH) {
+    if (substring_item_final) {
+      if (wmem_strbuf_get_len(substring_buf) == 0)
+        wmem_strbuf_append_c(substring_buf, '*');
+      ldap_substring_append(substring_buf, substring_item_final, "");
+    } else if (substring_item_any) {
+      if (wmem_strbuf_get_len(substring_buf) == 0)
+        wmem_strbuf_append_c(substring_buf, '*');
+      ldap_substring_append(substring_buf, substring_item_any, "*");
+    }
   }
+  substring_value = wmem_strbuf_get_str(substring_buf);
 
   return offset;
 }
@@ -2007,9 +2045,11 @@ dissect_ldap_SubstringFilter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   proto_tree *tr;
   proto_item *it;
   const char *old_substring_value=substring_value;
+  wmem_strbuf_t *old_substring_buf=substring_buf;
 
   attr_type=NULL;
   substring_value=NULL;
+  substring_buf=NULL;
   substring_item_init=NULL;
   substring_item_any=NULL;
   substring_item_final=NULL;
@@ -2025,6 +2065,7 @@ dissect_ldap_SubstringFilter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offse
                                    string_or_null(substring_value));
   proto_item_append_text(it, "%s", Filter_string);
   substring_value=old_substring_value;
+  substring_buf=old_substring_buf;
 
 
   return offset;
@@ -2064,7 +2105,7 @@ static int
 dissect_ldap_T_present(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ldap_AttributeDescription(implicit_tag, tvb, offset, actx, tree, hf_index);
 
-  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=*)",string_or_null(Filter_string));
+  Filter_string=wmem_strdup_printf(actx->pinfo->pool, "(%s=*)",string_or_null(ldap_display_trunc(actx->pinfo->pool, Filter_string)));
 
   return offset;
 }
@@ -2192,6 +2233,12 @@ dissect_ldap_Filter(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, as
     THROW(ReportedBoundsError);
   }
 
+  /* Stop before the dissection depth limit, which asserts. */
+  if (actx->pinfo->dissection_depth + 16 >= (int)prefs.gui_max_tree_depth) {
+    expert_add_info_format(actx->pinfo, tree, &ei_ldap_too_many_filter_elements, "Filters nested too deeply. Giving up.");
+    THROW(ReportedBoundsError);
+  }
+
   tr=proto_tree_add_subtree(tree, tvb, offset, -1, ett_ldap_Filter, &it, "Filter: ");
   tree = tr;
 
@@ -2283,6 +2330,10 @@ dissect_ldap_AttributeValue(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
   /* extract the value of the octetstring */
   offset = dissect_ber_octet_string(false, actx, NULL, tvb, offset, hf_index, &next_tvb);
+
+  /* An empty constructed OCTET STRING leaves no tvb */
+  if (!next_tvb)
+    return offset;
 
   /* first check if we have a custom attribute type configured */
   if ((hf_id = get_hf_for_header (attr_type)) != NULL)
@@ -3322,8 +3373,8 @@ dissect_ldap_DirSyncFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
   int otheroffset = offset;
   if(!implicit_tag){
-    dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
-    otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
+    otheroffset=dissect_ber_identifier(actx->pinfo, tree, tvb, otheroffset, &ber_class, &pc, &tag);
+    otheroffset=dissect_ber_length(actx->pinfo, tree, tvb, otheroffset, &len, NULL);
   } else {
     int32_t remaining=tvb_reported_length_remaining(tvb, offset);
     len=remaining>0 ? remaining : 0;
@@ -3340,10 +3391,10 @@ dissect_ldap_DirSyncFlags(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
       NULL
     };
 
-    proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset+1, hf_index,
+    proto_tree_add_bitmask_value_with_flags(tree, tvb, otheroffset, hf_index,
                                             ett_ldap_DirSyncFlagsSubEntry, flags, val, BMT_NO_APPEND);
   } else {
-    proto_tree_add_uint(tree, hf_index, tvb, otheroffset+len, len, 0);
+    proto_tree_add_uint(tree, hf_index, tvb, otheroffset, len, 0);
   }
 
 
@@ -3840,6 +3891,7 @@ ldap_frame_end(void)
   substring_item_final = NULL;
   substring_item_init = NULL;
   substring_value = NULL;
+  substring_buf = NULL;
 
   ldm_tree = NULL;
 
@@ -4231,7 +4283,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   int old_offset, offset=0;
   char *str;
   uint16_t itype;
-  uint16_t len;
+  unsigned len;
   uint32_t version;
   int fn_len;
   proto_item *item;
