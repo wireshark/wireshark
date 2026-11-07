@@ -100287,3 +100287,65 @@ class TestDissectMrd:
             '9\t0x26\t\t\t\t\t\t',
             '10\t0x26\t\t\t\t\t\t',
         ]
+
+
+class TestDissectMrpMmrp:
+    '''MRP-MMRP (ethertype 0x88f6) from the synthetic capture
+    mrp_mmrp_coverage.pcap.gz: MAC and Service Requirement attributes, all
+    six events, Leave All, several vector attributes and messages. The
+    EndMark offsets are the reproducer of "MRP-MMRP: Use the right offsets
+    for the EndMark items".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mrp_mmrp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mrp_mmrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames are MRP-MMRP, without malformed packets or error
+        expert infos in one and two passes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mrp-mmrp.protocol_version', ['frame.number'])
+        assert count_output('\n'.join(out)) == 12
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              ['frame.number'], *passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_mrp_mmrp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attribute types, number of values, Leave All and the events.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 4, 5, 6, 7, 9, 10}',
+                          ['frame.number', 'mrp-mmrp.attribute_type', 'mrp-mmrp.number_of_values',
+                           'mrp-mmrp.leave_all_event', 'mrp-mmrp.three_packed_event'])
+        assert out == [
+            '1\t2\t3\t0\t1,2,3',
+            '4\t2\t7\t0\t0,1,2,3,4,5,1',
+            '5\t2\t3\t1\t2,2,2',
+            '6\t2\t0\t1\t',
+            '7\t2\t2,4,3\t0,0,0\t1,1,5,4,3,2,0,0,0',
+            '9\t1\t4,1\t0,0\t1,2,3,4,0',
+            '10\t1,2,2\t1,3,1,6\t0,0,0,1\t1,1,2,3,4,0,0,1,1,2,2',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 8}',
+                          ['frame.number', 'mrp-mmrp.mac', 'mrp-mmrp.service_requirement'])
+        assert out[0].startswith('1\t01:00:5e:00:00:01')
+        assert out[1].startswith('8\t')
+
+    def test_mrp_mmrp_end_marks(self, cmd_tshark, capture_file, test_env):
+        '''Each VectorAttribute EndMark and the Message EndMark is shown at
+        its own offset, also in the second and later messages.'''
+        import json
+        for frame, expected in ((1, [26, 28]), (10, [21, 43, 57, 59])):
+            stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('mrp_mmrp_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-Tjson', '-x'),
+                    encoding='utf-8', env=test_env, timeout=120)
+            positions = []
+            def hook(pairs):
+                # tshark repeats the key for each EndMark of a tree level
+                positions.extend(v[1] for k, v in pairs if k == 'mrp-mmrp.end_mark_raw')
+                return dict(pairs)
+            json.loads(stdout, object_pairs_hook=hook)
+            assert sorted(positions) == expected
