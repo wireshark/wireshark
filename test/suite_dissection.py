@@ -91264,3 +91264,103 @@ class TestDissectLnpdqp:
         assert by['30'][1:] == ['12345', '', '5']
         # encoding 3 is not decoded
         assert by['31'][1:] == ['', '', '']
+
+
+class TestDissectLog3gpp:
+    '''LOG3GPP (3GPP log packet, the stub header of the 3GPP protocol
+    transcript file format) from the synthetic capture
+    log3gpp_coverage.pcap.gz. The records are Exported PDU frames naming
+    "prot3gpp", so the capture does not depend on the file reader.'''
+
+    def test_log3gpp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 151 frames are LOG3GPP records without malformed packets
+        or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                '-Y', 'log3gpp',
+                '-Tfields', '-elog3gpp.direction',
+            ), encoding='utf-8', env=test_env)
+        directions = stdout.split()
+        assert len(directions) == 151
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_log3gpp_lookup_table_order(self, cmd_tshark, capture_file, test_env):
+        '''SIB17, SIB15bis, SIB18 and SIB15-1 are found in the protocol
+        name table. The table was not sorted, so the binary search missed
+        SIB17 and SIB15bis ("Not dissected") before "log3gpp: Fix unsorted
+        lookup table and tree item handling".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-elog3gpp.protocol',
+                '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', 'RRC.SI.SIB17', 'RRC.SI.SIB17', 'SysInfoType 17'],
+            ['2', 'RRC.SI.SIB15bis', 'RRC.SI.SIB15bis', 'SysInfoType 15bis'],
+            ['3', 'RRC.SI.SIB18', 'RRC.SI.SIB18', 'SysInfoType 18'],
+            ['4', 'RRC.SI.SIB15-1', 'RRC.SI.SIB15-1', 'SysInfoType 15.1'],
+        ]
+
+    def test_log3gpp_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''Records are handed to the dissector of the protocol, uplink and
+        downlink, with the dissected length shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5 || frame.number == 6 || frame.number == 7 || '
+                      'frame.number == 8 || frame.number == 141 || frame.number == 142',
+                '-Tfields', '-eframe.number', '-elog3gpp.protocol',
+                '-elog3gpp.direction', '-e_ws.col.protocol',
+                '-elog3gpp.dissected-length',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['5', 'DATA', '0', 'DATA', '1'],
+            ['6', 'DATA', '1', 'DATA', '1'],
+            ['7', 'GAN.TCP', '0', 'UMA', '8'],
+            ['8', 'GAN.TCP', '1', 'UMA', '8'],
+            ['141', 'LTE-MAC', '0', 'MAC-LTE', '8'],
+            ['142', 'LTE-PDCP', '0', 'PDCP-LTE', '8'],
+        ]
+
+    def test_log3gpp_not_dissected(self, cmd_tshark, capture_file, test_env):
+        '''Protocol names that are not in the table (before, between and
+        after the entries) and the SB1 and SB2 records, which their
+        dissector rejects, are shown as unparsed data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                '-Y', 'log3gpp.unparsed_data && !(log3gpp.protocol == "TXT")',
+                '-Tfields', '-eframe.number', '-elog3gpp.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [
+            ['57', 'RRC.SI.SB1'], ['58', 'RRC.SI.SB1'],
+            ['59', 'RRC.SI.SB2'], ['60', 'RRC.SI.SB2'],
+            ['131', 'AAA'], ['132', 'AAA'], ['133', 'RRC.SI.SIB16'],
+            ['134', 'RRC.SI.SIB16'], ['135', 'ZZZ'], ['136', 'ZZZ'],
+            ['137', 'LTE-RRC'], ['138', 'LTE-RRC'],
+            ['139', 'RRC.SI.SIB15-9'], ['140', 'RRC.SI.SIB15-9'],
+        ]
+        assert lines[4][2].endswith('U   prot=AAA)')
+        assert lines[5][2].endswith('D   prot=AAA)')
+        assert lines[4][2].startswith('Not dissected  ( t=')
+
+    def test_log3gpp_text(self, cmd_tshark, capture_file, test_env):
+        '''TXT records are plain text: the text is the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('log3gpp_coverage.pcap.gz'),
+                '-Y', 'log3gpp.protocol == "TXT"',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '145\tTXT\tHello from the transcript',
+            '146\tTXT\tsecond text line',
+            '147\tTXT\t',
+        ]
