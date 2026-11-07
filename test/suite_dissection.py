@@ -90096,3 +90096,159 @@ class TestDissectLdaNeoTrailer:
             '14\t0\t0\t0',
             '15\t23\t4\t1700000014000000000',
         ]
+
+
+class TestDissectLdapCoverage:
+    # Protocol operation numbers seen in ldap.protocolOp
+    LDAP_OPS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11',
+                '12', '13', '14', '15', '16', '19', '23', '24', '25'}
+
+    def test_ldap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every LDAP frame is LDAP over TCP 389 or CLDAP over UDP 389 (the
+        StartTLS frame after the ExtendedResponse is TLS) and none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 215
+        assert protocols.count('LDAP') == 139
+        assert protocols.count('CLDAP') == 18
+        assert protocols.count('TLSv1') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ldap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ldap_two_passes_same_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in a first pass and with -2 (the
+        second SASL bind and the security layer detection must not depend
+        on the pass). The "[N results]" counter is left out: it is kept
+        in the conversation and shows the final count on the second pass
+        (packet-ldap.c, num_results).'''
+        import re
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ldap_coverage.pcap.gz'),
+                    '-Y', 'ldap || cldap',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        outs = [re.sub(r' \[\d+ results?\]', '', o) for o in outs]
+        assert outs[0] == outs[1]
+        assert len(outs[0].splitlines()) == 157
+
+    def test_ldap_operations(self, cmd_tshark, capture_file, test_env):
+        '''Every protocolOp, the controls and the extended operations.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Tfields', '-eldap.protocolOp',
+            ), encoding='utf-8', env=test_env)
+        assert set(stdout.replace(',', '\n').split()) == self.LDAP_OPS
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Tfields', '-eldap.controlType', '-eldap.requestName', '-eldap.responseName',
+            ), encoding='utf-8', env=test_env)
+        for oid in ('1.2.840.113556.1.4.319', '1.2.840.113556.1.4.473',
+                    '1.2.840.113556.1.4.474', '1.2.840.113556.1.4.841',
+                    '1.3.6.1.4.1.4203.1.9.1.1', '1.3.6.1.4.1.4203.1.9.1.2',
+                    '1.3.6.1.4.1.4203.1.9.1.3', '1.3.6.1.4.1.42.2.27.8.5.1',
+                    '1.3.6.1.4.1.4203.1.11.1', '1.3.6.1.1.8', '1.3.6.1.4.1.1466.20037'):
+            assert oid in stdout
+
+    def test_ldap_filters(self, cmd_tshark, capture_file, test_env):
+        '''The display strings of the filters.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Y', 'ldap.filter',
+                '-Tfields', '-eldap.filter',
+                '-eldap.baseObject',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('\n') == 38
+
+    def test_ldap_attribute_values(self, cmd_tshark, capture_file, test_env):
+        '''SIDs, GUIDs and the security descriptor of an entry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 110',
+                '-Tfields', '-eldap.sid', '-eldap.guid',
+            ), encoding='utf-8', env=test_env)
+        assert 'S-1-5-21-1004336348-1177238915-682003330-1105' in stdout
+        assert 'S-1-5-32-544' in stdout
+        assert '13121110-1514-1716-1819-1a1b1c1d1e1f' in stdout
+
+    def test_ldap_empty_attribute_value(self, cmd_tshark, capture_file, test_env):
+        '''An empty constructed OCTET STRING as attribute value (frames
+        188, 189) and a SASL bind with empty credentials (190) are dissected
+        without an exception (the first two asserted on a NULL tvb, the
+        last threw).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 188 && frame.number <= 190',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 3
+        assert lines[0].startswith('188\tsearchResEntry(120) "cn=x"')
+        assert lines[1].startswith('189\tsearchResEntry(121) "cn=x"')
+        assert lines[2].startswith('190\tbindRequest(122)')
+        assert all(not l.endswith('1') for l in lines)
+
+    def test_ldap_dirsync_flags(self, cmd_tshark, capture_file, test_env):
+        '''DirSync control flags: four flags in one control, none in the
+        next, and two of them in frame 197.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 89 || frame.number == 197',
+                '-Tfields', '-eframe.number', '-eldap.flags',
+                '-eldap.object_security_flag', '-eldap.public_data_only_flag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '89\t0x80000801,0x00000000\tTrue\tFalse',
+            '197\t0x00002001\tTrue\tTrue']
+
+    def test_ldap_sasl_layer(self, cmd_tshark, capture_file, test_env):
+        '''GSS-API integrity (unsealed) tokens are dissected and the LDAP
+        message inside is shown; sealed tokens are shown as encrypted
+        payload (placeholder bytes, nothing is decrypted).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('SASL GSS-API Integrity: searchRequest(92)') == 4
+        assert stdout.count('SASL GSS-API Privacy: payload') == 2
+
+    def test_ldap_cldap_netlogon(self, cmd_tshark, capture_file, test_env):
+        '''The netlogon responses of CLDAP: the extended responses with and
+        without IP address and closest site, the old SAM response and the
+        opcodes that only show the version.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-Y', 'cldap && ldap.protocolOp == 4',
+                '-Tfields', '-emscldap.netlogon.opcode', '-emscldap.forest',
+                '-emscldap.nextclosestsitename',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['23', '19', '23', '23', '7', '12', '21', '25', '']
+        assert rows[0][1] == 'example.test' and rows[0][2] == 'Next-Site'
+        assert rows[3][2] == ''
+
+    def test_ldap_options(self, cmd_tshark, capture_file, test_env):
+        '''Custom attribute types, no reassembly and the service response
+        time statistics (no decimals are checked).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-o', 'uat:custom_ldap_attribute_types:"mail","Mail address"',
+                '-Y', 'frame.number == 17', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'mail: alice@example.test' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ldap_coverage.pcap.gz'),
+                '-q', '-z', 'ldap,srt',
+            ), encoding='utf-8', env=test_env)
+        assert 'Bind' in stdout and 'Search' in stdout and 'Extended' in stdout
