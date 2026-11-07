@@ -987,7 +987,7 @@ dissect_lwm2mtlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			object_id = (int)strtol(ids[1], NULL, 10);
 
 			if (ids[2] && ids[3]) {
-				resource_id = (int)strtol(ids[1], NULL, 10);
+				resource_id = (int)strtol(ids[3], NULL, 10);
 			}
 		}
 	}
