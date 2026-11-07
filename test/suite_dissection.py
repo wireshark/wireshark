@@ -85533,3 +85533,122 @@ class TestDissectIsobusVt:
                            ('-o', 'isobus.vt.object_ids:' + str(names)))
         assert infos[0] == '[VT2ECU] Status: Current master is 128 data mask is Main data mask soft key mask is Object ID 0x2000'
         assert infos[1] == '[VT2ECU] Key Start button of parent Main data mask has been released'
+
+
+class TestDissectIsup:
+    def test_isup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ISUP over MTP3 and BICC over MTP3 (both ITU), and ISUP in SIP
+        application/isup bodies (ANSI, ITU and SPIROU); nothing is
+        malformed and there is no expert info of severity error, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 1941
+        assert protocols.count('ISUP(ITU)') == 936
+        assert protocols.count('BICC(ITU)') == 161
+        assert protocols.count('ISUP(ITU)/SDP') == 1
+        assert protocols.count('SIP/ISUP(ANSI)') == 828
+        assert protocols.count('SIP/ISUP(ITU)') == 10
+        assert protocols.count('SIP/ISUP(French)') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isup_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_isup_range_and_status_0xff(self, cmd_tshark, capture_file, test_env):
+        '''A range octet of 0xFF is a range of 256: it used to wrap to 0
+        and reach REPORT_DISSECTOR_BUG (circuit group reset and blocking).'''
+        for cic, mtype in ((451, 'Circuit group reset (23)'),
+                           (452, 'Circuit group blocking (24)')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('isup_coverage.pcapng.gz'),
+                    '-Y', f'isup.cic == {cic}',
+                    '-V', '-O', 'isup',
+                ), encoding='utf-8', env=test_env)
+            assert f'Message Type: {mtype}' in stdout
+            assert 'Range and status: Range (256) and status' in stdout
+            assert '        Range: 256' in stdout
+            assert 'Dissector bug' not in stdout
+            assert '[Malformed Packet' not in stdout
+
+    def test_isup_codec_list_2_octet_length(self, cmd_tshark, capture_file, test_env):
+        '''A codec list whose codecs use 2 octet length indicators gives
+        the lengths of the codecs (3 and 5), not 0.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'isup.cic == 239',
+                '-Tfields', '-eframe.number', '-ebicc.bat_ase_length_indicator',
+                '-ebat_ase.ITU_T_codec_type_subfield',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['819\t15,3,5\t0x01']
+
+    def test_isup_application_context_16_bit(self, cmd_tshark, capture_file, test_env):
+        '''A 2 octet application context identifier (the value 5, BAT ASE)
+        is decoded from both octets, so the BAT ASE is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'isup.cic == 401',
+                '-Tfields', '-eframe.number', '-ebicc.bat_ase_identifier',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['824\t0x01']
+
+    def test_isup_geodetic_location_lpri(self, cmd_tshark, capture_file, test_env):
+        '''The LPRI of the calling geodetic location is bits 4-3 of the
+        first octet: the shape description is only decoded for an LPRI of
+        0 or 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 1767 && frame.number <= 1772',
+                '-Tfields', '-eframe.number', '-eisup.shape_description',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1767\tdeadbe', '1768\tdeadbe', '1769\tdeadbe',
+            '1770\t', '1771\t', '1772\tdeadbe']
+
+    def test_isup_apm_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three APM segments (BAT ASE) are reassembled in the last one;
+        the first two know it in the second pass.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'isup.cic == 410 && frame.number > 800',
+                '-Tfields', '-eframe.number', '-eisup.apm.msg.reassembled.length',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '829 APM (CIC 410) (Message fragment)',
+            '830 APM (CIC 410) (Message fragment)',
+            '831 15 APM (CIC 410) (Message Reassembled)']
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'isup.cic == 410 && frame.number > 800',
+                '-Tfields', '-eframe.number', '-eisup.apm.msg.reassembled.in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['829\t831', '830\t831', '831\t']
+
+    def test_isup_called_number(self, cmd_tshark, capture_file, test_env):
+        '''The first IAM of the capture: the called number from the
+        mandatory variable part.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-eisup.cic', '-eisup.message_type', '-eisup.called',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 1 1234 IAM (CIC 1)']
+
+    def test_isup_ansi_sip(self, cmd_tshark, capture_file, test_env):
+        '''ANSI ISUP (version=ansi and base=gr317) in SIP: the ANSI
+        circuit reservation, validation test and exit messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isup_coverage.pcapng.gz'),
+                '-Y', 'sip && isup.message_type >= 0xe9 && isup.message_type <= 0xed',
+                '-Tfields', '-eisup.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert sorted(stdout.split()) == ['233', '234', '235', '235', '236', '237']
