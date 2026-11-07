@@ -83951,3 +83951,63 @@ class TestDissectIsi:
         rows = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 46', '-eisi.sim.pb.tag', '-eisi.sim.pb.location')
         assert rows == [['0x01,0x02,0x03', '5']]
+
+
+class TestDissectIsisCoverage:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_isis_info(self, cmd_tshark, capture_file, test_env):
+        '''All nine PDU types decode over LLC and over ethertype 0x22F4,
+        none is malformed or has an error expert info, in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 37
+        assert lines[0:9] == ['ISIS HELLO'] * 3 + ['ISIS LSP'] * 2 + \
+            ['ISIS CSNP'] * 2 + ['ISIS PSNP'] * 2
+        assert lines[9:18] == lines[0:9]
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_isis_types(self, cmd_tshark, capture_file, test_env):
+        '''The PDU type names in the Info column, with the IDs shown for
+        the different system ID lengths.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1,4,6,8,13,19,20,21,22,27,28,29}',
+                '-Tfields', '-eframe.number', '-eisis.sysid_len', '-eisis.type',
+                '-e_ws.col.info')
+        assert [l.split('\t')[0:3] for l in lines] == [
+            ['1', '0', '15'], ['4', '0', '18'], ['6', '0', '24'], ['8', '0', '26'],
+            ['13', '0', '18'], ['19', '8', '15'], ['20', '8', '18'],
+            ['21', '8', '24'], ['22', '8', '26'], ['27', '1', '16'],
+            ['28', '1', '20'], ['29', '1', '25']]
+        assert lines[0].split('\t')[3] == 'L1 HELLO, System-ID: 0200.0000.0001'
+        assert lines[1].split('\t')[3].startswith('L1 LSP, LSP-ID: 0200.0000.0001.00-00, Sequence: 0x00000001')
+        assert lines[5].split('\t')[3] == 'L1 HELLO, System-ID: 0000.0200.0000.00-01'
+        assert lines[9].split('\t')[3] == 'L2 HELLO, System-ID: 01'
+
+    def test_isis_header_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Wrong version, version 2, reserved byte and PDU type give
+        warnings but still decode (the unknown type has no subdissector).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 30 && frame.number <= 37',
+                '-Tfields', '-eframe.number', '-eisis.max_area_adr',
+                '-eisis.type.reserved', '-e_ws.col.info', '-e_ws.expert.message')
+        assert lines == [
+            '30\t0\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\tUnknown ISIS version',
+            '31\t0\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\tVersion must be 1',
+            '32\t0\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\tReserved must be 0',
+            '33\t3\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\t',
+            '34\t0\t0x07\tL1 HELLO, System-ID: 0200.0000.0001\t',
+            '35\t0\t0x00\tUnknown (0x5)\tUnknown ISIS packet type',
+            '36\t0\t0x00\tUnknown (0x1f)\tUnknown ISIS packet type',
+            '37\t0\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\t',
+        ]
