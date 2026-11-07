@@ -124,17 +124,34 @@ def _git(*args):
                           capture_output=True, encoding='utf-8').stdout
 
 
+def _blank(text):
+    '''True for a line that is empty or only a comment.'''
+    text = text.strip()
+    return not text or text.startswith('#')
+
+
 def _changed_lines(base):
-    '''Lines of suite_dissection.py (as it is now) changed since base.'''
+    '''Lines of suite_dissection.py (as it is now) changed since base.
+    Lines added or removed that are blank or only a comment do not count,
+    so that the blank lines in front of a new class are not taken for a
+    change of module-level code.'''
     lines = set()
     diff = _git('diff', '-U0', base, '--', SUITE_REL)
-    for m in re.finditer(r'^@@ -\S+ \+(\d+)(?:,(\d+))? @@', diff, re.M):
+    hunks = re.split(r'^(?=@@ )', diff, flags=re.M)[1:]
+    for hunk in hunks:
+        m = re.match(r'@@ -\S+ \+(\d+)(?:,(\d+))? @@', hunk)
         start, count = int(m.group(1)), int(m.group(2) or 1)
-        if count == 0:
-            # Lines removed after line start.
-            lines.update((start, start + 1))
+        body = hunk.split('\n')[1:]
+        added = [l[1:] for l in body if l.startswith('+')]
+        removed = [l[1:] for l in body if l.startswith('-')]
+        if any(not _blank(l) for l in removed):
+            if count == 0:
+                # Lines removed after line start.
+                lines.update((start, start + 1))
+            else:
+                lines.update(range(start, start + count))
         else:
-            lines.update(range(start, start + count))
+            lines.update(start + i for i, l in enumerate(added) if not _blank(l))
     return lines
 
 
