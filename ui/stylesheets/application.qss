@@ -98,7 +98,10 @@ QFrame[wsNotice="error"] {
  * The base rule gives the field the same 1px rounded FieldBorder frame
  * as FilterEdit.  Without an explicit border, the style sheet style
  * fills the tint and then draws the native frame inset over it, which
- * shows up as a double frame.
+ * shows up as a double frame.  Plain framed QLineEdits share the rule so
+ * they look the same.  It is limited to [frame="true"] because the line
+ * edits Qt embeds in combo boxes, spin boxes and item views have no frame
+ * and would otherwise get a second one inside their parent's frame.
  *
  * Integer values match SyntaxLineEdit::SyntaxState declaration order
  * in syntax_line_edit.h:
@@ -106,6 +109,7 @@ QFrame[wsNotice="error"] {
  * If that enum is reordered, update these selectors in lock-step.
  * ------------------------------------------------------------------- */
 
+QLineEdit[frame="true"],
 SyntaxLineEdit {
     border: 1px solid wstheme(FieldBorder);
     border-radius: 3px;
