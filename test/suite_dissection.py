@@ -97391,3 +97391,67 @@ class TestDissectMmse:
             ['41', 'MMSE', '0x81'], ['42', 'MMSE', '0x84'],
             ['43', 'MMSE', '0x82'], ['44', 'MMSE', '0x86'],
         ]
+
+
+class TestDissectMndp:
+    def test_mndp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-7 (UDP 5678) are MNDP, the frames the static dissector
+        rejects stay UDP; no malformed packets or expert infos, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mndp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert protocols == ['MNDP'] * 7 + ['UDP'] * 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mndp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mndp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The UDP heuristic is disabled by default; enabled, it decodes
+        frames 8 and 9 on other ports and still rejects frames 10-14.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mndp_coverage.pcap.gz'),
+                '--enable-heuristic', 'mndp_udp',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['MNDP'] * 9 + ['UDP'] * 5
+
+    def test_mndp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Every TLV of the first frame, the TLV types of the others.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mndp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-emndp.header.seqno', '-emndp.mac',
+                '-emndp.identity', '-emndp.version', '-emndp.platform',
+                '-emndp.uptime', '-emndp.softwareid', '-emndp.board',
+                '-emndp.unpack', '-emndp.ipv6address',
+                '-emndp.interfacename', '-emndp.ipv4address',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n').split('\t')[:1] == ['1']
+        fields = stdout.strip('\n').split('\t')
+        assert fields[1:6] == ['02:00:00:aa:bb:cc', 'MikroTik',
+                               '6.48.6 (long-term)', 'MikroTik', fields[5]]
+        assert fields[5].startswith('262861')
+        assert fields[6:] == ['ABCD-1234', 'RB750Gr3', '1',
+                              'fe80::200:ff:feaa:bbcc', 'ether1', '192.0.2.1']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mndp_coverage.pcap.gz'),
+                '-Y', 'mndp', '-Tfields', '-eframe.number',
+                '-emndp.tlv.type', '-emndp.unpack',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1,5,7,8,10,11,12,14,15,16,17\t1',
+            '2\t1\t',
+            '3\t1,5,16,17\t',
+            '4\t1,5,7\t',
+            '5\t1,99,100\t',
+            '6\t1,10\t',
+            '7\t1,14,14\t2,1',
+        ]
