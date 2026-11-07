@@ -1372,8 +1372,10 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		direction = (pinfo->srcport > pinfo->destport) ? 1 : -1;
 	}
 	if (direction >= 0) {
+		direction = 1;
 		chunk_map = conv_data->chunk_offsets_fwd;
 	} else {
+		direction = -1;
 		chunk_map = conv_data->chunk_offsets_rev;
 	}
 
