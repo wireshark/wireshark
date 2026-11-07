@@ -598,7 +598,7 @@ static int dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree  *msmms_data_timing_pair_tree = NULL;
     uint32_t    sequence_number;
     uint16_t    packet_length;
-    uint16_t    packet_length_found;
+    unsigned    packet_length_found;
     uint8_t     value = 0;
 
     /* How many bytes do we need? */
