@@ -739,7 +739,7 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
                 tvb_memcpy(tvb, nbname, cur_offset,
                            NETBIOS_NAME_LEN);
                 name_type = process_netbios_name(nbname,
-                                                 name_str, name_len);
+                                                 name_str, MAX_NAME_LEN);
                 proto_tree_add_string_format_value(rr_tree, hf_nbns_netbios_name, tvb, cur_offset,
                                     NETBIOS_NAME_LEN, name_str, "%s<%02x> (%s)",
                                     name_str, name_type,
