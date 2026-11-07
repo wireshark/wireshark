@@ -88377,3 +88377,54 @@ class TestDissectLacp:
             raw = layers['lacp_raw']
             lengths[int(layers['frame']['frame.number'])] = raw[2]
         assert lengths == {1: 109, 18: 109, 19: 109, 20: 135, 22: 109, 23: 109}
+
+
+class TestDissectLanforge:
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('lanforge_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_lanforge_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic finds LANforge on UDP and TCP, and no frame is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols.count('LANforge') == 7
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_lanforge_header(self, cmd_tshark, capture_file, test_env):
+        '''Session IDs, the 24 bit payload length (low and high part),
+        pattern, sequence number, timestamp and the data after the header.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lanforge', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-elanforge.source-session-id', '-elanforge.dest-session-id',
+                '-elanforge.pld-length', '-elanforge.pld-pattern',
+                '-elanforge.seqno', '-elanforge.ts-secs', '-elanforge.ts-nsecs',
+                '-edata.len')
+        assert stdout.splitlines() == [
+            '1\tSeq: 1\t1\t2\t0\t0\t1\t1700000000\t123456789\t',
+            '2\tSeq: 2\t3\t4\t131054\t90\t2\t1700000000\t123456789\t64',
+            '3\tSeq: 4294967295\t65535\t65535\t16777215\t255\t4294967295\t0\t0\t20',
+            '4\tSeq: 3\t0\t0\t1472\t1\t3\t2000000000\t999999999\t100',
+            '5\tSeq: 4\t10\t20\t1000\t2\t4\t1700000000\t123456789\t900',
+            '9\tSeq: 5\t1\t2\t12\t3\t5\t1700000000\t123456789\t12',
+            '10\tSeq: 6\t2\t1\t0\t4\t6\t1700000000\t123456789\t',
+        ]
+
+    def test_lanforge_pld_len_parts(self, cmd_tshark, capture_file, test_env):
+        '''The payload length is the low 16 bits plus the high octet shifted
+        by 16.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 3}', '-Tfields', '-eframe.number',
+                '-elanforge.pld-len-L', '-elanforge.pld-len-H',
+                '-elanforge.pld-length')
+        assert stdout.splitlines() == ['2\t65518\t1\t131054', '3\t65535\t255\t16777215']
