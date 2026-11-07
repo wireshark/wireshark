@@ -878,7 +878,7 @@ dissect_nbd_opt_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			offset += 4;
 			unsigned query_len;
 			for (unsigned i = 0; i < info_num; ++i) {
-				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 2, ENC_BIG_ENDIAN, &query_len);
+				proto_tree_add_item_ret_length(tree, hf_nbd_query, tvb, offset, 4, ENC_BIG_ENDIAN, &query_len);
 				offset += query_len;
 			}
 			break;
@@ -949,7 +949,7 @@ dissect_nbd_opt_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
 	}
 
 	if (tvb_reported_length_remaining(tvb, offset)) {
-		if (type & UINT32_C(1 << 31)) {
+		if (type & UINT32_C(1) << 31) {
 			proto_tree_add_item(tree, hf_nbd_error_msg, tvb, offset, -1, ENC_UTF_8);
 		} else {
 			item = proto_tree_add_item(tree, hf_nbd_data, tvb, offset, -1, ENC_NA);
@@ -1284,6 +1284,7 @@ dissect_nbd_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 		}
 		conversation_set_dissector(conversation, nbd_handle);
 		tcp_dissect_pdus(tvb, pinfo, tree, nbd_desegment, 20, get_nbd_tcp_pdu_len, dissect_nbd_tcp_pdu, data);
+		return true;
 	default:
 		break;
 	}
@@ -1537,7 +1538,9 @@ apply_nbd_prefs(void)
 {
 	// XXX - There should be a reset_uint_range ?
 	dissector_delete_uint_range("tls.port", nbd_port_range, nbd_handle);
-	nbd_port_range = prefs_get_range_value("NBD", "tcp.port");
+	/* Keep a copy: the preference's own range is freed when it changes. */
+	wmem_free(wmem_epan_scope(), nbd_port_range);
+	nbd_port_range = range_copy(wmem_epan_scope(), prefs_get_range_value("NBD", "tcp.port"));
 	dissector_add_uint_range("tls.port", nbd_port_range, nbd_handle);
 }
 
