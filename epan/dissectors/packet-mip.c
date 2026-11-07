@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h>
@@ -127,6 +128,10 @@ static int ett_mip_exts;
 static int ett_mip_pmipv4_ext;
 
 static expert_field ei_mip_data_not_dissected;
+static expert_field ei_mip_nattt_too_deep;
+
+/* How deeply NAT traversal tunnel data may be nested in itself. */
+#define MIP_MAX_NATT_NESTING 4
 
 static dissector_handle_t mip_handle;
 
@@ -966,8 +971,19 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       offset += 4;
     }
     /* encapsulated payload */
-    next_tvb = tvb_new_subset_remaining(tvb, offset);
-    call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
+    {
+      unsigned natt_depth = p_get_proto_depth(pinfo, proto_mip);
+      if (natt_depth >= MIP_MAX_NATT_NESTING) {
+        proto_tree_add_expert_remaining(mip_tree, pinfo, &ei_mip_nattt_too_deep, tvb, offset);
+      } else {
+        p_set_proto_depth(pinfo, proto_mip, natt_depth + 1);
+        increment_dissection_depth(pinfo);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
+        call_dissector(ip_handle, next_tvb, pinfo, mip_tree);
+        decrement_dissection_depth(pinfo);
+        p_set_proto_depth(pinfo, proto_mip, natt_depth);
+      }
+    }
     offset = tvb_reported_length(tvb);
     break;
   case MIP_REGISTRATION_REVOCATION:
@@ -1540,6 +1556,7 @@ void proto_register_mip(void)
 
   static ei_register_info ei[] = {
     { &ei_mip_data_not_dissected, { "mip.data_not_dissected", PI_UNDECODED, PI_WARN, "Data not dissected yet", EXPFILL }},
+    { &ei_mip_nattt_too_deep, { "mip.nattt_too_deep", PI_PROTOCOL, PI_WARN, "NAT traversal tunnel data nested too deeply", EXPFILL }},
   };
 
   expert_module_t* expert_mip;
