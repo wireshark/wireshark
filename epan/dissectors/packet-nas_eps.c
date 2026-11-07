@@ -499,6 +499,7 @@ static int ett_nas_eps_ciph_data_set;
 static int ett_nas_eps_wus_assist_info_type;
 
 static expert_field ei_nas_eps_extraneous_data;
+static expert_field ei_nas_eps_replayed_nesting;
 static expert_field ei_nas_eps_unknown_identity;
 static expert_field ei_nas_eps_unknown_type_of_list;
 static expert_field ei_nas_eps_wrong_nb_of_elems;
@@ -731,9 +732,11 @@ deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
     gcry_cipher_hd_t cipher;
     gcry_error_t err = 0;
-    GByteArray *decipher_msg = NULL;
+    uint8_t *decipher_msg;
     tvbuff_t *clear_tvb = NULL;
 
+    if (len <= 0)
+        return NULL;
     if (!g_nas_eps_decipher_key)
         return NULL;
     if (!g_nas_eps_decipher_key->data)
@@ -773,18 +776,15 @@ deciphering_eea2_msg(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
         return NULL;
     }
 
-    decipher_msg = g_byte_array_sized_new(len);
-    g_byte_array_set_size(decipher_msg, len);
+    decipher_msg = (uint8_t *)wmem_alloc(pinfo->pool, len);
     const uint8_t *ciphered_msg = tvb_get_ptr(tvb, offset, len);
-    err = gcry_cipher_decrypt(cipher, decipher_msg->data, decipher_msg->len, ciphered_msg, len);
+    err = gcry_cipher_decrypt(cipher, decipher_msg, len, ciphered_msg, len);
     if (gcry_err_code(err))
     {
-        g_byte_array_free(decipher_msg, TRUE);
         gcry_cipher_close(cipher);
         return NULL;
     }
-    clear_tvb = tvb_new_child_real_data(tvb,
-                                        (const uint8_t *)decipher_msg->data, decipher_msg->len, decipher_msg->len);
+    clear_tvb = tvb_new_child_real_data(tvb, decipher_msg, len, len);
     gcry_cipher_close(cipher);
     return clear_tvb;
 }
@@ -2935,12 +2935,22 @@ de_emm_replayed_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     item = proto_tree_add_item(tree, hf_nas_eps_replayed_nas_msg_cont, tvb, offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_replayed_nas_msg_cont);
 
+    /* The specification allows one level only; stop deeper nesting */
+    if (p_get_proto_depth(pinfo, proto_nas_eps) >= 1) {
+        expert_add_info(pinfo, item, &ei_nas_eps_replayed_nesting);
+        return len;
+    }
+
     tvbuff_t *replayed_tvb = tvb_new_subset_length(tvb, offset, len);
+    p_set_proto_depth(pinfo, proto_nas_eps, p_get_proto_depth(pinfo, proto_nas_eps) + 1);
+    increment_dissection_depth(pinfo);
     TRY {
         dissect_nas_eps_emm_msg(replayed_tvb, pinfo, sub_tree, 0, true);
     } CATCH_BOUNDS_ERRORS {
         show_exception(replayed_tvb, pinfo, sub_tree, EXCEPT_CODE, GET_MESSAGE);
     } ENDTRY
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_nas_eps, p_get_proto_depth(pinfo, proto_nas_eps) - 1);
 
     return len;
 }
@@ -3531,7 +3541,7 @@ de_emm_sf_sat_op_params(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
                             tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
-    if (sfwtpi) {
+    if (esfudtpi) {
         proto_tree_add_item(tree, hf_nas_eps_emm_sf_sat_op_params_est_sf_ul_deliv_time_duration,
                             tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
@@ -9809,6 +9819,7 @@ proto_register_nas_eps(void)
   };
 
     static ei_register_info ei[] = {
+        { &ei_nas_eps_replayed_nesting, { "nas-eps.replayed_nesting", PI_MALFORMED, PI_ERROR, "Nested Replayed NAS message container not dissected", EXPFILL }},
         { &ei_nas_eps_extraneous_data, { "nas-eps.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec (report to wireshark.org)", EXPFILL }},
         { &ei_nas_eps_unknown_identity, { "nas-eps.emm.unknown_identity", PI_PROTOCOL, PI_WARN, "Type of identity not known", EXPFILL }},
         { &ei_nas_eps_unknown_type_of_list, { "nas-eps.emm.tai_unknown_list_type", PI_PROTOCOL, PI_WARN, "Unknown type of list", EXPFILL }},
@@ -9972,11 +9983,17 @@ proto_reg_handoff_nas_eps(void)
         non_ip_data_handle = NULL;
     }
 
+    if (g_nas_eps_decipher_key) {
+        g_byte_array_free(g_nas_eps_decipher_key, TRUE);
+        g_nas_eps_decipher_key = NULL;
+    }
     if (g_nas_eps_decipher_key_str[0] != '\0')
     {
         g_nas_eps_decipher_key = g_byte_array_sized_new(AES_KEY_LEN);
-        if (!hex_str_to_bytes_encoding(g_nas_eps_decipher_key_str, g_nas_eps_decipher_key, NULL,  ENC_STR_HEX | ENC_SEP_SPACE , FALSE))
+        if (!hex_str_to_bytes_encoding(g_nas_eps_decipher_key_str, g_nas_eps_decipher_key, NULL,  ENC_STR_HEX | ENC_SEP_SPACE , FALSE)) {
+            g_byte_array_free(g_nas_eps_decipher_key, TRUE);
             g_nas_eps_decipher_key = NULL;
+        }
     }
 }
 
