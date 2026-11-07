@@ -434,7 +434,7 @@ static uint16_t evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pac
                 offs, 2, tapgroupid);
             break;
         case META_ID_TLLI:
-            tlli = tvb_get_letohs(tvb, offs);
+            tlli = tvb_get_letohl(tvb, offs);
             proto_tree_add_uint(meta_tree, hf_meta_item_tlli, tvb,
                 offs, 4, tlli);
             break;
@@ -473,6 +473,12 @@ static int32_t evaluate_meta_items(uint16_t schema, tvbuff_t *tvb, packet_info *
     int32_t total_len = 0;
 
     while (total_len < header_length) {
+        if ((uint32_t)offs + (uint32_t)total_len > UINT16_MAX) {
+            /* The item offset would wrap around */
+            expert_add_info_format(pinfo, meta_tree, &ei_meta_malformed,
+                "Malformed Packet %s (item offset too large)", pinfo->current_proto);
+            return -1;
+        }
         switch (schema) {
             case META_SCHEMA_DXT:
                 item_len = evaluate_meta_item_dxt(meta_tree, tvb, pinfo, offs + total_len, atm_info);
@@ -505,7 +511,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     tvbuff_t           *next_tvb       = NULL;
     dissector_handle_t  next_dissector = data_handle;
     void               *next_dissector_data = NULL;
-    struct atm_phdr     atm_info;
+    struct atm_phdr     atm_info = {0};
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "META");
 
@@ -515,7 +521,7 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     reserved = tvb_get_letohs(tvb, 6);
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_meta, tvb, 0, hdrlen + 4, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_meta, tvb, 0, hdrlen + META_HEADER_SIZE, ENC_NA);
         meta_tree = proto_item_add_subtree(ti, ett_meta);
         proto_tree_add_uint(meta_tree, hf_meta_schema, tvb, 0, 2, schema);
         proto_tree_add_uint(meta_tree, hf_meta_hdrlen, tvb, 2, 2, hdrlen);
@@ -586,6 +592,8 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 default:
                     next_dissector =
                         dissector_get_uint_handle(meta_dissector_table, proto);
+                    if (!next_dissector)
+                        next_dissector = data_handle;
             }
     }
     if (!next_tvb)
