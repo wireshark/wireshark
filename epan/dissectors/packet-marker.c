@@ -181,7 +181,7 @@ proto_register_marker(void)
 
         { &hf_marker_req_pad,
           { "Requester Pad",  "marker.requesterPad",
-            FT_UINT32,    BASE_DEC,    NULL,    0x0,
+            FT_UINT16,    BASE_DEC,    NULL,    0x0,
             NULL, HFILL }},
 
         { &hf_marker_reserved,
