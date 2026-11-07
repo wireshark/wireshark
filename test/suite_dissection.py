@@ -94447,3 +94447,82 @@ class TestDissectMarker:
             '4\t0x01\t0x02,0x00\t7\t7\t4660\t1',
             '5\t0x01\t0x01,0x00\t9\t9\t0\t',
         ]
+
+
+class TestDissectMatter:
+    '''Matter over UDP 5540 and the Matter TLV decoder (Exported PDU
+    "matter.tlv") from the synthetic capture matter_coverage.pcapng.gz.
+    Secured payloads and MICs are placeholder bytes: the dissector does
+    not decrypt.'''
+
+    def test_matter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''30 frames: 25 Matter messages and 5 TLV blobs, without
+        malformed packets or warnings, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('matter_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert sum(p.endswith(':udp:matter') for p in protocols) == 25
+        assert sum(p == 'exported_pdu:matter' for p in protocols) == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('matter_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_matter_unsecured(self, cmd_tshark, capture_file, test_env):
+        '''Unsecured session: source, destination node and group IDs,
+        acknowledgement counter, vendor protocol and secured extensions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('matter_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ematter.payload.protocol_vendor_id', '-ematter.payload.secured_ext.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tUnsecured Session: Counter=1 Src=0x1122334455667788\t\t',
+            '2\tUnsecured Session: Counter=2 Dest=0x8877665544332211 AckCounter=1\t\t',
+            '3\tUnsecured Session: Counter=3 Group=0xff01\t\t',
+            '4\tUnsecured Session: Counter=4 Src=0x0102030405060708 Dest=0x0807060504030201 AckCounter=3\t\t',
+            '5\tUnsecured Session: Counter=5 Src=0x0000000000000001 Group=0x0005 AckCounter=4\t\t6',
+            '6\tUnsecured Session: Counter=6\t0xfff1\t',
+            '7\tUnsecured Session: Counter=7 AckCounter=6\t0x115a\t0',
+            '8\tUnsecured Session: Counter=8\t\t40',
+        ]
+
+    def test_matter_secured(self, cmd_tshark, capture_file, test_env):
+        '''Secured sessions show the MIC, also when no ciphertext is left
+        (frame 15, exactly 16 octets after the header), and message
+        privacy shows the encrypted header (4, 12, 20 octets...).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('matter_coverage.pcapng.gz'),
+                '-Y', 'matter.payload.mic',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ematter.message.session_type', '-ematter.message.privacy_header',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 12
+        assert lines[0] == '12\tUnicast Session [0x1234]: Counter=12\t0x00\t'
+        assert lines[3] == '15\tGroup Session [0x4321]: Counter=15 Src=0x0000000000000042 Group=0x0002\t0x01\t'
+        assert lines[6].startswith('19\tUnicast Session [0x2222]\t0x00\t50515253')
+        assert lines[9].split('\t')[3] == '505152535455565758595a5b5c5d5e5f60616263'
+
+    def test_matter_tlv(self, cmd_tshark, capture_file, test_env):
+        '''TLV: every integer size, strings with 1, 2, 4 and 8 octet
+        lengths, nested containers and a stray End of Container.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('matter_coverage.pcapng.gz'),
+                '-Y', 'matter.tlv.value_uint || matter.tlv.value_int',
+                '-Tfields', '-eframe.number', '-ematter.tlv.value_uint',
+                '-ematter.tlv.value_int', '-ematter.tlv.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '26\t255,65535,4294967295,1152921504606846976\t-1,-300,-70000,-1099511627776\t3,300,5,4',
+            '27\t5,5,5,5\t5,5,5,5\t3,0',
+            '28\t1,2,3,57005\t-3\t',
+            '30\t7\t\t',
+        ]
