@@ -610,8 +610,9 @@ dissect_mrcpv2_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if (content_length > 0)
                 { /* content length > 0 and CRLF detected, this has to be msg body */
-                    offset += 2; /* skip separating CRLF */
-                    proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset, ENC_ASCII);
+                    offset = next_offset; /* skip separating line end */
+                    if (offset < tvb_len)
+                        proto_tree_add_item(mrcpv2_tree, hf_mrcpv2_Data, tvb, offset, tvb_len - offset, ENC_ASCII);
                     next_offset = tvb_len; /* we are done */
                 }
                 continue;
@@ -944,6 +945,7 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 {
     unsigned len_start;
     unsigned len_end;
+    unsigned max_len;
     const char *msg_len;
     uint32_t num_msg_len = 0;
 
@@ -952,13 +954,21 @@ get_mrcpv2_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
         return 0;
     len_start += 1; /* skip whitespace */
 
+    /* Offsets are absolute, the limit is relative to the PDU start. */
+    if (len_start - offset >= MRCPV2_MIN_PDU_LEN)
+        return 0;
+    max_len = MRCPV2_MIN_PDU_LEN - (len_start - offset);
+
     /* second string is message length */
-    if (!tvb_find_uint8_length(tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ' ', &len_end))
-        msg_len = (char*)tvb_get_string_enc(pinfo->pool, tvb, len_start, MRCPV2_MIN_PDU_LEN - len_start, ENC_ASCII);
+    if (!tvb_find_uint8_length(tvb, len_start, max_len, ' ', &len_end))
+        msg_len = (char*)tvb_get_string_enc(pinfo->pool, tvb, len_start, max_len, ENC_ASCII);
     else
         msg_len = (char*)tvb_get_string_enc(pinfo->pool, tvb, len_start, len_end - len_start, ENC_ASCII);
 
-    ws_strtou32(msg_len, NULL, &num_msg_len);
+    /* A length that is not a number is bogus: return less than the fixed
+     * length so that tcp_dissect_pdus() reports it instead of buffering. */
+    if (!ws_strtou32(msg_len, NULL, &num_msg_len))
+        return 1;
     return num_msg_len;
 }
 
@@ -986,8 +996,8 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         return 0;
 
     /* we are looking for MRCP string */
-    slash_offset = tvb_find_uint8_length(tvb, 0, MRCPV2_MIN_LENGTH, '/', &slash_offset);
-    if (slash_offset != 4)
+    if (!tvb_find_uint8_length(tvb, 0, MRCPV2_MIN_LENGTH, '/', &slash_offset) ||
+        slash_offset != 4)
         return 0;
     version = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, slash_offset, ENC_ASCII);
     if (strcmp(version, "MRCP") != 0)
@@ -1011,7 +1021,7 @@ dissect_mrcpv2_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     else
     {
-        minor = (char*)tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, MRCPV2_MIN_LENGTH - sp_offset - 1, ENC_ASCII);
+        minor = (char*)tvb_get_string_enc(pinfo->pool, tvb, dot_offset + 1, sp_offset - dot_offset - 1, ENC_ASCII);
         len = sp_offset;
     }
     if (!ws_strtou32(minor, NULL, &value) || value != 0)
