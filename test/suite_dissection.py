@@ -95383,3 +95383,68 @@ class TestDissectMdp:
             '        Length: 4',
             '        Unknown Data: 01020304',
         ]
+
+
+class TestDissectMdshdr:
+    '''MDS Header (ethertype 0xFCFC, Cisco MDS internal FC frames) from the
+    synthetic capture mdshdr_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('mdshdr_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_mdshdr_frames(self, cmd_tshark, capture_file, test_env):
+        '''34 frames, all with an MDS header; no malformed packets and no
+        error expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'mdshdr', '-Tfields', '-eframe.number')
+        assert len(lines) == 34
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_mdshdr_sof_eof(self, cmd_tshark, capture_file, test_env):
+        '''Every SOF value (frames 1-11, unknown 12-13) and EOF value
+        (frames 14-22, unknown 23) is shown.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 23', '-Tfields', '-eframe.number',
+                '-emdshdr.sof', '-emdshdr.eof')
+        sofs = [l[1] for l in lines[:13]]
+        assert sofs == ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '0', '12']
+        eofs = [l[2] for l in lines[13:23]]
+        assert eofs == ['1', '2', '4', '3', '6', '7', '10', '14', '11', '5']
+        out = subprocess.check_output((cmd_tshark, '-V', '-Y', 'frame.number in {1, 14, 15, 16}',
+                '-r', capture_file('mdshdr_coverage.pcap.gz')),
+                encoding='utf-8', env=test_env, timeout=120)
+        for text in ('MDS Header(SOFc1/EOFn)', 'MDS Header(SOFi1/EOFt)',
+                     'MDS Header(SOFi1/EOFdt)', 'MDS Header(SOFi1/EOFa)'):
+            assert text in out
+
+    def test_mdshdr_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''VSAN, indexes, SPAN bits and CRC of frames 24-26.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {24, 25, 26}', '-Tfields', '-eframe.number',
+                '-emdshdr.vsan', '-emdshdr.dstidx', '-emdshdr.srcidx',
+                '-emdshdr.span', '-emdshdr.crc')
+        assert lines == [
+            ['24', '4095', '0x03c0', '0x03ff', '0', '0x11223344'],
+            ['25', '1', '0x0000', '0x0000', '0', '0x11223344'],
+            ['26', '291', '0x0100', '0x0045', '15', '0x11223344'],
+        ]
+
+    def test_mdshdr_no_trailer(self, cmd_tshark, capture_file, test_env):
+        '''A packet length of 0 or larger than the frame has no trailer and
+        the rest goes to FC (frames 31-32); trailing data and padding
+        after the frame are ignored (frames 29-30, 33).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'mdshdr.no_trailer', '-Tfields', '-eframe.number', '-emdshdr.plen')
+        assert lines == [['31', '0'], ['32', '500']]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {29, 30, 33}', '-Tfields', '-eframe.number',
+                '-emdshdr.plen', '-emdshdr.eof')
+        assert lines == [['29', '30', '3'], ['30', '34', '3'], ['33', '30', '3']]
