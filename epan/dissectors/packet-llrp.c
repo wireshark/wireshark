@@ -1521,7 +1521,7 @@ static unsigned dissect_llrp_item_array(tvbuff_t * const tvb, packet_info *pinfo
 static unsigned
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *param_tree,
-        unsigned suboffset, const unsigned param_end)
+        unsigned suboffset, const unsigned param_end, const unsigned depth)
 {
     uint32_t subtype;
 
@@ -1802,7 +1802,7 @@ dissect_llrp_impinj_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *par
         return suboffset;
     }
     /* Each custom parameters ends with optional custom parameter, disscect it */
-    return dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, 0);
+    return dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth + 1);
 }
 
 static unsigned
@@ -2092,8 +2092,8 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 suboffset += 2;
                 break;
             case LLRP_TLV_CLIENT_REQ_RESPONSE:
-                proto_tree_add_item(param_tree, hf_llrp_accessspec_id, tvb, suboffset, 2, ENC_BIG_ENDIAN);
-                suboffset += 2;
+                proto_tree_add_item(param_tree, hf_llrp_accessspec_id, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+                suboffset += 4;
                 suboffset = dissect_llrp_parameters(tvb, pinfo, param_tree, suboffset, param_end, depth+1);
                 break;
             case LLRP_TLV_LLRP_CONF_STATE_VAL:
@@ -2105,7 +2105,7 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 suboffset += 1;
                 num = tvb_get_ntohs(tvb, suboffset);
                 proto_tree_add_item(param_tree, hf_llrp_reader_id, tvb, suboffset, 2, ENC_BIG_ENDIAN);
-                suboffset += num;
+                suboffset += 2 + num;
                 break;
             case LLRP_TLV_GPO_WRITE_DATA:
                 proto_tree_add_item(param_tree, hf_llrp_gpo_port, tvb, suboffset, 2, ENC_BIG_ENDIAN);
@@ -2444,9 +2444,9 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_tree_add_item(param_tree, hf_llrp_opspec_id, tvb, suboffset, 2, ENC_BIG_ENDIAN);
                 suboffset += 2;
                 proto_tree_add_item(param_tree, hf_llrp_access_pass, tvb, suboffset, 4, ENC_BIG_ENDIAN);
-                suboffset += 2;
+                suboffset += 4;
                 proto_tree_add_item(param_tree, hf_llrp_mb, tvb, suboffset, 1, ENC_NA);
-                suboffset += 2;
+                suboffset += 1;
                 proto_tree_add_item(param_tree, hf_llrp_block_pointer, tvb, suboffset, 2, ENC_BIG_ENDIAN);
                 suboffset += 2;
                 proto_tree_add_item(param_tree, hf_llrp_block_range, tvb, suboffset, 2, ENC_BIG_ENDIAN);
@@ -2496,11 +2496,13 @@ dissect_llrp_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 suboffset += 4;
                 switch(num) {
                 case LLRP_VENDOR_IMPINJ:
-                    suboffset = dissect_llrp_impinj_parameter(tvb, pinfo, param_tree, suboffset, param_end);
+                    suboffset = dissect_llrp_impinj_parameter(tvb, pinfo, param_tree, suboffset, param_end, depth);
                     break;
                 default:
-                    proto_tree_add_item(param_tree, hf_llrp_vendor_unknown, tvb, suboffset, len-4-2-2, ENC_NA);
-                    suboffset += len-4-2-2;
+                    if (suboffset < param_end) {
+                        proto_tree_add_item(param_tree, hf_llrp_vendor_unknown, tvb, suboffset, param_end - suboffset, ENC_NA);
+                        suboffset = param_end;
+                    }
                     break;
                 }
                 break;
