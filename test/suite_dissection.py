@@ -86661,3 +86661,101 @@ class TestDissectIxveriwave:
             assert rows[0][2] == latency
             assert rows[0][3] == '86' and rows[3][3] == '46'
             assert rows[5][4] == 'ixveriwave:eth:ethertype:vlan:ethertype:ip:udp:data'
+
+
+class TestDissectJ1939:
+    CAPTURE = 'j1939_coverage.pcapng.gz'
+    DECODE_AS = ('-d', 'can.subdissector,j1939')
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, opts, display_filter, fields):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectJ1939.CAPTURE)]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_j1939_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames with 29 bit identifiers are J1939; no malformed packets or
+        warnings in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, None, ('frame.protocols',))
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 176
+        # three PGNs are also NMEA 2000 PGNs
+        assert protocols.count('can:j1939') + protocols.count('can:j1939:nmea2000') == 172
+        # standard identifier and Exported PDU are not J1939
+        assert protocols.count('can:data') == 1
+        assert protocols.count('exported_pdu:data') == 1
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), None, ('frame.protocols',))
+        assert not any('j1939' in r[0] for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, (*passes, *self.DECODE_AS),
+                                   '_ws.malformed || _ws.expert.severity >= warning', ('frame.number',))
+            assert rows == []
+
+    def test_j1939_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Source and destination addresses: named, reserved, arbitrary.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, '-O', 'j1939',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 2 || frame.number == 7 || frame.number == 9 || frame.number == 12 || frame.number == 18 || frame.number == 171',
+            ), encoding='utf-8', env=test_env)
+        for text in ('Source Address: 0 (Engine #1)', 'Source Address: 90 (Reserved)',
+                     'Source Address: 128 (Arbitrary)', 'Source Address: 248 (File Server / Printer)',
+                     'Source Address: 255 (GLOBAL)', 'Destination Address: 0 (Engine #1)'):
+            assert text in stdout
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 2 && frame.number <= 23',
+                               ('_ws.col.Source', '_ws.col.Destination'))
+        assert rows[0] == ['0', '4']
+        assert rows[16] == ['255', '4']
+        assert rows[17] == ['0', '255']
+        assert rows[21] == ['250', '254']
+
+    def test_j1939_pgn_fields(self, cmd_tshark, capture_file, test_env):
+        '''Priority, data page, extended data page, PDU format, group
+        extension (PDU2) and destination address (PDU1), PGN.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 24 && frame.number <= 35',
+                               ('j1939.priority', 'j1939.pgn', 'j1939.data_page', 'j1939.ex_data_page',
+                                'j1939.pdu_format', 'j1939.pdu_specific', 'j1939.group_extension', 'j1939.dst_addr'))
+        assert [r[0] for r in rows[:8]] == ['0', '1', '2', '3', '4', '5', '6', '7']
+        assert rows[0][1:] == ['65262', '0', '0', '254', '238', '238', '']
+        assert rows[8][1:] == ['61444', '0', '0', '240', '4', '4', '']
+        assert rows[9][1:4] == ['126980', '1', '0']
+        assert rows[10][1:4] == ['192516', '0', '1']
+        # PDU1: destination address, the low byte of the PGN is cleared
+        assert rows[11][1:] == ['256512', '1', '1', '234', '32', '', '32']
+
+    def test_j1939_named_pgns(self, cmd_tshark, capture_file, test_env):
+        '''PGNs from the table are named in the Info column, other PGNs
+        are not.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 36 && frame.number <= 40',
+                               ('_ws.col.Info',))
+        assert [r[0].split('  ', 1)[1].strip() for r in rows] == [
+            '01 02 03 04 05 06 07 08 ISO acknowledgment', '01 02 03 04 05 06 07 08 ISO request',
+            '01 02 03 04 05 06 07 08 ISO transport protocol: Data transfer',
+            '01 02 03 04 05 06 07 08 ISO transport protocol: Connection management',
+            '01 02 03 04 05 06 07 08 ISO address claimed']
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 164 || frame.number == 165',
+                               ('_ws.col.Info',))
+        assert rows[0][0].endswith('Node Statistics')
+        assert rows[1][0].endswith('07 08  ')
+
+    def test_j1939_rtr_and_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Remote transmission request, empty and short data, CAN FD.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 171 && frame.number <= 175',
+                               ('_ws.col.Info', 'j1939.data', 'frame.len'))
+        assert rows[0][0] == 'PGN: 59904    (Remote Transmission Request) ISO request'
+        assert rows[0][1] == '<none>'
+        assert rows[1][1] == '<none>'
+        assert rows[2][1] == '01'
+        assert rows[3][1] == ''.join('%02x' % i for i in range(64))
+        assert rows[4][1] == ''.join('%02x' % i for i in range(12))
+
+    def test_j1939_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "j1939" has no CAN information: the
+        dissector declines and the payload is data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 176',
+                               ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
+        assert rows == [['exported_pdu:data', 'j1939', '01020304']]
