@@ -100953,3 +100953,103 @@ class TestDissectMsNns:
             '34\tMS-NNS\tData\t100\t',
             '43\tMS-NNS\tHandshake In Progress\t\t50',
         ]
+
+
+class TestDissectMtp2:
+    '''MTP2 over LINKTYPE_MTP2 and MTP2_WITH_PHDR, and the MTP2 bit
+    stream in RTP (the SDP names the payload type "MTP2"), from the
+    synthetic capture mtp2_coverage.pcapng.gz. Frames 1-18
+    are raw MTP2, 19-27 have the pseudo header (19-25 with Annex A,
+    extended sequence numbers), 28-29 and 78-79 are SIP with the SDP,
+    30-77 are the bit stream, 80-86 are a second bit stream
+    conversation. The bit stream is only decoded in a second pass, so
+    these tests use -2 for it.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=('-2',)):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('mtp2_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mtp2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, and no malformed packets or warnings.'''
+        for passes, expect in (((), (17, 10)), (('-2',), (64, 18))):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'frame',
+                                '_ws.col.protocol', passes=passes)
+            assert len(lines) == 86
+            assert lines.count('MTP2') == expect[0]
+            assert lines.count('MTP3MG (Int. ITU)') == expect[1]
+            assert lines.count('SIP/SDP') == 4
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              'frame.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+
+    def test_mtp2_status_fields(self, cmd_tshark, capture_file, test_env):
+        '''FISU, LSSU with and without the extra octet, every status
+        indication, and a MSU with a long payload (LI is 63).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 15', 'frame.number', 'mtp2.li',
+                            'mtp2.sf', 'mtp2.sf_extra', '_ws.col.info')
+        assert lines[0] == '1\t0\t\t\tFISU '
+        assert lines[2] == '3\t2\t1\t0x00\tSIN'
+        assert [l.split('\t')[2] for l in lines[1:9]] == ['0', '1', '0', '1', '2', '3', '4', '5']
+        assert lines[8].endswith('SIB')
+        assert lines[9] == '10\t1\t9\t\tUnknown'
+        assert lines[14].startswith('15\t63\t')
+
+    def test_mtp2_extended_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''With the pseudo header saying Annex A is used the LSSU of
+        frame 21 has the extra octet (the length indicator of the
+        extended header was read from the wrong byte, so it was missed
+        before "MTP2: Fix bitstream length types and small header
+        fixes") and frame 25 has different reserved bits in the BSN and
+        the FSN words (both were read from the BSN word).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {19, 21, 24, 25}', 'frame.number',
+                            'mtp2.li', 'mtp2.fsn', 'mtp2.sf_extra', 'mtp2.res')
+        assert lines == [
+            '19\t0\t300\t\t0,0',
+            '21\t2\t302\t0x00\t0,0',
+            '24\t92\t304\t\t0,0',
+            '25\t0\t305\t\t0,5',
+        ]
+
+    def test_mtp2_bitstream_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A frame that spans RTP packets is reassembled and decoded
+        in the last packet; the earlier packets point to it.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {33, 34, 36}', 'frame.number',
+                            '_ws.col.info')
+        assert lines[0] == '33\t[MTP2 Reassembled in: 36]'
+        assert lines[1] == '34\t[MTP2 Reassembled in: 36]'
+        assert lines[2] == '36\tMTP2: 1 Packet'
+
+    def test_mtp2_bitstream_special_cases(self, cmd_tshark, capture_file, test_env):
+        '''Frames 80-86: no flag in the first packet of a conversation
+        (the per-packet data was uninitialized), a frame reset inside a
+        reassembled frame, a frame of 300 octets and a FISU after more
+        than 255 octets of idle flags (the RTP payload length and the
+        frame length were stored in 8 bits).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 80', 'frame.number',
+                            'mtp2.li', 'mtp2.frame_reset',
+                            'mtp2.unexpected_end', 'frame.len', '_ws.col.info')
+        assert lines == [
+            '80\t\t\t\t70\t[MTP2 No Packets]',
+            '81\t\t\t\t58\t[MTP2 Reassembled in: 81]',
+            '82\t0\t1\t\t60\tMTP2: 1 Packet[Frame Reset in reassembly]',
+            '83\t63\t\t\t350\tMTP2: 1 Packet',
+            '84\t\t\t1\t324\tMTP2: 1 Packet [Unaligned Packet]',
+            '85\t0\t\t\t318\tMTP2: 1 Packet',
+            '86\t\t\t\t56\t[MTP2 No Packets]',
+        ]
+
+    def test_mtp2_mtp3_payload(self, cmd_tshark, capture_file, test_env):
+        '''The MSUs reach MTP3 and MTP3MG, also from the bit stream.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'mtp3.opc && frame.number in {11, 12, 27, 36}',
+                            'frame.number', 'mtp3.opc', 'mtp3.dpc')
+        assert lines == ['11\t200\t100', '12\t100\t200', '27\t2\t1', '36\t200\t100']
