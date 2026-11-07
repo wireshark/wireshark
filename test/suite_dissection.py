@@ -89597,3 +89597,148 @@ class TestDissectLbmsrs:
         stdout = subprocess.check_output((cmd_tshark, *self.TAG, '-r', cap, '-Y', 'frame.number == 92',
                 '-Tfields', '-e_ws.col.info'), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.startswith('[Tag: srs]')
+
+
+class TestDissectLbtrm:
+    '''Ultra Messaging LBT-RM (reliable multicast over UDP) from the
+    synthetic capture lbtrm_coverage.pcapng.gz. The UDP heuristic reaches
+    158 of the 162 frames; the four with an option header (frames 33-36)
+    need Decode As, so the tests use LBTRM_DA to reach all of them.
+    Frames 50 and 51 are Exported PDU frames without addresses. Frames
+    52-161 are 110 DATA packets with the same sequence number.'''
+
+    CAP = 'lbtrm_coverage.pcapng.gz'
+    LBTRM_DA = ('-d', 'udp.port==14400,lbtrm', '-d', 'udp.port==14401,lbtrm',
+                '-d', 'udp.port==14390,lbtrm', '-d', 'udp.port==14391,lbtrm',
+                '-d', 'udp.port==14392,lbtrm', '-d', 'udp.port==14393,lbtrm',
+                '-d', 'udp.port==14395,lbtrm', '-d', 'udp.port==14399,lbtrm')
+    SEQ = ('-2', '-o', 'lbtrm.sequence_analysis:TRUE')
+    TAG = ('-o', 'lbtrm.use_lbtrm_domain:TRUE',
+           '-o', 'uat:lbtrm_domains:"tagA","224.10.10.10","224.10.10.14","14400","14400",'
+                 '"14390","14399","14401","14401","224.10.10.21","224.10.10.21"')
+
+    @staticmethod
+    def _run(cmd_tshark, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args), encoding='utf-8',
+                                       env=test_env, timeout=120).splitlines()
+
+    def test_lbtrm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic dissects 158 frames; with Decode As all 162
+        are LBT-RM, without malformed packets or error expert infos, in
+        one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self._run(cmd_tshark, test_env, '-r', cap, '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('LBT-RM') == 158
+        assert protocols.count('UDP') == 4
+        protocols = self._run(cmd_tshark, test_env, *self.LBTRM_DA, '-r', cap,
+                              '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('LBT-RM') == 162
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.LBTRM_DA, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        one = self._run(cmd_tshark, test_env, '-r', cap, '-O', 'lbtrm')
+        two = self._run(cmd_tshark, test_env, '-2', '-r', cap, '-O', 'lbtrm')
+        assert one == two
+
+    def test_lbtrm_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''135 DATA, 11 SM, 8 NAK and 8 NCF packets; the NCF reasons and
+        the NAK counts are decoded.'''
+        types = self._run(cmd_tshark, test_env, *self.LBTRM_DA, '-r', capture_file(self.CAP),
+                          '-Tfields', '-elbtrm.hdr.type')
+        assert {t: types.count(t) for t in set(types)} == {'0x00': 135, '0x02': 11, '0x03': 8, '0x04': 8}
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP), '-Y', 'lbtrm.ncf',
+                        '-Tfields', '-eframe.number', '-elbtrm.ncf.reason', '-elbtrm.ncf.format',
+                        '-elbtrm.ncf.num_ncfs')
+        assert out == ['14\t0x00\t0x00\t1', '15\t0x01\t0x00\t2', '16\t0x02\t0x00\t1',
+                       '17\t0x03\t0x00\t2', '18\t0x07\t0x00\t2', '19\t0x00\t0x01\t0',
+                       '20\t0x02\t0x00\t3', '49\t0x01\t0x00\t1']
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                        '-Y', 'lbtrm.nak && frame.number <= 13', '-Tfields', '-eframe.number',
+                        '-elbtrm.nak.num_naks', '-elbtrm.nak.list.nak', '-elbtrm.nak.parity_understood',
+                        '-elbtrm.nak.dont_confirm')
+        assert out[0] == '1\t2\t1,2\tFalse\tFalse'
+        assert out[2] == '11\t3\t4,7,9\tTrue\tFalse'
+
+    def test_lbtrm_transports(self, cmd_tshark, capture_file, test_env):
+        '''NAKs find their transport by the destination address, the
+        unicast port and the session; a NAK that came before the first
+        packet of its session, and one with an unknown session or port,
+        have no channel. Frames 50-51 (Exported PDU) are a transport of
+        their own.'''
+        out = self._run(cmd_tshark, test_env, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {1, 10, 11, 42, 43, 44, 50, 51}', '-Tfields',
+                        '-eframe.number', '-elbtrm.channel')
+        assert out == ['1\t', '10\t0x0000000000001002', '11\t0x0000000000001002',
+                       '42\t0x0000000000002002', '43\t', '44\t',
+                       '50\t0x0000000000005002', '51\t0x0000000000005002']
+
+    def test_lbtrm_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Gaps, out of order and duplicate DATA and SM packets, and
+        retransmissions, found with the sequence analysis preference
+        (second pass).'''
+        out = self._run(cmd_tshark, test_env, *self.SEQ, *self.LBTRM_DA, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number <= 31 && (lbtrm.transport.data_sqn_gap || '
+                              'lbtrm.transport.data_ooo_gap || lbtrm.transport.data_duplicate || '
+                              'lbtrm.transport.data_retransmission || lbtrm.transport.sm_sqn_gap || '
+                              'lbtrm.transport.sm_ooo_gap || lbtrm.transport.sm_duplicate)',
+                        '-Tfields', '-eframe.number', '-elbtrm.transport.data_retransmission',
+                        '-elbtrm.transport.data_sqn_gap', '-elbtrm.transport.data_ooo_gap',
+                        '-elbtrm.transport.data_duplicate', '-elbtrm.transport.sm_sqn_gap',
+                        '-elbtrm.transport.sm_ooo_gap', '-elbtrm.transport.sm_duplicate')
+        assert out == [
+            '8\t\t1\t\t\t\t\t',
+            '21\tTrue\t\t\t\t\t\t',
+            '23\t\t\t\tTrue\t\t\t',
+            '24\t\t\t1\tTrue\t\t\t',
+            '25\tTrue\t\t\t\t\t\t',
+            '26\t\t1\t\t\t\t\t',
+            '27\t\t\t1\t\t\t\t',
+            '29\t\t\t\t\t2\t\t',
+            '30\t\t\t\t\t\t2\t',
+            '31\t\t\t\t\t\t2\tTrue',
+        ]
+        # without the preference there is no analysis tree
+        out = self._run(cmd_tshark, test_env, '-2', *self.LBTRM_DA, '-r', capture_file(self.CAP),
+                        '-Y', 'lbtrm.transport', '-Tfields', '-eframe.number')
+        assert out == []
+
+    def test_lbtrm_sqn_frame_list_is_bounded(self, cmd_tshark, capture_file, test_env):
+        '''Each of the 110 DATA packets with the same sequence number used
+        to list every other one (quadratic output); now at most 100
+        frames are listed, followed by one "list truncated" item.'''
+        out = self._run(cmd_tshark, test_env, *self.SEQ, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number == 100', '-Tfields', '-elbtrm.transport.sqn.frame')
+        assert len(out) == 1
+        frames = out[0].split(',')
+        assert len(frames) == 101
+        out = self._run(cmd_tshark, test_env, *self.SEQ, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number == 100', '-V')
+        assert sum('(list truncated)' in line for line in out) == 1
+
+    def test_lbtrm_tag_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''With a tag table, frames 50 and 51 (Exported PDU "lbtrm", no IP
+        addresses) used to crash lbtrm_tag_find(); they decode now, without
+        a tag, while the IP frames get the tag.'''
+        out = self._run(cmd_tshark, test_env, *self.TAG, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {49, 50, 51}', '-Tfields', '-eframe.number',
+                        '-elbtrm.tag', '-e_ws.col.info')
+        assert out == ['49\ttagA\t[Tag: tagA] NCF 1 ncfs Port 14392 ID 0x01020304',
+                       '50\t\tDATA sqn 0x1 Port 14390 ID 0x11223344 DATA',
+                       '51\t\tSM sqn 0x1 Port 14390 ID 0x11223344']
+
+    def test_lbtrm_option_headers(self, cmd_tshark, capture_file, test_env):
+        '''DATA and SM packets with option headers: a single option, a chain
+        of three, and one with a zero length (the loop stops, the payload
+        is not decoded).'''
+        out = self._run(cmd_tshark, test_env, *self.LBTRM_DA, '-r', capture_file(self.CAP),
+                        '-Y', 'frame.number in {33, 34, 35, 36}', '-Tfields', '-eframe.number',
+                        '-elbtrm.hdr.next_hdr', '-elbtrm.hdr.type', '-e_ws.col.info')
+        assert out == [
+            '33\t0x01\t0x00\tDATA sqn 0xb Port 14390 ID 0x11223344 DATA',
+            '34\t0x01\t0x00\tDATA sqn 0xc Port 14390 ID 0x11223344 DATA',
+            '35\t0x01\t0x00\tDATA sqn 0xd Port 14390 ID 0x11223344',
+            '36\t0x01\t0x02\tSM sqn 0x7 Port 14390 ID 0x11223344',
+        ]
