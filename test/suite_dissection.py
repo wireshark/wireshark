@@ -95448,3 +95448,71 @@ class TestDissectMdshdr:
                 '-Y', 'frame.number in {29, 30, 33}', '-Tfields', '-eframe.number',
                 '-emdshdr.plen', '-emdshdr.eof')
         assert lines == [['29', '30', '3'], ['30', '34', '3'], ['33', '30', '3']]
+
+
+class TestDissectMedia:
+    '''Media Type (the fallback for HTTP bodies of media types without a
+    dissector, structured suffixes and the XML heuristic) from the
+    synthetic capture media_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('media_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_media_frames(self, cmd_tshark, capture_file, test_env):
+        '''71 frames; 12 of them end in the media dissector; no malformed
+        packets and no error expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'media', '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == [
+            '6', '10', '14', '18', '42', '46', '50', '54', '56', '58', '62', '66']
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 71
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_media_type_text(self, cmd_tshark, capture_file, test_env):
+        '''The media type with and without parameters, in the INFO column
+        and in the tree; a single octet body; a request body.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {6, 10, 14, 18, 42, 46, 56, 66}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = {l[0]: l[1] for l in lines}
+        assert info['6'].endswith('(application/x-unknown)')
+        assert info['18'].endswith('(text/x-unknown)')
+        assert info['42'].endswith('(application/vnd.example+nosuchsuffix)')
+        assert info['46'].endswith('(application/vnd.example+)')
+        assert info['56'] == 'POST /l HTTP/1.1  (application/x-unknown-request)'
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('media_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 10, 14, 66}'),
+                encoding='utf-8', env=test_env, timeout=120)
+        assert 'Media type: application/x-unknown (32 bytes)' in stdout
+        assert 'Media type: application/x-unknown; charset=utf-8 (17 bytes)' in stdout
+        assert 'Media type: application/x-unknown; version=2; profile="x y"; q=0.5 (20 bytes)' in stdout
+        assert 'Media type: application/x-unknown (1 byte)' in stdout
+
+    def test_media_suffix(self, cmd_tshark, capture_file, test_env):
+        '''Structured suffixes (case insensitive, the last plus decides) go
+        to the JSON, XML and CBOR dissectors.'''
+        for field, frames in (('json', ['22', '34', '38', '60']),
+                              ('xml', ['26']), ('cbor', ['30'])):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', field, '-Tfields', '-eframe.number')
+            assert [l[0] for l in lines] == frames
+
+    def test_media_xml_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''XML under an unknown media type reaches the XML dissector only
+        when the heuristic is enabled.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '--enable-heuristic', 'xml_media', '-Y', 'xml', '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == ['26', '50', '54']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'xml', '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == ['26']
