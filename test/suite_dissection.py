@@ -92014,3 +92014,67 @@ class TestDissectLorawan:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env, stderr=subprocess.DEVNULL)
         assert stdout.split() == [str(n) for n in range(1, 17)] + ['21']
+
+
+class TestDissectLpd:
+    def test_lpd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 22 frames are LPD (TCP port 515) and none is malformed or
+        has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lpd_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 22
+        assert protocols.count('LPD') == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lpd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lpd_printer_option(self, cmd_tshark, capture_file, test_env):
+        '''The queue name and options after the client code, ended by a
+        newline or a NUL (frames 5, 18), also when empty (frame 3, a request
+        that find_printer_string() used to report as not found); the
+        length was always 0 before the fix.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lpd_coverage.pcap.gz'),
+                '-Y', 'lpd.client_code',
+                '-Tfields', '-eframe.number', '-elpd.client_code',
+                '-elpd.printer_option',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t2\tlp0',
+            '3\t2\t',
+            '5\t1\tqueue-a',
+            '7\t3\tlp0 -s -l',
+            '9\t4\tlp0 user',
+            '10\t5\tlp0 agent 12 13',
+            '11\t6\tlp0 lpc stop',
+            '12\t7\tlp0 block',
+            '13\t8\tsecure',
+            '14\t9\tlp0 verbose',
+            '15\t0\tlp0',
+            '18\t2\tnul-first',
+        ]
+
+    def test_lpd_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests are named by client code; one octet segments are
+        responses (codes above 3 are shown as data); the rest is shown as
+        continuation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lpd_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-elpd.response_code',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][1] == 'LPR: transfer a printer job / jobcmd: receive control file'
+        assert [l[0] for l in lines if l[1] == 'LPD response'] == [
+            '2', '4', '6', '8', '17', '19', '21']
+        assert [(l[0], l[2]) for l in lines if l[2] != ''] == [
+            ('2', '0'), ('4', '1'), ('6', '2'), ('8', '3'), ('17', '2')]
+        assert [l[0] for l in lines if l[1] == 'LPD continuation'] == [
+            '15', '20', '22']
