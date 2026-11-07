@@ -4680,7 +4680,7 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, un
                                                  val_to_str_const(cid, mbim_uuid_info[uuid_idx].cid_list, "Unknown"), cid);
             }
         } else if (uuid_idx == UUID_EXT_IDX) {
-            proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+            proto_tree_add_uint_format_value(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid, "%s (%u)",
                                              val_to_str_const(cid, uuid_ext_info->uuid_cid_list, "Unknown"), cid);
         } else {
             proto_tree_add_uint(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid);
