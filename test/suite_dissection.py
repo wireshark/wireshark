@@ -87834,3 +87834,70 @@ class TestDissectKnxipDecrypt:
             assert len(lines) == 6
             assert lines[0] == 'TimerNotify $000000000064.000102030405.0000'
             assert all(not l.endswith(' OK') for l in lines)
+
+
+class TestDissectKpasswd:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kpasswd_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_kpasswd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''13 KPASSWD frames (UDP and TCP), none malformed and no error
+        expert info in one and two passes.'''
+        rows = TestDissectKpasswd._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 17
+        assert [r[0] for r in rows].count('KPASSWD') == 13
+        for passes in ((), ('-2',)):
+            rows = TestDissectKpasswd._rows(cmd_tshark, capture_file,
+                    test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_kpasswd_info(self, cmd_tshark, capture_file, test_env):
+        '''Request, reply, unknown command and KRB-ERROR over UDP and TCP.
+        Frame 11 is the first segment of a reassembled reply.'''
+        rows = TestDissectKpasswd._rows(cmd_tshark, capture_file, test_env,
+                '-2', '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info')
+        info = {r[0]: r[2] for r in rows if r[1] == 'KPASSWD'}
+        assert info['1'] == 'Request'
+        assert info['2'] == 'Reply'
+        assert info['3'] == 'KRB Error: KRB5KDC_ERR_PREAUTH_FAILED'
+        assert info['4'].startswith('KRB Error: Unknown error code')
+        assert info['5'] == 'Unknown command'
+        assert info['10'] == 'Request'
+        assert info['12'] == 'Reply'
+        assert info['13'] == 'KRB Error: KRB5KDC_ERR_PREAUTH_FAILED'
+        assert info['16'].startswith('KRB Error:')
+
+    def test_kpasswd_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version of the kpasswd header and the Kerberos message it
+        carries (AP-REQ, AP-REP; the KRB-PRIV is not decoded without a
+        key).'''
+        rows = TestDissectKpasswd._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 5}', '-Tfields',
+                '-ekpasswd.version', '-ekpasswd.message_len',
+                '-ekerberos.msg_type', '-ekerberos.realm')
+        assert [r[0] for r in rows] == ['0xff80', '0x0001', '0x0002']
+        assert [r[2] for r in rows] == ['14', '15', '15']
+        assert rows[0][3].startswith('EXAMPLE.TEST')
+
+    def test_kpasswd_tcp(self, cmd_tshark, capture_file, test_env):
+        '''A reply split over two segments is reassembled in frame 12,
+        two PDUs in one segment are both dissected, and a KRB-ERROR is
+        dissected without a kpasswd header.'''
+        rows = TestDissectKpasswd._rows(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'frame.number in {11, 12, 13, 14}', '-Tfields',
+                '-eframe.number', '-etcp.reassembled_in',
+                '-ekpasswd.version', '-ekerberos.msg_type')
+        assert rows == [
+            ['11', '12', '', ''],
+            ['12', '', '0x0001', '15'],
+            ['13', '', '', '30'],
+            ['14', '', '0xff80,0xff80', '14,14'],
+        ]
