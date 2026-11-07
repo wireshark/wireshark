@@ -85398,3 +85398,138 @@ class TestDissectIsobus:
         rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 389',
                                ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
         assert rows == [['exported_pdu:data', 'isobus', '01020304']]
+
+
+class TestDissectIsobusVt:
+    CAPTURE = 'isobus_vt_coverage.pcapng.gz'
+    DECODE_AS = ('-d', 'can.subdissector,isobus')
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, opts, display_filter, fields):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectIsobusVt.CAPTURE)]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def infos(cmd_tshark, capture_file, test_env, display_filter, opts=()):
+        rows = TestDissectIsobusVt.run_fields(cmd_tshark, capture_file, test_env,
+                                              (*TestDissectIsobusVt.DECODE_AS, *opts), display_filter,
+                                              ('_ws.col.Info',))
+        return [r[0] for r in rows]
+
+    def test_isobus_vt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ISOBUS; no malformed packets, errors or warnings
+        in one and two passes (checked in the protocol tree: the exception
+        of the zoom value of the graphics context is not found with
+        _ws.malformed), and both passes give the same Info column.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, None, ('frame.protocols',))
+        assert len(rows) == 4129
+        assert all(r[0] == 'can:isobus' for r in rows)
+        infos = {}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS, '-V',
+                    '-r', capture_file(self.CAPTURE)), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert 'Expert Info (Error' not in stdout
+            assert 'Expert Info (Warning' not in stdout
+            infos[passes] = self.infos(cmd_tshark, capture_file, test_env, None, passes)
+        assert infos[()] == infos[('-2',)]
+
+    def test_isobus_vt_status_and_keys(self, cmd_tshark, capture_file, test_env):
+        '''VT status, soft key and button activation, working set maintenance.'''
+        infos = self.infos(cmd_tshark, capture_file, test_env, 'frame.number <= 34')
+        assert infos[0] == '[ECU2VT] Initiate Working Set Maintenance, VT version is 5'
+        assert infos[1] == '[VT2ECU] Status: Current master is 128 data mask is Object ID 0x1000 soft key mask is Object ID 0x2000'
+        assert infos[2] == '[VT2ECU] Status: Current master is 38 data mask is NULL Object ID soft key mask is Object ID 0x2001'
+        assert infos[4] == '[VT2ECU] Key Object ID 0x2002 of parent Object ID 0x1000 has been released'
+        assert infos[5] == '[VT2ECU] Button Object ID 0x2003 of parent NULL Object ID has been released'
+        assert infos[6].endswith('has been pressed')
+        assert infos[8].endswith('is still held')
+        assert infos[10].endswith('press aborted')
+        assert infos[12].endswith('unknown action')
+        assert infos[27] == '[ECU2VT] Working Set Maintenance, VT version is 3'
+        assert infos[30] == '[ECU2VT] Working Set Maintenance, VT version is 2'
+
+    def test_isobus_vt_version_dependent_fields(self, cmd_tshark, capture_file, test_env):
+        '''The touch state of the pointing event and the open for input flag
+        of the select input object message exist from VT version 4 on, the
+        version is learned from the Working Set Maintenance message.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 17 || frame.number == 29',
+                               ('isobus.vt.pointing_event.touch_state', '_ws.col.Info'))
+        assert rows[0] == ['1', '[VT2ECU] Touch at [100;200] has been pressed']
+        assert rows[1] == ['', '[VT2ECU] Touch at [10;20]']
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 18 || frame.number == 30',
+                               ('isobus.vt.vt_select_input_object.open_for_input',))
+        assert rows[0][0] != '' and rows[1][0] == ''
+
+    def test_isobus_vt_messages(self, cmd_tshark, capture_file, test_env):
+        '''ECU to VT commands and their responses.'''
+        infos = dict(zip(range(1, 1 << 16), self.infos(cmd_tshark, capture_file, test_env, None)))
+        assert infos[93] == '[ECU2VT] Change child location of Object ID 0x300D in Object ID 0x1000 to [5;6]'
+        assert infos[95] == '[ECU2VT] Background colour of Object ID 0x300D should change to Silver'
+        assert infos[103] == '[ECU2VT] Attribute ID 3 of Object ID 0x300D should change to 0x1020304'
+        assert infos[112] == '[ECU2VT] String value of Object ID 0x3012 should change to Hello'
+        assert infos[120] == '[ECU2VT] VT Numeric value of Object ID 0x2005 has changed to 0x10E1'
+        assert infos[152] == '[ECU2VT] Lock data mask Object ID 0x1000 for 5000ms '
+        assert infos[258] == '[ECU2VT] VT function unknown (51) is not supported by ECU'
+        assert infos[265] == '[ECU2VT] End of object pool received, object pool accepted'
+
+    def test_isobus_vt_graphics_context(self, cmd_tshark, capture_file, test_env):
+        '''Every graphics context sub-command (the zoom value of pan and
+        zoom is read with a wrong length and is therefore not in this
+        capture).'''
+        infos = self.infos(cmd_tshark, capture_file, test_env, 'isobus.vt.command == 184 && frame.number < 140')
+        assert len(infos) == 18
+        assert infos[0] == '[ECU2VT] Graphic Context of Object ID 0x3013: Set Graphics Cursor to Position [10;-20] '
+        assert infos[12].endswith('Draw Polygon of 3 points')
+        assert infos[13].endswith('Draw string "Hello" at cursor with a Opaque background')
+        assert infos[14].endswith('Draw string "Text" at cursor with a Transparent background')
+        assert infos[15].endswith('Pan Viewport by [7;8] pixels')
+        assert infos[16].replace(',', '.').endswith('Zoom Viewport by 1.5')
+
+    def test_isobus_vt_lists(self, cmd_tshark, capture_file, test_env):
+        '''Preferred assignment and auxiliary capabilities with several
+        units, supported widechars with ranges, version lists.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 35',
+                               ('isobus.vt.preferred_assignment.number_of_input_units',
+                                'isobus.vt.preferred_assignment.auxiliary_input_unit.model_identification_code',
+                                'isobus.vt.preferred_assignment.auxiliary_input_unit.number_of_preferred_functions'))
+        assert rows == [['2', '0x0102,0x0103', '2,1']]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'isobus.vt.get_supported_widechars.first_available_widechar',
+                               ('isobus.vt.get_supported_widechars.first_available_widechar',))
+        assert [r[0] for r in rows] == ['32', '32,80,112']
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'isobus.vt.extended_get_versions.version_label',
+                               ('isobus.vt.extended_get_versions.version_label',))
+        assert rows == [['Label one                       ']]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'isobus.vt.get_versions.version_label',
+                               ('isobus.vt.get_versions.version_label',))
+        assert rows == [['V1     ,V2     ']]
+
+    def test_isobus_vt_error_codes(self, cmd_tshark, capture_file, test_env):
+        '''The error code bits of the responses (sweep): every message
+        shows the error text of the bits it knows.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, '-V',
+                '-r', capture_file(self.CAPTURE), '-Y', 'isobus.vt.command == 189'),
+                encoding='utf-8', env=test_env)
+        for text in ('Unlock command ignored, not locked', 'Lock command ignored, an Alarm Mask is active',
+                     'Unsolicited unlock, timeout occurred', 'Unsolicited unlock, this mask is hidden',
+                     'Unsolicited unlock, operator induced, or any other error', 'Any other error'):
+            assert text in stdout
+        infos = self.infos(cmd_tshark, capture_file, test_env, 'isobus.vt.command == 160')
+        errors = [i for i in infos if 'Error' in i]
+        assert len(errors) == 6
+        assert all(i.startswith('[VT2ECU]') for i in errors)
+
+    def test_isobus_vt_object_id_translation(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Object IDs are replaced by the names of a translation file.'''
+        names = tmp_path / 'object_ids.txt'
+        names.write_text('4096,Main data mask\n8194,Start button\n')
+        infos = self.infos(cmd_tshark, capture_file, test_env, 'frame.number == 5 || frame.number == 2',
+                           ('-o', 'isobus.vt.object_ids:' + str(names)))
+        assert infos[0] == '[VT2ECU] Status: Current master is 128 data mask is Main data mask soft key mask is Object ID 0x2000'
+        assert infos[1] == '[VT2ECU] Key Start button of parent Main data mask has been released'
