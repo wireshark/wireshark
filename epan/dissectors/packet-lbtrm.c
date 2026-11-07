@@ -720,6 +720,10 @@ static char * lbtrm_tag_find(packet_info * pinfo)
         return (NULL);
     }
 
+    if (pinfo->dst.type != AT_IPv4 || pinfo->dst.len != 4)
+    {
+        return (NULL);
+    }
     dest_addr_h = pntohu32(pinfo->dst.data);
     for (idx = 0; idx < lbtrm_tag_count; ++idx)
     {
@@ -917,7 +921,7 @@ static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_trail_sqn, tvb, offset + O_LBTRM_NCF_HDR_T_TRAIL_SQN, L_LBTRM_NCF_HDR_T_TRAIL_SQN, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_num_ncfs, tvb, offset + O_LBTRM_NCF_HDR_T_NUM_NCFS, L_LBTRM_NCF_HDR_T_NUM_NCFS, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_reserved, tvb, offset + O_LBTRM_NCF_HDR_T_RESERVED, L_LBTRM_NCF_HDR_T_RESERVED, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_reason, tvb, offset + O_LBTRM_NCF_HDR_T_REASON_FORMAT, L_LBTRM_NCF_HDR_T_REASON_FORMAT, ENC_BIG_ENDIAN);
+    reason_item = proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_reason, tvb, offset + O_LBTRM_NCF_HDR_T_REASON_FORMAT, L_LBTRM_NCF_HDR_T_REASON_FORMAT, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_format, tvb, offset + O_LBTRM_NCF_HDR_T_REASON_FORMAT, L_LBTRM_NCF_HDR_T_REASON_FORMAT, ENC_BIG_ENDIAN);
     len = L_LBTRM_NCF_HDR_T;
     if (!lbtrm_expert_separate_ncfs)
@@ -1072,7 +1076,10 @@ typedef struct
     proto_tree * tree;
     tvbuff_t * tvb;
     uint32_t current_frame;
+    unsigned listed;
 } lbtrm_sqn_frame_list_callback_data_t;
+
+#define LBTRM_SQN_FRAME_LIST_MAX 100
 
 static bool dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void * frame, void * user_data)
 {
@@ -1082,6 +1089,13 @@ static bool dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void * fr
 
     if (sqn_frame->frame != cb_data->current_frame)
     {
+        if (cb_data->listed >= LBTRM_SQN_FRAME_LIST_MAX)
+        {
+            transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtrm_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" PRIu32 " (list truncated)", sqn_frame->frame);
+            proto_item_set_generated(transport_item);
+            return true;
+        }
+        cb_data->listed++;
         if (sqn_frame->retransmission)
         {
             transport_item = proto_tree_add_uint_format_value(cb_data->tree, hf_lbtrm_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame, "%" PRIu32 " (RX)", sqn_frame->frame);
@@ -1340,6 +1354,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
                                     cb_data.current_frame = pinfo->num;
+                                    cb_data.listed = 0;
                                     wmem_tree_foreach(sqn->frame, dissect_lbtrm_sqn_frame_list_callback, (void *) &cb_data);
                                 }
                             }
@@ -1394,6 +1409,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
                                     cb_data.current_frame = pinfo->num;
+                                    cb_data.listed = 0;
                                     wmem_tree_foreach(sqn->frame, dissect_lbtrm_sqn_frame_list_callback, (void *) &cb_data);
                                 }
                             }
