@@ -85764,3 +85764,107 @@ class TestDissectItdm:
                             '-Y', 'data')
         assert rows == [['19', '16'], ['20', '16'], ['21', '16'], ['22', '16'],
                         ['23', '6'], ['50', '22']]
+
+
+class TestDissectItsCoverage:
+    '''ITS (ETSI Intelligent Transport Systems, packet-its.c) from the
+    synthetic capture its_coverage.pcapng.gz: 560 frames as Exported PDU
+    "its" and 22 frames as GeoNetworking/BTP-A/BTP-B on the well-known ports.
+    The PDUs are hand-encoded UPER plus random UPER bodies after a valid ITS
+    header that decode cleanly (every ITS message type and version).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('its_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_its_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 582 frames decode as ITS, 22 of them through BTP; there are
+        no malformed packets or error expert infos, in one and two passes.'''
+        f = self._fields
+        assert len(f(cmd_tshark, capture_file, test_env, 'its', 'frame.number')) == 582
+        assert len(f(cmd_tshark, capture_file, test_env, 'btpa || btpb', 'frame.number')) == 22
+        assert len(f(cmd_tshark, capture_file, test_env, 'exported_pdu', 'frame.number')) == 560
+        for passes in ((), ('-2',)):
+            assert f(cmd_tshark, capture_file, test_env,
+                     '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number',
+                     passes=passes) == []
+
+    def test_its_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol version and message id.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'its',
+                             'its.protocolVersion', 'its.messageId')
+        counts = {}
+        for line in lines:
+            counts[line] = counts.get(line, 0) + 1
+        assert sum(counts.values()) == 582
+        expected = {
+            '1\t1': 31, '2\t1': 36, '1\t2': 23, '2\t2': 73, '1\t4': 8, '2\t4': 15,
+            '1\t5': 20, '2\t5': 19, '1\t6': 22, '2\t6': 18, '0\t7': 13, '1\t8': 45,
+            '2\t9': 27, '2\t10': 12, '0\t11': 12, '1\t13': 8, '2\t13': 8, '1\t14': 50,
+            '2\t14': 24, '2\t15': 12, '3\t16': 40, '1\t18': 26, '1\t19': 15, '2\t21': 25,
+        }
+        # the counts are the ones of the capture; compare message by message
+        assert set(counts) == set(expected)
+        assert counts == expected
+
+    def test_its_dsrc_import_fields(self, cmd_tshark, capture_file, test_env):
+        '''ivi.LaneID, cpmv1.nodeOffsetPointxy and cpmv1.node_Z1 are
+        registered with their ASN.1 type. They were FT_NONE because
+        CPM-PDU-Descriptionsv1.asn and ISO19321IVIv2.asn imported them from
+        a module called DSRC (it is ETSI-ITS-DSRC): an IVIM LaneIds list
+        decoded as malformed, and any CPMv1 OffsetPoint hit a field type
+        assertion in proto_tree_add_uint().'''
+        f = self._fields
+        out = f(cmd_tshark, capture_file, test_env, 'frame.number <= 8',
+                'frame.number', '_ws.col.protocol', 'ivi.LaneID', 'cpmv1.nodeOffsetPointxy',
+                'cpmv1.node_Z1', 'cpmv1.radius')
+        assert out == [
+            '1\tSREM\t\t\t\t',
+            '2\tSREM\t\t\t\t',
+            '3\tIVIM\t3\t\t\t',
+            '4\tIVIM\t3,4,5\t\t\t',
+            '5\tCPMv1\t\t0\t5\t50',
+            '6\tCPMv1\t\t0\t\t7',
+            '7\tCPMv1\t\t0,0\t-3,511\t9',
+            '8\tCPMv1\t\t0,0,0\t7,-8\t',
+        ]
+        # with a protocol tree the CPMv1 OffsetPoint frames used to abort
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('its_coverage.pcapng.gz'),
+                '-V', '-Y', 'cpmv1.nodeOffsetPointxy'),
+                encoding='utf-8', env=test_env, timeout=300)
+        assert 'node-Z1: 5' in stdout
+        assert 'node-Z1: 511' in stdout
+        assert 'Malformed' not in stdout
+
+    def test_its_cam_extension_containers(self, cmd_tshark, capture_file, test_env):
+        '''CAM v2 WrappedExtensionContainers: the container data is
+        dissected by its id (1..6), other ids are skipped.'''
+        f = self._fields
+        for cid, n in ((1, 8), (2, 13), (3, 3), (4, 7), (5, 12), (6, 5), (7, 1), (16, 1)):
+            out = f(cmd_tshark, capture_file, test_env, 'cam.containerId == %d' % cid, 'frame.number')
+            assert len(out) == n, cid
+        out = f(cmd_tshark, capture_file, test_env, 'cam.containerId == 6 && cam.containerId == 1',
+                'cam.containerId')
+        assert out == ['1,2,3,4,5,6']
+
+    def test_its_regional_extension(self, cmd_tshark, capture_file, test_env):
+        '''SREM requestor with regional extensions: region addGrpC (3)
+        decodes RequestorDescription-addGrpC, other region ids and the
+        message level regional extension go to the data dissector.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 2',
+                           'frame.number', 'dsrc.regionId', 'AddGrpC.fuel', 'AddGrpC.batteryStatus')
+        assert out == ['1\t3,1,3\t4\t3', '2\t3\t4\t3']
+
+    def test_its_unavailable_values(self, cmd_tshark, capture_file, test_env):
+        '''CAM v2 with every value unavailable (frames 514 and 582, the
+        latter over BTP-B port 2001).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'its.speedValue == 16383',
+                           'frame.number', 'its.latitude', 'its.longitude')
+        assert out == ['514\t900000001\t1800000001', '582\t900000001\t1800000001']
