@@ -88679,3 +88679,73 @@ class TestDissectLapdm:
         lines = self.frames(cmd_tshark, capture_file, test_env,
                             'lapdm.reassembled.length', '-o', 'lapdm.reassemble:FALSE')
         assert lines == []
+
+
+class TestDissectLaplink:
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('laplink_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_laplink_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every UDP and TCP message is Laplink and none is malformed or has
+        an error expert info, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 25
+        assert protocols.count('Laplink') == 17
+        assert protocols.count('TCP') == 8
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_laplink_udp(self, cmd_tshark, capture_file, test_env):
+        '''The name solicitation and the name reply carry the machine name.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'laplink.udp_ident', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-elaplink.udp_ident', '-elaplink.udp_name')
+        assert stdout.splitlines() == [
+            '1\tName Solicitation\t0x0f010000\tLAPTOP-A',
+            '2\tName Reply\t0xf0000200\tDESKTOP-B',
+        ]
+
+    def test_laplink_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Every TCP ident is named in the Info column, an unknown ident is
+        shown as "TCP TBA", two PDUs in one segment are both decoded, and
+        PDUs split over two segments (inside the data, and inside the
+        header) are reassembled, in one and two passes.'''
+        expected = [
+            '6\tUnknown TCP query - connection?\t0xff08c000\t4',
+            '7\tUnknown TCP query - connection?\t0xff08c200\t5',
+            '8\tUnknown TCP query - connection?\t0xff0bc000\t6',
+            '9\tUnknown TCP query - connection?\t0xff0bc200\t7',
+            '10\tUnknown TCP response - connection?\t0xff10c000\t8',
+            '11\tUnknown TCP response - connection?\t0xff10c200\t9',
+            '12\tUnknown TCP query/response - directory list or file transfer?\t0xff11c000\t10',
+            '13\tUnknown TCP query - directory list or file request?\t0xff11c200\t11',
+            '14\tUnknown TCP response - connection?\t0xff13c000\t12',
+            '15\tUnknown TCP response - connection?\t0xff13c200\t13',
+            '16\tUnknown TCP response - directory list or file transfer?\t0xff14c000\t14',
+            '17\tTCP TBA (305419896)\t0x12345678\t0',
+            '18\tUnknown TCP response - directory list or file transfer?\t0xff11c000,0xff14c000\t3,5',
+            '20\tUnknown TCP query - directory list or file request?\t0xff11c200\t40',
+            '22\tUnknown TCP response - connection?\t0xff10c000\t10',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'laplink.tcp_ident', '-Tfields', '-eframe.number',
+                    '-e_ws.col.info', '-elaplink.tcp_ident', '-elaplink.tcp_length')
+            assert stdout.splitlines() == expected
+
+    def test_laplink_tcp_data(self, cmd_tshark, capture_file, test_env):
+        '''The reassembled 40 octet PDU of frames 19-20 is dissected as one
+        message, and the first segment is not dissected on its own in the
+        second pass.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {19, 20, 21, 22}', '-Tfields',
+                '-eframe.number', '-elaplink.tcp_length', '-etcp.reassembled_in')
+        assert stdout.splitlines() == ['19\t\t20', '20\t40\t', '21\t\t22', '22\t10\t']
