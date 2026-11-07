@@ -148,6 +148,9 @@ private slots:
      */
     void on_buttonBox_clicked(QAbstractButton *button);
 
+    /** @brief Slot triggered when help is requested from the button box. */
+    void on_buttonBox_helpRequested();
+
     /** @brief Toggle the marked state of the cell under the context menu cursor. */
     void on_actionMark_Unmark_Cell_triggered();
 

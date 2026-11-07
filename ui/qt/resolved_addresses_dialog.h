@@ -119,6 +119,11 @@ private slots:
      * @brief Opens a dialog to save the resolved addresses to a file.
      */
     void saveAs();
+
+    /**
+     * @brief Slot triggered when help is requested from the button box.
+     */
+    void on_buttonBox_helpRequested();
 };
 
 #endif // RESOLVED_ADDRESSES_DIALOG_H

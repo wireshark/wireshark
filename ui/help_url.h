@@ -126,7 +126,12 @@ typedef enum {
     HELP_STAT_FLOW_GRAPH,                           /**< Help for the Flow Graph / Sequence diagram dialog */
     HELP_STATS_PLOT_DIALOG,                         /**< Help for the Stats Plot dialog */
     HELP_THEME_DESIGNER_DIALOG,                     /**< Help for the Theme Designer dialog */
-    HELP_STATS_DISTRIBUTION_DIALOG                  /**< Help for the Distribution dialog */
+    HELP_STATS_DISTRIBUTION_DIALOG,                 /**< Help for the Distribution dialog */
+    HELP_TAGGING_RULES_DIALOG,                      /**< Help for the Tagging Rules dialog */
+    HELP_STATS_RESOLVED_ADDRESSES_DIALOG,           /**< Help for the Resolved Addresses dialog */
+    HELP_BLUETOOTH_ATT_SERVER_ATTRIBUTES_DIALOG,    /**< Help for the Bluetooth ATT Server Attributes dialog */
+    HELP_BLUETOOTH_DEVICES_DIALOG,                  /**< Help for the Bluetooth Devices dialog */
+    HELP_BLUETOOTH_HCI_SUMMARY_DIALOG               /**< Help for the Bluetooth HCI Summary dialog */
 } topic_action_e;
 
 /** Given a page in the Wireshark User's Guide return its URL. Returns a

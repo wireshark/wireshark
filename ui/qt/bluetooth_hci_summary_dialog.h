@@ -138,6 +138,9 @@ private slots:
      *  @param button The button that was clicked. */
     void on_buttonBox_clicked(QAbstractButton *button);
 
+    /** @brief Slot triggered when help is requested from the button box. */
+    void on_buttonBox_helpRequested();
+
     /** @brief Toggle the marked state of the currently selected cell. */
     void on_actionMark_Unmark_Cell_triggered();
 

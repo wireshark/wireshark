@@ -25,6 +25,7 @@
 #include <ui/qt/utils/variant_pointer.h>
 
 #include "ui/simple_dialog.h"
+#include "main_application.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -68,6 +69,7 @@ BluetoothDevicesDialog::BluetoothDevicesDialog(QWidget &parent, CaptureFile &cf,
     ui(new Ui::BluetoothDevicesDialog)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
 
     packet_list_ = packet_list;
@@ -459,4 +461,9 @@ void BluetoothDevicesDialog::on_actionSave_as_image_triggered()
 void BluetoothDevicesDialog::on_buttonBox_clicked(QAbstractButton *)
 {
 /*    if (button == foo_button_) */
+}
+
+void BluetoothDevicesDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_BLUETOOTH_DEVICES_DIALOG);
 }

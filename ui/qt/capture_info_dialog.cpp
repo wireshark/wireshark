@@ -91,6 +91,7 @@ CaptureInfoDialog::CaptureInfoDialog(struct _capture_info *cap_info, struct _cap
     cap_session_(cap_session)
 {
     ui->setupUi(this);
+    ui->buttonBox->button(QDialogButtonBox::Help)->setFocusPolicy(Qt::NoFocus);
     loadGeometry();
     setWindowTitle(mainApp->windowTitleString(tr("Capture Information")));
 
@@ -131,6 +132,11 @@ void CaptureInfoDialog::stopCapture()
 #ifdef HAVE_LIBPCAP
     capture_stop(cap_session_); // ...or we could connect to MainWindow::stopCapture.
 #endif // HAVE_LIBPCAP
+}
+
+void CaptureInfoDialog::on_buttonBox_helpRequested()
+{
+    mainApp->helpTopicAction(HELP_CAPTURE_INFO_DIALOG);
 }
 
 CaptureInfoModel::CaptureInfoModel(struct _capture_info *cap_info, QObject *parent) :
