@@ -102271,3 +102271,125 @@ class TestDissectNasdaqSoup:
                 '-Y', 'frame.number == 25', '-Tfields', '-enasdaq-soup.packet_eol',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == '\\n,\\n'
+
+
+class TestDissectNasEps:
+    '''NAS-EPS (3GPP TS 24.301) from the synthetic capture
+    nas_eps_coverage.pcapng.gz: Exported PDU frames (1-1464, interface 0),
+    S1AP over SCTP (1465-1471) and UDP (1472-1474, the heuristic is
+    disabled by default). No keys: ciphered frames carry placeholder bytes.'''
+
+    @staticmethod
+    def _epdu_pcap(path, proto, payloads):
+        import struct
+        p = proto.encode()
+        pad = (4 - len(p) % 4) % 4
+        hdr = struct.pack('>HH', 12, len(p) + pad) + p + b'\0' * pad + struct.pack('>HH', 0, 0)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 252))
+            for i, pl in enumerate(payloads):
+                fr = hdr + pl
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    @staticmethod
+    def _nested_replay(depth):
+        import struct
+        msg = b'\x07\x5e'          # plain Security mode complete without IEs
+        for _ in range(depth):
+            if len(msg) > 0xffff - 8:
+                break
+            msg = b'\x07\x5e\x79' + struct.pack('>H', len(msg)) + msg
+        return msg
+
+    @staticmethod
+    def _frames(cmd_tshark, capture_file, test_env, display_filter, *opts):
+        import subprocess
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('nas_eps_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [int(n) for n in stdout.split()]
+
+    def test_nas_eps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 1474 frames decode without malformed packets or error
+        expert infos, in one and two passes; protocol columns.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nas_eps_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 1474
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'NAS-EPS': 1388, 'NAS-EPS/NBIFOM': 60, 'NAS-EPS/LPP': 16,
+                          'S1AP/NAS-EPS': 7, 'UDP': 3}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nas_eps_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+
+    def test_nas_eps_s1ap(self, cmd_tshark, capture_file, test_env):
+        '''S1AP sets the link direction: a Detach request is decoded as
+        UE originated in uplink messages and as network originated in
+        downlink ones.'''
+        f = self._frames
+        assert f(cmd_tshark, capture_file, test_env, 'nas-eps.emm.detach_req_ul && s1ap') == [1466, 1467]
+        assert f(cmd_tshark, capture_file, test_env, 'nas-eps.emm.detach_req_dl && s1ap') == [1468, 1469]
+        assert f(cmd_tshark, capture_file, test_env,
+                 's1ap && nas-eps.emm.nas_key_set_id == 7') == [1465]
+
+    def test_nas_eps_tai_list(self, cmd_tshark, capture_file, test_env):
+        '''TAI lists of the three types with 16 TACs.'''
+        assert self._frames(cmd_tshark, capture_file, test_env, 'count(nas-eps.emm.tai_tac) == 16') == [1241, 1244, 1247]
+
+    def test_nas_eps_replayed_container(self, cmd_tshark, capture_file, test_env):
+        '''Security mode complete with one Replayed NAS message container
+        is dissected; two or more levels get the "Nested Replayed NAS message
+        container not dissected" error and 13000 levels (65 KiB) are
+        stopped without a stack overflow (NAS EPS: Bound Replayed NAS
+        message container nesting).'''
+        assert self._frames(cmd_tshark, capture_file, test_env, 'nas-eps.emm.replayed_nas_msg_cont')[:6] == [845, 846, 847, 848, 1204, 1450]
+        assert self._frames(cmd_tshark, capture_file, test_env, 'nas-eps.replayed_nesting') == []
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            pcap = d + '/nest.pcap'
+            self._epdu_pcap(pcap, 'nas-eps_plain', [self._nested_replay(1), self._nested_replay(2),
+                                                    self._nested_replay(3), self._nested_replay(13000)])
+            for passes in ((), ('-V',), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, '-r', pcap,
+                        '-Y', 'nas-eps.replayed_nesting', '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env, timeout=120)
+                assert stdout.split() == ['2', '3', '4']
+
+    def test_nas_eps_ciphered(self, cmd_tshark, capture_file, test_env):
+        '''Integrity protected and ciphered frames with a non-zero MAC and
+        placeholder bytes. With the default null_decipher preference the
+        inner message is decoded when it looks like a NAS message, with
+        it off all 9 are shown as "Ciphered message".'''
+        assert self._frames(cmd_tshark, capture_file, test_env, '_ws.col.info contains "Ciphered"') != []
+        assert len(self._frames(cmd_tshark, capture_file, test_env, '_ws.col.info contains "Ciphered"')) == 4
+        assert len(self._frames(cmd_tshark, capture_file, test_env, '_ws.col.info contains "Ciphered"',
+                                '-o', 'nas-eps.null_decipher:FALSE')) == 9
+
+    def test_nas_eps_user_data_container(self, cmd_tshark, capture_file, test_env):
+        '''ESM data transport User data containers decoded as IP, IPv6
+        and Ethernet with decode_user_data_container_as.'''
+        f = self._frames
+        assert f(cmd_tshark, capture_file, test_env, 'ip.dst == 192.168.0.2 && nas-eps',
+                 '-o', 'nas-eps.decode_user_data_container_as:ip') == [1382, 1388, 1389, 1390, 1403]
+        assert f(cmd_tshark, capture_file, test_env, 'ipv6 && nas-eps',
+                 '-o', 'nas-eps.decode_user_data_container_as:ip') == [1383]
+        assert f(cmd_tshark, capture_file, test_env, 'eth && nas-eps && frame.number < 1465',
+                 '-o', 'nas-eps.decode_user_data_container_as:ethernet') == [1382, 1383, 1384, 1388, 1389, 1390, 1403]
+
+    def test_nas_eps_ies(self, cmd_tshark, capture_file, test_env):
+        '''Ciphering key data, remote UE context lists, LPP in the
+        generic NAS transport and the NBIFOM container.'''
+        f = self._frames
+        assert f(cmd_tshark, capture_file, test_env, 'nas-eps.emm.cipher_key') == [217, 218, 219, 220, 517, 518, 519, 520]
+        assert f(cmd_tshark, capture_file, test_env, 'nas-eps.esm.remote_ue_context_list.nb_ue_contexts') == [1378, 1379]
+        assert f(cmd_tshark, capture_file, test_env, 'lpp') == list(range(1411, 1427))
+        assert len(f(cmd_tshark, capture_file, test_env, 'nbifom')) == 60
