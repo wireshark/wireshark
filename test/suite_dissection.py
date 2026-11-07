@@ -91495,3 +91495,96 @@ class TestDissectLogcat:
                 '-elogcat.timestamp.seconds',
             ), encoding='utf-8', env=test_env)
         assert stdout == 'Logcat\tscan 0\t1700000100\n'
+
+
+class TestDissectLogcatText:
+    '''Android Logcat Text records (brief, tag, process, time, thread,
+    threadtime and long format) from the synthetic capture
+    logcat_text_coverage.pcap.gz. The records are Exported PDU frames
+    naming the logcat_text_* dissectors, with the line the logcat text file
+    reader hands over (the line, a newline and a NUL).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture, env, flt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture, '-Y', flt, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_logcat_text_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 66 frames are Logcat Text without malformed packets or
+        expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                           test_env, 'logcat_text', 'frame.number')
+        assert len(rows) == 66
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                               test_env, '_ws.malformed || _ws.expert',
+                               'frame.number', extra=passes)
+            assert rows == []
+
+    def test_logcat_text_formats(self, cmd_tshark, capture_file, test_env):
+        '''One record of each format: the fields each format carries
+        (the time stamp is shown in UTC).'''
+        env = dict(test_env, TZ='UTC')
+        rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                           env, 'frame.number <= 7', 'frame.number',
+                           'logcat_text.priority', 'logcat_text.tag',
+                           'logcat_text.pid', 'logcat_text.tid',
+                           'logcat_text.timestamp', 'logcat_text.log')
+        ts = '1970-01-02T03:04:05.678000000+0000'
+        assert rows == [
+            ['1', '4', 'ActivityManager', '1000', '', '', 'Start proc 0:com.example/u0a0'],
+            ['2', '4', 'WifiService', '', '', '', 'scan result 0'],
+            ['3', '4', '', '200', '', '', 'process message 0  ()'],
+            ['4', '4', 'SurfaceFlinger', '300', '', ts, 'vsync 0'],
+            ['5', '4', '', '400', '500', '', 'thread message 0'],
+            ['6', '4', 'Binder', '600', '700', ts, 'transaction 0'],
+            ['7', '4', 'Choreographer', '800', '900', ts, 'Skipped 0 frames!'],
+        ]
+
+    def test_logcat_text_priorities(self, cmd_tshark, capture_file, test_env):
+        '''The priority letters I V D W E F map to Info, Verbose, Debug,
+        Warning, Error and Fatal.'''
+        rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                           test_env, 'logcat_text.tag == "ActivityManager"',
+                           'frame.number', 'logcat_text.priority')
+        assert rows == [['1', '4'], ['8', '2'], ['15', '3'],
+                        ['22', '5'], ['29', '6'], ['36', '7']]
+
+    def test_logcat_text_beginning_of(self, cmd_tshark, capture_file, test_env):
+        '''"--------- beginning of ..." lines have only a log text, in
+        every format.'''
+        rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                           test_env, 'frame.number >= 43 && frame.number <= 50',
+                           'frame.number', 'logcat_text.priority',
+                           'logcat_text.tag', 'logcat_text.log')
+        assert rows == [[str(n), '', '', 'beginning of main'] for n in range(43, 50)] + [
+            ['50', '', '', 'beginning of /system']]
+
+    def test_logcat_text_tokens(self, cmd_tshark, capture_file, test_env):
+        '''Empty messages, non-ASCII text and messages and tags that
+        contain separators.'''
+        rows = self.fields(cmd_tshark, capture_file('logcat_text_coverage.pcap.gz'),
+                           test_env, 'frame.number >= 51 && frame.number <= 66',
+                           'frame.number', 'logcat_text.tag', 'logcat_text.pid',
+                           'logcat_text.log')
+        assert rows == [
+            ['51', 'Empty', '42', ''],
+            ['52', 'Empty', '', ''],
+            ['53', '', '42', ''],
+            ['54', 'Täg', '43', 'mässage ☃ snowman'],
+            ['55', 'Täg', '', '日本語'],
+            ['56', 'Tag: with', '1', 'colon: and (  2): again(  3): x'],
+            ['57', 'a/b', '44', 'tag with a slash: and text (  5): more'],
+            ['58', 'Tag', '', 'a: b: c'],
+            ['59', '', '1', 'message with (  3:  4) inside'],
+            ['60', 'Tag', '1', 'message: with: colons'],
+            ['61', 'Tag', '1', 'line one'],
+            ['62', 'Tag with spaces', '1234', 'message'],
+            ['63', 'Repeat', '99', 'repeat 0'],
+            ['64', 'Repeat', '99', 'repeat 1'],
+            ['65', 'Repeat', '99', 'repeat 2'],
+            ['66', 'NoNewline', '7', 'no newline and no NUL'],
+        ]
