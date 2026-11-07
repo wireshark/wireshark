@@ -101260,3 +101260,54 @@ class TestDissectMtp3mg:
                             'mtp3mg.slc', 'mtp3mg.test_pattern',
                             opts=('-o', 'mtp3.standard:ansi'))
         assert lines == ['53\t5\t', '98\t3\t4142434445', '99\t1\t5859']
+
+
+class TestDissectMudurl:
+    '''The MUD URL certificate extension (1.3.6.1.5.5.7.1.25) in the
+    certificates of four TLS handshakes on TCP 443, from the synthetic
+    capture mudurl_coverage.pcap.gz (made-up names, dummy public keys and
+    placeholder signatures).'''
+
+    def test_mudurl_extension_values(self, cmd_tshark, capture_file, test_env):
+        '''A URL, a critical extension in a chain, a URL longer than 127
+        octets, an empty URL, a certificate without the extension and a
+        certificate with the extension twice.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mudurl_coverage.pcap.gz'),
+                '-Y', 'mudurl.MUDURLSyntax', '-Tfields', '-eframe.number',
+                '-emudurl.MUDURLSyntax',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert lines == [
+            '5\thttps://lighting.example.com/lightbulb2000',
+            '11\thttps://iot.example.net/thermostat/v1',
+            '17\thttps://mud.example.org/' + 'device/' * 20 + 'camera.json,',
+            '23\thttps://a.example/x.json,https://b.example/y.json',
+        ]
+
+    def test_mudurl_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or warnings, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mudurl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mudurl_critical_flag(self, cmd_tshark, capture_file, test_env):
+        '''The extension is decoded whether it is critical (frame 11) or
+        not (frame 5).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mudurl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 11}', '-Tfields', '-eframe.number',
+                '-ex509af.extension.id', '-ex509af.critical',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert '1.3.6.1.5.5.7.1.25' in lines[0].split('\t')[1].split(',')
+        assert '1.3.6.1.5.5.7.1.25' in lines[1].split('\t')[1].split(',')
+        # only critical extensions are listed: basicConstraints in frame 5;
+        # basicConstraints, the MUD URL and the CA's basicConstraints in 11
+        assert lines[0].split('\t')[2] == 'True'
+        assert lines[1].split('\t')[2] == 'True,True,True'
