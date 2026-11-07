@@ -97730,3 +97730,97 @@ class TestDissectMonero:
                 '-E', 'occurrence=a', '-E', 'aggregator=;',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == '1003;1007'
+
+
+class TestDissectMongo:
+    '''MongoDB wire protocol (TCP port 27017) from the synthetic capture
+    mongo_coverage.pcap.gz: every opcode, every BSON element type except
+    the deprecated DBPointer, OP_MSG with a checksum, OP_COMPRESSED with
+    the noop, zlib and zstd compressors, and TCP reassembly.'''
+
+    def test_mongo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 49
+        assert protocols.count('MONGO') == 43
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mongo_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mongo_nested_compressed(self, cmd_tshark, capture_file, test_env):
+        '''An OP_COMPRESSED message whose original opcode is OP_COMPRESSED
+        is reported and not unpacked: 105 noop headers (they used to
+        recurse until an assertion failed) and zlib inside zlib (it used
+        to be inflated twice) ("MongoDB: Reject a nested OP_COMPRESSED
+        message").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', '_ws.expert.message == "Nested OP_COMPRESSED"',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '40\tRequest : Compressed Data',
+            '41\tRequest : Compressed Data',
+        ]
+
+    def test_mongo_compressors(self, cmd_tshark, features, capture_file, test_env):
+        '''The noop and zlib compressed messages (frames 31 and 33) and
+        the zstd one (frame 34) show the inner message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', 'frame.number in {31, 33}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '31\tRequest : Query (Compressed) (isMaster)',
+            '33\tRequest : Extensible Message Format (Compressed) (find)',
+        ]
+        if not features.have_zstd:
+            pytest.skip('Requires zstd.')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', 'frame.number == 34',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'Request : Extensible Message Format (Compressed) (find)'
+
+    def test_mongo_bson_and_checksum(self, cmd_tshark, capture_file, test_env):
+        '''Frame 28 holds every BSON element type; the OP_MSG of frame 27
+        has a valid CRC-32C.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', 'frame.number == 28',
+                '-Tfields', '-emongo.element.name',
+                '-E', 'occurrence=a', '-E', 'aggregator=,',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == (
+            'double,string,doc,a,array,0,1,binary,undef,oid,bool,bool2,'
+            'datetime,null,regex,jscode,symbol,jscope,x,int32,timestamp,'
+            'int64,dec128,minkey,maxkey,last')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', 'frame.number == 27',
+                '-Tfields', '-emongo.msg.checksum.status',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '1'
+
+    def test_mongo_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 3052 octet reply sent in three segments is reassembled in
+        the last one; two messages in one segment are both dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mongo_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 45}',
+                '-Tfields', '-eframe.number', '-emongo.message_length',
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['42\t36;36', '45\t3052']
