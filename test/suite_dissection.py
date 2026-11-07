@@ -84461,3 +84461,78 @@ class TestDissectIsmacryp:
         assert lines[0] == '2\t(PT=enc-mpeg4-generic), avc-video, IV=0x80 00 00 01\t80000001'
         assert lines[4] == '6\t(PT=enc-isoff-generic), user mode, IV=0x80 00 00 01\t80000001'
         assert lines[6] == '8\tManual version, avc-video, IV=0x80 00 00 01\t80000001'
+
+
+class TestDissectIsmp:
+    def test_ismp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-18 and 21-22 are ISMP EDP, 19 and 20 are other ISMP
+        message types. None is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 22
+        for n, proto in lines:
+            assert proto == ('ISMP' if n in ('19', '20') else 'ISMP.EDP')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ismp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ismp_neighbor_state(self, cmd_tshark, capture_file, test_env):
+        '''The assigned neighbor state is read from the four octets after
+        the neighbor MAC address (it showed the MAC address octets before
+        the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 15}',
+                '-Tfields', '-eframe.number', '-eismp.neighborhood_mac_address',
+                '-eismp.assigned_neighbor_state',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t02:00:00:00:00:09\t0x11223344',
+            '15\t02:00:00:00:00:09,02:00:00:00:00:02,02:00:00:00:00:01'
+            '\t0x00000001,0x00000002,0xffffffff']
+
+    def test_ismp_device_types(self, cmd_tshark, capture_file, test_env):
+        '''The device type and the options of every device type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 3, 4, 5, 6, 7, 14}',
+                '-Tfields', '-eframe.number', '-eismp.edp.devtype',
+                '-eismp.edp.options', '-eismp.edp.sfs_option_uplink_flood',
+                '-eismp.edp.rtr_option_level1', '-eismp.edp.switch_option_level1',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t1\t0x00007fff\tTrue\t\t',
+            '3\t2\t0x00005555\tTrue\t\t',
+            '4\t3\t0x00001fff\t\tTrue\t',
+            '5\t4\t0x0000007f\t\t\tTrue',
+            '6\t5\t0xdeadbeef\t\t\t',
+            '7\t6\t0x00000007\t\t\t',
+            '14\t77\t0x12345678\t\t\t']
+
+    def test_ismp_tuples(self, cmd_tshark, capture_file, test_env):
+        '''Tuples: hold time, interface name (also in the Info column),
+        system description and the unknown tuple types (frame 15), the
+        header with authentication data (17) and the 42 42 03 prefix (18).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ismp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15, 17, 18}',
+                '-Tfields', '-eframe.number', '-eismp.seqnum', '-eismp.codelen',
+                '-eismp.tuple_type', '-eismp.hold_time', '-eismp.interface_name',
+                '-eismp.system_description', '-eismp.unknown_tuple_data',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('15\t1\t0\t1,2,3,4,4,0,99\t180\tge.1.1\t'
+                            'Example switch, firmware 1.0\tabcd,unknown\t'
+                            'MIP 192.0.2.1, MMAC 02:00:00:00:00:01, ifIdx 65538, ifName ge.1.1')
+        assert lines[1] == ('17\t65535\t8\t2\t\teth1\t\t\t'
+                            'MIP 192.0.2.1, MMAC 02:00:00:00:00:01, ifIdx 65538, ifName eth1')
+        assert lines[2].startswith('18\t1\t0\t2\t\teth2\t')
