@@ -86990,3 +86990,112 @@ class TestDissectKafkaCoverage:
         rows = self.kafka_fields(cmd_tshark, capture_file, test_env,
                 'kafka.api_key == 1 && kafka.fetch_session_id', 'kafka.fetch_session_id')
         assert len(rows) > 0
+
+
+class TestDissectKdp:
+    '''Kontiki Delivery Protocol (UDP port 19948) from the synthetic
+    capture kdp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def kdp_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kdp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_kdp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 18 frames are KDP; none is malformed or has an expert
+        info, in one and two passes.'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['KDP'] * 18
+        for passes in ((), ('-2',)):
+            stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_kdp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the flags, the acknowledgement,
+        sequence and source flow id, and the errors.'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 errors=0',
+            '2 SYN SEQ=1 SRC_FLOWID=aabb0001 errors=0',
+            '3 SYN ACK=2 SEQ=1 SRC_FLOWID=ccdd0002 errors=0',
+            '4 ACK=2 SEQ=3 errors=0',
+            '5 BCST SEQ=9 SRC_FLOWID=1020304 errors=0',
+            '6 SYN BCST SEQ=9 SRC_FLOWID=1020304 errors=3',
+            '7 RST SEQ=20 errors=17',
+            '8 DROP DUP SEQ=21 errors=255',
+            '9 DROP SYN RST BCST DUP ACK=4 SEQ=3 SRC_FLOWID=2 errors=1',
+            '10 SEQ=22 errors=0',
+            '11 ACK=6 SEQ=5 errors=0',
+            '12 SEQ=30 errors=0',
+            '13 SYN ACK=4 SEQ=3 SRC_FLOWID=2 errors=0',
+            '14 errors=0',
+            '15 SDDP message',
+            '16 SDDP message',
+            '17 SEQ=40 errors=0',
+            '18 SEQ=41 errors=5']
+
+    def test_kdp_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Flow ids, sequence and acknowledgement numbers, the maximum
+        segment size and the fragment fields.'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3 || frame.number == 9 || '
+                      'frame.number == 12 || frame.number == 13',
+                '-Tfields', '-eframe.number', '-ekdp.headerlen',
+                '-ekdp.flags', '-ekdp.destflowid', '-ekdp.srcflowid',
+                '-ekdp.sequence', '-ekdp.ack', '-ekdp.maxsegmentsize',
+                '-ekdp.fragment', '-ekdp.fragtotal', '-ekdp.body')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['3', '6', '0x06', '0xaabb0001', '0xccdd0002', '0x00000001',
+             '0x00000002', '0x00000578', '', '', ''],
+            ['9', '6', '0x3f', '0x00000001', '0x00000002', '0x00000003',
+             '0x00000004', '0x00000005', '', '', ''],
+            ['12', '4', '0x00', '', '', '0x00000030', '', '', '0x0002', '0x0005',
+             '000102030405060708090a0b0c0d0e0f10111213'],
+            ['13', '7', '0x06', '0x00000001', '0x00000002', '0x00000003',
+             '0x00000004', '0x000004b0', '0x0000', '0x0001',
+             b'encrypted body'.hex()]]
+
+    def test_kdp_options(self, cmd_tshark, capture_file, test_env):
+        '''Options 1 to 9 and an unknown option are decoded.'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 11', '-Tfields',
+                '-ekdp.option1', '-ekdp.option2', '-ekdp.option3',
+                '-ekdp.option4', '-ekdp.option5', '-ekdp.option6',
+                '-ekdp.option7', '-ekdp.option8', '-ekdp.option9',
+                '-ekdp.option_unknown')
+        assert stdout.rstrip('\n').split('\t') == [
+            '0x0010', '0x0020', '0x0002', '1', '1', '01020304', '0x0001',
+            '0x0008', '0x0009', 'aabbcc']
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 11', '-V', '-O', 'kdp')
+        assert 'Option4 - Enable Reliable' in stdout
+        assert 'Option5 - Disable Reliable' in stdout
+
+    def test_kdp_sddp(self, cmd_tshark, capture_file, test_env):
+        '''A version other than 2 is SDDP, an XML body.'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 15 && frame.number <= 16', '-Tfields',
+                '-eframe.number', '-ekdp.version', '-ekdp.xml_body')
+        lines = stdout.splitlines()
+        assert lines[0] == '15\t60\t<?xml version="1.0"?><sddp><device name="x"/></sddp>'
+        # The XML body starts at the version byte
+        assert lines[1] == '16\t1\t\x01data'
+
+    def test_kdp_long_header(self, cmd_tshark, capture_file, test_env):
+        '''A header length of 65 (260 octets, which does not fit in a
+        uint8_t) has its 63 options decoded, with and without a body
+        (fixed in "KDP: Do not truncate the header length").'''
+        stdout = self.kdp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 17 || frame.number == 18', '-Tfields',
+                '-eframe.number', '-ekdp.headerlen', '-ekdp.optionnumber',
+                '-ekdp.fragment', '-ekdp.body')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [['17', '65'], ['18', '66']]
+        for l in lines:
+            assert len(l[2].split(',')) == 63
+        assert lines[0][3:] == ['', '']
+        assert lines[1][3:] == ['0x0001', '6269672068656164657220626f6479']
