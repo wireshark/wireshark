@@ -92931,3 +92931,128 @@ class TestDissectLwapp:
         assert lines[1][0:2] == ['52', 'eth:ethertype:ip:udp:lwapp-l3:eth:ethertype:arp']
         assert lines[2][0] == '53'
         assert len(lines[2][2].split(',')) == 10
+
+
+class TestDissectLwm2mtlv:
+    '''Synthetic LwM2M TLV capture generated with Python struct
+    (mklwm2mtlv.py): TLV payloads in CoAP PUT/POST requests and 2.05
+    responses with Content-Format 11542; the URI path gives the object
+    and resource ID.'''
+
+    def test_lwm2mtlv_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every CoAP frame with a TLV payload has LwM2M-TLV and none is
+        malformed or has a warning or error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'lwm2mtlv', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 32
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lwm2mtlv_resource_instances_use_path_resource(self, cmd_tshark, capture_file, test_env):
+        '''Resource instances under /3/0/6 are decoded as the resource named
+        in the URI path, "Available Power Sources" ("LwM2M-TLV: Use the
+        right path component for the resource ID"); with the object ID
+        taken for the resource ID they would be "Firmware Version", a
+        string.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 4}',
+                '-Tfields', '-eframe.number', '-elwm2mtlv.object_name',
+                '-elwm2mtlv.resource.available_power_sources',
+                '-elwm2mtlv.resource.battery_level',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\tDevice\t1,5,2\t',
+            '4\tDevice\t\t100',
+        ]
+
+    def test_lwm2mtlv_device_object(self, cmd_tshark, capture_file, test_env):
+        '''The Device object (response to a GET of /3/0): strings, integers
+        and multiple resources with names from the OMA tables.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2',
+                '-Tfields', '-elwm2mtlv.object_name', '-elwm2mtlv.resource.manufacturer',
+                '-elwm2mtlv.resource.battery_level', '-elwm2mtlv.resource.memory_free',
+                '-elwm2mtlv.resource.serial_number', '-elwm2mtlv.resource.device_type',
+                '-elwm2mtlv.resource.available_power_sources',
+                '-elwm2mtlv.resource.power_source_voltage',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Device\tOpen Mobile Alliance\t85\t15\t345000123\tSensor\t1,5\t3800,5000'
+        ]
+
+    def test_lwm2mtlv_security_object(self, cmd_tshark, capture_file, test_env):
+        '''The Security object: string, boolean, integer and unsigned
+        integer resources.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-elwm2mtlv.object_name', '-elwm2mtlv.resource.lwm2m_server_uri',
+                '-elwm2mtlv.resource.security_mode', '-elwm2mtlv.resource.short_server_id',
+                '-elwm2mtlv.resource.bootstrap-server', '-elwm2mtlv.resource.matching_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'LwM2M Security\tcoaps://lwm2m.example.com:5684\t3\t123\tFalse\t1'
+        ]
+
+    def test_lwm2mtlv_location(self, cmd_tshark, capture_file, test_env):
+        '''Location resources as 4 and 8 octet floats (frames 15 and 16) and
+        the velocity decoded as 3GPP "description of velocity" for the five
+        velocity types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'lwm2mtlv.resource.latitude', '-Tfields', '-eframe.number',
+                '-elwm2mtlv.resource.altitude',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['15', '16']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number in {17, 18, 19, 20, 21}',
+                '-Tfields', '-eframe.number', '-egsm_a.gad.velocity_type',
+                '-egsm_a.gad.horizontal_velocity', '-egsm_a.gad.bearing',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\t0\t11520\t0',
+            '18\t1\t11520\t128',
+            '19\t2\t11520\t0',
+            '20\t3\t11520\t0',
+            '21\t4\t\t',
+        ]
+
+    def test_lwm2mtlv_unknown_object(self, cmd_tshark, capture_file, test_env):
+        '''Resources of an object nobody defined are shown by their size:
+        strings, 1/2/4/8 octet integers and booleans.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 24',
+                '-Tfields', '-elwm2mtlv.object_name', '-elwm2mtlv.value.string',
+                '-elwm2mtlv.value.boolean', '-elwm2mtlv.value.integer',
+            ), encoding='utf-8', env=test_env)
+        (name, strings, boolean, integers), = [l.split('\t') for l in stdout.splitlines()]
+        assert name == ''
+        assert strings.split(',')[0] == 'text value'
+        assert boolean == 'True'
+        assert integers.split(',')[:3] == ['1', '7', '258']
+
+    def test_lwm2mtlv_header_forms(self, cmd_tshark, capture_file, test_env):
+        '''Two octet identifiers and length fields of 0 to 3 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm2mtlv_coverage.pcap.gz'),
+                '-Y', 'frame.number == 29',
+                '-Tfields', '-elwm2mtlv.type.loi', '-elwm2mtlv.type.lol',
+                '-elwm2mtlv.identifier', '-elwm2mtlv.length',
+            ), encoding='utf-8', env=test_env)
+        loi, lol, ident, length = stdout.strip().split('\t')
+        assert loi == '1,1,0,0,0,0'
+        assert lol == '2,0,2,1,2,3'
+        assert ident == '1,1000,1,2,3,4'
+        assert length == '360,300,20,5,9'
