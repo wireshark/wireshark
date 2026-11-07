@@ -87192,3 +87192,71 @@ class TestDissectKdsp:
                 '-etcp.segment', '-etcp.reassembled.length')
         assert [l.split('\t') for l in stdout.splitlines()] == [
             ['17', '16,17', '2092'], ['20', '18,19,20', '2092']]
+
+
+class TestDissectKerberos4:
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kerberos4_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_kerberos4_protocols(self, cmd_tshark, capture_file, test_env):
+        '''22 Kerberos v4 frames and 3 that are not (wrong version,
+        unknown message type); no malformed packets or expert infos in
+        one and two passes.'''
+        rows = TestDissectKerberos4._fields(cmd_tshark, capture_file,
+                test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 25
+        assert [r[0] for r in rows].count('KRB4') == 22
+        assert [r[0] for r in rows[22:]] == ['UDP'] * 3
+        for passes in ((), ('-2',)):
+            rows = TestDissectKerberos4._fields(cmd_tshark, capture_file,
+                    test_env, *passes, '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_kerberos4_info(self, cmd_tshark, capture_file, test_env):
+        '''Every message type is named, the Transarc version (0x63) gets
+        a prefix.'''
+        rows = TestDissectKerberos4._fields(cmd_tshark, capture_file,
+                test_env, '-Y', 'krb4', '-Tfields', '-e_ws.col.info')
+        assert [r[0] for r in rows] == [
+            'KDC Request', 'KDC Request', 'TRANSARC-KDC Request',
+            'TRANSARC-KDC Request', 'KDC Reply', 'KDC Reply',
+            'TRANSARC-KDC Reply', 'KDC Reply', 'Appl Request',
+            'Appl Request', 'TRANSARC-Appl Request', 'Appl Request',
+            'Appl Request Mutual', 'Err Reply', 'Private', 'Safe',
+            'Appl Err', 'Die', 'Appl Request Mutual',
+            'TRANSARC-Err Reply', 'Private', 'TRANSARC-Die']
+
+    def test_kerberos4_fields(self, cmd_tshark, capture_file, test_env):
+        '''Names, byte order, lengths and blobs of requests and replies.'''
+        rows = TestDissectKerberos4._fields(cmd_tshark, capture_file,
+                test_env, '-Tfields', '-eframe.number', '-ekrb4.byte_order',
+                '-ekrb4.name', '-ekrb4.instance', '-ekrb4.realm',
+                '-ekrb4.s_name', '-ekrb4.s_instance', '-ekrb4.kvno',
+                '-ekrb4.length', '-ekrb4.ticket.length',
+                '-ekrb4.unknown_transarc_blob', '-ekrb4.lifetime',
+                '-Y', 'frame.number in {2, 3, 6, 10}')
+        assert rows == [
+            ['2', '0x01', 'bob', 'admin', 'EXAMPLE.TEST', 'changepw',
+             'kerberos', '', '', '', '', '1'],
+            ['3', '0x00', 'alice', '', 'AFS.EXAMPLE.TEST', 'krbtgt',
+             'EXAMPLE.TEST', '', '', '', '1122334455667788', '96'],
+            ['6', '0x01', 'bob', 'admin', 'EXAMPLE.TEST', '', '', '1', '33',
+             '', '', ''],
+            ['10', '0x01', '', '', 'EXAMPLE.TEST', 'ftp', 'ftp.example.test',
+             '9', '', '20', '', '255'],
+        ]
+
+    def test_kerberos4_blobs(self, cmd_tshark, capture_file, test_env):
+        '''The ticket, request and encrypted blobs are shown as bytes.'''
+        rows = TestDissectKerberos4._fields(cmd_tshark, capture_file,
+                test_env, '-Tfields', '-ekrb4.ticket.blob',
+                '-ekrb4.request.blob', '-ekrb4.encrypted_blob',
+                '-Y', 'frame.number in {5, 9}')
+        assert rows[0] == ['', '',
+                '404142434445464748494a4b4c4d4e4f505152535455565758595a5b5c5d5e5f6061626364656667']
+        assert rows[1] == ['aa' * 20, 'bb' * 12, '']
