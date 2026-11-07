@@ -87642,3 +87642,124 @@ class TestDissectKnet:
                                        'knet && tcp', 'frame.number', 'knet.length')
         lengths = [l.split('\t')[1] for l in lines]
         assert lengths == ['2', '2', '4', '8', '21,2,2', '51', '31', '200', '20000', '6']
+
+
+class TestDissectKnxipCoverage:
+    '''KNXnet/IP (KNX/IP, UDP and TCP port 3671) from the synthetic capture
+    knxip_coverage.pcap.gz: core, device management, tunneling (with the
+    version 2 features), routing, remote diagnosis and configuration,
+    the secure services with placeholder bytes, several PDUs per datagram
+    and per TCP segment, and PDUs split over TCP segments.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, opts=()):
+        out = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('knxip_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_knxip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''123 of the 131 frames are KNXnet/IP (the rest are TCP handshakes
+        and the segments of split PDUs) and none is malformed or has an
+        error expert info, in one and two passes and with a placeholder
+        key.'''
+        protocols = TestDissectKnxipCoverage.fields(cmd_tshark, capture_file, test_env,
+                                                    'frame', '_ws.col.protocol')
+        assert len(protocols) == 131
+        assert protocols.count('KNXnet/IP') == 123
+        assert protocols.count('TCP') == 8
+        for opts in ((), ('-2',), ('-o', 'kip.key_1:000102030405060708090A0B0C0D0E0F')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('knxip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_knxip_services(self, cmd_tshark, capture_file, test_env):
+        '''Every service decodes to its info column text.'''
+        lines = TestDissectKnxipCoverage.fields(cmd_tshark, capture_file, test_env,
+                                                'frame.number in {1, 9, 14, 17, 25, 28, 31, 36, 40, 42, 45, 82, 83, 85, 88, 92, 94, 95}',
+                                                '_ws.col.info')
+        assert lines == [
+            'SearchReq @192.0.2.10:50001',
+            'SearchResp @192.0.2.20:3671, 1.1.0 "Test KNX IP Interface"',
+            'DescrResp: DevInfo, SuppSvc',
+            'Tunnel ConnectReq @192.0.2.10:50003 @192.0.2.10:50004',
+            'Tunnel ConnectResp #01 @192.0.2.20:3671, 1.1.250',
+            'ConnectResp E_NO_MORE_CONNECTIONS',
+            'ConnStateResp #01 OK',
+            'ConfigReq #02:0 M_PropRead.req OT=8 P=10',
+            'TunnelReq #01:0 L_Data.req 1.1.1->1/1/1 GroupValueWrite $00',
+            'TunnelReq #01:0 L_Data.ind 1.1.1->1/1/1 GroupValueWrite $01',
+            'TunnelFeatureGet #01:1 SupportedEmiType',
+            'RoutingLoss: 3',
+            'RoutingBusy: 100 ms',
+            'RoutingSBC L_Data.ind 1.1.1->0/0/0 GroupValueWrite $01',
+            'RemoteDiagResp MAC=02:00:00:00:00:20, IpConfig, CurConfig, KnxAddr',
+            'RemoteResetReq MAC=02:00:00:00:00:20, Restart',
+            '? Unknown Service Family',
+            '? Core: ? Unknown Service Type',
+        ]
+
+    def test_knxip_fields(self, cmd_tshark, capture_file, test_env):
+        '''Decoded fields: the connection response (channel, status,
+        tunnel address), the device information of a search response and
+        the routing loss and busy counters.'''
+        lines = TestDissectKnxipCoverage.fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {10, 25, 82, 83}',
+            'frame.number', 'knxip.channel', 'knxip.status', 'knxip.device.name',
+            'knxip.sernr', 'knxip.loss', 'knxip.busy.time')
+        assert lines == [
+            '10\t\t\tSecure IP Router\t0x0000000102030405\t\t',
+            '25\t0x01\t0x00\t\t\t\t',
+            '82\t\t0x00\t\t\t3\t',
+            '83\t\t0x00\t\t\t\t100',
+        ]
+        lines = TestDissectKnxipCoverage.fields(
+            cmd_tshark, capture_file, test_env, 'frame.number == 25', 'knxip.knxaddr')
+        assert lines == ['0x11fa']
+
+    def test_knxip_tunneling_features(self, cmd_tshark, capture_file, test_env):
+        '''All eight tunneling features are requested, answered, set and
+        reported; an unknown feature is shown as Unknown.'''
+        lines = TestDissectKnxipCoverage.fields(
+            cmd_tshark, capture_file, test_env, 'knxip.tunnel.feature',
+            'knxip.tunnel.feature')
+        assert lines == ['0x%02x' % i for i in range(1, 9) for _ in range(4)] + \
+            ['0x02', '0x02', '0x42', '0x42']
+        info = TestDissectKnxipCoverage.fields(cmd_tshark, capture_file, test_env,
+                                               'frame.number == 79', '_ws.col.info')
+        assert info == ['TunnelFeatureGet #01:10 Unknown']
+
+    def test_knxip_multiple_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in a UDP datagram or TCP segment are all
+        dissected; a PDU split over two TCP segments is reassembled.'''
+        info = TestDissectKnxipCoverage.fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {118, 119, 123, 125, 127}',
+            '_ws.col.info')
+        assert info == [
+            'ConnStateResp #01 OK ConnStateResp #02 E_CONNECTION_ID',
+            'ConnectResp E_NO_MORE_CONNECTIONS DisconnectResp #01 OK ConnStateResp #03 OK',
+            'ConnStateReq #01 @0.0.0.0:0 DisconnectReq #01 @0.0.0.0:0',
+            'ConnStateReq #01 @0.0.0.0:0',
+            'DescrResp: DevInfo, SuppSvc',
+        ]
+        frames = TestDissectKnxipCoverage.fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {124, 126} && kip',
+            'frame.number')
+        assert frames == []
+
+    def test_knxip_secure_placeholders(self, cmd_tshark, capture_file, test_env):
+        '''The secure wrapper carries placeholder ciphertext: without a
+        key it says so, with a (made-up) key the decryption fails.'''
+        for opts, text in (((), '(no key available)'),
+                           (('-o', 'kip.key_1:000102030405060708090A0B0C0D0E0F'),
+                            '(decryption failed)')):
+            out = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('knxip_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 112', '-V', '-O', 'kip',
+                ), encoding='utf-8', env=test_env)
+            assert 'Encrypted (48 bytes) ' + text in out
