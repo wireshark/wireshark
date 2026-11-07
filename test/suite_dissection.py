@@ -97294,3 +97294,100 @@ class TestDissectMms:
             '564\tIED1LD0/LLN0$BR$brcbA01\t41\t3',
             '567\tIED1LD0/LLN0$BR$brcbA01\t\t',
         ]
+
+
+class TestDissectMmse:
+    def test_mmse_protocols(self, cmd_tshark, capture_file, test_env):
+        '''MMS PDUs in HTTP bodies, a multipart HTTP part and WSP replies;
+        no malformed packets or oversized uintvars, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mmse_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 47
+        assert protocols.count('MMSE') == 32
+        assert protocols.count('HTTP') == 3
+        assert protocols.count('WSP') == 3
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mmse_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || mmse.oversized_uintvar',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mmse_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message type of every MMS PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mmse_coverage.pcap.gz'),
+                '-Y', '_ws.col.protocol == "MMSE"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'MMS m-send-req (text/plain) (image/jpeg)', 'MMS m-send-conf',
+            'MMS m-notification-ind', 'MMS m-notifyresp-ind',
+            'MMS m-retrieve-conf (text/plain) (image/jpeg)',
+            'MMS m-acknowledge-ind', 'MMS m-delivery-ind',
+            'MMS m-read-rec-ind', 'MMS m-read-orig-ind',
+            'MMS m-forward-req', 'MMS m-forward-conf',
+            'MMS m-mbox-store-req', 'MMS m-mbox-store-conf',
+            'MMS m-mbox-view-req',
+            'MMS m-mbox-view-conf (text/plain) (image/jpeg)',
+            'MMS m-mbox-upload-req (text/plain) (image/jpeg)',
+            'MMS m-mbox-upload-conf', 'MMS m-mbox-delete-req',
+            'MMS m-mbox-delete-conf', 'MMS m-mbox-delete-conf',
+            'MMS m-mbox-descr (text/plain) (image/jpeg)',
+            'MMS Unknown type 153',
+            'MMS m-send-req (text/plain) (image/jpeg)',
+            'MMS m-read-rec-ind',
+            'MMS m-send-req (text/plain) (image/jpeg)',
+            'MMS m-retrieve-conf (text/plain) (text/plain) (text/plain)',
+            'MMS m-retrieve-conf', 'MMS m-send-req',
+            'MMS m-send-conf', 'MMS m-retrieve-conf',
+            'MMS m-notification-ind', 'MMS m-delivery-ind',
+        ]
+
+    def test_mmse_header_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded header values: addresses, encoded strings, version
+        and size, undecoded delete-conf values and literal headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mmse_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,8,22,26,27,28}',
+                '-Tfields', '-eframe.number', '-emmse.transaction_id',
+                '-emmse.mms_version', '-emmse.from', '-emmse.to',
+                '-emmse.subject', '-emmse.bcc', '-emmse.cc',
+                '-emmse.message_size', '-emmse.ffheader',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tt0001\t1.0\t+15551234/TYPE=PLMN\t+15559999/TYPE=PLMN\tHello\tbcc@example.org\tcc@example.org\t1234\t',
+            '8\tt0001\t1.1\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@example.org\t+15559999/TYPE=PLMN\tplain subject\t\t\t\t',
+            '22\tt0001\t1.2\t\t\t\t\t\t\t',
+            '26\tt0001\t1\t\t+15559999/TYPE=PLMN,\tquoted subject\tlenasc\t\t\t',
+            '27\t\t1.1\t\t\t\t\t\t0,7\t',
+            '28\tt0001\t1.2\t\t\t\t\t\t\tX-Custom-Header',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mmse_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22,23}',
+                '-Tfields', '-eframe.number', '-emmse.content_location',
+            ), encoding='utf-8', env=test_env)
+        u = '<Undecoded value for m-mbox-delete-conf>'
+        assert stdout.splitlines() == ['22\t%s,%s,%s' % (u, u, u), '23\t%s,%s,%s' % (u, u, u)]
+
+    def test_mmse_transports(self, cmd_tshark, capture_file, test_env):
+        '''The multipart HTTP parts (encapsulated dissector, frames 36 and
+        40), the WSP content type (frame 42) and the WSP heuristic (frames
+        43 and 44, not 45-47).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mmse_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 36 && mmse',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-emmse.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['36', 'HTTP', '0x84'], ['40', 'HTTP', '0x86'],
+            ['41', 'MMSE', '0x81'], ['42', 'MMSE', '0x84'],
+            ['43', 'MMSE', '0x82'], ['44', 'MMSE', '0x86'],
+        ]
