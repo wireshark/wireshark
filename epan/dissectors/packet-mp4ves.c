@@ -262,7 +262,7 @@ dissect_mp4ves_user_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		bit_offset+=8;
 		/* user_data 8 bits */
 	}
-	proto_tree_add_item(tree, hf_mp4ves_user_data, tvb, start_bit_offset>>3, (bit_offset - start_bit_offset)>>2, ENC_NA);
+	proto_tree_add_item(tree, hf_mp4ves_user_data, tvb, start_bit_offset>>3, (bit_offset - start_bit_offset)>>3, ENC_NA);
 
 	return bit_offset;
 }
@@ -331,6 +331,7 @@ dissect_mp4ves_visual_object_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		bit_offset++;
 		/* colour_description 1 bit */
 		colour_description = tvb_get_bits8(tvb,bit_offset,1);
+		bit_offset++;
 		if (colour_description) {
 			/* colour_primaries 8 bits */
 			bit_offset+=8;
@@ -423,8 +424,9 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		bit_offset+=3;
 	}
 	/* aspect_ratio_info 4 uimsbf */
-	aspect_ratio_info = tvb_get_bits8(tvb,bit_offset, 1);
+	aspect_ratio_info = tvb_get_bits8(tvb,bit_offset, 4);
 	proto_tree_add_bits_item(tree, hf_mp4ves_aspect_ratio_info, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
+	bit_offset+=4;
 	if (aspect_ratio_info == 0xf /*"extended_PAR"*/ ) {
 		/* par_width 8 uimsbf */
 		bit_offset+=8;
@@ -471,7 +473,7 @@ dissect_mp4ves_VideoObjectLayer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		}
 	}
 	if(bit_offset-current_bit_offset > 0)
-		proto_tree_add_expert(tree, pinfo, &ei_mp4ves_not_dissected_bits, tvb, current_bit_offset>>3, (bit_offset+7)>>3);
+		proto_tree_add_expert(tree, pinfo, &ei_mp4ves_not_dissected_bits, tvb, current_bit_offset>>3, ((bit_offset+7)>>3) - (current_bit_offset>>3));
 	/* video_object_layer_shape 2 uimsbf */
 	video_object_layer_shape = tvb_get_bits8(tvb,bit_offset, 2);
 	proto_tree_add_bits_item(tree, hf_mp4ves_video_object_layer_shape, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
