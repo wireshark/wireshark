@@ -73,7 +73,7 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
     while(tvb_reported_length_remaining(mdp_tvb, offset) != 0){
 	tlv_tree = proto_tree_add_subtree(mdp_tree, mdp_tvb, offset + MDP_TLV_TYPE, -1, ett_mdp_tlv, &tlv_item, "");
         proto_tree_add_item_ret_uint(tlv_tree, hf_mdp_type, mdp_tvb, offset + MDP_TLV_TYPE, 1, ENC_BIG_ENDIAN, &mdp_type);
-        proto_item_set_text(tlv_tree, "%s", val_to_str_const(mdp_type, type_vals, "Unknown type"));
+        proto_item_set_text(tlv_item, "%s", val_to_str_const(mdp_type, type_vals, "Unknown type"));
         proto_tree_add_item_ret_uint(tlv_tree, hf_mdp_length, mdp_tvb, offset + MDP_TLV_LENGTH, 1, ENC_BIG_ENDIAN, &mdp_length);
 
         offset += 2;
@@ -100,7 +100,7 @@ dissect_mdp(tvbuff_t *mdp_tvb, packet_info *pinfo, proto_tree *tree, void *data 
           case MDP_TLV_END:
             break;
           default:
-            proto_tree_add_item(mdp_tree, hf_mdp_data, mdp_tvb, offset, mdp_length, ENC_NA);
+            proto_tree_add_item(tlv_tree, hf_mdp_data, mdp_tvb, offset, mdp_length, ENC_NA);
             break;
         }
         proto_item_set_len(tlv_item, mdp_length + 2);
