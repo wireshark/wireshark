@@ -3430,6 +3430,7 @@ static bool dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
         p_mac_nr_info = wmem_new0(wmem_file_scope(), mac_nr_info);
         /* Dissect the fields to populate p_mac_nr */
         if(!dissect_mac_nr_context_fields(p_mac_nr_info, tvb, pinfo, tree, &offset)){
+            wmem_free(wmem_file_scope(), p_mac_nr_info);
             return true;
         }
         /* Store info in packet */
@@ -3511,8 +3512,8 @@ bool dissect_mac_nr_context_fields(struct mac_nr_info  *p_mac_nr_info, tvbuff_t 
                     proto_tree_add_expert(subtree, pinfo, &ei_mac_nr_unknown_udp_framing_tag,
                                           tvb, offset-1, 1);
                 }
-                wmem_free(wmem_file_scope(), p_mac_nr_info);
-                return true;
+                /* Caller owns (and frees) the info struct */
+                return false;
         }
     } while (tag != MAC_NR_PAYLOAD_TAG);
 
