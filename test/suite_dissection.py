@@ -87436,3 +87436,84 @@ class TestDissectKink:
                 '-Y', 'frame.number == 15 || frame.number == 16',
                 '-Tfields', '-e_ws.col.info', '-ekink.checkSumLength')
         assert rows == [['RESERVED', '3'], ['unknown', '13']]
+
+
+class TestDissectKismet:
+    '''Kismet client/server protocol (TCP port 2501) from the synthetic
+    capture kismet_coverage.pcap.gz.'''
+
+    @staticmethod
+    def km_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kismet_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_kismet_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-7 and 9-16 are Kismet; frames 8, 17 and 18 (a line
+        shorter than 8 characters, unprintable bytes) are not. No frame
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kismet', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['4', '5', '6', '7', '9', '10', '11', '12',
+                                  '13', '14', '15', '16']
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.len > 0 && !kismet', '-Tfields', '-eframe.number',
+                '-eframe.protocols')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['8', 'eth:ethertype:ip:tcp:data'], ['17', 'eth:ethertype:ip:tcp:data'],
+            ['18', 'eth:ethertype:ip:tcp:data']]
+        for passes in ((), ('-2',)):
+            stdout = self.km_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || kismet && _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_kismet_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests (to port 2501), responses and a continuation, named
+        after their first line.'''
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kismet', '-Tfields', '-eframe.number',
+                '-ekismet.request', '-ekismet.response', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[:3] for r in rows] == [
+            ['4', '', 'True'], ['5', '', 'True'], ['6', 'True', ''],
+            ['7', 'True', ''], ['9', '', 'True'], ['10', '', 'True'],
+            ['11', '', 'True'], ['12', '', 'True'], ['13', '', 'True'],
+            ['14', '', 'True'], ['15', '', ''], ['16', 'True', '']]
+        assert rows[0][3].startswith('Response: *KISMET: 0.0.0.0 1700000000 ')
+        assert rows[2][3] == 'Request: !0 REMOVE TIME'
+        assert rows[10][3] == 'Continuation'
+
+    def test_kismet_banner(self, cmd_tshark, capture_file, test_env):
+        '''The fields of the *KISMET banner.'''
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-ekismet.version',
+                '-ekismet.start_time', '-ekismet.server_name',
+                '-ekismet.build_revision', '-ekismet.unknown_field',
+                '-ekismet.extended_version_string')
+        assert stdout.split('\t') == ['0.0.0.0', '1700000000', 'kismet-server',
+                                      '20110301', '1', '2011-03-R1\n']
+
+    def test_kismet_later_lines(self, cmd_tshark, capture_file, test_env):
+        '''The *TIME and *KISMET lines after the first line of a packet
+        are decoded from their own line (fixed in "Kismet: Use the
+        current line when decoding the lines of a packet"); the time is
+        a time stamp, also at 0 and in 2100.'''
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 5', '-Tfields', '-ekismet.time',
+                '-ekismet.version', '-ekismet.server_name',
+                '-ekismet.build_revision', '-e_ws.col.info')
+        t, ver, name, build, info = stdout.rstrip('\n').split('\t')
+        assert ver == '0.0.0.0'
+        assert name == 'kismet-server'
+        assert build == '20110301'
+        # Time zone independent: compare with UTC times
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 5 && kismet.time == "2023-11-14T22:15:00Z"',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == ['5']
+        stdout = self.km_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kismet.time == "1970-01-01T00:00:00Z" && '
+                      'kismet.time == "2100-01-01T00:00:00Z"',
+                '-Tfields', '-eframe.number', '-ekismet.time')
+        assert stdout.split('\t')[0].strip() == '13'
