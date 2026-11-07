@@ -423,6 +423,11 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
   tvbuff_t *message_data_tvb;
 
   length              = tvb_get_ntohl(message_tvb, LENGTH_OFFSET);
+  if (length < HEADER_LENGTH) {
+    proto_tree_add_expert_format(m2pa_tree, pinfo, &ei_length, message_tvb, LENGTH_OFFSET, 4,
+        "Invalid message length: %u", length);
+    return;
+  }
   message_data_length = length - HEADER_LENGTH;
   message_data_tvb    = tvb_new_subset_length(message_tvb, MESSAGE_DATA_OFFSET, message_data_length);
   type                = tvb_get_uint8(message_tvb, TYPE_OFFSET);
