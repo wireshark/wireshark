@@ -95806,3 +95806,99 @@ class TestDissectMesh:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number in {9, 10, 11}', '-Tfields', '-e_ws.col.protocol')
         assert [l[0] for l in lines] == ['LLC', 'LLC', 'LLC']
+
+
+class TestDissectMessageAnalyzer:
+    '''Message Analyzer WFP capture frames and ETW WFP / NDIS events in a
+    NetMon 2.3 file, from the synthetic capture
+    messageanalyzer_coverage.cap.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('messageanalyzer_coverage.cap'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_messageanalyzer_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 73 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('messageanalyzer_coverage.cap'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 73
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['ETW Ndis'] == 34
+        assert counts['ETW WFP Capture'] == 13
+        assert counts['MA WFP Capture AUTH v4'] == 3
+        assert counts['MA WFP Capture AUTH v6'] == 2
+        assert counts['MA WFP Capture v4'] == 1
+        assert counts['MA WFP Capture v6'] == 1
+        assert counts['MA WFP Capture2 v6'] == 1
+        assert counts['NetMon Event'] == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('messageanalyzer_coverage.cap'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_messageanalyzer_loop_bounds(self, cmd_tshark, capture_file, test_env):
+        '''The destination count of event 1003 and the layer count of event
+        5101 stay the loop bounds (they were overwritten by the size of
+        the last string read, so these two frames ran past the end).'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {72, 73}',
+                    'etw.ndis.destination_count', 'etw.ndis.destination_port_id',
+                    'etw.ndis.layer_count', 'etw.ndis.layer_name', passes=passes)
+            assert lines == [
+                '72\t5\t10,11,12,13,14\t\t',
+                '73\t\t\t5\tLongLayerName0,LongLayerName1,LongLayerName2,'
+                'LongLayerName3,LongLayerName4',
+            ]
+
+    def test_messageanalyzer_wifi_metadata(self, cmd_tshark, capture_file, test_env):
+        '''The 802.11 packet metadata converts the frequency to a channel
+        (5 GHz band, 2.4 GHz band, none); other revisions and media show
+        the raw metadata.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'etw.ndis.packet_metadata.wifi_channel',
+                'etw.ndis.packet_metadata.wifi_channel',
+                'etw.ndis.packet_metadata.wifi_rssi')
+        assert lines == ['40\t36\t-55', '41\t6\t-55', '42\t0\t-55']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'etw.ndis.packet_metadata.data || etw.ndis.metadata',
+                'etw.ndis.packet_metadata.data', 'etw.ndis.metadata')
+        assert lines == ['43\t00010203040506070809\t',
+                         '44\t\t010203040506']
+
+    def test_messageanalyzer_wfp_frames(self, cmd_tshark, capture_file, test_env):
+        '''The NetMon frame types 0xE083-0xE088 reach the WFP capture
+        dissectors; the AUTH frames show the process path.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'message_analyzer.wfp_capture.auth.process_path',
+                'message_analyzer.wfp_capture.auth.process_path',
+                'message_analyzer.wfp_capture.auth.src_port',
+                'message_analyzer.wfp_capture.auth.dst_port')
+        # tshark escapes the backslashes in field output
+        assert lines[0] == '13\tC:\\\\Windows\\\\System32\\\\svchost.exe\t49152\t443'
+        assert lines[2] == '15\tC:\\\\Program Files\\\\Example\\\\app.exe\t50000\t8443'
+        assert len(lines) == 5
+
+    def test_messageanalyzer_labels(self, cmd_tshark, capture_file, test_env):
+        '''The labels of two fields that had been copied from others.'''
+        stdout = subprocess.check_output((cmd_tshark, '-G', 'fields'),
+                encoding='utf-8', env=test_env, timeout=120)
+        labels = {}
+        for line in stdout.splitlines():
+            f = line.split('\t')
+            if f[0] == 'F':
+                labels[f[2]] = f[1]
+        assert labels['message_analyzer.wfp_capture.auth.process_path'] == 'Process Path'
+        assert labels['etw.ndis.packet_metadata.data'] == 'Metadata'
