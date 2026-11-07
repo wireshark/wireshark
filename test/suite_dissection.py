@@ -96884,3 +96884,103 @@ class TestDissectMip:
             '71\teth:ethertype:ip:udp:mip:ip:udp:data',
             '72\teth:ethertype:ip:udp:mip:ip:udp:mip:ip:udp:data',
         ]
+
+
+class TestDissectMiwiP2pstar:
+    '''MiWi P2P Star from the synthetic Exported PDU capture
+    miwi_p2pstar_coverage.pcap.gz (every frame names the dissector
+    miwi_p2pstar).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), opts=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('miwi_p2pstar_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        proc = subprocess.run(args, encoding='utf-8', env=test_env, timeout=120,
+                              stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        assert 'CRITICAL' not in proc.stderr
+        return proc.stdout.splitlines()
+
+    def test_miwi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 128 frames decode as MiWi P2P Star without malformed
+        packets, expert infos of warning severity or higher, or GLib
+        criticals (the address map used to be missing), in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            protocols = self.fields(cmd_tshark, capture_file, test_env, '',
+                                    '_ws.col.protocol', passes=passes)
+            assert protocols == ['MiWi P2P Star'] * 128
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              'frame.number', passes=passes)
+            assert bad == []
+
+    def test_miwi_broadcast_addresses(self, cmd_tshark, capture_file, test_env):
+        '''PAN ids and short addresses of 0xffff show as "Broadcast". They
+        overflowed an 8 octet heap buffer ("MiWi: Fix buffer overflow,
+        address map and payload offsets").'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {113, 119, 120, 121, 122, 123}',
+                                'frame.number', '_ws.col.info', passes=passes)
+            assert lines == [
+                '113\tCommand, Pan ID: 0x1234, Dst: 0x0044, Src: Broadcast Connection Response Connection Response Addr: 0xffff',
+                '119\tData, Pan ID: Broadcast, Dst: Broadcast, Src: Broadcast',
+                '120\tData, Pan ID: Broadcast, Dst: Broadcast, Src Pan ID: Broadcast, Src: 0x0005',
+                '121\tData, Pan ID: 0x1234, Dst: Broadcast, Src: 0x0001',
+                '122\tCommand, Pan ID: Broadcast, Dst: 02:00:00:00:00:00:00:03, Src: 0x0005 Connection Response Connection Response Addr: 0x0005',
+                '123\tData, Src Pan ID: Broadcast, Src: Broadcast',
+            ]
+
+    def test_miwi_address_map(self, cmd_tshark, capture_file, test_env):
+        '''A successful Connection Response from short address 0x0010
+        (frame 103, status 0) teaches the map the extended address of the
+        joining node; later frames from 0x0010 in the same PAN (115, 117)
+        show it and the frame it came from, in one and two passes. The
+        frame with another source PAN (118) and the address of an
+        unsuccessful response (116) do not.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                'miwi_p2pstar.src64.origin',
+                                'frame.number', 'miwi_p2pstar.src16', 'miwi_p2pstar.src64',
+                                'miwi_p2pstar.src64.origin', passes=passes)
+            assert lines == [
+                '115\t0x0010\t02:00:00:00:00:00:00:03\t103',
+                '117\t0x0010\t02:00:00:00:00:00:00:03\t103',
+            ]
+
+    def test_miwi_connection_response(self, cmd_tshark, capture_file, test_env):
+        '''Connection Response status values and the Info text.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 103 && frame.number <= 111',
+                            'frame.number', 'miwi_p2pstar.con_res_status')
+        assert lines == ['103\t0', '104\t1', '105\t2', '106\t3', '107\t4', '108\t5',
+                         '109\t6', '110\t7', '111\t0']
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {103, 104, 111}',
+                            'frame.number', '_ws.col.info')
+        assert lines == [
+            '103\tCommand, Pan ID: 0x1234, Dst: 02:00:00:00:00:00:00:03, Src: 0x0010 Connection Response Connection Response Addr: 0x0010',
+            '104\tCommand, Pan ID: 0x1234, Dst: 02:00:00:00:00:00:00:04, Src: 0x0011 Connection Response Connection Response, Unsuccessful',
+            '111\tCommand, Pan ID: 0x2222, Dst: 02:00:00:00:00:00:00:03, Src Pan ID: 0x1234, Src: 02:00:00:00:00:00:00:01 Connection Response Connection Response, PAN: 0x2222 Addr: 0x0000',
+        ]
+
+    def test_miwi_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command in version 2003 (77-89) and 2006 (90-102) frames.'''
+        for first in (77, 90):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                                'frame.number >= %d && frame.number < %d' % (first, first + 13),
+                                'miwi_p2pstar.cmd')
+            assert lines == ['0x81', '0x82', '0x83', '0x84', '0x87', '0x92', '0x92',
+                             '0x97', '0xcc', '0xda', '0x7a', '0x77', '0x55']
+
+    def test_miwi_data_payload_after_header(self, cmd_tshark, capture_file, test_env):
+        '''The data dissector gets only what follows the header (not the
+        whole frame from offset 0): the unknown command 0x55 in frame 89
+        carries 01 02 and the FCS.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 89',
+                            'data.data')
+        assert lines == ['0102' + lines[0][4:]]
+        assert len(lines[0]) == 8
