@@ -86344,3 +86344,130 @@ class TestDissectIwarpDdpRdmap:
                         ['41', '1', '0x00', '0x00', '2'],
                         ['42', '0', '0x00', '0x00', '1'],
                         ['43', '3', '0x00', '0x00', '1']]
+
+
+class TestDissectIwarpMpa:
+    '''iWARP MPA (Marker PDU Aligned framing, RFC 5044) found by its TCP
+    heuristic dissector, from the synthetic capture
+    iwarp_mpa_coverage.pcap.gz: MPA Request/Reply frames and FPDUs (with
+    and without markers and CRC) carrying DDP/RDMAP Sends, a Write and a
+    Read Request.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, fields, *extra):
+        args = [cmd_tshark, '-r', capture_file('iwarp_mpa_coverage.pcap.gz'), *extra, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_iwarp_mpa_frames(self, cmd_tshark, capture_file, test_env):
+        '''94 frames: 88 carry MPA, the other 6 are TCP segments that are
+        not MPA, or the first part of an FPDU. No frame is malformed or has
+        an error expert info, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, ['frame.number', 'iwarp_mpa'])
+        assert len(rows) == 94
+        no_mpa = [int(r[0]) for r in rows if r[1] == '']
+        assert no_mpa == [14, 70, 71, 72, 73, 94]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iwarp_mpa_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_iwarp_mpa_request_reply_flags(self, cmd_tshark, capture_file, test_env):
+        '''Marker, CRC, reject and enhanced flags and the revision of the
+        Request and Reply frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_mpa.marker_flag', 'iwarp_mpa.crc_flag',
+                             'iwarp_mpa.rej_flag', 'iwarp_mpa.enhanced_flag',
+                             'iwarp_mpa.rev', 'iwarp_mpa.pdlength'],
+                            '-Y', 'iwarp_mpa.rev')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[1] == ['False', 'False', 'False', 'False', '1', '0']
+        assert by_frame[20] == ['False', 'True', 'False', 'False', '1', '0']
+        assert by_frame[26] == ['False', 'True', 'False', 'False', '1', '0']
+        assert by_frame[28] == ['True', 'True', 'False', 'False', '1', '492']
+        assert by_frame[46] == ['False', 'False', 'False', 'False', '1', '492']
+        assert by_frame[47] == ['True', 'False', 'False', 'False', '1', '492']
+        assert by_frame[89] == ['False', 'False', 'False', 'False', '2', '0']
+        assert by_frame[93] == ['False', 'False', 'True', 'False', '1', '7']
+
+    def test_iwarp_mpa_enhanced_and_legacy(self, cmd_tshark, capture_file, test_env):
+        '''Enhanced RDMA negotiation (control flags, IRD, ORD and the extra
+        private data) and the legacy IRD/ORD in big and little endian.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_mpa.enhanced.a', 'iwarp_mpa.enhanced.b',
+                             'iwarp_mpa.enhanced.ird', 'iwarp_mpa.enhanced.c',
+                             'iwarp_mpa.enhanced.D', 'iwarp_mpa.enhanced.ord',
+                             'iwarp_mpa.privatedata'],
+                            '-Y', 'iwarp_mpa.enhanced')
+        assert rows == [
+            ['74', 'True', 'False', '16', 'False', 'True', '32', ''],
+            ['75', 'False', 'True', '8', 'True', 'False', '4', '65787472612070726976617465']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_mpa.legacy', 'iwarp_mpa.broken_le_legacy',
+                             'iwarp_mpa.legacy.ird', 'iwarp_mpa.legacy.ord'],
+                            '-Y', 'iwarp_mpa.legacy || iwarp_mpa.broken_le_legacy')
+        assert [r[0] for r in rows] == ['79', '80', '81', '82', '83', '84']
+        assert rows[0][3:] == ['4', '8']          # big endian
+        assert rows[2][3:] == ['4', '8']          # broken little endian
+        assert rows[4][3:] == ['0,0', '0,0']      # both readings
+
+    def test_iwarp_mpa_reject(self, cmd_tshark, capture_file, test_env):
+        '''A Reply with the reject bit keeps the connection out of full
+        operation, so the next segment (frame 94) is not decoded as MPA.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'frame.protocols'],
+                            '-Y', 'frame.number >= 92')
+        assert [r[1] for r in rows] == ['eth:ethertype:ip:tcp:iwarp_mpa'] * 2 + ['eth:ethertype:ip:tcp:data']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iwarp_mpa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 93', '-V', '-O', 'iwarp_mpa',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Connection rejected flag: True' in stdout
+
+    def test_iwarp_mpa_crc(self, cmd_tshark, capture_file, test_env):
+        '''With the CRC flag the CRC is checked: frames 22 and 23 are good,
+        frame 24 has a bad CRC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iwarp_mpa_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 22 && frame.number <= 24', '-V', '-O', 'iwarp_mpa',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('(Good CRC32)') == 2
+        assert stdout.count('(Bad CRC32, should be 0x423c4420)') == 1
+
+    def test_iwarp_mpa_markers(self, cmd_tshark, capture_file, test_env):
+        '''Markers every 512 octets of the stream with the FPDU back
+        pointers, and the ULPDU length that excludes them.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_mpa.marker_fpduptr', 'iwarp_mpa.ulpdulength'],
+                            '-Y', 'frame.number >= 30 && frame.number <= 45')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[30] == ['0,512', '503']
+        assert by_frame[32] == ['', '28']
+        assert by_frame[35] == ['144', '498']
+        assert by_frame[37] == ['148,660', '1118']
+        assert by_frame[38] == ['40,552,1064,1576', '2018']
+        assert by_frame[41] == ['16', '19']
+
+    def test_iwarp_mpa_fpdus_and_segments(self, cmd_tshark, capture_file, test_env):
+        '''Two FPDUs in one segment (frame 13), an FPDU split over two
+        segments (frames 14, 15), one FPDU and the start of the next in
+        one segment (frames 16, 17).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_mpa.ulpdulength', 'iwarp_ddp.msn'],
+                            '-Y', 'frame.number >= 13 && frame.number <= 17')
+        assert rows == [['13', '23,28', '9,10'], ['14', '', ''], ['15', '218', '11'],
+                        ['16', '48', '12'], ['17', '48', '13']]
+
+    def test_iwarp_mpa_ddp(self, cmd_tshark, capture_file, test_env):
+        '''The FPDUs carry DDP/RDMAP: Send, a Write and a Read Request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            ['frame.number', 'iwarp_rdma.opcode', '_ws.col.info'],
+                            '-Y', 'frame.number == 3 || frame.number == 18 || frame.number == 19')
+        assert rows == [['3', '0x03', '47001 > 47002 Send [last DDP segment]'],
+                        ['18', '0x00', '47002 > 47001 Write [last DDP segment]'],
+                        ['19', '0x01', '47002 > 47001 Read Request [last DDP segment]']]
