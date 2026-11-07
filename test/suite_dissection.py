@@ -91780,3 +91780,68 @@ class TestDissectLon:
             ['79', 'Unexpected SPDU type 3'], ['82', 'Unexpected AuthPDU type 1'],
             ['83', 'Unexpected AuthPDU type 3'],
         ]
+
+
+class TestDissectLoop:
+    '''LOOP (Configuration Test Protocol, loopback) over Ethernet type
+    0x9000, from the synthetic capture loop_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture, env, flt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture, '-Y', flt, '-Tfields',
+                *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_loop_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 17 frames are LOOP without malformed packets or expert
+        infos, in one and two passes.'''
+        cap = capture_file('loop_coverage.pcap.gz')
+        assert len(self.fields(cmd_tshark, cap, test_env, 'loop', 'frame.number')) == 17
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, cap, test_env,
+                               '_ws.malformed || _ws.expert', 'frame.number',
+                               extra=passes)
+            assert rows == []
+
+    def test_loop_functions(self, cmd_tshark, capture_file, test_env):
+        '''The relevant function (the one skipCount points at) sets the
+        Info column and the chain of forwards before it is decoded.'''
+        rows = self.fields(cmd_tshark, capture_file('loop_coverage.pcap.gz'),
+                           test_env, 'loop', 'frame.number', '_ws.col.info',
+                           'loop.skipcount', 'loop.function',
+                           'loop.relevant_function', 'loop.receipt_number')
+        assert rows == [
+            ['1', 'Reply', '0', '1', '1', '258'],
+            ['2', 'Reply', '0', '1', '1', '0'],
+            ['3', 'Forward Data', '0', '2,1', '2', '7'],
+            ['4', 'Reply', '8', '2,1', '1', '8'],
+            ['5', 'Forward Data', '8', '2,2,1', '2', '9'],
+            ['6', 'Reply', '16', '2,2,1', '1', '10'],
+            ['7', 'Reply', '72', '2,2,2,2,2,2,2,2,2,1', '1', '11'],
+            ['8', 'Unknown function (4660)', '0', '4660', '4660', ''],
+            ['9', 'Unknown function (99)', '8', '2,99', '99', ''],
+            ['10', 'Unknown function (0)', '0', '0', '0', ''],
+            ['11', 'No valid function found', '1', '1', '', '1'],
+            ['12', 'No valid function found', '3', '2,1', '', '1'],
+            ['13', 'No valid function found', '32767', '1', '', '12'],
+            ['14', 'No valid function found', '65535', '2,1', '', '13'],
+            ['15', 'Reply', '0', '1', '1', '1'],
+            ['16', 'Reply', '0', '1', '1', '14'],
+            ['17', 'Reply', '0', '1', '1', '15'],
+        ]
+
+    def test_loop_forwarding_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Forwarding addresses and the data after the last function (a
+        padded frame, trailing bytes).'''
+        rows = self.fields(cmd_tshark, capture_file('loop_coverage.pcap.gz'),
+                           test_env, 'frame.number == 5 || frame.number == 6 || '
+                           'frame.number == 2 || frame.number == 16',
+                           'frame.number', 'loop.forwarding_address', 'data.len')
+        assert rows == [
+            ['2', '', '23'],
+            ['5', '02:00:00:00:00:aa,02:00:00:00:00:bb', ''],
+            ['6', '02:00:00:00:00:aa,02:00:00:00:00:bb', '4'],
+            ['16', '', '40'],
+        ]
