@@ -762,7 +762,10 @@ sort_mi_by_sci(const void* a, const void* b) {
   uint8_t *sci_a = wmem_map_lookup(mka_mi_sci_map, a);
   uint8_t *sci_b = wmem_map_lookup(mka_mi_sci_map, b);
 
-  DISSECTOR_ASSERT(sci_a && sci_b);
+  /* Unknown SCIs (e.g., the zero-filled placeholders) sort last. */
+  if (!sci_a || !sci_b) {
+    return (sci_a != NULL) ? -1 : ((sci_b != NULL) ? 1 : 0);
+  }
   // Numerically greatest SCI uses the SSCI value 0x01, etc.
   return -memcmp(sci_a, sci_b, MACSEC_SCI_LEN);
 }
@@ -782,8 +785,7 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
 
   sak_info = p_get_proto_data(pinfo->pool, pinfo, proto_mka, SAK_KEY);
   mi = p_get_proto_data(pinfo->pool, pinfo, proto_mka, MI_KEY);
-  sci = wmem_map_lookup(mka_mi_sci_map, mi);
-  DISSECTOR_ASSERT(sci);
+  sci = mi ? wmem_map_lookup(mka_mi_sci_map, mi) : NULL;
   if (sak_info) {
     // Distributed SAK parameter set already processed.
     sci_map = sak_info->sci_map;
@@ -846,7 +848,10 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
   bool know_all_sci = false;
   if (sci_map) {
     know_all_sci = true;
-    if (server_ssci) {
+    if (!sci) {
+      /* We do not know the SCI of the actor, so the mapping is incomplete. */
+      know_all_sci = false;
+    } else if (server_ssci) {
       wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(server_ssci));
     } else {
       wmem_map_insert(sci_map, sci, GUINT_TO_POINTER(UINT32_MAX));
@@ -855,7 +860,11 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
       uint8_t *zeroes = wmem_alloc0(pinfo->pool, MKA_MI_LEN * (server_ssci - 1));
       wmem_array_append(mi_array, zeroes, server_ssci - 1);
     }
-    wmem_array_append(mi_array, mi, 1);
+    if (mi) {
+      wmem_array_append(mi_array, mi, 1);
+    } else {
+      know_all_sci = false;
+    }
   }
 
   offset += 1;
@@ -911,10 +920,12 @@ dissect_live_peer_list(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, 
       }
       if (ssci == wmem_array_get_count(mi_array) + 1) {
         wmem_array_append(mi_array, mi, 1);
-      } else if (ssci < wmem_array_get_count(mi_array)) {
+      } else if (ssci >= 1 && ssci <= wmem_array_get_count(mi_array)) {
         memcpy(wmem_array_index(mi_array, ssci - 1), mi, MKA_MI_LEN);
       } else {
-        DISSECTOR_ASSERT_NOT_REACHED();
+        /* The array shared with the Distributed SAK does not fit this
+         * list; give up on the MI to SCI ordering. */
+        know_all_sci = false;
       }
     }
     offset += MKA_MI_LEN;
@@ -1380,7 +1391,7 @@ dissect_announcement(proto_tree *mka_tree, packet_info *pinfo, tvbuff_t *tvb, in
           uint64_t cipher_suite_id = tvb_get_uint64(tvb, offset + offset2 + tlv_item_offset + 2, ENC_BIG_ENDIAN);
           uint16_t cipher_suite_cap = tvb_get_uint16(tvb, offset + offset2 + tlv_item_offset, ENC_BIG_ENDIAN) & 0x0003;
 
-          ti = proto_tree_add_none_format(tlv_tree, hf_mka_tlv_entry, tvb, offset + offset2, tlv_length + 2, "Cipher Suite: %s, %s",
+          ti = proto_tree_add_none_format(tlv_tree, hf_mka_tlv_entry, tvb, offset + offset2 + tlv_item_offset, 10, "Cipher Suite: %s, %s",
                                           val64_to_str_wmem(pinfo->pool, cipher_suite_id, macsec_cipher_suite_vals, "Unknown Cipher Suite (0x%" PRIx64 ")"),
                                           val_to_str(pinfo->pool, cipher_suite_cap, macsec_capability_type_vals, "Unknown Capability (%d)"));
           cipher_suite_entry = proto_item_add_subtree(ti, ett_mka_cipher_suite_entry);
