@@ -23,6 +23,10 @@
 #                 session without an IMSI
 #   7  CP -> UP   Session Establishment Request with another IMSI: a new
 #                 session, not the one of frame 6
+#   8  CP -> UP   Session Establishment Request with a third IMSI: CP F-SEID
+#   9  UP -> CP   Session Establishment Response, cause Request rejected
+#  10  UP -> CP   Session Report Request to the CP SEID of frame 8: not of
+#                 the session
 
 import struct
 import sys
@@ -37,15 +41,21 @@ GNB = (10, 0, 5, 1)
 
 IMSI = '001010000000003'
 IMSI_2 = '001010000000005'
+IMSI_3 = '001010000000009'
 
 SESSION_ESTABLISHMENT_REQUEST = 50
 SESSION_ESTABLISHMENT_RESPONSE = 51
 SESSION_MODIFICATION_REQUEST = 52
+SESSION_REPORT_REQUEST = 56
+
+REQUEST_ACCEPTED = 1
+REQUEST_REJECTED = 64
 
 CP_SEID = 0xc1
 UP_SEID = 0xa1
 CP_SEID_2 = 0xc2
 CP_SEID_3 = 0xc3
+CP_SEID_4 = 0xc4
 
 UP_N3_TEID = 0x3101
 GNB_TEID = 0x4101
@@ -66,8 +76,8 @@ def node_id_ie(ipv4):
     return ie(60, b'\x00' + bytes(ipv4))
 
 
-def cause_ie():
-    return ie(19, b'\x01')  # Request accepted
+def cause_ie(cause=REQUEST_ACCEPTED):
+    return ie(19, bytes((cause,)))
 
 
 def f_seid_ie(seid, ipv4):
@@ -152,6 +162,14 @@ def main():
         frame(CP, UP, pfcp(
             SESSION_ESTABLISHMENT_REQUEST, 0, 4,
             node_id_ie(CP), f_seid_ie(CP_SEID_3, CP), user_id_ie(IMSI_2))),
+        frame(CP, UP, pfcp(
+            SESSION_ESTABLISHMENT_REQUEST, 0, 5,
+            node_id_ie(CP), f_seid_ie(CP_SEID_4, CP), user_id_ie(IMSI_3))),
+        frame(UP, CP, pfcp(
+            SESSION_ESTABLISHMENT_RESPONSE, CP_SEID_4, 5,
+            node_id_ie(UP), cause_ie(REQUEST_REJECTED))),
+        frame(UP, CP, pfcp(
+            SESSION_REPORT_REQUEST, CP_SEID_4, 6)),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)

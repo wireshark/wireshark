@@ -194,6 +194,10 @@ uint32_t get_frame(address ip, uint32_t teid, uint32_t *frame);
  */
 uint32_t get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *frame, bool ignore_conv);
 
+/**
+ * Makes the <teid,ip> mappings to frame f in frame_map no longer count, e.g.
+ * when the response to it was not accepted.
+ */
 void remove_frame_info(uint32_t f);
 
 /**

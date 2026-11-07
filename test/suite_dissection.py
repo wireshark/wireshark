@@ -68705,7 +68705,7 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('gtpv2_session.pcap'),
-                    '-Y', 'frame.number >= 9',
+                    '-Y', 'frame.number >= 9 && frame.number <= 10',
                     '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
@@ -68715,6 +68715,23 @@ class TestDissectGtpSession:
             ]
             rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
             assert ['001010000000004', '10', '10'] in rows
+
+    def test_gtp_session_rejected(self, cmd_tshark, capture_file, test_env):
+        '''The Create Session Response (frame 12) rejects the request
+        (frame 11), so the Downlink Data Notification to the S11 MME
+        F-TEID of the request (frame 13) does not get its session.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number >= 11',
+                    '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '5\t001010000000008',
+                '5\t001010000000008',
+                '\t',
+            ]
 
 
 # PFCP session tracking is off by default.
@@ -68746,7 +68763,8 @@ class TestDissectPfcpSession:
             rows = [[cols[0], cols[2], cols[3]]
                     for cols in (row.split() for row in stdout.splitlines())
                     if cols and cols[0].isdigit()]
-            assert sorted(rows) == [['001010000000003', '1', '3'], ['001010000000005', '7', '7']]
+            assert sorted(rows) == [['001010000000003', '1', '3'], ['001010000000005', '7', '7'],
+                                    ['001010000000009', '8', '9']]
 
     def test_pfcp_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
         '''With GTP session tracking as well, the GTP-U to the TEID of the
@@ -68770,11 +68788,24 @@ class TestDissectPfcpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
                     '-r', capture_file('pfcp_session.pcap'),
-                    '-Y', 'frame.number >= 6',
+                    '-Y', 'frame.number >= 6 && frame.number <= 7',
                     '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['2\t', '3\t001010000000005']
+
+    def test_pfcp_session_rejected(self, cmd_tshark, capture_file, test_env):
+        '''The Session Establishment Response (frame 9) rejects the request
+        (frame 8), so the Session Report Request to the CP F-SEID of the
+        request (frame 10) does not get its session.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-Y', 'frame.number >= 8',
+                    '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['4\t001010000000009', '4\t001010000000009', '\t']
 
 
 class TestDissectRanapSession:

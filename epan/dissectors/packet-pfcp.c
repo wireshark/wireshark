@@ -2343,19 +2343,42 @@ pfcp_info_equal(const void *key1, const void *key2)
     return (a->seid == b->seid && (cmp_address(&a->addr, &b->addr) == 0));
 }
 
+/* Frames whose response was not accepted. Their <seid,ip> mappings stay in
+ * pfcp_frame_map but no longer count, which is much faster than going through
+ * the whole map to remove them.
+ */
+static wmem_map_t* pfcp_rejected_frames;
+
+/* The frame that key maps to in pfcp_frame_map, or 0 */
+static uint32_t
+pfcp_lookup_frame(const pfcp_info_t *key) {
+    uint32_t frame = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_frame_map, key));
+
+    if (frame && wmem_map_contains(pfcp_rejected_frames, GUINT_TO_POINTER(frame))) {
+        return 0;
+    }
+    return frame;
+}
+
 static uint32_t
 pfcp_get_frame(address ip, uint64_t seid, uint32_t *frame) {
     pfcp_info_t info;
-    uint32_t *value;
+    uint32_t value;
 
     info.seid = seid;
     copy_address_shallow(&info.addr, &ip);
-    value = wmem_map_lookup(pfcp_frame_map, &info);
-    if (value != NULL) {
-        *frame = GPOINTER_TO_UINT(value);
+    value = pfcp_lookup_frame(&info);
+    if (value) {
+        *frame = value;
         return 1;
     }
     return 0;
+}
+
+/* Makes the <seid,ip> mappings to frame f no longer count */
+static void
+pfcp_reject_frame_info(uint32_t f) {
+    wmem_map_insert(pfcp_rejected_frames, GUINT_TO_POINTER(f), GUINT_TO_POINTER(1));
 }
 
 static gboolean
@@ -2465,7 +2488,7 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
             pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);
             pfcp_info->seid = seid;
             copy_address_wmem(wmem_file_scope(), &pfcp_info->addr, ip);
-            if (wmem_map_lookup(pfcp_frame_map, pfcp_info)) {
+            if (pfcp_lookup_frame(pfcp_info)) {
                 /* If the seid and ip already maps to a session, that means
                  * that we need to remove old info about that session */
                 /* We look for its session ID */
@@ -11594,7 +11617,7 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, unsi
 
                 if (!pfcp_is_cause_accepted(last_cause)){
                     /* If the cause is not accepted then we have to remove all the session information about its corresponding request */
-                    pfcp_remove_frame_info(pcrp->req_frame);
+                    pfcp_reject_frame_info(pcrp->req_frame);
                 }
             }
         }
@@ -14900,6 +14923,7 @@ pfcp_init(void)
     pfcp_session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     pfcp_session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     pfcp_frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), pfcp_info_hash, pfcp_info_equal);
+    pfcp_rejected_frames = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 }
 
 void

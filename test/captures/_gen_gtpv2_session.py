@@ -31,6 +31,12 @@
 #                  IMSI: a new session without an IMSI
 #  10  MME -> SGW  Create Session Request with the IMSI of UE D: a new
 #                  session, not the one of frame 9
+#
+# UE E, whose Create Session Request is rejected:
+#  11  MME -> SGW  Create Session Request with the IMSI: S11 MME F-TEID
+#  12  SGW -> MME  Create Session Response, cause No resources available
+#  13  SGW -> MME  Downlink Data Notification to the S11 MME TEID of
+#                  frame 11: not of the session
 
 import struct
 import sys
@@ -48,11 +54,17 @@ ENB = (10, 0, 3, 1)
 IMSI_A = '001010000000001'
 IMSI_B = '001010000000002'
 IMSI_D = '001010000000004'
+IMSI_E = '001010000000008'
 
 # GTPv2 message types
 CREATE_SESSION_REQUEST = 32
 CREATE_SESSION_RESPONSE = 33
 MODIFY_BEARER_REQUEST = 34
+DOWNLINK_DATA_NOTIFICATION = 176
+
+# GTPv2 causes
+REQUEST_ACCEPTED = 16
+NO_RESOURCES_AVAILABLE = 73
 
 # F-TEID interface types (3GPP TS 29.274 table 8.22-1)
 IF_S1U_ENB = 0
@@ -78,8 +90,8 @@ def imsi_ie(imsi):
     return ie(1, tbcd(imsi))
 
 
-def cause_ie():
-    return ie(2, bytes((16, 0)))  # Request accepted
+def cause_ie(cause=REQUEST_ACCEPTED):
+    return ie(2, bytes((cause, 0)))
 
 
 def f_teid_ie(if_type, teid, ipv4, instance=0):
@@ -155,6 +167,16 @@ def main():
             CREATE_SESSION_REQUEST, 0, 0x40,
             imsi_ie(IMSI_D),
             f_teid_ie(IF_S11_MME_GTPC, 0x1004, MME))),
+        # UE E
+        frame(MME, SGW_S11, GTPV2_PORT, gtpv2(
+            CREATE_SESSION_REQUEST, 0, 0x50,
+            imsi_ie(IMSI_E),
+            f_teid_ie(IF_S11_MME_GTPC, 0x1005, MME))),
+        frame(SGW_S11, MME, GTPV2_PORT, gtpv2(
+            CREATE_SESSION_RESPONSE, 0x1005, 0x50,
+            cause_ie(NO_RESOURCES_AVAILABLE))),
+        frame(SGW_S11, MME, GTPV2_PORT, gtpv2(
+            DOWNLINK_DATA_NOTIFICATION, 0x1005, 0x51)),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)

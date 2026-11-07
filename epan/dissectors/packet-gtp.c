@@ -2626,16 +2626,34 @@ gtp_info_deint_equal(const void *key1, const void *key2)
 }
 
 /* GTP Session funcs*/
+
+/* Frames whose response was not accepted. Their <teid,ip> mappings stay in
+ * frame_map but no longer count, which is much faster than going through the
+ * whole map to remove them.
+ */
+static wmem_map_t* rejected_frames;
+
+/* The frame that key maps to in map, or 0 */
+static uint32_t
+lookup_frame(wmem_map_t *map, const void *key) {
+    uint32_t frame = GPOINTER_TO_UINT(wmem_map_lookup(map, key));
+
+    if (frame && map == frame_map && wmem_map_contains(rejected_frames, GUINT_TO_POINTER(frame))) {
+        return 0;
+    }
+    return frame;
+}
+
 uint32_t
 get_frame(address ip, uint32_t teid, uint32_t *frame) {
     gtp_info_t info;
-    uint32_t *value;
+    uint32_t value;
 
     info.teid = teid;
     copy_address_shallow(&info.addr, &ip);
-    value = wmem_map_lookup(frame_map, &info);
-    if (value != NULL) {
-        *frame = GPOINTER_TO_UINT(value);
+    value = lookup_frame(frame_map, &info);
+    if (value) {
+        *frame = value;
         return 1;
     }
     return 0;
@@ -2701,22 +2719,9 @@ get_gtp_session_frame(address ip, uint32_t teid, uint32_t convid, uint32_t *fram
     return 0;
 }
 
-static gboolean
-frame_equal(void *key _U_, void *value, void *data){
-    uint32_t frame = GPOINTER_TO_UINT(data);
-
-    return (GPOINTER_TO_UINT(value) == frame);
-}
-
 void
 remove_frame_info(uint32_t f) {
-    /* XXX: This iterates through the entire map and it is slow if done
-     * often. For large files with lots of removals, there are better
-     * alternatives, e.g. marking sessions as expired and then periodically
-     * removing all expired sessions from the map, or using a bijective
-     * map to coordinate removals.
-     */
-    wmem_map_foreach_remove(frame_map, frame_equal, GUINT_TO_POINTER(f));
+    wmem_map_insert(rejected_frames, GUINT_TO_POINTER(f), GUINT_TO_POINTER(1));
 }
 
 void
@@ -2786,13 +2791,13 @@ typedef struct {
  */
 static void
 insert_frame_info(wmem_map_t *map, void *key, bool deint, uint32_t frame, wmem_list_t *replaced_list) {
-    void *old_frame = wmem_map_lookup(map, key);
+    uint32_t old_frame = lookup_frame(map, key);
 
-    if (old_frame && GPOINTER_TO_UINT(old_frame) != frame && replaced_list) {
+    if (old_frame && old_frame != frame && replaced_list) {
         gtp_replaced_info_t *replaced = wmem_new(wmem_file_scope(), gtp_replaced_info_t);
         replaced->key = key;
         replaced->deint = deint;
-        replaced->frame = GPOINTER_TO_UINT(old_frame);
+        replaced->frame = old_frame;
         wmem_list_append(replaced_list, replaced);
     }
     wmem_map_insert(map, key, GUINT_TO_POINTER(frame));
@@ -2852,14 +2857,14 @@ restore_frame_info(uint32_t frame, wmem_list_t *replaced_list) {
     for (elem = wmem_list_head(replaced_list); elem; elem = wmem_list_frame_next(elem)) {
         gtp_replaced_info_t *replaced = (gtp_replaced_info_t *)wmem_list_frame_data(elem);
         wmem_map_t *map = replaced->deint ? frame_map_deint : frame_map;
-        void *cur_frame;
+        uint32_t cur_frame;
 
         if (!GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(replaced->frame)))) {
             continue;
         }
         /* Unless another message took the mapping since, e.g. a piggybacked one */
-        cur_frame = wmem_map_lookup(map, replaced->key);
-        if (!cur_frame || GPOINTER_TO_UINT(cur_frame) == frame) {
+        cur_frame = lookup_frame(map, replaced->key);
+        if (!cur_frame || cur_frame == frame) {
             wmem_map_insert(map, replaced->key, GUINT_TO_POINTER(replaced->frame));
         }
     }
@@ -13505,6 +13510,7 @@ proto_register_gtp(void)
     session_table = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     session_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_equal);
+    rejected_frames = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map_deint = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_deint_equal);
     teid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     register_init_routine(gtp_init);
