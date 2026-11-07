@@ -98418,3 +98418,81 @@ class TestDissectMpegAudio:
             '6\tTitle\t2026\t17\t1\t1,1,1',
             '18\tMid\t1999\t0\t0\t3,2,1',
         ]
+
+
+class TestDissectMpegCa:
+    '''MPEG CA (Conditional Access Table) from the synthetic capture
+    mpeg_ca_coverage.pcap.gz: CATs in MPEG-TS packets on PID 1 in UDP.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mpeg_ca_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_ca_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All nine frames carry a CAT (the last one two sections), none
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_ca_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == (
+            ['eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_ca'] * 8 +
+            ['eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_ca:mpeg_sect:mpeg_ca'])
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert', opts=passes)
+            assert lines == []
+
+    def test_mpeg_ca_loop_bound(self, cmd_tshark, capture_file, test_env):
+        '''The descriptor loop ends at the CRC: the empty descriptor in
+        the last two octets before the CRC of frame 1 is dissected (it
+        was skipped, and the CRC read from the wrong place, before
+        "MPEG-CA: Fix the descriptor loop bound"). The CRC of every
+        section but frame 5 verifies.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 2', 'mpeg_descr.tag', 'mpeg_descr.ca.sys_id',
+                'mpeg_descr.ca.pid', 'mpeg_descr.ca.private',
+                opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
+        assert lines == [
+            '1\t0x09;0x05\t0x1234\t0x0100\t',
+            '2\t0x09;0x09;0x05;0x42\t0x0100;0x0b00\t0x0101;0x1fff\t'
+            '0102030405;00',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'mpeg_sect.crc.status', 'mpeg_sect.crc.status',
+                opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
+        assert [l.split('\t')[:2] for l in lines] == (
+            [[str(n), '1'] for n in (1, 2, 3, 4)] + [['5', '0']] +
+            [[str(n), '1'] for n in (6, 7, 8)] + [['9', '1;1']])
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert', 'mpeg_sect.crc.status',
+                opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
+        assert lines == ['5\t0']
+
+    def test_mpeg_ca_sections(self, cmd_tshark, capture_file, test_env):
+        '''Version, current/next and section numbers, and the two
+        sections of frame 9.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {3,4,8,9}', 'mpeg_ca.version',
+                'mpeg_ca.cur_next_ind', 'mpeg_ca.sect_num',
+                'mpeg_ca.last_sect_num')
+        assert lines == [
+            '3\t0x000003\tTrue\t0\t0',
+            '4\t0x00001f\tFalse\t1\t2',
+            '8\t0x000004\tTrue\t0\t0',
+            '9\t0x000001;0x000001\tTrue;True\t0;1\t1;1',
+        ]
+
+    def test_mpeg_ca_spanning(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8: a CAT that spans two TS packets with 14 CA
+        descriptors (CA system IDs 0x0100-0x010d).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 8', 'mpeg_descr.ca.sys_id')
+        assert lines == ['8\t' + ';'.join('0x%04x' % (0x100 + i)
+                                          for i in range(14))]
