@@ -95052,3 +95052,73 @@ class TestDissectMcpe:
             assert stdout.splitlines() == [
                 '14\tMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE\t746f6b656e746f6b656e746f6b656e'
             ]
+
+
+class TestDissectMctp:
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mctp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_mctp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are MCTP over Linux cooked capture, some handed to
+        a sub-dissector, and none is malformed or has an expert info, in
+        one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 28
+        assert lines.count('MCTP') == 20
+        assert lines.count('MCTP Control') == 4
+        assert lines.count('PLDM') == 2
+        assert lines.count('NCSI') == 1
+        assert lines.count('0x88b5') == 1      # Ethernet encapsulation
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mctp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message in three fragments, and two messages with the same tag
+        value and a different tag owner bit, are reassembled separately;
+        the control message split in two reaches MCTP Control.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'mctp.reassembled.length', '-Tfields', '-eframe.number',
+                '-emctp.reassembled.length',
+                '-e_ws.col.Info')
+        assert lines == [
+            '14\t11\tMCTP message reassembled',
+            '17\t5\tMCTP message reassembled',
+            '18\t6\tMCTP message reassembled',
+            '20\t3\tMCTP Get Endpoint ID Request',
+        ]
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.Info')
+        assert lines == ['MCTP message frag 0']
+
+    def test_mctp_bogus_packets(self, cmd_tshark, capture_file, test_env):
+        '''Packets too short for a message type and with a version other
+        than 1 are named in the Info column and not decoded further.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 24 && frame.number <= 27',
+                '-Tfields', '-eframe.number', '-emctp.version', '-e_ws.col.Info')
+        assert lines == [
+            '24\t\tBogus length 4, minimum 5',
+            '25\t\tBogus length 3, minimum 5',
+            '26\t\tInvalid version 2',
+            '27\t\tInvalid version 0',
+        ]
+
+    def test_mctp_encapsulated_types(self, cmd_tshark, capture_file, test_env):
+        '''A message type with no handler is passed to the encapsulation
+        table (Ethernet, NC-SI); one with the IC bit is not.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4 && frame.number <= 7',
+                '-Tfields', '-eframe.number', '-emctp.msg.type', '-emctp.msg.ic',
+                '-eeth.type', '-encsi.type', '-e_ws.col.Protocol')
+        assert [l.split('\t')[:3] + l.split('\t')[5:] for l in lines] == [
+            ['4', '0x05', 'True', 'MCTP'],
+            ['5', '0x05', 'False', 'MCTP'],
+            ['6', '0x03', 'False', '0x88b5'],
+            ['7', '0x02', 'False', 'NCSI'],
+        ]
