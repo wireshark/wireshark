@@ -94986,3 +94986,69 @@ class TestDissectMcNmf:
             '31\t130\t\t\t', '32\t20000\t\t\t', '33\t\t\t\t300', '34\t\t\t\t0',
             '35\t\t9,180,1\t\t', '36\t\t4\t\t', '37\t\t\t8\t', '38\t\t\t0\t',
         ]
+
+
+class TestDissectMcpe:
+    '''Minecraft Pocket Edition over RakNet (UDP 19132) from the synthetic
+    capture mcpe_coverage.pcapng.gz: Login, Batch (also nested), a Login
+    split over RakNet fragments and the Server to Client Handshake.'''
+
+    def test_mcpe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''14 frames: 12 MCPE and 2 RakNet fragments, without malformed
+        packets or warnings in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcpe_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 14
+        assert protocols.count('MCPE') == 12
+        assert protocols.count('RakNet') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mcpe_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mcpe_batches(self, cmd_tshark, capture_file, test_env):
+        '''Batches hold records (nested up to 15 levels; the nesting is
+        bounded by "MCPE: Bound Batch nesting and drop an assertion"), the
+        Login protocol versions and the handshake key and token are
+        decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcpe_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 6, 8, 10, 13, 14}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-emcpe.protocol.version',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t#1: Login\t100',
+            '2\t#2: Login\t4294967295',
+            '4\t#4: Batch [Login, Login, Login]\t100,7,100',
+            '6\t#6: Batch [Batch [Batch [Login]]]\t100',
+            '8\t#8: Batch [Batch [Batch [Login]], Login, Batch [Login]]\t100,100,100',
+            '10\t#10: Batch [Login], Login, Batch [Login], Login\t100,100,100,100',
+            '13\t#13: {Message fragment 3/3; Reassembled} Login\t100',
+            '14\t#14: Server to Client Handshake\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mcpe_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Batch') == 15
+
+    def test_mcpe_reassembly_and_handshake(self, cmd_tshark, capture_file, test_env):
+        '''A Login over three RakNet fragments is reassembled (frame 13);
+        the handshake public key and server token.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mcpe_coverage.pcapng.gz'),
+                    '-Y', 'mcpe.public.key',
+                    '-Tfields', '-eframe.number', '-emcpe.public.key', '-emcpe.server.token',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '14\tMHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE\t746f6b656e746f6b656e746f6b656e'
+            ]
