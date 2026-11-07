@@ -87763,3 +87763,74 @@ class TestDissectKnxipCoverage:
                     '-Y', 'frame.number == 112', '-V', '-O', 'kip',
                 ), encoding='utf-8', env=test_env)
             assert 'Encrypted (48 bytes) ' + text in out
+
+
+class TestDissectKnxipDecrypt:
+    '''KNX/IP Secure frames with placeholder bytes, from the synthetic capture
+    knxip_decrypt_coverage.pcap.gz: 36 secure wrappers (UDP unicast and
+    multicast, TCP; payloads of 0 to 255 octets around the AES block size)
+    and six timer notifications. No key, MAC or ciphertext in the capture
+    is valid, so the decryption and MAC code of packet-knxip_decrypt.c runs
+    (with the made-up keys below) and fails the MAC check on every frame.'''
+
+    KEY1 = ('-o', 'kip.key_1:000102030405060708090A0B0C0D0E0F')
+    KEY2 = ('-o', 'kip.key_2:A0 A1 A2 A3 A4 A5 A6 A7 A8 A9 AA AB AC AD AE AF')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, opts, display_filter, *efields):
+        out = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('knxip_decrypt_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_knxip_decrypt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''42 frames are KNX/IP (36 wrappers and six timer notifications)
+        and none is malformed or has an error expert info, with and
+        without keys, in one and two passes.'''
+        run = TestDissectKnxipDecrypt.run
+        protocols = run(cmd_tshark, capture_file, test_env, (), 'frame', '_ws.col.protocol')
+        assert protocols.count('KNXnet/IP') == 42
+        assert protocols.count('TCP') == 3
+        for opts in ((), ('-2',), TestDissectKnxipDecrypt.KEY1,
+                     ('-2',) + TestDissectKnxipDecrypt.KEY1 + TestDissectKnxipDecrypt.KEY2):
+            frames = run(cmd_tshark, capture_file, test_env, opts,
+                         '_ws.malformed || _ws.expert.severity >= error', 'frame.number')
+            assert count_output('\n'.join(frames)) == 0
+
+    def test_knxip_decrypt_failed(self, cmd_tshark, capture_file, test_env):
+        '''Without a key the wrappers say so; with a key (or two) they
+        say the decryption failed, and nothing is decrypted.'''
+        for opts, text in (((), '(no key available)'),
+                           (TestDissectKnxipDecrypt.KEY1, '(decryption failed)'),
+                           (TestDissectKnxipDecrypt.KEY1 + TestDissectKnxipDecrypt.KEY2,
+                            '(decryption failed)'),
+                           (('-o', 'kip.key_3:zz'), '(no key available)')):
+            out = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('knxip_decrypt_coverage.pcap.gz'), '-V', '-O', 'kip',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert out.count('Encrypted (') == 36
+            assert out.count(text) == 36
+            assert 'Decrypted' not in out
+            assert 'MAC OK' not in out
+
+    def test_knxip_decrypt_payload_sizes(self, cmd_tshark, capture_file, test_env):
+        '''The encrypted part of a wrapper is the payload and a 16 octet
+        MAC: the first wrapper has no payload (80 octets in the frame), the
+        last unicast one 255 octets of payload.'''
+        lines = TestDissectKnxipDecrypt.run(
+            cmd_tshark, capture_file, test_env, TestDissectKnxipDecrypt.KEY1,
+            'frame.number in {4, 28}', 'frame.number', 'frame.len', 'knxip.session')
+        assert lines == ['4\t80\t0x0001', '28\t335\t0x0001']
+
+    def test_knxip_decrypt_timer_notify(self, cmd_tshark, capture_file, test_env):
+        '''A timer notification shows the timestamp and serial number; the
+        MAC does not match any key, so it is not reported as OK.'''
+        for opts in ((), TestDissectKnxipDecrypt.KEY1):
+            lines = TestDissectKnxipDecrypt.run(
+                cmd_tshark, capture_file, test_env, opts,
+                'knxip.service == 0x0955', '_ws.col.info')
+            assert len(lines) == 6
+            assert lines[0] == 'TimerNotify $000000000064.000102030405.0000'
+            assert all(not l.endswith(' OK') for l in lines)
