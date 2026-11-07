@@ -26,6 +26,7 @@
 #include "packet-gsm_map.h"
 #include "packet-ranap.h"
 #include "packet-e212.h"
+#include "packet-gtp.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-isup.h"

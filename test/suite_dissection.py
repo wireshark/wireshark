@@ -68777,6 +68777,46 @@ class TestDissectPfcpSession:
             assert stdout.splitlines() == ['2\t', '3\t001010000000005']
 
 
+class TestDissectRanapSession:
+    def gtpu_imsi(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *args,
+                '-r', capture_file('ranap_session.pcap'),
+                '-Y', 'gtp',
+                '-Tfields', '-egtp.teid', '-ee212.assoc.imsi',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_ranap_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
+        '''With SCCP association tracking, the GTP-U to the SGSN TEID of the
+        RAB Assignment Request (frame 6) and to the RNC TEID of the RAB
+        Assignment Response (frame 7) gets the IMSI of the Common ID of the
+        SCCP connection, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.gtpu_imsi(cmd_tshark, capture_file, test_env, *passes,
+                    '-o', 'sccp.trace_sccp:TRUE') == [
+                '0x00005101\t001010000000006',
+                '0x00006101\t001010000000006',
+            ]
+
+    def test_ranap_session_without_sccp_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Without SCCP association tracking RANAP has no IMSI for the
+        TEIDs, and the RANAP messages decode without expert infos.'''
+        assert self.gtpu_imsi(cmd_tshark, capture_file, test_env) == [
+            '0x00005101\t',
+            '0x00006101\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'sccp.trace_sccp:TRUE',
+                '-r', capture_file('ranap_session.pcap'),
+                '-Y', 'ranap || _ws.expert || _ws.malformed',
+                '-Tfields', '-e_ws.col.info', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['CommonID ', ''],
+            ['RAB-AssignmentRequest ', ''],
+            ['RAB-AssignmentResponse ', ''],
+        ]
+
+
 class TestDissectH235:
     '''H.235 security messages from the synthetic capture
     h235_coverage.pcap.gz (93 frames).  ClearTokens, CryptoH323Tokens and

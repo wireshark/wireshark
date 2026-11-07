@@ -31,6 +31,7 @@
 #include "packet-gsm_map.h"
 #include "packet-ranap.h"
 #include "packet-e212.h"
+#include "packet-gtp.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-isup.h"
@@ -5354,6 +5355,8 @@ static unsigned
 dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb=NULL;
   int saved_hf;
+  uint32_t teid;
+  sccp_msg_info_t *sccp_info;
 
   saved_hf = hf_index;
   hf_index = -1;
@@ -5363,7 +5366,14 @@ dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 
   if (!parameter_tvb)
     return offset;
-  proto_tree_add_item(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN, &teid);
+
+  /* So that GTP-U with the TEID gets the IMSI of the SCCP connection */
+  sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, actx->pinfo->curr_layer_num);
+  if (!PINFO_FD_VISITED(actx->pinfo) && teid != 0 &&
+      sccp_info && sccp_info->data.co.assoc && sccp_info->data.co.assoc->imsi) {
+    gtp_add_teid_imsi(teid, sccp_info->data.co.assoc->imsi);
+  }
 
 
   return offset;
