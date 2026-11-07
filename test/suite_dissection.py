@@ -91845,3 +91845,80 @@ class TestDissectLoop:
             ['6', '02:00:00:00:00:aa,02:00:00:00:00:bb', '4'],
             ['16', '', '40'],
         ]
+
+
+class TestDissectLoratap:
+    def test_loratap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''17 LoRaTap frames, versions 0, 1 and one unknown (frame 7); the payload goes to LoRaWAN
+        for syncword 0x34 (v1: only with CRC OK or no CRC) and to Data
+        otherwise. None is malformed, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('loratap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('LoRaWAN') == 10
+        assert protocols.count('LoRaTap') == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('loratap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_loratap_v0_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version 0 header: channel, RSSI (255 is N/A) and syncword.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('loratap_coverage.pcap.gz'),
+                '-Y', 'loratap.version == 0',
+                '-Tfields', '-eframe.number', '-eloratap.header_length',
+                '-eloratap.channel.frequency', '-eloratap.channel.bandwidth',
+                '-eloratap.channel.sf', '-eloratap.rssi.packet',
+                '-eloratap.syncword', '-eloratap.payload',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 7
+        assert lines[0].startswith('1\t15\t868100000\t1\t7\t80\t0x34\t')
+        assert lines[1].startswith('2\t15\t868100000\t2\t8\t80\t0x12\t')
+        assert lines[2].startswith('3\t15\t868100000\t4\t12\t255\t0x34\t')
+        assert lines[4].startswith('5\t19\t')
+        assert lines[5].startswith('6\t15\t868100000\t1\t7\t80\t0x12')
+
+    def test_loratap_v1_tree(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 header: gateway, timestamp, flags and the extra
+        channel fields, shown for frame 12 (FSK, IQ inverted, implicit
+        header, CRC OK).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('loratap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-V', '-O', 'loratap',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = [l for l in lines if l.startswith('LoRaTap header')][0]
+        lines = lines[lines.index(start):]
+        assert lines[0].startswith('LoRaTap header, Src: ')
+        assert lines[1:6] == [
+            '    Header Version: 1',
+            '    Header Padding: 00',
+            '    Header Length: 35 bytes',
+            '    Source: 0102030405060708',
+            '    Timestamp: 123456',
+        ]
+        assert lines[6] == '    Flags: 0x0f, FSK Modulation, IQ Inverted, Implicit Header, Checksum: CRC OK'
+        assert '        FSK datarate: 50000bits/s' in lines
+        assert '        Coding Rate: 4/8 (8)' in lines
+        assert '        IF channel: 2' in lines
+        assert '        RF chain: 1' in lines
+        assert '    Tag: 7' in lines
+
+    def test_loratap_crc_gate(self, cmd_tshark, capture_file, test_env):
+        '''With version 1 only CRC OK or No CRC frames reach the next
+        dissector: frames 10 (CRC Bad) and 16 (checksum 0) stay LoRaTap.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('loratap_coverage.pcap.gz'),
+                '-Y', 'loratap.version == 1 && !lorawan',
+                '-Tfields', '-eframe.number', '-eloratap.flags.crc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['10\t0x02', '11\t0x04', '15\t0x01', '16\t0x00']
