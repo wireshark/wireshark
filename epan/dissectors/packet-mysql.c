@@ -2914,6 +2914,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 				}
 			}
 			while (tvb_reported_length_remaining(tvb, offset) > 0){
+				int row_start = offset;
 				tf = proto_tree_add_uint_format(req_tree, hf_mariadb_bulk_row_nr, tvb, offset, 0, row_nr, "%d. Dataset", row_nr);
 				proto_item_set_generated(tf);
 				param_tree = proto_item_add_subtree(tf, ett_bulk_param);
@@ -2941,6 +2942,8 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *
 					}
 				}
 				row_nr++;
+				if (offset <= row_start)
+					break;  /* no parameters: no progress, avoid infinite loop */
 			}
 		}
 		if (current_state != RESPONSE_PREPARE) {
@@ -4828,6 +4831,7 @@ dissect_mysql_decompressed_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	while (tvb_reported_length_remaining(tvb, offset)) {
 		remaining = tvb_ensure_reported_length_remaining(tvb, offset);
 		if (remaining < 3) {
+			pinfo->desegment_offset = offset;
 			pinfo->desegment_len = 3 - remaining;
 			/* reassemble_streaming_data_and_call_subdissector()
 			 * expects the remaining bytes of the fixed header
