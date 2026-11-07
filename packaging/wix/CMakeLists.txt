@@ -30,14 +30,14 @@ set(WIX_SOURCE_FILES
 set(WIX_SOURCE_FILES ${WIX_SOURCE_FILES} PARENT_SCOPE)
 
 set(WIX_FILES
-	ComponentGroups.wxi
-	COPYING.rtf
-	DirectoryStructure.wxi
-	Features.wxi
-	InputPaths.wxi
-	Plugins.wxi
-	Prerequisites.wxi
-	UserInterface.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/ComponentGroups.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/COPYING.rtf
+	${CMAKE_CURRENT_SOURCE_DIR}/DirectoryStructure.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/Features.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/InputPaths.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/Plugins.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/Prerequisites.wxi
+	${CMAKE_CURRENT_SOURCE_DIR}/UserInterface.wxi
 	${WIX_SOURCE_FILES}
 	PARENT_SCOPE
 )
