@@ -84328,3 +84328,78 @@ class TestDissectIsisSnp:
                 '-Y', 'isis.csnp.checksum.status', '-Tfields', '-eframe.number',
                 '-eisis.csnp.checksum.status')
         assert lines == ['8\t1', '9\t3', '23\t1', '24\t3']
+
+
+class TestDissectIsl:
+    def test_isl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-7, 12 and 13 are Ethernet in ISL, 8-9 Token-Ring in ISL
+        and 10-11 carry FDDI and ATM as data. None is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 13
+        for n, protos in lines:
+            if n in ('8', '9'):
+                assert protos == 'eth:tr:llc:ip:icmp'
+            elif n in ('10', '11'):
+                assert protos == 'eth:data'
+            elif n == '12':
+                assert protos == 'eth:eth:eth:eth:ethertype:ip:icmp:data'
+            else:
+                assert protos == 'eth:eth:ethertype:ip:icmp:data'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert',
+                ), encoding='utf-8', env=test_env)
+            assert stdout == ''
+
+    def test_isl_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Type, user priority, VLAN ID, BPDU bit, index and reserved of the
+        ISL header, and the Token-Ring specific fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eisl.type', '-eisl.user_eth',
+                '-eisl.user', '-eisl.vlan_id', '-eisl.bpdu', '-eisl.index',
+                '-eisl.reserved', '-eisl.len', '-eisl.src_vlan_id',
+                '-eisl.explorer', '-eisl.fcs_not_incl', '-eisl.esize',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:5] == [
+            '1\t0\t0\t\t100\tFalse\t0\t0x0000\t70\t\t\t\t',
+            '2\t0\t1\t\t101\tFalse\t1\t0x0000\t70\t\t\t\t',
+            '3\t0\t2\t\t102\tFalse\t2\t0x0000\t70\t\t\t\t',
+            '4\t0\t3\t\t103\tFalse\t3\t0x0000\t70\t\t\t\t',
+            '5\t0\t0\t\t1\tTrue\t65535\t0x1234\t70\t\t\t\t',
+        ]
+        # Length 0: the length of the rest of the frame is used
+        assert lines[6] == '7\t0\t0\t\t300\tFalse\t3\t0x0000\t0\t\t\t\t'
+        assert lines[7] == '8\t1\t\t0x05\t10\tFalse\t7\t0x0246\t67\t291\tFalse\tFalse\t15'
+        assert lines[8] == '9\t1\t\t0x05\t11\tFalse\t7\t0x0247\t71\t291\tTrue\tTrue\t33'
+        assert lines[9] == '10\t2\t\t0x0a\t22\tFalse\t3\t0x0000\t28\t\t\t\t'
+        assert lines[10] == '11\t3\t\t0x0a\t23\tFalse\t3\t0x0000\t28\t\t\t\t'
+
+    def test_isl_nested(self, cmd_tshark, capture_file, test_env):
+        '''Frame 12 holds three ISL headers, one inside the other (VLANs
+        400 to 402), the innermost with an ICMP echo request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-eisl.vlan_id', '-eisl.len', '-eicmp.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '400,401,402\t130,100,70\t0'
+
+    def test_isl_trailer(self, cmd_tshark, capture_file, test_env):
+        '''A trailer longer than the 4 octet CRC is shown as the ISL trailer
+        (frame 13); a 4 octet one is shown as a frame check sequence.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isl_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eisl.trailer',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[12] == '13\t01020304'
+        assert lines[0] == '1\t'
