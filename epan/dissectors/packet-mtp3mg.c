@@ -421,7 +421,7 @@ static dissector_handle_t mtp3mg_handle;
 static void
 dissect_mtp3mg_unknown_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    uint8_t message_length;
+    unsigned message_length;
 
     message_length = tvb_captured_length(tvb);
     proto_tree_add_expert_format(tree, pinfo, &ei_mtp3mg_unknown_message, tvb, 0, message_length,
@@ -728,7 +728,7 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     if (mtp3_pc_structured()) {
                         uint32_t apc;
 
-                        apc = tvb_get_letohs(tvb, 0);
+                        apc = tvb_get_letohs(tvb, offset);
                         proto_item_append_text(apc_item, " (%s)",
                                                mtp3_pc_to_str(pinfo->pool, apc));
                     }
