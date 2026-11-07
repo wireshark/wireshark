@@ -88792,3 +88792,99 @@ class TestDissectLapsat:
                                 'lapsat.reassembled.length', *passes,
                                 fields=('frame.number', 'lapsat.reassembled.length'))
             assert lines == ['70\t32', '74\t32', '75\t32', '77\t2']
+
+
+class TestDissectLat:
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('lat_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_lat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is LAT and none is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split() == ['LAT'] * 31
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_lat_info(self, cmd_tshark, capture_file, test_env):
+        '''The message type of every frame.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == (
+            ['Start'] * 2 + ['Run'] * 10 + ['Stop'] + ['Service announcement'] * 2
+            + ['Command'] * 7 + ['Status'] * 3 + ['Solicit information'] * 2
+            + ['Response information'] * 2
+            + ['Unknown command (3)', 'Unknown command (63)'])
+
+    def test_lat_slots(self, cmd_tshark, capture_file, test_env):
+        '''Start, data_a, data_b, reject, stop and unknown slot types, their
+        credits and byte counts.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {3, 4, 6, 7, 10}', '-Tfields',
+                '-eframe.number', '-elat.slot.type', '-elat.slot.credits',
+                '-elat.slot.byte_count')
+        assert stdout.splitlines() == [
+            '3\t0x09\t3\t46',
+            '4\t0x09,0x09\t1,2\t17,20',
+            '6\t0x00,0x00,0x00\t15,0,1\t5,2,0',
+            '7\t0x0a\t1\t34',
+            '10\t0x0c,0x0d,0x01,0x0e,0x0f\t\t0,2,3,0,1',
+        ]
+
+    def test_lat_start_and_stop(self, cmd_tshark, capture_file, test_env):
+        '''Start message strings and parameters, and the stop reason.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 13}', '-Tfields', '-eframe.number',
+                '-elat.slave_node_name', '-elat.master_node_name',
+                '-elat.location_text', '-elat.param_code',
+                '-elat.circuit_disconnect_reason', '-elat.reason_text')
+        assert stdout.splitlines() == [
+            '1\tSLAVE\tMASTER\tRack 7\t0\t\t',
+            '2\t\t\t\t1,7,0\t\t',
+            '13\t\t\t\t\t2\tclosing',
+        ]
+
+    def test_lat_service_announcement_classes(self, cmd_tshark, capture_file, test_env):
+        '''Every service class of the node service class list is decoded from
+        its own octet (1, 0, 2); they were all decoded from the same octet
+        before the offset was advanced in the loop.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {14, 15}', '-Tfields', '-eframe.number',
+                '-elat.node_service_len', '-elat.node_service_class',
+                '-elat.service_name_count', '-elat.service.rating',
+                '-elat.service.name')
+        assert stdout.splitlines() == [
+            '14\t3\t1,0,2\t2\t200,3\tSVC1,SVC2',
+            '15\t0\t\t0\t\t',
+        ]
+
+    def test_lat_response_information_services(self, cmd_tshark, capture_file, test_env):
+        '''The service entries of a response information message start after
+        the service count: the first entry length was read from the count
+        octet and the following entries were misaligned before the fix.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {28, 29}', '-Tfields', '-eframe.number',
+                '-elat.srvc_count', '-elat.srvc_entry_len', '-elat.srvc_class',
+                '-elat.srvc_rating', '-elat.srvc_name', '-elat.srvc_desc')
+        assert stdout.splitlines() == [
+            '28\t2\t17,18\t1,1,2,0\t100,5\tFIRST,SECOND\tone,two',
+            '29\t0\t\t\t\t\t',
+        ]
+
+    def test_lat_status_entries(self, cmd_tshark, capture_file, test_env):
+        '''Status entries (accepted, rejected with an error, long names).'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {23, 24, 25}', '-Tfields', '-eframe.number',
+                '-elat.entries_counter', '-elat.entry_length', '-elat.entry_error')
+        assert stdout.splitlines() == [
+            '23\t3\t28,25,39\t7',
+            '24\t1\t28\t',
+            '25\t0\t\t',
+        ]
