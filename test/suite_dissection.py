@@ -88888,3 +88888,59 @@ class TestDissectLat:
             '24\t1\t28\t',
             '25\t0\t\t',
         ]
+
+
+class TestDissectLbm:
+    '''The LBM channel, topic and transport bookkeeping (packet-lbm.c) used
+    by LBT-RM, LBT-RU, LBT-TCP, LBMPDM-TCP and topic resolution, from the
+    synthetic capture lbm_coverage.pcapng.gz: topic resolution (frames 1-6)
+    names the topics of every transport, frames 7-19 are LBT-RM and LBT-RU
+    data, 20-46 are TCP.'''
+
+    CAP = 'lbm_coverage.pcapng.gz'
+
+    def test_lbm_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames or error expert infos, in one and two passes,
+        and the same protocol counts.'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == []
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'LBMR': 6, 'LBT-RM': 8, 'LBT-RU': 5, 'LBT-TCP': 10,
+                          'TCP': 15, 'LBMPDM-TCP': 2}
+
+    def test_lbm_topic_names(self, cmd_tshark, capture_file, test_env):
+        '''Topics learned from topic resolution are found per transport and
+        topic index: LBT-RM, a second LBT-RM source with the same index,
+        LBT-RU and LBT-TCP (plain and with session id). Index 99 is unknown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'lbmc',
+                '-Tfields', '-eframe.number', '-elbmc.tidx', '-elbmc.topic',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert '7\t1\ttopic.rm' in lines
+        assert '8\t2\ttopic.rm2' in lines
+        assert '13\t99\t' in lines
+        assert '14\t1\ttopic.other' in lines
+        assert '15\t7\ttopic.ru' in lines
+        assert '24\t5\ttopic.tcp' in lines
+        assert '35\t6\ttopic.tcpsid' in lines
+
+    def test_lbm_channels(self, cmd_tshark, capture_file, test_env):
+        '''Every transport gets its own channel; the LBT-RM retransmission
+        and duplicate keep the transport channel.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'lbtrm',
+                '-Tfields', '-eframe.number', '-elbtrm.channel',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        chans = {l.split('\t')[1] for l in stdout.splitlines() if l.split('\t')[0] in
+                 {'7', '8', '9', '10', '11', '12', '13'}}
+        assert len(chans) == 1
