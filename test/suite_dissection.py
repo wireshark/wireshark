@@ -87099,3 +87099,96 @@ class TestDissectKdp:
             assert len(l[2].split(',')) == 63
         assert lines[0][3:] == ['', '']
         assert lines[1][3:] == ['0x0001', '6269672068656164657220626f6479']
+
+
+class TestDissectKdsp:
+    '''Kismet Drone/Server Protocol (TCP port 2502) from the synthetic
+    capture kdsp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def kdsp_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kdsp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_kdsp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-15, 17, 20, 21, 23 and 24 carry KDSP messages (the
+        others are TCP, among them the segments of the two reassembled
+        CHANNELSET messages); no KDSP frame is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kdsp', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in
+                (4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 17, 20, 21, 23, 24)]
+        for passes in ((), ('-2',)):
+            stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || kdsp && _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_kdsp_commands(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the commands; frames 21 and 23 hold two
+        messages.'''
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kdsp', '-Tfields', '-eframe.number', '-ekdsp.command',
+                '-ekdsp.length')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['4', '1', '68'], ['5', '2', '22'], ['6', '0', '0'],
+            ['7', '5', '77'], ['8', '6', '31'], ['9', '3', '87'],
+            ['10', '3', '95'], ['11', '3', '79'], ['12', '3', '213'],
+            ['13', '3', '71'], ['14', '3', '42'], ['15', '3', '18'],
+            ['17', '4', '2080'], ['20', '4', '2080'], ['21', '2,6', '13,31'],
+            ['23', '5,2', '77,12'], ['24', '2', '1208']]
+
+    def test_kdsp_hello_string_source_report(self, cmd_tshark, capture_file, test_env):
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4 || frame.number == 5 || frame.number == 7 || frame.number == 8',
+                '-Tfields', '-eframe.number', '-ekdsp.version',
+                '-ekdsp.server.version', '-ekdsp.hostname', '-ekdsp.str.message',
+                '-ekdsp.source.name', '-ekdsp.source.interface',
+                '-ekdsp.source.type', '-ekdsp.source.rate', '-ekdsp.report.sec',
+                '-ekdsp.report.usec')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['4', '4', 'Kismet-2011-03-R1', 'drone-host', '', '', '', '', '', '', ''],
+            ['5', '', '', '', 'Drone starting', '', '', '', '', '', ''],
+            ['7', '', '', '', '', 'wlan0 source', 'wlan0', 'mac80211', '5', '', ''],
+            ['8', '', '', '', '', '', '', '', '', '1700000000', '5000']]
+
+    def test_kdsp_capture_packets(self, cmd_tshark, capture_file, test_env):
+        '''Capture headers: data header with each timestamp form, link
+        type and payload length, FCS, radio and GPS headers, and the
+        802.11 and radiotap payloads they carry.'''
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kdsp.command == 3', '-Tfields', '-eframe.number',
+                '-ekdsp.cpt.dlt', '-ekdsp.cpt.pkt_len', '-ekdsp.fcs.data',
+                '-ekdsp.radio.freq', '-ekdsp.radio.signal_dbm',
+                '-ekdsp.gps.fix', '-ekdsp.cpt.tv_sec', '-ekdsp.cpt.tv_usec',
+                '-ewlan.ssid', '-eframe.protocols')
+        base = 'eth:ethertype:ip:tcp:kdsp'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['9', '105', '51', '', '', '', '', '1700000000', '123456', '6b647370', base + ':wlan'],
+            ['10', '105', '51', '', '', '', '', '1700000000', '', '6b647370', base + ':wlan'],
+            ['11', '105', '51', '', '', '', '', '', '123456', '6b647370', base + ':wlan'],
+            ['12', '127', '59', '0x01020304', '2437', '-50', '3', '1700000000',
+             '123456', '6b647370', base + ':radiotap:wlan_radio:wlan'],
+            ['13', '1', '51', '', '', '', '', '', '', '', base],
+            ['14', '', '', '0x01020304', '2437', '-50', '', '', '', '', base],
+            ['15', '105', '', '', '', '', '', '', '', '', base]]
+
+    def test_kdsp_channelset_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''CHANNELSET messages of 2092 octets are reassembled from two
+        and from three TCP segments (the second one starts with the
+        message split inside the 12 octet header); channels and ranges
+        (bit 15 set) are decoded.'''
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kdsp.command == 4', '-Tfields', '-eframe.number',
+                '-ekdsp.chset.num_ch', '-ekdsp.chset.ch', '-ekdsp.chset.start',
+                '-ekdsp.chset.end', '-ekdsp.chset.rate', '-eframe.protocols')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['17', '5', '1,6,11', '32804,32868', '64,140', '5', 'eth:ethertype:ip:tcp:kdsp'],
+            ['20', '0', '', '', '', '5', 'eth:ethertype:ip:tcp:kdsp']]
+        stdout = self.kdsp_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'kdsp.command == 4', '-Tfields', '-eframe.number',
+                '-etcp.segment', '-etcp.reassembled.length')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['17', '16,17', '2092'], ['20', '18,19,20', '2092']]
