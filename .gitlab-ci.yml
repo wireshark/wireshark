@@ -243,6 +243,7 @@ workflow:
       if (-Not (Get-Command ninja -ErrorAction SilentlyContinue)) {
         $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)"
         if (-Not (Test-Path "$ninjaDir\ninja.exe")) {
+          Write-Host "Downloading Ninja $($env:WS_NINJA_VERSION) to $ninjaDir"
           $ninjaZip = "$env:TEMP\ninja-$($env:WS_NINJA_VERSION)-win.zip"
           Invoke-WebRequest -UseBasicParsing -OutFile $ninjaZip -Uri "https://github.com/ninja-build/ninja/releases/download/v$($env:WS_NINJA_VERSION)/ninja-win.zip"
           if ((Get-FileHash $ninjaZip -Algorithm SHA256).Hash -ne $env:WS_NINJA_WINDOWS_X64_SHA256) {
@@ -254,7 +255,7 @@ workflow:
         }
         $env:Path = "$ninjaDir;$env:Path"
       }
-    - Write-Host "Ninja $(ninja --version)"
+    - Write-Host "Ninja $(ninja --version) from $((Get-Command ninja).Source)"
 
 # Put ccache on the path in a Windows job: the one in the image if it
 # has one, otherwise the WS_CCACHE_VERSION release, which we download
@@ -267,6 +268,7 @@ workflow:
         $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-x86_64"
         $ccacheDir = "$env:CI_PROJECT_DIR\..\$ccacheName"
         if (-Not (Test-Path "$ccacheDir\ccache.exe")) {
+          Write-Host "Downloading ccache $($env:WS_CCACHE_VERSION) to $ccacheDir"
           $ccacheZip = "$env:TEMP\$ccacheName.zip"
           Invoke-WebRequest -UseBasicParsing -OutFile $ccacheZip -Uri "https://github.com/ccache/ccache/releases/download/v$($env:WS_CCACHE_VERSION)/$ccacheName.zip"
           if ((Get-FileHash $ccacheZip -Algorithm SHA256).Hash -ne $env:WS_CCACHE_WINDOWS_X64_SHA256) {
@@ -278,7 +280,7 @@ workflow:
         }
         $env:Path = "$ccacheDir;$env:Path"
       }
-    - ccache --version | Select-Object -First 1
+    - Write-Host "$(ccache --version | Select-Object -First 1) from $((Get-Command ccache).Source)"
 
 # macOS runners are still beta:
 # https://about.gitlab.com/blog/2021/08/23/build-cloud-for-macos-beta/
@@ -1291,6 +1293,9 @@ Windows Build:
   script:
     - !reference [.windows-ninja, script]
     - !reference [.windows-ccache, script]
+    # Show whether the cache from earlier jobs is there. The runner runs
+    # jobs concurrently, and each of its slots has its own cache.
+    - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
     - ccache --zero-stats
     - cmake -G "Ninja Multi-Config"
       -DENABLE_CCACHE=ON
@@ -1311,7 +1316,7 @@ Windows Build:
     - '& $cpack -G ZIP -C Debug -D CPACK_COMPONENTS_ALL=Unspecified'
   after_script:
     - !reference [.windows-ccache, script]
-    - ccache --show-stats
+    - ccache --show-stats --verbose
   artifacts:
     when: always
     paths:
