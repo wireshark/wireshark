@@ -90,6 +90,7 @@ static int ett_matter_tlv;
 static int ett_matter_tlv_control;
 
 static expert_field ei_matter_tlv_unsupported_control;
+static expert_field ei_matter_short_secured_payload;
 
 /* message flags + session ID + security flags + counter */
 #define MATTER_MIN_LENGTH 8
@@ -312,7 +313,14 @@ dissect_matter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset += dissect_matter_payload(next_tvb, pinfo, payload_tree);
     } else {
         // Secured sessions not yet supported in the dissector.
-        uint32_t payload_length = tvb_reported_length_remaining(tvb, offset) - CRYPTO_AEAD_MIC_LENGTH;
+        unsigned remaining = tvb_reported_length_remaining(tvb, offset);
+        uint32_t payload_length;
+
+        if (remaining < CRYPTO_AEAD_MIC_LENGTH) {
+            proto_tree_add_expert_remaining(matter_tree, pinfo, &ei_matter_short_secured_payload, tvb, offset);
+            return tvb_captured_length(tvb);
+        }
+        payload_length = remaining - CRYPTO_AEAD_MIC_LENGTH;
         proto_tree_add_none_format(matter_tree, hf_payload, tvb, offset, payload_length, "Encrypted Payload (%u bytes)", payload_length);
         proto_tree_add_item(matter_tree, hf_payload_mic, tvb, offset + payload_length, CRYPTO_AEAD_MIC_LENGTH, ENC_NA);
     }
@@ -729,6 +737,10 @@ proto_register_matter(void)
         { &ei_matter_tlv_unsupported_control,
           { "matter.tlv.control.unsupported", PI_UNDECODED, PI_WARN,
             "Unsupported Matter-TLV control byte", EXPFILL }
+        },
+        { &ei_matter_short_secured_payload,
+          { "matter.payload.too_short", PI_MALFORMED, PI_ERROR,
+            "Secured payload shorter than the message integrity code", EXPFILL }
         },
     };
 
