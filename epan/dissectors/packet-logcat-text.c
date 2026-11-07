@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/exported_pdu.h>
 #include <epan/tap.h>
 #include <wiretap/logcat_text.h>
@@ -177,6 +178,10 @@ static unsigned get_time(const char *frame, const char *token, tvbuff_t *tvb,
     return offset + (unsigned)strlen(token);
 }
 
+static void free_tokens(void *tokens) {
+    g_strfreev((char **)tokens);
+}
+
 static unsigned dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         const dissect_info_t *dinfo) {
     char **tokens;
@@ -199,15 +204,19 @@ static unsigned dissect_logcat_text(tvbuff_t *tvb, proto_tree *tree, packet_info
             return 0;
         }
 
+        /* The getters can throw; free the tokens then too. */
+        CLEANUP_PUSH(free_tokens, tokens);
         for (i = 0; i < dinfo->no_of_getters; ++i) {
             offset = ((*dinfo->getters[i])(frame, tokens[i + 1], tvb, maintree, offset, pinfo));
         }
+        CLEANUP_CALL_AND_POP;
     } else {
         tokens = g_regex_split(special_regex, frame, G_REGEX_MATCH_NOTEMPTY);
         if (NULL == tokens) return 0;
+        CLEANUP_PUSH(free_tokens, tokens);
         offset = get_log(frame, tokens[1], tvb, maintree, 0, pinfo);
+        CLEANUP_CALL_AND_POP;
     }
-    g_strfreev(tokens);
     return offset;
 }
 
@@ -268,7 +277,7 @@ static int dissect_logcat_text_thread(tvbuff_t *tvb, packet_info *pinfo, proto_t
     static const tGETTER getters[] = { get_priority, get_pid, get_tid, get_log };
     dissect_info_t dinfo = { &thread_regex, getters, array_length(getters) };
 
-    add_exported_pdu(tvb,pinfo,"logcat_text_brief");
+    add_exported_pdu(tvb,pinfo,"logcat_text_thread");
     set_address(&pinfo->dst, AT_STRINGZ, 1, "");
     set_address(&pinfo->src, AT_STRINGZ, 1, "");
 
