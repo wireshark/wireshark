@@ -100226,3 +100226,64 @@ class TestDissectMrcpv2:
         out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {68, 69}',
                           ['frame.number', 'tcp.dstport', 'mrcpv2.reqID', 'mrcpv2.status_code'])
         assert out == ['68\t30100\t1\t', '69\t40001\t1\t200']
+
+
+class TestDissectMrd:
+    '''MRD (Multicast Router Discovery) over IGMP (RFC 4286 types 0x30-0x32,
+    and the draft types 0x24-0x26 handed to the "mrd" dissector by Exported
+    PDU frames on a second interface) from the synthetic capture
+    mrd_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mrd_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mrd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 13 frames are MRD; no malformed packets and no warnings or
+        errors (checksums are good) in one and two passes. The draft types
+        carry the "deprecated" note.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mrd', ['frame.number'])
+        assert count_output('\n'.join(out)) == 13
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              ['frame.number'], *passes)
+            assert count_output('\n'.join(out)) == 0
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mrd.type.deprecated',
+                          ['frame.number'])
+        assert out == ['5', '6', '7', '8', '9', '10']
+
+    def test_mrd_rfc4286(self, cmd_tshark, capture_file, test_env):
+        '''Advertisement, Solicitation and Termination.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 3, 4, 11, 12, 13}',
+                          ['frame.number', 'mrd.type', 'mrd.adv_int', 'mrd.query_int', 'mrd.rob_var',
+                           'mrd.checksum.status', 'ip.dst'])
+        assert out == [
+            '1\t0x30\t20\t125\t2\t1\t224.0.0.106',
+            '2\t0x30\t255\t65535\t7\t1\t224.0.0.106',
+            '3\t0x31\t\t\t\t1\t224.0.0.106',
+            '4\t0x32\t\t\t\t1\t224.0.0.106',
+            '11\t0x30\t10\t100\t2\t1\t224.0.0.1',
+            '12\t0x32\t\t\t\t1\t224.0.0.1',
+            '13\t0x31\t\t\t\t1\t224.0.0.2',
+        ]
+
+    def test_mrd_draft_options(self, cmd_tshark, capture_file, test_env):
+        '''The draft 06 Advertisement with its options (Query Interval,
+        Robustness Variable, an unknown one) and the draft Solicitation
+        and Termination, also frame 10 over IP to 224.0.0.2.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 6, 7, 8, 9, 10}',
+                          ['frame.number', 'mrd.type', 'mrd.adv_int', 'mrd.num_opts', 'mrd.option',
+                           'mrd.query_int', 'mrd.rob_var', 'mrd.option_data'])
+        assert out == [
+            '5\t0x24\t30\t0\t\t\t\t',
+            '6\t0x24\t30\t2\t1,2\t125\t2\t',
+            '7\t0x24\t30\t3\t1,127,2\t60\t3\t010203',
+            '8\t0x25\t\t\t\t\t\t',
+            '9\t0x26\t\t\t\t\t\t',
+            '10\t0x26\t\t\t\t\t\t',
+        ]
