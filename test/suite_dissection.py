@@ -90385,3 +90385,86 @@ class TestDissectLdp:
                 '-Y', 'frame.number == 22', '-Tfields', '-eldp.msg.tlv.fec.pw.pwid',
                 '-eldp.msg.tlv.fec.pw.groupid', '-eldp.msg.tlv.fec.pw.pwtype')
         assert stdout.splitlines() == ['8738,100,100,5\t17,1,1,1\t0x0005,0x0004,0x0007,0x0005']
+
+
+class TestDissectLg8979:
+    # L&G 8979 has no default port: the capture uses TCP port 29998
+    OPTS = ('-d', 'tcp.port==29998,lg8979')
+
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('lg8979_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_lg8979_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every request and response decodes without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')
+        assert protocols.count('L&G 8979') == 77
+        assert protocols.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_lg8979_direction(self, cmd_tshark, capture_file, test_env):
+        '''36 messages are classified as requests, 37 as responses, and 4 (an
+        unknown function code and messages shorter than 6 octets) cannot be
+        classified.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'lg8979', '-Tfields', '-e_ws.col.info')
+        directions = [l.split(',')[0] for l in stdout.split('\n')[:-1]]
+        assert directions.count('Master -> RTU') == 36
+        assert directions.count('RTU -> Master') == 37
+        assert directions.count('') == 4
+
+    def test_lg8979_info_and_fields(self, cmd_tshark, capture_file, test_env):
+        '''Info columns and fields of requests, short responses and stacked
+        responses.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {4, 13, 14, 22, 40, 41, 69, 70}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-elg8979.funccode', '-elg8979.length', '-elg8979.shr',
+                '-elg8979.sbo_tripclose', '-elg8979.timesync_mon',
+                '-elg8979.timesync_msec', '-elg8979.crc16')
+        assert stdout.splitlines() == [
+            '4\tMaster -> RTU, Address: 1, Analog Force Report\t1\t4\t0\t\t\t\t0xabcd',
+            '13\tMaster -> RTU, Address: 4, SBO Select, Output: 9, Code: Close\t21\t2\t0\t1\t\t\t0xabcd',
+            '14\tMaster -> RTU, Address: 4, SBO Select, Output: 10, Code: Trip\t21\t2\t0\t0\t\t\t0xabcd',
+            '22\tMaster -> RTU, Address: 6, Time Synchronization\t32\t7\t0\t\t11\t999\t0xabcd',
+            '40\tRTU -> Master, Address: 1, Short Response\t\t\t1\t\t\t\t0xabcd',
+            '41\tRTU -> Master, Address: 1\t\t\t0\t\t\t\t0xabcd',
+            '69\tRTU -> Master, Address: 8, Analog Change Report, Indication Change Report, Accumulator Change Report\t0,6,12\t3,2,3\t0\t\t\t\t0xabcd',
+            '70\tRTU -> Master, Address: 8, Unknown/Invalid Function, Restart RTU, Analog Change Report\t4,30,0\t0,0,3\t0\t\t\t\t0xabcd',
+        ]
+
+    def test_lg8979_exception_report(self, cmd_tshark, capture_file, test_env):
+        '''The parameter of exception code 14 (function not allowed) is
+        also shown as the disallowed function code.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'lg8979.exprpt_code', '-Tfields', '-eframe.number',
+                '-elg8979.exprpt_code', '-elg8979.exprpt_parm',
+                '-elg8979.disallowed_func')
+        assert stdout.splitlines()[0:5] == [
+            '64\t1\t0\t',
+            '65\t9\t99\t',
+            '66\t14\t34\t34',
+            '67\t14\t200\t200',
+            '68\t119\t5\t',
+        ]
+
+    def test_lg8979_long_response_direction(self, cmd_tshark, capture_file, test_env):
+        '''Frame 80 is a response of 262 octets (256 + 6) whose first block is
+        an indication force report of length 4. The length was truncated to
+        8 bits when classifying, so it looked like a request (a force report
+        of length 4 from the master) and the stacked blocks were not decoded.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.OPTS, *passes,
+                    '-Y', 'frame.number == 80', '-Tfields', '-e_ws.col.info',
+                    '-elg8979.funccode', '-elg8979.length')
+            assert stdout.splitlines() == [
+                'RTU -> Master, Address: 10, Indication Force Report, Accumulator Change Report\t7,12\t4,249']
