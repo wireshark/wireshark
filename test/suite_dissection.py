@@ -99594,3 +99594,58 @@ class TestDissectMplsEcho:
         assert [r[2] for r in rows[:6]] == ['30,0', '30,0', '30,0', '30,0', '7', '']
         assert [r[3] for r in rows[:5]] == ['1', '1', '1', '3', '5']
         assert [r[4] for r in rows[7:10]] == ['1', '1,14', '15']
+
+
+class TestDissectMplsMac:
+    '''MPLS-MAC (MAC address withdrawal over a static pseudowire,
+    packet-mpls-mac.c) from the synthetic capture
+    mpls_mac_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mpls_mac_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_mac_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames are MPLS-MAC and none is malformed or has an error
+        expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_mac', ['frame.number'])
+        assert len(rows) == 11
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mpls_mac_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_mac_flags_and_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''The A and R flags, the total TLV length, the TLV types and the
+        sequence numbers.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mpls_mac',
+                          ['frame.number', 'mpls_mac.flags.a', 'mpls_mac.flags.r',
+                           'mpls_mac.tlv_length_total', 'mpls_mac.tlv.type',
+                           'mpls_mac.tlv.sequence_number'])
+        assert [r[1:3] for r in rows[:4]] == [['False', 'False'], ['True', 'False'],
+                                              ['False', 'True'], ['True', 'True']]
+        assert rows[0][3] == '0'
+        assert [r[3] for r in rows[4:]] == ['8', '8', '10', '27', '4', '204', '8']
+        assert [r[4] for r in rows[4:]] == ['0x0001', '0x0001', '0x0002', '0x0001,0x3fff,0x0007',
+                                            '0x0005', '0x0009', '0x0001']
+        assert rows[4][5] == '4242'
+        assert rows[5][5] == '4294967295'
+        assert rows[7][5] == '1'
+        assert rows[10][5] == '99'
+
+    def test_mpls_mac_transports(self, cmd_tshark, capture_file, test_env):
+        '''Frame 11 arrives through the post-stack first nibble 1 (an
+        associated channel header without a GAL), the others through the
+        GAL.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {1, 11}',
+                          ['frame.protocols'])
+        assert [r[0] for r in rows] == ['eth:ethertype:mpls:pwach:mpls_mac',
+                                        'eth:ethertype:mpls:mpls_mac']
