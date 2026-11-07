@@ -68,6 +68,8 @@ if(USE_MSYSTEM)
 		${MINGW_BIN}/libwinpthread-*.dll
 		${MINGW_BIN}/libxml2-*.dll
 		${MINGW_BIN}/libxxhash.dll
+		# zlib 1.4 and later. Packages built with earlier versions use zlib1.dll.
+		${MINGW_BIN}/libz-[1-9]*.dll
 		${MINGW_BIN}/libzstd.dll
 		${MINGW_BIN}/lua5[3-9].dll
 		${MINGW_BIN}/zlib1.dll
