@@ -93056,3 +93056,104 @@ class TestDissectLwm2mtlv:
         assert lol == '2,0,2,1,2,3'
         assert ident == '1,1000,1,2,3,4'
         assert length == '360,300,20,5,9'
+
+
+class TestDissectLwm:
+    '''Synthetic Lightweight Mesh capture generated with Python struct
+    (mklwm.py): LwMesh in IEEE 802.15.4 data frames (link type 230),
+    found by the "lwm_wlan" heuristic, and one Exported PDU frame. The MIC
+    of the secured frames is a placeholder, no key is used for decryption
+    (the key preference is only set to a placeholder in one test).'''
+
+    def test_lwm_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has LwMesh and none is malformed or has an error
+        expert info, in one and two passes; the only warnings are the two
+        empty payloads.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm_coverage.pcapng.gz'),
+                '-Y', 'lwm', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 22
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lwm_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lwm_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity == "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['12\tEmpty LwMesh Payload!', '13\tEmpty LwMesh Payload!']
+
+    def test_lwm_secured_exported_pdu_with_key_preference(self, cmd_tshark, capture_file, test_env):
+        '''A secured LwMesh frame handed over by Exported PDU has no IEEE
+        802.15.4 data: with a key set it must be shown as "no decrypt key"
+        and not dereference the missing packet data ("LwMesh: Fix NULL
+        dereference and leak when decrypting"). The key bytes are a
+        placeholder, nothing is decrypted.'''
+        for opts in ((), ('-o', 'lwm.lwmes_key:000102030405060708090a0b0c0d0e0f')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('lwm_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 22',
+                    '-Tfields', '-eframe.number', '-elwm.security', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['22\tTrue\tEncrypted data (8 byte(s)) NO DECRYPT KEY']
+
+    def test_lwm_header(self, cmd_tshark, capture_file, test_env):
+        '''FCF flags, addresses, endpoints, the broadcast source note and
+        the multicast header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 9',
+                '-Tfields', '-eframe.number', '-elwm.fcf', '-elwm.src_addr', '-elwm.dst_addr',
+                '-elwm.src_endp', '-elwm.dst_endp', '-elwm.multi_nmrad', '-elwm.multi_mnmrad',
+                '-elwm.multi_mrad', '-elwm.multi_mmrad', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0x8001\t0x0005\t1\t2\t\t\t\t\t',
+            '2\t0x01\t0x8001\t0x0005\t1\t2\t\t\t\t\t',
+            '3\t0x04\t0x8001\t0x0005\t1\t2\t\t\t\t\t',
+            '4\t0x00\t0x0010\t0x0020\t1\t2\t\t\t\t\t',
+            '5\t0x00\t0x8010\t0x8020\t1\t2\t\t\t\t\t',
+            '6\t0x00\t0x0010\t0xffff\t1\t2\t\t\t\t\t',
+            '7\t0x00\t0xffff\t0x0007\t1\t2\t\t\t\t\tSource address can not be broadcast address !',
+            '8\t0x08\t0x8001\t0x8003\t1\t2\t1\t2\t3\t4\t',
+            '9\t0x09\t0x8001\t0x0009\t1\t2\t0\t0\t0\t0\t',
+        ]
+
+    def test_lwm_secured_without_key(self, cmd_tshark, capture_file, test_env):
+        '''A secured frame without a key shows the MIC and says that it
+        cannot be decrypted.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {10, 11}',
+                '-Tfields', '-eframe.number', '-elwm.security', '-elwm.mic',
+                '-e_ws.expert.message', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            "10\tTrue\t0x00000000\tNo encryption key set - can't decrypt\tEncrypted data (16 byte(s)) NO DECRYPT KEY",
+            "11\tTrue\t0x00000000\tNo encryption key set - can't decrypt\tEncrypted data (17 byte(s)) NO DECRYPT KEY",
+        ]
+
+    def test_lwm_commands(self, cmd_tshark, capture_file, test_env):
+        '''Stack commands: ACK, route error, route request and route reply
+        with the unicast and group address forms and the link quality.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lwm_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {14, 15, 16, 17, 18, 19, 20}',
+                '-Tfields', '-eframe.number', '-elwm.cmd', '-elwm.cmd.seq',
+                '-elwm.cmd.route_src', '-elwm.cmd.route_dst', '-elwm.cmd.multi',
+                '-elwm.cmd.linkq', '-elwm.cmd.flinkq', '-elwm.cmd.rlinkq', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t0x00\t14\t\t\t\t\t\t\tLwMesh ACK, Sequence number: 14',
+            '15\t0x01\t\t0x0001\t0x0002\t0x00\t\t\t\tRoute Error',
+            '16\t0x01\t\t0x8001\t0x8002\t0x01\t\t\t\tRoute Error',
+            '17\t0x02\t\t0x0001\t0x0002\t0x00\t255\t\t\tRoute Request',
+            '18\t0x02\t\t0x0003\t0x0004\t0x01\t17\t\t\tRoute Request',
+            '19\t0x03\t\t0x0001\t0x0002\t0x00\t\t100\t255\tRoute Reply',
+            '20\t0x03\t\t0x0005\t0x0006\t0x01\t\t100\t50\tRoute Reply',
+        ]
