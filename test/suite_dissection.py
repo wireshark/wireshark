@@ -96605,3 +96605,69 @@ class TestDissectMint:
                 '-Y', 'mint.control.mlcp.message', '-Tfields', '-eframe.number',
                 '-emint.control.mlcp.message', '-emint.control.mlcp.tlvtype')
         assert lines == ['25\t0x0103\t1,2', '26\t0x0201\t5,6', '27\t0x0103\t1', '28\t0x0100\t']
+
+
+class TestDissectMiop:
+    '''MIOP (Unreliable Multicast Inter-ORB Protocol) over UDP, found by
+    its heuristic, from the synthetic capture miop_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('miop_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_miop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''29 frames: 26 MIOP (6 of them show the GIOP message of their
+        first packet), two UDP frames and one TAPA frame that are not
+        MIOP. None is
+        malformed or has an error expert info, in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 29
+        assert lines.count('MIOP') == 20
+        assert lines.count('GIOP') == 6
+        assert lines.count('UDP') == 2
+        assert lines.count('TAPA') == 1
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_miop_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Big and little endian headers and the packet numbers.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 7', '-Tfields', '-eframe.number',
+                '-emiop.packet_length', '-emiop.packet_number',
+                '-emiop.number_of_packets', '-emiop.unique_id_len', '-emiop.flags')
+        assert lines == [
+            '1\t42\t0\t3\t8\t0',
+            '2\t43\t1\t3\t8\t0',
+            '3\t41\t2\t3\t8\t2',
+            '4\t33\t0\t1\t8\t2',
+            '5\t42\t0\t3\t8\t1',
+            '6\t43\t1\t3\t8\t1',
+            '7\t41\t2\t3\t8\t3',
+        ]
+
+    def test_miop_version_not_supported(self, cmd_tshark, capture_file, test_env):
+        '''A version other than 1.0 is reported with an expert info.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'miop.version.not_supported', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        assert lines == ['15\tVersion 1.1', '16\tVersion 0.0', '17\tVersion 15.15', '18\tVersion 2.0']
+
+    def test_miop_short_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Frame 27 starts with the MIOP magic but has only 19 octets: the
+        heuristic needs the 20 octets that hold the unique id length
+        ("MIOP: Require 20 bytes in the heuristic"), so it is plain UDP.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 27', '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['UDP']
+
+    def test_miop_giop_first_packet(self, cmd_tshark, capture_file, test_env):
+        '''The first packet carries the start of a GIOP message.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'giop', '-Tfields', '-eframe.number', '-egiop.type')
+        assert lines == ['19\t5', '20\t6', '21\t0', '22\t0', '24\t5', '25\t5']
