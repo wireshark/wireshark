@@ -99785,3 +99785,63 @@ class TestDissectMplsPsc:
             ['3', '7', '2', '1', '0', '0', '4'],
             ['0', '4', '2', '1', '1', '0', '0'],
         ]
+
+
+class TestDissectMplstpOam:
+    '''MPLS-TP Lock-Instruct (PW associated channel 0x0026) and
+    Fault-Management (0x0058) from packet-mplstp-oam.c, from the synthetic
+    capture mplstp_oam_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, display_filter, fields):
+        args = [cmd_tshark, '-r', capture_file('mplstp_oam_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mplstp_oam_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''Six Lock-Instruct and seven Fault-Management frames, none
+        malformed or with an error expert info, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mplstp_lock', ['frame.number'])
+        assert len(rows) == 6
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mplstp_fm', ['frame.number'])
+        assert len(rows) == 7
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mplstp_oam_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mplstp_lock(self, cmd_tshark, capture_file, test_env):
+        '''The refresh timer and the Source MEP-ID TLV (section, LSP, PW
+        and an unknown type) of the Lock-Instruct frames.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mplstp_lock',
+                          ['mplstp_lock.refresh-timer', 'bfd.mep.type', 'bfd.mep.global.id',
+                           'bfd.mep.node.id'])
+        assert [r[0] for r in rows] == ['3', '0', '3', '255', '3', '3']
+        assert [r[1] for r in rows] == ['0', '1', '2', '2', '', '0']
+        assert rows[0][2:] == ['100', '0.0.0.200']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {2, 3}',
+                          ['bfd.mep.tunnel.no', 'bfd.mep.lsp.no', 'bfd.mep.ac.id', 'bfd.mep.agi.len'])
+        assert rows == [['7', '9', '', ''], ['', '', '5', '9']]
+
+    def test_mplstp_fm(self, cmd_tshark, capture_file, test_env):
+        '''Message types, the L and R flags, the refresh timer and the
+        interface and global ID TLVs of the Fault-Management frames.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'mplstp_fm',
+                          ['mplstp_oam.message.type', 'mplstp_oam.flag_l', 'mplstp_oam.flag_r',
+                           'mplstp_oam.refresh.timer', 'mplstp_oam.total.tlv.len',
+                           'mplstp_oam.node_id', 'mplstp_oam.if_num', 'mplstp_oam.global_id'])
+        assert rows == [
+            ['0', 'False', 'False', '3', '16', '10.0.0.1', '17', '4242'],
+            ['1', 'False', 'True', '10', '16', '10.0.0.1', '17', '4242'],
+            ['2', 'True', 'False', '0', '16', '10.0.0.1', '17', '4242'],
+            ['1', 'True', 'True', '3', '16', '10.0.0.1', '17', '4242'],
+            ['9', 'True', 'True', '255', '16', '10.0.0.1', '17', '4242'],
+            ['1', 'False', 'False', '3', '0', '', '', ''],
+            ['2', 'False', 'True', '3', '16', '10.0.0.1', '17', '4242'],
+        ]
