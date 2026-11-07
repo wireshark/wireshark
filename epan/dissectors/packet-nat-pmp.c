@@ -485,6 +485,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uin
       offset+=2;
 
       mod_option_length = option_length % 4;
+      option_padding_length = 0;
       if( mod_option_length != 0 )
       {
         option_padding_length = 4 - mod_option_length;
