@@ -68685,7 +68685,7 @@ class TestDissectGtpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('gtpv2_session.pcap'),
-                    '-Y', 'frame.number >= 5',
+                    '-Y', 'frame.number >= 5 && frame.number <= 8',
                     '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
@@ -68697,6 +68697,24 @@ class TestDissectGtpSession:
             ]
             rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
             assert ['001010000000002', '5', '8'] in rows
+
+    def test_gtp_session_without_imsi(self, cmd_tshark, capture_file, test_env):
+        '''A Modify Bearer Request to an unknown TEID (frame 9) starts a
+        session without an IMSI. The next Create Session Request (frame 10)
+        starts another session, so frame 9 does not get its IMSI.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *GTP_SESSION_OPTS, *passes,
+                    '-r', capture_file('gtpv2_session.pcap'),
+                    '-Y', 'frame.number >= 9',
+                    '-Tfields', '-egtpv2.session', '-ee212.assoc.imsi',
+                    '-Eoccurrence=f',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '3\t',
+                '4\t001010000000004',
+            ]
+            rows = self.imsi_rows(cmd_tshark, capture_file, test_env, *passes)
+            assert ['001010000000004', '10', '10'] in rows
 
 
 # PFCP session tracking is off by default.

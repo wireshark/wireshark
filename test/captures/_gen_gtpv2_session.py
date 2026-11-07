@@ -25,6 +25,12 @@
 #                  capture (so no session): S11 SGW F-TEID and the PGW
 #                  S5/S8 F-TEID of frame 6
 #   8  SGW -> PGW  Modify Bearer Request to the PGW S5/S8 TEID, no IMSI
+#
+# UE C, whose session started before the capture, and UE D:
+#   9  MME -> SGW  Modify Bearer Request to an unknown S11 SGW TEID, no
+#                  IMSI: a new session without an IMSI
+#  10  MME -> SGW  Create Session Request with the IMSI of UE D: a new
+#                  session, not the one of frame 9
 
 import struct
 import sys
@@ -41,6 +47,7 @@ ENB = (10, 0, 3, 1)
 
 IMSI_A = '001010000000001'
 IMSI_B = '001010000000002'
+IMSI_D = '001010000000004'
 
 # GTPv2 message types
 CREATE_SESSION_REQUEST = 32
@@ -139,6 +146,15 @@ def main():
             f_teid_ie(IF_S5S8_PGW_GTPC, 0x7001, PGW, instance=1))),
         frame(SGW_S5, PGW, GTPV2_PORT, gtpv2(
             MODIFY_BEARER_REQUEST, 0x7001, 0x11)),
+        # UE C
+        frame(MME, SGW_S11, GTPV2_PORT, gtpv2(
+            MODIFY_BEARER_REQUEST, 0x2003, 0x30,
+            bearer_context_ie(f_teid_ie(IF_S1U_ENB, 0x4003, ENB)))),
+        # UE D
+        frame(MME, SGW_S11, GTPV2_PORT, gtpv2(
+            CREATE_SESSION_REQUEST, 0, 0x40,
+            imsi_ie(IMSI_D),
+            f_teid_ie(IF_S11_MME_GTPC, 0x1004, MME))),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)
