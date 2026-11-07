@@ -96265,3 +96265,89 @@ class TestDissectMidiSysex:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                 'midi_sysex.undecoded')
         assert [l.split('\t')[0] for l in lines] == ['1', '2', '3', '4', '8', '9', '10', '14']
+
+
+class TestDissectMidiSysexDigitech:
+    '''DigiTech X MIDI SysEx messages (manufacturer 00 00 10) in Exported PDU
+    frames, from the synthetic capture midi_sysex_digitech_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('midi_sysex_digitech_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_digitech_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 62 frames decode as X MIDI without malformed packets or error
+        expert infos, in one and two passes, and every checksum is good.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('midi_sysex_digitech_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['X MIDI'] * 62
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'midi.sysex.digitech.checksum.status != 1')
+        assert lines == []
+
+    def test_digitech_whoami(self, cmd_tshark, capture_file, test_env):
+        '''WhoAmI request and replies: product by family, OS mode.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 5',
+                'midi.sysex.digitech.procedure_id', 'midi.sysex.digitech.product_id',
+                'midi.sysex.digitech.os_mode')
+        assert lines == ['1\t0x01\t0x05\t', '2\t0x02\t0x05,0x05\t0x00',
+                         '3\t0x02\t0x05,0x03\t0x01', '4\t0x02\t0x05,0x07\t0x00',
+                         '5\t0x02\t0x01,0x01\t']
+
+    def test_digitech_presets(self, cmd_tshark, capture_file, test_env):
+        '''Preset names (counted list, empty list), the preset request and
+        the preset start, with names of 1-16 octets (the packing of the data
+        in groups of 7 octets).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {18, 19, 34, 35, 36, 37, 38}',
+                'midi.sysex.digitech.preset_name', 'midi.sysex.digitech.preset_bank',
+                'midi.sysex.digitech.preset_index', 'midi.sysex.digitech.preset_modified',
+                'midi.sysex.digitech.message_count')
+        assert lines == [
+            '18\tClean,Crunch,Lead\t0x00\t\t\t',
+            '19\tn\t0x01\t\t\t',
+            '34\tnnnnnnnnnnnnnnnn\t0x01\t\t\t',
+            '35\t\t0x02\t\t\t',
+            '36\t\t0x01\t0x0c\t\t',
+            '37\tMy Preset\t0x01\t0x0c\tTrue\t6',
+            '38\t\t0x00\t0x00\tFalse\t0',
+        ]
+
+    def test_digitech_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameters in every position (frame 39), values of one octet, with
+        a one-octet count and a two-octet count (frame 40), single parameter
+        values (frames 41-56) and ACK / NACK (57, 58).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 39', 'midi.sysex.digitech.parameter_count',
+                'midi.sysex.digitech.parameter_position')
+        assert lines == ['39\t29\t0,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,'
+                         '21,22,23,24,25,26,33,132,99']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 40', 'midi.sysex.digitech.parameter_id',
+                'midi.sysex.digitech.parameter_data',
+                'midi.sysex.digitech.parameter_value_count',
+                'midi.sysex.digitech.parameter_data_count')
+        # one-octet count 3 (frame octet 0x83); two-octet count 165
+        assert lines == ['40\t1862,1863,1864,1865\t127,0\t3\t165']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {41, 42, 44, 56}',
+                'midi.sysex.digitech.parameter_id', 'midi.sysex.digitech.parameter_position',
+                'midi.sysex.digitech.parameter_data')
+        assert lines == ['41\t1860\t15\t40', '42\t1860\t16\t', '44\t65\t2\t9', '56\t3649\t33\t9']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'midi.sysex.digitech.ack.procedure_id',
+                'midi.sysex.digitech.procedure_id', 'midi.sysex.digitech.ack.procedure_id')
+        assert lines == ['57\t0x7e\t0x41', '58\t0x7f\t0x2b']
