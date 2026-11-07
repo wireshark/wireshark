@@ -102941,3 +102941,82 @@ class TestDissectNbipx:
         assert rows['41'] == 'Mailslot name NMPINAME<03> found'
         assert rows['42'] == 'Unknown NMPI op 0x00: name NMPINAME<03>'
         assert rows['43'] == 'Unknown NMPI op 0xaa: name NMPINAME<03>'
+
+
+class TestDissectNbRtpmux:
+    '''3GPP Nb interface RTP multiplexing (TS 29.414 6.4.2) from the
+    synthetic capture nb_rtpmux_coverage.pcap.gz. The dissector has no
+    port; the frames are Exported PDU records (link type 252) that name
+    the "nb_rtpmux" dissector.'''
+
+    def test_nb_rtpmux_frames(self, cmd_tshark, capture_file, test_env):
+        '''13 frames, none malformed or with an error expert info, in one
+        and two passes; the uncompressed ones carry RTP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nb_rtpmux_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols[:6] == ['RTP'] * 6
+        assert protocols[6:10] == ['NB_RTPMUX'] * 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nb_rtpmux_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nb_rtpmux_r_bit(self, cmd_tshark, capture_file, test_env):
+        '''The R bit is the top bit of the 16 bit source port field; it was
+        added with a length of 1 byte and so always shown as False
+        ("NB_RTPMUX: Check the length of compressed packets, fix the R
+        bit"). It is set in frames 2, 4 (third entry), 5 (second entry)
+        and 9 (a compressed entry).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nb_rtpmux_coverage.pcap.gz'),
+                '-Y', 'nb_rtpmux.r_bit == 1',
+                '-Tfields', '-eframe.number', '-enb_rtpmux.r_bit',
+                '-enb_rtpmux.srcport',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['2', '4', '5', '9']
+        assert rows[0][1:] == ['True', '5006']
+        assert rows[1][1:] == ['False,False,True', '5006,6002,7002']
+        assert rows[2][1:] == ['False,True', '5006,65534']
+
+    def test_nb_rtpmux_uncompressed(self, cmd_tshark, capture_file, test_env):
+        '''Several RTP packets multiplexed in one frame, with their ports
+        and lengths, an entry without payload and the RTP header of each.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nb_rtpmux_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,3,4,5}',
+                '-Tfields', '-eframe.number', '-enb_rtpmux.dstport',
+                '-enb_rtpmux.srcport', '-enb_rtpmux.length', '-ertp.seq',
+                '-ertp.p_type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['1'][:5] == ['5004', '5006', '32', '1', '0']
+        assert rows['3'][:5] == ['5004,6000', '5006,6002', '32,52', '3,9', '0,8']
+        assert ' | ' in rows['3'][5]
+        assert rows['4'][:5] == ['5004,6000,7000', '5006,6002,7002', '32,32,15', '4,10,100', '0,8,96']
+        assert rows['5'][:5] == ['5004,65534', '5006,65534', '0,32', '5', '0']
+
+    def test_nb_rtpmux_compressed(self, cmd_tshark, capture_file, test_env):
+        '''Entries with RTP header compression: sequence number, timestamp
+        and the data after the compressed header; both kinds of entry in
+        one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nb_rtpmux_coverage.pcap.gz'),
+                '-Y', 'nb_rtpmux.compressed == 1',
+                '-Tfields', '-eframe.number', '-enb_rtpmux.compressed',
+                '-enb_rtpmux.length', '-enb_rtpmux.cmp_rtp.sequence_no',
+                '-enb_rtpmux.cmp_rtp.timestamp', '-enb_rtpmux.cmp_rtp.data',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['7'] == ['True', '4', '7', '1280', '01']
+        assert rows['8'][1:4] == ['19', '8', '1440']
+        assert rows['10'] == ['True,True', '7,11', '10,11', '1760,1920', 'cccccccc,dddddddddddddddd']
+        assert rows['11'][:2] == ['True,False', '4,32']
+        assert rows['12'][:2] == ['False,True', '32,4']
