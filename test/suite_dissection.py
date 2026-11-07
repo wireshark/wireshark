@@ -86471,3 +86471,80 @@ class TestDissectIwarpMpa:
         assert rows == [['3', '0x03', '47001 > 47002 Send [last DDP segment]'],
                         ['18', '0x00', '47002 > 47001 Write [last DDP segment]'],
                         ['19', '0x01', '47002 > 47001 Read Request [last DDP segment]']]
+
+
+class TestDissectIxiatrailer:
+    '''Ixia trailers at the end of Ethernet frames (the "eth.trailer"
+    heuristic), from the synthetic capture ixiatrailer_coverage.pcap.gz.'''
+
+    @staticmethod
+    def ixia_fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ixiatrailer_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout
+
+    def test_ixiatrailer_frames(self, cmd_tshark, capture_file, test_env):
+        '''13 frames carry an Ixia trailer, 6 do not (the heuristic
+        rejects a short pad, a missing signature, a wrong length and a
+        bad checksum); none is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ixiatrailer', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(1, 14)]
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', '!ixiatrailer', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(14, 20)]
+        for passes in ((), ('-2',)):
+            stdout = self.ixia_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_ixiatrailer_fields(self, cmd_tshark, capture_file, test_env):
+        '''The original packet length, every timestamp type and the
+        generic fields of unknown types.'''
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ixiatrailer', '-Tfields', '-eframe.number',
+                '-eixiatrailer.packetlen', '-eixiatrailer.generic',
+                '-eixiatrailer.timestamp')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [
+            ['1', '1514'], ['2', '1514'], ['3', '1514'], ['4', '1514'],
+            ['5', '1514'], ['6', '1514'], ['7', '1514'], ['8', '1514'],
+            ['9', '1514'], ['10', '1514'], ['11', '1514'], ['12', '64'],
+            ['13', '1514']]
+        assert lines[7][2] == '010203,<MISSING>,6162636465666768'
+        assert lines[9][2] == lines[10][2] == '3132333435363738'
+        assert lines[12][2] == bytes(range(200)).hex()
+        # Frames 2-7 carry one timestamp each, frame 8 two
+        assert [l[3].count(',') + 1 if l[3] else 0 for l in lines] == [
+            0, 1, 1, 1, 1, 1, 1, 2, 0, 0, 0, 0, 0]
+        assert '.123456789' in lines[1][3]
+
+    def test_ixiatrailer_tree(self, cmd_tshark, capture_file, test_env):
+        '''The summary shows the trailer length and checksum; the
+        timestamp item names the clock; unknown types show id and
+        length.'''
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 8', '-V', '-O', 'ixiatrailer')
+        assert 'Ixia Trailer, Length: ' in stdout
+        assert '; Source: PTP' in stdout
+        assert '; Source: Local' in stdout
+        assert '[Id: 2, Length: 3 bytes]' in stdout
+        assert '[Id: 32, Length: 8 bytes]' in stdout
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2', '-V', '-O', 'ixiatrailer')
+        assert '; Source: Local' in stdout
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-V', '-O', 'ixiatrailer',
+                '-o', 'ixiatrailer.summary_in_tree:FALSE')
+        assert 'Ixia Trailer\n' in stdout
+        assert 'Ixia Trailer, Length' not in stdout
+
+    def test_ixiatrailer_fcs(self, cmd_tshark, capture_file, test_env):
+        '''A trailer followed by four bytes (an FCS) is found, also when
+        the whole is 23 bytes long.'''
+        stdout = self.ixia_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ixiatrailer.packetlen == 1514 && (frame.number == 9 || frame.number == 10)',
+                '-Tfields', '-eframe.number', '-eeth.trailer')
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['9', '10']
