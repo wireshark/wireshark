@@ -41,6 +41,7 @@ static int hf_bencoded_string;
 static int hf_bencoded_list;
 static int hf_bencoded_dict;
 static int hf_bencoded_dict_entry;
+static int hf_bencoded_dict_key;
 static int hf_bencoded_list_terminator;
 
 static int hf_bt_dht_error;
@@ -539,6 +540,27 @@ dissect_version(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const unsig
 }
 
 static int
+dissect_bencoded_dict_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char **key)
+{
+  unsigned int key_length;
+  if (!bencoded_string_length(pinfo, tvb, &offset, &key_length)) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_invalid_len, tvb, offset);
+    return 0;
+  }
+
+  *key = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, key_length, ENC_ASCII);
+
+  // Generic string node, kept for backwards compatibility
+  proto_item *old_node = proto_tree_add_string_format(tree, hf_bencoded_string, tvb, offset, key_length, *key, "Key: %s", *key);
+  proto_item_set_hidden(old_node);
+
+  proto_tree_add_string_format(tree, hf_bencoded_dict_key, tvb, offset, key_length, *key, "Key: %s", *key);
+
+  offset += key_length;
+  return offset;
+}
+
+static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, const char **key)
 {
@@ -551,11 +573,8 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   ti       = proto_tree_add_item(tree, hf_bencoded_dict_entry, tvb, offset, 0, ENC_NA);
   sub_tree = proto_item_add_subtree(ti, ett_bencoded_dict_entry);
 
-  /* dissect the key, it must be a string */
-  offset   = dissect_bencoded_string(tvb, pinfo, sub_tree, offset, key, false, "Key");
-  if (offset == 0 || !*key)
-  {
-    proto_tree_add_expert_format_remaining(sub_tree, pinfo, &ei_int_string, tvb, offset, "Invalid string for Key");
+  offset = dissect_bencoded_dict_key(tvb, pinfo, sub_tree, offset, key);
+  if (offset == 0) {
     return 0;
   }
 
@@ -855,6 +874,10 @@ proto_register_bt_dht(void)
     { &hf_bencoded_dict_entry,
       { "Dictionary Entry", "bt-dht.bencoded.dict_entry",
         FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
+    },
+    { &hf_bencoded_dict_key,
+      { "Dictionary key", "bt-dht.bencoded.dict_key",
+        FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_bencoded_list_terminator,
       { "Terminator", "bt-dht.bencoded.list.terminator",
