@@ -231,7 +231,10 @@ get_memcache_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb,
   /* Get the length of the memcache body */
   body_len = tvb_get_ntohl(tvb, offset+8);
 
-  /* That length doesn't include the header; add that in */
+  /* That length doesn't include the header; add that in, without
+   * wrapping around */
+  if (body_len > UINT32_MAX - MEMCACHE_HEADER_LEN)
+    return UINT32_MAX;
   return body_len + MEMCACHE_HEADER_LEN;
 }
 
@@ -661,7 +664,11 @@ desegment_pdus (tvbuff_t *tvb, packet_info *pinfo, const unsigned offset,
     }
 
     pinfo->desegment_offset = offset; /* start of the packet. */
-    pinfo->desegment_len = (content_length + 2) - length_remaining; /* add 2 for /r/n */
+    /* add 2 for /r/n, without wrapping around */
+    if (content_length > UINT32_MAX - 2) {
+      return false;
+    }
+    pinfo->desegment_len = (content_length + 2) - length_remaining;
 
     return true;
   }
@@ -899,7 +906,7 @@ content_data_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
     /* bytes actually remaining in this tvbuff. */
     datalen = tvb_captured_length_remaining (tvb, offset);
     if (content_length > 0) {
-      if (datalen >= (content_length + 2)) { /* also consider \r\n*/
+      if (content_length <= UINT32_MAX - 2 && datalen >= (content_length + 2)) { /* also consider \r\n*/
         datalen = content_length;
       } else {
         short_pkt = true;
@@ -995,6 +1002,7 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, unsigned offset)
     }
 
     proto_tree_add_item (tree, hf_uint64_response, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
+    line = next_token;
 
     /* CRLF */
     tokenlen = get_token_len (line, lineend, &next_token);
@@ -1203,6 +1211,7 @@ get_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
 
       ws_buftou64(line, tokenlen, &endp, &cas);
       proto_tree_add_uint64 (tree, hf_cas, tvb, offset, tokenlen, cas);
+      line = next_token;
 
       /* CRLF */
       tokenlen = get_token_len (line, lineend, &next_token);
