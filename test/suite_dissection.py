@@ -84011,3 +84011,63 @@ class TestDissectIsisCoverage:
             '36\t0\t0x00\tUnknown (0x1f)\tUnknown ISIS packet type',
             '37\t0\t0x00\tL1 HELLO, System-ID: 0200.0000.0001\t',
         ]
+
+
+class TestDissectIsisClv:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isis_clv_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_isis_clv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The shared TLV code (packet-isis-clv.c) is reached through
+        hello, LSP, CSNP and PSNP frames; none is malformed, in one and
+        two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 34
+        assert lines.count('ISIS HELLO') == 12
+        assert lines.count('ISIS LSP') == 12
+        assert lines.count('ISIS CSNP') == 5
+        assert lines.count('ISIS PSNP') == 5
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_isis_clv_expert(self, cmd_tshark, capture_file, test_env):
+        '''Warnings and notes only: unknown authentication type, a
+        CRYPTO_AUTH TLV too short for its Key ID (the reproducer of the
+        fix) and unknown TLV codes in all four PDU types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        unk = 'Dissector for IS-IS CLV (200) code not implemented, Contact Wireshark developers if you want this supported'
+        key = 'CRYPTO_AUTH (3), too short for Key ID (1 vs 2)'
+        assert lines == [
+            '23\tUnknown authentication type',
+            '24\t' + key,
+            '25\t' + key,
+            '27\t' + unk, '28\t' + unk, '29\t' + unk, '30\t' + unk,
+        ]
+
+    def test_isis_clv_key_id_too_short(self, cmd_tshark, capture_file, test_env):
+        '''After a CRYPTO_AUTH TLV without room for the Key ID, the next
+        TLV (the hostname) is still decoded as a hostname. Before the fix
+        its type and length were read as the Key ID.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 25', '-Tfields', '-eisis.clv.key_id',
+                '-eisis.lsp.hostname')
+        assert lines == ['\trouter-one.example']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {10,11,12,13,14,15,16}', '-Tfields',
+                '-eframe.number', '-eisis.clv.key_id')
+        assert lines == ['10\t0', '11\t1', '12\t2', '13\t3', '14\t4', '15\t5', '16\t9']
+
+    def test_isis_clv_hostname(self, cmd_tshark, capture_file, test_env):
+        '''Hostname TLV: normal, empty and 255 octets.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4,5,32}', '-Tfields', '-eframe.number',
+                '-eisis.lsp.hostname')
+        assert lines == ['4\trouter-one.example', '5\t,x', '32\t' + 'a' * 255]
