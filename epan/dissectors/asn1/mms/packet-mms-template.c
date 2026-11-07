@@ -384,7 +384,7 @@ static void
 private_data_add_preCinfo(asn1_ctx_t* actx, uint32_t val)
 {
     mms_private_data_t* private_data = (mms_private_data_t*)mms_get_private_data(actx);
-    snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02d ", val);
+    snprintf(private_data->preCinfo, BUFFER_SIZE_PRE, "%02u ", val);
 }
 
 static char*
