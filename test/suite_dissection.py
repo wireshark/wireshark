@@ -95559,3 +95559,115 @@ class TestDissectMediaType:
             'HTTP/1.1 200 OK ',
             'HTTP/1.1 200 OK  (PNG)',
             'HTTP/1.1 200 OK  (application/x-not-registered)']
+
+
+class TestDissectMegaco:
+    '''MEGACO (H.248 text encoding) over UDP, TCP with TPKT, and SCTP,
+    from the synthetic capture megaco_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('megaco_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_megaco_frames(self, cmd_tshark, capture_file, test_env):
+        '''131 frames; 116 carry MEGACO; no malformed packets and no error
+        expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 131
+        counts = {p: [l[0] for l in lines].count(p) for p in set(l[0] for l in lines)}
+        assert counts['MEGACO'] == 102
+        assert counts['MEGACO/SDP'] == 4 and counts['MEGACO/SDP/SDP'] == 4
+        assert counts['H.245'] == 4 and counts['H.248'] == 1
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'megaco', '-Tfields', '-eframe.number')
+        assert len(lines) == 116
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_megaco_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command as a request and a reply, in the context kinds
+        (choose one, all, NULL, numbers): frames 1-16.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 16', '-Tfields', '-e_ws.col.info')
+        assert [l[0] for l in lines] == [
+            '1 Request |=Choose one Add=A1', '1 Reply   |=Choose one Add=A1',
+            '2 Request |=1 Modify=A2', '2 Reply   |=1 Modify=A2',
+            '3 Request |=All Subtract=A3', '3 Reply   |=All Subtract=A3',
+            '4 Request |=NULL Move=A4', '4 Reply   |=NULL Move=A4',
+            '5 Request |=7 AuditValue=A5', '5 Reply   |=7 AuditValue=A5',
+            '6 Request |=Choose one AuditCapability=A6',
+            '6 Reply   |=Choose one AuditCapability=A6',
+            '7 Request |=2 Notify=A7', '7 Reply   |=2 Notify=A7',
+            '8 Request |=NULL ServiceChange=A8', '8 Reply   |=NULL ServiceChange=A8']
+
+    def test_megaco_reply_transaction_id(self, cmd_tshark, capture_file, test_env):
+        '''The transaction id of a Reply is read after the "=" (it was
+        always 0 before "Megaco: Fix media, TerminationState and reply
+        transaction id parsing").'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 4, 6, 10, 34}',
+                '-Tfields', '-eframe.number', '-emegaco.transid')
+        assert lines == [['2', '1'], ['4', '2'], ['6', '3'], ['10', '5'], ['34', '31']]
+
+    def test_megaco_media(self, cmd_tshark, capture_file, test_env):
+        '''All media parameters are dissected, not only the first: the
+        Local and Remote descriptors reach SDP (frames 37-42; before the
+        fix, the Media descriptor stopped after the first parameter).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sdp', '-Tfields', '-eframe.number', '-esdp.media',
+                '-emegaco.mode')
+        assert [l[0] for l in lines] == ['37', '38', '39', '40', '41', '42', '69', '70']
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['37'][1] == 'audio 4000 RTP/AVP 0,audio 5000 RTP/AVP 0 8'
+        assert by_frame['37'][2] == 'SendReceive,Inactive'
+        assert by_frame['40'][1] == 'audio 4000 RTP/AVP 0,audio 5000 RTP/AVP 0'
+        assert by_frame['40'][2] == 'ReceiveOnly'
+
+    def test_megaco_termination_state(self, cmd_tshark, capture_file, test_env):
+        '''A TerminationState descriptor is dissected without an exception
+        (it threw for every descriptor before the fix): frames 37 and 42.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'megaco.terminationstate', '-Tfields', '-eframe.number',
+                '-emegaco.servicestates')
+        assert [l[0] for l in lines] == ['20', '37', '42', '59', '99']
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['20'][1].startswith('InService')
+        assert by_frame['42'][1].startswith('InService')
+        assert by_frame['37'][1].startswith('InServic')
+
+    def test_megaco_errors_and_other_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Error, Pending and TransactionResponseAck messages, error codes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {27, 28, 29, 30, 31, 32, 33}',
+                '-Tfields', '-e_ws.col.info', '-emegaco.error_code')
+        assert lines == [
+            ['Error  ', '400'], ['Error  ', '504'], ['Error  ', '999'],
+            ['17 Pending', ''], ['17 TransactionResponseAck', ''],
+            ['17 TransactionResponseAck', ''], ['30 Reply  ', '501']]
+
+    def test_megaco_transports(self, cmd_tshark, capture_file, test_env):
+        '''TCP with TPKT (two PDUs in one segment, a PDU over two
+        segments), SCTP (also a fragmented message) and the binary form.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 110 && megaco', '-Tfields',
+                '-eframe.number', '-emegaco.transid')
+        assert lines == [
+            ['110', '200'], ['112', '200'], ['114', '201,202'], ['118', '201'],
+            ['120', '203'], ['122', '203'], ['124', '210'], ['125', '210'],
+            ['126', '211'], ['128', '212']]
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 129', '-Tfields', '-e_ws.col.protocol')
+        assert [l[0] for l in lines] == ['H.248', 'UDP', 'UDP']
+
+    def test_megaco_h245(self, cmd_tshark, capture_file, test_env):
+        '''H.245 inside events, signals, observed events and muxtbl.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'h245', '-Tfields', '-eframe.number')
+        assert [l[0] for l in lines] == ['49', '90', '91', '92']
