@@ -101406,3 +101406,91 @@ class TestDissectMultipart:
             assert 'plain text in base64 plain text in base64' in stdout
             assert 'hello world hello world hello world' in stdout
             assert 'Malformed' not in stdout
+
+
+class TestDissectMux27010:
+    '''GSM 07.10 / 27.010 multiplexer frames (LINKTYPE_MUX27010, 236) from
+    the synthetic capture mux27010_coverage.pcap.gz: channel setup frames,
+    the control channel, AT commands on data channels, every frame type
+    and a PPP message in the extended header that is split over frames.'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, flt, *args, opts=()):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mux27010_coverage.pcap.gz'), '-Y', flt, *args),
+            encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mux27010_frames(self, cmd_tshark, capture_file, test_env):
+        '''40 frames: 36 MUX27010 and 4 whose PPP message is complete, none
+        malformed, no warning (so every FCS is correct), in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.run(cmd_tshark, capture_file, test_env, 'frame',
+                             '-Tfields', '-e_ws.col.protocol', opts=passes)
+            assert len(lines) == 40
+            assert lines.count('PPP LCP') == 4
+            assert lines.count('MUX27010') == 36
+            lines = self.run(cmd_tshark, capture_file, test_env,
+                             '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                             '-Tfields', '-eframe.number', opts=passes)
+            assert count_output('\n'.join(lines)) == 0
+            lines = self.run(cmd_tshark, capture_file, test_env,
+                             'mux27010.checksum_correct', '-Tfields', '-eframe.number', opts=passes)
+            assert len(lines) == 40
+
+    def test_mux27010_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''SABM, UA, DM, DISC, UIH, UIH_E, RR, RNR, REJ and an unknown frame
+        type, with the DLCI, direction and the info column.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                         'frame.number in {1, 2, 5, 6, 27, 29, 30, 31, 32, 33}',
+                         '-Tfields', '-eframe.number', '-e_ws.col.info',
+                         '-emux27010.address.dlciaddress')
+        assert [l.split('\t')[1] for l in lines] == [
+            '(SABM)', '(UA)', '(DM)', '(DISC)', '(UIH_E) I-frame data',
+            '(Receive Ready)', '(Receive Not Ready)', '(Reject)',
+            '(Unknown) unknown frame type', '(UIH) direction 2']
+        assert [l.split('\t')[2] for l in lines] == [
+            '0', '0', '2', '1', '3', '3', '3', '3', '3', '1']
+
+    def test_mux27010_control_channel(self, cmd_tshark, capture_file, test_env):
+        '''Test, power saving, non-supported command, modem status (with
+        and without the break octet), parameter negotiation and close-down.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                         'frame.number >= 9 && frame.number <= 22', '-Tfields',
+                         '-eframe.number', '-e_ws.col.info')
+        assert [l.split('\t')[1] for l in lines] == [
+            '(UIH) Test Command (Command)', '(UIH) Test Command (Response)',
+            '(UIH) Test Command (Command)', '(UIH) Power Saving Control (Command)',
+            '(UIH) Power Saving Control (Response)', '(UIH) Power Saving Control (Response)',
+            '(UIH) Power Saving Control (Response)',
+            '(UIH) Non-supported Command Response (Response)',
+            '(UIH) Modem Status Command (Command)', '(UIH) Modem Status Command (Command)',
+            '(UIH) Parameter Negotiation (Command)', '(UIH) Parameter Negotiation (Response)',
+            '(UIH) Multiplexer Close Down (Command)', '(UIH) Unknown (Command)']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                         'frame.number in {13, 14, 15}', '-Tfields', '-eframe.number',
+                         '-emux27010.controlchannel.value.detailedvalue.response')
+        assert lines == ['13\t0', '14\t1', '15\t']
+
+    def test_mux27010_long_length(self, cmd_tshark, capture_file, test_env):
+        '''A two octet length field (130 octets of information).'''
+        lines = self.run(cmd_tshark, capture_file, test_env, 'frame.number == 26',
+                         '-Tfields', '-emux27010.length.framesize_ea', '-eframe.len')
+        assert lines == ['130\t138']
+
+    def test_mux27010_ppp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PPP message in the extended header: complete (frame 36), split
+        over frames 37 and 38 (reassembled in 38), two messages in one frame
+        (39) and three entries, the last of which never completes (40).'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                         'frame.number >= 36', '-Tfields', '-eframe.number',
+                         '-e_ws.col.protocol', '-emux27010.ext_header.size',
+                         '-emux27010.reassembled.in', '-elcp.magic_number',
+                         opts=('-2',))
+        assert lines == [
+            '36\tPPP LCP\t7\t\t0x01020304',
+            '37\tMUX27010\t7\t38\t',
+            '38\tPPP LCP\t7\t\t0x0a0b0c0d',
+            '39\tPPP LCP\t14\t\t0x00000007,0x00000008',
+            '40\tPPP LCP\t21\t\t0x00000009',
+        ]
