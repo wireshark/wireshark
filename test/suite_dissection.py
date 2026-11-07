@@ -87971,3 +87971,92 @@ class TestDissectKpmV2:
         assert one == two
         assert len(one) == 56
         assert any('Synthabc' in line for line in one)
+
+
+class TestDissectKt:
+    '''Kyoto Tycoon binary protocol (TCP 1978-1979), from the synthetic
+    capture kt_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, opts=()):
+        out = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('kt_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_kt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 frames are KT (two connections, one with several messages
+        per segment), the other ten are the TCP handshakes and
+        teardowns. None is malformed or has an error expert info, in one
+        and two passes, also with the ASCII presentation of keys.'''
+        protocols = TestDissectKt.fields(cmd_tshark, capture_file, test_env,
+                                         'frame', '_ws.col.protocol')
+        assert protocols.count('KT') == 32
+        assert protocols.count('TCP') == 10
+        for opts in ((), ('-2',), ('-o', 'kt.present_key_val_as_ascii:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('kt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_kt_requests_and_responses(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses of each operation are told apart by the
+        dissector.'''
+        lines = TestDissectKt.fields(cmd_tshark, capture_file, test_env,
+                                     'frame.number >= 4 && frame.number <= 18',
+                                     '_ws.col.info', 'kt.rnum', 'kt.hits')
+        assert lines == [
+            'set_bulk\t3\t',
+            'set_bulk [response]\t\t3',
+            'get_bulk\t3\t',
+            'get_bulk [response]\t\t2',
+            'get_bulk\t1\t',
+            'get_bulk [response]\t\t0',
+            'remove_bulk\t2\t',
+            'remove_bulk [response]\t\t2',
+            'remove_bulk\t1\t',
+            'remove_bulk [response]\t\t0',
+            'play_script\t2\t',
+            'play_script [response]\t\t2',
+            'play_script\t0\t',
+            'play_script [response]\t0\t',
+            'play_script\t1\t',
+        ]
+
+    def test_kt_keys_as_ascii(self, cmd_tshark, capture_file, test_env):
+        '''The ASCII presentation of keys and values is only added when
+        the preference is set.'''
+        for opts, expected in (((), ['']),
+                               (('-o', 'kt.present_key_val_as_ascii:TRUE'),
+                                ['alpha,beta,'])):
+            lines = TestDissectKt.fields(cmd_tshark, capture_file, test_env,
+                                         'frame.number == 4', 'kt.key_str', opts=opts)
+            assert lines == expected
+
+    def test_kt_negative_size(self, cmd_tshark, test_env, tmp_path):
+        '''A play_script response whose record count and key and value
+        sizes are 0xFFFFFFFF ends in an exception on the first record.
+        Before "KT: Check the key, value, name and log sizes against the
+        packet" every record added the rest of the packet to the tree
+        twice and moved the offset back by one octet, which needs memory
+        quadratic in the size of the packet.'''
+        payload = b'\xb4' + b'\xff' * 8000
+        tcp = struct.pack('!HHIIBBHHH', 40000, 1978, 1, 0, 5 << 4, 0x18, 65535, 0, 0)
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp) + len(payload), 1, 0, 64, 6,
+                         0, bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        s = sum(struct.unpack('!10H', ip))
+        s = (s & 0xffff) + (s >> 16)
+        ip = ip[:10] + struct.pack('!H', ~s & 0xffff) + ip[12:]
+        pkt = bytes.fromhex('020000000002020000000001' '0800') + ip + tcp + payload
+        pcap = tmp_path / 'kt_negsize.pcap'
+        pcap.write_bytes(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1) +
+                         struct.pack('<IIII', 0, 0, len(pkt), len(pkt)) + pkt)
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(pcap), '-V'),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        assert 'Malformed Packet' in stdout
+        assert stdout.count('key:') == 0
+        assert stdout.count('record') <= 2
