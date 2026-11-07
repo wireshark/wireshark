@@ -100696,3 +100696,63 @@ class TestDissectMsMms:
                 '-emsmms.data.packet-length',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == 'Data: seq=00077, len=00100\t100'
+
+
+class TestDissectMsnip:
+    '''MSNIP (Multicast Source Notification of Interest Protocol, IGMP
+    types 0x23-0x25 sent to 224.0.0.22) from the synthetic capture
+    msnip_coverage.pcap.gz.'''
+
+    def test_msnip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-8 and 11 decode as MSNIP, 9 and 10 (other destination
+        address) are left to IGMP; nothing is malformed and no error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['MSNIP'] * 8 + ['IGMP'] * 2 + ['MSNIP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('msnip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_msnip_group_map_holdtime(self, cmd_tshark, capture_file, test_env):
+        '''The Group Map holdtime is shown (it showed the group count,
+        fixed by "MSNIP: Show the holdtime in the Group Membership
+        message") and the groups follow it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnip_coverage.pcap.gz'),
+                '-Y', 'msnip.holdtime', '-Tfields', '-eframe.number',
+                '-emsnip.count', '-emsnip.holdtime', '-emsnip.maddr',
+                '-emsnip.netmask',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t0\t60\t\t',
+            '2\t1\t3600\t239.1.1.1\t24',
+            '3\t3\t60\t239.1.1.1,232.5.5.5,224.9.9.9\t24,32,4',
+            '11\t0\t60\t\t',
+        ]
+
+    def test_msnip_other_messages(self, cmd_tshark, capture_file, test_env):
+        '''Interest Solicitation and Membership Report records, and the
+        checksum that is verified unless the IP payload is cut.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 8}', '-Tfields', '-eframe.number',
+                '-emsnip.holdtime16', '-emsnip.genid', '-emsnip.rec_type',
+                '-emsnip.maddr',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '5\t65535\t65535\t\t',
+            '8\t\t\t2,1,9\t239.1.1.1,232.5.5.5,224.9.9.9',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msnip_coverage.pcap.gz'),
+                '-Y', 'msnip.checksum.status == 1', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == [str(n) for n in (1, 2, 3, 4, 5, 6, 7, 8)]
