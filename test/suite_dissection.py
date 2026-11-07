@@ -86825,3 +86825,71 @@ class TestDissectJmirror:
         assert 'Juniper Packet Mirror, MID: 0xfffffff0 (' in stdout
         assert '    Jmirror Identifier: 0xfffffff0 (4294967280)' in stdout
         assert '    Session Identifier: 0x80000001 (2147483649)' in stdout
+
+
+class TestDissectKadm5:
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('kadm5_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_kadm5_protocols(self, cmd_tshark, capture_file, test_env):
+        '''56 KADM5 frames (TCP with record marks, then UDP), none
+        malformed and no error expert info in one and two passes.'''
+        rows = TestDissectKadm5._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 61
+        assert [r[0] for r in rows].count('KADM5') == 56
+        for passes in ((), ('-2',)):
+            rows = TestDissectKadm5._rows(cmd_tshark, capture_file,
+                    test_env, *passes, '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_kadm5_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure of the version 2 table (0-21) is named in its
+        call and reply, and procedure 22, which the table does not have,
+        is shown by number.'''
+        rows = TestDissectKadm5._rows(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'kadm5 && frame.number < 48', '-Tfields',
+                '-ekadm5.procedure_v2', '-e_ws.col.info')
+        names = ['NULL', 'CREATE_PRINCIPAL', 'DELETE_PRINCIPAL',
+                 'MODIFY_PRINCIPAL', 'RENAME_PRINCIPAL', 'GET_PRINCIPAL',
+                 'CHPASS_PRINCIPAL', 'CHRAND_PRINCIPAL', 'CREATE_POLICY',
+                 'DELETE_POLICY', 'MODIFY_POLICY', 'GET_POLICY', 'GET_PRIVS',
+                 'INIT', 'GET_PRINCS', 'GET_POLS', 'SETKEY_PRINCIPAL',
+                 'SETV4KEY_PRINCIPAL', 'CREATE_PRINCIPAL3',
+                 'CHPASS_PRINCIPAL3', 'CHRAND_PRINCIPAL3',
+                 'SETKEY_PRINCIPAL3']
+        assert len(rows) == 44
+        for i, name in enumerate(names):
+            call, reply = rows[2 * i], rows[2 * i + 1]
+            assert call[0] == reply[0] == str(i)
+            assert call[1].startswith('V2 %s Call (Reply In ' % name)
+            assert reply[1].startswith('V2 %s Reply (Call In ' % name)
+        rows = TestDissectKadm5._rows(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'frame.number == 48 || frame.number == 49',
+                '-Tfields', '-e_ws.col.info')
+        assert rows[0][0].startswith('V2 proc-22 Call')
+        assert rows[1][0].startswith('V2 proc-22 Reply')
+
+    def test_kadm5_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Two calls in one segment, a reply split in two segments
+        (reassembled in frame 54) and calls and replies over UDP.'''
+        rows = TestDissectKadm5._rows(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'frame.number >= 52 && frame.number <= 60',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+                '-ekadm5.procedure_v2', '-eudp.dstport')
+        assert rows == [
+            ['52', '', '14,15', ''],
+            ['53', '54', '', ''],
+            ['54', '', '14,15', ''],
+            ['55', '', '0', '749'],
+            ['56', '', '0', '40749'],
+            ['57', '', '13', '749'],
+            ['58', '', '13', '40749'],
+            ['59', '', '21', '749'],
+            ['60', '', '21', '40749'],
+        ]
