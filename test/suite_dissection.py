@@ -93470,3 +93470,83 @@ class TestDissectM2tp:
         assert lis.count('1') == 4
         assert lis.count('2') == 3
         assert lis.count('11') == 5
+
+
+class TestDissectM2ua:
+    '''M2UA (RFC 3331) over SCTP port 2904 / PPID 2, from the synthetic
+    capture m2ua_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('m2ua_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        stdout = subprocess.check_output((*args, '-Tfields', *fields),
+                encoding='utf-8', env=test_env)
+        return stdout.split('\n')[:-1]
+
+    def test_m2ua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''115 frames, 109 M2UA only and 6 with an MTP3 message in the
+        protocol data (SLTM and COO); none is malformed or has an error
+        expert info, in one and two passes.'''
+        protocols = self._run(cmd_tshark, capture_file, test_env, '', '-e_ws.col.protocol')
+        assert len(protocols) == 115
+        assert protocols.count('M2UA') == 109
+        assert protocols.count('MTP3MG (Int. ITU)') == 6
+        for passes in ((), ('-2',)):
+            lines = self._run(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= error', '-eframe.number',
+                    opts=passes)
+            assert lines == []
+
+    def test_m2ua_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of every class is named in the Info column;
+        the error codes 1-17 and a made-up one are shown.'''
+        infos = [i.strip() for i in self._run(cmd_tshark, capture_file, test_env,
+                                              '', '-e_ws.col.info')]
+        for name, count in (('ERR', 19), ('NTFY', 10), ('ASP_UP', 1), ('ASP_ACTIVE', 4),
+                            ('DATA', 1), ('DATA_ACK', 1), ('STATE_REQ', 11),
+                            ('STATE_IND', 5), ('CONG_IND', 5), ('REG_REQ', 4),
+                            ('REG_RSP', 10), ('DEREG_REQ', 1), ('DEREG_RSP', 6),
+                            ('DATA_RETR_COMP_IND', 1), ('reserved', 6)):
+            assert infos.count(name) == count, name
+        codes = self._run(cmd_tshark, capture_file, test_env, 'm2ua.error_code',
+                          '-em2ua.error_code')
+        assert codes == [str(i) for i in range(1, 18)] + ['99', '7']
+
+    def test_m2ua_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Interface identifier range, link keys (also nested) and the
+        registration status values.'''
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2ua.interface_identifier_start', '-eframe.number',
+                '-em2ua.interface_identifier_start', '-em2ua.interface_identifier_stop')
+        assert lines == ['44\t1,20\t10,30']
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2ua.local_lk_identifier', '-eframe.number', '-em2ua.local_lk_identifier',
+                '-em2ua.sdt_identifier', '-em2ua.sdl_identifier')
+        assert lines[0] == '92\t11\t7\t9'
+        assert lines[1] == '93\t11,11\t7,7\t9,9'
+        lines = self._run(cmd_tshark, capture_file, test_env,
+                'm2ua.registration_status', '-em2ua.registration_status')
+        assert lines[:9] == [str(i) for i in range(9)]
+
+    def test_m2ua_nested_link_keys(self, cmd_tshark, capture_file, test_env):
+        '''A Link Key parameter nested 20 levels deep (frame 113) is
+        dissected without errors (the 3000 level reproducer of the depth
+        check is not in this capture).'''
+        lines = self._run(cmd_tshark, capture_file, test_env, 'frame.number == 113',
+                '-eframe.number', '-e_ws.col.info', '-em2ua.parameter_tag')
+        assert lines[0].startswith('113\tREG_REQ')
+        assert lines[0].split('\t')[2].split(',').count('0x0309') == 20
+
+    def test_m2ua_protocol_data_1_tag(self, cmd_tshark, capture_file, test_env):
+        '''Frame 115 carries the draft-7 tag for Protocol Data 1 (0x000e):
+        an unknown parameter by default, an MTP3 SLTM message with the
+        draft-7 preference.'''
+        lines = self._run(cmd_tshark, capture_file, test_env, 'frame.number == 115',
+                '-e_ws.col.protocol')
+        assert lines == ['M2UA']
+        lines = self._run(cmd_tshark, capture_file, test_env, 'frame.number == 115',
+                '-e_ws.col.protocol', '-e_ws.col.info',
+                opts=('-o', 'm2ua.protocol_data_1_tag:draft-7'))
+        assert lines == ['MTP3MG (Int. ITU)\tSLTM ']
