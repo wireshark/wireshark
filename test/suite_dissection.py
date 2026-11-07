@@ -91588,3 +91588,87 @@ class TestDissectLogcatText:
             ['65', 'Repeat', '99', 'repeat 2'],
             ['66', 'NoNewline', '7', 'no newline and no NUL'],
         ]
+
+
+class TestDissectLogotypecertextn:
+    '''LogotypeCertExtn (RFC 3709 logotype certificate extension) in X.509
+    certificates of TLS 1.2 Certificate messages, from the synthetic
+    capture logotypecertextn_coverage.pcap.gz. Twelve TLS connections
+    (ClientHello; ServerHello, Certificate, ServerHelloDone) each carry
+    one made-up certificate with one variant of the extension.'''
+
+    FIELDS = (
+        '-Tfields', '-eframe.number',
+        '-elogotypecertextn.mediaType', '-elogotypecertextn.logotypeURI_item',
+        '-elogotypecertextn.refStructURI_item', '-elogotypecertextn.fileSize',
+        '-elogotypecertextn.language', '-elogotypecertextn.sampleRate',
+    )
+
+    def test_logotypecertextn_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 24 frames are TLS; the twelve Certificate frames carry the
+        extension; there are no malformed packets or error expert infos,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [p.strip() for p in stdout.splitlines()] == ['TLSv1.2'] * 24
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                    '-Y', 'logotypecertextn.LogotypeExtn_element',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == [str(n) for n in range(2, 25, 2)]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_logotypecertextn_direct(self, cmd_tshark, capture_file, test_env):
+        '''Direct logotypes: media types, URIs, sizes, languages and the
+        audio sample rate.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 4, 6, 8, 10}', *self.FIELDS,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '2\timage/gif\thttps://logo.example.net/a.png\t\t\t\t',
+            '4\timage/jpeg\thttps://logo.example.net/a.png\t\t70000\t\t',
+            '6\timage/png,image/svg+xml\thttps://logo.example.net/g.png,'
+            'ftp://logo.example.net/g.png,https://logo.example.net/a.png\t\t500,900\ten,sv\t',
+            '8\timage/png,image/png,audio/mpeg\thttps://logo.example.net/a.png,'
+            'https://logo.example.net/a.png,https://logo.example.net/a.mp3\t'
+            'https://ltd.example.net/x.ltd,http://ltd2.example.net/x.ltd\t10,4096\tfi\t44100',
+            '10\taudio/mpeg,audio/wav\thttps://logo.example.net/a.mp3,https://a.example/w.wav'
+            '\t\t4096\t\t8000',
+        ]
+
+    def test_logotypecertextn_indirect_other(self, cmd_tshark, capture_file, test_env):
+        '''Indirect logotypes (referenced URIs), the other logotypes with
+        the loyalty and background OIDs, and the extension under the
+        other extension OIDs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                '-Y', 'frame.number in {12, 14, 22}', *self.FIELDS,
+                '-elogotypecertextn.logotypeType',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '12\t\t\thttps://ltd.example.net/x.ltd,http://ltd2.example.net/x.ltd,'
+            'https://ltd.example.net/s.ltd\t\t\t\t',
+            '14\timage/png,image/png\thttps://logo.example.net/a.png,https://logo.example.net/a.png'
+            '\thttps://ltd.example.net/x.ltd,http://ltd2.example.net/x.ltd\t1234\t\t\t'
+            '1.3.6.1.5.5.7.20.1,1.3.6.1.5.5.7.20.2,1.3.6.1.5.5.7.20.99',
+            '22\t\t\thttps://ltd.example.net/x.ltd,http://ltd2.example.net/x.ltd\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logotypecertextn_coverage.pcap.gz'),
+                '-Y', 'frame.number in {20, 22}',
+                '-Tfields', '-eframe.number', '-ex509af.extension.id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '20\t2.5.29.19,1.3.6.1.5.5.7.20.1',
+            '22\t2.5.29.19,1.3.6.1.5.5.7.20.2',
+        ]
