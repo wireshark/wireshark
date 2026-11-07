@@ -95671,3 +95671,92 @@ class TestDissectMegaco:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'h245', '-Tfields', '-eframe.number')
         assert [l[0] for l in lines] == ['49', '90', '91', '92']
+
+
+class TestDissectMemcache:
+    '''Memcache (binary and text protocol) over TCP and UDP port 11211 from
+    the synthetic capture memcache_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('memcache_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_memcache_frames(self, cmd_tshark, capture_file, test_env):
+        '''361 frames, 198 with memcache (121 of them binary); no malformed
+        packets and no error expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'memcache', '-Tfields', '-eframe.number')
+        assert len(lines) == 198
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'memcache.magic', '-Tfields', '-eframe.number')
+        assert len(lines) == 121
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 361
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_memcache_text_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every text command is recognised (STAT lines are the stats responses).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'memcache.command', '-Tfields', '-ememcache.command')
+        cmds = [l[0] for l in lines]
+        counts = {c: cmds.count(c) for c in set(cmds)}
+        assert counts == {
+            'set': 10, 'add': 2, 'replace': 2, 'append': 2, 'prepend': 2, 'cas': 4,
+            'get': 5, 'gets': 3, 'delete': 3, 'incr': 2, 'decr': 1, 'stats': 2,
+            'flush_all': 4, 'quit': 1, 'version': 1, 'STAT,STAT,STAT': 3}
+
+    def test_memcache_gets_response_with_cas(self, cmd_tshark, capture_file, test_env):
+        '''A gets response carrying a cas unique decodes the data block (it
+        failed before "Memcache: Fix gets response with cas and length
+        arithmetic wraps"): frame 117, UDP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 117', '-Tfields', '-ememcache.key',
+                '-ememcache.flags', '-ememcache.value.length', '-ememcache.cas',
+                '-ememcache.value')
+        assert lines == [['foo', '0', '3', '12345', 'abc']]
+
+    def test_memcache_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A 3000 octet data block over three segments and a data block
+        split in two (frames 96 and 100); two commands in a segment.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {96, 100}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-ememcache.key', '-ememcache.value')
+        assert lines[0][:3] == ['96', 'set big 0 0 3000 ', 'big']
+        assert lines[0][3] == 'x' * 1400 + 'y' * 1600
+        assert lines[1] == ['100', 'set split 0 0 10 ', 'split', '0123456789']
+
+    def test_memcache_huge_length(self, cmd_tshark, capture_file, test_env):
+        '''A data block length of 4294967295 neither wraps nor requests
+        reassembly (frames 112 and 114).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {112, 114}', '-Tfields', '-eframe.number',
+                '-ememcache.value.length')
+        assert lines == [['112', '4294967295'], ['114', '4294967295']]
+
+    def test_memcache_binary(self, cmd_tshark, capture_file, test_env):
+        '''Binary protocol: every opcode, statuses with a body (frames
+        261-275) and the expert infos for key/extras/value that must or
+        must not be there.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {261, 263, 265, 267, 269, 271, 273, 275}',
+                '-Tfields', '-ememcache.status', '-e_ws.col.info')
+        assert [l[0] for l in lines] == ['1', '2', '3', '4', '5', '129', '130', '4660']
+        assert lines[0][1] == 'Get Response (Key not found)'
+        assert lines[7][1] == 'Set Response (Unknown status: 4660)'
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {293, 295, 297, 299, 301, 303}',
+                '-Tfields', '-e_ws.expert.message')
+        assert [l[0] for l in lines] == [
+            'Get Request shall not have Extras', 'Get Request shall not have Value',
+            'Get Response must have Extras', 'Get Request must have Key',
+            'Set Request must have Extras', 'Set Request must have Value']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'memcache.opcode', '-Tfields', '-ememcache.opcode')
+        assert len(set(x for l in lines for x in l[0].split(','))) == 28
