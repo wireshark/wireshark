@@ -34,6 +34,8 @@ void proto_reg_handoff_miop(void);
 #define MIOP_MAX_UNIQUE_ID_LENGTH   252
 
 #define MIOP_HEADER_SIZE 16
+/* The header, including the unique id length at offset 16 */
+#define MIOP_MIN_HEADER_SIZE 20
 
 /*
  * Set to 1 for DEBUG output - TODO make this a runtime option
@@ -84,7 +86,7 @@ dissect_miop_heur_check (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * t
 
   tot_len = tvb_captured_length(tvb);
 
-  if (tot_len < MIOP_HEADER_SIZE) /* tot_len < 16 */
+  if (tot_len < MIOP_MIN_HEADER_SIZE) /* tot_len < 20 */
     {
       /* Not enough data captured to hold the GIOP header; don't try
          to interpret it as GIOP. */
