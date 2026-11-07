@@ -90009,3 +90009,90 @@ class TestDissectLcsap:
                 '-Y', 'xml', '-Tfields', '-exml.xmlpi.xml',
             ), encoding='utf-8', env=test_env)
         assert stdout.count('<?xml version="1.0"') == 27
+
+
+class TestDissectLdaNeoTrailer:
+    FIELDS = ('-Tfields', '-eframe.number', '-elda_neo_trailer.seqnum',
+              '-elda_neo_trailer.crc_invalid', '-elda_neo_trailer.devid',
+              '-elda_neo_trailer.pcscode33', '-elda_neo_trailer.pcscode_position',
+              '-elda_neo_trailer.portid', '-elda_neo_trailer.portspeed',
+              '-elda_neo_trailer.preamble_lane',
+              '-elda_neo_trailer.timestamp.nanosec',
+              '-elda_neo_trailer.timestamp.picosec')
+
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('lda_neo_trailer_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+
+    def test_lda_neo_trailer_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-15 have a trailer (found by the eth.trailer heuristic),
+        frames 16 (no trailer) and 17 (wrong signature) do not. None is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'lda_neo_trailer', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(1, 16)]
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_lda_neo_trailer_fields(self, cmd_tshark, capture_file, test_env):
+        '''Sequence number, CRC flag, device ID, PCS code and position, port
+        ID, speed, 40G preamble lane and the 80 bit timestamp, in one and two
+        passes. Port 49 (the first 40G port) has lane 0: it had no lane
+        before the check was changed to >=.'''
+        expected = [
+            '1\t1\tFalse\t0\tFalse\t0\t1\t0\t\t1700000000000001500\t7',
+            '2\t2\tTrue\t5\tTrue\t17\t2\t0\t\t1700000001999999999\t999',
+            '3\t65535\tFalse\t127\tTrue\t63\t48\t1\t\t1700000002000000000\t0',
+            '4\t10\tFalse\t0\tFalse\t0\t49\t2\t0\t1700000003000000000\t0',
+            '5\t11\tFalse\t0\tFalse\t0\t50\t2\t1\t1700000004000001000\t0',
+            '6\t12\tFalse\t0\tFalse\t0\t51\t2\t2\t1700000005000002000\t0',
+            '7\t13\tFalse\t0\tFalse\t0\t52\t2\t3\t1700000006000003000\t0',
+            '8\t14\tFalse\t0\tFalse\t0\t53\t2\t0\t1700000007000004000\t0',
+            '9\t15\tFalse\t0\tFalse\t0\t54\t2\t1\t1700000008000005000\t0',
+            '10\t16\tFalse\t0\tFalse\t0\t55\t2\t2\t1700000009000006000\t0',
+            '11\t17\tFalse\t0\tFalse\t0\t56\t2\t3\t1700000010000007000\t0',
+            '12\t20\tFalse\t0\tFalse\t0\t0\t0\t\t1700000011000000000\t0',
+            '13\t21\tFalse\t0\tFalse\t0\t3\t0\t\t1700000012000000000\t0',
+            '14\t22\tFalse\t0\tFalse\t0\t51\t2\t2\t1700000013000000000\t0',
+            '15\t23\tFalse\t0\tFalse\t0\t4\t0\t\t1700000014000000000\t0',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'lda_neo_trailer', *self.FIELDS)
+            assert stdout.splitlines() == expected
+
+    def test_lda_neo_trailer_port49_lane(self, cmd_tshark, capture_file, test_env):
+        '''Port 49 gets a preamble lane (0) in the port ID subtree.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-V', '-O', 'lda_neo_trailer')
+        lines = [l.strip() for l in stdout.splitlines()]
+        start = lines.index('Port')
+        assert lines[start + 1:start + 4] == [
+            '..11 0001 = Port ID: 49',
+            '40G preamble Lane: 0',
+            '10.. .... = Port speed: 40G (2)',
+        ]
+
+    def test_lda_neo_trailer_padding_decoys(self, cmd_tshark, capture_file, test_env):
+        '''Frames 13-15 have padding before the trailer. In frames 14 and 15
+        the padding holds an "L" whose timestamp is not within a month of
+        the frame: the validation skips it and decodes the real trailer. With
+        the validation off the decoy "L" of frame 14 is taken for the
+        trailer; the decoy timestamp of frame 15 is too large for a 64-bit
+        nanosecond count, so it is skipped and the real trailer decoded.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'lda_neo_trailer.timestamp:FALSE',
+                '-Y', 'lda_neo_trailer && frame.number >= 12',
+                '-Tfields', '-eframe.number', '-elda_neo_trailer.seqnum',
+                '-elda_neo_trailer.portid', '-elda_neo_trailer.timestamp.nanosec')
+        assert stdout.splitlines() == [
+            '12\t20\t0\t1700000011000000000',
+            '13\t21\t3\t1700000012000000000',
+            '14\t0\t0\t0',
+            '15\t23\t4\t1700000014000000000',
+        ]
