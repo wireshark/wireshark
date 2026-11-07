@@ -96529,3 +96529,79 @@ class TestDissectMimeEncap:
                     'mime_encap_unhandled.elf.gz', *passes,
                     '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed')
             assert lines == ['MIME_FILE\t']
+
+
+class TestDissectMint:
+    '''MINT (Media Independent Network Transport) over UDP 24576/24577,
+    the Ethernet shim (ethertype 0x8783) and Exported PDU (mint_data,
+    mint_control, mint_eth), from the synthetic capture
+    mint_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mint_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mint_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 106 frames are MINT; none is malformed or has an error
+        expert info, in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['MINT'] * 106
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mint_data_frames(self, cmd_tshark, capture_file, test_env):
+        '''The Ethernet frames carried by data frames are dissected: IPv4
+        in frames 1, 3, 6 and 8, ARP in 2, 4 and 7, and no frame in 5
+        (shim frames 3-5 go through the code of "MINT: Assign the offset
+        returned by the sub-dissection helpers"; the fix changes only
+        return values, so no test fails without it).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-eip.proto', '-earp.opcode', '-emint.ethshim.length')
+        assert lines == [
+            '1\tdata/dgram\t17,17\t\t',
+            '2\tdata/dgram\t17\t1\t',
+            '3\tdata/dgram\t17\t\t70',
+            '4\tdata/dgram\t\t1\t60',
+            '5\tdata/dgram\t\t\t18',
+            '6\tdata/dgram\t17\t\t',
+            '7\tdata/dgram\t\t1\t',
+            '8\tdata-flood/dgram\t17,17\t\t',
+        ]
+
+    def test_mint_data_flood(self, cmd_tshark, capture_file, test_env):
+        '''VLAN and sequence number of the data-flood frames.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mint.data.seqno', '-Tfields', '-eframe.number',
+                '-emint.data.seqno', '-emint.data.vlan')
+        assert lines == ['8\t16909060\t10', '9\t4294967295\t0', '10\t16909060\t10', '11\t16909060\t10']
+
+    def test_mint_router_messages(self, cmd_tshark, capture_file, test_env):
+        '''Router message types and their array elements (12 octets for
+        CSNP, 8 for LSP, 4 for PSNP).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mint.control.router.message.type && frame.number <= 19', '-Tfields',
+                '-eframe.number', '-emint.control.router.message.type',
+                '-emint.control.router.element', '-emint.control.router.array')
+        assert lines == [
+            '13\tCSNP\t000102030405060708090a0b,000102030405060708090a0b\t',
+            '14\tCSNP\t000102030405060708090a0b,000102030405060708090a0b\t128',
+            '15\tHELO\t\t',
+            '16\tHELO\t\t128',
+            '17\tLSP\t0001020304050607,08090a0b0c0d0e0f\t',
+            '18\tPSNP\t00010203,04050607\t',
+            '19\tXXXX\t\t',
+        ]
+
+    def test_mint_mlcp(self, cmd_tshark, capture_file, test_env):
+        '''MLCP message codes and TLV types.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'mint.control.mlcp.message', '-Tfields', '-eframe.number',
+                '-emint.control.mlcp.message', '-emint.control.mlcp.tlvtype')
+        assert lines == ['25\t0x0103\t1,2', '26\t0x0201\t5,6', '27\t0x0103\t1', '28\t0x0100\t']
