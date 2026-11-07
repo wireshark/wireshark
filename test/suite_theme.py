@@ -1756,7 +1756,7 @@ class TestExpertIcons:
 # SVG file names do not follow the token names, so this pairing is
 # test data; test_glyph_tokens_exist_in_enum keeps it honest.
 FILTER_GLYPH_ICONS = {
-    'FilterBookmark':        'bookmark-display.svg',
+    'FilterBookmarkDisplay': 'bookmark-display.svg',
     'FilterBookmarkCapture': 'bookmark-capture.svg',
     'FilterBookmarkMatch':   'bookmark-match.svg',
     'FilterClear':           'filter-clear.svg',

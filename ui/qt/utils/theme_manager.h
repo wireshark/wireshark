@@ -225,7 +225,7 @@ public:
         // theme has them defined), and theme.filter.<name> overrides per-token.
         // Display and capture bookmarks differ on purpose (blue vs green); the
         // match colour marks a filter already saved.
-        FilterBookmark,         // display-filter bookmark   (← AccentInfo, blue)
+        FilterBookmarkDisplay,  // display-filter bookmark   (← AccentInfo, blue)
         FilterBookmarkCapture,  // capture-filter bookmark   (← AccentSuccess, green)
         FilterBookmarkMatch,    // current filter is saved   (← AccentWarning, yellow)
         FilterClear,            // clear affordance (active) (← AccentError, red)

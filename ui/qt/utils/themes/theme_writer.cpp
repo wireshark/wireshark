@@ -124,7 +124,7 @@ const struct { ThemeManager::ThemeToken token; const char *text; } kDescriptions
     { ThemeManager::FilterDeprecated, QT_TRANSLATE_NOOP("ThemeWriter", "Display filter background, deprecated syntax.") },
     { ThemeManager::FilterBusy, QT_TRANSLATE_NOOP("ThemeWriter", "Capture filter background while compiling.") },
     { ThemeManager::FilterBusyText, QT_TRANSLATE_NOOP("ThemeWriter", "Capture filter text while compiling.") },
-    { ThemeManager::FilterBookmark, QT_TRANSLATE_NOOP("ThemeWriter", "Bookmark glyph in the display filter.") },
+    { ThemeManager::FilterBookmarkDisplay, QT_TRANSLATE_NOOP("ThemeWriter", "Bookmark glyph in the display filter.") },
     { ThemeManager::FilterBookmarkCapture, QT_TRANSLATE_NOOP("ThemeWriter", "Bookmark glyph in the capture filter.") },
     { ThemeManager::FilterBookmarkMatch, QT_TRANSLATE_NOOP("ThemeWriter", "Bookmark glyph when the filter matches a saved one.") },
     { ThemeManager::FilterClear, QT_TRANSLATE_NOOP("ThemeWriter", "Clear glyph.") },

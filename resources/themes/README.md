@@ -188,7 +188,7 @@ of `light` and `dark` is valid, the parser uses it for both and warns.
 | `expert` | `none`, `comment`, `chat`, `note`, `warn`, `error`, `foreground` | Expert-info row colors; `none` is the background of items without a severity, `foreground` the text on them |
 | `packets` | `selection`, `selectionText`, `inactive`, `inactiveText`, `marked`, `markedText`, `ignored`, `ignoredText`, `hidden` | Packet-list and details state colors (background and matching text) |
 | `conversation` | `client`, `clientText`, `server`, `serverText` | Follow Stream client and server colors |
-| `filter` | `valid`, `invalid`, `deprecated`, `busy`, `busyText`, `history`, `bookmark`, `bookmarkCapture`, `bookmarkMatch`, `clear`, `apply` | Filter field tints and inline glyph colors (details below) |
+| `filter` | `valid`, `invalid`, `deprecated`, `busy`, `busyText`, `history`, `bookmarkDisplay`, `bookmarkCapture`, `bookmarkMatch`, `clear`, `apply` | Filter field tints and inline glyph colors (details below) |
 | `code` | `background`, `text`, `selection`, `selectionText`, `gutter`, `gutterText`, `pausedLine`, `string`, `keyword`, `number`, `builtIn`, `functionCall`, `comment` | Colors of the Lua Debugger script editor (details below) |
 | `separator` | one color pair | Hairline divider between cards and sections |
 | `graphs` | array of color pairs | Rotating color cycle for graphs and diagrams |
@@ -228,7 +228,7 @@ same colors.
 | `busy`            | Background while a capture filter is being compiled off-thread |
 | `busyText`        | Foreground for the busy state |
 | `history`         | Resting tint of the recent-filters drop-down arrow |
-| `bookmark`        | Bookmark glyph of the display filter; default `accent.info` |
+| `bookmarkDisplay` | Bookmark glyph of the display filter; default `accent.info` |
 | `bookmarkCapture` | Bookmark glyph of the capture filter; default `accent.success` |
 | `bookmarkMatch`   | Bookmark glyph when the current filter is saved; default `accent.warning` |
 | `clear`           | Clear glyph on hover/press (neutral grey at rest); default `accent.error` |

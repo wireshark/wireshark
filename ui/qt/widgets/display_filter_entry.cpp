@@ -65,7 +65,7 @@ DisplayFilterEntry::DisplayFilterEntry(QWidget *parent) :
     completionModel()->addSourceModel(completer->fieldsModel());
     completer->setModel(completionModel());
 
-    // Display chrome and mode: FilterBookmark, FilterBookmarkMatch when the
+    // Display chrome and mode: FilterBookmarkDisplay, FilterBookmarkMatch when the
     // filter is saved.
     setBookmarkIcon(ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-display.svg"), QPalette::Base),
                     ContrastAdaptIcon(QStringLiteral(":/svg_icons/bookmark-match.svg"), QPalette::Base));
