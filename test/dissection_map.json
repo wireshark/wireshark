@@ -2234,6 +2234,213 @@
    "epan/dissectors/packet-h221_nonstd.c",
    "epan/dissectors/packet-h225.c"
   ],
+  "TestDissectH235": [
+   "epan/dissectors/packet-h225.c",
+   "epan/dissectors/packet-h235.c",
+   "epan/dissectors/packet-mikey.c"
+  ],
+  "TestDissectH245": [
+   "epan/dissectors/packet-h245.c",
+   "epan/dissectors/packet-h460.c",
+   "epan/dissectors/packet-rtcp.c",
+   "epan/dissectors/packet-rtp.c",
+   "epan/dissectors/packet-t38.c"
+  ],
+  "TestDissectH248": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_10.c",
+   "epan/dissectors/packet-h248_7.c",
+   "epan/dissectors/packet-megaco.c"
+  ],
+  "TestDissectH2483gpp": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_3gpp.c"
+  ],
+  "TestDissectH248AnnexC": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_annex_c.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH248AnnexE": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_annex_e.c"
+  ],
+  "TestDissectH248Q1950": [
+   "epan/dissectors/packet-h248_q1950.c",
+   "epan/dissectors/packet-text-media.c"
+  ],
+  "TestDissectH248_10": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_10.c"
+  ],
+  "TestDissectH248_2": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_2.c"
+  ],
+  "TestDissectH248_7": [
+   "epan/dissectors/packet-h248.c",
+   "epan/dissectors/packet-h248_7.c"
+  ],
+  "TestDissectH261": [
+   "epan/dissectors/packet-h261.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH263": [
+   "epan/dissectors/packet-h263.c",
+   "epan/dissectors/packet-h263p.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH263p": [
+   "epan/dissectors/packet-h263.c",
+   "epan/dissectors/packet-h263p.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH264": [
+   "epan/dissectors/packet-h264.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH265": [
+   "epan/dissectors/packet-h265.c",
+   "epan/dissectors/packet-sdp.c"
+  ],
+  "TestDissectH282": [
+   "epan/dissectors/packet-h282.c",
+   "epan/dissectors/packet-h283.c"
+  ],
+  "TestDissectH283": [
+   "epan/dissectors/packet-h282.c",
+   "epan/dissectors/packet-h283.c"
+  ],
+  "TestDissectH323": [
+   "epan/dissectors/packet-h323.c"
+  ],
+  "TestDissectH450": [
+   "epan/dissectors/packet-h450-ros.c",
+   "epan/dissectors/packet-h450.c"
+  ],
+  "TestDissectH450Ros": [
+   "epan/dissectors/packet-h450-ros.c"
+  ],
+  "TestDissectH460": [
+   "epan/dissectors/packet-h460.c"
+  ],
+  "TestDissectH501": [
+   "epan/dissectors/packet-h501.c"
+  ],
+  "TestDissectHI2Operations": [
+   "epan/dissectors/packet-HI2Operations.c",
+   "epan/dissectors/packet-gtpv2.c"
+  ],
+  "TestDissectHartip": [
+   "epan/dissectors/packet-hartip.c"
+  ],
+  "TestDissectHazelcast": [
+   "epan/dissectors/packet-hazelcast.c"
+  ],
+  "TestDissectHciH1": [
+   "epan/dissectors/packet-bthci_cmd.c",
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-btl2cap.c",
+   "epan/dissectors/packet-hci_h1.c"
+  ],
+  "TestDissectHciH4": [
+   "epan/dissectors/packet-bthci_cmd.c",
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-bthci_iso.c",
+   "epan/dissectors/packet-bthci_sco.c",
+   "epan/dissectors/packet-btl2cap.c",
+   "epan/dissectors/packet-hci_h4.c"
+  ],
+  "TestDissectHciMon": [
+   "epan/dissectors/packet-bthci_cmd.c",
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-bthci_iso.c",
+   "epan/dissectors/packet-bthci_sco.c",
+   "epan/dissectors/packet-btl2cap.c",
+   "epan/dissectors/packet-hci_mon.c"
+  ],
+  "TestDissectHciUsb": [
+   "epan/dissectors/packet-bthci_cmd.c",
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-btl2cap.c",
+   "epan/dissectors/packet-hci_usb.c"
+  ],
+  "TestDissectHclnfsd": [
+   "epan/dissectors/packet-hclnfsd.c"
+  ],
+  "TestDissectHcrt": [
+   "epan/dissectors/packet-hcrt.c"
+  ],
+  "TestDissectHdcp": [
+   "epan/dissectors/packet-hdcp.c",
+   "epan/dissectors/packet-i2c.c"
+  ],
+  "TestDissectHdcp2": [
+   "epan/dissectors/packet-hdcp2.c"
+  ],
+  "TestDissectHdfs": [
+   "epan/dissectors/file-file.c",
+   "epan/dissectors/packet-hdfs.c"
+  ],
+  "TestDissectHdfsdata": [
+   "epan/dissectors/packet-hdfsdata.c"
+  ],
+  "TestDissectHdmi": [
+   "epan/dissectors/packet-hdcp.c",
+   "epan/dissectors/packet-hdmi.c",
+   "epan/dissectors/packet-i2c.c",
+   "epan/dissectors/packet-x75.c"
+  ],
+  "TestDissectHicp": [
+   "epan/dissectors/packet-hicp.c"
+  ],
+  "TestDissectHip": [
+   "epan/dissectors/packet-hip.c"
+  ],
+  "TestDissectHipercontracer": [
+   "epan/dissectors/packet-hipercontracer.c"
+  ],
+  "TestDissectHiqnet": [
+   "epan/dissectors/packet-hiqnet.c"
+  ],
+  "TestDissectHislip": [
+   "epan/dissectors/packet-hislip.c",
+   "epan/dissectors/packet-tls.c"
+  ],
+  "TestDissectHl7": [
+   "epan/dissectors/packet-hl7.c"
+  ],
+  "TestDissectHnbap": [
+   "epan/dissectors/packet-hnbap.c"
+  ],
+  "TestDissectHomeplug": [
+   "epan/dissectors/packet-homeplug.c"
+  ],
+  "TestDissectHomeplugAv": [
+   "epan/dissectors/packet-homeplug-av.c"
+  ],
+  "TestDissectHomeplugAvVertexcom": [
+   "epan/dissectors/packet-homeplug-av-vendor-vertexcom.c",
+   "epan/dissectors/packet-rx.c"
+  ],
+  "TestDissectHomepna": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-homepna.c"
+  ],
+  "TestDissectHpErm": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-hp-erm.c"
+  ],
+  "TestDissectHpext": [
+   "epan/dissectors/packet-hpext.c",
+   "epan/dissectors/packet-hpsw.c",
+   "epan/dissectors/packet-rmp.c",
+   "epan/dissectors/packet-snmp.c"
+  ],
+  "TestDissectHpfeeds": [
+   "epan/dissectors/packet-hpfeeds.c",
+   "epan/dissectors/packet-json.c"
+  ],
   "TestDissectLi5g": [
    "epan/dissectors/packet-HI2Operations.c",
    "epan/dissectors/packet-dhcp.c",
