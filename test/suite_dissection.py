@@ -99394,3 +99394,111 @@ class TestDissectMpegSect:
         lines = self.fields(cmd_tshark, capture_file, test_env, 'eiss',
                 'eiss.app_type', 'eiss.org_id', 'eiss.app_id')
         assert lines == ['13\t0x0008\t0x00000001\t0x0002']
+
+
+class TestDissectMpls:
+    '''MPLS (packet-mpls.c: MPLS, PW associated channel header, MCC and the
+    generic PW control word) from the synthetic capture
+    mpls_coverage.pcapng.gz. Frames 39-43 need the Decode As in
+    PWCW_OPTS (the generic PW control word is not bound by default).'''
+
+    PWCW_OPTS = ('-d', 'mpls.label==500,pwmcw')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('mpls_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mpls_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''All 44 frames decode as MPLS without malformed packets or error
+        expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'mpls',
+                            ['frame.number'], self.PWCW_OPTS)
+        assert len(rows) == 44
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.PWCW_OPTS,
+                    '-r', capture_file('mpls_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_mpls_label_stacks(self, cmd_tshark, capture_file, test_env):
+        '''Labels, EXP, S and TTL of the stacks in frames 1-9, reserved
+        labels included.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 9',
+                            ['frame.number', 'mpls.label', 'mpls.exp', 'mpls.bottom', 'mpls.ttl'])
+        assert rows[1] == ['2', '200,100', '5,0', '0,1', '255,1']
+        assert rows[3] == ['4', '300,301,302,303', '0,0,0,0', '0,0,0,1', '64,64,64,64']
+        assert rows[6][1] == '1,3,7,5,100'
+        assert rows[8][1] == '4,6,8,9,10,11,12,1048575'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 7, 8}',
+                            ['frame.number', 'mpls.label'], ())
+        assert [r[1] for r in rows] == ['0', '1,3,7,5,100', '15']
+
+    def test_mpls_payload_selection(self, cmd_tshark, capture_file, test_env):
+        '''The payload follows the first nibble (4, 6, 1), the Ethernet
+        heuristic (frame 11) or ends as data (nibbles 3 and 15).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 10..15, 17}',
+                            ['frame.number', 'frame.protocols'])
+        assert [r[1] for r in rows] == [
+            'eth:ethertype:mpls:udp:discard',
+            'eth:ethertype:mpls:udp:discard',
+            'eth:ethertype:mpls:pwethnocw:eth:ethertype:data',
+            'eth:ethertype:mpls:pwethnocw:eth:ethertype:ip:udp:discard',
+            'eth:ethertype:mpls:data',
+            'eth:ethertype:mpls:data',
+            'eth:ethertype:mpls:ip:udp:discard',
+            'eth:ethertype:mpls:ipv6:udp:discard',
+            'eth:ethertype:mpls:mcc:ip:udp:discard',
+        ]
+
+    def test_mpls_gal_and_ach(self, cmd_tshark, capture_file, test_env):
+        '''GAL frames 18-29: channel types, the MCC protocol, the reserved
+        byte warning (frames 16, 26) and a GAL without the S bit (28).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {18..29}',
+                            ['frame.number', 'pwach.channel_type', 'mcc.proto', 'pwach.res',
+                             '_ws.expert.message'])
+        assert [r[1] for r in rows] == ['0x0021', '0x0057', '0x7777', '0x7ff8', '0x0001',
+                                        '0x0001', '0x0001', '0x0023', '0x0021', '0x0021', '', '0x0021']
+        assert [r[2] for r in rows[4:7]] == ['0x0021', '0x0057', '0x1234']
+        assert rows[8][3] == '0x07' and 'reserved' in rows[8][4]
+        assert rows[10][4] == 'Invalid Label'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {16, 25}',
+                            ['frame.number', 'frame.protocols', 'pwach.res'])
+        assert rows[0] == ['16', 'eth:ethertype:mpls:data', '0x03']
+        # BFD CV: the MEP-ID TLV is added after the BFD control message
+        assert rows[1][1] == 'eth:ethertype:mpls:pwach:bfd'
+
+    def test_mpls_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''Frames 31-38: MPLS over UDP 6635, IP protocol 137, GRE, PPP and
+        Cisco HDLC.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {31..38}',
+                            ['frame.number', 'frame.protocols'])
+        assert [r[1] for r in rows] == [
+            'eth:ethertype:ip:udp:mpls:udp:discard',
+            'eth:ethertype:ip:mpls:udp:discard',
+            'eth:ethertype:ip:gre:mpls:udp:discard',
+            'eth:ethertype:ip:gre:mpls:udp:discard',
+            'ppp:mpls:udp:discard',
+            'ppp:mpls:udp:discard',
+            'chdlc:mpls:udp:discard',
+            'chdlc:mpls:udp:discard',
+        ]
+
+    def test_mpls_pw_control_word(self, cmd_tshark, capture_file, test_env):
+        '''The generic PW control word (frames 39-43, Decode As of label
+        500) shows the flags, length and sequence number, and hands IPv4,
+        IPv6 and an associated channel header to their dissectors.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {39..43}',
+                            ['frame.number', 'frame.protocols', 'pwmcw.flags', 'pwmcw.length',
+                             'pwmcw.sequence_number'], self.PWCW_OPTS)
+        assert rows[0] == ['39', 'eth:ethertype:mpls:data', '0x000f', '5', '4660']
+        assert rows[1][2:] == ['0x0000', '0', '7']
+        assert rows[2][1] == 'eth:ethertype:mpls:ip:udp:discard'
+        assert rows[3][1] == 'eth:ethertype:mpls:ipv6:udp:discard'
+        assert rows[4][1] == 'eth:ethertype:mpls:pwach:ip:udp:discard'
