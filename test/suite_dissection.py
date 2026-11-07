@@ -92553,3 +92553,138 @@ class TestDissectLsdp:
                 '-Tfields', '-elsdp.msg.type',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '0x41,0x44,0x51'
+
+
+class TestDissectLtp:
+    '''Synthetic LTP capture generated with Python struct (mkltp.py).'''
+
+    def test_ltp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame has LTP and none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'ltp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 50
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ltp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ltp_reassembled_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''With two passes the first segment of a block says where the
+        block was reassembled (one pass cannot know yet).'''
+        for passes, info in (((), '[Unfinished LTP Block]'),
+                             (('-2',), '[Reassembled in #2]')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ltp_coverage.pcap.gz'),
+                    '-Y', 'frame.number == 1',
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.strip().endswith(info)
+
+    def test_ltp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A red block in two segments is reassembled in the second one
+        and handed to the bundle protocol; a green block likewise to BPv7.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 20, 21}',
+                '-Tfields', '-eframe.number', '-eltp.reassembled.in',
+                '-eltp.reassembled.length', '-eltp.block.total_size',
+                '-eltp.block.red_size', '-eltp.block.green_size',
+                '-eltp.block.bundle_cnt', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t\t\t\t\t\t\tLTP',
+            '2\t\t89\t89\t89\t0\t1\tBundle',
+            '20\t\t\t\t\t\t\tLTP',
+            '21\t\t48\t48\t0\t48\t\tBPv7',
+        ]
+
+    def test_ltp_report_gaps(self, cmd_tshark, capture_file, test_env):
+        '''A report with two claims has two gaps; the gap and the claims
+        refer to the data segments that were sent.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-eltp.rpt.gap.first', '-eltp.rpt.gap.last',
+                '-eltp.rpt.gap_total', '-eltp.rpt.clm.first',
+                '-eltp.rpt.clm.last', '-eltp.rpt.clm.ref', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10,30\t19,39\t20\t0,20\t9,29\t5,6\t'
+            'Session 1/2, Report segment, range 0-39, gaps: 2, gap total: 20'
+        ]
+
+    def test_ltp_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''A data segment for a range already seen refers to the first one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'ltp.data.retrans',
+                '-Tfields', '-eframe.number', '-eltp.data.retrans',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['9\t5', '42\t41']
+
+    def test_ltp_cancel(self, cmd_tshark, capture_file, test_env):
+        '''Cancel segments and their acknowledgements refer to each other.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {28, 29, 30, 31, 34}',
+                '-Tfields', '-eframe.number', '-eltp.cancel.code',
+                '-eltp.cancel.ack.ref', '-eltp.cancel_ack.cancel.ref',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\t0x01\t\t\tCancel segment has no cancel acknowledgement segment',
+            '29\t\t\t28\t',
+            '30\t0x02\t29\t\t',
+            '31\t\t\t28,30\t',
+            '34\t\t\t\tCancel acknowledgement has no corresponding cancel segment',
+        ]
+
+    def test_ltp_client_service_id_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Client service IDs of 0xFFFFFFFF and 2^40 ("LTP: Fix assert on
+        large client service IDs and header offsets") are shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {39, 40}',
+                '-Tfields', '-eframe.number', '-eltp.data.client.id', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '39\t4294967295\t41424344',
+            '40\t1099511627776\t41424344',
+        ]
+
+    def test_ltp_segments_in_one_datagram(self, cmd_tshark, capture_file, test_env):
+        '''Trailer extensions are skipped and the version and type of a
+        second segment in a datagram are read at the right place (frames 3
+        and 4 of the reproducer of the same fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {38, 43, 44}',
+                '-Tfields', '-eframe.number', '-eltp.session.name', '-eltp.type',
+                '-eltp.hdr.extn.len', '-eltp.trl.extn.len', '-eltp.trl.extn.val',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '38\t5/1\t0x03\t3,6\t3,1\t4d4143,00',
+            '43\t7/2,7/3\t0x00,0x00\t\t2\t5454',
+            '44\t7/4,7/5\t0x00,0x03\t\t\t',
+        ]
+
+    def test_ltp_aggregation(self, cmd_tshark, capture_file, test_env):
+        '''Service data aggregation and BPv7 aggregation hold two bundles;
+        two bundles with client service 1 give a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ltp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {25, 26, 27}',
+                '-Tfields', '-eframe.number', '-eltp.block.bundle_cnt',
+                '-eltp.data.sda.client.id', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\t2\t1,1\t',
+            '26\t2\t\tNon-interoperable concatenation of bundles for Client Service ID 1',
+            '27\t2\t\t',
+        ]
