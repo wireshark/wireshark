@@ -185,6 +185,34 @@ static int ett_nr_rrc_ReferenceLocation_r17;
 static int ett_nr_rrc_wayPointLocation_r18;
 
 static expert_field ei_nr_rrc_number_pages_le15;
+static expert_field ei_nr_rrc_nesting_too_deep;
+
+/* Nested NR RRC messages (DL/UL-DCCH-MessageNR in the MRDC transfer
+ * messages, reassembled DCCH segments) can contain themselves again.
+ * Count the nesting per packet and stop at a small limit, well before
+ * the tree depth and dissection depth limits are reached. */
+#define NR_RRC_MAX_NESTING 8
+
+static bool
+nr_rrc_enter_nesting(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+{
+  unsigned depth = p_get_proto_depth(pinfo, proto_nr_rrc);
+
+  if (depth >= NR_RRC_MAX_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_nr_rrc_nesting_too_deep, tvb, 0);
+    return false;
+  }
+  p_set_proto_depth(pinfo, proto_nr_rrc, depth + 1);
+  increment_dissection_depth(pinfo);
+  return true;
+}
+
+static void
+nr_rrc_leave_nesting(packet_info *pinfo)
+{
+  decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_nr_rrc, p_get_proto_depth(pinfo, proto_nr_rrc) - 1);
+}
 
 /* Forward declarations */
 static int dissect_UECapabilityInformationSidelink_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -1149,6 +1177,7 @@ proto_register_nr_rrc(void) {
 
   static ei_register_info ei[] = {
      { &ei_nr_rrc_number_pages_le15, { "nr-rrc.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
+     { &ei_nr_rrc_nesting_too_deep, { "nr-rrc.nesting_too_deep", PI_PROTOCOL, PI_WARN, "Nested NR RRC message nesting too deep", EXPFILL }},
   };
 
   expert_module_t* expert_nr_rrc;

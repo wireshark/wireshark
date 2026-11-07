@@ -746,7 +746,10 @@ RAT-Type TYPE_PREFIX
   if (dl_dcch_msg_nr_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dl_DCCH_MessageNR);
-    dissect_DL_DCCH_Message_PDU(dl_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+    if (nr_rrc_enter_nesting(actx->pinfo, subtree, dl_dcch_msg_nr_tvb)) {
+      dissect_DL_DCCH_Message_PDU(dl_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+      nr_rrc_leave_nesting(actx->pinfo);
+    }
   }
 
 #.FN_BODY DLInformationTransferMRDC-r16-IEs/dl-DCCH-MessageEUTRA-r16 VAL_PTR = &dl_dcch_msg_eutra_tvb
@@ -1069,7 +1072,10 @@ RAT-Type TYPE_PREFIX
   if (ul_dcch_msg_nr_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageNR);
-    dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+    if (nr_rrc_enter_nesting(actx->pinfo, subtree, ul_dcch_msg_nr_tvb)) {
+      dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+      nr_rrc_leave_nesting(actx->pinfo);
+    }
   }
 
 #.FN_BODY ULInformationTransferMRDC-IEs/ul-DCCH-MessageEUTRA VAL_PTR = &ul_dcch_msg_eutra_tvb
@@ -2504,9 +2510,10 @@ LCG-DSR-Config-r18/remainingTimeThreshold-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING 
       if (reassembled_tvb) {
         /* The reassembled message can itself be a segment, which would
          * reassemble and dissect recursively, so bound the depth. */
-        increment_dissection_depth(actx->pinfo);
-        dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
-        decrement_dissection_depth(actx->pinfo);
+        if (nr_rrc_enter_nesting(actx->pinfo, tree, reassembled_tvb)) {
+          dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+          nr_rrc_leave_nesting(actx->pinfo);
+        }
       }
     }
   }
@@ -2574,9 +2581,10 @@ LCG-DSR-Config-r18/remainingTimeThreshold-r18 DISPLAY=BASE_DEC|BASE_UNIT_STRING 
       if (reassembled_tvb) {
         /* The reassembled message can itself be a segment, which would
          * reassemble and dissect recursively, so bound the depth. */
-        increment_dissection_depth(actx->pinfo);
-        dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
-        decrement_dissection_depth(actx->pinfo);
+        if (nr_rrc_enter_nesting(actx->pinfo, tree, reassembled_tvb)) {
+          dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+          nr_rrc_leave_nesting(actx->pinfo);
+        }
       }
     }
   }

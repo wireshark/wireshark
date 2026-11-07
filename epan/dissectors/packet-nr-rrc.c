@@ -17064,6 +17064,34 @@ static int ett_nr_rrc_ReferenceLocation_r17;
 static int ett_nr_rrc_wayPointLocation_r18;
 
 static expert_field ei_nr_rrc_number_pages_le15;
+static expert_field ei_nr_rrc_nesting_too_deep;
+
+/* Nested NR RRC messages (DL/UL-DCCH-MessageNR in the MRDC transfer
+ * messages, reassembled DCCH segments) can contain themselves again.
+ * Count the nesting per packet and stop at a small limit, well before
+ * the tree depth and dissection depth limits are reached. */
+#define NR_RRC_MAX_NESTING 8
+
+static bool
+nr_rrc_enter_nesting(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb)
+{
+  unsigned depth = p_get_proto_depth(pinfo, proto_nr_rrc);
+
+  if (depth >= NR_RRC_MAX_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_nr_rrc_nesting_too_deep, tvb, 0);
+    return false;
+  }
+  p_set_proto_depth(pinfo, proto_nr_rrc, depth + 1);
+  increment_dissection_depth(pinfo);
+  return true;
+}
+
+static void
+nr_rrc_leave_nesting(packet_info *pinfo)
+{
+  decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_nr_rrc, p_get_proto_depth(pinfo, proto_nr_rrc) - 1);
+}
 
 /* Forward declarations */
 static int dissect_UECapabilityInformationSidelink_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
@@ -69873,9 +69901,10 @@ dissect_nr_rrc_DLDedicatedMessageSegment_r16_IEs(tvbuff_t *tvb _U_, int offset _
       if (reassembled_tvb) {
         /* The reassembled message can itself be a segment, which would
          * reassemble and dissect recursively, so bound the depth. */
-        increment_dissection_depth(actx->pinfo);
-        dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
-        decrement_dissection_depth(actx->pinfo);
+        if (nr_rrc_enter_nesting(actx->pinfo, tree, reassembled_tvb)) {
+          dissect_DL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+          nr_rrc_leave_nesting(actx->pinfo);
+        }
       }
     }
   }
@@ -70270,7 +70299,10 @@ dissect_nr_rrc_T_dl_DCCH_MessageNR_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   if (dl_dcch_msg_nr_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_dl_DCCH_MessageNR);
-    dissect_DL_DCCH_Message_PDU(dl_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+    if (nr_rrc_enter_nesting(actx->pinfo, subtree, dl_dcch_msg_nr_tvb)) {
+      dissect_DL_DCCH_Message_PDU(dl_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+      nr_rrc_leave_nesting(actx->pinfo);
+    }
   }
 
 
@@ -78691,7 +78723,10 @@ dissect_nr_rrc_T_ul_DCCH_MessageNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   if (ul_dcch_msg_nr_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageNR);
-    dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+    if (nr_rrc_enter_nesting(actx->pinfo, subtree, ul_dcch_msg_nr_tvb)) {
+      dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+      nr_rrc_leave_nesting(actx->pinfo);
+    }
   }
 
 
@@ -79549,9 +79584,10 @@ dissect_nr_rrc_ULDedicatedMessageSegment_r16_IEs(tvbuff_t *tvb _U_, int offset _
       if (reassembled_tvb) {
         /* The reassembled message can itself be a segment, which would
          * reassemble and dissect recursively, so bound the depth. */
-        increment_dissection_depth(actx->pinfo);
-        dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
-        decrement_dissection_depth(actx->pinfo);
+        if (nr_rrc_enter_nesting(actx->pinfo, tree, reassembled_tvb)) {
+          dissect_nr_rrc_UL_DCCH_Message_PDU(reassembled_tvb, actx->pinfo, tree, NULL);
+          nr_rrc_leave_nesting(actx->pinfo);
+        }
       }
     }
   }
@@ -228497,6 +228533,7 @@ proto_register_nr_rrc(void) {
 
   static ei_register_info ei[] = {
      { &ei_nr_rrc_number_pages_le15, { "nr-rrc.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
+     { &ei_nr_rrc_nesting_too_deep, { "nr-rrc.nesting_too_deep", PI_PROTOCOL, PI_WARN, "Nested NR RRC message nesting too deep", EXPFILL }},
   };
 
   expert_module_t* expert_nr_rrc;
