@@ -98030,3 +98030,85 @@ class TestDissectMoqtCoverage:
                 '-Y', 'moqt.truncated', '-Tfields', '-eframe.number'),
             encoding='utf-8', env=test_env)
         assert stdout.split() == ['1']
+
+
+class TestDissectMount:
+    '''MOUNT and SGI MOUNT (ONC RPC programs 100005 and 391004) from the
+    synthetic capture mount_coverage.pcapng.gz: versions 1, 2 and 3
+    over UDP and TCP (found by the RPC heuristics) and SGI MOUNT.
+    Frames 1-24 v1, 25-66 v2, 67-106 v3, 107-140 SGI, 141-148 TCP,
+    149-150 the PATHCONF reply of the endianness fix.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mount_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_mount_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes as MOUNT or SGI MOUNT without malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 150
+        assert protocols.count('MOUNT') == 116
+        assert protocols.count('SGI MOUNT') == 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mount_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mount_pathconf_big_endian(self, cmd_tshark, capture_file, test_env):
+        '''The PATHCONF reply values are big endian numbers. Frame 150
+        has 0x0004 and 0x0001 in the high 16 bits of two words, which
+        were taken for a varint and a little endian encoding before
+        "MOUNT: Use big endian for the PATHCONF reply values".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 150',
+                'mount.pathconf.link_max', 'mount.pathconf.max_canon',
+                'mount.pathconf.max_input', 'mount.pathconf.name_max',
+                'mount.pathconf.path_max', 'mount.pathconf.pipe_buf',
+                'mount.pathconf.vdisable_char')
+        assert rows == [['32000', '255', '256', '255', '1024', '4096', '0x7f']]
+
+    def test_mount_pathconf_mask(self, cmd_tshark, capture_file, test_env):
+        '''A mask of 0x0001 (all invalid) hides every value; a mask of
+        0x0180 sets chown_restricted and no_trunc.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'mount.pathconf.mask.error_all == 1 && mount.pathconf.link_max',
+                'frame.number')
+        assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'mount.pathconf.mask.chown_restricted == 1 && mount.pathconf.mask.no_trunc == 1 '
+                '&& mount.pathconf.mask.error_all == 0',
+                'frame.number')
+        assert rows == [["64"]]
+
+    def test_mount3_mnt_flavors(self, cmd_tshark, capture_file, test_env):
+        '''MOUNT v3 MNT replies list the authentication flavors.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mount.flavors',
+                'frame.number', 'mount.flavors', 'mount.flavor')
+        assert rows == [['70', '3', '1,390003,6'], ['72', '0', ''],
+                        ['74', '4', '390003,390004,390005,0'], ['144', '1', '1']]
+
+    def test_mount_lists(self, cmd_tshark, capture_file, test_env):
+        '''DUMP and EXPORT reply entries, the empty group list, the
+        SGI export options and the STATVFS flags.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 12',
+                'mount.dump.hostname', 'mount.dump.directory')
+        assert rows == [['client1.example,client2.example', '/export/home,/export/data']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 20',
+                'mount.export.directory', 'mount.export.group')
+        assert rows == [['/export/home,/export/pub,/export/tmp', 'alice,bob,staff,everyone']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mount.export.options',
+                'mount.export.has_options', 'mount.export.options')
+        assert rows == [['1,0', 'rw,nosuid,']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'mount.statvfs.f_flag.st_local == 1 && mount.statvfs.f_flag.st_rdonly == 1',
+                'mount.statvfs.f_flag', 'mount.statvfs.f_basetype')
+        assert rows == [['0xe0000007', 'xfs']]
