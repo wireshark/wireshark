@@ -91102,3 +91102,60 @@ class TestDissectLldpCoverage:
         assert self.lldp_fields(cmd_tshark, capture_file, test_env,
                 'lldp.tlv.type == 9', 'frame.number',
                 opts=('-o', 'lldp.assume_unrecognized_tlv:TRUE')) == ['198']
+
+
+class TestDissectLlrpCoverage:
+    '''Low Level Reader Protocol (TCP 5084) from the synthetic capture
+    llrp_coverage.pcap.gz: messages of every type, every TLV, TV and
+    Impinj parameter, nested parameters and TCP framing.'''
+
+    @staticmethod
+    def llrp_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('llrp_coverage.pcap.gz'),
+                '-Y', display_filter,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_llrp_frames(self, cmd_tshark, capture_file, test_env):
+        '''194 LLRP frames (47 message types), no malformed packets, error
+        expert infos or "incorrect length" infos in one and two passes.
+        The 600 nested Impinj custom parameters of frame 199 hit the
+        dissection depth assertion before "LLRP: Bound Impinj parameter
+        nesting and fix some offsets"; the IDENT, CLIENT_REQ_RESPONSE and
+        GET_BLK_PERMALOCK parameters decode to their exact length.'''
+        lines = self.llrp_fields(cmd_tshark, capture_file, test_env, 'llrp', 'frame.number', 'llrp.type')
+        assert len(lines) == 194
+        assert len({l.split('\t')[1] for l in lines}) == 47
+        for passes in ((), ('-2',)):
+            assert self.llrp_fields(cmd_tshark, capture_file, test_env,
+                    'llrp && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    'frame.number', opts=passes) == []
+        assert self.llrp_fields(cmd_tshark, capture_file, test_env, 'llrp && _ws.expert', 'frame.number') == []
+
+    def test_llrp_nested_impinj(self, cmd_tshark, capture_file, test_env):
+        '''Frame 199 is dissected up to the depth bound of 16 parameters.'''
+        lines = self.llrp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 199',
+                'llrp.type', 'llrp.length')
+        assert len(lines) == 1 and lines[0].startswith('1023\t')
+        lines = self.llrp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 199',
+                'llrp.tlv_type')
+        assert len(lines[0].split(',')) == 17
+
+    def test_llrp_messages(self, cmd_tshark, capture_file, test_env):
+        '''ROSpec and AccessSpec IDs, and the Impinj custom message subtypes.'''
+        assert self.llrp_fields(cmd_tshark, capture_file, test_env, 'llrp.rospec == 7',
+                'llrp.type') == ['22', '23', '24', '25']
+        assert self.llrp_fields(cmd_tshark, capture_file, test_env, 'llrp.accessspec == 9',
+                'llrp.type') == ['42', '43']
+        assert self.llrp_fields(cmd_tshark, capture_file, test_env, 'llrp.impinj.type',
+                'llrp.impinj.type') == ['21', '22', '23', '24', '99', '22']  # the last is the nested frame 199
+
+    def test_llrp_tcp_framing(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one segment, and messages over several segments
+        (frames 203-208).'''
+        lines = self.llrp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 203 && llrp', 'frame.number', 'llrp.type')
+        assert [l.split('\t')[0] for l in lines] == ['203', '206', '207', '208']
+        assert lines[0].split('\t')[1] == '62,62'
