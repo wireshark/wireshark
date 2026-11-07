@@ -97109,3 +97109,99 @@ class TestDissectMka:
         assert 'Peers (7):' in stdout
         assert 'Peer SCI 02:00:00:00:00:01/0001 [Key Server]:' in stdout
         assert 'Key Server Startup (frames 3 - 8):' in stdout
+
+
+class TestDissectMle:
+    # The two reproducer frames (40, 41) need an IEEE 802.15.4 key to reach
+    # the MIC check; this is a placeholder key, nothing is decrypted.
+    KEY = 'uat:ieee802154_keys:"000102030405060708090a0b0c0d0e0f","1","No hash"'
+
+    def test_mle_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MLE; the only expert infos are the two "no key"
+        warnings of the secured reproducer frames; one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mle_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 41
+        assert protocols.count('MLE') == 41
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mle_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || (_ws.expert && !mle.no_key)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mle_coverage.pcap.gz'),
+                    '-Y', 'mle.no_key',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['40', '41']
+
+    def test_mle_commands(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every command, in order.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mle_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 39',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'Link Request', 'Link Accept', 'Link Accept and Request',
+            'Link Reject', 'Advertisement', 'Update', 'Update Request',
+            'Data Request', 'Data Response', 'Data Response',
+            'Parent Request', 'Parent Response', 'Parent Response',
+            'Child ID Request', 'Child ID Response', 'Child ID Response',
+            'Child Update Request', 'Child Update Response', 'Announce',
+            'Discovery Request', 'Discovery Response', 'Update',
+            'Link Metrics Management Request',
+            'Link Metrics Management Response', 'Link Probe', 'Link Probe',
+            'Update', 'Update', 'CIM Discovery Request',
+            'CIM Discovery Response', 'CIM Announce', 'Unknown (63)',
+            'Update', 'Update', 'Update', 'Update', 'Update',
+            'Data Request', 'Link Accept',
+        ]
+
+    def test_mle_tlv_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded TLV values: source address, link quality neighbors,
+        route64 costs, address registration, network parameters, link
+        metrics sub TLVs and CSL accuracy.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mle_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,5,14,22,23,27,28}',
+                '-Tfields', '-eframe.number', '-emle.tlv.source_addr',
+                '-emle.tlv.neighbor.addr', '-emle.tlv.route64.cost',
+                '-emle.tlv.addr_reg_iid_type', '-emle.tlv.network.param_id',
+                '-emle.tlv.network.pan_id', '-emle.tlv.network.bcn_payload',
+                '-emle.tlv.link_sub_tlv', '-emle.tlv.csl_clock_accuracy',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['1'][1] == '0400'
+        assert rows['2'][1] == '0001020304050607'
+        assert rows['2'][2] == '1011,1112'
+        assert rows['5'][3] == '1,2,3,4,5,6,7,8'
+        assert rows['14'][4] == 'True,False,True'
+        assert rows['22'][5] == '1,2,3,9,3,9'
+        assert rows['22'][6] == '0xface'
+        assert rows['22'][7] == '626561636f6e2121'
+        assert rows['23'][8] == '3,3,7,7,7'
+        assert rows['27'][8] == '1,2,0,0'
+        assert rows['28'][9] == '50'
+
+    def test_mle_mic_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''With a key the secured frames reach the MIC check. The 600
+        octet MIC-only payload read past a 256 byte stack buffer, and MLE
+        over an IPv4-in-IPv6 tunnel hit DISSECTOR_ASSERT(pinfo->src.len ==
+        16). Both must decode without a dissector bug.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mle_coverage.pcap.gz'),
+                '-o', self.KEY,
+                '-Y', 'frame.number >= 40',
+                '-Tfields', '-eframe.number', '-e_ws.malformed',
+                '-emle.no_key',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['40', '41']
+        assert all(l[1] == '' for l in lines)
+        assert all(l[2] == '1' or l[2] == 'True' for l in lines)
