@@ -243,7 +243,7 @@ static const value_string clear_log_vals[] = {
 static unsigned
 get_navitrol_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-	uint16_t len;
+	uint32_t len;
 
 	/* Get the length of the data from the header. */
 	len = tvb_get_uint32(tvb, offset + 4, navitrol_endian);
