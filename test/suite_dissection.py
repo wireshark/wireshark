@@ -84753,3 +84753,137 @@ class TestDissectIso10681:
         rows = self.run_fields(cmd_tshark, capture_file, test_env, (), 'frame.number == 74',
                                ('frame.protocols', 'exported_pdu.prot_name'))
         assert rows == [['exported_pdu:data', 'iso10681']]
+
+
+class TestDissectIso14443:
+    def test_iso14443_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 60 frames (link type ISO 14443) are ISO 14443 and none is
+        malformed or has an expert info (every CRC is correct), in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iso14443_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 60
+        assert protocols.count('ISO 14443') == 60
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('iso14443_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_iso14443_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame: type A activation (REQA/WUPA,
+        ATQA, anticollision, select, SAK, RATS, ATS), blocks, HLTA, type B
+        activation (REQB/WUPB, ATQB, Attrib) and the field events.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iso14443_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t',
+            '2\tField on',
+            '3\tREQA',
+            '4\tATQA',
+            '5\tAnticollision',
+            '6\tUID',
+            '7\tSelect',
+            '8\tSAK',
+            '9\tAnticollision',
+            '10\tUID',
+            '11\tSelect',
+            '12\tSAK',
+            '13\tRATS',
+            '14\tATS',
+            '15\tI-block, No chaining, Block number 0',
+            '16\tI-block, No chaining, Block number 0',
+            '17\tI-block, No chaining, Block number 1',
+            '18\tI-block, No chaining, Block number 0',
+            '19\tI-block, Chaining, Block number 0',
+            '20\tR-block, ACK, Block number 1',
+            '21\tI-block, No chaining, Block number 1',
+            '22\tI-block, No chaining, Block number 1',
+            '23\tR-block, NAK, Block number 0',
+            '24\tR-block, ACK, Block number 0',
+            '25\tS-block, WTX',
+            '26\tS-block, WTX',
+            '27\tS-block, WTX',
+            '28\tI-block, No chaining, Block number 0',
+            '29\tI-block, No chaining, Block number 1',
+            '30\tHLTA',
+            '31\tField off',
+            '32\tField on',
+            '33\tWUPA',
+            '34\tATQA',
+            '35\tAnticollision',
+            '36\tUID',
+            '37\tSelect',
+            '38\tSAK',
+            '39\tWUPA',
+            '40\tATQA',
+            '41\tField off',
+            '42\tField on',
+            '43\tWUPB',
+            '44\tATQB',
+            '45\tWUPB',
+            '46\tATQB',
+            '47\tATQB',
+            '48\tAttrib',
+            '49\tResponse to Attrib',
+            '50\tI-block, No chaining, Block number 0',
+            '51\tI-block, No chaining, Block number 0',
+            '52\tAttrib',
+            '53\tResponse to Attrib',
+            '54\tREQB',
+            '55\tATQB',
+            '56\tField off',
+            '57\tWUPB',
+            '58\tATQB',
+            '59\tI-block, No chaining, Block number 0',
+            '60\t',
+        ]
+
+    def test_iso14443_nad_and_inf_length(self, cmd_tshark, capture_file, test_env):
+        '''The NAD following bit is bit 3 of the PCB, so the NAD byte is
+        not part of the INF (frame 15), and a 300 octet INF is shown in
+        full (frame 28; the length was truncated to 44 before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iso14443_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15, 28}',
+                '-Tfields', '-eframe.number', '-eiso14443.nad_following',
+                '-eiso14443.inf',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['15', 'True', '00a4040007a000000004101000']
+        assert lines[1][0:2] == ['28', 'False']
+        assert len(lines[1][2]) == 600
+        assert lines[1][2].startswith('00070e151c232a31')
+        assert lines[1][2].endswith('f2f9' + '00' * 44)
+
+    def test_iso14443_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A command chained over two I-blocks (frames 19 and 21) is
+        reassembled to 37 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('iso14443_coverage.pcap.gz'),
+                '-Y', 'frame.number in {19, 21}',
+                '-Tfields', '-eframe.number', '-eiso14443.apdu_reassembled.length',
+                '-eiso14443.apdu_fragment.count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['19\t\t', '21\t37\t2']
+
+    def test_iso14443_transactions_and_crc(self, cmd_tshark, capture_file, test_env):
+        '''Request/response links and the CRC status, type A and type
+        B CRCs.'''
+        # "Response In" is only known to the request in the second pass
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('iso14443_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 16, 18, 44, 50, 51}',
+                '-Tfields', '-eframe.number', '-eiso14443.resp_to',
+                '-eiso14443.resp_in', '-eiso14443.crc.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '14\t13\t\t1', '16\t15\t\t1', '18\t17\t\t1', '44\t43\t\t1',
+            '50\t\t51\t1', '51\t50\t\t1']
