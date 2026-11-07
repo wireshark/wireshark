@@ -21,6 +21,7 @@
 #include <epan/expert.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/array.h>
 
@@ -33,6 +34,10 @@
  */
 
 #define MCPE_UDP_PORT_DEFAULT 19132 /* Not IANA registered */
+
+/* How deeply a Batch may be nested in other Batches. */
+#define MCPE_MAX_BATCH_NESTING 16
+
 static unsigned mcpe_udp_port_requested = MCPE_UDP_PORT_DEFAULT;
 
 static int proto_mcpe;
@@ -54,6 +59,7 @@ static dissector_table_t mcpe_packet_dissectors;
 static expert_field ei_mcpe_unknown_packet_id;
 static expert_field ei_mcpe_decompression_failed;
 static expert_field ei_mcpe_encrypted_packet;
+static expert_field ei_mcpe_batch_too_deep;
 
 /*
  * Common Header fields
@@ -317,6 +323,7 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 tvbuff_t *record_tvb;
                 proto_tree *record_tree;
                 uint32_t packet_id;
+                unsigned batch_depth;
                 int dissected;
 
                 item_size = 4;
@@ -345,9 +352,19 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 col_append_str(pinfo->cinfo, COL_INFO,
                                val_to_str(pinfo->pool, packet_id, mcpe_packet_names, "Unknown packet ID: %#x"));
 
+                /* A Batch can contain another Batch; bound the nesting. */
+                batch_depth = p_get_proto_depth(pinfo, proto_mcpe);
+                if (batch_depth >= MCPE_MAX_BATCH_NESTING) {
+                    expert_add_info(pinfo, ti, &ei_mcpe_batch_too_deep);
+                    break;
+                }
+                p_set_proto_depth(pinfo, proto_mcpe, batch_depth + 1);
+                increment_dissection_depth(pinfo);
                 dissected =
                     dissector_try_uint_with_data(mcpe_packet_dissectors, packet_id,
                                            record_tvb, pinfo, record_tree, true, data);
+                decrement_dissection_depth(pinfo);
+                p_set_proto_depth(pinfo, proto_mcpe, batch_depth);
                 if (!dissected) {
                     expert_add_info(pinfo, ti, &ei_mcpe_unknown_packet_id);
                 }
@@ -399,7 +416,7 @@ test_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void
              * Inspect the packet ID. If it's known to us the message
              * can be considered to be an MCPE packet.
              */
-            int8_t packet_id = tvb_get_uint8(tvb, 1);
+            uint8_t packet_id = tvb_get_uint8(tvb, 1);
 
             *(dissector_handle_t*)data =
                 dissector_get_uint_handle(mcpe_packet_dissectors, packet_id);
@@ -435,13 +452,13 @@ dissect_mcpe_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         mcpe_tree = proto_item_add_subtree(ti, ett_mcpe);
 
         /*
-         * The first octet is always 0xFE (Wrapper). We intentionally
-         * use DISSECTOR_ASSERT() here because test_mcpe_heur() has
-         * already tested it.
+         * The first octet is always 0xFE (Wrapper); test_mcpe_heur()
+         * has already tested it.
          */
         proto_tree_add_item_ret_uint(mcpe_tree, hf_mcpe_message_id,
                                      tvb, 0, 1, ENC_NA, &message_id);
-        DISSECTOR_ASSERT(message_id == 0xFE);
+        if (message_id != 0xFE)
+            return false;
 
         /*
          * The next octet is the packet ID.
@@ -645,6 +662,11 @@ proto_register_mcpe(void)
         { &ei_mcpe_decompression_failed,
           { "mcpe.decompression.failed", PI_MALFORMED, PI_ERROR,
             "MCPE packet decompression failed",
+            EXPFILL }
+        },
+        { &ei_mcpe_batch_too_deep,
+          { "mcpe.batch.too_deep", PI_PROTOCOL, PI_WARN,
+            "MCPE batch nested too deeply",
             EXPFILL }
         },
         { &ei_mcpe_encrypted_packet,
