@@ -878,7 +878,7 @@ dissect_megaco_text(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
             megaco_tree_add_string(megaco_tree, hf_megaco_transaction, tvb, save_offset, save_length, "Reply" );
 
             tvb_find_uint8_length(tvb, tvb_previous_offset, tvb_transaction_end_offset, '=', &tvb_offset);
-            tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset);
+            tvb_offset = megaco_tvb_skip_wsp(tvb, tvb_offset + 1);
             tvb_current_offset  = megaco_tvb_skip_wsp_return(tvb, tvb_LBRKT-1);
             len = tvb_current_offset - tvb_offset;
 
@@ -1817,17 +1817,12 @@ dissect_megaco_mediadescriptor(tvbuff_t *tvb, proto_tree *megaco_tree_command_li
             break;
         };
         /* more parameters ? */
-        if ( !tvb_find_uint8_length(tvb, tvb_current_offset + 1, tvb_last_RBRKT, ',', &tvb_next_offset)){
-            /* (raw formatting removed)
-               tokenlen = tvb_next_offset - tvb_RBRKT+1;
-               proto_tree_add_format_text(megaco_mediadescriptor_tree, tvb, tvb_RBRKT, tokenlen); */
-            tvb_previous_offset = tvb_next_offset+1;
-        } else{
+        if (tvb_find_uint8_length(tvb, tvb_current_offset + 1, tvb_last_RBRKT, ',', &tvb_next_offset)) {
             if (tvb_next_offset > tvb_last_RBRKT) {
                 tvb_next_offset = tvb_last_RBRKT;
             }
-            /* Add the trailing '}' (raw formatting removed) */
-            /* proto_tree_add_format_text(megaco_mediadescriptor_tree, tvb, tvb_RBRKT, 1); */
+            tvb_previous_offset = tvb_next_offset+1;
+        } else {
             tvb_previous_offset = tvb_last_RBRKT;
         }
 
@@ -2963,6 +2958,7 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, packet_info *pinfo, pro
     unsigned tokenlen;
     unsigned tvb_offset, tvb_current_offset=0;
     uint8_t tempchar;
+    bool more;
 
     proto_tree  *megaco_TerminationState_tree, *megaco_TerminationState_ti;
 
@@ -2977,9 +2973,11 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, packet_info *pinfo, pro
         if ((tempchar >= 'a') && (tempchar <= 'z'))
             tempchar = tempchar - 0x20;
 
-        if (tvb_find_uint8_remaining(tvb, tvb_current_offset, ',', &tvb_offset)) {
+        more = tvb_find_uint8_remaining(tvb, tvb_current_offset, ',', &tvb_offset);
+        /* tvb_offset is at the ',' or, for the last value, at the end of
+         * the descriptor; exclude the closing '}' there. */
+        if (!more && tvb_offset > tvb_current_offset)
             tvb_offset--;
-        }
         tokenlen = tvb_offset - tvb_current_offset;
         switch ( tempchar ){
 
@@ -3009,6 +3007,8 @@ dissect_megaco_TerminationStatedescriptor(tvbuff_t *tvb, packet_info *pinfo, pro
             break;
         }
 
+        if (!more)
+            break;
         tvb_current_offset = megaco_tvb_skip_wsp(tvb, tvb_offset + 1);
     }
     /* (raw formatting removed)
