@@ -575,7 +575,7 @@ dissect_miwi_connect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mi
     }
 
     /* Update the address table. */
-    if((status == IEEE802154_CMD_ASRSP_AS_SUCCESS) && (packet->src16 != IEEE802154_NO_ADDR16)){
+    if(!PINFO_FD_VISITED(pinfo) && (status == IEEE802154_CMD_ASRSP_AS_SUCCESS) && (packet->src16 != IEEE802154_NO_ADDR16)){
         ieee802154_addr_update(&miwi_map, packet->src16, packet->dst_pan, packet->dst64,
                 pinfo->current_proto, pinfo->num);
     }
@@ -834,10 +834,10 @@ dissect_miwi_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, miwi_p
         break;
         default:
             proto_item_append_text(tree, ", Unknown Command");
-              if(tvb_captured_length_remaining(tvb, 0) > 0){
-                call_data_dissector(tvb, pinfo, tree);
-        break;
+            if(tvb_captured_length_remaining(tvb, *offset) > 0){
+                call_data_dissector(tvb_new_subset_remaining(tvb, *offset), pinfo, tree);
             }
+        break;
     }/* switch */
 }/* dissect_miwi_command */
 
@@ -1127,10 +1127,10 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Destination PAN Id */
     if(dstPanPresent){
-        char* pan_id = (char *)wmem_new(pinfo->pool, uint64_t);
+        char pan_id[16];
 
         packet->dst_pan = tvb_get_letohs(tvb, offset);
-        miwi_short_to_str(packet->dst_pan,pan_id,10);
+        miwi_short_to_str(packet->dst_pan,pan_id,sizeof(pan_id));
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Pan ID: %s", pan_id);
         proto_tree_add_uint(miwi_tree, hf_miwi_dst_panid, tvb, offset, 2, packet->dst_pan);
@@ -1139,7 +1139,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Destination Address  */
     if(packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT){
-        char* dst_addr = (char *)wmem_new(pinfo->pool, uint64_t);
+        char dst_addr[16];
 
         /* Get the address. */
         packet->dst16 = tvb_get_letohs(tvb, offset);
@@ -1151,7 +1151,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
         set_address_tvb(&pinfo->dl_dst, miwi_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
-        miwi_short_to_str(packet->dst16,dst_addr,10);
+        miwi_short_to_str(packet->dst16,dst_addr,sizeof(dst_addr));
 
         proto_tree_add_uint(miwi_tree, hf_miwi_short_dst_addr, tvb, offset, 2, packet->dst16);
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
@@ -1191,9 +1191,9 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Source PAN Id */
     if(srcPanPresent){
-        char* pan_id = (char *)wmem_new(pinfo->pool, uint64_t);
+        char pan_id[16];
         packet->src_pan = tvb_get_letohs(tvb, offset);
-        miwi_short_to_str(packet->src_pan,pan_id,10);
+        miwi_short_to_str(packet->src_pan,pan_id,sizeof(pan_id));
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src Pan ID: %s", pan_id);
         proto_tree_add_uint(miwi_tree, hf_miwi_src_panid, tvb, offset, 2, packet->src_pan);
         offset += 2;
@@ -1212,7 +1212,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
     /* Source Address */
     if(packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT){
-        char* src_addr = (char *)wmem_new(pinfo->pool, uint64_t);
+        char src_addr[16];
 
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
@@ -1232,7 +1232,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
         set_address_tvb(&pinfo->dl_src, miwi_short_address_type, 2, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-        miwi_short_to_str(packet->src16,src_addr,10);
+        miwi_short_to_str(packet->src16,src_addr,sizeof(src_addr));
 
         /* Add the addressing info to the tree. */
         if(tree){
@@ -1244,7 +1244,7 @@ miwi_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
 
             if(ieee_hints && ieee_hints->map_rec){
                 /* Display inferred source address info */
-                ti = proto_tree_add_eui64(miwi_tree, hf_miwi_short_src_addr, tvb, offset, 0,
+                ti = proto_tree_add_eui64(miwi_tree, hf_miwi_ext_src_addr, tvb, offset, 0,
                         ieee_hints->map_rec->addr64);
                 proto_item_set_generated(ti);
                 ti = proto_tree_add_eui64(miwi_tree, hf_miwi_addr64, tvb, offset, 0, ieee_hints->map_rec->addr64);
@@ -1529,7 +1529,7 @@ dissect_miwi_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigne
 
         if(packet->frame_type == IEEE802154_FCF_DATA){
             if((!fcs_ok && miwi_fcs_ok)){
-                call_data_dissector(tvb, pinfo, tree);
+                call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
             }
         } else{
             miwi_dissect_frame_payload(tvb, pinfo, miwi_tree, packet, fcs_ok, &offset);
@@ -1612,6 +1612,22 @@ dissect_miwi_p2pstar_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     dissect_miwi_p2pstar(tvb, pinfo, tree, data);
     return (true);
 } /* dissect_lwm_heur */
+
+static void
+miwi_init(void)
+{
+    miwi_map.short_table = g_hash_table_new(ieee802154_short_addr_hash, ieee802154_short_addr_equal);
+    miwi_map.long_table = g_hash_table_new(ieee802154_long_addr_hash, ieee802154_long_addr_equal);
+}
+
+static void
+miwi_cleanup(void)
+{
+    g_hash_table_destroy(miwi_map.short_table);
+    g_hash_table_destroy(miwi_map.long_table);
+    miwi_map.short_table = NULL;
+    miwi_map.long_table = NULL;
+}
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -1852,6 +1868,8 @@ void proto_register_miwi_p2pstar(void)
     miwi_p2pstar_handle = register_dissector("miwi_p2pstar", dissect_miwi_p2pstar, proto_miwi_p2pstar);
     /* Register a Decode-As handler */
     register_decode_as(&miwi_da);
+    register_init_routine(miwi_init);
+    register_cleanup_routine(miwi_cleanup);
 }/* proto_register_miwi_p2pstar */
 
 /*FUNCTION:------------------------------------------------------
