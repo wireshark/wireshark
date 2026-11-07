@@ -100828,3 +100828,63 @@ class TestDissectMsnlb:
         assert lines[0].split('\t')[1].split(',') == ['A'] * 3639
         assert lines[1].startswith('16\t')
         assert lines[1].split('\t')[1].split(',') == ['A'] * 3639
+
+
+class TestDissectMsnMessenger:
+    def test_msn_messenger_protocols(self, cmd_tshark, capture_file, test_env):
+        '''MSNMS frames over tcp/1863 and over HTTP; no malformed packets
+        and no expert info above warning, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msn-messenger_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 26
+        assert protocols.count('MSNMS') == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('msn-messenger_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x1800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_msn_messenger_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column holds the first line, whatever its terminator,
+        with non-printable bytes escaped; the HTTP body is dissected too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('msn-messenger_coverage.pcap.gz'),
+                '-Y', 'msnms',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t', 1) if '\t' in l else (l, '')
+                    for l in stdout.splitlines())
+        assert info['4'] == 'VER 1 MSNP8 MSNP7 CVR0'
+        assert info['10'] == 'PNG'
+        assert info['11'] == 'QNG'
+        assert info['12'] == 'CHL 0 123456789'
+        assert info['13'] == 'MSG 5 N 80'
+        assert info['14'] == ''
+        assert info['15'].startswith('NOT ') and '001' in info['15'] and '177' in info['15']
+        assert info['16'].startswith('ADD 9 FL user@example.com NNNN')
+        assert info['17'] == 'LST A'
+        assert info['25'] == 'MSG 1 U 40'
+        assert info['26'] == 'VER 1 MSNP8'
+
+    def test_msn_messenger_lines(self, cmd_tshark, capture_file, test_env):
+        '''Every line of a multi-line message is a line of the tree,
+        for CRLF, LF and CR terminators.'''
+        for frame, lines in (
+                ('13', ['MSG 5 N 80\\r\\n', 'MIME-Version: 1.0\\r\\n',
+                        'Content-Type: text/plain; charset=UTF-8\\r\\n',
+                        '\\r\\n', 'Hello, world!\\r\\n']),
+                ('17', ['LST A\\n', 'B\\r', 'C\\r\\n', 'D']),
+                ('26', ['VER 1 MSNP8\\r\\n', 'CVR 2 1.0\\r\\n'])):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('msn-messenger_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-V', '-O', 'msnms',
+                ), encoding='utf-8', env=test_env)
+            out = stdout.splitlines()
+            start = out.index('MSN Messenger Service')
+            assert [l.strip() for l in out[start + 1:start + 1 + len(lines)]] == lines
