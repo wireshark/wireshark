@@ -94337,3 +94337,55 @@ class TestDissectMactelnet:
             ['26', '0x4321', '0x0f90', '5',
              '02:00:00:00:00:01 > 02:00:00:00:00:02 Direction: Client->Server Type: Data'],
         ]
+
+
+class TestDissectManolito:
+    '''MANOLITO (Blubster/Piolet) over UDP port 41170 from the synthetic
+    capture manolito_coverage.pcap.gz: pings, every packet type the
+    dissector names, string and integer fields of every size.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('manolito_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_manolito_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames are MANOLITO and give the packet type from the first
+        recognised field (a ping has none).'''
+        fr = self.frames
+        assert len(fr(cmd_tshark, capture_file, test_env, 'manolito')) == 16
+        assert [f[1] for f in fr(cmd_tshark, capture_file, test_env, 'manolito', '_ws.col.info')] == [
+            'Ping', 'Ping (truncated)', 'Ping', 'Search Hit', 'User Information', 'Search Query',
+            'Search Query (by hash)', 'Download Request', 'Chat',
+            '41170 → 41170 Len=29', 'Chat', '41170 → 41170 Len=24',
+            'Search Hit', 'User Information', 'Chat', 'Chat']
+
+    def test_manolito_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert', passes=passes) == []
+
+    def test_manolito_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields of a ping with options, and the forwarded source address.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {1, 2, 3}',
+                           'manolito.checksum', 'manolito.seqno', 'manolito.src', 'manolito.dest',
+                           'manolito.options') == [
+            ['1', '0x12345678', '0x00000001', '0.0.0.0', '192.0.2.2', '0x00000000'],
+            ['2', '0x12345678', '0x00000002', '0.0.0.0', '192.0.2.2', '0x010203'],
+            ['3', '0x12345678', '0x00000003', '192.0.2.9', '192.0.2.2', '0x00000000'],
+        ]
+
+    def test_manolito_fields(self, cmd_tshark, capture_file, test_env):
+        '''String fields, and integer fields of 1 to 5 bytes (a length that is not
+        1 to 5 is skipped).'''
+        fr = self.frames
+        assert fr(cmd_tshark, capture_file, test_env, 'frame.number in {4, 5, 11}',
+                  'manolito.string', 'manolito.integer') == [
+            ['4', 'a1b2c3d4e5f60718,song.mp3,alice', '3456789,128,44100,215'],
+            ['5', 'Manolito,3.0.1,net0', '12,1234,68719476741,41170,3'],
+            ['11', 'after bad int length', ''],
+        ]
