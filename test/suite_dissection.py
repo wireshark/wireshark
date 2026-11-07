@@ -97620,3 +97620,55 @@ class TestDissectMoldudp64:
                 '-Tfields', '-e_ws.col.info', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == 'MoldUDP64 Messages\tNumber of Requested Messages'
+
+
+class TestDissectMoldudp:
+    def test_moldudp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is MoldUDP (Exported PDU, there is no default port)
+        and none is malformed or has an error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert protocols.count('MoldUDP') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('moldudp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_moldudp_info_and_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Info column, message count, first sequence number and the block
+        lengths and generated sequence numbers of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-emoldudp.count', '-emoldudp.sequence',
+                '-emoldudp.msgseq', '-emoldudp.msglen',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tMoldUDP Heartbeat\t0\t1\t\t',
+            '2\tMoldUDP Messages (End Of Session)\t3\t1\t1,2,3\t5,0,40',
+            '3\tMoldUDP Messages (End Of Session)\t1\t9\t9\t0',
+            '4\tMoldUDP Messages\t1\t1000\t1000\t300',
+            '5\tMoldUDP Messages\t10\t10\t10,11,12,13,14,15,16,17,18,19\t1,2,3,4,5,6,7,8,9,10',
+            '6\tMoldUDP Messages\t1\t20\t20\t65535',
+            '7\tMoldUDP Messages\t1\t50\t50\t1',
+            '8\tMoldUDP Heartbeat\t0\t60\t\t',
+        ]
+
+    def test_moldudp_length_wrap(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6: a message length of 0xFFFF is one block of 65535
+        octets. The block length was a 16 bit value that wrapped to 1, so
+        the loop made a block per octet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moldudp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-emoldudp.msgblock',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len(stdout.strip().split(',')) == 1
