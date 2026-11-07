@@ -88749,3 +88749,46 @@ class TestDissectLaplink:
                 '-Y', 'frame.number in {19, 20, 21, 22}', '-Tfields',
                 '-eframe.number', '-elaplink.tcp_length', '-etcp.reassembled_in')
         assert stdout.splitlines() == ['19\t\t20', '20\t40\t', '21\t\t22', '22\t10\t']
+
+
+class TestDissectLapsat:
+    '''LAPSat (GMR-1 satellite data link layer) from the synthetic capture
+    lapsat_coverage.pcapng.gz: GSMTAP (UDP 4729) type GMR-1 Um on SDCCH and
+    FACCH. Frame 84 is a BCCH frame, which is not LAPSat.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, flt, *extra, fields=('frame.number',)):
+        args = [cmd_tshark, *extra, '-r', capture_file('lapsat_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lapsat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''85 LAPSat frames, the BCCH frame is GSMTAP; no malformed packets
+        or error expert infos in one and two passes.'''
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'lapsat')) == 85
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               *passes) == []
+
+    def test_lapsat_control(self, cmd_tshark, capture_file, test_env):
+        '''S, U and I frames: SABM with and without MII, the unknown S and
+        U functions.'''
+        def count(flt):
+            return len(self.frames(cmd_tshark, capture_file, test_env, flt))
+        assert count('lapsat.control.mii') == 5
+        assert count('lapsat.control.s_ftype == 0') == 8
+        assert count('lapsat && _ws.col.info contains "func=Unknown"') == 6
+        assert count('_ws.col.info contains "GREJ"') == 8
+
+    def test_lapsat_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''I frames with SI set are reassembled: 2 segments (frames 69-70,
+        73 and 75 around another channel), 3 segments (71-72-74), SMS in 76-77.'''
+        for passes in ((), ('-2',)):
+            lines = self.frames(cmd_tshark, capture_file, test_env,
+                                'lapsat.reassembled.length', *passes,
+                                fields=('frame.number', 'lapsat.reassembled.length'))
+            assert lines == ['70\t32', '74\t32', '75\t32', '77\t2']
