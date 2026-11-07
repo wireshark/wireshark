@@ -19,6 +19,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/to_str.h>
+#include <epan/proto_data.h>
 
 
 
@@ -61,6 +62,9 @@ static int ett_msgpack_map_elem;
 static int ett_msgpack_ext;
 
 static expert_field ei_msgpack_unsupported;
+static expert_field ei_msgpack_too_deep;
+
+#define MSGPACK_MAX_NESTING 32
 
 /* names and ranges from https://github.com/msgpack/msgpack/blob/master/spec.md#formats */
 static const range_string msgpack_types[] = {
@@ -79,7 +83,7 @@ static const range_string msgpack_types[] = {
 	{0xC8, 0xC8, "ext 16"},
 	{0xC9, 0xC9, "ext 32"},
 	{0xCA, 0xCA, "float 32"},
-	{0xCB, 0xCB, "flost 64"},
+	{0xCB, 0xCB, "float 64"},
 	{0xCC, 0xCC, "uint 8"},
 	{0xCD, 0xCD, "uint 16"},
 	{0xCE, 0xCE, "uint 32"},
@@ -214,6 +218,12 @@ static void dissect_msgpack_integer(tvbuff_t* tvb, packet_info *pinfo, proto_tre
 // NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
 {
+	unsigned depth = p_get_proto_depth(pinfo, proto_msgpack);
+	if (depth >= MSGPACK_MAX_NESTING) {
+		expert_add_info(pinfo, tree, &ei_msgpack_too_deep);
+		*offset += 1;
+		return;
+	}
 	proto_tree* subtree;
 	proto_tree* map_subtree;
 	proto_item* ti;
@@ -244,6 +254,7 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 	subtree = proto_item_add_subtree(ti, ett_msgpack_map);
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, *offset, 1, ENC_NA);
 	*offset += lensize + 1;
+	p_set_proto_depth(pinfo, proto_msgpack, depth + 1);
 	for (i = 0; i < len; i++) {
 		// We recurse here, but we'll run out of packet before we run out of stack.
 		map_subtree = proto_tree_add_subtree(subtree, tvb, *offset, 0, ett_msgpack_map_elem, NULL, "");
@@ -254,6 +265,7 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 		if (value)
 			proto_item_append_text(map_subtree, " %s", *value);
 	}
+	p_set_proto_depth(pinfo, proto_msgpack, depth);
 
 	if (value)
 		*value = label;
@@ -262,6 +274,12 @@ static void dissect_msgpack_map(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 // NOLINTNEXTLINE(misc-no-recursion)
 static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint8_t type, void* data, int* offset, char** value)
 {
+	unsigned depth = p_get_proto_depth(pinfo, proto_msgpack);
+	if (depth >= MSGPACK_MAX_NESTING) {
+		expert_add_info(pinfo, tree, &ei_msgpack_too_deep);
+		*offset += 1;
+		return;
+	}
 	proto_tree* subtree;
 	proto_item* ti;
 	uint32_t len = 0;
@@ -291,10 +309,12 @@ static void dissect_msgpack_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
 	subtree = proto_item_add_subtree(ti, ett_msgpack_array);
 	proto_tree_add_item(subtree, hf_msgpack_type, tvb, *offset, 1, ENC_NA);
 	*offset += lensize + 1;
+	p_set_proto_depth(pinfo, proto_msgpack, depth + 1);
 	for (i = 0; i < len; i++) {
 		// We recurse here, but we'll run out of packet before we run out of stack.
 		dissect_msgpack_object(tvb, pinfo, subtree, data, offset, value);
 	}
+	p_set_proto_depth(pinfo, proto_msgpack, depth);
 
 	if (value)
 		*value = label;
@@ -486,7 +506,6 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
 static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data, int* offset, char** value)
 {
 	uint8_t type;
-	int s_offset = *offset;
 
 	type = tvb_get_uint8(tvb, *offset);
 
@@ -552,9 +571,8 @@ static void dissect_msgpack_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree
 		return;
 	}
 
-	if (*offset - s_offset == 0) {
-		expert_add_info_format(pinfo, tree, &ei_msgpack_unsupported, "Type 0x%x is unsupported", type);
-	}
+	expert_add_info_format(pinfo, tree, &ei_msgpack_unsupported, "Type 0x%x is unsupported", type);
+	*offset += 1;
 }
 
 static int dissect_msgpack(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
@@ -600,7 +618,7 @@ void proto_register_msgpack(void)
 			{ "Integer", "msgpack.integer.u64", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_fix,
-			{ "Integer", "msgpack.integer.fixint", FT_INT8, BASE_DEC, NULL, 0x1F, NULL, HFILL }
+			{ "Integer", "msgpack.integer.negfixint", FT_INT8, BASE_DEC, NULL, 0x1F, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_8,
 			{ "Integer", "msgpack.integer.8", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -646,7 +664,8 @@ void proto_register_msgpack(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_msgpack_unsupported, { "msgpack.unsupported", PI_UNDECODED, PI_WARN, "Unsupported type", EXPFILL }}
+		{ &ei_msgpack_unsupported, { "msgpack.unsupported", PI_UNDECODED, PI_WARN, "Unsupported type", EXPFILL }},
+		{ &ei_msgpack_too_deep, { "msgpack.too_deep", PI_PROTOCOL, PI_WARN, "Nesting too deep", EXPFILL }}
 	};
 
 	proto_msgpack = proto_register_protocol("Message Pack", "MsgPack", "msgpack");
