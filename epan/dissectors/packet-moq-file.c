@@ -93,7 +93,8 @@ dissect_moq_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             has_subgroup_id = json_get_int(json, &tokens[0], "subgroupID", &subgroup_id);
             if (!has_subgroup_id)
                 has_subgroup_id = json_get_int(json, &tokens[0], "subGroup", &subgroup_id);
-            moq_add_string_field(meta_tree, hf_moq_track_name, metadata_tvb, json, &tokens[0], "trackName");
+            if (track_name)
+                proto_tree_add_string(meta_tree, hf_moq_track_name, metadata_tvb, 0, tvb_captured_length(metadata_tvb), track_name);
             moq_add_string_field(meta_tree, hf_moq_forwarding_pref, metadata_tvb, json, &tokens[0], "forwardingPref");
             moq_add_string_field(meta_tree, hf_moq_data_file, metadata_tvb, json, &tokens[0], "dataFile");
             moq_add_int_field(meta_tree, hf_moq_object_id, metadata_tvb, json, &tokens[0], "objectID");
