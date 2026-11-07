@@ -102393,3 +102393,61 @@ class TestDissectNasEps:
         assert f(cmd_tshark, capture_file, test_env, 'nas-eps.esm.remote_ue_context_list.nb_ue_contexts') == [1378, 1379]
         assert f(cmd_tshark, capture_file, test_env, 'lpp') == list(range(1411, 1427))
         assert len(f(cmd_tshark, capture_file, test_env, 'nbifom')) == 60
+
+
+class TestDissectNatPmp:
+    '''NAT-PMP (version 0) and PCP (versions 1 and 2) on UDP 5350-5351 from
+    the synthetic capture nat-pmp_coverage.pcap.gz (63 frames).'''
+
+    def test_nat_pmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts; the only expert infos are the 5 warnings for
+        unknown opcodes and options; no malformed packets in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nat-pmp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 63
+        assert {p: protocols.count(p) for p in set(protocols)} == {'NAT-PMP': 17, 'PCP v1': 13, 'PCP v2': 33}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nat-pmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nat-pmp_coverage.pcap.gz'),
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == ['16', '42', '43', '56', '57']
+
+    def test_nat_pmp_option_padding(self, cmd_tshark, capture_file, test_env):
+        '''Frame 58 has a 5 octet description (3 octets of padding)
+        followed by a 4 octet description and an empty Prefer failure
+        option. The padding was carried over to the following options
+        before "NAT-PMP: Reset the PCP option padding per option".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nat-pmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 58', '-Tfields',
+                '-eportcontrol.option.code', '-eportcontrol.option.length',
+                '-eportcontrol.option.description', '-eportcontrol.option.padding',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip().split('\t') == ['128,128,2', '5,4,0', 'hello,wxyz', '000000']
+
+    def test_nat_pmp_values(self, cmd_tshark, capture_file, test_env):
+        '''NAT-PMP and PCP values and the MAP information column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nat-pmp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 11, 54, 55}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-enat-pmp.external_ip', '-enat-pmp.result_code',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\tExternal Address Request\t\t',
+            '2\tExternal Address Response\t203.0.113.9\t0',
+            '11\tMap UDP Response\t\t4',
+            '54\tMap Request: 22-38 -> 40000-40016 [TCP]\t\t',
+            '55\tMap Response: 22-30 -> 41000-41008 [TCP]\t\t',
+        ]
