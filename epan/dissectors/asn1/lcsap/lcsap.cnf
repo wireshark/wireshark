@@ -93,7 +93,6 @@ ProtocolIE-Field/value ie_field_value
       break;
     }
   }
-  PayloadType = -1;
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
