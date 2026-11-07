@@ -88428,3 +88428,49 @@ class TestDissectLanforge:
                 '-elanforge.pld-len-L', '-elanforge.pld-len-H',
                 '-elanforge.pld-length')
         assert stdout.splitlines() == ['2\t65518\t1\t131054', '3\t65535\t255\t16777215']
+
+
+class TestDissectLapb:
+    '''LAPB from the synthetic EyeSDN file lapb_coverage.trc.gz (the only
+    file format that records LAPB with a DTE/DCE direction): all frame
+    types, X.25 packets in I frames and invalid address octets.'''
+
+    CAP = 'lapb_coverage.trc.gz'
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, flt, *extra, fields=('frame.number',)):
+        args = [cmd_tshark, *extra, '-r', capture_file('lapb_coverage.trc.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lapb_frames(self, cmd_tshark, capture_file, test_env):
+        '''92 frames: 70 LAPB (U, S, invalid) and 22 X.25 in I frames, no
+        malformed packets or error expert infos in one and two passes.'''
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'lapb')) == 92
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'x25')) == 22
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               *passes) == []
+
+    def test_lapb_direction(self, cmd_tshark, capture_file, test_env):
+        '''The command/response decision depends on the direction: an
+        address of 03 is a response when sent by the DTE, 01 when
+        received.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 1 && frame.number <= 12',
+                            fields=('frame.number', 'lapb.address', 'lapb.control.u_modifier_resp',
+                                    'lapb.control.u_modifier_cmd', '_ws.col.def_src'))
+        by = {int(l.split('\t')[0]): l.split('\t') for l in lines}
+        assert by[1][1] == '0x01' and by[1][3] == '0x0b' and by[1][4] == 'DTE'
+        assert by[7][1] == '0x03' and by[7][2] == '0x0b' and by[7][4] == 'DTE'
+
+    def test_lapb_invalid_address(self, cmd_tshark, capture_file, test_env):
+        '''Frames 87-92 have an address octet that is not 01, 03, 07 or 0f
+        (two of them the EyeSDN escape and flag octets).'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            '_ws.col.info == "Invalid LAPB frame"')
+        assert lines == ['87', '88', '89', '90', '91', '92']
