@@ -101857,3 +101857,169 @@ class TestDissectMysqlx:
         assert rows[3][1:3] == ['1', '0']
         assert rows[4][1:] == ['', '', 'TCP']
         assert rows[5][1:3] == ['15', '0']
+
+
+class TestDissectNano:
+    '''Nano cryptocurrency protocol from the synthetic capture
+    nano_coverage.pcap.gz: UDP 7075 (keepalive, publish, confirm request
+    and confirm ack with every block type) and TCP 7075 bootstrap sessions
+    (frontier request, bulk pull, bulk pull blocks, bulk push) whose blocks
+    are split over TCP segments. Hashes, accounts and signatures are
+    made-up byte patterns. Frames 1-29 are UDP, 30-56 TCP.'''
+
+    CAP = 'nano_coverage.pcap.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectNano.CAP),
+                '-Y', flt, '-Tfields', '-E', 'aggregator=|', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nano_protocols(self, cmd_tshark, capture_file, test_env):
+        '''29 UDP datagrams and 27 TCP segments of bootstrap sessions; no
+        malformed packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 56
+        assert protocols.count('Nano') == 29
+        assert protocols.count('Nano Bootstrap') == 27
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nano_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The bootstrap session state gives the same Info column and
+        decoded values in the second pass (the segments that end a split
+        block are TCP reassembly frames in the second pass only).'''
+        results = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'nano && !(frame.number in {38, 51, 54})',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-enano.packet_type', '-enano.block.signature', '-enano.bulk_pull.block_type',
+                    '-enano.bulk_push.block_type',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            results.append(stdout)
+        assert results[0] == results[1]
+        assert len(results[0].splitlines()) == 53
+
+    def test_nano_keepalive(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 mapped, IPv6 and empty peer entries, the three networks and
+        the version fields.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 3',
+                          'nano.magic_number', 'nano.version_max', 'nano.version_using',
+                          'nano.version_min', 'nano.packet_type', 'nano.keepalive.peer_ip',
+                          'nano.keepalive.peer_port', '_ws.col.info')
+        assert rows[0] == ['1', 'RC', '18', '18', '17', '2',
+                           '::ffff:198.51.100.7|2001:db8::1|::ffff:203.0.113.9|::|::|::|::|::',
+                           '7075|7075|7076|0|0|0|0|0', 'Keepalive (3 peers)']
+        assert rows[1][1] == 'RA' and rows[1][8] == 'Keepalive (0 peers)'
+        assert rows[2][1:6] == ['RB', '17', '16', '13', '2']
+        assert rows[2][6].split('|')[0] == '2001:db80::1'
+        assert rows[2][7] == '7076|7077|7078|7079|7080|7081|7082|7083'
+        assert rows[2][8] == 'Keepalive (8 peers)'
+
+    def test_nano_keepalive_peer_tree_text(self, cmd_tshark, capture_file, test_env):
+        '''The peer entries are described as IPv4 or IPv6 addresses with the
+        port (the IPv4 address is copied out of the mapped IPv6 address).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 1', '-V', '-O', 'nano',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '        Peer: 198.51.100.7:7075' in stdout
+        assert '        Peer: [2001:db8::1]:7075' in stdout
+        assert '        Peer: 203.0.113.9:7076' in stdout
+        assert '        Peer: (none)' in stdout
+
+    def test_nano_blocks(self, cmd_tshark, capture_file, test_env):
+        '''Publish, confirm request and confirm ack with every block type;
+        the block type comes from the extensions field.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 4 && frame.number <= 28',
+                          '_ws.col.info')
+        assert [r[1] for r in rows] == [
+            'Publish (Send)', 'Publish (Receive)', 'Publish (Open)', 'Publish (Change)', 'Publish (State)',
+            'Confirm Req (Send)', 'Confirm Req (Receive)', 'Confirm Req (Open)', 'Confirm Req (Change)',
+            'Confirm Req (State)',
+            'Confirm Ack (Send)', 'Confirm Ack (Receive)', 'Confirm Ack (Open)', 'Confirm Ack (Change)',
+            'Confirm Ack (State)',
+            'Publish (Not A Block)', 'Confirm Ack (Invalid)', 'Publish (Unknown (9))',
+            'Invalid', 'Not A Type', 'Bulk Pull', 'Bulk Push', 'Frontier Req', 'Bulk Pull Blocks',
+            'Unknown (12)']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {4, 14}',
+                          'nano.extensions.block_type', 'nano.block.hash_previous',
+                          'nano.block.destination_account', 'nano.block.balance',
+                          'nano.vote.sequence', 'nano.block.work')
+        assert rows[0][1] == '0x0002'
+        assert rows[0][2] == '02030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021'
+        assert rows[0][3] == '22232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f4041'
+        assert rows[0][4] == '42434445464748494a4b4c4d4e4f5051'
+        assert rows[0][6] == '9293949596979899'
+        assert rows[1][5] == '81985529216486895'     # the vote sequence, 0x0123456789abcdef
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 8',
+                          'nano.block.account', 'nano.block.link', 'nano.block.representative_account')
+        assert rows[0][1] == '060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f202122232425'
+        assert rows[0][2] == '767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495'
+
+    def test_nano_bootstrap_frontier(self, cmd_tshark, capture_file, test_env):
+        '''Frontier request and the 64 octet responses, one and two to a
+        segment and the zero entry that ends the list.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 30 && frame.number <= 33',
+                          '_ws.col.info', 'nano.frontier_req.age', 'nano.frontier_req.count',
+                          'nano.frontier.account')
+        assert [r[1] for r in rows] == ['Frontier Request ', 'Frontier Response ', 'Frontier Response ',
+                                        'Frontier Response ']
+        assert rows[0][2:4] == ['0xffffffff', '0x00000064']
+        assert len(rows[2][4].split('|')) == 2
+        assert rows[3][4] == '00' * 32
+
+    def test_nano_bootstrap_bulk_pull_and_push(self, cmd_tshark, capture_file, test_env):
+        '''Bulk pull responses (a block split over two segments, frames 38-39,
+        and the end marker), a bulk push in which the client sends the blocks
+        (frames 47-53). The bootstrap state decides how the segments are read.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 34 && frame.number <= 41',
+                          '_ws.col.info', 'nano.bulk_pull.block_type', 'nano.bulk_pull.account')
+        assert rows[0][1] == 'Bulk Pull Request '
+        assert [r[1] for r in rows[1:4]] == ['Bulk Pull Response '] * 3
+        assert [r[2] for r in rows[1:4]] == ['0x02', '0x03|0x04', '0x05']
+        assert rows[4][1:3] == ['', '']                    # first segment of the state block
+        assert rows[5][1:3] == ['Bulk Pull Response ', '0x06']
+        assert rows[6][1:3] == ['Bulk Pull Response ', '0x01']
+        assert rows[7][1:3] == ['', '']                    # data after the end of the pull
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 47 && frame.number <= 53',
+                          '_ws.col.info', 'nano.bulk_push.block_type')
+        assert [r[2] for r in rows] == ['', '0x02|0x03', '0x04', '0x05', '', '0x06', '0x01']
+        assert rows[0][1] == 'Bulk Push Request '
+        assert rows[1][1] == 'Bulk Push '
+
+    def test_nano_bulk_pull_blocks_tree(self, cmd_tshark, capture_file, test_env):
+        '''The Bulk Pull Blocks request (frame 42) is a subtree of 69 octets
+        with the minimum and maximum hash, the mode and the count in it
+        ("Nano: Fix the Bulk Pull Blocks subtree and a misaligned cast":
+        the subtree was 40 octets long, used the frontier request subtree
+        type and the mode was shown in the parent tree).'''
+        import xml.etree.ElementTree
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 42',
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        root = xml.etree.ElementTree.fromstring(stdout)
+        subtrees = [f for f in root.iter('field') if f.get('show') == 'Bulk Pull Blocks']
+        assert len(subtrees) == 1
+        sub = subtrees[0]
+        assert sub.get('size') == '69'
+        assert [f.get('name') for f in sub.findall('field')] == [
+            'nano.bulk_pull_blocks.min_hash', 'nano.bulk_pull_blocks.max_hash',
+            'nano.bulk_pull_blocks.mode', 'nano.bulk_pull_blocks.max_count']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 42',
+                          'nano.bulk_pull_blocks.mode', 'nano.bulk_pull_blocks.max_count')
+        assert rows == [['42', '1', '0x00000005']]
