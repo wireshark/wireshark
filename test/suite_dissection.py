@@ -87901,3 +87901,73 @@ class TestDissectKpasswd:
             ['13', '', '', '30'],
             ['14', '', '0xff80,0xff80', '14,14'],
         ]
+
+
+class TestDissectKpmV2:
+    '''E2SM-KPM version 2 service model contents (packet-kpm-v2.c) carried
+    by E2AP over SCTP port 37464, from the synthetic capture
+    kpm_v2_coverage.pcap.gz. A RAN function named ORAN-E2SM-KPM with the
+    KPM v2 OID is announced in the E2setupRequest of gNB 1; the RIC
+    subscription requests (event trigger and action definitions) and
+    indications (header and message) for it use the KPM v2 dissector.'''
+
+    KPM_PDUS = ('kpm-v2.E2SM_KPM_EventTriggerDefinition_element || '
+                'kpm-v2.E2SM_KPM_ActionDefinition_element || '
+                'kpm-v2.E2SM_KPM_IndicationHeader_element || '
+                'kpm-v2.E2SM_KPM_IndicationMessage_element')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, opts=()):
+        out = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('kpm_v2_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_kpm_v2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 107 frames are E2AP (some with NGAP, XnAP, E1AP, F1AP, S1AP
+        or X2AP component configurations), 56 of them carry KPM v2
+        contents, and none is malformed or has an error expert info, in
+        one and two passes.'''
+        protocols = TestDissectKpmV2.fields(cmd_tshark, capture_file, test_env,
+                                            'frame', '_ws.col.protocol')
+        assert len(protocols) == 107
+        assert all(p.startswith('E2AP') for p in protocols)
+        frames = TestDissectKpmV2.fields(cmd_tshark, capture_file, test_env,
+                                         TestDissectKpmV2.KPM_PDUS, 'frame.number')
+        assert len(frames) == 56
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('kpm_v2_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_kpm_v2_values(self, cmd_tshark, capture_file, test_env):
+        '''The reporting period of the event trigger definition, the
+        indication header timestamp and its generated string.'''
+        lines = TestDissectKpmV2.fields(
+            cmd_tshark, capture_file, test_env, 'frame.number in {3, 5, 6, 8}',
+            'frame.number', 'kpm-v2.reportingPeriod', 'kpm-v2.timestamp-string')
+        assert lines == [
+            '3\t1\t',
+            '5\t\tApr  2, 2045 13:45:36 UTC',
+            '6\t4294967295\t',
+            '8\t\tDec 27, 2048 04:03:19 UTC',
+        ]
+
+    def test_kpm_v2_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The KPM v2 fields are the same in one and two passes.'''
+        one = TestDissectKpmV2.fields(
+            cmd_tshark, capture_file, test_env, TestDissectKpmV2.KPM_PDUS,
+            'frame.number', 'kpm-v2.measName', 'kpm-v2.ric_Style_Type',
+            'kpm-v2.timestamp-string')
+        two = TestDissectKpmV2.fields(
+            cmd_tshark, capture_file, test_env, TestDissectKpmV2.KPM_PDUS,
+            'frame.number', 'kpm-v2.measName', 'kpm-v2.ric_Style_Type',
+            'kpm-v2.timestamp-string', opts=('-2',))
+        assert one == two
+        assert len(one) == 56
+        assert any('Synthabc' in line for line in one)
