@@ -99214,3 +99214,85 @@ class TestDissectMpegPes:
         assert [l.split('\t')[0] for l in lines] == ['30', '31']
         assert lines[0].endswith('mpeg-pes:h264')
         assert lines[1].endswith('mpeg-pes:h265')
+
+
+class TestDissectMpegPmt:
+    '''MPEG PMT (Program Map Table) from the synthetic capture
+    mpeg_pmt_coverage.pcap.gz: PMTs in MPEG-TS packets on PIDs 0x1000 and
+    0x1001 in UDP.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mpeg_pmt_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_mpeg_pmt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All nine frames carry a PMT (frame 6 two sections), none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mpeg_pmt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        p = 'eth:ethertype:ip:udp:mp2t:mpeg_sect:mpeg_pmt'
+        assert stdout.splitlines() == (
+            [p] * 5 + [p + ':mpeg_sect:mpeg_pmt'] + [p] * 3)
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert', opts=passes)
+            assert lines == []
+
+    def test_mpeg_pmt_programs(self, cmd_tshark, capture_file, test_env):
+        '''Program number, version, current/next, PCR PID, the streams and
+        their PIDs, and the descriptor lengths of the small tables.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1,4,6,7,8}', 'mpeg_pmt.pg_num',
+                'mpeg_pmt.version', 'mpeg_pmt.cur_next_ind',
+                'mpeg_pmt.pcr_pid', 'mpeg_pmt.prog_info_len',
+                'mpeg_pmt.stream.type', 'mpeg_pmt.stream.elementary_pid')
+        assert lines == [
+            '1\t0x0001\t0x01\tTrue\t0x0100\t6\t0x02;0x03\t0x0100;0x0101',
+            '4\t0x0004\t0x1f\tFalse\t0x0400\t0\t0x1b;0x03\t0x0400;0x0401',
+            '6\t0x0006;0x0007\t0x01;0x01\tTrue;True\t0x0600;0x0700\t0;0\t'
+            '0x02;0x03\t0x0600;0x0700',
+            '7\t0x0008\t0x05\tTrue\t0x1fff\t0\t\t',
+            '8\t0x0009\t0x01\tTrue\t0x1fff\t0\t0x0f\t0x0900',
+        ]
+
+    def test_mpeg_pmt_stream_types(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2: 61 streams spanning TS packets, one of every stream
+        type of the value table and the values behind it.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 2', 'mpeg_pmt.stream.type',
+                'mpeg_pmt.stream.elementary_pid')
+        types = lines[0].split('\t')[1].split(';')
+        assert types == ['0x%02x' % t for t in
+                         list(range(0, 0x37)) + [0x7f, 0x81, 0x86, 0xa1,
+                                                 0xc0, 0xfe]]
+        pids = lines[0].split('\t')[2].split(';')
+        assert pids == ['0x%04x' % (0x200 + i) for i in range(len(types))]
+
+    def test_mpeg_pmt_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The descriptor loops: program info and ES info lengths, the
+        registration descriptors that the PMT scans for (frame 3) and the
+        descriptors handed to the MPEG descriptor dissector.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1,3,9}', 'mpeg_descr.tag',
+                'mpeg_pmt.stream.es_info_len', 'mpeg_pmt.prog_info_len')
+        assert lines == [
+            '1\t0x05\t0;0\t6',
+            '3\t0x0a;0x05;0x05;0x0a;0x05;0x05\t16;6;0;9;6\t0',
+            '9\t0x05;0x0e;0x0a;0x0a;0x11\t6;11\t11',
+        ]
+
+    def test_mpeg_pmt_crc(self, cmd_tshark, capture_file, test_env):
+        '''With mpeg_sect.verify_crc only the PMT of frame 5 has an
+        invalid CRC expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert', 'mpeg_sect.crc.status',
+                opts=('-o', 'mpeg_sect.verify_crc:TRUE'))
+        assert lines == ['5\t0']
