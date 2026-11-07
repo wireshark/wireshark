@@ -84536,3 +84536,105 @@ class TestDissectIsmp:
         assert lines[1] == ('17\t65535\t8\t2\t\teth1\t\t\t'
                             'MIP 192.0.2.1, MMAC 02:00:00:00:00:01, ifIdx 65538, ifName eth1')
         assert lines[2].startswith('18\t1\t0\t2\t\teth2\t')
+
+
+class TestDissectIsns:
+    def test_isns_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames are iSNS (TCP and UDP port 3205, and the ESI and SCN
+        ports a client registers) except the first half of a message split
+        over two segments (56); none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 62
+        for n, proto in lines:
+            assert proto == ('TCP' if n == '56' else 'iSNS')
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('isns_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_isns_functions(self, cmd_tshark, capture_file, test_env):
+        '''Every request and response function id, the first and last PDU
+        flags, and the error code of a response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 23',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eisns.flags',
+                '-eisns.errorcode',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        names = [l[1] for l in lines[:30]]
+        assert names == [
+            'DevAttrQry', 'DevAttrQryRsp', 'DevGetNext', 'DevGetNextRsp',
+            'DeregDev', 'DeregDevRsp', 'SCNReg', 'SCNRegRsp', 'SCNDereg',
+            'SCNDeregRsp', 'SCNEvent', 'SCNEventRsp', 'SCN', 'SCNRsp', 'DDReg',
+            'DDRegRsp', 'DDDereg', 'DDDeregRsp', 'DDSReg', 'DDSRegRsp',
+            'DDSDereg', 'DDSDeregRsp', 'ESI', 'ESIRsp', 'RqstDomId',
+            'RqstDomIdRsp', 'RlseDomId', 'RlseDomIdRsp', 'GetDomId',
+            'GetDomIdRsp']
+        assert lines[0][2] == '0x8c00'     # client, last PDU, first PDU
+        assert lines[1][2:] == ['0x4c00', '3']      # server, with an error code
+        assert lines[3][2:] == ['0x4c00', '0']
+        assert lines[30][2:] == ['0x6c00', '0']     # with the authentication flag
+
+    def test_isns_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Every attribute tag the dissector decodes, and the tags it only
+        lists (decoded as not decoded yet).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 22',
+                '-Tfields', '-eisns.attr.tag',
+            ), encoding='utf-8', env=test_env)
+        tags = [int(t) for line in stdout.splitlines() for t in line.split(',') if t]
+        assert len(set(tags)) >= 77
+        assert 2069 in tags and 65000 in tags and 256 in tags and 0 in tags
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eisns.iscsi_name', '-eisns.wwnn_token',
+                '-eisns.fc_port_name_wwpn', '-eisns.port_id', '-eisns.hard_address',
+                '-eisns.dd_id', '-eisns.psb', '-eisns.scn_bitmap',
+                '-Y', 'frame.number in {5, 7, 9, 11, 17}',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\tiqn.2001-04.org.example:storage.disk1\t\t\t\t\t\t0x0000007f\t',
+            '7\t\t0x1122334455667788\t\t\t\t\t\t0x000000ff',
+            '9\t\t\t0x2000000000000001\t0x010203\t\t\t\t',
+            '11\t\t\t\t\t0x0000ef\t\t\t',
+            '17\t\t\t\t\t\t3\t\t']
+
+    def test_isns_message_boundaries(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs in one segment (55) and a PDU split over two segments
+        (56, 57).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Y', 'frame.number in {55, 56, 57}',
+                '-Tfields', '-eframe.number', '-eisns.transactionid',
+                '-eisns.iscsi_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '55\t90,91\tiqn.2001-04.org.example:a,iqn.2001-04.org.example:b',
+            '56\t\t',
+            '57\t92\tiqn.2001-04.org.example:c']
+
+    def test_isns_registered_ports(self, cmd_tshark, capture_file, test_env):
+        '''The ESI port (UDP 50000) and the SCN port (TCP 50001) in a
+        registration make the traffic to them iSNS (frames 61 and 62);
+        heartbeat (58).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('isns_coverage.pcap.gz'),
+                '-Y', 'frame.number in {58, 59, 61, 62}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eudp.dstport',
+                '-etcp.dstport', '-eisns.esi_port', '-eisns.heartbeat.counter',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '58\tHeartbeat\t3205\t\t\t7',
+            '59\tDevAttrReg\t3205\t\t50000\t',
+            '61\tESI\t50000\t\t\t',
+            '62\tSCN\t\t50001\t\t']
