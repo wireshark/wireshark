@@ -98112,3 +98112,107 @@ class TestDissectMount:
                 'mount.statvfs.f_flag.st_local == 1 && mount.statvfs.f_flag.st_rdonly == 1',
                 'mount.statvfs.f_flag', 'mount.statvfs.f_basetype')
         assert rows == [['0xe0000007', 'xfs']]
+
+
+class TestDissectMp2t:
+    '''MP2T (ISO/IEC 13818-1 transport stream) from the synthetic
+    capture mp2t_coverage.pcapng.gz: UDP datagrams found by the
+    heuristic (frames 1-40), RTP payload type 33 announced by SDP
+    (41-44) and an HTTP body of type video/mp2t (45-47); and from
+    mp2t_coverage_ts.pcap.gz, a capture with the MPEG-2 TS link type.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields,
+               passes=(), name='mp2t_coverage.pcapng.gz'):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=300)
+        rows = []
+        for line in stdout.splitlines():
+            # hexadecimal field values are shown as 0x..., compare them as numbers
+            rows.append([','.join(str(int(v, 16)) if v.startswith('0x') else v
+                                  for v in col.split(',')) for col in line.split('\t')])
+        return rows
+
+    def test_mp2t_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes; the frames the heuristic rejects
+        (empty, wrong sync byte, not a multiple of 188 octets) stay UDP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 47
+        assert protocols.count('MPEG PES') == 12
+        assert protocols.count('MPEG SECT') == 12
+        assert protocols.count('MPEG TS') == 13
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mp2t', 'frame.number',
+                name='mp2t_coverage_ts.pcap.gz')
+        assert rows == [['1'], ['2']]
+
+    def test_mp2t_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PES packet over three TSPs (frame 2: 270 octets) and over two
+        TSPs with the PES length in the first (frame 3: 368), and a
+        section split over three TSPs (frame 11). The result is the same
+        in two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number == 2 || frame.number == 3 || frame.number == 11',
+                    'frame.number', 'mp2t.msg.reassembled.length', passes=passes)
+            assert rows == [['2', '270'], ['3', '368'], ['11', '328']]
+
+    def test_mp2t_header_split(self, cmd_tshark, capture_file, test_env):
+        '''The length of a packet whose first octets are at the end of a
+        TSP is found from the next TSP (PES frames 7-10, sections
+        17-22): the second frame of each pair is reassembled.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 17 && frame.number <= 22', 'frame.number', '_ws.col.info')
+        assert 'MP2T fragment' in rows[0][1] and 'Table ID 0x81' in rows[1][1]
+        assert 'MP2T fragment' in rows[2][1] and 'Table ID 0x81' in rows[3][1]
+        assert rows[4][1].endswith('Table ID 0x80') or 'Table ID 0x80' in rows[4][1]
+
+    def test_mp2t_pointer_and_stuffing(self, cmd_tshark, capture_file, test_env):
+        '''Pointer fields of a section start that follows the tail of the
+        previous one (frame 12: 0 and 29) and of DOCSIS (frame 25: 91).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 12 || frame.number == 25', 'frame.number', 'mp2t.pointer')
+        assert rows == [['12', '0,29'], ['25', '0,0,91,0,0']]
+
+    def test_mp2t_adaptation_field(self, cmd_tshark, capture_file, test_env):
+        '''PCR, OPCR, private data, the extension (LTW, piecewise rate,
+        seamless splice) and the TEI and TP bits.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 2', 'mp2t.af.pcr')
+        assert rows == [['300005']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 33',
+                'mp2t.af.pcr', 'mp2t.af.opcr', 'mp2t.af.tpd', 'mp2t.af.e.ltwo', 'mp2t.af.e.pr')
+        assert rows == [['37037036800,302', '904', '68656c6c6f', '32766', '258']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mp2t.tei == 1', 'frame.number',
+                'mp2t.tp')
+        assert rows == [['35', '1,0,0,0,0']]
+
+    def test_mp2t_streams_and_scrambling(self, cmd_tshark, capture_file, test_env):
+        '''One mp2t.stream number per conversation (UDP 1234 in both
+        directions are separate streams, UDP 5555, RTP and HTTP), the
+        scrambled payloads of frame 37 and the invalid AFC warnings.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 39 || frame.number == 40 || frame.number == 42 || frame.number == 47',
+                'frame.number', 'mp2t.stream')
+        assert [r[1].split(',')[0] for r in rows] == ['1', '2', '3', '4']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mp2t.tsc != 0', 'frame.number',
+                'mp2t.tsc')
+        assert rows == [['37', '2,3,1']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mp2t.afc.invalid', 'frame.number')
+        assert rows == [['28'], ['32']]
+
+    def test_mp2t_follow(self, cmd_tshark, capture_file, test_env):
+        '''Follow stream for stream 0 and PID 257 (0x101).'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', '-z', 'follow,mp2t,hex,0,257',
+                '-r', capture_file('mp2t_coverage.pcapng.gz')),
+            encoding='utf-8', env=test_env, timeout=300)
+        assert 'Filter: mp2t.stream == 0 && mp2t.pid == 0x0101' in stdout
