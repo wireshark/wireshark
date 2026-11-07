@@ -107,7 +107,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree_add_bitmask_list(mpg_tree, tvb, offset, 2, mpg_fields1, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_bitmask_list(mpg_tree, tvb, offset, 2, mpg_fields2, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask_list(mpg_tree, tvb, offset, 1, mpg_fields2, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_bitmask_list(mpg_tree, tvb, offset, 1, mpg_fields3, ENC_NA);
@@ -164,7 +164,7 @@ proto_register_mpeg1(void)
 			{
 				"AN",
 				"rtp.payload_mpeg_an",
-				FT_UINT16,
+				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x80,
@@ -177,7 +177,7 @@ proto_register_mpeg1(void)
 			{
 				"New Picture Header",
 				"rtp.payload_mpeg_n",
-				FT_UINT16,
+				FT_UINT8,
 				BASE_DEC,
 				NULL,
 				0x40,
@@ -191,7 +191,7 @@ proto_register_mpeg1(void)
 				"Sequence Header",
 				"rtp.payload_mpeg_s",
 				FT_BOOLEAN,
-				16,
+				8,
 				NULL,
 				0x0020,
 				NULL, HFILL
@@ -204,7 +204,7 @@ proto_register_mpeg1(void)
 				"Beginning-of-slice",
 				"rtp.payload_mpeg_b",
 				FT_BOOLEAN,
-				16,
+				8,
 				NULL,
 				0x0010,
 				NULL, HFILL
@@ -217,7 +217,7 @@ proto_register_mpeg1(void)
 				"End-of-slice",
 				"rtp.payload_mpeg_e",
 				FT_BOOLEAN,
-				16,
+				8,
 				NULL,
 				0x0008,
 				NULL, HFILL
@@ -229,7 +229,7 @@ proto_register_mpeg1(void)
 			{
 				"Picture type",
 				"rtp.payload_mpeg_p",
-				FT_UINT16,
+				FT_UINT8,
 				BASE_DEC,
 				VALS(rtp_mpg_picture_types_vals),
 				0x07,
