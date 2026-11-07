@@ -894,12 +894,12 @@ mtp3_stat_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
     item_data = stat_tap_get_field_data(table, element, OPC_COLUMN);
     item_data->value.string_value = g_strdup(mtp3_addr_to_str_wmem(pinfo->pool, &m3tr->addr_opc));
-    item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_opc, sizeof(mtp3_tap_rec_t));
+    item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_opc, sizeof(mtp3_addr_pc_t));
     stat_tap_set_field_data(table, element, OPC_COLUMN, item_data);
 
     item_data = stat_tap_get_field_data(table, element, DPC_COLUMN);
     item_data->value.string_value = g_strdup(mtp3_addr_to_str_wmem(pinfo->pool, &m3tr->addr_dpc));
-    item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_dpc, sizeof(mtp3_tap_rec_t));
+    item_data->user_data.ptr_value = g_memdup2(&m3tr->addr_dpc, sizeof(mtp3_addr_pc_t));
     stat_tap_set_field_data(table, element, DPC_COLUMN, item_data);
 
     sis = try_val_to_str(m3tr->mtp3_si_code, mtp3_service_indicator_code_short_vals);
