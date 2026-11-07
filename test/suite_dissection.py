@@ -68785,7 +68785,7 @@ class TestDissectPfcpSession:
             rows = [[cols[0], cols[2], cols[3]]
                     for cols in (row.split() for row in stdout.splitlines())
                     if cols and cols[0].isdigit()]
-            assert sorted(rows) == [['001010000000003', '1', '3'], ['001010000000005', '7', '7'],
+            assert sorted(rows) == [['001010000000003', '1', '12'], ['001010000000005', '7', '7'],
                                     ['001010000000009', '8', '9']]
 
     def test_pfcp_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
@@ -68823,11 +68823,27 @@ class TestDissectPfcpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
                     '-r', capture_file('pfcp_session.pcap'),
-                    '-Y', 'frame.number >= 8',
+                    '-Y', 'frame.number >= 8 && frame.number <= 10',
                     '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
                     '-Eoccurrence=f',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['4\t001010000000009', '4\t001010000000009', '\t']
+
+    def test_pfcp_session_bundled(self, cmd_tshark, capture_file, test_env):
+        '''The second of two messages in one packet (frame 11) has the CP
+        F-SEID of the session. It does not remove the mappings of the
+        session, so the next message to the UP SEID (frame 12) still gets
+        the session.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
+                    '-r', capture_file('pfcp_session.pcap'),
+                    '-Y', 'frame.number >= 11',
+                    '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1,1\t001010000000003,001010000000003',
+                '1\t001010000000003',
+            ]
 
 
 class TestDissectRanapSession:

@@ -2381,27 +2381,8 @@ pfcp_reject_frame_info(uint32_t f) {
     wmem_map_insert(pfcp_rejected_frames, GUINT_TO_POINTER(f), GUINT_TO_POINTER(1));
 }
 
-static gboolean
-pfcp_frame_equal(void *key _U_, void *value, void *data){
-    uint32_t frame = GPOINTER_TO_UINT(data);
-
-    return (GPOINTER_TO_UINT(value) == frame);
-}
-
-static void
-pfcp_remove_frame_info(uint32_t f) {
-    /* XXX: This iterates through the entire map and it is slow if done
-     * often. For large files with lots of removals, there are better
-     * alternatives, e.g. marking sessions as expired and then periodically
-     * removing all expired sessions from the map, or using a bijective
-     * map to coordinate removals.
-     */
-    wmem_map_foreach_remove(pfcp_frame_map, pfcp_frame_equal, GUINT_TO_POINTER(f));
-}
-
-/* Like pfcp_remove_frame_info(), but only for the <seid,ip> mappings that
- * pfcp_fill_map() added for the seid_list and ip_list of frame, without
- * going through the whole map.
+/* Removes the <seid,ip> mappings to frame that pfcp_fill_map() added for
+ * its seid_list and ip_list.
  */
 static void
 pfcp_remove_frame_info_lists(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
@@ -2457,26 +2438,12 @@ pfcp_ip_exists(address ip, wmem_list_t *ip_list) {
     return found;
 }
 
-/* wmem_map_foreach() callback used in fill_map() */
-static void
-pfcp_remove_session_from_table(void *key, void *val, void *userdata) {
-    unsigned fr = GPOINTER_TO_UINT(key);
-    unsigned session = GPOINTER_TO_UINT(val);
-    unsigned remove_session = GPOINTER_TO_UINT(userdata);
-
-    /* If it's the session we are looking for, we remove all the frame information */
-    if (session == remove_session) {
-        pfcp_remove_frame_info(fr);
-    }
-}
-
 static void
 pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
     wmem_list_frame_t *elem_ip, *elem_seid;
     pfcp_info_t info;
     const void *map_key;
     uint64_t seid;
-    uint32_t session;
     address *ip;
 
     elem_ip = wmem_list_head(ip_list);
@@ -2488,16 +2455,6 @@ pfcp_fill_map(wmem_list_t *seid_list, wmem_list_t *ip_list, uint32_t frame) {
             seid = *(uint64_t*)wmem_list_frame_data(elem_seid);
             info.seid = seid;
             copy_address_shallow(&info.addr, ip);
-            if (pfcp_lookup_frame(&info)) {
-                /* If the seid and ip already maps to a session, that means
-                 * that we need to remove old info about that session */
-                /* We look for its session ID */
-                session = GPOINTER_TO_UINT(wmem_map_lookup(pfcp_session_table, GUINT_TO_POINTER(frame)));
-                if (session) {
-                    /* If the msg has the same session ID and it's not the upd req we have to remove its info */
-                    wmem_map_foreach(pfcp_session_table, pfcp_remove_session_from_table, GUINT_TO_POINTER(session));
-                }
-            }
             /* Copy the key only if the map does not have it */
             if (!wmem_map_lookup_extended(pfcp_frame_map, &info, &map_key, NULL)) {
                 pfcp_info_t *pfcp_info = wmem_new0(wmem_file_scope(), pfcp_info_t);

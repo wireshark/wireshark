@@ -27,6 +27,10 @@
 #   9  UP -> CP   Session Establishment Response, cause Request rejected
 #  10  UP -> CP   Session Report Request to the CP SEID of frame 8: not of
 #                 the session
+#  11  CP -> UP   Two Session Modification Requests to the UP SEID of frame
+#                 2 in one packet, the second with the CP F-SEID of frame 1
+#  12  CP -> UP   Session Modification Request to the UP SEID: still of the
+#                 session of frame 1
 
 import struct
 import sys
@@ -117,10 +121,11 @@ def update_far_ie(teid, ipv4):
     return ie(10, ie(108, struct.pack('!I', 1)) + fwd)
 
 
-def pfcp(msg_type, seid, seq, *ies):
+def pfcp(msg_type, seid, seq, *ies, follow_on=False):
     body = b''.join(ies)
-    # Flags: version 1, SEID present
-    return struct.pack('!BBHQ', 0x21, msg_type, 12 + len(body), seid) + \
+    # Flags: version 1, FO (another message follows), SEID present
+    flags = 0x21 | (0x04 if follow_on else 0)
+    return struct.pack('!BBHQ', flags, msg_type, 12 + len(body), seid) + \
         struct.pack('!I', seq << 8) + body
 
 
@@ -170,6 +175,11 @@ def main():
             node_id_ie(UP), cause_ie(REQUEST_REJECTED))),
         frame(UP, CP, pfcp(
             SESSION_REPORT_REQUEST, CP_SEID_4, 6)),
+        frame(CP, UP, pfcp(
+            SESSION_MODIFICATION_REQUEST, UP_SEID, 7, follow_on=True) + pfcp(
+            SESSION_MODIFICATION_REQUEST, UP_SEID, 8, f_seid_ie(CP_SEID, CP))),
+        frame(CP, UP, pfcp(
+            SESSION_MODIFICATION_REQUEST, UP_SEID, 9)),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)
