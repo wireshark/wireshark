@@ -2487,7 +2487,13 @@ moqt_dissect_stream_pdus(moqt_cursor_t *cursor, quic_stream_info *stream_info,
         parse(&measured, &measured_state);
         if (measured.failed) {
             if (measured.needed > 0) {
-                moqt_request_stream_bytes(cursor->pinfo, start, measured.needed);
+                if (cursor->pinfo->can_desegment) {
+                    moqt_request_stream_bytes(cursor->pinfo, start, measured.needed);
+                } else {
+                    proto_tree_add_expert(
+                        cursor->tree, cursor->pinfo, &ei_moqt_truncated,
+                        cursor->tvb, start, cursor->end - start);
+                }
             } else {
                 proto_tree_add_expert(
                     cursor->tree, cursor->pinfo, &ei_moqt_invalid_length,
