@@ -87566,3 +87566,79 @@ class TestDissectKlm:
         assert lines[0] == 'client1\t1234\t0\t4096\t\tTrue'
         assert lines[1] == '\t\t\t\t0\t'
         assert lines[3] == '\t4321\t10\t20\t1\tTrue'
+
+
+class TestDissectKnet:
+    '''kNet (KristalliNet) over UDP, TCP and SCTP port 2345, from the
+    synthetic capture knet_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields):
+        out = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('knet_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *(a for f in efields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env)
+        return out.splitlines()
+
+    def test_knet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''45 frames are KNET (26 UDP datagrams, 6 SCTP packets and 13
+        TCP segments, three of which only carry part of a PDU), the six
+        remaining ones are the TCP handshake and teardown. None is
+        malformed or has an error expert info, in one and two passes.'''
+        protocols = TestDissectKnet.fields(cmd_tshark, capture_file, test_env,
+                                           'frame', '_ws.col.protocol')
+        assert protocols.count('KNET') == 45
+        assert protocols.count('TCP') == 6
+        assert len(protocols) == 51
+        for transport, count in (('udp', 26), ('sctp', 6)):
+            frames = TestDissectKnet.fields(cmd_tshark, capture_file, test_env,
+                                            'knet && ' + transport, 'frame.number')
+            assert len(frames) == count
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('knet_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_knet_udp_messages(self, cmd_tshark, capture_file, test_env):
+        '''A datagram with five messages lists them all in the info
+        column; the message IDs and content lengths are decoded; the
+        connection messages have a 4 octet message ID.'''
+        lines = TestDissectKnet.fields(cmd_tshark, capture_file, test_env,
+                                       'frame.number in {4, 8, 13, 23}',
+                                       '_ws.col.info', 'knet.length',
+                                       'knet.payload.messageid',
+                                       'knet.payload.packetack', 'knet.payload.seqnumber')
+        assert lines == [
+            'Packet ID 4: Packet Ack (4)\t8\t4\t258\t287454020',
+            'Packet ID 8: Connect Syn (253), Ping Request (1)\t12,2\t253,1\t\t',
+            'Packet ID 13: Ping Request (1), Ping Reply (2), Flowcontrol Request (3), '
+            'Packet Ack (4), AppData (100)\t2,2,4,8,11\t1,2,3,4,100\t258\t287454020',
+            'Packet ID 4194301: AppData (140)\t301\t140\t\t',
+        ]
+
+    def test_knet_udp_reliable(self, cmd_tshark, capture_file, test_env):
+        '''The reliable message index base (2 and 4 octets) and the
+        reliable message number (1 and 2 octets) are decoded.'''
+        lines = TestDissectKnet.fields(cmd_tshark, capture_file, test_env,
+                                       'knet.datagram.rmib || knet.msg.reliable_number',
+                                       'frame.number', 'knet.datagram.rmib',
+                                       'knet.msg.reliable_number')
+        assert lines == [
+            '19\t\t5',
+            '20\t\t9396,127',
+            '21\t258\t',
+            '22\t105003\t9',
+            '24\t\t3',
+        ]
+
+    def test_knet_tcp_variable_length(self, cmd_tshark, capture_file, test_env):
+        '''The content length of a TCP PDU is variable length encoded: 1,
+        2 and 4 octets (a PDU of 20000 octets over three segments).'''
+        lines = TestDissectKnet.fields(cmd_tshark, capture_file, test_env,
+                                       'knet && tcp', 'frame.number', 'knet.length')
+        lengths = [l.split('\t')[1] for l in lines]
+        assert lengths == ['2', '2', '4', '8', '21,2,2', '51', '31', '200', '20000', '6']
