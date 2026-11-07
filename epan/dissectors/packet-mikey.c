@@ -608,7 +608,7 @@ static int dissect_payload(int payload, mikey_t *mikey, tvbuff_t *tvb, packet_in
 /* Initialize the protocol and registered fields */
 static int proto_mikey;
 static int hf_mikey[MAX_POS+1];
-static int hf_mikey_sp_param[SP_MAX+1];
+static int hf_mikey_sp_param[SP_MAX];
 static int hf_mikey_pl[PL_MAX];
 
 /* Initialize the subtree pointers */
@@ -793,7 +793,7 @@ dissect_payload_pke(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo _U_, p
 	int	offset = 0;
 	uint16_t length;
 
-	length = tvb_get_ntohs(tvb, offset+1) &0x3ff;
+	length = tvb_get_ntohs(tvb, offset+1) &0x3fff;
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_mikey[POS_PKE_C], tvb, 1, 2, ENC_BIG_ENDIAN);
@@ -968,7 +968,7 @@ dissect_payload_cert(mikey_t *mikey _U_, tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_item *parent;
 		parent = proto_tree_get_parent(tree);
 		proto_tree_add_item(tree, hf_mikey[POS_CERT_TYPE], tvb, 1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tree, hf_mikey[POS_CERT_LEN], tvb, 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_mikey[POS_CERT_LEN], tvb, 2, 2, ENC_BIG_ENDIAN);
 
 		proto_item_append_text(parent, " Type: %s", val_to_str_const(type, cert_type_vals, "Unknown"));
 	}
@@ -1327,13 +1327,13 @@ dissect_mikey(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 			int hf = payload;
 
 			if (hf >= PL_MAX)
-				return -1;
+				return tvb_captured_length(real_data_tvb);
 
 			if (hf == -1)
 				hf = 0;
 
 			if (hf_mikey_pl[hf] == 0)
-				return -1;
+				return tvb_captured_length(real_data_tvb);
 
 			sub_ti = proto_tree_add_item(mikey_tree, hf_mikey_pl[hf], subtvb, 0, -1, ENC_NA);
 
