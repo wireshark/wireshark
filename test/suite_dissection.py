@@ -92688,3 +92688,172 @@ class TestDissectLtp:
             '26\t2\t\tNon-interoperable concatenation of bundles for Client Service ID 1',
             '27\t2\t\t',
         ]
+
+
+class TestDissectLustre:
+    '''Synthetic Lustre capture generated with Python struct (mklustre.py):
+    LNet PUT messages on TCP port 988, one request and reply per opcode.'''
+
+    def test_lustre_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is Lustre and none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'lustre', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 301
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lustre_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_lustre_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in one and two passes: the
+        per-conversation transaction state is written on every pass but
+        every transaction has its own match bits.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('lustre_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_lustre_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Opcode and type of requests and replies from every opcode class.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 15, 49, 105, 106, 123, 169, 185, 193, 211, 215, 223, 225}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.strip() for l in stdout.splitlines()] == [
+            '1\tOST_GETATTR request',
+            '2\tOST_GETATTR reply',
+            '15\tOST_CONNECT request',
+            '49\tMDS_GETATTR request',
+            '105\tMDS_REINT request',
+            '106\tMDS_REINT reply',
+            '123\tLDLM_ENQUEUE request',
+            '169\tMGS_CONNECT request',
+            '185\tOBD_PING request',
+            '193\tLLOG_ORIGIN_HANDLE_CREATE request',
+            '211\tQUOTA_DQACQ request',
+            '215\tSEQ_QUERY request',
+            '223\tOUT_UPDATE request',
+            '225\tLFSCK_NOTIFY request',
+        ]
+
+    def test_lustre_reint(self, cmd_tshark, capture_file, test_env):
+        '''Every REINT sub-opcode; the reply is decoded by the sub-opcode of
+        its request (frames 105-122).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'lustre.mdt_rec_reint.opcode in {1, 2, 3, 4, 5, 6, 7, 8, 9} && frame.number < 123',
+                '-Tfields', '-eframe.number', '-elustre.mdt_rec_reint.opcode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['105', '1', '107', '2', '109', '3', '111', '4', '113', '5',
+                                  '115', '6', '117', '7', '119', '8', '121', '9']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number in {106, 108, 112}',
+                '-Tfields', '-eframe.number', '-elustre.lov_mds_md', '-elustre.capa',
+                '-elustre.llog_cookie',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '106\t1\t1,1\t',      # SETATTR: layout and two capabilities
+            '108\t\t1\t',         # CREATE: one capability
+            '112\t1\t1,1\t1',     # UNLINK: layout, cookies and two capabilities
+        ]
+
+    def test_lustre_hsm_progress_flags(self, cmd_tshark, capture_file, test_env):
+        '''The 16 bit flags and errval of the HSM progress are shown whole
+        ("Lustre: Use length 2 for the HSM progress flags and errval").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number == 93',
+                '-Tfields', '-elustre.hsm_progress.flags', '-elustre.hsm_progress.errval',
+                '-elustre.hsm_progress.cookie',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x1234\t0x0056\t0x0000000000c0ffee'
+
+    def test_lustre_intents(self, cmd_tshark, capture_file, test_env):
+        '''The intent of an LDLM_ENQUEUE is in the Info column and decides
+        how the rest of the request is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'lustre.ldlm_intent.opc && frame.number <= 233',
+                '-Tfields', '-eframe.number', '-elustre.ldlm_intent.opc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [(l[0], int(l[1], 16), l[2].strip()) for l in lines] == [
+            ('147', 3, 'LDLM_ENQUEUE request [ intent: open create ]'),
+            ('149', 1, 'LDLM_ENQUEUE request [ intent: open ]'),
+            ('151', 2, 'LDLM_ENQUEUE request [ intent: create ]'),
+            ('153', 8, 'LDLM_ENQUEUE request [ intent: getattr ]'),
+            ('155', 0x10, 'LDLM_ENQUEUE request [ intent: lookup ]'),
+            ('157', 0x20, 'LDLM_ENQUEUE request [ intent: unlink ]'),
+            ('159', 0x400, 'LDLM_ENQUEUE request [ intent: layout ]'),
+            ('161', 0x80, 'LDLM_ENQUEUE request [ intent: getxattr ]'),
+            ('163', 0x800, 'LDLM_ENQUEUE request [ intent: quota_dqacq ]'),
+            ('165', 0x1000, 'LDLM_ENQUEUE request [ intent: quota_conn ]'),
+            ('167', 4, 'LDLM_ENQUEUE request [ intent: readdir ]'),
+            ('233', 0x2341, 'LDLM_ENQUEUE request [ intent: open trunc exec pin setxattr ]'),
+        ]
+
+    def test_lustre_connect_data(self, cmd_tshark, capture_file, test_env):
+        '''The connect data layout depends on the version: nllu/nllg before
+        2.1.57, grant block bits before 2.8.51 and after, no maxmodrpcs
+        before 2.1.0.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15, 17, 19, 21}',
+                '-Tfields', '-eframe.number', '-elustre.obd_connect_data.ocd_version',
+                '-elustre.obd_connect_data.ocd_nllu', '-elustre.obd_connect_data.grant_blkbits',
+                '-elustre.obd_connect_data.grant_max_blks', '-elustre.obd_connect_data.ocd_maxmodrpcs',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\t34603008\t\t12\t1024\t8',
+            '17\t33632256\t1\t\t\t8',
+            '19\t33882112\t\t12\t\t8',
+            '21\t17301504\t1\t\t\t',
+        ]
+
+    def test_lustre_layouts(self, cmd_tshark, capture_file, test_env):
+        '''LOV V1 and V3 (with pool), LMV with and without stripe FIDs, a
+        layout of unknown magic shown as data, and a stripe count larger
+        than the stripes present.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50, 52, 54, 56, 58, 230}',
+                '-Tfields', '-eframe.number', '-elustre.lov_mds_md.lmm_magic',
+                '-elustre.lov_mds_md.lmm_stripe_count', '-elustre.lov_mds_md.lmm_poolname',
+                '-elustre.lmv_mds_md.stripe_count', '-elustre.lov_ost_data_v1',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:5] for l in lines] == [
+            ['50', '0x0bd10bd0', '2', '', ''],
+            ['52', '0x0bd30bd0', '3', 'pool1', ''],
+            ['54', '', '', '', '2'],
+            ['56', '', '', '', '2'],
+            ['58', '', '', '', ''],
+            ['230', '0x0bd10bd0', '3', '', ''],
+        ]
+        # the stripes actually present (2) in frame 230, not the 3 it announces
+        assert len(lines[5][5].split(',')) == 2
+
+    def test_lustre_job_id_and_v1(self, cmd_tshark, capture_file, test_env):
+        '''A version 3 ptlrpc body carries a job id; a version 1 message is
+        flagged as deprecated.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lustre_coverage.pcap.gz'),
+                '-Y', 'frame.number in {299, 301}',
+                '-Tfields', '-eframe.number', '-elustre.ptlrpc_body.pb_jobid',
+                '-elustre.lustre_msg_v1.lm_magic', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '299\tjob.12345\t\t',
+            '301\t\t0x0bd00bd0\tDeprecated Opcode',
+        ]
