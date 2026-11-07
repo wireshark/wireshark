@@ -4322,7 +4322,8 @@ void proto_reg_handoff_lbmsrs(void)
         heur_dissector_add("tcp", test_lbmsrs_packet, "LBM Stateful Resolution Service over RSocket", "lbmsrs_tcp", proto_lbmsrs, HEURISTIC_ENABLE);
     }
 
-    ws_inet_pton4(global_lbmsrs_source_ip_address, &addr);
+    if (!ws_inet_pton4(global_lbmsrs_source_ip_address, &addr))
+        addr = 0;
     lbmsrs_source_ip_address = g_ntohl(addr);
     lbmsrs_source_port = global_lbmsrs_source_port;
     lbmsrs_use_tag = global_lbmsrs_use_tag;
