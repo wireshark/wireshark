@@ -103020,3 +103020,153 @@ class TestDissectNbRtpmux:
         assert rows['10'] == ['True,True', '7,11', '10,11', '1760,1920', 'cccccccc,dddddddddddddddd']
         assert rows['11'][:2] == ['True,False', '4,32']
         assert rows['12'][:2] == ['False,True', '32,4']
+
+
+class TestDissectNbt:
+    '''NetBIOS over TCP/UDP: name service (NBNS, UDP 137), datagram
+    service (NBDS, UDP 138) and session service (NBSS, TCP 139 and 445),
+    from the synthetic capture nbt_coverage.pcap.gz. Frames 1-38 are
+    NBNS, 39-51 NBDS, 52-92 NBSS on TCP 139 and 93-103 on TCP 445.'''
+
+    def tshark_fields(self, cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('nbt_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nbt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, and no malformed packets or error expert infos
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 103
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'NBNS': 38, 'NBDS': 11, 'NBSS': 32, 'SMB': 13, 'TCP': 9}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nbt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nbt_nbstat_name(self, cmd_tshark, capture_file, test_env):
+        '''The first name of an NBSTAT answer whose record name is a
+        compression pointer keeps all 15 characters. The buffer size of
+        the name was the number of bytes the record name used in the
+        packet (2), so characters were dropped ("NBT: Use the full name
+        buffer size for NBSTAT names").'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number == 27', 'nbns.number_of_names', 'nbns.netbios_name')
+        assert rows == [['27', '1', 'ABCDEFGHIJKLMNO']]
+
+    def test_nbt_node_status(self, cmd_tshark, capture_file, test_env):
+        '''A node status answer: six names with flags, then every
+        statistic.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number == 25', 'nbns.netbios_name', 'nbns.name_flags',
+            'nbns.unit_id', 'nbns.jumpers', 'nbns.test_result',
+            'nbns.version_number', 'nbns.period_of_statistics', 'nbns.num_crcs',
+            'nbns.num_alignment_errors', 'nbns.num_collisions',
+            'nbns.num_send_aborts', 'nbns.num_good_sends', 'nbns.num_good_receives',
+            'nbns.numretransmits', 'nbns.num_no_resource_conditions',
+            'nbns.numcommand_blocks', 'nbns.numpending_sessions',
+            'nbns.max_num_pending_sessions', 'nbns.max_total_sessions_possible',
+            'nbns.session_data_packet_size')
+        assert rows[0][1:] == [
+            'FILESERVER,WORKGROUP,FILESERVER,WORKGROUP,MSBROWSE,ADMIN',
+            '0x0400,0x8400,0x0400,0xc400,0x8600,0x6000',
+            '02:00:11:22:33:44', '0x01', '0x00', '0x0300', '0x003c', '1', '2', '3', '4',
+            '1000', '2000', '5', '6', '7', '8', '9', '10', '1500']
+
+    def test_nbt_name_service(self, cmd_tshark, capture_file, test_env):
+        '''Queries, responses, registrations, releases and WACK: the info
+        lines, the addresses and name flags, the response codes and the
+        invalid names.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbt_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 38',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'Name query NB FILESERVER<20>'
+        assert info['2'] == 'Name query response NB 10.0.0.5'
+        assert info['6'] == 'Name query NB USERPC<03>.corp.example'
+        assert info['7'] == 'Name query response, Request was invalidly formatted'
+        assert info['17'] == 'Registration response, Name is owned by another node NB 10.0.0.9'
+        assert info['18'] == 'Multi-homed registration NB WORKGROUP<00>'
+        assert info['20'] == 'Refresh (alternate opcode) NB FILESERVER<20>'
+        assert info['21'] == 'Release NB FILESERVER<20>'
+        assert info['23'] == 'Wait for acknowledgment response'
+        assert info['30'] == 'Unknown operation (3) NB FILESERVER<20>'
+        assert info['31'].endswith('1st character not between A and Z in first-level encoding)')
+        assert info['32'].endswith('odd number of bytes)')
+        assert info['33'].endswith('(2 bytes long)')
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {2,4,5}', 'nbns.addr', 'nbns.nb_flags')
+        assert rows == [['2', '10.0.0.5', '0x0000'],
+                        ['4', '10.0.0.5,10.0.0.6,10.0.0.7', '0x8000,0x8000,0x8000'],
+                        ['5', '10.0.0.8', '0x6000']]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbns.flags.rcode > 0', 'nbns.flags.rcode')
+        assert [(r[0], r[1]) for r in rows] == [
+            ('7', '1'), ('8', '2'), ('9', '3'), ('10', '4'), ('11', '5'),
+            ('12', '6'), ('13', '7'), ('14', '9'), ('17', '6')]
+
+    def test_nbt_datagram_service(self, cmd_tshark, capture_file, test_env):
+        '''Datagram types, names with a scope, the error codes, queries and
+        the SMB payload found through the NetBIOS heuristic.'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbdgm', 'nbdgm.type', 'nbdgm.source_name', 'nbdgm.destination_name',
+            'nbdgm.error_code', 'nbdgm.node_type', 'nbdgm.first')
+        by = {r[0]: r[1:] for r in rows}
+        assert by['39'] == ['16', 'WS1<00>', 'SERVER1<20>', '', '0', 'True']
+        assert by['41'] == ['18', 'WS2<03>', '*<00>', '', '2', 'True']
+        assert by['42'][4] == '3'
+        assert by['43'][5] == 'False'
+        assert [by[str(n)][3] for n in (44, 45, 46)] == ['0x82', '0x83', '0x84']
+        assert [by[str(n)][0] for n in (47, 48, 49, 50)] == ['20', '21', '22', '153']
+        assert by['51'][1] == 'SCOPED<00>.corp.example'
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {39,51}', '_ws.col.protocol')
+        assert [r[1] for r in rows] == ['SMB', 'SMB']
+
+    def test_nbt_session_service(self, cmd_tshark, capture_file, test_env):
+        '''Session request names, responses, error codes, retarget,
+        keep-alive, session messages with SMB, and data that is not a
+        valid header (taken as continuation).'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbss.type', 'nbss.type', 'nbss.length', 'nbss.called_name',
+            'nbss.calling_name', 'nbss.error_code', 'nbss.retarget_ip_address',
+            'nbss.retarget_port')
+        by = {r[0]: r[1:] for r in rows}
+        assert by['55'] == ['0x81', '68', 'FILESERVER<20>', 'USERPC<00>', '', '', '']
+        assert by['56'][0] == '0x82'
+        assert [by[str(n)][4] for n in range(71, 77)] == ['0x80', '0x81', '0x82', '0x83', '0x8f', '0x99']
+        assert by['77'][5:] == ['10.0.0.77', '139']
+        assert by['59'][0] == '0x85'
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'nbss.continuation_data', 'nbss.continuation_data')
+        assert [r[0] for r in rows] == [str(n) for n in range(81, 91)]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nbt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {57,96}', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\n')[:2] == ['Negotiate Protocol Request'] * 2
+
+    def test_nbt_session_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages split over several segments, a header split three ways,
+        a message longer than 64 KiB (the E flag) on TCP 139 and a 128 KiB
+        message with a 24 bit length on TCP 445 (second pass).'''
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'tcp.reassembled_in', 'tcp.reassembled_in', passes=('-2',))
+        assert [tuple(r) for r in rows] == [
+            ('63', '64'), ('65', '68'), ('66', '68'), ('67', '68'), ('69', '70'),
+            ('78', '80'), ('79', '80'), ('99', '102'), ('100', '102'), ('101', '102')]
+        rows = self.tshark_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {80,102}', 'nbss.length', passes=('-2',))
+        assert rows == [['80', '65636'], ['102', '131088']]
