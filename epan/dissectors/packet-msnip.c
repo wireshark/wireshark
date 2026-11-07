@@ -158,7 +158,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 2;
 
 	/* holdtime */
-	proto_tree_add_uint(parent_tree, hf_holdtime, tvb, offset, 4, count);
+	proto_tree_add_item(parent_tree, hf_holdtime, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	while (count--) {
