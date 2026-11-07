@@ -482,6 +482,7 @@ static int hf_tns_data_all8_opt_batch_errors;
 static int hf_tns_data_all8_iterations;
 static int hf_tns_data_all8_prefetch;
 static int hf_tns_data_all8_is_query;
+static int hf_tns_data_all8_oci_stmt_type;
 static int hf_tns_data_all8_exec_flags;
 static int hf_tns_data_all8_xflag_scrollable;
 static int hf_tns_data_all8_xflag_no_cancel_on_eof;
@@ -820,6 +821,23 @@ static const value_string tns_spb_opcodes[] = {
 	{TNS_SPB_AC_REPLAY_CONTEXT,        "Application Continuity Replay Context"},
 	{TNS_SPB_EXT_SYNC,                 "Extended Sync"},
 	{TNS_SPB_SESS_SIGNATURE,           "Session Signature"},
+	{0, NULL}
+};
+
+/* The statement type an OCI client's execute names in al8i4[7]: OCI's
+ * statement types, and sqlplus's own for COMMIT and ROLLBACK. */
+static const value_string tns_oci_stmt_types[] = {
+	{1,  "SELECT"},
+	{2,  "UPDATE"},
+	{3,  "DELETE"},
+	{4,  "INSERT"},
+	{5,  "CREATE"},
+	{6,  "DROP"},
+	{7,  "ALTER"},
+	{8,  "BEGIN"},
+	{9,  "DECLARE"},
+	{17, "ROLLBACK"},
+	{21, "COMMIT"},
 	{0, NULL}
 };
 
@@ -3743,6 +3761,30 @@ static int dissect_tns_oci_describe_body(tvbuff_t *tvb, packet_info *pinfo, prot
 	if ( fv_11_2 )
 		offset += 4;
 	return offset;
+}
+
+/* Show the al8i4 array of an OCI client's execute: count ub4 LE words.
+ * Slot 1 is the execution count, or for a query the rows to fetch with
+ * the execute; slot 7 the statement type; slots 9 to 11 the execute
+ * flags and, for a scrollable cursor, the fetch orientation and the row
+ * it asks for. */
+static void dissect_tns_oci_al8i4(tvbuff_t *tvb, proto_tree *tree, int offset, uint32_t count)
+{
+	proto_tree *i4_tree;
+	uint32_t stmt_type;
+
+	if ( count < 12 || !tvb_bytes_exist(tvb, offset, 4 * count) )
+		return;
+	i4_tree = proto_tree_add_subtree(tree, tvb, offset, 4 * count, ett_tns_all8_i4, NULL,
+		"Execute Arguments (al8i4)");
+	stmt_type = tvb_get_letohl(tvb, offset + 4 * 7);
+	proto_tree_add_item(i4_tree, stmt_type == 1 ? hf_tns_data_all8_prefetch : hf_tns_data_all8_iterations,
+		tvb, offset + 4 * 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(i4_tree, hf_tns_data_all8_oci_stmt_type, tvb, offset + 4 * 7, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_bitmask(i4_tree, tvb, offset + 4 * 9, hf_tns_data_all8_exec_flags,
+		ett_tns_all8_exec_flags, tns_all8_exec_flags, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(i4_tree, hf_tns_data_all8_fetch_orientation, tvb, offset + 4 * 10, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(i4_tree, hf_tns_data_all8_fetch_pos, tvb, offset + 4 * 11, 4, ENC_LITTLE_ENDIAN);
 }
 
 /* Decode the TTI_RXD value row of an OCI client's execute. The values
@@ -6705,11 +6747,23 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * as sqlplus prints a REF CURSOR variable: no SQL, so no
 				 * pointer where the first indicator goes. The options and
 				 * the cursor id sit where every other OCI execute has
-				 * them. */
+				 * them, and the al8i4 array where the SQL's length byte
+				 * would be. */
+				bool wide = tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND2_WIDE, 8)
+					&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND2_WIDE) == TNS_OCI_INDICATOR;
+				bool narrow = !wide && tvb_bytes_exist(tvb, fun_start + TNS_OCI_ALL8_IND2_NARROW, 8)
+					&& tvb_get_ntoh64(tvb, fun_start + TNS_OCI_ALL8_IND2_NARROW) == TNS_OCI_INDICATOR;
+
 				proto_tree_add_string(data_tree, hf_tns_data_all8_oci_preamble, tvb, fun_start, 0, "OCI, by cursor id");
 				proto_tree_add_bitmask(data_tree, tvb, fun_start + TNS_OCI_ALL8_OPTIONS, hf_tns_data_all8_options,
 					ett_tns_all8_options, tns_all8_options, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(data_tree, hf_tns_cursor, tvb, fun_start + TNS_OCI_ALL8_CURSOR, 4, ENC_LITTLE_ENDIAN);
+				if ( wide )
+					dissect_tns_oci_al8i4(tvb, data_tree, fun_start + 195,
+						tvb_get_letohl(tvb, fun_start + TNS_OCI_ALL8_AL8I4_WIDE));
+				else if ( narrow && tns_field_version(pinfo) != TNS_FV_10_2 )
+					dissect_tns_oci_al8i4(tvb, data_tree, fun_start + (tns_is_oci_12c(pinfo) ? 239 : 175),
+						tvb_get_letohl(tvb, fun_start + TNS_OCI_ALL8_AL8I4_NARROW));
 				offset = fun_start + TNS_OCI_ALL8_IND;
 			}
 			else if ( oci_id == TTI_REEXECUTE || oci_id == TTI_REEXECUTE_AND_FETCH )
@@ -6858,6 +6912,8 @@ static int dissect_tns_message(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 				 * per bind, then the TTI_RXD row of values. */
 				uint32_t al8i4_len = tvb_get_letohl(tvb, base + (wide ? TNS_OCI_ALL8_AL8I4_WIDE : TNS_OCI_ALL8_AL8I4_NARROW));
 				int remaining = tvb_reported_length_remaining(tvb, offset);
+				if ( sql_read )
+					dissect_tns_oci_al8i4(tvb, data_tree, offset, al8i4_len);
 				if ( sql_read && bind_count > 0 && remaining > 0 && al8i4_len <= (uint32_t)remaining / 4
 					&& bind_count <= (uint32_t)(remaining - 4 * al8i4_len) / TNS_OCI_OAC_MIN_LEN )
 				{
@@ -9153,6 +9209,9 @@ void proto_register_tns(void)
 		{ &hf_tns_data_all8_is_query, {
 			"Query", "tns.data_all8.is_query", FT_BOOLEAN, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }},
+		{ &hf_tns_data_all8_oci_stmt_type, {
+			"Statement Type", "tns.data_all8.oci_stmt_type", FT_UINT32, BASE_DEC,
+			VALS(tns_oci_stmt_types), 0x0, NULL, HFILL }},
 		{ &hf_tns_data_all8_exec_flags, {
 			"Execute Flags", "tns.data_all8.exec_flags", FT_UINT32, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }},

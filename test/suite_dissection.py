@@ -4559,6 +4559,33 @@ class TestDissectTns:
             ['18', '2', '', '', '16,9,0,1,2,10,12,7,8,11,57,58,59,60,52,50,61,62', ''],
         ], rows
 
+    def test_tns_oci_execute_args(self, cmd_tshark, capture_file, test_env):
+        '''An OCI client's execute names its statement type in the al8i4
+        array, with the execution count, or for a query the rows to
+        fetch; a run of an open cursor has the array where the SQL would
+        be, in the wide and the narrow form alike.'''
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_oci_out_binds.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_all8.oci_stmt_type',
+            '-T', 'fields',
+            '-e', 'tns.data_all8.oci_preamble',
+            '-e', 'tns.data_all8.oci_stmt_type',
+            '-e', 'tns.data_all8.iterations',
+            '-e', 'tns.data_all8.prefetch',
+            '-e', '_ws.malformed',
+        ), encoding='utf-8', env=test_env)
+        rows = [r.split('\t') for r in stdout.rstrip('\n').splitlines()]
+        assert rows == [
+            ['OCI, narrow (4-byte slots), 12c band', '8', '1', '', ''],
+            ['OCI, by cursor id', '1', '', '15', ''],
+            ['OCI, wide (8-byte slots)', '8', '1', '', ''],
+            ['OCI, wide (8-byte slots)', '8', '1', '', ''],
+            ['OCI, wide (8-byte slots)', '8', '1', '', ''],
+            ['OCI, by cursor id', '1', '', '15', ''],
+            ['OCI, wide (8-byte slots)', '8', '1', '', ''],
+        ], rows
+
     def test_tns_oci_binds(self, cmd_tshark, capture_file, test_env):
         '''An OCI client's execute carries a fixed-width descriptor per
         bind, 49 bytes from 12c and 41 before, and the row of values. A

@@ -32,17 +32,19 @@ Connection 4, sqlplus 11.2 against an 11g server:
               dual connect by level <= 3; END;", binding a REF CURSOR
     Frame 9 - the reply: the cursor's describe, columns N and S, and the
               id it was opened as, 3
+    Frame 10 - sqlplus fetches 15 rows from cursor 3: an execute with no
+               SQL
 
 Connection 5, an OCI 11.2 client against an 11g server:
-    Frame 10 - "begin open :1 for select 1 from dual; close :1; end;",
+    Frame 11 - "begin open :1 for select 1 from dual; close :1; end;",
                binding a REF CURSOR
-    Frame 11 - the reply: the closed cursor, with no columns
+    Frame 12 - the reply: the closed cursor, with no columns
 
 The bytes are what sqlplus and the servers sent, except that the server
 pointer, SCN and sequence counter in frame 5's header are zeroed and its
 value is set to 42, the statement's (it came from a block assigning 7).
-Frames 6 and 10 are built field by field as the client sends them, and
-the server pointer in frames 7, 9 and 11 is zeroed. The status that ends
+Frames 6 and 11 are built field by field as the client sends them, and
+the server pointer in frames 7, 9 and 12 is zeroed. The status that ends
 each reply is left out.
 """
 import os
@@ -150,6 +152,16 @@ OPEN_11G_REPLY = bytes.fromhex(
     '07787e0b060e0c0a00000000e81f000000000000000000000000000003000000'
     '0000'
 )
+CURSOR_FETCH_11G = bytes.fromhex(
+    '035e16400000000300000000000000000000000000000000000000feffffffff'
+    'ffffff0d00000000000000fefffffffffffffffeffffffffffffff0000000000'
+    '0000002a00000000000000000000000000000000000000000000000000000000'
+    '000000feffffffffffffff0000000000000000fefffffffffffffffeffffffff'
+    'ffffffe8bac826000000000000000000000000fefffffffffffffffeffffffff'
+    'ffffff0000000000000000000000000000000000000000000000000000000000'
+    '000000000000000f000000000000000000000000000000000000000000000001'
+    '0000000000000000000000000000000000000000000000'
+)
 UNOPENED = bytes.fromhex(
     '035e052904040000000000feffffffffffffff9c00000000000000feffffffff'
     'ffffff0d00000000000000fefffffffffffffffeffffffffffffff0000000001'
@@ -180,6 +192,7 @@ frames = [
     (2, False, IN_OUT_REPLY),
     (3, True, OPEN_11G),
     (3, False, OPEN_11G_REPLY),
+    (3, True, CURSOR_FETCH_11G),
     (4, True, UNOPENED),
     (4, False, UNOPENED_REPLY),
 ]
