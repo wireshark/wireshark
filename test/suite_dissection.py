@@ -93966,3 +93966,47 @@ class TestDissectMacLte:
                 '-emac-lte.drx-config.onduration-timer',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines() == ['134\t10\t5\t3', '135\t10\t5\t3']
+
+
+class TestDissectMacLteFramed:
+    '''MAC-LTE-FRAMED: Exported PDU frames that name "mac-lte-framed" carry
+    the MAC-LTE context fields and the MAC PDU. It has no capture of its own:
+    it uses mac_lte_coverage.pcap.gz of TestDissectMacLte.'''
+
+    def test_mac_lte_framed_context(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an Exported PDU for mac-lte-framed and reaches
+        MAC-LTE; the context fields of the framing (RNTI, UE ID, subframe,
+        direction) are shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-Y', 'exported_pdu.prot_name == "mac-lte-framed" && mac-lte',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 186
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 134, 169}',
+                '-Tfields', '-eframe.number', '-emac-lte.rnti',
+                '-emac-lte.ueid', '-emac-lte.direction',
+                '-emac-lte.radio-type',
+                '-emac-lte.sfn',
+                '-emac-lte.subframe',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t\t5\t0\t1\t10\t1',
+            '134\t144\t70\t0\t1\t500\t3',
+            '169\t80\t20\t1\t1\t811\t3',
+        ]
+
+    def test_mac_lte_framed_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The per-frame context is kept for later passes: the frames
+        dissect the same way in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mac_lte_coverage.pcap.gz'),
+                    '-Y', 'mac-lte.lcid',
+                    '-Tfields', '-eframe.number', '-emac-lte.lcid',
+                ), encoding='utf-8', env=test_env, timeout=120))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) > 100
