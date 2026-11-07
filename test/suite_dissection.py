@@ -96488,3 +96488,44 @@ class TestDissectMikey:
                 '-Y', 'frame.number == 41', '-Tfields', '-emikey.key.type',
                 '-emikey.key.kv', '-emikey.key.data.len')
         assert lines == ['0\t0\t16']
+
+
+class TestDissectMimeEncap:
+    '''MIME_FILE (WTAP_ENCAP_MIME): a file that the MIME file reader
+    recognizes by its magic number is a single "packet", handed to the
+    "wtap_file" heuristic dissectors. mime_encap_coverage.gif.gz is a
+    synthetic 1x1 GIF; mime_encap_unhandled.elf.gz starts with the ELF
+    magic number but no heuristic dissector claims it.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mime_encap_handled(self, cmd_tshark, capture_file, test_env):
+        '''The GIF is claimed by a heuristic dissector: one frame, no
+        malformed packet or error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mime_encap_coverage.gif.gz', *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-e_ws.malformed', '-e_ws.expert.severity')
+            assert lines == ['MIME_FILE\t (GIF89a)\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mime_encap_coverage.gif.gz', '-Tfields', '-eimage-gif.version',
+                '-eimage-gif.screen.width', '-eimage-gif.screen.height')
+        assert lines == ['GIF89a\t1\t1']
+
+    def test_mime_encap_unhandled(self, cmd_tshark, capture_file, test_env):
+        '''A file that no heuristic dissector claims is shown as
+        "(Unhandled)" followed by its data.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                'mime_encap_unhandled.elf.gz', '-V', '-O', 'mime_dlt,data')
+        assert 'MIME file (Unhandled)' in lines
+        assert [l for l in lines if l.startswith('Data (16 bytes)')]
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env,
+                    'mime_encap_unhandled.elf.gz', *passes,
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.malformed')
+            assert lines == ['MIME_FILE\t']
