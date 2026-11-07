@@ -102151,3 +102151,123 @@ class TestDissectNasdaqItch:
         rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {22, 23, 24, 25}',
                           '_ws.col.info', opts=('-o', 'nasdaq_itch.chi_x:FALSE'))
         assert [r[1] for r in rows] == ['Unknown packet type (0x00) '] * 4
+
+
+class TestDissectNasdaqSoup:
+    '''Nasdaq-SoupTCP 2.0 from the synthetic capture
+    nasdaq_soup_coverage.pcap.gz: login request, accepted and rejected
+    logins, sequenced and unsequenced data (ITCH messages), heartbeats,
+    debug packets, logout, unknown packet types, several lines in one
+    segment, a line split over three TCP segments and empty lines.
+    SoupTCP has no port of its own: the TCP stream on port 6000 is
+    decoded with Decode As.'''
+
+    CAP = 'nasdaq_soup_coverage.pcap.gz'
+    DECODE_AS = ('-d', 'tcp.port==6000,nasdaq_soup')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                *TestDissectNasdaqSoup.DECODE_AS,
+                '-r', capture_file(TestDissectNasdaqSoup.CAP),
+                '-Y', flt, '-Tfields', '-eframe.number',
+                *['-e' + f for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nasdaq_soup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-27: SoupTCP, the ITCH messages it carries, and the TCP
+        segments of the split line and of the empty lines. No malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 27
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['Nasdaq-SOUP'] == 19
+        assert counts['Nasdaq-ITCH'] == 5
+        assert counts['TCP'] == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nasdaq_soup_login(self, cmd_tshark, capture_file, test_env):
+        '''Login requests (user, password, session, sequence number),
+        rejected logins with their codes and the accepted login.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number <= 7',
+                          'nasdaq-soup.username', 'nasdaq-soup.password', 'nasdaq-soup.session',
+                          'nasdaq-soup.seq_number', 'nasdaq-soup.reject_code', '_ws.col.info')
+        assert rows == [
+            ['1', 'user01', 'secret    ', 'SESSION001', '0000000001', '', 'Login Request'],
+            ['2', '', '', '', '', "'A'", 'Login Rejected'],
+            ['3', 'user02', 'pw        ', '          ', '          ', '', 'Login Request'],
+            ['4', '', '', '', '', "'S'", 'Login Rejected'],
+            ['5', '', '', '', '', "'Z'", 'Login Rejected'],
+            ['6', 'user01', 'secret    ', 'SESSION001', '0000000001', '', 'Login Request'],
+            ['7', '', '', 'SESSION001', '0000000001', '', 'Login Accepted'],
+        ]
+
+    def test_nasdaq_soup_debug_and_heartbeats(self, cmd_tshark, capture_file, test_env):
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {8, 9, 10, 11, 26}',
+                          'nasdaq-soup.text', '_ws.col.info')
+        assert rows == [
+            ['8', 'Server debug text', 'Debug Packet'],
+            ['9', 'client debug text', 'Debug Packet'],
+            ['10', '', 'Server Heartbeat'],
+            ['11', '', 'Client Heartbeat'],
+            ['26', '', 'Logout Request'],
+        ]
+
+    def test_nasdaq_soup_data_and_unknown_types(self, cmd_tshark, capture_file, test_env):
+        '''Sequenced and unsequenced data hand their payload to ITCH, unless
+        it is empty; unknown packet types keep their text.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 12 && frame.number <= 19',
+                          'nasdaq-itch.message_type', 'nasdaq-soup.message', '_ws.col.protocol')
+        assert [(r[3], r[2]) for r in rows] == [
+            ('Nasdaq-ITCH', ''), ('Nasdaq-ITCH', ''), ('Nasdaq-ITCH', ''), ('Nasdaq-ITCH', ''),
+            ('Nasdaq-SOUP', ''), ('Nasdaq-SOUP', ''), ('Nasdaq-SOUP', 'some unknown payload'),
+            ('Nasdaq-SOUP', '')]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {16, 17, 18, 19}',
+                          '_ws.col.info')
+        assert [r[1] for r in rows] == ['Sequenced Data', 'Unsequenced Data',
+                                        'Unknown packet type (0x5a)', 'Unknown packet type (0x71)']
+
+    def test_nasdaq_soup_several_lines_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''Frame 13 holds four lines: the Info column lists them all.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 13',
+                          'nasdaq-soup.packet_type', 'nasdaq-itch.message_type', '_ws.col.info')
+        assert rows == [['13', "'S','S','H','S'", "'S','M','D'",
+                         'System Event ; Milliseconds ; Server Heartbeat; Order Delete 1 ']]
+
+    def test_nasdaq_soup_line_split_over_segments(self, cmd_tshark, capture_file, test_env):
+        '''A debug line delivered in three TCP segments (frames 20-22) is
+        reassembled in frame 22, which also holds the next line.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 20 && frame.number <= 22',
+                          '_ws.col.protocol', 'nasdaq-soup.text', 'nasdaq-soup.packet_type',
+                          'tcp.reassembled_in', passes=('-2',))
+        assert rows[0][1] == 'TCP' and rows[1][1] == 'TCP'
+        assert rows[2][1:4] == ['Nasdaq-SOUP', 'a debug line that is delivered in three pieces', "'+','H'"]
+
+    def test_nasdaq_soup_empty_lines(self, cmd_tshark, capture_file, test_env):
+        '''Empty lines are skipped ("Nasdaq-SOUP: Skip empty lines"): they
+        used to give an item of length -1 and make the offset step back.
+        Frame 23 holds H, an empty line and SSO; frame 24 only empty lines;
+        frame 25 H, an empty line and H. The items have their own length.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {23, 25}',
+                          'nasdaq-soup.packet_type', '_ws.col.info')
+        assert rows == [['23', "'H','S'", 'Server Heartbeat; System Event '],
+                        ['25', "'H','H'", 'Server Heartbeat; Server Heartbeat']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 24', '_ws.col.protocol')
+        assert rows == [['24', 'TCP']]
+        # a nasdaq_soup tree item per line, each one line long plus the line end
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 25', '-Tfields', '-enasdaq-soup.packet_eol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '\\n,\\n'
