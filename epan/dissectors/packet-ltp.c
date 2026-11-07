@@ -803,6 +803,9 @@ static void
 ltp_check_reception_gap(proto_tree *ltp_rpt_tree, packet_info *pinfo,
 		ltp_session_data_t *session, uint64_t prec_lst, uint64_t next_fst,
 		int *gap_count, uint64_t *gap_total) {
+	if (prec_lst == UINT64_MAX || next_fst <= prec_lst + 1) {
+		return;
+	}
 	const uint64_t gap_len = next_fst - (prec_lst + 1);
 	if (gap_len <= 0) {
 		return;
@@ -1152,13 +1155,13 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb, packet_info *pinfo, in
 
 	for(int ix = 0; ix < trl_extn_cnt; ix++){
 		proto_tree_add_item(ltp_trl_extn_tree, hf_ltp_trl_extn_tag, tvb, frame_offset + extn_offset, 1, ENC_NA);
-		frame_offset += 1;
+		extn_offset += 1;
 
-		add_sdnv64_to_tree(ltp_trl_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_hdr_extn_len, &length, &length_size);
-		frame_offset += length_size;
+		add_sdnv64_to_tree(ltp_trl_extn_tree, tvb, pinfo, frame_offset + extn_offset, hf_ltp_trl_extn_len, &length, &length_size);
+		extn_offset += length_size;
 
 		proto_tree_add_item(ltp_trl_extn_tree, hf_ltp_trl_extn_val, tvb, frame_offset + extn_offset, (int)length, ENC_NA);
-		frame_offset += (int)length;
+		extn_offset += (int)length;
 	}
 
 	proto_item_set_end(ltp_trl_extn_item, tvb, frame_offset + extn_offset);
@@ -1205,8 +1208,8 @@ dissect_ltp_segment(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	ltp_header_tree = proto_tree_add_subtree(ltp_tree, tvb, frame_offset, 0, ett_ltp_hdr, NULL, "LTP Header");
 	ltp_header_item = proto_tree_get_parent(ltp_header_tree);
 
-	proto_tree_add_bits_ret_val(ltp_header_tree, hf_ltp_version, tvb, frame_offset, 4, &bitsval, ENC_BIG_ENDIAN);
-	proto_tree_add_bits_ret_val(ltp_header_tree, hf_ltp_type, tvb, frame_offset+4, 4, &bitsval, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_ret_val(ltp_header_tree, hf_ltp_version, tvb, 8*frame_offset, 4, &bitsval, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_ret_val(ltp_header_tree, hf_ltp_type, tvb, 8*frame_offset+4, 4, &bitsval, ENC_BIG_ENDIAN);
 	ltp_type = (int)bitsval;
 	tap->seg_type = ltp_type;
 	frame_offset++;
