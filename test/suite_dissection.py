@@ -94167,3 +94167,101 @@ class TestDissectMacNrFramed:
                 '150\tUnknown UDP framing tag, aborting dissection\t',
                 '151\tUnknown UDP framing tag, aborting dissection\t',
             ]
+
+
+class TestDissectMacsec:
+    '''MACsec (EtherType 0x88e5) from the synthetic capture
+    macsec_coverage.pcap.gz: integrity only frames with every kind of
+    SecTAG, KaY and non-standard cipher frames, and frames with confidential
+    Secure Data. The capture has no keys and the "encrypted" Secure Data is
+    a placeholder pattern, so nothing is decrypted or verified.'''
+
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('macsec_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_macsec_protocols(self, cmd_tshark, capture_file, test_env):
+        '''25 frames; 23 are MACsec (frames 24 and 25 are not: version bit
+        set, and shorter than the SecTAG plus ICV); the inner protocols.'''
+        fr = self.frames
+        assert len(fr(cmd_tshark, capture_file, test_env, 'frame')) == 25
+        assert len(fr(cmd_tshark, capture_file, test_env, 'macsec')) == 23
+        assert len(fr(cmd_tshark, capture_file, test_env, 'macsec && ip && udp')) == 12
+        assert fr(cmd_tshark, capture_file, test_env, 'macsec && ipv6 && udp') == [['12']]
+        assert fr(cmd_tshark, capture_file, test_env, 'macsec && arp') == [['11']]
+        assert fr(cmd_tshark, capture_file, test_env, 'macsec && lldp') == [['13']]
+        assert fr(cmd_tshark, capture_file, test_env, 'macsec && vlan') == [['14']]
+        assert [f[0] for f in fr(cmd_tshark, capture_file, test_env, 'macsec && !(ip || ipv6 || arp || lldp || vlan)')] == [
+            '15', '17', '18', '19', '20', '21', '22', '23']
+
+    def test_macsec_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env, self.BAD, passes=passes) == []
+
+    def test_macsec_sectag(self, cmd_tshark, capture_file, test_env):
+        '''Association number, short length, packet number and SCI port of
+        the integrity only frames, with the ES bit, without SCI.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'frame.number <= 10',
+                           'macsec.AN', 'macsec.SL', 'macsec.PN', 'macsec.SCI.port_identifier',
+                           'macsec.TCI.ES', 'macsec.etype') == [
+            ['1', '0x00', '40', '1', '1', 'False', '0x0800'],
+            ['2', '0x01', '40', '11', '1', 'False', '0x0800'],
+            ['3', '0x02', '40', '12', '1', 'False', '0x0800'],
+            ['4', '0x03', '40', '13', '1', 'False', '0x0800'],
+            ['5', '0x00', '40', '20', '', 'True', '0x0800'],
+            ['6', '0x01', '40', '21', '', 'True', '0x0800'],
+            ['7', '0x02', '40', '22', '', 'False', '0x0800'],
+            ['8', '0x00', '47', '30', '1', 'False', '0x0800'],
+            ['9', '0x00', '0', '31', '1', 'False', '0x0800'],
+            ['10', '0x00', '0', '32', '1', 'False', '0x0800'],
+        ]
+
+    def test_macsec_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''KaY frames (E set, C clear), a non-standard cipher (E clear, C
+        set) and Secure Data larger than MAX_PAYLOAD_LEN give notes.'''
+        for field, frame in (('macsec.not_processed', '17'), ('macsec.nonstandard_cipher', '18'),
+                             ('macsec.payload_too_large', '23')):
+            assert self.frames(cmd_tshark, capture_file, test_env, field) == [[frame]]
+
+    def test_macsec_unverified(self, cmd_tshark, capture_file, test_env):
+        '''Without keys no frame is verified.'''
+        assert self.frames(cmd_tshark, capture_file, test_env, 'macsec.verify_info.verified == 1') == []
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'macsec.verify_info.verified == 0')) == 23
+
+    @staticmethod
+    def short_data_pcap(path):
+        '''Integrity only frames with less than two bytes of Secure Data
+        (SL=1, and SL=0 with one byte before the ICV).'''
+        eth = bytes.fromhex('020000000001' '020000000002') + struct.pack('>H', 0x88e5)
+        frames = [
+            eth + bytes([0x00, 0x01]) + struct.pack('>I', 1) + b'\x08' + b'\xaa' * 16,
+            eth + bytes([0x00, 0x00]) + struct.pack('>I', 2) + b'\x08' + b'\xbb' * 16,
+        ]
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, fr in enumerate(frames):
+                f.write(struct.pack('<IIII', i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_macsec_short_secure_data(self, cmd_tshark, test_env, tmp_path):
+        '''Secure Data shorter than the EtherType is reported with an expert
+        info. The two byte EtherType was read from the ICV and the length
+        wrapped to 0xFFFFFFFF before "MACsec: Check the Secure Data length
+        before reading the EtherType".'''
+        pcap = str(tmp_path / 'macsec_short.pcap')
+        self.short_data_pcap(pcap)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', pcap,
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message', '-emacsec.etype'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '1\tSecure Data is too short to contain an EtherType\t',
+                '2\tSecure Data is too short to contain an EtherType\t',
+            ]
