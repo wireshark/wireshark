@@ -96984,3 +96984,128 @@ class TestDissectMiwiP2pstar:
                             'data.data')
         assert lines == ['0102' + lines[0][4:]]
         assert len(lines[0]) == 8
+
+
+class TestDissectMka:
+    '''EAPOL-MKA (MACsec Key Agreement) from the synthetic capture
+    mka_coverage.pcap.gz. It holds placeholder bytes only: no CAK is
+    configured, so wrapped SAKs stay wrapped and ICVs unverified.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('mka_coverage.pcap.gz')]
+        if flt:
+            args += ['-Y', flt]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mka_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 37 frames decode as EAPOL-MKA without malformed packets or
+        expert infos of warning severity or higher, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            protocols = self.fields(cmd_tshark, capture_file, test_env, '',
+                                    '_ws.col.protocol', passes=passes)
+            assert protocols == ['EAPOL-MKA'] * 37
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              'frame.number', passes=passes)
+            assert bad == []
+
+    def test_mka_parameter_sets(self, cmd_tshark, capture_file, test_env):
+        '''The Info column lists the parameter sets in each MKPDU.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 3, 6, 9, 12, 16, 21, 23, 24, 26, 30, 32}',
+                            'frame.number', '_ws.col.info')
+        assert lines == [
+            '1\tPotential Peer List',
+            '3\tKey Server, Live Peer List',
+            '6\tKey Server, Distributed SAK, MACsec SAK Use, Live Peer List',
+            '9\tKey Server, Live Peer List, Distributed SAK, MACsec SAK Use, XPN',
+            '12\tKey Server, Distributed SAK, MACsec SAK Use, XPN, Live Peer List',
+            '16\tDistributed SAK, MACsec SAK Use',
+            '21\tKey Server',
+            '23\tKMD',
+            '24\tDistributed CAK',
+            '26\tAnnouncement',
+            '30\tUnknown, Unknown',
+            '32\tICV Indicator',
+        ]
+
+    def test_mka_distributed_sak(self, cmd_tshark, capture_file, test_env):
+        '''Distributed SAK key numbers, attachment numbers and cipher
+        suites (XPN-128, XPN-256, GCM-AES-256), and the Key Server SSCI
+        of the version 3 Live Peer Lists.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'mka.key_number',
+                            'frame.number', 'mka.key_server_ssci', 'mka.key_number',
+                            'mka.distributed_an', 'mka.macsec_cipher_suite')
+        assert lines == [
+            '6\t\t1\t0\t',
+            '9\t0x01\t2\t1\t0x0080c20001000003',
+            '12\t0x01\t3\t2\t0x0080c20001000004',
+            '13\t0x02\t4\t3\t0x0080c20001000002',
+        ]
+
+    def test_mka_xpn_and_sak_use(self, cmd_tshark, capture_file, test_env):
+        '''XPN set (most significant halves of the lowest PNs; frame 14
+        updates the old key only) and the MACsec SAK Use values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'mka.xpn_set',
+                            'frame.number', 'mka.latest_lowest_acceptable_pn_msb',
+                            'mka.old_lowest_acceptable_pn_msb', 'mka.suspension_time')
+        assert lines == ['9\t17\t34\t0', '10\t17\t34\t0', '11\t51\t68\t5', '12\t1\t0\t0', '14\t1\t2\t0']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'mka.latest_key_number && frame.number in {6, 9, 10, 14}',
+                            'frame.number', 'mka.latest_key_an', 'mka.latest_key_number',
+                            'mka.latest_lowest_acceptable_pn', 'mka.old_lowest_acceptable_pn')
+        assert lines == ['6\t0\t1\t1\t0', '9\t1\t2\t7\t3', '10\t1\t2\t9\t4', '14\t0\t1\t1\t5']
+
+    def test_mka_cak_name_lengths(self, cmd_tshark, capture_file, test_env):
+        '''CKNs of 1 and 32 octets, none, and 40 (longer than the 32 that
+        are looked up) decode with the whole name.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {17, 18, 19, 20}',
+                            'frame.number', 'mka.cak_name')
+        names = [l.split('\t')[1] if '\t' in l else '' for l in lines]
+        names = ['' if n == '<MISSING>' else n for n in names]
+        assert [len(n) // 2 for n in names] == [1, 32, 0, 40]
+
+    def test_mka_announcement(self, cmd_tshark, capture_file, test_env):
+        '''Announcement TLVs: five cipher suite entries and a Key
+        Management Domain (frame 26). Each Cipher Suite entry covers its
+        own 10 octets (it spanned the whole TLV plus 2 before "EAPOL-MKA:
+        Replace assertions in Live Peer List handling").'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 26',
+                            'mka.tlv_type', 'mka.macsec_cipher_suite', 'mka.kmd')
+        assert lines == ['112,113\t0x0080c20001000001,0x0080c20001000002,0x0080c20001000003,'
+                         '0x0080c20001000004,0x0000001234567890\tkmd.example']
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('mka_coverage.pcap.gz'),
+                '-Y', 'frame.number == 26', '-Tpdml'), encoding='utf-8', env=test_env,
+                timeout=120)
+        sizes = [f.get('size') for f in ET.fromstring(stdout).iter('field')
+                 if (f.get('showname') or '').startswith('Cipher Suite: ')]
+        assert sizes == ['10'] * 5
+
+    def test_mka_unknown_and_icv_indicator(self, cmd_tshark, capture_file, test_env):
+        '''Unknown parameter sets, and ICV indicators of 16 and 32 octets
+        (the ICV is the last 16 or 32 octets).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {30, 32, 33}',
+                            'frame.number', 'mka.unknown_param_set')
+        assert lines[0].startswith('30\t756e6b6e6f776e2d64617461')
+        for frame, length in ((32, 16), (33, 32)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == %d' % frame,
+                                'mka.icv')
+            assert len(lines[0]) == 2 * length
+
+    def test_mka_ca_statistics(self, cmd_tshark, capture_file, test_env):
+        '''-z mka,ca reports the Connectivity Association of the exchange
+        and the key server startup.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('mka_coverage.pcap.gz'),
+                '-q', '-z', 'mka,ca'), encoding='utf-8', env=test_env, timeout=120)
+        assert 'CKN: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' in stdout
+        assert 'Peers (7):' in stdout
+        assert 'Peer SCI 02:00:00:00:00:01/0001 [Key Server]:' in stdout
+        assert 'Key Server Startup (frames 3 - 8):' in stdout
