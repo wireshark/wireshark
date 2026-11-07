@@ -249,7 +249,7 @@ dissect_mtp2_header(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
     proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mtp2_tree, hf_mtp2_ext_bib,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fsn,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_BSN_BIB_OFFSET, EXTENDED_BSN_BIB_LENGTH, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mtp2_tree, hf_mtp2_ext_res,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(mtp2_tree, hf_mtp2_ext_fib,   su_tvb, EXTENDED_FSN_FIB_OFFSET, EXTENDED_FSN_FIB_LENGTH, ENC_LITTLE_ENDIAN);
     li_item = proto_tree_add_item_ret_uint(mtp2_tree, hf_mtp2_ext_li, su_tvb, EXTENDED_LI_OFFSET, EXTENDED_LI_LENGTH, ENC_LITTLE_ENDIAN, li);
     if (*li != reported_len) {
@@ -392,7 +392,7 @@ static const value_string status_field_acro_vals[] = {
 
 static void
 dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
-                  bool use_extended_sequence_numbers)
+                  bool use_extended_sequence_numbers, uint32_t li)
 {
   uint8_t sf = 0xFF;
   uint8_t sf_offset, sf_extra_offset;
@@ -411,7 +411,7 @@ dissect_mtp2_lssu(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_tree,
    *  field but it is not defined what this octet is.
    *  (In any case the first byte of the SF always has the same meaning.)
    */
-  if ((tvb_get_uint8(su_tvb, LI_OFFSET) & LI_MASK) == 2)
+  if (li == 2)
     proto_tree_add_item(mtp2_tree, hf_mtp2_sf_extra, su_tvb, sf_extra_offset, SF_EXTRA_LENGTH, ENC_LITTLE_ENDIAN);
 
   col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(sf, status_field_acro_vals, "Unknown"));
@@ -465,7 +465,7 @@ dissect_mtp2_su(tvbuff_t *su_tvb, packet_info *pinfo, proto_item *mtp2_item,
     break;
   case 1:
   case 2:
-    dissect_mtp2_lssu(next_tvb, pinfo, mtp2_tree, use_extended_sequence_numbers);
+    dissect_mtp2_lssu(next_tvb, pinfo, mtp2_tree, use_extended_sequence_numbers, li);
     break;
   default:
     dissect_mtp2_msu(next_tvb, pinfo, mtp2_item, tree, use_extended_sequence_numbers);
@@ -542,10 +542,10 @@ get_bit(uint8_t byte, uint8_t bit)
 /* store new byte of an MTP2 frame in an array
  * after the whole packet is stored the array will be used to construct a new tvb */
 static void
-new_byte(wmem_allocator_t* allocator, char full_byte, uint8_t **data, uint8_t *data_len)
+new_byte(wmem_allocator_t* allocator, char full_byte, uint8_t **data, unsigned *data_len)
 {
   uint8_t *new_data = NULL;
-  int     i = 0;
+  unsigned i = 0;
 
   if ((*data_len) == 0) {
     /* if data was never stored in this buffer before */
@@ -615,10 +615,7 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
   uint8_t       mtp2_flag_search = 0x00,                        /* this helps to detect the flags in the bitstream */
                 data_buff = 0x00,                               /* buffer to store the found bits without the stuffed zeros */
                 data_buff_offset = 0,                           /* index of the data_buff_offset, where to store the next bit */
-                available_bytes_in_rtp_payload = 0,             /* stores the tvb's length which need to be analyzed */
                 *found_data_buff_byte = NULL,                   /* buffer to store the found data_buff bytes till they are assembled to a tvb */
-                offset = 0,                                     /* offset of the tvb, needed to get the appropriate byte */
-                data_len = 0,                                   /* the length of the array where the data_buff's are stored */
                 flag_beginning_offset_for_align_check = 0;      /* this stores the offset of the first bit in a flag */
 #ifdef MTP2_BITSTREAM_DEBUG
   bool          zero_skip0 = 0,                                 /* needed for debug output */
@@ -626,6 +623,9 @@ dissect_mtp2_tvb(tvbuff_t* tvb, packet_info* pinfo, mtp2_mtp2_flag_search_t back
                 flag = false,                                   /* needed for debug to print flag found message. reset at every new octet read from tvb */
                 frame_reset = false;                            /* needed for debug, informs about a frame reset */
 #endif
+  unsigned      available_bytes_in_rtp_payload = 0,             /* stores the tvb's length which need to be analyzed */
+                offset = 0,                                     /* offset of the tvb, needed to get the appropriate byte */
+                data_len = 0;                                   /* the length of the array where the data_buff's are stored */
   enum mtp2_bitstream_states    state = OUT_OF_SYNC;            /* actual state of the dissection */
   tvbuff_t                      *new_tvb = NULL;                /* tvbuff which stores the assembled data from the data pointer */
   mtp2_dissect_tvb_res_t        *result = NULL;                 /* the result structure */
@@ -951,7 +951,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* if there is no per packet data -> create it */
   if (mtp2_ppd == NULL) {
-    mtp2_ppd = wmem_new(wmem_file_scope(), mtp2_ppd_t);
+    mtp2_ppd = wmem_new0(wmem_file_scope(), mtp2_ppd_t);
     /* set the proto_data_fields
      * because these are the values which we would like to see
      * if this packet is seen again */
@@ -1110,7 +1110,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         recognized_packet = wmem_list_frame_next(recognized_packet);
       }
       /* insert how many packets were found */
-      col_info_str = ws_strdup_printf("%s: %u Packet%s%s%s",
+      col_info_str = wmem_strdup_printf(pinfo->pool, "%s: %u Packet%s%s%s",
           "MTP2",
           wmem_list_count(result->found_packets),
           (wmem_list_count(result->found_packets) > 1
@@ -1118,7 +1118,7 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
               :""
           ),
           (was_unaligned_packet
-              ?ws_strdup_printf(" [Unaligned Packet%s]", (wmem_list_count(result->found_packets)>1
+              ?wmem_strdup_printf(pinfo->pool, " [Unaligned Packet%s]", (wmem_list_count(result->found_packets)>1
                   ?"s"
                   :""))
               :""
@@ -1129,7 +1129,6 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           )
           );
       col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
-      g_free(col_info_str);
     /* if there were no packets found */
     } else {
       if (tvb_reported_length_remaining(result->mtp2_remain_data.before_first_flag,0) == 0
@@ -1137,9 +1136,8 @@ dissect_mtp2_bitstream(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           && frag_msg_before_fh)
       {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
-        col_info_str = ws_strdup_printf("[MTP2 Reassembled in: %u]", frag_msg_before_fh->reassembled_in);
+        col_info_str = wmem_strdup_printf(pinfo->pool, "[MTP2 Reassembled in: %u]", frag_msg_before_fh->reassembled_in);
         col_add_str(pinfo->cinfo, COL_INFO, col_info_str);
-        g_free(col_info_str);
       } else {
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP2");
         col_info_str = "[MTP2 No Packets]";
