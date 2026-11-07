@@ -88624,3 +88624,58 @@ class TestDissectLapd:
             assert stdout.splitlines() == [
                 '187\tFrame too short for the checksum',
                 '188\tFrame too short for the checksum']
+
+
+class TestDissectLapdm:
+    '''LAPDm (GSM Um data link layer) from the synthetic capture
+    lapdm_coverage.pcapng.gz: GSMTAP (UDP 4729) frames on SDCCH, SACCH
+    (with the L1 header and the B4 downlink UI format) and FACCH.'''
+
+    CAP = 'lapdm_coverage.pcapng.gz'
+    BAD = '(_ws.malformed || _ws.expert.severity >= 0x00800000)'
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, flt, *extra, fields=('frame.number',)):
+        args = [cmd_tshark, *extra, '-r', capture_file('lapdm_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lapdm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 107 frames are LAPDm and decode without malformed packets
+        or error expert infos, in one and two passes.'''
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'lapdm')) == 107
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env, self.BAD, *passes) == []
+
+    def test_lapdm_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''I frames with the M bit are reassembled per time slot and
+        SAPI: 2 segments (79-80, 84-86 interleaved with another subslot, 88-90) and
+        3 segments (81-83), 38 octets each time.'''
+        for passes in ((), ('-2',)):
+            lines = self.frames(cmd_tshark, capture_file, test_env,
+                                'lapdm.reassembled.length', *passes,
+                                fields=('frame.number', 'lapdm.reassembled.length'))
+            assert lines == ['80\t38', '83\t38', '86\t38', '90\t38']
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            'lapdm.fragment_data', fields=('frame.number',))
+        assert lines == ['79', '81', '82', '84', '88']
+
+    def test_lapdm_b4_and_sapis(self, cmd_tshark, capture_file, test_env):
+        '''Downlink UI frames on SACCH use the B4 format and carry System
+        Information Type 5 (with the L2 pseudo length); SAPI 3 carries SMS.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            '_ws.col.info contains "System Information Type 5"')
+        assert lines == ['94', '95', '96', '107']
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            'lapdm.sapi == 3 && gsm_a.dtap.msg_sms_type == 4')
+        assert len(lines) > 0
+
+    def test_lapdm_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With the reassemble preference off the segments are dissected on
+        their own.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            'lapdm.reassembled.length', '-o', 'lapdm.reassemble:FALSE')
+        assert lines == []
