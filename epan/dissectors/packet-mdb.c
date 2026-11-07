@@ -1035,6 +1035,8 @@ static void dissect_mdb_bv_expns_mst_per(tvbuff_t *tvb, int offset, packet_info 
     if (s) {
         col_set_str(pinfo->cinfo, COL_INFO, s);
     }
+    /* Skip the sub-command byte */
+    offset += 1;
 
     switch (sub_cmd) {
         case MDB_BV_LVL2_FEATURE_ENABLE:
