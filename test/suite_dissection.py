@@ -97205,3 +97205,92 @@ class TestDissectMle:
         assert [l[0] for l in lines] == ['40', '41']
         assert all(l[1] == '' for l in lines)
         assert all(l[2] == '1' or l[2] == 'True' for l in lines)
+
+
+class TestDissectMms:
+    '''MMS (ISO 9506) and its IEC 61850-8-1 mapping from the synthetic
+    capture mms_coverage.pcapng.gz: PDUs of every confirmed service
+    (generated from the ASN.1), IEC 61850 reads, writes and reports,
+    carried in TPKT/COTP on TCP 102 (COTP heuristic), and two Exported
+    PDU "mms" frames (frame 581 is the last one).'''
+
+    def test_mms_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-581 decode as MMS (the three TCP handshake frames
+        excepted) without malformed packets or error expert infos, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mms_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 581
+        assert protocols.count('TCP') == 3
+        assert protocols.count('MMS/IEC61850') == 578
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('mms_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_mms_null_itemid(self, cmd_tshark, capture_file, test_env):
+        '''The last frame is a GetNameList request for a named variable
+        without an item identifier (Exported PDU "mms"). The Info column
+        used to show "(null)" ("MMS: Fix NULL string, overflow and short
+        bit strings").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 581',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'GetLogicalDeviceDirectoryRequest'
+        assert 'null' not in stdout
+
+    def test_mms_binary_time_days(self, cmd_tshark, capture_file, test_env):
+        '''Binary times of 4 and 6 octets, with 0xffff days (a signed
+        overflow before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mms_coverage.pcapng.gz'),
+                '-Y', 'mms.data.binary-time && frame.number == 553',
+                '-Tfields', '-emms.data.binary-time',
+                '-E', 'occurrence=a', '-E', 'aggregator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip().split(';') == [
+            '1 second',
+            'Dec 20, 2037 00:00:01.000000000 UTC',
+            'Jun  6, 2163 00:00:01.000000000 UTC',
+        ]
+
+    def test_mms_iec61850(self, cmd_tshark, capture_file, test_env):
+        '''Info columns of the IEC 61850 mapping: directory services,
+        RCB access, reports, command termination, and request/response
+        matching by invoke ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {506, 545, 547, 564, 575, 580}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-emms.response_to',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '506\tGetServerDirectoryResponse IED1LD1\t505',
+            '545\tGetRCBValuesResponse failure\t544',
+            '547\tGetRCBValuesResponse success\t546',
+            '564\tUnconfirmed <RPT>\t',
+            '575\tUnconfirmed-CommandTermination\t',
+            '580\t701 confirmed-ErrorPDU\t578',
+        ]
+
+    def test_mms_report_fields(self, cmd_tshark, capture_file, test_env):
+        '''A report with all optional fields shows the sequence number,
+        configuration revision and report ID in their IEC 61850 fields;
+        one without the optional fields shows none of them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mms_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {564, 567}',
+                '-Tfields', '-eframe.number', '-emms.iec61850.rptid',
+                '-emms.iec61850.seqnum', '-emms.iec61850.confrev',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '564\tIED1LD0/LLN0$BR$brcbA01\t41\t3',
+            '567\tIED1LD0/LLN0$BR$brcbA01\t\t',
+        ]
