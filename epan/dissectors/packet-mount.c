@@ -412,35 +412,35 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	if (!(pc_mask & (PC_ERROR_MAX_CANON|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_max_canon,tvb,offset+2,2,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_MAX_INPUT|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_max_input,tvb,offset+2,2,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_NAME_MAX|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_name_max,tvb,offset+2,2,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_PATH_MAX|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_path_max,tvb,offset+2,2,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
 	if (!(pc_mask & (PC_ERROR_PIPE_BUF|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_pipe_buf,tvb,offset+2,2,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
@@ -449,7 +449,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	if (!(pc_mask & (PC_ERROR_VDISABLE|PC_ERROR_ALL))) {
 		proto_tree_add_item(tree,
 				hf_mount_pathconf_vdisable,tvb,offset+3,1,
-				tvb_get_ntohs(tvb,offset)&0xffff);
+				ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
