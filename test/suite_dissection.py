@@ -88474,3 +88474,37 @@ class TestDissectLapb:
         lines = self.frames(cmd_tshark, capture_file, test_env,
                             '_ws.col.info == "Invalid LAPB frame"')
         assert lines == ['87', '88', '89', '90', '91', '92']
+
+
+class TestDissectLapbether:
+    '''LAPBETHER (LAPB over Ethernet, type 0x6000) from the synthetic
+    capture lapbether_coverage.pcapng.gz: frames with Ethernet padding and
+    a trailer, which the length field cuts off.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, flt, *extra, fields=('frame.number',)):
+        args = [cmd_tshark, *extra, '-r', capture_file('lapbether_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_lapbether_frames(self, cmd_tshark, capture_file, test_env):
+        '''59 LAPBETHER frames carrying LAPB, 9 of which carry X.25; no
+        malformed packets or error expert infos in one and two passes.'''
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'lapbether')) == 59
+        assert len(self.frames(cmd_tshark, capture_file, test_env, 'lapbether && x25')) == 9
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               *passes) == []
+
+    def test_lapbether_length(self, cmd_tshark, capture_file, test_env):
+        '''The length field is little endian and excludes the padding
+        (frame 57 has a 4 octet trailer and no X.25 data is lost).'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 52 && frame.number <= 57',
+                            fields=('frame.number', 'lapbether.length', 'x25.type'))
+        assert lines[0].split('\t')[1] == '105'
+        assert lines[-1].split('\t')[1] == '9'
