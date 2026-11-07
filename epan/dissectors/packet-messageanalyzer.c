@@ -846,7 +846,7 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	proto_tree *etw_tree, *dest_tree, *layer_tree, *oob_tree;
 	int offset = 0, dest_start, layer_start;
 	struct netmon_provider_id_data *provider_id_data = (struct netmon_provider_id_data*)data;
-	unsigned i, length;
+	unsigned i, length, count;
 	tvbuff_t *next_tvb;
 
 	static int * const keyword_fields[] = {
@@ -963,9 +963,9 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		length = tvb_unicode_strsize(tvb, offset);
 		proto_tree_add_item(etw_tree, hf_etw_ndis_source_nic_type, tvb, offset, length, ENC_LITTLE_ENDIAN|ENC_UTF_16);
 		offset += length;
-		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_destination_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
+		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_destination_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &count);
 		offset += 4;
-		for (i = 1; i <= length; i++)
+		for (i = 1; i <= count; i++)
 		{
 			dest_start = offset;
 			dest_tree = proto_tree_add_subtree_format(etw_tree, tvb, offset, 4, ett_etw_ndis_dest, &dest_item, "Destination #%d", i);
@@ -1178,9 +1178,9 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		offset += length;
 		proto_tree_add_item(etw_tree, hf_etw_ndis_if_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
-		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_layer_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &length);
+		proto_tree_add_item_ret_uint(etw_tree, hf_etw_ndis_layer_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &count);
 		offset += 2;
-		for (i = 1; i <= length; i++)
+		for (i = 1; i <= count; i++)
 		{
 			layer_start = offset;
 			layer_tree = proto_tree_add_subtree_format(etw_tree, tvb, offset, 4, ett_etw_ndis_layer, &layer_item, "Layer #%d", i);
@@ -1234,7 +1234,7 @@ void proto_register_message_analyzer(void)
 			FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ma_wfp_capture_auth_process_path,
-			{ "Payload Length", "message_analyzer.wfp_capture.auth.process_path",
+			{ "Process Path", "message_analyzer.wfp_capture.auth.process_path",
 			FT_UINT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 	};
@@ -1612,7 +1612,7 @@ void proto_register_message_analyzer(void)
 			FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_packet_metadata_data,
-			{ "MPDU padding", "etw.ndis.packet_metadata.data",
+			{ "Metadata", "etw.ndis.packet_metadata.data",
 			FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_etw_ndis_tcp_ip_checksum_net_buffer_list,
