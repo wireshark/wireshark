@@ -101311,3 +101311,98 @@ class TestDissectMudurl:
         # basicConstraints, the MUD URL and the CA's basicConstraints in 11
         assert lines[0].split('\t')[2] == 'True'
         assert lines[1].split('\t')[2] == 'True,True,True'
+
+
+class TestDissectMultipart:
+    '''MIME multipart bodies in HTTP (TCP 80) and one SIP message, from the
+    synthetic capture multipart_coverage.pcap.gz: multipart/mixed, related,
+    alternative, report, signed, form-data, an unknown subtype and an
+    encrypted one, headers of every kind, compressed and base64 parts, odd
+    line ends and boundaries, and nested multiparts.'''
+
+    FRAMES = [5, 7, 8, 11, 13, 15, 17, 19, 21, 23, 24, 27, 29, 31, 33, 35,
+              37, 39, 41, 43, 45, 47, 49]
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, flt, *args, opts=()):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('multipart_coverage.pcap.gz'), '-Y', flt, *args),
+            encoding='utf-8', env=test_env, timeout=120)
+
+    def test_multipart_frames(self, cmd_tshark, capture_file, test_env):
+        '''The multipart frames, without malformed packets, in one and
+        two passes; the only warning is the nesting limit of frame 47.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                              'mime_multipart', '-Tfields', '-eframe.number', opts=passes)
+            assert [int(l) for l in stdout.splitlines()] == self.FRAMES
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                              opts=passes)
+            assert stdout.splitlines() == ['47\tMultipart nesting too deep']
+
+    def test_multipart_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Three nested multiparts decode fully. Twenty are decoded 16
+        levels deep, then "Multipart nesting too deep" (before "MIME
+        multipart: Bound nesting and fix gzip length after base64" the
+        depth was only limited by the generic dissection depth).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          'frame.number in {45, 47}', '-Tfields', '-eframe.number',
+                          '-emime_multipart.type', '-emime_multipart.too_deep')
+        lines = stdout.splitlines()
+        assert lines[0].split('\t')[1].count('multipart/mixed') == 3
+        assert lines[1].split('\t')[1].count('multipart/mixed') == 16
+        assert lines[1].split('\t')[2] != ''
+
+    def test_multipart_headers(self, cmd_tshark, capture_file, test_env):
+        '''Part headers: known ones (also folded and in compact form), the
+        form-data dispositions, and the generated type.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          'frame.number in {5, 8}', '-Tfields', '-eframe.number',
+                          '-emime_multipart.header.content-id',
+                          '-emime_multipart.header.content-description',
+                          '-emime_multipart.header.content-language',
+                          '-emime_multipart.header.content-length',
+                          '-emime_multipart.header.content-transfer-encoding',
+                          '-emime_multipart.header.content-disposition')
+        lines = stdout.splitlines()
+        assert lines[0] == ('5\t<p1@mp.example>\tfirst part\ten\t12,24\t7bit,binary\t'
+                            'inline;filename="a.txt",attachment;filename="b.html"')
+        assert lines[1] == ('8\t\t\t\t\t\tform-data;name="field1",'
+                            'form-data;name="file";filename="data.bin",'
+                            'form-data;name="doc";filename="n.xml"')
+
+    def test_multipart_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''Parts reach the media dissectors: XML, PNG, text, and SDP and
+        ISUP in a SIP message.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          'frame.number in {8, 11, 49}', '-Tfields', '-eframe.number',
+                          '-eframe.protocols')
+        lines = stdout.splitlines()
+        assert lines[0].endswith(':mime_multipart:data:data:xml')
+        assert lines[1].endswith(':mime_multipart:data-text-lines:png')
+        assert lines[2].endswith(':udp:sip:mime_multipart:sdp:isup')
+
+    def test_multipart_compressed_parts(self, cmd_tshark, capture_file, test_env):
+        '''gzip and deflate parts are uncompressed by default.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          'frame.number == 21', '-V')
+        assert 'hello world hello world hello world' in stdout
+        assert 'deflated text deflated text' in stdout
+
+    def test_multipart_base64_gzip(self, cmd_tshark, capture_file, test_env):
+        '''With mime_multipart.remove_base64_encoding the base64 parts are
+        decoded, also a base64 part that is gzip compressed: the gunzip
+        length was that of the encoded body, so it threw an exception
+        before the fix. Without the preference the text stays encoded.'''
+        opts = ('-o', 'mime_multipart.remove_base64_encoding:TRUE')
+        stdout = self.run(cmd_tshark, capture_file, test_env, 'frame.number == 23', '-V')
+        assert 'cGxhaW4gdGV4dCBpbiBiYXNlNjQg' in stdout
+        assert 'plain text in base64 plain text in base64' not in stdout
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                              'frame.number == 23', '-V', opts=(*passes, *opts))
+            assert 'plain text in base64 plain text in base64' in stdout
+            assert 'hello world hello world hello world' in stdout
+            assert 'Malformed' not in stdout
