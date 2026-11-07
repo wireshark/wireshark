@@ -85261,3 +85261,140 @@ class TestDissectIso8583:
         assert stdout.splitlines() == [
             '6\t301\t', '7\t331\t', '8\t\t8081828384858687',
             '10\t331\t8081828384858687', '11\t\t8081828384858687']
+
+
+class TestDissectIsobus:
+    CAPTURE = 'isobus_coverage.pcapng.gz'
+    DECODE_AS = ('-d', 'can.subdissector,isobus')
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, opts, display_filter, fields):
+        args = [cmd_tshark, *opts, '-r', capture_file(TestDissectIsobus.CAPTURE)]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_isobus_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames with 29 bit identifiers are ISOBUS; no malformed packets
+        or warnings in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, None, ('frame.protocols',))
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 389
+        assert protocols.count('can:isobus') == 386
+        # standard identifier, RTR frame, Exported PDU: not ISOBUS
+        assert protocols.count('can:data') == 1
+        assert protocols.count('can') == 1
+        assert protocols.count('exported_pdu:data') == 1
+        # without Decode As nothing is ISOBUS
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, (), None, ('frame.protocols',))
+        assert 'can:isobus' not in [r[0] for r in rows]
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, (*passes, *self.DECODE_AS),
+                                   '_ws.malformed || _ws.expert.severity >= warning', ('frame.number',))
+            assert rows == []
+
+    def test_isobus_address_claim_and_request(self, cmd_tshark, capture_file, test_env):
+        '''Address claims (NAME fields, claimed address) and requests.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 3 && frame.number <= 12',
+                               ('isobus.ac.name.identity_number', 'isobus.ac.name.manufacturer',
+                                'isobus.ac.name.industry_group', 'isobus.ac.name.arbitrary_address_capable',
+                                'isobus.src_addr', '_ws.col.Info'))
+        assert rows[0][0:2] == ['74565', '55']
+        assert rows[0][3:] == ['1', '128', '[AC] Address claimed 128']
+        assert rows[1][3] == '0'
+        assert rows[2][:2] == ['2097151', '2047']
+        assert rows[4][5] == '[AC] Cannot claim address'
+        assert rows[5][5] == '[AC] Trying to claim global destination address!? This seems wrong!'
+        assert [r[5] for r in rows[6:]] == [
+            '[REQ] Requesting PGN: 60928 (Address Claimed)',
+            '[REQ] Requesting PGN: 0 (Torque/Speed Control 1)',
+            '[REQ] Requesting PGN: 256 (Transmission Control 1)',
+            '[REQ] Requesting PGN: 262143']
+
+    def test_isobus_acknowledgement(self, cmd_tshark, capture_file, test_env):
+        '''Acknowledgements with no, one, two and three byte extended
+        identifiers.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 13 && frame.number <= 29',
+                               ('isobus.ack_response.control_byte', '_ws.col.Info'))
+        assert [r[0] for r in rows] == ['0', '1', '2', '3', '128', '129', '130', '131', '144', '145',
+                                        '146', '147', '160', '161', '162', '163', '100']
+        assert [r[1] for r in rows[:4]] == ['[ACK] ACK', '[ACK] NACK', '[ACK] Access denied', '[ACK] Cannot respond']
+        assert rows[-1][1] == '[ACK] Unknown'
+
+    def test_isobus_time_date(self, cmd_tshark, capture_file, test_env):
+        '''Time/Date (PGN 65254) with and without a minutes offset.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 30 || frame.number == 31',
+                               ('_ws.col.Info', 'isobus.datetime.year'))
+        assert rows == [['[PAR.G] Date/time:  2023.6.20 12:30:30 (UTC+2 hour)', '38'],
+                        ['[PAR.G] Date/time:  1985.1.1 0:0:0 (UTC+0 hour 5 min)', '0']]
+
+    def test_isobus_other_pgns(self, cmd_tshark, capture_file, test_env):
+        '''Proprietary, data page 1 and unknown PGNs; VT frames reach the
+        ISOBUS VT dissector.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 32 && frame.number <= 42',
+                               ('_ws.col.Info', 'isobus.dst_addr', 'isobus.grp_ext'))
+        assert rows[0][0] == '[PR.A] Protocol not yet supported'
+        assert rows[2][0] == '[PR.A2] Protocol not yet supported'
+        assert rows[3][0] == '[Unknown] Protocol not yet supported'
+        assert rows[9][0].startswith('[VT2ECU] Status: Current master is 128')
+        assert rows[10][0].startswith('[ECU2VT] Working Set Maintenance')
+
+    def test_isobus_transport_protocol(self, cmd_tshark, capture_file, test_env):
+        '''BAM and RTS/CTS transfers are reassembled (the reassembled
+        message starts with the three byte PGN), aborts, unknown control
+        bytes and a data packet without connection management.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'isobus.reassembled.length',
+                               ('frame.number', 'isobus.reassembled.length'))
+        assert rows == [['48', '33'], ['53', '23'], ['57', '8'], ['62', '14'], ['388', '12']]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, ('-2', *self.DECODE_AS), 'isobus.reassembled.length',
+                               ('frame.number', 'isobus.reassembled.length'))
+        assert rows == [['48', '33'], ['53', '23'], ['57', '8'], ['62', '14'], ['388', '12']]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 43 && frame.number <= 49',
+                               ('_ws.col.Info',))
+        assert rows[0] == ['[TP.CM] Broadcast Announcement Message, 30 bytes sent in 5 packets']
+        assert rows[1] == ['[TP.DT] Fragment number 1']
+        assert rows[6] == ['[TP.CM] Request to send message of 20 bytes in 3 fragments']
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 64 && frame.number <= 77',
+                               ('_ws.col.Info',))
+        assert rows[0][0].startswith('[TP.CM] Connection Abort, Already in one')
+        assert rows[11] == ['[TP.CM] Connection Abort, unknown reason']
+        assert rows[12] == ['[TP.CM] Unknown control byte 0xc8']
+        assert rows[13] == ['[TP.DT] ERROR: Transport protocol was not initialized']
+
+    def test_isobus_rts_flood(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer: 300 RTS messages on one address pair (every RTS adds
+        an entry to the list that each TP packet used to walk), followed by
+        the data packets of the last one: the message is reassembled and
+        decoded by the VT dissector.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 87 && frame.number <= 388',
+                               ('frame.number', '_ws.col.Info'))
+        assert len(rows) == 302
+        assert all(r[1] == '[TP.CM] Request to send message of 9 bytes in 2 fragments' for r in rows[:300])
+        assert rows[301][1] == '[TP.DT] Key Object ID 0x0302 of parent Object ID 0x0504 has been pressed'
+
+    def test_isobus_extended_transport_protocol(self, cmd_tshark, capture_file, test_env):
+        '''ETP connection management with every control byte and data
+        packets.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number >= 78 && frame.number <= 86',
+                               ('_ws.col.Info',))
+        assert [r[0] for r in rows] == [
+            '[ETP.CM] Request to send message of 14 bytes',
+            '[ETP.CM] Clear to send, can receive 16 packets, next packet is 1',
+            '[ETP.CM] Data packet offset, 16 packets at offset 1',
+            '[ETP.DT] Data transfer packet, sequence number 1',
+            '[ETP.DT] Data transfer packet, sequence number 2',
+            '[ETP.CM] End of Message Acknowledgment, 14 bytes sent',
+            '[ETP.CM] Connection Abort, A timeout occurred and this is the connection abort to close the session',
+            '[ETP.CM] Connection Abort, Reserved',
+            '[ETP.CM] Unknown control byte 0x63']
+
+    def test_isobus_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "isobus" has no CAN information: the
+        dissector declines and the payload is data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env, self.DECODE_AS, 'frame.number == 389',
+                               ('frame.protocols', 'exported_pdu.prot_name', 'data.data'))
+        assert rows == [['exported_pdu:data', 'isobus', '01020304']]
