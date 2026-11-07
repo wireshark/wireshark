@@ -2111,7 +2111,8 @@ dissect_lldp_time_to_live(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
 		}
 	}
 
-	return offset;
+	/* Skip the whole TLV, offset was advanced by 4 above */
+	return offset - 4 + dataLen + 2;
 }
 
 /* Dissect End of LLDPDU TLV */
@@ -2317,7 +2318,7 @@ dissect_lldp_system_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 /* Dissect Management Address TLV */
 static int32_t
-dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint32_t offset)
+dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t offset)
 {
 	uint16_t tempShort;
 	uint32_t dataLen = 0;
@@ -2345,6 +2346,13 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	proto_tree_add_item(system_mgm_addr, hf_mgn_address_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	offset++;
+
+	if (stringLen == 0) {
+		/* There is no room for the address subtype, skip the TLV */
+		expert_add_info_format(pinfo, system_mgm_addr, &ei_lldp_bad_length,
+			"Management address string length is 0");
+		return offset - 3 + dataLen + 2;
+	}
 
 	/* Get management address subtype */
 	subtypeByte = tvb_get_uint8(tvb, offset);
@@ -4119,6 +4127,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	uint8_t subType;
 	uint32_t offset = 0;
 	unsigned length = tvb_reported_length(tvb);
+	unsigned need = 0;
 
 	proto_tree *upoe_data = NULL;
 	proto_item *tf = NULL;
@@ -4132,6 +4141,27 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	proto_tree_add_item(tree, hf_cisco_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	length--;
+
+	/* Reject fixed-size values that do not fit in the TLV */
+	switch (subType)
+	{
+	case 0xc9: case 0xca: case 0xcc: case 0xd1: case 0xda:
+		need = 1;
+		break;
+	case 0xcd: case 0xd3: case 0xd8: case 0xdb:
+		need = 2;
+		break;
+	case 0xcb: case 0xd0:
+		need = 4;
+		break;
+	default:
+		break;
+	}
+	if (length < need) {
+		proto_tree_add_expert_format_remaining(tree, pinfo, &ei_lldp_bad_length, tvb, offset,
+			"Cisco TLV value is shorter than %u bytes", need);
+		return;
+	}
 
 	switch (subType)
 	{
@@ -4148,25 +4178,25 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	/* ACI */
 	case 0xc9: // 201 port-state, uint8
-		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portstate, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xca: // 202 node-role, uint8
-		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_noderole, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xcb: // 203 node-id, uint32
-		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, length, ENC_BIG_ENDIAN);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeid, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xcc: // 204 spine-level, uint8
-		tf = proto_tree_add_item(tree, hf_cisco_aci_spinelevel, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_spinelevel, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
@@ -4185,7 +4215,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		break;
 	case 0xcf: // 207 av (id, ip, uuid) (uint8, ipv4, string)
 		proto_tree_add_item(tree, hf_cisco_aci_apiclist, tvb, offset, length, ENC_NA);
-		while (length > 0) {
+		while (length >= 41) {
 			tf = proto_tree_add_item(tree, hf_cisco_aci_apicid, tvb, offset, 1, ENC_NA);
 			proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 			offset++;
@@ -4199,13 +4229,13 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		}
 		break;
 	case 0xd0: // 208 node-ip, ipv4
-		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeip, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_nodeip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 4;
 		length -= 4;
 		break;
 	case 0xd1: // 209 port-role, uint8
-		tf = proto_tree_add_item(tree, hf_cisco_aci_portrole, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portrole, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
@@ -4245,7 +4275,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length -= length;
 		break;
 	case 0xd8: // 216 port-mode, uint16
-		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_BIG_ENDIAN);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
@@ -4257,13 +4287,13 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length -= length;
 		break;
 	case 0xda: // 218 standby-apic, uint8
-		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_apicmode, tvb, offset, 1, ENC_NA);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset++;
 		length--;
 		break;
 	case 0xdb: // 219 fabric-id, uint16
-		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricid, tvb, offset, length, ENC_BIG_ENDIAN);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_fabricid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(parent_item, ": %s", proto_item_get_display_repr(pinfo->pool, tf));
 		offset += 2;
 		length -= 2;
@@ -4652,6 +4682,11 @@ dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	offset++;
 
 	msg_len=tvb_reported_length_remaining(tvb, offset);
+	if (subType == ONOS_TTL_TLV_TYPE && msg_len != 4) {
+		proto_tree_add_expert_format_remaining(tree, pinfo, &ei_lldp_bad_length, tvb, offset,
+			"ONOS TTL length is %u, expected 4", msg_len);
+		return;
+	}
 	switch (subType)
 	{
 	case 0x01: /* MUDURL */
@@ -4666,7 +4701,7 @@ dissect_iana_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static void
-dissect_onos_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+dissect_onos_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	uint16_t msg_len;
 	uint32_t subType;
@@ -4685,7 +4720,12 @@ dissect_onos_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_tree_add_item(tree, hf_onos_port, tvb, offset, msg_len, ENC_ASCII);
 		break;
 	case ONOS_TTL_TLV_TYPE:
-		proto_tree_add_item(tree, hf_onos_ttl, tvb, offset, msg_len, ENC_NA);
+		if (msg_len != 4) {
+			proto_tree_add_expert_format_remaining(tree, pinfo, &ei_lldp_bad_length, tvb, offset,
+				"TTL length %u, should be 4", msg_len);
+			break;
+		}
+		proto_tree_add_item(tree, hf_onos_ttl, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, offset, -1, ENC_NA);
@@ -6553,7 +6593,7 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_portmode,
-			{ "Port Mode", "lldp.cisco.portmode", FT_UINT8, BASE_NONE,
+			{ "Port Mode", "lldp.cisco.portmode", FT_UINT16, BASE_NONE,
 			VALS(cisco_portmode_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_authcookie,
