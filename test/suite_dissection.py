@@ -95516,3 +95516,46 @@ class TestDissectMedia:
         lines = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'xml', '-Tfields', '-eframe.number')
         assert [l[0] for l in lines] == ['26']
+
+
+class TestDissectMediaType:
+    '''The "media_type" dissector table (packet-media-type.c) as HTTP uses
+    it to hand a body to the dissector of its Internet media type, from the
+    synthetic capture media_type_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file('media_type_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_media_type_frames(self, cmd_tshark, capture_file, test_env):
+        '''51 frames; no malformed packets and no error expert infos in one
+        and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 51
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join('\t'.join(l) for l in lines)) == 0
+
+    def test_media_type_lookup(self, cmd_tshark, capture_file, test_env):
+        '''Content-Types found in the table (case insensitive, with
+        parameters) reach the JSON, XML and PNG dissectors; the ones that are
+        not registered end in the media dissector.'''
+        for field, frames in (('json', ['6', '10', '14', '48', '50']),
+                              ('xml', ['18', '22']), ('png', ['26']),
+                              ('media', ['42', '46'])):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', field, '-Tfields', '-eframe.number')
+            assert [l[0] for l in lines] == frames, field
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {14, 22, 26, 42}', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert [l[1] for l in lines] == [
+            'HTTP/1.1 200 OK , JSON (application/json)',
+            'HTTP/1.1 200 OK ',
+            'HTTP/1.1 200 OK  (PNG)',
+            'HTTP/1.1 200 OK  (application/x-not-registered)']
