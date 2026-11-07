@@ -97887,3 +97887,43 @@ class TestDissectMoqFile:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'Track name (Base64URL): a\\u0041\n' in stdout
         assert 'aA' not in stdout.split('Track name (Base64URL)')[1].splitlines()[0]
+
+
+class TestDissectMoqLiteCov:
+    '''MoQ-Lite group datagrams from the synthetic capture
+    moq_lite_coverage.pcapng.gz (Exported PDU "moq-lite.datagram"
+    records). The stream messages are in QUIC STREAM frames and are covered
+    by TestDissectMoqLite with its own captures.'''
+
+    def test_moq_lite_datagrams(self, cmd_tshark, capture_file, test_env):
+        '''All 12 datagrams decode without malformed packets or error
+        expert infos, in one and two passes; the IDs of every QUIC varint
+        width, non-minimal encodings, and a datagram of exactly the 1200
+        octet limit.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('moq_lite_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-emoql.subscribe_id',
+                    '-emoql.group_sequence', '-emoql.datagram.timestamp',
+                    '-e_ws.malformed', '-e_ws.expert.severity',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 12
+            assert rows[6][1:4] == ['4611686018427387903'] * 3
+            assert rows[5][1:4] == ['1073741824', '1073741825', '1073741826']
+            for row in rows[7:10]:
+                assert row[1:4] == ['5', '6', '7']          # 2, 4 and 8 octet encodings
+            assert all(row[4] == '' and row[5] == '' for row in rows)
+
+    def test_moq_lite_datagram_payload(self, cmd_tshark, capture_file, test_env):
+        '''The payload follows the three varints; the largest datagram
+        shows 1197 payload octets in its Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('moq_lite_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2, 11}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '2\tGroup datagram(id=1 group=2 ts=3 5 bytes)',
+            '11\tGroup datagram(id=9 group=1 ts=1 1197 bytes)',
+        ]
