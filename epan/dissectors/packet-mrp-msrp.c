@@ -560,7 +560,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                         MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset + 2, 2, ENC_BIG_ENDIAN);
 
                     /* Decode three packed events. */
-                    offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,
+                    dissect_msrp_three_packed_event(vect_attr_tree, tvb,
                                                              MSRP_DOMAIN_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                              number_of_values);
 
@@ -590,34 +590,37 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                         offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,
                                                                  MSRP_LISTENER_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                                  number_of_values);
-                        offset = dissect_msrp_four_packed_event(vect_attr_tree, tvb, offset, number_of_values);
+                        dissect_msrp_four_packed_event(vect_attr_tree, tvb, offset, number_of_values);
                         break;
                     case MSRP_ATTRIBUTE_TYPE_TALKER_ADVERTISE:
                         dissect_msrp_talker_common(first_value_tree, tvb, msg_offset + vect_offset);
-                        offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,
+                        dissect_msrp_three_packed_event(vect_attr_tree, tvb,
                                                                  MSRP_TALKER_ADVERTISE_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                                  number_of_values);
                         break;
                     case MSRP_ATTRIBUTE_TYPE_TALKER_FAILED:
                         dissect_msrp_talker_common(first_value_tree, tvb, msg_offset + vect_offset);
                         dissect_msrp_talker_failed(first_value_tree, tvb, msg_offset + vect_offset);
-                        offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,
+                        dissect_msrp_three_packed_event(vect_attr_tree, tvb,
                                                                  MSRP_TALKER_FAILED_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                                  number_of_values);
                         break;
                     default:
-                        proto_tree_add_expert(first_value_tree, pinfo, &ei_msrp_attribute_type, tvb, msg_offset + vect_offset, vect_attr_len);
+                        proto_tree_add_expert(first_value_tree, pinfo, &ei_msrp_attribute_type, tvb,
+                                                MSRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset, vect_attr_len);
                         break;
                     }
                 }
                 vect_offset += vect_attr_len; /* Move to next Vector Attribute, if there is one */
             } /* Multiple VectorAttribute while() */
 
-            proto_tree_add_item(attr_list_tree, hf_msrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
+            proto_tree_add_item(attr_list_tree, hf_msrp_end_mark, tvb,
+                                MSRP_VECTOR_HEADER_OFFSET + msg_offset + vect_offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
 
             msg_offset += msg_length; /* Move to next Message, if there is one */
         } /* Multiple Message while() */
-        proto_tree_add_item(msrp_tree, hf_msrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
+        proto_tree_add_item(msrp_tree, hf_msrp_end_mark, tvb,
+                            MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN); /* Message EndMark */
     }
     return tvb_captured_length(tvb);
 }
