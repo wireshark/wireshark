@@ -100349,3 +100349,79 @@ class TestDissectMrpMmrp:
                 return dict(pairs)
             json.loads(stdout, object_pairs_hook=hook)
             assert sorted(positions) == expected
+
+
+class TestDissectMrpMsrp:
+    '''MRP-MSRP (ethertype 0x22ea) from the synthetic capture
+    mrp_msrp_coverage.pcap.gz: Domain, Talker Advertise, Talker Failed with
+    every failure code and Listener attributes, all events, Leave All,
+    several vector attributes and messages. The EndMark offsets of frame 14
+    are the reproducer of "MRP-MSRP: Use the right offsets for the EndMark
+    items".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, fields, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('mrp_msrp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *[f'-e{f}' for f in fields],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_mrp_msrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames are MRP-MSRP, without malformed packets or
+        warnings or errors in one and two passes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'mrp-msrp.protocol_version', ['frame.number'])
+        assert count_output('\n'.join(out)) == 16
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                              ['frame.number'], *passes)
+            assert count_output('\n'.join(out)) == 0
+
+    def test_mrp_msrp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attribute types, number of values and the events of each type.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 4, 5, 6, 7, 11, 12, 13, 14}',
+                          ['frame.number', 'mrp-msrp.attribute_type', 'mrp-msrp.number_of_values',
+                           'mrp-msrp.three_packed_event', 'mrp-msrp.four_packed_event'])
+        assert out[:4] == [
+            '1\t4\t1\t1\t',
+            '4\t4\t1,1,1,1,1\t1,1,1,1,1\t',
+            '5\t1\t3\t1,2,3\t',
+            '6\t1\t7\t0,1,2,3,4,5,1\t',
+        ]
+        assert out[5:7] == ['11\t3\t3\t1,2,3\t0,1,2', '12\t3\t7\t0,1,2,3,4,5,1\t0,1,2,3,3,2,1']
+        assert out[8].startswith('14\t4,1,3,2\t1,2,1,4,1\t')
+
+    def test_mrp_msrp_talker_and_domain(self, cmd_tshark, capture_file, test_env):
+        '''The Domain first value, the Talker fields and the Talker
+        Failed failure information.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 5, 6, 8}',
+                          ['frame.number', 'mrp-msrp.sr_class_id', 'mrp-msrp.sr_class_priority',
+                           'mrp-msrp.sr_class_vid', 'mrp-msrp.stream_id', 'mrp-msrp.priority',
+                           'mrp-msrp.rank', 'mrp-msrp.accumulated_latency', 'mrp-msrp.vlan_id',
+                           'mrp-msrp.stream_da', 'mrp-msrp.failure_bridge_id', 'mrp-msrp.failure_code'])
+        assert out == [
+            '1\t6\t3\t2\t\t\t\t\t\t\t\t',
+            '5\t\t\t\t0x001b210000010001\t3\t1\t1000\t0x0002\t91:e0:01:00:00:01\t\t',
+            '6\t\t\t\t0x001b210000010002\t2\t0\t4294967295\t0x0002\t91:e0:01:00:00:02\t\t',
+            '8\t\t\t\t0x001b210000010001\t3\t1\t1000\t0x0002\t91:e0:01:00:00:01\t0x001b21fffe000001\t1',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {9, 10}',
+                          ['mrp-msrp.failure_code'])
+        assert out == ['2,3,4,5,6,7,8,9,10,11', '12,13,14,15,16,17,18,19,20']
+
+    def test_mrp_msrp_end_marks(self, cmd_tshark, capture_file, test_env):
+        '''Each VectorAttribute EndMark and the Message EndMark is shown at
+        its own offset, also in the second and later messages.'''
+        import json
+        for frame, expected in ((1, [26, 28]), (14, [26, 88, 107, 150, 152])):
+            stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('mrp_msrp_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-Tjson', '-x'),
+                    encoding='utf-8', env=test_env, timeout=120)
+            positions = []
+            def hook(pairs):
+                # tshark repeats the key for each EndMark of a tree level
+                positions.extend(v[1] for k, v in pairs if k == 'mrp-msrp.end_mark_raw')
+                return dict(pairs)
+            json.loads(stdout, object_pairs_hook=hook)
+            assert sorted(positions) == expected
