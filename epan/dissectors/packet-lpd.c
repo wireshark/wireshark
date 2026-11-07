@@ -141,8 +141,9 @@ find_printer_string(tvbuff_t *tvb, unsigned offset, unsigned *length)
 	if (found == false)
 		found = tvb_find_uint8_remaining(tvb, offset, '\n', &i);
 	if (found == false)
-		return -1;
-	return i - offset;	/* length of string */
+		return false;
+	*length = i - offset;	/* length of string */
+	return true;
 }
 
 
