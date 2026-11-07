@@ -96415,3 +96415,76 @@ class TestDissectMih:
         lines = self._tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'mih.fragmented_tlv', '-Tfields', '-eframe.number')
         assert lines == ['57', '58', '59', '60']
+
+
+class TestDissectMikey:
+    '''MIKEY (RFC 3830) over UDP/TCP 2269, as base64 text, in an HTTP body
+    of type application/mikey and in an SDP key-mgmt attribute, from the
+    synthetic capture mikey_coverage.pcap.gz. All keys, MACs, signatures
+    and the certificate are placeholder bytes.'''
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('mikey_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_mikey_protocols(self, cmd_tshark, capture_file, test_env):
+        '''118 frames, 107 of them with MIKEY (UDP, TCP, HTTP, SIP/SDP with
+        two attributes); none malformed or with an error expert info, in
+        one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 118
+        assert lines.count('UDP/MIKEY') == 103
+        assert lines.count('TCP/MIKEY') == 2
+        assert lines.count('HTTP/MIKEY') == 1
+        assert lines.count('SIP/MIKEY/MIKEY/SDP/MIKEY/MIKEY') == 1
+        assert lines.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_mikey_data_types(self, cmd_tshark, capture_file, test_env):
+        '''The data types of frames 1-14 and the Info column.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 14', '-Tfields', '-emikey.type')
+        assert lines == ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '26', '27', '99']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-Tfields', '-e_ws.col.info')
+        assert lines == ['2269 → 2269 Len=68, Mikey: Pre-shared']
+
+    def test_mikey_sp_param_13(self, cmd_tshark, capture_file, test_env):
+        '''Frame 39 holds an SRTP policy parameter of type 13. It was looked
+        up in an hf array without an entry for 13 ("Unregistered hf"
+        dissector bug, abort with WIRESHARK_ABORT_ON_DISSECTOR_BUG) before
+        "MIKEY: Fix SRTP policy parameter hf lookup and small field
+        errors".'''
+        env = dict(test_env)
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        lines = self._tshark(cmd_tshark, capture_file, env,
+                '-Y', 'frame.number == 39', '-V', '-O', 'mikey')
+        assert '            Type: 13' in lines
+        assert not [l for l in lines if 'Dissector bug' in l or 'Malformed' in l]
+
+    def test_mikey_base64_and_sdp(self, cmd_tshark, capture_file, test_env):
+        '''Base64 text on UDP (frames 114, 115) is decoded; the SDP
+        key-mgmt attributes of frame 117 reach MIKEY twice.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {114, 115, 117}', '-Tfields',
+                '-eframe.number', '-emikey.type', '-emikey.csb_id')
+        assert lines == [
+            '114\t0\t0x01020304',
+            '115\t1\t0x01020304',
+            '117\t0,0\t0x01020304,0x01020304',
+        ]
+
+    def test_mikey_key_data_null_encryption(self, cmd_tshark, capture_file, test_env):
+        '''With NULL encryption in a pre-shared key message the key data
+        sub-payload is decoded (frame 41: TGK without key validity).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 41', '-Tfields', '-emikey.key.type',
+                '-emikey.key.kv', '-emikey.key.data.len')
+        assert lines == ['0\t0\t16']
