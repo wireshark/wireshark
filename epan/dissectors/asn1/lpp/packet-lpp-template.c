@@ -1866,8 +1866,8 @@ lpp_codePhaseRMSError_fmt(char *s, uint32_t v)
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "P < 0.5 (0)");
   } else if (v < 63) {
-    snprintf(s, ITEM_LABEL_LENGTH, "%f <= P < %f (%u)", 0.5*(1+mantissa_1/8)*pow(2, exponent_1),
-               0.5*(1+mantissa/8)*pow(2, exponent), v);
+    snprintf(s, ITEM_LABEL_LENGTH, "%f <= P < %f (%u)", 0.5*(1+mantissa_1/8.0)*pow(2, exponent_1),
+               0.5*(1+mantissa/8.0)*pow(2, exponent), v);
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "112 <= P (63)");
   }
@@ -2066,6 +2066,8 @@ int dissect_lpp_AssistanceDataSIBelement_r15_PDU(tvbuff_t *tvb, packet_info *pin
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
   lpp_data->pos_sib_type = pos_sib_type;
+  lpp_data->is_ciphered = false;
+  lpp_data->is_segmented = false;
   offset = dissect_lpp_AssistanceDataSIBelement_r15(tvb, offset, &asn1_ctx, tree, hf_lpp_AssistanceDataSIBelement_r15_PDU);
   offset += 7; offset >>= 3;
   return offset;
