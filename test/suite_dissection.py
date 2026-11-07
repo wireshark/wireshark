@@ -91364,3 +91364,134 @@ class TestDissectLog3gpp:
             '146\tTXT\tsecond text line',
             '147\tTXT\t',
         ]
+
+
+class TestDissectLogcat:
+    '''Android Logcat binary entries (logger version 1 and 2) from the
+    synthetic capture logcat_coverage.pcap.gz. The entries are Exported PDU
+    frames naming "logcat", the way the logcat file reader hands them
+    over.'''
+
+    def test_logcat_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 34 frames are Logcat. Only frame 28 (a tag longer than the
+        payload length) has an expert info, a warning; nothing is
+        malformed, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'logcat',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 34
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('logcat_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '28\tPayload length does not meet sum of payload data length']
+
+    def test_logcat_versions(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 entries (padding) and version 2 entries (header
+        size 24 and euid), priorities from Unknown to Silent and one
+        beyond; a version 1 entry whose padding is 24 stays version 1
+        because its payload is too short for a version 2 entry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 16 || frame.number == 25',
+                '-Tfields', '-eframe.number', '-elogcat.logger_version',
+                '-elogcat.priority', '-elogcat.pid', '-elogcat.euid',
+                '-elogcat.header_size', '-elogcat.padding',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '1', '0', '1000', '', '', '0x0000']
+        assert lines[8] == ['9', '1', '8', '1008', '', '', '0x0000']
+        assert lines[9] == ['10', '1', '9', '1009', '', '', '0x0000']
+        assert lines[10] == ['11', '2', '2', '302', '10002', '0x0018', '']
+        assert lines[15] == ['16', '2', '7', '307', '10007', '0x0018', '']
+        assert lines[16] == ['25', '1', '4', '100', '', '', '0x0018']
+        assert len(lines) == 17
+
+    def test_logcat_info_oneline(self, cmd_tshark, capture_file, test_env):
+        '''New line characters in a message are shown as spaces in the
+        Info column (the oneline_info_column preference, on by default),
+        the Log tree shows the lines.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17 || frame.number == 18',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\tFATAL EXCEPTION: main Process: com.example, PID: 4321 '
+            'java.lang.RuntimeException: boom  \\\\tat '
+            'com.example.Main.run(Main.java:10)  ',
+            '18\tsecond third  fourth',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-V', '-O', 'logcat',
+            ), encoding='utf-8', env=test_env)
+        assert '        Line-based text data (4 lines)\n' in stdout
+        assert '            FATAL EXCEPTION: main\\n\n' in stdout
+
+    def test_logcat_info_multiline(self, cmd_tshark, capture_file, test_env):
+        '''With the preference off the new lines are kept in the Info
+        column (tshark shows them escaped).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-o', 'logcat.oneline_info_column:FALSE',
+                '-Y', 'frame.number == 18',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'second\\\\nthird\\\\r\\\\nfourth\n'
+
+    def test_logcat_big_newline_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 29-31 carry 64 KiB messages made of line feeds,
+        CR LF pairs and letters. Each line feed used to restart a search
+        from the beginning of the message ("Logcat: Fix quadratic newline
+        replacement and length handling"), which took seconds per frame.
+        The Info column has the line feeds as spaces.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 29 && frame.number <= 31',
+                '-Tfields', '-eframe.number', '-elogcat.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:2] for l in lines] == [
+            ['29', '65534'], ['30', '65534'], ['31', '65534']]
+        assert lines[0][2].strip() == '' and len(lines[0][2]) > 100
+        assert lines[1][2].strip() == '' and len(lines[1][2]) > 100
+        assert lines[2][2] == 'A' * len(lines[2][2]) and len(lines[2][2]) > 100
+
+    def test_logcat_tags_and_messages(self, cmd_tshark, capture_file, test_env):
+        '''Empty messages, a message without the NUL, an empty tag,
+        non-ASCII and invalid UTF-8 text, and a length field shorter than
+        the data (the message is cut short).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 19 && frame.number <= 28',
+                '-Tfields', '-eframe.number', '-elogcat.tag', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\tEmpty\t',
+            '20\tNoMessage\t',
+            '21\tEmpty2\t',
+            '22\t\tmessage with empty tag',
+            '23\tTäg\tmässage ☃ snowman',
+            '24\tBad��tag\tbad ��� utf-8',
+            '25\tLooks\tlike v2',
+            '26\tNoNul\tmessage ends with the frame',
+            '27\tTrail\tshort leng',
+            '28\t' + 'T' * 40 + '\t',
+        ]
+
+    def test_logcat_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp seconds of an entry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('logcat_coverage.pcap.gz'),
+                '-Y', 'frame.number == 32',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                '-elogcat.timestamp.seconds',
+            ), encoding='utf-8', env=test_env)
+        assert stdout == 'Logcat\tscan 0\t1700000100\n'
