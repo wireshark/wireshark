@@ -193,6 +193,7 @@ static int ett_ngap_successfulPSCellChangeReportContainer;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15;
+static expert_field ei_ngap_too_deep;
 
 enum{
   INITIATING_MESSAGE,
@@ -771,11 +772,22 @@ ngap_get_private_data(packet_info *pinfo)
   return ngap_data;
 }
 
+#define NGAP_RANMODE_PROTO_KEY 1
+#define NGAP_MAX_MESSAGE_NESTING 4
+
 static GlobalRANNodeID_enum
 ngap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
   GlobalRANNodeID_enum ranmode_id = (GlobalRANNodeID_enum)-1;
+  void *cached;
+
+  /* The node type is learned from the NG Setup; keep the value seen at
+   * the first pass for this frame so later passes do the same. */
+  cached = p_get_proto_data(wmem_file_scope(), pinfo, proto_ngap, NGAP_RANMODE_PROTO_KEY);
+  if (cached) {
+    return (GlobalRANNodeID_enum)((int)GPOINTER_TO_INT(cached) - 2);
+  }
 
   if (ngap_data->ngap_conv) {
     if (addresses_equal(addr, &ngap_data->ngap_conv->addr_a) && port == ngap_data->ngap_conv->port_a) {
@@ -783,6 +795,10 @@ ngap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
     } else if (addresses_equal(addr, &ngap_data->ngap_conv->addr_b) && port == ngap_data->ngap_conv->port_b) {
       ranmode_id = ngap_data->ngap_conv->ranmode_id_b;
     }
+  }
+  if (!PINFO_FD_VISITED(pinfo)) {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ngap, NGAP_RANMODE_PROTO_KEY,
+                     GINT_TO_POINTER((int)ranmode_id + 2));
   }
   return ranmode_id;
 }
@@ -910,7 +926,8 @@ ngap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 static void set_stats_message_type(packet_info *pinfo, int type)
 {
     struct ngap_private_data* priv_data = ngap_get_private_data(pinfo);
-    priv_data->stats_tap->ngap_mtype = type;
+    if (priv_data->stats_tap)
+        priv_data->stats_tap->ngap_mtype = type;
 }
 
 
@@ -1482,6 +1499,7 @@ void proto_register_ngap(void) {
   };
 
   static ei_register_info ei[] = {
+    { &ei_ngap_too_deep, { "ngap.too_deep", PI_MALFORMED, PI_ERROR, "NGAP-Message nesting too deep", EXPFILL }},
     { &ei_ngap_number_pages_le15, { "ngap.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }}
   };
 

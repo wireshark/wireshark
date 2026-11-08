@@ -521,7 +521,7 @@ EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       (ngap_data->procedure_code == id_InitialUEMessage)) {
-    uint64_t key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
+    uint64_t key = ((uint64_t)ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
 
     if (wmem_map_lookup(ngap_data->ngap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
@@ -609,7 +609,7 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
 
     for (i = 0; i < wmem_array_get_count(ngap_data->supported_ta->plmn); i++) {
       key = wmem_new(wmem_file_scope(), uint64_t);
-      *key = ((*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
+      *key = (((uint64_t)*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
       wmem_map_insert(ngap_data->ngap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -645,7 +645,18 @@ TimeSynchronizationAssistanceInformation/uuTimeSynchronizationErrorBudget DISPLA
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGAP_Message);
-  call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
+  {
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_ngap);
+    if (depth >= NGAP_MAX_MESSAGE_NESTING) {
+      expert_add_info(actx->pinfo, actx->created_item, &ei_ngap_too_deep);
+      return offset;
+    }
+    p_set_proto_depth(actx->pinfo, proto_ngap, depth + 1);
+    increment_dissection_depth(actx->pinfo);
+    call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
+    decrement_dissection_depth(actx->pinfo);
+    p_set_proto_depth(actx->pinfo, proto_ngap, depth);
+  }
 
 #.FN_BODY NGRANTraceID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -732,7 +743,7 @@ PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
 %(DEFAULT_BODY)s
-  if (ngap_data->ngap_conv && ngap_data->procedure_code == id_NGSetup) {
+  if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv && ngap_data->procedure_code == id_NGSetup) {
     if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_a) &&
         actx->pinfo->srcport == ngap_data->ngap_conv->port_a) {
       ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)value;
@@ -1252,7 +1263,7 @@ FiveG-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_item_set_hidden(ti);
   }
 
