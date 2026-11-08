@@ -110995,3 +110995,98 @@ class TestDissectOcp1:
             '1\t\tSize or length field has invalid value',
             '2\tNotification (1)\t',
         ]
+
+
+class TestDissectOcsp:
+    CAP = 'ocsp_coverage.pcapng.gz'
+
+    def test_ocsp_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames (requests, responses, an HTTP POST/200 pair)
+        decode as OCSP, in one and two passes, with no malformed packet
+        and only the "OID not implemented" note of frame 12.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['OCSP'] * 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || (_ws.expert && !ber.error.oid_not_implemented)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ocsp_info_and_status(self, cmd_tshark, capture_file, test_env):
+        '''Requests, responses and the response status of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-Eoccurrence=f', '-eocsp.responseStatus',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == ['Request'] * 3 + ['Response'] * 9 + ['Request'] + ['Response'] * 2
+        assert [l[2] for l in lines[3:12]] == ['0', '0', '0', '1', '2', '3', '5', '6', '0']
+
+    def test_ocsp_http(self, cmd_tshark, capture_file, test_env):
+        '''The request and response of frames 13 and 14 are carried in
+        HTTP over TCP port 80 (media types application/ocsp-*).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'http && ocsp', '-Tfields', '-eframe.number',
+                '-ehttp.content_type',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split() for l in stdout.splitlines()] == [
+            ['13', 'application/ocsp-request'], ['14', 'application/ocsp-response']]
+
+    def test_ocsp_response_data(self, cmd_tshark, capture_file, test_env):
+        '''Response with three single responses (revoked with reason,
+        unknown, revoked without reason), the extensions and the
+        responder certificate (frame 5).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 5', '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('responderID: byName (1)',
+                     'certStatus: revoked (1)',
+                     'certStatus: unknown (2)',
+                     'crlUrl: http://crl.example.test/ca.crl',
+                     'id-pkix-ocsp-archive-cutoff',
+                     'id-pkix-ocsp-nonce',
+                     'id-pkix-ocsp-service-locator',
+                     'id-pkix-ocsp-response',
+                     'id-pkix-ocsp-nocheck',
+                     'certs: 1 item'):
+            assert text in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ocsp.responseStatus == 0 && ocsp.certStatus == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['5']
+
+    def test_ocsp_request_data(self, cmd_tshark, capture_file, test_env):
+        '''Request with version, requestor name, nonce and service
+        locator extensions (frame 2) and a signed request with a
+        certificate (frame 3).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {2,3}', '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('requestorName: directoryName (4)',
+                     'ReOcspNonce: 30313233343536373839616263646566',
+                     'id-pkix-ocsp-service-locator',
+                     'optionalSignature',
+                     'Certificate (id-at-commonName=Subject Requestor CA)'):
+            assert text in stdout
+
+    def test_ocsp_oid_callback_nesting(self, cmd_tshark, capture_file, test_env):
+        '''A BasicOCSPResponse nested 40 times through its own extension
+        stops at 32 levels with an expert info (the dissection aborted
+        before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ocsp_nesting.pcapng.gz'),
+                '-Y', 'ber.error.nesting_too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1']
