@@ -546,8 +546,7 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  **/
 static int
 dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         int offset, int hf,
-                                         wmem_allocator_t *scope, const uint8_t **retval)
+                                         int offset, int hf, const uint8_t **retval)
 {
     if (offset > (int)tvb_captured_length(tvb))
     {
@@ -558,7 +557,7 @@ dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, prot
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     proto_item *ti = proto_tree_add_item_ret_string(tree, hf,
                                                     tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                                    scope, retval);
+                                                    pinfo->pool, retval);
     if (end_of_field_offset - offset == 0)
     {
         if (retval == NULL)
@@ -594,7 +593,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         proto_item_append_text(ti, "[empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 4)
     {
@@ -611,7 +610,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                        tvb, offset + 2, end_of_field_offset - offset - 2,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -619,7 +618,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_latitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
@@ -644,7 +643,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         proto_item_append_text(ti, "[empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 5)
     {
@@ -661,7 +660,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                        tvb, offset + 3, end_of_field_offset - offset - 3,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -669,7 +668,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_longitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
@@ -1052,6 +1051,10 @@ dissect_nmea0183(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     /* Data */
     offset += 1;
+    if (start_checksum_offset < offset) {
+        /* The '*' follows the sentence id directly, there is no data */
+        offset = start_checksum_offset;
+    }
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
     if (g_ascii_strcasecmp(sentence_id, "DPT") == 0)
     {
