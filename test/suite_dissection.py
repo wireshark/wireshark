@@ -108934,3 +108934,63 @@ class TestDissectNsrp:
             ['33', '3', '1', '0', '', '', '', 'payload data 0'],
             ['38', '1', '', '', '', '', '', ''],
         ]
+
+
+class TestDissectNsRpc:
+    '''NetScaler RPC (NS-RPC), from the synthetic capture
+    ns_rpc_coverage.pcap.gz: Exported PDU frames naming "nstrace.mep" (a
+    message with the signature 0xA5A5 is handed from NS-MEP to NS-RPC) and
+    "nsrpc".'''
+
+    def test_ns_rpc_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 68 frames are NS-RPC and none is malformed or has a warning
+        or an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_rpc_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['NS-RPC'] * 68
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ns_rpc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ns_rpc_info(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses, status codes, and the remote IOCTL
+        number and error code.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_rpc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 18, 19, 20, 21, 53, 58, 60, 61}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', 'Req: LOGIN'],
+            ['2', 'Req: REMOTE IOCTL: NSAPI_GETSYSINFO'],
+            ['18', 'Req: 0x7F'],
+            ['19', 'Resp: LOGIN; Status: SUCCESS'],
+            ['20', 'Resp: REMOTE IOCTL: NSAPI_GETSYSINFO; ErrCode: AUTH ERR'],
+            ['21', 'Resp: PERF DATA; Status: NO MEM'],
+            ['53', 'Req: REMOTE IOCTL: NSAPI_GETTIME'],
+            ['58', 'Req: REMOTE IOCTL: 0x12345678'],
+            ['60', 'Resp: REMOTE IOCTL: NSAPI_GETSYSINFO; ErrCode: NO MEM'],
+            ['61', 'Resp: REMOTE IOCTL: NSAPI_GETHTTPSTATS; ErrCode: 0x0777'],
+        ]
+
+    def test_ns_rpc_fields(self, cmd_tshark, capture_file, test_env):
+        '''The command, the data length and, for responses, the status
+        code.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_rpc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 5, 19, 23}',
+                '-Tfields', '-eframe.number', '-enstrace.rpc.cmd',
+                '-enstrace.rpc.dlen', '-enstrace.rpc.errcode',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0x01', '24', ''],
+            ['5', '0x05', '24', ''],
+            ['19', '0x81', '32', '0x0000'],
+            ['23', '0x85', '32', '0x0150'],
+        ]
