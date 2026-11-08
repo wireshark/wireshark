@@ -120,6 +120,37 @@ class TestTsharkOptions:
             process = subprocesstest.run((cmd_tshark, '-' + char_arg), env=test_env)
             assert process.returncode in valid_returns
 
+    def test_tshark_pref_in_dotted_module(self, cmd_tshark, test_env):
+        process = subprocesstest.run((cmd_tshark,
+                    '-o', 'dhcpv6.bulk_leasequery.desegment:FALSE',
+                    '-o', 'dhcpv6.cablelabs_interface_id:TRUE',
+                    '-o', 'irdma.ep.calculate_timestamps:FALSE',
+                    '-G', 'currentprefs'), capture_output=True, env=test_env)
+        assert process.returncode == ExitCodes.OK
+        assert 'dhcpv6.bulk_leasequery.desegment: FALSE' in process.stdout
+        assert 'dhcpv6.cablelabs_interface_id: TRUE' in process.stdout
+        assert 'irdma.ep.calculate_timestamps: FALSE' in process.stdout
+
+    def test_tshark_pref_file_in_dotted_module(self, cmd_tshark, test_env, conf_path):
+        with open(os.path.join(conf_path, 'preferences'), 'w') as pref_file:
+            pref_file.write('dhcpv6.bulk_leasequery.desegment: FALSE\n')
+            pref_file.write('irdma.ep.calculate_timestamps: FALSE\n')
+        process = subprocesstest.run((cmd_tshark, '-G', 'currentprefs'),
+                    capture_output=True, env=test_env)
+        assert process.returncode == ExitCodes.OK
+        assert not grep_output(process.stderr, 'No such preference')
+        assert 'dhcpv6.bulk_leasequery.desegment: FALSE' in process.stdout
+        assert 'irdma.ep.calculate_timestamps: FALSE' in process.stdout
+
+    def test_tshark_pref_dotted_falls_back_to_short_module(self, cmd_tshark, test_env):
+        # No "dhcpv6.nosuch" module exists, so the lookup falls back to the
+        # "dhcpv6" module, which has no such preference either.
+        process = subprocesstest.run((cmd_tshark,
+                    '-o', 'dhcpv6.nosuch.pref:TRUE',
+                    '-G', 'currentprefs'), capture_output=True, env=test_env)
+        assert process.returncode == ExitCodes.COMMAND_LINE
+        assert grep_output(process.stderr, '"dhcpv6.nosuch.pref:TRUE" specifies unknown preference')
+
     def test_tshark_disable_protos(self, cmd_tshark, capture_file, test_env):
         '''--disable-protocol/--enable-protocol from !16923'''
         process = subprocesstest.run((cmd_tshark, "-r", capture_file("http.pcap"),

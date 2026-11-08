@@ -5836,7 +5836,10 @@ set_pref(char *pref_name, const char *value, void *private_data,
     double   fval;
     char     *dotp, *last_dotp;
     module_t *module, *containing_module, *target_module;
-    pref_t   *pref;
+    module_t *short_module = NULL;
+    char     *short_dotp = NULL;
+    bool      short_converted = false;
+    pref_t   *pref = NULL;
     bool converted_pref = false;
 
     target_module = (module_t*)private_data;
@@ -5857,6 +5860,13 @@ set_pref(char *pref_name, const char *value, void *private_data,
         while (!module) {
             dotp = strchr(last_dotp, '.');
             if (dotp == NULL) {
+                /* No longer module holds it; the shorter one decides. */
+                if (short_module != NULL) {
+                    module = short_module;
+                    dotp = short_dotp;
+                    converted_pref = short_converted;
+                    break;
+                }
                 /* Either there's no such module, or no module was specified.
                     In either case, that means there's no such preference. */
                 return PREFS_SET_NO_SUCH_PREF;
@@ -5885,10 +5895,12 @@ set_pref(char *pref_name, const char *value, void *private_data,
              * The SynOptics Network Management Protocol (SONMP) is now known by
              * its modern name, the Nortel Discovery Protocol (NDP).
              */
-            if (module == NULL) {
+            if (module == NULL && short_module == NULL) {
                 /*
                  * See if there's a backwards-compatibility name
-                 * that maps to this module.
+                 * that maps to this module.  Once a shorter module has
+                 * been found, only a longer module that is registered
+                 * under its own name is considered.
                  */
                 module = prefs_find_module_alias(pref_name);
                 if (module == NULL) {
@@ -5908,12 +5920,33 @@ set_pref(char *pref_name, const char *value, void *private_data,
             *dotp = '.';                /* put the preference string back */
             dotp++;                     /* skip past separator to preference name */
             last_dotp = dotp;
+
+            /* A module must not hide the preferences of a longer-named
+             * module ("a.b.c" may belong to module "a.b", not "a"). If the
+             * rest of the name contains a dot and neither this module nor
+             * its submodules has a preference by that name, try a longer
+             * module name, keeping this module to fall back on. */
+            if (module != NULL && strchr(dotp, '.') != NULL) {
+                containing_module = module;
+                pref = prefs_find_preference_with_submodule(module, dotp, &containing_module);
+                if (pref == NULL) {
+                    if (short_module == NULL) {
+                        short_module = module;
+                        short_dotp = dotp;
+                        short_converted = converted_pref;
+                    }
+                    module = NULL;
+                    converted_pref = false;
+                }
+            }
         }
 
         /* The pref is located in the module or a submodule.
          * Assume module, then search for a submodule holding the pref. */
-        containing_module = module;
-        pref = prefs_find_preference_with_submodule(module, dotp, &containing_module);
+        if (pref == NULL) {
+            containing_module = module;
+            pref = prefs_find_preference_with_submodule(module, dotp, &containing_module);
+        }
 
         if (pref == NULL) {
             /* "gui" prefix was added to column preferences for better organization
