@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
@@ -57,6 +58,8 @@ static int ett_negoex_msg;
 static int ett_negoex_hdr;
 static int ett_negoex_authscheme_vector;
 static int ett_negoex_extension_vector;
+
+static expert_field ei_negoex_message_len;
 static int ett_negoex_exchange;
 static int ett_negoex_checksum;
 static int ett_negoex_checksum_vector;
@@ -292,7 +295,7 @@ dissect_negoex_nego_message(tvbuff_t *tvb,
 
     extension_vector = proto_tree_add_subtree_format(tree, tvb, offset, 8,
                                  ett_negoex_extension_vector, NULL, "Extensions: %u at %u",
-                                 extension_vector_count, extension_vector_count);
+                                 extension_vector_count, extension_vector_offset);
 
     proto_tree_add_item(extension_vector, hf_negoex_extension_vector_offset,
                         tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -422,6 +425,12 @@ dissect_negoex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       proto_tree_add_uint(negoex_hdr_tree, hf_negoex_message_len,
                           tvb, offset, 4, message_len);
       offset += 4;
+
+      if (message_len < 40) {
+        expert_add_info(pinfo, msg, &ei_negoex_message_len);
+        offset = payload_len; /* Can't do any more */
+        goto bad_message;
+      }
 
       /* Set the message len so the tree item has correct len */
       proto_item_set_len(msg, message_len);
@@ -594,11 +603,19 @@ proto_register_negoex(void)
     &ett_negoex_checksum_vector,
     &ett_negoex_byte_vector,
   };
+  static ei_register_info ei[] = {
+    { &ei_negoex_message_len,
+      { "negoex.message_len.invalid", PI_MALFORMED, PI_ERROR,
+        "Message length is smaller than the header", EXPFILL }},
+  };
+  expert_module_t *expert_negoex;
   /*module_t *negoex_module = NULL; */
 
   proto_negoex = proto_register_protocol ("SPNEGO Extended Negotiation Security Mechanism", "NEGOEX", "negoex");
   proto_register_field_array(proto_negoex, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_negoex = expert_register_protocol(proto_negoex);
+  expert_register_field_array(expert_negoex, ei, array_length(ei));
 
   /* negoex_module = prefs_register_protocol(proto_negoex, NULL);*/
 
