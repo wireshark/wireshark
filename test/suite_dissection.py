@@ -111986,3 +111986,69 @@ class TestDissectOpenflow:
         assert [r[1] for r in rows] == ['OpenFlow', 'TCP', 'OpenFlow', 'TCP',
                                         'OpenFlow', 'OpenFlow', 'OpenFlow']
         assert [bool(r[2]) for r in rows] == [False, False, True, False, True, True, False]
+
+
+class TestDissectOpenflowV1:
+    '''OpenFlow 1.0 over TCP 6653 and Exported PDU, from the synthetic
+    capture openflow_v1_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openflow_v1_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_openflow_v1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All message types decode without malformed packets or error
+        expert infos, in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v1', '-Tfields', '-eframe.number')
+        assert len(rows) == 49
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_openflow_v1_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types, including the two messages in one segment and
+        the message split over two segments.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v1', '-Tfields', '-eframe.number',
+                '-eopenflow_1_0.type', '-E', 'aggregator=,')
+        types = {int(r[0]): r[1] for r in rows}
+        assert types[4] == types[5] == '0'
+        assert types[6] == '2,3'
+        assert types[9] == '6'
+        assert types[15] == '10'
+        assert types[26] == '14'
+        assert types[40] == '17'
+        assert types[45] == '18,19'
+        assert 48 not in types      # first part of the split message
+        assert types[49] == '10'
+        assert types[50] == '2,3,2'
+
+    def test_openflow_v1_features_reply(self, cmd_tshark, capture_file, test_env):
+        '''The number of ports in a features reply follows the length.
+        Frame 51 is an Exported PDU with a header length of 20 and more
+        data after it; the length wrapped and 1364 ports were dissected
+        before "OpenFlow v1: Fix length wrap in features reply".'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_1_0.type == 6', '-Tfields', '-eframe.number',
+                '-eopenflow.port_no', '-eopenflow.datapath_id', '-E', 'aggregator=,')
+        ports = {int(r[0]): r[1] for r in rows}
+        assert ports == {9: '1,2', 10: '', 11: '3', 51: '', 52: '1'}
+        assert rows[0][2] == '0x0001020304050607'
+
+    def test_openflow_v1_values(self, cmd_tshark, capture_file, test_env):
+        '''Reasons and commands, and the Ethernet frame in a packet in.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_1_0.type == 10', '-Tfields', '-eframe.number',
+                '-eopenflow.reason', '-eudp.dstport')
+        assert [(r[0], r[1], r[2]) for r in rows] == [
+            ('15', '0', '5678'), ('16', '1', '5678'), ('17', '2', '5678'),
+            ('49', '0', '5678'), ('53', '0', '5678')]
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_1_0.type == 14', '-Tfields', '-eopenflow.command')
+        assert [r[0] for r in rows] == ['0', '1', '2', '3', '4', '0']
