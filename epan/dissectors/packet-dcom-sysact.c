@@ -352,7 +352,10 @@ dissect_dcom_ActivationProperty(tvbuff_t *tvb, unsigned offset, packet_info *pin
     /* the following data depends on the clsid, get the routine by clsid */
     routine = dcom_get_routine_by_uuid(clsid);
     if (routine){
+        /* ActivationPropertiesIn/Out can hold properties of their own */
+        increment_dissection_depth(pinfo);
         routine(tvb, offset, pinfo, tree, di, drep, size);
+        decrement_dissection_depth(pinfo);
     }
 
     return offset+size;
