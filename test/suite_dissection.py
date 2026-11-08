@@ -108449,3 +108449,96 @@ class TestDissectNrppa:
             ), encoding='utf-8', env=test_env)
         assert 'nrppatransactionID: 77' in stdout
         assert 'typeOfError: missing (1)' in stdout
+
+
+class TestDissectNrRrc:
+    CAP = 'nr_rrc_coverage.pcap.gz'
+
+    def test_nr_rrc_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 36 frames decode, in one and two passes, without a
+        malformed packet and with only the nesting warning (frame 36).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || (_ws.expert && !nr-rrc.nesting_too_deep)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nr_rrc_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the CCCH, DCCH, BCCH and PCCH messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.Info',
+                '-Y', 'frame.number in {1,2,3,8,9,11,13,15,18,23,24,29,31,32}',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 MIB',
+            '2 SIB1',
+            '3 System Information [ SIB6 SIB9 ]',
+            '8 Paging',
+            '9 RRC Setup Request',
+            '11 RRC Reject',
+            '13 RRC Setup',
+            '15 Security Mode Command',
+            '18 UE Capability Enquiry',
+            '23 RRC Release',
+            '24 Measurement Report',
+            '29 RRC Reestablishment Request',
+            '31 RRC Resume Request',
+            '32 RRC System Info Request',
+        ]
+
+    def test_nr_rrc_sib7_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The SIB7 warning message segments of frames 4 and 5 are
+        reassembled in frame 5 (two pages).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 5', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Decoded Page 2: Test warning 1' in stdout
+        assert 'Number of Pages: 2' in stdout
+
+    def test_nr_rrc_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Nested RRCReconfiguration is bounded at 8 levels (stack
+        overflow before the fix): frame 28 nests three levels, frame 36
+        stops with a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'nr-rrc.nesting_too_deep',
+                '-Tfields', '-eframe.number', '-e_ws.col.Info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split()[0] == '36'
+        assert stdout.count('RRC Reconfiguration') == 9
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 28', '-Tfields', '-e_ws.col.Info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('RRC Reconfiguration, RRC Reconfiguration, '
+                                  'RRC Reconfiguration, Identity request')
+
+    def test_nr_rrc_rach_config_common_iab(self, cmd_tshark, capture_file, test_env):
+        '''XnAP rACH-Config-Common-IAB (frame 35) uses its own field, not
+        the FT_NONE BCCH-DL-SCH field: a field type assertion failed
+        when the tree was built.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 35',
+                '-Tfields', '-enr-rrc.rach_ConfigCommonIAB_r16',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0'
+
+    def test_nr_rrc_absolute_time(self, cmd_tshark, capture_file, test_env):
+        '''AbsoluteTimeInfo-r16 with a 0xF BCD nibble (frame 26) is shown
+        as the string it is, a valid time (frame 27) is formatted.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'nr-rrc.absolute_time',
+                '-Tfields', '-eframe.number', '-enr-rrc.absolute_time',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['26\t', '27\t26-01-01 12:00:00']
