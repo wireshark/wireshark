@@ -1407,6 +1407,7 @@ static int dissect_opa_9b(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
             parsePayload = true;
             break;
         case RDETH_AETH:
+            parse_RDETH(tvb, pinfo, tree, &offset);
             parse_AETH(tvb, pinfo, tree, &offset);
 
             break;

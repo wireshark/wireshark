@@ -2585,7 +2585,7 @@ static char *opa_format_port_select_mask(wmem_allocator_t* allocator, tvbuff_t *
 /* Custom Functions */
 static void cf_opa_mad_swinfo_ar_frequency(char *buf, uint16_t value)
 {
-    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", 2 ^ (value)*64);
+    snprintf(buf, ITEM_LABEL_LENGTH, "%u ms", (1u << (value & 0x7)) * 64);
 }
 static void cf_opa_mad_linkspeed(char *buf, uint16_t value)
 {
@@ -4875,7 +4875,7 @@ static void parse_SUBN_DIRECTED_ROUTE(proto_tree *parentTree, packet_info *pinfo
     SM_DR_header_item = proto_tree_add_item(parentTree, hf_opa_sm_dr, tvb, local_offset, -1, ENC_NA);
     SM_DR_header_tree = proto_item_add_subtree(SM_DR_header_item, ett_sm_dr);
 
-    proto_tree_add_item(SM_DR_header_item, hf_opa_sm_m_key, tvb, local_offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SM_DR_header_tree, hf_opa_sm_m_key, tvb, local_offset, 8, ENC_BIG_ENDIAN);
     local_offset += 8;
 
     label_SUBM_Method(SM_DR_header_item, &MAD, pinfo);
@@ -6843,7 +6843,7 @@ static int parse_GetGroupList(proto_tree *parentTree, tvbuff_t *tvb, unsigned *o
 }
 
 /* Parse GetGroupInfo MAD from the Performance Admin class.*/
-static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetGroupInfo(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetGroupInfo_header_tree;
     proto_tree *GetGroupInfo_header_item;
@@ -6882,7 +6882,7 @@ static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *o
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
         GetGroupInfo_header_item = proto_tree_add_item(parentTree, hf_opa_GetGroupInfo, tvb, local_offset, 64 + 16, ENC_NA);
-        proto_item_set_text(GetGroupInfo_header_item, "GroupInfo for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetGroupInfo_header_item, "GroupInfo for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetGroupInfo_header_tree = proto_item_add_subtree(GetGroupInfo_header_item, ett_getgroupinfo);
         proto_tree_add_item(GetGroupInfo_header_tree, hf_opa_GetGroupInfo_groupName, tvb, local_offset, 64, ENC_ASCII);
         local_offset += 64;
@@ -6893,7 +6893,7 @@ static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *o
 
     for (r = 0; r < records; r++) {
         GetGroupInfo_header_item = proto_tree_add_item(parentTree, hf_opa_GetGroupInfo, tvb, local_offset, 64 + 16, ENC_NA);
-        proto_item_set_text(GetGroupInfo_header_item, "GroupInfo for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetGroupInfo_header_item, "GroupInfo for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetGroupInfo_header_tree = proto_item_add_subtree(GetGroupInfo_header_item, ett_getgroupinfo);
         proto_tree_add_item(GetGroupInfo_header_tree, hf_opa_GetGroupInfo_groupName, tvb, local_offset, 64, ENC_ASCII);
         local_offset += 64;
@@ -7130,7 +7130,7 @@ static int parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *o
 }
 
 /* Parse GetGroupConfig MAD from the Performance Admin class.*/
-static int parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetGroupConfig(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_item *GetGroupConfig_header_item;
     proto_tree *GetGroupConfig_header_tree;
@@ -7149,7 +7149,7 @@ static int parse_GetGroupConfig(proto_tree *parentTree, tvbuff_t *tvb, unsigned 
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
         GetGroupConfig_header_item = proto_tree_add_item(parentTree, hf_opa_GetGroupConfig, tvb, local_offset, 64 + 16, ENC_NA);
-        proto_item_set_text(GetGroupConfig_header_item, "GroupConfig for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetGroupConfig_header_item, "GroupConfig for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetGroupConfig_header_tree = proto_item_add_subtree(GetGroupConfig_header_item, ett_getgroupconfig);
 
         proto_tree_add_item(GetGroupConfig_header_tree, hf_opa_GetGroupConfig_groupName, tvb, local_offset, 64, ENC_ASCII);
@@ -7462,7 +7462,7 @@ static int parse_MoveFreezeFrame(proto_tree *parentTree, tvbuff_t *tvb, unsigned
 }
 
 /* Parse GetFocusPorts MAD from the Performance Admin class. */
-static int parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetFocusPorts(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetFocusPorts_header_tree;
     proto_item *GetFocusPorts_header_item;
@@ -7481,7 +7481,7 @@ static int parse_GetFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, unsigned *
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
         GetFocusPorts_header_item = proto_tree_add_item(parentTree, hf_opa_GetFocusPorts, tvb, local_offset, 64 + 28, ENC_NA);
-        proto_item_set_text(GetFocusPorts_header_item, "Focus Ports for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetFocusPorts_header_item, "Focus Ports for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetFocusPorts_header_tree = proto_item_add_subtree(GetFocusPorts_header_item, ett_getfocusports);
 
         proto_tree_add_item(GetFocusPorts_header_tree, hf_opa_GetFocusPorts_groupName, tvb, local_offset, 64, ENC_ASCII);
@@ -7659,7 +7659,7 @@ static int parse_GetVFList(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offs
 }
 
 /* Parse GetVFInfo MAD from the Performance Admin class. */
-static int parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static int parse_GetVFInfo(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     proto_tree *GetVFInfo_header_tree = parentTree;
     proto_tree *GetVFInfo_header_item = parentTree;
@@ -7699,7 +7699,7 @@ static int parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offs
 
     if (MAD->Method == METHOD_GET || MAD->Method == METHOD_GETTABLE) {
         GetVFInfo_header_item = proto_tree_add_item(parentTree, hf_opa_GetVFInfo, tvb, local_offset, 64 + 24, ENC_NA);
-        proto_item_set_text(GetVFInfo_header_item, "VFInfo for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetVFInfo_header_item, "VFInfo for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetVFInfo_header_tree = proto_item_add_subtree(GetVFInfo_header_item, ett_getvfinfo);
         proto_tree_add_item(GetVFInfo_header_tree, hf_opa_GetVFInfo_vfName, tvb, local_offset, 64, ENC_ASCII);
         local_offset += 64;
@@ -7713,7 +7713,7 @@ static int parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offs
 
     for (i = 0; i < records; i++) {
         GetVFInfo_header_item = proto_tree_add_item(parentTree, hf_opa_GetVFInfo, tvb, local_offset, PA_HEADER->AttributeOffset * 8, ENC_NA);
-        proto_item_set_text(GetVFInfo_header_item, "VFInfo for %s", tvb_get_string_enc(wmem_file_scope(), tvb, local_offset, 64, ENC_ASCII));
+        proto_item_set_text(GetVFInfo_header_item, "VFInfo for %s", tvb_get_string_enc(pinfo->pool, tvb, local_offset, 64, ENC_ASCII));
         GetVFInfo_header_tree = proto_item_add_subtree(GetVFInfo_header_item, ett_getvfinfo);
 
         proto_tree_add_item(GetVFInfo_header_tree, hf_opa_GetVFInfo_vfName, tvb, local_offset, 64, ENC_ASCII);
@@ -8057,7 +8057,7 @@ static int parse_GetVFFocusPorts(proto_tree *parentTree, tvbuff_t *tvb, unsigned
 
     return local_offset;
 }
-static bool parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
+static bool parse_PA_Attribute(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, unsigned *offset, MAD_t *MAD, RMPP_t *RMPP, PA_HEADER_t *PA_HEADER)
 {
     unsigned local_offset = *offset;
 
@@ -8069,10 +8069,10 @@ static bool parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, unsigned *
         local_offset = parse_GetGroupList(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_GRP_INFO:
-        local_offset = parse_GetGroupInfo(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
+        local_offset = parse_GetGroupInfo(parentTree, pinfo, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_GRP_CFG:
-        local_offset = parse_GetGroupConfig(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
+        local_offset = parse_GetGroupConfig(parentTree, pinfo, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_PORT_CTRS:
         local_offset = parse_GetPortCounters(parentTree, tvb, &local_offset, MAD);
@@ -8096,7 +8096,7 @@ static bool parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, unsigned *
         local_offset = parse_Image(parentTree, tvb, &local_offset);
         break;
     case PA_ATTR_ID_GET_FOCUS_PORTS:
-        local_offset = parse_GetFocusPorts(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
+        local_offset = parse_GetFocusPorts(parentTree, pinfo, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_IMAGE_INFO:
         local_offset = parse_GetImageInfo(parentTree, tvb, &local_offset);
@@ -8108,7 +8108,7 @@ static bool parse_PA_Attribute(proto_tree *parentTree, tvbuff_t *tvb, unsigned *
         local_offset = parse_GetVFList(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_VF_INFO:
-        local_offset = parse_GetVFInfo(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
+        local_offset = parse_GetVFInfo(parentTree, pinfo, tvb, &local_offset, MAD, RMPP, PA_HEADER);
         break;
     case PA_ATTR_ID_GET_VF_CONFIG:
         local_offset = parse_GetVFConfig(parentTree, tvb, &local_offset, MAD, RMPP, PA_HEADER);
@@ -8224,7 +8224,7 @@ static void parse_PERFADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
         }
         *offset = 0;
     }
-    if (!parse_PA_Attribute(parentTree, tvb, offset, &MAD, &RMPP, &PA_HEADER)) {
+    if (!parse_PA_Attribute(parentTree, pinfo, tvb, offset, &MAD, &RMPP, &PA_HEADER)) {
         expert_add_info_format(pinfo, NULL, &ei_opa_mad_no_attribute_dissector,
             "Attribute Dissector Not Implemented (0x%x)", MAD.AttributeID);
         *offset += tvb_captured_length_remaining(tvb, *offset);
