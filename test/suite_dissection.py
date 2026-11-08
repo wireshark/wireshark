@@ -109752,3 +109752,152 @@ class TestDissectNull:
         rows = [l.split('\t') for l in stdout.splitlines()]
         assert rows == [['20', '0x0021', '40000 → 40001 Len=4'],
                         ['21', '0xc021', 'Echo Request']]
+
+
+class TestDissectNvme:
+    '''NVM Express over NVMe/TCP (port 4420) from the synthetic capture
+    nvme_coverage.pcap.gz. Ports of the hosts: 40001 admin queue, 40002
+    I/O queue, 40003 queue without Connect, 40004 admin queue without
+    Connect, 40005-40007 reproducers.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=(), pcap='nvme_coverage.pcap.gz'):
+        args = [cmd_tshark, *opts, '-r', capture_file(pcap), '-Y', flt, '-Tfields']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def _tree(cmd_tshark, capture_file, test_env, flt, opts=()):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('nvme_coverage.pcap.gz'),
+                '-Y', flt, '-V', '-O', 'nvme',
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_nvme_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NVMe/TCP, 1217 of them carry an NVMe command,
+        completion or data. No frame is malformed or has a warning or
+        error expert info, in one pass and in two.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'nvme-tcp',
+                                 'frame.number', opts=passes)
+            assert len(lines) == 1325
+            lines = self._fields(cmd_tshark, capture_file, test_env, 'nvme',
+                                 'frame.number', opts=passes)
+            assert len(lines) == 1217
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                 'frame.number', opts=passes)
+            assert not lines
+
+    def test_nvme_two_passes_same_summary(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in one and in two passes.'''
+        one = self._fields(cmd_tshark, capture_file, test_env, 'nvme',
+                           'frame.number', '_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, 'nvme',
+                           'frame.number', '_ws.col.info', opts=('-2',))
+        assert one == two
+
+    def test_nvme_queue_types(self, cmd_tshark, capture_file, test_env):
+        '''Fabrics Connect sets the queue ID; a queue without a Connect
+        is an admin queue when its first opcode is an admin one and an
+        I/O queue when it is an I/O opcode.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'frame.number in {2, 1232}', 'frame.number', 'nvme-tcp.cmd.qid')
+        assert lines == ['2\t0x0000', '1232\t0x0001']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'tcp.port == 40002 && nvme.cmd.opc && frame.number < 1244',
+                             'frame.number', '_ws.col.info')
+        assert lines == [
+            '1233\tNVMe Flush', '1235\tNVMe Write', '1237\tNVMe Write',
+            '1240\tNVMe Read', '1243\tNVMe Read']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'tcp.port in {40003, 40004} && nvme.cmd.opc',
+                             'frame.number', '_ws.col.info')
+        assert [l.split('\t')[1] for l in lines] == [
+            'NVMe Read', 'NVMe Write',
+            'NVMe Keep Alive', 'NVMe Identify Controller', 'NVMe Identify Controller',
+            'NVMe Get Log Page Discovery']
+
+    def test_nvme_selftest_index(self, cmd_tshark, capture_file, test_env):
+        '''The three results of a Self-test log page are numbered
+        latest 0, 1 and 2 (the index was never incremented).'''
+        out = self._tree(cmd_tshark, capture_file, test_env, 'tcp.port == 40007')
+        lines = [l.strip() for l in out.splitlines() if 'latest' in l]
+        assert lines == ['Latest Self-test Result Data Structure (latest %d)' % i
+                         for i in range(3)]
+
+    def test_nvme_ctrl_rab_mdts_overflow(self, cmd_tshark, capture_file, test_env):
+        '''RAB and MDTS of 64 or more are shown as overflow instead of
+        shifting by the raw byte.'''
+        out = self._tree(cmd_tshark, capture_file, test_env, 'tcp.port == 40007')
+        lines = [l.strip() for l in out.splitlines()
+                 if '(RAB)' in l or '(MDTS)' in l]
+        assert lines == [
+            'Recommended Arbitration Burst (RAB): 0xc8 (overflow)',
+            'Maximum Data Transfer Size (MDTS): 0x64 (overflow)',
+            'Recommended Arbitration Burst (RAB): 0x3f (9223372036854775808 commands)',
+            'Maximum Data Transfer Size (MDTS): 0x0 (unlimited)',
+        ]
+
+    def test_nvme_numd_64bit(self, cmd_tshark, capture_file, test_env):
+        '''The byte count of the largest NUMD is computed in 64 bits.'''
+        out = self._tree(cmd_tshark, capture_file, test_env, 'tcp.port == 40007')
+        assert 'Number of Dwords: 4294967295 (17179869184 bytes)' in out
+
+    def test_nvme_data_response_cid0(self, cmd_tshark, capture_file, test_env):
+        '''C2HData PDUs for command IDs 0 and 3 of one queue are matched
+        to their commands (they used keys of different depth in one
+        tree and crashed tshark).'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env,
+                                 'tcp.port == 40005',
+                                 'frame.number', 'nvme-tcp.cmd.cid', 'nvme-tcp.cmd_pkt',
+                                 'nvme.cmd_pkt', opts=passes)
+            assert lines[2:4] == ['1297\t0x0000\t1295\t', '1298\t0x0003\t1296\t']
+            assert lines[4:] == ['1299\t\t\t1295', '1300\t\t\t1296']
+
+    def test_nvme_keyed_sgl_after_h2c(self, cmd_tshark, capture_file, test_env):
+        '''A keyed SGL descriptor whose address looks like an H2CData
+        key is decoded without touching the H2CData state.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, 'tcp.port == 40006',
+                             'frame.number', 'nvme.cmd.sgl1.key', 'nvme.cmd.sgl.type')
+        assert lines[2] == '1303\t0x00001234\t0x04'
+
+    def test_nvme_async_events(self, cmd_tshark, capture_file, test_env):
+        '''Asynchronous Event Request completions: type and information.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'nvme.cqe.dword0.aev.aet && frame.number < 200',
+                             'nvme.cqe.dword0.aev.aet', 'nvme.cqe.dword0.aev.aei')
+        assert lines[1:] == [
+            '0x00000000\t0x00000000', '0x00000000\t0x00000003', '0x00000000\t0x00000009',
+            '0x00000001\t0x00000000', '0x00000001\t0x00000002', '0x00000001\t0x00000007',
+            '0x00000002\t0x00000000', '0x00000002\t0x00000003', '0x00000002\t0x000000f0',
+            '0x00000002\t0x00000077', '0x00000003\t0x00000001', '0x00000004\t0x00000001',
+            '0x00000006\t0x00000000', '0x00000006\t0x00000002', '0x00000006\t0x00000009',
+            '0x00000007\t0x00000000']
+
+    def test_nvme_discovery_log(self, cmd_tshark, capture_file, test_env):
+        '''The Discovery log page lists an RDMA, a TCP and a PCIe entry; the
+        entries are also decoded in windows that start at later records.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'nvme.cmd.get_logpage.identify.rcrd.trtype',
+                             'frame.number', 'nvme.cmd.get_logpage.identify.numrec',
+                             'nvme.cmd.get_logpage.identify.rcrd.trtype',
+                             'nvme.cmd.get_logpage.identify.rcrd.tsas.rdma_qptype')
+        assert lines[0] == '725\t3\t0x01,0x03,0x02\t0x01'
+        assert lines[2].startswith('731\t\t0x03,0x02')
+
+    def test_nvme_ana_log(self, cmd_tshark, capture_file, test_env):
+        '''The ANA log page has three groups with 2, 0 and 3 NSIDs; the
+        one that declares four NSIDs but holds two stops at the end.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                             'nvme.cmd.get_logpage.ana.grp.id && frame.number in {710, 1321}',
+                             'frame.number', 'nvme.cmd.get_logpage.ana.grp.id',
+                             'nvme.cmd.get_logpage.ana.grp.nns',
+                             'nvme.cmd.get_logpage.ana.grp.nsid')
+        assert lines == [
+            '710\t0x00000001,0x00000002,0x00000003\t2,0,3\t'
+            '0x00000001,0x00000002,0x00000001,0x00000002,0x00000003',
+            '1321\t0x00000077\t4\t0x00000101,0x00000102',
+        ]
