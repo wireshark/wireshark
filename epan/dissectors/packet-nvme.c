@@ -1668,7 +1668,7 @@ nvme_add_data_tr_pkt(struct nvme_q_ctx *q_ctx,
 {
     wmem_tree_key_t cmd_key[3];
 
-    nvme_build_done_frame_key(cmd_key, rkey ? &rkey : NULL, &frame_num);
+    nvme_build_done_frame_key(cmd_key, &rkey, &frame_num);
     wmem_tree_insert32_array(q_ctx->data_responses, cmd_key, (void*)cmd_ctx);
 }
 
@@ -1678,7 +1678,7 @@ nvme_lookup_data_tr_pkt(struct nvme_q_ctx *q_ctx,
 {
     wmem_tree_key_t cmd_key[3];
 
-    nvme_build_done_frame_key(cmd_key, rkey ? &rkey : NULL, &frame_num);
+    nvme_build_done_frame_key(cmd_key, &rkey, &frame_num);
     return (struct nvme_cmd_ctx*)wmem_tree_lookup32_array(q_ctx->data_responses, cmd_key);
 }
 
@@ -2608,12 +2608,17 @@ static void dissect_nvme_identify_ctrl_resp_power_state_descriptors(tvbuff_t *cm
 
 static void add_ctrl_rab(char *result, uint32_t val)
 {
-    snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%"PRIu64" command%s)", val, ((uint64_t)1) << val, val ? "s" : "");
+    if (val >= 64)
+        snprintf(result, ITEM_LABEL_LENGTH, "0x%x (overflow)", val);
+    else
+        snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%"PRIu64" command%s)", val, ((uint64_t)1) << val, val ? "s" : "");
 }
 
 static void add_ctrl_mdts(char *result, uint32_t val)
 {
-    if (val)
+    if (val >= 64)
+        snprintf(result, ITEM_LABEL_LENGTH, "0x%x (overflow)", val);
+    else if (val)
         snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%"PRIu64" pages)", val, ((uint64_t)1) << val);
     else
         snprintf(result, ITEM_LABEL_LENGTH, "0x%x (unlimited)", val);
@@ -4221,6 +4226,7 @@ static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd
         dissect_nvme_get_logpage_selftest_result(grp, cmd_tvb, off, tst_idx);
         off += 28;
         len -= 28;
+        tst_idx++;
     }
 }
 
@@ -5330,7 +5336,7 @@ static void dissect_nvme_get_logpage_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree
 
     add_group_mask_entry(cmd_tvb, cmd_tree, 40, 4, ASPEC(hf_nvme_get_logpage_dword10));
     ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_get_logpage_numd, cmd_tvb, 42, 4, ENC_LITTLE_ENDIAN, &val);
-    proto_item_append_text(ti, " (%"PRIu64" bytes)", ((uint64_t)(val+1)) * 4);
+    proto_item_append_text(ti, " (%"PRIu64" bytes)", ((uint64_t)val + 1) * 4);
     cmd_ctx->cmd_ctx.get_logpage.numd = val;
 
     add_group_mask_entry(cmd_tvb, cmd_tree, 44, 4, ASPEC(hf_nvme_get_logpage_dword11));
