@@ -103,7 +103,7 @@ dissect_ovs_packet_attrs(tvbuff_t *tvb, void *data,
 {
 	struct netlink_ovs_packet_info *info =
 		(struct netlink_ovs_packet_info *) data;
-	enum ws_ovs_packet_attr type = (enum ws_ovs_packet_attr) nla_type;
+	enum ws_ovs_packet_attr type = (enum ws_ovs_packet_attr) (nla_type & NLA_TYPE_MASK);
 	uint32_t value;
 
 	DISSECTOR_ASSERT(info);
