@@ -109211,3 +109211,46 @@ class TestDissectNtlmssp:
                                           'Decrypted NTLMSSP Verifier')
         assert sizes and max(sizes) == 16
         assert sizes.count(16) == 15
+
+
+class TestDissectNtOui:
+    '''The Nortel OUI (00:00:81, SONMP) PID table of LLC/SNAP, from the
+    synthetic capture nt_oui_coverage.pcap.gz. packet-nt-oui.c only
+    registers the table and the llc.nortel_pid field; the PIDs 0x01a1 and
+    0x01a2 (NDP) are dissected by the NDP dissector.'''
+
+    def test_nt_oui_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The two NDP frames, the unknown PIDs and the foreign OUI are
+        not malformed and have no expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nt_oui_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['NDP', 'NDP', 'LLC', 'LLC', 'LLC', 'LLC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nt_oui_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nt_oui_pid(self, cmd_tshark, capture_file, test_env):
+        '''llc.nortel_pid is present for the Nortel OUI only, and the
+        PIDs 0x01a1 and 0x01a2 are handed to NDP (0x01a3, the bridge
+        hello, has no dissector).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nt_oui_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ellc.nortel_pid',
+                '-eframe.protocols', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:3] for l in stdout.splitlines()] == [
+            ['1', '0x01a2', 'eth:llc:ndp'],
+            ['2', '0x01a1', 'eth:llc:ndp'],
+            ['3', '0x01a3', 'eth:llc:data'],
+            ['4', '0x0abc', 'eth:llc:data'],
+            ['5', '0x0000', 'eth:llc'],
+            ['6', '', 'eth:llc:data'],
+        ]
+        assert [l.split('\t')[3] for l in stdout.splitlines()[:2]] == [
+            'Segment Hello', 'FlatNet Hello']
