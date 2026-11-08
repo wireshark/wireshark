@@ -173,7 +173,7 @@ dissect_ovs_vport_vxlan_ext_attrs(tvbuff_t *tvb, void *data _U_,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_vxlan_ext type = (enum ws_ovs_vxlan_ext) nla_type;
+	enum ws_ovs_vxlan_ext type = (enum ws_ovs_vxlan_ext) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_VXLAN_EXT_GBP:
@@ -193,7 +193,7 @@ dissect_ovs_vport_tunnel_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_tunnel_attr type = (enum ws_ovs_tunnel_attr) nla_type;
+	enum ws_ovs_tunnel_attr type = (enum ws_ovs_tunnel_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_TUNNEL_ATTR_DST_PORT:
@@ -220,7 +220,7 @@ dissect_ovs_vport_upcall_stats_attrs(tvbuff_t *tvb, void *data _U_,
 	int nla_type, int offset, int len)
 {
 	enum ws_ovs_vport_upcall_attr type =
-		(enum ws_ovs_vport_upcall_attr) nla_type;
+		(enum ws_ovs_vport_upcall_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_VPORT_UPCALL_ATTR_SUCCESS:
@@ -247,7 +247,7 @@ dissect_ovs_vport_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_vport_attr type = (enum ws_ovs_vport_attr) nla_type;
+	enum ws_ovs_vport_attr type = (enum ws_ovs_vport_attr) (nla_type & NLA_TYPE_MASK);
 	struct netlink_ovs_vport_info *info =
 		(struct netlink_ovs_vport_info *) data;
 	uint32_t value;
