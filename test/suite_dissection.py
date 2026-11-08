@@ -108994,3 +108994,96 @@ class TestDissectNsRpc:
             ['19', '0x81', '32', '0x0000'],
             ['23', '0x85', '32', '0x0150'],
         ]
+
+
+class TestDissectNstrace:
+    '''NetScaler trace files (NetScaler 1.0, 2.0, 3.0 and 3.5 formats), from
+    the synthetic captures nstrace_coverage.nstr.gz (2.0: record headers
+    2.0 to 2.6), nstrace_coverage_v10.nstr.gz, nstrace_coverage_v35.nstr.gz
+    (3.5 and 3.0 records) and nstrace_coverage_v30.nstr.gz.'''
+
+    FILES = (
+        ('nstrace_coverage.nstr.gz', 52),
+        ('nstrace_coverage_v10.nstr.gz', 6),
+        ('nstrace_coverage_v35.nstr.gz', 56),
+        ('nstrace_coverage_v30.nstr.gz', 4),
+    )
+
+    @staticmethod
+    def run(cmd_tshark, capture, test_env, *args, timeout=120):
+        return subprocess.check_output((cmd_tshark, '-r', capture) + args,
+                                       encoding='utf-8', env=test_env, timeout=timeout)
+
+    def test_nstrace_files(self, cmd_tshark, capture_file, test_env):
+        '''Every frame of the four files has a NetScaler header and none is
+        malformed or has a warning or an error expert info, in one and two
+        passes.'''
+        for name, count in self.FILES:
+            stdout = self.run(cmd_tshark, capture_file(name), test_env,
+                              '-Y', 'ns', '-Tfields', '-eframe.number')
+            assert count_output(stdout) == count
+            for passes in ((), ('-2',)):
+                stdout = self.run(cmd_tshark, capture_file(name), test_env, *passes,
+                                  '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                  '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+
+    def test_nstrace_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''A frame read again in the second pass (seek_read) gets the same
+        NetScaler tree, with the same item lengths, as in the first pass
+        (63caf4145d set the Ethernet offset of 3.5 frames before the record
+        offsets, so a frame read randomly had another offset). Only the
+        NetScaler tree is compared: TCP shows its conversation completeness
+        only in the second pass.'''
+        from xml.etree import ElementTree
+
+        def ns_trees(name, *passes):
+            xml = self.run(cmd_tshark, capture_file(name), test_env, *passes, '-Tpdml')
+            root = ElementTree.fromstring(xml)
+            return [ElementTree.tostring(p) for p in root.iter('proto')
+                    if p.get('name') == 'ns']
+        for name, count in self.FILES:
+            one = ns_trees(name)
+            assert len(one) == count
+            assert one == ns_trees(name, '-2')
+
+    def test_nstrace_reclen0(self, cmd_tshark, capture_file, test_env):
+        '''A 3.5 record whose first NetScaler record has length 0 and names
+        itself as the next record ended in an endless loop in
+        add35records(); now it gives an error expert info and stops.'''
+        stdout = self.run(cmd_tshark, capture_file('nstrace_reclen0_loop.nstr.gz'), test_env,
+                          '-Y', 'nstrace.bad_reclen', '-Tfields', '-eframe.number',
+                          '-e_ws.expert.message', timeout=60)
+        assert stdout.splitlines() == [
+            '1\tRecord length 0 is smaller than the record header']
+
+    def test_nstrace_v20_headers(self, cmd_tshark, capture_file, test_env):
+        '''Record headers 2.0 to 2.6: VM names (2.5, 2.6), node numbers and
+        cluster flags (2.4 and later), VLAN (2.2 and later).'''
+        stdout = self.run(cmd_tshark, capture_file('nstrace_coverage.nstr.gz'), test_env,
+                          '-Y', 'frame.number in {33, 35, 41, 43}', '-Tfields',
+                          '-eframe.number', '-enstrace.src_vm', '-enstrace.dst_vm',
+                          '-enstrace.snode', '-enstrace.dnode', '-enstrace.vlan')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['33', 'vm-src0', '', '3', '4', '100'],
+            ['35', 'vm-src2', 'vm-dst', '5', '4', '102'],
+            ['41', 'vm-src0', '', '3', '4', '100'],
+            ['43', 'vm-src2', 'vm-dst', '5', '4', '102'],
+        ]
+
+    def test_nstrace_v35_records(self, cmd_tshark, capture_file, test_env):
+        '''3.5 frames with NetScaler records: SSL, VM names and cluster
+        records, the info text and the error code.'''
+        stdout = self.run(cmd_tshark, capture_file('nstrace_coverage_v35.nstr.gz'), test_env,
+                          '-Y', 'frame.number in {6, 34, 35, 37, 39}', '-Tfields',
+                          '-eframe.number', '-enstrace.err', '-enstrace.inforec.info',
+                          '-enstrace.sslrec.seq', '-enstrace.vmnames.srcvmname',
+                          '-enstrace.vmnames.dstvmnames', '-enstrace.cluster.snode',
+                          '-enstrace.cluster.dnode')
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['6', '0x01', '', '', '', '', '', ''],
+            ['34', '0x00', 'trace info text', '', '', '', '', ''],
+            ['35', '0x00', '', '0x01020304', '', '', '', ''],
+            ['37', '0x00', '', '', 'src-vm', 'dst-vm', '', ''],
+            ['39', '0x00', '', '', '', '', '1', '2'],
+        ]
