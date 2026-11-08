@@ -107249,3 +107249,208 @@ class TestDissectNlsp:
         rows = self._fields(cmd_tshark, capture_file, test_env,
                             'nlsp && frame.number >= 59', 'ipx.src.socket', 'ipx.dst.socket')
         assert rows == [['59', '0x9001', '0x1234'], ['60', '0x1234', '0x9001']]
+
+
+class TestDissectNmea0183Coverage:
+    '''NMEA 0183 (sentences, UdPbC broadcasts and the binary RrUdP, RaUdp
+    and RpUdP messages) from the synthetic capture
+    nmea0183_coverage.pcapng.gz. Frames 1-826 are Exported PDU frames that
+    name the "nmea0183" dissector: 1-780 the sentences of the decoder table
+    (every id in six variants), 781-812 framing and talker IDs, 813-818
+    UdPbC, 819-826 binary. Frames 827-840 are Ethernet / UDP port 10110
+    and need the UDP heuristic (--enable-heuristic nmea0183_udp). Frame 841 is
+    an Exported PDU frame again (a non-printable octet in a char field).'''
+
+    HEUR = ('--enable-heuristic', 'nmea0183_udp')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('nmea0183_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nmea0183_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol counts with and without the UDP heuristic, and no
+        malformed packets or error expert infos in one and two passes.'''
+        for opts, counts in (((), (819, 8, 14)), (self.HEUR, (824, 11, 6))):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('nmea0183_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            protocols = stdout.splitlines()
+            assert len(protocols) == 841
+            assert (protocols.count('NMEA 0183'), protocols.count('NMEA 0183 Binary'),
+                    protocols.count('UDP')) == counts
+            for passes in ((), ('-2',)):
+                rows = self._fields(cmd_tshark, capture_file, test_env,
+                                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                    opts=(*passes, *opts))
+                assert rows == []
+
+    def test_nmea0183_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The tree of every frame is the same in one and two passes.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, *self.HEUR,
+                    '-r', capture_file('nmea0183_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env, timeout=300))
+        assert outputs[0] == outputs[1]
+
+    def test_nmea0183_sentences(self, cmd_tshark, capture_file, test_env):
+        '''Every sentence id of the decoder table (95 with the unknown
+        one) is dissected; the empty and missing fields of the variants
+        show "Field expected" warnings but never a malformed packet.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 780', 'nmea0183.sentence')
+        assert len(rows) == 780
+        assert len({r[1] for r in rows}) == 95
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number <= 780 && _ws.expert.message contains "Field expected"')
+        assert len(rows) > 200
+
+    def test_nmea0183_ft_char_fields(self, cmd_tshark, capture_file, test_env):
+        '''The XTR direction and ETL number of shafts are FT_CHAR fields
+        (frames 745 and 214); before "NMEA0183: Fix FT_CHAR handling and a
+        few length errors" every such sentence was a dissector bug. The
+        AAM units of radius (frame 1) show the letter instead of its code,
+        and an empty FT_CHAR field (frame 2) or one that is missing (frame
+        4, where the '*' directly follows the sentence id) no longer ends
+        the sentence: the checksum is still decoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {214, 745}', 'nmea0183.xtr.steer',
+                            'nmea0183.xtr.magnitude', 'nmea0183.etl.engshaft_num')
+        assert rows == [['214', '', '', "'1'"], ['745', "'L'", '1.5', '']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 2, 4}', 'nmea0183.aam.units',
+                            'nmea0183.aam.waypoint', 'nmea0183.checksum')
+        assert rows[0] == ['1', "'N'", 'WPT1', '45']
+        assert rows[1][0] == '2' and rows[1][3] != ''
+        assert rows[2][0] == '4' and rows[2][3] == '5A'
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 4', '_ws.expert.message')
+        assert 'Field expected, but not found' in rows[0][1]
+
+    def test_nmea0183_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: RMC magnetic variation (east, west, empty,
+        non-standard), GGA units, GSV satellite types, an HDT unit, and
+        the date conversion.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {529, 535, 540, 550}',
+                            'nmea0183.rmc.magnetic', 'nmea0183.rmc.date', '_ws.expert.message')
+        assert rows == [
+            ['529', '003.1', '23 MAR 1994', ''],
+            ['535', '003.1', '23 MAR 1994', ''],
+            ['540', 'Data temporarily unavailable', '23 MAR 1994', ''],
+            ['550', '1.0', '231370', 'Non-standard field value'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {247, 258}', 'nmea0183.gga_altitude_unit',
+                            '_ws.expert.message')
+        assert rows == [['247', 'M', ''],
+                        ['258', 'F', "Incorrect altitude unit (should be 'M'),"
+                                     "Incorrect geoidal separation unit (should be 'M')"]]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {345, 356}', 'nmea0183.gsv.sat_id',
+                            'nmea0183.gsv.sat_type', '_ws.expert.message')
+        assert rows == [['345', '01,02,12,14', '1,2,12,14', ''],
+                        ['356', '70000,x', '70000,0',
+                         'Invalid satellite PRN: 70000,Invalid satellite PRN: x']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 389', '_ws.expert.message')
+        assert rows == [['389', "Incorrect heading unit (should be 'T')"]]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number == 273', 'nmea0183.glc.status')
+        assert rows == [['273', "'B'"]]
+
+    def test_nmea0183_framing(self, cmd_tshark, capture_file, test_env):
+        '''The checks of the sentence framing: first character, checksum
+        (also the calculated one), CR LF, length, an unknown talker.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 781 && frame.number <= 787',
+                            '_ws.expert.message', 'nmea0183.checksum', 'nmea0183.talker')
+        assert rows == [
+            ['781', '', '5C', 'GP'],
+            ['782', "First character should be '$'", '5C', 'GP'],
+            ['783', 'Incorrect checksum', '00', 'GP'],
+            ['784', 'Sentence should end with <CR><LF>', '5C', 'GP'],
+            ['785', 'Sentence should end with <CR><LF>', '5C', 'GP'],
+            ['786', 'Sentence is too long. Maximum is 82 bytes including $ and <CR><LF>', '4D', 'GP'],
+            ['787', '', '7C', 'gp'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {783, 788}', 'nmea0183.checksum_calculated')
+        assert rows == [['783', '0x5c'], ['788', '0x17']]
+
+    def test_nmea0183_udpbc(self, cmd_tshark, capture_file, test_env):
+        '''UdPbC packets: several sentences and tag blocks. The protocol
+        item of the second and later sentences has the length of the
+        sentence (before the fix it was the end offset).'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nmea0183_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 814', '-Tpdml',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        root = ET.fromstring(stdout)
+        sizes = [int(p.get('size')) for p in root.iter('proto') if p.get('name') == 'nmea0183']
+        assert sizes == [6 + 43, 19, 43]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {813, 814, 815, 816, 817, 818}',
+                            'nmea0183.talker', 'nmea0183.tag_block', '_ws.expert.message')
+        assert rows == [
+            ['813', 'GP', '', ''],
+            ['814', 'GP,GP,GP', '', ''],
+            ['815', 'GP', '\\\\s:AB123,c:1700000000*09\\\\', ''],
+            ['816', 'GP,GP', '\\\\s:AB123*7A\\\\,\\\\c:1700000001*5E\\\\,\\\\n:2*66\\\\', ''],
+            ['817', 'GP', '', 'Sentence should end with <CR><LF>'],
+            ['818', 'GP,GP', '', 'Sentence should end with <CR><LF>'],
+        ]
+
+    def test_nmea0183_binary(self, cmd_tshark, capture_file, test_env):
+        '''The binary messages: RrUdP, RaUdp and RpUdP data messages with a
+        file descriptor, further data, a query, an ack and a header only.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 819 && frame.number <= 826',
+                            'nmea0183.bin.mtype', 'nmea0183.bin.seqnum', 'nmea0183.bin.fd_len',
+                            'nmea0183.bin.data_type', 'nmea0183.bin.status_and_info',
+                            'nmea0183.bin.type_len')
+        assert rows == [
+            ['819', '1', '1', '23', 'TEXT', 'status', '4'],
+            ['820', '1', '1', '23', 'TEXT', 'status', '4'],
+            ['821', '1', '1', '23', 'TEXT', 'status', '4'],
+            ['822', '1', '2', '', '', '', ''],
+            ['823', '2', '1', '', '', '', ''],
+            ['824', '3', '1', '', '', '', ''],
+            ['825', '1', '1', '', '', '', ''],
+            ['826', '1', '1', '13', '', '', '0'],
+        ]
+
+    def test_nmea0183_nonprintable_char(self, cmd_tshark, capture_file, test_env):
+        '''Frame 841 has the octet 0xBD in a one character field. The FT_CHAR
+        fields were BASE_NONE and tshark -V aborted ("Invalid base: 0")
+        printing the tree; it now shows the escaped character.'''
+        proc = subprocess.run((cmd_tshark, '-r', capture_file('nmea0183_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 841', '-V'),
+                encoding='utf-8', env=test_env, timeout=120,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        assert proc.returncode == 0
+        assert "'\\xbd'" in proc.stdout
+        assert 'Dissector bug' not in proc.stdout
+        assert 'Invalid base' not in proc.stderr
+
+    def test_nmea0183_udp(self, cmd_tshark, capture_file, test_env):
+        '''Over UDP the heuristic accepts sentences, UdPbC and binary
+        messages, and a proprietary talker of a known manufacturer; not
+        text, short datagrams or unknown talkers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 827 && frame.number <= 840', '_ws.col.protocol', opts=self.HEUR)
+        assert [r[1] for r in rows] == [
+            'NMEA 0183', 'NMEA 0183', 'NMEA 0183 Binary', 'NMEA 0183 Binary',
+            'NMEA 0183 Binary', 'NMEA 0183', 'NMEA 0183', 'UDP', 'UDP', 'UDP', 'UDP',
+            'UDP', 'UDP', 'NMEA 0183']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number >= 827 && frame.number <= 840', '_ws.col.protocol',
+                            opts=('-d', 'udp.port==10110,nmea0183'))
+        assert rows[7][1] == 'NMEA 0183'

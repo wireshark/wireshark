@@ -2493,12 +2493,26 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const int start, const int leng
     return checksum;
 }
 
+/* true if the first n characters of value are ASCII digits */
+static bool
+nmea0183_digits(const char *value, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+        if (!g_ascii_isdigit(value[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 static char *
 decode_time(wmem_allocator_t *scope, const char *value)
 {
-    size_t length = strlen(value);
-
-    if (length < 4)
+    /* Split only plain digits: a byte offset into other characters (e.g.
+     * U+FFFD for a non-ASCII byte) would cut a UTF-8 sequence. */
+    if (strlen(value) < 4 || !nmea0183_digits(value, 4))
     {
         return wmem_strdup(scope, value);
     }
@@ -2516,7 +2530,7 @@ decode_date(wmem_allocator_t *scope, const char *value)
     unsigned month;
     unsigned year;
 
-    if (strlen(value) < 6)
+    if (strlen(value) < 6 || !nmea0183_digits(value, 6))
     {
         return wmem_strdup(scope, value);
     }
@@ -2555,7 +2569,10 @@ decode_latlong(const char *latlong, const char *direction, float *result)
 static char *
 field_binding(wmem_allocator_t *scope, const char *value, const char *label)
 {
-    return wmem_strdup_printf(scope, "%s %.1s", value, label);
+    /* The first character of label, which need not be one byte long */
+    int label_len = (int)(g_utf8_next_char(label) - label);
+
+    return wmem_strdup_printf(scope, "%s %.*s", value, label[0] ? label_len : 0, label);
 }
 
 /* Find first occurrence of a field separator in tvbuff, starting at offset. Searches
@@ -2691,8 +2708,7 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  **/
 static int
 dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         int offset, int hf,
-                                         wmem_allocator_t *scope, const uint8_t **retval)
+                                         int offset, int hf, const uint8_t **retval)
 {
     if (offset > (int)tvb_captured_length(tvb))
     {
@@ -2703,7 +2719,7 @@ dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, prot
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     proto_item *ti = proto_tree_add_item_ret_string(tree, hf,
                                                     tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                                    scope, retval);
+                                                    pinfo->pool, retval);
     if (end_of_field_offset - offset == 0)
     {
         if (retval == NULL)
@@ -2739,7 +2755,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         proto_item_append_text(ti, ": [empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 4)
     {
@@ -2756,7 +2772,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                        tvb, offset + 2, end_of_field_offset - offset - 2,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -2764,7 +2780,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_latitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
@@ -2789,7 +2805,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         proto_item_append_text(ti, ": [empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 5)
     {
@@ -2806,7 +2822,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                        tvb, offset + 3, end_of_field_offset - offset - 3,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -2814,7 +2830,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_longitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
