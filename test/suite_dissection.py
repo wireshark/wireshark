@@ -106359,3 +106359,174 @@ class TestDissectNflog:
             '29\tNFLOG\t',
             '30\tNFLOG\t1',
         ]
+
+
+class TestDissectNfsCoverage:
+    '''NFS (versions 2, 3, 4.0, 4.1 and 4.2, the NFSv4 callback program
+    and the MOUNT replies that seed file name snooping) over UDP, from the
+    synthetic captures nfs_coverage.pcap.gz and nfs_coverage_malformed.pcap.gz.
+    The captures use the default port 2049; the file handle decoders are
+    selected with Decode As (nfs_fhandle.type).'''
+
+    SNOOP = ('-o', 'nfs.file_name_snooping:TRUE', '-o', 'nfs.file_full_name_snooping:TRUE')
+    # Call frame ranges of the opaque file handles made for each decoder
+    FHANDLES = (
+        ('nfs.svr4', 626, 632), ('nfs.knfsd_le', 634, 636), ('nfs.nfsd_le', 638, 638),
+        ('nfs.ontap_v3', 640, 640), ('nfs.ontap_v4', 642, 644),
+        ('nfs.ontap_gx_v3', 646, 650), ('nfs.knfsd_new', 652, 660),
+        ('nfs.gluster', 662, 664), ('nfs.dcache', 666, 666),
+        ('nfs.primary_data', 668, 674), ('nfs.celerra_vnx', 676, 680),
+    )
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields,
+                passes=(), cap='nfs_coverage.pcap.gz', timeout=120):
+        args = [cmd_tshark, *passes, '-r', capture_file(cap),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=timeout)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nfs_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 681 frames are NFS, NFS callback or MOUNT frames; there are no
+        malformed packets and no error expert infos in one and two passes,
+        with the default preferences and with file name snooping.'''
+        f = self._fields
+        assert len(f(cmd_tshark, capture_file, test_env, 'nfs')) == 659
+        assert len(f(cmd_tshark, capture_file, test_env, 'nfs.cb')) == 18
+        assert len(f(cmd_tshark, capture_file, test_env, 'mount')) == 4
+        bad = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+        for passes in ((), ('-2',), self.SNOOP, ('-2', *self.SNOOP)):
+            assert f(cmd_tshark, capture_file, test_env, bad, passes=passes) == []
+        # no warnings either at the default preferences
+        assert f(cmd_tshark, capture_file, test_env, '_ws.expert.severity >= 0x00600000') == []
+
+    def test_nfs_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every NFSv2 and NFSv3 procedure and almost every NFSv4 operation
+        and callback operation is called.'''
+        f = self._fields
+
+        def seen(field):
+            rows = f(cmd_tshark, capture_file, test_env, 'rpc.msgtyp == 0 && ' + field, field)
+            return {int(v) for r in rows for v in r[1].split(',')}
+        assert seen('nfs.procedure_v2') == set(range(18))
+        assert seen('nfs.procedure_v3') == set(range(22))
+        assert seen('nfs.procedure_v4') == {0, 1}
+        assert seen('nfs.opcode') == (set(range(3, 54)) | set(range(57, 76)) | {55, 10044})
+        assert seen('nfs.cb.operation') == set(range(3, 16)) | {10044}
+
+    def test_nfs_scsi_layout_devices(self, cmd_tshark, capture_file, test_env):
+        '''GETDEVICEINFO with the SCSI layout: base, slice, concat and stripe
+        volumes. Each volume index is read from its own four bytes; the
+        slice start and length and the stripe unit are 64 bit fields.
+        "NFS: Fix a CPU blow-up and bad lengths in the SCSI layout and
+        snooping" read every index from the first one and decoded the slice
+        and stripe fields from the wrong offsets.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'nfs.devaddr.ssv_start',
+                            'nfs.devaddr.scsi_volume_type', 'nfs.devaddr.scsi_volume_ref_index',
+                            'nfs.devaddr.ssv_start', 'nfs.devaddr.ssv_length',
+                            'nfs.devaddr.ssv_stripe_unit', 'nfs.devaddr.scsi_vpd_designator')
+        assert len(rows) == 1
+        assert rows[0][1:] == ['4,4,1,2,3,2', '0,0,1,2,0,1', '4096', '1073741824', '65536',
+                               'deadbeef,6001405001020304']
+
+    def test_nfs_scsi_loops_fast(self, cmd_tshark, capture_file, test_env):
+        '''CONCAT and STRIPE volumes and a device list that announce
+        0xffffffff entries end with a bounds error at once. Before the fix
+        the volume index loop never advanced and took about a minute for
+        each such frame.'''
+        import time
+        t = time.monotonic()
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.malformed',
+                            cap='nfs_coverage_malformed.pcap.gz', timeout=180)
+        assert time.monotonic() - t < 120
+        assert {int(r[0]) for r in rows} >= {3, 5, 7}
+
+    def test_nfs_snoop_negative_fhandle_length(self, cmd_tshark, capture_file, test_env):
+        '''A file handle length of 0x80000000 with file name snooping is a
+        malformed packet (frame 1 of the malformed capture), never a
+        dissector bug. Before the fix the length became a negative int and
+        failed an assertion in tvb_memdup().'''
+        out = subprocess.check_output(
+            [cmd_tshark, '-r', capture_file('nfs_coverage_malformed.pcap.gz'),
+             '-o', 'nfs.file_name_snooping:TRUE', '-Y', 'frame.number == 1', '-V'],
+            encoding='utf-8', env=test_env, timeout=120)
+        assert 'Dissector bug' not in out
+        assert 'Malformed Packet' in out
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            '_ws.expert.message contains "Dissector bug"',
+                            passes=self.SNOOP, cap='nfs_coverage_malformed.pcap.gz')
+        assert rows == []
+
+    def test_nfs_snooping_names(self, cmd_tshark, capture_file, test_env):
+        '''MOUNT, LOOKUP, CREATE, MKDIR and READDIRPLUS replies give the file
+        handles names; the full path is built from the parents. A file
+        system cycle is reported. The READDIRPLUS entry with an empty name
+        is skipped ("NFS: Fix a CPU blow-up ..." read the byte before the
+        name buffer).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'nfs.full_name',
+                            'nfs.full_name', passes=self.SNOOP)
+        assert len(rows) == 127
+        names = {r[1] for r in rows}
+        assert '192.0.2.2:/export/export/dir/file.txt' in names
+        assert '192.0.2.2:/export2/export/mkd' in names
+        assert '192.0.2.2:/export/cyc/sub' in names
+        assert '/dir1' in names
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            '_ws.expert.message contains "cycle"', passes=self.SNOOP)
+        assert [r[0] for r in rows] == ['586']
+        # without the preferences no name is shown
+        assert self._fields(cmd_tshark, capture_file, test_env, 'nfs.full_name') == []
+
+    def test_nfs_acl_object_types(self, cmd_tshark, capture_file, test_env):
+        '''ACLs on objects that are neither a file nor a directory use the
+        generic permission names instead of a NULL string.'''
+        out = subprocess.check_output(
+            [cmd_tshark, '-r', capture_file('nfs_coverage.pcap.gz'),
+             '-Y', 'nfs.acetype4 && rpc.msgtyp == 1', '-V'],
+            encoding='utf-8', env=test_env, timeout=120)
+        assert '(null)' not in out
+        assert out.count('ACE Type: ') >= 60
+
+    def test_nfs_fhandle_decoders(self, cmd_tshark, capture_file, test_env):
+        '''The call frames that carry file handles in the formats of the
+        file handle decoders decode without errors when that decoder is
+        selected with Decode As, and the decoded values are right.'''
+        for proto, first, last in self.FHANDLES:
+            rows = self._fields(
+                cmd_tshark, capture_file, test_env,
+                f'frame.number >= {first} && frame.number <= {last} && '
+                '(_ws.malformed || _ws.expert.severity >= 0x00600000)',
+                passes=('-d', f'nfs_fhandle.type,{proto}'))
+            assert rows == [], proto
+        sel = ('-d', 'nfs_fhandle.type,nfs.svr4')
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {626, 628, 630, 632}',
+                            'nfs.fh.endianness', 'nfs.fh.fn.inode', passes=sel)
+        assert [r[1:] for r in rows] == [['True', '1234'], ['True', '1234'],
+                                         ['False', '1234'], ['False', '1234']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 666',
+                            'nfs.fh.dc.exportid', 'nfs.fh.dc.type',
+                            passes=('-d', 'nfs_fhandle.type,nfs.dcache'))
+        assert rows == [['666', '0x00000006', '2']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 638',
+                            'nfs.fh.pinode', 'nfs.fh.hp.len',
+                            passes=('-d', 'nfs_fhandle.type,nfs.nfsd_le'))
+        assert rows == [['638', '0x00001234', '8']]
+
+    def test_nfs_v4_callbacks(self, cmd_tshark, capture_file, test_env):
+        '''The callback program is registered by the callback program number
+        in SETCLIENTID and CREATE_SESSION; CB_NOTIFY and its notification
+        kinds are decoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nfs.cb && rpc.msgtyp == 0', 'nfs.cb.operation')
+        assert len(rows) == 9
+        assert any('6' in r[1].split(',') for r in rows)
+        out = subprocess.check_output(
+            [cmd_tshark, '-r', capture_file('nfs_coverage.pcap.gz'), '-Y',
+             'nfs.cb.operation == 6 && rpc.msgtyp == 0', '-V'],
+            encoding='utf-8', env=test_env, timeout=120)
+        for kind in ('Child Attr Change', 'Dir Attr Change', 'Remove Entry',
+                     'Add Entry', 'Rename Entry'):
+            assert kind in out
