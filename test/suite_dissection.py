@@ -109579,3 +109579,83 @@ class TestDissectNtsKe:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.count('NTS-KE Record (New Cookie for NTPv4)') == 10000
         assert stdout.count('Next Protocol ID: Unassigned (1)') == 16001
+
+
+class TestDissectNtTpcp:
+    '''Alteon Transparent Proxy Cache Protocol (TPCP, UDP 3121), versions
+    1 and 2, from the synthetic capture nt_tpcp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('nt_tpcp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nt_tpcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''33 frames: 30 TPCP PDUs and three with another version, which
+        TPCP does not take (the data dissector shows them); no malformed
+        packets or expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.protocols')
+        assert len(rows) == 33
+        assert [r[0] for r in rows].count('eth:ethertype:ip:udp:tpcp') == 30
+        assert [r[0] for r in rows[30:]] == ['eth:ethertype:ip:udp:data'] * 3
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+
+    def test_nt_tpcp_types(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU type of both versions (5 and 6 are version 2 only)
+        with the client port, address and server address in the Info
+        column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 4, 19, 20, 24, 27}',
+                '-Tfields', '-eframe.number', '-etpcp.version', '-etpcp.type',
+                '-e_ws.col.info')
+        assert rows == [
+            ['1', '1', '1', 'Request id 1 CPort 49152 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['2', '1', '2', 'Reply id 1 CPort 49152 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['3', '1', '3', 'Add Filter id 2 CPort 80 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['4', '1', '4', 'Remove Filter id 2 CPort 80 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['19', '2', '5', 'Add Session id 205 CPort 3128 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['20', '2', '6', 'Remove Session id 206 CPort 3128 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['24', '1', '0', 'Unknown id 1 CPort 1 CIP 192.0.2.10 SIP 192.0.2.20'],
+            ['27', '2', '99', 'Unknown id 1 CPort 1 CIP 192.0.2.10 SIP 192.0.2.20'],
+        ]
+
+    def test_nt_tpcp_flags(self, cmd_tshark, capture_file, test_env):
+        '''The four flag bits (UDP/TCP, no redirect, XON, XOFF) in the low
+        octet of the flags; the high octet has no flag.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 6, 7, 8, 9, 10, 12}',
+                '-Tfields', '-eframe.number', '-etpcp.flags',
+                '-etpcp.flags.tcp', '-etpcp.flags.redir', '-etpcp.flags.xon',
+                '-etpcp.flags.xoff')
+        assert rows == [
+            ['5', '0x0001', 'True', 'False', 'False', 'False'],
+            ['6', '0x0002', 'False', 'True', 'False', 'False'],
+            ['7', '0x0004', 'False', 'False', 'True', 'False'],
+            ['8', '0x0008', 'False', 'False', 'False', 'True'],
+            ['9', '0x000f', 'True', 'True', 'True', 'True'],
+            ['10', '0x0100', 'False', 'False', 'False', 'False'],
+            ['12', '0xffff', 'True', 'True', 'True', 'True'],
+        ]
+
+    def test_nt_tpcp_version2_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version 2 adds the virtual server, the RAS server and the
+        signature ("tpcp", 0x74706370); version 1 has none of them.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 21, 22, 23}', '-Tfields',
+                '-eframe.number', '-etpcp.caddr', '-etpcp.saddr', '-etpcp.vaddr',
+                '-etpcp.rasaddr', '-etpcp.signature', '-etpcp.cport', '-etpcp.cid')
+        assert rows == [
+            ['1', '192.0.2.10', '192.0.2.20', '', '', '', '49152', '1'],
+            ['21', '192.0.2.10', '192.0.2.20', '203.0.113.1', '203.0.113.2',
+             '1953522544', '443', '300'],
+            ['22', '192.0.2.10', '192.0.2.20', '0.0.0.0', '0.0.0.0', '0', '21', '301'],
+            ['23', '192.0.2.10', '192.0.2.20', '192.0.2.80', '192.0.2.90',
+             '3735928559', '25', '302'],
+        ]
