@@ -105478,3 +105478,121 @@ class TestDissectNetlinkOvsDatapath:
                 '-eovs_datapath.masks_cache_size',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines() == ['flagged\t9\t64']
+
+
+class TestDissectNetlinkOvsFlow:
+    '''Open vSwitch flow generic netlink family (ovs_flow) from the
+    synthetic capture ovs_flow_coverage.pcap.gz (LINKTYPE_NETLINK).
+    Frame 1 maps the family id 0x24 to its name; frames 19-22 map 0x21
+    to ovs_packet, whose key, action and tunnel key attributes are
+    dissected by the ovs_flow code.'''
+
+    CAP = 'ovs_flow_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, frame, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectNetlinkOvsFlow.CAP),
+                '-Y', 'frame.number == %d' % frame,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ovs_flow_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-18 are ovs_flow, 20-22 ovs_packet; no malformed
+        packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == (['Netlink generic'] + ['ovs_flow'] * 17 +
+                             ['Netlink generic'] + ['ovs_packet'] * 3)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ovs_flow_key(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2: the key of a TCP flow and its mask (the mask repeats
+        the key fields: 0xffffffff, 65535).'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 2,
+                'ovs_flow.key.ipv4_src', 'ovs_flow.key.ipv4_dst',
+                'ovs_flow.key.tcp_src', 'ovs_flow.key.tcp_dst',
+                'ovs_flow.key.recirc_id', 'ovs_flow.key.vlan_tci',
+                'ovs_flow.key.in_port') == [
+            '192.0.2.1,255.255.255.255,192.0.2.1\t'
+            '192.0.2.2,255.255.255.255,192.0.2.2\t1234,65535\t80,65535\t3\t'
+            '0x1064\t2']
+
+    def test_ovs_flow_actions(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2: nested actions (userspace, set, sample, CT with NAT,
+        clone), their values and the UFID flags.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 2,
+                'ovs_flow.userspace.pid', 'ovs_flow.action.push_vlan.tci',
+                'ovs_flow.action.hash_basis', 'ovs_flow.ct.helper',
+                'ovs_flow.ct.timeout', 'ovs_flow.nat.proto_min',
+                'ovs_flow.action.trunc.max_len', 'ovs_flow.action.meter',
+                'ovs_flow.sample.probability', 'ovs_flow.ufid_flags') == [
+            '1234\t0x1064\t0x00001234\tftp\ttcp_deleg\t1024\t128\t3\t'
+            '2147483647\t0x00000001']
+        assert self.fields(cmd_tshark, capture_file, test_env, 2,
+                'ovs_flow.action.output', 'ovs_flow.action.recirc') == [
+            '2,2,2,2\t5,8']
+
+    def test_ovs_flow_stats_and_masked_type(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3: flow statistics, used and TCP flags. Frame 11: an
+        attribute with NLA_F_NET_BYTEORDER (read as big endian) and one
+        with NLA_F_NESTED are decoded by their masked type (raw data
+        before "netlink-ovs_flow: Mask the attribute type").'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 3,
+                'ovs_flow.stats.n_packets', 'ovs_flow.stats.n_bytes',
+                'ovs_flow.used', 'ovs_flow.tcp_flags') == [
+            '77\t7700\t123456789\t0x12']
+        assert self.fields(cmd_tshark, capture_file, test_env, 11,
+                'ovs_flow.used', 'ovs_flow.tcp_flags') == ['5\t0x02']
+
+    def test_ovs_flow_other_keys(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4, 5 and 10: IPv6/UDP, the tunnel key, ARP, CT, MPLS,
+        ICMP keys, and an ENCAP key nested in a VLAN tag.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 4,
+                'ovs_flow.key.ipv6_label', 'ovs_flow.key.udp_dst',
+                'ovs_flow.key.ipv6_hlimit') == ['0x00012345\t80\t64']
+        assert self.fields(cmd_tshark, capture_file, test_env, 5,
+                'ovs_flow.tunnel.id', 'ovs_flow.tunnel.tp_dst',
+                'ovs_flow.key.arp_op', 'ovs_flow.key.ct_zone',
+                'ovs_flow.key.mpls_lse', 'ovs_flow.key.icmp_type') == [
+            '0x1122334455667788\t6081\t1\t5\t0x00012140,0x00022140\t8']
+        assert self.fields(cmd_tshark, capture_file, test_env, 10,
+                'ovs_flow.key.ethertype', 'ovs_flow.key.tcp_dst') == [
+            '0x8100,0x0800\t80']
+
+    def test_ovs_flow_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Frames 15-17 nest CLONE actions, ENCAP keys and SAMPLE actions
+        40 levels deep (the 16000 deep originals overflowed the stack
+        before the nesting limit of 32 in netlink attribute parsing); they
+        stop at the limit with a warning. Frame 18, 20 levels, decodes completely.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'netlink.nesting_too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['15', '16', '17']
+        assert self.fields(cmd_tshark, capture_file, test_env, 18,
+                'ovs_flow.action.output') == ['2']
+
+    def test_ovs_flow_via_ovs_packet(self, cmd_tshark, capture_file, test_env):
+        '''ovs_packet frames 20-22 use the ovs_flow key, action and
+        tunnel key dissection.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 20,
+                'ovs_flow.key.ipv4_src', 'ovs_flow.key.priority') == [
+            '192.0.2.1\t7']
+        assert self.fields(cmd_tshark, capture_file, test_env, 21,
+                'ovs_flow.key.ipv6_proto', 'ovs_flow.action.output') == [
+            '17\t2,2,2,2']
+        assert self.fields(cmd_tshark, capture_file, test_env, 22,
+                'ovs_flow.tunnel.id', 'ovs_flow.action.output') == [
+            '0x1122334455667788\t1']
