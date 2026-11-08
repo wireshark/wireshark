@@ -734,7 +734,7 @@ static int
 dissect_netlink_route_ifla_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
 	struct netlink_route_info *info = (struct netlink_route_info *)data;
-	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) rta_type;
+	enum ws_ifla_attr_type type = (enum ws_ifla_attr_type) (rta_type & NLA_TYPE_MASK);
 	const uint8_t* str;
 	uint32_t value;
 	bool flag;
@@ -916,7 +916,7 @@ static int
 dissect_netlink_route_ifa_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
 	struct netlink_route_info* info = (struct netlink_route_info*)data;
-	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) rta_type;
+	enum ws_ifa_attr_type type = (enum ws_ifa_attr_type) (rta_type & NLA_TYPE_MASK);
 	const uint8_t* str;
 
 	switch (type) {
@@ -1081,7 +1081,7 @@ static const value_string netlink_route_rta_attr_vals[] = {
 static int
 dissect_netlink_route_route_attrs(tvbuff_t *tvb, void *data _U_, struct packet_netlink_data *nl_data, proto_tree *tree, int rta_type, int offset, int len)
 {
-	enum ws_rta_attr_type type = (enum ws_rta_attr_type) rta_type;
+	enum ws_rta_attr_type type = (enum ws_rta_attr_type) (rta_type & NLA_TYPE_MASK);
 	uint32_t value;
 
 	switch (type) {
@@ -1536,7 +1536,7 @@ proto_register_netlink_route(void)
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_route_ifla_linkstats_txbytes,
-			{ "Tx packets", "netlink-route.ifla_linkstats.txbytes",
+			{ "Tx bytes", "netlink-route.ifla_linkstats.txbytes",
 			  FT_UINT64, BASE_DEC, NULL, 0x00,
 			  NULL, HFILL }
 		},
