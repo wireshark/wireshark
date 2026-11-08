@@ -137,6 +137,12 @@ dissect_nmf_record_size(tvbuff_t *tvb, proto_tree *tree,
 		return 0;
 	}
 
+	if (size > (uint64_t)tvb_reported_length_remaining(tvb, offset + len)) {
+		proto_tree_add_expert_format(tree, NULL, &ei_nmf_bad_record_size, tvb, offset, len,
+			"Record size %" PRIu64 " exceeds the remaining data", size);
+		return 0;
+	}
+
 	if (_size != NULL) {
 		*_size = (uint32_t)size;
 	}
@@ -150,7 +156,7 @@ dissect_nmf_record_size(tvbuff_t *tvb, proto_tree *tree,
 				       (unsigned)size, (unsigned)size);
 	}
 
-	return offset;
+	return offset + len;
 }
 
 static int
@@ -277,7 +283,9 @@ dissect_nmf_record(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 
 	case NMF_UPGRADE_RESPONSE_RECORD:
-		nmf_info->fnum_upgraded = pinfo->fd->num;
+		if (!PINFO_FD_VISITED(pinfo)) {
+			nmf_info->fnum_upgraded = pinfo->fd->num;
+		}
 		break;
 	case NMF_PREAMBLE_ACK_RECORD:
 		/* TODO */
@@ -312,6 +320,9 @@ nmf_get_pdu_len(packet_info *pinfo, tvbuff_t *parent_tvb, int parent_offset, voi
 
 		len = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
+		if (len > UINT32_MAX - 4) {
+			return tvb_reported_length(tvb);
+		}
 		needed = 4 + len;
 		return needed;
 	}
@@ -418,7 +429,7 @@ dissect_nmf_payload(tvbuff_t *tvb, packet_info *pinfo,
 		if (ret <= 0) {
 			return -1;
 		}
-		offset += ret;
+		offset = ret;
 	}
 
 	return offset;
@@ -532,7 +543,7 @@ dissect_nmf_pdu(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_item(tree, hf_nmf_negotiate_type,
 				    tvb, offset, 1, ENC_NA);
 		offset += 1;
-		if (type == 0x14) {
+		if (type == 0x14 && !PINFO_FD_VISITED(pinfo)) {
 			nmf_info->fnum_negotiated = pinfo->fd->num;
 		}
 
