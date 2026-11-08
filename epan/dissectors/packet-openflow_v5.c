@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/iana-info.h>
 
 void proto_register_openflow_v5(void);
@@ -840,6 +841,7 @@ static expert_field ei_openflow_v5_queue_desc_prop_undecoded;
 static expert_field ei_openflow_v5_async_config_prop_undecoded;
 static expert_field ei_openflow_v5_bundle_prop_undecoded;
 static expert_field ei_openflow_v5_message_undecoded;
+static expert_field ei_openflow_v5_nesting_too_deep;
 static expert_field ei_openflow_v5_length_too_short;
 
 static const value_string openflow_v5_version_values[] = {
@@ -1290,9 +1292,8 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     /* body */
     switch (match_type) {
     case OFPMT_STANDARD:
-        if (match_length <= 4) {
-            expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
+        if (match_length == 4) {
+            /* empty body */
             break;
         }
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v5_match_undecoded,
@@ -1308,9 +1309,8 @@ dissect_openflow_match_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         break;
 
     default:
-        if (match_length <= 4) {
-            expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
+        if (match_length == 4) {
+            /* empty body */
             break;
         }
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v5_match_undecoded,
@@ -1753,6 +1753,41 @@ static const value_string openflow_v5_error_bundle_failed_code_values[] = {
     { 0, NULL }
 };
 
+/* Maximum number of OpenFlow messages nested in each other (error, requestforward, bundle_add) */
+#define OPENFLOW_V5_MAX_NESTING 4
+
+/*
+ * Dissect a message embedded in another message, in a tvb of its own
+ * so that offsets and lengths of the inner message are relative to its
+ * start. Returns the offset after the inner message (never less than
+ * offset).
+ */
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_openflow_nested_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    unsigned depth;
+    uint16_t inner_length;
+    tvbuff_t *next_tvb;
+
+    depth = p_get_proto_depth(pinfo, proto_openflow_v5);
+    if (depth >= OPENFLOW_V5_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_openflow_v5_nesting_too_deep, tvb, offset);
+        return tvb_captured_length(tvb);
+    }
+
+    inner_length = tvb_get_ntohs(tvb, offset + 2);
+    next_tvb = tvb_new_subset_length(tvb, offset, inner_length);
+
+    p_set_proto_depth(pinfo, proto_openflow_v5, depth + 1);
+    increment_dissection_depth(pinfo);
+    dissect_openflow_message_v5(next_tvb, pinfo, tree, 0);
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_openflow_v5, depth);
+
+    return offset + inner_length;
+}
+
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
@@ -1861,7 +1896,7 @@ dissect_openflow_error_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* Disable update/change of column info */
         col_set_writable(pinfo->cinfo, -1, false);
 
-        dissect_openflow_message_v5(tvb, pinfo, data_tree, offset);
+        dissect_openflow_nested_message_v5(tvb, pinfo, data_tree, offset);
 
         /* Restore the "we're inside an error packet" flag. */
         pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -2624,7 +2659,6 @@ dissect_openflow_port_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     case OFPPDPT_EXPERIMENTER:
         if (prop_length <= 12) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -2643,7 +2677,6 @@ dissect_openflow_port_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     default:
         if (prop_length <= 4) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_port_desc_prop_undecoded,
@@ -2936,7 +2969,6 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     case OFPIT_EXPERIMENTER:
         if (inst_length <= 8) {
             expert_add_info(pinfo, inst_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(inst_tree, pinfo, &ei_openflow_v5_instruction_undecoded,
@@ -2947,7 +2979,6 @@ dissect_openflow_instruction_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     default:
         if (inst_length <= 4) {
             expert_add_info(pinfo, inst_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(inst_tree, pinfo, &ei_openflow_v5_instruction_undecoded,
@@ -3249,7 +3280,6 @@ dissect_openflow_portmod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     case OFPPMPT_EXPERIMENTER:
         if (prop_length <= 12) {
             expert_add_info(pinfo, prop_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -3268,7 +3298,6 @@ dissect_openflow_portmod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     default:
         if (prop_length <= 4) {
             expert_add_info(pinfo, prop_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_portmod_prop_undecoded,
@@ -3345,7 +3374,7 @@ static const value_string openflow_v5_tablemod_prop_type_values[] = {
 #define OFPTMPEF_IMPORTANCE  1<<1
 #define OFPTMPEF_LIFETIME    1<<2
 static int
-dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
+dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length _U_)
 {
     proto_item *ti;
     proto_tree *prop_tree, *flags_tree;
@@ -3399,7 +3428,6 @@ dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     case OFPTMPT_EXPERIMENTER:
         if (prop_length <= 12) {
             expert_add_info(pinfo, prop_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -3418,7 +3446,6 @@ dissect_openflow_tablemod_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     default:
         if (prop_length <= 4) {
             expert_add_info(pinfo, prop_tree, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_tablemod_prop_undecoded,
@@ -4351,7 +4378,6 @@ dissect_openflow_port_stats_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     case OFPPSPT_EXPERIMENTER:
         if (prop_length <= 12) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -4370,7 +4396,6 @@ dissect_openflow_port_stats_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     default:
         if (prop_length <= 4) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_port_stats_prop_undecoded,
@@ -4528,7 +4553,6 @@ dissect_openflow_queue_stats_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     case OFPMP_EXPERIMENTER:
         if (prop_length <= 12) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -4541,18 +4565,17 @@ dissect_openflow_queue_stats_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
         /* uint32_t experimenter_data[0]; */
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_queue_stats_prop_undecoded,
-                                     tvb, offset, length - 12, "Experimenter queue stats prop body.");
+                                     tvb, offset, prop_length - 12, "Experimenter queue stats prop body.");
         offset += prop_length - 12;
         break;
 
     default:
         if (prop_length <= 4) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_queue_stats_prop_undecoded,
-                                     tvb, offset, length - 4, "Unknown queue stats prop body.");
+                                     tvb, offset, prop_length - 4, "Unknown queue stats prop body.");
         offset += prop_length - 4;
         break;
     }
@@ -5098,7 +5121,6 @@ dissect_openflow_queue_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     case OFPQDPT_EXPERIMENTER:
         if (prop_len <= 16) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -5118,7 +5140,6 @@ dissect_openflow_queue_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     default:
         if (prop_len <= 8) {
             expert_add_info(pinfo, ti, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v5_queue_desc_prop_undecoded,
@@ -5614,7 +5635,6 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     case OFPACPT_EXPERIMENTER_MASTER:
         if (prop_len <= 12) {
             expert_add_info(pinfo, prop_item, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -5634,7 +5654,6 @@ dissect_openflow_async_config_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     default:
         if (prop_len <= 4) {
             expert_add_info(pinfo, prop_item, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v5_async_config_prop_undecoded,
@@ -5762,7 +5781,7 @@ dissect_openflow_requestforward_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     req_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_requestforward_request, &ti, "Request");
 
     req_begin = offset;
-    offset = dissect_openflow_message_v5(tvb, pinfo, req_tree, offset);
+    offset = dissect_openflow_nested_message_v5(tvb, pinfo, req_tree, offset);
 
     proto_item_set_len(ti, offset - req_begin);
 }
@@ -5789,15 +5808,16 @@ dissect_openflow_bundle_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* uint16_t type; */
     proto_tree_add_item(prop_tree, hf_openflow_v5_bundle_prop_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
     /* uint16_t length; */
     prop_item = proto_tree_add_item(prop_tree, hf_openflow_v5_bundle_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset+=2;
 
     switch (prop_type) {
     case OFPBPT_EXPERIMENTER:
         if (prop_len <= 12) {
             expert_add_info(pinfo, prop_item, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         /* uint32_t experimenter; */
@@ -5817,7 +5837,6 @@ dissect_openflow_bundle_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     default:
         if (prop_len <= 4) {
             expert_add_info(pinfo, prop_item, &ei_openflow_v5_length_too_short);
-            offset = length;
             break;
         }
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v5_bundle_prop_undecoded,
@@ -5912,7 +5931,7 @@ dissect_openflow_bundle_add_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     msg_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v5_bundle_add_message, &ti, "Message");
 
     msg_begin = offset;
-    offset = dissect_openflow_message_v5(tvb, pinfo, msg_tree, offset);
+    offset = dissect_openflow_nested_message_v5(tvb, pinfo, msg_tree, offset);
     proto_item_set_len(ti, offset - msg_begin);
 
     /* struct ofp_bundle_prop_header properties[0]; */
@@ -6046,6 +6065,8 @@ dissect_openflow_message_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 static int
 dissect_openflow_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    tvbuff_t *next_tvb;
+    uint16_t msg_length;
     proto_item *ti;
     proto_tree *openflow_tree;
     uint8_t type;
@@ -6058,7 +6079,14 @@ dissect_openflow_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     ti = proto_tree_add_item(tree, proto_openflow_v5, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v5);
 
-    dissect_openflow_message_v5(tvb, pinfo, openflow_tree, 0);
+    /* Dissect only the message, not anything that follows it */
+    msg_length = tvb_get_ntohs(tvb, 2);
+    if (msg_length >= 8 && msg_length < tvb_reported_length(tvb)) {
+        next_tvb = tvb_new_subset_length(tvb, 0, msg_length);
+    } else {
+        next_tvb = tvb;
+    }
+    dissect_openflow_message_v5(next_tvb, pinfo, openflow_tree, 0);
 
     return tvb_reported_length(tvb);
 }
@@ -9792,6 +9820,10 @@ proto_register_openflow_v5(void)
         {&ei_openflow_v5_message_undecoded,
             { "openflow_v5.message.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown message body.", EXPFILL }
+        },
+        {&ei_openflow_v5_nesting_too_deep,
+            { "openflow_v5.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+              "Too many nested OpenFlow messages", EXPFILL }
         },
         {&ei_openflow_v5_length_too_short,
             { "openflow_v5.message.length_too_short", PI_MALFORMED, PI_ERROR,
