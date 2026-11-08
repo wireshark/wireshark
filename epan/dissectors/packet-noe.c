@@ -610,7 +610,6 @@ static const unsigned utf8_properties[] = {
 };
 
 #define N_UTF8_PROPERTIES array_length(utf8_properties)
-#define UTF8_PROPERTY_SIZE (sizeof utf8_properties[0])
 
 static const unsigned bool_properties[] = {
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_negative_ack     ),
@@ -677,7 +676,6 @@ static const unsigned bool_properties[] = {
 };
 
 #define N_BOOL_PROPERTIES array_length(bool_properties)
-#define BOOL_PROPERTY_SIZE (sizeof bool_properties[0])
 
 /*-----------------------------------------------------------------------------
   globals
@@ -921,7 +919,7 @@ static const value_string noe_evt_locappl_identifier_str_vals[] = {
     ---------------------------------------------------------------------------*/
 static uint64_t decode_utf8(uint64_t utf8)
 {
-    static uint64_t unicode;
+    uint64_t unicode;
 
     if (utf8 <= UINT64_C(0xFF))
     {
@@ -931,7 +929,7 @@ static uint64_t decode_utf8(uint64_t utf8)
     else if (utf8 <= UINT64_C(0xFFFF))
     {
         unicode =
-            ((utf8 & UINT64_C(0x1F00) >> 2) +
+            (((utf8 & UINT64_C(0x1F00)) >> 2) +
              (utf8 & UINT64_C(0x3F)));
     }
     else if (utf8 <= UINT64_C(0xFFFFFF))
@@ -1054,24 +1052,26 @@ static void decode_evt_error(proto_tree *tree,
     proto_tree_add_item(tree, hf_noe_message, tvb, offset, length, ENC_NA);
 }
 
-static int compcp(const void *pcp1, const void *pcp2)
+/* The property tables are short and not sorted, search them linearly. */
+static bool property_in_table(const unsigned *table, size_t n, unsigned key)
 {
-    unsigned cp1 = *((unsigned *)pcp1);
-    unsigned cp2 = *((unsigned *)pcp2);
-
-    return (cp1 - cp2);
+    for (size_t i = 0; i < n; i++) {
+        if (table[i] == key)
+            return true;
+    }
+    return false;
 }
 
 static bool property_is_bool(uint8_t noe_class, uint8_t property_code)
 {
     unsigned key = ((noe_class << 8) | property_code);
-    return (bsearch(&key, bool_properties, N_BOOL_PROPERTIES, BOOL_PROPERTY_SIZE, compcp) != NULL);
+    return property_in_table(bool_properties, N_BOOL_PROPERTIES, key);
 }
 
 static bool property_is_utf8(uint8_t noe_class, uint8_t property_code)
 {
     unsigned key = ((noe_class << 8) | property_code);
-    return (bsearch(&key, utf8_properties, N_UTF8_PROPERTIES, UTF8_PROPERTY_SIZE, compcp) != NULL);
+    return property_in_table(utf8_properties, N_UTF8_PROPERTIES, key);
 }
 
 /*-----------------------------------------------------------------------------
