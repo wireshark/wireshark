@@ -104992,3 +104992,243 @@ class TestDissectNetlinkNetDm:
                            'net_dm.timestamp == "2023-11-14T22:13:21.000000007Z" || '
                            'net_dm.timestamp == "2023-11-14T22:13:20.123456789Z"',
                            'frame.number') == ['8', '24', '25']
+
+
+class TestDissectNetlinkNetfilter:
+    '''Netlink netfilter (nfnetlink) dissector, from the synthetic capture
+    netlink_netfilter_coverage.pcap.gz (LINKTYPE_NETLINK, netlink protocol
+    12). Frames: 1 ipset create, 2-4 conntrack, 5-9 expectations, 10-24
+    queue, 25-26 ulog, 27-40 ipset, 41-48 nftables, 49-58 other
+    subsystems and control messages.'''
+
+    CAP = 'netlink_netfilter_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file(cap), '-Y', flt, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_netfilter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 58 frames decode, without malformed packets or expert infos
+        in one and two passes. Payloads reach UDP (queue frames 10, 11,
+        12; the ulog packet 25) and NFLOG.'''
+        protocols = [l.strip() for l in self.fields(cmd_tshark, capture_file,
+                                                    test_env, self.CAP, 'frame',
+                                                    '_ws.col.protocol')]
+        assert len(protocols) == 58
+        assert [i + 1 for i, p in enumerate(protocols) if p == 'UDP'] == [10, 11, 12, 25]
+        assert protocols.count('NFLOG') == 1 and protocols[54] == 'NFLOG'
+        assert protocols[57] == 'Netlink'
+        assert protocols.count('Netlink netfilter') == 52
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                               '_ws.malformed || _ws.expert',
+                               'frame.number', passes=passes) == []
+
+    def test_netfilter_ipset_create(self, cmd_tshark, capture_file, test_env):
+        '''The data of an ipset CREATE is decoded with the CADT table
+        (HASHSIZE 18, MEMSIZE 26). The command mask had the subsystem
+        byte in it, so CREATE, LIST and SAVE used the ADT table and showed
+        these as NAME and COMMENT.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 1', 'netlink-netfilter.ipset_cadt_attr',
+                            'netlink-netfilter.ipset_adt_attr',
+                            'netlink-netfilter.ipset.comment',
+                            'netlink-netfilter.ipset.setname',
+                            'netlink-netfilter.ipset_command')
+        assert lines == ['18,26\t\t\tset0\t2']
+        # LIST (29) and SAVE (30) use CADT too, ADD, DEL, TEST (31-33) ADT
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {28, 29, 30, 31, 32, 33}', 'frame.number',
+                            'netlink-netfilter.ipset_command',
+                            'netlink-netfilter.ipset.cidr', 'netlink-netfilter.ipset.timeout',
+                            'netlink-netfilter.ipset.comment')
+        assert lines == [
+            '28\t2\t24\t3600\t', '29\t7\t24\t3600\t', '30\t8\t24\t3600\t',
+            '31\t9\t32\t60\ta comment', '32\t10\t32\t60\ta comment',
+            '33\t11\t32\t60\ta comment']
+
+    def test_netfilter_ipset_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Set names, type, family, flags, IP addresses and the nested ADT
+        containers (frame 34 holds two elements).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {28, 34, 39, 40}', 'frame.number',
+                            'netlink-netfilter.ipset.setname', 'netlink-netfilter.ipset.typename',
+                            'netlink-netfilter.ipset.family', 'netlink-netfilter.ipset.flags',
+                            'netlink-netfilter.ipset.ip_addr', 'netlink-netfilter.ipset.ip6_addr')
+        assert lines[0] == ('28\tset1\thash:ip\t2\t0x00000001\t'
+                            '192.0.2.1,198.51.100.7\t2001:db8::1')
+        assert lines[1] == '34\tset1\t\t\t\t192.0.2.1,192.0.2.1\t'
+        assert lines[2] == '39\tset2\t\t\t\t192.0.2.1\t'
+        assert lines[3] == '40\told,new\t\t\t\t\t'
+
+    def test_netfilter_conntrack(self, cmd_tshark, capture_file, test_env):
+        '''A conntrack message with the original, reply and master tuples,
+        status, helper, timeout, id and sequence adjustments; a message
+        in big endian byte order (frame 4); the same attributes without
+        the nested flag are data (frame 3).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 2',
+                            'netlink-netfilter.nfct_tuple.ip.ip_addr',
+                            'netlink-netfilter.nfct_tuple.ip.ip6_addr',
+                            'netlink-netfilter.nfct_tuple.proto.num',
+                            'netlink-netfilter.nfct_tuple.proto.src_port',
+                            'netlink-netfilter.nfct_tuple.proto.dst_port',
+                            'netlink-netfilter.nfct_tuple.zone',
+                            'netlink-netfilter.ct_attr.status', 'netlink-netfilter.ct_attr.timeout',
+                            'netlink-netfilter.ct_attr.id', 'netlink-netfilter.ct_help_attr.help_name',
+                            'netlink-netfilter.ct_seqadj_correction_pos',
+                            'netlink-netfilter.ct_seqadj_offset_before',
+                            'netlink-netfilter.ct_seqadj_offset_after')
+        assert lines == ['192.0.2.1,198.51.100.7,198.51.100.7,192.0.2.1\t2001:db8::1,2001:db8::2'
+                         '\t6,17,1\t12345,53,0\t80,5353,0\t7\t0x0000ffff\t120\t0x00001234\tftp'
+                         '\t1000,2000\t-5,5\t77,-77']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 3', 'netlink-netfilter.nfct_tuple.ip.ip_addr',
+                            'netlink-netfilter.ct_help_attr.help_name', 'netlink.attr_data')
+        assert lines == ['\t\t01020304,66747000,01020304,01020304,01020304,01020304']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 4', 'netlink-netfilter.ct_attr.status',
+                            'netlink-netfilter.ct_attr.timeout', 'netlink-netfilter.ct_attr.id')
+        assert lines == ['0x00000102\t1\t0x00000002']
+
+    def test_netfilter_expectation(self, cmd_tshark, capture_file, test_env):
+        '''Expectation attributes and the message types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {5, 6, 7, 8, 9}', 'frame.number',
+                            'netlink-netfilter.exp_type', 'netlink-netfilter.nfexp.timeout',
+                            'netlink-netfilter.nfexp.id', 'netlink-netfilter.nfexp.class',
+                            'netlink-netfilter.nfexp.zone', 'netlink-netfilter.nfexp.fn',
+                            'netlink-netfilter.nfexp.flags', 'netlink-netfilter.nfexp.nat.dir')
+        assert lines[0] == '5\t0\t30\t0x0000abcd\t2\t3\tftp_expect\t0x00000005\t1'
+        assert lines[1] == '6\t1\t\t\t\t\t\t\t'
+        assert lines[2] == '7\t2\t\t0x00000001\t\t\t\t0x00000007\t'
+        assert lines[3] == '8\t3\t\t\t\t\t\t\t'
+        assert lines[4] == '9\t4\t\t0x00000001\t\t\t\t\t'
+
+    def test_netfilter_queue_payload(self, cmd_tshark, capture_file, test_env):
+        '''The packet payload is dissected through the Ethertype of the
+        packet header: IPv4 (10, 11), IPv6 (12), an unknown Ethertype
+        and a payload without a packet header are data (13, 14).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {10, 11, 12, 13, 14}', 'frame.number',
+                            'netlink-netfilter.queue.packet.protocol', 'ip.src', 'ipv6.src',
+                            'data.len')
+        by = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert by['10'] == ['0x0800', '10.0.0.1', '', '8']
+        assert by['11'] == ['0x0800', '10.0.0.1', '', '8']
+        assert by['12'] == ['0x86dd', '', '102:304:506:708:90a:b0c:d0e:f10', '7']
+        assert by['13'] == ['0x9999', '', '', '12']
+        assert by['14'][0] == '' and by['14'][3] == '36'
+
+    def test_netfilter_queue_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attributes of a queued packet (frame 10), verdicts (15, 16
+        and the batch 17) and the hardware address (19, 20).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 10', 'netlink-netfilter.queue.packet.id',
+                            'netlink-netfilter.queue.packet.hook', 'netlink-netfilter.queue.nfmark',
+                            'netlink-netfilter.queue.ifindex_indev',
+                            'netlink-netfilter.queue.ifindex_outdev',
+                            'netlink-netfilter.queue.ifindex_physindev',
+                            'netlink-netfilter.queue.ifindex_physoutdev',
+                            'netlink-netfilter.queue.hwaddr.len', 'netlink-netfilter.queue.hwaddr.addr',
+                            'netlink-netfilter.queue.ct_info', 'netlink-netfilter.queue.caplen',
+                            'netlink-netfilter.queue.uid', 'netlink-netfilter.queue.gid',
+                            'netlink-netfilter.ct_attr.status', 'netlink-netfilter.ct_attr.timeout')
+        assert lines == ['77\t1\t85\t2\t3\t4\t5\t6\t02:00:00:00:00:01\t2\t60\t1000\t1001'
+                         '\t0x0000001f\t30']
+        # The timestamp, compared in UTC so that the time zone does not matter
+        assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                           'netlink-netfilter.queue.timestamp == "2023-11-14T22:13:20.123456789Z"',
+                           'frame.number') == ['10']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {15, 16, 17}', 'frame.number',
+                            'netlink-netfilter.queue_type', 'netlink-netfilter.queue.verdict.verdict',
+                            'netlink-netfilter.queue.verdict.id', 'netlink-netfilter.queue.nfmark')
+        assert lines == ['15\t1\t1\t77\t9', '16\t1\t3\t78\t', '17\t3\t\t\t']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {19, 20}', 'frame.number',
+                            'netlink-netfilter.queue.hwaddr.len', 'netlink-netfilter.queue.hwaddr.addr')
+        assert lines == ['19\t6\t02:00:00:00:00:aa', '20\t40\t02:00:00:00:00:aa']
+
+    def test_netfilter_queue_config(self, cmd_tshark, capture_file, test_env):
+        '''Queue configuration: command, parameters, maximum length, mask
+        and flags (frame 21; frame 23 in big endian); attributes with the
+        wrong length (22) show nothing.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {21, 22, 23}', 'frame.number',
+                            'netlink-netfilter.queue.config.command.command',
+                            'netlink-netfilter.queue.config.command.pf',
+                            'netlink-netfilter.queue.config.params.copy_range',
+                            'netlink-netfilter.queue.config.params.copy_mode',
+                            'netlink-netfilter.queue.config.queue_maxlen',
+                            'netlink-netfilter.queue.config.mask',
+                            'netlink-netfilter.queue.config.flags')
+        assert lines == ['21\t1\t2\t0x0000ffff\t2\t1024\t0x000000ff\t0x00000003',
+                         '22\t\t\t\t\t\t\t',
+                         '23\t1\t2\t\t\t1024\t0x000000ff\t']
+
+    def test_netfilter_ulog(self, cmd_tshark, capture_file, test_env):
+        '''A ulog packet is handed to NFLOG (prefix, Ethertype, interface,
+        payload).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 25', 'netlink-netfilter.ulog_type', 'nflog.prefix',
+                            'nflog.protocol', 'nflog.ifindex_indev', 'ip.src')
+        assert lines == ['0\ttest: \t0x0800\t2\t10.0.0.1']
+
+    def test_netfilter_nftables_rule(self, cmd_tshark, capture_file, test_env):
+        '''The one-line summary of each nftables expression on the
+        element, and the attributes of the rule.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 41', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        summaries = [l.strip() for l in stdout.splitlines()
+                     if l.strip().startswith('Attribute: Element  [')]
+        assert summaries == [
+            'Attribute: Element  [ meta load Netfilter packet mark => reg 1 ]',
+            'Attribute: Element  [ meta set Packet nftrace bit with reg 2 ]',
+            'Attribute: Element  [ cmp Equal reg 1 0x0a000001 ]',
+            'Attribute: Element  [ cmp unknown reg 1 0x0001020304050607 ]',
+            'Attribute: Element  [ cmp Greater than or equal reg 1 0x0102 ]',
+            'Attribute: Element  [ payload load 4b @ network header + 12 => reg 1 ]',
+            'Attribute: Element  [ payload write reg 2 => 2b @ transport header + 0 ]',
+            'Attribute: Element  [ payload write reg 2 => 2b @ transport header + 16'
+            ' csum_type 1 csum_off 18 csum_flags 0x1 ]',
+            'Attribute: Element  [ immediate reg 0 0x00000001 ]',
+            'Attribute: Element  [ immediate reg 0 0x0001020304050607 ]',
+            'Attribute: Element  [ nat Source NAT IPv4 addr_min reg 1 proto_min reg 2'
+            ' addr_max reg 3 proto_max reg 4 flags 0x6 ]',
+            'Attribute: Element  [ nat Destination NAT IPv6 ]',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {41, 43, 44, 45, 46}', 'frame.number',
+                            'netlink-netfilter.nftables_command', 'netlink-netfilter.nft_rule.table',
+                            'netlink-netfilter.nft_rule.chain', 'netlink-netfilter.nft_rule.handle',
+                            'netlink-netfilter.nft_rule.position',
+                            'netlink-netfilter.nft_rule.userdata', 'netlink-netfilter.nft_rule.id',
+                            'netlink-netfilter.nft_rule.position_id',
+                            'netlink-netfilter.nft_rule.chain_id',
+                            'netlink-netfilter.nft_rule.compat.proto',
+                            'netlink-netfilter.nft_rule.compat.flags')
+        assert lines[0] == ('41\t6\tfilter\tinput\t0x0000000000001234\t5\tuser data\t7\t8\t9\t2'
+                            '\t0x00000001')
+        assert lines[1:] == ['43\t7\tfilter\tinput\t0x0000000000000007\t\t\t\t\t\t\t',
+                             '44\t8\tfilter\tinput\t0x0000000000000008\t\t\t\t\t\t\t',
+                             '45\t25\tfilter\tinput\t0x0000000000000019\t\t\t\t\t\t\t',
+                             '46\t28\tfilter\tinput\t0x000000000000001c\t\t\t\t\t\t\t']
+
+    def test_netfilter_other_subsystems(self, cmd_tshark, capture_file, test_env):
+        '''Subsystems without a decoder show the attributes as data
+        (frames 49-54), other nftables messages only the header (47, 48).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number >= 49 && frame.number <= 54', 'frame.number',
+                            'netlink-netfilter.subsys', 'data.len')
+        assert lines == ['49\t5\t12', '50\t7\t16', '51\t8\t20', '52\t11\t16',
+                         '53\t12\t12', '54\t0\t12']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {47, 48}', 'frame.number',
+                            'netlink-netfilter.nftables_command', 'netlink-netfilter.nft_rule.table')
+        assert lines == ['47\t0\t', '48\t3\t']
