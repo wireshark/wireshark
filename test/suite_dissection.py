@@ -106051,3 +106051,121 @@ class TestDissectNetlinkRoute:
         rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 85',
                  'netlink-route.ifa_address.ipv4', 'netlink-route.ifa_flags32')
         assert rows == [['192.0.2.1', '128']]
+
+
+class TestDissectNetlinkSockDiag:
+    '''NETLINK_SOCK_DIAG over LINKTYPE_NETLINK from the synthetic capture
+    netlink-sock_diag_coverage.pcap.gz: requests (frames 1-19; port id 0),
+    AF_UNIX replies (20-25), AF_INET and AF_INET6 replies (26-41), AF_NETLINK
+    and AF_PACKET replies (42-46), compat and unknown messages (47-51), big
+    endian messages (52, 53) and the reproducer of "netlink-sock_diag: Fix
+    several small decoding errors" (54).'''
+
+    SOCK_DIAG_CAP = 'netlink-sock_diag_coverage.pcap.gz'
+
+    @staticmethod
+    def sock_diag_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        args = [cmd_tshark, '-r', capture_file(TestDissectNetlinkSockDiag.SOCK_DIAG_CAP),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sock_diag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode as sock diag without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.SOCK_DIAG_CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['Netlink sock diag'] * 54
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.SOCK_DIAG_CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_sock_diag_requests(self, cmd_tshark, capture_file, test_env):
+        '''Requests of the four families: show masks, ports, addresses and
+        state filters.'''
+        f = self.sock_diag_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number <= 6',
+                 'frame.number', 'netlink-sock_diag.unix_show', 'netlink-sock_diag.inode')
+        assert rows[0] == ['1', '0x0000007f', '0']
+        assert rows[5] == ['6', '0x0000003f', '4660']
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number >= 7 && frame.number <= 9',
+                 'netlink-sock_diag.inet_sport', 'netlink-sock_diag.inet_src_ip4',
+                 'netlink-sock_diag.inet_src_ip6', 'netlink-sock_diag.inet_states')
+        assert rows == [['22', '192.0.2.1', '', '4095'],
+                        ['53', '', '2001:db8::1', '4095'],
+                        ['22', '192.0.2.1', '', '1024']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number >= 10 && frame.number <= 19',
+                 'netlink-sock_diag.netlink_show', 'netlink-sock_diag.packet_show',
+                 'netlink-sock_diag.netlink_protocol', 'netlink-sock_diag.packet_protocol')
+        assert rows[0] == ['0x00000007', '', '255', '']
+        assert rows[4] == ['0x00000007', '', '0', '']
+        assert rows[5] == ['', '0x0000003f', '', '0x0003']
+        assert rows[9] == ['', '0x0000003f', '', '0x0008']
+
+    def test_sock_diag_unix_replies(self, cmd_tshark, capture_file, test_env):
+        '''AF_UNIX attributes: names (path and abstract), queue lengths,
+        memory information and the shutdown flags.'''
+        f = self.sock_diag_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 20',
+                 'netlink-sock_diag.unix_name', 'netlink-sock_diag.unix_peer_inode',
+                 'netlink-sock_diag.recv_queue', 'netlink-sock_diag.send_queue',
+                 'netlink-sock_diag.rmem_alloc', 'netlink-sock_diag.wmem_queued',
+                 'netlink-sock_diag.shutdown')
+        assert rows == [['/run/user/1000/bus', '4369', '286331153', '572662306',
+                         '1000', '6000', '0x03']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number in {21, 22}',
+                 'netlink-sock_diag.unix_name', 'netlink-sock_diag.shutdown')
+        assert rows == [['@abstract-name', '0x00'], ['@', '0x01,0x02,0x07']]
+
+    def test_sock_diag_rqlen_shutdown(self, cmd_tshark, capture_file, test_env):
+        '''Frame 54: the send queue is read from the second half of
+        UNIX_DIAG_RQLEN and the one byte SHUTDOWN attribute is shown once,
+        not again as raw data.'''
+        f = self.sock_diag_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 54',
+                 'netlink-sock_diag.recv_queue', 'netlink-sock_diag.send_queue',
+                 'netlink-sock_diag.shutdown')
+        assert rows == [['286331153', '572662306', '0x03']]
+        assert f(cmd_tshark, capture_file, test_env,
+                 'frame.number == 54 && netlink.attr_data', 'frame.number') == []
+
+    def test_sock_diag_inet_netlink_packet(self, cmd_tshark, capture_file, test_env):
+        '''AF_INET/AF_INET6 replies, the socket states, AF_NETLINK and
+        AF_PACKET replies.'''
+        f = self.sock_diag_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number in {26, 27}',
+                 'netlink-sock_diag.inet_sport', 'netlink-sock_diag.inet_src_ip4',
+                 'netlink-sock_diag.inet_src_ip6', 'netlink-sock_diag.recv_queue',
+                 'netlink-sock_diag.send_queue', 'netlink-sock_diag.shutdown')
+        assert rows == [['22', '192.0.2.1', '', '5', '6', '0x03'],
+                        ['22', '', '2001:db8::1', '5', '6', '0x03']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number >= 28 && frame.number <= 39',
+                 'netlink-sock_diag.state')
+        assert [r[0] for r in rows] == [str(i) for i in range(1, 13)]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number >= 42 && frame.number <= 46',
+                 'frame.number', 'netlink-sock_diag.netlink_portid',
+                 'netlink-sock_diag.netlink_dst_portid', 'netlink-sock_diag.packet_protocol',
+                 'netlink-sock_diag.rmem_alloc')
+        assert rows == [['42', '100', '0', '', '1000'], ['43', '1', '2', '', ''],
+                        ['44', '100', '0', '', ''], ['45', '', '', '0x0300', '1000'],
+                        ['46', '', '', '0x0008', '']]
+
+    def test_sock_diag_big_endian(self, cmd_tshark, capture_file, test_env):
+        '''Big endian messages: the state filter and the queue lengths
+        follow the message byte order.'''
+        f = self.sock_diag_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 52',
+                 'netlink-sock_diag.inet_states')
+        assert rows == [['4095']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 53',
+                 'netlink-sock_diag.recv_queue', 'netlink-sock_diag.send_queue')
+        assert rows == [['3', '4']]
