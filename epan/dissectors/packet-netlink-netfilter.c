@@ -1577,7 +1577,7 @@ dissect_ipset_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_da
 		case WS_IPSET_ATTR_DATA:
 			/* See ipset lib/PROTOCOL, CADT attributes only follow for some commands */
 			if (nla_type & NLA_F_NESTED) {
-				uint16_t command = nl_data->type & 0xffff;
+				uint16_t command = nl_data->type & 0xff;
 
 				if (command == WS_IPSET_CMD_CREATE ||
 				    command == WS_IPSET_CMD_LIST ||
