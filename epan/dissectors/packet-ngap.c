@@ -3605,6 +3605,7 @@ static int ett_ngap_SuccessfulOutcome;
 static int ett_ngap_UnsuccessfulOutcome;
 
 static expert_field ei_ngap_number_pages_le15;
+static expert_field ei_ngap_too_deep;
 static expert_field ei_ngap_disable_nrppa_encapsulation;
 
 enum{
@@ -4232,11 +4233,22 @@ ngap_50m_r19_fmt(char *s, uint32_t v)
   snprintf(s, ITEM_LABEL_LENGTH, "%dm (%d)", d*50, d);
 }
 
+#define NGAP_RANMODE_PROTO_KEY 1
+#define NGAP_MAX_MESSAGE_NESTING 4
+
 static GlobalRANNodeID_enum
 ngap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
 {
   struct ngap_private_data *ngap_data = ngap_get_private_data(pinfo);
   GlobalRANNodeID_enum ranmode_id = (GlobalRANNodeID_enum)-1;
+  void *cached;
+
+  /* The node type is learned from the NG Setup; keep the value seen at
+   * the first pass for this frame so later passes do the same. */
+  cached = p_get_proto_data(wmem_file_scope(), pinfo, proto_ngap, NGAP_RANMODE_PROTO_KEY);
+  if (cached) {
+    return (GlobalRANNodeID_enum)((int)GPOINTER_TO_INT(cached) - 2);
+  }
 
   if (ngap_data->ngap_conv) {
     if (addresses_equal(addr, &ngap_data->ngap_conv->addr_a) && port == ngap_data->ngap_conv->port_a) {
@@ -4244,6 +4256,10 @@ ngap_get_ranmode_id(address *addr, uint32_t port, packet_info *pinfo)
     } else if (addresses_equal(addr, &ngap_data->ngap_conv->addr_b) && port == ngap_data->ngap_conv->port_b) {
       ranmode_id = ngap_data->ngap_conv->ranmode_id_b;
     }
+  }
+  if (!PINFO_FD_VISITED(pinfo)) {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_ngap, NGAP_RANMODE_PROTO_KEY,
+                     GINT_TO_POINTER((int)ranmode_id + 2));
   }
   return ranmode_id;
 }
@@ -5487,7 +5503,7 @@ dissect_ngap_TAI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, p
   if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv &&
       (ngap_data->message_type == INITIATING_MESSAGE) &&
       (ngap_data->procedure_code == id_InitialUEMessage)) {
-    uint64_t key = (ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
+    uint64_t key = ((uint64_t)ngap_data->tai->plmn << 24) | ngap_data->tai->tac;
 
     if (wmem_map_lookup(ngap_data->ngap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
@@ -6933,7 +6949,7 @@ dissect_ngap_GlobalRANNodeID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
                                  ett_ngap_GlobalRANNodeID, GlobalRANNodeID_choice,
                                  &value);
 
-  if (ngap_data->ngap_conv && ngap_data->procedure_code == id_NGSetup) {
+  if (!PINFO_FD_VISITED(actx->pinfo) && ngap_data->ngap_conv && ngap_data->procedure_code == id_NGSetup) {
     if (addresses_equal(&actx->pinfo->src, &ngap_data->ngap_conv->addr_a) &&
         actx->pinfo->srcport == ngap_data->ngap_conv->port_a) {
       ngap_data->ngap_conv->ranmode_id_a = (GlobalRANNodeID_enum)value;
@@ -12722,7 +12738,7 @@ dissect_ngap_FiveG_TMSI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_item_set_hidden(ti);
   }
 
@@ -22600,7 +22616,7 @@ dissect_ngap_RAT_Information(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t 
 
     for (i = 0; i < wmem_array_get_count(ngap_data->supported_ta->plmn); i++) {
       key = wmem_new(wmem_file_scope(), uint64_t);
-      *key = ((*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
+      *key = (((uint64_t)*(uint32_t*)wmem_array_index(ngap_data->supported_ta->plmn, i)) << 24) | ngap_data->supported_ta->tac;
       wmem_map_insert(ngap_data->ngap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -26610,7 +26626,18 @@ dissect_ngap_NGAP_Message(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *ac
     return offset;
 
   subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NGAP_Message);
-  call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
+  {
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_ngap);
+    if (depth >= NGAP_MAX_MESSAGE_NESTING) {
+      expert_add_info(actx->pinfo, actx->created_item, &ei_ngap_too_deep);
+      return offset;
+    }
+    p_set_proto_depth(actx->pinfo, proto_ngap, depth + 1);
+    increment_dissection_depth(actx->pinfo);
+    call_dissector(ngap_handle, parameter_tvb, actx->pinfo, subtree);
+    decrement_dissection_depth(actx->pinfo);
+    p_set_proto_depth(actx->pinfo, proto_ngap, depth);
+  }
 
 
   return offset;
@@ -33773,7 +33800,8 @@ ngap_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
 static void set_stats_message_type(packet_info *pinfo, int type)
 {
     struct ngap_private_data* priv_data = ngap_get_private_data(pinfo);
-    priv_data->stats_tap->ngap_mtype = type;
+    if (priv_data->stats_tap)
+        priv_data->stats_tap->ngap_mtype = type;
 }
 
 
@@ -42978,6 +43006,7 @@ void proto_register_ngap(void) {
   };
 
   static ei_register_info ei[] = {
+    { &ei_ngap_too_deep, { "ngap.too_deep", PI_MALFORMED, PI_ERROR, "NGAP-Message nesting too deep", EXPFILL }},
     { &ei_ngap_number_pages_le15, { "ngap.number_pages_le15", PI_MALFORMED, PI_ERROR, "Number of pages should be <=15", EXPFILL }},
     { &ei_ngap_disable_nrppa_encapsulation,
       { "ngap.disable_nrppa_encapsulation", PI_PROTOCOL, PI_CHAT, "Encapsulation of NRPPa in NGAP is disabled", EXPFILL }
