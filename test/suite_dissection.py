@@ -105934,3 +105934,120 @@ class TestDissectNetlinkPsample:
                             'psample.out_tc', 'psample.latency', 'psample.proto')
         assert lines[0] == '15\t0x000005dc\t77\t4242\t\t\t0x0800'
         assert lines[1] == '16\t0x0000006e\t1000\t\t7\t99\t0x0800'
+
+
+class TestDissectNetlinkRoute:
+    '''rtnetlink (NETLINK_ROUTE over LINKTYPE_NETLINK) from the synthetic
+    capture netlink-route_coverage.pcap.gz: links (frames 1-6), addresses
+    (8-13), routes (14-18), neighbours (19-22), every other message type,
+    the netlink control messages (80-82), a multipart dump (83) and big
+    endian messages (84, 85).'''
+
+    ROUTE_CAP = 'netlink-route_coverage.pcap.gz'
+
+    @staticmethod
+    def route_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        args = [cmd_tshark, '-r', capture_file(TestDissectNetlinkRoute.ROUTE_CAP),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_route_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames decode without malformed packets or error expert infos, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.ROUTE_CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 85
+        assert protocols.count('Netlink route') == 82
+        assert protocols.count('Netlink') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.ROUTE_CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_route_links(self, cmd_tshark, capture_file, test_env):
+        '''Link attributes and statistics.'''
+        f = self.route_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                 'netlink-route.ifla_ifname', 'netlink-route.ifla_mtu',
+                 'netlink-route.ifla_hwaddr', 'netlink-route.ifla_qdisc',
+                 'netlink-route.ifla_operstate', 'netlink-route.ifla_gso_maxsize')
+        assert rows == [['eth0', '1500', '02:00:00:00:00:01', 'fq_codel', '6', '65536']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                 'netlink-route.ifla_linkstats.rxpackets',
+                 'netlink-route.ifla_linkstats.rx_errors.length_errs',
+                 'netlink-route.ifla_map.mem_start', 'netlink-route.ifla_map.irq')
+        assert rows == [['1,4294967296', '11,47244640266', '0x0000000000001000', '5']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                 'netlink-route.ifi_flags')
+        assert rows == [['17367113']]
+
+    def test_route_masked_attribute_types(self, cmd_tshark, capture_file, test_env):
+        '''Attributes with NLA_F_NESTED or NLA_F_NET_BYTEORDER set are decoded
+        (frames 6, 13 and 16; "netlink-route: Mask the attribute type and
+        fix a label").'''
+        f = self.route_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                 'netlink-route.ifla_ifname', 'netlink-route.ifla_mtu')
+        assert rows == [['lo', '1500,1280']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 13',
+                 'netlink-route.ifa_address.ipv4', 'netlink-route.ifa_label')
+        assert rows == [['192.0.2.1', 'eth0']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 16',
+                 'netlink-route.rta_oif', 'netlink-route.rta_iif')
+        assert rows == [['3', '2']]
+        # The "Tx bytes" label
+        rows = f(cmd_tshark, capture_file, test_env, 'netlink-route.ifla_linkstats.txbytes',
+                 'netlink-route.ifla_linkstats.txbytes')
+        assert rows[0] == ['4,17179869187']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.ROUTE_CAP), '-Y', 'frame.number == 1', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Tx bytes: 4' in stdout
+
+    def test_route_addresses_routes_neighbours(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 and IPv6 addresses, route interfaces, neighbour states.'''
+        f = self.route_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 8',
+                 'netlink-route.ifa_address.ipv4', 'netlink-route.ifa_label',
+                 'netlink-route.ifa_flags32')
+        assert rows == [['192.0.2.1,192.0.2.1,192.0.2.1', 'eth0:1', '384']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 9',
+                 'netlink-route.ifa_address.ipv6')
+        assert rows == [['2001:db8::1,2001:db8::1,2001:db8::1']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 14',
+                 'netlink-route.rta_oif', 'netlink-route.rta_iif')
+        assert rows == [['3', '2']]
+        rows = f(cmd_tshark, capture_file, test_env, 'netlink-route.nd_family',
+                 'frame.number', 'netlink-route.nd_state', 'netlink-route.nd_type')
+        assert rows == [['19', '128', '0x01'], ['20', '64', '0x02'], ['21', '0', '0x00']]
+
+    def test_route_legacy_and_dump(self, cmd_tshark, capture_file, test_env):
+        '''Legacy dump requests that carry only the family byte (GETADDR in
+        frame 12, GETROUTE in frame 18), a multipart dump of three links
+        and big endian messages.'''
+        f = self.route_fields
+        rows = f(cmd_tshark, capture_file, test_env,
+                 'netlink-route.ifa_family && !netlink-route.ifa_prefixlen', 'frame.number')
+        assert rows == [['12']]
+        rows = f(cmd_tshark, capture_file, test_env,
+                 'netlink-route.rt_family && !netlink-route.rt_dst_len', 'frame.number')
+        assert rows == [['18']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 83',
+                 'netlink-route.ifla_ifname', 'netlink-route.ifi_index')
+        assert rows == [['eth1,eth2,eth3', '1,2,3']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 84',
+                 'netlink-route.ifla_ifname', 'netlink-route.ifla_mtu',
+                 'netlink-route.ifla_map.irq')
+        assert rows == [['be0', '1500', '4']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 85',
+                 'netlink-route.ifa_address.ipv4', 'netlink-route.ifa_flags32')
+        assert rows == [['192.0.2.1', '128']]
