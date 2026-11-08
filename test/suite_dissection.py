@@ -111426,3 +111426,82 @@ class TestDissectOlsr:
         lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {13, 33}',
                 '-Tfields', '-eframe.number', '-eolsr.ansn', '-eolsr.nrl.minmax', '-eolsr.nrl.spf')
         assert lines == ['13\t3\t1,2,3\t4,5,6', '33\t3\t1,2,3\t4,5,6']
+
+
+class TestDissectOmapi:
+    CAP = 'omapi_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectOmapi.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_omapi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''18 OMAPI messages in the TCP port 7911 stream; no malformed packets
+        and no expert infos on them, in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi',
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['OMAPI'] * 18
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'omapi && (_ws.malformed || _ws.expert)', '-Tfields', '-eframe.number')
+            assert lines == []
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi', '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Y', 'omapi', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_omapi_status(self, cmd_tshark, capture_file, test_env):
+        '''The startup message (version and header length), alone and in
+        front of a full message.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi.version',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eomapi.version', '-eomapi.hlength',
+                '-eomapi.opcode')
+        assert lines == [
+            '4\tStatus message\t100\t24\t',
+            '6\tStatus message\t100\t24\t',
+            '8\tStatus message, Open\t100\t24\t1',
+        ]
+
+    def test_omapi_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode, with handle, id and response id, and an unknown
+        opcode.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi.opcode && frame.number >= 10 && frame.number <= 26',
+                '-Tfields', '-e_ws.col.info', '-eomapi.opcode', '-eomapi.handle', '-eomapi.id', '-eomapi.rid')
+        assert lines == [
+            'Open\t1\t0\t10\t0',
+            'Refresh\t2\t1\t11\t1',
+            'Update\t3\t2\t12\t2',
+            'Notify\t4\t3\t13\t0',
+            'Error\t5\t4\t14\t1',
+            'Delete\t6\t5\t15\t2',
+            'Notify cancel\t7\t6\t16\t0',
+            'Notify cancelled\t8\t7\t17\t1',
+            'Unknown opcode (0x0063)\t99\t8\t18\t2',
+        ]
+
+    def test_omapi_names_and_values(self, cmd_tshark, capture_file, test_env):
+        '''Message and object names, empty values and "no value".'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 8',
+                '-Tfields', '-eomapi.msg_name', '-eomapi.msg_value', '-eomapi.obj_name', '-eomapi.obj_value')
+        assert lines == ['type\thost\tname\t636c69656e7431']
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 28',
+                '-Tfields', '-eomapi.msg_name', '-eomapi.obj_name', '-eomapi.msg_value_length',
+                '-eomapi.object_value_length')
+        assert lines == ['type,exclusive,name\thostname,dummy,blob\t0,4294967295,300\t0,4294967295,200']
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi.no_value',
+                '-Tfields', '-eframe.number')
+        assert lines == ['28']
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi.empty_string',
+                '-Tfields', '-eframe.number')
+        assert lines == ['28']
+
+    def test_omapi_signature(self, cmd_tshark, capture_file, test_env):
+        '''Authentication id, length and the signature after the object.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'omapi.signature',
+                '-Tfields', '-eframe.number', '-eomapi.authid', '-eomapi.authlength', '-eomapi.opcode',
+                '-eomapi.signature')
+        assert lines == [
+            '32\t5\t16\t3\t00000000000000000000000000000000',
+            '34\t5\t16\t4\t00000000000000000000000000000000',
+        ]
