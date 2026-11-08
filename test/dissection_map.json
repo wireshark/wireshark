@@ -803,6 +803,7 @@
    "epan/dissectors/packet-cmpp.c"
   ],
   "TestDissectCms": [
+   "epan/dissectors/packet-ber.c",
    "epan/dissectors/packet-cms.c"
   ],
   "TestDissectCnip": [
@@ -3784,6 +3785,163 @@
   ],
   "TestDissectNoe": [
    "epan/dissectors/packet-noe.c"
+  ],
+  "TestDissectNovellPkis": [
+   "epan/dissectors/packet-novell_pkis.c"
+  ],
+  "TestDissectNrRrc": [
+   "epan/dissectors/packet-lte-rrc.c",
+   "epan/dissectors/packet-nas_5gs.c",
+   "epan/dissectors/packet-nr-rrc.c",
+   "epan/dissectors/packet-xnap.c"
+  ],
+  "TestDissectNrppa": [
+   "epan/dissectors/packet-nrppa.c"
+  ],
+  "TestDissectNsCertExts": [
+   "epan/dissectors/packet-ff.c",
+   "epan/dissectors/packet-ns_cert_exts.c",
+   "epan/dissectors/packet-nstrace.c"
+  ],
+  "TestDissectNsHa": [
+   "epan/dissectors/packet-ns-ha.c"
+  ],
+  "TestDissectNsMep": [
+   "epan/dissectors/packet-ns-mep.c",
+   "epan/dissectors/packet-ns-rpc.c"
+  ],
+  "TestDissectNsRpc": [
+   "epan/dissectors/packet-ns-rpc.c"
+  ],
+  "TestDissectNsh": [
+   "epan/dissectors/packet-nsh.c"
+  ],
+  "TestDissectNsrp": [
+   "epan/dissectors/packet-nsrp.c"
+  ],
+  "TestDissectNtOui": [
+   "epan/dissectors/packet-ndp.c",
+   "epan/dissectors/packet-nt-oui.c"
+  ],
+  "TestDissectNtTpcp": [
+   "epan/dissectors/packet-nt-tpcp.c"
+  ],
+  "TestDissectNtlmssp": [
+   "epan/dissectors/packet-dcerpc.c",
+   "epan/dissectors/packet-ntlmssp.c"
+  ],
+  "TestDissectNtp": [
+   "epan/dissectors/packet-ntp.c",
+   "epan/dissectors/packet-nts-ke.c"
+  ],
+  "TestDissectNtsKe": [
+   "epan/dissectors/packet-ntp.c",
+   "epan/dissectors/packet-nts-ke.c"
+  ],
+  "TestDissectNull": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-atalk.c",
+   "epan/dissectors/packet-ipx.c",
+   "epan/dissectors/packet-null.c",
+   "epan/dissectors/packet-osi.c",
+   "epan/dissectors/packet-ppp.c"
+  ],
+  "TestDissectNvme": [
+   "epan/dissectors/packet-nvme-tcp.c",
+   "epan/dissectors/packet-nvme.c"
+  ],
+  "TestDissectNvmeMiMi": [
+   "epan/dissectors/packet-exported_pdu.c",
+   "epan/dissectors/packet-nvme-mi-mi.c",
+   "epan/dissectors/packet-nvme-mi.c"
+  ],
+  "TestDissectNvmeRdma": [
+   "epan/dissectors/packet-nvme-rdma.c"
+  ],
+  "TestDissectNvmeTcp": [
+   "epan/dissectors/packet-nvme-tcp.c",
+   "epan/dissectors/packet-tls.c"
+  ],
+  "TestDissectNwmtp": [
+   "epan/dissectors/packet-nwmtp.c"
+  ],
+  "TestDissectNwp": [
+   "epan/dissectors/packet-nwp.c"
+  ],
+  "TestDissectNxp802154Sniffer": [
+   "epan/dissectors/packet-nxp_802154_sniffer.c",
+   "epan/dissectors/packet-zbee-nwk.c"
+  ],
+  "TestDissectOampdu": [
+   "epan/dissectors/packet-oampdu.c"
+  ],
+  "TestDissectObdIi": [
+   "epan/dissectors/packet-iso15765.c",
+   "epan/dissectors/packet-obd-ii.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectObex": [
+   "epan/dissectors/packet-obex.c"
+  ],
+  "TestDissectOcfs2": [
+   "epan/dissectors/packet-ocfs2.c"
+  ],
+  "TestDissectOcp1": [
+   "epan/dissectors/packet-ocp1.c"
+  ],
+  "TestDissectOer": [
+   "epan/dissectors/packet-ieee1609dot2.c",
+   "epan/dissectors/packet-oer.c"
+  ],
+  "TestDissectOicq": [
+   "epan/dissectors/packet-oicq.c"
+  ],
+  "TestDissectOipf": [
+   "epan/dissectors/packet-oipf.c"
+  ],
+  "TestDissectOlsr": [
+   "epan/dissectors/packet-olsr.c"
+  ],
+  "TestDissectOmapi": [
+   "epan/dissectors/packet-omapi.c"
+  ],
+  "TestDissectOmronFins": [
+   "epan/dissectors/packet-omron-fins.c"
+  ],
+  "TestDissectOpa": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-infiniband.c",
+   "epan/dissectors/packet-opa.c"
+  ],
+  "TestDissectOpaFe": [
+   "epan/dissectors/packet-opa-fe.c",
+   "epan/dissectors/packet-opa.c"
+  ],
+  "TestDissectOpaMad": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-opa-mad.c"
+  ],
+  "TestDissectOpaSnc": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-opa-snc.c"
+  ],
+  "TestDissectOpenflow": [
+   "epan/dissectors/packet-openflow.c"
+  ],
+  "TestDissectOpenflowV1": [
+   "epan/dissectors/packet-openflow_v1.c"
+  ],
+  "TestDissectOpenflowV4": [
+   "epan/dissectors/packet-openflow_v4.c"
+  ],
+  "TestDissectOpenflowV5": [
+   "epan/dissectors/packet-openflow_v5.c"
+  ],
+  "TestDissectOpenflowV6": [
+   "epan/dissectors/packet-openflow_v6.c"
+  ],
+  "TestDissectOpensafety": [
+   "epan/dissectors/packet-opensafety.c"
   ],
   "TestDissectOran": [
    "epan/dissectors/packet-oran.c"
