@@ -21,8 +21,8 @@ udpdump - Provide a UDP receiver that gets packets from network devices (like Ar
 [ *--extcap-config* ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--port*=<port> ]
 [ *--payload*=<type> ]
+[ *--port*=<port> ]
 
 == DESCRIPTION
 
@@ -59,11 +59,11 @@ Start capturing from specified interface save saved it in place specified by --f
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
 
---port=<port>::
-Set the listener port. Port 5555 is the default.
-
 --payload=<type>::
 Set the payload of the exported PDU. Default: data.
+
+--port=<port>::
+Set the listener port. Port 5555 is the default.
 
 == EXAMPLES
 
