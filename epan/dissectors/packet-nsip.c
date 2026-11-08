@@ -14,6 +14,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <epan/prefs.h>
 #include <epan/to_str.h>
@@ -224,7 +226,9 @@ static const value_string ip_address_type_vals[] = {
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t nsip_handle;
 
-static bool nsip_is_recursive;
+static expert_field ei_nsip_too_deep;
+
+#define NSIP_MAX_NS_PDU_NESTING 4
 
 typedef struct {
   uint8_t       iei;
@@ -336,11 +340,18 @@ decode_iei_ns_pdu(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
                       "NS PDU (%u bytes)", ie->value_length);
   next_tvb = tvb_new_subset_length(bi->tvb, bi->offset, ie->value_length);
   if (nsip_handle) {
-    bool was_recursive;
-    was_recursive = nsip_is_recursive;
-    nsip_is_recursive = true;
-    call_dissector(nsip_handle, next_tvb, bi->pinfo, bi->nsip_tree);
-    nsip_is_recursive = was_recursive;
+    /* Per-packet nesting counter; it is reset with the packet state, so an
+     * exception cannot leave it set for later packets. */
+    unsigned depth = p_get_proto_depth(bi->pinfo, proto_nsip);
+    if (depth >= NSIP_MAX_NS_PDU_NESTING) {
+      proto_tree_add_expert(bi->nsip_tree, bi->pinfo, &ei_nsip_too_deep, bi->tvb, bi->offset, ie->value_length);
+    } else {
+      p_set_proto_depth(bi->pinfo, proto_nsip, depth + 1);
+      increment_dissection_depth(bi->pinfo);
+      call_dissector(nsip_handle, next_tvb, bi->pinfo, bi->nsip_tree);
+      decrement_dissection_depth(bi->pinfo);
+      p_set_proto_depth(bi->pinfo, proto_nsip, depth);
+    }
   }
   bi->offset += ie->value_length;
 }
@@ -529,13 +540,15 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
   case NSIP_IP_ADDRESS_TYPE_IPV6:
     ie->total_length = 2 + ipv6_element.address_length;
     tvb_get_ipv6(bi->tvb, bi->offset+1, &ip6_addr);
-    proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv4,
+    proto_tree_add_ipv6(bi->nsip_tree, hf_nsip_ip_address_ipv6,
         bi->tvb, ie_start_offset, ie->total_length,
         &ip6_addr);
     break;
   default:
     return; /* error */
   }
+  /* The type byte has already been skipped by decode_ie() */
+  ie->value_length = ie->total_length - 1;
   bi->offset += ie->value_length;
 }
 
@@ -919,7 +932,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   bi.pinfo = pinfo;
   bi.parent_tree = tree;
 
-  if (!nsip_is_recursive) {
+  if (p_get_proto_depth(pinfo, proto_nsip) == 0) {
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GPRS-NS");
     col_clear(pinfo->cinfo, COL_INFO);
   }
@@ -937,7 +950,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     bi.nsip_tree = nsip_tree;
   }
 
-  if (!nsip_is_recursive) {
+  if (p_get_proto_depth(pinfo, proto_nsip) == 0) {
     col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   } else {
@@ -1128,9 +1141,16 @@ proto_register_nsip(void)
   };
 
   module_t *nsip_module;
+  expert_module_t *expert_nsip;
+  static ei_register_info ei[] = {
+    { &ei_nsip_too_deep, { "nsip.too_deep", PI_PROTOCOL, PI_WARN,
+        "NS PDU IEs nested too deeply", EXPFILL }},
+  };
 
   /* Register the protocol name and description */
   proto_nsip = proto_register_protocol("GPRS Network Service", "GPRS-NS", "gprs-ns");
+  expert_nsip = expert_register_protocol(proto_nsip);
+  expert_register_field_array(expert_nsip, ei, array_length(ei));
 
   /* Required function calls to register the header fields and
      subtrees used */
