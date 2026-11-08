@@ -100,6 +100,9 @@ struct packet_netlink_data {
 
 	int encoding;
 	uint16_t type;
+
+	packet_info *pinfo;	/* may be NULL */
+	unsigned depth;		/* current attribute nesting level */
 };
 
 /**

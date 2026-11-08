@@ -15,6 +15,7 @@
 #include <epan/arptypes.h>
 #include <epan/exceptions.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 #include <wiretap/wtap.h>
 #include <wsutil/ws_roundup.h>
@@ -154,6 +155,12 @@ static int * const netlink_header_standard_flags[] = {
 };
 
 
+/* Limit for nested attributes; each level is at least 4 bytes of packet. */
+#define NETLINK_MAX_NESTING 32
+
+static expert_field ei_netlink_nesting_too_deep;
+static expert_field ei_netlink_bad_length;
+
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int ett_attrib, void *data, struct packet_netlink_data *nl_data, proto_tree *tree, int offset, int length, netlink_attributes_cb_t cb)
@@ -182,6 +189,16 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 	length -= padding;
 
 	data_length = length;
+
+	/* Bound the recursion through attribute callbacks. */
+	if (nl_data->depth >= NETLINK_MAX_NESTING) {
+		if (nl_data->pinfo)
+			proto_tree_add_expert(tree, nl_data->pinfo, &ei_netlink_nesting_too_deep, tvb, offset, data_length);
+		return offset + data_length;
+	}
+	nl_data->depth++;
+	if (nl_data->pinfo)
+		increment_dissection_depth(nl_data->pinfo);
 
 	while (data_length >= 4) {
 		unsigned rta_len, rta_type, type;
@@ -286,6 +303,10 @@ dissect_netlink_attributes_common(tvbuff_t *tvb, int hf_type, int ett_tree, int 
 			THROW(ReportedBoundsError);
 		data_length -= rta_len;
 	}
+
+	if (nl_data->pinfo)
+		decrement_dissection_depth(nl_data->pinfo);
+	nl_data->depth--;
 
 	return offset;
 }
@@ -454,7 +475,7 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 	}
 
 	while (tvb_reported_length_remaining(tvb, offset) >= 16) {
-		int pkt_end_offset;
+		unsigned pkt_end_offset;
 		uint16_t msg_type;
 		uint32_t pkt_len;
 		uint32_t port_id;
@@ -462,6 +483,14 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 		bool dissected = false;
 
 		pkt_len = tvb_get_uint32(tvb, offset, encoding);
+
+		if (pkt_len >= 16 && pkt_len > tvb_reported_length_remaining(tvb, offset)) {
+			/* Longer than the data; clamp so the loop moves forward. */
+			proto_tree_add_expert_format(tree, pinfo, &ei_netlink_bad_length, tvb, offset, 4,
+				"Message length %u exceeds the remaining %u bytes", pkt_len,
+				tvb_reported_length_remaining(tvb, offset));
+			pkt_len = tvb_reported_length_remaining(tvb, offset);
+		}
 
 		pkt_end_offset = offset + pkt_len;
 
@@ -501,6 +530,8 @@ dissect_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 			nl_data.magic = PACKET_NETLINK_MAGIC;
 			nl_data.encoding = encoding;
 			nl_data.type = msg_type;
+			nl_data.pinfo = pinfo;
+			nl_data.depth = 0;
 
 			next_tvb = tvb_new_subset_length(tvb, offset, pkt_len);
 
@@ -685,9 +716,23 @@ proto_register_netlink(void)
 		&ett_netlink_attr_type,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_netlink_nesting_too_deep,
+			{ "netlink.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+			  "Netlink attributes nested too deeply", EXPFILL }
+		},
+		{ &ei_netlink_bad_length,
+			{ "netlink.bad_length", PI_MALFORMED, PI_ERROR,
+			  "Invalid netlink message length", EXPFILL }
+		},
+	};
+	expert_module_t *expert_netlink;
+
 	proto_netlink = proto_register_protocol("Linux netlink protocol",  "NETLINK", "netlink" );
 	proto_register_field_array(proto_netlink, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_netlink = expert_register_protocol(proto_netlink);
+	expert_register_field_array(expert_netlink, ei, array_length(ei));
 
 	netlink_handle = register_dissector("netlink", dissect_netlink, proto_netlink);
 
