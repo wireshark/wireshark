@@ -21,11 +21,11 @@ randpktdump - Provide an interface to generate random captures using randpkt
 [ *--extcap-config* ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--maxbytes*=<bytes> ]
+[ *--all-random* ]
 [ *--count*=<num> ]
 [ *--delay*=<ms> ]
-[ *--random-type*=<true|false> ]
-[ *--all-random*=<true|false> ]
+[ *--maxbytes*=<bytes> ]
+[ *--random-type* ]
 [ *--type*=<packet type> ]
 
 == DESCRIPTION
@@ -60,8 +60,8 @@ Start capturing from the specified interface and save it in the location specifi
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
 
---maxbytes=<bytes>::
-Set the max number of bytes per packet.
+--all-random::
+Choose a different random packet type for each packet if set to true.
 
 --count=<num>::
 Number of packets to generate (-1 for infinite).
@@ -69,11 +69,11 @@ Number of packets to generate (-1 for infinite).
 --delay=<ms>::
 Wait a number of milliseconds after writing each packet.
 
+--maxbytes=<bytes>::
+Set the max number of bytes per packet.
+
 --random-type::
 Choose a random packet type for all packets if set to true.
-
---all-random::
-Choose a different random packet type for each packet if set to true.
 
 --type=<packet type>::
 Use the selected packet type. To list all the available packet type, run randpktdump --help.
