@@ -117,7 +117,7 @@ dissect_ovs_dp_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_dp_attr type = (enum ws_ovs_dp_attr) nla_type;
+	enum ws_ovs_dp_attr type = (enum ws_ovs_dp_attr) (nla_type & NLA_TYPE_MASK);
 	struct netlink_ovs_dp_info *info = (struct netlink_ovs_dp_info *) data;
 	const uint8_t *str;
 	proto_item *pi;
