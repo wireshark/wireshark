@@ -423,6 +423,7 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
 {
     const QPalette pal = QApplication::palette();
     const QColor window     = c(ThemeManager::PaletteWindow,     pal.color(QPalette::Window));
+    const QColor base       = c(ThemeManager::PaletteBase,       pal.color(QPalette::Base));
     const QColor fieldBdr   = c(ThemeManager::FieldBorder,       pal.color(QPalette::Mid));
     const QColor sep        = c(ThemeManager::Separator,         pal.color(QPalette::Mid));
     // const QColor windowText = c(ThemeManager::PaletteWindowText, pal.color(QPalette::WindowText));
@@ -433,57 +434,76 @@ void ThemePreviewWidget::drawFilterBar(QPainter &p, const Layout &layout)
     p.setPen(sep);
     p.drawLine(layout.filterRect.bottomLeft(), layout.filterRect.bottomRight());
 
-    // The filter combo: a FieldBorder-framed field on the window background.
-    // Crucially, the FilterValid tint fills ONLY the central text box — the
-    // bookmark (left) and clear/apply (right) sit in the margin zones on the
-    // window colour, exactly like the real DisplayFilterEdit, where those
-    // buttons live in the line edit's Qt margins (outside the styled
-    // background) so the green never paints behind them.
+    // The filter combo, painted like FilterExpressionEdit: a 1px rounded
+    // FieldBorder frame around palette.base.  The FilterValid tint fills ONLY
+    // the text area between the two FieldBorder dividers; the bookmark (left)
+    // and clear/apply/history (right) sit on palette.base outside them.
+    // Everything is filled inside the frame's inner rect, so the tint can't
+    // reach past the frame at any device pixel ratio.
     QRect field = layout.filterRect.adjusted(8, 4, -8, -4);
-    p.setRenderHint(QPainter::Antialiasing, false);
-    p.setPen(fieldBdr);
-    p.setBrush(Qt::NoBrush);
-    p.drawRect(field.adjusted(0, 0, -1, -1));
+    const QRect inner = field.adjusted(1, 1, -1, -1);
 
     const int   iconH = qMin(14, field.height() - 4);
     const int   pad   = 5;
+    const int   iconTop = field.center().y() - iconH / 2 + 1;
 
-    // Left affordance: bookmark, painted with FilterBookmark, on the window bg.
-    QRect bookmark(field.left() + pad, field.center().y() - iconH / 2, iconH, iconH);
+    QRect bookmark(field.left() + 3, iconTop, iconH, iconH);
+    // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the history
+    // chevron — each tinted to its own Filter* token so the preview surfaces them.
+    const int applyW = iconH * 21 / 14;
+    QRect history(field.right() - 4 - iconH, iconTop, iconH, iconH);
+    QRect apply(history.left() - 6 - applyW, iconTop, applyW, iconH);
+    QRect clear(apply.left() - 4 - iconH,  iconTop, iconH, iconH);
+
+    // Each divider sits midway between its glyph and the text.
+    const int leftDivider  = bookmark.right() + 3;
+    const int rightDivider = clear.left() - pad / 2 - 1;
+
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, false);
+    QPainterPath clip;
+    clip.addRoundedRect(inner, 2, 2);
+    p.setClipPath(clip);
+    p.fillRect(inner, base);
+    // Text takes TextOnFilterValid, as the live filter edit does from the
+    // application stylesheet.
+    if (rightDivider - leftDivider > 1) {
+        const QRect tint(QPoint(leftDivider + 1, inner.top()),
+                         QPoint(rightDivider - 1, inner.bottom()));
+        p.fillRect(tint, validBg);
+        p.setFont(layout.labelFont);
+        p.setPen(c(ThemeManager::TextOnFilterValid, pal.color(QPalette::Text)));
+        p.drawText(tint.adjusted(pad, 0, -pad, 0),
+                   Qt::AlignVCenter | Qt::AlignLeft, QStringLiteral("tcp.port == 443"));
+    }
+    p.fillRect(QRect(leftDivider, inner.top(), 1, inner.height()), fieldBdr);
+    p.fillRect(QRect(rightDivider, inner.top(), 1, inner.height()), fieldBdr);
+    p.restore();
+
+    // The frame, stroked through the centre of the field's outermost pixels.
+    p.save();
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setPen(QPen(fieldBdr, 1));
+    p.setBrush(Qt::NoBrush);
+    p.drawRoundedRect(QRectF(field).adjusted(0.5, 0.5, -0.5, -0.5), 3, 3);
+    p.restore();
+
     const QPalette previewPal = previewPalette();
     // Each glyph paints the previewed theme's own Filter* token, not the live one.
-    auto paintGlyph = [&](const char *name, const QRect &r) {
+    auto paintGlyph = [&](const char *name, const QRect &r, ThemeManager::ThemeToken token) {
+        if (key_render_) {
+            ThemePreviewPick::paintKeyGlyph(&p, QStringLiteral(":/svg_icons/%1.svg").arg(QLatin1String(name)), r, token);
+            return;
+        }
         ContrastAdaptIcon glyph(name);
         glyph.setPalette(previewPal);
         glyph.setTokenColors(colors_);
         glyph.paint(&p, r);
     };
-    paintGlyph("bookmark-display", bookmark);
-
-    // Right affordances: apply pill (21:14, aka 3:2), clear ✕, and the history
-    // chevron — each tinted to its own Filter* token so the preview surfaces them.
-    const int applyW = iconH * 21 / 14;
-    QRect history(field.right() - 4 - iconH, field.center().y() - iconH / 2, iconH, iconH);
-    QRect apply(history.left() - 6 - applyW, field.center().y() - iconH / 2, applyW, iconH);
-    QRect clear(apply.left() - 4 - iconH,  field.center().y() - iconH / 2, iconH, iconH);
-    paintGlyph("filter-clear", clear);
-    paintGlyph("filter-apply", apply);
-    paintGlyph("filter-history", history);
-
-    // Central green text box, between the two affordance zones — the only part
-    // carrying the FilterValid tint.  Text takes TextOnFilterValid, as the live
-    // filter edit does from the application stylesheet.
-    const int greenLeft  = bookmark.right() + pad;
-    const int greenRight = clear.left() - pad;
-    if (greenRight > greenLeft) {
-        QRect green(greenLeft, field.top() + 1, greenRight - greenLeft, field.height() - 2);
-        p.setRenderHint(QPainter::Antialiasing, false);
-        p.fillRect(green, validBg);
-        p.setFont(layout.labelFont);
-        p.setPen(c(ThemeManager::TextOnFilterValid, pal.color(QPalette::Text)));
-        p.drawText(green.adjusted(pad, 0, -pad, 0),
-                   Qt::AlignVCenter | Qt::AlignLeft, QStringLiteral("tcp.port == 443"));
-    }
+    paintGlyph("bookmark-display", bookmark, ThemeManager::FilterBookmarkDisplay);
+    paintGlyph("filter-clear", clear, ThemeManager::FilterClear);
+    paintGlyph("filter-apply", apply, ThemeManager::FilterApply);
+    paintGlyph("filter-history", history, ThemeManager::FilterHistory);
 }
 
 void ThemePreviewWidget::drawColumnHeader(QPainter &p, const Layout &layout)
@@ -880,6 +900,7 @@ QImage ThemePreviewWidget::renderPickImage()
     // the unantialiased fonts.
     if (!pick_probe_) {
         pick_probe_ = std::make_unique<ThemePreviewWidget>();
+        pick_probe_->key_render_ = true;
         pick_probe_->setAttribute(Qt::WA_DontShowOnScreen);
         pick_probe_->show();
     }

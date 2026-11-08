@@ -26,6 +26,8 @@
 #include <functional>
 
 class QMouseEvent;
+class QPainter;
+class QRect;
 class QWidget;
 
 /**
@@ -104,6 +106,18 @@ public:
      * pixels, which are the same in both formats.
      */
     static QImage keyCanvas(const QSize &size);
+
+    /**
+     * Paints the shape of an icon in the key color of @p token, without
+     * antialiasing, so every pixel of the glyph names the token.
+     *
+     * @param painter   painter of the key render.
+     * @param svg_path  Qt resource path of the icon.
+     * @param rect      where the icon goes.
+     * @param token     the color the icon paints.
+     */
+    static void paintKeyGlyph(QPainter *painter, const QString &svg_path, const QRect &rect,
+                              ThemeManager::ThemeToken token);
 
     /**
      * The color a click at @p pos picks: the token of the pixel, or of the
