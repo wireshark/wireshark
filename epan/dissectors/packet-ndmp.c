@@ -2911,7 +2911,7 @@ dissect_ndmp_cmd(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree 
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
 		if(tree){
-			cmd_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ndmp, NULL, msg_vals[i].strptr);
+			cmd_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_ndmp, NULL, val_to_str_const(nh->msg, msg_vals, "Unknown"));
 		}
 	}
 
@@ -3097,6 +3097,11 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 				!(ndmp_rm & RPC_RM_LASTFRAG));
 
 			new_tvb = process_reassembled_data(tvb, 4, pinfo, "Reassembled NDMP", frag_msg, &ndmp_frag_items, NULL, tree);
+			if (new_tvb == NULL && (ndmp_rm & RPC_RM_LASTFRAG)) {
+				/* Reassembly is incomplete. */
+				pinfo->fragmented = save_fragmented;
+				return tvb_captured_length(tvb);
+			}
 		}
 
 		/*
@@ -4205,7 +4210,7 @@ proto_register_ndmp(void)
 	"Whether the dissector should defragment NDMP messages spanning multiple packets.",
 	&ndmp_defragment);
 	reassembly_table_register(&ndmp_reassembly_table,
-	    &addresses_reassembly_table_functions);
+	    &addresses_ports_reassembly_table_functions);
 }
 
 void
