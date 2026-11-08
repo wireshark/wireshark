@@ -107543,3 +107543,106 @@ class TestDissectNmea2000:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'exported_pdu',
                            ('frame.number', 'exported_pdu.prot_name', '_ws.col.protocol'))
         assert rows == [['157', 'nmea2000', 'nmea2000'], ['158', 'nmea2000', 'nmea2000']]
+
+
+class TestDissectNmf:
+    '''NMF (.NET Message Framing) on TCP port 9389 from the synthetic
+    capture nmf_coverage.pcap.gz: preamble and data records, records split
+    over TCP segments, an upgrade to application/negotiate with GSS-API
+    negotiation messages and protected packets. The protected packets
+    carry placeholder bytes only; nothing is decrypted.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('nmf_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nmf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''66 frames, all NMF but one TCP segment that is part of a
+        reassembled PDU; no malformed packets or warnings in one and two
+        passes (with two passes more segments of reassembled PDUs show TCP).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol',))
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 66
+        assert protocols.count('NMF') == 65
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_nmf_record_types(self, cmd_tshark, capture_file, test_env):
+        '''Every record type, the unknown type 255 and several records in
+        one segment (frame 16).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 30', ('frame.number', 'nmf.type'))
+        types = {int(r[0]): r[1] for r in rows}
+        assert types[1] == '0' and types[2] == '1' and types[3] == '2' and types[4] == '3'
+        assert types[5] == '9' and types[6] == '11' and types[7] == '12' and types[8] == '6'
+        assert types[12] == '4,5' and types[13] == '7' and types[14] == '8' and types[15] == '255'
+        assert types[16] == '0,1,2,3,6,6'
+
+    def test_nmf_via_and_upgrade_strings(self, cmd_tshark, capture_file, test_env):
+        '''The Via and Upgrade strings start after the size varint (they
+        started at the varint before "NMF: Bound the record size and fix
+        the record offsets"), also when the record is split over
+        segments (frames 31-45).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'nmf.via.uri || nmf.upgrade.protocol',
+                           ('frame.number', 'nmf.via.uri', 'nmf.upgrade.protocol'))
+        via = 'net.tcp://server.example.test:9389/Service'
+        assert rows == [
+            ['3', via, ''], ['5', '', 'application/x-other'], ['16', 'net.tcp://h/x', ''],
+            ['30', '', ''], ['32', via, ''], ['35', via, ''], ['43', '', 'application/x-other'],
+            ['46', via, 'application/negotiate'], ['56', via, ''], ['62', '', 'application/ssl-tls'],
+        ]
+
+    def test_nmf_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Records split over TCP segments are reassembled (the PDU is
+        reported in the segment that completes it).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {31, 33, 34, 36, 37, 38, 58, 59}',
+                           ('frame.number', 'tcp.reassembled_in'), ('-2',))
+        assert rows == [['31', '32'], ['33', '35'], ['34', '35'], ['36', '39'], ['37', '39'],
+                        ['38', '39'], ['58', '60'], ['59', '60']]
+
+    def test_nmf_upgrade_negotiate(self, cmd_tshark, capture_file, test_env):
+        '''After the Upgrade Response (frame 47) the messages are
+        negotiate messages (type and length) and after the one of type
+        0x14 (frame 53) they are protected packets, the same in one and
+        two passes (the state is only set in the first pass).'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 47 && frame.number <= 57',
+                               ('frame.number', 'nmf.negotiate.type', 'nmf.negotiate.length', 'nmf.type'), passes)
+            assert rows == [
+                ['47', '', '', '10'],
+                ['48', '0x10', '30', ''], ['49', '0x11', '9', ''], ['50', '0x11', '9', ''],
+                ['51', '', '', ''], ['52', '0x12', '30', ''], ['53', '0x14', '9', ''],
+                ['54', '', '33', '0,1'], ['55', '', '82', '6'], ['56', '', '87', '2,3,6'],
+                ['57', '', '52', ''],
+            ]
+
+    def test_nmf_protected_records(self, cmd_tshark, capture_file, test_env):
+        '''The unsealed protected packets are dissected as records (the
+        records of a payload follow each other: "NMF: Bound the record size
+        and fix the record offsets" fixed the offset of the second and
+        later records); a sealed one is shown as a payload.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {54, 56, 57, 60, 61}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['54', 'NMF GSS-API Privacy (decrypted): Version RecordMode Record'],
+            ['56', 'NMF GSS-API Privacy (decrypted): Via RecordKnown Encoding RecordSized Envelope Record'],
+            ['57', 'NMF GSS-API Privacy: payload (52 bytes)'],
+            ['60', 'NMF GSS-API Privacy (decrypted): Sized Envelope Record'],
+            ['61', 'NMF GSS-API Privacy (decrypted): Mode Record'],
+        ]
+
+    def test_nmf_sized_envelope(self, cmd_tshark, capture_file, test_env):
+        '''Sized envelopes with one, two and three octet sizes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {8, 9, 10, 11}',
+                           ('frame.number', 'frame.len', 'nmf.type'))
+        assert rows == [['8', '95', '6'], ['9', '257', '6'], ['10', '20058', '6'], ['11', '56', '6']]
