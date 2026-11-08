@@ -3624,11 +3624,166 @@
    "epan/dissectors/packet-ncp.c"
   ],
   "TestDissectNcp2222": [
+   "epan/dissectors/packet-ncp.c",
+   "epan/dissectors/packet-ncp2222.c"
+  ],
+  "TestDissectNcpNmas": [
+   "epan/dissectors/packet-json.c",
+   "epan/dissectors/packet-ncp-nmas.c",
+   "epan/dissectors/packet-ncp.c",
+   "epan/dissectors/packet-tr.c"
+  ],
+  "TestDissectNcpSss": [
+   "epan/dissectors/packet-ncp-sss.c",
    "epan/dissectors/packet-ncp.c"
+  ],
+  "TestDissectNcs": [
+   "epan/dissectors/packet-ncs.c"
+  ],
+  "TestDissectNcsi": [
+   "epan/dissectors/packet-ncsi.c"
+  ],
+  "TestDissectNdmp": [
+   "epan/dissectors/packet-ndmp.c"
+  ],
+  "TestDissectNdp": [
+   "epan/dissectors/packet-ndp.c"
+  ],
+  "TestDissectNdps": [
+   "epan/dissectors/packet-ipx.c",
+   "epan/dissectors/packet-ndps.c"
+  ],
+  "TestDissectNegoex": [
+   "epan/dissectors/packet-negoex.c"
+  ],
+  "TestDissectNetanalyzer": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-netanalyzer.c"
+  ],
+  "TestDissectNetbios": [
+   "epan/dissectors/packet-netbios.c",
+   "epan/dissectors/packet-smb.c"
+  ],
+  "TestDissectNetdump": [
+   "epan/dissectors/packet-netdump.c"
+  ],
+  "TestDissectNetgearEnsemble": [
+   "epan/dissectors/packet-netgear-ensemble.c"
+  ],
+  "TestDissectNetlink": [
+   "epan/dissectors/packet-netlink-net_dm.c",
+   "epan/dissectors/packet-netlink.c"
+  ],
+  "TestDissectNetlinkGeneric": [
+   "epan/dissectors/packet-netlink-generic.c",
+   "epan/dissectors/packet-netlink-net_dm.c"
+  ],
+  "TestDissectNetlinkHwsim": [
+   "epan/dissectors/packet-netlink-mac80211-hwsim.c"
+  ],
+  "TestDissectNetlinkNetfilter": [
+   "epan/dissectors/packet-netlink-netfilter.c",
+   "epan/dissectors/packet-nflog.c"
+  ],
+  "TestDissectNetlinkNl80211": [
+   "epan/dissectors/packet-eapol.c",
+   "epan/dissectors/packet-ieee80211.c",
+   "epan/dissectors/packet-netlink-nl80211.c"
+  ],
+  "TestDissectNetlinkOvsCtLimit": [
+   "epan/dissectors/packet-netlink-ovs_ct_limit.c"
+  ],
+  "TestDissectNetlinkOvsDatapath": [
+   "epan/dissectors/packet-netlink-ovs_datapath.c"
+  ],
+  "TestDissectNetlinkOvsFlow": [
+   "epan/dissectors/packet-netlink-ovs_flow.c",
+   "epan/dissectors/packet-netlink-ovs_packet.c"
+  ],
+  "TestDissectNetlinkOvsMeter": [
+   "epan/dissectors/packet-netlink-ovs_meter.c"
+  ],
+  "TestDissectNetlinkOvsPacket": [
+   "epan/dissectors/packet-netlink-ovs_flow.c",
+   "epan/dissectors/packet-netlink-ovs_packet.c"
+  ],
+  "TestDissectNetlinkOvsVport": [
+   "epan/dissectors/packet-netlink-ovs_vport.c"
+  ],
+  "TestDissectNetlinkPsample": [
+   "epan/dissectors/packet-netlink-psample.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectNetlinkRoute": [
+   "epan/dissectors/packet-netlink-route.c"
+  ],
+  "TestDissectNetlinkSockDiag": [
+   "epan/dissectors/packet-netlink-sock_diag.c"
   ],
   "TestDissectNetmon80211": [
    "epan/dissectors/packet-ieee80211.c",
    "epan/dissectors/packet-netmon.c"
+  ],
+  "TestDissectNfapi": [
+   "epan/dissectors/packet-nfapi.c"
+  ],
+  "TestDissectNflog": [
+   "epan/dissectors/packet-arp.c",
+   "epan/dissectors/packet-nflog.c"
+  ],
+  "TestDissectNfsCoverage": [
+   "epan/dissectors/file-file.c",
+   "epan/dissectors/packet-mount.c",
+   "epan/dissectors/packet-nfs.c"
+  ],
+  "TestDissectNfsacl": [
+   "epan/dissectors/packet-nfs.c",
+   "epan/dissectors/packet-nfsacl.c"
+  ],
+  "TestDissectNfsauth": [
+   "epan/dissectors/packet-nfsauth.c"
+  ],
+  "TestDissectNgapCoverage": [
+   "epan/dissectors/packet-nas_5gs.c",
+   "epan/dissectors/packet-ngap.c",
+   "epan/dissectors/packet-nrppa.c"
+  ],
+  "TestDissectNhrp": [
+   "epan/dissectors/packet-cdp.c",
+   "epan/dissectors/packet-clnp.c",
+   "epan/dissectors/packet-nhrp.c"
+  ],
+  "TestDissectNisplus": [
+   "epan/dissectors/packet-nisplus.c"
+  ],
+  "TestDissectNistCsor": [
+   "epan/dissectors/packet-nist-csor.c"
+  ],
+  "TestDissectNlm": [
+   "epan/dissectors/packet-nlm.c"
+  ],
+  "TestDissectNlsp": [
+   "epan/dissectors/packet-ipx.c",
+   "epan/dissectors/packet-nlsp.c"
+  ],
+  "TestDissectNmea0183Coverage": [
+   "epan/dissectors/packet-nmea0183.c"
+  ],
+  "TestDissectNmea2000": [
+   "epan/dissectors/packet-nmea2000.c",
+   "epan/dissectors/packet-socketcan.c"
+  ],
+  "TestDissectNmf": [
+   "epan/dissectors/packet-nmf.c",
+   "epan/dissectors/packet-spnego.c",
+   "epan/dissectors/packet-x11.c"
+  ],
+  "TestDissectNntp": [
+   "epan/dissectors/packet-nntp.c",
+   "epan/dissectors/packet-tls.c"
+  ],
+  "TestDissectNoe": [
+   "epan/dissectors/packet-noe.c"
   ],
   "TestDissectOran": [
    "epan/dissectors/packet-oran.c"
