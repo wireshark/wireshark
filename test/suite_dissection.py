@@ -109254,3 +109254,216 @@ class TestDissectNtOui:
         ]
         assert [l.split('\t')[3] for l in stdout.splitlines()[:2]] == [
             'Segment Hello', 'FlatNet Hello']
+
+
+class TestDissectNtp:
+    '''NTP (modes 1-7, extension fields, NTS, MACs and authenticators),
+    NTS-KE cookies and PTP/TCP transport, from the synthetic capture
+    ntp_coverage.pcapng.gz. NTS fields hold placeholder bytes: nothing is
+    decrypted. Frames 1 and 54 are NTS-KE records in Exported PDU
+    frames; they always carry the "TLS ALPN mismatch" error expert info
+    because there is no TLS session.'''
+
+    # Frame numbers of the capture
+    NTS_KE_FRAMES = (1, 54)
+    WARN_FRAMES = (1, 31, 54)       # frame 31: extension length not a multiple of 4
+    HISTORIC_FRAMES = (25, 26, 27, 28)
+    READSTAT_FRAMES = (65, 66)      # count 1 and 6 with associd 0
+    LONG_COUNT_FRAME = 104          # count 65530, authenticator behind it
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ntp_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ntp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''207 frames: 205 NTP and the two NTS-KE frames; no malformed
+        packets, in one and two passes; the only error expert infos are
+        the ALPN mismatches of the Exported PDU frames and the only
+        warning is the odd extension length in frame 31.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 207
+        assert protocols.count('NTP') == 205
+        assert protocols.count('NTS-KE') == 2
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number',
+                    passes=passes)
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert tuple(int(r[0]) for r in rows) == self.WARN_FRAMES
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert tuple(int(r[0]) for r in rows) == self.NTS_KE_FRAMES
+
+    def test_ntp_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''One pass and -2 give the same tree, except for the generated
+        request/response links, the cookie "used in" links (they point at
+        later frames); the TCP and PTP frames 204-207 (conversation
+        completeness, PTP analysis) are left out.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-V',
+                    '-r', capture_file('ntp_coverage.pcapng.gz'), '-Y', '!tcp && !ptp',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            outputs.append([l for l in stdout.splitlines()
+                    if not l.strip().startswith(('[Response In:', '[Request In:',
+                                                 '[Delta Time:', '[Used cookie in:'))])
+        assert len(outputs[0]) > 15000  # 207 frames
+        assert outputs[0] == outputs[1]
+
+    def test_ntp_reference_ids(self, cmd_tshark, capture_file, test_env):
+        '''Reference ID of stratum 0 (Kiss-o'-Death), 1 (reference source)
+        and above (IPv4 address), known and unknown codes.'''
+        expected = {
+            3: '192.0.2.1',
+            5: 'Global Position System',
+            6: "Unidentified reference source 'ABCD'",
+            7: 'Geostationary Orbit Environment Satellite',
+            10: 'Access denied by remote server',
+            11: 'Network Time Security (NTS) negative-acknowledgment (NAK)',
+            12: "Unidentified Kiss-o'-Death message 'ZZZZ'",
+        }
+        for frame, text in expected.items():
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('ntp_coverage.pcapng.gz'),
+                    '-Y', f'frame.number == {frame}', '-V', '-O', 'ntp',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert f'    Reference ID: {text}' in stdout.splitlines(), frame
+
+    def test_ntp_modes_and_versions(self, cmd_tshark, capture_file, test_env):
+        '''Modes 0-7 and the version strings in the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 3, 4, 14, 15, 16, 17, 18, 19, 20, 55, 105}',
+                '-Tfields', '-eframe.number', '-entp.flags.mode', '-e_ws.col.info')
+        assert [r[:3] for r in rows] == [
+            ['2', '3', 'NTP Version 4, client'],
+            ['3', '4', 'NTP Version 4, server'],
+            ['4', '3', 'NTP Version 3, client'],
+            ['14', '1', 'NTP Version 4, symmetric active'],
+            ['15', '2', 'NTP Version 4, symmetric passive'],
+            ['16', '5', 'NTP Version 4, broadcast'],
+            ['17', '0', 'NTP Version 4, reserved'],
+            ['18', '3', 'reserved, client'],
+            ['19', '3', 'reserved, client'],
+            ['20', '3', 'reserved, client'],
+            ['55', '6', 'NTP Version 4, control'],
+            ['105', '7', 'NTP Version 2, private, Request, PEER_LIST'],
+        ]
+
+    def test_ntp_extensions_and_macs(self, cmd_tshark, capture_file, test_env):
+        '''Network correction, historic extension notes, the extension
+        with a length that is not a multiple of 4 (with its warning) and
+        the MAC sizes (MD5, SHA-1, SHA-512, crypto-NAK).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.ext.historic', '-Tfields', '-eframe.number')
+        assert tuple(int(r[0]) for r in rows) == self.HISTORIC_FRAMES
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.ext.invalid_length', '-Tfields', '-eframe.number',
+                '-e_ws.expert.message')
+        assert rows == [['31', "Extension length 18 isn't a multiple of 4"]]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.ext.correction', '-Tfields', '-eframe.number',
+                '-entp.ext.correction')
+        assert [r[0] for r in rows] == ['23', '24']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {32, 33, 34, 35} && ntp.mac',
+                '-Tfields', '-eframe.number', '-entp.keyid', '-entp.mac')
+        assert [(r[0], r[1], len(r[2]) // 2) for r in rows] == [
+            ('32', '00000001', 16), ('33', '00000002', 20), ('34', '00000003', 64)]
+        # crypto-NAK: only a key ID of zero
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 35', '-Tfields', '-entp.keyid', '-entp.mac')
+        assert rows == [['00000000', '']]
+
+    def test_ntp_nts_cookies(self, cmd_tshark, capture_file, test_env):
+        '''A cookie from an NTS-KE record is found again in the client
+        request that uses it (frame 42); the cookie the server hands out
+        (frame 43) is the one the next request uses (frame 44) and is
+        listed with the frames that used it. Nothing is decrypted, so
+        there is no crypto_success field.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.nts.cookie.receive_frame || ntp.nts.cookie.use_frame || '
+                      'nts-ke.cookie.use_frame || ntp.nts.crypto_success',
+                '-Tfields', '-eframe.number', '-entp.nts.cookie.receive_frame',
+                '-entp.nts.cookie.use_frame', '-ents-ke.cookie.use_frame',
+                '-entp.nts.crypto_success', passes=('-2',))
+        assert rows == [
+            ['1', '', '', '42', ''],
+            ['42', '1', '', '', ''],
+            ['43', '', '44,53', '', ''],
+            ['44', '43', '', '', ''],
+            ['53', '43', '', '', ''],
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ntp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {42, 43}', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['NTP Version 4, client, NTS',
+                                       'NTP Version 4, server, NTS']
+
+    def test_ntp_control_readstat(self, cmd_tshark, capture_file, test_env):
+        '''READSTAT with association 0 and a count that is not a multiple
+        of 4 (frames 65 and 66) is not malformed (an item was read past
+        the data before "NTP: Fix endless loop and length wrap in NTS
+        extensions"); a count of 6 shows one item. The listing without a
+        tree must finish too.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {62, 65, 66}', '-Tfields',
+                '-eframe.number', '-entp.ctrl.count', '-entp.ctrl.item',
+                '-e_ws.malformed')
+        assert rows == [['62', '12', '1,1,1', ''],
+                        ['65', '1', '', ''],
+                        ['66', '6', '1', '']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ntp_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len(stdout.splitlines()) == 207
+
+    def test_ntp_control_authenticator(self, cmd_tshark, capture_file, test_env):
+        '''The authenticator follows the data: key index and type of
+        the MD5 (20) and SHA (24) forms, after padding to 8 octets; the
+        count of frame 104 is 65530, so the authenticator starts at 65542
+        (the offset wrapped at 16 bits before the fix).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.key_index', '-Tfields', '-eframe.number',
+                '-entp.ctrl.count', '-entp.key_index', '-entp.key_type',
+                '-entp.padding')
+        by_frame = {int(r[0]): r[1:4] for r in rows}
+        assert by_frame[87] == ['24', '0x00000005', '0']
+        assert by_frame[88] == ['24', '0x00000006', '1']
+        assert by_frame[self.LONG_COUNT_FRAME] == ['65530', '0x00000006', '1']
+        assert len(rows) == 12
+
+    def test_ntp_private_items(self, cmd_tshark, capture_file, test_env):
+        '''Mode 7 request codes with items: every code of the capture has
+        a request and a response with the item counts and sizes of the
+        capture.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ntp.priv.reqcode', '-Tfields', '-eframe.number',
+                '-entp.priv.reqcode', '-entp.priv.numitems')
+        assert len(rows) == 99
+        codes = sorted({int(r[1]) for r in rows})
+        assert codes == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18,
+                         19, 20, 21, 22, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36,
+                         37, 38, 39, 42, 44, 45, 99]
+        first = [r for r in rows if r[0] in ('105', '106')]
+        assert first == [['105', '0', '1'], ['106', '0', '2']]
+
+    def test_ntp_transports(self, cmd_tshark, capture_file, test_env):
+        '''NTP over TCP port 123 (frames 204 and 205) and in a PTP
+        organization extension TLV (frames 206 and 207).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 204', '-Tfields', '-eframe.number',
+                '-entp.flags.mode', '-etcp.port', '-eudp.dstport', '-eptp.v2.messagetype')
+        assert [(r[0], r[1]) for r in rows] == [('204', '3'), ('205', '4'),
+                                                ('206', '3'), ('207', '6')]
+        assert rows[0][2] == '50123,123' and rows[1][2] == '123,50123'
+        assert rows[2][3] == '319' and rows[3][3] == '319'
