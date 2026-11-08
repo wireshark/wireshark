@@ -108812,3 +108812,67 @@ class TestDissectNsip:
             assert lines[1][:2] == ['2', 'GPRS-NS']
             assert lines[1][4] == 'NS PDU IEs nested too deeply'
             assert lines[2] == ['3', 'GPRS-NS', 'NS_ALIVE', '', '']
+
+
+class TestDissectNsMep:
+    '''NetScaler GSLB metric exchange protocol (NS-MEP), from the synthetic
+    capture ns_mep_coverage.pcap.gz: Exported PDU frames naming the
+    "nstrace.mep" dissector (it has no port of its own).'''
+
+    def test_ns_mep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-36 are NS-MEP; frame 37 carries the NetScaler RPC
+        signature and is handed to NS-RPC. None is malformed or has a
+        warning or an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_mep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert protocols == ['NS-MEP'] * 36 + ['NS-RPC']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ns_mep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ns_mep_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The item text of an entry names the address, port and service
+        type. Eight calls passed FT_IPv4 instead of AT_IPv4 to
+        tvb_address_to_str(), which stopped tshark with an assertion on
+        every such packet ("nstrace (mep): Use AT_IPv4 with
+        tvb_address_to_str()"); frame 3 is a site metric update like the
+        reproducer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_mep_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 24, 27, 29, 30, 31}',
+                '-V', '-O', 'nstrace.mep',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        for expected in (
+                'Metric Update for 198.51.100.4:8080:NSSVC_HTTPSVR',
+                'Site persistence Domain Info for 198.51.100.1:80:NSSVC_HTTP',
+                'Site persistence Flush Domain Info for 198.51.100.1:80:NSSVC_HTTP',
+                'Site persistence Flush Service for 198.51.100.1:80:NSSVC_HTTP',
+                'Site persistence Get Service request for 198.51.100.1:80:NSSVC_HTTP',
+                'Site persistence Get Service response for 198.51.100.1:80:NSSVC_HTTP',
+            ):
+            assert expected in lines, expected
+
+    def test_ns_mep_item_lengths(self, cmd_tshark, capture_file, test_env):
+        '''The Get Service request and response items span the whole entry
+        (9 and 13 octets plus the 19 octet domain name); the length was
+        computed as start_offset - offset, which is negative.'''
+        from xml.etree import ElementTree
+        xml = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_mep_coverage.pcap.gz'),
+                '-Y', 'frame.number in {30, 31}', '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        sizes = {f.get('name'): int(f.get('size'))
+                 for f in ElementTree.fromstring(xml).iter('field')
+                 if f.get('name', '').endswith(('GetServReq', 'GetServResp'))}
+        assert sizes == {
+            'nstrace.mep.mfu.sitePersisGetServReq': 28,
+            'nstrace.mep.mfu.sitePersistenceGetServResp': 32,
+        }
