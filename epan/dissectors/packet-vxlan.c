@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/tfs.h>
+#include <epan/expert.h>
 #include "packet-vxlan.h"
 
 #define UDP_PORT_VXLAN  "4789,8472" /* The IANA assigned port is 4789, but Linux default is 8472 for compatibility with early adopters */
@@ -48,8 +49,11 @@ static int hf_vxlan_gpe_flag_ver;
 static int hf_vxlan_gpe_flag_reserved;
 static int hf_vxlan_gpe_reserved_16;
 static int hf_vxlan_next_proto;
+
 static int ett_vxlan;
 static int ett_vxlan_flags;
+
+static expert_field ei_vxlan_reserved_data;
 
 static int * const flags_fields[] = {
         &hf_vxlan_flag_g,
@@ -86,10 +90,10 @@ static int
 dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is_gpe)
 {
     proto_tree *vxlan_tree;
-    proto_item *ti;
+    proto_item *ti, *exp;
     tvbuff_t *next_tvb;
     unsigned offset = 0;
-    uint32_t vxlan_next_proto, vxlan_vni;
+    uint32_t vxlan_next_proto, vxlan_vni, reserved;
     uint16_t vxlan_gbp;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VxLAN");
@@ -123,7 +127,10 @@ dissect_vxlan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int is
         proto_item_append_text(ti, ", GP ID: %" PRIu16, vxlan_gbp);
     }
 
-    proto_tree_add_item(vxlan_tree, hf_vxlan_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN);
+    exp = proto_tree_add_item_ret_uint(vxlan_tree, hf_vxlan_reserved_8, tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
+    if (reserved) {
+        expert_add_info(pinfo, exp, &ei_vxlan_reserved_data);
+    }
     offset += 1;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -270,6 +277,12 @@ proto_register_vxlan(void)
         &ett_vxlan_flags,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_vxlan_reserved_data, { "vxlan.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserved field MUST be set to zero on transmission and ignored on receipt", EXPFILL }},
+    };
+
+    expert_module_t* expert_vxlan;
+
     /* Register the protocol name and description */
     proto_vxlan = proto_register_protocol("Virtual eXtensible Local Area Network", "VXLAN", "vxlan");
 
@@ -279,6 +292,8 @@ proto_register_vxlan(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_vxlan, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_vxlan = expert_register_protocol(proto_vxlan);
+    expert_register_field_array(expert_vxlan, ei, array_length(ei));
     vxlan_dissector_table = register_dissector_table("vxlan.next_proto", "VXLAN Next Protocol", proto_vxlan, FT_UINT8, BASE_DEC);
 
     /* Register dissector handles */
