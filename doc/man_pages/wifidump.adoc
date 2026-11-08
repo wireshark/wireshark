@@ -22,14 +22,14 @@ wifidump - Provides an interface for capturing Wi-Fi frames from a remote host t
 [ *--extcap-capture-filter*=<capture filter> ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--remote-host*=<IP address> ]
-[ *--remote-port*=<TCP port> ]
-[ *--remote-username*=<username> ]
-[ *--remote-password*=<password> ]
-[ *--sshkey*=<public key path> ]
-[ *--remote-interface*=<interface> ]
 [ *--remote-channel-frequency*=<channel frequency> ]
 [ *--remote-channel-width*=<channel width> ]
+[ *--remote-host*=<remote host> ]
+[ *--remote-interface*=<remote interface> ]
+[ *--remote-password*=<password> ]
+[ *--remote-port*=<remote port> ]
+[ *--remote-username*=<username> ]
+[ *--sshkey*=<private key path> ]
 
 [manarg]
 *wifidump*
@@ -104,31 +104,16 @@ List DLTs of specified interface.
 --extcap-config::
 List configuration options of specified interface.
 
+--extcap-capture-filter=<capture filter>::
+The capture filter. It corresponds to the value provided via the *tshark -f*
+option, and the Capture Filter field next to the interfaces list in the
+Wireshark interface.
+
 --capture::
 Start capturing from specified interface and write raw packet data to the location specified by --fifo.
 
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
-
---remote-host=<remote host>::
-The address of the remote host for capture.
-
---remote-port=<remote port>::
-The SSH port of the remote host.
-
---remote-username=<username>::
-The username for ssh authentication.
-
---remote-password=<password>::
-The password to use (if not ssh-agent and pubkey are used). WARNING: the
-passwords are stored in plaintext and visible to all users on this system. It is
-recommended to use keyfiles with a SSH agent.
-
---sshkey=<SSH private key path>::
-The path to a private key for authentication.
-
---remote-interface=<remote interface>::
-The remote network interface to capture from.
 
 --remote-channel-frequency=<channel frequency>::
 The remote channel frequency in MHz.
@@ -136,10 +121,25 @@ The remote channel frequency in MHz.
 --remote-channel-width=<channel width>::
 The remote channel width in MHz.
 
---extcap-capture-filter=<capture filter>::
-The capture filter. It corresponds to the value provided via the *tshark -f*
-option, and the Capture Filter field next to the interfaces list in the
-Wireshark interface.
+--remote-host=<remote host>::
+The address of the remote host for capture.
+
+--remote-interface=<remote interface>::
+The remote network interface to capture from.
+
+--remote-password=<password>::
+The password to use (if not ssh-agent and pubkey are used). WARNING: the
+passwords are stored in plaintext and visible to all users on this system. It is
+recommended to use keyfiles with a SSH agent.
+
+--remote-port=<remote port>::
+The SSH port of the remote host.
+
+--remote-username=<username>::
+The username for ssh authentication.
+
+--sshkey=<private key path>::
+The path to a private key for authentication.
 
 == EXAMPLES
 
