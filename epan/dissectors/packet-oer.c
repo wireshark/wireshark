@@ -546,7 +546,10 @@ static tvbuff_t *dissect_oer_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
     uint32_t pad_length=0;
     uint64_t value;
 
-    DISSECTOR_ASSERT(length > 0);
+    if (length == 0) {
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Zero bit length");
+        return NULL;
+    }
 
     uint32_t byte_length = (length + 7) / 8;
     out_tvb = oer_tvb_new_subset_length(tvb, offset, byte_length);
@@ -615,7 +618,7 @@ static tvbuff_t *dissect_oer_bit_string_display(tvbuff_t *tvb, uint32_t offset, 
                     // TODO should non-zero pad bits be masked from the value?
                     // When trailing zeroes are not present in the data, mark the
                     // last byte for the lack of a better alternative.
-                    proto_tree_add_bitmask_list_value(subtree, out_tvb, offset + MIN(i, length - 1), 1, section_named_bits, value);
+                    proto_tree_add_bitmask_list_value(subtree, out_tvb, MIN(i, byte_length - 1), 1, section_named_bits, value);
                 }
             }
         }
@@ -644,6 +647,11 @@ dissect_oer_bit_string_unconstr_with_display(tvbuff_t *tvb, uint32_t offset, asn
         length -= 1;
     } else {
         dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Zero length determinant");
+        return offset;
+    }
+
+    if (length > UINT32_MAX / 8) {
+        dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "bit string length too large");
         return offset;
     }
 
@@ -769,7 +777,7 @@ dissect_oer_null(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx _U_, proto_tre
     /* The encoding of the null value shall be empty. */
     proto_item *ti_tmp;
 
-    ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti_tmp = proto_tree_add_item(tree, hf_index, tvb, offset, 0, ENC_BIG_ENDIAN);
     proto_item_append_text(ti_tmp, ": NULL");
 
     return offset;
@@ -1123,7 +1131,7 @@ dissect_oer_any_oid(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree
     if (value_tvb)
         *value_tvb = tvb_new_subset_length(tvb, offset, length);
 
-    return offset;
+    return offset + length;
 }
 
 uint32_t
@@ -1206,7 +1214,7 @@ dissect_oer_open_type_internal(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx,
     if (type_cb) {
         switch (variant) {
         case CB_ASN1_ENC:
-            ((oer_type_fn)type_cb)(val_tvb, 0, actx, tree, hf_index);
+            ((oer_type_fn)type_cb)(val_tvb, 0, actx, subtree, hf_index);
             break;
         case CB_NEW_DISSECTOR:
             /* Pas actx->private_data as "data" to the called function */
@@ -1220,7 +1228,7 @@ dissect_oer_open_type_internal(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx,
         actx->created_item = proto_tree_add_expert(tree, actx->pinfo, &ei_oer_open_type, tvb, start_offset, offset - start_offset);
     }
 
-    return offset;
+    return offset + type_length;
 }
 uint32_t
 dissect_oer_open_type(tvbuff_t* tvb, uint32_t offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, oer_type_fn type_cb)
