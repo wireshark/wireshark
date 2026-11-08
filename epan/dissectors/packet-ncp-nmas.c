@@ -282,7 +282,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             /* No Op */
             break;
         case 8:             /* Login Store Management */
-            proto_tree_add_item(atree, hf_reply_buffer_size, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(atree, hf_reply_buffer_size, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
             msgverb = tvb_get_uint8(tvb, foffset);
             if (request_value) {
@@ -620,7 +620,7 @@ proto_register_nmas(void)
 
         { &hf_verb,
         { "Verb", "nmas.verb",
-            FT_UINT8, BASE_HEX, VALS(nmas_subverb_enum), 0x0, NULL, HFILL }},
+            FT_UINT32, BASE_HEX, VALS(nmas_subverb_enum), 0x0, NULL, HFILL }},
 
         { &hf_msg_verb,
         { "Message Verb", "nmas.msg_verb",
