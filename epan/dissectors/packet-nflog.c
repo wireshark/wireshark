@@ -103,8 +103,10 @@ static dissector_handle_t nflog_handle;
 
 static bool eth_ip_layout_inside = true;
 
+/* The TLV length and type are in the byte order of the host that
+   captured the packet, given by tlv_encoding. */
 static int
-dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_nflog_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned tlv_encoding)
 {
     const int start_tlv_offset = 4;
 
@@ -144,7 +146,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     offset = start_tlv_offset;
     /* TLVs */
     while (tvb_reported_length_remaining(tvb, offset) >= 4) {
-        uint16_t tlv_len = tvb_get_h_uint16(tvb, offset + 0);
+        uint16_t tlv_len = tvb_get_uint16(tvb, offset + 0, tlv_encoding);
         uint16_t tlv_type;
         uint16_t value_len;
 
@@ -155,7 +157,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             return offset;
 
         value_len = tlv_len - 4;
-        tlv_type = (tvb_get_h_uint16(tvb, offset + 2) & 0x7fff);
+        tlv_type = (tvb_get_uint16(tvb, offset + 2, tlv_encoding) & 0x7fff);
 
         bool handled = false;
         ti = proto_tree_add_bytes_format(nflog_tree, hf_nflog_tlv,
@@ -164,8 +166,8 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                          val_to_str_const(tlv_type, nflog_tlv_vals, "Unknown"),
                          tlv_type, tlv_len);
         tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
-        proto_tree_add_item(tlv_tree, hf_nflog_tlv_length, tvb, offset + 0, 2, ENC_HOST_ENDIAN);
-        proto_tree_add_item(tlv_tree, hf_nflog_tlv_type, tvb, offset + 2, 2, ENC_HOST_ENDIAN);
+        proto_tree_add_item(tlv_tree, hf_nflog_tlv_length, tvb, offset + 0, 2, tlv_encoding);
+        proto_tree_add_item(tlv_tree, hf_nflog_tlv_type, tvb, offset + 2, 2, tlv_encoding);
         switch (tlv_type) {
             case WS_NFULA_PACKET_HDR:
                 if (value_len == 4) {
@@ -316,6 +318,26 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     return tvb_captured_length(tvb);
 }
 
+/* LINKTYPE_NFLOG: wiretap has byte-swapped the TLV length and type into
+   the byte order of the reading host. */
+static int
+dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    return dissect_nflog_common(tvb, pinfo, tree, ENC_HOST_ENDIAN);
+}
+
+/* Called from Netlink (netlink-netfilter ULOG), with the Netlink byte
+   order in the packet_netlink_data. */
+static int
+dissect_nflog_netlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    struct packet_netlink_data *nl_data = (struct packet_netlink_data *)data;
+
+    if (nl_data && nl_data->magic == PACKET_NETLINK_MAGIC)
+        return dissect_nflog_common(tvb, pinfo, tree, (unsigned)nl_data->encoding);
+    return dissect_nflog_common(tvb, pinfo, tree, ENC_HOST_ENDIAN);
+}
+
 void
 proto_register_nflog(void)
 {
@@ -435,6 +457,7 @@ proto_register_nflog(void)
 
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
     nflog_handle = register_dissector("nflog", dissect_nflog, proto_nflog);
+    register_dissector_with_description("nflog_netlink", "NFLOG over Netlink", dissect_nflog_netlink, proto_nflog);
     proto_register_field_array(proto_nflog, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     // user preferences
