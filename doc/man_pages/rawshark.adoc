@@ -16,14 +16,15 @@ rawshark - Dump and analyze raw pcap data
 [ *-d* <encap:linktype>|<proto:protoname> ]
 [ *-F* <field to display> ]
 [ *-l* ]
-[ *-m* <bytes> ]
-[ *-o* <preference setting> ] ...
+[ *-m* <memory limit bytes> ]
+[ *-o* <preference>:<value> ] ...
 [ *-p* ]
 [ *-r* <pipe>|- ]
-[ *-R* <read (display) filter> ]
+[ *-R*|*--read-filter* <read (display) filter> ]
 [ *-s* ]
 [ *-S* <field format> ]
-[ *options* ]
+[ *-Y*|*--display-filter* <read (display) filter> ]
+[ *dissection options* ]
 
 [manarg]
 *rawshark*
@@ -87,7 +88,7 @@ as "packet number" 0. For each record, the packet number, matching fields,
 and a "1" or "0" are printed to indicate if the field matched any supplied
 display filter. A "-" is used to signal the end of a field description and
 at the end of each packet line. For example, the flags *-F ip.src -F
- dns.qry.type* might generate the following output:
+dns.qry.type* might generate the following output:
 
     0 FT_IPv4 BASE_NONE - 1 FT_UINT16 BASE_HEX -
     1 1="1" 0="192.168.77.10" 1 -
@@ -109,7 +110,7 @@ fields might be displayed.
 
 == OPTIONS
 
--d  <encapsulation>::
+-d  <encap:linktype>|<proto:protoname>::
 +
 --
 Specify how the packet data should be dissected. The encapsulation is of the
@@ -208,7 +209,7 @@ Read filters and display filters are synonymous in *rawshark*.
 Allows standard pcap files to be used as input, by skipping over the 24
 byte pcap file header.
 
--S::
+-S  <field format>::
 +
 --
 Use the specified format string to print each field. The following formats
@@ -357,4 +358,3 @@ https://www.wireshark.org/docs/man-pages.
 *Rawshark* uses the same packet dissection code that *Wireshark* does, as
 well as using many other modules from *Wireshark*; see the list of authors
 in the *Wireshark* man page for a list of authors of that code.
-
