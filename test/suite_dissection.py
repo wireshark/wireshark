@@ -111175,3 +111175,66 @@ class TestDissectOer:
                 'frame.number in {44, 45}', 'frame.number',
                 'ieee1609dot2.EndEntityType.app', 'ieee1609dot2.EndEntityType.enrol')
         assert rows == ['44\tTrue\tTrue', '45\tFalse,True,False\tTrue,False,False']
+
+
+class TestDissectOicq:
+    CAP = 'oicq_coverage.pcap.gz'
+    COMMANDS = [1, 2, 4, 5, 6, 9, 10, 11, 13, 18, 22, 23, 24, 26, 28, 29, 33, 34, 38, 39,
+                41, 48, 49, 60, 61, 62, 88, 92, 98, 101, 103, 128, 129, 181, 1015]
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectOicq.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_oicq_protocols(self, cmd_tshark, capture_file, test_env):
+        '''38 OICQ packets on UDP port 8000 and three packets that the
+        heuristic rejects; no malformed packets, no expert infos, the same
+        in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines.count('OICQ') == 38
+        assert lines[38:] == ['UDP'] * 3
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+        assert one[0] == 'OICQ Protocol '
+
+    def test_oicq_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command value that the dissector names, with the sequence
+        number and the OICQ number.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'oicq',
+                '-Tfields', '-eoicq.flag', '-eoicq.command', '-eoicq.seq', '-eoicq.qqid')
+        assert len(lines) == 38
+        f = [l.split('\t') for l in lines]
+        assert [int(x[1]) for x in f[:35]] == self.COMMANDS
+        assert [int(x[2]) for x in f[:35]] == list(range(1, 36))
+        assert [int(x[3]) for x in f[:35]] == list(range(10000, 10035))
+        assert all(x[0] == '0x02' for x in f)
+
+    def test_oicq_command_names(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {1, 18, 35}', '-V', '-O', 'oicq'),
+                encoding='utf-8', env=test_env)
+        assert '    Command: Log out (1)' in stdout
+        assert '    Command: Log in (34)' in stdout
+        assert '    Command: Withdraw message (1015)' in stdout
+        assert '    Flag: Oicq packet (0x02)' in stdout
+
+    def test_oicq_data(self, cmd_tshark, capture_file, test_env):
+        '''The data after the header is shown as text.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {2, 3, 34}',
+                '-Tfields', '-eframe.number', '-eoicq.data')
+        assert lines[0].startswith('2\thello world 1')
+        assert lines[1].startswith('3\thello world 2')
+        assert lines[2] == '34\tjklmnopqrstuvwxyz{|}\x03'
+
+    def test_oicq_rejected(self, cmd_tshark, capture_file, test_env):
+        '''An unknown flag or command stays plain UDP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'udp && !oicq',
+                '-Tfields', '-eframe.number', '-eudp.dstport')
+        assert lines == ['39\t8000', '40\t8000', '41\t8000']
