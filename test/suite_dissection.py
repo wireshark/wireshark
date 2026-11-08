@@ -104104,3 +104104,74 @@ class TestDissectNdps:
         rows = self.ndps_rows(cmd_tshark, capture_file, test_env,
                 'frame.number in {795, 797}', 'ndps.print_security', 'ndps.attribute_value')
         assert rows == [['795', '0x00000002', ''], ['797', '', '0x00000002,0x00000003']]
+
+
+class TestDissectNegoex:
+    '''NEGOEX messages carried in SPNEGO tokens of HTTP Negotiate
+    authentication (frames 4-25) and in Exported PDU frames that name the
+    "negoex" and "gssapi" dissectors (frames 28-33), from the synthetic
+    capture negoex_coverage.pcapng.gz. The authentication scheme ids,
+    checksums and exchange bytes are placeholders.'''
+
+    @staticmethod
+    def negoex_rows(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('negoex_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_negoex_messages(self, cmd_tshark, capture_file, test_env):
+        '''All eight message types decode, in one and two passes, without
+        malformed packets or error expert infos; frame 32 has a message type
+        that is not known and ends the dissection of that payload.'''
+        rows = self.negoex_rows(cmd_tshark, capture_file, test_env, 'negoex',
+                'negoex.message.type')
+        assert [(r[0], r[1]) for r in rows] == [
+            ('4', '0x00000000'), ('5', '0x00000001'),
+            ('6', '0x00000002,0x00000002'), ('7', '0x00000003,0x00000003'),
+            ('8', '0x00000004'), ('9', '0x00000005'),
+            ('10', '0x00000006,0x00000007'), ('11', '0x00000006,0x00000007'),
+            ('17', '0x00000000'), ('18', '0x00000001'), ('24', '0x00000000'),
+            ('28', '0x00000000'), ('29', '0x00000002,0x00000006,0x00000007'),
+            ('30', '0x00000001'), ('31', '0x00000007'), ('32', '0x00000008'),
+            ('33', '0x00000007')]
+        for passes in ((), ('-2',)):
+            assert self.negoex_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes) == []
+
+    def test_negoex_vectors(self, cmd_tshark, capture_file, test_env):
+        '''The authentication scheme, extension, exchange and checksum
+        vectors.'''
+        rows = self.negoex_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {4, 5, 17, 24, 6, 10, 11}',
+                'negoex.auth_scheme_array_count', 'negoex.extension_array_count',
+                'negoex.exchange_vec_byte_count', 'negoex.checksum_scheme',
+                'negoex.checksum_type')
+        assert rows == [
+            ['4', '2', '1', '', '', ''],
+            ['5', '3', '1', '', '', ''],
+            ['6', '', '', '26,16', '', ''],
+            ['10', '', '', '', '1', '15'],
+            ['11', '', '', '', '2', '16'],
+            ['17', '1', '0', '', '', ''],
+            ['24', '2', '3', '', '', ''],
+        ]
+
+    def test_negoex_extension_label(self, cmd_tshark, capture_file, test_env):
+        '''The extension vector is labelled with its count and its offset
+        ("Extensions: 3 at 96"); the count was shown twice before
+        "NEGOEX: Fix the extension count label and check the message
+        length".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('negoex_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 24', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Extensions: 3 at 96' in stdout
+        assert 'AuthSchemes: 2 at 120' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('negoex_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 4', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Extensions: 1 at 96' in stdout
