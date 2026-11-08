@@ -865,6 +865,13 @@ RAT-Type TYPE_PREFIX
 
 #.FN_HDR RRCReconfiguration
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration");
+  /* The message can be nested in itself through the SCG containers */
+  if (!nr_rrc_enter_nesting(actx->pinfo, tree, tvb)) {
+    return offset;
+  }
+
+#.FN_FTR RRCReconfiguration
+  nr_rrc_leave_nesting(actx->pinfo);
 
 #.FN_HDR RRCResume
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Resume");
@@ -935,6 +942,13 @@ RAT-Type TYPE_PREFIX
 
 #.FN_HDR RRCReconfigurationComplete
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration Complete");
+  /* The message can be nested in itself through the SCG containers */
+  if (!nr_rrc_enter_nesting(actx->pinfo, tree, tvb)) {
+    return offset;
+  }
+
+#.FN_FTR RRCReconfigurationComplete
+  nr_rrc_leave_nesting(actx->pinfo);
 
 #.FN_HDR RRCSetupComplete
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Setup Complete");
@@ -958,7 +972,9 @@ RAT-Type TYPE_PREFIX
 
   if (p_ueid != NULL) {
     /* Inform PDCP that the UE failed to execute the securityModeCommand */
-    set_pdcp_nr_security_algorithms_failed(*p_ueid);
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      set_pdcp_nr_security_algorithms_failed(*p_ueid);
+    }
   }
 
 #.FN_HDR ULInformationTransfer
@@ -1862,8 +1878,13 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UNS(&units_seconds)
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_str_be(actx->pinfo->pool, abs_time_info_tvb, 0, 6, NULL, false);
-    hf_str = wmem_strdup_printf(actx->pinfo->pool, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1], str[2],
-                                str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    /* The string is shorter if a nibble is 0xF */
+    if (strlen(str) == 12) {
+      hf_str = wmem_strdup_printf(actx->pinfo->pool, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1], str[2],
+                                  str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    } else {
+      hf_str = str;
+    }
     proto_tree_add_string(subtree, hf_nr_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
   }
 
@@ -2081,7 +2102,7 @@ VisitedPSCellInfo-r17/timeSpent-r17 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=UN
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
-  if (p_ueid != NULL && drb_mapping->rbid) {
+  if (p_ueid != NULL && drb_mapping->rbid && !PINFO_FD_VISITED(actx->pinfo)) {
     drb_mapping->ueid = *p_ueid;
     if (drb_mapping->is_drb) {
       /* Tell MAC about this mapping */
@@ -2352,7 +2373,9 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
   if (p_ueid != NULL) {
     /* Configure algorithms */
-    set_pdcp_nr_security_algorithms(*p_ueid, p_security_algorithms);
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      set_pdcp_nr_security_algorithms(*p_ueid, p_security_algorithms);
+    }
   }
 
 #.FN_BODY CipheringAlgorithm VAL_PTR=&value
