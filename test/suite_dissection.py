@@ -106530,3 +106530,90 @@ class TestDissectNfsCoverage:
         for kind in ('Child Attr Change', 'Dir Attr Change', 'Remove Entry',
                      'Add Entry', 'Rename Entry'):
             assert kind in out
+
+
+class TestDissectNfsacl:
+    '''NFSACL (RPC program 100227, versions 1-3) over UDP and TCP from the
+    synthetic capture nfsacl_coverage.pcap.gz; the RPC heuristics find the
+    program, so no Decode As is needed.'''
+
+    def test_nfsacl_frames(self, cmd_tshark, capture_file, test_env):
+        '''80 NFSACL frames (calls and replies of every procedure of the
+        three versions, UDP and TCP) and the 3 TCP handshake frames decode
+        without malformed packets or error expert infos in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 83
+        assert protocols.count('NFSACL') == 80
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nfsacl_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure numbers of versions 2 and 3 (messages per procedure).'''
+        for ver, expected in (
+                (2, {'0': 2, '1': 14, '2': 6, '3': 2, '4': 12, '5': 4, '9': 2}),
+                (3, {'0': 2, '1': 16, '2': 8, '3': 6, '4': 2})):
+            field = 'nfsacl.procedure_v%d' % ver
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                    '-Y', field, '-Tfields', '-e' + field,
+                ), encoding='utf-8', env=test_env, timeout=120)
+            procs = stdout.split()
+            assert {p: procs.count(p) for p in set(procs)} == expected
+
+    def test_nfsacl_status_and_access(self, cmd_tshark, capture_file, test_env):
+        '''Error statuses end the reply early (frames 16, 24, 38, 42, 52, 54,
+        62, 68); the ACCESS reply is compared with the request (frame 34 denies
+        two of the five requested access bits); GETXATTRDIR carries the
+        create flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                '-Y', 'nfs.status != 0',
+                '-Tfields', '-eframe.number', '-enfs.status',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [l + '\t' + v for l, v in (('16', '13'), ('24', '1'), ('38', '13'), ('42', '2'), ('52', '13'), ('54', '70'), ('62', '13'), ('68', '2'))]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                '-Y', 'frame.number == 34', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Access Denied: XT DL' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                '-Y', 'nfsacl.create',
+                '-Tfields', '-eframe.number', '-enfsacl.create',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['39\tTrue', '41\tFalse', '63\tTrue', '65\tFalse', '67\tTrue']
+
+    def test_nfsacl_masks_and_entries(self, cmd_tshark, capture_file, test_env):
+        '''Mask bits, ACL counts and the real entries of GETACL replies:
+        frame 8 has 6 ACL and 8 default entries of every type, frame 20
+        none, frame 23 (SETACL) has 2 ACL entries and 1 default entry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsacl_coverage.pcap.gz'),
+                '-Y', 'frame.number in {8,12,14,20,23}',
+                '-Tfields', '-eframe.number', '-enfsacl.mask', '-enfsacl.mask.acl_entry',
+                '-enfsacl.mask.default_acl_count', '-enfsacl.aclcnt', '-enfsacl.dfaclcnt',
+                '-enfsacl.aclent.type', '-enfsacl.aclent.perm',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert [r[:6] for r in rows] == [
+            ['8', '0x0000000f', 'True', 'True', '6', '8'],
+            ['12', '0x00000000', 'False', 'False', '6', '8'],
+            ['14', '0x0000000a', 'False', 'True', '6', '8'],
+            ['20', '0x00000000', 'False', 'False', '0', '0'],
+            ['23', '0x0000000f', 'True', 'True', '2', '1'],
+        ]
+        assert rows[0][6] == '1,2,4,8,16,32,4097,4098,4100,4104,4112,4128,4096,64'
+        assert rows[0][7] == '7,6,5,4,3,1,7,2,0,7,5,4,1,6'
+        assert rows[3][6:] == ['', '']
+        assert rows[4][6] == '1,2,4097'
