@@ -329,7 +329,7 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void 
 	 * future packets can be linked to a protocol.
 	 * Do not allow overwriting our control protocol.
 	 */
-	if (info.family_id && info.family_id != WS_GENL_ID_CTRL && info.family_name) {
+	if (!PINFO_FD_VISITED(pinfo) && info.family_id && info.family_id != WS_GENL_ID_CTRL && info.family_name) {
 		wmem_multimap_insert32(genl_family_map, GUINT_TO_POINTER(info.family_id), pinfo->num, wmem_strdup(wmem_file_scope(), (char*)info.family_name));
 	}
 
@@ -403,8 +403,8 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* No subdissector added the genl header, do it now. */
 	offset = dissect_genl_header(next_tvb, &info, nl_data, -1);
-	if (tvb_reported_length_remaining(tvb, offset)) {
-		next_tvb = tvb_new_subset_remaining(tvb, offset);
+	if (tvb_reported_length_remaining(next_tvb, offset)) {
+		next_tvb = tvb_new_subset_remaining(next_tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
 	}
 
