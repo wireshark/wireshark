@@ -111663,3 +111663,80 @@ class TestDissectOpa:
         assert [l.split('\t')[1] for l in lines] == [
             'ICMPv6', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'InfiniBand', 'InfiniBand',
             'Omni-Path', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'UDP', 'ARP', 'Omni-Path', 'Omni-Path']
+
+
+class TestDissectOpaFe:
+    '''Omni-Path FE (Fabric Executive) messages on TCP 3245-3248, from the
+    synthetic capture opa_fe_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, passes=(), fields=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('opa_fe_coverage.pcapng.gz'),
+                '-Y', display_filter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_opa_fe_frames(self, cmd_tshark, capture_file, test_env):
+        '''27 frames carry an FE message: 18 on TCP 3245 (6 requests and 12
+        responses) and 3 on each of 3246-3248. The messages hold SM (lid
+        routed and directed route), SA, PA, PM and a vendor MAD.'''
+        def count(f):
+            return len(self.frames(cmd_tshark, capture_file, test_env, f))
+        assert count('opa.fe') == 27
+        assert count('opa.fe && tcp.port == 3245') == 18
+        assert count('opa.fe && tcp.dstport == 3245') == 6
+        for port in (3246, 3247, 3248):
+            assert count(f'opa.fe && tcp.port == {port}') == 3
+        assert count('opa.sm.lid') == 12
+        assert count('opa.sm.dr') == 2
+        assert count('opa.sa') == 4
+        assert count('opa.pa') == 3
+        assert count('opa.pm') == 5
+        assert count('opa.vendor') == 1
+
+    def test_opa_fe_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes) == []
+            assert len(self.frames(cmd_tshark, capture_file, test_env, 'opa.fe', passes)) == 27
+
+    def test_opa_fe_pdu_framing(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one TCP segment (frame 30) are both dissected, and
+        a message split over three segments (frames 32-36) is dissected in
+        the last one.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number in {30, 32, 34, 36}',
+                fields=('opa.fe.length', 'opa.mad.attributeid', 'tcp.reassembled.data'))
+        assert [l.split('\t')[:3] for l in lines] == [
+            ['30', '120,152', '0x0010,0x0012'],
+            ['32', '', ''],
+            ['34', '', ''],
+            ['36', '312', '0x0015'],
+        ]
+
+    def test_opa_fe_rmpp_not_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''Behind the FE the RMPP segments of an SA response are decoded one
+        by one: frames 16 and 18 (first and last segment, same transaction
+        ID) are not reassembled.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number in {14, 16, 18}',
+                fields=('opa.rmpp.flags.first', 'opa.rmpp.segmentnumber', 'opa.reassembled.in', 'opa.fragments'))
+        assert lines == [
+            '14\tTrue\t0x00000001\t\t',
+            '16\tTrue\t0x00000001\t\t',
+            '18\tFalse\t0x00000002\t\t',
+        ]
+
+    def test_opa_fe_header(self, cmd_tshark, capture_file, test_env):
+        '''The FE header fields: magic number, length and header version of a
+        regular message and of a message with other values (frame 38).'''
+        lines = self.frames(cmd_tshark, capture_file, test_env,
+                'frame.number in {6, 38}',
+                fields=('opa.fe.magicnumber', 'opa.fe.headerversion', 'opa.fe.length', 'opa.fe.reserved64'))
+        assert lines == [
+            '6\t0x00003141\t0x00000001\t104\t0x0000000000000000',
+            '38\t0x4d414421\t0x00000002\t120\t0x0123456789abcdef',
+        ]
