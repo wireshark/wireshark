@@ -103706,3 +103706,149 @@ class TestDissectNcs:
         assert rows['8'][:2] == ['0x00000055', '0x00000066']
         assert rows['9'][:4] == ['0x00000007', '0x00000009', '224', '']
         assert rows['10'][:2] == ['0x0a0b0c0d', '0x01020304']
+
+
+class TestDissectNcsi:
+    '''NC-SI (DMTF DSP0222) from the synthetic capture
+    ncsi_coverage.pcapng.gz: frames 1-120 over Ethernet (ethertype 0x88f8)
+    and 118-120 over MCTP (a Linux cooked capture interface). Frames 1-52
+    commands and responses without a payload, 53-63 requests with a payload,
+    64-76 responses, 77-93 OEM commands (Mellanox, Broadcom, unknown),
+    94-96 get capabilities, 97-104 get version ID, 105-115 asynchronous
+    event notifications, 116 another header, 117 a frame too short for
+    NC-SI.'''
+
+    def test_ncsi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All but one frame are NCSI (frame 117 is shorter than the NC-SI
+        header and stays unclaimed); none is malformed or has an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 120
+        assert protocols.count('NCSI') == 119
+        assert protocols[116] == '0x88f8'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ncsi_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests, responses and notifications, and the
+        response and reason codes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1,2,55,64,65,68,74,77,85,94,97,105,116}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-encsi.resp', '-encsi.reason',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['1'][0] == 'Clear Initial State request , id 0x01, chan 0x00'
+        assert rows['2'][0] == 'Clear Initial State response, id 0x01, chan 0x00'
+        assert rows['55'][0] == 'Select Package request , id 0x01, chan 0x1f'
+        assert rows['64'] == ['Select Package response, id 0x1b, chan 0x01', '0x0000', '0x0000']
+        assert rows['65'] == ['Select Package response, id 0x1c, chan 0x01', '0x0001', '0x0002']
+        assert rows['68'][1:] == ['0x0004', '0x0006']
+        assert rows['74'][0] == 'Get Link Status response, id 0x01, chan 0x01'
+        assert rows['77'][0] == 'OEM Command request , id 0x01, chan 0x01'
+        assert rows['94'][0] == 'Get Capabilities response, id 0x01, chan 0x01'
+        assert rows['97'][0] == 'Get Version ID response, id 0x01, chan 0x01'
+        assert rows['105'][0] == 'Async Event Notification, chan 0x01'
+        assert rows['116'][0] == 'Enable Channel request , id 0x00, chan 0x01'
+
+    def test_ncsi_version_id(self, cmd_tshark, capture_file, test_env):
+        '''Version strings, firmware names and the PCI ids (known vendor,
+        device and subsystem, and unknown ids). Frames 103 and 104 carry
+        version bytes that are no BCD digits and 0xff in every field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {97,98,99,100}',
+                '-Tfields', '-eframe.number', '-encsi.ver', '-encsi.fw.name',
+                '-encsi.fw.ver', '-encsi.pci.vid', '-encsi.pci.did',
+                '-encsi.pci.ssid', '-encsi.iana',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['97'] == ['F1.F1.00.A.B', 'ConnectX-4', '10.20.30.40',
+                              'Intel Corporation(0x8086)',
+                              '21145 Fast Ethernet(0x0039)',
+                              '21145 Fast Ethernet(0x0039)', '33049']
+        assert rows['98'][0] == 'F3.F7.10'
+        assert rows['98'][5] == 'Aspire 7740G(0x1025-0x0347)'
+        assert rows['99'][3:] == ['Vadatech Inc.(0xABCD)', 'Not found', 'Not found', '0']
+        assert rows['100'][0] == 'F1.F0.A'
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {103,104}',
+                '-Tfields', '-eframe.number', '-encsi.ver',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['103', '104']
+
+    def test_ncsi_oem(self, cmd_tshark, capture_file, test_env):
+        '''Mellanox OEM commands: the allocated management address, the
+        MC affinity addresses and the temperature (readings only when the
+        response and reason codes are 0).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {78,85,88,89,90}',
+                '-Tfields', '-eframe.number', '-encsi.mlnx.rbt',
+                '-encsi.mlx.gama.mac', '-encsi.mlx.temp.index',
+                '-encsi.mlx.maxmeas_temp', '-encsi.mlx.maxop_temp',
+                '-encsi.mlx.current_temp', '-encsi.mlnx.v4addr',
+                '-encsi.mlnx.v6gbl',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['78'] == ['02:00:00:0a:0b:0c', '', '', '', '', '', '192.0.2.7', '2001:db8::7']
+        assert rows['85'][1] == '02:00:00:00:aa:bb'
+        assert rows['88'][2:6] == ['0x81', '45', '60', '85']
+        assert rows['89'][2:6] == ['0x01', '', '', '']
+        assert rows['90'][2:6] == ['0x01', '', '', '']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {83,84,91,92,93}',
+                '-Tfields', '-eframe.number', '-encsi.oem.id', '-encsi.mlnx.cmd',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['83'][0] == '0x0000113d'
+        assert rows['84'][0] == '0x12345678'
+        assert rows['91'] == ['0x00008119', '0x77']
+        assert rows['92'][0] == '0x0000113d'
+        assert rows['93'][0] == '0x00ffee00'
+
+    def test_ncsi_aen(self, cmd_tshark, capture_file, test_env):
+        '''Notification types: link status change, configuration required,
+        host driver status, delayed response ready and the reserved,
+        transport-specific and OEM ranges.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'ncsi.aen_type',
+                '-Tfields', '-eframe.number', '-encsi.aen_type',
+                '-encsi.aen_lsc_oemstat', '-encsi.aen_hcds',
+                '-encsi.aen_drr.otype', '-encsi.aen_drr.oiid',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert [r[0] for r in rows.values()] == ['0x00', '0x00', '0x01', '0x02', '0x03', '0x04',
+                                                  '0x6f', '0x70', '0x7f', '0x80', '0xfe']
+        assert rows['105'][1] == '0x00000011'
+        assert rows['108'][2] == 'True'
+        assert rows['109'][3:] == ['0x15', '0x2a']
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {110, 112, 114}', '-O', 'ncsi',
+            ), encoding='utf-8', env=test_env)
+        assert 'Reserved (0x04)' in stdout
+        assert 'Transport-specific AENs (0x70)' in stdout
+        assert 'OEM-specific AENs (0x80)' in stdout
+
+    def test_ncsi_mctp(self, cmd_tshark, capture_file, test_env):
+        '''NC-SI is also reached through MCTP message type 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncsi_coverage.pcapng.gz'),
+                '-Y', 'mctp && ncsi', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['118', '119', '120']
+        assert stdout.splitlines()[1].endswith('Get Version ID response, id 0x01, chan 0x00')
