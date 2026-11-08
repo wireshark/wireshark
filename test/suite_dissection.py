@@ -110133,3 +110133,144 @@ class TestDissectNvmeRdma:
             '81\tRC Acknowledge QP=0x000b10 ',
             '82\tRC RDMA Write Middle QP=0x000a10 ',
         ]
+
+
+class TestDissectNvmeTcp:
+    # Warning and error expert infos and malformed packets
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x600000'
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nvme_tcp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_nvme_tcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 198 frames decode, with no malformed packet and no warning
+        or error expert info in one and two passes. This reads the
+        reproducers of the fixed crashes (frames 173-189) too: C2HData with
+        command ID 0 and later N, and H2CData with a keyed SGL address that
+        aliased the H2CData key.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 198
+        assert lines.count('NVMe/TCP') == 70
+        assert lines.count('NVMe') == 98
+        assert lines.count('TLSv1') == 1       # not NVMe/TCP: rejected by the heuristic
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', self.BAD, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_nvme_tcp_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU type is decoded: counts of the PDU types of frames that
+        carry a single PDU, and the ICReq/ICResp fields.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.type', '-Tfields', '-envme-tcp.type')
+        counts = {t: lines.count(str(t)) for t in (0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12)}
+        assert counts == {0: 4, 1: 3, 2: 6, 3: 6, 4: 55, 5: 55, 6: 7, 7: 17,
+                          9: 2, 10: 1, 11: 1, 12: 1}
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.icreq && frame.number < 140', '-Tfields',
+                '-eframe.number', '-envme-tcp.icreq.pfv', '-envme-tcp.icreq.hpda',
+                '-envme-tcp.icreq.digest', '-envme-tcp.icreq.maxr2t')
+        assert lines == ['4\t0\t0\t0\t3', '72\t0\t1\t3\t3', '131\t0\t31\t1\t0',
+                         '133\t1\t0\t2\t4294967295']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.icresp && frame.number < 140', '-Tfields',
+                '-eframe.number', '-envme-tcp.icresp.cpda', '-envme-tcp.icresp.digest',
+                '-envme-tcp.icresp.maxdata')
+        assert lines == ['5\t0\t0\t131072', '73\t1\t3\t131072', '132\t31\t2\t65532']
+
+    def test_nvme_tcp_termination_requests(self, cmd_tshark, capture_file, test_env):
+        '''Termination requests in both directions: the FES values, and the
+        PDU specific field that follows it (PDU header field offset for 1,
+        digest for 3, unsupported parameter offset for 6, reserved for the
+        rest).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.c2htermreq || nvme-tcp.h2ctermreq', '-Tfields',
+                '-eframe.number', '-envme-tcp.c2htermreq.fes', '-envme-tcp.h2ctermreq.fes',
+                '-envme-tcp.c2htermreq.phfo', '-envme-tcp.h2ctermreq.phfo',
+                '-envme-tcp.c2htermreq.phd', '-envme-tcp.h2ctermreq.phd',
+                '-envme-tcp.c2htermreq.upfo', '-envme-tcp.h2ctermreq.upfo',
+                '-envme-tcp.c2htermreq.reserved', '-envme-tcp.h2ctermreq.reserved')
+        rows = [l.split('\t') for l in lines]
+        assert [r[0] for r in rows] == [str(n) for n in range(134, 146)]
+        # frame 134: Controller to Host, Invalid PDU Header Field, offset 0xc
+        assert rows[0][1] == '0x0001' and rows[0][3] == '0x0000000c'
+        # frame 139: Host to Controller, Header Digest Error
+        assert rows[5][2] == '0x0003' and rows[5][6] == '0x12345678'
+        # frame 142: Controller to Host, Unsupported Parameter
+        assert rows[8][1] == '0x0006' and rows[8][7] == '0x00000004'
+        # frame 145: Host to Controller, an FES that is not defined
+        assert rows[11][2] == '0x0077'
+        assert rows[11][10] == '0xabcdef01'
+
+    def test_nvme_tcp_digests(self, cmd_tshark, capture_file, test_env):
+        '''The header and data digests of the capture are CRC32C values:
+        with both checks on, none is reported bad. 36 PDUs have only a
+        header digest and 11 have both.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'nvme-tcp.check_hdgst:TRUE', '-o', 'nvme-tcp.check_ddgst:TRUE',
+                '-Y', 'nvme-tcp.hdgst', '-Tfields', '-envme-tcp.hdgst.status',
+                '-envme-tcp.ddgst.status')
+        assert len(lines) == 47
+        assert lines.count('1\t') == 36
+        assert lines.count('1\t1') == 11
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'nvme-tcp.check_hdgst:TRUE', '-o', 'nvme-tcp.check_ddgst:TRUE',
+                '-Y', 'nvme-tcp.hdgst.status == 0 || nvme-tcp.ddgst.status == 0')
+        assert lines == []
+
+    def test_nvme_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A C2HData PDU of 1024 octets sent in three TCP segments (frames
+        84-86) is dissected in the last one; the next frame carries the
+        response. Frames 159-160 carry three PDUs each.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 84 && frame.number <= 87', '-Tfields',
+                '-eframe.number', '-envme-tcp.data.length', '-e_ws.col.Info')
+        assert lines[0] == '84\t\t'
+        assert lines[2] == '86\t1024\tNVMeOF Data for Read, offset 0'
+        assert lines[3].startswith('87\t\tNVMe CQE for Read')
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 159', '-Tfields', '-e_ws.col.Info')
+        assert lines == ['NVMe Keep Alive| NVMe Keep Alive| NVMe Keep Alive']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 157', '-Tfields', '-e_ws.col.Info')
+        assert lines == ['Initialize Connection Request| NVMeOF Connect']
+
+    def test_nvme_tcp_command_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Data PDUs are tied to their commands: the C2HData of the reproducer
+        carries the frame of its Read, and PDUs that match no command (second
+        response, unknown command IDs, data for a Fabrics command) are shown as
+        unknown data. The queue ID comes from the Connect command.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'nvme-tcp.cmd_pkt && frame.number >= 173',
+                    '-Tfields', '-eframe.number', '-envme-tcp.cmd_pkt')
+            assert lines == ['178\t176', '179\t177', '186\t185', '195\t193', '196\t194']
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'nvme-tcp.unknown_data', '-Tfields', '-eframe.number',
+                    '-envme-tcp.type')
+            assert lines == ['66\t5', '114\t5', '115\t5', '116\t7', '117\t6', '119\t6',
+                             '146\t10', '147\t11', '148\t12']
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'nvme-tcp.cmd.qid == 1 && nvme-tcp.type == 4 && frame.number > 74', '-Tfields',
+                    '-eframe.number', '-e_ws.col.Info')
+            assert lines[:3] == ['76\tNVMe Read', '78\tNVMe Read', '83\tNVMe Read']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 74', '-Tfields', '-e_ws.col.Info')
+        assert lines == ['NVMeOF Connect']
+
+    def test_nvme_tcp_ready_to_transfer(self, cmd_tshark, capture_file, test_env):
+        '''A Write is split in two R2T and H2CData PDUs; the R2T fields and the
+        H2CData link to the Write are shown.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.r2t', '-Tfields', '-eframe.number',
+                '-envme-tcp.ttag', '-envme-tcp.r2t.offset', '-envme-tcp.r2t.length')
+        assert lines == ['89\t0x0005\t0\t512', '91\t0x0006\t512\t512']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-tcp.type == 6 && nvme-tcp.cmd_pkt == 88',
+                '-Tfields', '-eframe.number', '-e_ws.col.Info')
+        assert lines == ['90\tNVMeOF Data for Write, offset 0',
+                         '92\tNVMeOF Data for Write, offset 0']
