@@ -110572,3 +110572,121 @@ class TestDissectOampdu:
                 'frame.number', 'oampdu.event.type')
         assert rows[0] == '9\t0x01'
         assert rows[1] == '10\t0x02,0x03,0x04'
+
+
+class TestDissectObdIi:
+    '''OBD-II (mode 01, 04, 07 and 09) on SocketCAN frames, from the synthetic
+    capture obd_ii_coverage.pcap.gz. OBD-II has no port of its own: ISO 15765
+    gets the CAN IDs from its preferences and hands the payload to OBD-II
+    (directly or through UDS), or the disabled CAN heuristic obd-ii_can_heur
+    sees the raw frames (frames 271 and on, without the ISO-TP byte).'''
+
+    CAP = 'obd_ii_coverage.pcap.gz'
+    ISO = ('-o', 'iso15765.can.ids:0x7de,0x7e0-0x7e7',
+           '-o', 'iso15765.can.extended_ids:0x18db33f1,0x18da10f1,0x18da11f1,0x18dc1234')
+    OBD = (*ISO, '-d', 'iso15765.subdissector,obd-ii')
+    UDS = (*ISO, '-d', 'iso15765.subdissector,uds')
+    HEUR = ('--enable-heuristic', 'obd-ii_can_heur')
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, args, *fields):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args, '-Tfields',
+                *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def protocol_counts(rows):
+        return {p: rows.count(p) for p in sorted(set(rows))}
+
+    def test_obd_ii_default_is_plain_can(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences nothing claims the frames: they are CAN
+        and CAN FD.'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, (), '_ws.col.protocol')
+        assert self.protocol_counts(rows) == {'CAN': 286, 'CANFD': 5}
+
+    def test_obd_ii_over_iso15765(self, cmd_tshark, capture_file, test_env):
+        '''With the CAN IDs and the next protocol of ISO 15765 set to OBD-II,
+        253 frames decode as OBD-II without malformed packets or error
+        expert infos, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        rows = self.fields(cmd_tshark, cap, test_env, self.OBD, '_ws.col.protocol')
+        assert self.protocol_counts(rows) == {'CAN': 23, 'CANFD': 2, 'ISO15765': 13, 'OBD-II': 253}
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, *self.OBD, '-Y',
+                '_ws.malformed || _ws.expert.severity >= 0x00800000'), 'frame.number') == []
+
+    def test_obd_ii_requests(self, cmd_tshark, capture_file, test_env):
+        '''Queries on the extended functional ID: PID names, a two byte PID
+        and modes without a PID.'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, (*self.OBD, '-Y', 'frame.number in {1, 2, 6, 7, 8, 10}'),
+                'frame.number', 'obd-ii.mode', 'obd-ii.mode01_pid', '_ws.col.info')
+        assert rows == [
+            '1\t0x01\t0x0000\t Request[18db33f1] Show current data - PIDs supported [01 - 20]',
+            '2\t0x01\t0x000c\t Request[18db33f1] Show current data - Engine RPM',
+            '6\t0x01\t0x0102\t Request[18db33f1] Show current data - Unknown (102)',
+            '7\t0x04\t\t Request[18db33f1] Clear Diagnostic Trouble Codes and stored values',
+            '8\t0x07\t\t Request[18db33f1] Show pending Diagnostic Trouble Codes (detected during current or last driving cycle)',
+            '10\t0x09\t\t Request[18db33f1] Request vehicle information - Vehicle VIN',
+        ]
+
+    def test_obd_ii_response_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded response values: vehicle speed, the supported PID list
+        and the text of mode 09 (single frame VIN and ECU name; the
+        multi frame VIN and ECU name are reassembled by ISO 15765).'''
+        cap = capture_file(self.CAP)
+        rows = self.fields(cmd_tshark, cap, test_env, (*self.OBD, '-Y', 'obd-ii.mode01_vehicle_speed'),
+                'frame.number', 'obd-ii.mode01_vehicle_speed')
+        assert rows[0] == '41\t18'
+        rows = self.fields(cmd_tshark, cap, test_env, (*self.OBD, '-Y', 'obd-ii.VIN || obd-ii.ecu_name'),
+                'frame.number', 'obd-ii.VIN', 'obd-ii.ecu_name')
+        assert rows == ['240\tABC\t', '241\t\tECM', '250\tTESTVIN0123456789\t', '254\t\tECM-Engine',
+                        '259\tXYZ\t', '261\tXYZ\t']
+        rows = self.fields(cmd_tshark, cap, test_env, (*self.OBD, '-Y', 'frame.number == 24'),
+                'obd-ii.mode01_supported_pid')
+        assert rows == ['0x04,0x07,0x0b,0x0c,0x0e,0x12,0x14,0x16,0x17,0x1a,0x1b,0x1c,0x1d']
+
+    def test_obd_ii_ids_rejected(self, cmd_tshark, capture_file, test_env):
+        '''Frames on an ISO 15765 ID that is not an OBD-II ID, with a response
+        mode below 0x40 or with a one byte response stay ISO 15765.'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, (*self.OBD, '-Y', 'frame.number in {227, 255, 256, 257, 262}'),
+                'frame.number', '_ws.col.protocol')
+        assert rows == ['227\tISO15765', '255\tISO15765', '256\tISO15765', '257\tISO15765', '262\tISO15765']
+
+    def test_obd_ii_over_uds(self, cmd_tshark, capture_file, test_env):
+        '''UDS hands service IDs below 0x10 (the OBD-II modes) to OBD-II:
+        the same frames decode through UDS as OBD-II.'''
+        cap = capture_file(self.CAP)
+        rows = self.fields(cmd_tshark, cap, test_env, self.UDS, '_ws.col.protocol')
+        counts = self.protocol_counts(rows)
+        assert counts['OBD-II'] == 259
+        assert counts['UDS'] == 1
+        # Frame 227 is a response with no PID byte: ISO 15765 to OBD-II
+        # rejects it, but UDS passes it on and OBD-II reads past its end.
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, *self.UDS, '-Y',
+                'frame.number != 227 && (_ws.malformed || _ws.expert.severity >= 0x00800000)'),
+                'frame.number') == []
+        assert self.fields(cmd_tshark, cap, test_env, (*self.UDS, '-Y', '_ws.malformed'), 'frame.number') == ['227']
+
+    def test_obd_ii_can_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The CAN heuristic gets a can_info_t from SocketCAN, not an
+        iso15765_info_t: it decodes raw OBD-II frames (271 on), and does
+        not decode the three ISO-TP framed reproducer frames 268-270
+        (IDs 0x7df, 0x001 and 0x7e8). Before "OBD-II: Do not pass a
+        can_info_t as an iso15765_info_t" it read four bytes past the
+        structure and misread every field, so none of the raw frames were
+        decoded.'''
+        cap = capture_file(self.CAP)
+        rows = self.fields(cmd_tshark, cap, test_env, (*self.HEUR, '-Y', 'frame.number >= 268'),
+                'frame.number', '_ws.col.protocol', 'obd-ii.mode', 'obd-ii.mode01_pid', 'obd-ii.mode01_vehicle_speed')
+        by_frame = {r.split('\t')[0]: r.split('\t')[1:] for r in rows}
+        for f in ('268', '269', '270', '284', '285', '286', '287', '288', '289', '291'):
+            assert by_frame[f][0] in ('CAN', 'CANFD')
+        assert by_frame['271'] == ['OBD-II', '0x01', '0x000c', '']
+        assert by_frame['276'] == ['OBD-II', '0x01', '0x000d', '55']
+        assert by_frame['281'][0] == 'OBD-II'
+        assert sum(1 for v in by_frame.values() if v[0] == 'OBD-II') == 14
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, *self.HEUR, '-Y',
+                '_ws.malformed || _ws.expert.severity >= 0x00800000'), 'frame.number') == []
