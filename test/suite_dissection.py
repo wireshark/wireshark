@@ -104019,3 +104019,88 @@ class TestDissectNdp:
         assert 'State: Topology Change (1)' in state
         assert 'State: New (3)' in state
         assert 'State: Unknown (4)' in state
+
+
+class TestDissectNdps:
+    '''NDPS over TCP port 3014 and over SPX/IPX, from the synthetic capture
+    ndps_coverage.pcap.gz: every program and function with requests and
+    replies, every attribute value type, object identifiers of all lengths,
+    error replies, fragmented SPX messages and the reproducer of "NDPS: Keep
+    the fragment state per frame" (frames 828-830).'''
+
+    @staticmethod
+    def ndps_rows(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ndps_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ndps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''824 NDPS frames, in every program, without malformed packets or
+        error expert infos in one and two passes.'''
+        rows = self.ndps_rows(cmd_tshark, capture_file, test_env, 'ndps', '_ws.col.info')
+        assert len(rows) == 824
+        programs = {}
+        for _, info in rows:
+            if info.startswith('C NDPS '):
+                prog = info.split(',')[0]
+                programs[prog] = programs.get(prog, 0) + 1
+        assert programs == {
+            'C NDPS Print Program': 236,
+            'C NDPS Resource Manager Program': 64,
+            'C NDPS Notify Program': 39,
+            'C NDPS Registry Program': 34,
+            'C NDPS Broker Program': 24,
+            'C NDPS Programmatic Delivery Program': 16,
+            'C NDPS ': 1,
+        }
+        assert sum(1 for _, i in rows if i.startswith('R NDPS')) == 403
+        for passes in ((), ('-2',)):
+            assert self.ndps_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes) == []
+
+    def test_ndps_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Error replies are reported as faults and counts above 100 are
+        truncated with an expert info.'''
+        assert len(self.ndps_rows(cmd_tshark, capture_file, test_env,
+                '_ws.expert.message contains "Fault:"')) == 123
+        assert len(self.ndps_rows(cmd_tshark, capture_file, test_env, 'ndps.truncated')) == 27
+
+    def test_ndps_spx_fragments(self, cmd_tshark, capture_file, test_env):
+        '''A request in three SPX packets and a reply in two are reassembled
+        in the last packet (frames 818-822); a packet whose type is neither
+        request nor reply is continuation data (794 over TCP, 827 over SPX).'''
+        rows = self.ndps_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {794, 818, 819, 820, 821, 822, 827}', '_ws.col.info',
+                'ndps.segment.count', 'ndps.reassembled.length')
+        assert rows == [
+            ['794', '(Continuation Data)', '', ''],
+            ['818', '[NDPS Fragment]', '', ''],
+            ['819', '[NDPS Fragment]', '', ''],
+            ['820', 'C NDPS Print Program, Create', '3', '460'],
+            ['821', '[NDPS Fragment]', '', ''],
+            ['822', 'R NDPS - Ok', '2', '368'],
+            ['827', '(Continuation Data)', '', ''],
+        ]
+
+    def test_ndps_fragment_state_per_frame(self, cmd_tshark, capture_file, test_env):
+        '''A trailing unfinished fragment (frame 830) does not change how
+        the earlier complete frames 828 and 829 decode when they are
+        dissected again; before the fix, -2 showed them as data.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            rows = self.ndps_rows(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 826', '_ws.col.info', 'ndps.xid', passes=passes)
+            outputs.append(rows)
+        assert outputs[0] == outputs[1]
+        assert [r[1] for r in outputs[0]][-3:] == ['C NDPS Print Program, Bind PSM', 'R NDPS - Ok', '[NDPS Fragment]']
+
+    def test_ndps_attribute_label_reset(self, cmd_tshark, capture_file, test_env):
+        '''The name of an attribute from an earlier packet is not used for
+        the next one: a security level value is shown as such in frame 795,
+        the integer values of frame 797 are plain values.'''
+        rows = self.ndps_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {795, 797}', 'ndps.print_security', 'ndps.attribute_value')
+        assert rows == [['795', '0x00000002', ''], ['797', '', '0x00000002,0x00000003']]
