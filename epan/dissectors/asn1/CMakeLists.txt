@@ -71,6 +71,7 @@ set(ASN1_SRC_DIRS
 	ldap
 	li-ps-pdu
 	lix2
+	lixer
 	llc-v1
 	lnpdqp
 	logotypecertextn

@@ -92012,6 +92012,90 @@ class TestDissectLix2:
         assert stdout.split() == ['6']
 
 
+# lixer_coverage.pcapng.gz is synthetic: every packet was generated. An IEF
+# sends 3GPP TS 33.128 LI_XER IEFMessages to an ICF over TCP port 40001
+# (frames 1-10), which only Decode As gives to LI_XER, and over TLS 1.3
+# (frames 11-21), whose secrets are in the file. A message comes in two TCP
+# segments (frames 7 and 8) or two TLS records (frames 19 and 20), and two
+# messages in one (frames 9 and 21).
+class TestDissectLixer:
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('lixer_coverage.pcapng.gz'),
+                '-d', 'tcp.port==40001,lixer', *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_lixer_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every IEFRecord alternative, over TCP and TLS, without malformed
+        packets or warnings, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'lixer', '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.col.info', '-elixer.sequenceNumber')
+            assert [line.split('\t') for line in stdout.splitlines()] == [
+                ['4', 'LI_XER', 'associationRecord', ''],
+                ['5', 'LI_XER', 'keepalive', '1'],
+                ['6', 'LI_XER', 'keepaliveResponse', '1'],
+                ['8', 'LI_XER', 'deassociationRecord', ''],
+                ['9', 'LI_XER', 'keepalive, associationRecord', '2'],
+                ['10', 'LI_XER', 'keepaliveResponse', '2'],
+                ['17', 'LI_XER', 'associationRecord', ''],
+                ['18', 'LI_XER', 'keepaliveResponse', '1'],
+                ['20', 'LI_XER', 'deassociationRecord', ''],
+                ['21', 'LI_XER', 'keepalive, associationRecord', '2'],
+            ]
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_lixer_tls_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The TLS heuristic finds the TLS stream.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '--disable-heuristic', 'lixer_tls',
+                '-Y', 'lixer', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['4', '5', '6', '8', '9', '10']
+
+    def test_lixer_identities(self, cmd_tshark, capture_file, test_env):
+        '''SUPI, GPSI and PEI, with the IMSI and MSISDN digits, and a SUCI
+        with the null scheme, which gives the IMSI too.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 8, 9}', '-Tfields', '-E', 'occurrence=a',
+                '-eframe.number', '-elixer.iMSI', '-elixer.nAI', '-ee212.assoc.imsi',
+                '-elixer.gPSIMSISDN', '-ee164.msisdn', '-elixer.gPSINAI',
+                '-elixer.iMEI', '-elixer.mACAddress',
+                '-enas-5gs.mm.suci.routing_indicator', '-enas-5gs.mm.suci.msin')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['4', '001010123456789', '', '001010123456789,001010123456789',
+             '46701234567', '46701234567', '', '35123456789012', '', '123', '0123456789'],
+            ['8', '', 'user@example.com', '', '', '', '', '', '', '', ''],
+            ['9', '', 'user@example.com', '', '', '', 'gpsi@example.com', '',
+             '020000000001', '', ''],
+        ]
+
+    def test_lixer_locations(self, cmd_tshark, capture_file, test_env):
+        '''The 5G-GUTI, the TAIs, the NCGIs with the additional ones, and
+        the times in UTC (frame 9 has them with an offset from UTC).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 8, 9}', '-Tfields', '-E', 'occurrence=a',
+                '-eframe.number', '-ee212.guami.mcc', '-ee212.guami.mnc',
+                '-elixer.aMFRegionID', '-elixer.aMFSetID', '-elixer.aMFPointer',
+                '-elixer.fiveGTMSI', '-ee212.5gstai.mcc', '-enas-5gs.tac',
+                '-ee212.nrcgi.mnc', '-elixer.nCI', '-elixer.timestamp', '-elixer.nCGITime')
+        assert [line.split('\t') for line in stdout.splitlines()] == [
+            ['4', '001', '01', '1', '4', '5', '305419896', '001,001,001', '1,1,2', '01,01',
+             '0x0000000123456789,0x0000000abcdef012',
+             '2026-11-08T12:00:00.000000000Z', '2026-11-08T11:59:59.000000000Z'],
+            ['8', '001', '01', '1', '4', '5', '305419896', '', '', '01,01,01',
+             '0x0000000123456789,0x0000000abcdef012,0x0000000000000001',
+             '2026-11-08T13:00:00.000000000Z', '2026-11-08T12:59:59.000000000Z'],
+            ['9', '001', '01', '1', '4', '5', '305419896', '001', '2', '01',
+             '0x0000000000000001',
+             '2026-11-08T13:00:00.000000000Z', '2026-11-08T12:59:59.000000000Z'],
+        ]
+
+
 class TestDissectLlcCoverage:
     '''Logical-Link Control (802.2) from the synthetic capture
     llc_coverage.pcapng.gz: U, S and I frames, XID, TEST, SNAP with the

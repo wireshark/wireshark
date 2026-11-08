@@ -1,0 +1,97 @@
+# lixer.cnf
+# 3GPP TS 33.128 LI_XER (TS33128IdentityAssociation) conformation file
+
+#.PDU
+IEFMessage
+
+#.FIELD_ATTR
+# given qualified with time zone information (TS 33.128 clause 6.2.2A.2.2)
+IEFAssociationRecord/timestamp DISPLAY = ABSOLUTE_TIME_UTC
+IEFAssociationRecord/nCGITime  DISPLAY = ABSOLUTE_TIME_UTC
+IEFDeassociationRecord/timestamp DISPLAY = ABSOLUTE_TIME_UTC
+IEFDeassociationRecord/nCGITime  DISPLAY = ABSOLUTE_TIME_UTC
+# TS 38.413 clause 9.3.1.7: the leftmost 36 bits
+NCGI/nCI TYPE = FT_UINT40  DISPLAY = BASE_HEX  BITMASK = 0xFFFFFFFFF0
+
+#.FN_BODY IEFRecord VAL_PTR = &record
+  int record = -1;
+
+%(DEFAULT_BODY)s
+  /* record is the index of the alternative in IEFRecord_choice */
+  if (record != -1) {
+    col_append_sep_str(actx->pinfo->cinfo, COL_INFO, ", ",
+                       val_to_str_const(IEFRecord_choice[record].value, lixer_IEFRecord_vals, "Unknown"));
+  }
+
+#.FN_BODY IMSI VAL_PTR = &imsi_tvb
+  tvbuff_t *imsi_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (imsi_tvb) {
+    dissect_e212_utf8_imsi(imsi_tvb, actx->pinfo,
+                           proto_item_add_subtree(actx->created_item, ett_lixer_imsi),
+                           0, tvb_reported_length(imsi_tvb));
+  }
+
+#.FN_BODY MSISDN VAL_PTR = &msisdn_tvb
+  tvbuff_t *msisdn_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (msisdn_tvb) {
+    dissect_e164_msisdn(msisdn_tvb, actx->pinfo,
+                        proto_item_add_subtree(actx->created_item, ett_lixer_msisdn),
+                        0, tvb_reported_length(msisdn_tvb), E164_ENC_UTF8);
+  }
+
+#.FN_BODY PLMNID VAL_PTR = &plmn_tvb
+  tvbuff_t *plmn_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  /* TS 38.413 clause 9.3.3.5; PLMNID is only used in an NCGI */
+  if (plmn_tvb && tvb_reported_length(plmn_tvb) == 3) {
+    dissect_e212_mcc_mnc(plmn_tvb, actx->pinfo,
+                         proto_item_add_subtree(actx->created_item, ett_lixer_plmnid),
+                         0, E212_NRCGI, true);
+  }
+
+#.FN_BODY NCI VAL_PTR = &nci_tvb HF_INDEX = -1
+  tvbuff_t *nci_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (nci_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, nci_tvb, 0, 5, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY TAI VAL_PTR = &tai_tvb
+  tvbuff_t *tai_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  /* TS 24.501 clause 9.11.3.8, without the IEI */
+  if (tai_tvb && tvb_reported_length(tai_tvb) == 6) {
+    nas_5gs_mm_elem_fcn[DE_NAS_5GS_MM_5GS_TA_ID](tai_tvb,
+        proto_item_add_subtree(actx->created_item, ett_lixer_tai),
+        actx->pinfo, 0, 6, NULL, 0);
+  }
+
+#.FN_BODY FiveGGUTI VAL_PTR = &guti_tvb
+  tvbuff_t *guti_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  /* TS 24.501 figure 9.11.3.4.1, without the first four octets */
+  if (guti_tvb && tvb_reported_length(guti_tvb) == 10) {
+    dissect_lixer_5g_guti(guti_tvb, actx->pinfo,
+                          proto_item_add_subtree(actx->created_item, ett_lixer_fiveg_guti));
+  }
+
+#.FN_BODY SUCI VAL_PTR = &suci_tvb
+  tvbuff_t *suci_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  /* TS 24.501 clause 9.11.3.4, without the IEI and the length */
+  if (suci_tvb && tvb_reported_length(suci_tvb) >= 8) {
+    nas_5gs_mm_elem_fcn[DE_NAS_5GS_MM_5GS_MOBILE_ID](suci_tvb,
+        proto_item_add_subtree(actx->created_item, ett_lixer_suci),
+        actx->pinfo, 0, tvb_reported_length(suci_tvb), NULL, 0);
+  }
+
+#.END

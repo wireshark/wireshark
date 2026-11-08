@@ -1,0 +1,119 @@
+TS33128IdentityAssociation
+{itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulIntercept(2) threeGPP(4) tS33128IdentityAssociation(20) r18(18) version0(0)}
+
+
+DEFINITIONS IMPLICIT TAGS EXTENSIBILITY IMPLIED ::=
+
+BEGIN
+
+tS33128IdentityAssociationOID RELATIVE-OID ::= {threeGPP(4) tS33128IdentityAssociation(20) r18(18) version0(0)}
+
+iEFRecordOID RELATIVE-OID ::= {tS33128IdentityAssociationOID iEF(1)}
+
+IEFMessage ::= SEQUENCE
+{
+    iEFRecordOID        [1] RELATIVE-OID,
+    record              [2] IEFRecord
+}
+
+IEFRecord ::= CHOICE
+{
+    associationRecord   [1] IEFAssociationRecord,
+    deassociationRecord [2] IEFDeassociationRecord,
+    keepalive           [3] IEFKeepaliveMessage,
+    keepaliveResponse   [4] IEFKeepaliveMessage
+}
+
+IEFAssociationRecord ::= SEQUENCE
+{
+    sUPI            [1] SUPI,
+    fiveGGUTI       [2] FiveGGUTI,
+    timestamp       [3] GeneralizedTime,
+    tAI             [4] TAI,
+    nCGI            [5] NCGI,
+    nCGITime        [6] GeneralizedTime,
+    sUCI            [7] SUCI OPTIONAL,
+    pEI             [8] PEI OPTIONAL,
+    fiveGSTAIList   [9] FiveGSTAIList OPTIONAL,
+    gPSI            [10] GPSI OPTIONAL,
+    additionalCGIs  [11] AdditionalCGIs OPTIONAL
+}
+
+IEFDeassociationRecord ::= SEQUENCE
+{
+    sUPI            [1] SUPI,
+    fiveGGUTI       [2] FiveGGUTI,
+    timestamp       [3] GeneralizedTime,
+    nCGI            [4] NCGI,
+    nCGITime        [5] GeneralizedTime,
+    additionalCGIs  [6] AdditionalCGIs OPTIONAL
+}
+
+IEFKeepaliveMessage ::= SEQUENCE
+{
+    sequenceNumber  [1] INTEGER
+}
+
+FiveGGUTI ::= OCTET STRING (SIZE(10))
+
+AdditionalCGIs ::= SEQUENCE
+{
+    additionalNCGIList [1] SEQUENCE (SIZE (1..MAX)) OF AdditionalNCGI OPTIONAL
+}
+
+AdditionalNCGI ::= SEQUENCE
+{
+    nCGI      [1] NCGI
+}
+
+NCGI ::= SEQUENCE
+{
+    pLMNID [1] PLMNID,
+    nCI [2] NCI
+}
+
+PLMNID ::= OCTET STRING (SIZE(3))
+
+NCI ::= BIT STRING (SIZE(36))
+
+TAI ::= OCTET STRING (SIZE(6))
+
+SUPI ::= CHOICE
+{
+    iMSI        [1] IMSI,
+    nAI         [2] NAI
+}
+
+IMSI ::= NumericString (SIZE(6..15))
+
+NAI ::= UTF8String
+
+FiveGSTAIList ::= SEQUENCE OF TAI
+
+PEI ::= CHOICE
+{
+    iMEI        [1] IMEI,
+    iMEISV      [2] IMEISV,
+    mACAddress  [3] MACAddress,
+    eUI64       [4] EUI64
+}
+
+IMEI ::= NumericString (SIZE(14))
+
+IMEISV ::= NumericString (SIZE(16))
+
+MACAddress ::= OCTET STRING (SIZE(6))
+
+EUI64 ::= OCTET STRING (SIZE(8))
+
+SUCI ::= OCTET STRING (SIZE(8..3008))
+
+GPSI ::= CHOICE
+{
+    gPSIMSISDN  [1] MSISDN,
+    gPSINAI     [2] NAI
+}
+
+MSISDN ::= NumericString (SIZE(1..15))
+
+END
