@@ -29806,8 +29806,13 @@ dissect_nr_rrc_AbsoluteTimeInfo_r16(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_absTimeInfo);
     str = tvb_bcd_dig_to_str_be(actx->pinfo->pool, abs_time_info_tvb, 0, 6, NULL, false);
-    hf_str = wmem_strdup_printf(actx->pinfo->pool, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1], str[2],
-                                str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    /* The string is shorter if a nibble is 0xF */
+    if (strlen(str) == 12) {
+      hf_str = wmem_strdup_printf(actx->pinfo->pool, "%c%c-%c%c-%c%c %c%c:%c%c:%c%c", str[0], str[1], str[2],
+                                  str[3], str[4], str[5], str[6], str[7], str[8], str[9], str[10], str[11]);
+    } else {
+      hf_str = str;
+    }
     proto_tree_add_string(subtree, hf_nr_rrc_absolute_time, abs_time_info_tvb, 0, 6, hf_str);
   }
 
@@ -82664,9 +82669,15 @@ dissect_nr_rrc_RRCReconfiguration(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_c
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration");
+  /* The message can be nested in itself through the SCG containers */
+  if (!nr_rrc_enter_nesting(actx->pinfo, tree, tvb)) {
+    return offset;
+  }
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_RRCReconfiguration, RRCReconfiguration_sequence);
+
+  nr_rrc_leave_nesting(actx->pinfo);
 
   return offset;
 }
@@ -84391,7 +84402,9 @@ dissect_nr_rrc_T_securityAlgorithmConfig(tvbuff_t *tvb _U_, uint32_t offset _U_,
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
   if (p_ueid != NULL) {
     /* Configure algorithms */
-    set_pdcp_nr_security_algorithms(*p_ueid, p_security_algorithms);
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      set_pdcp_nr_security_algorithms(*p_ueid, p_security_algorithms);
+    }
   }
 
 
@@ -90849,9 +90862,15 @@ dissect_nr_rrc_RRCReconfigurationComplete(tvbuff_t *tvb _U_, uint32_t offset _U_
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRC Reconfiguration Complete");
+  /* The message can be nested in itself through the SCG containers */
+  if (!nr_rrc_enter_nesting(actx->pinfo, tree, tvb)) {
+    return offset;
+  }
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_RRCReconfigurationComplete, RRCReconfigurationComplete_sequence);
+
+  nr_rrc_leave_nesting(actx->pinfo);
 
   return offset;
 }
@@ -92242,7 +92261,9 @@ dissect_nr_rrc_SecurityModeFailure(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
 
   if (p_ueid != NULL) {
     /* Inform PDCP that the UE failed to execute the securityModeCommand */
-    set_pdcp_nr_security_algorithms_failed(*p_ueid);
+    if (!PINFO_FD_VISITED(actx->pinfo)) {
+      set_pdcp_nr_security_algorithms_failed(*p_ueid);
+    }
   }
 
 
@@ -120468,7 +120489,7 @@ dissect_nr_rrc_RLC_BearerConfig(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx
 
   /* Need UE identifier */
   p_ueid = nr_rrc_get_ueid_from_lower_layers(wmem_file_scope(), actx->pinfo);
-  if (p_ueid != NULL && drb_mapping->rbid) {
+  if (p_ueid != NULL && drb_mapping->rbid && !PINFO_FD_VISITED(actx->pinfo)) {
     drb_mapping->ueid = *p_ueid;
     if (drb_mapping->is_drb) {
       /* Tell MAC about this mapping */
@@ -214428,7 +214449,7 @@ dissect_nr_rrc_rach_ConfigCommonIAB_r16_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, false, pinfo);
-  offset = dissect_nr_rrc_T_rach_ConfigCommonIAB_r16(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_BCCH_DL_SCH_Message_PDU);
+  offset = dissect_nr_rrc_T_rach_ConfigCommonIAB_r16(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_rach_ConfigCommonIAB_r16);
   offset += 7; offset >>= 3;
   return offset;
 }
