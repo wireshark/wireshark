@@ -430,9 +430,9 @@ static int dissect_olsr_hna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_
       proto_tree_add_item(olsr_tree, hf_olsr_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     } else if (pinfo->src.type == AT_IPv6) {
-      proto_tree_add_item(olsr_tree, hf_olsr_network6_addr, tvb, offset, 4, ENC_NA);
+      proto_tree_add_item(olsr_tree, hf_olsr_network6_addr, tvb, offset, 16, ENC_NA);
       offset += 16;
-      proto_tree_add_item(olsr_tree, hf_olsr_netmask6, tvb, offset, 4, ENC_NA);
+      proto_tree_add_item(olsr_tree, hf_olsr_netmask6, tvb, offset, 16, ENC_NA);
       offset += 16;
     } else {
       break; /* unknown address type should be handled in dissect_olsr, just be sure */
@@ -650,9 +650,11 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         /*-----------------------------Undefined message types-----------------------------*/
         else {
-          ti = proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, message_len - 12,
-              NULL, "Data (%u bytes)", message_len - 12);
-          if ((message_len - 12) % 4) {
+          /* message header: type, vtime, size, originator, ttl, hop count, seq */
+          int data_len = message_len - (8 + (int)pinfo->src.len);
+          ti = proto_tree_add_bytes_format(message_tree, hf_olsr_data, tvb, offset, data_len,
+              NULL, "Data (%u bytes)", data_len);
+          if (data_len % 4) {
               expert_add_info(pinfo, ti, &ei_olsr_data_misaligned);
             break;
           }
