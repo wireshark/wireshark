@@ -11,6 +11,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/tfs.h>
+#include <wsutil/array.h>
 #include <wiretap/netscaler.h>
 
 #define NSPR_V35_HEADER_LEN_OFFSET  26
@@ -439,6 +442,8 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t http_handle;
 
 
+static expert_field ei_ns_bad_reclen;
+
 static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree);
 
 #define CL_FP 	0x01
@@ -465,6 +470,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	proto_tree	*ns_tree;
 	proto_item	*ti;
 	struct nstr_phdr *pnstr = &(pinfo->pseudo_header->nstr);
+	unsigned	eth_off;
 	tvbuff_t	*next_tvb_eth_client;
 	uint8_t		src_vmname_len = 0, dst_vmname_len = 0;
 	uint8_t		variable_ns_len = 0;
@@ -478,6 +484,20 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		NULL
 	};
 
+	/* Only trust the pseudo-header if it was filled in by the netscaler wiretap module. */
+	if (pinfo->rec->rec_type != REC_TYPE_PACKET)
+		return 0;
+	switch (pinfo->rec->rec_header.packet_header.pkt_encap) {
+	case WTAP_ENCAP_NSTRACE_1_0:
+	case WTAP_ENCAP_NSTRACE_2_0:
+	case WTAP_ENCAP_NSTRACE_3_0:
+	case WTAP_ENCAP_NSTRACE_3_5:
+		break;
+	default:
+		return 0;
+	}
+
+	eth_off = pnstr->eth_offset;
 	switch(pnstr->rec_type)
 	{
 	case NSPR_HEADER_VERSION205:
@@ -486,11 +506,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		src_vmname_len = tvb_get_uint8(tvb,pnstr->src_vmname_len_offset);
 		dst_vmname_len = tvb_get_uint8(tvb,pnstr->dst_vmname_len_offset);
 		variable_ns_len = src_vmname_len + dst_vmname_len;
-		pnstr->eth_offset += variable_ns_len;
+		eth_off += variable_ns_len;
 		break;
 	}
 
-	ti = proto_tree_add_protocol_format(tree, proto_nstrace, tvb, 0, pnstr->eth_offset, "NetScaler Packet Trace");
+	ti = proto_tree_add_protocol_format(tree, proto_nstrace, tvb, 0, eth_off, "NetScaler Packet Trace");
 	ns_tree = proto_item_add_subtree(ti, ett_ns);
 
 	proto_tree_add_item(ns_tree, hf_ns_dir, tvb, pnstr->dir_offset, pnstr->dir_len, ENC_LITTLE_ENDIAN);
@@ -601,7 +621,7 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
 	if(pnstr->rec_type != NSPR_HEADER_VERSION350){
 		/* Dissect as Ethernet */
-		next_tvb_eth_client = tvb_new_subset_remaining(tvb, pnstr->eth_offset);
+		next_tvb_eth_client = tvb_new_subset_remaining(tvb, eth_off);
 		call_dissector(eth_withoutfcs_handle, next_tvb_eth_client, pinfo, tree);
 	}
 
@@ -670,6 +690,12 @@ static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pr
 		{
 			reclen = tvb_get_letohs(tvb,offset);
 			nextrec = tvb_get_uint8(tvb,offset+2);
+			if (reclen < 3) {
+				/* Too short to hold the record header; would never advance. */
+				proto_tree_add_expert_format(ns_tree, pinfo, &ei_ns_bad_reclen, tvb, offset, 3,
+					"Record length %d is smaller than the record header", reclen);
+				break;
+			}
 		}
 
 		switch (cur_record){
@@ -1854,11 +1880,20 @@ proto_register_ns(void)
 		&ett_ns_capflags,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_ns_bad_reclen, { "nstrace.bad_reclen", PI_MALFORMED, PI_ERROR,
+			"Record length too short", EXPFILL }},
+	};
+	expert_module_t *expert_nstrace;
+
 	proto_nstrace = proto_register_protocol("NetScaler Trace", "NS Trace", "ns");
 	proto_register_field_array(proto_nstrace, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
 	nstrace_handle = register_dissector("ns", dissect_nstrace, proto_nstrace);
+
+	expert_nstrace = expert_register_protocol(proto_nstrace);
+	expert_register_field_array(expert_nstrace, ei, array_length(ei));
 }
 
 
