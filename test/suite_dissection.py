@@ -104682,3 +104682,117 @@ class TestDissectNetlink:
                 '-Tfields', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env, timeout=300)
         assert set(stdout.split()) == {'net_dm'}
+
+
+class TestDissectNetlinkGeneric:
+    '''Generic netlink (family ids mapped to names by nlctrl NEWFAMILY
+    messages) from the synthetic capture netlink_generic_coverage.pcap.gz.'''
+
+    @staticmethod
+    def family_names(cmd_tshark, capture_file, test_env, *passes):
+        '''Frame number -> the names shown in the "Family ID: 0x.. (name)"
+        items of the netlink message headers.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('netlink_generic_coverage.pcap.gz'), '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        names = {}
+        frame = 0
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = int(line[6:].split(':')[0])
+                names[frame] = []
+            elif 'Family ID: 0x' in line and line.endswith(')'):
+                names[frame].append(line.split('(', 1)[1][:-1])
+        return names
+
+    def test_netlink_generic_protocols(self, cmd_tshark, capture_file, test_env):
+        '''30 Netlink generic frames and two NET_DM frames (reached by the
+        family name); none is malformed or has an error expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_generic_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 32
+        assert protocols.count('Netlink generic') == 30
+        assert protocols.count('net_dm') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('netlink_generic_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_netlink_generic_family_map(self, cmd_tshark, capture_file, test_env):
+        '''NEWFAMILY frames map a family id to its name for the frames that
+        follow; an id that is mapped again is shown with the name valid at
+        that frame (frames 6, 10 and 12), also in the second pass. The
+        nlctrl id 0x10 and the ids 0 or without a name or id are not taken
+        (the fix "netlink-generic: Update the family map only on the first
+        pass" keeps a redissection from adding entries again).'''
+        for passes in ((), ('-2',)):
+            names = self.family_names(cmd_tshark, capture_file, test_env, *passes)
+            assert names[1] == ['nlctrl']
+            assert names[6] == ['TESTFAM']
+            assert names[7] == ['TESTFAM']
+            assert names[8] == ['Unknown']
+            assert names[10] == ['OTHERFAM']
+            assert names[12] == ['TESTFAM']
+            assert names[14] == ['nlctrl']
+            assert names[18] == ['Unknown']
+            assert names[26] == ['BEFAM']
+            assert names[27] == ['nlctrl']
+            assert names[28] == ['NET_DM']
+            assert names[29] == ['NET_DM']
+            assert names[31] == ['N' * 100]
+            assert names[32] == ['nlctrl', 'TWO', 'nlctrl', 'THREE']
+
+    def test_netlink_generic_ctrl_attributes(self, cmd_tshark, capture_file, test_env):
+        '''nlctrl NEWFAMILY attributes: name, id, version, header size,
+        maximum attribute, operations (id and flag bits) and multicast
+        groups (name and id); attributes of the wrong length are not
+        decoded as numbers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_generic_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 19, 25}',
+                '-Tfields', '-eframe.number', '-egenl.ctrl.family_name',
+                '-egenl.ctrl.family_id', '-egenl.ctrl.version',
+                '-egenl.ctrl.hdrsize', '-egenl.ctrl.maxattr',
+                '-egenl.ctrl.op_id', '-egenl.ctrl.group_name',
+                '-egenl.ctrl.group_id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '5\tTESTFAM\t0x0021\t1\t0\t7\t1,2,3,4,5,6,7\tmcast1,mcast2\t0x00000005,0x00000006',
+            '19\tWRONGLEN\t\t\t\t\t\t\t',
+            '25\tBEFAM\t0x0030\t1\t\t\t1\tbgrp\t0x00000004',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_generic_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-egenl.ctrl.op_flags',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip().split(',') == [
+            '0x00000001', '0x00000002', '0x00000004', '0x00000008',
+            '0x00000010', '0x0000001f', '0x00000000']
+
+    def test_netlink_generic_commands(self, cmd_tshark, capture_file, test_env):
+        '''The nlctrl commands (GETFAMILY, GETPOLICY, UNSPEC, NEWFAMILY) and
+        the generic header (command, version) of frames of a mapped family.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_generic_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-egenl.ctrl.cmd', '-egenl.cmd',
+                '-egenl.version',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t3\t\t2',
+            '2\t3\t\t2',
+            '3\t10\t\t2',
+            '4\t0\t\t2',
+            '5\t1\t\t2',
+            '6\t\t1\t2',
+            '7\t\t2\t2',
+            '8\t\t1\t2',
+        ]
