@@ -110274,3 +110274,68 @@ class TestDissectNvmeTcp:
                 '-Tfields', '-eframe.number', '-e_ws.col.Info')
         assert lines == ['90\tNVMeOF Data for Write, offset 0',
                          '92\tNVMeOF Data for Write, offset 0']
+
+
+class TestDissectNwmtp:
+    CAP = 'nwmtp_coverage.pcap.gz'
+    # NW MTP has no registered port: Decode As UDP port 9000
+    OPTS = ('-d', 'udp.port==9000,nw_mtp')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *TestDissectNwmtp.OPTS,
+                '-r', capture_file(TestDissectNwmtp.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_nwmtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Seventeen datagrams: PDUs with an MSU are handed to MTP3, state
+        messages have no payload. No malformed packets, no warnings or
+        errors, the same in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 17
+        assert lines.count('NW MTP') == 7
+        assert lines.count('MTP3MG (Int. ITU)') == 7
+        assert lines.count('MTP3 (Int. ITU)') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file(self.CAP), '-V'), encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert '[Severity level: Error]' not in stdout
+            assert '[Severity level: Warning]' not in stdout
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_nwmtp_data_types(self, cmd_tshark, capture_file, test_env):
+        '''Data types, link index, user context and length of the PDUs.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number <= 13',
+                '-Tfields', '-eframe.number', '-enwmtp.transp_type', '-enwmtp.data_type',
+                '-enwmtp.link_index', '-enwmtp.user_context', '-enwmtp.data_length', '-e_ws.col.info')
+        assert lines == [
+            '1\t2\t0\t0\t16909060\t7\tCOO ',
+            '2\t2\t1\t1\t16909060\t11\tSLTM ',
+            '3\t2\t2\t2\t16909060\t11\tSLTA ',
+            '4\t2\t3\t3\t16909060\t7\tCOA ',
+            '5\t2\t16\t16\t16909060\t11\tSLTA ',
+            '6\t2\t17\t17\t16909060\t7\tCOA ',
+            '7\t2\t18\t18\t16909060\t10\tDATA ',
+            '8\t2\t32\t32\t16909060\t0\tRetrieval complete',
+            '9\t2\t33\t33\t16909060\t0\tRetrieval impossible',
+            '10\t2\t34\t34\t16909060\t0\tLink in service',
+            '11\t2\t35\t35\t16909060\t0\tLink out of service',
+            '12\t2\t99\t99\t16909060\t0\tUnknown',
+            '13\t3\t34\t1\t16909060\t0\tLink in service',
+        ]
+
+    def test_nwmtp_several_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several PDUs in one datagram, and a PDU whose length field is
+        0xffffffff (the dissector stops after it).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {15, 16, 17}',
+                '-Tfields', '-eframe.number', '-enwmtp.data_type', '-enwmtp.transp_type',
+                '-enwmtp.data_length')
+        assert lines == [
+            '15\t0,1,35,3\t2,2,2,3\t7,11,0,17',
+            '16\t34,35\t2,2\t0,0',
+            '17\t0\t2\t4294967295',
+        ]
