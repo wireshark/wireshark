@@ -105830,3 +105830,107 @@ class TestDissectNetlinkOvsVport:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.split() == ['8']
+
+
+class TestDissectNetlinkPsample:
+    '''psample (packet sampling) Generic Netlink dissector, from the
+    synthetic capture netlink_psample_coverage.pcap.gz (LINKTYPE_NETLINK).
+    Frame 1 is the CTRL_CMD_NEWFAMILY that maps family 0x23 to psample.'''
+
+    CAP = 'netlink_psample_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file(cap), '-Y', flt, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_psample_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 17 frames decode without malformed packets or error
+        expert infos, in one and two passes. The sampled data reaches
+        UDP, LLC and CAN through the sll.ltype table.'''
+        protocols = [l.strip() for l in self.fields(cmd_tshark, capture_file,
+                                                    test_env, self.CAP, 'frame',
+                                                    '_ws.col.protocol')]
+        assert protocols == ['Netlink generic', 'UDP', 'psample', 'psample', 'psample',
+                             'UDP', 'LLC', 'UDP', 'CAN', 'psample', 'psample',
+                             'psample', 'psample', 'psample', 'UDP', 'UDP', 'psample']
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                               '_ws.malformed || _ws.expert',
+                               'frame.number', passes=passes) == []
+
+    def test_psample_sample(self, cmd_tshark, capture_file, test_env):
+        '''A sample with every attribute, and the group commands.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {2, 4, 5, 17}', 'frame.number', 'psample.cmd',
+                            'psample.iifindex', 'psample.oifindex', 'psample.origsize',
+                            'psample.sample_group', 'psample.group_seq_num',
+                            'psample.sample_rate', 'psample.group_refcount',
+                            'psample.out_tc', 'psample.out_tc_occ', 'psample.latency',
+                            'psample.proto')
+        assert lines[0] == ('2\t0\t0x0003\t0x0004\t0x0000006e\t5\t100\t1000\t0x00000002'
+                            '\t3\t4096\t123456\t0x0800')
+        assert lines[1] == '4\t2\t\t\t\t5\t0\t\t0x00000001\t\t\t\t'
+        assert lines[2] == '5\t3\t\t\t\t5\t\t\t0x00000000\t\t\t\t'
+        assert lines[3] == '17\t2,3\t\t\t\t6\t\t\t\t\t\t\t'
+        # Get group has no payload, hence no attribute layer
+        assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                           'psample.cmd == 1 && !psample.attr_type', 'frame.number') == ['3']
+
+    def test_psample_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp attributes (compared in UTC) in frames 2, 12
+        and 16.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                           'psample.timestamp == "2023-11-14T22:13:20.123456789Z" || '
+                           'psample.timestamp == "1970-01-01T00:00:05.000000006Z" || '
+                           'psample.timestamp == "2023-11-14T22:13:22.000000009Z"',
+                           'frame.number') == ['2', '12', '16']
+
+    def test_psample_data_protocol(self, cmd_tshark, capture_file, test_env):
+        '''The data goes through the sll.ltype table by the protocol
+        attribute: Ethernet for an Ethertype (2, 6, 8, 15, 16), 802.2
+        (7: an 802.3 frame with LLC) and ETH_P_ALL (8), CAN for 0x000c
+        (9), and Data for an unknown protocol (10) or one that comes
+        after the data (11).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number >= 2', 'frame.number', 'eth.src', 'ip.src',
+                            'ipv6.src', 'llc.dsap', 'can.id', 'data.len')
+        by = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        eth = '02:00:00:00:00:01'
+        assert by['2'][:2] == [eth, '10.0.0.1']
+        assert by['6'][0] == eth and by['6'][2] != ''
+        assert by['7'][0] == eth and by['7'][3] == '0x0a'
+        assert by['8'][:2] == [eth, '10.0.0.1']
+        assert by['9'][4] == '291'
+        assert by['10'][5] == '20' and by['10'][0] == ''
+        assert by['11'][5] == '12' and by['11'][0] == ''
+        assert by['15'][:2] == [eth, '10.0.0.1'] and by['16'][:2] == [eth, '10.0.0.1']
+
+    def test_psample_length_checks(self, cmd_tshark, capture_file, test_env):
+        '''TIMESTAMP and PROTO attributes with the wrong length (frame 12)
+        are shown as raw data and do not decode the next attribute
+        (the sample group, group sequence and rate stay 9, 10 and 11).
+        An 8 byte timestamp after them decodes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number == 12', 'psample.sample_group',
+                            'psample.group_seq_num', 'psample.sample_rate',
+                            'psample.out_tc', 'psample.proto', 'netlink.attr_data')
+        assert len(lines) == 1
+        fields = lines[0].split('\t')
+        assert fields[:4] == ['9', '10', '11', '1']
+        assert fields[4] == ''                       # no valid protocol attribute
+        assert fields[5].startswith('44332211,00080000,')
+        assert fields[5].endswith(',08')
+
+    def test_psample_byte_order(self, cmd_tshark, capture_file, test_env):
+        '''The network byte order flag (frame 15) and a big endian message
+        (frame 16) give the same values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {15, 16}', 'frame.number', 'psample.origsize',
+                            'psample.sample_rate', 'psample.out_tc_occ',
+                            'psample.out_tc', 'psample.latency', 'psample.proto')
+        assert lines[0] == '15\t0x000005dc\t77\t4242\t\t\t0x0800'
+        assert lines[1] == '16\t0x0000006e\t1000\t\t7\t99\t0x0800'
