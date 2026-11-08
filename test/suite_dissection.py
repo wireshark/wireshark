@@ -108660,3 +108660,79 @@ class TestDissectNsHa:
             ['27', '0x00000200', f, f, f, f, f, t],
             ['28', '0x0000f300', t, t, t, t, t, t],
         ]
+
+
+class TestDissectNsh:
+    '''Network Service Header (RFC 8300, TLVs of RFC 9263 and BBF TR-459i2),
+    from the synthetic capture nsh_coverage.pcap.gz: over Ethernet, GRE,
+    IP protocol 145, VXLAN-GPE and the GTP-U heuristic.'''
+
+    def test_nsh_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-41 carry an NSH; frames 42-50 are GTP-U payloads the
+        heuristic rejects. None is malformed or has a warning or an error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsh_coverage.pcap.gz'),
+                '-Y', 'nsh', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [str(n) for n in range(1, 42)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nsh_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nsh_md_type_mask(self, cmd_tshark, capture_file, test_env):
+        '''The MD type is the low 4 bits; the high 4 bits are unassigned
+        ("NSH: Mask the MD type field"). Frames 10 and 11 have unassigned
+        bits set and still decode as MD type 1 and 2.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsh_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10..14}',
+                '-Tfields', '-eframe.number', '-ensh.mdtype', '-ensh.length',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['10', '1', '6'], ['11', '2', '4'], ['12', '0', '2'],
+            ['13', '3', '3'], ['14', '15', '5'],
+        ]
+
+    def test_nsh_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Forwarding context types 0-5 (frames 16-21), a tenant id (22),
+        the BBF logical port as a string (28), a MAC address and a network
+        instance (30).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsh_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16..22, 28, 30}',
+                '-Tfields', '-eframe.number', '-ensh.tlv.forwarding_context.type',
+                '-ensh.tlv.tenant_id', '-ensh.tlv.bbf.logical_port_id_str',
+                '-ensh.tlv.bbf.mac', '-ensh.tlv.bbf.network_instance',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['16', '0', '', '', '', ''], ['17', '1', '', '', '', ''],
+            ['18', '2', '', '', '', ''], ['19', '3', '', '', '', ''],
+            ['20', '4', '', '', '', ''], ['21', '5', '', '', '', ''],
+            ['22', '', '74656e616e742d3031', '', '', ''],
+            ['28', '', '', 'eth0/1', '', ''],
+            ['30', '', '', '', '02:00:00:00:00:99', 'vrf-blue'],
+        ]
+
+    def test_nsh_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''NSH carried by GRE (34), VXLAN-GPE (36, 37) and GTP-U (38, 39);
+        NSH inside NSH (frames 40 and 41 hold two and three headers).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsh_coverage.pcap.gz'),
+                '-Y', 'frame.number in {34, 36, 37, 38, 39, 40, 41}',
+                '-Tfields', '-eframe.number', '-egre.proto', '-evxlan.next_proto',
+                '-egtp.message', '-ensh.nextproto',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['34', '0x894f', '', '', '1'],
+            ['36', '', '4', '', '3'],
+            ['37', '', '4', '', '1'],
+            ['38', '', '', '0xff', '1'],
+            ['39', '', '', '0xff', '1'],
+            ['40', '', '', '', '4,1'],
+            ['41', '', '', '', '4,4,1'],
+        ]
