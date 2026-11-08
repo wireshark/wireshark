@@ -284,7 +284,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item_ret_uint(ns_mep_mfu_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 			offset +=2;
 
-			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 			if ((maj_ver > 2) || ((maj_ver==2) && (min_ver > 2)))
 			{
 				proto_tree_add_item(ns_mep_mfu_tree, hf_nsmep_mfu_eff_state, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -316,7 +316,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item_ret_uint(ns_mep_mfr_tree, hf_nsmep_mfu_svctype, tvb, offset, 4, ENC_LITTLE_ENDIAN, &svctype);
 			offset +=4;
 
-			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 			if ((maj_ver > 2) || ((maj_ver==2) && (min_ver > 2)))
 			{
@@ -358,7 +358,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item_ret_uint(ns_mep_mfu_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 			offset +=2;
 
-			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 			if ((maj_ver > 2) || ((maj_ver==2) && (min_ver > 2)))
 			{
@@ -472,7 +472,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 			offset += 2;
 
-			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 			proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_ns_gslbDomNamelen, tvb, offset, 1, ENC_LITTLE_ENDIAN, &domainlen);
 			offset += 1;
@@ -535,7 +535,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 			offset += 2;
 
-			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+			proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 			proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_ns_gslbDomNamelen, tvb, offset, 1, ENC_LITTLE_ENDIAN, &domainlen);
 			offset += 1;
@@ -563,7 +563,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 		offset += 2;
 
-		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 		break;
 	}
 	case GSLB_MSG_LBNODE_GETSVC:
@@ -582,14 +582,14 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 		offset += 2;
 
-		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 		proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_ns_gslbDomNamelen, tvb, offset, 1, ENC_LITTLE_ENDIAN, &domainlen);
 		offset += 1;
 		proto_tree_add_item(ns_mep_di_tree, hf_ns_gslbDomName, tvb, offset, domainlen, ENC_NA|ENC_ASCII);
 		offset += domainlen;
 
-		proto_item_set_len(tf, start_offset - offset);
+		proto_item_set_len(tf, offset - start_offset);
 		/* XXX - Do we really have a full domain info message here? */
 		break;
 	}
@@ -609,7 +609,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_nsmep_mfu_svctype, tvb, offset, 2, ENC_LITTLE_ENDIAN, &svctype);
 		offset += 2;
 
-		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, FT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
+		proto_item_append_text(tf, " for %s:%d:%s", tvb_address_to_str(pinfo->pool, tvb, AT_IPv4, offset-8), public_port, val_to_str(svctype, ns_svc_type_vals, "0x%02X"));
 
 		proto_tree_add_item_ret_uint(ns_mep_di_tree, hf_ns_gslbDomNamelen, tvb, offset, 1, ENC_LITTLE_ENDIAN, &domainlen);
 		offset += 1;
@@ -618,7 +618,7 @@ dissect_ns_mep_v02xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ns_mep_di_tree, hf_ns_gslbDomName, tvb, offset, domainlen, ENC_NA|ENC_ASCII);
 		offset += domainlen;
 
-		proto_item_set_len(tf, start_offset - offset);
+		proto_item_set_len(tf, offset - start_offset);
 		break;
 	}
 	case GSLB_MSG_KEEP_ALIVE:
