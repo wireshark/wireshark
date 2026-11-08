@@ -1173,7 +1173,10 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 
 	/* Now, let's insert the data chunk into memory
 	   ...first, we shall be able to allocate the memory */
-	if (!entry->payload_data) {
+	if (file->is_out_of_memory) {
+		/* An earlier chunk did not fit: the file content has been
+		   dropped, so do not start a new (incomplete) copy of it */
+	} else if (!entry->payload_data) {
 		/* This is a New file */
 		if (calculated_size > UINT32_MAX) {
 			/*
@@ -1185,7 +1188,9 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 			 */
 			entry->payload_data = NULL;
 		} else {
-			entry->payload_data = (uint8_t *)g_try_malloc((size_t)calculated_size);
+			/* Zeroed, so that parts of the file that were never
+			   seen are not exported as uninitialized memory */
+			entry->payload_data = (uint8_t *)g_try_malloc0((size_t)calculated_size);
 			entry->payload_len  = (size_t)calculated_size;
 		}
 		if (!entry->payload_data) {
@@ -1218,6 +1223,9 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 				entry->payload_len = 0;
 			} else {
 				entry->payload_data = (uint8_t *)dest_memory_addr;
+				/* Zero the new part, as for a new file */
+				memset(entry->payload_data + entry->payload_len, 0,
+					(size_t)calculated_size - entry->payload_len);
 				entry->payload_len = (size_t)calculated_size;
 			}
 		}
