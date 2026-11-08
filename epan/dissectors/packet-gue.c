@@ -28,7 +28,7 @@ void proto_reg_handoff_gue(void);
 static dissector_table_t ip_dissector_table;
 
 static int proto_gue;
-static int hf_gue_version;
+static int hf_gue_variant;
 static int hf_gue_control;
 static int hf_gue_hlen;
 static int hf_gue_proto;
@@ -61,7 +61,7 @@ static const value_string gue_ctype_vals[] = {
 static int
 dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *ti, *ver_ti, *hlen_ti;
+    proto_item *ti, *variant_ti, *hlen_ti;
     proto_tree *gue_tree;
     uint8_t     first_byte, variant;
     uint32_t    hlen, proto_or_ctype;
@@ -89,7 +89,7 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         ti = proto_tree_add_item(tree, proto_gue, tvb, 0, 0, ENC_NA);
         proto_item_append_text(ti, " (variant 1, direct IP encapsulation)");
         gue_tree = proto_item_add_subtree(ti, ett_gue);
-        ver_ti = proto_tree_add_item(gue_tree, hf_gue_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+        variant_ti = proto_tree_add_item(gue_tree, hf_gue_variant, tvb, 0, 1, ENC_BIG_ENDIAN);
 
         switch (first_byte >> 4) {
         case 4:
@@ -108,7 +108,7 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
             col_set_fence(pinfo->cinfo, COL_PROTOCOL);
             call_dissector(next_handle, tvb, pinfo, tree);
         } else {
-            expert_add_info_format(pinfo, ver_ti, &ei_gue_ip_version_invalid,
+            expert_add_info_format(pinfo, variant_ti, &ei_gue_ip_version_invalid,
                                    "Invalid IP version %u for GUE variant 1", first_byte >> 4);
             col_add_fstr(pinfo->cinfo, COL_INFO,
                          "Invalid IP version %u for GUE variant 1", first_byte >> 4);
@@ -120,8 +120,8 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (variant >= 2) {
         ti = proto_tree_add_item(tree, proto_gue, tvb, 0, -1, ENC_NA);
         gue_tree = proto_item_add_subtree(ti, ett_gue);
-        ver_ti = proto_tree_add_item(gue_tree, hf_gue_version, tvb, 0, 1, ENC_BIG_ENDIAN);
-        expert_add_info_format(pinfo, ver_ti, &ei_gue_variant_unknown,
+        variant_ti = proto_tree_add_item(gue_tree, hf_gue_variant, tvb, 0, 1, ENC_BIG_ENDIAN);
+        expert_add_info_format(pinfo, variant_ti, &ei_gue_variant_unknown,
                                "Unknown GUE variant %u", variant);
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown GUE variant %u", variant);
         return tvb_captured_length(tvb);
@@ -134,7 +134,7 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ti = proto_tree_add_item(tree, proto_gue, tvb, 0, -1, ENC_NA);
     gue_tree = proto_item_add_subtree(ti, ett_gue);
 
-    proto_tree_add_item(gue_tree, hf_gue_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gue_tree, hf_gue_variant, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(gue_tree, hf_gue_control, tvb, 0, 1, ENC_BIG_ENDIAN);
     hlen_ti = proto_tree_add_item_ret_uint(gue_tree, hf_gue_hlen, tvb, 0, 1,
                                            ENC_BIG_ENDIAN, &hlen);
@@ -189,10 +189,10 @@ void
 proto_register_gue(void)
 {
     static hf_register_info hf[] = {
-        { &hf_gue_version,
-          { "Version", "gue.version",
+        { &hf_gue_variant,
+          { "Variant", "gue.variant",
             FT_UINT8, BASE_DEC, NULL, GUE_VARIANT_MASK,
-            "GUE protocol version (variant)", HFILL }
+            "GUE protocol variant number", HFILL }
         },
         { &hf_gue_control,
           { "Control message", "gue.c",
