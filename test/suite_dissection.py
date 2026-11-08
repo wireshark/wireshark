@@ -107728,3 +107728,103 @@ class TestDissectNntp:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'Subject: Hello' in stdout
         assert '..a dot line' in stdout
+
+
+class TestDissectNoe:
+    '''NOE (the Alcatel-Lucent protocol of the UA3G opcodes 0x15 and 0x16)
+    from the synthetic capture noe_coverage.pcap.gz: UA/UDP data packets on
+    UDP port 32000 (registered by default) that carry NOE messages: every
+    method and event, properties of every length, every utf8 and boolean
+    property and the key names.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('noe_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_noe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''338 UA/UDP frames (one Connect and 337 Data) without malformed
+        packets or warnings in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol', 'frame.protocols'))
+        assert len(rows) == 338
+        assert all(r[0] == 'UAUDP' for r in rows)
+        assert rows[0][1].endswith(':udp:uaudp')
+        assert sum(':uaudp:ua:noe' in r[1] for r in rows) == 337
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_noe_methods(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-14: every method (the acknowledge flag, the object id
+        of a dynamic class), invalid methods and several messages in one
+        datagram.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 2 && frame.number <= 14',
+                           ('frame.number', '_ws.col.info', 'noe.method_ack', 'noe.objectid'))
+        assert rows == [
+            ['2', 'Data - NOE Protocol (CS): Create Terminal', 'False', ''],
+            ['3', 'Data - NOE Protocol (PS): Create ActionBox', 'True', '0x0007'],
+            ['4', 'Data - NOE Protocol (CS): Delete ActionBox', 'False', '0x0007'],
+            ['5', 'Data - NOE Protocol (CS): Delete ActionBox', 'True', '0x0007'],
+            ['6', 'Data - NOE Protocol (CS): SetProperty ActionlistBox', 'False', '0x0009'],
+            ['7', 'Data - NOE Protocol (CS): GetProperty Terminal', 'False', ''],
+            ['8', 'Data - NOE Protocol (CS): GetProperty ListBox', 'True', '0x0004'],
+            ['9', 'Data - NOE Protocol (CS): DeleteItem ListBox', 'False', '0x0004'],
+            ['10', 'Data - NOE Protocol (CS): InsertItem ListBox', 'False', '0x0004'],
+            ['11', 'Data - NOE Protocol (CS): InsertItem ListBox', 'False', '0x0004'],
+            ['12', 'Data - NOE Protocol (CS)', '', ''],
+            ['13', 'Data - NOE Protocol (CS)', '', ''],
+            ['14', 'Data - NOE Protocol (CS): SetProperty Terminal - NOE Protocol (CS): Delete FrameBox'
+                   ' - NOE Protocol (CS): Notify EVT_KEY_PRESS: "A"', 'False,False', '0x0003'],
+        ]
+
+    def test_noe_property_tables(self, cmd_tshark, capture_file, test_env):
+        '''All 46 utf8 properties are shown as strings (49 string items:
+        three more for the Imagebox URI) and all 61 boolean properties as
+        booleans. The tables are searched linearly; with a binary search
+        some of them were missed because the tables are not sorted
+        ("NOE: Fix UTF-8 decoding and the property tables").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'noe.property_item.utf8', ('frame.number',))
+        assert len(rows) == 49
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'noe.property_item.bool', ('frame.number',))
+        assert len(rows) == 61
+
+    def test_noe_property_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Properties of 0 to 6 octets and with a two octet length: the
+        value is shown as an unsigned number of one to four octets or as
+        bytes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'noe.property_item.bytes || noe.property_item.uint',
+                           ('noe.property_item.uint', 'noe.property_item.bytes'))
+        assert any(len(r[1]) >= 400 for r in rows)
+        assert any(r[0] and r[1] == '' for r in rows)
+
+    def test_noe_key_names(self, cmd_tshark, capture_file, test_env):
+        '''Key events: the UTF-8 value is decoded to the Unicode value and
+        its key name. Two octet sequences used to be decoded wrongly
+        (operator precedence in decode_utf8).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'noe.event == 2 && noe.keyname', ('noe.keyname',))
+        assert [r[0] for r in rows][2:13] == [
+            'Null Char.', 'Start Of Header', 'Enter', 'Unit Separator', 'Space', 'Delete',
+            'a`', 'c,', 'e`', "e'", 'u`']
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('noe_coverage.pcap.gz'), '-Y', 'frame.number == 307',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Key name: e\' (UTF-8 Value: "c3a9", Unicode Value: 0xe9)' in stdout
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'noe.keyname == "Euro Character"',
+                           ('_ws.col.info',))
+        assert rows == [['Data - NOE Protocol (CS): Notify EVT_KEY_PRESS: "Euro Character"']]
+
+    def test_noe_error_event(self, cmd_tshark, capture_file, test_env):
+        '''An error notification: error code, method, class, object id,
+        property, length, value and the message.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 231',
+                           ('_ws.col.info', 'noe.errcode', 'noe.class', 'noe.objectid', 'noe.value'))
+        assert rows == [['Data - NOE Protocol (CS): Notify EVT_ERROR_PROTOCOL', '3', '134', '0x0009', '0x0000004d']]
