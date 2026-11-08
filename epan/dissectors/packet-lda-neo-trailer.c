@@ -104,18 +104,15 @@ static int hf_lda_neo_trailer_port_id;
 static int hf_lda_neo_trailer_port_preamble_lane;
 static int hf_lda_neo_trailer_port_speed;
 static int hf_lda_neo_trailer_timestamp;
-#if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
 static int hf_lda_neo_trailer_picosec;
 static int hf_lda_neo_trailer_nanosec;
 static int hf_lda_neo_trailer_datetime;
-#endif
 
 /* Header field register ids for unexpected parameters */
 static expert_field ei_lda_neo_trailer_invalid;
 static expert_field ei_lda_neo_trailer_port_id_invalid;
 static expert_field ei_lda_neo_trailer_pcs_code_invalid;
 static expert_field ei_lda_neo_trailer_port_speed_invalid;
-static expert_field ei_lda_neo_trailer_cant_handle_picoseconds;
 
 /* Speed configuration */
 static const value_string port_speed_str[] = {
@@ -145,80 +142,35 @@ static bool pref_timestamp_validation = true;
 /*
  * Extract timestamp data from buffer
  */
-#if defined(_M_X64) && (_MSC_VER >= 1920)
 static bool
 extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
 {
-   uint32_t i;
    uint8_t picosec_buf[LDA_NEO_TRAILER_PICOSEC_LENGTH];
-   int64_t nanosec;
-   uint64_t picosec_counter_high;
-   uint64_t picosec_counter_low;
-   int64_t remainder = 0;
+   uint64_t nanosec = 0;
+   uint32_t remainder = 0;
+   uint32_t i;
 
-   /* Fill 10 byte timestamp buffer */
+   /* Fill 10 byte timestamp buffer (an 80-bit big-endian picosecond count) */
    tvb_memcpy(tvb, picosec_buf, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH);
-   picosec_counter_high = picosec_buf[0];
-   picosec_counter_low = 0;
 
-   /* Extract picosec from buffer */
-   for (i = 1; i < sizeof(picosec_buf); ++i) {
-      if (i < 2) {
-         picosec_counter_high = (picosec_counter_high << 8) | picosec_buf[i];
-      } else {
-         picosec_counter_low = (picosec_counter_low << 8) | picosec_buf[i];
-      }
+   /* Sanity check the data to make sure the nanoseconds fit into a signed
+    * 64-bit integer: the top 16 bits must be below 500. */
+   if (((picosec_buf[0] << 8) | picosec_buf[1]) >= 500) {
+      return false;
    }
 
-   /* Sanity check the data to make sure the result will fit into a 64-bit integer */
-   if (picosec_counter_high >= 500) {
-     return false;
+   /* Divide by 1000 one byte at a time (long division), which needs no
+    * 128-bit arithmetic and gives the same result on every platform. */
+   for (i = 0; i < sizeof(picosec_buf); ++i) {
+      uint32_t cur = (remainder << 8) | picosec_buf[i];
+      nanosec = (nanosec << 8) | (cur / 1000);
+      remainder = cur % 1000;
    }
-
-   /* Calculate picosec and nanosec */
-   nanosec = _div128(picosec_counter_high, picosec_counter_low, 1000, &remainder);
 
    data->picosec = (uint16_t)remainder;
    data->nanosec = nanosec;
    return true;
 }
-#elif defined(__SIZEOF_INT128__)
-static bool
-extract_nstime(tvbuff_t *tvb, int32_t offset, timestamp_data* data)
-{
-   uint8_t picosec_buf[LDA_NEO_TRAILER_PICOSEC_LENGTH];
-   uint32_t i;
-
-   /* Fill 10 byte timestamp buffer */
-   tvb_memcpy(tvb, picosec_buf, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH);
-   unsigned __int128 picosec_counter;
-   picosec_counter = picosec_buf[0];
-
-   /* Extract picosec from buffer */
-   for (i = 1; i < sizeof(picosec_buf); ++i) {
-      picosec_counter = (picosec_counter << 8) | picosec_buf[i];
-   }
-
-   /* Same limit as the _div128 version: the nanoseconds must fit into a
-    * signed 64-bit integer, so that all platforms decode alike. */
-   if ((picosec_counter >> 64) >= 500) {
-      return false;
-   }
-
-   /* Calculate picosec and nanosec */
-   data->picosec = (uint16_t)(picosec_counter % 1000);
-   data->nanosec = picosec_counter / 1000;
-   return true;
-}
-#else
-static bool
-extract_nstime(tvbuff_t *tvb _U_, int32_t offset _U_, timestamp_data* data)
-{
-    data->picosec = 0;
-    data->nanosec = 0;
-    return true;
-}
-#endif
 
 static int
 dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -363,16 +315,11 @@ dissect_lda_neo_trailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             LDA_NEO_TRAILER_PICOSEC_LENGTH, ENC_NA);
     proto_tree *ts_tree = proto_item_add_subtree(ts_item, ett_lda_neo_trailer_timestamp);
 
-#if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
     proto_tree_add_uint64(ts_tree, hf_lda_neo_trailer_nanosec, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH,
             timestamp.nanosec);
     proto_tree_add_uint(ts_tree, hf_lda_neo_trailer_picosec, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH,
             timestamp.picosec);
     proto_tree_add_time(ts_tree, hf_lda_neo_trailer_datetime, tvb, offset, LDA_NEO_TRAILER_PICOSEC_LENGTH, &ts);
-#else
-    proto_tree_add_expert(ts_tree, pinfo, &ei_lda_neo_trailer_cant_handle_picoseconds, tvb,
-            offset, LDA_NEO_TRAILER_PORTID_LENGTH);
-#endif
 
     return offset + LDA_NEO_TRAILER_PICOSEC_LENGTH;
 }
@@ -444,7 +391,6 @@ proto_register_lda_neo_trailer(void)
                 HFILL}
         },
 
-#if defined(_M_X64) && (_MSC_VER >= 1920) || defined(__SIZEOF_INT128__)
         {
             &hf_lda_neo_trailer_nanosec,
             {"Nanosec", "lda_neo_trailer.timestamp.nanosec", FT_UINT64, BASE_DEC, NULL, LDA_NEO_TRAILER_MASK_DEFAULT,
@@ -460,7 +406,6 @@ proto_register_lda_neo_trailer(void)
             {"Date time", "lda_neo_trailer.timestamp.datetime", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
                 LDA_NEO_TRAILER_MASK_DEFAULT, NULL, HFILL}
         },
-#endif
     };
 
     /* Setup protocol expert items */
@@ -480,10 +425,6 @@ proto_register_lda_neo_trailer(void)
         {
             &ei_lda_neo_trailer_port_id_invalid,
             {"lda_neo_trailer.portid_invalid", PI_MALFORMED, PI_ERROR, "Invalid port ID", EXPFILL}
-        },
-        {
-            &ei_lda_neo_trailer_cant_handle_picoseconds,
-            {"lda_neo_trailer.cant_handle_picoseconds", PI_UNDECODED, PI_WARN, "Wireshark doesn't handle picosecond time stamps on this platform", EXPFILL}
         }
     };
     /* Setup protocol subtree array */
