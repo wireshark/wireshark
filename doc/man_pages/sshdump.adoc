@@ -22,21 +22,21 @@ sshdump - Provide interfaces to capture packets from a remote host through SSH u
 [ *--extcap-capture-filter*=<capture filter> ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--remote-host*=<IP address> ]
-[ *--remote-port*=<TCP port> ]
-[ *--remote-username*=<username> ]
-[ *--remote-password*=<password> ]
-[ *--sshkey*=<private key path> ]
-[ *--sshkey-passphrase*=<private key passphrase> ]
-[ *--proxycommand*=<SSH proxy command> ]
-[ *--remote-interface*=<interface> ]
-[ *--remote-capture-command-select*=<capture command selection> ]
+[ *--proxycommand*=<proxy command> ]
 [ *--remote-capture-command*=<capture command> ]
+[ *--remote-capture-command-select*=<capture command selection> ]
+[ *--remote-count*=<number> ]
+[ *--remote-filter*=<filter> ]
+[ *--remote-host*=<remote host> ]
+[ *--remote-interface*=<remote interface> ]
+[ *--remote-noprom* ]
+[ *--remote-password*=<password> ]
+[ *--remote-port*=<remote port> ]
 [ *--remote-priv*=<privilege elevation command selection> ]
 [ *--remote-priv-user*=<privileged user name> ]
-[ *--remote-noprom* ]
-[ *--remote-filter*=<remote capture filter> ]
-[ *--remote-count*=<number> ]
+[ *--remote-username*=<username> ]
+[ *--sshkey*=<private key path> ]
+[ *--sshkey-passphrase*=<private key passphrase> ]
 
 [manarg]
 *sshdump*
@@ -127,41 +127,8 @@ Start capturing from specified interface and write raw packet data to the locati
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
 
---remote-host=<remote host>::
-The address of the remote host for capture.
-
---remote-port=<remote port>::
-The SSH port of the remote host.
-
---remote-username=<username>::
-The username for SSH authentication.
-
---remote-password=<password>::
-The password to use (if not ssh-agent and pubkey are used). WARNING: the
-passwords are stored in plaintext and visible to all users on this system. It is
-recommended to use keyfiles with a SSH agent.
-
---sshkey=<SSH private key path>::
-The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
-
---sshkey-passphrase=<SSH private key passphrase>::
-The passphrase for the private key for authentication.
-
 --proxycommand=<proxy command>::
 The command to use as proxy for the SSH connection.
---remote-interface=<remote interface>::
-The remote network interface to capture from.
-
---remote-capture-command-select=<capture command-selection>::
-+
---
-The selection of the build-in support for remote capture commands. Either *dumpcap* for a remote
-capture command using dumpcap, *tcpdump* for a remote capture command using tcpdump, or *other*,
-where the remote capture command is to be given with the *--remote-capture-command* option.
-
-Note that selecting dumpcap allows for specifying multiple capture interfaces as a whitespace
-separated list, while tcpdump does not.
---
 
 --remote-capture-command=<capture command>::
 +
@@ -178,6 +145,42 @@ When specified, this command will be used as is, options such as the capture
 filter (*--extcap-capture-filter*) will not be appended.
 --
 
+--remote-capture-command-select=<capture command selection>::
++
+--
+The selection of the build-in support for remote capture commands. Either *dumpcap* for a remote
+capture command using dumpcap, *tcpdump* for a remote capture command using tcpdump, or *other*,
+where the remote capture command is to be given with the *--remote-capture-command* option.
+
+Note that selecting dumpcap allows for specifying multiple capture interfaces as a whitespace
+separated list, while tcpdump does not.
+--
+
+--remote-count=<number>::
+The number of packets to capture.
+
+--remote-filter=<filter>::
+The remote capture filter. It corresponds to the value provided via the *tshark -f*
+option, and the Capture Filter field next to the interfaces list in the
+Wireshark interface.
+
+--remote-host=<remote host>::
+The address of the remote host for capture.
+
+--remote-interface=<remote interface>::
+The remote network interface to capture from.
+
+--remote-noprom::
+Don't use promiscuous mode on the remote machine.
+
+--remote-password=<password>::
+The password to use (if not ssh-agent and pubkey are used). WARNING: the
+passwords are stored in plaintext and visible to all users on this system. It is
+recommended to use keyfiles with a SSH agent.
+
+--remote-port=<remote port>::
+The SSH port of the remote host.
+
 --remote-priv=<privilege elevation command selection>::
 The command to use to achieve privilege elevation to capture on the remote host. Either none, sudo or doas.
 
@@ -185,13 +188,14 @@ The command to use to achieve privilege elevation to capture on the remote host.
 If a command is used to achieve privilege elevation to capture on the remote host this may require a user name.
 If needed use this option to give that user name.
 
---remote-filter=<capture filter>::
-The remote capture filter. It corresponds to the value provided via the *tshark -f*
-option, and the Capture Filter field next to the interfaces list in the
-Wireshark interface.
+--remote-username=<username>::
+The username for SSH authentication.
 
---remote-count=<number>::
-The number of packets to capture.
+--sshkey=<private key path>::
+The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
+
+--sshkey-passphrase=<private key passphrase>::
+The passphrase for the private key for authentication.
 
 == EXAMPLES
 
