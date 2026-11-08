@@ -105342,3 +105342,61 @@ class TestDissectNetlinkNl80211:
         rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 553',
                  'nl80211.attr_type')
         assert rows == [[','.join(['230'] * 16)]]
+
+
+class TestDissectNetlinkOvsCtLimit:
+    '''Open vSwitch conntrack limit generic netlink family (ovs_ct_limit)
+    from the synthetic capture ovs_ct_limit_coverage.pcap.gz
+    (LINKTYPE_NETLINK). Frame 1 is the CTRL_CMD_NEWFAMILY message that
+    maps the family id 0x23 to its name.'''
+
+    CAP = 'ovs_ct_limit_coverage.pcap.gz'
+
+    def test_ovs_ct_limit_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-13 are dissected as ovs_ct_limit without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['Netlink generic'] + ['ovs_ct_limit'] * 12
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ovs_ct_limit_zones(self, cmd_tshark, capture_file, test_env):
+        '''The zone limit structures of the SET request (frame 2, the
+        default zone is -1) and of the GET reply (frame 4).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {2, 4}',
+                '-Tfields', '-eframe.number', '-eovs_ct_limit.cmd',
+                '-eovs_ct_limit.zone_id', '-eovs_ct_limit.limit',
+                '-eovs_ct_limit.count',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '2\t1\t0,5,-1\t100,2000,65535\t0,0,0',
+            '4\t3\t5,0\t2000,100\t17,99',
+        ]
+
+    def test_ovs_ct_limit_nested_flag(self, cmd_tshark, capture_file, test_env):
+        '''An attribute with NLA_F_NESTED set is decoded by its masked
+        type (before "netlink-ovs_ct_limit: Mask the attribute type" it
+        was shown as raw data); trailing octets after an entry and an
+        attribute shorter than one entry are ignored.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {7, 9, 10}',
+                '-Tfields', '-eframe.number', '-eovs_ct_limit.zone_id',
+                '-eovs_ct_limit.limit', '-eovs_ct_limit.count',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '7\t7\t7\t7',
+            '9\t\t\t',
+            '10\t1\t2\t3',
+        ]
