@@ -110885,3 +110885,113 @@ class TestDissectOcfs2:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert len(stdout.split()) == 40
+
+
+class TestDissectOcp1:
+    '''OCP.1 (AES70) over TCP and UDP, found by the two heuristic
+    dissectors, from the synthetic capture ocp1_coverage.pcap.gz, and
+    the PDU size wrap reproducers in ocp1_coverage_wrap.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture,
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ocp1_pdus(self, cmd_tshark, capture_file, test_env):
+        '''All 48 frames with OCP.1 decode, without malformed packets or
+        error expert infos, in one and two passes. Counts of the PDU
+        types, from the column.'''
+        cap = capture_file('ocp1_coverage.pcap.gz')
+        info = self.fields(cmd_tshark, test_env, cap, 'ocp1', '_ws.col.info')
+        assert len(info) == 48
+        counts = {i: info.count(i) for i in set(info)}
+        assert counts == {
+            'Command (1)': 15, 'Response (1)': 15, 'Response (2)': 3,
+            'Notification (1)': 5, 'Keep-Alive (1)': 4,
+            'Command (2)': 1, 'CommandRrq (1)': 2,
+            'Command (1), CommandRrq (1), Keep-Alive (1)': 1,
+            'Command (1), Invalid PDU type (1)': 2,
+        }
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, test_env, cap,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert bad == []
+
+    def test_ocp1_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU of four commands split over two TCP segments is
+        dissected in the second one (frame 23); a response PDU followed
+        by the start of the next one completes in frame 26. Frame 20
+        holds three PDUs.'''
+        cap = capture_file('ocp1_coverage.pcap.gz')
+        lines = self.fields(cmd_tshark, test_env, cap,
+                'frame.number in {20, 22, 23, 25, 26}',
+                'frame.number', '_ws.col.protocol', 'ocp1.handle')
+        assert lines == [
+            '20\tOCP.1\t8193,8194',
+            '22\tTCP\t',
+            '23\tOCP.1\t8208,8209,8210,8211',
+            '25\tTCP\t',
+            '26\tOCP.1\t8208,8209,8210,8211,8224',
+        ]
+
+    def test_ocp1_request_response(self, cmd_tshark, capture_file, test_env):
+        '''A response is matched with its command by handle and its
+        parameters are decoded with the command's method. A response to
+        a handle that was never seen is decoded as raw data and
+        flagged.'''
+        cap = capture_file('ocp1_coverage.pcap.gz')
+        lines = self.fields(cmd_tshark, test_env, cap, 'frame.number in {20, 21, 15}',
+                'frame.number', 'ocp1.response_to', 'ocp1.params.string.value',
+                'ocp1.handle_fail')
+        assert lines == [
+            '15\t\t\t1',
+            '20\t\t\t',
+            '21\t20,20\tMixer,SN-1\t',
+        ]
+        warn = self.fields(cmd_tshark, test_env, cap, '_ws.expert.message contains "not captured"',
+                'frame.number')
+        assert warn == ['15']
+
+    def test_ocp1_handle_collisions(self, cmd_tshark, capture_file, test_env):
+        '''Three UDP conversations use the handles 1 to 3. Each response
+        is decoded against the command of its own conversation.'''
+        cap = capture_file('ocp1_coverage.pcap.gz')
+        lines = self.fields(cmd_tshark, test_env, cap,
+                'udp.srcport in {50300..50302}', 'udp.srcport',
+                'ocp1.handle', 'ocp1.params.string.value')
+        assert lines == ['%d\t%d\tconv%d-%d' % (50300 + k, h, k, h)
+                         for k in range(3) for h in (1, 2, 3)]
+
+    def test_ocp1_methods(self, cmd_tshark, capture_file, test_env):
+        '''Parameters of manager methods are decoded: strings of the
+        device manager, tasks and task maps of the task manager.'''
+        cap = capture_file('ocp1_coverage.pcap.gz')
+        values = set(','.join(self.fields(cmd_tshark, test_env, cap, 'ocp1',
+                'ocp1.params.string.value')).split(','))
+        for v in ('Mixer', 'SN-12345', 'Acme', 'rev-A', 'Security', 'tone',
+                  'fade', 'rampdown', 'fw.bin', 'unlocked', 'hello'):
+            assert v in values
+        # Task IDs: the map items carry IDs whose upper 16 bits equal the
+        # label length (the decoder sizes the items that way).
+        ids = self.fields(cmd_tshark, test_env, cap, 'ocp1.params.task_id',
+                          'ocp1.params.task_id')
+        assert ids == ['7,7,7,7,5', '7,9', '7',
+                       '1,262153,2,524299,1,262151,1,196620,1,65541,7',
+                       '7,9,7,7']
+
+    def test_ocp1_pdu_size_wrap(self, cmd_tshark, capture_file, test_env):
+        '''A second PDU whose 32-bit size wrapped the offset back to the
+        start of the data made tshark loop forever (UDP and TCP); the
+        size is now checked ("OCP.1: Bound the PDU size to avoid an
+        endless loop"), hence the timeout.'''
+        cap = capture_file('ocp1_coverage_wrap.pcap.gz')
+        lines = self.fields(cmd_tshark, test_env, cap, 'ocp1', 'frame.number',
+                '_ws.col.info', '_ws.expert.message')
+        assert lines == [
+            '1\t\tSize or length field has invalid value',
+            '2\tNotification (1)\t',
+        ]
