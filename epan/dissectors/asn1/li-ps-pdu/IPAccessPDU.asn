@@ -15,11 +15,11 @@ IMPORTS
 -- Object Identifier Definition
 -- ============================
 
---iPAccessPDUObjId RELATIVE-OID               ::= {li-ps(5) iPAccess(3) version19(19)}
---iPIRIObjId RELATIVE-OID                     ::= {iPAccessPDUObjId iRI(1)}
---iPCCObjId RELATIVE-OID                      ::= {iPAccessPDUObjId cC(2)}
---iPIRIOnlyObjId RELATIVE-OID                 ::= {iPAccessPDUObjId iRIOnly(3)}
---iPIRIPacketReportObjId RELATIVE-OID         ::= {iPAccessPDUObjId iRIPacketReport(4)}
+iPAccessPDUObjId RELATIVE-OID               ::= {li-ps(5) iPAccess(3) version19(19)}
+iPIRIObjId RELATIVE-OID                     ::= {iPAccessPDUObjId iRI(1)}
+iPCCObjId RELATIVE-OID                      ::= {iPAccessPDUObjId cC(2)}
+iPIRIOnlyObjId RELATIVE-OID                 ::= {iPAccessPDUObjId iRIOnly(3)}
+iPIRIPacketReportObjId RELATIVE-OID         ::= {iPAccessPDUObjId iRIPacketReport(4)}
 
     -- definitions are relative to
     -- {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2)}

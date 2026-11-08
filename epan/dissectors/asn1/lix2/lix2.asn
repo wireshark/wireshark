@@ -20,13 +20,13 @@ IMPORTS
 -- Relative OIDs
 -- =============
 
---tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r19(19) version3(3)}
+tS33128PayloadsOID          RELATIVE-OID ::= {threeGPP(4) ts33128(19) r19(19) version3(3)}
 
---xIRIPayloadOID              RELATIVE-OID ::= {tS33128PayloadsOID xIRI(1)}
---xCCPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID xCC(2)}
---iRIPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID iRI(3)}
---cCPayloadOID                RELATIVE-OID ::= {tS33128PayloadsOID cC(4)}
---lINotificationPayloadOID    RELATIVE-OID ::= {tS33128PayloadsOID lINotification(5)}
+xIRIPayloadOID              RELATIVE-OID ::= {tS33128PayloadsOID xIRI(1)}
+xCCPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID xCC(2)}
+iRIPayloadOID               RELATIVE-OID ::= {tS33128PayloadsOID iRI(3)}
+cCPayloadOID                RELATIVE-OID ::= {tS33128PayloadsOID cC(4)}
+lINotificationPayloadOID    RELATIVE-OID ::= {tS33128PayloadsOID lINotification(5)}
 
 -- ===============
 -- X2 xIRI payload

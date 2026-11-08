@@ -6446,6 +6446,7 @@ def p_ValueType (t):
                  | BooleanType
                  | IntegerType
                  | ObjectIdentifierType
+                 | RelativeOIDType
                  | OctetStringType
                  | RealType '''
 
