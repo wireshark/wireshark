@@ -104175,3 +104175,104 @@ class TestDissectNegoex:
                 '-Y', 'frame.number == 4', '-V',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'Extensions: 1 at 96' in stdout
+
+
+class TestDissectNetanalyzer:
+    '''netANALYZER records (link types 240 and 241) from the synthetic
+    capture netanalyzer_coverage.pcapng.gz: Ethernet records of header
+    version 1 and 2 with every status bit, the transparent flag, buffer
+    state entries, time ticks, GPIO events, transparent mode records, and
+    the reproducer of "netANALYZER: Do not make decoding depend on the
+    tree" (frames 66-68).'''
+
+    @staticmethod
+    def netana_rows(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('netanalyzer_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_netanalyzer_records(self, cmd_tshark, capture_file, test_env):
+        '''68 records: Ethernet frames are handed to the Ethernet dissector,
+        GPIO events, buffer states and time ticks are not; nothing is
+        malformed or an error in one and two passes.'''
+        rows = self.netana_rows(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(rows) == 68
+        protocols = [r[1] for r in rows]
+        assert protocols.count('UDP') == 26
+        assert protocols.count('ARP') == 8
+        assert protocols.count('netANALYZER') == 34
+        for passes in ((), ('-2',)):
+            assert self.netana_rows(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes) == []
+
+    def test_netanalyzer_status_and_port(self, cmd_tshark, capture_file, test_env):
+        '''The status byte, the port and the length of Ethernet records.'''
+        rows = self.netana_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 4, 17, 18, 21, 24, 25, 30, 31}',
+                'netanalyzer.port', 'netanalyzer.framelen', 'netanalyzer.packetstatus')
+        assert rows == [
+            ['1', '0', '70', '0x00'], ['4', '3', '70', '0x00'],
+            ['17', '1', '64', '0x01'], ['18', '2', '64', '0x02'],
+            ['21', '0', '64', '0x10'], ['24', '0', '64', '0x80'],
+            ['25', '3', '64', '0xff'], ['30', '0', '1', '0x00'],
+            ['31', '1', '4095', '0x00'],
+        ]
+
+    def test_netanalyzer_transparent_flag(self, cmd_tshark, capture_file, test_env):
+        '''The transparent flag in an Ethernet record gives a note, with an
+        alignment error also a warning (frames 32-34).'''
+        rows = self.netana_rows(cmd_tshark, capture_file, test_env,
+                'netanalyzer.transparent_frame || netanalyzer.alignment_error',
+                'netanalyzer.alignment_error')
+        assert [(r[0], bool(r[1])) for r in rows if int(r[0]) < 56] == [
+            ('32', False), ('33', True), ('34', True)]
+
+    def test_netanalyzer_non_ethernet_records(self, cmd_tshark, capture_file, test_env):
+        '''Buffer states (every source, every port), time ticks and GPIO
+        events.'''
+        rows = self.netana_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {35, 39, 40, 44, 45, 47, 54, 64}', '_ws.col.info',
+                'netanalyzer.buffer.state', 'netanalyzer.buffer.source')
+        assert rows == [
+            ['35', 'Buffer overflow', '0', '0'],
+            ['39', 'Buffer overflow', '0', '4'],
+            ['40', 'Buffer recovery', '1', '0'],
+            ['44', 'Buffer recovery', '1', '4'],
+            ['45', 'Time tick', '', ''],
+            ['47', 'GPIO event on GPIO 0 (rising edge)', '', ''],
+            ['54', 'GPIO event on GPIO 3 (falling edge)', '', ''],
+            ['64', 'GPIO event on GPIO 2 (falling edge)', '', ''],
+        ]
+
+    def test_netanalyzer_transparent_mode(self, cmd_tshark, capture_file, test_env):
+        '''Link type 241 shows the payload as raw data.'''
+        rows = self.netana_rows(cmd_tshark, capture_file, test_env,
+                'frame.number in {56, 57, 60, 61}', '_ws.col.info')
+        assert rows == [['56', 'Frame captured in transparent mode'],
+                        ['57', 'Frame captured in transparent mode'],
+                        ['60', 'Frame captured in transparent mode'],
+                        ['61', 'Buffer recovery']]
+
+    def test_netanalyzer_decoding_without_tree(self, cmd_tshark, capture_file, test_env):
+        '''GPIO events, buffer states and time ticks are not passed on to
+        the Ethernet dissector when no protocol tree is built (plain
+        tshark run); before the fix they were shown as Ethernet frames and
+        the result differed from a run with a tree.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netanalyzer_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()[-3:]
+        assert [l.endswith(s) for l, s in zip(lines, (
+            'GPIO event on GPIO 3 (falling edge)', 'Buffer recovery', 'Time tick'))] == [True] * 3
+        assert all('netANALYZER' in l for l in lines)
+        a = subprocess.check_output((cmd_tshark, '-r', capture_file('netanalyzer_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        b = subprocess.check_output((cmd_tshark, '-2', '-r', capture_file('netanalyzer_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                '-enetanalyzer.port',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.split('\t')[:3] for l in a.splitlines()] == [l.split('\t')[:3] for l in b.splitlines()]
