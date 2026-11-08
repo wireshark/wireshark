@@ -2253,14 +2253,32 @@ static uint32_t tns_oson_uint(tns_oson_t *o, uint32_t pos, int width)
 static uint32_t tns_oson_names(tns_oson_t *o, uint32_t pos, uint32_t first, uint32_t num,
 	int hash_size, int off_size, uint32_t seg_size, int len_size)
 {
-	uint32_t offsets = pos + num * hash_size;
-	uint32_t seg = offsets + num * off_size;
+	uint32_t offsets, seg, prod, end;
 
+	/* The names live in [seg, seg + seg_size); require that whole range to
+	 * lie within the buffer. Check for overflow; these inputs are 32-bit
+	 * from packet data and so are their sums and products, but pointer
+	 * widths might be 64-bit. */
+	if ( ckd_mul(&prod, num, hash_size) || ckd_add(&offsets, pos, prod)
+	  || ckd_mul(&prod, num, off_size) || ckd_add(&seg, offsets, prod)
+	  || ckd_add(&end, seg, seg_size) || end > o->len )
+	{
+		o->bad = true;
+		return o->len;
+	}
 	for ( uint32_t i = 0; i < num && !o->bad; i++ )
 	{
+		/* offsets + i*off_size <= seg and seg + at + len_size + n <= end
+		 * <= o->len, so none of these overflow or leave the buffer. */
 		uint32_t at = tns_oson_uint(o, offsets + i * off_size, off_size);
-		uint32_t n = tns_oson_uint(o, seg + at, len_size);
-		if ( at + len_size + n > seg_size || seg + at + len_size + n > o->len )
+		uint32_t n;
+		if ( at > seg_size || (uint32_t)len_size > seg_size - at )
+		{
+			o->bad = true;
+			break;
+		}
+		n = tns_oson_uint(o, seg + at, len_size);
+		if ( n > seg_size - at - len_size )
 			o->bad = true;
 		else
 		{
@@ -2268,7 +2286,7 @@ static uint32_t tns_oson_names(tns_oson_t *o, uint32_t pos, uint32_t first, uint
 			o->name_lens[first + i] = n;
 		}
 	}
-	return seg + seg_size;
+	return end;
 }
 
 static void tns_oson_append_string(wmem_strbuf_t *buf, const uint8_t *s, uint32_t len)
