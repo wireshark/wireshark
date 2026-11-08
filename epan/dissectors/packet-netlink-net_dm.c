@@ -256,6 +256,8 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		proto_tree_add_item(tree, hf_net_dm_alert_mode, tvb, offset, len, nl_data->encoding);
 		return 1;
 	case WS_NET_DM_ATTR_PC:
+		if (len != 8)
+			return 0;
 		proto_tree_add_item_ret_uint64(tree, hf_net_dm_pc, tvb,
 					       offset, 8, nl_data->encoding, &pc);
 		proto_item_append_text(tree, ": 0x%" PRIx64, pc);
@@ -268,12 +270,16 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return dissect_netlink_attributes(tvb, hf_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_port);
 	case WS_NET_DM_ATTR_TIMESTAMP:
+		if (len != 8)
+			return 0;
 		timestamp = tvb_get_uint64(tvb, offset, nl_data->encoding);
 		ts_nstime.secs = timestamp / 1000000000;
 		ts_nstime.nsecs = timestamp % 1000000000;
 		proto_tree_add_time(tree, hf_net_dm_timestamp, tvb, offset, 8, &ts_nstime);
 		return 1;
 	case WS_NET_DM_ATTR_PROTO:
+		if (len != 2)
+			return 0;
 		info->protocol = tvb_get_uint16(tvb, offset, nl_data->encoding);
 
 		proto_tree_add_item(tree, hf_net_dm_proto, tvb, offset, len, nl_data->encoding);
