@@ -108876,3 +108876,61 @@ class TestDissectNsMep:
             'nstrace.mep.mfu.sitePersisGetServReq': 28,
             'nstrace.mep.mfu.sitePersistenceGetServResp': 32,
         }
+
+
+class TestDissectNsrp:
+    '''Juniper NetScreen Redundant Protocol (ethertype 0x8133), from the
+    synthetic capture nsrp_coverage.pcap.gz.'''
+
+    def test_nsrp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 41 frames are NSRP and none is malformed or has a warning or
+        an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['NSRP'] * 41
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nsrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nsrp_ifnum(self, cmd_tshark, capture_file, test_env):
+        '''The interface number of a data message is one octet (the field was
+        registered as 16 bits, "NSRP: Make the ifnum field an FT_UINT8").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsrp_coverage.pcap.gz'),
+                '-Y', 'nsrp.ifnum', '-Tfields', '-eframe.number', '-ensrp.ifnum',
+                '-ensrp.msgtype', '-ensrp.totalsize',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['33', '0x00', '1', '26'], ['34', '0x01', '2', '26'],
+            ['35', '0x07', '3', '26'], ['36', '0xff', '4', '26'],
+            ['37', '0x02', '10', '13'], ['41', '0x01', '3', '56'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 36', '-V', '-O', 'nsrp',
+            ), encoding='utf-8', env=test_env)
+        assert '    Ifnum: 0xff\n' in stdout
+
+    def test_nsrp_messages(self, cmd_tshark, capture_file, test_env):
+        '''HA messages (header type 0), management messages (type 2) and
+        data messages (type 3) carry their own message headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 21, 27, 33, 38}',
+                '-Tfields', '-eframe.number', '-ensrp.type', '-ensrp.msgtype',
+                '-ensrp.msgflag', '-ensrp.encflag', '-ensrp.authflag',
+                '-ensrp.priority', '-ensrp.data',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0', '1', '2', '16', '', '', 'nsrp ha data 1'],
+            ['21', '0', '21', '32', '16', '', '', 'nsrp ha data 21'],
+            ['27', '2', '1', '0', '', '0x01', '0x0a', 'mng data 1'],
+            ['33', '3', '1', '0', '', '', '', 'payload data 0'],
+            ['38', '1', '', '', '', '', '', ''],
+        ]
