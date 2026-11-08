@@ -1360,9 +1360,24 @@ oid_get_default_mib_path(const char* app_env_var_prefix _U_) {
 	 * use the other path (NB: check the search path separator.) */
 	path = get_datafile_path("snmp\\mibs", app_env_var_prefix);
 	oid_add_unique_path(unique_paths, path_str, path);
+	g_free(path);
+
+	/* The MIBs are installed in the program directory, which is also the
+	 * data file directory in an installation. In a build directory the
+	 * data file directory is share\wireshark under the program directory,
+	 * so look in the program directory as well.
+	 * XXX - get_datafile_path has special handling for running in the
+	 * build directory for the hosts file, but not snmp/mibs.
+	 */
+	if (get_progfile_dir() != NULL) {
+		path = g_build_filename(get_progfile_dir(), "snmp", "mibs", (char *)NULL);
+		oid_add_unique_path(unique_paths, path_str, path);
+		g_free(path);
+	}
 
 	path = get_persconffile_path("snmp\\mibs", false, app_env_var_prefix);
 	oid_add_unique_path(unique_paths, path_str, path);
+	g_free(path);
 #else
 	// This directory is usually flat on UN*X systems, and we haven't
 	// recursively descended into it before. We could start.
@@ -1375,15 +1390,22 @@ oid_get_default_mib_path(const char* app_env_var_prefix _U_) {
 	if (strlen(path) > 0 ) {
 		// Conversely to above, libsmi is generally compiled with the
 		// entire directory structure so we don't need to recurse here
-		// or check that there actually are files in each directory.
-		// We do want to split them for adding to the unique hash table.
+		// or check that there actually are files in each directory,
+		// at least if they exist. The default path is set when it is
+		// build, so it can name directories that don't exist, which
+		// may particularly be an issue in a macOS package install.
+		// We want to split them for adding to the unique hash table, and
+		// for checking if they exist, since files_identical() doesn't
+		// handle that.
 		// 20 is arbitrary here to have a limit; 12 is the number that
 		// libsmi seems to be compiled with currently.
 		char **paths = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
 		for (i = 0; paths[i]; i++) {
 			//oid_add_unique_path(unique_paths, path_str, paths[i]);
-			if (g_hash_table_add(unique_paths, g_strdup(path)))
-				g_string_append_printf(path_str, G_SEARCHPATH_SEPARATOR_S "%s", path);
+			if (test_for_directory(paths[i]) != EISDIR)
+				continue;
+			if (g_hash_table_add(unique_paths, g_strdup(paths[i])))
+				g_string_append_printf(path_str, G_SEARCHPATH_SEPARATOR_S "%s", paths[i]);
 		}
 		g_strfreev(paths);
 	}
