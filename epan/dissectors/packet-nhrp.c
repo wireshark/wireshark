@@ -348,7 +348,7 @@ static bool dissect_nhrp_hdr(tvbuff_t     *tvb,
          * The long form protocol type is a SNAP OUI and PID.
          */
         proto_tree_add_item_ret_uint(nhrp_tree, hf_nhrp_hdr_pro_snap_oui,
-            tvb, offset, 3, hdr->ar_pro_type_oui, &oui);
+            tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
         offset += 3;
         hdr->ar_pro_type_oui = oui;
 
@@ -361,6 +361,7 @@ static bool dissect_nhrp_hdr(tvbuff_t     *tvb,
             proto_tree_add_item_ret_uint(nhrp_tree, hf_nhrp_hdr_pro_snap_pid,
                 tvb, offset, 2, ENC_BIG_ENDIAN, &pid);
         }
+        offset += 2;
         hdr->ar_pro_type_pid = (uint16_t)pid;
     } else {
         /*
@@ -560,6 +561,7 @@ static void dissect_cie_list(tvbuff_t    *tvb,
 
         if (cli_saddr_len) {
             proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_saddr, tvb, offset, cli_saddr_len, ENC_NA);
+            offset += cli_saddr_len;
         }
 
         if (cli_prot_len) {
@@ -958,7 +960,7 @@ static void dissect_nhrp_ext(tvbuff_t    *tvb,
                             proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                         }
                         else if (srcLen == 16) {
-                            proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr_v6, tvb, offset + 16, 16, ENC_NA);
+                            proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr_v6, tvb, offset + 4, 16, ENC_NA);
                         }
                         else if (srcLen) {
                             proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr_bytes, tvb, offset + 4, srcLen, ENC_NA);
