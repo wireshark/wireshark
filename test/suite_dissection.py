@@ -104389,3 +104389,76 @@ class TestDissectNetbios:
             '84\t0x08\t0xefff',
             '85\t0x1f\t0xefff',
         ]
+
+
+class TestDissectNetdump:
+    '''Netdump (Linux netdump over UDP) from the synthetic capture
+    netdump_coverage.pcap.gz. Netdump registers no port, only Decode As,
+    so the tests pass -d for UDP 6666 and 6667.'''
+
+    DECODE_AS = ('-d', 'udp.port==6666,netdump', '-d', 'udp.port==6667,netdump')
+
+    def test_netdump_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 30 frames decode as Netdump without malformed packets or
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netdump_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('Netdump') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS,
+                    '-r', capture_file('netdump_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_netdump_not_decoded_by_default(self, cmd_tshark, capture_file, test_env):
+        '''No port is registered: without Decode As the frames are UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netdump_coverage.pcap.gz'),
+                '-Y', 'netdump',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+
+    def test_netdump_requests(self, cmd_tshark, capture_file, test_env):
+        '''A 24 octet packet is a request: magic number, sequence number,
+        command (named, or unknown) and the from and to values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netdump_coverage.pcap.gz'),
+                '-Y', 'netdump.magic',
+                '-Tfields', '-eframe.number', '-enetdump.magic',
+                '-enetdump.seq_nr', '-enetdump.command',
+                '-enetdump.from', '-enetdump.to',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert len(lines) == 13
+        assert lines[0] == '1\t0x0000000a4e455444\t0x00000001\t0\t0x00000000\t0x00000fff'
+        assert lines[4] == '5\t0x0000000a4e455444\t0x00000005\t4\t0x00004000\t0x00004fff'
+        assert lines[10] == '11\t0x0000000a4e455444\t0x7fffffff\t99\t0xffffffff\t0x00000000'
+        assert lines[11] == '12\t0xffffffffffffffff\t0xffffffff\t1\t0x00000000\t0xffffffff'
+        assert lines[12].startswith('30\t')
+
+    def test_netdump_replies(self, cmd_tshark, capture_file, test_env):
+        '''Any other length is a reply: version, sequence number, code
+        (little endian info) and the payload, named by reply code.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netdump_coverage.pcap.gz'),
+                '-Y', 'netdump.code && frame.number in {13, 14, 25, 27}',
+                '-Tfields', '-eframe.number', '-enetdump.version',
+                '-enetdump.seq_nr', '-enetdump.code', '-enetdump.info',
+                '-enetdump.payload',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        names = {13: 'REPLY_NONE', 14: 'REPLY_ERROR', 25: 'REPLY_SHOW_STATE'}
+        lines = stdout.splitlines()
+        assert len(lines) == 4
+        for line, (frame, code, info) in zip(lines[:3], ((13, 0, '0x01020304'),
+                (14, 1, '0x01020305'), (25, 12, '0x01020310'))):
+            f = line.split('\t')
+            assert f[:5] == [str(frame), '0x01', '0x%08x' % (frame - 13 + 100), str(code), info]
+            assert bytes.fromhex(f[5]) == b'payload for ' + names[frame].encode()
+        assert lines[3] == '27\t0x00\t0x00000005\t3\t0x00001000\t' + '00' * 23
