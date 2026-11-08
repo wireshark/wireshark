@@ -112052,3 +112052,82 @@ class TestDissectOpenflowV1:
         rows = self.run_fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'openflow_1_0.type == 14', '-Tfields', '-eopenflow.command')
         assert [r[0] for r in rows] == ['0', '1', '2', '3', '4', '0']
+
+
+class TestDissectOpenflowV4:
+    '''OpenFlow 1.3 over TCP 6653 and Exported PDU, from the synthetic
+    capture openflow_v4_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openflow_v4_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_openflow_v4_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message, multipart type, action, instruction, OXM field,
+        table property and meter band decodes without malformed packets
+        or error expert infos, in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v4', '-Tfields', '-eframe.number')
+        assert len(rows) == 131
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_openflow_v4_nesting(self, cmd_tshark, capture_file, test_env):
+        '''An OFPT_ERROR carries the message that failed. Four levels of
+        nested messages are dissected, a fifth gets the "too many nested
+        messages" expert info (frames 33-35, 136). Before "OpenFlow: Fix
+        endless loops and unbounded recursion in v4, v5 and v6" there
+        was no limit and a PDU of 65535 octets overflowed the stack.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 30 && frame.number <= 35 || frame.number == 136',
+                '-Tfields', '-eframe.number', '-eopenflow_v4.type',
+                '-eopenflow_v4.nesting_too_deep', '-eopenflow_v4.echo.data',
+                '-E', 'aggregator=,')
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['30'][0] == '1,1,2'
+        assert by_frame['32'][0] == '1,1,1,1,2'
+        assert by_frame['32'][1] == ''          # four nested levels, not too deep
+        assert by_frame['32'][2] == '78'        # the innermost Echo data, "x"
+        for number in ('33', '34', '35', '136'):
+            assert by_frame[number][0] == '1,1,1,1,1'
+            assert by_frame[number][1] == '1'
+
+    def test_openflow_v4_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames with data after the OpenFlow message: only
+        the message is dissected (the nested Echo in an Error keeps its
+        data, which it lost when its offsets were relative to the outer
+        message).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 133 && frame.number <= 135',
+                '-Tfields', '-eframe.number', '-eopenflow_v4.echo.data',
+                '-eopenflow_v4.type', '-E', 'aggregator=,')
+        assert rows == [['133', '70696e67', '2'], ['134', '', '14'],
+                        ['135', '696e', '1,2']]
+
+    def test_openflow_v4_match_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''OXM values and masks in a flow mod that was split over three
+        TCP segments (frames 129 and 130 are the first parts).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 129 && frame.number <= 131',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eopenflow_v4.oxm.value_ipv4addr', '-eopenflow_v4.oxm.ipv4_mask',
+                '-E', 'aggregator=,')
+        assert [r[1] for r in rows] == ['TCP', 'TCP', 'OpenFlow']
+        assert rows[2][2] == '10.0.0.1,10.0.0.0,10.0.0.2,10.1.1.1,10.1.1.0,10.1.1.2'
+        assert rows[2][3] == '255.255.255.0,255.255.255.0'
+
+    def test_openflow_v4_multipart(self, cmd_tshark, capture_file, test_env):
+        '''Multipart replies: group stats and the number of ports.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v4.type == 19', '-Tfields', '-eframe.number',
+                '-eopenflow_v4.group_stats.group_id', '-eopenflow_v4.port.port_no',
+                '-E', 'aggregator=,')
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['104'][0] == '1,2'
+        assert by_frame['111'][1] == '1,2,3'
