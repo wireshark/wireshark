@@ -254,7 +254,7 @@ static int
 _tvb_check_if_zeros(tvbuff_t *tvb, int offset, int len)
 {
 	/* padding, all bytes should be 0, if not display as unknown */
-	while (len >= 0) {
+	while (len > 0) {
 		if (tvb_get_uint8(tvb, offset) != 0)
 			return 1;
 
@@ -390,7 +390,7 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 			if (len == 8) {
 				/* XXX, if socket in WS_LISTEN it's reporting sk->sk_receive_queue.qlen, sk->sk_max_ack_backlog */
 				proto_tree_add_item(tree, hf_netlink_sock_diag_rqueue, tvb, offset, 4, nl_data->encoding);
-				proto_tree_add_item(tree, hf_netlink_sock_diag_wqueue, tvb, offset, 4, nl_data->encoding);
+				proto_tree_add_item(tree, hf_netlink_sock_diag_wqueue, tvb, offset + 4, 4, nl_data->encoding);
 				return 1;
 			}
 			return 0;
@@ -399,8 +399,10 @@ dissect_netlink_unix_sock_diag_reply_attrs(tvbuff_t *tvb, void *data, struct pac
 			return dissect_sock_diag_meminfo(tree, info, nl_data, tvb, offset, len);
 
 		case WS_UNIX_DIAG_SHUTDOWN:
-			if (len == 1)
+			if (len == 1) {
 				sock_diag_proto_tree_add_shutdown(tree, info->pinfo, tvb, offset);
+				return 1;
+			}
 			return 0;
 
 		case WS_UNIX_DIAG_VFS:
@@ -545,8 +547,10 @@ dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, struct packet_netli
 			return dissect_sock_diag_meminfo(tree, info, nl_data, tvb, offset, len);
 
 		case WS_INET_DIAG_SHUTDOWN:
-			if (len == 1)
+			if (len == 1) {
 				sock_diag_proto_tree_add_shutdown(tree, info->pinfo, tvb, offset);
+				return 1;
+			}
 			return 0;
 
 		case WS_INET_DIAG_INFO:
@@ -677,7 +681,7 @@ dissect_sock_diag_inet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 	offset += 1;
 
 	/* XXX states (bit of sk_state) */
-	proto_tree_add_item(tree, hf_netlink_sock_diag_inet_states, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_netlink_sock_diag_inet_states, tvb, offset, 4, nl_data->encoding);
 	offset += 4;
 
 	offset = dissect_sock_diag_inet_sockid(tvb, info, nl_data, tree, offset, af_family);
@@ -1218,7 +1222,7 @@ proto_register_netlink_sock_diag(void)
 			  NULL, HFILL }
 		},
 		{ &hf_netlink_sock_diag_packet_attr,
-			{ "Type", "netlink-sock_diag.netlink_attr",
+			{ "Type", "netlink-sock_diag.packet_attr",
 			  FT_UINT16, BASE_DEC, VALS(netlink_sock_diag_packet_vals), NLA_TYPE_MASK,
 			  NULL, HFILL }
 		},
