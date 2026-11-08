@@ -1504,7 +1504,19 @@ dissect_obdii_uds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 static bool
 dissect_obdii_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    return dissect_obdii_iso15765(tvb, pinfo, tree, data) != 0;
+    const can_info_t *can_info = (const can_info_t *)data;
+    iso15765_info_t iso15765_info;
+
+    if (!can_info || can_info->fd == CAN_TYPE_CAN_XL)
+        return false;
+
+    /* The "can" heuristic list passes a can_info_t, not an iso15765_info_t. */
+    memset(&iso15765_info, 0, sizeof(iso15765_info));
+    iso15765_info.bus_type = (can_info->fd == CAN_TYPE_CAN_FD) ? ISO15765_TYPE_CAN_FD : ISO15765_TYPE_CAN;
+    iso15765_info.id = can_info->id;
+    iso15765_info.len = can_info->len;
+
+    return dissect_obdii_iso15765(tvb, pinfo, tree, &iso15765_info) != 0;
 }
 
 void
