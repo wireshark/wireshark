@@ -108257,3 +108257,78 @@ class TestDissectDhcpv6SlapQuad:
         assert '3' in stdout        # SAI quadrant
         assert '100' in stdout      # AAI preference
         assert '200' in stdout      # SAI preference
+
+
+class TestDissectNordicBle:
+    '''nRF Sniffer for Bluetooth LE (link type 272), protocol versions 0
+    (0xBEEF marker) to 3, from the synthetic capture
+    nordic_ble_coverage.pcapng.gz (two interfaces) and the reproducer
+    nordic_ble_protodata_confusion.pcap.gz.'''
+
+    def test_nordic_ble_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 45 frames are Nordic BLE and none is malformed or has a
+        warning or an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nordic_ble_coverage.pcapng.gz'),
+                '-Y', 'nordic_ble', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 45
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nordic_ble_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nordic_ble_protodata_two_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Two Nordic BLE PDUs of different protocol versions in one frame
+        (Decode As UDP port 5555) are dissected again in the second pass
+        without crashing; the delta time state and the timestamp state were
+        kept under the same protocol data key (9cf3a8a6fa), so the second
+        pass read an integer as a pointer.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nordic_ble_protodata_confusion.pcap.gz'),
+                    '-d', 'udp.port==5555,nordic_ble',
+                    '-Tfields', '-eframe.number', '-enordic_ble.protover',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert stdout.splitlines() == ['1\t3,2', '2\t2,3']
+
+    def test_nordic_ble_times(self, cmd_tshark, capture_file, test_env):
+        '''Packet times per PHY and, for protocol version 3, the delta times
+        from the timestamps: 1M (frame 19), 2M (20), coded S8 (21) and an
+        unknown PHY (24, time 0).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nordic_ble_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {19..21, 24}',
+                '-Tfields', '-eframe.number', '-enordic_ble.phy', '-enordic_ble.time',
+                '-enordic_ble.packet_time', '-enordic_ble.delta_time',
+                '-enordic_ble.delta_time_ss',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['19', '0', '6500', '152', '6500', '6500'],
+            ['20', '1', '7000', '80', '348', '500'],
+            ['21', '2', '7500', '1296', '420', '500'],
+            ['24', '3', '9000', '0', '500', '500'],
+        ]
+
+    def test_nordic_ble_versions(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1, 6, 11 and 19 are protocol versions 0 (legacy), 1, 2 and
+        3; extended advertising auxiliary types 0-3 are frames 27-30.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nordic_ble_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 6, 11, 19, 27..30}',
+                '-Tfields', '-eframe.number', '-enordic_ble.protover',
+                '-enordic_ble.aux_type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0', '', 'ADV_IND'],
+            ['6', '1', '', 'ADV_IND'],
+            ['11', '2', '', 'ADV_IND'],
+            ['19', '3', '', 'ADV_IND'],
+            ['27', '3', '0', 'AUX_ADV_IND'],
+            ['28', '3', '1', 'AUX_CHAIN_IND'],
+            ['29', '3', '2', 'AUX_SYNC_IND'],
+            ['30', '3', '3', 'AUX_SCAN_RSP'],
+        ]
