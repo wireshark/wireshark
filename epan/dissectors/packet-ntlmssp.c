@@ -332,7 +332,7 @@ typedef struct _ntlmssp_info {
    decrypted it once */
 typedef struct _ntlmssp_packet_info {
   uint8_t  *decrypted_payload;
-  uint8_t   payload_len;
+  uint32_t  payload_len;
   uint8_t   verifier[NTLMSSP_KEY_LEN];
   bool      payload_decrypted;
   bool      verifier_decrypted;
@@ -906,7 +906,7 @@ create_ntlmssp_v1_key(const uint8_t *serverchallenge, const uint8_t *clientchall
     }
   }
 
-  if ((flags & NTLMSSP_NEGOTIATE_LM_KEY && !(flags & NoLMResponseNTLMv1)) || !(flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY)  || !(flags & NTLMSSP_NEGOTIATE_NTLM)) {
+  if ((flags & NTLMSSP_NEGOTIATE_LM_KEY && !NoLMResponseNTLMv1) || !(flags & NTLMSSP_NEGOTIATE_EXTENDED_SESSIONSECURITY)  || !(flags & NTLMSSP_NEGOTIATE_NTLM)) {
     /* Create a LM hash of the input password, even if empty */
     // LMOWFv1 as defined in https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/464551a8-9fc4-428e-b3d3-bc5bfb2e73a5
     /* LM hash requires plaintext password; skip if only NT hash is available */
@@ -1692,7 +1692,12 @@ dissect_ntlmssp_target_info_list(tvbuff_t *_tvb, packet_info *pinfo, proto_tree 
       break;
 
       case NTLM_TARGET_INFO_TIMESTAMP:
-        dissect_nttime(tvb, target_info_tree, content_offset, *hf_array_p[item_type], ENC_LITTLE_ENDIAN);
+        if (content_length == 8) {
+          dissect_nttime(tvb, target_info_tree, content_offset, *hf_array_p[item_type], ENC_LITTLE_ENDIAN);
+        } else {
+          proto_tree_add_expert(target_info_tree, pinfo, &ei_ntlmssp_target_info_attr,
+                                tvb, content_offset, content_length);
+        }
         break;
 
       case NTLM_TARGET_INFO_RESTRICTIONS:
@@ -1963,6 +1968,15 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
         if (conv_ntlmssp_info->rc4_handle_client && conv_ntlmssp_info->rc4_handle_server) {
           conv_ntlmssp_info->server_dest_port = pinfo->destport;
           conv_ntlmssp_info->rc4_state_initialized = true;
+        } else {
+          if (conv_ntlmssp_info->rc4_handle_client) {
+            gcry_cipher_close(conv_ntlmssp_info->rc4_handle_client);
+            conv_ntlmssp_info->rc4_handle_client = NULL;
+          }
+          if (conv_ntlmssp_info->rc4_handle_server) {
+            gcry_cipher_close(conv_ntlmssp_info->rc4_handle_server);
+            conv_ntlmssp_info->rc4_handle_server = NULL;
+          }
         }
       }
     }
@@ -2366,6 +2380,15 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           if (conv_ntlmssp_info->rc4_handle_server && conv_ntlmssp_info->rc4_handle_client) {
             conv_ntlmssp_info->server_dest_port = pinfo->destport;
             conv_ntlmssp_info->rc4_state_initialized = true;
+          } else {
+            if (conv_ntlmssp_info->rc4_handle_server) {
+              gcry_cipher_close(conv_ntlmssp_info->rc4_handle_server);
+              conv_ntlmssp_info->rc4_handle_server = NULL;
+            }
+            if (conv_ntlmssp_info->rc4_handle_client) {
+              gcry_cipher_close(conv_ntlmssp_info->rc4_handle_client);
+              conv_ntlmssp_info->rc4_handle_client = NULL;
+            }
           }
         }
       }
@@ -2637,9 +2660,11 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, uint32_t encrypted_block_length,
   }
 
  /* Show the decrypted buffer in a new window */
+  /* A cached payload may be shorter than this packet's block; never
+     expose more than the decrypted buffer holds. */
   decr_tvb = tvb_new_child_real_data(tvb, packet_ntlmssp_info->decrypted_payload,
-                                     encrypted_block_length,
-                                     encrypted_block_length);
+                                     packet_ntlmssp_info->payload_len,
+                                     packet_ntlmssp_info->payload_len);
 
   add_new_data_source(pinfo, decr_tvb,
                       "Decrypted data");
@@ -2751,7 +2776,7 @@ store_verifier(tvbuff_t *tvb, int offset, uint32_t encrypted_block_length, packe
   if (!packet_ntlmssp_info->verifier_decrypted) {
     /* Store all necessary info for later decryption */
     packet_ntlmssp_info->verifier_offset = offset;
-    packet_ntlmssp_info->verifier_block_length = encrypted_block_length;
+    packet_ntlmssp_info->verifier_block_length = MIN(encrypted_block_length, (uint32_t)sizeof(packet_ntlmssp_info->verifier));
     /* Setup the buffer to decrypt to */
     tvb_memcpy(tvb, packet_ntlmssp_info->verifier,
       offset, MIN(encrypted_block_length, sizeof(packet_ntlmssp_info->verifier)));
