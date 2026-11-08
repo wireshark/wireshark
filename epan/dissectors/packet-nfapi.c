@@ -19,6 +19,7 @@
 #include <epan/tfs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 #include <unit_strings.h>
 #include <ptvcursor.h>
 #include <wsutil/array.h>
@@ -835,6 +836,7 @@ static int ett_nfapi_uplink_modulation_support;
 static int ett_nfapi_received_interference_power_mesurement_results;
 static int ett_nfapi_release_support;
 static expert_field ei_invalid_range;
+static expert_field ei_nfapi_too_deep;
 static expert_field ei_invalid_tlv_length;
 
 static int hf_nfapi_p4_p5_message_header_phy_id;
@@ -5946,6 +5948,7 @@ static void dissect_harq_indication_rel9_later_tdd_value(ptvcursor_t * ptvc, pac
 	if (mode > 4)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid mode value [0..4]");
+		return;
 	}
 
 	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_ack_nack, 1, ENC_BIG_ENDIAN, &count);
@@ -6021,6 +6024,7 @@ static void dissect_harq_indication_rel13_later_tdd_value(ptvcursor_t * ptvc, pa
 	if (mode > 6)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid mode value [0..6]");
+		return;
 	}
 
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_ack_nack, 2, ENC_BIG_ENDIAN, &count);
@@ -7710,6 +7714,8 @@ static proto_item* dissect_tl_header(ptvcursor_t * ptvc, packet_info* pinfo _U_)
 	return item;
 }
 
+#define NFAPI_MAX_TLV_NESTING 8
+
 static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, int len)
 {
 	while (ptvcursor_current_offset(ptvc) < len)
@@ -7734,7 +7740,19 @@ static void dissect_tlv_list(ptvcursor_t* ptvc, packet_info* pinfo, int len)
 					tvbuff_t* sub_tvbuff = tvb_new_subset_length(ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc), tlv_len);
 					ptvcursor_t* sub_ptvc = ptvcursor_new(pinfo->pool, ptvcursor_tree(ptvc), sub_tvbuff, 0);
 
-					tlv->decode(sub_ptvc, pinfo);
+					unsigned depth = p_get_proto_depth(pinfo, proto_nfapi);
+					if (depth >= NFAPI_MAX_TLV_NESTING)
+					{
+						expert_add_info(pinfo, tlv_length_item, &ei_nfapi_too_deep);
+					}
+					else
+					{
+						p_set_proto_depth(pinfo, proto_nfapi, depth + 1);
+						increment_dissection_depth(pinfo);
+						tlv->decode(sub_ptvc, pinfo);
+						decrement_dissection_depth(pinfo);
+						p_set_proto_depth(pinfo, proto_nfapi, depth);
+					}
 
 					if (ptvcursor_current_offset(sub_ptvc) != tlv_len)
 					{
@@ -8293,7 +8311,7 @@ static int dissect_nfapi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 static void nfapi_tag_vals_fn(char* s, uint32_t v)
 {
 	const tlv_t* tlv = look_up_tlv(v);
-	if (tlv != 0)
+	if (tlv != 0 && tlv->name != NULL)
 	{
 		snprintf(s, ITEM_LABEL_LENGTH, "%s (0x%x)", tlv->name, v);
 	}
@@ -11318,6 +11336,7 @@ void proto_register_nfapi(void)
 
 	static ei_register_info ei[] =
 	{
+		{ &ei_nfapi_too_deep, { "nfapi.too_deep", PI_MALFORMED, PI_ERROR, "TLV nesting too deep", EXPFILL } },
 		{ &ei_invalid_range, { "nfapi.invalid.range", PI_PROTOCOL, PI_WARN, "Invalid range", EXPFILL } },
 		{ &ei_invalid_tlv_length, { "nfapi.invalid.tlv.length", PI_PROTOCOL, PI_ERROR, "Invalid TLV length", EXPFILL } },
 	};
