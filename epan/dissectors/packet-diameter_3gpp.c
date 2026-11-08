@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/asn1.h>
 #include <epan/tfs.h>
 
@@ -1252,22 +1253,21 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     proto_tree *sub_tree;
     int offset = 0, comma_offset;
-    int end_offset = tvb_reported_length(tvb) - 1;
+    int length = tvb_reported_length(tvb);
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_diameter_3gpp_path, NULL, "Paths");
 
-    while (offset < end_offset) {
+    while (offset < length) {
         comma_offset = tvb_find_uint8(tvb, offset, -1, ',');
-        if(comma_offset == -1) {
-            proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII);
-            return end_offset;
+        if (comma_offset == -1) {
+            proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, length - offset, ENC_ASCII);
+            break;
         }
-        proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII);
-        offset = comma_offset+1;
+        proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset - offset, ENC_ASCII);
+        offset = comma_offset + 1;
     }
 
-
-    return tvb_reported_length(tvb);
+    return length;
 }
 
 /* AVP Code: 641 Contact
@@ -1638,7 +1638,7 @@ static int
 dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     unsigned offset = 0;
-    unsigned length = tvb_reported_length(tvb);
+    int length = tvb_reported_length(tvb);
     proto_tree *subtree;
     proto_item *item;
     unsigned char oct, tmp_oct;
@@ -1746,9 +1746,9 @@ dissect_diameter_3ggp_qos_susbscribed(tvbuff_t *tvb, packet_info *pinfo _U_, pro
             case 0x00: str = "Subscribed transfer delay (MS to net); Reserved (net to MS)"; break;
             case 0x3f: str = "Reserved"; break;
             default:
-                if (oct <= 0x0f)
+                if (tmp_oct <= 0x0f)
                     tmp32 = tmp_oct * 10;
-                else if (oct <= 0x1f)
+                else if (tmp_oct <= 0x1f)
                     tmp32 = (tmp_oct - 0x10) * 50 + 200;
                 else
                     tmp32 = (tmp_oct - 0x20) * 100 + 1000;
@@ -2875,6 +2875,8 @@ dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
     uint32_t cmd = 0;
     bool save_writable = col_get_writable(pinfo->cinfo, -1 /* All */);
+    int save_p2p_dir = pinfo->p2p_dir;
+    int p2p_dir;
     bool parent_message_is_request = true;
 
     if (diam_sub_dis_inf) {
@@ -2882,41 +2884,41 @@ dissect_diameter_3gpp_sm_rp_ui(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         parent_message_is_request = diam_sub_dis_inf->parent_message_is_request;
     }
 
-    col_set_writable(pinfo->cinfo, -1, false);
-
-    if ((length > 0) && (cmd != 0)) {
-        switch (cmd){
-        case 8388645:
-            /* Command Code: 8388645 MO-Forward-Short-Message
-             * serving MME or SGSN or IP-SM-GW and the SMS-IWMSC to forward
-             * mobile originated short messages from a mobile user to a Service Centre
-             *
-             */
-            if (parent_message_is_request) {
-                pinfo->p2p_dir = P2P_DIR_RECV;
-            } else {
-                pinfo->p2p_dir = P2P_DIR_SENT;
-            }
-            call_dissector(gsm_sms_handle, tvb, pinfo, tree);
-            break;
-        case 8388646:
-            /* code="8388646 MT Forward Short Message
-             * SMS-GMSC and the serving MME or SGSN(transiting an SMS Router, if present)
-             * or IP-SM-GW to forward mobile terminated short messages.
-             */
-            if (parent_message_is_request) {
-                pinfo->p2p_dir = P2P_DIR_SENT;
-            } else {
-                pinfo->p2p_dir = P2P_DIR_RECV;
-            }
-            call_dissector(gsm_sms_handle, tvb, pinfo, tree);
-            break;
-        default:
-            break;
-        }
+    if (length == 0) {
+        return length;
     }
 
-    col_set_writable(pinfo->cinfo, -1, save_writable);
+    switch (cmd){
+    case 8388645:
+        /* Command Code: 8388645 MO-Forward-Short-Message
+         * serving MME or SGSN or IP-SM-GW and the SMS-IWMSC to forward
+         * mobile originated short messages from a mobile user to a Service Centre
+         *
+         */
+        p2p_dir = parent_message_is_request ? P2P_DIR_RECV : P2P_DIR_SENT;
+        break;
+    case 8388646:
+        /* code="8388646 MT Forward Short Message
+         * SMS-GMSC and the serving MME or SGSN(transiting an SMS Router, if present)
+         * or IP-SM-GW to forward mobile terminated short messages.
+         */
+        p2p_dir = parent_message_is_request ? P2P_DIR_SENT : P2P_DIR_RECV;
+        break;
+    default:
+        return length;
+    }
+
+    col_set_writable(pinfo->cinfo, -1, false);
+    pinfo->p2p_dir = p2p_dir;
+    /* Restore the columns and the direction even if GSM SMS throws */
+    TRY {
+        call_dissector(gsm_sms_handle, tvb, pinfo, tree);
+    }
+    FINALLY {
+        pinfo->p2p_dir = save_p2p_dir;
+        col_set_writable(pinfo->cinfo, -1, save_writable);
+    }
+    ENDTRY;
 
     return length;
 
@@ -4902,7 +4904,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_der_s6b_flags_spare_bits,
             { "Spare", "diameter.3gpp.sb6_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFE,
             NULL, HFILL }
         },
         { &hf_diameter_3gpp_ipv6addr,
