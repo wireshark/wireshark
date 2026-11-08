@@ -18,6 +18,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
+#include <epan/proto_data.h>
 
 void proto_register_openflow_v4(void);
 void proto_reg_handoff_openflow_v4(void);
@@ -672,6 +673,7 @@ static expert_field ei_openflow_v4_multipart_request_undecoded;
 static expert_field ei_openflow_v4_multipart_reply_undecoded;
 static expert_field ei_openflow_v4_queue_prop_undecoded;
 static expert_field ei_openflow_v4_message_undecoded;
+static expert_field ei_openflow_v4_nesting_too_deep;
 
 static const value_string openflow_v4_version_values[] = {
     { 0x04, "1.3" },
@@ -1500,6 +1502,41 @@ static const value_string openflow_v4_error_table_features_failed_code_values[] 
     { 0, NULL }
 };
 
+/* Maximum number of OpenFlow messages nested in each other (error, requestforward, bundle_add) */
+#define OPENFLOW_V4_MAX_NESTING 4
+
+/*
+ * Dissect a message embedded in another message, in a tvb of its own
+ * so that offsets and lengths of the inner message are relative to its
+ * start. Returns the offset after the inner message (never less than
+ * offset).
+ */
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+dissect_openflow_nested_message_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    unsigned depth;
+    uint16_t inner_length;
+    tvbuff_t *next_tvb;
+
+    depth = p_get_proto_depth(pinfo, proto_openflow_v4);
+    if (depth >= OPENFLOW_V4_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_openflow_v4_nesting_too_deep, tvb, offset);
+        return tvb_captured_length(tvb);
+    }
+
+    inner_length = tvb_get_ntohs(tvb, offset + 2);
+    next_tvb = tvb_new_subset_length(tvb, offset, inner_length);
+
+    p_set_proto_depth(pinfo, proto_openflow_v4, depth + 1);
+    increment_dissection_depth(pinfo);
+    dissect_openflow_message_v4(next_tvb, pinfo, tree, 0);
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_openflow_v4, depth);
+
+    return offset + inner_length;
+}
+
 static void
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, uint16_t length)
@@ -1597,7 +1634,7 @@ dissect_openflow_error_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
         /* Disable update/change of column info */
         col_set_writable(pinfo->cinfo, -1, false);
 
-        dissect_openflow_message_v4(tvb, pinfo, data_tree, offset);
+        dissect_openflow_nested_message_v4(tvb, pinfo, data_tree, offset);
 
         /* Restore the "we're inside an error packet" flag. */
         pinfo->flags.in_error_pkt = save_in_error_pkt;
@@ -4462,9 +4499,10 @@ dissect_openflow_message_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *openf
 static int
 dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+    tvbuff_t *next_tvb;
+    uint16_t msg_length;
     proto_item *ti;
     proto_tree *openflow_tree;
-    unsigned offset = 0;
     uint8_t type;
 
     type   = tvb_get_uint8(tvb, 1);
@@ -4476,7 +4514,14 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v4);
 
-    dissect_openflow_message_v4(tvb, pinfo, openflow_tree, offset);
+    /* Dissect only the message, not anything that follows it */
+    msg_length = tvb_get_ntohs(tvb, 2);
+    if (msg_length >= 8 && msg_length < tvb_reported_length(tvb)) {
+        next_tvb = tvb_new_subset_length(tvb, 0, msg_length);
+    } else {
+        next_tvb = tvb;
+    }
+    dissect_openflow_message_v4(next_tvb, pinfo, openflow_tree, 0);
 
     return tvb_reported_length(tvb);
 }
@@ -7460,6 +7505,10 @@ proto_register_openflow_v4(void)
         {&ei_openflow_v4_message_undecoded,
             { "openflow_v4.message.undecoded", PI_UNDECODED, PI_NOTE,
               "Unknown message body.", EXPFILL }
+        },
+        {&ei_openflow_v4_nesting_too_deep,
+            { "openflow_v4.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+              "Too many nested OpenFlow messages", EXPFILL }
         }
     };
 
