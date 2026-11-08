@@ -109901,3 +109901,143 @@ class TestDissectNvme:
             '0x00000001,0x00000002,0x00000001,0x00000002,0x00000003',
             '1321\t0x00000077\t4\t0x00000101,0x00000102',
         ]
+
+
+class TestDissectNvmeMiMi:
+    # Malformed packets and warning or error expert infos
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x600000'
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nvme_mi_mi_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_nvme_mi_mi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 204 frames decode: 196 NVMe-MI messages, 6 over SMBus and two
+        Exported PDUs; there is no malformed packet and no warning or error
+        expert info in one and two passes (only notes).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 204
+        assert lines.count('NVMe-MI') == 196
+        assert lines.count('SMBus/I2C / NVMe-MI') == 6
+        assert lines.count('') == 2
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', self.BAD, '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_nvme_mi_mi_data_structures(self, cmd_tshark, capture_file, test_env):
+        '''Read NVMe-MI Data Structure: the DTYP selects the layout of the
+        response (the response carries no DTYP); ports of every type, the
+        controller and command lists.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.rds.dtyp && frame.number < 31', '-Tfields',
+                '-eframe.number', '-envme-mi.mi.rds.dtyp', '-envme-mi.mi.rds.portid',
+                '-envme-mi.mi.rds.ctrlid')
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['1', '0x00000000'], ['3', '0x00000000'], ['5', '0x00000001'],
+            ['7', '0x00000001'], ['9', '0x00000001'], ['11', '0x00000001'],
+            ['13', '0x00000002'], ['15', '0x00000002'], ['17', '0x00000003'],
+            ['19', '0x00000003'], ['21', '0x00000004'], ['23', '0x00000005'],
+            ['25', '0x00000005'], ['27', '0x00000006'], ['29', '0x000000ff']]
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.port.prttyp', '-Tfields', '-eframe.number',
+                '-envme-mi.mi.port.prttyp', '-envme-mi.mi.port.pcie.mps',
+                '-envme-mi.mi.port.pcie.cls', '-envme-mi.mi.port.cvpdaddr')
+        assert lines == ['6\t0x01\t0x02\t0x04\t', '8\t0x02\t\t\t0xa0',
+                         '10\t0x00\t\t\t', '12\t0x03\t\t\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.ctrllist.numids', '-Tfields', '-eframe.number',
+                '-envme-mi.mi.ctrllist.numids', '-envme-mi.mi.ctrllist.ctrlid')
+        assert lines[:2] == ['14\t4\t0x0000,0x0001,0x0002,0x0100', '16\t0\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.cmdlist.numcmd', '-Tfields', '-eframe.number',
+                '-envme-mi.mi.cmdlist.numcmd', '-envme-mi.mi.cmdlist.opc')
+        assert lines[0] == '22\t10\t0x00,0x01,0x02,0x05,0x06,0x02,0x0a,0x00,0x03,0x01'
+        assert lines[1].startswith('24\t3\t')
+
+    def test_nvme_mi_mi_health_status(self, cmd_tshark, capture_file, test_env):
+        '''NSHDS composite temperature encodings and the Controller Health
+        Status Poll entries.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.nshds.ctemp && frame.number >= 32 && frame.number <= 56',
+                '-Tfields', '-envme-mi.mi.nshds.ctemp')
+        assert lines == ['48', '126', '0', '42', '127', '128', '129', '144', '195',
+                         '196', '197', '224', '255']
+        text = subprocess.check_output(
+            (cmd_tshark, '-r', capture_file('nvme_mi_mi_coverage.pcapng.gz'), '-V',
+             '-Y', 'frame.number == 40'), encoding='utf-8', env=test_env)
+        assert 'Composite Temperature (CTEMP): 127 °C or higher' in text
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.chsp.rent', '-Tfields', '-eframe.number',
+                '-envme-mi.mi.chsp.rent', '-envme-mi.mi.chds.ctlid')
+        assert lines[:3] == ['58\t2\t0x0001,0x0002', '60\t1\t0x0000',
+                             '62\t4\t0x0001,0x0002,0x0003,0x0004']
+
+    def test_nvme_mi_mi_configuration(self, cmd_tshark, capture_file, test_env):
+        '''Configuration Get/Set: the CONFIGID selects the field layout, the
+        AE Enable List of a Set and the AE Supported List of a Get are walked
+        entry by entry (also with odd lengths), reserved CONFIGIDs are
+        noted.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.ae.numaee || nvme-mi.mi.aes.numaes', '-Tfields',
+                '-eframe.number', '-envme-mi.mi.ae.numaee', '-envme-mi.mi.aes.numaes',
+                '-envme-mi.mi.ae.id', '-envme-mi.mi.aes.id')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert rows['80'] == ['', '3', '', '0x0000,0x0001,0x000e']
+        assert rows['83'] == ['2', '', '0x0000,0x0002', '']
+        assert rows['85'] == ['3', '', '0x0001,0x0004,0x00c0', '']
+        assert rows['91'] == ['9', '', '0x0000,0x0001', '']     # more entries declared than carried
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.reserved_configid || nvme-mi.mi.reserved_dtyp'
+                      ' || nvme-mi.mi.reserved_value', '-Tfields', '-eframe.number')
+        assert lines == ['27', '29', '101', '103', '105', '107', '109', '111', '113',
+                         '115', '129', '135']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.config.sfreq_cur || nvme-mi.mi.config.mtus_cur'
+                      ' || nvme-mi.mi.config.aeelver',
+                '-Tfields', '-eframe.number', '-envme-mi.mi.config.sfreq_cur',
+                '-envme-mi.mi.config.mtus_cur', '-envme-mi.mi.config.aeelver')
+        assert lines[0].startswith('64\t')
+
+    def test_nvme_mi_mi_vpd_reset_shutdown(self, cmd_tshark, capture_file, test_env):
+        '''VPD Read/Write offset and length in the Info column, Reset and
+        Shutdown types (reserved values noted).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.vpd.dofst', '-Tfields', '-eframe.number',
+                '-envme-mi.mi.vpd.dofst', '-envme-mi.mi.vpd.dlen')
+        assert lines == ['121\t0\t64', '123\t256\t256', '125\t32\t32']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mi.reset.rsttyp || nvme-mi.mi.shutdown.shdntyp',
+                '-Tfields', '-eframe.number', '-envme-mi.mi.reset.rsttyp',
+                '-envme-mi.mi.shutdown.shdntyp')
+        assert [l.split('\t')[0] for l in lines] == ['127', '129', '131', '133', '135']
+
+    def test_nvme_mi_mi_responses(self, cmd_tshark, capture_file, test_env):
+        '''More Processing Required (twice) before the final response,
+        Invalid Parameter locations, orphans and a superseded request.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'nvme-mi.response_is_mpr', '-Tfields', '-eframe.number',
+                '-envme-mi.mprt', '-envme-mi.response_to')
+        assert lines == ['160\t20\t159', '161\t65535\t159']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.pel.byte', '-Tfields', '-eframe.number',
+                '-envme-mi.pel.byte', '-envme-mi.pel.bit')
+        assert lines == ['156\t1\t3', '158\t15\t0']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'nvme-mi.mi.orphan_response || nvme-mi.req_superseded',
+                '-Tfields', '-eframe.number')
+        assert lines == ['187', '189', '191']
+
+    def test_nvme_mi_mi_mic_and_smbus(self, cmd_tshark, capture_file, test_env):
+        '''The MIC of the frames with the IC bit verifies; the SMBus frames
+        pair requests with responses.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-mi.mic', '-Tfields', '-eframe.number', '-envme-mi.mic.status')
+        assert lines == ['193\t1', '194\t1', '195\t1', '196\t1']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 197 && frame.number <= 202', '-Tfields',
+                '-eframe.number', '-envme-mi.response_to')
+        assert lines == ['197\t', '198\t197', '199\t', '200\t199', '201\t', '202\t201']
