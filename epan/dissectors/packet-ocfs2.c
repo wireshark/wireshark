@@ -437,7 +437,6 @@ static int dlm_cookie_handler(proto_tree *tree, tvbuff_t *tvb, unsigned offset, 
 	item = proto_tree_add_item(tree, hf_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
 	cookie = tvb_get_ntoh64(tvb, offset);
 
-	cookie >>= 56;
 	node_idx = (uint8_t)((cookie >> 56) & INT64_C(0xff));
 	seq = cookie & INT64_C(0x00ffffffffffffff);
 
@@ -1077,7 +1076,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	col_set_fence(pinfo->cinfo, COL_INFO);
 
-	proto_tree_add_item(subtree, hf_msg_pad, tvb, 4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_msg_pad, tvb, 6, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_item(subtree, hf_msg_sys_status, tvb, 8, 4, ENC_BIG_ENDIAN);
@@ -1129,7 +1128,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_dlm_joined_msg(subtree, tvb, offset);
 			break;
 		case DLM_EXIT_DOMAIN_MSG:
-			proto_tree_add_item(tree, hf_dlm_node_idx, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(subtree, hf_dlm_node_idx, tvb, offset, 1, ENC_NA);
 			break;
 		case DLM_MASTER_REQUERY_MSG:
 			dissect_master_requery_msg(subtree, tvb, offset);
@@ -1151,7 +1150,7 @@ static int dissect_ocfs2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			dissect_dlm_query_nodeinfo(subtree, tvb, offset);
 			break;
 		default:
-			proto_tree_add_item(tree, hf_dlm_payload, tvb, offset, len, ENC_NA);
+			proto_tree_add_item(subtree, hf_dlm_payload, tvb, offset, len, ENC_NA);
 			break;
 		}
 	} else {
