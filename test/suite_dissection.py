@@ -106617,3 +106617,50 @@ class TestDissectNfsacl:
         assert rows[0][7] == '7,6,5,4,3,1,7,2,0,7,5,4,1,6'
         assert rows[3][6:] == ['', '']
         assert rows[4][6] == '1,2,4097'
+
+
+class TestDissectNfsauth:
+    '''NFSAUTH (RPC program 100231, version 1) over UDP and TCP from the
+    synthetic capture nfsauth_coverage.pcap.gz; the RPC heuristics find
+    the program, so no Decode As is needed.'''
+
+    def test_nfsauth_frames(self, cmd_tshark, capture_file, test_env):
+        '''20 NFSAUTH frames and the 3 TCP handshake frames decode without
+        malformed packets or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsauth_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 23
+        assert protocols.count('NFSAUTH') == 20
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nfsauth_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nfsauth_procedures(self, cmd_tshark, capture_file, test_env):
+        '''NULL (4 messages) and ACCESS (10) are version 1 procedures; the
+        unknown procedure 5 is shown by number and the other versions are
+        left to the RPC dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsauth_coverage.pcap.gz'),
+                '-Y', 'nfsauth.procedure_v1',
+                '-Tfields', '-enfsauth.procedure_v1',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        procs = stdout.split()
+        assert {p: procs.count(p) for p in set(procs)} == {'0': 4, '1': 10, '5': 2}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfsauth_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,4,13}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '3\tV1 ACCESS Call',
+            '4\tV1 ACCESS Reply (Call In 3)',
+            '13\tV2 proc-1 Call',
+        ]
