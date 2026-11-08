@@ -43,7 +43,7 @@ Print version information and exit.
 -h::
 Print help information and exit.
 
--f::
+-f <dbfile>::
 Path to a MaxMind Database file. Multiple databases may be specified.
 
 == EXAMPLES
