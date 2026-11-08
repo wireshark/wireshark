@@ -103852,3 +103852,84 @@ class TestDissectNcsi:
             ), encoding='utf-8', env=test_env)
         assert [l.split('\t')[0] for l in stdout.splitlines()] == ['118', '119', '120']
         assert stdout.splitlines()[1].endswith('Get Version ID response, id 0x01, chan 0x00')
+
+
+class TestDissectNdmp:
+    '''NDMP over TCP 10000 from the synthetic capture
+    ndmp_coverage.pcap.gz: four sessions (protocol versions 4, 2, 3 and
+    5) that send every message of the dissector, a session without
+    CONNECT_OPEN, fragmented and segmented records, and the reproducer of
+    "NDMP: Fix a NULL tvb after incomplete reassembly".'''
+
+    # Frames 826-830 carry records with a bad NDMP header that are not
+    # dissected; 834 is a TCP retransmission of the last fragment of 833.
+    FRAME_VERSION4 = 59      # TAPE_GET_STATE reply of the first session (v4)
+    FRAME_VERSION2 = 258     # the same in the version 2 session
+
+    @staticmethod
+    def ndmp_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ndmp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_ndmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 816 NDMP frames decode without malformed packets or error
+        expert infos, in one and two passes; the sessions are in order.'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env, 'ndmp', '_ws.col.protocol')
+        assert len(rows) == 816
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ndmp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ndmp_version_tracking(self, cmd_tshark, capture_file, test_env):
+        '''CONNECT_OPEN sets the version of the conversation: the tape
+        partition of TAPE_GET_STATE is only present in versions 2, 3 and
+        5, not in version 4.'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env,
+                'ndmp.msg == 0x302 && ndmp.msg_type == 1', 'ndmp.version',
+                'ndmp.tape.status.partition')
+        assert [r[:2] for r in rows] == [
+            ['59', '4'], ['61', '4'], ['258', '2'], ['260', '2'],
+            ['457', '3'], ['459', '3'], ['656', '5'], ['658', '5'], ['801', '4']]
+        assert [r[0] for r in rows if r[2]] == ['258', '260', '457', '459', '656', '658']
+
+    def test_ndmp_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Replies are matched with their requests by sequence number.'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env,
+                'ndmp.msg == 0x100 && ndmp.msg_type == 1 && ndmp.hostname',
+                'ndmp.hostname', 'ndmp.request_frame')
+        assert rows[:4] == [['7', 'backup01', '6'], ['206', 'backup01', '205'],
+                            ['405', 'backup01', '404'], ['604', 'backup01', '603']]
+
+    def test_ndmp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three-fragment records are reassembled in the last fragment.'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env, 'ndmp.fragments',
+                '_ws.col.info', 'ndmp.fragment.count', 'ndmp.reassembled.length')
+        got = [(r[0], r[1], r[2], r[3]) for r in rows if r[0] in ('833', '839', '841')]
+        assert got == [('833', 'TAPE_WRITE Request ', '3', '796'),
+                       ('839', 'TAPE_READ Reply ', '3', '1032'),
+                       ('841', 'TAPE_WRITE Request ', '3', '228')]
+
+    def test_ndmp_same_seq_two_connections(self, cmd_tshark, capture_file, test_env):
+        '''Fragments of two connections between the same hosts that share a
+        relative sequence number are kept apart (reproducer of the fix;
+        tshark crashed on frame 864 before it).'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {863, 864}', 'ndmp.msg', 'ndmp.fragment.count',
+                'ndmp.reassembled.length', 'ndmp.version')
+        assert rows == [['863', '0x00000900', '2', '28', '4,4'],
+                        ['864', '0x00000900', '2', '28', '4,3']]
+
+    def test_ndmp_unknown_message(self, cmd_tshark, capture_file, test_env):
+        '''Message numbers that are not in the table get a warning.'''
+        rows = self.ndmp_fields(cmd_tshark, capture_file, test_env,
+                'ndmp.msg.unknown', '_ws.col.info')
+        assert [r[0] for r in rows] == ['809', '810']
+        assert rows[0][1].startswith('Unknown Message (0x101) Request')
