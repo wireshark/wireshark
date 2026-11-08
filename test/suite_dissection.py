@@ -112215,3 +112215,250 @@ class TestDissectOpenflowV5:
         by_frame = {int(r[0]): r[1:] for r in rows}
         assert by_frame[130][0] == '1,2,3'
         assert by_frame[77][1] == '5' and by_frame[79][1] == '7'
+
+
+class TestDissectOpensafety:
+    # The tests use opensafety_coverage.pcap.gz (default preferences) and
+    # opensafety_coverage_frame2first.pcap.gz (preferences in F2F_OPTS).
+    # Both are synthetic; the SCM UDID is a plain identifier, nothing is
+    # encrypted.
+    CAP = 'opensafety_coverage.pcap.gz'
+    CAP_F2F = 'opensafety_coverage_frame2first.pcap.gz'
+    F2F_OPTS = ('-o', 'opensafety.network_udp_frame_first:TRUE',
+                '-o', 'opensafety.classify_transport:FALSE')
+    UDID = '0a:1b:2c:3d:4e:5f'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, cap, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_opensafety_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame count and protocol column of every transport: UDP (direct,
+        with the UDP transport header and the SercosIII/UDP port),
+        Powerlink, SercosIII, Modbus/TCP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 142
+        counts = {}
+        for p in lines:
+            counts[p] = counts.get(p, 0) + 1
+        assert counts == {
+            'openSAFETY/UDP': 104,
+            'openSAFETY over UDP': 2,
+            'UDP': 3,
+            'openSAFETY/SercosIII': 4,
+            'openSAFETY/Powerlink': 19,
+            'POWERLINK': 2,
+            'SIII MDT': 2,
+            'SIII AT': 1,
+            'openSAFETY/Modbus TCP': 4,
+            'Modbus/TCP': 1,
+        }
+
+    def test_opensafety_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packet and no expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                    *passes, '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_opensafety_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in one and two passes (the SCM UDID is
+        taught by frame 1, before any frame that needs it).'''
+        one = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, self.CAP, '-2',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert len(one) == 142
+        assert one == two
+
+    def test_opensafety_scm_udid(self, cmd_tshark, capture_file, test_env):
+        '''The SCM UDID of the SNMT "SN assign UDID SCM" in frame 1 is
+        auto-detected and used for the SSDO and SPDO frames after it.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 38, 112}', '-Tfields', '-eframe.number',
+                '-eopensafety.snmt.udid', '-eopensafety.scm_udid.auto', '-eopensafety.scm_udid.valid')
+        assert lines == [
+            '1\t' + self.UDID + '\t\t',
+            '38\t\t' + self.UDID + '\tTrue',
+            '112\t\t' + self.UDID + '\tTrue',
+        ]
+
+    def test_opensafety_snmt_udid_offset(self, cmd_tshark, capture_file, test_env):
+        '''The UDID item of the SNMT frames "Response UDID", "Assign SADR"
+        and "SADR Assigned" shows the six octets of the UDID (it started
+        one octet too early before the fix).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {3, 4, 5}', '-Tfields', '-eframe.number',
+                '-eopensafety.snmt.udid', '-e_ws.col.info')
+        assert lines == [
+            '3\t02:00:00:00:00:aa\tSNMT Response UDID',
+            '4\t02:00:00:00:00:bb\tSNMT Assign SADR',
+            '5\t02:00:00:00:00:cc\tSNMT SADR Assigned',
+        ]
+
+    def test_opensafety_snmt(self, cmd_tshark, capture_file, test_env):
+        '''SNMT services, the SN Fail error groups and the additional
+        parameter request.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 11, 18, 21, 24, 26, 29, 30, 31, 34}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '1\tSNMT Service Request, SN assign UDID SCM',
+            '11\tSNMT Service Request, Assign additional SADR [0x0123 => 0x0234]',
+            '18\tSNMT Service Response, Assigned additional SADR [0x0123 => 0x0234]',
+            '21\tSNMT Service Response, Acknowledge initial CT for SN',
+            '24\tSNMT Service Response, SN Fail - Group: Device; Code: Default',
+            '26\tSNMT Service Response, SN Fail - Group: Parameter; Code: Vendor Specific',
+            '29\tSNMT Service Response, SN Fail - Group: Reserved [9]; Code: Vendor Specific',
+            '30\tSNMT Service Response, Additional parameter needed',
+            '31\tSNMT Service Response, Additional parameter needed',
+            '34\tSNMT Service Response, Additional parameter missing',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {30, 31}', '-Tfields', '-eframe.number',
+                '-eopensafety.ssdo.extpar.setnr', '-eopensafety.snmt.parameter_type')
+        assert lines == ['30\t3\tTrue', '31\t4\tFalse']
+
+    def test_opensafety_ssdo(self, cmd_tshark, capture_file, test_env):
+        '''SSDO requests and responses: SOD index and subindex names, the
+        parameter checksum and timestamp, aborts, preload and slim SSDOs.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {38, 39, 40, 41, 55, 57, 93, 94, 96}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '38\tSSDO Service Request, SACMD: Upload Expedited Initiate [Device Vendor Information - Parameter Checksum]',
+            '39\tSSDO Service Response, SACMD: Upload Expedited Initiate [Device Vendor Information - Parameter Checksum]',
+            '40\tSSDO Service Response, SACMD: Upload Expedited Initiate [Device Vendor Information - Parameter Timestamp]',
+            '41\tSSDO Service Response, SACMD: Upload Expedited Initiate [Device Vendor Information - VendorID]',
+            '55\tSSDO Service Request, SACMD: Abort - Object does not exist in the object dictionary',
+            '57\tSSDO Service Response, SACMD: Abort - Data cannot be transferred or stored to the application',
+            '93\tSSDO Slim Service Request, SACMD: Upload Expedited Initiate [Device Vendor Information - VendorID]',
+            '94\tSSDO Slim Service Response, SACMD: Upload Expedited Initiate [Device Vendor Information - VendorID]',
+            '96\tSSDO Slim Service Response, SACMD: Abort - Client/server Command ID not valid or unknown',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {39, 40}', '-Tfields', '-eframe.number',
+                '-eopensafety.sod.parameter.timestamp', '-eopensafety.sod.parameter.checksum',
+                '-eopensafety.ssdo.payloadsize')
+        assert lines == [
+            '39\t0x01020304\t0xaabbccdd,0x11223344\t12',
+            '40\t0x5f5e1000\t\t4',
+        ]
+
+    def test_opensafety_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented SSDO transfers are reassembled: a parameter set, extended
+        parameter sets (header and data, header only) and a list of
+        parameter checksums.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'opensafety.ssdo.reassembled.length', '-Tfields', '-eframe.number',
+                '-eopensafety.ssdo.reassembled.length')
+        assert lines == ['70\t217', '72\t20', '75\t76', '78\t288', '80\t16', '82\t36',
+                         '84\t20', '88\t284', '90\t16']
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 70', '-Tfields', '-eopensafety.ssdo.sodentry.index',
+                '-eopensafety.ssdo.sodentry.subindex')
+        assert lines == [
+            '0x1400,0x1400,0x1800,0x1234,0xc000,0x5678,0x1018,0x1018,0x1c00,0x1200,0x1018,'
+            '0x1401,0x1801,0x3456,0xc001,0x789a,0x1c01,0x1400,0x1400\t'
+            '0x01,0x00,0x01,0x02,0x02,0x01,0x06,0x07,0x03,0x02,0x06,0x01,0x02,0x03,0x01,0x05,0x02,0x04,0x05']
+        # a list of parameter checksums
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 84', '-Tfields', '-eopensafety.sod.parameter.timestamp',
+                '-eopensafety.sod.parameter.checksum')
+        assert lines == ['0x5f5e1000\t0x11111111,0x22222222,0x33333333,0x44444444']
+
+    def test_opensafety_extpar_length(self, cmd_tshark, capture_file, test_env):
+        '''The parameter set length of an extended parameter set is a 32 bit
+        field (an 8 bit field before the fix, which cut 272 to 16).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'opensafety.ssdo.extpar.length', '-Tfields', '-eframe.number',
+                '-eopensafety.ssdo.extpar.length', '-eopensafety.ssdo.extpar.setnr',
+                '-eopensafety.ssdo.extpar.version', '-eopensafety.ssdo.extpar.saddr',
+                '-eopensafety.ssdo.extpar.crc', '-eopensafety.ssdo.extpar.timestamp')
+        assert lines[0:2] == [
+            '75\t0x0000003c\t2\t3\t0x0041\t0xdeadbeef\t0x12345678',
+            '78\t0x00000110\t2\t3\t0x0042\t0x0a0b0c0d\t0x5f5e1000',
+        ]
+        assert [l.split('\t')[0] for l in lines] == ['75', '78', '80', '82', '90']
+
+    def test_opensafety_spdo(self, cmd_tshark, capture_file, test_env):
+        '''SPDOs carried in Powerlink PRes frames: data, time request and
+        response, connection valid bit, 40 bit counters, payloads of 8 and
+        16 bit CRC frames.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {112, 113, 114, 116, 118, 120, 124, 126}',
+                '-Tfields', '-eframe.number', '-eopensafety.msg.sender', '-eopensafety.spdo.ct',
+                '-eopensafety.spdo.ct40bit', '-eopensafety.spdo.featureflags',
+                '-eopensafety.spdo.time.request_from', '-eopensafety.spdo.time.request_to',
+                '-eopensafety.spdo.connection_valid', '-eopensafety.crc.type', '-edata.data',
+                '-e_ws.col.info')
+        assert lines == [
+            '112\t0x0010\t0x0001\t\t0x00\t\t\tTrue\t1\t01020304\tSPDO Data only - 0x010',
+            '113\t0x0010\t0x0002\t\t0x00\t\t\tFalse\t1\t01\tSPDO Data only - 0x010',
+            '114\t0x0011\t0x0123\t\t0x80\t\t\tTrue\t1\t0000000000000000\tSPDO Data only - 0x011',
+            '116\t0x0013\t0x0003\t\t\t\t0x0021\tTrue\t1\t0908\tSPDO Data with Time Request - 0x013',
+            '118\t0x0014\t0x0004\t\t\t0x0022\t\tTrue\t2\t000000000000000000000000\t'
+            'SPDO Data with Time Response - 0x014',
+            '120\t0x0016\t0x0006\t\t0x00\t\t\tTrue\t2\t000102030405060708090a0b0c0d0e0f10111213\t'
+            'SPDO Data only - 0x016',
+            '124\t0x0019\t\t0x0000006600000007\t0xc0\t\t\tTrue\t1\t0000000000\tSPDO Data only - 0x019',
+            '126\t0x001a\t0x0001\t\t0x00\t\t\tTrue\t1\t0000\tSPDO Reserved - 0x01A',
+        ]
+
+    def test_opensafety_transports(self, cmd_tshark, capture_file, test_env):
+        '''Which transports accept which message types: SPDOs are rejected
+        over UDP, SSDO and SNMT frames over Powerlink and SercosIII.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {101, 103, 106, 107, 109, 110, 112, 130, 131, 133, 135, 136, 138, 141}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines == [
+            '101\topenSAFETY/UDP', '103\topenSAFETY over UDP', '106\tUDP', '107\topenSAFETY over UDP',
+            '109\tUDP', '110\topenSAFETY/SercosIII', '112\topenSAFETY/Powerlink', '130\tPOWERLINK',
+            '131\tPOWERLINK', '133\topenSAFETY/SercosIII', '135\tSIII MDT', '136\tSIII AT',
+            '138\topenSAFETY/Modbus TCP', '141\tModbus/TCP',
+        ]
+
+    def test_opensafety_udp_transport(self, cmd_tshark, capture_file, test_env):
+        '''The UDP transport header in front of the openSAFETY frames.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'opensafety.udp_transport.counter', '-Tfields', '-eframe.number',
+                '-eopensafety.udp_transport.version', '-eopensafety.udp_transport.counter',
+                '-eopensafety.udp_transport.sender', '-eopensafety.udp_transport.datapoint',
+                '-eopensafety.udp_transport.length')
+        assert lines == [
+            '101\t1\t0x0002\t0x11223344\t0x0007\t46',
+            '102\t1\t0x0004\t0x11223344\t0x0007\t13',
+            '103\t1\t0x0003\t0x11223344\t0x0007\t13',
+            '107\t0\t0x0000\t0x00000000\t0x0000\t0',
+        ]
+
+    def test_opensafety_frame2first(self, cmd_tshark, capture_file, test_env):
+        '''With "frame 2 before frame 1" frames are found and dissected,
+        also the large reproducer of the quadratic rescan.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP_F2F, *self.F2F_OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 23
+        assert lines.count('openSAFETY/UDP') == 22
+        assert lines.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP_F2F, *self.F2F_OPTS,
+                    *passes, '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_opensafety_frame2first_udid_and_spdo(self, cmd_tshark, capture_file, test_env):
+        '''The UDID item and the SPDO payload are read from frame 1, which
+        is not at offset 0 in frame 2 first mode (wrong offsets before the
+        fix).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, self.CAP_F2F, *self.F2F_OPTS,
+                '-Y', 'frame.number in {3, 4, 10, 11, 12}', '-Tfields', '-eframe.number',
+                '-eopensafety.snmt.udid', '-edata.data', '-e_ws.col.info')
+        assert lines == [
+            '3\t02:00:00:00:00:cc\t\tSNMT SADR Assigned',
+            '4\t02:00:00:00:00:dd\t\tSNMT Response UDID',
+            '10\t\ta1a2a3a4\tSPDO Data only - 0x010',
+            '11\t\tb1b2\tSPDO Data with Time Request - 0x011',
+            '12\t\tc0c1c2c3c4c5c6c7c8c9cacb\tSPDO Data with Time Response - 0x012',
+        ]
