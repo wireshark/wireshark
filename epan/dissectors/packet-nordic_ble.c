@@ -526,10 +526,10 @@ dissect_ble_delta_time(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
     if (!pinfo->fd->visited) {
         /* First time visiting this packet, store previous BLE packet time */
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, GUINT_TO_POINTER(packet_times_context->packet_time));
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, pinfo->curr_layer_num * 2, GUINT_TO_POINTER(packet_times_context->packet_time));
         prev_packet_time = packet_times_context->packet_time;
     } else {
-        prev_packet_time = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0));
+        prev_packet_time = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, pinfo->curr_layer_num * 2));
     }
 
     if (!packet_times_context->first_frame_seen) {
@@ -572,16 +572,16 @@ dissect_ble_timestamp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
         saved_packet_times->packet_end_time = packet_times_context->packet_end_time;
         saved_packet_times->packet_start_time = packet_times_context->packet_start_time;
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0, saved_packet_times);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, pinfo->curr_layer_num * 2 + 1, saved_packet_times);
 
         /* First time visiting this packet, store previous BLE packet time */
         last_packet_end_time = packet_times_context->packet_end_time;
         last_packet_start_time = packet_times_context->packet_start_time;
     } else {
-        packet_times_t* saved_packet_times = (packet_times_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, 0);
+        packet_times_t* saved_packet_times = (packet_times_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_nordic_ble, pinfo->curr_layer_num * 2 + 1);
 
-        last_packet_end_time = saved_packet_times->packet_end_time;
-        last_packet_start_time = saved_packet_times->packet_start_time;
+        last_packet_end_time = saved_packet_times ? saved_packet_times->packet_end_time : 0;
+        last_packet_start_time = saved_packet_times ? saved_packet_times->packet_start_time : 0;
     }
 
     uint8_t ci = tvb_get_uint8(tvb, offset + 4 + 4);
