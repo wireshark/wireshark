@@ -104276,3 +104276,116 @@ class TestDissectNetanalyzer:
                 '-enetanalyzer.port',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert [l.split('\t')[:3] for l in a.splitlines()] == [l.split('\t')[:3] for l in b.splitlines()]
+
+
+class TestDissectNetbios:
+    '''NetBIOS Frame Protocol over 802.2 LLC (DSAP 0xF0) from the synthetic
+    capture netbios_coverage.pcap.gz.'''
+
+    def test_netbios_protocols(self, cmd_tshark, capture_file, test_env):
+        '''100 NetBIOS frames and one SMB frame (carried by the NetBIOS
+        payload heuristics); no malformed packets or error expert infos in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 101
+        assert protocols.count('NetBIOS') == 100
+        assert protocols.count('SMB') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('netbios_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_netbios_unknown_commands(self, cmd_tshark, capture_file, test_env):
+        '''Commands above 0x21 keep their value and are dissected as
+        unknown (they were clamped to 0x21 before "NetBIOS: Do not clamp
+        the command"). The command filter matches the real value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 97 && frame.number <= 100',
+                '-Tfields', '-eframe.number', '-enetbios.command',
+                '-e_ws.col.info', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '97\t0x21\tUnknown (0x21)\tUnknown NetBIOS command data',
+            '98\t0x22\tUnknown (0x22)\tUnknown NetBIOS command data',
+            '99\t0x40\tUnknown (0x40)\tUnknown NetBIOS command data',
+            '100\t0xff\tUnknown (0xff)\tUnknown NetBIOS command data',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Y', 'netbios.command == 0x40',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['99']
+
+    def test_netbios_names(self, cmd_tshark, capture_file, test_env):
+        '''Names with their type, control octets shown as <XX> and a MAC
+        address in the sender field of a datagram.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 10, 13, 14, 22}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-enetbios.nb_name', '-enetbios.nb_name_type',
+                '-enetbios.datagram_mac',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '2\tAdd Name Query - WORKSTN<03>\tWORKSTN\t0x03\t',
+            '10\tDatagram\tRECEIVER\t0x20\t02:00:00:00:00:09',
+            '13\tName Query for FINDME<20>\tFINDME\t0x20\t',
+            '14\tName Query for QUERYME<20>\tQUERYME,SENDER\t0x20,0x00\t',
+            '22\tAdd Name Query - <01>AB<ff> <7f>Z<77>\t<01>AB<ff> <7f>Z\t0x77\t',
+        ]
+
+    def test_netbios_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Data First Middle and Data Only Last frames of one session are
+        reassembled (100 and, for the interleaved sessions, 40 octets);
+        a lone Data First Middle is not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 73 && frame.number <= 83',
+                '-Tfields', '-eframe.number', '-enetbios.command',
+                '-enetbios.reassembled.length', '-enetbios.fragment.count',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '73\t0x15\t\t',
+            '74\t0x15\t\t',
+            '75\t0x15\t\t',
+            '76\t0x15\t\t',
+            '77\t0x15\t\t',
+            '78\t0x16\t100\t3',
+            '79\t0x15\t\t',
+            '80\t0x15\t\t',
+            '81\t0x16\t40\t2',
+            '82\t0x16\t40\t2',
+            '83\t0x16\t\t',
+        ]
+
+    def test_netbios_no_defragment(self, cmd_tshark, capture_file, test_env):
+        '''Without reassembly each fragment is dissected as it is.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-o', 'netbios.defragment:FALSE',
+                '-Y', 'netbios.reassembled.length',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+
+    def test_netbios_extra_llc_octet(self, cmd_tshark, capture_file, test_env):
+        '''The marker is also found after one extra octet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netbios_coverage.pcap.gz'),
+                '-Y', 'frame.number in {84, 85}',
+                '-Tfields', '-eframe.number', '-enetbios.command',
+                '-enetbios.delimiter',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '84\t0x08\t0xefff',
+            '85\t0x1f\t0xefff',
+        ]
