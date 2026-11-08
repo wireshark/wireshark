@@ -110041,3 +110041,95 @@ class TestDissectNvmeMiMi:
                 '-Y', 'frame.number >= 197 && frame.number <= 202', '-Tfields',
                 '-eframe.number', '-envme-mi.response_to')
         assert lines == ['197\t', '198\t197', '199\t', '200\t199', '201\t', '202\t201']
+
+
+class TestDissectNvmeRdma:
+    # Warning and error expert infos and malformed packets
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x600000'
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nvme_rdma_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_nvme_rdma_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 173 frames are RoCE v2: the RDMA CM exchanges, commands in
+        RC SEND and data in RDMA READ/WRITE reach NVMe/RDMA (78 frames) and
+        NVMe (80 frames); there is no malformed packet and no warning or
+        error expert info in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 173
+        assert lines.count('NVMe Fabrics RDMA') == 78
+        assert lines.count('NVMe') == 80
+        assert lines.count('RRoCE') == 15
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', self.BAD, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_nvme_rdma_cm_private_data(self, cmd_tshark, capture_file, test_env):
+        '''The NVMe/RDMA private data of the CM REQ, REP and REJ messages.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-rdma.cm.req.recfmt', '-Tfields', '-eframe.number',
+                '-envme-rdma.cm.req.recfmt', '-envme-rdma.cm.req.qid',
+                '-envme-rdma.cm.req.hrqsize', '-envme-rdma.cm.req.hsqsize',
+                '-envme-rdma.cm.req.cntlid')
+        assert lines == ['1\t0\t0\t128\t127\t0xffff', '86\t0\t1\t128\t127\t0xffff',
+                         '143\t7\t0\t128\t127\t0xffff', '145\t0\t0\t128\t127\t0xffff',
+                         '162\t0\t1\t128\t127\t0xffff']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-rdma.cm.rsp.recfmt', '-Tfields', '-eframe.number',
+                '-envme-rdma.cm.rsp.recfmt', '-envme-rdma.cm.rsp.crqsize')
+        assert lines == ['2\t0\t128', '87\t0\t128', '146\t3\t64', '163\t0\t128']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'nvme-rdma.cm.rej.recfmt', '-Tfields', '-eframe.number',
+                '-envme-rdma.cm.rej.status')
+        assert lines == ['144\t0x0001']
+
+    def test_nvme_rdma_queue_and_transfers(self, cmd_tshark, capture_file, test_env):
+        '''The queue id comes from the CM REQ (also when the first packet of
+        the connection is sent by the controller, frames 162-173, from 165); an
+        Identify sent with RDMA WRITE FIRST, MIDDLE, MIDDLE and LAST is
+        linked from packet to packet and a Write is fetched with an RDMA READ
+        request and three responses.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {4, 89, 165, 166}',
+                    '-Tfields', '-eframe.number', '-envme-rdma.cmd.qid')
+            assert lines == ['4\t0x0000', '89\t0x0001', '165\t0x0001', '166\t0x0001']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'nvme-rdma.write_to_host_prev && frame.number < 50',
+                '-Tfields', '-eframe.number', '-envme-rdma.write_to_host_prev',
+                '-envme-rdma.write_to_host_next')
+        assert lines == ['38\t37\t39', '39\t38\t40', '40\t39\t', '44\t43\t45',
+                         '45\t44\t46', '46\t45\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'nvme-rdma.read_from_host_prev', '-Tfields', '-eframe.number',
+                '-envme-rdma.read_from_host_prev', '-envme-rdma.read_from_host_next')
+        assert lines[:2] == ['109\t108\t110', '110\t109\t']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {5, 6, 7}', '-Tfields', '-eframe.number',
+                '-e_ws.col.Info')
+        assert lines == ['5\tRC RDMA Read Request QP=0x000a10 | NVMeOF Data Request for Connect',
+                         '6\tRC RDMA Read Response Only QP=0x000b10 | NVMeoF Data for Connect, offset 0',
+                         '7\tRC Send Only QP=0x000a10 | NVMeOF CQE for Connect']
+
+    def test_nvme_rdma_unmatched_packets(self, cmd_tshark, capture_file, test_env):
+        '''Transfers that match no command and SENDs of the wrong size are
+        shown as unknown data, in both passes.'''
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'nvme-rdma.unknown_data', '-Tfields', '-eframe.number')
+            assert lines == ['63', '75', '76', '77', '78', '79', '80', '165']
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {72, 73, 74, 81, 82}', '-Tfields', '-eframe.number',
+                '-e_ws.col.Info')
+        assert lines == [
+            '72\tRC RDMA Read Request QP=0x000a10 ',
+            '73\tRC RDMA Write Only QP=0x000a10 ',
+            '74\tRC RDMA Read Response Only QP=0x000b10 ',
+            '81\tRC Acknowledge QP=0x000b10 ',
+            '82\tRC RDMA Write Middle QP=0x000a10 ',
+        ]
