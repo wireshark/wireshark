@@ -110800,3 +110800,88 @@ class TestDissectObex:
                 (*self.CTN, '-Y', 'frame.number in {23, 24, 25}'),
                 'frame.number', 'obex.parameter.length.bad')
         assert lines == ['23\t', '24\t', '25\t1,1,1,1,1,1,1,1,1']
+
+
+class TestDissectOcfs2:
+    '''OCFS2 networking (o2net and o2dlm messages) from the synthetic capture
+    ocfs2_coverage.pcap.gz. The dissector has no default port, so the
+    stream on TCP 7777 is decoded with -d tcp.port==7777,ocfs2.'''
+
+    DECODE_AS = ('-d', 'tcp.port==7777,ocfs2')
+
+    @classmethod
+    def fields(cls, cmd_tshark, test_env, capture_file, display_filter, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *cls.DECODE_AS, *opts,
+                '-r', capture_file('ocfs2_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ocfs2_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4-40 and 42-44 are OCFS2 messages (frames 40 holds
+        three; 41 is the first part of the split frame 42), without
+        malformed packets or error expert infos in one and two passes.'''
+        info = self.fields(cmd_tshark, test_env, capture_file, 'ocfs2', 'frame.number', '_ws.col.info')
+        assert len(info) == 40
+        types = [i.split('\t')[1] for i in info]
+        for t in ('Master Request', 'Assert Master', 'Create Lock', 'Convert Lock',
+                  'Proxy AST', 'Unlock Lock', 'Deref Lockres', 'Migrate Request',
+                  'Migrate Lockres', 'Query Join', 'Assert Join', 'Cancel Join',
+                  'Exit Domain', 'Master Requery', 'Lock Request', 'Begin Recovery',
+                  'Recovery Data Done', 'Finalize Recovery', 'Query Region',
+                  'Query Node Info', 'Unused 1', 'Keepalive Request',
+                  'Keepalive Response', 'Unknown Type (0x1f3)',
+                  'Exit Domain | Exit Domain | Keepalive Request'):
+            assert t in types
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, capture_file,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == []
+
+    def test_ocfs2_cookie_and_pad(self, cmd_tshark, capture_file, test_env):
+        '''The node index in a DLM cookie is shown ("(1:7)": node 1,
+        sequence 7) and the pad field of the header is read from octets 6-7
+        (it was read from octets 4-5, the message type), see "OCFS2: Fix
+        cookie node index, pad offset and subtrees".'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number == 6', 'ocfs2.msg.pad', 'ocfs2.msg.msg_type')
+        assert rows == ['0x0a0b\t500']
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('ocfs2_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11, 12}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '(1:7)' in stdout
+        assert '(2:8)' in stdout
+
+    def test_ocfs2_dlm_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Lock names, migrated locks, regions, nodes and the node map.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {6, 22, 23, 35, 36}', 'frame.number', 'ocfs2.dlm.name',
+                'ocfs2.dlm.num_locks', 'ocfs2.dlm.query_region.region',
+                'ocfs2.dlm_query_nodeinfo.ip')
+        assert rows == [
+            '6\tM000000000000123400005678\t\t\t',
+            '22\t\t0\t\t',
+            '23\tM000000000000123400005678\t2\t\t',
+            '35\t\t\tregion-a,region-b\t',
+            '36\t\t\t\t192.0.2.1,192.0.2.2',
+        ]
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number == 25', 'ocfs2.dlm.node_map', 'ocfs2.dlm.proto_ver',
+                'ocfs2.dlm.fs_proto_ver')
+        assert rows[0].split('\t')[1:] == ['257', '256']
+        # the old 100 octet Query Join has no protocol versions (frame 26)
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number == 26', 'ocfs2.dlm.proto_ver')
+        assert rows == ['']
+
+    def test_ocfs2_port_preference(self, cmd_tshark, capture_file, test_env):
+        '''The same traffic with the TCP port preference instead of
+        Decode As.'''
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'ocfs2.tcp.port:7777',
+                '-r', capture_file('ocfs2_coverage.pcap.gz'), '-Y', 'ocfs2',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len(stdout.split()) == 40
