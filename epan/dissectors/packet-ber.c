@@ -48,6 +48,7 @@
 
 #include <errno.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/exceptions.h>
 #include <epan/reassemble.h>
 #include <epan/oids.h>
@@ -165,6 +166,7 @@ static expert_field ei_ber_error_length;
 static expert_field ei_ber_wrong_tag_in_tagged_type;
 static expert_field ei_ber_universal_tag_unknown;
 static expert_field ei_ber_no_oid;
+static expert_field ei_ber_nesting_too_deep;
 static expert_field ei_ber_syntax_not_implemented;
 static expert_field ei_ber_oid_not_implemented;
 static expert_field ei_ber_value_too_many_bytes;
@@ -1056,6 +1058,40 @@ dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, unsigned offset, proto_tr
     return try_dissect_unknown_ber(pinfo, tvb, offset, tree, 1);
 }
 
+/* OID and syntax callbacks can dispatch to a dissector that calls back
+ * into BER with the same OID again (a certificate extension holding a
+ * certificate, ...). Count the nesting per packet and stop at a small
+ * limit, well before the tree depth and dissection depth limits. */
+#define BER_MAX_CALLBACK_NESTING 32
+
+/* The nested dissector can throw, so restore the counter in FINALLY. */
+static int
+ber_try_callbacks(const char *syntax, const char *oid, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    volatile int len = 0;
+    unsigned depth = p_get_proto_depth(pinfo, proto_ber);
+
+    p_set_proto_depth(pinfo, proto_ber, depth + 1);
+    increment_dissection_depth(pinfo);
+    TRY {
+        /* First see if a syntax has been registered for this oid (user defined) */
+        if (syntax != NULL) {
+            len = dissector_try_string_with_data(ber_syntax_dissector_table, syntax, tvb, pinfo, tree, true, data);
+        }
+        /* Then try registered oid's */
+        if (len == 0 && oid != NULL) {
+            len = dissector_try_string_with_data(ber_oid_dissector_table, oid, tvb, pinfo, tree, true, data);
+        }
+    }
+    FINALLY {
+        decrement_dissection_depth(pinfo);
+        p_set_proto_depth(pinfo, proto_ber, depth);
+    }
+    ENDTRY;
+
+    return len;
+}
+
 unsigned
 call_ber_oid_callback(const char *oid, tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -1068,12 +1104,16 @@ call_ber_oid_callback(const char *oid, tvbuff_t *tvb, unsigned offset, packet_in
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (p_get_proto_depth(pinfo, proto_ber) >= BER_MAX_CALLBACK_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_ber_nesting_too_deep, next_tvb, 0);
+        return offset + tvb_reported_length_remaining(tvb, offset);
+    }
+
+    if (oid != NULL) {
+        syntax = get_ber_oid_syntax(oid);
+    }
     if (oid == NULL ||
-        ((((syntax = get_ber_oid_syntax(oid)) == NULL) ||
-          /* First see if a syntax has been registered for this oid (user defined) */
-          (len = dissector_try_string_with_data(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, true, data)) == 0) &&
-         /* Then try registered oid's */
-         (len = dissector_try_string_with_data(ber_oid_dissector_table, oid, next_tvb, pinfo, tree, true, data)) == 0))
+        (len = ber_try_callbacks(syntax, oid, next_tvb, pinfo, tree, data)) == 0)
     {
         proto_item *item      = NULL;
         proto_tree *next_tree = NULL;
@@ -1130,8 +1170,13 @@ call_ber_syntax_callback(const char *syntax, tvbuff_t *tvb, unsigned offset, pac
     int       len = 0;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (p_get_proto_depth(pinfo, proto_ber) >= BER_MAX_CALLBACK_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_ber_nesting_too_deep, next_tvb, 0);
+        return offset + tvb_reported_length_remaining(tvb, offset);
+    }
+
     if (syntax == NULL ||
-        (len = dissector_try_string_with_data(ber_syntax_dissector_table, syntax, next_tvb, pinfo, tree, true, NULL)) == 0)
+        (len = ber_try_callbacks(syntax, NULL, next_tvb, pinfo, tree, NULL)) == 0)
     {
         proto_item *item = NULL;
 
@@ -4532,6 +4577,7 @@ proto_register_ber(void)
         { &ei_ber_error_length, { "ber.error.length", PI_MALFORMED, PI_WARN, "BER Error: length is not valid", EXPFILL }},
         { &ei_ber_wrong_tag_in_tagged_type, { "ber.error.wrong_tag_in_tagged_type", PI_MALFORMED, PI_WARN, "BER Error: Wrong tag in tagged type", EXPFILL }},
         { &ei_ber_universal_tag_unknown, { "ber.error.universal_tag_unknown", PI_MALFORMED, PI_WARN, "BER Error: can not handle universal", EXPFILL }},
+        { &ei_ber_nesting_too_deep, { "ber.error.nesting_too_deep", PI_UNDECODED, PI_WARN, "BER: OID callbacks nested too deeply", EXPFILL }},
         { &ei_ber_no_oid, { "ber.error.no_oid", PI_MALFORMED, PI_WARN, "BER Error: No OID supplied to call_ber_oid_callback", EXPFILL }},
         { &ei_ber_oid_not_implemented, { "ber.error.oid_not_implemented", PI_UNDECODED, PI_WARN, "BER: Dissector for OID not implemented. Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_ber_syntax_not_implemented, { "ber.error.syntax_not_implemented", PI_UNDECODED, PI_WARN, "BER: Dissector for syntax not implemented", EXPFILL }},

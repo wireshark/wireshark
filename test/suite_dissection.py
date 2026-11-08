@@ -28673,17 +28673,17 @@ class TestDissectCms:
 
     def test_cms_nested_too_deep(self, cmd_tshark, capture_file, test_env):
         '''A ContentInfo nested 600 times stops with an expert info before
-        the layer limit. It used to hit the DISSECTOR_ASSERT on the number
-        of layers.'''
+        the layer limit: the BER limit on nested OID callbacks (32) stops
+        it. It used to hit the DISSECTOR_ASSERT on the number of layers.'''
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *passes,
                     '-r', capture_file('cms_coverage.pcap.gz'),
-                    '-Y', 'cms.too_deep',
+                    '-Y', 'ber.error.nesting_too_deep',
                     '-Tfields', '-eframe.number', '-ecms.contentType',
                 ), encoding='utf-8', env=test_env)
             frame, types = stdout.strip().split('\t')
             assert frame == '21'
-            assert 400 < len(types.split(',')) < 500
+            assert len(types.split(',')) == 33
 
     def test_cms_firmware(self, cmd_tshark, capture_file, test_env):
         '''The firmware package attributes, load receipts and load errors
