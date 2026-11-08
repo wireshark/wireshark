@@ -109467,3 +109467,115 @@ class TestDissectNtp:
                                                 ('206', '3'), ('207', '6')]
         assert rows[0][2] == '50123,123' and rows[1][2] == '123,50123'
         assert rows[2][3] == '319' and rows[3][3] == '319'
+
+
+class TestDissectNtsKe:
+    '''NTS-KE records, from the synthetic capture nts_ke_coverage.pcapng.gz.
+    NTS-KE runs inside TLS, so the records are in Exported PDU frames
+    naming the nts-ke dissector (frames 4-18, 25 and 26); there is no TLS
+    session, so every NTS-KE frame carries the "TLS ALPN mismatch" error
+    expert info. A TCP handshake to port 4460 (frames 1-3) gives the
+    frames of one connection a known direction. Frames 19-24 are NTP
+    packets that use and hand out the cookies. Cookies are made-up
+    bytes: no keys are extracted.'''
+
+    NTS_KE_FRAMES = tuple(range(4, 19)) + (25, 26)
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('nts_ke_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_nts_ke_protocols(self, cmd_tshark, capture_file, test_env):
+        '''26 frames: 17 NTS-KE, 6 NTP, 3 TCP; no malformed packets in
+        one and two passes; the only warning or error is the ALPN
+        mismatch of every NTS-KE frame.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 26
+        assert protocols.count('NTS-KE') == 17
+        assert protocols.count('NTP') == 6
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number',
+                    passes=passes)
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert tuple(int(r[0]) for r in rows) == self.NTS_KE_FRAMES
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'nts-ke.alpn_mismatch',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert tuple(int(r[0]) for r in rows) == self.NTS_KE_FRAMES
+
+    def test_nts_ke_records(self, cmd_tshark, capture_file, test_env):
+        '''Record types, next protocols, AEAD algorithms, error and
+        warning codes, server and port records and an unknown record.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 6, 7, 8, 13}', '-Tfields',
+                '-eframe.number', '-ents-ke.type', '-ents-ke.next_proto',
+                '-ents-ke.aead_algo', '-ents-ke.error', '-ents-ke.warning',
+                '-ents-ke.port', '-ents-ke.server')
+        assert rows == [
+            ['4', '1,4,0', '0', '15,17', '', '', '', ''],
+            ['5', '1,4,5,5,5,5,5,5,5,5,6,7,3,0', '0', '15', '', '1', '123',
+             'ntp.example.net'],
+            ['6', '1,4,5,5,2,0', '0', '15', '1', '', '', ''],
+            ['7', '1,4,5,32766,0', '0,1,4660', '30,40000', '', '', '', ''],
+            ['8', '1,4,5,0', '1', '15', '', '', '', ''],
+            ['13', '1,4,2,2,2,3,3,0', '0', '15', '0,2,65535', '0,16705', '', ''],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 7, 12}', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert rows == [
+            ['5', 'NTPv4, 1 AEAD Algorithm, 8 Cookies'],
+            ['7', 'NTPv4UnassignedUnassigned, 2 AEAD Algorithms, 1 Cookie'],
+            ['12', '1 Cookie'],
+        ]
+
+    def test_nts_ke_cookies_used(self, cmd_tshark, capture_file, test_env):
+        '''The cookies of frame 5 are listed with the NTP frames that used
+        them (a later frame, so only with -2), and the NTP request shows
+        the frame that handed out its cookie.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'nts-ke.cookie.use_frame || ntp.nts.cookie.receive_frame',
+                '-Tfields', '-eframe.number', '-ents-ke.cookie.use_frame',
+                '-entp.nts.cookie.receive_frame', passes=('-2',))
+        assert rows == [
+            ['5', '19,20,21', ''],
+            ['6', '19,20,19,20', ''],
+            ['19', '', '5'],
+            ['20', '', '5'],
+            ['21', '', '5'],
+        ]
+
+    def test_nts_ke_direction(self, cmd_tshark, capture_file, test_env):
+        '''With a TCP conversation (the handshake to port 4460) the
+        records of the client and the server link to each other; frames
+        of connections the TCP dissector never saw (14-16) have no
+        direction.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 14, 15, 16, 18}', '-Tfields',
+                '-eframe.number', '-ents-ke.response_to',
+                passes=('-2',))
+        assert [r[0] for r in rows] == ['5', '14', '15', '16', '18']
+        assert rows[0][1] != '' and rows[4][1] != ''
+        assert [r[1] if len(r) > 1 else '' for r in rows[1:4]] == ['', '', '']
+
+    def test_nts_ke_many_records(self, cmd_tshark, capture_file, test_env):
+        '''Frame 25 has 16000 Next Protocol entries and 8000 empty Cookie
+        records (the PDU of the fix "NTS-KE: Fix quadratic Cookie handling
+        and odd record bodies"; the scan of the entries per cookie was
+        quadratic). Frame 26 has 2000 cookies of 4 octets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nts_ke_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {25, 26}', '-V', '-O', 'nts-ke',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.count('NTS-KE Record (New Cookie for NTPv4)') == 10000
+        assert stdout.count('Next Protocol ID: Unassigned (1)') == 16001
