@@ -12,6 +12,11 @@
 
 #include <QProxyStyle>
 
+class QStyleOptionButton;
+#ifdef Q_OS_MACOS
+namespace NativePushButton { struct BezelState; }
+#endif
+
 class ThemeStyler : public QProxyStyle {
     Q_OBJECT
 public:
@@ -47,18 +52,18 @@ public:
     /**
      * Return the size of a control for the given contents size.
      *
-     * The macOS style draws a non-flat push button as the rounded themed
-     * bezel only when the button has exactly its default height. Zoomed
-     * fonts make the content taller, the base style then returns a taller
-     * button and draws it as an opaque square bezel. On the macOS base
-     * style the push button height is held at the bezel height as long as
-     * the content still fits the bezel's title rect; above that the base
-     * result stands, so the text is never clipped. The macOS style also
-     * gives OK and Cancel buttons a fixed width whatever their font, so on
-     * the macOS base style a non-flat push button is widened until its
-     * title rect holds the content. The limits are queried from the base
-     * style. On all other styles and controls the base result is returned
-     * unchanged.
+     * The macOS style draws a non-flat push button as the rounded themed bezel
+     * only when the button has exactly its default height. Zoomed fonts make
+     * the content taller, the base style then returns a taller button and draws
+     * it as an opaque square bezel. On the macOS base style the push button
+     * height is held at the bezel height as long as the content still fits the
+     * bezel's title rect; above that the base result stands, so the text is
+     * never clipped, and drawControl() draws AppKit's flexible-height rounded
+     * bezel instead of the square one. The macOS style also gives OK and Cancel
+     * buttons a fixed width whatever their font, so on the macOS base style a
+     * non-flat push button is widened until its title rect holds the content.
+     * The limits are queried from the base style. On all other styles and
+     * controls the base result is returned unchanged.
      *
      * @param type The contents type.
      * @param option The style option, may be null.
@@ -90,15 +95,22 @@ public:
     using QProxyStyle::unpolish;
 
     /**
-     * Draw a control through the base style, with one adjustment.
+     * Draw a control through the base style, with adjustments on macOS.
      *
-     * On macOS the native style erases top toolbars in a main window's
-     * unified title and toolbar area to transparent, so the system
-     * content border shows instead of the palette. When the active
-     * theme sets palette.window, those toolbars are filled with the
-     * palette window color, with a separator line below the last
-     * visible toolbar row. Themes without palette.window keep the
-     * native look.
+     * The native style erases top toolbars in a main window's unified
+     * title and toolbar area to transparent, so the system content
+     * border shows instead of the palette. When the active theme sets
+     * palette.window, those toolbars are filled with the palette window
+     * color, with a separator line below the last visible toolbar row.
+     * Themes without palette.window keep the native look.
+     *
+     * A non-flat push button taller than the native bezel is drawn by the
+     * native style as a flat square bezel. For those buttons the bevel
+     * (CE_PushButtonBevel) is drawn as AppKit's flexible-height rounded
+     * push bezel, the label color (CE_PushButtonLabel) follows that
+     * bezel's accent state, and the keyboard focus ring (CE_FocusFrame)
+     * is the native ring of that bezel. Buttons of the native bezel
+     * height are left to the base style.
      */
     void drawControl(ControlElement element, const QStyleOption *option,
         QPainter *painter, const QWidget *widget = nullptr) const override;
@@ -143,6 +155,66 @@ private:
     // Nesting depth of pixelMetric() calls. Styles run on the GUI thread
     // only, so a plain counter is enough.
     mutable int metric_depth_ = 0;
+
+#ifdef Q_OS_MACOS
+    /**
+     * Height of the native push button bezel for @p button, as the base
+     * style reports it for empty content (32, 28 or 24 px depending on the
+     * control size).
+     *
+     * @param button        The button option.
+     * @param contentsWidth Width of the content, passed through to the base.
+     * @param widget        The push button, may be null.
+     * @return The bezel height in pixels.
+     */
+    int pushButtonBezelHeight(const QStyleOptionButton *button, int contentsWidth,
+        const QWidget *widget) const;
+
+    /**
+     * True if @p button is drawn with AppKit's flexible-height bezel instead
+     * of the base style's square one: macOS base style, a raised, sunken or
+     * checked non-flat push button that is not a command link, a widget with
+     * a native window, and a height above the native bezel height.
+     *
+     * @param button The option; its rect must be the button's own rect, not
+     *               a sub rect such as the label rect.
+     * @param widget The QPushButton, whose size attributes the base style reads.
+     * @return true if ThemeStyler draws the button.
+     */
+    bool takesFlexibleBezel(const QStyleOptionButton *button, const QWidget *widget) const;
+
+    /**
+     * True if the push button shows the accent (default) look when its
+     * window is active: checked, the default button, or a focused
+     * auto-default button.
+     *
+     * @param button The button option.
+     * @return true if the button is emphasized.
+     */
+    static bool pushButtonEmphasized(const QStyleOptionButton *button);
+
+    /**
+     * State of the flexible bezel for @p button: enabled, pressed
+     * (sunken) and highlighted (window active and the button
+     * emphasized, see pushButtonEmphasized()). The bevel and the label
+     * color both read it, so they always agree.
+     *
+     * @param button The button option.
+     * @return The bezel state.
+     */
+    static NativePushButton::BezelState flexibleBezelState(const QStyleOptionButton *button);
+
+    /**
+     * Visible outline of the flexible bezel for @p button: the horizontal
+     * extent and the top and bottom insets the base style uses for the
+     * native bezel, stretched to the button height.
+     *
+     * @param button The option with the button's own rect.
+     * @param widget The QPushButton.
+     * @return The visible bezel rect in the option's coordinates.
+     */
+    QRect flexibleBezelRect(const QStyleOptionButton *button, const QWidget *widget) const;
+#endif
 };
 
 
