@@ -532,7 +532,7 @@ findFrame1Position ( packet_info *pinfo, tvbuff_t *message_tvb, uint16_t byte_of
 }
 
 static bool findSafetyFrame ( packet_info *pinfo, tvbuff_t *message_tvb, unsigned u_Offset, bool b_frame2first,
-        unsigned *u_frameOffset, unsigned *u_frameLength, opensafety_packet_info *packet )
+        unsigned *u_frameOffset, unsigned *u_frameLength, unsigned *u_foundPos, opensafety_packet_info *packet )
 {
     unsigned  ctr, rem_length;
     uint16_t  crc, f2crc, calcCrc = 0;
@@ -750,6 +750,9 @@ static bool findSafetyFrame ( packet_info *pinfo, tvbuff_t *message_tvb, unsigne
 
     /* Seem redundant if b_frame2First is false. But in this case, the function is needed for the
      * simple detection of a possible openSAFETY frame.  */
+    if ( found && u_foundPos )
+        *u_foundPos = ctr - 1;
+
     if ( b_frame2first && found )
         *u_frameOffset = u_Offset;
 
@@ -921,7 +924,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
     if ( dataLength > 0 )
     {
-        dissect_data_payload(spdo_tree, message_tvb, pinfo, OSS_FRAME_POS_ID + 3, dataLength, OPENSAFETY_SPDO_MESSAGE_TYPE);
+        dissect_data_payload(spdo_tree, message_tvb, pinfo, packet->frame.subframe1 + OSS_FRAME_POS_DATA, dataLength, OPENSAFETY_SPDO_MESSAGE_TYPE);
     }
 }
 
@@ -1095,7 +1098,8 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     proto_tree    *ssdo_tree, *ssdo_payload;
     uint16_t       taddr                = 0, sdn = 0, server = 0, client = 0, ct = 0;
     uint32_t       abortcode, ssdoIndex = 0, ssdoSubIndex = 0, payloadSize, fragmentId = 0, entry = 0;
-    uint8_t        db0Offset, db0, payloadOffset, preload;
+    unsigned       db0Offset, payloadOffset;
+    uint8_t        db0, preload;
     unsigned       dataLength;
     int            calcDataLength;
     bool           isResponse, saveFragmented;
@@ -1315,7 +1319,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             else
             {
                 payloadSize = dataLength - (payloadOffset - db0Offset);
-                if ((int)dataLength < (payloadOffset - db0Offset))
+                if ((int)dataLength < (int)(payloadOffset - db0Offset))
                 {
                     if ( global_opensafety_debug_verbose )
                         expert_add_info_format(pinfo, opensafety_item, &ei_payload_length_not_positive,
@@ -1624,7 +1628,7 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         {
             packet->payload.snmt->sn_udid = wmem_strdup(pinfo->pool,
                     tvb_bytes_to_str_punct(pinfo->pool, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ':' ) );
-            proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1, 6, ENC_NA);
+            proto_tree_add_item(snmt_tree, hf_oss_snmt_udid, message_tvb, OSS_FRAME_POS_DATA + packet->frame.subframe1 + 1, 6, ENC_NA);
         }
     }
 }
@@ -2043,6 +2047,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
 {
     tvbuff_t           *next_tvb = NULL, *gap_tvb = NULL, *message_tvb = NULL;
     unsigned            length, len, frameOffset, frameLength, nodeAddress, gapStart;
+    unsigned            foundPos = 0;
     uint8_t            *swbytes;
     bool                handled, dissectorCalled, call_sub_dissector, markAsMalformed;
     uint8_t             type, found, tempByte, previous_msg_id;
@@ -2124,7 +2129,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
         packet = wmem_new0(pinfo->pool, opensafety_packet_info);
 
         /* Finding the start of the first possible safety frame */
-        if ( findSafetyFrame(pinfo, message_tvb, frameOffset, b_frame2First, &frameOffset, &frameLength, packet) )
+        if ( findSafetyFrame(pinfo, message_tvb, frameOffset, b_frame2First, &frameOffset, &frameLength, &foundPos, packet) )
         {
             /* if packet msg_id is not null, it still might be an incorrect frame, as there is no validity
              * check in findSafetyFrame for the msg id (this happens later in this routine)
@@ -2194,7 +2199,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                            will result in an infinite loop. Advancing with 1 will
                            lead to infinite loop, advancing with frameLength might miss
                            some packages*/
-                        frameOffset += 2;
+                        frameOffset = MAX(frameOffset + 2, foundPos + 2);
                         found--;
                         continue;
                     }
@@ -2203,7 +2208,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                        without advancing frameOffset. Advancing with 1 will
                        lead to infinite loop, advancing with frameLength might miss
                        some packages*/
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2217,7 +2222,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                 if ( ( transporttype == OPENSAFETY_ACYCLIC_DATA && type == OPENSAFETY_SPDO_MESSAGE_TYPE ) ||
                         ( transporttype == OPENSAFETY_CYCLIC_DATA && type != OPENSAFETY_SPDO_MESSAGE_TYPE ) )
                 {
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2233,7 +2238,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                 /* Unknown Frame Type */
                 if ( idx < 0 )
                 {
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2241,7 +2246,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                 else if ( type == OPENSAFETY_SNMT_MESSAGE_TYPE &&
                         (OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) != OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart2)) )
                 {
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2269,7 +2274,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                 /* SPDO Reserved is invalid, therefore all packages using this ID can be discarded */
                 if ( OSS_FRAME_ID_T(message_tvb, byte_offset + frameStart1) == OPENSAFETY_MSG_SPDO_RESERVED )
                 {
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2286,7 +2291,7 @@ opensafety_package_dissector(const char *protocolName, const char *sub_diss_hand
                 {
                     opensafety_item = proto_tree_add_item(tree, proto_opensafety, message_tvb, frameOffset, frameLength, ENC_NA);
                     proto_item_append_text(opensafety_item, ", Filtered Node: 0x%03X (%d)", addr, addr);
-                    frameOffset += 2;
+                    frameOffset = MAX(frameOffset + 2, foundPos + 2);
                     found--;
                     continue;
                 }
@@ -2584,12 +2589,9 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 
     /* check for openSAFETY frame at beginning of data */
 
-    frameFound = findSafetyFrame(pinfo, message_tvb, 0, global_udp_frame2_first, &frameOffset, &frameLength, NULL );
+    frameFound = findSafetyFrame(pinfo, message_tvb, 0, global_udp_frame2_first, &frameOffset, &frameLength, NULL, NULL );
     if ( ! frameFound || ( frameOffset >= 11 ) )
     {
-        dissector_handle_t udp_transport = find_dissector ( "opensafety_udp_transport" );
-        if ( udp_transport != NULL )
-            call_dissector(udp_transport, message_tvb, pinfo, tree);
         result = opensafety_udp_transport_dissector(message_tvb, pinfo, tree);
     }
     else
@@ -2778,7 +2780,7 @@ proto_register_opensafety(void)
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_length,
           { "Parameter Set Length", "opensafety.ssdo.extpar.length",
-            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_oss_ssdo_extpar_crc,
           { "Parameter Set CRC", "opensafety.ssdo.extpar.crc",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
