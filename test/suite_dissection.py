@@ -107454,3 +107454,92 @@ class TestDissectNmea0183Coverage:
                             'frame.number >= 827 && frame.number <= 840', '_ws.col.protocol',
                             opts=('-d', 'udp.port==10110,nmea0183'))
         assert rows[7][1] == 'NMEA 0183'
+
+
+class TestDissectNmea2000:
+    '''NMEA 2000 (PGN 65341, and the fast packet PGNs 127237 and 126996
+    with reassembly) over SocketCAN and J1939, from the synthetic capture
+    nmea2000_coverage.pcapng.gz. J1939 is reached only through Decode As.'''
+
+    DECODE_AS = ('-d', 'can.subdissector,j1939')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-d', 'can.subdissector,j1939',
+                '-r', capture_file('nmea2000_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nmea2000_protocols(self, cmd_tshark, capture_file, test_env):
+        '''158 frames: 12 Simnet, 144 fast packet fragments and two
+        Exported PDUs; no malformed packets or warnings in one and two
+        passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('frame.protocols',))
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 158
+        assert protocols.count('can:j1939:nmea2000') == 156
+        assert protocols.count('exported_pdu:nmea2000') == 2
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_nmea2000_simnet_angle(self, cmd_tshark, capture_file, test_env):
+        '''PGN 65341 manufacturer, industry code, mode and angle.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 3',
+                           ('nmea2000.man_code', 'nmea2000.ind_code', 'nmea2000.ap_mode', 'nmea2000.angle'))
+        assert rows == [['1857', '4', '2', '0'], ['137', '4', '3', '15708'], ['140', '5', '10', '31416']]
+
+    def test_nmea2000_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The last fragment of each message carries the reassembled
+        length: 27 octets for 127237 (four fragments), 139 for 126996
+        (twenty fragments).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'nmea2000.reassembled.length',
+                           ('frame.number', 'nmea2000.reassembled.length', 'nmea2000.fragment.count'))
+        assert rows == [
+            ['16', '27', '4'], ['20', '27', '4'], ['24', '27', '4'], ['28', '27', '4'],
+            ['48', '139', '20'], ['68', '139', '20'], ['88', '139', '20'], ['96', '27', '4'],
+            ['112', '139', '20'], ['151', '139', '20'], ['152', '139', '20'], ['156', '27', '4'],
+        ]
+
+    def test_nmea2000_product_information(self, cmd_tshark, capture_file, test_env):
+        '''The reassembled product information, with two certification levels.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {48, 68, 88}',
+                           ('nmea2000.version', 'nmea2000.prod_code', 'nmea2000.model_id',
+                            'nmea2000.sw_ver_code', 'nmea2000.model_ser_code',
+                            'nmea2000.cert_lev', 'nmea2000.load_eq'))
+        assert rows == [
+            ['2100', '4711', 'Model X1', '1.2.3', 'SN-0001', '1', '3'],
+            ['2100', '4711', 'Model X1', '1.2.3', 'SN-0001', '0', '0'],
+            ['2100', '4711', 'Model X1', '1.2.3', 'SN-0001', '2', '255'],
+        ]
+
+    def test_nmea2000_fragment_id_per_pgn(self, cmd_tshark, capture_file, test_env):
+        '''Fragments of PGN 126996 and 127237 from one source with the same
+        sequence counter (frames 89-112 and 153-156) are reassembled per
+        PGN. The fragment id used to be built from 126996 for both, which
+        mixed the two messages. Each message is reassembled in its own
+        last fragment ("Reassembled in" needs two passes).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {89, 90, 96, 112}',
+                           ('frame.number', 'nmea2000.reassembled.in', 'nmea2000.reassembled.length'),
+                           ('-2',))
+        assert rows == [['89', '112', ''], ['90', '96', ''], ['96', '', '27'], ['112', '', '139']]
+
+    def test_nmea2000_interleaved_sources(self, cmd_tshark, capture_file, test_env):
+        '''Two sources send the same PGN and sequence counter interleaved
+        (frames 113-152); each is reassembled separately.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {113, 114}',
+                           ('nmea2000.reassembled.in',), ('-2',))
+        assert rows == [['151'], ['152']]
+
+    def test_nmea2000_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The generic nmea2000 handle is reached through Exported PDU.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'exported_pdu',
+                           ('frame.number', 'exported_pdu.prot_name', '_ws.col.protocol'))
+        assert rows == [['157', 'nmea2000', 'nmea2000'], ['158', 'nmea2000', 'nmea2000']]
