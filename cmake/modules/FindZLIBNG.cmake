@@ -10,6 +10,8 @@
 #  ZLIBNG_DLL            - (Windows) Name of the zlib-ng DLL.
 #  ZLIBNG_PDB            - (Windows) Name of the zlib-ng PDB.
 #
+# Creates an IMPORTED target ZLIBNG::ZLIBNG if found.
+#
 #  ZLIBNG_VERSION_STRING - The version of zlib-ng found (x.y.z)
 #  ZLIBNG_VERSION_MAJOR  - The major version of zlib-ng
 #  ZLIBNG_VERSION_MINOR  - The minor version of zlib-ng
@@ -42,6 +44,11 @@ FindWSWinLibs( "zlib-ng-" "ZLIBNG_HINTS" )
 if (NOT USE_REPOSITORY) # else we'll find Strawberry Perl's pkgconfig
     find_package(PkgConfig)
     pkg_search_module(ZLIBNG zlib-ng)
+else()
+    # FindWSLibrary caches ZLIBNG_LIBRARY_RELEASE and ZLIBNG_LIBRARY_DEBUG.
+    # Remove the cache entry that find_library() created before, which
+    # always used the release library.
+    unset(ZLIBNG_LIBRARY CACHE)
 endif()
 
 FIND_PATH(ZLIBNG_INCLUDE_DIR
@@ -54,16 +61,17 @@ FIND_PATH(ZLIBNG_INCLUDE_DIR
     /usr/local/include
 )
 
-SET(ZLIBNG_NAMES z-ng zlib-ng libz-ng.a)
-FIND_LIBRARY(ZLIBNG_LIBRARY
+include(FindWSLibrary)
+FindWSLibrary(ZLIBNG_LIBRARY
     NAMES
-        ${ZLIBNG_NAMES}
+        z-ng zlib-ng zlib-ngd libz-ng.a
     HINTS
         ${ZLIBNG_LIBDIR}
-        ${ZLIBNG_HINTS}/lib
-      PATHS
-      /usr/lib
-      /usr/local/lib
+    PATHS
+        /usr/lib
+        /usr/local/lib
+    WIN32_HINTS
+        ${ZLIBNG_HINTS}
 )
 
 MARK_AS_ADVANCED(ZLIBNG_LIBRARY ZLIBNG_INCLUDE_DIR)
@@ -99,7 +107,13 @@ if(ZLIBNG_FOUND)
         ws_reset_checks_on_change(ZLIBNG "${ZLIBNG_INCLUDE_DIR};${ZLIBNG_LIBRARY}" WITH_GZFILEOP)
         CMAKE_PUSH_CHECK_STATE()
         set(CMAKE_REQUIRED_INCLUDES ${ZLIBNG_INCLUDE_DIR})
-        set(CMAKE_REQUIRED_LIBRARIES ${ZLIBNG_LIBRARY})
+        # In repository builds ZLIBNG_LIBRARY can be a list with the
+        # debug and optimized keywords. Check the release library.
+        if(ZLIBNG_LIBRARY_RELEASE)
+            set(CMAKE_REQUIRED_LIBRARIES ${ZLIBNG_LIBRARY_RELEASE})
+        else()
+            set(CMAKE_REQUIRED_LIBRARIES ${ZLIBNG_LIBRARY})
+        endif()
         #
         # Check for inflate() in zlib, to make sure the zlib library is
         # usable.
@@ -119,9 +133,13 @@ if(ZLIBNG_FOUND)
         # reset
         CMAKE_POP_CHECK_STATE()
 
-    AddWSWinDLL(ZLIBNG ZLIBNG_HINTS "zlib-ng*")
     SET(ZLIBNG_INCLUDE_DIRS ${ZLIBNG_INCLUDE_DIR})
     SET(ZLIBNG_LIBRARIES ${ZLIBNG_LIBRARY})
+    ws_add_imported_library(ZLIBNG::ZLIBNG ZLIBNG_LIBRARY
+        DLL "zlib-ng*"
+        INCLUDE_DIRS ${ZLIBNG_INCLUDE_DIRS}
+    )
+    AddWSWinDLL(ZLIBNG ZLIBNG_HINTS "zlib-ng*")
 ELSE()
     SET(ZLIBNG_INCLUDE_DIRS )
     SET(ZLIBNG_LIBRARIES )
