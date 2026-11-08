@@ -334,6 +334,7 @@ static int * const hfx_ctn_application_parameter_data_parameter_mask[] = {
 static expert_field ei_unexpected_data;
 static expert_field ei_application_parameter_length_bad;
 static expert_field ei_decoded_as_profile;
+static expert_field ei_header_length_bad;
 
 static dissector_table_t obex_profile_table;
 static dissector_table_t media_type_dissector_table;
@@ -1127,7 +1128,7 @@ save_path(packet_info *pinfo, const char *current_path, const char *name,
                     if (i_path == current_path)
                         path = current_path = path_root;
                     else
-                        path = current_path = wmem_strndup(wmem_epan_scope(), current_path, i_path - current_path);
+                        path = current_path = wmem_strndup(wmem_file_scope(), current_path, i_path - current_path);
                 }
             }
         }
@@ -1399,7 +1400,7 @@ dissect_obex_application_parameter_bt_bip(tvbuff_t *tvb, packet_info *pinfo, pro
                 proto_tree_add_item(parameter_tree, hf_bip_application_parameter_data_remote_display, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
                 break;
             case 0x09:
-                proto_tree_add_item(parameter_tree, hf_bip_application_parameter_data_service_id, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
+                proto_tree_add_item(parameter_tree, hf_bip_application_parameter_data_service_id, tvb, offset, required_length_map[parameter_id], ENC_NA);
                 break;
             case 0x0A:
                 proto_tree_add_item(parameter_tree, hf_bip_application_parameter_data_store_flag, tvb, offset, required_length_map[parameter_id], ENC_BIG_ENDIAN);
@@ -1887,8 +1888,8 @@ dissect_obex_application_parameter_bt_ctn(tvbuff_t *tvb, packet_info *pinfo, pro
                     "According to the specification this parameter length should be %i, but there is %i",
                     required_length_map[parameter_id], parameter_length);
         } else if ((parameter_id >= 0x41) && ((uint8_t)(parameter_id - 0x41) < array_length(required_length_map_gpp)) &&
-                required_length_map[parameter_id - 0x41] != -1 &&
-                required_length_map[parameter_id - 0x41] != parameter_length) {
+                required_length_map_gpp[parameter_id - 0x41] != -1 &&
+                required_length_map_gpp[parameter_id - 0x41] != parameter_length) {
 
             proto_tree_add_item(parameter_tree, hf_application_parameter_data, tvb, offset, parameter_length, ENC_NA);
             expert_add_info_format(pinfo, item, &ei_application_parameter_length_bad,
@@ -2031,6 +2032,12 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                 item_length = 1 + 4;
                 value_length = 4;
                 break;
+        }
+
+        if (!(hdr_id & 0x80) && item_length < 3) {
+            /* The length includes the header id and the length itself. */
+            proto_tree_add_expert(hdrs_tree, pinfo, &ei_header_length_bad, tvb, offset, 3);
+            return tvb_reported_length(tvb);
         }
 
         /* user defined headers have low bits in the range 0x30 - 0x3F */
@@ -2211,7 +2218,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
                     if (p_get_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE) == NULL) {
                         uint8_t *value_data;
 
-                        value_data = tvb_get_string_enc(wmem_file_scope(), tvb, offset, value_length, ENC_ASCII | ENC_NA);
+                        value_data = tvb_get_string_enc(pinfo->pool, tvb, offset, value_length, ENC_ASCII | ENC_NA);
 
                         p_add_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_MEDIA_TYPE, value_data);
                     }
@@ -2302,9 +2309,10 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo,
 
                     break;
                 case 0x47: /* HTTP */ {
-                    next_tvb = tvb_new_subset_remaining(tvb, offset);
+                    next_tvb = tvb_new_subset_length(tvb, offset, value_length);
 
                     call_dissector(http_handle, next_tvb, pinfo, hdr_tree);
+                    offset += value_length;
 
                     }
                     break;
@@ -2652,7 +2660,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             profile = obex_profile_data->profile;
         }
 
-        profile_data = wmem_new(wmem_file_scope(), uint8_t);
+        profile_data = wmem_new(pinfo->pool, uint8_t);
         *profile_data = profile;
 
         p_add_proto_data(pinfo->pool, pinfo, proto_obex, PROTO_DATA_OBEX_PROFILE, profile_data);
@@ -2850,7 +2858,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         /* length */
         proto_tree_add_item(main_tree, hf_length, next_tvb, offset, 2, ENC_BIG_ENDIAN);
-        length = tvb_get_ntohs(tvb, offset) - 3;
+        length = tvb_get_ntohs(next_tvb, offset) - 3;
         offset += 2;
 
         frame_number = pinfo->num;
@@ -2912,7 +2920,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(main_tree, hf_set_path_flags_1, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 
             if (!pinfo->fd->visited && obex_last_opcode_data) {
-                obex_last_opcode_data->data.set_data.go_up = tvb_get_uint8(tvb, offset) & 0x01;
+                obex_last_opcode_data->data.set_data.go_up = tvb_get_uint8(next_tvb, offset) & 0x01;
                 obex_last_opcode_data->data.set_data.name = NULL;
             }
 
@@ -2927,9 +2935,9 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
 
         default:
-            if (length == 0 && tvb_reported_length_remaining(tvb, offset) > 0) {
-                proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, tvb, offset, tvb_reported_length_remaining(tvb, offset));
-                offset += tvb_reported_length_remaining(tvb, offset);
+            if (length == 0 && tvb_reported_length_remaining(next_tvb, offset) > 0) {
+                proto_tree_add_expert(main_tree, pinfo, &ei_unexpected_data, next_tvb, offset, tvb_reported_length_remaining(next_tvb, offset));
+                offset += tvb_reported_length_remaining(next_tvb, offset);
                 break;
             } else if (length == 0) break;
 
@@ -3306,7 +3314,7 @@ proto_register_obex(void)
         },
         { &hf_bip_application_parameter_data_service_id,
             { "Service ID",   "obex.parameter.value.service_id",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_uuid_vals_ext, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_bip_application_parameter_data_store_flag,
@@ -4172,6 +4180,7 @@ proto_register_obex(void)
         { &ei_application_parameter_length_bad, { "obex.parameter.length.bad", PI_PROTOCOL, PI_WARN, "Parameter length bad", EXPFILL }},
         { &ei_unexpected_data, { "obex.expert.unexpected_data", PI_PROTOCOL, PI_WARN, "Unexpected data", EXPFILL }},
         { &ei_decoded_as_profile, { "obex.expert.decoded_as.profile", PI_PROTOCOL, PI_NOTE, "Decoded As", EXPFILL }},
+        { &ei_header_length_bad, { "obex.header.length.bad", PI_MALFORMED, PI_ERROR, "Header length is shorter than the header", EXPFILL }},
     };
 
     /* Decode As handling */
