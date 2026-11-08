@@ -26,11 +26,11 @@ androiddump - Provide interfaces to capture from Android devices
 [ *--fifo*=<path to file or pipe> ]
 [ *--adb-server-ip*=<IP address> ]
 [ *--adb-server-tcp-port*=<TCP port> ]
-[ *--logcat-text*=<TRUE or FALSE> ]
-[ *--bt-server-tcp-port*=<TCP port> ]
 [ *--bt-forward-socket*=<TRUE or FALSE> ]
 [ *--bt-local-ip*=<IP address> ]
 [ *--bt-local-tcp-port*=<TCP port> ]
+[ *--bt-server-tcp-port*=<TCP port> ]
+[ *--logcat-text*=<TRUE or FALSE> ]
 
 [manarg]
 *androiddump*
@@ -129,24 +129,6 @@ Use other than default (127.0.0.1) ADB daemon's IP address.
 --adb-server-tcp-port=<TCP port>::
 Use other than default (5037) ADB daemon's TCP port.
 
---logcat-text=<TRUE or FALSE>::
-+
---
-If TRUE then use text logcat rather than binary. This option only has an
-effect on
-Logcat interfaces. This have no effect from Lollipop where is no binary Logcat
-available.
-
-Defaults to FALSE.
---
-
---bt-server-tcp-port=<TCP port>::
-+
---
-Use other than default Bluetooth server TCP port on Android side.
-On Lollipop defaults is 8872, earlier 4330.
---
-
 --bt-forward-socket=<TRUE or FALSE>::
 +
 --
@@ -160,6 +142,24 @@ Use other than default (127.0.0.1) IP address on host side for forwarded socket.
 
 --bt-local-tcp-port=<TCP port>::
 Specify port to be used on host side for forwarded socket.
+
+--bt-server-tcp-port=<TCP port>::
++
+--
+Use other than default Bluetooth server TCP port on Android side.
+On Lollipop defaults is 8872, earlier 4330.
+--
+
+--logcat-text=<TRUE or FALSE>::
++
+--
+If TRUE then use text logcat rather than binary. This option only has an
+effect on
+Logcat interfaces. This have no effect from Lollipop where is no binary Logcat
+available.
+
+Defaults to FALSE.
+--
 
 == EXAMPLES
 
