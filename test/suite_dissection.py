@@ -103436,3 +103436,118 @@ class TestDissectNcp:
         assert [r[0] for r in rows] == ['190', '191', '192', '193']
         assert rows[0][1] == 'C File Set Lock'
         assert rows[3][1].startswith('Burst Read 4096 bytes')
+
+
+class TestDissectNcpNmas:
+    '''Novell Modular Authentication Service (NMAS, NCP function 0x5e) from
+    the synthetic capture ncp_nmas_coverage.pcap.gz: NCP over UDP 524 with
+    ping, abort, fragment requests for every sub verb (put and get data,
+    credentials, login store management, writable object check, message
+    handler with every message verb) and their replies, and error return
+    codes. Frames 1-8 ping and abort, 9-10 a fragment with a handle, 11-20
+    fragmented ping, put data, get data and credentials, 21-44 login store,
+    45-50 writable object check, 51-76 message handler, 77-96 an unknown sub
+    verb, a continuation fragment and error replies.'''
+
+    @staticmethod
+    def find_key(obj, key):
+        if isinstance(obj, dict):
+            for k, v in obj.items():
+                if k == key:
+                    yield v
+                else:
+                    yield from TestDissectNcpNmas.find_key(v, key)
+        elif isinstance(obj, list):
+            for v in obj:
+                yield from TestDissectNcpNmas.find_key(v, key)
+
+    def test_ncp_nmas_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NMAS, none is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 96
+        assert protocols.count('NMAS') == 96
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ncp_nmas_verb_is_32_bit(self, cmd_tshark, capture_file, test_env):
+        '''The generated sub verb of a reply is 32 bits wide: the message
+        handler verb 1242 (0x4da) used to be cut to 8 bits, and the reply
+        buffer size of a login store request is a 4 byte item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Y', 'frame.number in {52, 22}',
+                '-Tfields', '-eframe.number', '-enmas.verb',
+            ), encoding='utf-8', env=test_env)
+        rows = dict(l.split('\t') for l in stdout.splitlines())
+        assert rows == {'22': '0x00000008', '52': '0x000004da'}
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Y', 'frame.number == 21', '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env)
+        import json
+        raw = list(self.find_key(json.loads(stdout), 'nmas.buf_size_raw'))
+        assert len(raw) == 1
+        assert raw[0][2] == 4
+
+    def test_ncp_nmas_info(self, cmd_tshark, capture_file, test_env):
+        '''Request and reply info lines: sub verbs, login store verbs,
+        message verbs and the error replies.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,5,13,15,21,45,51,53,61,63,66,68,73,77,82,94,96}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'C NMAS - Ping'
+        assert info['5'] == 'C NMAS - Abort'
+        assert info['13'] == 'C NMAS - Fragment, Fragmented Ping'
+        assert info['15'] == 'C NMAS - Fragment, Client Put Data'
+        assert info['21'] == 'C NMAS - Fragment, Login Store Management, Put Login Configuration'
+        assert info['45'] == 'C NMAS - Fragment, Writable Object Check'
+        assert info['51'] == 'C NMAS - Fragment, Message Handler, Echo Data'
+        assert info['53'] == 'C NMAS - Fragment, Message Handler, Start Session'
+        assert info['61'] == 'C NMAS - Fragment, Message Handler, Client Write Data'
+        assert info['63'] == 'C NMAS - Fragment, Message Handler, Client Read Data'
+        assert info['66'] == 'R Payload Error - (-1642) LOGIN FAILED'
+        assert info['68'] == 'R Payload Error - (-1693) MECHANISM NOT FOUND'
+        assert info['73'] == 'C NMAS - Fragment, Message Handler, Client Write Data'
+        assert info['77'] == 'C NMAS - Fragment, Unknown subverb (12)'
+        assert info['82'] == 'R Error - (-1638) NOT FOUND'
+        assert info['94'] == 'R Error - (-1632) BAD REQUEST SYNTAX'
+        assert info['96'] == 'R Unknown NMAS Error - 0x12345678'
+
+    def test_ncp_nmas_fields(self, cmd_tshark, capture_file, test_env):
+        '''Strings of the writable object check and the start session
+        attributes, and the numbers in the replies.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Y', 'frame.number in {45,47,49,53}',
+                '-Tfields', '-eframe.number', '-enmas.tree', '-enmas.user',
+                '-enmas.clearance', '-enmas.login_seq',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['45'] == ['ACME_TREE', 'cn=admin.o=acme', '', '']
+        assert rows['47'][0] == 'tr.ee'
+        assert rows['49'] == ['<Not Specified>', 'user', '', '']
+        assert rows['53'] == ['TREE', 'admin', 'clr', 'seq']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_nmas_coverage.pcap.gz'),
+                '-Y', 'frame.number in {16,20,54}',
+                '-Tfields', '-eframe.number', '-enmas.squeue_bytes',
+                '-enmas.cqueue_bytes', '-enmas.num_creds', '-enmas.cred_type',
+                '-enmas.login_state', '-enmas.session_ident',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['16'] == ['1500', '0', '', '', '', '']
+        assert rows['20'] == ['', '', '1', '2', '3', '']
+        assert rows['54'][5] == '0xdeadbeef'
