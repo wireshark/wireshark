@@ -103551,3 +103551,115 @@ class TestDissectNcpNmas:
         assert rows['16'] == ['1500', '0', '', '', '', '']
         assert rows['20'] == ['', '', '1', '2', '3', '']
         assert rows['54'][5] == '0xdeadbeef'
+
+
+class TestDissectNcpSss:
+    '''Novell SecretStore Services (NSSS, NCP function 0x5c) from the
+    synthetic capture ncp_sss_coverage.pcap.gz: NCP over UDP 524 with ping,
+    abort, continuation fragments, a message for every SecretStore verb,
+    strings, flags and error return codes, each request followed by its
+    reply. Frames 1-14 ping, abort and fragments, 15-44 every verb (the
+    reply to the enumerate request, frame 28, lists the secret ids), 45-64
+    string forms, 65-74 flags, 75-82 return codes.'''
+
+    def test_ncp_sss_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NSSS, none is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 82
+        assert protocols.count('NSSS') == 82
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ncp_sss_verbs(self, cmd_tshark, capture_file, test_env):
+        '''The info column names the verb of a request, a reply takes the
+        verb of its request (generated item), and the verb 6 reply lists
+        the secret ids.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,9,15,17,19,25,27,33,35,37,39,41}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'C SecretStore - Ping Server'
+        assert info['9'] == 'C SecretStore - fragment'
+        assert info['15'] == 'C SecretStore - Fragment, Query Server'
+        assert info['17'] == 'C SecretStore - Fragment, Read App Secrets'
+        assert info['19'] == 'C SecretStore - Fragment, Write App Secrets'
+        assert info['25'] == 'C SecretStore - Fragment, Remove SecretStore'
+        assert info['27'] == 'C SecretStore - Fragment, Enumerate Secret IDs'
+        assert info['33'] == 'C SecretStore - Fragment, Unlock Store'
+        assert info['35'] == 'C SecretStore - Fragment, Set Master Password'
+        assert info['37'] == 'C SecretStore - Fragment, Get Service Information'
+        assert info['39'] == 'C SecretStore - Fragment, Unknown (16)'
+        assert info['41'] == 'C SecretStore - Fragment, Fragment'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {28, 30, 34, 40}',
+                '-Tfields', '-eframe.number', '-esss.verb', '-esss.secret',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['28'] == ['0x00000006', 'id-one,id-two,id-three']
+        assert rows['30'] == ['0x00000006', 'ab']
+        assert rows['34'] == ['0x00000007', '']
+        assert rows['40'] == ['', '']
+
+    def test_ncp_sss_strings(self, cmd_tshark, capture_file, test_env):
+        '''User and secret id strings: plain, with a non-printable byte
+        or NUL padding (shown as dots or skipped), and empty.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15,17,45,47,55,57}',
+                '-Tfields', '-eframe.number', '-esss.user', '-esss.secret',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['15'] == ['cn=alice.o=acme', '']
+        assert rows['17'] == ['cn=alice.o=acme', 'app-secret-id']
+        assert rows['45'] == ['', '']
+        assert rows['47'] == ['u.s.er', '']
+        assert rows['55'] == ['<Not Specified>', '']
+        assert rows['57'] == ['cn=carol.o=acme', '<Not Specified>']
+
+    def test_ncp_sss_flags(self, cmd_tshark, capture_file, test_env):
+        '''The flag bits of the message are in the flags tree: every bit
+        for 0xffffffff, only the set ones otherwise.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'sss.bit1 && sss.bit16 && sss.bit32',
+                '-Tfields', '-eframe.number', '-esss.flags',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['65', '0xffffffff']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'frame.number in {67,69,71,73}',
+                '-Tfields', '-eframe.number', '-esss.flags',
+                '-esss.bit9', '-esss.bit16', '-esss.bit32',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['67'] == ['0x00000000', '', '', '']
+        assert rows['69'] == ['0x00000100', 'True', '', '']
+        assert rows['71'] == ['0x00008000', '', 'True', '']
+        assert rows['73'] == ['0x80000000', '', '', 'True']
+
+    def test_ncp_sss_return_codes(self, cmd_tshark, capture_file, test_env):
+        '''Known error codes are expert infos in the info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncp_sss_coverage.pcap.gz'),
+                '-Y', 'sss.return_code != 0',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows == [
+            ['76', 'R Error - (-800) Target object could not be found'],
+            ['78', 'R Error - (-801) NICI operations have failed'],
+            ['80', 'R Error - (-816) Length of the enumeration buffer is too short'],
+        ]
