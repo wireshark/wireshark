@@ -108542,3 +108542,56 @@ class TestDissectNrRrc:
                 '-Tfields', '-eframe.number', '-enr-rrc.absolute_time',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['26\t', '27\t26-01-01 12:00:00']
+
+
+class TestDissectNsCertExts:
+    CAP = 'ns_cert_exts_coverage.pcap.gz'
+
+    def test_ns_cert_exts_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 5 certificates decode, in one and two passes, without a
+        malformed packet or expert info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ns_cert_exts_urls(self, cmd_tshark, capture_file, test_env):
+        '''The URL, server name and comment extensions of frame 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1', '-Tfields',
+                '-ens_cert_exts.BaseUrl', '-ens_cert_exts.RevocationUrl',
+                '-ens_cert_exts.CaRevocationUrl', '-ens_cert_exts.CertRenewalUrl',
+                '-ens_cert_exts.CaPolicyUrl', '-ens_cert_exts.SslServerName',
+                '-ens_cert_exts.Comment',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            'https://base.example.test/', 'https://ca.example.test/revoke?',
+            'https://ca.example.test/ca-revoke?', 'https://ca.example.test/renew?',
+            'https://ca.example.test/policy.html', 'www.example.test',
+            'Synthetic certificate, test only']
+
+    def test_ns_cert_exts_cert_type(self, cmd_tshark, capture_file, test_env):
+        '''The certificate type bits: ssl-client and smime (frame 1),
+        all (frame 2), none (frame 3), the CA bits (frame 5).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ns_cert_exts.CertType',
+                '-Tfields', '-eframe.number', '-ens_cert_exts.CertType',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split() for l in stdout.splitlines()] == [
+            ['1', 'a0'], ['2', 'ff'], ['3', '00'], ['5', '06']]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ns.cert.exts.CertType.ssl.ca == 1 && ns.cert.exts.CertType.smime.ca == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['2', '5']
