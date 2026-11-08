@@ -135,6 +135,9 @@ enum nvme_tcp_digest_option {
 
 struct nvme_tcp_q_ctx {
     struct nvme_q_ctx n_q_ctx;
+    /* H2CData requests, keyed [frame][cid]; kept apart from
+     * n_q_ctx.data_requests (keyed SGL descriptors, other key shape) */
+    wmem_tree_t *h2c_requests;
 };
 
 struct nvme_tcp_cmd_ctx {
@@ -483,7 +486,7 @@ static void nvme_tcp_build_cmd_key(uint32_t *frame_num, uint32_t *cmd_id, wmem_t
     key[2].length = 0;
 }
 
-static void nvme_tcp_add_data_request(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
+static void nvme_tcp_add_data_request(packet_info *pinfo, struct nvme_tcp_q_ctx *q_ctx,
         struct nvme_tcp_cmd_ctx *cmd_ctx, uint16_t cmd_id)
 {
     wmem_tree_key_t cmd_key[3];
@@ -492,18 +495,18 @@ static void nvme_tcp_add_data_request(packet_info *pinfo, struct nvme_q_ctx *q_c
     nvme_tcp_build_cmd_key(&pinfo->num, &cmd_id_key, cmd_key);
     cmd_ctx->n_cmd_ctx.data_req_pkt_num = pinfo->num;
     cmd_ctx->n_cmd_ctx.data_tr_pkt_num[0] = 0;
-    wmem_tree_insert32_array(q_ctx->data_requests, cmd_key, (void *)cmd_ctx);
+    wmem_tree_insert32_array(q_ctx->h2c_requests, cmd_key, (void *)cmd_ctx);
 }
 
 static struct nvme_tcp_cmd_ctx* nvme_tcp_lookup_data_request(packet_info *pinfo,
-        struct nvme_q_ctx *q_ctx,
+        struct nvme_tcp_q_ctx *q_ctx,
         uint16_t cmd_id)
 {
     wmem_tree_key_t cmd_key[3];
     uint32_t cmd_id_key = cmd_id;
 
     nvme_tcp_build_cmd_key(&pinfo->num, &cmd_id_key, cmd_key);
-    return (struct nvme_tcp_cmd_ctx*)wmem_tree_lookup32_array(q_ctx->data_requests, cmd_key);
+    return (struct nvme_tcp_cmd_ctx*)wmem_tree_lookup32_array(q_ctx->h2c_requests, cmd_key);
 }
 
 static void
@@ -536,9 +539,9 @@ dissect_nvme_tcp_h2c_data(tvbuff_t *tvb,
 
         /* Fill this for "adding data request call,
          * this will be the key to fetch data request later */
-        nvme_tcp_add_data_request(pinfo, &queue->n_q_ctx, cmd_ctx, cmd_id);
+        nvme_tcp_add_data_request(pinfo, queue, cmd_ctx, cmd_id);
     } else {
-        cmd_ctx = nvme_tcp_lookup_data_request(pinfo, &queue->n_q_ctx, cmd_id);
+        cmd_ctx = nvme_tcp_lookup_data_request(pinfo, queue, cmd_id);
         if (!cmd_ctx) {
             proto_tree_add_item(root_tree, hf_nvme_tcp_unknown_data, tvb, offset + 16,
                         data_length, ENC_NA);
@@ -645,7 +648,7 @@ dissect_nvme_tcp_c2htermreq(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    proto_tree_add_item(tree, hf_nvme_tcp_c2htermreq_fes, tvb, offset + 8, 2,
+    proto_tree_add_item(c2htermreq_tree, hf_nvme_tcp_c2htermreq_fes, tvb, offset + 8, 2,
                         ENC_LITTLE_ENDIAN);
     fes = tvb_get_uint16(tvb, offset + 8, ENC_LITTLE_ENDIAN);
     switch (fes) {
@@ -788,7 +791,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
         q_ctx = wmem_new0(wmem_file_scope(), struct nvme_tcp_q_ctx);
         q_ctx->n_q_ctx.pending_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.done_cmds = wmem_tree_new(wmem_file_scope());
-        q_ctx->n_q_ctx.data_requests = wmem_tree_new(wmem_file_scope());
+        q_ctx->h2c_requests = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.data_responses = wmem_tree_new(wmem_file_scope());
         /* Initially set to non-0 so that by default queues are io queues
          * this is required to be able to dissect correctly even
