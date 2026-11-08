@@ -286,8 +286,24 @@ The following features are either new or have been significantly updated since v
   in effect (`ax25.param.*`) are resolved from XID, a new station table
   (`ax25_stations` UAT) and the new `ax25.t1`, `ax25.t3`, `ax25.n2`,
   `ax25.n1`, `ax25.k`, `ax25.k_mod8_default` and `ax25.tr210` preferences.
+  The reject mode in effect (`ax25.param.reject`) comes from XID, an FRMR
+  answering XID or the version, and SREJ frames are checked against it;
+  the further N(R)s of a multi-SREJ are decoded (`ax25.srej.*`).
   Segments (PID 0x08) are decoded (`ax25.seg.*`) and checked, without
   reassembly. UI frames with the P/F bit set now carry their PID and payload.
+
+* The AX.25 dissector analyzes the sequence numbers of connected-mode streams,
+  like TCP does (`ax25.analysis.*`): retransmissions and what caused them
+  (REJ, SREJ, a poll answer, T1), spurious retransmissions, out-of-order I
+  frames and I frames not captured, keep-alives (T3 polls and T1 enquiries)
+  and their answers, duplicate acknowledgements, and busy conditions (RNR)
+  and how they end. Captures in which only one station is heard are taken
+  into account. A frame repeated as is, as a T1 retry or the local echo of a
+  KISS modem, is shown as a retransmission and changes nothing. The new `ax25.analyze_sequence_numbers`,
+  `ax25.flag_anomalous_resume` and `ax25.flag_unpolled_busy` preferences
+  control it. With the new `ax25.no_subdissector_on_error` preference, the
+  I field of retransmitted and out-of-order I frames isn't handed to the
+  dissector of its PID, as with `tcp.no_subdissector_on_error`.
 
 * The Help menu entries Website and Wiki now show the Wireshark application icon on
   Linux and Windows, and Ask (Q&A) no longer has an icon.

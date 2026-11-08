@@ -8369,8 +8369,15 @@ AX25_CAPTURES = (
     'ax25_dm.pcap.gz', 'ax25_frmr.pcap.gz', 'ax25_xid.pcap.gz',
     'ax25_segments.pcap.gz', 'ax25_pre20.pcap.gz', 'ax25_digi_dup.pcap.gz',
     'ax25_t3_gap.pcap.gz', 'ax25_midsession.pcap.gz', 'ax25_kiss_ports.pcap.gz',
-    'ax25_interfaces.pcapng.gz',
+    'ax25_interfaces.pcapng.gz', 'ax25_srej.pcap.gz', 'ax25_seq_mod8.pcap.gz',
+    'ax25_seq_mod128.pcap.gz', 'ax25_seq_one_sided.pcap.gz', 'ax25_repeat.pcap.gz',
 )
+# Captures with error expert infos on purpose, and the frames that have one.
+# The ax25_srej*.pcap.gz captures and those after them are made by
+# util_ax25_captures.py, which has their hex source.
+AX25_CAPTURES_WITH_ERRORS = {
+    'ax25_srej_errors.pcap.gz': [7, 15],
+}
 
 
 class TestDissectAx25Link:
@@ -8400,6 +8407,19 @@ class TestDissectAx25Link:
             assert outputs[0] == outputs[1], capture
             assert self.matching(cmd_tshark, capture_file, test_env, capture,
                                  '_ws.malformed || _ws.expert.severity == error') == [], capture
+
+    def test_ax25_two_pass_identical_with_errors(self, cmd_tshark, capture_file, test_env):
+        '''As test_ax25_two_pass_identical, for the captures that have error
+        expert infos on purpose: only those, in the frames expected.'''
+        for capture, errors in AX25_CAPTURES_WITH_ERRORS.items():
+            outputs = [subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file(capture), '-V',
+                ), encoding='utf-8', env=test_env) for opts in ((), ('-2',))]
+            assert outputs[0] == outputs[1], capture
+            assert self.matching(cmd_tshark, capture_file, test_env, capture,
+                                 '_ws.malformed') == [], capture
+            assert self.matching(cmd_tshark, capture_file, test_env, capture,
+                                 '_ws.expert.severity == error') == errors, capture
 
     def test_ax25_sabme_mod128(self, cmd_tshark, capture_file, test_env):
         '''SABME and UA set modulo 128 from the UA on; two-octet control
@@ -8553,8 +8573,13 @@ class TestDissectAx25Link:
         # frames doesn't use up a stream index
         assert m('ax25.stream') == list(range(1, 16)) + list(range(21, 26))
         assert m('ax25.stream == 2') == [21, 22]
-        # A retransmitted segment isn't a new one
-        assert 7 not in m('_ws.expert')
+        # A retransmitted segment isn't a new one: the segment checks don't
+        # flag it, and the sequence analysis sees the retransmission
+        assert 7 not in self.matching(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz',
+                                      '_ws.expert',
+                                      opts=('-o', 'ax25.analyze_sequence_numbers:FALSE'))
+        assert 7 not in m('_ws.expert && !ax25.analysis.retransmission')
+        assert 7 in m('ax25.analysis.retransmission')
         # TR210 from the preference
         assert self.matching(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz',
                              'ax25.seg.tr210', opts=('-o', 'ax25.tr210:200')) == []
@@ -8647,6 +8672,298 @@ class TestDissectAx25Link:
                             'ax25.param.k', 'ax25.param.k.source',
                             opts=('-o', 'ax25.k_mod8_default:4'))
         assert f[4] == ['4', '0']
+
+    def test_ax25_seq_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''Retransmissions refer to the first frame with that N(S), and say
+        why: REJ (go-back-N), SREJ, a poll answered with F=1, T1, or
+        unexplained. A digipeated copy is not one; an acknowledged frame
+        sent again is a spurious one.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz', dfilter)
+        assert m('ax25.analysis.retransmission') == [11, 12, 20, 22, 33, 39, 94, 107]
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                            'ax25.analysis.retransmission_reason',
+                            'ax25.analysis.retransmitted_frame', 'ax25.analysis.prompt_frame')
+        assert f[11] == ['1', '8', '10']    # REJ
+        assert f[12] == ['1', '9', '10']    # REJ, go-back-N
+        assert f[33] == ['2', '29', '32']   # SREJ
+        assert f[39] == ['3', '36', '38']   # poll answered (F=1)
+        assert f[20] == ['4', '19', '']     # T1: 6 s later
+        assert f[22] == ['5', '21', '']     # unexplained: 1 s later
+        assert m('ax25.analysis.payload_differs') == [22]
+        assert m('ax25.analysis.spurious_retransmission') == [107]
+        assert m('ax25.analysis.acked_frame == 106') == [107]
+        assert m('_ws.col.info contains "[AX.25 Retransmission]"') == [11, 12, 20, 22, 33, 39, 94]
+        assert m('_ws.col.info contains "[AX.25 Spurious Retransmission]"') == [107]
+        # The digipeated copy (7) is not analysed; the wrap 7 -> 0 (17) is new
+        assert m('ax25.link.dup_of == 6') == [7]
+        assert 7 not in m('ax25.analysis')
+        assert 17 not in m('ax25.analysis')
+        assert m('_ws.expert.group == "Sequence" && ax25.analysis') == m('ax25.analysis')
+
+    def test_ax25_seq_window_mod8(self, cmd_tshark, capture_file, test_env):
+        '''Modulo 8, k=7, last N(S) 7 so V(S)=0, then N(S)=6: with V(A) in
+        1..6 a retransmission, V(A)=7 a spurious one, V(A)=0 a new frame
+        after 0-5 not captured. Without V(A), the I field decides, as a
+        guess. Never out of order, as slot 6 was seen.'''
+        def m(capture, dfilter, opts=()):
+            return self.matching(cmd_tshark, capture_file, test_env, capture, dfilter, opts=opts)
+        assert 94 in m('ax25_seq_mod8.pcap.gz', 'ax25.analysis.retransmission && !ax25.analysis.spurious_retransmission')
+        assert 107 in m('ax25_seq_mod8.pcap.gz', 'ax25.analysis.spurious_retransmission')
+        assert m('ax25_seq_mod8.pcap.gz', 'ax25.analysis.lost_frame') == [41, 120]
+        assert m('ax25_seq_mod8.pcap.gz', 'ax25.analysis.ambiguous') == []
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                            '_ws.expert.message', opts=('-Y', 'frame.number == 120'))
+        assert 'N(S)=0 to 5 (6 frames)' in f[120][0]
+        link1 = 'frame.number <= 19 && '
+        assert m('ax25_seq_one_sided.pcap.gz', link1 + 'ax25.analysis.retransmission') == [10]
+        assert m('ax25_seq_one_sided.pcap.gz', link1 + 'ax25.analysis.lost_frame') == [11]
+        assert m('ax25_seq_one_sided.pcap.gz', 'ax25.analysis.ambiguous') == [10, 11, 12]
+        for capture in ('ax25_seq_mod8.pcap.gz', 'ax25_seq_one_sided.pcap.gz'):
+            assert 94 not in m(capture, 'ax25.analysis.out_of_order')
+            assert 10 not in m(capture, 'ax25.analysis.out_of_order')
+
+    def test_ax25_seq_window_mod128(self, cmd_tshark, capture_file, test_env):
+        '''The same in modulo 128 with k=127 (notified by XID), around the
+        127 -> 0 wrap. One-sided, k decides whether N(S)=126 after V(S)=0
+        can be new at all.'''
+        def m(capture, dfilter, opts=()):
+            return self.matching(cmd_tshark, capture_file, test_env, capture, dfilter, opts=opts)
+        assert m('ax25_seq_mod128.pcap.gz', 'ax25.analysis') == [12, 25, 37]
+        assert m('ax25_seq_mod128.pcap.gz', 'ax25.analysis.retransmitted_frame == 9') == [12]
+        assert m('ax25_seq_mod128.pcap.gz', 'ax25.analysis.spurious_retransmission && ax25.analysis.acked_frame == 24') == [25]
+        assert m('ax25_seq_mod128.pcap.gz', 'ax25.analysis.lost_frame') == [37]
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod128.pcap.gz',
+                            '_ws.expert.message', opts=('-Y', 'frame.number == 37'))
+        assert 'N(S)=0 to 125 (126 frames)' in f[37][0]
+        # Default k (32): only an old frame fits
+        assert m('ax25_seq_one_sided.pcap.gz', 'ax25.analysis.retransmission') == [10, 28, 29]
+        assert m('ax25_seq_one_sided.pcap.gz', 'ax25.analysis.payload_differs') == [29]
+        k127 = ('-o', 'ax25.k:127')
+        assert m('ax25_seq_one_sided.pcap.gz', 'ax25.analysis.retransmission && ax25.analysis.ambiguous', k127) == [10, 28]
+        assert m('ax25_seq_one_sided.pcap.gz', 'ax25.analysis.lost_frame && ax25.analysis.ambiguous', k127) == [11, 29]
+
+    def test_ax25_seq_out_of_order(self, cmd_tshark, capture_file, test_env):
+        '''N(S) ahead of V(S): previous frame not captured. The missing
+        frame showing up after that, without a prompt, is out of order.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz', dfilter)
+        assert m('ax25.analysis.out_of_order') == [42]
+        assert m('_ws.col.info contains "[AX.25 Out-Of-Order]"') == [42]
+        assert m('_ws.col.info contains "[AX.25 Previous frame not captured]"') == [41, 120]
+        assert m('_ws.expert.severity == warning && ax25.analysis.out_of_order') == [42]
+
+    def test_ax25_seq_keep_alive(self, cmd_tshark, capture_file, test_env):
+        '''RR/RNR command, P=1, N(R) unchanged, no new I frame since: a T1
+        enquiry with I frames outstanding, else a T3 poll. The F=1 answer
+        is a keep-alive ACK; a repeated RR response is a duplicate ACK.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                            'ax25.analysis.keep_alive_reason', 'ax25.analysis.idle',
+                            'ax25.analysis.keep_alive_frame', 'ax25.analysis.duplicate_ack_frame',
+                            'ax25.analysis.duplicate_ack_num',
+                            opts=('-Y', 'ax25.analysis.keep_alive || ax25.analysis.keep_alive_ack'
+                                  ' || ax25.analysis.duplicate_ack'))
+        assert sorted(f) == [37, 38, 44, 45, 46, 47, 54, 55, 56, 57, 80, 81]
+        assert f[37][0:2] == ['1', '3.500000000']   # T1 enquiry
+        assert f[46][0:2] == ['0', '310.000000000']  # T3 poll
+        assert [f[n][2] for n in (38, 47, 55, 57, 81)] == ['37', '46', '54', '56', '80']
+        assert f[44][3:5] == ['43', '1']
+        assert f[45][3:5] == ['43', '2']
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz', dfilter)
+        assert m('_ws.col.info contains "[AX.25 Dup ACK 43#2]"') == [45]
+        assert m('_ws.col.info contains "[AX.25 Keep-Alive]"') == [37, 46, 54, 56, 80]
+        assert m('_ws.col.info contains "[AX.25 Keep-Alive ACK]"') == [38, 47, 55, 57, 81]
+
+    def test_ax25_seq_busy(self, cmd_tshark, capture_file, test_env):
+        '''RR or REJ after an RNR from the same side clears the busy
+        condition: as a poll response or unsolicited, anomalous if N(R)
+        changed (higher or lower). An RNR repeated is flagged, a SABM ends
+        the busy condition silently, and a busy side not polled within
+        T3 + N2 x T1 is flagged.'''
+        def m(dfilter, opts=()):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                                 dfilter, opts=opts)
+        assert m('ax25.analysis.resume') == [57, 60, 64, 68, 81]
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                            'ax25.analysis.resume_type', 'ax25.analysis.poll_frame',
+                            'ax25.analysis.rnr_frame', 'ax25.analysis.time_since_rnr',
+                            opts=('-Y', 'ax25.analysis.resume'))
+        assert f[57] == ['2', '56', '52', '9.500000000']    # poll response
+        assert f[60] == ['1', '', '59', '2.000000000']      # unsolicited
+        assert f[81][:3] == ['2', '80', '76']
+        assert m('ax25.analysis.resume_anomalous') == [64, 68]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_seq_mod8.pcap.gz'), '-Y', 'ax25.analysis.resume_anomalous',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env).splitlines()
+        assert 'N(R)=4, above N(R)=3' in stdout[0]
+        assert 'N(R)=4, below N(R)=5' in stdout[1]
+        assert m('_ws.col.info contains "[AX.25 Anomalous Resume]"') == [64, 68]
+        assert m('_ws.col.info contains "[AX.25 Resume]"') == [57, 60, 81]
+        assert m('ax25.analysis.busy_repeated') == [53, 55, 77, 78, 79]
+        assert 72 not in m('ax25.analysis')                 # after SABM/UA
+        assert m('ax25.analysis.busy_unpolled') == [80]
+        # Preferences
+        off = ('-o', 'ax25.flag_anomalous_resume:FALSE')
+        assert m('ax25.analysis.resume_anomalous', off) == []
+        assert m('ax25.analysis.resume', off) == [57, 60, 64, 68, 81]
+        assert m('ax25.analysis.busy_unpolled', ('-o', 'ax25.flag_unpolled_busy:FALSE')) == []
+        # A repeated RNR whose N(R) moved is flagged; the RR or REJ ending
+        # that busy condition isn't classified (ax25_coverage.pcap.gz)
+        assert self.matching(cmd_tshark, capture_file, test_env, 'ax25_coverage.pcap.gz',
+                             'ax25.analysis.busy_nr_changed') == [18, 19]
+        assert self.matching(cmd_tshark, capture_file, test_env, 'ax25_coverage.pcap.gz',
+                             'ax25.analysis.resume') == []
+
+    def test_ax25_seq_one_sided(self, cmd_tshark, capture_file, test_env):
+        '''Only one station heard: nothing that needs the other side
+        (spurious retransmission, prompts, keep-alive ACK, a busy side not
+        polled) is flagged; what one direction tells is.'''
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_one_sided.pcap.gz', dfilter)
+        assert m('ax25.analysis.spurious_retransmission || ax25.analysis.prompt_frame'
+                 ' || ax25.analysis.keep_alive_ack || ax25.analysis.busy_unpolled'
+                 ' || ax25.analysis.resume_type == 2') == []
+        assert m('ax25.analysis.keep_alive && ax25.analysis.keep_alive_reason == 1') == [12]
+        assert m('ax25.analysis.busy_repeated') == [14, 15, 16]
+        assert m('ax25.analysis.resume && ax25.analysis.resume_type == 1') == [17]
+        assert m('ax25.analysis.duplicate_ack') == [19]
+
+    def test_ax25_seq_analysis_off(self, cmd_tshark, capture_file, test_env):
+        '''With ax25.analyze_sequence_numbers off nothing of it is left, in
+        the tree or the Info column.'''
+        off = ('-o', 'ax25.analyze_sequence_numbers:FALSE')
+        for capture in AX25_CAPTURES + ('ax25_coverage.pcap.gz', 'ax25_srej_errors.pcap.gz'):
+            assert self.matching(cmd_tshark, capture_file, test_env, capture,
+                                 'ax25.analysis || _ws.col.info contains "[AX.25 "',
+                                 opts=off) == [], capture
+
+    def test_ax25_no_subdissector_on_error(self, cmd_tshark, capture_file, test_env):
+        '''With ax25.no_subdissector_on_error, the I field of retransmitted
+        (spurious included) and out-of-order I frames goes to the data
+        dissector, with an expert note, instead of the PID dissector (No L3
+        for PID 0xF0, which itself shows the text as data). Other frames,
+        digipeated copies (frame 7) and UI frames are unchanged, and the
+        output is the same with -2.'''
+        on = ('-o', 'ax25.no_subdissector_on_error:TRUE')
+        errors = [11, 12, 20, 22, 33, 39, 42, 94, 107]
+        for opts, skipped in (((), []), (on, errors)):
+            f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                                'frame.protocols', 'data.data', 'ax25.analysis.no_subdissector',
+                                opts=opts + ('-Y', 'ax25.ctl.ftype_i == 0'))
+            assert sorted(n for n in f if f[n][0] == 'ax25:data') == skipped, opts
+            assert sorted(n for n in f if f[n][2]) == skipped, opts
+            assert all(f[n][0] == 'ax25:ax25_nol3:data' for n in f if n not in skipped), opts
+            assert all(f[n][1] for n in f), opts     # the text is data either way
+        assert 7 in f
+        stdout = subprocess.check_output((cmd_tshark, *on,
+                '-r', capture_file('ax25_seq_mod8.pcap.gz'), '-Y', 'frame.number == 107',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'not handed to the PID dissector: spurious retransmission' in stdout
+        # PID 0x08 too: the retransmitted segment isn't decoded as one
+        def m(dfilter, opts):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_segments.pcap.gz',
+                                 dfilter, opts=opts)
+        assert 7 in m('ax25.seg', ())
+        assert 7 not in m('ax25.seg', on)
+        assert m('ax25.seg', on) == [n for n in m('ax25.seg', ()) if n != 7]
+        # Nothing to skip without the analysis
+        assert self.matching(cmd_tshark, capture_file, test_env, 'ax25_seq_mod8.pcap.gz',
+                             'ax25.analysis.no_subdissector',
+                             opts=on + ('-o', 'ax25.analyze_sequence_numbers:FALSE')) == []
+        outputs = [subprocess.check_output((cmd_tshark, *on, *opts,
+                '-r', capture_file('ax25_seq_mod8.pcap.gz'), '-V',
+            ), encoding='utf-8', env=test_env) for opts in ((), ('-2',))]
+        assert outputs[0] == outputs[1]
+
+    def test_ax25_repeat(self, cmd_tshark, capture_file, test_env):
+        '''A U frame, or an S frame with P/F set, that repeats the last
+        frame of the link as is (a T1 retry, or the local echo of a KISS
+        modem) is a retransmission of it and changes nothing: a repeated UA
+        after DISC/UA doesn't start a new stream, with or without the
+        analysis. Not a repeat: an S frame with P/F=0, polls T3 apart, and
+        a response while the other side hasn't been heard.'''
+        for opts in ((), ('-o', 'ax25.analyze_sequence_numbers:FALSE')):
+            f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_repeat.pcap.gz',
+                                'ax25.stream', 'ax25.link.state', opts=opts)
+            assert f[13] == ['0', '4'], opts     # still disconnected, in stream 0
+            assert f[14] == ['1', '1'], opts     # the next SABM starts stream 1
+            assert f[2] == f[1], opts
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_repeat.pcap.gz',
+                            'ax25.analysis.retransmitted_frame', 'ax25.analysis.retransmission_reason',
+                            opts=('-Y', 'ax25.analysis.retransmission'))
+        assert f == {2: ['1', '5'], 7: ['6', '5'], 13: ['12', '5'], 17: ['16', '4']}
+
+        def m(dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, 'ax25_repeat.pcap.gz', dfilter)
+        assert m('ax25.analysis.keep_alive') == [6, 20, 21]
+        assert m('ax25.analysis.keep_alive_frame == 6') == [8]
+        assert m('ax25.analysis.duplicate_ack') == [9, 10]
+        assert m('_ws.col.info contains "[AX.25 Retransmission]"') == [2, 7, 13, 17]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_repeat.pcap.gz'), '-Y', 'frame.number == 13',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'Retransmission of the UA in frame 12, repeated as is' in stdout
+
+    def test_ax25_reject_mode(self, cmd_tshark, capture_file, test_env):
+        '''The reject mode comes from an XID response (the lesser of command
+        and response; multi-SREJ only if both set bit 21; PL=0 is the
+        default), an FRMR answering XID (v2.0), or the version in effect,
+        and carries over to the next stream like the other XID results.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_srej.pcap.gz',
+                            'ax25.param.reject', 'ax25.param.reject.multi',
+                            'ax25.param.reject.source', 'ax25.param.reject.frame')
+        assert f[1] == ['0', '', '0', '']           # nothing seen yet
+        assert f[5] == ['1', '', '1', '2']          # SABM/UA: v2.0, implicit
+        assert f[12] == ['2', 'False', '1', '7']    # SABME/UA: v2.2, selective
+        assert f[15] == ['2', 'True', '3', '15']    # Direwolf: bit 21 alone selects it
+        assert f[24] == ['2', 'True', '3', '15']    # carried over to the SABME's stream
+        assert f[35] == ['0', '', '0', '']          # mid-session: unknown
+        assert f[43] == ['2', 'False', '3', '37']   # PI 3 with PL=0
+        assert f[49] == ['1', '', '2', '45']        # FRMR answering XID
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_srej_errors.pcap.gz',
+                            'ax25.param.reject', 'ax25.param.reject.multi')
+        assert f[7] == ['1', '']                    # REJ and SREJ offered, REJ chosen
+        assert f[15] == ['2', 'False']              # bit 21 offered, not chosen
+
+    def test_ax25_srej_checks(self, cmd_tshark, capture_file, test_env):
+        '''SREJ is checked against the reject mode: an error if XID set the
+        mode, a warning if it is a default; nothing if the mode is unknown.
+        Several single SREJs are fine; one SREJ with more N(R)s needs
+        multi-SREJ, which Direwolf only uses in modulo 128.'''
+        def m(capture, dfilter):
+            return self.matching(cmd_tshark, capture_file, test_env, capture, dfilter)
+        assert m('ax25_srej.pcap.gz', 'ax25.srej.implicit') == [5, 49]
+        assert m('ax25_srej.pcap.gz', 'ax25.srej.multi') == [32]
+        assert m('ax25_srej.pcap.gz', 'ax25.srej.multi.mod8') == [35]
+        assert m('ax25_srej.pcap.gz', 'ax25.srej.implicit.xid || ax25.srej.multi.xid') == []
+        # SABME link, two single SREJs; multi-SREJ negotiated and used; PL=0
+        for n in (12, 13, 24, 25, 43):
+            assert n not in m('ax25_srej.pcap.gz', '_ws.expert'), n
+        assert m('ax25_srej_errors.pcap.gz', 'ax25.srej.implicit.xid') == [7]
+        assert m('ax25_srej_errors.pcap.gz', 'ax25.srej.multi.xid') == [15]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ax25_srej_errors.pcap.gz'), '-Y', 'frame.number == 15',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert 'XID response in frame 9' in stdout
+
+    def test_ax25_srej_data(self, cmd_tshark, capture_file, test_env):
+        '''The further N(R)s of a multi-SREJ, in Direwolf's encoding. A
+        two-octet SREJ doesn't make the modulo 128: it can be a modulo 8
+        multi-SREJ, and stays undecoded while the modulo is assumed.'''
+        f = self.run_fields(cmd_tshark, capture_file, test_env, 'ax25_srej.pcap.gz',
+                            'ax25.srej.data', 'ax25.srej.nr', 'ax25.srej.span_first',
+                            'ax25.srej.span_last', 'ax25.modulo', 'ax25.modulo.source')
+        assert f[24][:4] == ['06', '3', '', '']
+        assert f[25][:4] == ['070b', '', '3', '5']
+        assert f[33] == ['a0', '', '', '', '8', '0']   # not taken for modulo 128
+        assert f[34][4:] == ['8', '1']
+        assert f[35][:2] == ['c0', '6']
 
 
 # ar_drone_coverage.pcap.gz is synthetic: every packet was generated, to

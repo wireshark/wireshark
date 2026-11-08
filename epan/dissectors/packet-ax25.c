@@ -171,6 +171,43 @@ static int hf_ax25_param_n1_source;
 static int hf_ax25_param_k;
 static int hf_ax25_param_k_source;
 static int hf_ax25_param_xid_frame;
+static int hf_ax25_param_reject;
+static int hf_ax25_param_reject_multi;
+static int hf_ax25_param_reject_source;
+static int hf_ax25_param_reject_frame;
+static int hf_ax25_srej_data;
+static int hf_ax25_srej_nr;
+static int hf_ax25_srej_span_first;
+static int hf_ax25_srej_span_last;
+static int hf_ax25_analysis;
+static int hf_ax25_analysis_flags;
+static int hf_ax25_analysis_retransmission;
+static int hf_ax25_analysis_spurious;
+static int hf_ax25_analysis_retransmitted_frame;
+static int hf_ax25_analysis_rto;
+static int hf_ax25_analysis_reason;
+static int hf_ax25_analysis_prompt_frame;
+static int hf_ax25_analysis_acked_frame;
+static int hf_ax25_analysis_out_of_order;
+static int hf_ax25_analysis_lost_frame;
+static int hf_ax25_analysis_ambiguous;
+static int hf_ax25_analysis_keep_alive;
+static int hf_ax25_analysis_keep_alive_reason;
+static int hf_ax25_analysis_idle;
+static int hf_ax25_analysis_keep_alive_ack;
+static int hf_ax25_analysis_keep_alive_frame;
+static int hf_ax25_analysis_duplicate_ack;
+static int hf_ax25_analysis_duplicate_ack_frame;
+static int hf_ax25_analysis_duplicate_ack_num;
+static int hf_ax25_analysis_resume;
+static int hf_ax25_analysis_resume_anomalous;
+static int hf_ax25_analysis_resume_type;
+static int hf_ax25_analysis_rnr_frame;
+static int hf_ax25_analysis_time_since_rnr;
+static int hf_ax25_analysis_poll_frame;
+static int hf_ax25_analysis_busy_repeated;
+static int hf_ax25_analysis_busy_nr_changed;
+static int hf_ax25_analysis_busy_unpolled;
 static int hf_ax25_xid;
 static int hf_ax25_xidn_command_frame;
 static int hf_ax25_xidn_duplex;
@@ -265,6 +302,25 @@ static expert_field ei_ax25_seg_remaining;
 static expert_field ei_ax25_seg_interleaved;
 static expert_field ei_ax25_seg_too_long;
 static expert_field ei_ax25_seg_tr210;
+static expert_field ei_ax25_srej_implicit_xid;
+static expert_field ei_ax25_srej_implicit;
+static expert_field ei_ax25_srej_multi_xid;
+static expert_field ei_ax25_srej_multi;
+static expert_field ei_ax25_srej_multi_mod8;
+static expert_field ei_ax25_analysis_retransmission;
+static expert_field ei_ax25_analysis_spurious;
+static expert_field ei_ax25_analysis_payload_differs;
+static expert_field ei_ax25_analysis_out_of_order;
+static expert_field ei_ax25_analysis_lost_frame;
+static expert_field ei_ax25_analysis_keep_alive;
+static expert_field ei_ax25_analysis_keep_alive_ack;
+static expert_field ei_ax25_analysis_duplicate_ack;
+static expert_field ei_ax25_analysis_resume;
+static expert_field ei_ax25_analysis_resume_anomalous;
+static expert_field ei_ax25_analysis_busy_repeated;
+static expert_field ei_ax25_analysis_busy_nr_changed;
+static expert_field ei_ax25_analysis_busy_unpolled;
+static expert_field ei_ax25_analysis_no_subdissector;
 
 static const xdlc_cf_items ax25_cf_items = {
 	&hf_ax25_n_r,
@@ -375,6 +431,9 @@ static int ett_ax25_xid_param;
 static int ett_ax25_xid_bits;
 static int ett_ax25_seg;
 static int ett_ax25_xidn;
+static int ett_ax25_srej;
+static int ett_ax25_analysis;
+static int ett_ax25_analysis_flags;
 
 static int * const ax25_xid_cop_fields[] = {
 	&hf_ax25_xid_cop_abm,
@@ -433,6 +492,11 @@ static unsigned ax25_pref_k;
 static unsigned ax25_pref_k_mod8_default = 7;
 /* TR210, next segment timer; the spec gives no value. 0: N2 x T1 of the sender */
 static unsigned ax25_pref_tr210_s;
+/* Sequence number analysis; see "Sequence analysis" below */
+static bool ax25_pref_analyze_seq = true;
+static bool ax25_pref_flag_anomalous_resume = true;
+static bool ax25_pref_flag_unpolled_busy = true;
+static bool ax25_pref_no_subdissector_on_error;
 
 /* pinfo->pool key: the AX.25 snapshot, for the segment dissector */
 #define AX25_PROTO_DATA_SEG_PKT	0x80000002U
@@ -532,6 +596,39 @@ static const value_string ax25_vsrc_vals[] = {
 	{ 0, NULL }
 };
 
+/*
+ * Reject mode in effect (sections 4.3.3.7 and 6.3.2): implicit reject (REJ)
+ * or selective reject (SREJ). It is the same for both directions.
+ */
+typedef enum {
+	AX25_REJMODE_UNKNOWN,
+	AX25_REJMODE_IMPLICIT,
+	AX25_REJMODE_SELECTIVE
+} ax25_rejmode_e;
+
+static const value_string ax25_rejmode_vals[] = {
+	{ AX25_REJMODE_UNKNOWN,		"Unknown" },
+	{ AX25_REJMODE_IMPLICIT,	"Implicit reject (REJ)" },
+	{ AX25_REJMODE_SELECTIVE,	"Selective reject (SREJ)" },
+	{ 0, NULL }
+};
+
+/* Where the reject mode in effect came from, in order of precedence */
+typedef enum {
+	AX25_REJSRC_NONE,	/* nothing known */
+	AX25_REJSRC_VERSION,	/* default of the version in effect; no XID heard */
+	AX25_REJSRC_FRMR,	/* FRMR answering XID: v2.0 defaults (section 6.3.2) */
+	AX25_REJSRC_XID		/* XID response */
+} ax25_rejsrc_e;
+
+static const value_string ax25_rejsrc_vals[] = {
+	{ AX25_REJSRC_NONE,	"unknown (no XID and no version seen)" },
+	{ AX25_REJSRC_VERSION,	"default for the version in effect" },
+	{ AX25_REJSRC_FRMR,	"FRMR answering XID (v2.0 defaults)" },
+	{ AX25_REJSRC_XID,	"XID" },
+	{ 0, NULL }
+};
+
 /* Parameters in effect for a frame, in the direction it was sent */
 typedef struct _ax25_params {
 	ax25_param_t	t1_ms;		/* acknowledgement timer */
@@ -542,6 +639,10 @@ typedef struct _ax25_params {
 	ax25_veff_e	version;
 	ax25_vsrc_e	version_src;
 	uint32_t	version_frame;
+	ax25_rejmode_e	rej;		/* reject mode, for the whole link */
+	bool		rej_multi;	/* multi-SREJ (HDLC optional function bit 21) */
+	ax25_rejsrc_e	rej_src;
+	uint32_t	rej_frame;	/* XID response, FRMR, or the frame that showed the version */
 } ax25_params_t;
 
 /*
@@ -622,6 +723,7 @@ typedef struct _ax25_xid {
 	unsigned	has;		/* AX25_XID_HAS_xxx, and << AX25_XID_DEF_SHIFT for defaults */
 	bool		full_duplex;	/* highest offered */
 	uint8_t		rej;		/* highest offered, AX25_REJ_xxx */
+	bool		srej_multi;	/* SREJ multiframe (bit 21) set, in an explicit PI 3 */
 	uint8_t		modulo;		/* highest offered */
 	bool		segmenter;
 	uint32_t	n1_rx;		/* octets */
@@ -742,6 +844,127 @@ typedef enum {
 	AX25_SEQ_CAPTURE_GAP
 } ax25_seq_expert_e;
 
+/* SREJ checks (section 4.3.3.7, Figure 4.5) */
+#define AX25_SREJF_IMPLICIT	0x01	/* SREJ while implicit reject is in effect */
+#define AX25_SREJF_MULTI	0x02	/* additional N(R)s, multi-SREJ not in effect */
+#define AX25_SREJF_MULTI_MOD8	0x04	/* additional N(R)s in modulo 8 */
+
+/*
+ * Sequence analysis
+ * -----------------
+ * TCP-style analysis (compare tcp.analysis) of the connected-mode stream,
+ * separate from the link state checks above (ax25_seq_expert_e): one
+ * frame can have several of these at once, so they are a bitmask, with
+ * the frames they refer to. They are worked out on the first pass from
+ * what the channel showed so far, per direction (ax25_seqdir_t):
+ * - V(S), the next N(S) the sender should use: highest N(S) seen + 1;
+ * - V(A), the last N(R) heard from the other side (unknown until the other
+ *   side has been heard: one-sided captures are common, and an
+ *   acknowledgement is never assumed);
+ * - the I frames sent, by N(S), to tell a retransmission from a new frame;
+ * - what the other side asked for: REJ, SREJ, or an answer to a poll
+ *   (F=1), after which the sender sets V(S) to N(R) (section 6.4.11);
+ * - busy (RNR, sections 4.3.2.2, 6.4.9 and 6.4.10) and polling.
+ * A U or S frame repeated as is (ax25_find_repeat()) is a retransmission
+ * of the first one and, like a digipeated copy, changes nothing.
+ * The analysis only runs while the link is connected, as sequence numbers
+ * only mean something in the information transfer state (section 6.4);
+ * outside of it the ax25.link.* items already report the frames. Frames
+ * whose C/R isn't known (pre-2.0 encoding) get nothing that depends on
+ * command/response or P/F.
+ */
+#define AX25_ANA_RETRANSMISSION		0x0001
+#define AX25_ANA_SPURIOUS		0x0002	/* retransmission of an acknowledged frame */
+#define AX25_ANA_PAYLOAD_DIFFERS	0x0004	/* retransmission with another I field */
+#define AX25_ANA_OUT_OF_ORDER		0x0008
+#define AX25_ANA_LOST_FRAME		0x0010	/* N(S) ahead of V(S) */
+#define AX25_ANA_AMBIGUOUS		0x0020	/* classified without V(A): a guess */
+#define AX25_ANA_KEEP_ALIVE		0x0040
+#define AX25_ANA_KEEP_ALIVE_ACK		0x0080
+#define AX25_ANA_DUPLICATE_ACK		0x0100
+#define AX25_ANA_RESUME			0x0200	/* busy condition cleared */
+#define AX25_ANA_RESUME_ANOMALOUS	0x0400	/* ... with another N(R) than the RNR */
+#define AX25_ANA_BUSY_REPEATED		0x0800
+#define AX25_ANA_BUSY_NR_CHANGED	0x1000	/* RNR repeated with another N(R) */
+#define AX25_ANA_BUSY_UNPOLLED		0x2000	/* busy peer not polled for T3 + N2 x T1 */
+
+/* What the analysis flags as an error, for no_subdissector_on_error */
+#define AX25_ANA_ERRORS	(AX25_ANA_RETRANSMISSION | AX25_ANA_SPURIOUS | AX25_ANA_OUT_OF_ORDER)
+
+/* Why an I frame was sent again */
+typedef enum {
+	AX25_RTX_NONE,
+	AX25_RTX_REJ,		/* go-back-N from the N(R) of a REJ (sections 4.4.3, 6.4.7) */
+	AX25_RTX_SREJ,		/* sections 4.4.4, 6.4.8 */
+	AX25_RTX_POLL,		/* V(S) set to N(R) after an F=1 response (section 6.4.11) */
+	AX25_RTX_T1,		/* no prompt seen, at least about T1 after the first one */
+	AX25_RTX_UNEXPLAINED
+} ax25_rtx_e;
+
+static const value_string ax25_rtx_vals[] = {
+	{ AX25_RTX_REJ,		"REJ" },
+	{ AX25_RTX_SREJ,	"SREJ" },
+	{ AX25_RTX_POLL,	"poll answered" },
+	{ AX25_RTX_T1,		"T1" },
+	{ AX25_RTX_UNEXPLAINED,	"unexplained" },
+	{ 0, NULL }
+};
+
+/* Keep-alive: which timer sent the poll (sections 4.4.5.2, 6.4.9, 6.4.11) */
+#define AX25_KA_T3	0	/* nothing outstanding: link integrity poll */
+#define AX25_KA_T1	1	/* I frames outstanding: waiting acknowledgement */
+
+static const value_string ax25_ka_vals[] = {
+	{ AX25_KA_T3,	"T3 poll" },
+	{ AX25_KA_T1,	"T1 enquiry" },
+	{ 0, NULL }
+};
+
+/* How a busy condition was cleared */
+#define AX25_RESUME_UNKNOWN	0	/* C/R unknown */
+#define AX25_RESUME_UNSOLICITED	1
+#define AX25_RESUME_POLL	2
+
+static const value_string ax25_resume_vals[] = {
+	{ AX25_RESUME_UNSOLICITED,	"unsolicited" },
+	{ AX25_RESUME_POLL,		"poll response" },
+	{ 0, NULL }
+};
+
+/* Analysis results of one frame (see "Sequence analysis") */
+typedef struct _ax25_ana {
+	uint32_t	flags;		/* AX25_ANA_xxx */
+	uint8_t		vs;		/* V(S) of the sender before this frame */
+	/* AX25_ANA_RETRANSMISSION, AX25_ANA_SPURIOUS, AX25_ANA_OUT_OF_ORDER */
+	uint32_t	orig_frame;	/* the frame first sent with this N(S) (0: not captured) */
+	nstime_t	rto;		/* time since it */
+	uint32_t	orig_len;
+	ax25_rtx_e	reason;
+	uint32_t	prompt_frame;	/* the REJ, SREJ or F=1 response behind it */
+	uint32_t	acked_frame;	/* spurious: the frame whose N(R) acknowledged it */
+	uint8_t		acked_nr;
+	double		t1_s;
+	/* AX25_ANA_LOST_FRAME */
+	uint8_t		lost_count;	/* frames not captured, from vs on */
+	/* AX25_ANA_KEEP_ALIVE, AX25_ANA_KEEP_ALIVE_ACK */
+	uint8_t		ka_reason;	/* AX25_KA_xxx */
+	nstime_t	ka_idle;
+	double		ka_limit_s;	/* T3 or T1 */
+	uint32_t	ka_frame;	/* keep-alive ACK: the poll */
+	/* AX25_ANA_DUPLICATE_ACK */
+	uint32_t	dup_frame;	/* the first acknowledgement with this N(R) */
+	uint32_t	dup_num;
+	/* busy: AX25_ANA_RESUME* and AX25_ANA_BUSY_* */
+	uint32_t	rnr_frame;	/* the RNR that started the busy condition */
+	nstime_t	busy_time;	/* since it */
+	uint8_t		rnr_nr;
+	bool		nr_higher;	/* the N(R) moved forward rather than back */
+	uint8_t		resume_type;	/* AX25_RESUME_xxx */
+	uint32_t	poll_frame;	/* resume: the poll it answers */
+	nstime_t	unpolled_gap;	/* AX25_ANA_BUSY_UNPOLLED: since the RNR or the last poll */
+	double		unpolled_limit_s;
+} ax25_ana_t;
+
 /* C/R encodings seen in one direction */
 #define AX25_ENC_NONE		0
 #define AX25_ENC_PRE20		1
@@ -790,6 +1013,20 @@ typedef struct _ax25_pkt {
 	uint32_t	seg_xid_frame;	/* XID response that didn't negotiate the segmenter */
 	nstime_t	seg_gap;	/* for AX25_SEGF_TR210 */
 	double		seg_tr210_s;
+
+	/* SREJ frames checked against the reject mode in params */
+	unsigned	srej_flags;	/* AX25_SREJF_xxx */
+
+	/* Sequence analysis */
+	ax25_ana_t	ana;
+	/*
+	 * I frames: the I field is new data, in sequence in its direction.
+	 * False for retransmissions, out-of-order frames, the frame right
+	 * after a gap, and while sequence analysis is off. This is what
+	 * reassembly of the I frame stream will consume; nothing else uses
+	 * it yet.
+	 */
+	bool		new_data;
 } ax25_pkt_t;
 
 /* Recent frames on a link, to recognize digipeated copies */
@@ -804,6 +1041,84 @@ typedef struct _ax25_hist {
 	uint8_t		*data;		/* the frame with the H bits cleared */
 	ax25_pkt_t	*pkt;
 } ax25_hist_t;
+
+/*
+ * One N(S) of the I frames sent in a direction. A slot is released when an
+ * N(R) from the other side acknowledges it, and replaced when a new frame
+ * is classified into it. abs tells the frame in it from one a whole
+ * numbering cycle older (see ax25_seqdir_t.vs_abs).
+ */
+typedef struct _ax25_slot {
+	uint32_t	frame;		/* 0: never seen */
+	int64_t		abs;
+	nstime_t	ts;
+	uint32_t	len;		/* I field (PID included), as reported */
+	uint32_t	hash;		/* of the I field, if all of it was captured */
+	bool		hash_ok;
+	bool		released;
+	/* An SREJ from the other side asked for this N(S) */
+	uint32_t	srej_frame;
+	bool		srej_abs_known;
+	int64_t		srej_abs;
+} ax25_slot_t;
+
+/*
+ * Sequence analysis state of one direction (see "Sequence analysis"):
+ * what the side sending in that direction did, and what the other side
+ * said about it.
+ */
+typedef struct _ax25_seqdir {
+	/* V(S): the next N(S) to use. vs_abs counts it without the modulo,
+	 * from an arbitrary start, to tell numbering cycles apart. */
+	bool		vs_valid;
+	uint8_t		vs;
+	int64_t		vs_abs;
+	/* After a UA, V(S) started at 0: nothing below floor_abs was sent */
+	bool		floor_known;
+	int64_t		floor_abs;
+	/* V(A): the last N(R) heard from the other side */
+	bool		va_valid;
+	uint8_t		va;
+	uint32_t	va_frame;
+	/* I frames sent, by N(S); allocated on first use, modulo entries */
+	ax25_slot_t	*slots;
+	uint8_t		slots_modulo;
+	nstime_t	last_i_ts;
+	/* Recovery prompts from the other side: the last REJ, and the last
+	 * F=1 response (V(S) = N(R), section 6.4.11). Until the next new
+	 * I frame. SREJs are kept in the slots. */
+	bool		rej_valid;
+	uint8_t		rej_nr;
+	uint32_t	rej_frame;
+	bool		pa_valid;
+	uint8_t		pa_nr;
+	uint32_t	pa_frame;
+	/* Last command with P=1 from this side, until an F=1 answers it */
+	bool		poll_pending;
+	bool		poll_keep_alive;
+	uint32_t	poll_frame;
+	nstime_t	last_poll_ts;
+	/* Last N(R) this side sent (I or S frame), and whether a new I frame
+	 * from the other side has been seen since: for keep-alive */
+	bool		snr_valid;
+	uint8_t		snr;
+	bool		new_i_since;
+	/* A run of RR responses from this side with the same N(R) */
+	bool		dup_valid;
+	uint8_t		dup_nr;
+	uint32_t	dup_first;
+	uint32_t	dup_count;
+	/* Busy: an RNR from this side is in effect */
+	bool		busy;
+	bool		busy_nr_changed;	/* a repeated RNR moved N(R) */
+	bool		busy_unpolled_flagged;
+	uint8_t		rnr_nr;
+	uint32_t	rnr_frame;
+	nstime_t	rnr_ts;
+	bool		busy_poll_pending;	/* polled by the other side, not answered yet */
+	uint32_t	busy_poll_frame;
+	nstime_t	busy_poll_ts;		/* last poll from the other side, or the RNR */
+} ax25_seqdir_t;
 
 /*
  * Per-link state, kept in the conversation and only touched on the first
@@ -860,6 +1175,17 @@ typedef struct _ax25_conv {
 	ax25_hist_t	hist[AX25_DUP_HISTORY];
 	unsigned	hist_next;
 
+	/* The last frame on the link that wasn't a copy or a repeat of an
+	 * earlier one, to recognize a frame repeated as is (ax25_find_repeat()) */
+	ax25_pkt_t	*rep_pkt;
+	uint32_t	rep_frame;
+	nstime_t	rep_ts;
+	uint8_t		rep_dir;
+	unsigned	rep_reported_len;
+	unsigned	rep_len;		/* captured octets in rep_data */
+	unsigned	rep_size;		/* allocated */
+	uint8_t		*rep_data;
+
 	/* The station sending in each direction, and its station table entry */
 	uint8_t		addr[2][AX25_ADDR_LEN];
 	bool		has_uat[2];
@@ -886,6 +1212,12 @@ typedef struct _ax25_conv {
 	uint8_t		xid_modulo;		/* 0 = not negotiated */
 	bool		xid_segmenter_known;
 	bool		xid_segmenter;
+	/* Reject mode from an XID response or an FRMR answering XID; with
+	 * AX25_REJSRC_NONE, the version in effect decides (ax25_resolve_reject()) */
+	ax25_rejsrc_e	xid_rej_src;
+	ax25_rejmode_e	xid_rej;
+	bool		xid_rej_multi;
+	uint32_t	xid_rej_frame;
 	/* ...and notified by each station about what it can receive */
 	uint32_t	xid_n1_frame[2];	/* PI 6 */
 	bool		xid_n1_default[2];
@@ -907,10 +1239,15 @@ typedef struct _ax25_conv {
 	 * units (section 6.6) would work from.
 	 */
 
+	/* Sequence analysis, per direction */
+	ax25_seqdir_t	seq[2];
+	bool		heard[2];	/* a frame of this stream was sent in that direction */
+
 	/*
-	 * TODO: the N(S)/N(R) tracking here would also support
-	 * retransmission and window analysis (k), and the conversation
-	 * could feed conversation/endpoint tables and Follow Stream.
+	 * TODO: seq[] would also support window (k) and invalid N(R)
+	 * checks; reassembly of the I frame stream can follow
+	 * ax25_pkt_t.new_data. The conversation could feed
+	 * conversation/endpoint tables and Follow Stream.
 	 */
 } ax25_conv_t;
 
@@ -1120,6 +1457,42 @@ ax25_resolve_param(ax25_param_t *out, uint32_t xid_frame, bool xid_default, uint
 }
 
 /*
+ * Reject mode in effect, in order of precedence (sections 4.3.3.7, 6.3.2):
+ * 1. an XID response (see ax25_apply_xid_reject());
+ * 2. an FRMR answering XID: the peer is pre-2.2, so the v2.0 defaults apply,
+ *    that is implicit reject;
+ * 3. without either, the defaults of the version in effect: selective
+ *    reject for v2.2 (e.g. a SABME link), implicit reject for v2.0 (e.g. a
+ *    SABM link). The text only lists those defaults as what parameter
+ *    negotiation starts from; it doesn't say that they apply when no XID
+ *    is exchanged at all. This is the reading Direwolf follows
+ *    (set_version_2_0() and set_version_2_2() in ax25_link.c);
+ * 4. otherwise (no XID and nothing that shows the version) unknown.
+ * Multi-SREJ is never in effect unless an XID response selected it.
+ */
+static void
+ax25_resolve_reject(const ax25_conv_t *conv, ax25_params_t *p)
+{
+	if (conv->xid_rej_src != AX25_REJSRC_NONE) {
+		p->rej = conv->xid_rej;
+		p->rej_multi = conv->xid_rej_multi;
+		p->rej_src = conv->xid_rej_src;
+		p->rej_frame = conv->xid_rej_frame;
+		return;
+	}
+	p->rej_multi = false;
+	if (p->version_src == AX25_VSRC_DEFAULT) {
+		p->rej = AX25_REJMODE_UNKNOWN;
+		p->rej_src = AX25_REJSRC_NONE;
+		p->rej_frame = 0;
+		return;
+	}
+	p->rej = (p->version == AX25_VEFF_22) ? AX25_REJMODE_SELECTIVE : AX25_REJMODE_IMPLICIT;
+	p->rej_src = AX25_REJSRC_VERSION;
+	p->rej_frame = p->version_frame;
+}
+
+/*
  * Parameters for frames sent in direction dir. T1, N2 and T3 are the
  * sender's (T1 and N2 are negotiated for the whole link); N1 and k are
  * what the receiver notified it can take (section 6.3.2). The k default
@@ -1132,6 +1505,7 @@ ax25_resolve_params(const ax25_conv_t *conv, uint8_t dir, ax25_params_t *p)
 	uint8_t rx = !dir;
 
 	ax25_version_in_effect(conv, p);
+	ax25_resolve_reject(conv, p);
 	ax25_resolve_param(&p->t1_ms, conv->xid_t1_frame, conv->xid_t1_default, conv->xid_t1_ms,
 			conv->has_uat[dir], conv->uat[dir].t1_ms, ax25_pref_t1_ms, AX25_SPEC_T1_MS);
 	ax25_resolve_param(&p->n2, conv->xid_n2_frame, conv->xid_n2_default, conv->xid_n2,
@@ -1210,6 +1584,12 @@ ax25_xid_be(const uint8_t *pv, unsigned pl)
 	return v;
 }
 
+/*
+ * Reject level of a PI 3. SREJ multiframe (bit 21) counts as selective
+ * reject: Direwolf's XID response selects multi-SREJ with bit 21 alone,
+ * without bit 2 (xid.c). Whether multi-SREJ itself is offered or selected
+ * is kept apart, in ax25_xid_t.srej_multi.
+ */
 static uint8_t
 ax25_xid_rej_level(uint32_t hdlc, bool highest)
 {
@@ -1280,6 +1660,7 @@ ax25_parse_xid(tvbuff_t *tvb, int offset, bool highest, ax25_xid_t *x)
 			v = ax25_xid_le(&data[off], pl);
 			x->hdlc = v;
 			x->rej = ax25_xid_rej_level(v, highest);
+			x->srej_multi = (v & AX25_HDLC_SREJ_MULTI) != 0;
 			if (x->rej != AX25_REJ_NONE)
 				x->has |= AX25_XID_HAS_REJ;
 			if (v & (AX25_HDLC_MOD8 | AX25_HDLC_MOD128)) {
@@ -1392,6 +1773,48 @@ ax25_check_xid_response(ax25_pkt_t *pkt, const ax25_xid_t *cmd, uint32_t cmd_fra
 }
 
 /*
+ * Reject mode set by an XID response (section 6.3.2): the lesser of what
+ * the command offered and what the response selected, as
+ * ax25_check_xid_response() reads it, implicit reject being the lower.
+ * PL=0 or GL=0 is the default: selective reject, without multi-SREJ.
+ * Multi-SREJ (bit 21) is in effect only if both the command and the
+ * response set it; if the command wasn't captured, the response decides,
+ * as it does for the other parameters. A response without PI 3 keeps the
+ * current mode (section 4.3.3.7: "An omitted parameter field assumes the
+ * currently negotiated value").
+ */
+static void
+ax25_apply_xid_reject(ax25_conv_t *conv, const ax25_xid_t *cmd, const ax25_xid_t *resp,
+		uint32_t frame)
+{
+	ax25_rejmode_e mode;
+	bool multi, def;
+
+	if (!ax25_xid_has(resp, AX25_XID_HAS_REJ, &def))
+		return;
+	if (def) {
+		mode = AX25_REJMODE_SELECTIVE;
+		multi = false;
+	} else {
+		mode = (resp->rej == AX25_REJ_SREJ) ? AX25_REJMODE_SELECTIVE : AX25_REJMODE_IMPLICIT;
+		multi = resp->srej_multi;
+	}
+	if (cmd && ax25_xid_has(cmd, AX25_XID_HAS_REJ, &def)) {
+		if (def) {
+			multi = false;
+		} else {
+			if (cmd->rej != AX25_REJ_SREJ)
+				mode = AX25_REJMODE_IMPLICIT;
+			multi = multi && cmd->srej_multi;
+		}
+	}
+	conv->xid_rej_src = AX25_REJSRC_XID;
+	conv->xid_rej = mode;
+	conv->xid_rej_multi = multi && mode == AX25_REJMODE_SELECTIVE;
+	conv->xid_rej_frame = frame;
+}
+
+/*
  * XID frames (first pass). Accepted before the SABM(E) (sections 4.3.3.7
  * and 6.3.2) as well as after the UA (Appendix C5.3; what Direwolf does).
  */
@@ -1437,6 +1860,7 @@ ax25_handle_xid(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, const ax
 	conv->xid_neg_frame = pinfo->num;
 	if (conv->xid_cmd_valid[!d])
 		ax25_check_xid_response(pkt, &conv->xid_cmd[!d], conv->xid_cmd_frame[!d], &x);
+	ax25_apply_xid_reject(conv, conv->xid_cmd_valid[!d] ? &conv->xid_cmd[!d] : NULL, &x, pinfo->num);
 	conv->xid_cmd_valid[!d] = false;
 
 	if (ax25_xid_has(&x, AX25_XID_HAS_T1, &def)) {
@@ -1590,12 +2014,24 @@ ax25_new_conv(conversation_t *conversation, const ax25_conv_t *prev,
 			conv->xid_modulo = prev->xid_modulo;
 			conv->xid_segmenter_known = prev->xid_segmenter_known;
 			conv->xid_segmenter = prev->xid_segmenter;
+			conv->xid_rej_src = prev->xid_rej_src;
+			conv->xid_rej = prev->xid_rej;
+			conv->xid_rej_multi = prev->xid_rej_multi;
+			conv->xid_rej_frame = prev->xid_rej_frame;
 			memcpy(conv->xid_n1_frame, prev->xid_n1_frame, sizeof conv->xid_n1_frame);
 			memcpy(conv->xid_n1_default, prev->xid_n1_default, sizeof conv->xid_n1_default);
 			memcpy(conv->xid_n1, prev->xid_n1, sizeof conv->xid_n1);
 			memcpy(conv->xid_k_frame, prev->xid_k_frame, sizeof conv->xid_k_frame);
 			memcpy(conv->xid_k_default, prev->xid_k_default, sizeof conv->xid_k_default);
 			memcpy(conv->xid_k, prev->xid_k, sizeof conv->xid_k);
+		} else if (prev->xid_rej_src == AX25_REJSRC_FRMR &&
+			   prev->xid_rej_frame > prev->conn_activity_frame) {
+			/* Likewise an FRMR answering XID (it isn't connection
+			 * activity): the peer is pre-2.2 */
+			conv->xid_rej_src = prev->xid_rej_src;
+			conv->xid_rej = prev->xid_rej;
+			conv->xid_rej_multi = prev->xid_rej_multi;
+			conv->xid_rej_frame = prev->xid_rej_frame;
 		}
 		conv->modulo = prev->modulo;
 		conv->modulo_src = prev->modulo_src;
@@ -1616,9 +2052,25 @@ ax25_new_conv(conversation_t *conversation, const ax25_conv_t *prev,
 	return conv;
 }
 
+/* Forget the sequence analysis state of a stream (heard[] is kept) */
+static void
+ax25_ana_reset(ax25_conv_t *conv)
+{
+	unsigned d;
+
+	for (d = 0; d < 2; d++) {
+		if (conv->seq[d].slots)
+			wmem_free(wmem_file_scope(), conv->seq[d].slots);
+		memset(&conv->seq[d], 0, sizeof conv->seq[d]);
+	}
+}
+
 static void
 ax25_set_modulo(ax25_conv_t *conv, uint8_t modulo, ax25_modsrc_e src, uint32_t frame)
 {
+	/* Sequence numbers in the other modulo mean nothing any more */
+	if (modulo != conv->modulo)
+		ax25_ana_reset(conv);
 	conv->modulo = modulo;
 	conv->modulo_src = src;
 	conv->modulo_frame = frame;
@@ -1642,6 +2094,10 @@ ax25_set_state(ax25_conv_t *conv, ax25_link_state_e state, uint32_t frame, ax25_
  *   field in S frames, so a frame that ends right after one or two control
  *   octets is decisive. A trailing FCS doesn't fool this: it would make
  *   the frame at least three octets long, which isn't decisive.
+ *   SREJ is the exception: a multi-SREJ (HDLC optional function bit 21,
+ *   see ax25_srej_next()) carries more N(R)s after the control field,
+ *   so a two-octet SREJ can be a modulo 8 one with one more N(R). SREJ
+ *   frames are left out of the length test.
  *
  * Returns 0 if the frame doesn't tell.
  */
@@ -1652,6 +2108,8 @@ ax25_infer_modulo(const ax25_frame_t *f)
 		return 0;
 	if (f->c0 & AX25_S128_ZERO_BITS)
 		return 8;
+	if (f->ftype == AX25_FT_SREJ)
+		return 0;
 	if (f->ctl_remaining == 1)
 		return 8;
 	if (f->ctl_remaining == 2)
@@ -1712,6 +2170,57 @@ ax25_get_seq(const ax25_frame_t *f, uint8_t modulo, uint8_t *ns, uint8_t *nr)
 		*ns = (uint8_t)((c & XDLC_N_S_MASK) >> XDLC_N_S_SHIFT);
 	}
 	return true;
+}
+
+/* The P/F bit of an I or S frame, without throwing */
+static bool
+ax25_get_pf(const ax25_frame_t *f, uint8_t modulo)
+{
+	if (modulo == 128) {
+		if (tvb_captured_length_remaining(f->tvb, f->ctl_offset) < 2)
+			return false;
+		return (tvb_get_uint8(f->tvb, f->ctl_offset + 1) & 0x01) != 0;
+	}
+	return (f->c0 & XDLC_P_F) != 0;
+}
+
+/*
+ * The next N(R) in the octets after the control field of an SREJ: the
+ * other N(R)s of a multi-SREJ, as Direwolf encodes them
+ * (send_srej_frames() and resend_for_srej() in src/ax25_link.c, through
+ * ax25_s_frame() in src/ax25_pad.c): one octet per N(R), in bits 5-7 for
+ * modulo 8 (bits 0-4 zero) and in bits 1-7 for modulo 128 (bit 0 zero).
+ * In modulo 128, two adjacent octets with bit 0 set are the first and
+ * last N(R) of a span, a form Direwolf describes and accepts but doesn't
+ * send. Returns the octets used (1, or 2 for a span), or 0 if the octets
+ * don't follow that encoding. Never throws.
+ */
+static int
+ax25_srej_next(tvbuff_t *tvb, int offset, int len, uint8_t modulo, uint8_t *first, uint8_t *last)
+{
+	uint8_t o, o2;
+
+	if (len < 1 || tvb_captured_length_remaining(tvb, offset) < 1)
+		return 0;
+	o = tvb_get_uint8(tvb, offset);
+	if (modulo == 8) {
+		if (o & 0x1F)
+			return 0;
+		*first = *last = o >> 5;
+		return 1;
+	}
+	if (!(o & 0x01)) {
+		*first = *last = o >> 1;
+		return 1;
+	}
+	if (len < 2 || tvb_captured_length_remaining(tvb, offset) < 2)
+		return 0;
+	o2 = tvb_get_uint8(tvb, offset + 1);
+	if (!(o2 & 0x01))
+		return 0;
+	*first = o >> 1;
+	*last = o2 >> 1;
+	return 2;
 }
 
 /*
@@ -1813,6 +2322,97 @@ ax25_remember_frame(ax25_conv_t *conv, packet_info *pinfo, const ax25_frame_t *f
 	h->data = sig;
 	h->pkt = pkt;
 	conv->hist_next = (conv->hist_next + 1) % AX25_DUP_HISTORY;
+}
+
+/*
+ * The snapshot of a frame for another frame that repeats it (a digipeated
+ * copy or a repeat): decoded the same, without what was about the first
+ * frame alone.
+ */
+static ax25_pkt_t *
+ax25_copy_snapshot(const ax25_pkt_t *orig)
+{
+	ax25_pkt_t *pkt = wmem_new(wmem_file_scope(), ax25_pkt_t);
+
+	*pkt = *orig;
+	pkt->seq_expert = AX25_SEQ_NONE;
+	pkt->cr_mixed_frame = 0;
+	pkt->refused_frame = 0;
+	pkt->frmr_xid_frame = 0;
+	pkt->fallback_frame = 0;
+	pkt->xid_check = NULL;
+	pkt->sabm_xid_frame = 0;
+	pkt->xid_modulo_prev = 0;
+	pkt->xid_neg = NULL;
+	pkt->seg_flags = 0;
+	pkt->srej_flags = 0;
+	/* Not new data, and no analysis flag of its own (yet) */
+	memset(&pkt->ana, 0, sizeof pkt->ana);
+	pkt->new_data = false;
+	return pkt;
+}
+
+/*
+ * A U or S frame that repeats the last frame on the link as is: the same
+ * octets, so the same direction and digipeater path, with no other frame
+ * in between. It is a T1 retry (SABM(E) and DISC, sections 6.3.1 and
+ * 6.3.4; a poll, section 6.4.11) or a local echo (a KISS modem that sends
+ * transmitted frames back to the host); either way it is not a new event,
+ * and it changes nothing: a repeated UA after DISC/UA doesn't start a new
+ * stream. I frames aren't concerned, the sequence analysis sees their
+ * retransmissions; nor UI frames, which are no part of the connection.
+ * - S frames only with P/F set: one with P/F=0 repeated is a duplicate
+ *   acknowledgement (RR), a repeated busy indication (RNR) or a REJ or
+ *   SREJ asked again, which the analysis reports as such.
+ * - A response (or a frame whose C/R is unknown) answers a command; as
+ *   the same response may answer a repeated command that wasn't
+ *   captured, the other side must have been heard on the link.
+ * - Within T3 of the sender (N2 x T1 if T3 is off): a T3 poll, which also
+ *   repeats the last one, comes no sooner.
+ */
+static const ax25_pkt_t *
+ax25_find_repeat(const ax25_conv_t *conv, packet_info *pinfo, const ax25_frame_t *f)
+{
+	const ax25_pkt_t *rep = conv->rep_pkt;
+	unsigned len = tvb_captured_length(f->tvb);
+	nstime_t age;
+	double limit;
+
+	if (!rep || f->dir != conv->rep_dir || f->ftype == AX25_FT_I || f->ftype == AX25_FT_UI)
+		return NULL;
+	if (len != conv->rep_len || tvb_reported_length(f->tvb) != conv->rep_reported_len ||
+	    tvb_memeql(f->tvb, 0, conv->rep_data, len) != 0)
+		return NULL;
+	if (ax25_ftype_is_s(f->ftype) && !ax25_get_pf(f, rep->modulo))
+		return NULL;
+	if (f->cr != AX25_CR_COMMAND && conv->last_enc[!f->dir] == AX25_ENC_NONE)
+		return NULL;
+	limit = ax25_param_t3_s(conv, f->dir);
+	if (limit <= 0)
+		limit = ax25_param_n2(conv, f->dir) * ax25_param_t1_s(conv, f->dir);
+	nstime_delta(&age, &pinfo->abs_ts, &conv->rep_ts);
+	if (nstime_to_sec(&age) >= limit)
+		return NULL;
+	return rep;
+}
+
+/* Remember the frame for ax25_find_repeat(); the buffer is reused */
+static void
+ax25_remember_last(ax25_conv_t *conv, packet_info *pinfo, const ax25_frame_t *f, ax25_pkt_t *pkt)
+{
+	unsigned len = tvb_captured_length(f->tvb);
+
+	if (len > conv->rep_size) {
+		conv->rep_data = (uint8_t *)wmem_realloc(wmem_file_scope(), conv->rep_data, len);
+		conv->rep_size = len;
+	}
+	tvb_memcpy(f->tvb, conv->rep_data, 0, len);
+	conv->rep_len = len;
+	conv->rep_reported_len = tvb_reported_length(f->tvb);
+	conv->rep_pkt = pkt;
+	conv->rep_frame = pinfo->num;
+	conv->rep_ts = pinfo->abs_ts;
+	conv->rep_dir = f->dir;
 }
 
 static void
@@ -1919,6 +2519,10 @@ ax25_update_state(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo,
 			pkt->frmr_xid_frame = conv->last_cmd_frame[!d];
 			conv->v20_frame = pinfo->num;
 			conv->xid_cmd_valid[!d] = false;
+			conv->xid_rej_src = AX25_REJSRC_FRMR;
+			conv->xid_rej = AX25_REJMODE_IMPLICIT;
+			conv->xid_rej_multi = false;
+			conv->xid_rej_frame = pinfo->num;
 		} else if (conv->state == AX25_LINK_CONNECTING && d != conv->connect_dir &&
 			   conv->connect_type == AX25_FT_SABME) {
 			/* A pre-2.2 station rejecting SABME (section 4.3.3.2);
@@ -2151,6 +2755,733 @@ ax25_track_segments(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo,
 }
 
 /*
+ * "At least about T1" for a retransmission by timeout. T1 is adaptive in
+ * the SDL (Select T1 Value, Figure C4.7b) and the capture time stamps are
+ * not those of the sender, so allow some slack.
+ */
+#define AX25_T1_ABOUT	0.9
+
+/* (a - b) modulo the modulo: how far a is ahead of b */
+static uint8_t
+ax25_mod_sub(uint8_t a, uint8_t b, uint8_t modulo)
+{
+	return (uint8_t)((a + modulo - b) % modulo);
+}
+
+/* The window k for frames in a direction, as a usable number of frames */
+static uint8_t
+ax25_ana_k(uint32_t k, uint8_t modulo)
+{
+	if (k < 1)
+		return 1;
+	if (k > (uint32_t)modulo - 1)
+		return modulo - 1;
+	return (uint8_t)k;
+}
+
+static ax25_slot_t *
+ax25_ana_slots(ax25_seqdir_t *st, uint8_t modulo)
+{
+	if (!st->slots || st->slots_modulo != modulo) {
+		if (st->slots)
+			wmem_free(wmem_file_scope(), st->slots);
+		st->slots = wmem_alloc0_array(wmem_file_scope(), ax25_slot_t, modulo);
+		st->slots_modulo = modulo;
+	}
+	return st->slots;
+}
+
+/*
+ * The I field (PID included) of an I frame: its reported length, and a
+ * hash (FNV-1a) of it if all of it was captured. Never throws.
+ */
+static void
+ax25_ana_ifield(const ax25_frame_t *f, uint8_t modulo, uint32_t *len, uint32_t *hash, bool *hash_ok)
+{
+	int off = f->ctl_offset + (modulo == 128 ? 2 : 1);
+	unsigned rep = (unsigned)MAX(f->ctl_remaining - (modulo == 128 ? 2 : 1), 0);
+	unsigned cap = MIN(tvb_captured_length_remaining(f->tvb, off), rep);
+	const uint8_t *p;
+	uint32_t h = 2166136261U;
+	unsigned i;
+
+	*len = rep;
+	*hash_ok = (cap == rep);
+	if (cap > 0) {
+		p = tvb_get_ptr(f->tvb, off, cap);
+		for (i = 0; i < cap; i++)
+			h = (h ^ p[i]) * 16777619U;
+	}
+	*hash = h;
+}
+
+/*
+ * The link was just connected by a UA: both stations set V(S), V(R) and
+ * V(A) to 0 (section 6.3.1). V(A) is only known for a direction whose
+ * other side has been heard.
+ */
+static void
+ax25_ana_connected(ax25_conv_t *conv)
+{
+	ax25_seqdir_t *st;
+	unsigned d;
+
+	ax25_ana_reset(conv);
+	for (d = 0; d < 2; d++) {
+		st = &conv->seq[d];
+		st->vs_valid = true;
+		st->floor_known = true;
+		st->va_valid = conv->heard[!d];
+	}
+}
+
+/*
+ * Did the other side ask for N(S) again: an SREJ for it, or a REJ or an
+ * answer to a poll (F=1) whose N(R) is at or before it (go-back-N from
+ * N(R): sections 6.4.7 and 6.4.11)? The SREJ only counts while selective
+ * reject is in effect or unknown.
+ */
+static ax25_rtx_e
+ax25_ana_prompt(const ax25_seqdir_t *st, const ax25_slot_t *slot, int64_t abs, uint8_t ns,
+		uint8_t modulo, ax25_rejmode_e rej, uint32_t *prompt)
+{
+	if (slot->srej_frame && rej != AX25_REJMODE_IMPLICIT &&
+	    (!slot->srej_abs_known || slot->srej_abs == abs)) {
+		*prompt = slot->srej_frame;
+		return AX25_RTX_SREJ;
+	}
+	if (st->rej_valid &&
+	    ax25_mod_sub(ns, st->rej_nr, modulo) < ax25_mod_sub(st->vs, st->rej_nr, modulo)) {
+		*prompt = st->rej_frame;
+		return AX25_RTX_REJ;
+	}
+	if (st->pa_valid &&
+	    ax25_mod_sub(ns, st->pa_nr, modulo) < ax25_mod_sub(st->vs, st->pa_nr, modulo)) {
+		*prompt = st->pa_frame;
+		return AX25_RTX_POLL;
+	}
+	return AX25_RTX_NONE;
+}
+
+/* Put an I frame into its slot, as the frame with that N(S) */
+static void
+ax25_ana_record(ax25_slot_t *slot, packet_info *pinfo, int64_t abs, uint32_t len, uint32_t hash,
+		bool hash_ok)
+{
+	slot->frame = pinfo->num;
+	slot->abs = abs;
+	slot->ts = pinfo->abs_ts;
+	slot->len = len;
+	slot->hash = hash;
+	slot->hash_ok = hash_ok;
+	slot->released = false;
+	if (slot->srej_abs_known && slot->srej_abs != abs)
+		slot->srej_frame = 0;
+}
+
+/*
+ * A retransmission of N(S) (abs in the numbering), seen before in slot if
+ * seen is true. Says why, from the prompts of the other side, or else from
+ * the time since the first one.
+ */
+static void
+ax25_ana_retransmission(ax25_seqdir_t *st, ax25_pkt_t *pkt, packet_info *pinfo, ax25_slot_t *slot,
+		bool seen, uint8_t ns, int64_t abs, uint32_t len, uint32_t hash, bool hash_ok, bool spurious)
+{
+	ax25_ana_t *a = &pkt->ana;
+	uint32_t prompt = 0;
+
+	a->flags |= AX25_ANA_RETRANSMISSION;
+	if (spurious)
+		a->flags |= AX25_ANA_SPURIOUS;
+	a->t1_s = pkt->params.t1_ms.value / 1000.0;
+	a->reason = ax25_ana_prompt(st, slot, abs, ns, pkt->modulo, pkt->params.rej, &prompt);
+	a->prompt_frame = prompt;
+	if (a->reason == AX25_RTX_SREJ)
+		slot->srej_frame = 0;	/* done */
+	if (seen) {
+		a->orig_frame = slot->frame;
+		a->orig_len = slot->len;
+		nstime_delta(&a->rto, &pinfo->abs_ts, &slot->ts);
+		if (slot->len != len || (slot->hash_ok && hash_ok && slot->hash != hash))
+			a->flags |= AX25_ANA_PAYLOAD_DIFFERS;
+	} else {
+		/* The first one wasn't captured: this one stands for it */
+		ax25_ana_record(slot, pinfo, abs, len, hash, hash_ok);
+	}
+	if (a->reason == AX25_RTX_NONE)
+		a->reason = (seen && nstime_to_sec(&a->rto) >= AX25_T1_ABOUT * a->t1_s) ?
+			AX25_RTX_T1 : AX25_RTX_UNEXPLAINED;
+}
+
+/*
+ * A new I frame, fwd frames after V(S): those in between weren't
+ * captured. The other side has new data to acknowledge, and any recovery
+ * the prompts asked for is over.
+ */
+static void
+ax25_ana_new_frame(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, uint8_t d, uint8_t ns,
+		uint8_t fwd, uint32_t len, uint32_t hash, bool hash_ok)
+{
+	ax25_seqdir_t *st = &conv->seq[d];
+	int64_t abs = st->vs_abs + fwd;
+
+	if (fwd) {
+		pkt->ana.flags |= AX25_ANA_LOST_FRAME;
+		pkt->ana.lost_count = fwd;
+	}
+	pkt->new_data = (fwd == 0);
+	ax25_ana_record(&st->slots[ns], pinfo, abs, len, hash, hash_ok);
+	st->vs = (uint8_t)((ns + 1) % pkt->modulo);
+	st->vs_abs = abs + 1;
+	st->vs_valid = true;
+	st->rej_valid = false;
+	st->pa_valid = false;
+	conv->seq[!d].new_i_since = true;
+}
+
+/*
+ * An I frame: new, a retransmission (spurious if already acknowledged),
+ * out of order, or new after frames that weren't captured. See the
+ * comment at the top of "Sequence analysis".
+ *
+ * Modulo 8 with k = 7 (or 128 with 127) leaves every N(S) other than V(S)
+ * open to both readings, an old frame or a new one after a gap: the sender
+ * may use any N(S) in [V(A), V(A)+k). With V(A) known that decides it:
+ * - [V(A), V(S)): a retransmission if the slot holds a frame of this
+ *   numbering cycle (it can't be acknowledged yet), else a frame asked for
+ *   again by a prompt, else out of order;
+ * - [V(S), V(A)+k): a new frame; frames in between weren't captured;
+ * - up to k behind V(A), and actually sent: a spurious retransmission.
+ * Without V(A) (the other side not heard), in this order:
+ * 1. a prompt from the other side that covers N(S): a retransmission;
+ * 2. if only one reading fits the window, that one;
+ * 3. else compare the I field with the frame in the slot: the same, a
+ *    retransmission; another one, a new frame after a gap. If the I field
+ *    wasn't all captured, the time since that frame against T1 decides;
+ * 4. without a frame in the slot, the nearer reading.
+ * Steps 3 and 4 are guesses, marked as such (AX25_ANA_AMBIGUOUS).
+ */
+static void
+ax25_ana_iframe(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, const ax25_frame_t *f,
+		uint8_t ns)
+{
+	uint8_t d = f->dir;
+	uint8_t m = pkt->modulo;
+	uint8_t k = ax25_ana_k(pkt->params.k.value, m);
+	ax25_seqdir_t *st = &conv->seq[d];
+	ax25_ana_t *a = &pkt->ana;
+	ax25_slot_t *slot;
+	uint8_t fwd, back, span, behind;
+	int64_t abs;
+	uint32_t len, hash, prompt;
+	bool hash_ok, seen, sent, old_ok, new_ok, same;
+	nstime_t age;
+
+	ax25_ana_ifield(f, m, &len, &hash, &hash_ok);
+	slot = &ax25_ana_slots(st, m)[ns];
+	st->last_i_ts = pinfo->abs_ts;
+
+	if (!st->vs_valid) {
+		/* The first I frame seen in this direction */
+		st->vs = ns;
+		if (st->va_valid && ax25_mod_sub(ns, st->va, m) >= k)
+			st->va_valid = false;
+		ax25_ana_new_frame(conv, pkt, pinfo, d, ns, 0, len, hash, hash_ok);
+		return;
+	}
+	a->vs = st->vs;
+	fwd = ax25_mod_sub(ns, st->vs, m);
+	if (fwd == 0) {
+		ax25_ana_new_frame(conv, pkt, pinfo, d, ns, 0, len, hash, hash_ok);
+		return;
+	}
+	back = m - fwd;			/* N(S) = V(S) - back */
+	abs = st->vs_abs - back;
+	seen = slot->frame && slot->abs == abs;
+	sent = !st->floor_known || abs >= st->floor_abs;
+
+	if (st->va_valid) {
+		span = ax25_mod_sub(st->vs, st->va, m);	/* outstanding */
+		if (back <= span) {
+			if (seen || ax25_ana_prompt(st, slot, abs, ns, m, pkt->params.rej, &prompt) != AX25_RTX_NONE)
+				ax25_ana_retransmission(st, pkt, pinfo, slot, seen, ns, abs, len, hash, hash_ok, false);
+			else {
+				a->flags |= AX25_ANA_OUT_OF_ORDER;
+				ax25_ana_record(slot, pinfo, abs, len, hash, hash_ok);
+			}
+			return;
+		}
+		if (span < k && fwd < k - span) {
+			ax25_ana_new_frame(conv, pkt, pinfo, d, ns, fwd, len, hash, hash_ok);
+			return;
+		}
+		behind = ax25_mod_sub(st->va, ns, m);
+		if (behind >= 1 && behind <= k && sent) {
+			a->acked_frame = st->va_frame;
+			a->acked_nr = st->va;
+			ax25_ana_retransmission(st, pkt, pinfo, slot, seen, ns, abs, len, hash, hash_ok, true);
+			return;
+		}
+	} else {
+		old_ok = back <= k && sent;
+		new_ok = fwd < k;
+		if (old_ok && ax25_ana_prompt(st, slot, abs, ns, m, pkt->params.rej, &prompt) != AX25_RTX_NONE) {
+			ax25_ana_retransmission(st, pkt, pinfo, slot, seen, ns, abs, len, hash, hash_ok, false);
+			return;
+		}
+		if (old_ok && !new_ok) {
+			if (seen)
+				ax25_ana_retransmission(st, pkt, pinfo, slot, true, ns, abs, len, hash, hash_ok, false);
+			else {
+				a->flags |= AX25_ANA_OUT_OF_ORDER;
+				ax25_ana_record(slot, pinfo, abs, len, hash, hash_ok);
+			}
+			return;
+		}
+		if (new_ok && !old_ok) {
+			ax25_ana_new_frame(conv, pkt, pinfo, d, ns, fwd, len, hash, hash_ok);
+			return;
+		}
+		if (old_ok && new_ok) {
+			a->flags |= AX25_ANA_AMBIGUOUS;
+			if (seen) {
+				if (len != slot->len)
+					same = false;
+				else if (hash_ok && slot->hash_ok)
+					same = (hash == slot->hash);
+				else {
+					nstime_delta(&age, &pinfo->abs_ts, &slot->ts);
+					same = nstime_to_sec(&age) >= AX25_T1_ABOUT * pkt->params.t1_ms.value / 1000.0;
+				}
+			} else {
+				same = back <= fwd;
+			}
+			if (!same)
+				ax25_ana_new_frame(conv, pkt, pinfo, d, ns, fwd, len, hash, hash_ok);
+			else if (seen)
+				ax25_ana_retransmission(st, pkt, pinfo, slot, true, ns, abs, len, hash, hash_ok, false);
+			else {
+				a->flags |= AX25_ANA_OUT_OF_ORDER;
+				ax25_ana_record(slot, pinfo, abs, len, hash, hash_ok);
+			}
+			return;
+		}
+	}
+
+	/*
+	 * Outside the window either way: the sender's state is not what we
+	 * think (window checks are another matter). Start again from here.
+	 */
+	st->va_valid = false;
+	st->vs = ns;
+	st->vs_abs = abs;
+	st->floor_known = false;
+	memset(st->slots, 0, st->slots_modulo * sizeof st->slots[0]);
+	ax25_ana_new_frame(conv, pkt, pinfo, d, ns, 0, len, hash, hash_ok);
+	pkt->new_data = false;
+}
+
+/*
+ * N(R) from the other side about the I frames of direction st: V(A) moves
+ * up and the slots below it are released. An N(R) ahead of V(S) (within
+ * k) acknowledges frames that weren't captured: V(S) follows it. Any
+ * other N(R) is out of the window and left alone (checking N(R) is
+ * another matter).
+ */
+static void
+ax25_ana_ack(ax25_seqdir_t *st, uint8_t modulo, uint8_t k, uint8_t nr, uint32_t frame)
+{
+	uint8_t out, span, fwd;
+	unsigned i;
+	int64_t below;
+
+	if (!st->vs_valid) {
+		st->va = nr;
+		st->va_valid = true;
+		st->va_frame = frame;
+		return;
+	}
+	out = ax25_mod_sub(st->vs, nr, modulo);
+	span = st->va_valid ? ax25_mod_sub(st->vs, st->va, modulo) : k;
+	if (out > span) {
+		/* Behind V(A) is the likelier reading if both fit (k > modulo/2) */
+		if (out <= k)
+			return;
+		fwd = ax25_mod_sub(nr, st->vs, modulo);
+		if (fwd > k)
+			return;
+		st->vs = nr;
+		st->vs_abs += fwd;
+		out = 0;
+	}
+	st->va = nr;
+	st->va_valid = true;
+	st->va_frame = frame;
+	below = st->vs_abs - out;
+	if (st->slots) {
+		for (i = 0; i < st->slots_modulo; i++) {
+			if (st->slots[i].frame && st->slots[i].abs < below)
+				st->slots[i].released = true;
+		}
+	}
+}
+
+/* An SREJ from the other side asks for these N(S) again */
+static void
+ax25_ana_srej(ax25_seqdir_t *st, const ax25_pkt_t *pkt, const ax25_frame_t *f, uint8_t nr,
+		uint32_t frame)
+{
+	uint8_t m = pkt->modulo;
+	ax25_slot_t *slots = ax25_ana_slots(st, m);
+	int ctl_len = (m == 128) ? 2 : 1;
+	int off = f->ctl_offset + ctl_len, len = f->ctl_remaining - ctl_len, n;
+	uint8_t first = nr, last = nr;
+	unsigned i;
+
+	n = 0;
+	do {
+		for (i = first; ; i = (i + 1) % m) {
+			slots[i].srej_frame = frame;
+			slots[i].srej_abs_known = st->vs_valid && i != st->vs;
+			if (slots[i].srej_abs_known)
+				slots[i].srej_abs = st->vs_abs - ax25_mod_sub(st->vs, (uint8_t)i, m);
+			if (i == last)
+				break;
+		}
+		off += n;
+		len -= n;
+	} while (pkt->modulo_src != AX25_MODSRC_ASSUMED &&
+		 (n = ax25_srej_next(f->tvb, off, len, m, &first, &last)) > 0);
+}
+
+/*
+ * A busy side ignores I frames (section 6.4.2.2), so its N(R) stays put:
+ * if it moved anyway, did it move forward (to frames the other side sent)
+ * or back? Forward means up to V(S) of the other side if that is known,
+ * else within its window.
+ */
+static bool
+ax25_ana_nr_higher(const ax25_conv_t *conv, uint8_t d, uint8_t modulo, uint8_t from, uint8_t to)
+{
+	const ax25_seqdir_t *other = &conv->seq[!d];
+	ax25_params_t p;
+	uint8_t diff = ax25_mod_sub(to, from, modulo);
+
+	if (other->vs_valid)
+		return diff <= ax25_mod_sub(other->vs, from, modulo);
+	ax25_resolve_params(conv, !d, &p);
+	return diff <= ax25_ana_k(p.k.value, modulo);
+}
+
+/*
+ * A busy side should be polled at least every T3, then every T1 up to N2
+ * times (sections 6.4.9 and 6.4.11; the SDL has no other timer for it,
+ * Figures C4.4b and C4.7a). Flag a busy condition not polled for longer
+ * than T3 + N2 x T1 of the poller, once, if the poller has been heard on
+ * the stream at all and its polls can be recognized.
+ */
+static void
+ax25_ana_busy_unpolled(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo)
+{
+	ax25_seqdir_t *st;
+	nstime_t gap;
+	double t3, limit;
+	unsigned x;
+
+	for (x = 0; x < 2; x++) {
+		st = &conv->seq[x];
+		if (!st->busy || st->busy_unpolled_flagged || !conv->heard[!x] ||
+		    conv->last_enc[!x] == AX25_ENC_PRE20)
+			continue;
+		t3 = ax25_param_t3_s(conv, !x);
+		if (t3 <= 0)
+			continue;
+		limit = t3 + ax25_param_n2(conv, !x) * ax25_param_t1_s(conv, !x);
+		nstime_delta(&gap, &pinfo->abs_ts, &st->busy_poll_ts);
+		if (nstime_to_sec(&gap) <= limit)
+			continue;
+		st->busy_unpolled_flagged = true;
+		pkt->ana.flags |= AX25_ANA_BUSY_UNPOLLED;
+		pkt->ana.rnr_frame = st->rnr_frame;
+		pkt->ana.unpolled_gap = gap;
+		pkt->ana.unpolled_limit_s = limit;
+	}
+}
+
+/*
+ * Busy conditions (sections 4.3.2.2, 6.4.2.2, 6.4.9, 6.4.10). An RNR
+ * starts one; a repeated RNR should carry the same N(R). RR or REJ clear
+ * it (section 6.4.10; the SDL uses an RR command, P=1, Figures C4.4a and
+ * C4.5a), with the same N(R) as the RNR. If a repeated RNR already moved
+ * N(R), that RNR was flagged and the clearing frame isn't: what busy
+ * condition it ends is unclear (a frame from the busy side may be
+ * missing).
+ */
+static void
+ax25_ana_busy(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, const ax25_frame_t *f,
+		uint8_t nr, bool resp_f)
+{
+	uint8_t d = f->dir;
+	ax25_seqdir_t *st = &conv->seq[d];
+	ax25_ana_t *a = &pkt->ana;
+
+	if (f->ftype == AX25_FT_RNR) {
+		if (!st->busy) {
+			st->busy = true;
+			st->busy_nr_changed = false;
+			st->busy_unpolled_flagged = false;
+			st->busy_poll_pending = false;
+			st->rnr_nr = nr;
+			st->rnr_frame = pinfo->num;
+			st->rnr_ts = pinfo->abs_ts;
+			st->busy_poll_ts = pinfo->abs_ts;
+			return;
+		}
+		a->flags |= AX25_ANA_BUSY_REPEATED;
+		a->rnr_frame = st->rnr_frame;
+		a->rnr_nr = st->rnr_nr;
+		nstime_delta(&a->busy_time, &pinfo->abs_ts, &st->rnr_ts);
+		if (nr != st->rnr_nr) {
+			a->flags |= AX25_ANA_BUSY_NR_CHANGED;
+			a->nr_higher = ax25_ana_nr_higher(conv, d, pkt->modulo, st->rnr_nr, nr);
+			st->busy_nr_changed = true;
+			st->rnr_nr = nr;
+		}
+		if (resp_f)
+			st->busy_poll_pending = false;
+		return;
+	}
+	if ((f->ftype != AX25_FT_RR && f->ftype != AX25_FT_REJ) || !st->busy)
+		return;
+	st->busy = false;
+	if (st->busy_nr_changed)
+		return;
+	a->flags |= AX25_ANA_RESUME;
+	a->rnr_frame = st->rnr_frame;
+	a->rnr_nr = st->rnr_nr;
+	nstime_delta(&a->busy_time, &pinfo->abs_ts, &st->rnr_ts);
+	if (f->cr == AX25_CR_UNKNOWN) {
+		a->resume_type = AX25_RESUME_UNKNOWN;
+	} else if (resp_f) {
+		/* F=1 answers a poll, whether we heard it or not */
+		a->resume_type = AX25_RESUME_POLL;
+		if (st->busy_poll_pending)
+			a->poll_frame = st->busy_poll_frame;
+	} else {
+		a->resume_type = AX25_RESUME_UNSOLICITED;
+	}
+	if (nr != st->rnr_nr) {
+		a->flags |= AX25_ANA_RESUME_ANOMALOUS;
+		a->nr_higher = ax25_ana_nr_higher(conv, d, pkt->modulo, st->rnr_nr, nr);
+	}
+}
+
+/*
+ * Keep-alive: AX.25 has the T3 link integrity poll (sections 4.4.5.2,
+ * 6.4.9) and the T1 enquiry (section 6.4.11). Both are an RR or RNR
+ * command with P=1 (Transmit Enquiry, Figure C4.7a) whose N(R), the
+ * receive sequence number, is the last one the same side sent, with no
+ * new I frame from the other side since. It is a T1 enquiry if the side
+ * has I frames outstanding (T1 runs), else a T3 poll.
+ */
+static void
+ax25_ana_keep_alive(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, uint8_t d, uint8_t nr)
+{
+	ax25_seqdir_t *st = &conv->seq[d];
+	ax25_ana_t *a = &pkt->ana;
+	bool outstanding = false;
+	const nstime_t *since;
+	unsigned i;
+	uint8_t k;
+
+	if (!st->snr_valid || nr != st->snr || st->new_i_since)
+		return;
+	if (st->vs_valid && st->va_valid) {
+		outstanding = (st->va != st->vs);
+	} else if (st->vs_valid && st->slots) {
+		/* V(A) unknown: any frame of the last k sent counts */
+		k = ax25_ana_k(pkt->params.k.value, pkt->modulo);
+		for (i = 0; i < st->slots_modulo && !outstanding; i++)
+			outstanding = st->slots[i].frame && st->vs_abs - st->slots[i].abs <= k;
+		if (outstanding)
+			a->flags |= AX25_ANA_AMBIGUOUS;
+	}
+	a->flags |= AX25_ANA_KEEP_ALIVE;
+	if (outstanding) {
+		a->ka_reason = AX25_KA_T1;
+		a->ka_limit_s = pkt->params.t1_ms.value / 1000.0;
+		since = nstime_cmp(&st->last_poll_ts, &st->last_i_ts) > 0 ? &st->last_poll_ts : &st->last_i_ts;
+	} else {
+		a->ka_reason = AX25_KA_T3;
+		a->ka_limit_s = (double)pkt->params.t3_s.value;
+		since = &conv->last_ts;		/* the frame before this one */
+	}
+	nstime_delta(&a->ka_idle, &pinfo->abs_ts, since);
+}
+
+/*
+ * Sequence analysis of a frame (first pass, after the link state and the
+ * parameters). See "Sequence analysis".
+ */
+static void
+ax25_analyze(ax25_conv_t *conv, ax25_pkt_t *pkt, packet_info *pinfo, const ax25_frame_t *f)
+{
+	uint8_t d = f->dir;
+	ax25_seqdir_t *st = &conv->seq[d];
+	ax25_seqdir_t *peer = &conv->seq[!d];
+	ax25_ana_t *a = &pkt->ana;
+	ax25_params_t peer_params;
+	uint8_t ns = 0, nr = 0;
+	bool known_cr = (f->cr != AX25_CR_UNKNOWN);
+	bool pf, cmd_p, resp_f, rr_rnr;
+
+	if (!ax25_pref_analyze_seq || f->ftype == AX25_FT_UI)
+		return;
+	conv->heard[d] = true;
+
+	switch (f->ftype) {
+	case AX25_FT_SABM:
+	case AX25_FT_SABME:
+	case AX25_FT_DISC:
+	case AX25_FT_DM:
+	case AX25_FT_UA:
+		/* Link reset or down: busy conditions end (section 4.3.2.2) */
+		conv->seq[0].busy = conv->seq[1].busy = false;
+		break;
+	default:
+		break;
+	}
+	if (f->ftype == AX25_FT_UA && conv->state == AX25_LINK_CONNECTED &&
+	    conv->state_frame == pinfo->num)
+		ax25_ana_connected(conv);
+	/* After an idle timeout, sequence numbers that don't carry on are
+	 * those of a connection whose set-up we missed */
+	if (pkt->seq_expert == AX25_SEQ_AFTER_IDLE)
+		ax25_ana_reset(conv);
+
+	if (pkt->state != AX25_LINK_CONNECTED || !ax25_get_seq(f, pkt->modulo, &ns, &nr))
+		return;
+
+	ax25_ana_busy_unpolled(conv, pkt, pinfo);
+
+	pf = ax25_get_pf(f, pkt->modulo);
+	cmd_p = known_cr && f->cr == AX25_CR_COMMAND && pf;
+	resp_f = known_cr && f->cr == AX25_CR_RESPONSE && pf;
+	rr_rnr = (f->ftype == AX25_FT_RR || f->ftype == AX25_FT_RNR);
+
+	if (f->ftype == AX25_FT_I)
+		ax25_ana_iframe(conv, pkt, pinfo, f, ns);
+
+	ax25_ana_busy(conv, pkt, pinfo, f, nr, resp_f);
+
+	if (rr_rnr && cmd_p && !(a->flags & AX25_ANA_RESUME))
+		ax25_ana_keep_alive(conv, pkt, pinfo, d, nr);
+
+	/* Polls from this side, and the busy peer being polled (section 6.4.9) */
+	if (cmd_p) {
+		st->poll_pending = true;
+		st->poll_keep_alive = (a->flags & AX25_ANA_KEEP_ALIVE) != 0;
+		st->poll_frame = pinfo->num;
+		st->last_poll_ts = pinfo->abs_ts;
+		if (rr_rnr && peer->busy) {
+			peer->busy_poll_pending = true;
+			peer->busy_poll_frame = pinfo->num;
+			peer->busy_poll_ts = pinfo->abs_ts;
+		}
+	}
+	/* An F=1 response answers the last poll of the other side, which
+	 * then sets V(S) to N(R) (section 6.4.11) */
+	if (resp_f && (rr_rnr || f->ftype == AX25_FT_REJ)) {
+		if (peer->poll_pending && peer->poll_keep_alive) {
+			a->flags |= AX25_ANA_KEEP_ALIVE_ACK;
+			a->ka_frame = peer->poll_frame;
+		}
+		peer->poll_pending = false;
+		peer->pa_valid = true;
+		peer->pa_nr = nr;
+		peer->pa_frame = pinfo->num;
+	}
+
+	/* Duplicate acknowledgement: RR responses with the same N(R), not
+	 * answering a poll. Anything else from this side ends the run. */
+	if (known_cr && f->ftype == AX25_FT_RR && f->cr == AX25_CR_RESPONSE &&
+	    !(a->flags & AX25_ANA_RESUME)) {
+		if (!pf && st->dup_valid && nr == st->dup_nr) {
+			a->flags |= AX25_ANA_DUPLICATE_ACK;
+			a->dup_frame = st->dup_first;
+			a->dup_num = ++st->dup_count;
+		} else {
+			st->dup_valid = true;
+			st->dup_nr = nr;
+			st->dup_first = pinfo->num;
+			st->dup_count = 0;
+		}
+	} else if (!known_cr || f->ftype != AX25_FT_RR || nr != st->dup_nr) {
+		st->dup_valid = false;
+	}
+
+	/* What N(R) says about the I frames of the other side. An SREJ with
+	 * P/F=0 doesn't acknowledge anything (section 4.3.2.4). */
+	ax25_resolve_params(conv, !d, &peer_params);
+	if (f->ftype != AX25_FT_SREJ || pf)
+		ax25_ana_ack(peer, pkt->modulo, ax25_ana_k(peer_params.k.value, pkt->modulo), nr, pinfo->num);
+	if (f->ftype == AX25_FT_REJ) {
+		peer->rej_valid = true;
+		peer->rej_nr = nr;
+		peer->rej_frame = pinfo->num;
+	} else if (f->ftype == AX25_FT_SREJ) {
+		ax25_ana_srej(peer, pkt, f, nr, pinfo->num);
+	}
+
+	st->snr = nr;
+	st->snr_valid = true;
+	st->new_i_since = false;
+}
+
+/*
+ * SREJ against the reject mode in effect (first pass, after the parameters
+ * are resolved). Two things are called "multiple SREJ" and are kept apart:
+ * - several SREJ frames, each with its own N(R): legal whenever selective
+ *   reject is in effect (section 4.3.2.4, "one or more SREJ frames";
+ *   section 4.4.4, "one or more 'sent SREJ' exception conditions");
+ * - one SREJ frame with more N(R)s in an information field after the
+ *   control field: the multi-SREJ of HDLC optional function bit 21. That
+ *   bit is "compatibility only" in Figure 4.5 and the text doesn't define
+ *   it; Direwolf uses it once XID selected it (see ax25_srej_next()).
+ * The command/response distinction isn't checked: section 4.3.2.4 says
+ * SREJ "is only sent as a response", but section 4.4.4 talks of SREJ
+ * commands with the P bit set, and the SDL (Figure C4.4c) doesn't say.
+ * Nothing is checked while the reject mode is unknown.
+ */
+static void
+ax25_check_srej(ax25_pkt_t *pkt, const ax25_frame_t *f)
+{
+	bool multi;
+
+	if (f->ftype != AX25_FT_SREJ)
+		return;
+	multi = f->ctl_remaining > (pkt->modulo == 128 ? 2 : 1);
+
+	/* Direwolf restricts multi-SREJ to modulo 128; only checked once the
+	 * modulo is known, as a two-octet SREJ may be a modulo 128 one */
+	if (multi && pkt->modulo == 8 && pkt->modulo_src != AX25_MODSRC_ASSUMED)
+		pkt->srej_flags |= AX25_SREJF_MULTI_MOD8;
+
+	switch (pkt->params.rej) {
+	case AX25_REJMODE_IMPLICIT:
+		pkt->srej_flags |= AX25_SREJF_IMPLICIT;
+		break;
+	case AX25_REJMODE_SELECTIVE:
+		if (multi && !pkt->params.rej_multi)
+			pkt->srej_flags |= AX25_SREJF_MULTI;
+		break;
+	case AX25_REJMODE_UNKNOWN:
+		break;
+	}
+}
+
+/*
  * First pass: find (or start) the link this frame belongs to, update its
  * state and return the snapshot later passes will use.
  */
@@ -2161,6 +3492,7 @@ ax25_first_pass(packet_info *pinfo, conversation_element_t *key, const ax25_fram
 	ax25_conv_t *conv = NULL;
 	ax25_pkt_t *pkt;
 	const ax25_hist_t *orig;
+	const ax25_pkt_t *rep;
 	uint8_t *sig;
 	unsigned sig_len = 0;
 	uint8_t enc;
@@ -2173,20 +3505,25 @@ ax25_first_pass(packet_info *pinfo, conversation_element_t *key, const ax25_fram
 
 	/* A digipeated copy is decoded like the original and changes nothing */
 	if (conv && sig && (orig = ax25_find_dup(conv, pinfo, f, sig, sig_len)) != NULL) {
-		pkt = wmem_new(wmem_file_scope(), ax25_pkt_t);
-		*pkt = *orig->pkt;
-		pkt->seq_expert = AX25_SEQ_NONE;
-		pkt->cr_mixed_frame = 0;
-		pkt->refused_frame = 0;
-		pkt->frmr_xid_frame = 0;
-		pkt->fallback_frame = 0;
-		pkt->xid_check = NULL;
-		pkt->sabm_xid_frame = 0;
-		pkt->xid_modulo_prev = 0;
-		pkt->xid_neg = NULL;
-		pkt->seg_flags = 0;
+		pkt = ax25_copy_snapshot(orig->pkt);
 		pkt->dup_of = orig->frame;
 		wmem_free(wmem_file_scope(), sig);
+		return pkt;
+	}
+
+	/* So is a frame repeated as is; but it is a retransmission */
+	if (conv && (rep = ax25_find_repeat(conv, pinfo, f)) != NULL) {
+		pkt = ax25_copy_snapshot(rep);
+		if (ax25_pref_analyze_seq) {
+			pkt->ana.flags = AX25_ANA_RETRANSMISSION;
+			pkt->ana.orig_frame = conv->rep_frame;
+			nstime_delta(&pkt->ana.rto, &pinfo->abs_ts, &conv->rep_ts);
+			pkt->ana.t1_s = pkt->params.t1_ms.value / 1000.0;
+			pkt->ana.reason = nstime_to_sec(&pkt->ana.rto) >= AX25_T1_ABOUT * pkt->ana.t1_s ?
+				AX25_RTX_T1 : AX25_RTX_UNEXPLAINED;
+		}
+		if (sig)
+			wmem_free(wmem_file_scope(), sig);
 		return pkt;
 	}
 
@@ -2255,6 +3592,8 @@ ax25_first_pass(packet_info *pinfo, conversation_element_t *key, const ax25_fram
 		ax25_resolve_params(conv, AX25_DIR_LO_HI, &pkt->xid_neg->params[AX25_DIR_LO_HI]);
 		ax25_resolve_params(conv, AX25_DIR_HI_LO, &pkt->xid_neg->params[AX25_DIR_HI_LO]);
 	}
+	ax25_check_srej(pkt, f);
+	ax25_analyze(conv, pkt, pinfo, f);
 	ax25_track_segments(conv, pkt, pinfo, f, pkt->modulo);
 
 	if (f->ftype != AX25_FT_UI) {
@@ -2263,6 +3602,7 @@ ax25_first_pass(packet_info *pinfo, conversation_element_t *key, const ax25_fram
 		conv->last_ts = pinfo->abs_ts;
 	}
 	ax25_remember_frame(conv, pinfo, f, sig, sig_len, pkt);
+	ax25_remember_last(conv, pinfo, f, pkt);
 
 	return pkt;
 }
@@ -2405,6 +3745,43 @@ ax25_add_param(proto_tree *tree, tvbuff_t *tvb, int hf, int hf_src, const ax25_p
 	}
 }
 
+/* Reject mode in effect, and where it came from */
+static void
+ax25_add_reject(proto_tree *tree, tvbuff_t *tvb, const ax25_params_t *p)
+{
+	proto_item *ti;
+	proto_tree *rt;
+
+	ti = proto_tree_add_uint(tree, hf_ax25_param_reject, tvb, 0, 0, p->rej);
+	proto_item_set_generated(ti);
+	if (p->rej == AX25_REJMODE_SELECTIVE && p->rej_multi)
+		proto_item_append_text(ti, ", multi-SREJ");
+	switch (p->rej_src) {
+	case AX25_REJSRC_XID:
+		proto_item_append_text(ti, " (XID, frame %u)", p->rej_frame);
+		break;
+	case AX25_REJSRC_FRMR:
+		proto_item_append_text(ti, " (FRMR answering XID, frame %u)", p->rej_frame);
+		break;
+	case AX25_REJSRC_VERSION:
+		proto_item_append_text(ti, " (v%s default)", p->version == AX25_VEFF_22 ? "2.2" : "2.0");
+		break;
+	case AX25_REJSRC_NONE:
+		break;
+	}
+	rt = proto_item_add_subtree(ti, ett_ax25_params);
+	if (p->rej == AX25_REJMODE_SELECTIVE) {
+		ti = proto_tree_add_boolean(rt, hf_ax25_param_reject_multi, tvb, 0, 0, p->rej_multi);
+		proto_item_set_generated(ti);
+	}
+	ti = proto_tree_add_uint(rt, hf_ax25_param_reject_source, tvb, 0, 0, p->rej_src);
+	proto_item_set_generated(ti);
+	if (p->rej_frame) {
+		ti = proto_tree_add_uint(rt, hf_ax25_param_reject_frame, tvb, 0, 0, p->rej_frame);
+		proto_item_set_generated(ti);
+	}
+}
+
 /* Parameters in effect for the direction of this frame, and their sources */
 static void
 ax25_add_params(proto_tree *tree, tvbuff_t *tvb, const ax25_params_t *p)
@@ -2429,6 +3806,7 @@ ax25_add_params(proto_tree *tree, tvbuff_t *tvb, const ax25_params_t *p)
 	ax25_add_param(pt, tvb, hf_ax25_param_n2, hf_ax25_param_n2_source, &p->n2);
 	ax25_add_param(pt, tvb, hf_ax25_param_n1, hf_ax25_param_n1_source, &p->n1);
 	ax25_add_param(pt, tvb, hf_ax25_param_k, hf_ax25_param_k_source, &p->k);
+	ax25_add_reject(pt, tvb, p);
 }
 
 /* What an XID response did wrong (section 6.3.2) */
@@ -2584,6 +3962,358 @@ ax25_add_link_items(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 	case AX25_SEQ_NONE:
 		break;
 	}
+}
+
+/* Where the reject mode in effect came from, for expert messages */
+static const char *
+ax25_rej_source_str(wmem_allocator_t *scope, const ax25_params_t *p)
+{
+	const char *v = (p->version == AX25_VEFF_22) ? "v2.2" : "v2.0";
+
+	switch (p->rej_src) {
+	case AX25_REJSRC_XID:
+		return wmem_strdup_printf(scope, "set by the XID response in frame %u", p->rej_frame);
+	case AX25_REJSRC_FRMR:
+		return wmem_strdup_printf(scope, "v2.0 default after the FRMR answering XID in frame %u",
+				p->rej_frame);
+	case AX25_REJSRC_VERSION:
+		if (p->rej_frame)
+			return wmem_strdup_printf(scope, "%s default, no XID seen; version from frame %u",
+					v, p->rej_frame);
+		return wmem_strdup_printf(scope, "%s default, no XID seen; version from the station table", v);
+	case AX25_REJSRC_NONE:
+		break;
+	}
+	return "unknown";
+}
+
+/* SREJ against the reject mode in effect (see ax25_check_srej()) */
+static void
+ax25_add_srej_checks(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+		const ax25_pkt_t *pkt, int offset, int len)
+{
+	bool from_xid = pkt->params.rej_src == AX25_REJSRC_XID;
+	const char *src = ax25_rej_source_str(pinfo->pool, &pkt->params);
+
+	if (pkt->srej_flags & AX25_SREJF_IMPLICIT)
+		proto_tree_add_expert_format(tree, pinfo,
+				from_xid ? &ei_ax25_srej_implicit_xid : &ei_ax25_srej_implicit, tvb, offset, len,
+				"SREJ, but implicit reject is in effect (%s)", src);
+	if (pkt->srej_flags & AX25_SREJF_MULTI)
+		proto_tree_add_expert_format(tree, pinfo,
+				from_xid ? &ei_ax25_srej_multi_xid : &ei_ax25_srej_multi, tvb, offset, len,
+				"SREJ with more than one N(R), but multi-SREJ is not in effect (%s)", src);
+	if (pkt->srej_flags & AX25_SREJF_MULTI_MOD8)
+		proto_tree_add_expert_format(tree, pinfo, &ei_ax25_srej_multi_mod8, tvb, offset, len,
+				"Multi-SREJ in modulo 8; Direwolf only uses multi-SREJ with modulo 128");
+}
+
+/*
+ * Octets after the control field of an SREJ (see ax25_srej_next()). Left
+ * undecoded while the modulo is only assumed.
+ */
+static void
+ax25_add_srej_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+		const ax25_pkt_t *pkt, int offset, int len)
+{
+	proto_item *di;
+	proto_tree *dt;
+	wmem_strbuf_t *nrs;
+	uint8_t first, last;
+	int i = 0, n;
+
+	if (len <= 0)
+		return;
+	di = proto_tree_add_item(tree, hf_ax25_srej_data, tvb, offset, len, ENC_NA);
+	if (!pkt || pkt->modulo_src == AX25_MODSRC_ASSUMED) {
+		proto_item_append_text(di, " (not decoded: the modulo isn't known)");
+		return;
+	}
+	dt = proto_item_add_subtree(di, ett_ax25_srej);
+	nrs = wmem_strbuf_new(pinfo->pool, "");
+	while ((n = ax25_srej_next(tvb, offset + i, len - i, pkt->modulo, &first, &last)) > 0) {
+		if (n == 1) {
+			proto_tree_add_uint(dt, hf_ax25_srej_nr, tvb, offset + i, 1, first);
+			wmem_strbuf_append_printf(nrs, "%s%u", wmem_strbuf_get_len(nrs) ? ", " : "", first);
+		} else {
+			proto_tree_add_uint(dt, hf_ax25_srej_span_first, tvb, offset + i, 1, first);
+			proto_tree_add_uint(dt, hf_ax25_srej_span_last, tvb, offset + i + 1, 1, last);
+			wmem_strbuf_append_printf(nrs, "%s%u-%u", wmem_strbuf_get_len(nrs) ? ", " : "",
+					first, last);
+		}
+		i += n;
+	}
+	if (wmem_strbuf_get_len(nrs)) {
+		proto_item_append_text(di, ": N(R) %s", wmem_strbuf_get_str(nrs));
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", N(R) %s", wmem_strbuf_get_str(nrs));
+	}
+	if (i < len)
+		proto_item_append_text(di, "%s (not in Direwolf's encoding from octet %d on)",
+				wmem_strbuf_get_len(nrs) ? "," : "", i + 1);
+}
+
+/* The item of one analysis flag */
+static proto_item *
+ax25_add_ana_flag(proto_tree *tree, tvbuff_t *tvb, int hf)
+{
+	proto_item *ti = proto_tree_add_item(tree, hf, tvb, 0, 0, ENC_NA);
+
+	proto_item_set_generated(ti);
+	return ti;
+}
+
+/* Why a frame was sent again, in words */
+static const char *
+ax25_rtx_str(wmem_allocator_t *scope, const ax25_ana_t *a, bool iframe)
+{
+	switch (a->reason) {
+	case AX25_RTX_REJ:
+		return wmem_strdup_printf(scope, "go-back-N after the REJ in frame %u", a->prompt_frame);
+	case AX25_RTX_SREJ:
+		return wmem_strdup_printf(scope, "asked for by the SREJ in frame %u", a->prompt_frame);
+	case AX25_RTX_POLL:
+		return wmem_strdup_printf(scope, "V(S) set to N(R) of the poll answer in frame %u",
+				a->prompt_frame);
+	case AX25_RTX_T1:
+		return wmem_strdup_printf(scope, "%.1f s after it, T1 is %.1f s",
+				nstime_to_sec(&a->rto), a->t1_s);
+	case AX25_RTX_UNEXPLAINED:
+		if (!iframe)
+			return wmem_strdup_printf(scope, "%.1f s after it, sooner than T1 of %.1f s: a repeat or a local echo",
+					nstime_to_sec(&a->rto), a->t1_s);
+		if (a->orig_frame)
+			return wmem_strdup_printf(scope, "no REJ, SREJ or poll answer seen; %.1f s after it, T1 is %.1f s",
+					nstime_to_sec(&a->rto), a->t1_s);
+		return "no REJ, SREJ or poll answer seen";
+	case AX25_RTX_NONE:
+		break;
+	}
+	return "";
+}
+
+/*
+ * Sequence analysis of a frame (see "Sequence analysis"): what it refers
+ * to, then the flags, each with an expert info (PI_SEQUENCE) and an Info
+ * column tag, as TCP does. Only reads the snapshot.
+ */
+static void
+ax25_add_analysis(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const ax25_pkt_t *pkt,
+		const ax25_frame_t *f)
+{
+	const ax25_ana_t *a = &pkt->ana;
+	uint32_t flags = a->flags;
+	proto_item *ai, *fi, *ti;
+	proto_tree *at, *ft;
+	uint8_t ns = 0, nr = 0, m = pkt->modulo;
+	int ctl_len = (m == 128) ? 2 : 1;
+
+	if (!ax25_pref_analyze_seq)
+		return;
+	if (!ax25_pref_flag_anomalous_resume)
+		flags &= ~(AX25_ANA_RESUME_ANOMALOUS | AX25_ANA_BUSY_NR_CHANGED);
+	if (!ax25_pref_flag_unpolled_busy)
+		flags &= ~AX25_ANA_BUSY_UNPOLLED;
+	if (!flags)
+		return;
+	ax25_get_seq(f, m, &ns, &nr);
+
+	ai = proto_tree_add_item(tree, hf_ax25_analysis, tvb, 0, 0, ENC_NA);
+	proto_item_set_generated(ai);
+	at = proto_item_add_subtree(ai, ett_ax25_analysis);
+
+	/* What the flags refer to */
+	if (flags & AX25_ANA_RETRANSMISSION) {
+		if (a->orig_frame) {
+			ti = proto_tree_add_uint(at, hf_ax25_analysis_retransmitted_frame, tvb, 0, 0, a->orig_frame);
+			proto_item_set_generated(ti);
+			ti = proto_tree_add_time(at, hf_ax25_analysis_rto, tvb, 0, 0, &a->rto);
+			proto_item_set_generated(ti);
+		}
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_reason, tvb, 0, 0, a->reason);
+		proto_item_set_generated(ti);
+		if (a->prompt_frame) {
+			ti = proto_tree_add_uint(at, hf_ax25_analysis_prompt_frame, tvb, 0, 0, a->prompt_frame);
+			proto_item_set_generated(ti);
+		}
+		if ((flags & AX25_ANA_SPURIOUS) && a->acked_frame) {
+			ti = proto_tree_add_uint(at, hf_ax25_analysis_acked_frame, tvb, 0, 0, a->acked_frame);
+			proto_item_set_generated(ti);
+		}
+	}
+	if (flags & AX25_ANA_KEEP_ALIVE) {
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_keep_alive_reason, tvb, 0, 0, a->ka_reason);
+		proto_item_set_generated(ti);
+		ti = proto_tree_add_time(at, hf_ax25_analysis_idle, tvb, 0, 0, &a->ka_idle);
+		proto_item_set_generated(ti);
+	}
+	if (flags & AX25_ANA_KEEP_ALIVE_ACK) {
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_keep_alive_frame, tvb, 0, 0, a->ka_frame);
+		proto_item_set_generated(ti);
+	}
+	if (flags & AX25_ANA_DUPLICATE_ACK) {
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_duplicate_ack_frame, tvb, 0, 0, a->dup_frame);
+		proto_item_set_generated(ti);
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_duplicate_ack_num, tvb, 0, 0, a->dup_num);
+		proto_item_set_generated(ti);
+	}
+	if (flags & (AX25_ANA_RESUME | AX25_ANA_BUSY_REPEATED | AX25_ANA_BUSY_UNPOLLED)) {
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_rnr_frame, tvb, 0, 0, a->rnr_frame);
+		proto_item_set_generated(ti);
+	}
+	if (flags & (AX25_ANA_RESUME | AX25_ANA_BUSY_REPEATED)) {
+		ti = proto_tree_add_time(at, hf_ax25_analysis_time_since_rnr, tvb, 0, 0, &a->busy_time);
+		proto_item_set_generated(ti);
+	}
+	if ((flags & AX25_ANA_RESUME) && a->resume_type != AX25_RESUME_UNKNOWN) {
+		ti = proto_tree_add_uint(at, hf_ax25_analysis_resume_type, tvb, 0, 0, a->resume_type);
+		proto_item_set_generated(ti);
+		if (a->poll_frame) {
+			ti = proto_tree_add_uint(at, hf_ax25_analysis_poll_frame, tvb, 0, 0, a->poll_frame);
+			proto_item_set_generated(ti);
+		}
+	}
+
+	fi = proto_tree_add_item(at, hf_ax25_analysis_flags, tvb, 0, 0, ENC_NA);
+	proto_item_set_generated(fi);
+	ft = proto_item_add_subtree(fi, ett_ax25_analysis_flags);
+
+	if (flags & AX25_ANA_RETRANSMISSION) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_retransmission);
+		if (f->ftype != AX25_FT_I)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_retransmission,
+					"Retransmission of the %s in frame %u, repeated as is (%s)",
+					val_to_str_const(f->ftype, ax25_ftype_names, "?"), a->orig_frame,
+					ax25_rtx_str(pinfo->pool, a, false));
+		else if (a->orig_frame)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_retransmission,
+					"Retransmission of N(S)=%u, first sent in frame %u (%s)",
+					ns, a->orig_frame, ax25_rtx_str(pinfo->pool, a, true));
+		else
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_retransmission,
+					"Retransmission of N(S)=%u, first sending not captured (%s)",
+					ns, ax25_rtx_str(pinfo->pool, a, true));
+		if (flags & AX25_ANA_SPURIOUS) {
+			ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_spurious);
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_spurious,
+					"Spurious retransmission: N(S)=%u was acknowledged by N(R)=%u in frame %u",
+					ns, a->acked_nr, a->acked_frame);
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Spurious Retransmission] ");
+		} else {
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Retransmission] ");
+		}
+		if (flags & AX25_ANA_PAYLOAD_DIFFERS)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_payload_differs,
+					"The I field (%d octets) differs from the one sent in frame %u (%u octets)",
+					MAX(f->ctl_remaining - ctl_len, 0), a->orig_frame, a->orig_len);
+	}
+	if (flags & AX25_ANA_OUT_OF_ORDER) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_out_of_order);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_out_of_order,
+				"Out of order: N(S)=%u is before V(S)=%u and wasn't seen before", ns, a->vs);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Out-Of-Order] ");
+	}
+	if (flags & AX25_ANA_LOST_FRAME) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_lost_frame);
+		if (a->lost_count == 1)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_lost_frame,
+					"Previous I frame not captured: N(S)=%u", a->vs);
+		else
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_lost_frame,
+					"Previous I frames not captured: N(S)=%u to %u (%u frames)",
+					a->vs, (a->vs + a->lost_count - 1) % m, a->lost_count);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Previous frame not captured] ");
+	}
+	if (flags & AX25_ANA_KEEP_ALIVE) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_keep_alive);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_keep_alive,
+				"Keep-alive, %s: N(R)=%u unchanged, %.1f s after the last %s (%s is %.1f s)",
+				val_to_str_const(a->ka_reason, ax25_ka_vals, "?"), nr, nstime_to_sec(&a->ka_idle),
+				a->ka_reason == AX25_KA_T1 ? "I frame or poll" : "frame",
+				a->ka_reason == AX25_KA_T1 ? "T1" : "T3", a->ka_limit_s);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Keep-Alive] ");
+	}
+	if (flags & AX25_ANA_KEEP_ALIVE_ACK) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_keep_alive_ack);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_keep_alive_ack,
+				"Keep-alive ACK: answers the poll in frame %u", a->ka_frame);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Keep-Alive ACK] ");
+	}
+	if (flags & AX25_ANA_DUPLICATE_ACK) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_duplicate_ack);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_duplicate_ack,
+				"Duplicate acknowledgement #%u of frame %u (N(R)=%u)", a->dup_num, a->dup_frame, nr);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Dup ACK %u#%u] ", a->dup_frame, a->dup_num);
+	}
+	if (flags & AX25_ANA_RESUME) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_resume);
+		if (a->resume_type == AX25_RESUME_POLL && a->poll_frame)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_resume,
+					"Busy condition of frame %u cleared after %.1f s, answering the poll in frame %u (section 6.4.9)",
+					a->rnr_frame, nstime_to_sec(&a->busy_time), a->poll_frame);
+		else if (a->resume_type == AX25_RESUME_POLL)
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_resume,
+					"Busy condition of frame %u cleared after %.1f s, answering a poll that wasn't captured",
+					a->rnr_frame, nstime_to_sec(&a->busy_time));
+		else
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_resume,
+					"Busy condition of frame %u cleared after %.1f s%s",
+					a->rnr_frame, nstime_to_sec(&a->busy_time),
+					a->resume_type == AX25_RESUME_UNSOLICITED ? ", unsolicited (section 6.4.10)" : "");
+		if (flags & AX25_ANA_RESUME_ANOMALOUS) {
+			ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_resume_anomalous);
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_resume_anomalous,
+					"Busy cleared with N(R)=%u, %s N(R)=%u of the RNR in frame %u: %s",
+					nr, a->nr_higher ? "above" : "below", a->rnr_nr, a->rnr_frame,
+					a->nr_higher ? "I frames taken while busy (section 6.4.2.2)" :
+					    "V(R) went back");
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Anomalous Resume] ");
+		} else {
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Resume] ");
+		}
+	}
+	if (flags & AX25_ANA_BUSY_REPEATED) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_busy_repeated);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_busy_repeated,
+				"RNR repeated, busy since frame %u (%.1f s)", a->rnr_frame, nstime_to_sec(&a->busy_time));
+		if (flags & AX25_ANA_BUSY_NR_CHANGED) {
+			ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_busy_nr_changed);
+			expert_add_info_format(pinfo, ti, &ei_ax25_analysis_busy_nr_changed,
+					"RNR with N(R)=%u, %s N(R)=%u of the RNR before it: %s",
+					nr, a->nr_higher ? "above" : "below", a->rnr_nr,
+					a->nr_higher ? "I frames taken while busy (section 6.4.2.2)" :
+					    "V(R) went back");
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Busy N(R) Changed] ");
+		} else {
+			col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Busy Repeated] ");
+		}
+	}
+	if (flags & AX25_ANA_BUSY_UNPOLLED) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_busy_unpolled);
+		expert_add_info_format(pinfo, ti, &ei_ax25_analysis_busy_unpolled,
+				"Busy since the RNR in frame %u and not polled for %.1f s, more than T3 + N2 x T1 = %.1f s (section 6.4.9)",
+				a->rnr_frame, nstime_to_sec(&a->unpolled_gap), a->unpolled_limit_s);
+		col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[AX.25 Busy Not Polled] ");
+	}
+	if (flags & AX25_ANA_AMBIGUOUS) {
+		ti = ax25_add_ana_flag(ft, tvb, hf_ax25_analysis_ambiguous);
+		proto_item_append_text(ti, ": the other side wasn't heard, V(A) is unknown");
+	}
+}
+
+/*
+ * ax25.no_subdissector_on_error: the I field of a retransmission (spurious
+ * ones included) or an out-of-order I frame isn't handed to the PID
+ * dissector (PID 0x08 included), as it would see data twice or out of
+ * order; compare tcp.no_subdissector_on_error. UI frames and digipeated
+ * copies (which get no analysis flags) aren't concerned. Only reads the
+ * snapshot, so it is the same on every pass.
+ */
+static uint32_t
+ax25_no_subdissector(const ax25_pkt_t *pkt, const ax25_frame_t *f)
+{
+	if (!ax25_pref_no_subdissector_on_error || !pkt || f->ftype != AX25_FT_I || pkt->dup_of)
+		return 0;
+	return pkt->ana.flags & AX25_ANA_ERRORS;
 }
 
 /* A numeric XID parameter (big-endian, up to four octets) */
@@ -3140,6 +4870,7 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	ax25_frame_t frame;
 	ax25_pkt_t *pkt;
 	bool is_extended;
+	uint32_t ana_errors;
 
 
 	info_buffer = (char *)wmem_alloc( pinfo->pool, STRLEN );
@@ -3313,6 +5044,23 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	if ( is_extended && ax25_ftype_is_s( frame.ftype ) && ( frame.c0 & AX25_S128_ZERO_BITS ) )
 		proto_tree_add_expert( ax25_tree, pinfo, &ei_ax25_s128_bits, tvb, ctl_offset, 1 );
 
+	if ( frame.ftype == AX25_FT_SREJ )
+		{
+		int srej_len = (int)tvb_reported_length_remaining( tvb, offset ) - (int)trailer;
+
+		if ( pkt && pkt->srej_flags )
+			ax25_add_srej_checks( ax25_tree, tvb, pinfo, pkt, ctl_offset, offset - ctl_offset );
+		if ( srej_len > 0 )
+			{
+			ax25_add_srej_data( ax25_tree, tvb, pinfo, pkt, offset, srej_len );
+			offset += srej_len;
+			}
+		}
+
+	/* After the control field, which sets the Info column */
+	if ( pkt )
+		ax25_add_analysis( ax25_tree, tvb, pinfo, pkt, &frame );
+
 	if ( frame.ftype == AX25_FT_XID )
 		{
 		ax25_dissect_xid( tvb, offset, pinfo, ax25_tree );
@@ -3354,7 +5102,16 @@ dissect_ax25( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		 * (low octet first, as on the wire) for modulo 128 I frames. */
 		if ( pkt )
 			p_add_proto_data( pinfo->pool, pinfo, proto_ax25, AX25_PROTO_DATA_SEG_PKT, pkt );
-		if (!dissector_try_uint_with_data(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree, true, GINT_TO_POINTER(control)))
+		ana_errors = ax25_no_subdissector( pkt, &frame );
+		if ( ana_errors )
+			{
+			proto_tree_add_expert_format( ax25_tree, pinfo, &ei_ax25_analysis_no_subdissector, tvb, offset, 0,
+				"I field not handed to the PID dissector: %s (ax25.no_subdissector_on_error)",
+				( ana_errors & AX25_ANA_SPURIOUS ) ? "spurious retransmission" :
+				( ana_errors & AX25_ANA_RETRANSMISSION ) ? "retransmission" : "out of order" );
+			call_data_dissector(next_tvb, pinfo, parent_tree);
+			}
+		else if (!dissector_try_uint_with_data(ax25_dissector_table, pid, next_tvb, pinfo, parent_tree, true, GINT_TO_POINTER(control)))
 			{
 			call_data_dissector(next_tvb, pinfo, parent_tree);
 			}
@@ -3789,6 +5546,191 @@ proto_register_ax25(void)
 			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }
 		},
+		{ &hf_ax25_param_reject,
+			{ "Reject mode",		"ax25.param.reject",
+			FT_UINT8, BASE_DEC, VALS(ax25_rejmode_vals), 0x0,
+			"Implicit or selective reject in effect on the link (sections 4.3.3.7 and 6.3.2)", HFILL }
+		},
+		{ &hf_ax25_param_reject_multi,
+			{ "Multi-SREJ",			"ax25.param.reject.multi",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_enabled_disabled), 0x0,
+			"Several N(R)s in one SREJ frame (HDLC optional function bit 21), selected by XID", HFILL }
+		},
+		{ &hf_ax25_param_reject_source,
+			{ "Reject mode source",		"ax25.param.reject.source",
+			FT_UINT8, BASE_DEC, VALS(ax25_rejsrc_vals), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_param_reject_frame,
+			{ "Reject mode set in frame",	"ax25.param.reject.frame",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The XID response or FRMR the reject mode comes from, or the frame that showed the version", HFILL }
+		},
+		{ &hf_ax25_srej_data,
+			{ "SREJ additional data",	"ax25.srej.data",
+			FT_BYTES, BASE_NONE, NULL, 0x0,
+			"Octets after the control field of an SREJ (multi-SREJ)", HFILL }
+		},
+		{ &hf_ax25_srej_nr,
+			{ "Additional N(R)",		"ax25.srej.nr",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"A further I frame the multi-SREJ asks for (Direwolf's encoding)", HFILL }
+		},
+		{ &hf_ax25_srej_span_first,
+			{ "Span first N(R)",		"ax25.srej.span_first",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"First I frame of a span the multi-SREJ asks for (modulo 128)", HFILL }
+		},
+		{ &hf_ax25_srej_span_last,
+			{ "Span last N(R)",		"ax25.srej.span_last",
+			FT_UINT8, BASE_DEC, NULL, 0x0,
+			"Last I frame of a span the multi-SREJ asks for (modulo 128)", HFILL }
+		},
+		{ &hf_ax25_analysis,
+			{ "SEQ analysis",		"ax25.analysis",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"Sequence number analysis of the connected-mode stream", HFILL }
+		},
+		{ &hf_ax25_analysis_flags,
+			{ "AX.25 analysis flags",	"ax25.analysis.flags",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"This frame has some of the AX.25 analysis flags set", HFILL }
+		},
+		{ &hf_ax25_analysis_retransmission,
+			{ "Retransmission",		"ax25.analysis.retransmission",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"An I frame whose N(S) was sent before (spurious ones included), or a U or S frame repeated as is", HFILL }
+		},
+		{ &hf_ax25_analysis_spurious,
+			{ "Spurious retransmission",	"ax25.analysis.spurious_retransmission",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"A retransmission of an I frame whose acknowledgement was heard", HFILL }
+		},
+		{ &hf_ax25_analysis_retransmitted_frame,
+			{ "Retransmitted frame",	"ax25.analysis.retransmitted_frame",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RETRANS_PREV), 0x0,
+			"The frame first sent with this N(S)", HFILL }
+		},
+		{ &hf_ax25_analysis_rto,
+			{ "Time since the retransmitted frame",	"ax25.analysis.rto",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_analysis_reason,
+			{ "Retransmission reason",	"ax25.analysis.retransmission_reason",
+			FT_UINT8, BASE_DEC, VALS(ax25_rtx_vals), 0x0,
+			"What made the sender send it again: REJ (sections 4.4.3, 6.4.7), SREJ (4.4.4, 6.4.8), a poll answered with F=1 (6.4.11), or T1", HFILL }
+		},
+		{ &hf_ax25_analysis_prompt_frame,
+			{ "Asked for in frame",		"ax25.analysis.prompt_frame",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The REJ, SREJ or F=1 response the retransmission follows", HFILL }
+		},
+		{ &hf_ax25_analysis_acked_frame,
+			{ "Acknowledged in frame",	"ax25.analysis.acked_frame",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0,
+			"The frame whose N(R) acknowledged the spuriously retransmitted N(S)", HFILL }
+		},
+		{ &hf_ax25_analysis_out_of_order,
+			{ "Out of order",		"ax25.analysis.out_of_order",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"An I frame behind V(S) whose N(S) wasn't seen before", HFILL }
+		},
+		{ &hf_ax25_analysis_lost_frame,
+			{ "Previous I frame not captured",	"ax25.analysis.lost_frame",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"N(S) is ahead of V(S): the I frames in between were not captured", HFILL }
+		},
+		{ &hf_ax25_analysis_ambiguous,
+			{ "Guessed",			"ax25.analysis.ambiguous",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"The other side wasn't heard, so V(A) is unknown and the classification is a guess", HFILL }
+		},
+		{ &hf_ax25_analysis_keep_alive,
+			{ "Keep-alive",			"ax25.analysis.keep_alive",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"RR or RNR command, P=1, N(R) unchanged, no new I frame received since (sections 4.4.5.2, 6.4.11)", HFILL }
+		},
+		{ &hf_ax25_analysis_keep_alive_reason,
+			{ "Keep-alive timer",		"ax25.analysis.keep_alive_reason",
+			FT_UINT8, BASE_DEC, VALS(ax25_ka_vals), 0x0,
+			"T1 enquiry if I frames are outstanding, else T3 poll", HFILL }
+		},
+		{ &hf_ax25_analysis_idle,
+			{ "Idle time",			"ax25.analysis.idle",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			"Before the keep-alive: since the last frame (T3), or the last I frame or poll of the sender (T1)", HFILL }
+		},
+		{ &hf_ax25_analysis_keep_alive_ack,
+			{ "Keep-alive ACK",		"ax25.analysis.keep_alive_ack",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"F=1 response to a keep-alive", HFILL }
+		},
+		{ &hf_ax25_analysis_keep_alive_frame,
+			{ "Keep-alive in frame",	"ax25.analysis.keep_alive_frame",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			"The keep-alive this frame answers", HFILL }
+		},
+		{ &hf_ax25_analysis_duplicate_ack,
+			{ "Duplicate acknowledgement",	"ax25.analysis.duplicate_ack",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"RR response with the same N(R) as the last one, not answering a poll", HFILL }
+		},
+		{ &hf_ax25_analysis_duplicate_ack_frame,
+			{ "Duplicate of the acknowledgement in frame",	"ax25.analysis.duplicate_ack_frame",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_DUP_ACK), 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_analysis_duplicate_ack_num,
+			{ "Duplicate acknowledgement number",	"ax25.analysis.duplicate_ack_num",
+			FT_UINT32, BASE_DEC, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_analysis_resume,
+			{ "Resume",			"ax25.analysis.resume",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"RR or REJ clearing a busy condition (RNR) of the same side (section 6.4.10)", HFILL }
+		},
+		{ &hf_ax25_analysis_resume_anomalous,
+			{ "Anomalous resume",		"ax25.analysis.resume_anomalous",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"The busy condition was cleared with another N(R) than the RNR's (section 6.4.2.2)", HFILL }
+		},
+		{ &hf_ax25_analysis_resume_type,
+			{ "Resume type",		"ax25.analysis.resume_type",
+			FT_UINT8, BASE_DEC, VALS(ax25_resume_vals), 0x0,
+			"Unsolicited (section 6.4.10) or answering a poll (section 6.4.9)", HFILL }
+		},
+		{ &hf_ax25_analysis_rnr_frame,
+			{ "Busy since frame",		"ax25.analysis.rnr_frame",
+			FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			"The RNR that started the busy condition", HFILL }
+		},
+		{ &hf_ax25_analysis_time_since_rnr,
+			{ "Time since the RNR",		"ax25.analysis.time_since_rnr",
+			FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }
+		},
+		{ &hf_ax25_analysis_poll_frame,
+			{ "Poll in frame",		"ax25.analysis.poll_frame",
+			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+			"The RR or RNR command with P=1 this resume answers", HFILL }
+		},
+		{ &hf_ax25_analysis_busy_repeated,
+			{ "Busy repeated",		"ax25.analysis.busy_repeated",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"RNR from a side already busy (section 6.4.2.2)", HFILL }
+		},
+		{ &hf_ax25_analysis_busy_nr_changed,
+			{ "Busy N(R) changed",		"ax25.analysis.busy_nr_changed",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"RNR repeated with another N(R): a busy side ignores I frames (section 6.4.2.2)", HFILL }
+		},
+		{ &hf_ax25_analysis_busy_unpolled,
+			{ "Busy peer not polled",	"ax25.analysis.busy_unpolled",
+			FT_NONE, BASE_NONE, NULL, 0x0,
+			"No poll of the busy side for longer than T3 + N2 x T1 (section 6.4.9)", HFILL }
+		},
 		{ &hf_ax25_xidn_command_frame,
 			{ "Answers the XID command in frame",	"ax25.xid.neg.command_frame",
 			FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
@@ -4127,6 +6069,9 @@ proto_register_ax25(void)
 		&ett_ax25_xid_bits,
 		&ett_ax25_seg,
 		&ett_ax25_xidn,
+		&ett_ax25_srej,
+		&ett_ax25_analysis,
+		&ett_ax25_analysis_flags,
 	};
 
 	static ei_register_info ei[] = {
@@ -4242,6 +6187,82 @@ proto_register_ax25(void)
 			{ "ax25.xid.length", PI_PROTOCOL, PI_WARN,
 			"XID length runs past its group or the frame", EXPFILL }
 		},
+		{ &ei_ax25_srej_implicit_xid,
+			{ "ax25.srej.implicit.xid", PI_PROTOCOL, PI_ERROR,
+			"SREJ, but XID negotiated implicit reject", EXPFILL }
+		},
+		{ &ei_ax25_srej_implicit,
+			{ "ax25.srej.implicit", PI_PROTOCOL, PI_WARN,
+			"SREJ, but implicit reject is in effect (version default or FRMR answering XID)", EXPFILL }
+		},
+		{ &ei_ax25_srej_multi_xid,
+			{ "ax25.srej.multi.xid", PI_PROTOCOL, PI_ERROR,
+			"Multi-SREJ, but XID didn't select it", EXPFILL }
+		},
+		{ &ei_ax25_srej_multi,
+			{ "ax25.srej.multi", PI_PROTOCOL, PI_WARN,
+			"Multi-SREJ without an XID that selected it", EXPFILL }
+		},
+		{ &ei_ax25_srej_multi_mod8,
+			{ "ax25.srej.multi.mod8", PI_PROTOCOL, PI_WARN,
+			"Multi-SREJ in modulo 8 (Direwolf only uses it with modulo 128)", EXPFILL }
+		},
+		{ &ei_ax25_analysis_retransmission,
+			{ "ax25.analysis.retransmission.expert", PI_SEQUENCE, PI_NOTE,
+			"This frame is a (suspected) retransmission", EXPFILL }
+		},
+		{ &ei_ax25_analysis_spurious,
+			{ "ax25.analysis.spurious_retransmission.expert", PI_SEQUENCE, PI_NOTE,
+			"This frame is a (suspected) spurious retransmission", EXPFILL }
+		},
+		{ &ei_ax25_analysis_payload_differs,
+			{ "ax25.analysis.payload_differs", PI_SEQUENCE, PI_WARN,
+			"Retransmission with another I field", EXPFILL }
+		},
+		{ &ei_ax25_analysis_out_of_order,
+			{ "ax25.analysis.out_of_order.expert", PI_SEQUENCE, PI_WARN,
+			"This frame is a (suspected) out-of-order I frame", EXPFILL }
+		},
+		{ &ei_ax25_analysis_lost_frame,
+			{ "ax25.analysis.lost_frame.expert", PI_SEQUENCE, PI_WARN,
+			"Previous I frame(s) not captured", EXPFILL }
+		},
+		{ &ei_ax25_analysis_keep_alive,
+			{ "ax25.analysis.keep_alive.expert", PI_SEQUENCE, PI_NOTE,
+			"Keep-alive (T3 poll or T1 enquiry)", EXPFILL }
+		},
+		{ &ei_ax25_analysis_keep_alive_ack,
+			{ "ax25.analysis.keep_alive_ack.expert", PI_SEQUENCE, PI_NOTE,
+			"Answer to a keep-alive", EXPFILL }
+		},
+		{ &ei_ax25_analysis_duplicate_ack,
+			{ "ax25.analysis.duplicate_ack.expert", PI_SEQUENCE, PI_NOTE,
+			"Duplicate acknowledgement", EXPFILL }
+		},
+		{ &ei_ax25_analysis_resume,
+			{ "ax25.analysis.resume.expert", PI_SEQUENCE, PI_CHAT,
+			"Busy condition cleared", EXPFILL }
+		},
+		{ &ei_ax25_analysis_resume_anomalous,
+			{ "ax25.analysis.resume_anomalous.expert", PI_SEQUENCE, PI_WARN,
+			"Busy condition cleared with another N(R) than the RNR's", EXPFILL }
+		},
+		{ &ei_ax25_analysis_busy_repeated,
+			{ "ax25.analysis.busy_repeated.expert", PI_SEQUENCE, PI_CHAT,
+			"RNR repeated while busy", EXPFILL }
+		},
+		{ &ei_ax25_analysis_busy_nr_changed,
+			{ "ax25.analysis.busy_nr_changed.expert", PI_SEQUENCE, PI_WARN,
+			"RNR repeated with another N(R)", EXPFILL }
+		},
+		{ &ei_ax25_analysis_busy_unpolled,
+			{ "ax25.analysis.busy_unpolled.expert", PI_SEQUENCE, PI_WARN,
+			"Busy side not polled for longer than T3 + N2 x T1", EXPFILL }
+		},
+		{ &ei_ax25_analysis_no_subdissector,
+			{ "ax25.analysis.no_subdissector", PI_SEQUENCE, PI_NOTE,
+			"I field of a retransmitted or out-of-order I frame not handed to the PID dissector", EXPFILL }
+		},
 	};
 
 	module_t *ax25_module;
@@ -4302,6 +6323,33 @@ proto_register_ax25(void)
 		"Longest expected gap between two segments. The spec gives no value;"
 		" 0: N2 x T1 of the sender",
 		10, &ax25_pref_tr210_s);
+	prefs_register_bool_preference(ax25_module, "analyze_sequence_numbers",
+		"Analyze AX.25 sequence numbers",
+		"Analyze N(S) and N(R) of connected-mode streams, like TCP sequence analysis:"
+		" retransmissions (REJ, SREJ, poll answers, T1: sections 4.4.3, 4.4.4, 6.4.7,"
+		" 6.4.8, 6.4.11), out-of-order and missed frames, keep-alive polls (T3 poll or T1"
+		" enquiry: sections 4.4.5.2, 6.4.11), duplicate acknowledgements, and busy"
+		" conditions (RNR: sections 4.3.2.2, 6.4.9, 6.4.10)",
+		&ax25_pref_analyze_seq);
+	prefs_register_bool_preference(ax25_module, "flag_anomalous_resume",
+		"Flag a busy condition cleared with another N(R)",
+		"A busy receiver ignores I frames (section 6.4.2.2), so it should clear"
+		" the busy condition with the N(R) of its RNR (section 6.4.10). Flag it"
+		" when that N(R), or the N(R) of a repeated RNR, differs",
+		&ax25_pref_flag_anomalous_resume);
+	prefs_register_bool_preference(ax25_module, "flag_unpolled_busy",
+		"Flag a busy peer not polled within T3 + N2 x T1",
+		"The side receiving an RNR polls the busy side every T3, then every T1"
+		" up to N2 times (sections 6.4.9 and 6.4.11). Flag a busy condition with"
+		" no poll for longer than that",
+		&ax25_pref_flag_unpolled_busy);
+	prefs_register_bool_preference(ax25_module, "no_subdissector_on_error",
+		"Do not call subdissectors for error frames",
+		"Do not hand the I field of retransmitted (sections 4.4.3, 4.4.4, 6.4.11)"
+		" or out-of-order I frames to the dissector of their PID, segments (PID 0x08,"
+		" section 6.6) included, as it would see the data twice or out of order;"
+		" show it as data. Needs sequence analysis",
+		&ax25_pref_no_subdissector_on_error);
 
 	/*
 	 * Per-station parameters, in between XID and the preferences above.
