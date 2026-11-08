@@ -111857,3 +111857,61 @@ class TestDissectOpaMad:
         lines = self.frames(cmd_tshark, capture_file, test_env, 'opa.etype',
                 fields=('opa.etype', '_ws.col.protocol'))
         assert [l.split('\t', 1)[1] for l in lines] == ['0x0800\tUDP', '0x0806\tARP']
+
+
+class TestDissectOpaSnc:
+    '''Omni-Path SnC (Snoop and Capture metadata) header in ERF records of
+    type 28, from the synthetic capture opa_snc_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def count_frames(cmd_tshark, capture_file, test_env, display_filter, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('opa_snc_coverage.pcapng.gz'),
+                '-Y', display_filter,
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return count_output(stdout)
+
+    def test_opa_snc_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 43 frames carry the SnC header: 16 outbound (PBC), 24 inbound
+        (RHF), one for internal debugging tools and two with an unknown
+        direction. 38 carry a 9B packet; the five bypass packets (PBC bypass
+        bit set, or RHF receive type 4) are not decoded further and get a
+        warning.'''
+        count = lambda f: self.count_frames(cmd_tshark, capture_file, test_env, f)
+        assert count('opa.snc') == 43
+        assert count('opa.snc.direction == 0') == 16
+        assert count('opa.snc.direction == 1') == 24
+        assert count('opa.snc.direction == 2') == 1
+        assert count('opa.snc.direction > 2') == 2
+        assert count('opa.snc && opa.9b') == 38
+        assert count('opa.snc && !opa.9b') == 5
+        assert count('opa.snc.pbc.pbcpacketbypass == 1') == 2
+        assert count('opa.snc.rhf.rcvtype == 4') == 3
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opa_snc_coverage.pcapng.gz'),
+                '-q', '-zexpert,warn',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert grep_output(stdout, r'^\s+5\s+Protocol\s+OPA SnC\s+Bypass packets not implemented')
+
+    def test_opa_snc_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.count_frames(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes) == 0
+
+    def test_opa_snc_inner_packets(self, cmd_tshark, capture_file, test_env):
+        '''The 9B packet after the header is decoded: the first frame is a
+        UD Send Only carrying an SM ClassPortInfo Get (QP 0), and the Ethernet
+        over OPA payload is handed on to ARP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opa_snc_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 4, 9}',
+                '-Tfields', '-eframe.number', '-eopa.snc.portnumber', '-eopa.bth.opcode',
+                '-eopa.mad.method', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t0x01\t0x64\t0x01\tOmni-Path',
+            '4\t0x02\t\t\tOmni-Path',
+            '9\t0x01\t0x64\t\tARP',
+        ]
