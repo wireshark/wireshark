@@ -205,17 +205,10 @@ target_link_libraries(wiretap
 		GLib2::GLib2
 	PRIVATE
 		LibXml2::LibXml2
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
-		${ZSTD_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+		$<TARGET_NAME_IF_EXISTS:ZSTD::ZSTD>
 		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
-)
-
-target_include_directories(wiretap SYSTEM
-	PRIVATE
-		${ZLIB_INCLUDE_DIRS}
-		${ZLIBNG_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
 )
 
 target_include_directories(wiretap PUBLIC

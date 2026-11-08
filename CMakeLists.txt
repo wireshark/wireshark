@@ -3287,8 +3287,8 @@ if(BUILD_wireshark AND QT_FOUND)
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		$<$<BOOL:${WIN32}>:dwmapi.lib>
 		${SPEEXDSP_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -3407,8 +3407,8 @@ if(BUILD_stratoshark AND QT_FOUND)
 		$<$<BOOL:${WIN32}>:uxtheme.lib>
 		$<$<BOOL:${WIN32}>:dwmapi.lib>
 		${SPEEXDSP_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		${MINIZIP_LIBRARIES}
 	)
 
@@ -3742,8 +3742,8 @@ if(BUILD_text2pcap)
 		wsutil
 		ui
 		epan
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 	)
 	set(text2pcap_FILES
 		app/wireshark_flavor.c
@@ -3761,8 +3761,8 @@ if(BUILD_mergecap)
 	set(mergecap_LIBS
 		ui
 		wiretap
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		${CMAKE_DL_LIBS}
 	)
 	set(mergecap_FILES
@@ -3780,8 +3780,8 @@ if(BUILD_reordercap)
 	set(reordercap_LIBS
 		ui
 		wiretap
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		${CMAKE_DL_LIBS}
 	)
 	set(reordercap_FILES
@@ -3800,8 +3800,8 @@ if(BUILD_capinfos)
 		ui
 		wiretap
 		wsutil
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		GCrypt::GCrypt
 		${CMAKE_DL_LIBS}
 	)
@@ -3821,8 +3821,8 @@ if(BUILD_captype)
 		ui
 		wiretap
 		wsutil
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		${CMAKE_DL_LIBS}
 	)
 	set(captype_FILES
@@ -3840,8 +3840,8 @@ if(BUILD_editcap)
 	set(editcap_LIBS
 		ui
 		wiretap
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
 		GCrypt::GCrypt
 		${CMAKE_DL_LIBS}
 	)

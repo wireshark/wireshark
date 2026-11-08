@@ -2096,22 +2096,27 @@ add_library(dissectors OBJECT
 )
 add_dependencies(dissectors generate_dissector_registration)
 
-target_link_libraries(dissectors PRIVATE GCrypt::GCrypt)
+# The dissectors' objects are linked into epan, which links these libraries.
+# Link them here for their include directories.
+target_link_libraries(dissectors
+	PRIVATE
+		GCrypt::GCrypt
+		LibXml2::LibXml2
+		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
+		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+		$<TARGET_NAME_IF_EXISTS:ZSTD::ZSTD>
+)
 
 target_include_directories(dissectors
 	SYSTEM PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
 		${KERBEROS_INCLUDE_DIRS}
-		${LIBXML2_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
 		${NGHTTP2_INCLUDE_DIRS}
 		${NGHTTP3_INCLUDE_DIRS}
 		${SMI_INCLUDE_DIRS}
 		${SNAPPY_INCLUDE_DIRS}
-		${XXHASH_INCLUDE_DIRS}
-		${ZLIB_INCLUDE_DIRS}
-		${ZLIBNG_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}

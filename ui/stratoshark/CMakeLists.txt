@@ -1011,7 +1011,13 @@ add_library(ui_stratoshark OBJECT
 	stratoshark-tap-register.c
 )
 
-target_link_libraries(ui_stratoshark PRIVATE GCrypt::GCrypt $<TARGET_NAME_IF_EXISTS:Minizipng::Minizipng>)
+target_link_libraries(ui_stratoshark
+	PRIVATE
+		GCrypt::GCrypt
+		$<TARGET_NAME_IF_EXISTS:Minizipng::Minizipng>
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+)
 
 target_include_directories(ui_stratoshark
 	SYSTEM PRIVATE
@@ -1019,8 +1025,6 @@ target_include_directories(ui_stratoshark
 		${PCAP_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
-		$<$<CXX_COMPILER_ID:MSVC>:${ZLIB_INCLUDE_DIRS}>
-		$<$<CXX_COMPILER_ID:MSVC>:${ZLIBNG_INCLUDE_DIRS}>
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}

@@ -431,9 +431,9 @@ target_link_libraries(wsutil
 		${CMAKE_DL_LIBS}
 		${GNUTLS_LIBRARIES}
 		${M_LIBRARIES}
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
-		${ZSTD_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+		$<TARGET_NAME_IF_EXISTS:ZSTD::ZSTD>
 		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
 		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
@@ -452,9 +452,6 @@ target_link_libraries(wsutil
 target_include_directories(wsutil SYSTEM
 	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
-		${ZLIB_INCLUDE_DIRS}
-		${ZLIBNG_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
 		${PCRE2_INCLUDE_DIRS}
 )
 
@@ -504,9 +501,9 @@ target_link_libraries(wsutil_static
 		${GNUTLS_LIBRARIES}
 		${M_LIBRARIES}
 		$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
-		${ZLIB_LIBRARIES}
-		${ZLIBNG_LIBRARIES}
-		${ZSTD_LIBRARIES}
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+		$<TARGET_NAME_IF_EXISTS:ZSTD::ZSTD>
 		$<TARGET_NAME_IF_EXISTS:LZ4::LZ4>
 		$<IF:$<CONFIG:Debug>,${PCRE2_DEBUG_LIBRARIES},${PCRE2_LIBRARIES}>
 		${WIN_IPHLPAPI_LIBRARY}
@@ -518,9 +515,6 @@ target_link_libraries(wsutil_static
 target_include_directories(wsutil_static SYSTEM
 	PRIVATE
 		${GNUTLS_INCLUDE_DIRS}
-		${ZLIB_INCLUDE_DIRS}
-		${ZLIBNG_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
 		${PCRE2_INCLUDE_DIRS}
 )
 
@@ -549,10 +543,14 @@ add_executable(test_wsutil EXCLUDE_FROM_ALL
 	test_wsutil.c
 )
 
-target_link_libraries(test_wsutil ${M_LIBRARIES} GLib2::GLib2 ${SOCKET_LIBRARY} wsutil)
-target_include_directories(test_wsutil SYSTEM PRIVATE ${XXHASH_INCLUDE_DIRS})
-target_link_libraries(test_wsutil ${ZSTD_LIBRARIES})
-target_include_directories(test_wsutil SYSTEM PRIVATE ${ZSTD_INCLUDE_DIRS})
+target_link_libraries(test_wsutil
+	${M_LIBRARIES}
+	GLib2::GLib2
+	${SOCKET_LIBRARY}
+	wsutil
+	$<TARGET_NAME_IF_EXISTS:XXHASH::XXHASH>
+	$<TARGET_NAME_IF_EXISTS:ZSTD::ZSTD>
+)
 
 set_target_properties(test_wsutil PROPERTIES
 	FOLDER "Tests"

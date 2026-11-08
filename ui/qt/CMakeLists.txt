@@ -1111,7 +1111,13 @@ if(Qt6DBus_FOUND)
 	target_link_libraries(qtui PUBLIC Qt6::DBus)
 endif()
 
-target_link_libraries(qtui PRIVATE GCrypt::GCrypt $<TARGET_NAME_IF_EXISTS:Minizipng::Minizipng>)
+target_link_libraries(qtui
+	PRIVATE
+		GCrypt::GCrypt
+		$<TARGET_NAME_IF_EXISTS:Minizipng::Minizipng>
+		$<TARGET_NAME_IF_EXISTS:ZLIB::ZLIB>
+		$<TARGET_NAME_IF_EXISTS:ZLIBNG::ZLIBNG>
+)
 
 target_include_directories(qtui
 	SYSTEM PRIVATE
@@ -1119,8 +1125,6 @@ target_include_directories(qtui
 		${PCAP_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
-		$<$<CXX_COMPILER_ID:MSVC>:${ZLIB_INCLUDE_DIRS}>
-		$<$<CXX_COMPILER_ID:MSVC>:${ZLIBNG_INCLUDE_DIRS}>
 	PRIVATE
 		${CMAKE_CURRENT_BINARY_DIR}
 		${CMAKE_CURRENT_SOURCE_DIR}
