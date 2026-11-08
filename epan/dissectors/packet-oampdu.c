@@ -1373,6 +1373,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             break;
         case OAMPDU_VENDOR_SPECIFIC:
             dissect_oampdu_vendor_specific(tvb, pinfo, oampdu_tree);
+            break;
         default:
             break;
     }
@@ -2104,7 +2105,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 char *serial_num;
                                 serial_num = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, variable_length, ENC_ASCII);
                                 proto_tree_add_string(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_info_serial_number, tvb, offset, variable_length, serial_num);
-                                proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_info_vendor_specific, tvb, offset+32, variable_length-32, ENC_NA);
+                                if (variable_length > 32)
+                                    proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_mfg_info_vendor_specific, tvb, offset+32, variable_length-32, ENC_NA);
                             } else if (leaf_branch == DPOE_LB_DATE_OF_MANUFACTURE) {
                                 const char *bcd_date;
                                 uint16_t year;
@@ -2125,16 +2127,20 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                 /* Check for a BCD encoded year in the range 2000 - 2599 */
                                 if (year >= 0x2000 && year <= 0x2599) {
                                     bcd_date = tvb_get_bcd_string(pinfo->pool, tvb, offset, 4, &Dgt0_9_bcd, false, false, true);
-                                    date[0] = bcd_date[0];
-                                    date[1] = bcd_date[1];
-                                    date[2] = bcd_date[2];
-                                    date[3] = bcd_date[3];
-                                    date[4] = '/';
-                                    date[5] = bcd_date[4];
-                                    date[6] = bcd_date[5];
-                                    date[7] = '/';
-                                    date[8] = bcd_date[6];
-                                    date[9] = bcd_date[7];
+                                    if (strlen(bcd_date) == 8) {
+                                        date[0] = bcd_date[0];
+                                        date[1] = bcd_date[1];
+                                        date[2] = bcd_date[2];
+                                        date[3] = bcd_date[3];
+                                        date[4] = '/';
+                                        date[5] = bcd_date[4];
+                                        date[6] = bcd_date[5];
+                                        date[7] = '/';
+                                        date[8] = bcd_date[6];
+                                        date[9] = bcd_date[7];
+                                    } else {
+                                        snprintf(date, sizeof(date)-1, "%s", "Unknown");
+                                    }
                                 }
                                 /* Check if year is encoded as two separate bytes */
                                 else if (yearh >= 20 && yearh <= 25 && yearl <= 99) {
@@ -2200,15 +2206,18 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                             } else if (leaf_branch == DPOE_LB_REP_THRESH) {
                                 uint8_t nqs;
                                 uint8_t rvpqs;
-                                uint8_t nqs_i;
-                                uint8_t rvpqs_i;
+                                unsigned nqs_i;
+                                unsigned rvpqs_i;
+                                unsigned idx = 0;
+                                unsigned max_thr = (variable_length > 2) ? (variable_length - 2) / 2 : 0;
 
                                 proto_tree_add_item_ret_uint8(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_BIG_ENDIAN, &nqs);
                                 proto_tree_add_item_ret_uint8(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_BIG_ENDIAN, &rvpqs);
 
-                                for (nqs_i = 0; nqs_i < nqs; nqs_i++) {
-                                    for (rvpqs_i = 0; rvpqs_i < rvpqs; rvpqs_i++) {
-                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*(nqs_i+rvpqs_i)), 2, ENC_BIG_ENDIAN);
+                                /* Bound the entries by the container */
+                                for (nqs_i = 0; nqs_i < nqs && idx < max_thr; nqs_i++) {
+                                    for (rvpqs_i = 0; rvpqs_i < rvpqs && idx < max_thr; rvpqs_i++, idx++) {
+                                        dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_report_threshold, tvb, offset+2+(2*idx), 2, ENC_BIG_ENDIAN);
                                         proto_item_append_text(dpoe_opcode_response, " (Report Threshold %i for Queue Set %i)",  nqs_i, rvpqs_i);
                                     }
                                 }
@@ -3038,7 +3047,7 @@ proto_register_oampdu(void)
 
         { &hf_oam_dpoe_repthr_rvpqs,
             { "Report Values Per Queue Set", "oampdu.report.threshold.queue.values",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL } },
 
         { &hf_oam_dpoe_report_threshold,
