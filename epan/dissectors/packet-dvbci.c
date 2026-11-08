@@ -26,8 +26,10 @@
 #include <epan/exported_pdu.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/asn1.h>
 #include <epan/tfs.h>
 #include "packet-dvbci.h"
@@ -1702,6 +1704,9 @@ static const value_string dvbci_sas_sess_state[] = {
 static uint16_t buf_size_cam;    /* buffer size proposal by the CAM */
 /* buffer size proposal by the host == negotiated buffer size */
 static uint16_t buf_size_host;
+/* keys for p_add_proto_data() */
+#define DVBCI_PROTO_DATA_BUF_SIZE_HOST 0
+#define DVBCI_PROTO_DATA_BUF_SIZE_CAM  1
 
 
 int
@@ -2010,11 +2015,28 @@ dissect_conn_desc(tvbuff_t *tvb, unsigned offset, conversation_t *conv,
         store_lsc_msg_dissector(conv, ip_proto, port);
 
         /* everything from here to the descriptor's end is a hostname */
+        if ((unsigned)offset_body + len_field < offset) {
+            proto_tree_add_expert_format(conn_desc_tree, pinfo,
+                    &ei_dvbci_bad_length, tvb, offset_body, offset-offset_body,
+                    "Connection descriptor length %u is too short",
+                    len_field);
+            proto_item_set_len(ti, offset-offset_start);
+            return -1;
+        }
         hostname_len = (offset_body+len_field)-offset;
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_hostname,
                 tvb, offset, hostname_len, ENC_ASCII);
         offset += hostname_len;
     } else {
+        if (len_field < 1) {
+            /* the connection descriptor type is already outside the descriptor */
+            proto_tree_add_expert_format(conn_desc_tree, pinfo,
+                    &ei_dvbci_bad_length, tvb, offset_body, 1,
+                    "Connection descriptor length %u is too short",
+                    len_field);
+            proto_item_set_len(ti, offset-offset_start);
+            return -1;
+        }
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_data,
                 tvb, offset, len_field-1, ENC_NA);
         offset += len_field-1;
@@ -2105,6 +2127,23 @@ dissect_uri(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *tree
 }
 
 
+/* dissect a CI+ certificate with the CI+ specific X.509 extensions
+   enabled, and make sure that they are disabled again if the
+   certificate dissection throws an exception */
+static void
+dissect_ciplus_cert(tvbuff_t *tvb, unsigned offset, asn1_ctx_t *asn1_ctx,
+        proto_tree *tree, int hf_index)
+{
+    x509ce_enable_ciplus();
+    TRY {
+        dissect_x509af_Certificate(false, tvb, offset, asn1_ctx, tree, hf_index);
+    }
+    FINALLY {
+        x509ce_disable_ciplus();
+    }
+    ENDTRY;
+}
+
 /* dissect an item from cc_(sac_)data_req/cc_(sac_)data_cnf,
    returns its length or -1 for error
    if dat_id_ptr is not NULL, fill in the datatype id */
@@ -2150,10 +2189,7 @@ dissect_cc_item(tvbuff_t *tvb, unsigned offset,
 
             /* enable dissection of CI+ specific X.509 extensions
                only for our certificates */
-            x509ce_enable_ciplus();
-            dissect_x509af_Certificate(false, tvb, offset,
-                    &asn1_ctx, cc_item_tree, hf_cert_index);
-            x509ce_disable_ciplus();
+            dissect_ciplus_cert(tvb, offset, &asn1_ctx, cc_item_tree, hf_cert_index);
             break;
         case CC_ID_URI:
             dissect_uri(tvb, offset, pinfo, cc_item_tree);
@@ -2544,7 +2580,7 @@ dissect_ca_desc(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 {
     unsigned         offset_start;
     uint8_t     tag, len_byte;
-    proto_item *ti;
+    proto_item *ti, *pi;
     proto_tree *ca_desc_tree = NULL;
 
     offset_start = offset;
@@ -2561,9 +2597,16 @@ dissect_ca_desc(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
     offset++;
 
     len_byte = tvb_get_uint8(tvb,offset);
-    proto_tree_add_item(
+    pi = proto_tree_add_item(
             ca_desc_tree, hf_dvbci_descr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    if (len_byte < 4) {
+        /* CA_system_ID and CA_PID take 4 bytes */
+        expert_add_info_format(pinfo, pi, &ei_dvbci_bad_length,
+                "CA descriptor length %u is less than 4", len_byte);
+        proto_item_set_len(ti, offset-offset_start);
+        return 0;
+    }
 
     proto_tree_add_item(
             ca_desc_tree, hf_dvbci_ca_sys_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2584,8 +2627,9 @@ dissect_ca_desc(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 }
 
 
-/* dissect an elementary stream entry in the ca_pmt */
-static int
+/* dissect an elementary stream entry in the ca_pmt
+   returns its length or 0 for error */
+static unsigned
 dissect_es(tvbuff_t *tvb, unsigned offset,
         packet_info *pinfo, proto_tree *tree, bool *scrambled)
 {
@@ -2623,8 +2667,8 @@ dissect_es(tvbuff_t *tvb, unsigned offset,
         offset++;
         while (offset < all_len) {
             ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, es_tree);
-            if (ca_desc_len <= 0)
-                return -1;
+            if (ca_desc_len == 0)
+                return 0;
             offset += ca_desc_len;
             if (scrambled)
                 *scrambled = true;
@@ -2839,7 +2883,7 @@ dissect_dvbci_payload_ca(uint32_t tag, int len_field,
             offset++;
             while (offset < all_len) {
                 ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, tree);
-                if (ca_desc_len <= 0)
+                if (ca_desc_len == 0)
                     return;
                 offset += ca_desc_len;
                 /* set this only if we've seen at least one valid ca descriptor */
@@ -2853,7 +2897,7 @@ dissect_dvbci_payload_ca(uint32_t tag, int len_field,
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             es_info_len = dissect_es(tvb, offset, pinfo, tree, &es_scrambled);
-            if (es_info_len <= 0)
+            if (es_info_len == 0)
                 return;
             offset += es_info_len;
             if (es_scrambled)
@@ -4410,10 +4454,13 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 break;
             }
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Session opened");
-            conv = conversation_new_by_id(pinfo->num, CONVERSATION_DVBCI, CT_ID(ssnb, tcid));
-            /* we always add the resource id immediately after the circuit
-                was created */
-            conversation_add_proto_data(conv, proto_dvbci, GUINT_TO_POINTER(res_id));
+            /* create the circuit only once, later passes find it below */
+            if (!PINFO_FD_VISITED(pinfo)) {
+                conv = conversation_new_by_id(pinfo->num, CONVERSATION_DVBCI, CT_ID(ssnb, tcid));
+                /* we always add the resource id immediately after the circuit
+                    was created */
+                conversation_add_proto_data(conv, proto_dvbci, GUINT_TO_POINTER(res_id));
+            }
             break;
         case T_CLOSE_SESSION_REQUEST:
             ssnb = tvb_get_ntohs(tvb, offset);
@@ -4705,6 +4752,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item    *pi;
     tvbuff_t      *payload_tvb;
     fragment_head *frag_msg;
+    unsigned       neg_buf_size;
 
 
     payload_len = tvb_reported_length(tvb);
@@ -4723,10 +4771,23 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info(pinfo, pi, &ei_dvbci_ml);
     }
 
-    /* buf_size_host==0 -> we did not capture the buffer size negotiation */
-    if (buf_size_host!=0 && payload_len>buf_size_host) {
-        proto_tree_add_expert_format(link_tree, pinfo, &ei_dvbci_bad_length, tvb, 2, payload_len,
-                "Payload too large, maximum payload length is the negotiated buffer size (%d bytes)", buf_size_host);
+    /* buf_size_host is the state at the end of the first pass,
+       keep the value that applies to this frame for later passes */
+    if (!PINFO_FD_VISITED(pinfo)) {
+        neg_buf_size = buf_size_host;
+        if (neg_buf_size != 0) {
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_dvbci,
+                    DVBCI_PROTO_DATA_BUF_SIZE_HOST, GUINT_TO_POINTER(neg_buf_size));
+        }
+    }
+    else {
+        neg_buf_size = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
+                    pinfo, proto_dvbci, DVBCI_PROTO_DATA_BUF_SIZE_HOST));
+    }
+    /* neg_buf_size==0 -> we did not capture the buffer size negotiation */
+    if (neg_buf_size!=0 && payload_len>neg_buf_size) {
+        proto_tree_add_expert_format(link_tree, pinfo, &ei_dvbci_bad_length, tvb, 0, payload_len,
+                "Payload too large, maximum payload length is the negotiated buffer size (%u bytes)", neg_buf_size);
     }
 
     frag_msg = fragment_add_seq_next(&tpdu_reassembly_table,
@@ -4754,6 +4815,7 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         uint8_t direction)
 {
     uint16_t    buf_size;
+    unsigned    cam_buf_size;
     proto_item *pi;
 
     buf_size = tvb_get_ntohs(tvb, 0);
@@ -4764,11 +4826,22 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                  buf_size);
 
     if (direction == DATA_HOST_TO_CAM) {
-        buf_size_host = buf_size;
+        /* keep the CAM's proposal that applies to this frame
+           for later passes */
+        if (!PINFO_FD_VISITED(pinfo)) {
+            buf_size_host = buf_size;
+            cam_buf_size = buf_size_cam;
+            p_add_proto_data(wmem_file_scope(), pinfo, proto_dvbci,
+                    DVBCI_PROTO_DATA_BUF_SIZE_CAM, GUINT_TO_POINTER(cam_buf_size));
+        }
+        else {
+            cam_buf_size = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(),
+                        pinfo, proto_dvbci, DVBCI_PROTO_DATA_BUF_SIZE_CAM));
+        }
         pi = proto_tree_add_uint_format(tree, hf_dvbci_buf_size, tvb,
                 0, 2, buf_size,
                 "Negotiated buffer size: %u bytes", buf_size);
-        if (buf_size_host > buf_size_cam) {
+        if (buf_size > cam_buf_size) {
             /* ATTENTION:
                wireshark may run through each packet multiple times
                if we didn't check the direction, we'd get the error when
@@ -4778,7 +4851,8 @@ dissect_dvbci_buf_neg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
     else if (direction == DATA_CAM_TO_HOST) {
-        buf_size_cam = buf_size;
+        if (!PINFO_FD_VISITED(pinfo))
+            buf_size_cam = buf_size;
         proto_tree_add_uint_format(tree, hf_dvbci_buf_size, tvb,
                 0, 2, buf_size,
                 "Buffer size proposal by the CAM: %u bytes", buf_size);
