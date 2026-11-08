@@ -1100,18 +1100,20 @@ static int svcctl_dissect_element_OpenSCManager2_database_name_(tvbuff_t *tvb _U
 static int svcctl_dissect_element_OpenSCManager2_desired_access(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_handle(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
 static int svcctl_dissect_element_OpenSCManager2_handle_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, uint8_t *drep _U_);
+	#include <epan/exceptions.h>
 /*  ENUM_SERVICE_STATUSW Caveats
 	https://github.com/fortra/impacket/blob/4888172ce638910104da4bda2c3301c24e17564c/impacket/dcerpc/v5/scmr.py#L1274
 */
 static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset);
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, unsigned *string_bytes);
 static int
-svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, int starting_offset)
+svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info* di, uint8_t *drep, int hf_index, unsigned *string_bytes)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	proto_tree *tr = NULL;
 	int old_offset;
+	unsigned str_offset;
 	uint32_t _referent_id = 0;
 	ALIGN_TO_5_BYTES;
 	old_offset = offset;
@@ -1122,11 +1124,17 @@ svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr(tvbuff_t *tvb, int offset, packet
 	// Service Name
 	tr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_svcctl_service_name, NULL, "Pointer to Service Name");
 	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_referent_id, 0, &_referent_id);
-	dissect_null_term_wstring(tvb, starting_offset + _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
+	str_offset = dissect_null_term_wstring(tvb, _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_service_name , 0);
+	*string_bytes += str_offset - _referent_id;
 	// Display Name
 	tr = proto_tree_add_subtree(tree, tvb, offset, 4, ett_svcctl_display_name, NULL, "Pointer to Display Name");
 	offset = PIDL_dissect_uint32_val(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_referent_id, 0, &_referent_id);
-	dissect_null_term_wstring(tvb, starting_offset + _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
+	str_offset = dissect_null_term_wstring(tvb, _referent_id, pinfo, tr, drep, hf_svcctl_ENUM_SERVICE_STATUSW_display_name , 0);
+	*string_bytes += str_offset - _referent_id;
+	/* The strings are in the buffer: entries that all point at one
+	 * long string would otherwise take quadratic time */
+	if (*string_bytes > tvb_reported_length(tvb))
+		THROW(ReportedBoundsError);
 	// Status
 	offset = svcctl_dissect_element_ENUM_SERVICE_STATUSW_status(tvb, offset, pinfo, tree, di, drep);
 	proto_item_set_len(item, offset-old_offset);
@@ -1148,12 +1156,15 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 	int         services_buffer_offset;
 	int         payload_starting_offset = offset;
 	uint64_t buffer_size = 0;
+	tvbuff_t   *services_tvb;
+	unsigned    string_bytes = 0;
 	ALIGN_TO_5_BYTES
 	di->dcerpc_procedure_name="EnumServicesStatusW";
 	tr = proto_tree_add_subtree(tree, tvb, offset, 0, ett_svcctl_service, &item, "Pointer to Services Status");
 	// Services Buffer Size
 	offset = dissect_ndr_uint3264(tvb, offset, pinfo, tr, di, drep, hf_svcctl_service_buffer_size, &buffer_size);
 	services_buffer_offset = offset;
+	tvb_ensure_bytes_exist64(tvb, offset, buffer_size);
 	offset += (int)buffer_size;
 	proto_item_set_len(item, offset-payload_starting_offset);
 	ALIGN_TO_4_BYTES
@@ -1165,14 +1176,17 @@ svcctl_dissect_EnumServicesStatusW_response(tvbuff_t *tvb, int offset, packet_in
 	                                , 0, &services_returned);
 	// Services
 	if (services_returned > 0){
-		payload_starting_offset = services_buffer_offset;
+		/* The entries, and the strings they point at with offsets
+		 * from its start, are in the services buffer */
+		services_tvb = tvb_new_subset_length(tvb, services_buffer_offset, (int)buffer_size);
+		services_buffer_offset = 0;
 		for(unsigned idx = 0; idx < services_returned ; ++idx){
-			services_buffer_offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr( tvb, services_buffer_offset
+			services_buffer_offset = svcctl_dissect_struct_ENUM_SERVICE_STATUSW_ptr( services_tvb, services_buffer_offset
 			                                                                       , pinfo, tr, di, drep
 			                                                                       , hf_svcctl_svcctl_EnumDependentServicesW_service_status
-			                                                                       , payload_starting_offset);
+			                                                                       , &string_bytes);
 		}
-		dissect_deferred_pointers(pinfo, tvb, services_buffer_offset, di, drep);
+		dissect_deferred_pointers(pinfo, services_tvb, services_buffer_offset, di, drep);
 	}
 	// Resume Index
 	offset = svcctl_dissect_element_EnumServicesStatusW_resume_index(tvb, offset, pinfo, tree, di, drep);
