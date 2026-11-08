@@ -111915,3 +111915,74 @@ class TestDissectOpaSnc:
             '4\t0x02\t\t\tOmni-Path',
             '9\t0x01\t0x64\t\tARP',
         ]
+
+
+class TestDissectOpenflow:
+    '''OpenFlow version dispatch over TCP 6653 and the legacy ports 6633
+    and 6634 (heuristic), and Exported PDU, from the synthetic capture
+    openflow_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openflow_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_openflow_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''Every supported version reaches its dissector: 1.0, 1.3, 1.4
+        and 1.5 each have a handshake, and messages of several versions
+        sent in one segment are dissected by their own versions.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v1 || openflow_v4 || openflow_v5 || openflow_v6',
+                '-Tfields', '-eframe.number', '-eopenflow_v1', '-eopenflow_v4',
+                '-eopenflow_v5', '-eopenflow_v6', '-E', 'aggregator=,')
+        counts = [sum(1 for r in rows if r[i]) for i in (1, 2, 3, 4)]
+        assert counts == [11, 12, 9, 8]
+        frame44 = [r for r in rows if r[0] == '44'][0]
+        assert frame44[1:] == ['openflow_v1', 'openflow_v4', 'openflow_v5', 'openflow_v6']
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_openflow_unsupported_versions(self, cmd_tshark, capture_file, test_env):
+        '''Versions 1.1 and 1.2 (and values that are not versions) are not
+        decoded and get an expert info with the version field.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow.version.unknown', '-Tfields', '-eframe.number',
+                '-eopenflow.version', '-E', 'aggregator=,')
+        assert rows == [['36', '0x02'], ['37', '0x03'], ['38', '0x00'],
+                        ['39', '0x07'], ['40', '0x04'], ['50', '0x01,0x02,0x03'],
+                        ['76', '0x02']]
+
+    def test_openflow_heuristic_ports(self, cmd_tshark, capture_file, test_env):
+        '''TCP 6633 and 6634 are found by the heuristic, port 9999 is not
+        OpenFlow.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.dstport == 6633 || tcp.dstport == 6634 || tcp.dstport == 9999',
+                '-Tfields', '-e_ws.col.protocol', '-etcp.dstport')
+        protocols = {}
+        for proto, port in rows:
+            protocols.setdefault(port, set()).add(proto)
+        assert protocols == {'6633': {'TCP', 'OpenFlow'}, '6634': {'TCP', 'OpenFlow'},
+                             '9999': {'TCP'}}
+        assert sum(1 for r in rows if r[0] == 'OpenFlow') == 6
+        # With the heuristic off, 6633/6634 are plain TCP
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '--disable-heuristic', 'openflow_tcp',
+                '-Y', 'tcp.dstport == 6633 || tcp.dstport == 6634',
+                '-Tfields', '-e_ws.col.protocol')
+        assert {r[0] for r in rows} == {'TCP'}
+
+    def test_openflow_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A header split after 5 octets, and two PDUs split in the middle of
+        the first one and of the second one are reassembled (frames 45-49).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 44 && frame.number <= 50',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-etcp.segments')
+        assert [r[1] for r in rows] == ['OpenFlow', 'TCP', 'OpenFlow', 'TCP',
+                                        'OpenFlow', 'OpenFlow', 'OpenFlow']
+        assert [bool(r[2]) for r in rows] == [False, False, True, False, True, True, False]
