@@ -1,7 +1,7 @@
 PEDefinitions {joint-iso-itu-t(2) international-organizations(23) tca(143) euicc-profile(1) spec-version(1) version-three(3)}
 DEFINITIONS
-AUTOMATIC TAGS ::=
--- EXTENSIBILITY IMPLIED ::=
+AUTOMATIC TAGS
+EXTENSIBILITY IMPLIED ::=
 BEGIN
 EXPORTS UICCCapability; -- Definition to be used in remote provisioning specifications for eligibility check
 
