@@ -106169,3 +106169,110 @@ class TestDissectNetlinkSockDiag:
         rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 53',
                  'netlink-sock_diag.recv_queue', 'netlink-sock_diag.send_queue')
         assert rows == [['3', '4']]
+
+
+class TestDissectNfapi:
+    '''nFAPI (small cell PHY API, P4/P5 and P7 messages) from the synthetic
+    capture nfapi_coverage.pcap.gz. The frames are Exported PDU records
+    naming the "nfapi" dissector. Frames 1-558 decode cleanly; the last
+    three (559-561) carry error expert infos by design.'''
+
+    def test_nfapi_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-558 are NFAPI, without malformed packets or error
+        expert infos in one and two passes; the messages of every handler
+        kind are present.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 558',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert len(rows) == 558
+        assert all(r[0].strip() == 'NFAPI' for r in rows)
+        infos = [r[1].split('[')[0].strip() for r in rows]
+        for msg in ('PNF_PARAM.request', 'PNF_CONFIG.response', 'CONFIG.request',
+                    'PARAM.response', 'RSSI.indication', 'CELL_SEARCH.request',
+                    'DL_CONFIG.request', 'UL_CONFIG.request', 'HI_DCI0.request',
+                    'TX.request', 'HARQ.indication', 'CRC.indication',
+                    'RX_ULSCH.indication', 'RACH.indication', 'SRS.indication',
+                    'RX_SR.indication', 'RX_CQI.indication', 'LBT_DL_CONFIG.request',
+                    'LBT_DL.indication', 'DL_NODE_SYNC', 'UL_NODE_SYNC',
+                    'TIMING_INFO', 'Vendor Extension', 'Unknown'):
+            assert msg in infos, msg
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nfapi_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 558 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nfapi_tlv_tags(self, cmd_tshark, capture_file, test_env):
+        '''The capture carries 347 different TLV tags (every table entry
+        with a name, plus unknown ones).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 558',
+                '-Tfields', '-enfapi.tlv_tag',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        tags = set()
+        for line in stdout.splitlines():
+            tags.update(line.split(','))
+        tags.discard('')
+        assert len(tags) == 347
+
+    def test_nfapi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''P7 messages split into segments (UL and DL, two and three
+        fragments) are reassembled; the last segment shows the length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'nfapi.reassembled.length',
+                '-Tfields', '-eframe.number', '-enfapi.reassembled.length',
+                '-enfapi.fragment.count',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '533\t33\t2', '536\t33\t3', '538\t22\t2', '540\t86\t2',
+            '543\t86\t3', '545\t95\t2', '547\t100\t2', '554\t22\t2',
+        ]
+
+    def test_nfapi_null_tag_names(self, cmd_tshark, capture_file, test_env):
+        '''Configuration tags without a name (0x6 and 0x9) are shown as
+        "Unknown"; the tag name function passed a NULL name to a format
+        string before "nfapi: Fix HARQ TDD CPU loop and bound TLV
+        recursion".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {557,558}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        tags = [l.strip() for l in stdout.splitlines() if 'TLV Tag:' in l]
+        assert tags == ['TLV Tag: Unknown (0x6)', 'TLV Tag: Unknown (0x9)',
+                        'TLV Tag: Unknown (0x6)']
+
+    def test_nfapi_tlv_nesting(self, cmd_tshark, capture_file, test_env):
+        '''RX SR indication bodies nested inside each other: 5 levels
+        (frame 556) decode; 9 levels (frame 559) stop at the limit of 8
+        with nfapi.too_deep instead of recursing without bound.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {556,559}',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '556\t',
+            '559\tTLV nesting too deep,TLV length does not match decoded length',
+        ]
+
+    def test_nfapi_harq_invalid_mode(self, cmd_tshark, capture_file, test_env):
+        '''HARQ TDD PDUs with the invalid mode 7 raise the range expert
+        info and stop (frames 560 Rel13 with 65535 ACK/NACKs, 561 Rel9 with
+        255); they used to loop over the count without reading anything.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nfapi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {560,561}',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '560\tTLV length does not match decoded length,Invalid mode value [0..6]',
+            '561\tTLV length does not match decoded length,Invalid mode value [0..4]',
+        ]
