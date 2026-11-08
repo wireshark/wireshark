@@ -110405,3 +110405,71 @@ class TestDissectNwp:
         lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 9',
                 '-Tfields', '-enwp.neigh_hid')
         assert lines[0].split(',')[0] == self.HID1
+
+
+class TestDissectNxp802154Sniffer:
+    CAP = 'nxp_802154_sniffer_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectNxp802154Sniffer.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_nxp_802154_sniffer_protocols(self, cmd_tshark, capture_file, test_env):
+        '''25 sniffer packets reach IEEE 802.15.4 (one is a ZigBee beacon),
+        nine packets fail the sniffer header check and stay plain UDP. No
+        malformed packets, no warnings or errors, the same in one and two
+        passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 34
+        assert lines[:25].count('IEEE 802.15.4') == 24
+        assert lines[16] == 'ZigBee'
+        assert lines[25:] == ['UDP'] * 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture_file(self.CAP), '-V'),
+                    encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert '[Severity level: Error]' not in stdout
+            assert '[Severity level: Warning]' not in stdout
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+
+    def test_nxp_802154_sniffer_header(self, cmd_tshark, capture_file, test_env):
+        '''Timestamp, sniffer ID, channel, LQI and frame length, for every
+        channel of the 2.4 GHz PHY and several ID strings.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'nxp_802154_sniffer',
+                '-Tfields', '-enxp_802154_sniffer.timestamp', '-enxp_802154_sniffer.id',
+                '-enxp_802154_sniffer.channel', '-enxp_802154_sniffer.lqi', '-enxp_802154_sniffer.length')
+        assert len(lines) == 25
+        f = [l.split('\t') for l in lines]
+        assert [int(x[2]) for x in f[:16]] == list(range(11, 27))
+        assert [int(x[0]) for x in f[:16]] == [ch * 1000 for ch in range(11, 27)]
+        assert f[0] == ['11000', 'JN5168-A', '11', '99', '22']
+        assert f[16][0:3] == ['4328719365', 'JN5168-A', '15'] and f[16][3] == '0'
+        assert f[17][3] == '255'
+        assert f[21][1] == ''                                       # empty sniffer ID
+        assert f[22][1] == 'a-sniffer-id-that-is-longer-than-usual'
+        assert f[23][0] == '1099511627775'                          # 40 bit timestamp
+        assert f[24][2:] == ['26', '200', '121']                    # 127 octets, with FCS
+
+    def test_nxp_802154_sniffer_frames(self, cmd_tshark, capture_file, test_env):
+        '''The frames are dissected as IEEE 802.15.4 with a correct FCS.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {17, 18, 19, 20, 21}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ewpan.fcs_ok')
+        assert lines == [
+            '17\tBeacon, Src: 0x0001, EPID: 07:06:05:04:03:02:01:00\tTrue',
+            '18\tAck\tTrue',
+            '19\tAssociation Request, FFD\tTrue',
+            '20\tData Request\tTrue',
+            '21\tData, Src: 0x0001, Dst: 0x0002\tTrue',
+        ]
+
+    def test_nxp_802154_sniffer_rejected(self, cmd_tshark, capture_file, test_env):
+        '''Channel outside 11-26, a length that is below the FCS length,
+        above 127 or different from the data, trailing octets, an ID
+        without terminator and short packets are not dissected.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'udp && !nxp_802154_sniffer',
+                '-Tfields', '-eframe.number', '-eudp.length')
+        assert [l.split('\t')[0] for l in lines] == [str(n) for n in range(26, 35)]
