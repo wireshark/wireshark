@@ -59,17 +59,55 @@ wmem_epan_scope().
 
 The pinfo pool is scoped to the dissection of each packet, meaning that any
 memory allocated in it will be automatically freed at the end of the current
-packet. The file pool is similarly scoped to the dissection of each file,
-meaning that any memory allocated in it will be automatically freed when the
-current capture file is closed.
+packet.
+
+The file pool is scoped to the current dissection session, meaning that any
+memory allocated in it is automatically freed when that session ends.  A new
+session starts when a capture file is opened (see epan_new() in epan/epan.c),
+and the session - and all file-scope memory with it - ends when the file is
+closed (epan_free(), via cf_close()).  Crucially, "file scope" does not mean
+"lives until the file is closed": a new session can start while the same file
+stays open.  Any redissection that reprocesses all packets - a preference
+change, "Reload", a Lua plugin reload, or a "start from scratch" redissection
+pass queued while the file is still being read - ends the old session and
+starts a new one (see rescan_packets() in file.c), freeing all file-scope
+memory even though the file itself is still open.
+
+The epan pool is scoped to the lifetime of the epan library itself: memory
+allocated in it is not freed until epan_cleanup() is called, which is
+typically but not necessarily at the very end of the program.  In other
+words, "epan scope" effectively means "process lifetime scope".
 
 NB: Using these pools outside of the appropriate scope (e.g. using the file
     pool when there isn't a file open) will throw an assertion.
     See the comment in epan/wmem_scopes.c for details.
 
-The epan pool is scoped to the library's lifetime - memory allocated in it is
-not freed until epan_cleanup() is called, which is typically but not necessarily
-at the very end of the program.
+2.2.1 Rules for mixing scopes
+
+"Automatically freed" only means the pool memory is reclaimed.  It does not
+mean your pointers are set to NULL, and it does not empty containers that
+live in a longer-lived scope.  A hash table allocated in the epan scope (or
+a static/global one) that holds entries allocated in the file scope will
+still hold those entries after the file scope is left - pointing at freed
+memory.  This exact mistake has caused real crashes.
+
+Follow these rules:
+
+- Never keep a pointer to shorter-lived memory in a longer-lived
+  structure: no file-scope (or packet-scope) entries in epan-scope (or
+  file-scope) containers, and no file-scope pointers in globals or
+  statics, unless the container is emptied before the inner scope ends.
+- Prefer allocating a container and its entries in the same scope.
+- If a container must outlive its entries, use
+  wmem_map_new_autoreset() or wmem_tree_new_autoreset() with the metadata
+  in the outer scope and the data in the inner scope, so the container is
+  transparently emptied every time the inner scope is left; or empty it
+  explicitly from a cleanup routine (see register_cleanup_routine() in
+  epan/packet.c) or re-initialize it in an init routine.
+- Never assume file-scope memory survives a redissection, rescan, or
+  reload of the same open file.
+- Never keep per-file state in the epan scope: it is not freed between
+  files, so it leaks memory and can show stale data from an earlier file.
 
 2.3 The Pinfo Pool
 
