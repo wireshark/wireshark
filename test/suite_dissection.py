@@ -110339,3 +110339,69 @@ class TestDissectNwmtp:
             '16\t34,35\t2,2\t0,0',
             '17\t0\t2\t4294967295',
         ]
+
+
+class TestDissectNwp:
+    CAP = 'nwp_coverage.pcap.gz'
+    HID1 = 'hid-1f262d343b424950575e656c737a81888f969da4'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectNwp.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_nwp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 15 frames (Ethernet type 0xC0DF) are NWP, with no malformed
+        packets and no expert infos, the same in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['NWP'] * 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture_file(self.CAP), '-V'),
+                    encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert '[Severity level: Error]' not in stdout
+            assert '[Severity level: Warning]' not in stdout
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+        assert one[0] == 'NWP Announcement' and one[7] == 'NWP Neighbor List'
+
+    def test_nwp_announcements(self, cmd_tshark, capture_file, test_env):
+        '''Announcements with 0 to 20 HIDs and hardware addresses of 0, 2, 6
+        and 16 octets.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'nwp.type == 1',
+                '-Tfields', '-eframe.number', '-enwp.version', '-enwp.hid_count', '-enwp.haddr_len',
+                '-enwp.ann_haddr')
+        assert lines == [
+            '1\t1\t1\t6\t02:00:00:00:00:11',
+            '2\t1\t3\t6\t02:00:00:00:00:11',
+            '3\t1\t0\t6\t02:00:00:00:00:11',
+            '4\t1\t1\t2\t0a:0b',
+            '5\t1\t2\t16\t00:01:02:03:04:05:06:07:08:09:0a:0b:0c:0d:0e:0f',
+            '6\t1\t1\t0\t<MISSING>',
+            '7\t1\t20\t6\t02:00:00:00:00:11',
+            '14\t2\t1\t6\t02:00:00:00:00:11',
+            '15\t1\t1\t6\t02:00:00:00:00:11',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 2',
+                '-Tfields', '-enwp.ann_hid')
+        assert lines == ['%s,hid-3e454c535a61686f767d848b9299a0a7aeb5bcc3,'
+                         'hid-5d646b727980878e959ca3aab1b8bfc6cdd4dbe2' % self.HID1]
+
+    def test_nwp_neighbor_lists(self, cmd_tshark, capture_file, test_env):
+        '''Neighbour lists: HIDs, the number of devices of each neighbour and
+        their hardware addresses.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {8, 9, 10, 11, 13}',
+                '-Tfields', '-eframe.number', '-enwp.hid_count', '-enwp.haddr_len', '-enwp.neigh_num',
+                '-enwp.neigh_haddr')
+        assert lines == [
+            '8\t1\t6\t1\t02:00:00:00:00:01',
+            '9\t3\t6\t2,1,0\t02:00:00:00:00:01,02:00:00:00:00:02,02:00:00:00:00:03',
+            '10\t1\t2\t3\t01:02,03:04,05:06',
+            '11\t1\t16\t1\t00:01:02:03:04:05:06:07:08:09:0a:0b:0c:0d:0e:0f',
+            '13\t1\t0\t0\t',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 9',
+                '-Tfields', '-enwp.neigh_hid')
+        assert lines[0].split(',')[0] == self.HID1
