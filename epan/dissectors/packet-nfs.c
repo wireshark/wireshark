@@ -1271,6 +1271,9 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	nfs_name_snoop_t     *nns;
 	nfs_name_snoop_key_t *key;
 
+	if (fh_length <= 0 || fh_length > 128 /* NFS4_FHSIZE */)
+		return;
+
 	/* find which request we correspond to */
 	nns = (nfs_name_snoop_t *)g_hash_table_lookup(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
 	if (!nns) {
@@ -1308,7 +1311,7 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 
 	/* check if the nns component ends with a '/' else we just allocate
 	   an extra byte to len to accommodate for it later */
-	if (nns->name[nns->name_len-1] != '/') {
+	if (nns->name_len > 0 && nns->name[nns->name_len-1] != '/') {
 		(*len)++;
 	}
 
@@ -1341,7 +1344,7 @@ nfs_full_name_snoop(packet_info *pinfo, nfs_name_snoop_t *nns, int *len, char **
 		if (*name) {
 			/* make sure components are '/' separated */
 			*pos += snprintf(*pos, (*len+1) - (*pos-*name), "%s%s",
-					   ((*pos)[-1] != '/')?"/":"", nns->name);
+					   (*pos > *name && (*pos)[-1] != '/')?"/":"", nns->name);
 			DISSECTOR_ASSERT((*pos-*name) <= *len);
 		}
 		p_set_proto_depth(pinfo, proto_nfs, fs_depth - 1);
@@ -1388,6 +1391,7 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 
 				nfs_full_name_snoop(pinfo, nns, &len, &name, &pos);
 				if (name) {
+					g_free(nns->full_name);
 					nns->full_name = name;
 					nns->full_name_len = len;
 				}
@@ -6848,6 +6852,9 @@ dissect_nfs4_acemask(tvbuff_t *tvb, int offset, proto_tree *ace_tree, uint32_t a
 					} else if (obj_type == NF4DIR) {
 						type = val_to_str(acemask_bit, acemask4_perms_dir, "Unknown: %u");
 						atype = val_to_str(acemask_bit, acemask4_abbrev_perms_dir, "Unknown: %u");
+					} else {
+						type = val_to_str(acemask_bit, acemask4_perms_unkwn, "Unknown: %u");
+						atype = val_to_str(acemask_bit, acemask4_abbrev_perms_unkwn, "Unknown: %u");
 					}
 				} else {
 					type = val_to_str(acemask_bit, acemask4_perms_unkwn, "Unknown: %u");
@@ -9269,6 +9276,7 @@ dissect_nfs4_vol_indices(tvbuff_t *tvb, int offset, proto_tree *tree)
 	for (i = 0; i < num_vols; i++) {
 		proto_tree_add_item(indices_tree, hf_nfs4_devaddr_scsi_vol_ref_index,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
+		offset += 4;
 	}
 	return offset;
 }
@@ -9288,29 +9296,30 @@ dissect_nfs4_devices_scsi(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	for (i = 0; i < num_vols; i++) {
 
-	vol_type = tvb_get_ntohl(tvb, offset);
-	vol_item = proto_tree_add_item(tree, hf_nfs4_devaddr_scsi_vol_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-	vol_tree = proto_item_add_subtree(vol_item, ett_nfs4_scsi_layout_vol);
-	offset += 4;
-	proto_tree_add_uint(vol_tree, hf_nfs4_devaddr_scsi_vol_index, tvb, offset, 0, i);
-	switch (vol_type)
-	{
-	case PNFS_SCSI_VOLUME_SLICE:
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_start, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_scsi_vol_ref_index, tvb, offset, 4, ENC_BIG_ENDIAN);
-		break;
-	case PNFS_SCSI_VOLUME_CONCAT:
-		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
-		break;
-	case PNFS_SCSI_VOLUME_STRIPE:
-		proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_stripe_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
-		break;
-	case PNFS_SCSI_VOLUME_BASE:
-		offset = dissect_nfs4_devices_scsi_base_volume(tvb, offset, vol_tree);
-		break;
-	}
+		vol_item = proto_tree_add_item_ret_uint(tree, hf_nfs4_devaddr_scsi_vol_type, tvb, offset, 4, ENC_BIG_ENDIAN, &vol_type);
+		vol_tree = proto_item_add_subtree(vol_item, ett_nfs4_scsi_layout_vol);
+		offset += 4;
+		proto_tree_add_uint(vol_tree, hf_nfs4_devaddr_scsi_vol_index, tvb, offset, 0, i);
+		switch (vol_type)
+		{
+		case PNFS_SCSI_VOLUME_SLICE:
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_start, tvb, offset, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_length, tvb, offset + 8, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_scsi_vol_ref_index, tvb, offset + 16, 4, ENC_BIG_ENDIAN);
+			offset += 20;
+			break;
+		case PNFS_SCSI_VOLUME_CONCAT:
+			offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+			break;
+		case PNFS_SCSI_VOLUME_STRIPE:
+			proto_tree_add_item(vol_tree, hf_nfs4_devaddr_ssv_stripe_unit, tvb, offset, 8, ENC_BIG_ENDIAN);
+			offset += 8;
+			offset = dissect_nfs4_vol_indices(tvb, offset, vol_tree);
+			break;
+		case PNFS_SCSI_VOLUME_BASE:
+			offset = dissect_nfs4_devices_scsi_base_volume(tvb, offset, vol_tree);
+			break;
+		}
 
 	proto_item_set_len(vol_item, offset - old_offset);
 	old_offset = offset;
@@ -13761,11 +13770,11 @@ proto_register_nfs(void)
 #endif
 
 		{ &hf_nfs4_devaddr_ssv_start, {
-			"slice start", "nfs.devaddr.ssv_start", FT_UINT32, BASE_DEC,
+			"slice start", "nfs.devaddr.ssv_start", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_devaddr_ssv_length, {
-			"slice length", "nfs.devaddr.ssv_length", FT_UINT32, BASE_DEC,
+			"slice length", "nfs.devaddr.ssv_length", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_devaddr_scsi_vol_type, {
@@ -13781,7 +13790,7 @@ proto_register_nfs(void)
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_devaddr_ssv_stripe_unit, {
-			"stripe size", "nfs.devaddr.ssv_stripe_unit", FT_UINT32, BASE_DEC,
+			"stripe size", "nfs.devaddr.ssv_stripe_unit", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_devaddr_scsi_vpd_code_set, {
