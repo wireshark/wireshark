@@ -418,7 +418,7 @@ static const value_string nmea2000_industry_code_vals[] = {
  */
 
 static tvbuff_t *
-dissect_nmea2000_fast_pkt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t num_bytes)
+dissect_nmea2000_fast_pkt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, uint32_t pgn, uint32_t num_bytes)
 {
     unsigned offset = 0;
     uint32_t frame_count, sequence_no, fragment_length = 7;
@@ -438,7 +438,7 @@ dissect_nmea2000_fast_pkt(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, u
      */
     proto_tree_add_item_ret_uint(tree, hf_nmea2000_seq, tvb, offset, 1, ENC_NA, &sequence_no);
     proto_tree_add_item_ret_uint(tree, hf_nmea2000_f_cnt, tvb, offset, 1, ENC_NA, &frame_count);
-    fragment_id = (NMEA2000_PGN_126996 << 8) | sequence_no;
+    fragment_id = (pgn << 8) | sequence_no;
     offset++;
     if (frame_count == 0) {
         fragment_length = 6;
@@ -557,7 +557,7 @@ static int
      ti = proto_tree_add_item(top_tree, proto_nmea2000, tvb, 0, -1, ENC_NA);
      nmea2000_tree = proto_item_add_subtree(ti, ett_nmea2000);
 
-     msg_tvb = dissect_nmea2000_fast_pkt(tvb, pinfo, nmea2000_tree, 21);
+     msg_tvb = dissect_nmea2000_fast_pkt(tvb, pinfo, nmea2000_tree, NMEA2000_PGN_127237, 21);
 
      if (msg_tvb) { /* Reassembled  */
 
@@ -584,7 +584,7 @@ dissect_nmea2000_126996(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, voi
     ti = proto_tree_add_item(top_tree, proto_nmea2000, tvb, 0, -1, ENC_NA);
     nmea2000_tree = proto_item_add_subtree(ti, ett_nmea2000);
 
-    msg_tvb = dissect_nmea2000_fast_pkt(tvb, pinfo, nmea2000_tree, 134);
+    msg_tvb = dissect_nmea2000_fast_pkt(tvb, pinfo, nmea2000_tree, NMEA2000_PGN_126996, 134);
 
     if (msg_tvb) { /* Reassembled  */
         /* NMEA 2000 Version, 16 bits unsigned NUMBER, Unit 0.001*/
