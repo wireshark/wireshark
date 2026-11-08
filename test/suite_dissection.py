@@ -111090,3 +111090,88 @@ class TestDissectOcsp:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['1']
+
+
+class TestDissectOer:
+    '''OER (Octet Encoding Rules, packet-oer.c) through IEEE 1609.2, from the
+    synthetic capture oer_coverage.pcapng.gz: 47 Exported PDU frames that name
+    "ieee1609dot2.data". Frames 1-23 are the IEEE 1609.2 coverage PDUs;
+    frames 24-47 use OER encodings those do not: long-form length
+    determinants, long-form enumerated values and quantities, negative and
+    long INTEGERs, unknown extension additions, and the reproducers of
+    "OER: Fix open type, any OID and NULL lengths, harden bit strings".
+    All signatures, hashes and keys are placeholder octets.'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture_file, display_filter, *fields, opts=(), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('oer_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_oer_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 47 frames decode as IEEE 1609.2 without malformed packets or
+        error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file, 'frame', 'frame.protocols')
+        assert len(rows) == 47
+        assert all(r.startswith('exported_pdu:ieee1609dot2') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, capture_file,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == []
+
+    def test_oer_length_determinants(self, cmd_tshark, capture_file, test_env):
+        '''Length determinants in the long form with 1 to 4 octets, and
+        octet strings of 130 and 300 octets.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {24..29}', 'frame.number', 'ieee1609dot2.unsecuredData')
+        got = {r.split('\t')[0]: bytes.fromhex(r.split('\t')[1]) for r in rows}
+        assert got['24'] == b'oer-1' and got['25'] == b'oer-2'
+        assert got['26'] == b'oer-3' and got['27'] == b'oer-4'
+        assert got['28'] == bytes(range(130))
+        assert got['29'] == bytes(300)
+
+    def test_oer_enumerated_integer_quantity(self, cmd_tshark, capture_file, test_env):
+        '''The hash algorithm as an enumerated value in the long form
+        (frames 30-33), INTEGERs of 1 to 4 octets, negative and
+        positive (frame 34), SEQUENCE OF quantities of 1 to 4 octets
+        (frames 35-38).'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {30..33}', 'frame.number', 'ieee1609dot2.hashId')
+        assert rows == ['30\t0', '31\t0', '32\t0', '33\t0']
+        rows = self.fields(cmd_tshark, test_env, capture_file, 'frame.number == 34',
+                'ieee1609dot2.minChainLength', 'ieee1609dot2.chainLengthRange')
+        assert rows == ['-5,-300,-70000,305419896,255,-128\t-2,128,65535,-305419896,256,127']
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {35..38}', 'frame.number', 'ieee1609dot2.appPermissions')
+        assert rows == ['35\t3', '36\t3', '37\t3', '38\t3']
+
+    def test_oer_unknown_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Extension additions the HeaderInfo type does not define are
+        taken as octet strings and the PDU decodes on to the signer.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {40..42}', 'frame.number', 'ieee1609dot2.hiPsid',
+                'ieee1609dot2.signer')
+        assert rows == ['40\t32\t2', '41\t32\t2', '42\t32\t2']
+
+    def test_oer_open_type_length(self, cmd_tshark, capture_file, test_env):
+        '''Open types are skipped by their length. Before the fix the
+        second item of HeaderInfo.contributedExtensions (frame 43) was
+        read from inside the first one: its open type length was 65 (the
+        letter A) and the frame was malformed.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number == 43', 'ieee1609dot2.extns', 'oer.open_type_length',
+                opts=('-o', 'oer.display_internal_oer_fields:TRUE'))
+        assert rows == ['2\t3,1']
+
+    def test_oer_named_bits(self, cmd_tshark, capture_file, test_env):
+        '''The named bits of a fixed-size BIT STRING that is not at the
+        start of the PDU (EndEntityType): before the fix the subtree used
+        the offset of the parent and the frame was malformed.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {44, 45}', 'frame.number',
+                'ieee1609dot2.EndEntityType.app', 'ieee1609dot2.EndEntityType.enrol')
+        assert rows == ['44\tTrue\tTrue', '45\tFalse,True,False\tTrue,False,False']
