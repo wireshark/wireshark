@@ -111310,3 +111310,119 @@ class TestDissectOipf:
                 '-Tfields', '-eoipf.ciplus.data')
         assert lines[0].split(',')[1] == '444555'
         assert len(lines[1]) == 600
+
+
+class TestDissectOlsr:
+    CAP = 'olsr_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectOlsr.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    @staticmethod
+    def _num(value):
+        '''tshark prints decimal numbers with the decimal separator of the
+        locale: accept '.' and ','.'''
+        return value.replace(',', '.')
+
+    def test_olsr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 40 frames (20 over IPv4, 20 over IPv6) are OLSR; no malformed
+        packets and no expert infos in one and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['OLSR v1'] * 40
+        for passes in ((), ('-2',)):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+        assert one[0] == 'OLSR (IPv4) Packet,  Length: 20 Bytes'
+        assert one[20] == 'OLSR (IPv6) Packet,  Length: 32 Bytes'
+
+    def test_olsr_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The message types of every packet (HELLO, TC, MID, HNA, olsr.org
+        LQ-HELLO, LQ-TC, Nameservice, NRL TC and an unknown type), IPv4 then
+        IPv6 (the same list, 20 frames later).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields',
+                '-eframe.number', '-eolsr.message_type')
+        types = [l.split('\t')[1] for l in lines]
+        expected = ['1', '1', '1', '2', '2', '3', '4', '201', '202', '202', '130', '130',
+                    '241', '241', '153', '153', '153', '1,2,3,153,4', '3', '3']
+        assert types == expected * 2
+
+    def test_olsr_hello(self, cmd_tshark, capture_file, test_env):
+        '''HELLO: emission interval, willingness, link types and neighbours.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {2, 3, 22}',
+                '-Tfields', '-eframe.number', '-eolsr.htime', '-eolsr.willingness',
+                '-eolsr.link_type', '-eolsr.neighbor_addr', '-eolsr.neighbor6_addr')
+        f = [l.split('\t') for l in lines]
+        assert [x[0] for x in f] == ['2', '3', '22']
+        assert self._num(f[0][1]) == '2.5' and f[0][2] == '7'
+        assert f[0][3] == '6,10,1'
+        assert f[0][4] == '10.1.0.1,10.1.0.2,10.1.0.3,10.1.0.4,10.1.0.5'
+        assert f[1][2] == '0' and f[1][3] == '0,3,5,102,10'
+        assert f[2][3] == '6,10,1'
+        assert f[2][5].split(',')[0] == '2001:db8:1::1'
+        assert len(f[2][5].split(',')) == 5
+
+    def test_olsr_validity_time(self, cmd_tshark, capture_file, test_env):
+        '''Validity times are decoded from the mantissa/exponent octet.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {4, 5, 6}',
+                '-Tfields', '-eframe.number', '-eolsr.vtime')
+        assert [(l.split('\t')[0], self._num(l.split('\t')[1])) for l in lines] == [
+            ('4', '3.5'), ('5', '0.0625'), ('6', '6')]
+
+    def test_olsr_hna_ipv6(self, cmd_tshark, capture_file, test_env):
+        '''IPv6 HNA entries have 16 octet network and netmask fields (every
+        IPv6 HNA message was malformed before the fix).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {7, 27}',
+                '-Tfields', '-eframe.number', '-eolsr.network_addr', '-eolsr.netmask',
+                '-eolsr.network6_addr', '-eolsr.netmask6')
+        assert lines == [
+            '7\t192.168.1.0,10.20.0.0\t255.255.255.0,255.255.0.0\t\t',
+            '27\t\t\t2001:db8:aaaa::,2001:db8:bbbb::\tffff:ffff:ffff:ffff::,ffff:ffff:ffff:ffff:ffff::',
+        ]
+
+    def test_olsr_unknown_message_ipv6(self, cmd_tshark, capture_file, test_env):
+        '''The data of an unknown message type starts after the message
+        header, which is 12 octets over IPv4 and 24 over IPv6 (the IPv6 data
+        length was computed for IPv4 before the fix).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {15, 16, 35, 36}',
+                '-Tfields', '-eframe.number', '-eolsr.message_size', '-eolsr.data')
+        assert lines == [
+            '15\t16\t41424344',
+            '16\t20\t4142434445464748',
+            '35\t28\t41424344',
+            '36\t32\t4142434445464748',
+        ]
+
+    def test_olsr_lq(self, cmd_tshark, capture_file, test_env):
+        '''olsr.org LQ-HELLO and LQ-TC: link quality values per neighbour.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {8, 10, 28, 30}',
+                '-Tfields', '-eframe.number', '-eolsr.ansn', '-eolsr.lq', '-eolsr.nlq')
+        assert lines == [
+            '8\t\t255,200,0,128\t255,100,1,64',
+            '10\t9\t255,200,1\t255,100,2',
+            '28\t\t255,200,0,128\t255,100,1,64',
+            '30\t9\t255,200,1\t255,100,2',
+        ]
+
+    def test_olsr_nameservice(self, cmd_tshark, capture_file, test_env):
+        '''olsr.org Nameservice entries of every type, padded content.'''
+        for frame, ipfield in ((11, 'olsr.ns.ip'), (31, 'olsr.ns.ip6')):
+            lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == %d' % frame,
+                    '-Tfields', '-eolsr.ns.version', '-eolsr.ns.count', '-eolsr.ns.type',
+                    '-eolsr.ns.length', '-e' + ipfield, '-eolsr.ns.content')
+            f = lines[0].split('\t')
+            assert f[0:4] == ['1', '6', '0,1,2,3,9,0', '10,4,27,10,4,1']
+            assert len(f[4].split(',')) == 6
+            assert f[5] == 'host.mesh,fwd,http://10.1.0.1:80|tcp|web,52.5|13.4,abcd,x'
+
+    def test_olsr_nrl_tc(self, cmd_tshark, capture_file, test_env):
+        '''NRL TC: neighbours followed by two arrays of one octet values.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {13, 33}',
+                '-Tfields', '-eframe.number', '-eolsr.ansn', '-eolsr.nrl.minmax', '-eolsr.nrl.spf')
+        assert lines == ['13\t3\t1,2,3\t4,5,6', '33\t3\t1,2,3\t4,5,6']
