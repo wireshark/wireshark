@@ -1413,6 +1413,13 @@ dissect_nts_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ext_tree, proto_t
 	aad_len = ext_start;
 	aad = (uint8_t *)tvb_memdup(pinfo->pool, tvb, nts_aad_start, aad_len);
 
+	if (ciphertext_len < aead->tag_len) {
+		expert_add_info_format(pinfo, tf, &ei_ntp_ext_invalid_length,
+			"Ciphertext length %u is shorter than the authentication tag (%u)",
+			ciphertext_len, (unsigned)aead->tag_len);
+		return;
+	}
+
 	decrypted = ntp_decrypt_nts(tvb, pinfo, nonce, nonce_len, ciphertext, ciphertext_len, aad, aad_len, aead, ptr_key);
 	af = proto_tree_add_boolean(nts_tree, hf_ntp_nts_crypto_success, tvb, 0, 0,	(bool)decrypted);
 	proto_item_set_generated(af);
@@ -1454,6 +1461,13 @@ dissect_ntp_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, int off
 	}
 
 	offset = dissect_ntp_ext_data(tvb, pinfo, ext_tree, offset, extlen);
+
+	if (extlen < 8 || extlen % 4) {
+		/* Bad length, already reported: stop dissecting extensions
+		 * instead of moving the offset backwards. */
+		decrement_dissection_depth(pinfo);
+		return tvb_reported_length(tvb);
+	}
 
 	value_length = extlen - 4;
 
@@ -1721,7 +1735,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	proto_item *td, *ti;
 	uint16_t associd;
 	uint16_t datalen;
-	uint16_t data_offset;
+	int data_offset;
 	int length_remaining;
 	bool auth_diss = false;
 	ntp_trans_info_t *ntp_trans;
@@ -1884,14 +1898,15 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				 * if associd == 0 then data part contains a list of the form
 				 * <association identifier><status word>,
 				 */
-				while(datalen) {
+				unsigned remaining = datalen;
+				while(remaining >= 4) {
 					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, ENC_NA);
 					item_tree = proto_item_add_subtree(ti, ett_ntpctrl_item);
 					proto_tree_add_item(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, ENC_BIG_ENDIAN);
 					data_offset += 2;
 					proto_tree_add_bitmask(ntp_tree, tvb, data_offset, hf_ntpctrl_status, ett_ntpctrl_status, peer_status_flags, ENC_BIG_ENDIAN);
 					data_offset += 2;
-					datalen -= 4;
+					remaining -= 4;
 				}
 				break;
 			}
@@ -1934,7 +1949,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		}
 	}
 
-	data_offset = 12+datalen;
+	data_offset = 12 + (int)datalen;
 
 	/* Check if there is authentication */
 	if (((flags2 & NTPCTRL_R_MASK) == 0) || auth_diss == true)
