@@ -108332,3 +108332,50 @@ class TestDissectNordicBle:
             ['29', '3', '2', 'AUX_SYNC_IND'],
             ['30', '3', '3', 'AUX_SCAN_RSP'],
         ]
+
+
+class TestDissectNovellPkis:
+    CAP = 'novell_pkis_coverage.pcap.gz'
+
+    def test_novell_pkis_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 3 certificates decode, in one and two passes, without a
+        malformed packet or expert info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_novell_pkis_reliance_limits(self, cmd_tshark, capture_file, test_env):
+        '''Reliance limits (pa-rl): currency, amount and exponent of
+        both monetary values (frames 1 and 3).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'novell_pkis.currency',
+                '-Tfields', '-eframe.number', '-enovell_pkis.currency',
+                '-enovell_pkis.amount', '-enovell_pkis.amtExp10',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '840,978', '1000,25000', '2,0'],
+            ['3', '1,999', '-5,0', '-3,12'],
+        ]
+
+    def test_novell_pkis_security_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Security attributes (pa-sa) with the glb extensions.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 2', '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('securityTM: Novell Security Attribute(tm)',
+                     'uriReference: http://www.example.test/pa',
+                     'gLBExtensions', 'keyQuality', 'cryptoProcessQuality',
+                     'certificateClass', 'enterpriseId',
+                     'singletonRange'):
+            assert text in stdout
