@@ -45,6 +45,7 @@ static dissector_table_t sysex_manufacturer_dissector_table;
 static int ett_midi;
 static int ett_midi1_command;
 static int ett_midi_ump;
+static int ett_midi_ump_flex_chord;
 static int ett_midi_ump_stream_request;
 static int ett_midi_ump_stream_fb_disc;
 
@@ -3316,7 +3317,8 @@ dissect_midi_ump_flex_data(tvbuff_t* tvb, proto_tree* tree, unsigned int offset,
                 proto_tree_add_item(tree, hf_midi_ump_reserved, tvb, offset, 8, ENC_NA);
                 break;
             case MIDI_UMP_FLEX_DATA_STATUS_SET_CHORD_NAME: {
-                proto_tree* tonic = proto_tree_add_subtree(tree, tvb, offset, 8, hf_midi_ump_flex_data_chord_tonic, NULL, "Tonic");
+                proto_item* tonic_ti = proto_tree_add_item(tree, hf_midi_ump_flex_data_chord_tonic, tvb, offset, 8, ENC_NA);
+                proto_tree* tonic = proto_item_add_subtree(tonic_ti, ett_midi_ump_flex_chord);
                 proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_sharps, tvb, UMP_WORD_BYTE_1, ENC_NA);
                 proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_note, tvb, UMP_WORD_BYTE_1, ENC_NA);
                 proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_type, tvb, UMP_WORD_BYTE_2, ENC_NA);
@@ -3331,7 +3333,8 @@ dissect_midi_ump_flex_data(tvbuff_t* tvb, proto_tree* tree, unsigned int offset,
                 proto_tree_add_item(tonic, hf_midi_ump_flex_data_chord_alt_deg, tvb, UMP_WORD_BYTE_2, ENC_NA);
                 proto_tree_add_item(tonic, hf_midi_ump_reserved, tvb, UMP_WORD_BYTES_3_4, ENC_NA);
                 offset += 4;
-                proto_tree* bass = proto_tree_add_subtree(tree, tvb, offset, 4, hf_midi_ump_flex_data_chord_bass, NULL, "Bass");
+                proto_item* bass_ti = proto_tree_add_item(tree, hf_midi_ump_flex_data_chord_bass, tvb, offset, 4, ENC_NA);
+                proto_tree* bass = proto_item_add_subtree(bass_ti, ett_midi_ump_flex_chord);
                 proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_sharps, tvb, UMP_WORD_BYTE_1, ENC_NA);
                 proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_note, tvb, UMP_WORD_BYTE_1, ENC_NA);
                 proto_tree_add_item(bass, hf_midi_ump_flex_data_chord_type, tvb, UMP_WORD_BYTE_2, ENC_NA);
@@ -3419,7 +3422,7 @@ dissect_midi_ump_stream(tvbuff_t* tvb, proto_tree* tree, unsigned int offset, bo
             break;
         case MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION_REQ:
         case MIDI_UMP_STREAM_STATUS_STREAM_CONFIGURATION:
-            proto_tree_add_item(tree, hf_midi_ump_stream_protocol, tvb, UMP_WORD_BYTE_3, ENC_UTF_8);
+            proto_tree_add_item(tree, hf_midi_ump_stream_protocol, tvb, UMP_WORD_BYTE_3, ENC_NA);
             proto_tree_add_item(tree, hf_midi_ump_stream_rx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
             proto_tree_add_item(tree, hf_midi_ump_stream_tx_jr, tvb, UMP_WORD_BYTE_4, ENC_NA);
             offset += 4;
@@ -4585,7 +4588,7 @@ proto_register_midi(void) {
         },
         { &hf_midi2_per_note_controller_value,
             { "Value", "midi.per_note_controller_value",
-            FT_INT32, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },
@@ -4603,7 +4606,7 @@ proto_register_midi(void) {
         },
         { &hf_midi2_param_value,
             { "Value", "midi.param_value",
-            FT_INT32, BASE_DEC,
+            FT_UINT32, BASE_DEC,
             NULL, 0,
             NULL, HFILL }
         },
@@ -5855,6 +5858,7 @@ proto_register_midi(void) {
         &ett_midi,
         &ett_midi1_command,
         &ett_midi_ump,
+        &ett_midi_ump_flex_chord,
         &ett_midi_ump_stream_request,
         &ett_midi_ump_stream_fb_disc,
         &ett_midi2_attr_data,
