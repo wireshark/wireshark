@@ -106664,3 +106664,124 @@ class TestDissectNfsauth:
             '4\tV1 ACCESS Reply (Call In 3)',
             '13\tV2 proc-1 Call',
         ]
+
+
+class TestDissectNgapCoverage:
+    '''Synthetic NGAP capture: all NGAP procedures, NAS and RRC containers,
+    N2 information over HTTP, and the reproducers of the NGAP fixes.'''
+    CAPTURE = 'ngap_coverage.pcapng.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('ngap_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ngap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''308 frames: 183 NGAP (some with NAS-5GS or NRPPa), 62 HTTP
+        requests/responses carrying N2 information (60 reach NGAP), 2
+        exported PDUs, no malformed packets or expert infos in one and two
+        passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 308
+        assert lines.count('NGAP') == 175
+        assert lines.count('NGAP/NAS-5GS') == 6
+        assert lines.count('NGAP/NRPPa') == 1
+        assert lines.count('HTTP') == 62
+        assert lines.count('HTTP/JSON/NGAP') == 60
+        assert lines.count('HTTP/JSON') == 2
+        assert lines.count('') == 2
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_ngap_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The NGAP tree is the same in one and two passes (the RAN node type
+        and NB-IoT state are only learned in the first pass).'''
+        args = ('-Y', 'ngap && !http', '-V', '-O', 'ngap')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 1000
+        assert one == two
+
+    def test_ngap_exported_pdu_no_stats_tap(self, cmd_tshark, capture_file, test_env):
+        '''An AMFConfigurationUpdate reached through the ngap.proc.imsg
+        table (exported PDU) used to crash (stats_tap is only set in
+        dissect_ngap()).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 37',
+                '-Tfields', '-e_ws.col.info')
+        assert lines == ['AMFConfigurationUpdate']
+
+    def test_ngap_tmsi(self, cmd_tshark, capture_file, test_env):
+        '''The hidden 3gpp.tmsi item of the 5G-TMSI has the TMSI (it was
+        read from the start of the outer tvb in the exported PDU).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', '3gpp.tmsi',
+                '-Tfields', '-eframe.number', '-e3gpp.tmsi')
+        assert lines == ['3\t3735928559', '15\t3735928559', '33\t3735928559', '38\t3735928559']
+
+    def test_ngap_nested_message(self, cmd_tshark, capture_file, test_env):
+        '''A RerouteNASRequest inside the NGAP-Message of another one is
+        dissected (3 levels here).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 31',
+                '-Tfields', '-eframe.number', '-engap.procedureCode')
+        assert lines == ['31\t36,36,36']
+
+    def test_ngap_ran_node_type(self, cmd_tshark, capture_file, test_env):
+        '''The RRC container of a handover is decoded according to the RAN
+        node type learned from the NG Setup of the same endpoint: NR RRC for
+        a gNB (frame 13), nothing for a node that has not sent its NG Setup
+        yet (frame 39) and LTE RRC for an ng-eNB after its NG Setup
+        (frame 41), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            for frame, flt in ((13, 'nr-rrc'), (39, 'nr-rrc || lte_rrc'), (41, 'lte_rrc && !nr-rrc')):
+                lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                        '-Y', 'frame.number == %d && (%s)' % (frame, flt), '-Tfields', '-eframe.number')
+                assert lines == ([] if frame == 39 else [str(frame)])
+
+    def test_ngap_nbiot_capability(self, cmd_tshark, capture_file, test_env):
+        '''The UE that started in an NB-IoT tracking area (frame 3, TAC 2)
+        has its radio capability decoded as NB-IoT LTE RRC (frame 4); another
+        UE gets NR RRC (frame 35). With the preference set to legacy LTE
+        the first one is decoded as NR RRC.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 35} && lte_rrc', '-Tfields', '-eframe.number')
+        assert lines == ['4']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 35} && nr-rrc', '-Tfields', '-eframe.number')
+        assert lines == ['35']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-o', 'ngap.dissect_lte_container_as:legacy',
+                '-Y', 'frame.number in {4, 35} && nr-rrc', '-Tfields', '-eframe.number')
+        assert lines == ['4', '35']
+
+    def test_ngap_transport_layer_address(self, cmd_tshark, capture_file, test_env):
+        '''32, 128 and 160 bit transport layer addresses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {17, 18, 19}', '-Tfields', '-eframe.number',
+                '-engap.TransportLayerAddressIPv4', '-engap.TransportLayerAddressIPv6')
+        assert lines == ['17\t1.2.3.4\t',
+                         '18\t\t102:304:506:708:90a:b0c:d0e:f10',
+                         '19\t1.2.3.4\t506:708:90a:b0c:d0e:f10:1112:1314']
+
+    def test_ngap_containers_preference(self, cmd_tshark, capture_file, test_env):
+        '''Without ngap.dissect_container the RRC containers are not dissected.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-o', 'ngap.dissect_container:FALSE',
+                '-Y', 'frame.number == 13 && nr-rrc', '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_ngap_http(self, cmd_tshark, capture_file, test_env):
+        '''N2 information in multipart/related HTTP bodies (3GPP TS 29.502):
+        the JSON gives the type of the binary part.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'http.request && frame.number in {42, 44, 46, 152}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [l.replace('POST /nsmf-pdusession/v1/sm-contexts/1/modify HTTP/1.1 , JSON (application/json), ', '') for l in lines] == [
+            '42\tPDUSessionResourceSetupRequestTransfer',
+            '44\tPDUSessionResourceSetupResponseTransfer',
+            '46\tPDUSessionResourceSetupUnsuccessfulTransfer [Cause: RadioNetwork=unspecified]',
+            '152\tSourceToTarget-TransparentContainer']
+
+    def test_ngap_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The NGAP statistics tree counts each message type.'''
+        lines = subprocess.check_output((cmd_tshark, '-r', capture_file('ngap_coverage.pcapng.gz'),
+                '-q', '-z', 'ngap,tree'), encoding='utf-8', env=test_env).splitlines()
+        row = [l.split() for l in lines if l.strip().startswith('ErrorIndication')][0]
+        assert row[1] == '7'
