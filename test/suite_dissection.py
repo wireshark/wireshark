@@ -108595,3 +108595,68 @@ class TestDissectNsCertExts:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['2', '5']
+
+
+class TestDissectNsHa:
+    '''NetScaler HA heartbeat (NS-HA), from the synthetic capture
+    ns_ha_coverage.pcap.gz: Exported PDU frames naming the "nstrace.ha"
+    dissector (it has no port of its own).'''
+
+    def test_ns_ha_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 43 frames are NS-HA and none is malformed or has a warning or
+        an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_ha_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['NS-HA'] * 43
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ns_ha_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ns_ha_versions(self, cmd_tshark, capture_file, test_env):
+        '''Version 10, 9 and 8 carry the start time and sync state, versions
+        10 and 9 the interface information and the DR incarnation number,
+        version 10 the release; versions 3 and 4 only the master state and
+        incarnation; other versions only the node state.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_ha_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 31, 33, 35, 37}',
+                '-Tfields', '-eframe.number', '-enstrace.ha.version',
+                '-enstrace.ha.startime', '-enstrace.ha.release',
+                '-enstrace.ha.inc', '-enstrace.ha.syncstate',
+                '-enstrace.ha.drinc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['3', '10', '1700000000', '130', '7', '16', '9', 'Node state: DOWN Master State: ACTIVE'],
+            ['31', '9', '1700000000', '', '7', '16', '9', 'Node state: UP Master State: ACTIVE'],
+            ['33', '8', '1700000000', '', '7', '16', '', 'Node state: UP Master State: ACTIVE'],
+            ['35', '3', '', '', '7', '', '', 'Node state: UP Master State: ACTIVE'],
+            ['37', '0', '', '', '', '', '', 'Node state: UNKNOWN Master State: INACTIVE'],
+        ]
+
+    def test_ns_ha_flags(self, cmd_tshark, capture_file, test_env):
+        '''The six flags of the version 10 heartbeat (frames 22-27 each set
+        one, 28 sets all).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ns_ha_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22..28}',
+                '-Tfields', '-eframe.number', '-enstrace.ha.flags',
+                '-enstrace.ha.flags.versionmismatch', '-enstrace.ha.flags.stayprimary',
+                '-enstrace.ha.flags.inc', '-enstrace.ha.flags.propdis',
+                '-enstrace.ha.flags.sslfail', '-enstrace.ha.flags.nossl',
+            ), encoding='utf-8', env=test_env)
+        t, f = 'True', 'False'
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['22', '0x00008000', t, f, f, f, f, f],
+            ['23', '0x00004000', f, t, f, f, f, f],
+            ['24', '0x00001000', f, f, t, f, f, f],
+            ['25', '0x00002000', f, f, f, t, f, f],
+            ['26', '0x00000100', f, f, f, f, t, f],
+            ['27', '0x00000200', f, f, f, f, f, t],
+            ['28', '0x0000f300', t, t, t, t, t, t],
+        ]
