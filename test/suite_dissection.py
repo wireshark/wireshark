@@ -106985,3 +106985,113 @@ class TestDissectNistCsor:
             '17\t2.16.840.1.101.3.4.1.44\t\t%s\t128\t' % iv,
             '19\t2.16.840.1.101.3.4.2.17\t\t\t\t32',
             '21\t2.16.840.1.101.3.4.2.18\t\t\t\t64']
+
+
+class TestDissectNlm:
+    '''NLM (Network Lock Manager, ONC RPC program 100021, versions 1-4)
+    over UDP, from the synthetic capture nlm_coverage.pcap.gz. Frames
+    1-212 are the four protocol versions (v1 1-46, v2 47-92, v3 93-152,
+    v4 153-212); frames 213-254 exercise the matching of the async MSG
+    and RES calls (preference nlm.msg_res_matching).'''
+
+    MATCH = ('-o', 'nlm.msg_res_matching:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields,
+                passes=(), opts=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('nlm_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nlm_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 254 frames are NLM without malformed packets or error
+        expert infos, in one and two passes, with and without the MSG/RES
+        matching.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'nlm')
+        assert len(rows) == 254
+        for passes in ((), ('-2',)):
+            for opts in ((), self.MATCH):
+                rows = self._fields(cmd_tshark, capture_file, test_env,
+                                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                    passes=passes, opts=opts)
+                assert rows == []
+        for vers, procs, calls in ((1, 16, 23), (2, 16, 23), (3, 20, 30), (4, 20, 30)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'rpc.msgtyp == 0 && frame.number <= 212 && '
+                                'rpc.programversion == %d' % vers,
+                                'nlm.procedure_v%d' % vers)
+            assert len(rows) == calls
+            assert len({r[1] for r in rows}) == procs
+
+    def test_nlm_lock(self, cmd_tshark, capture_file, test_env):
+        '''The lock structure: 32 bit offset and length in versions 1-3,
+        64 bit in version 4; the holder in the TEST reply.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {3, 6, 155, 158}',
+                            'nlm.lock.caller_name', 'nlm.lock.svid', 'nlm.lock.l_offset',
+                            'nlm.lock.l_len', 'nlm.lock.l_offset64', 'nlm.lock.l_len64',
+                            'nlm.lock.owner', 'nlm.exclusive', 'nlm.test_stat.stat')
+        assert rows == [
+            ['3', 'client1.example', '1234', '0', '100', '', '', '6f776e65722d30303031', 'True', ''],
+            ['6', '', '77', '10', '20', '', '', '686f6c6465722d3737', 'True', '1'],
+            ['155', 'client1.example', '1234', '', '', '0', '100', '6f776e65722d30303031', 'True', ''],
+            ['158', '', '77', '', '', '10', '20', '686f6c6465722d3737', 'True', '1'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 159',
+                            '_ws.col.info')
+        assert rows == [['159', 'V4 LOCK Call, client1.example, FH:0x9139d123, '
+                                'Pos:0, Len: 100, svid:1234']]
+
+    def test_nlm_share_and_freeall(self, cmd_tshark, capture_file, test_env):
+        '''SHARE and UNSHARE (modes, access, the reply sequence), NM_LOCK
+        and FREE_ALL, which exist from version 3.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {199, 200, 205, 206, 209}',
+                            'nlm.share.mode', 'nlm.share.access', 'nlm.sequence',
+                            'nlm.stat', 'nlm.share.name', 'nlm.reclaim', 'nlm.state')
+        assert rows == [
+            ['199', '1', '3', '', '', '', 'False', ''],
+            ['200', '', '', '1', '0', '', '', ''],
+            ['205', '2', '0', '', '', '', 'False', ''],
+            ['206', '', '', '-1', '9', '', '', ''],
+            ['209', '', '', '', '', 'client2.example', '', '12'],
+        ]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nlm.procedure_v4 == 22 && rpc.msgtyp == 1', 'nlm.stat')
+        assert rows == [['208', '10']]
+
+    def test_nlm_msg_res_matching(self, cmd_tshark, capture_file, test_env):
+        '''Frames 213-254 pair async MSG and RES calls by cookie. The MSG
+        call shows the frame of its RES (nlm.res_in) and the RES call the
+        MSG (nlm.msg_in); before "NLM: Swap the frame number types of
+        request_in and reply_in" the two fields had the wrong frame
+        number types. The frame numbers are set in the second pass, and
+        only with the preference.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nlm.msg_in || nlm.res_in', 'nlm.msg_in', 'nlm.res_in',
+                            passes=('-2',), opts=self.MATCH)
+        pairs = {r[0]: r[1:] for r in rows if int(r[0]) >= 213}
+        assert pairs == {
+            '213': ['', '215'], '215': ['213', ''],
+            '217': ['', '219'], '219': ['217', ''],
+            '221': ['', '223'], '223': ['221', ''],
+            '225': ['', '227'], '227': ['225', ''],
+            # the second CANCEL_MSG with the same cookie replaces the first
+            '231': ['', '233'], '233': ['231', ''],
+            # same XOR hash, different cookies, answered in the other order
+            '239': ['', '245'], '241': ['', '243'],
+            '243': ['241', ''], '245': ['239', ''],
+            '251': ['', '253'], '253': ['251', ''],
+        }
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nlm.msg_in || nlm.res_in', 'nlm.msg_in', opts=self.MATCH)
+        assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nlm.msg_in || nlm.res_in', 'nlm.msg_in', passes=('-2',))
+        assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 215',
+                            'nlm.msg_in', 'nlm.time', passes=('-2',), opts=self.MATCH)
+        assert len(rows) == 1 and rows[0][1] == '213' and rows[0][2] != ''
