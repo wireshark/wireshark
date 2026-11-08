@@ -4644,19 +4644,24 @@ dissect_nl80211_band_attr(tvbuff_t *tvb, void *data, struct packet_netlink_data 
     }
     if (offset < offset_end) {
         netlink_nl80211_info_t *info = (netlink_nl80211_info_t *)data;
+        tvbuff_t *sub = tvb_new_subset_length(tvb, offset, len);
         switch (type) {
         /* TODO add more fields here? */
         case WS_NL80211_BAND_ATTR_HT_MCS_SET:
-            offset = dissect_mcs_set(tree, info->pinfo, tvb, offset, false, false);
+            dissect_mcs_set(tree, info->pinfo, sub, 0, false, false);
+            offset += len;
             break;
         case WS_NL80211_BAND_ATTR_HT_CAPA:
-            offset = dissect_ht_capabilities(tree, tvb, offset, false);
+            dissect_ht_capabilities(tree, sub, 0, false);
+            offset += len;
             break;
         case WS_NL80211_BAND_ATTR_VHT_MCS_SET:
-            offset = dissect_vht_mcs_set(tree, tvb, offset);
+            dissect_vht_mcs_set(tree, sub, 0);
+            offset += len;
             break;
         case WS_NL80211_BAND_ATTR_VHT_CAPA:
-            offset = dissect_vht_capabilities(tree, tvb, offset);
+            dissect_vht_capabilities(tree, sub, 0);
+            offset += len;
             break;
         default:
             offset = dissect_nl80211_generic(tvb, data, nl_data, tree, nla_type, offset, len);
