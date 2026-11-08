@@ -108736,3 +108736,79 @@ class TestDissectNsh:
             ['40', '', '', '', '4,1'],
             ['41', '', '', '', '4,4,1'],
         ]
+
+
+class TestDissectNsip:
+    '''GPRS Network Service over IP (NSIP, UDP 2157 and 19999), from the
+    synthetic capture nsip_coverage.pcap.gz and the reproducers
+    nsip_reproducers.pcap.gz.'''
+
+    def test_nsip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-7 (NS_UNITDATA) end in BSSGP, the other 65 are GPRS-NS;
+        none is malformed or has a warning or an error expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsip_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 72
+        assert protocols[:7] == ['BSSGP'] * 7
+        assert protocols[7:] == ['GPRS-NS'] * 65
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nsip_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nsip_ip_address_ie(self, cmd_tshark, capture_file, test_env):
+        '''The IP Address IE of an SNS_ACK carries an IPv4 or IPv6 address;
+        an IPv6 address used the IPv4 field, which stopped tshark with a
+        field type assertion when a tree was built (fd54660f2b).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {45, 46}',
+                '-Tfields', '-eframe.number', '-ensip.ipv4_address', '-ensip.ipv6_address',
+                '-ensip.ip_address_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '45\t192.0.2.9\t\t1',
+            '46\t\t2001:db8::1\t2',
+        ]
+
+    def test_nsip_ns_status_nesting(self, cmd_tshark, capture_file, test_env):
+        '''An NS PDU IE holds another NS PDU. Up to four levels are
+        dissected; frames 38-41 nest 1 to 4 levels (each level adds an
+        NS_STATUS to the PDU types of the frame).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nsip_coverage.pcap.gz'),
+                '-Y', 'frame.number in {38..41}',
+                '-Tfields', '-eframe.number', '-ensip.pdu_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '38\t0x08,0x0a',
+            '39\t0x08,0x08,0x0a',
+            '40\t0x08,0x08,0x08,0x0a',
+            '41\t0x08,0x08,0x08,0x08,0x0a',
+        ]
+
+    def test_nsip_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2 nests 600 NS_STATUS PDUs: it used to stop tshark with the
+        dissection depth assertion. Now the nesting stops after four levels
+        with an expert info. A static "recursive" flag stayed set after
+        that, so frame 3 (a plain NS_ALIVE) lost its GPRS-NS column and had
+        its Info appended; it is a normal frame now, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nsip_reproducers.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-ensip.too_deep', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert lines[0][:3] == ['1', 'GPRS-NS', 'SNS_ACK, NSEI 1, Transaction Id: 5']
+            assert lines[1][:2] == ['2', 'GPRS-NS']
+            assert lines[1][4] == 'NS PDU IEs nested too deeply'
+            assert lines[2] == ['3', 'GPRS-NS', 'NS_ALIVE', '', '']
