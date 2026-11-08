@@ -105596,3 +105596,70 @@ class TestDissectNetlinkOvsFlow:
         assert self.fields(cmd_tshark, capture_file, test_env, 22,
                 'ovs_flow.tunnel.id', 'ovs_flow.action.output') == [
             '0x1122334455667788\t1']
+
+
+class TestDissectNetlinkOvsMeter:
+    '''Open vSwitch meter generic netlink family (ovs_meter) from the
+    synthetic capture ovs_meter_coverage.pcap.gz (LINKTYPE_NETLINK).
+    Frame 1 maps the family id 0x25 to its name.'''
+
+    CAP = 'ovs_meter_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, frame, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectNetlinkOvsMeter.CAP),
+                '-Y', 'frame.number == %d' % frame,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ovs_meter_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-15 are dissected as ovs_meter without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['Netlink generic'] + ['ovs_meter'] * 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ovs_meter_features_and_bands(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3: the features reply; frame 4: SET with two bands (the
+        band array); frame 5: the reply with statistics, used and band
+        statistics.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 3,
+                'ovs_meter.max_meters', 'ovs_meter.max_bands') == ['1024\t8']
+        assert self.fields(cmd_tshark, capture_file, test_env, 4,
+                'ovs_meter.id', 'ovs_meter.band.type', 'ovs_meter.band.rate',
+                'ovs_meter.band.burst') == ['3\t1,1\t1000,5000\t100,500']
+        assert self.fields(cmd_tshark, capture_file, test_env, 5,
+                'ovs_meter.id', 'ovs_meter.stats.n_packets',
+                'ovs_meter.stats.n_bytes', 'ovs_meter.used',
+                'ovs_meter.band.stats.n_packets',
+                'ovs_meter.band.stats.n_bytes') == [
+            '3\t1000\t1500000\t1700000000123\t10,10\t1200,1200']
+
+    def test_ovs_meter_band_types_and_wrong_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Frame 9: unspecified and unknown band types; frame 10:
+        statistics of 15 and 17 octets are not decoded.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 9,
+                'ovs_meter.band.type') == ['0,7,4294967295']
+        assert self.fields(cmd_tshark, capture_file, test_env, 10,
+                'ovs_meter.stats.n_packets',
+                'ovs_meter.band.stats.n_packets') == ['\t']
+
+    def test_ovs_meter_masked_type(self, cmd_tshark, capture_file, test_env):
+        '''Frame 12: attributes with NLA_F_NESTED / NLA_F_NET_BYTEORDER
+        are decoded by their masked type (raw data before
+        "netlink-ovs_meter: Mask the attribute type").'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 12,
+                'ovs_meter.id', 'ovs_meter.max_meters', 'ovs_meter.used') == [
+            '9\t77\t99']
