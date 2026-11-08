@@ -75526,7 +75526,8 @@ class TestDissectIcmpv6Coverage:
 
     def test_icmpv6_nd_options(self, cmd_tshark, capture_file, test_env):
         '''Neighbor Discovery options: DNS lists, captive portal, PREF64
-        prefixes of every length, PvD ID, the DNR option.'''
+        prefixes of every length, PvD ID, the DNR option, the Resource
+        Directory Address option.'''
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {87, 88, 89, 93, 94, 95}',
                             'icmpv6.opt.dnssl', 'icmpv6.opt.rdnss', 'icmpv6.opt.captive_portal',
                             'icmpv6.opt.pref64.prefix', 'icmpv6.opt.pvd_id.fqdn', 'icmpv6.opt.dnr.adn')
@@ -75537,6 +75538,10 @@ class TestDissectIcmpv6Coverage:
         assert rows[3][5] == 'pvd.example.net,pvd.example.org,pvd.a,x.example.com'
         assert rows[4][6] == 'dns.example.net'
         assert rows[5][6] == 'dns.example.net,doh.example'
+        # Resource Directory Address option (RFC 9176)
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.opt.rdao.address',
+                            'icmpv6.opt.rdao.address', 'icmpv6.opt.rdao.lifetime')
+        assert rows == [['92', '2001:db8::1', '3600']]
         # The Hop Limit and checksum warnings of the last two frames
         rows = self._fields(cmd_tshark, capture_file, test_env, 'icmpv6.nd.hlim.invalid')
         assert [r[0] for r in rows] == ['249']
