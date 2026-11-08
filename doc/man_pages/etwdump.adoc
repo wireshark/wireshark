@@ -21,8 +21,8 @@ etwdump - Provide an interface to read Event Tracing for Windows (ETW)
 [ *--extcap-config* ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--iue*=<Should undecidable events be included> ]
 [ *--etlfile*=<etl file> ]
+[ *--iue*=<Should undecidable events be included> ]
 [ *--params*=<filter parameters> ]
 
 == DESCRIPTION
@@ -56,11 +56,11 @@ Start capturing from specified interface save saved it in place specified by --f
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
 
---iue=<Should undecidable events be included>::
-Choose if the undecidable event is included.
-
 --etlfile=<Etl file>::
 Select etl file to display in Wireshark.
+
+--iue=<Should undecidable events be included>::
+Choose if the undecidable event is included.
 
 --params=<filter parameters>::
 Input providers, keyword and level filters for the etl file and live session.
