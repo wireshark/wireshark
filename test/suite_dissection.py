@@ -104796,3 +104796,81 @@ class TestDissectNetlinkGeneric:
             '7\t\t2\t2',
             '8\t\t1\t2',
         ]
+
+
+class TestDissectNetlinkHwsim:
+    '''mac80211_hwsim Generic Netlink dissector, from the synthetic capture
+    netlink_mac80211_hwsim_coverage.pcap.gz (LINKTYPE_NETLINK). Frame 1 is
+    the CTRL_CMD_NEWFAMILY that maps family 0x21 to MAC80211_HWSIM.'''
+
+    CAP = 'netlink_mac80211_hwsim_coverage.pcap.gz'
+
+    def test_hwsim_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes, without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 19
+        assert protocols[0] == 'Netlink generic'
+        assert protocols[1:17] == ['mac80211_hwsim'] * 16
+        assert protocols[17:] == ['Netlink'] * 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_hwsim_commands(self, cmd_tshark, capture_file, test_env):
+        '''The command of each message; frame 2 has no payload and no
+        attributes, frame 17 holds two messages and frame 14 an
+        unknown command.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'mac80211_hwsim.cmd',
+                '-Tfields', '-eframe.number', '-emac80211_hwsim.cmd',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '2\t1', '3\t4', '4\t2', '5\t3', '6\t5', '7\t6', '8\t6', '9\t7', '10\t8',
+            '11\t9', '12\t10', '13\t11', '14\t40', '15\t4', '16\t4', '17\t6,1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'genl.family_id == 0x21 && !mac80211_hwsim',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['2']
+
+    def test_hwsim_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The radio name is a string, other attributes are shown as 16,
+        32 or 64 bit values by length, a big endian message and the
+        network byte order flag give the same values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {3, 4, 5, 8, 14, 15, 16}',
+                '-Tfields', '-eframe.number', '-emac80211_hwsim.radio_name',
+                '-emac80211_hwsim.attr_value16', '-emac80211_hwsim.attr_value32',
+                '-emac80211_hwsim.attr_value64',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert lines[0] == '3\thwsim0\t\t0x00000002,0x00000007,0x000001ae\t0x0fac040fac020fac'
+        assert lines[1] == ('4\t\t\t0x00000002,0x00000001,0xffffffd8,0x0000096c,0x00000000'
+                            '\t0x1122334455667788')
+        assert lines[2] == '5\t\t0x0003\t0x00000004,0xffffffc4\t0x0706050403020100,0x0000000000000005'
+        assert lines[3] == '8\thwsim1\t\t\t'
+        assert lines[4] == '14\ta-longer-radio-name-7\t\t\t'
+        assert lines[5] == '15\tflagged\t0x1234\t0x00000004\t'
+        assert lines[6] == '16\thwsim-be\t0x0055\t0x00000003\t'
+        # Attributes of other lengths (frame 4: addresses, frame, tx info)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 4',
+                '-Tfields', '-emac80211_hwsim.attr_value',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        values = stdout.strip().split(',')
+        assert values[:2] == ['020000000001', '020000000002']
+        assert values[3] == '000102030405060708090a0b0c0d0e0f'
