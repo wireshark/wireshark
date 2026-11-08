@@ -126,7 +126,6 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, unsigned 
 
     unsigned length;
     unsigned i =  0;
-    const uint8_t* type_name;
     for (i = 0; i < params; i++) {
 
         /* get length that we just dissected */
@@ -145,12 +144,18 @@ dissect_params (tvbuff_t *tvb, proto_tree *hdfs_tree, unsigned offset, unsigned 
                                  hdfs_str_eq(tvb, offset - length, "byte", length) || hdfs_str_eq(tvb, offset - length, "float", length)
                                  || hdfs_str_eq(tvb, offset - length, "double", length) || hdfs_str_eq(tvb, offset - length, "boolean", length))) {
 
-            if (hdfs_str_eq(tvb, offset - length, "boolean", length)) {
+            /* The sizes of the Java primitive types (DataOutput) */
+            if (hdfs_str_eq(tvb, offset - length, "boolean", length) ||
+                hdfs_str_eq(tvb, offset - length, "byte", length)) {
                 length = 1;
-            } else if (hdfs_str_eq(tvb, offset - length, "short", length)) {
+            } else if (hdfs_str_eq(tvb, offset - length, "short", length) ||
+                       hdfs_str_eq(tvb, offset - length, "char", length)) {
                 length = 2;
+            } else if (hdfs_str_eq(tvb, offset - length, "int", length) ||
+                       hdfs_str_eq(tvb, offset - length, "float", length)) {
+                length = 4;
             } else {
-                length = sizeof(type_name);
+                length = 8;     /* long, double */
             }
 
             proto_tree_add_item(hdfs_tree, hf_hdfs_paramvalnum, tvb, offset, length, ENC_BIG_ENDIAN);

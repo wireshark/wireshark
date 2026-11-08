@@ -71534,9 +71534,10 @@ class TestDissectHdfs:
         assert rows == [['16', '1'], ['20', '4294967295']]
 
     def test_hdfs_param_types(self, cmd_tshark, capture_file, test_env):
-        '''Numeric parameter types are shown as numbers (the dissector
-        takes 8 octets for all but short and boolean) and the
-        FsPermission value is followed by the permission bits.'''
+        '''Numeric parameter types are shown as numbers, each taking the
+        size of its Java primitive type (frame 15: int, char, byte, float
+        and double), and the FsPermission value is followed by the
+        permission bits.'''
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 15',
                             'hdfs.paramvalnum')
         assert rows == [['15', '1,2,3,4,5']]
