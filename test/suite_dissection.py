@@ -104874,3 +104874,121 @@ class TestDissectNetlinkHwsim:
         values = stdout.strip().split(',')
         assert values[:2] == ['020000000001', '020000000002']
         assert values[3] == '000102030405060708090a0b0c0d0e0f'
+
+
+class TestDissectNetlinkNetDm:
+    '''net_dm (network drop monitor) Generic Netlink dissector, from the
+    synthetic capture netlink_net_dm_coverage.pcap.gz (LINKTYPE_NETLINK).
+    Frame 1 is the CTRL_CMD_NEWFAMILY that maps family 0x22 to NET_DM.'''
+
+    CAP = 'netlink_net_dm_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file(cap), '-Y', flt, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_net_dm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 27 frames decode; the only frame with an expert info is
+        frame 23, nested deeper than the limit of the netlink layer
+        (a warning); no malformed packets or errors in one and two
+        passes. Payloads reach UDP (frames 8, 9, 10, 14, 25), LLC (11).'''
+        protocols = [l.strip() for l in self.fields(cmd_tshark, capture_file,
+                                                    test_env, self.CAP, 'frame',
+                                                    '_ws.col.protocol')]
+        assert len(protocols) == 27
+        assert protocols[0] == 'Netlink generic'
+        assert protocols.count('net_dm') == 20
+        assert [i + 1 for i, p in enumerate(protocols) if p == 'UDP'] == [8, 9, 10, 14, 25]
+        assert protocols[10] == 'LLC'
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes) == []
+            assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                               '_ws.expert', 'frame.number', '_ws.expert.message',
+                               passes=passes) == ['23\tNetlink attributes nested too deeply']
+
+    def test_net_dm_commands_and_config(self, cmd_tshark, capture_file, test_env):
+        '''Commands, with and without payload, and the configuration
+        attributes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'net_dm.cmd', 'frame.number', 'net_dm.cmd',
+                            'net_dm.alert_mode', 'net_dm.trunc_len', 'net_dm.queue_len')
+        assert lines[:6] == ['2\t2\t1\t128\t4096', '3\t3\t\t\t', '4\t4\t\t\t',
+                             '5\t6\t\t\t', '6\t7\t0\t0\t1000', '7\t1\t\t\t']
+        assert lines[-1] == '27\t60\t\t1\t'
+
+    def test_net_dm_packet_alert(self, cmd_tshark, capture_file, test_env):
+        '''A software and a hardware drop with their attributes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {8, 9}', 'frame.number', 'net_dm.pc',
+                            'net_dm.symbol', 'net_dm.port.netdev_index',
+                            'net_dm.port.netdev_name', 'net_dm.timestamp', 'net_dm.proto',
+                            'net_dm.origin', 'net_dm.hw_trap_group_name',
+                            'net_dm.hw_trap_name', 'net_dm.hw_trap_count',
+                            'net_dm.cookie', 'net_dm.reason', 'udp.dstport')
+        assert lines[0].split('\t')[:4] == ['8', '0xffffffff81a3b2c0', 'ip_rcv_finish+0x40', '2']
+        assert lines[0].split('\t')[4] == 'eth0'
+        assert lines[0].split('\t')[6:8] == ['0x0800', '0']
+        assert lines[0].split('\t')[-2:] == ['NO_SOCKET', '5001']
+        assert lines[1].split('\t')[4:] == ['swp1', '', '0x0800', '1', 'l3_drops',
+                                            'blackhole_route', '9',
+                                            '000102030405060708090a0b', '', '5001']
+
+    def test_net_dm_payload_protocol(self, cmd_tshark, capture_file, test_env):
+        '''The payload goes to the Ethernet dissector when the bytes 12-13
+        match the protocol (frames 8, 25), the IPv4 and IPv6 dissectors
+        for a raw packet (9, 10), the LLC dissector for an 802.3 frame
+        with protocol 802.2 (11), the sll.ltype table for protocol 3
+        (14), and to Data otherwise (12, 13, 15).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {8, 9, 10, 11, 12, 13, 14, 15, 25}',
+                            'frame.number', 'eth.src', 'ip.src', 'ipv6.src',
+                            'llc.dsap', 'data.len')
+        by = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert by['8'][:3] == ['02:00:00:00:00:01', '10.0.0.1', '']
+        assert by['9'][:3] == ['', '10.0.0.1', '']
+        assert by['10'][0] == '' and by['10'][1] == '' and by['10'][2] != ''
+        assert by['11'][0] == '02:00:00:00:00:01' and by['11'][3] == '0x0a'
+        assert by['12'][4] == '4' and by['13'][4] == '10' and by['15'][4] == '20'
+        assert by['14'][0] == '02:00:00:00:00:01' and by['25'][0] == '02:00:00:00:00:01'
+
+    def test_net_dm_length_checks(self, cmd_tshark, capture_file, test_env):
+        '''PC, TIMESTAMP and PROTO attributes with the wrong length are
+        shown as raw data and no longer decode the following attribute
+        (frames 19, 20): the next attribute (ORIG_LEN) stays intact.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {19, 20}', 'frame.number', 'net_dm.pc',
+                            'net_dm.timestamp', 'net_dm.proto', 'net_dm.orig_len',
+                            'netlink.attr_data')
+        assert lines[0] == '19\t\t\t\t9\t44332211,efbeadde,0008000000000000'
+        assert lines[1].startswith('20\t\t\t\t9\t0102,')
+        assert lines[1].endswith(',08')
+
+    def test_net_dm_stats_and_hw_entries(self, cmd_tshark, capture_file, test_env):
+        '''Software and hardware statistics, hardware entries, and
+        nesting: 20 levels decode, 40 levels stop at the limit.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {17, 18, 22, 23}', 'frame.number',
+                            'net_dm.stats.dropped', 'net_dm.hw_trap_name',
+                            'net_dm.hw_trap_count')
+        assert lines == ['17\t12345,6789\t\t', '18\t\tsmac_mc,ttl_value_is_too_small\t3,11',
+                         '22\t\tdeepest\t', '23\t\t\t']
+
+    def test_net_dm_byte_order(self, cmd_tshark, capture_file, test_env):
+        '''The network byte order flag (frame 24) and a message in big
+        endian (frame 25) give the same values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                            'frame.number in {24, 25}', 'frame.number', 'net_dm.symbol',
+                            'net_dm.trunc_len', 'net_dm.origin', 'net_dm.pc')
+        assert lines == ['24\tflagged\t77\t1\t', '25\tbe_symbol\t99\t0\t0x0000000000001000']
+        # The timestamps, compared in UTC so that the time zone does not matter
+        assert self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                           'net_dm.timestamp == "1970-01-01T00:00:05.000000006Z" || '
+                           'net_dm.timestamp == "2023-11-14T22:13:21.000000007Z" || '
+                           'net_dm.timestamp == "2023-11-14T22:13:20.123456789Z"',
+                           'frame.number') == ['8', '24', '25']
