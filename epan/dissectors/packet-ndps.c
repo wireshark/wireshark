@@ -47,6 +47,9 @@ static bool ndps_show_oids=false;
 /* Global Attribute for evaluation of Values */
 static const char *global_attribute_name;
 
+/* proto data key for the per-frame fragment flag (key 0 holds the request value) */
+#define NDPS_FRAG_FLAG_KEY 1
+
 static unsigned dissect_ndps_request(tvbuff_t*, packet_info*, proto_tree*, uint32_t, uint32_t, unsigned);
 
 static unsigned dissect_ndps_reply(tvbuff_t *, packet_info*, proto_tree*, unsigned);
@@ -4044,6 +4047,7 @@ dissect_ndps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ndps_tree)
     const char  *ndps_func_string;
 
 
+    global_attribute_name = NULL;
     ndps_packet_type = tvb_get_ntohl(tvb, 8);
     if (ndps_packet_type != 0 && ndps_packet_type != 1) {     /* Packet Type */
         col_set_str(pinfo->cinfo, COL_INFO, "(Continuation Data)");
@@ -4196,6 +4200,7 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
     fragment_head       *fd_head;
     ndps_req_hash_value *request_value = NULL;
     conversation_t      *conversation;
+    bool                 is_frag;
 
     /* Check to see if defragmentation is enabled in the dissector */
     if (!ndps_defragment) {
@@ -4238,11 +4243,20 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
         return;
     }
     /* Check to see of this is a fragment. If so then mark as a fragment. */
-    if (!spx_info_p->eom) {
-        request_value->ndps_frag = true;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        bool *frag_flag = wmem_new(wmem_file_scope(), bool);
+        if (!spx_info_p->eom) {
+            request_value->ndps_frag = true;
+        }
+        *frag_flag = request_value->ndps_frag;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_ndps, NDPS_FRAG_FLAG_KEY, frag_flag);
+    }
+    {
+        bool *frag_flag = (bool *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ndps, NDPS_FRAG_FLAG_KEY);
+        is_frag = (frag_flag != NULL) && *frag_flag;
     }
     /* Now we process the fragments */
-    if (request_value->ndps_frag || (request_value->ndps_end_frag == pinfo->num))
+    if (is_frag || (request_value->ndps_end_frag == pinfo->num))
     {
         /*
          * Fragment
@@ -4314,7 +4328,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
         {
             /* This is the end fragment so dissect and mark end */
             if (spx_info_p->eom) {
-                request_value->ndps_frag = false;
+                if (!PINFO_FD_VISITED(pinfo))
+                    request_value->ndps_frag = false;
                 dissect_ndps(next_tvb, pinfo, tree);
             }
         }
@@ -4322,7 +4337,8 @@ ndps_defrag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, spx_info *spx_i
     else
     {
         /* This is not any fragment packet */
-        request_value->ndps_frag = false;
+        if (!PINFO_FD_VISITED(pinfo))
+            request_value->ndps_frag = false;
         dissect_ndps(tvb, pinfo, tree);
     }
 }
