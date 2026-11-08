@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* (last updated 2026-10-30) */
+/* (last updated 2026-11-06) */
 
 #include "config.h"
 
@@ -43138,7 +43138,7 @@ static const char * const table[] =
     "Berghof Automation GmbH",                                                            // 43116
     "National Stock Exchange Of India Limited",                                           // 43117
     "NORDSYS GmbH",                                                                       // 43118
-    "Altibox AS",                                                                         // 43119
+    "Lyse Tele AS",                                                                       // 43119
     "Peshawar Business School",                                                           // 43120
     "Ypsomed AG",                                                                         // 43121
     "Summit Networks",                                                                    // 43122
@@ -65897,7 +65897,7 @@ static const char * const table[] =
     "Elevenware Limited",                                                                 // 65875
     "Green Recursive Utility Service LLC",                                                // 65876
     "Pixel AI SARLU",                                                                     // 65877
-    "Honoré DEMBÉLÉ (BAZURU)",                                                            // 65878
+    "Touramakhan Danisouba",                                                              // 65878
     "Shenzhen ENERGY CONTROL CLOUD Technology Co., Ltd.",                                 // 65879
     "Digital Matter",                                                                     // 65880
     "Hofstädtler I. E. GmbH",                                                             // 65881
@@ -67478,7 +67478,131 @@ static const char * const table[] =
     "Shenzhen Drawer Technologies Development Co., Ltd.",                                 // 67456
     "Selene Feigl",                                                                       // 67457
     "UBISENSE LIMITED",                                                                   // 67458
-    "IPM-Pro, LLC"                                                                        // 67459
+    "IPM-Pro, LLC",                                                                       // 67459
+    "Keystone Intelligence Global",                                                       // 67460
+    "AdituA",                                                                             // 67461
+    "CEST Co., Ltd.",                                                                     // 67462
+    "Dorian Zedler",                                                                      // 67463
+    "Seo Dong In",                                                                        // 67464
+    "Myriad Group LLC",                                                                   // 67465
+    "Torsten Fimmel",                                                                     // 67466
+    "PlunkEV Inc.",                                                                       // 67467
+    "COPtimize",                                                                          // 67468
+    "Verifas Networks",                                                                   // 67469
+    "Schiessl Cloud",                                                                     // 67470
+    "UnityStack GmbH",                                                                    // 67471
+    "GUARANI LLC",                                                                        // 67472
+    "Ampio sp. z o. o.",                                                                  // 67473
+    "Tabula Medica",                                                                      // 67474
+    "Mobilium FZ-LLC",                                                                    // 67475
+    "Threatspotting Ltd.",                                                                // 67476
+    "Framecastic d.o.o.",                                                                 // 67477
+    "Cozens Software Solutions Limited",                                                  // 67478
+    "Neo Security, Inc.",                                                                 // 67479
+    "M4T Sp. z o.o.",                                                                     // 67480
+    "IAGENTE",                                                                            // 67481
+    "DearGreen Inc.",                                                                     // 67482
+    "Open Letter, Inc.",                                                                  // 67483
+    "Waldstock e.V.",                                                                     // 67484
+    "Orchard Root, LLC",                                                                  // 67485
+    "Open Security Research, Inc.",                                                       // 67486
+    "Cybersecurity Manufacturing Innovation Institute",                                   // 67487
+    "Primemas Inc.",                                                                      // 67488
+    "yLinx, LLC",                                                                         // 67489
+    "Health Triage S.P.A.",                                                               // 67490
+    "Kristl, Seibt & Co. Gesellschaft m.b.H.",                                            // 67491
+    "HEA Group AB",                                                                       // 67492
+    "consolving",                                                                         // 67493
+    "Haywire Internet",                                                                   // 67494
+    "Storware sp. z o.o.",                                                                // 67495
+    "PayTec",                                                                             // 67496
+    "Sidero Labs",                                                                        // 67497
+    "Eureka System S.R.L.",                                                               // 67498
+    "Leon Elias Weiss",                                                                   // 67499
+    "Completely Managed Inc.",                                                            // 67500
+    "PacketViper LLC",                                                                    // 67501
+    "Botron Co., Inc.",                                                                   // 67502
+    "Beijing Fysoon Technology Co.,LTD.",                                                 // 67503
+    "Ian Bowman",                                                                         // 67504
+    "Steven ALFRED",                                                                      // 67505
+    "Beijing UIoT Network Technology Co., Ltd.",                                          // 67506
+    "Artemuhi Projects",                                                                  // 67507
+    "Alessandro De Filippo",                                                              // 67508
+    "Prelude DX",                                                                         // 67509
+    "Palomar Products, Inc.",                                                             // 67510
+    "General Medical Italia Ltd., Swiss Branch",                                          // 67511
+    "Alyeska Labs, LLC",                                                                  // 67512
+    "AzInTelecom LLC",                                                                    // 67513
+    "Ben Dray",                                                                           // 67514
+    "Emirates Driving Company PSC",                                                       // 67515
+    "One Stop Stores LTD",                                                                // 67516
+    "Teco a.s.",                                                                          // 67517
+    "Semitrónica - Tecnologias em Microelectrónica, Lda.",                                // 67518
+    "Viva Leisure Ltd.",                                                                  // 67519
+    "Evolit GmbH",                                                                        // 67520
+    "Skyline Securities B.V.",                                                            // 67521
+    "IM COMERCIO E SOLUCOES DE TECNOLOGIA LTDA",                                          // 67522
+    "Cerqle.ai by Prosms",                                                                // 67523
+    "Spikey der Fuchs",                                                                   // 67524
+    "Centraal Orgaan opvang asielzoekers",                                                // 67525
+    "Venga Europe SL",                                                                    // 67526
+    "Shanghai Maidou Electric Co., Ltd.",                                                 // 67527
+    "Capomastro Holdings Ltd",                                                            // 67528
+    "GLU TECHNOLOGIES, S.L.U",                                                            // 67529
+    "Owner.com",                                                                          // 67530
+    "Con-Ex.io Schweiz GmbH",                                                             // 67531
+    "Solcon Internetdiensten B.V.",                                                       // 67532
+    "EXNUNCTI SISTEMAS DE INFORMACAO E GESTAO DE DOCUMENTOS LTDA",                        // 67533
+    "SiperOne Teknoloji Bilisim Yazilim Danismanlik Ticaret Ltd. Sti.",                   // 67534
+    "Florian Günter Schweter - JustSimplify",                                             // 67535
+    "Bravo ICT",                                                                          // 67536
+    "Secure Access Systems PTY LTD",                                                      // 67537
+    "DYSTRA HOLDINGS PTY LTD",                                                            // 67538
+    "genuity",                                                                            // 67539
+    "EDOK SRL",                                                                           // 67540
+    "Digital System Srl",                                                                 // 67541
+    "Ela-compil sp. z o.o.",                                                              // 67542
+    "AIATELLA Oy",                                                                        // 67543
+    "QUARTSISGROUP E.I.R.L",                                                              // 67544
+    "Akcepto GmbH",                                                                       // 67545
+    "Elibet SA",                                                                          // 67546
+    "Knowit Dataunit GmbH",                                                               // 67547
+    "Red Bull Technology Ltd",                                                            // 67548
+    "Inexpensive Computers",                                                              // 67549
+    "Airwave Communications",                                                             // 67550
+    "Artica Tech",                                                                        // 67551
+    "WanJoon Moon",                                                                       // 67552
+    "Mooring Project",                                                                    // 67553
+    "nVIRIFI",                                                                            // 67554
+    "StudioTech, LLC",                                                                    // 67555
+    "National Grid US CNI",                                                               // 67556
+    "pwnstamp",                                                                           // 67557
+    "PLENIT TECHNOLOGY, S.L.",                                                            // 67558
+    "RKR Networks LLP",                                                                   // 67559
+    "DHMG-Dominican Oncology-Hematology",                                                 // 67560
+    "Watermark Labs, Inc.",                                                               // 67561
+    "ZERODAY TECHNOLOGIES S.R.L.",                                                        // 67562
+    "Kermi GmbH",                                                                         // 67563
+    "ZensLab Co., Ltd.",                                                                  // 67564
+    "OPTIMA LELA, INC.",                                                                  // 67565
+    "Frontier Labs Private Limited",                                                      // 67566
+    "Netrak",                                                                             // 67567
+    "Pinja Digital Oy",                                                                   // 67568
+    "SGT sp. z o.o.",                                                                     // 67569
+    "Ozark Integrated Circuits",                                                          // 67570
+    "2mm architektai",                                                                    // 67571
+    "RINUX",                                                                              // 67572
+    "Municipality of Princeton",                                                          // 67573
+    "iDen2",                                                                              // 67574
+    "MSWLab",                                                                             // 67575
+    "Digital Line Co., Ltd.",                                                             // 67576
+    "CapricornTrust Technologies Pvt. Ltd.",                                              // 67577
+    "IMMERSIVA S.R.L.",                                                                   // 67578
+    "Home Credit India",                                                                  // 67579
+    "Blindsight Technologies AG",                                                         // 67580
+    "LYC INTELLIGENT SYSTEMS S.A.C.",                                                     // 67581
+    "Neatolabs LLC",                                                                      // 67582
+    "Belleville Police Service"                                                           // 67583
 };
 
 const char* global_enterprises_lookup(uint32_t value)
