@@ -111505,3 +111505,92 @@ class TestDissectOmapi:
             '32\t5\t16\t3\t00000000000000000000000000000000',
             '34\t5\t16\t4\t00000000000000000000000000000000',
         ]
+
+
+class TestDissectOmronFins:
+    '''OMRON FINS over UDP 9600 and FINS/TCP on TCP 9600 (both registered by
+    default) from the synthetic capture omron_fins_coverage.pcap.gz:
+    188 frames, 183 of them OMRON. Frames 1-171 are UDP datagrams with every
+    command and response the dissector decodes, 172-188 FINS/TCP.'''
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, capture_file, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('omron_fins_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields',
+                *[a for f in fields for a in ('-e', f)],
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_omron_fins_frames(self, cmd_tshark, capture_file, test_env):
+        '''183 frames decode as OMRON (171 UDP, 12 FINS/TCP), without
+        malformed packets or error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file, 'omron', 'frame.number', 'udp')
+        assert len(rows) == 183
+        assert sum(1 for r in rows if r.split('\t')[1]) == 171
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, capture_file,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == []
+
+    def test_omron_fins_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The info column shows the command, and the address of a single
+        memory area read.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {1, 2, 158, 161, 163, 164, 168, 175, 176, 177, 181, 182}',
+                'frame.number', '_ws.col.info')
+        assert rows == [
+            '1\tCommand  : Memory Area Read (D258)',
+            '2\tResponse : Memory Area Read',
+            '158\tCommand  : Multiple Memory Area Read',
+            '161\tCommand  : Memory Area Read (D4660)',
+            '163\tCommand  : Memory Area Read (CIO4660)',
+            '164\tCommand  : Memory Area Read (W4660)',
+            '168\tCommand  : Unknown (39321)',
+            '175\tFINS/TCP : Node Address Data Send (Client to Server)',
+            '176\tFINS/TCP : Node Address Data Send (Server to Client)',
+            '177\tCommand  : Memory Area Read (D100)',
+            '181\tFINS/TCP : Frame Send Error Notification',
+            '182\tFINS/TCP : Connection Confirmation',
+        ]
+
+    def test_omron_fins_header(self, cmd_tshark, capture_file, test_env):
+        '''Network, node and unit address ranges and the ICF bits of the
+        first four frames.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file, 'frame.number <= 4',
+                'omron.dna', 'omron.da1', 'omron.da2', 'omron.sna', 'omron.icf')
+        assert rows == [
+            '0x01\t0x3e\t0xfe\t0x7f\t0x80',
+            '0x7f\t0x3f\t0x10\t0x80\t0xfe',
+            '0x80\t0xff\t0x20\t0x00\t0xc0',
+            '0x00\t0x0a\t0x00\t0x02\t0xc1',
+        ]
+
+    def test_omron_fins_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Unknown memory area code, unknown command code and responses to
+        commands that have none are warnings, not malformed packets.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'omron.command.unknown || omron.memory.area.read.unknown',
+                'frame.number', '_ws.expert.message')
+        assert rows == [
+            '167\tUnknown Memory-Area-Code (119)',
+            '168\tUnknown Command-Code',
+            '169\tUnknown Command-Code',
+            '170\tUnknown Response Command-Code',
+            '171\tUnknown Response Command-Code',
+        ]
+
+    def test_omron_fins_tcp(self, cmd_tshark, capture_file, test_env):
+        '''FINS/TCP node address exchange, frame send, a PDU split over two
+        segments (frames 186-187) and two PDUs in one segment (185).'''
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {175, 176}', 'omron.tcp.client_node_address',
+                'omron.tcp.server_node_address')
+        assert rows == ['0\t', '5\t10']
+        rows = self.fields(cmd_tshark, test_env, capture_file,
+                'frame.number in {184, 185, 186, 187}', 'frame.number', '_ws.col.protocol',
+                '_ws.col.info')
+        assert [r.split('\t')[:2] for r in rows] == [
+            ['184', 'TCP'], ['185', 'OMRON'], ['186', 'TCP'], ['187', 'OMRON']]
+        assert rows[1].endswith('Command  : Controller Status Read')
