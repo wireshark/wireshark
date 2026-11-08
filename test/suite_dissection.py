@@ -106944,3 +106944,44 @@ class TestDissectNisplus:
         lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 53',
                 '-Tfields', '-enisplus.object.type')
         assert lines == ['2,4,2,3,4,5,6,4,7,1,0,99']
+
+
+class TestDissectNistCsor:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('nist_csor_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_nist_csor_protocols(self, cmd_tshark, capture_file, test_env):
+        '''11 HTTP requests with a CMS message each (nine with an AES
+        algorithm, two with a SHAKE output length) and their responses, none
+        malformed or with an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['HTTP'] * 22
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.protocols')
+        assert sum(1 for l in lines if l.endswith(':cms:cms:nist_csor')) == 11
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_nist_csor_oids(self, cmd_tshark, capture_file, test_env):
+        '''Each registered OID: IV for CBC and OFB, IV and number of bits for
+        CFB (CFBParameters), output length for the SHAKE OIDs.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'nist-csor.aes_IV || nist-csor.AES_IV || nist-csor.ShakeOutputLen',
+                '-Tfields', '-eframe.number', '-ex509af.algorithm.id', '-enist-csor.AES_IV',
+                '-enist-csor.aes_IV', '-enist-csor.numberOfBits', '-enist-csor.ShakeOutputLen')
+        iv = '101112131415161718191a1b1c1d1e1f'
+        assert lines == [
+            '1\t2.16.840.1.101.3.4.1.2\t%s\t\t\t' % iv,
+            '3\t2.16.840.1.101.3.4.1.3\t%s\t\t\t' % iv,
+            '5\t2.16.840.1.101.3.4.1.4\t\t%s\t8\t' % iv,
+            '7\t2.16.840.1.101.3.4.1.22\t%s\t\t\t' % iv,
+            '9\t2.16.840.1.101.3.4.1.23\t%s\t\t\t' % iv,
+            '11\t2.16.840.1.101.3.4.1.24\t\t%s\t1\t' % iv,
+            '13\t2.16.840.1.101.3.4.1.42\t%s\t\t\t' % iv,
+            '15\t2.16.840.1.101.3.4.1.43\t%s\t\t\t' % iv,
+            '17\t2.16.840.1.101.3.4.1.44\t\t%s\t128\t' % iv,
+            '19\t2.16.840.1.101.3.4.2.17\t\t\t\t32',
+            '21\t2.16.840.1.101.3.4.2.18\t\t\t\t64']
