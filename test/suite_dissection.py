@@ -105400,3 +105400,81 @@ class TestDissectNetlinkOvsCtLimit:
             '9\t\t\t',
             '10\t1\t2\t3',
         ]
+
+
+class TestDissectNetlinkOvsDatapath:
+    '''Open vSwitch datapath generic netlink family (ovs_datapath) from
+    the synthetic capture ovs_datapath_coverage.pcap.gz
+    (LINKTYPE_NETLINK). Frame 1 is the CTRL_CMD_NEWFAMILY message that
+    maps the family id 0x22 to its name.'''
+
+    CAP = 'ovs_datapath_coverage.pcap.gz'
+
+    def test_ovs_datapath_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-14 are dissected as ovs_datapath without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['Netlink generic'] + ['ovs_datapath'] * 13
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ovs_datapath_reply(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3: the reply with every attribute (statistics, megaflow
+        statistics, per CPU upcall pids, user features bits, ifindex).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 3 && '
+                      'ovs_datapath.user_features.unaligned && '
+                      'ovs_datapath.user_features.vport_pids == 0 && '
+                      'ovs_datapath.user_features.tc_recirc && '
+                      'ovs_datapath.user_features.per_cpu == 0',
+                '-Tfields', '-eovs_datapath.name', '-eovs_datapath.upcall_pid',
+                '-eovs_datapath.stats.n_hit', '-eovs_datapath.stats.n_missed',
+                '-eovs_datapath.stats.n_lost', '-eovs_datapath.stats.n_flows',
+                '-eovs_datapath.megaflow_stats.n_mask_hit',
+                '-eovs_datapath.megaflow_stats.n_masks',
+                '-eovs_datapath.megaflow_stats.n_cache_hit',
+                '-eovs_datapath.user_features',
+                '-eovs_datapath.masks_cache_size', '-eovs_datapath.ifindex',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            'ovs-system\t4242,11,12,13,14\t1000\t20\t3\t15\t900\t4\t500\t'
+            '0x00000005\t256\t7']
+
+    def test_ovs_datapath_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Megaflow statistics of 16 and 24 octets, per CPU pids with a
+        partial entry, and statistics of the wrong size (frames 8-10).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {8, 9, 10}',
+                '-Tfields', '-eframe.number',
+                '-eovs_datapath.megaflow_stats.n_masks',
+                '-eovs_datapath.megaflow_stats.n_cache_hit',
+                '-eovs_datapath.upcall_pid', '-eovs_datapath.stats.n_hit',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '8\t4,4\t500\t\t',
+            '9\t\t\t99,1\t',
+            '10\t\t\t\t',
+        ]
+
+    def test_ovs_datapath_masked_type(self, cmd_tshark, capture_file, test_env):
+        '''Attributes with NLA_F_NESTED or NLA_F_NET_BYTEORDER set are
+        decoded by their masked type (before "netlink-ovs_datapath: Mask
+        the attribute type" they were shown as raw data).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 11',
+                '-Tfields', '-eovs_datapath.name', '-eovs_datapath.ifindex',
+                '-eovs_datapath.masks_cache_size',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['flagged\t9\t64']
