@@ -109659,3 +109659,96 @@ class TestDissectNtTpcp:
             ['23', '192.0.2.10', '192.0.2.20', '192.0.2.80', '192.0.2.90',
              '3735928559', '25', '302'],
         ]
+
+
+class TestDissectNull:
+    '''Null/Loopback (DLT_NULL and DLT_LOOP) link layer headers, from the
+    synthetic capture null_coverage.pcapng.gz. Interface 0 is DLT_NULL,
+    interface 1 DLT_LOOP. The family of a DLT_NULL header is in host byte
+    order (the capture assumes a little endian machine, as the tshark
+    that runs the tests); the capture holds the BSD forms, the IRIX snoop
+    forms, the Linux "cooked" Ethernet type and PPP in HDLC framing.'''
+
+    @pytest.fixture(autouse=True)
+    def little_endian_only(self):
+        '''The DLT_NULL family is read in host byte order.'''
+        if sys.byteorder == 'big':
+            pytest.skip('this test is supported on little endian only')
+
+    EXPECTED = [
+        ('1', '0', 'null:ip:udp:data', '2', ''),
+        ('2', '0', 'null:ip:udp:data', '2', ''),
+        ('3', '0', 'null:ip:udp:data', '2', ''),
+        ('4', '0', 'null:ip:udp:data', '2', ''),
+        ('5', '0', 'null:ipv6:udp:data', '24', ''),
+        ('6', '0', 'null:ipv6:udp:data', '28', ''),
+        ('7', '0', 'null:ipv6:udp:data', '30', ''),
+        ('8', '0', 'null:ipv6:udp:data', '28', ''),
+        ('9', '0', 'null:ip:udp:data', '', '0x0800'),
+        ('10', '0', 'null:ipv6:udp:data', '', '0x86dd'),
+        ('11', '0', 'null:arp', '', '0x0806'),
+        ('12', '0', 'null:data', '', '0x9999'),
+        ('13', '0', 'null:osi:data', '7', ''),
+        ('14', '0', 'null:ddp:data', '16', ''),
+        ('15', '0', 'null:ipx', '23', ''),
+        ('16', '0', 'null:data', '99', ''),
+        ('17', '0', 'null:data', '0', ''),
+        ('18', '0', 'null:data', '1500', ''),
+        ('19', '0', 'null:data', '', '0x05dd'),
+        ('20', '0', 'null:ppp:ip:udp:data', '', ''),
+        ('21', '0', 'null:ppp:lcp', '', ''),
+        ('22', '1', 'null:ip:udp:data', '2', ''),
+        ('23', '1', 'null:ipv6:udp:data', '24', ''),
+        ('24', '1', 'null:ipx', '23', ''),
+        ('25', '1', 'null:data', '77', ''),
+        ('26', '1', 'null:data', '2048', ''),
+        ('27', '0', 'null:data', '', '0x3412'),
+    ]
+
+    def test_null_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or expert infos in one and two passes;
+        every frame of the capture is a Null/Loopback frame.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('null_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('null_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert all(p.startswith('null') for p in protocols)
+
+    def test_null_families(self, cmd_tshark, capture_file, test_env):
+        '''Every header form maps to the right family or Ethernet type
+        and the right next protocol: byte swapped and IRIX snoop headers
+        give the BSD family, a value above 1500 is an Ethernet type (also
+        the byte swapped Linux form), other values are families that
+        either have a dissector (IP, IPv6, OSI, DDP, IPX) or show as
+        data. A DLT_LOOP header is always big endian and is never an
+        Ethernet type. Frame 27 is a byte swapped value above 0xffff, of
+        which only the low 16 bits are shown and looked up.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('null_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eframe.interface_id',
+                '-eframe.protocols', '-enull.family', '-enull.type',
+            ), encoding='utf-8', env=test_env)
+        rows = [tuple(l.split('\t')) for l in stdout.splitlines()]
+        assert rows == self.EXPECTED
+
+    def test_null_ppp(self, cmd_tshark, capture_file, test_env):
+        '''A header starting with ff 03 is PPP in HDLC framing and has no
+        Null item of its own (frames 20, 21): the PPP protocol field
+        selects IP or LCP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('null_coverage.pcapng.gz'),
+                '-Y', 'ppp', '-Tfields', '-eframe.number', '-eppp.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows == [['20', '0x0021', '40000 → 40001 Len=4'],
+                        ['21', '0xc021', 'Echo Request']]
