@@ -111740,3 +111740,120 @@ class TestDissectOpaFe:
             '6\t0x00003141\t0x00000001\t104\t0x0000000000000000',
             '38\t0x4d414421\t0x00000002\t120\t0x0123456789abcdef',
         ]
+
+
+class TestDissectOpaMad:
+    '''Omni-Path management datagrams (SM lid routed and directed route, SA,
+    PM, PA, vendor, application and reserved classes), carried in 9B packets in
+    ERF records of type 29 and in FE messages on TCP 3245, from the synthetic
+    capture opa_mad_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, passes=(), fields=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('opa_mad_coverage.pcapng.gz'),
+                '-Y', display_filter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def tree(cmd_tshark, capture_file, test_env, display_filter, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('opa_mad_coverage.pcapng.gz'),
+                '-Y', display_filter, '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_opa_mad_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames per management class; every MAD class and RMPP type is present.'''
+        def count(f):
+            return len(self.frames(cmd_tshark, capture_file, test_env, f))
+        assert count('frame') == 392
+        assert count('opa.sm.lid') == 74
+        assert count('opa.sm.dr') == 15
+        assert count('opa.sa') == 106
+        assert count('opa.pa') == 74
+        assert count('opa.pm') == 72
+        assert count('opa.vendor') == 6
+        assert count('opa.application') == 2
+        assert count('opa.reservedmclass') == 6
+        assert count('opa.unknown') == 2
+        assert count('opa.fe') == 7
+        assert count('opa.aggregate') == 6
+        assert count('opa.rmpp.rmpptype == 2') == 2
+        assert count('opa.rmpp.rmpptype == 3') == 3
+        assert count('opa.rmpp.rmpptype == 4') == 2
+        assert count('opa.mad.method == 0x05') == 15
+        assert count('arp') == 1
+
+    def test_opa_mad_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes) == []
+
+    def test_opa_mad_status_errors(self, cmd_tshark, capture_file, test_env):
+        '''MADs with a status other than 0 get a warning (31 frames).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opa_mad_coverage.pcapng.gz'),
+                '-q', '-zexpert,warn',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert grep_output(stdout, r'^\s+21\s+Response\s+OPA MAD\s+Mad Status Error \(0x0004\)')
+        assert grep_output(stdout, r'^\s+5\s+Response\s+OPA MAD\s+Mad Status Error \(0x0008\)')
+        assert grep_output(stdout, r'^\s+5\s+Response\s+OPA MAD\s+Mad Status Error \(0x001c\)')
+
+    def test_opa_mad_adaptive_routing_frequency(self, cmd_tshark, capture_file, test_env):
+        '''The adaptive routing frequency of SwitchInfo is 64 ms << value
+        (frames 193-208, values 0-7 twice). The custom field formatter used
+        "2 ^ value * 64" (XOR) before "OPA: Fix several small dissection
+        errors", which showed 66 ms for value 1.'''
+        import re
+        out = self.tree(cmd_tshark, capture_file, test_env, 'frame.number >= 193 && frame.number <= 208')
+        values = re.findall(r'Adaptive Routing  Frequency: (\d+) ms', out)
+        assert values == [str(64 << (i // 2)) for i in range(16)]
+
+    def test_opa_mad_directed_route_mkey_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The M_Key of a directed route MAD is in the "Subnet Management
+        (Directed Route)" tree next to DrSLID (it was added to the item
+        instead of the tree before "OPA: Fix several small dissection errors").'''
+        out = self.tree(cmd_tshark, capture_file, test_env, 'frame.number == 34')
+        lines = out.splitlines()
+        mkey = [l for l in lines if l.lstrip().startswith('M_Key:')]
+        slid = [l for l in lines if l.lstrip().startswith('DrSLID:')]
+        assert len(mkey) == 1 and len(slid) == 1
+        indent = lambda l: len(l) - len(l.lstrip())
+        assert indent(mkey[0]) == indent(slid[0])
+
+    def test_opa_mad_rmpp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three RMPP segments of an SA GetTableResp (frames 361-363) and of a PA
+        GetTableResp (364-366) are reassembled in the last segment; with
+        -2 the earlier segments point to it.'''
+        import re
+        lines = self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {361, 362, 363, 366}',
+                fields=('opa.reassembled.length',))
+        assert lines == ['361\t', '362\t', '363\t512', '366\t3072']
+        lines = self.frames(cmd_tshark, capture_file, test_env, 'frame.number in {361, 362, 363}',
+                passes=('-2',), fields=('opa.reassembled.in', 'opa.reassembled.length'))
+        assert lines == ['361\t363\t', '362\t363\t', '363\t\t512']
+        out = self.tree(cmd_tshark, capture_file, test_env, 'frame.number == 363')
+        assert len(re.findall(r'Attribute \(NodeRecord\) Record \d+:', out)) == 4
+
+    def test_opa_mad_group_info_text(self, cmd_tshark, capture_file, test_env):
+        '''PA GroupInfo, GroupConfig, FocusPorts and VFInfo records are labelled
+        with the group or VF name (the text is built in the packet pool since
+        "OPA: Fix several small dissection errors"); a Get and a response of each (the GroupConfig and FocusPorts responses
+        show no label).'''
+        out = self.tree(cmd_tshark, capture_file, test_env,
+                'opa.mad.transactionid >= 0xe00 && opa.mad.transactionid < 0x1000')
+        labels = [l.strip() for l in out.splitlines() if ' for ' in l and l.startswith('    ')
+                  and l.strip().split(' for ')[0] in ('GroupInfo', 'GroupConfig', 'Focus Ports', 'VFInfo')]
+        assert labels == ['GroupInfo for compute', 'GroupInfo for compute',
+                          'GroupConfig for storage', 'Focus Ports for login',
+                          'VFInfo for Default', 'VFInfo for Default']
+
+    def test_opa_mad_ethernet_over_opa(self, cmd_tshark, capture_file, test_env):
+        '''UD packets to QPs other than 0 and 1 carry an Ethertype: IPv4 and ARP
+        are dissected, a non zero reserved field and an unknown Ethertype are not.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env, 'opa.etype',
+                fields=('opa.etype', '_ws.col.protocol'))
+        assert [l.split('\t', 1)[1] for l in lines] == ['0x0800\tUDP', '0x0806\tARP']
