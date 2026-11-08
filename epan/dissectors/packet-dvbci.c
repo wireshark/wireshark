@@ -2632,7 +2632,8 @@ dissect_ca_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 
-/* dissect an elementary stream entry in the ca_pmt */
+/* dissect an elementary stream entry in the ca_pmt
+   returns its length or 0 for error */
 static int
 dissect_es(tvbuff_t *tvb, int offset,
         packet_info *pinfo, proto_tree *tree, bool *scrambled)
@@ -2671,8 +2672,8 @@ dissect_es(tvbuff_t *tvb, int offset,
         offset++;
         while (offset < all_len) {
             ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, es_tree);
-            if (ca_desc_len <= 0)
-                return -1;
+            if (ca_desc_len == 0)
+                return 0;
             offset += ca_desc_len;
             if (scrambled)
                 *scrambled = true;
@@ -2887,7 +2888,7 @@ dissect_dvbci_payload_ca(uint32_t tag, int len_field,
             offset++;
             while (offset < all_len) {
                 ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, tree);
-                if (ca_desc_len <= 0)
+                if (ca_desc_len == 0)
                     return;
                 offset += ca_desc_len;
                 /* set this only if we've seen at least one valid ca descriptor */
@@ -2901,7 +2902,7 @@ dissect_dvbci_payload_ca(uint32_t tag, int len_field,
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
             es_info_len = dissect_es(tvb, offset, pinfo, tree, &es_scrambled);
-            if (es_info_len <= 0)
+            if (es_info_len == 0)
                 return;
             offset += es_info_len;
             if (es_scrambled)
