@@ -106276,3 +106276,86 @@ class TestDissectNfapi:
             '560\tTLV length does not match decoded length,Invalid mode value [0..6]',
             '561\tTLV length does not match decoded length,Invalid mode value [0..4]',
         ]
+
+
+class TestDissectNflog:
+    '''NFLOG (Linux netfilter log, link type 239) from the synthetic
+    capture nflog_coverage.pcap.gz. TLV lengths and types are host endian
+    (little endian here, as on the machine that built the capture).'''
+
+    def test_nflog_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 30 frames decode, without malformed packets or error expert
+        infos in one and two passes; the payload goes to the dissector
+        selected by the hardware protocol or the family.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nflog_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 30
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'NFLOG': 16, 'DISCARD': 11, 'ARP': 1, 'Ethernet': 1, 'IPv4': 1}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('nflog_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nflog_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Header and attribute values of the record that carries every
+        attribute (frame 1), the kernel ordered one (frame 2) and a record
+        with an odd hardware type and header length (frame 21).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nflog_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,21}',
+                '-Tfields', '-eframe.number', '-enflog.family', '-enflog.version',
+                '-enflog.res_id', '-enflog.protocol', '-enflog.hook',
+                '-enflog.ifindex_indev', '-enflog.ifindex_outdev',
+                '-enflog.ifindex_physindev', '-enflog.ifindex_physoutdev',
+                '-enflog.prefix', '-enflog.uid', '-enflog.gid', '-enflog.hwtype',
+                '-enflog.hwhdr_len', '-enflog.ct', '-enflog.ctinfo',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t2\t0\t4660\t0x0800\t3\t2\t3\t4\t5\tIN-eth0: \t1000\t100\t1\t14\tct-state new\t2',
+            '2\t2\t0\t0\t0x0800\t1\t2\t3\t\t\tFW-DROP:\t\t0\t1\t14\t\t',
+            '\t'.join(['21', '2', '0', '4660'] + [''] * 9 + ['258', '14', '', '']),
+        ]
+
+    def test_nflog_hwheader(self, cmd_tshark, capture_file, test_env):
+        '''The hardware header is dissected as Ethernet only when the
+        hardware protocol is IPv4 (frame 18); otherwise it is data. The
+        Ethernet and IP trees are inside the TLVs by default and at the top
+        level with nflog.eth_ip_layout_inside:FALSE.'''
+        for pref, depth in (('TRUE', 1), ('FALSE', 0)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('nflog_coverage.pcap.gz'),
+                    '-o', 'nflog.eth_ip_layout_inside:' + pref,
+                    '-Y', 'frame.number == 18', '-V',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            lines = stdout.splitlines()
+            eth = [l for l in lines if l.lstrip().startswith('Ethernet II')]
+            assert len(eth) == 1
+            indent = len(eth[0]) - len(eth[0].lstrip())
+            tlv = [l for l in lines if l.lstrip().startswith('TLV Type: NFULA_HWHEADER')]
+            assert len(tlv) == 1
+            tlv_indent = len(tlv[0]) - len(tlv[0].lstrip())
+            assert (indent > tlv_indent) == bool(depth)
+
+    def test_nflog_stop_on_short_tlv(self, cmd_tshark, capture_file, test_env):
+        '''A TLV length below 4 (frames 28, 29) or a header-only packet
+        (26, 27) decodes no attributes; a valid packet header before a short
+        TLV is kept (frame 30).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nflog_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 26',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-enflog.tlv_type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '26\tNFLOG\t',
+            '27\tNFLOG\t',
+            '28\tNFLOG\t',
+            '29\tNFLOG\t',
+            '30\tNFLOG\t1',
+        ]
