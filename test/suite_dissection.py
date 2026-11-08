@@ -112131,3 +112131,87 @@ class TestDissectOpenflowV4:
         by_frame = {r[0]: r[1:] for r in rows}
         assert by_frame['104'][0] == '1,2'
         assert by_frame['111'][1] == '1,2,3'
+
+
+class TestDissectOpenflowV5:
+    '''OpenFlow 1.4 over TCP 6653 and Exported PDU, from the synthetic
+    capture openflow_v5_coverage.pcapng.gz. Frames 1-165 decode cleanly;
+    frames 166-170 are reproducers with a bogus length that end in an
+    exception (see test_openflow_v5_short_property_loop). Queue stats and
+    queue desc frames follow the layout the dissector reads, which differs
+    from the specification (see README.md).'''
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openflow_v5_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_openflow_v5_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-165 (every message, multipart type, property, action,
+        instruction, OXM field and meter band) decode without malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v5', '-Tfields', '-eframe.number')
+        assert len(rows) == 162
+        for passes in ((), ('-2',)):
+            rows = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert [int(r[0]) for r in rows] == [166, 167, 168, 169, 170]
+
+    def test_openflow_v5_short_property_loop(self, cmd_tshark, capture_file, test_env):
+        '''A message nested in OFPT_ERROR, OFPT_REQUESTFORWARD or
+        OFPT_BUNDLE_ADD_MESSAGE (and as an Exported PDU) with a queue
+        stats property of length 0 made the dissector parse the same
+        properties forever while allocating expert infos, before
+        "OpenFlow: Fix endless loops and unbounded recursion in v4, v5
+        and v6". They now end with an exception; the timeout is the test.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openflow_v5_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= 163 && _ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert stdout.split() == ['166', '167', '168', '169', '170']
+
+    def test_openflow_v5_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Error, RequestForward and BundleAdd messages nest four levels;
+        the fifth gets the "too many nested messages" expert info (frames
+        36, 37, 41, 42, 46, 47). Frames 35, 40 and 45 are at the limit.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 33 && frame.number <= 47',
+                '-Tfields', '-eframe.number', '-eopenflow_v5.type',
+                '-eopenflow_v5.nesting_too_deep', '-eopenflow_v5.echo.data',
+                '-E', 'aggregator=,')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[35] == ['1,1,1,1,2', '', '78']
+        assert by_frame[40] == ['32,32,32,32,2', '', '78']
+        assert by_frame[45] == ['34,34,34,34,2', '', '78']
+        for number, types in ((36, '1,1,1,1,1'), (37, '1,1,1,1,1'),
+                              (41, '32,32,32,32,32'), (42, '32,32,32,32,32'),
+                              (46, '34,34,34,34,34'), (47, '34,34,34,34,34')):
+            assert by_frame[number][0] == types
+            assert by_frame[number][1] == '1'
+
+    def test_openflow_v5_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames with data after the message: only the
+        message is dissected, and the Echo nested in an Error or a
+        RequestForward keeps its data.'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 159 && frame.number <= 162',
+                '-Tfields', '-eframe.number', '-eopenflow_v5.type',
+                '-eopenflow_v5.echo.data', '-E', 'aggregator=,')
+        assert rows[-2:] == [['161', '1,2', '696e'], ['162', '32,2', '696e']]
+
+    def test_openflow_v5_values(self, cmd_tshark, capture_file, test_env):
+        '''Ports in the port status and port description messages, and
+        the importance of flow mods (not a pad any more in 1.4).'''
+        rows = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'openflow_v5.port.port_no || openflow_v5.flowmod.importance',
+                '-Tfields', '-eframe.number', '-eopenflow_v5.port.port_no',
+                '-eopenflow_v5.flowmod.importance', '-E', 'aggregator=,')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[130][0] == '1,2,3'
+        assert by_frame[77][1] == '5' and by_frame[79][1] == '7'
