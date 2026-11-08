@@ -257,9 +257,8 @@ dissect_nisplus_time(tvbuff_t *tvb, unsigned offset, proto_tree *tree, int hfind
 
 	ts.nsecs = 0;
 	ts.secs = tvb_get_ntohl(tvb, offset);
-	offset += 4;
-
 	proto_tree_add_time(tree, hfindex, tvb, offset, 4, &ts);
+	offset += 4;
 
 	return offset;
 }
@@ -1838,34 +1837,14 @@ proto_reg_handoff_nis(void)
 static int proto_nispluscb;
 static int hf_nispluscb_procedure_v1;
 static int hf_nispluscb_entries;
-static int hf_nispluscb_entry;
 
 static int ett_nispluscb;
-static int ett_nispluscb_entry;
-
-static int
-dissect_cb_entry(tvbuff_t *tvb, unsigned offset, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
-{
-	proto_item* lock_item = NULL;
-	/* proto_tree* lock_tree = NULL; */
-	int old_offset = offset;
-
-	lock_item = proto_tree_add_item(tree, hf_nispluscb_entry,
-			tvb, offset, -1, ENC_NA);
-
-	/* lock_tree = proto_item_add_subtree(lock_item, ett_nispluscb_entry); */
-
-/*XXXXX Not implemented yet*/
-
-	proto_item_set_len(lock_item, offset-old_offset);
-	return offset;
-}
 
 static int
 dissect_cback_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	return dissect_rpc_array(tvb, pinfo, tree, 0,
-			dissect_cb_entry, hf_nispluscb_entries);
+			dissect_nisplus_object, hf_nispluscb_entries);
 }
 
 /* proc number, "proc name", dissect_request, dissect_reply */
@@ -1902,15 +1881,10 @@ proto_register_niscb(void)
 			"entries", "nispluscb.entries", FT_NONE, BASE_NONE,
 			NULL, 0, "NIS Callback Entries", HFILL }},
 
-		{ &hf_nispluscb_entry, {
-			"entry", "nispluscb.entry", FT_NONE, BASE_NONE,
-			NULL, 0, "NIS Callback Entry", HFILL }},
-
 	};
 
 	static int *ett[] = {
 		&ett_nispluscb,
-		&ett_nispluscb_entry,
 	};
 
 	proto_nispluscb = proto_register_protocol("NIS+ Callback",
