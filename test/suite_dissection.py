@@ -111594,3 +111594,72 @@ class TestDissectOmronFins:
         assert [r.split('\t')[:2] for r in rows] == [
             ['184', 'TCP'], ['185', 'OMRON'], ['186', 'TCP'], ['187', 'OMRON']]
         assert rows[1].endswith('Command  : Controller Status Read')
+
+
+class TestDissectOpa:
+    '''Omni-Path 9B packets (BTH opcodes with their extension headers, KDETH,
+    PSM and TID RDMA, GRH, IPv6 over OPA, raw packets, an InfiniBand MAD, MADs
+    and Ethernet over OPA) in ERF records of type 29, from the synthetic
+    capture opa_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, passes=(), fields=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('opa_coverage.pcapng.gz'),
+                '-Y', display_filter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_opa_frames(self, cmd_tshark, capture_file, test_env):
+        '''68 frames: 66 are 9B packets (two InfiniBand MADs are handed to the
+        infiniband dissector), by link next header and by header type.'''
+        def count(f):
+            return len(self.frames(cmd_tshark, capture_file, test_env, f))
+        assert count('frame') == 68
+        assert count('opa.9b') == 66
+        assert count('opa.9b.lnh == 0') == 2
+        assert count('opa.9b.lnh == 1') == 1
+        assert count('opa.9b.lnh == 2') == 60
+        assert count('opa.9b.lnh == 3') == 3
+        assert count('opa.grh') == 3
+        assert count('opa.bth') == 61
+        assert count('opa.rdeth') == 12
+        assert count('opa.deth') == 16
+        assert count('opa.reth') == 7
+        assert count('opa.aeth') == 10
+        assert count('opa.immdt') == 4
+        assert count('opa.ieth') == 1
+        assert count('opa.atomiceth') == 2
+        assert count('opa.kdeth') == 29
+        assert count('opa.psm') == 21
+        assert count('opa.tidrdma') == 8
+        assert count('infiniband') == 2
+        assert count('ipv6') == 1
+        assert count('arp') == 1
+        assert count('opa.mad.method') == 4
+
+    def test_opa_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert self.frames(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes) == []
+
+    def test_opa_rd_acknowledge(self, cmd_tshark, capture_file, test_env):
+        '''An RD Acknowledge has an RDETH before its AETH (frames 67 and 68, the
+        second with a GRH). Before "OPA: Fix several small dissection errors" the
+        RDETH was skipped and the AETH read from its place.'''
+        lines = self.frames(cmd_tshark, capture_file, test_env, 'opa.bth.opcode == 0x51',
+                fields=('opa.rdeth.eecnxt', 'opa.aeth.syndrome', 'opa.aeth.msn'))
+        assert lines == ['67\t1193046\t31\t11259375', '68\t1193046\t31\t11259375']
+
+    def test_opa_other_headers(self, cmd_tshark, capture_file, test_env):
+        '''The frames after the opcodes: IPv6 over OPA (52), raw packets (53, 54), a
+        GRH that is not followed by a BTH (55, 56), the InfiniBand MADs (57 local,
+        58 with a GRH, found through the Source LID 0x1b22), management datagrams (59-62)
+        and Ethernet over OPA (63-66).'''
+        lines = self.frames(cmd_tshark, capture_file, test_env, 'frame.number >= 52 && frame.number <= 66',
+                fields=('_ws.col.protocol',))
+        assert [l.split('\t')[1] for l in lines] == [
+            'ICMPv6', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'InfiniBand', 'InfiniBand',
+            'Omni-Path', 'Omni-Path', 'Omni-Path', 'Omni-Path', 'UDP', 'ARP', 'Omni-Path', 'Omni-Path']
