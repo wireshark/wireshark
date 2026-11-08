@@ -105232,3 +105232,113 @@ class TestDissectNetlinkNetfilter:
                             'frame.number in {47, 48}', 'frame.number',
                             'netlink-netfilter.nftables_command', 'netlink-netfilter.nft_rule.table')
         assert lines == ['47\t0\t', '48\t3\t']
+
+
+class TestDissectNetlinkNl80211:
+    '''nl80211 (Generic Netlink over LINKTYPE_NETLINK) from the synthetic
+    capture netlink-nl80211_coverage.pcap.gz. Frame 1 is the
+    CTRL_CMD_NEWFAMILY that maps family id 0x21 to "nl80211"; frames 2-170
+    carry one command each, 173-545 one attribute number each, then the
+    nested tables (540-543), the frame attributes (548, 549), the
+    network byte order attributes (550) and the nesting frames 553 (16
+    levels) and 554 (40 levels).'''
+
+    NL80211_CAP = 'netlink-nl80211_coverage.pcap.gz'
+
+    @staticmethod
+    def nl80211_fields(cmd_tshark, capture_file, test_env, display_filter, *fields):
+        args = [cmd_tshark, '-r', capture_file(TestDissectNetlinkNl80211.NL80211_CAP),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nl80211_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames decode as nl80211 without malformed packets or error
+        expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.NL80211_CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 554
+        assert protocols.count('Netlink generic') == 1
+        assert protocols.count('802.11') == 1
+        assert protocols.count('EAPOL') == 1
+        assert protocols.count('nl80211') == 551
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.NL80211_CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nl80211_commands(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-170 carry the commands 1-169 in order.'''
+        rows = self.nl80211_fields(cmd_tshark, capture_file, test_env,
+                                   'frame.number >= 2 && frame.number <= 170',
+                                   'nl80211.cmd')
+        assert [int(r[0]) for r in rows] == list(range(1, 170))
+
+    def test_nl80211_values(self, cmd_tshark, capture_file, test_env):
+        '''Name, MAC, regulatory domain and cipher suite attributes.'''
+        f = self.nl80211_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 3',
+                 'nl80211.mac', 'nl80211.ifname')
+        assert rows == [['02:00:00:00:00:01', 'wlan0']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 174',
+                 'nl80211.wiphy_name')
+        assert rows == [['phy0']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 199',
+                 'nl80211.alpha2')
+        assert rows == [['AU']]
+        # RSN (00-0f-ac) suites and a vendor suite
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 217',
+                 'nl80211.supported_cipher_suite', 'nl80211.supported_cipher_suite.oui')
+        assert rows == [['0x000fac04,0x000fac02,0x00123401', '4012,4012,4660']]
+
+    def test_nl80211_nested(self, cmd_tshark, capture_file, test_env):
+        '''Station information (signal values in dBm), the BSS entry with its
+        information elements and the bands decoded with the 802.11 helpers.'''
+        f = self.nl80211_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 540',
+                 'nl80211.dbm')
+        assert rows == [['-60,-64,-65,-59,-58']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 541',
+                 'nl80211.bss_status', 'wlan.ssid')
+        assert rows == [['1', '74657374,74657374']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 542',
+                 'wlan.ht.capabilities')
+        assert rows
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 543',
+                 'nl80211.band_attr', 'nl80211.frequency_attr')
+        assert rows[0][0] == '1,2,9,3,4,7,8,5,6,10,1,2,9,3,4,7,8,5,6,10'
+        assert rows[0][1] == '1,2,3,6,8,7,18,9,1,7,1,2,3,6,8,7,18,9,1,7'
+
+    def test_nl80211_frames(self, cmd_tshark, capture_file, test_env):
+        '''FRAME is dissected as IEEE 802.11, CONTROL_PORT_FRAME as EAPOL, and
+        NLA_F_NET_BYTEORDER values are read big endian.'''
+        f = self.nl80211_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'wlan.fc.type_subtype == 4',
+                 'frame.number', 'nl80211.cmd')
+        assert rows == [['548', '59']]
+        rows = f(cmd_tshark, capture_file, test_env, 'eapol.type == 1',
+                 'frame.number', 'nl80211.cmd')
+        assert rows == [['549', '129']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 550',
+                 'nl80211.chan_width', 'nl80211.iftype')
+        assert rows == [['3', '2']]
+
+    def test_nl80211_nesting(self, cmd_tshark, capture_file, test_env):
+        '''IFTYPE_EXT_CAPA nests into itself: 16 levels are shown, 40 levels
+        stop at 32 with an expert info ("Netlink: Bound message length and
+        attribute nesting"; a 16000 level frame overflowed the stack).'''
+        f = self.nl80211_fields
+        rows = f(cmd_tshark, capture_file, test_env, 'netlink.nesting_too_deep',
+                 'frame.number')
+        assert rows == [['554']]
+        rows = f(cmd_tshark, capture_file, test_env, 'frame.number == 553',
+                 'nl80211.attr_type')
+        assert rows == [[','.join(['230'] * 16)]]
