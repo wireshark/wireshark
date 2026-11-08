@@ -581,11 +581,11 @@ dissect_openflow_features_reply_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree_add_item(act_tree, hf_openflow_enqueue, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    length_remaining = length-32;
-    if(length_remaining > 0){
+    if (length > 32) {
+        length_remaining = length-32;
         uint16_t num_ports = length_remaining/48;
         int i;
-        if((length_remaining&0x003f) != 0){
+        if((length_remaining % 48) != 0){
             /* protocol_error */
         }
         for(i=0; i<num_ports ;i++){
