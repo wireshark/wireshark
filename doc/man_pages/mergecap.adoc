@@ -163,7 +163,7 @@ for writing. The type given takes precedence over the extension of __outfile__.
 --no-merging-comment::
 +
 --
-Inhibit generating the capture comment "File created by merging:..." to the
+Inhibit generating the capture comment "File created by merging:...". to the
 output file
 
 By default a multiline capture comment is generated to the output (merged)
