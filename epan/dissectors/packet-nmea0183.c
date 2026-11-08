@@ -854,6 +854,8 @@ static expert_field ei_nmea0183_field_time_too_short;
 static expert_field ei_nmea0183_field_latitude_too_short;
 static expert_field ei_nmea0183_field_longitude_too_short;
 static expert_field ei_nmea0183_field_missing;
+static expert_field ei_nmea0183_field_too_long;
+static expert_field ei_nmea0183_bad_fd_len;
 static expert_field ei_nmea0183_field_uint_invalid;
 static expert_field ei_nmea0183_sat_prn_invalid;
 static expert_field ei_nmea0183_gga_altitude_unit_incorrect;
@@ -2491,12 +2493,26 @@ static uint8_t calculate_checksum(tvbuff_t *tvb, const int start, const int leng
     return checksum;
 }
 
+/* true if the first n characters of value are ASCII digits */
+static bool
+nmea0183_digits(const char *value, size_t n)
+{
+    for (size_t i = 0; i < n; i++)
+    {
+        if (!g_ascii_isdigit(value[i]))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 static char *
 decode_time(wmem_allocator_t *scope, const char *value)
 {
-    size_t length = strlen(value);
-
-    if (length < 4)
+    /* Split only plain digits: a byte offset into other characters (e.g.
+     * U+FFFD for a non-ASCII byte) would cut a UTF-8 sequence. */
+    if (strlen(value) < 4 || !nmea0183_digits(value, 4))
     {
         return wmem_strdup(scope, value);
     }
@@ -2514,7 +2530,7 @@ decode_date(wmem_allocator_t *scope, const char *value)
     unsigned month;
     unsigned year;
 
-    if (strlen(value) < 6)
+    if (strlen(value) < 6 || !nmea0183_digits(value, 6))
     {
         return wmem_strdup(scope, value);
     }
@@ -2553,7 +2569,10 @@ decode_latlong(const char *latlong, const char *direction, float *result)
 static char *
 field_binding(wmem_allocator_t *scope, const char *value, const char *label)
 {
-    return wmem_strdup_printf(scope, "%s %.1s", value, label);
+    /* The first character of label, which need not be one byte long */
+    int label_len = (int)(g_utf8_next_char(label) - label);
+
+    return wmem_strdup_printf(scope, "%s %.*s", value, label[0] ? label_len : 0, label);
 }
 
 /* Find first occurrence of a field separator in tvbuff, starting at offset. Searches
@@ -2578,13 +2597,30 @@ tvb_find_end_of_nmea0183_field(tvbuff_t *tvb, const unsigned offset)
     return end_of_field_offset;
 }
 
+/* Add a zero length item of the type of the field. Typed items such as
+ * FT_CHAR or FT_FLOAT cannot be added with a zero length from the packet. */
+static proto_item *
+nmea0183_add_empty_item(proto_tree *tree, int hf, tvbuff_t *tvb, const int offset)
+{
+    switch (proto_registrar_get_ftype(hf)) {
+    case FT_CHAR:
+    case FT_UINT8:
+    case FT_UINT16:
+    case FT_UINT32:
+        return proto_tree_add_uint(tree, hf, tvb, offset, 0, 0);
+    case FT_FLOAT:
+        return proto_tree_add_float(tree, hf, tvb, offset, 0, 0.0f);
+    default:
+        return proto_tree_add_item(tree, hf, tvb, offset, 0, ENC_ASCII);
+    }
+}
+
 /* Add a zero length item which indicates an expected but missing field */
 static proto_item *
 proto_tree_add_missing_field(proto_tree *tree, packet_info *pinfo, int hf, tvbuff_t *tvb,
                              const int offset)
 {
-    proto_item *ti = NULL;
-    ti = proto_tree_add_item(tree, hf, tvb, offset, 0, ENC_ASCII);
+    proto_item *ti = nmea0183_add_empty_item(tree, hf, tvb, offset);
     proto_item_append_text(ti, "[missing]");
     expert_add_info(pinfo, ti, &ei_nmea0183_field_missing);
     return ti;
@@ -2672,8 +2708,7 @@ dissect_nmea0183_field(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
  **/
 static int
 dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                                         int offset, int hf,
-                                         wmem_allocator_t *scope, const uint8_t **retval)
+                                         int offset, int hf, const uint8_t **retval)
 {
     if (offset > (int)tvb_captured_length(tvb))
     {
@@ -2684,7 +2719,7 @@ dissect_nmea0183_field_latlong_direction(tvbuff_t *tvb, packet_info *pinfo, prot
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
     proto_item *ti = proto_tree_add_item_ret_string(tree, hf,
                                                     tvb, offset, end_of_field_offset - offset, ENC_ASCII,
-                                                    scope, retval);
+                                                    pinfo->pool, retval);
     if (end_of_field_offset - offset == 0)
     {
         if (retval == NULL)
@@ -2720,7 +2755,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         proto_item_append_text(ti, ": [empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 4)
     {
@@ -2737,7 +2772,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                        tvb, offset + 2, end_of_field_offset - offset - 2,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, latitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -2745,7 +2780,7 @@ dissect_nmea0183_field_latitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_latitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
@@ -2770,7 +2805,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         proto_item_append_text(ti, ": [empty]");
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     else if (end_of_field_offset - offset >= 5)
     {
@@ -2787,7 +2822,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                        tvb, offset + 3, end_of_field_offset - offset - 3,
                                        ENC_ASCII, pinfo->pool, &minute);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, pinfo->pool, &direction);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, longitude_subtree, end_of_field_offset + 1, hf_direction, &direction);
 
         proto_item_append_text(ti, ": %s° %s' %s", degree, minute, direction);
     }
@@ -2795,7 +2830,7 @@ dissect_nmea0183_field_longitude(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     {
         expert_add_info(pinfo, ti, &ei_nmea0183_field_longitude_too_short);
 
-        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL, NULL);
+        end_of_field_offset += dissect_nmea0183_field_latlong_direction(tvb, pinfo, tree, end_of_field_offset + 1, hf_direction, NULL);
     }
     return end_of_field_offset - offset + 1;
 }
@@ -3284,12 +3319,23 @@ dissect_nmea0183_field_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     int end_of_field_offset = tvb_find_end_of_nmea0183_field(tvb, offset);
-    proto_item *ti = proto_tree_add_item(tree, hf, tvb, offset, end_of_field_offset - offset, ENC_BIG_ENDIAN);
-    if (end_of_field_offset - offset == 0)
+    int field_len = end_of_field_offset - offset;
+    proto_item *ti;
+    if (field_len == 0)
     {
+        ti = nmea0183_add_empty_item(tree, hf, tvb, offset);
         proto_item_append_text(ti, "[empty]");
     }
-    return end_of_field_offset - offset + 1;
+    else if (field_len > 1 && proto_registrar_get_ftype(hf) == FT_CHAR)
+    {
+        ti = proto_tree_add_item(tree, hf, tvb, offset, 1, ENC_BIG_ENDIAN);
+        expert_add_info(pinfo, ti, &ei_nmea0183_field_too_long);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf, tvb, offset, field_len, ENC_BIG_ENDIAN);
+    }
+    return field_len + 1;
 }
 
 /* Skip a field which is represented by an adjacent value or has no registered field. */
@@ -4603,7 +4649,7 @@ dissect_nmea0183_sentence_etl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += dissect_nmea0183_field_item(tvb, pinfo, subtree, offset, hf_nmea0183_etl_opind);
 
     /* Number of Engine or Propeller Shafts */
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_etl_num_eng_shaft, NULL, NULL);
+    dissect_nmea0183_field_item(tvb, pinfo, subtree, offset, hf_nmea0183_etl_num_eng_shaft);
 
     return tvb_captured_length(tvb);
 }
@@ -6538,7 +6584,7 @@ dissect_nmea0183_sentence_xtr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_xtr_magnitude, NULL, NULL);
 
     /* Direction to Steer (L/R) */
-    dissect_nmea0183_field(tvb, pinfo, subtree, offset, hf_nmea0183_xtr_direction, NULL, NULL);
+    dissect_nmea0183_field_item(tvb, pinfo, subtree, offset, hf_nmea0183_xtr_direction);
 
     return tvb_captured_length(tvb);
 }
@@ -6837,6 +6883,10 @@ dissect_nmea0183_msg(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
     /* Data */
     offset += 1;
+    if (start_checksum_offset < offset) {
+        /* The '*' follows the sentence id directly, there is no data */
+        offset = start_checksum_offset;
+    }
     tvbuff_t *data_tvb = tvb_new_subset_length(tvb, offset, start_checksum_offset - offset);
     const nmea0183_sentence_decoder_t *decoder = bsearch(&sentence_key,
         nmea0183_sentence_decoders, G_N_ELEMENTS(nmea0183_sentence_decoders),
@@ -6951,6 +7001,10 @@ dissect_nmea0183_bin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
             offset++;
             proto_tree_add_item(fd_tree, hf_nmea0183_bin_data_type, tvb, offset, type_len, ENC_ASCII);
             offset += type_len;
+            if (file_descriptor_len < type_len + 13) {
+                expert_add_info(pinfo, ti, &ei_nmea0183_bad_fd_len);
+                return tvb_reported_length(tvb);
+            }
             proto_tree_add_item(fd_tree, hf_nmea0183_bin_status_and_info, tvb, offset, file_descriptor_len - type_len - 13, ENC_ASCII);
             offset += file_descriptor_len - type_len - 13;
         }
@@ -6999,7 +7053,7 @@ dissect_nmea0183(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
                     end_offset = tvb_reported_length(tvb);
                 }
 
-                ti = proto_tree_add_item(tree, proto_nmea0183, tvb, offset, end_offset, ENC_NA);
+                ti = proto_tree_add_item(tree, proto_nmea0183, tvb, offset, end_offset - offset, ENC_NA);
                 nmea0183_tree = proto_item_add_subtree(ti, ett_nmea0183);
             }
             offset = dissect_nmea0183_tag_blocks(tvb, pinfo, nmea0183_tree, offset);
@@ -7130,18 +7184,18 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_aam_arr_circle_status,
          {"Arrival Circle Status", "nmea0183.aam.arrival_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(arrival_circle_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aam_perp_status,
          {"Perpendicular Pass Status", "nmea0183.aam.perp_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(perpendicular_pass_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aam_units_radius,
          {"Units of Radius (nm)", "nmea0183.aam.units",
-          FT_UINT8, BASE_DEC,
-          NULL, 0x0,
+          FT_CHAR, BASE_HEX,
+          VALS(xte_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aam_waypoint,
          {"Waypoint ID", "nmea0183.aam.waypoint",
@@ -7150,12 +7204,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_abk_ack_type,
          {"Type of Acknowledgement", "nmea0183.abk.ack_type",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(abk_ack_type), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_abk_ais_channel,
          {"AIS Channel of Reception", "nmea0183.abk.channel",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(abk_channel), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_abk_mmsi,
@@ -7180,7 +7234,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_aca_chan_a_bw,
          {"Channel A Bandwidth", "nmea0183.aca.chan_a_bw",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_chbw), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_chan_b,
@@ -7190,17 +7244,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_aca_chan_b_bw,
          {"Channel B Bandwidth", "nmea0183.aca.chan_b_bw",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_chbw), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_info_src,
          {"Information Source", "nmea0183.aca.info_src",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_info_src), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_inuse,
          {"'In-use' Flag", "nmea0183.aca.inuse",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_in_use), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_inuse_change,
@@ -7220,7 +7274,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_aca_power,
          {"Power Level Control", "nmea0183.aca.power",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_power), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_seq_num,
@@ -7240,7 +7294,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_aca_txrx_mode,
          {"Tx/Rx Mode Control", "nmea0183.aca.txrx_mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(aca_txrx_control), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_aca_zone_size,
@@ -7365,12 +7419,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ala_alarm_ack_state,
          {"Alarm's Acknowledged State", "nmea0183.ala.alarm_state",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(alarm_ack_state_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ala_alarm_cond,
          {"Alarm Condition", "nmea0183.ala.alarm_cond",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(alarm_cond_state_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ala_alarm_text,
@@ -7520,7 +7574,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_apb_arr_circle_status,
          {"Arrival Circle Status", "nmea0183.apb.arrival_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(arrival_circle_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_apb_bearing_origin,
@@ -7535,12 +7589,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_apb_cycle_lock_warning,
          {"Data Status (Loran-C Cycle Lock)", "nmea0183.apb.cycle_warning",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(loranc_cycle_lock_warning_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_apb_dir_steer,
          {"Direction to Steer", "nmea0183.apb.steer",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steer_direction), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_apb_heading_steer,
@@ -7555,12 +7609,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_apb_mode,
          {"Mode Indicator", "nmea0183.apb.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_apb_perp_status,
          {"Perpendicular Pass Status", "nmea0183.apb.perp_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(perpendicular_pass_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_apb_waypoint_id,
@@ -7570,7 +7624,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_apb_xte_units,
          {"XTE units", "nmea0183.apb.xte_units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(xte_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_bec_bearing_mag,
@@ -7740,7 +7794,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_bwc_mode,
          {"Mode Indicator", "nmea0183.bwc.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_bwc_utc,
@@ -7780,7 +7834,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_bwr_mode,
          {"Mode Indicator", "nmea0183.bwr.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_bwr_utc,
@@ -7860,7 +7914,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_cbr_setup,
          {"FATDMA or RATDMA/CSTDMA Setup", "nmea0183.cbr.setup",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dma_setup_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_cbr_slot_chan_a,
@@ -7875,7 +7929,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_cbr_status,
          {"Sentence Status Flag", "nmea0183.cbr.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(sentence_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_cur_data_set,
@@ -7895,7 +7949,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_cur_direction_ref,
          {"Direction Reference in use", "nmea0183.cur.direction_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(direction_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_cur_heading,
@@ -7905,7 +7959,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_cur_heading_ref,
          {"Heading Reference in use", "nmea0183.cur.heading_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_cur_layer,
@@ -7925,12 +7979,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_cur_speed_ref,
          {"Speed Reference", "nmea0183.cur.speed_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(speed_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_cur_validity,
          {"Validity of the Data", "nmea0183.cur.validity",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dbt_fathoms,
@@ -7950,7 +8004,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dcn_data_basis,
          {"Fix Data Basis", "nmea0183.dcn.basis",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dcn_data_basis), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_dc_id,
@@ -7965,12 +8019,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dcn_gnav,
          {"Green-line Navigation Use", "nmea0183.dcn.gnav",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_gstatus,
          {"Status: Green-Master Line", "nmea0183.dcn.gstatus",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_gz_id,
@@ -7985,7 +8039,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dcn_pnav,
          {"Purple-line Navigation Use", "nmea0183.dcn.pnav",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_pos_uncertainty,
@@ -7995,7 +8049,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dcn_pstatus,
          {"Status: Purple-Master Line", "nmea0183.dcn.pstatus",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_pz_id,
@@ -8010,12 +8064,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dcn_rnav,
          {"Red-line Navigation Use", "nmea0183.dcn.rnav",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_rstatus,
          {"Status: Red-Master Line", "nmea0183.dcn.rstatus",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dcn_rz_id,
@@ -8030,17 +8084,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ddc_dimming,
          {"Display Dimming Preset", "nmea0183.ddc.dimming",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dimming_palette_preset_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ddc_palette,
          {"Color Palette", "nmea0183.ddc.palette",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dimming_palette_preset_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ddc_status,
          {"Sentence Status Flag", "nmea0183.ddc.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(sentence_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dor_door_num,
@@ -8055,7 +8109,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dor_msg_type,
          {"Message Type", "nmea0183.dor.msg_type",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dor_msg_type_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dor_open_count,
@@ -8070,12 +8124,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dor_setting,
          {"Watertight Door Switch Setting", "nmea0183.dor.setting",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(watertight_switch_setting_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dor_status,
          {"Door Status", "nmea0183.dor.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(door_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dor_system_type,
@@ -8110,7 +8164,7 @@ void proto_register_nmea0183(void)
           "NMEA 0183 DPT Offset from transducer, positive means distance from transducer to water line, negative means distance from transducer to keel", HFILL}},
         {&hf_nmea0183_dsc_ack,
          {"Acknowledgement", "nmea0183.dsc.ack",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dsc_ack_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dsc_address,
@@ -8175,7 +8229,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_dse_flag,
          {"Query/Reply Flag", "nmea0183.dse.flag",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dse_flag_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_dse_mmsi,
@@ -8300,17 +8354,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_etl_msg_type,
          {"Message Type", "nmea0183.etl.msg_type",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(etl_message_type_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_etl_num_eng_shaft,
          {"Number of Engine or Propeller Shaft", "nmea0183.etl.engshaft_num",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(revolutions_number_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_etl_opind,
          {"Operating Location Indicator", "nmea0183.etl.posind_op",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(oplocation_indicator_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_etl_posind_engine,
@@ -8330,12 +8384,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_fsi_mode,
          {"Mode of Operation", "nmea0183.fsi.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(fsi_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_fsi_power,
          {"Reference Datum Code", "nmea0183.fsi.power",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(fsi_power_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_fsi_recv_freq,
@@ -8510,7 +8564,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_glc_sig_status,
          {"Signal Status", "nmea0183.glc.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(glc_sig_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_glc_td1,
@@ -8635,17 +8689,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_gmp_mode_glonass,
          {"GLONASS Mode Indicator", "nmea0183.gmp.mode_glonass",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gmp_mode_gps,
          {"GPS Mode Indicator", "nmea0183.gmp.mode_gps",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gmp_mode_other,
          {"Other Satellite System Mode Indicator", "nmea0183.gmp.mode_other",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gmp_mode_string,
@@ -8720,17 +8774,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_gns_mode_glonass,
          {"GLONASS Mode Indicator", "nmea0183.gns.mode_glonass",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gns_mode_gps,
          {"GPS Mode Indicator", "nmea0183.gns.mode_gps",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gns_mode_other,
          {"Other Satellite System Mode Indicator", "nmea0183.gns.mode_other",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(satellite_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gns_mode_string,
@@ -8750,7 +8804,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_grs_mode,
          {"Mode (Residuals)", "nmea0183.grs.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(grs_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_grs_range_resid,
@@ -8765,7 +8819,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_gsa_fix_mode,
          {"Fix Mode", "nmea0183.gsa.fixmode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(gsa_fix_mode), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gsa_hdop,
@@ -8775,7 +8829,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_gsa_op_mode,
          {"Operation Mode", "nmea0183.gsa.opmode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(gsa_op_mode), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_gsa_pdop,
@@ -8905,7 +8959,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_hbt_status,
          {"Equipment Status", "nmea0183.hbt.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(equipment_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hdg_mag_dev,
@@ -8975,22 +9029,22 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_hmr_s1_type,
          {"Sensor 1 Type", "nmea0183.hmr.s1_stype",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_monitor_sensor_type), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hmr_s2_type,
          {"Sensor 2 Type", "nmea0183.hmr.s2_stype",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_monitor_sensor_type), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hmr_status_s1,
          {"Status, Sensor 1", "nmea0183.hmr.s1_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_monitor_sensor_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hmr_status_s2,
          {"Status, Sensor 2", "nmea0183.hmr.s2_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_monitor_sensor_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hmr_variation,
@@ -9000,7 +9054,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_hmr_warning_flag,
          {"Override", "nmea0183.hmr.warning",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(warning_flag_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_hms_heading_s1,
@@ -9055,7 +9109,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_htc_cmd_rudder_dir,
          {"Commanded Rudder Direction", "nmea0183.htc.rudder_dir",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(rudder_dir_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htc_cmd_rudder_lim,
@@ -9075,22 +9129,22 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_htc_heading_ref,
          {"Heading Reference in use", "nmea0183.htc.heading_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htc_override,
          {"Override", "nmea0183.htc.override",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(override_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htc_steering_mode,
          {"Selected Steering Mode", "nmea0183.htc.steering_mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steering_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htc_turn_mode,
          {"Turn Mode", "nmea0183.htc.turn_mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(turning_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_cmd_offhead_lim,
@@ -9120,7 +9174,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_htd_cmd_rudder_dir,
          {"Commanded Rudder Direction", "nmea0183.htd.rudder_dir",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(rudder_dir_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_cmd_rudder_lim,
@@ -9140,37 +9194,37 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_htd_heading_ref,
          {"Heading Reference in use", "nmea0183.htd.heading_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(heading_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_offhdng_status,
          {"Off-heading Status", "nmea0183.htd.offheading_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(r_oh_ot_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_offtrack_status,
          {"Off-track Status", "nmea0183.htd.offtrack_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(r_oh_ot_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_override,
          {"Override", "nmea0183.htd.override",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(override_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_rudder_status,
          {"Rudder Status", "nmea0183.htd.rudder_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(r_oh_ot_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_steering_mode,
          {"Selected Steering Mode", "nmea0183.htd.steering_mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steering_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_turn_mode,
          {"Turn Mode", "nmea0183.htd.turn_mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(turning_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_htd_vessel_heading,
@@ -9245,7 +9299,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_loranc_blink_snr_warning,
          {"Data Status (Loran-C Blink / SNR)", "nmea0183.apb.gen_warning",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(loranc_blink_snr_warning_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_lr1_callsign,
@@ -9380,7 +9434,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_lrf_function_rep_val,
          {"Function Reply Status", "nmea0183.lr2.function_rep",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(lrf_func_rep_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_lrf_function_req,
@@ -9390,7 +9444,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_lrf_function_req_val,
          {"Function Request", "nmea0183.lr2.function_req",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(lrf_func_req_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_lrf_mmsi,
@@ -9410,7 +9464,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_lri_control,
          {"Control Flag", "nmea0183.lri.control",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(control_flag_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_lri_dest_mmsi,
@@ -9525,12 +9579,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_msk_am_bitrate,
          {"Auto/Manual Bit Rate", "nmea0183.msk.am_bitrate",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(auto_manual_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_msk_am_freq,
          {"Auto/Manual Frequency", "nmea0183.msk.am_freq",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(auto_manual_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_msk_beacon_bitrate,
@@ -9605,17 +9659,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_mwv_reference,
          {"Reference", "nmea0183.mwv.reference",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mwv_reference), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_mwv_speed_units,
          {"Wind Speed Units", "nmea0183.mwv.units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(speed_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_mwv_status,
          {"Data Status", "nmea0183.mwv.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_mwv_wind_angle,
@@ -9630,7 +9684,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_osd_course_ref,
          {"Course Reference", "nmea0183.osd.course_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(course_ref_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_osd_course_true,
@@ -9645,7 +9699,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_osd_heading_status,
          {"Heading Status", "nmea0183.osd.heading_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_osd_heading_true,
@@ -9665,12 +9719,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_osd_speed_ref,
          {"Speed Reference", "nmea0183.osd.speed_ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(course_ref_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_osd_speed_units,
          {"Speed Units", "nmea0183.osd.speed_units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(speed_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rma_course,
@@ -9695,7 +9749,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rma_mode,
          {"Mode Indicator", "nmea0183.rma.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rma_speed,
@@ -9705,7 +9759,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rma_status,
          {"Status", "nmea0183.rma.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(rma_data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rma_time_diff_a,
@@ -9720,7 +9774,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmb_arrival_status,
          {"Arrival Status", "nmea0183.rmb.arrival_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(arrival_circle_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmb_bearing_dest,
@@ -9730,7 +9784,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmb_data_status,
          {"Data Status", "nmea0183.rmb.data_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(navigation_data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmb_dest_id,
@@ -9755,7 +9809,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmb_mode,
          {"Mode Indicator", "nmea0183.rmb.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmb_orig_id,
@@ -9770,7 +9824,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmb_steer,
          {"Direction to Steer", "nmea0183.rmb.steer",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steer_direction), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmb_xte,
@@ -9805,7 +9859,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmc_mode,
          {"Mode Indicator", "nmea0183.rmc.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmc_speed,
@@ -9815,7 +9869,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rmc_status,
          {"Status", "nmea0183.rmc.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(navigation_data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rmc_utc,
@@ -9835,7 +9889,7 @@ void proto_register_nmea0183(void)
           "NMEA 0183 ROT Status, A means data is valid", HFILL}},
         {&hf_nmea0183_rpm_number,
          {"Engine or Shaft Number (from centerline)", "nmea0183.rpm.number",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(revolutions_number_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rpm_pitch,
@@ -9845,7 +9899,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rpm_source,
          {"Source", "nmea0183.rpm.source",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(revolutions_source_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rpm_speed,
@@ -9855,7 +9909,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rpm_status,
          {"Data Status", "nmea0183.rpm.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rsa_pt_sensor,
@@ -9865,7 +9919,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rsa_pt_status,
          {"Data Status", "nmea0183.rsa.pt_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rsa_sb_sensor,
@@ -9875,7 +9929,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rsa_sb_status,
          {"Data Status", "nmea0183.rsa.sb_status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(data_status), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rsd_cursor_bearing,
@@ -9890,7 +9944,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rsd_display,
          {"Display Rotation", "nmea0183.rsd.display",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(display_rotation_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rsd_ebl1,
@@ -9925,7 +9979,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rsd_units,
          {"Range Units", "nmea0183.rsd.units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(speed_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rsd_vrm1,
@@ -9945,7 +9999,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_rte_sentence_mode,
          {"Sentence Mode", "nmea0183.rte.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(sentence_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_rte_sentence_number,
@@ -9975,7 +10029,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_sfi_mode,
          {"Mode of Operation", "nmea0183.sfi.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(sfi_operation_mode_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_sfi_sentence_number,
@@ -9995,7 +10049,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ssd_dte_flag,
          {"DTE Indicator Flag", "nmea0183.ssd.dte",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(dte_indicator_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ssd_name,
@@ -10050,7 +10104,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_tll_ref_tgt,
          {"Reference Target", "nmea0183.tll.ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(ref_target_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_tll_tgt_latitude,
@@ -10080,12 +10134,12 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_tll_tgt_status,
          {"Target Status", "nmea0183.tll.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(tgt_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ttm_acq_type,
          {"Type of Acquisition", "nmea0183.ttm.acq",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(target_acq_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ttm_bearing,
@@ -10100,7 +10154,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ttm_ref_tgt,
          {"Reference Target", "nmea0183.ttm.ref",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(ref_target_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ttm_tgt_course,
@@ -10130,7 +10184,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ttm_tgt_status,
          {"Target Status", "nmea0183.ttm.status",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(tgt_status_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ttm_time_cpa,
@@ -10140,7 +10194,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_ttm_units,
          {"Speed/Distance Units", "nmea0183.ttm.units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(speed_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_ttm_utc,
@@ -10445,7 +10499,7 @@ void proto_register_nmea0183(void)
           "NMEA 0183 VTG Course unit, must be T", HFILL}},
         {&hf_nmea0183_wcv_mode,
          {"Mode Indicator", "nmea0183.wcv.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_wcv_velocity,
@@ -10505,22 +10559,22 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_xdr_type,
          {"Transducer Type", "nmea0183.xdr.type",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(transducer_type_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_xdr_units,
          {"Units of Measure", "nmea0183.xdr.units",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(transducer_unit_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_xte_blinksnr_status,
          {"Data Status - Loran-C Blink/SNR Warning", "nmea0183.xte.blinksnr",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(loranc_blink_snr_warning_vals), 0x0,
           NULL, HFILL}},
           {&hf_nmea0183_xte_cycle_status,
          {"Data Status - Loran-C Cycle Lock Warning", "nmea0183.xte.cycle_lock",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(loranc_cycle_lock_warning_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_xte_magnitude,
@@ -10530,17 +10584,17 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_xte_direction,
          {"Direction to Steer (nm)", "nmea0183.xte.steer",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steer_direction), 0x0,
           NULL, HFILL}},
           {&hf_nmea0183_xte_mode,
          {"Mode Indicator", "nmea0183.xte.mode",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(mode_indicator), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_xtr_direction,
          {"Direction to Steer (nm)", "nmea0183.xtr.steer",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(steer_direction), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_xtr_magnitude,
@@ -10605,7 +10659,7 @@ void proto_register_nmea0183(void)
           NULL, HFILL}},
         {&hf_nmea0183_zdl_type,
          {"Type of Point", "nmea0183.zdl.type",
-          FT_CHAR, BASE_NONE,
+          FT_CHAR, BASE_HEX,
           VALS(point_type_vals), 0x0,
           NULL, HFILL}},
         {&hf_nmea0183_zfo_elapsed,
@@ -10687,6 +10741,12 @@ void proto_register_nmea0183(void)
         {&ei_nmea0183_field_missing,
          {"nmea0183.field_missing", PI_PROTOCOL, PI_WARN,
           "Field expected, but not found", EXPFILL}},
+        {&ei_nmea0183_field_too_long,
+         {"nmea0183.field_too_long", PI_MALFORMED, PI_WARN,
+          "Single character field is longer than one character", EXPFILL}},
+        {&ei_nmea0183_bad_fd_len,
+         {"nmea0183.bad_fd_len", PI_MALFORMED, PI_WARN,
+          "File descriptor length is too short", EXPFILL}},
         {&ei_nmea0183_field_uint_invalid,
          {"nmea0183.field_uint_invalid", PI_PROTOCOL, PI_WARN,
           "Invalid unsigned integer", EXPFILL}},
