@@ -194,171 +194,168 @@ dissect_netanalyzer_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   unsigned                buf_state;
   unsigned                buf_source;
 
-  if (tree)
+  /* generate netANALYZER tree */
+  ti = proto_tree_add_item(tree, proto_netanalyzer, tvb, 0, HEADER_SIZE, ENC_NA);
+  netanalyzer_header_tree = proto_item_add_subtree(ti, ett_netanalyzer);
+
+  is_gpio = (tvb_get_uint8(tvb, 1) >> SRT_GPIO_FLAG) & 0x1;
+
+  if (!is_gpio)
   {
-    /* generate netANALYZER tree */
-    ti = proto_tree_add_item(tree, proto_netanalyzer, tvb, 0, HEADER_SIZE, ENC_NA);
-    netanalyzer_header_tree = proto_item_add_subtree(ti, ett_netanalyzer);
+    /* normal packet, no GPIO */
 
-    is_gpio = (tvb_get_uint8(tvb, 1) >> SRT_GPIO_FLAG) & 0x1;
+    /* decode version */
+    version = (tvb_get_uint8(tvb, 1) >> SRT_VERSION) & 0xf;
+    type    = (tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) >> SRT_TYPE) & 0xf;
 
-    if (!is_gpio)
+    if ((version == 1) || ((version == 2) && (type == VAL_TYPE_ETH)))
     {
-      /* normal packet, no GPIO */
+      proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_eth, tvb, 0, 0, "Ethernet frame");
 
-      /* decode version */
-      version = (tvb_get_uint8(tvb, 1) >> SRT_VERSION) & 0xf;
-      type    = (tvb_get_uint32(tvb, 0, ENC_LITTLE_ENDIAN) >> SRT_TYPE) & 0xf;
+      /* decode port */
+      port_num = (tvb_get_uint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
+      proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_port, tvb, 0, 4, port_num);
+      proto_item_append_text(ti, " (Port: %u, ", port_num);
 
-      if ((version == 1) || ((version == 2) && (type == VAL_TYPE_ETH)))
+      /* decode length */
+      frame_length = tvb_get_letohs(tvb, 2) & MSK_LENGTH;
+      proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_length, tvb, 0, 4, frame_length);
+      proto_item_append_text(ti, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s");
+
+      /* decode status */
+      proto_item_append_text(ti, "Status: ");
+      packet_status = tvb_get_uint8(tvb, 0);
+      if (packet_status == 0)
       {
-        proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_eth, tvb, 0, 0, "Ethernet frame");
-
-        /* decode port */
-        port_num = (tvb_get_uint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
-        proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_port, tvb, 0, 4, port_num);
-        proto_item_append_text(ti, " (Port: %u, ", port_num);
-
-        /* decode length */
-        frame_length = tvb_get_letohs(tvb, 2) & MSK_LENGTH;
-        proto_tree_add_uint(netanalyzer_header_tree, hf_netanalyzer_length, tvb, 0, 4, frame_length);
-        proto_item_append_text(ti, "Length: %u byte%s, ", frame_length, (frame_length == 1) ? "" : "s");
-
-        /* decode status */
-        proto_item_append_text(ti, "Status: ");
-        packet_status = tvb_get_uint8(tvb, 0);
-        if (packet_status == 0)
-        {
-          proto_tree_add_uint_format_value(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
-            packet_status, "No Error");
-          proto_item_append_text(ti, "No Error)");
-        }
-        else
-        {
-          wmem_strbuf_t      *strbuf;
-          bool                first = true;
-
-          proto_tree_add_bitmask(netanalyzer_header_tree, tvb, 0, hf_netanalyzer_status, ett_netanalyzer_status, hfx_netanalyzer_status, ENC_LITTLE_ENDIAN);
-
-          strbuf = wmem_strbuf_create(pinfo->pool);
-          for (idx = 0; idx < 8; idx++)
-          {
-            if (packet_status & (1 << idx))
-            {
-              if (first)
-              {
-                first = false;
-              }
-              else
-              {
-                wmem_strbuf_append(strbuf, ", ");
-              }
-              wmem_strbuf_append(strbuf, msk_strings[idx]);
-            }
-          }
-          proto_item_append_text(ti, "%s)", wmem_strbuf_get_str(strbuf));
-        }
-
-        /* decode transparent mode */
-        if (tvb_get_uint8(tvb, 1) & MSK_TRANSPARENT_MODE)
-        {
-          proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_transparent_frame, tvb, 0, 4);
-          proto_item_append_text(ti, ", Transparent Mode");
-
-          if (packet_status & MSK_ALIGN_ERR)
-          {
-            proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_alignment_error, tvb, tvb_captured_length(tvb) - 1, 1);
-          }
-        }
-      }
-      else if ((version == 2) && (type == VAL_TYPE_PB))
-      {
-        /* currently not implemented */
-        expert_add_info(pinfo, ti, &ei_netanalyzer_not_implemented);
-        return false;
-      }
-      else if ((version == 2) && (type == VAL_TYPE_BUF))
-      {
-        proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_buf, tvb, 0, 0, "Buffer state entry");
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
-
-        buf_state = tvb_get_uint8(tvb, 0) & MSK_BUF_STATE;
-        if (buf_state == 0)
-        {
-          col_set_str(pinfo->cinfo, COL_INFO, "Buffer overflow");
-        }
-        else
-        {
-          col_set_str(pinfo->cinfo, COL_INFO, "Buffer recovery");
-        }
-        proto_item_append_text(ti, " (%s)", buf_state_vals[buf_state].strptr);
-
-        /* decode buffer state */
-        proto_tree_add_uint(ti, hf_netanalyzer_buf_state, tvb, 0, 1, buf_state);
-        port_num = (tvb_get_uint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
-        proto_tree_add_uint(ti, hf_netanalyzer_port, tvb, 0, 4, port_num);
-        buf_source = (tvb_get_uint8(tvb, 0) & MSK_BUF_ID) >> SRT_BUF_ID;
-        proto_tree_add_uint(ti, hf_netanalyzer_buf_source, tvb, 0, 1, buf_source);
-
-        return false;
-      }
-      else if ((version == 2) && (type == VAL_TYPE_TICK))
-      {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
-        col_set_str(pinfo->cinfo, COL_INFO, "Time tick");
-        proto_item_append_text(ti, " (Time tick)");
-        proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_timetick, tvb, 0, 0, "Time tick");
-        return false;
+        proto_tree_add_uint_format_value(netanalyzer_header_tree, hf_netanalyzer_status, tvb, 0, 1,
+          packet_status, "No Error");
+        proto_item_append_text(ti, "No Error)");
       }
       else
       {
-        /* something is wrong */
-        expert_add_info(pinfo, ti, &ei_netanalyzer_header_wrong);
-        return false;
+        wmem_strbuf_t      *strbuf;
+        bool                first = true;
+
+        proto_tree_add_bitmask(netanalyzer_header_tree, tvb, 0, hf_netanalyzer_status, ett_netanalyzer_status, hfx_netanalyzer_status, ENC_LITTLE_ENDIAN);
+
+        strbuf = wmem_strbuf_create(pinfo->pool);
+        for (idx = 0; idx < 8; idx++)
+        {
+          if (packet_status & (1 << idx))
+          {
+            if (first)
+            {
+              first = false;
+            }
+            else
+            {
+              wmem_strbuf_append(strbuf, ", ");
+            }
+            wmem_strbuf_append(strbuf, msk_strings[idx]);
+          }
+        }
+        proto_item_append_text(ti, "%s)", wmem_strbuf_get_str(strbuf));
       }
+
+      /* decode transparent mode */
+      if (tvb_get_uint8(tvb, 1) & MSK_TRANSPARENT_MODE)
+      {
+        proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_transparent_frame, tvb, 0, 4);
+        proto_item_append_text(ti, ", Transparent Mode");
+
+        if (packet_status & MSK_ALIGN_ERR)
+        {
+          proto_tree_add_expert(netanalyzer_header_tree, pinfo, &ei_netanalyzer_alignment_error, tvb, tvb_captured_length(tvb) - 1, 1);
+        }
+      }
+    }
+    else if ((version == 2) && (type == VAL_TYPE_PB))
+    {
+      /* currently not implemented */
+      expert_add_info(pinfo, ti, &ei_netanalyzer_not_implemented);
+      return false;
+    }
+    else if ((version == 2) && (type == VAL_TYPE_BUF))
+    {
+      proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_buf, tvb, 0, 0, "Buffer state entry");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+
+      buf_state = tvb_get_uint8(tvb, 0) & MSK_BUF_STATE;
+      if (buf_state == 0)
+      {
+        col_set_str(pinfo->cinfo, COL_INFO, "Buffer overflow");
+      }
+      else
+      {
+        col_set_str(pinfo->cinfo, COL_INFO, "Buffer recovery");
+      }
+      proto_item_append_text(ti, " (%s)", buf_state_vals[buf_state].strptr);
+
+      /* decode buffer state */
+      proto_tree_add_uint(ti, hf_netanalyzer_buf_state, tvb, 0, 1, buf_state);
+      port_num = (tvb_get_uint8(tvb, 1) >> SRT_PORT_NUM) & 0x3;
+      proto_tree_add_uint(ti, hf_netanalyzer_port, tvb, 0, 4, port_num);
+      buf_source = (tvb_get_uint8(tvb, 0) & MSK_BUF_ID) >> SRT_BUF_ID;
+      proto_tree_add_uint(ti, hf_netanalyzer_buf_source, tvb, 0, 1, buf_source);
+
+      return false;
+    }
+    else if ((version == 2) && (type == VAL_TYPE_TICK))
+    {
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+      col_set_str(pinfo->cinfo, COL_INFO, "Time tick");
+      proto_item_append_text(ti, " (Time tick)");
+      proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_timetick, tvb, 0, 0, "Time tick");
+      return false;
     }
     else
     {
-      /* check consistency */
-      if ( (tvb_get_uint8(tvb, 10) == 0x00) &&
-           (tvb_get_uint8(tvb, 11) == 0x02) &&
-           (tvb_get_uint8(tvb, 12) == 0xa2) &&
-           (tvb_get_uint8(tvb, 13) == 0xff) &&
-           (tvb_get_uint8(tvb, 14) == 0xff) &&
-           (tvb_get_uint8(tvb, 15) == 0xff) &&
-           (tvb_get_uint8(tvb, 16) == 0x88) &&
-           (tvb_get_uint8(tvb, 17) == 0xff) &&
-           (tvb_get_uint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
-      {
-        char *szTemp;
-
-        /* everything ok */
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
-        offset = INFO_TYPE_OFFSET;
-        proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_gpio, tvb, 0, 0, "GPIO event");
-        proto_item_append_text(ti, " (GPIO event)");
-
-        /* GPIO number */
-        offset++;
-        proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        gpio_num = (tvb_get_uint8(tvb, offset) & 0x03);
-
-        /* GPIO edge */
-        offset++;
-        ti = proto_tree_add_item_ret_uint (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN, &gpio_edge);
-
-        szTemp = wmem_strdup_printf(pinfo->pool, "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
-
-        col_add_str(pinfo->cinfo, COL_INFO, szTemp);
-        proto_item_append_text(ti, " %s", szTemp);
-      }
-      else
-      {
-        /* something is wrong */
-        expert_add_info(pinfo, ti, &ei_netanalyzer_gpio_def_none);
-      }
+      /* something is wrong */
+      expert_add_info(pinfo, ti, &ei_netanalyzer_header_wrong);
       return false;
     }
+  }
+  else
+  {
+    /* check consistency */
+    if ( (tvb_get_uint8(tvb, 10) == 0x00) &&
+         (tvb_get_uint8(tvb, 11) == 0x02) &&
+         (tvb_get_uint8(tvb, 12) == 0xa2) &&
+         (tvb_get_uint8(tvb, 13) == 0xff) &&
+         (tvb_get_uint8(tvb, 14) == 0xff) &&
+         (tvb_get_uint8(tvb, 15) == 0xff) &&
+         (tvb_get_uint8(tvb, 16) == 0x88) &&
+         (tvb_get_uint8(tvb, 17) == 0xff) &&
+         (tvb_get_uint8(tvb, INFO_TYPE_OFFSET) == 0x00) )
+    {
+      char *szTemp;
+
+      /* everything ok */
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
+      offset = INFO_TYPE_OFFSET;
+      proto_tree_add_none_format(netanalyzer_header_tree, hf_netanalyzer_gpio, tvb, 0, 0, "GPIO event");
+      proto_item_append_text(ti, " (GPIO event)");
+
+      /* GPIO number */
+      offset++;
+      proto_tree_add_item (netanalyzer_header_tree, hf_netanalyzer_gpio_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      gpio_num = (tvb_get_uint8(tvb, offset) & 0x03);
+
+      /* GPIO edge */
+      offset++;
+      ti = proto_tree_add_item_ret_uint (netanalyzer_header_tree, hf_netanalyzer_gpio_edge, tvb, offset, 1, ENC_LITTLE_ENDIAN, &gpio_edge);
+
+      szTemp = wmem_strdup_printf(pinfo->pool, "GPIO event on GPIO %d (%sing edge)", gpio_num, (gpio_edge == 0x00) ? "ris" : "fall");
+
+      col_add_str(pinfo->cinfo, COL_INFO, szTemp);
+      proto_item_append_text(ti, " %s", szTemp);
+    }
+    else
+    {
+      /* something is wrong */
+      expert_add_info(pinfo, ti, &ei_netanalyzer_gpio_def_none);
+    }
+    return false;
   }
   return true;
 }
