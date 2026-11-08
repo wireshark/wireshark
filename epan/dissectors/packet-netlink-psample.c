@@ -173,12 +173,16 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 		proto_item_append_text(tree, ": %"PRIu64, value64);
 		return 1;
 	case WS_PSAMPLE_ATTR_TIMESTAMP:
+		if (len != 8)
+			return 0;
 		timestamp = tvb_get_uint64(tvb, offset, nl_data->encoding);
 		ts_nstime.secs = timestamp / 1000000000;
 		ts_nstime.nsecs = timestamp % 1000000000;
 		proto_tree_add_time(tree, hf_psample_timestamp, tvb, offset, 8, &ts_nstime);
 		return 1;
 	case WS_PSAMPLE_ATTR_PROTO:
+		if (len != 2)
+			return 0;
 		info->protocol = tvb_get_uint16(tvb, offset, nl_data->encoding);
 		/* This attribute encodes 'skb->protocol' and if it is greater
 		 * than or equal to 1536 (0x0600), then it is an Ethertype and
