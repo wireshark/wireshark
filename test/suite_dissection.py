@@ -110473,3 +110473,102 @@ class TestDissectNxp802154Sniffer:
         lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'udp && !nxp_802154_sniffer',
                 '-Tfields', '-eframe.number', '-eudp.length')
         assert [l.split('\t')[0] for l in lines] == [str(n) for n in range(26, 35)]
+
+
+class TestDissectOampdu:
+    '''Ethernet OAM (IEEE 802.3 clause 57) over Slow Protocols (0x8809,
+    subtype 3) and the CableLabs DPoE vendor specific PDUs, from the
+    synthetic capture oampdu_coverage.pcap.gz: information, event
+    notification, variable request and response, loopback control, and DPoE
+    get, set and file transfer requests with every leaf the dissector
+    decodes.'''
+
+    CAP = 'oampdu_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, args, *fields):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args, '-Tfields',
+                *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_oampdu_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 125 frames are OAM PDUs without malformed packets or error
+        expert infos, in one and two passes; a match value field of length
+        zero is the only expert info.'''
+        cap = capture_file(self.CAP)
+        infos = self.fields(cmd_tshark, cap, test_env, (), '_ws.col.protocol', '_ws.col.info')
+        assert len(infos) == 125
+        assert {i.split('\t')[0] for i in infos} == {'OAM'}
+        counts = {}
+        for i in infos:
+            counts[i.split('\t')[1]] = counts.get(i.split('\t')[1], 0) + 1
+        assert counts == {
+            'OAMPDU: Information': 8, 'OAMPDU: Event Notification': 10, 'OAMPDU: Variable Request': 2,
+            'OAMPDU: Variable Response': 5, 'OAMPDU: Loopback Control': 5,
+            'OAMPDU: Organization Specific': 94, 'OAMPDU: Unknown': 1}
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, '-Y',
+                '_ws.malformed || _ws.expert.severity >= 0x00400000'), 'frame.number') == []
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, '-Y', 'oampdu.event.mvl.zero'),
+                    'frame.number') == ['96']
+
+    def test_oampdu_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The dissector keeps no state: the full decode is the same in one
+        and two passes.'''
+        cap = capture_file(self.CAP)
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V'), env=test_env, timeout=120)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V'), env=test_env, timeout=120)
+        assert one == two
+
+    def test_oampdu_report_threshold(self, cmd_tshark, capture_file, test_env):
+        '''The DPoE report threshold leaf decodes its entries one after the
+        other and never more than fit in its container (frames 112-116);
+        the 6 byte containers with 255 queue sets and 255 values per set
+        in 117 and 118 (118 fills a 1230 byte frame with 200 of them) have
+        no entry. Before "OAMPDU: Bound the DPoE report threshold loop by
+        its container" every container made 65025 entries, read from
+        overlapping offsets far past the container, and every frame of this
+        kind took about 0.1 s.'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'frame.number in {112, 113, 114, 115, 116, 117, 118}'),
+                'frame.number', 'oampdu.report.threshold.queue', 'oampdu.report.threshold.queue.values',
+                'oampdu.report.threshold')
+        rows = [r.split('\t') for r in rows]
+        assert rows[0] == ['112', '2', '3', '1,2,3,4,5,6']
+        assert rows[1] == ['113', '1', '1', '258']
+        assert rows[2] == ['114', '4', '4', '1,2,3,4,5']
+        assert rows[3] == ['115', '255', '255', '7,7,7']
+        assert rows[4] == ['116', '2', '0', '']
+        for r in rows[5:]:
+            assert r[3] == ''
+            assert set(r[1].split(',')) == {'255'}
+            assert set(r[2].split(',')) == {'255'}
+        assert [len(r[1].split(',')) for r in rows[5:]] == [60, 200]
+
+    def test_oampdu_date_and_manufacturer_info(self, cmd_tshark, capture_file, test_env):
+        '''The date of manufacture with a BCD year (2026/11/08), a year in
+        two decimal bytes (2025/01/10), a 16 bit year and neither (Unknown),
+        and a BCD year with a 0xF nibble (Unknown, not a copy of bytes after
+        the end of the string); the manufacturer information with a serial
+        number of 16, 32 and 32 plus 15 bytes of vendor data (a serial
+        number shorter than 32 bytes had a negative vendor data length).'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'frame.number >= 46 && frame.number <= 53'),
+                'frame.number', 'oampdu.date_of_manufacture', 'oampdu.mfg_info.serial_number',
+                'oampdu.mfg_info.vendor_specific')
+        assert rows == [
+            '46\t2026/11/08\t\t', '47\t2025/01/10\t\t', '48\t2026/11/08\t\t', '49\tUnknown\t\t',
+            '50\tUnknown\t\t', '51\t\tSERIAL0123456789\t', '52\t\t' + 'S' * 32 + '\t',
+            '53\t\t' + 'S' * 32 + 'vendor specific\t76656e646f72207370656369666963']
+
+    def test_oampdu_information_and_events(self, cmd_tshark, capture_file, test_env):
+        '''Information TLVs (local, remote, organization specific, unknown
+        type skipped) and event notification TLVs decode up to their end
+        marker; only the first DPoE event of a PDU is decoded.'''
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'oampdu.info.type'),
+                'frame.number', 'oampdu.info.type')
+        assert rows[0] == '1\t0x01,0x02'
+        assert len(rows) == 6
+        rows = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'oampdu.event.type'),
+                'frame.number', 'oampdu.event.type')
+        assert rows[0] == '9\t0x01'
+        assert rows[1] == '10\t0x02,0x03,0x04'
