@@ -1431,23 +1431,47 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 static const char *
 grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_sub_dis_inf)
 {
-	int offset = 0;
 	int len = tvb_reported_length(tvb);
 	proto_item *pi = proto_tree_add_item(c->tree, a->hf_value, tvb , 0 , -1, ENC_BIG_ENDIAN);
 	proto_tree *pt = c->tree;
+	/* A grouped AVP can be inside another one; keep the state of the
+	 * enclosing group so that the AVPs after this one still see it. */
+	const bool saved_dis_gouped = diam_sub_dis_inf->dis_gouped;
+	const uint32_t saved_group_avp_code = diam_sub_dis_inf->group_avp_code;
+	const uint32_t saved_vendor_id = diam_sub_dis_inf->vendor_id;
 
 	c->tree = proto_item_add_subtree(pi,a->ett);
 
 	/* Set the flag that we are dissecting a grouped AVP */
 	diam_sub_dis_inf->dis_gouped = true;
 	diam_sub_dis_inf->group_avp_code = a->code;
-	while (offset < len) {
-		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
+
+	TRY {
+		int offset = 0;
+
+		/* Grouped AVPs can nest; bound the recursion. This increments
+		 * the depth before it throws, so it is undone below too. */
+		increment_dissection_depth(c->pinfo);
+		while (offset < len) {
+			offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, false);
+		}
 	}
-	/* Clear info collected in grouped AVP */
-	diam_sub_dis_inf->vendor_id  = 0;
-	diam_sub_dis_inf->dis_gouped = false;
-	diam_sub_dis_inf->group_avp_code = 0;
+	CATCH_ALL {
+		/* Undo the depth and the group state, as a following PDU in
+		 * the same segment is dissected with the same pinfo. */
+		decrement_dissection_depth(c->pinfo);
+		diam_sub_dis_inf->dis_gouped = saved_dis_gouped;
+		diam_sub_dis_inf->group_avp_code = saved_group_avp_code;
+		diam_sub_dis_inf->vendor_id = saved_vendor_id;
+		c->tree = pt;
+		RETHROW;
+	}
+	ENDTRY;
+	decrement_dissection_depth(c->pinfo);
+	/* Clear info collected in grouped AVP, back to the enclosing group */
+	diam_sub_dis_inf->vendor_id  = saved_vendor_id;
+	diam_sub_dis_inf->dis_gouped = saved_dis_gouped;
+	diam_sub_dis_inf->group_avp_code = saved_group_avp_code;
 	diam_sub_dis_inf->avp_str = NULL;
 
 	c->tree = pt;
