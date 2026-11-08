@@ -515,7 +515,7 @@ proto_register_nsh(void)
 
 		{ &hf_nsh_md_type,
 		{ "MD Type", "nsh.mdtype",
-		FT_UINT8, BASE_DEC_HEX, NULL, 0x00,
+		FT_UINT8, BASE_DEC_HEX, NULL, 0x0F,
 		"Metadata Type defines the format of the metadata being carried", HFILL }
 		},
 
