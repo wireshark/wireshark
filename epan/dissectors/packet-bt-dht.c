@@ -62,6 +62,7 @@ static int hf_truncated_data;
 
 static expert_field ei_int_string;
 static expert_field ei_invalid_len;
+static expert_field ei_invalid_error;
 static expert_field ei_duplicate_dict_keys;
 static expert_field ei_unsorted_dict_keys;
 
@@ -184,11 +185,10 @@ dissect_bencoded_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
   if (remaining < 3)
     return 0;
 
-  if (tvb_get_uint8(tvb, offset) != 'i')
-    return 0;
-
+  DISSECTOR_ASSERT(tvb_get_uint8(tvb, offset) == 'i');
   offset += 1;
   remaining -= 1;
+
   start_offset = offset;
   while (tvb_get_uint8(tvb, offset) != 'e' && --remaining)
     offset += 1;
@@ -293,8 +293,17 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
   offset += 1;
 
   /* dissect bt-dht error number and message */
+  if (tvb_get_uint8(tvb, offset) != 'i') {
+    proto_tree_add_expert_format(sub_tree, pinfo, &ei_invalid_error, tvb, offset, 1, "Error ID should be an integer");
+    return 0;
+  }
   offset = dissect_bencoded_int(tvb, pinfo, sub_tree, offset, &error_no, "Error ID");
   if (offset == 0) {
+    return 0;
+  }
+
+  if (!tvb_ascii_isdigit(tvb, offset, 1)) {
+    proto_tree_add_expert_format(sub_tree, pinfo, &ei_invalid_error, tvb, offset, 1, "Error message should be a string");
     return 0;
   }
   offset = dissect_bencoded_string(tvb, pinfo, sub_tree, offset, &error_msg, false, "Error Message");
@@ -308,6 +317,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsign
 
   /* the list terminator */
   if (tvb_get_uint8(tvb, offset) != 'e') {
+    proto_tree_add_expert_format(sub_tree, pinfo, &ei_invalid_error, tvb, offset, 1, "Error list should only have two elements");
     return 0;
   }
   proto_tree_add_item(sub_tree, hf_bencoded_list_terminator, tvb, offset, 1, ENC_ASCII);
@@ -944,6 +954,8 @@ proto_register_bt_dht(void)
     "String must contain an integer", EXPFILL }},
     { &ei_invalid_len, { "bt-dht.invalid_length", PI_MALFORMED, PI_ERROR,
     "Invalid length", EXPFILL }},
+    { &ei_invalid_error, { "bt-dht.invalid_error", PI_MALFORMED, PI_ERROR,
+    "Invalid error", EXPFILL }},
     { &ei_duplicate_dict_keys, { "bt-dht.bencoding.dict_duplicate_key", PI_PROTOCOL, PI_WARN,
     "Dictionary has duplicate keys", EXPFILL }},
     { &ei_unsorted_dict_keys, { "bt-dht.bencoding.dict_out_of_order", PI_PROTOCOL, PI_CHAT,
