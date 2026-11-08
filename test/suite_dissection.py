@@ -110690,3 +110690,113 @@ class TestDissectObdIi:
         for passes in ((), ('-2',)):
             assert self.fields(cmd_tshark, cap, test_env, (*passes, *self.HEUR, '-Y',
                 '_ws.malformed || _ws.expert.severity >= 0x00800000'), 'frame.number') == []
+
+
+class TestDissectObex:
+    '''OBEX over Exported PDU ("obex") with the pcapng direction flag, from
+    the synthetic capture obex_coverage.pcapng.gz: every opcode, header type,
+    authentication, session and profile (Target UUID) application parameter,
+    media type bodies, reassembly and path/profile state tracking. Frames
+    carry placeholder bytes only, no keys.'''
+
+    CAP = 'obex_coverage.pcapng.gz'
+    # Decode As of the unknown profile as the CTN application parameters
+    CTN = ('-d', 'obex.profile==0,obex.profile.bt.ctn')
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, args, *fields):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, *args, '-Tfields',
+                *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_obex_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 331 frames are OBEX, with HTTP and XML where headers or
+        bodies carry them; no malformed packets or error expert infos in
+        one and two passes. Four frames carry application parameters with
+        a wrong length (warning).'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, (), '_ws.col.protocol')
+        assert len(protocols) == 331
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'OBEX': 314, 'OBEX/XML': 14, 'OBEX/XML/XML': 2, 'HTTP': 1}
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, '-Y',
+                '_ws.malformed || _ws.expert.severity >= 0x00800000'), 'frame.number') == []
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, '-Y',
+                'obex.parameter.length.bad'), 'frame.number') == ['248', '264', '282', '304']
+
+    def test_obex_two_pass_same_info(self, cmd_tshark, capture_file, test_env):
+        '''The columns and the decoded opcodes, names and header ids are the
+        same in one and two passes (only the generated request/response,
+        path and profile items differ for forward references).'''
+        cap = capture_file(self.CAP)
+        args = ('_ws.col.info', 'obex.opcode', 'obex.resp_code', 'obex.name', 'obex.header.id')
+        one = self.fields(cmd_tshark, cap, test_env, (), *args)
+        two = self.fields(cmd_tshark, cap, test_env, ('-2',), *args)
+        assert one == two
+
+    def test_obex_http_header_length(self, cmd_tshark, capture_file, test_env):
+        '''An HTTP header (0x47) is dissected over its own value and the
+        header list continues after it: two HTTP headers, a Name and an End
+        of Body. Before "OBEX: Use the reassembled tvb for the packet length
+        and flags" the whole rest of the packet was given to HTTP and then
+        parsed again as OBEX headers.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'frame.number == 9'),
+                'obex.header.id', 'obex.name', 'http.request.uri', 'http.response.code')
+        assert lines == ['0x47,0x47,0x01,0x49\tafter-http.txt\t/index.html,/index.html\t200']
+
+    def test_obex_reassembly_short_last_fragment(self, cmd_tshark, capture_file, test_env):
+        '''A PUT split so that the last fragment is one byte: the packet
+        length, the headers and the body come from the reassembled data
+        (frame 325), the first fragment is shown as a fragment. Before the
+        fix the length was read from the one byte fragment and the frame
+        was a BoundsError without headers.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, ('-Y', 'frame.number in {324, 325}'),
+                'frame.number', 'obex.pkt_len', 'obex.name', 'obex.header.id', '_ws.col.info')
+        assert lines == [
+            '324\t\t\t\tSent OBEX fragment',
+            '325\t27\tName\t0x01,0x49\tSent Put final "Name"',
+        ]
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, cap, test_env, (*passes, '-Y',
+                'frame.number in {316, 320, 322, 325} && (_ws.malformed || _ws.expert.severity >= 0x00800000)'),
+                'frame.number') == []
+
+    def test_obex_reassembly_vcard(self, cmd_tshark, capture_file, test_env):
+        '''A PUT of 200 bytes in three fragments (frames 314-316) is
+        reassembled in frame 316 with its Name, Type and Length; the media
+        type selects the text dissector for the body.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'frame.number in {314, 315, 316}'),
+                'frame.number', 'obex.opcode', 'obex.name', 'obex.type', 'obex.length')
+        assert lines == ['314\t\t\t\t', '315\t\t\t\t', '316\t0x02\tbig.vcf\tx-bt/vcard\t200']
+
+    def test_obex_path_and_profile_state(self, cmd_tshark, capture_file, test_env):
+        '''Target UUIDs select the profile for the following frames and
+        Set Path responses move the current path: Connect to the Folder
+        Browsing target (28/29), down to /telecom, up to the root and down
+        to /other (32 to 35), /other/pb and back to the root with an empty name.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'frame.number in {27, 29, 31, 33, 35, 37}'),
+                'frame.number', 'obex.profile', 'obex.current_path')
+        assert lines == ['27\t0\t/', '29\t2\t/', '31\t2\t/', '33\t2\t/telecom', '35\t2\t/other',
+                         '37\t2\t/other/pb']
+
+    def test_obex_bip_service_id_bytes(self, cmd_tshark, capture_file, test_env):
+        '''The BIP Service ID application parameter is a 16 byte value, not
+        a 16 bit number.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env, ('-Y', 'obex.parameter.value.service_id'),
+                'frame.number', 'obex.parameter.value.service_id')
+        assert lines == ['280\t000102030405060708090a0b0c0d0e0f']
+
+    def test_obex_ctn_parameters(self, cmd_tshark, capture_file, test_env):
+        '''With the unknown profile decoded as CTN, the GPP-range CTN
+        parameters (0x41 to 0x46) are checked against the right length
+        table: frames 23 and 24 have valid lengths and no warning, frame 25
+        has nine parameters with a wrong length. Before the fix the CTN
+        dissector compared them with the first entries of the CTN table
+        and warned about the valid 16 bit ones.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env,
+                (*self.CTN, '-Y', 'frame.number in {23, 24, 25}'),
+                'frame.number', 'obex.parameter.length.bad')
+        assert lines == ['23\t', '24\t', '25\t1,1,1,1,1,1,1,1,1']
