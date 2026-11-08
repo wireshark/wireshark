@@ -107646,3 +107646,85 @@ class TestDissectNmf:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {8, 9, 10, 11}',
                            ('frame.number', 'frame.len', 'nmf.type'))
         assert rows == [['8', '95', '6'], ['9', '257', '6'], ['10', '20058', '6'], ['11', '56', '6']]
+
+
+class TestDissectNntp:
+    '''NNTP on TCP port 119 from the synthetic capture
+    nntp_coverage.pcap.gz: a reader session with multi-line responses and
+    posting, STARTTLS accepted (the TLS records that follow are a made up
+    ClientHello and ServerHello, nothing encrypted), rejected, in other
+    cases and split over segments, and odd line endings.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('nntp_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nntp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''49 frames: 45 NNTP and 4 TLS (after STARTTLS), no malformed
+        packets or warnings in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol',), passes)
+            protocols = [r[0] for r in rows]
+            assert len(protocols) == 49
+            assert protocols.count('NNTP') == 45
+            assert protocols.count('TLSv1') + protocols.count('TLSv1.2') == 4
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_nntp_requests_and_responses(self, cmd_tshark, capture_file, test_env):
+        '''Requests go to port 119, responses come from it; the first line
+        is in the Info column (also for an empty line, a line without a
+        terminator and a bare LF).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 2, 3, 36, 37, 38, 33, 40}',
+                           ('frame.number', 'nntp.request', 'nntp.response', '_ws.col.info'))
+        assert rows == [
+            ['1', '', 'True', 'Response: 200 news.example.test InterNetNews NNRP server ready (posting ok)'],
+            ['2', 'True', '', 'Request: CAPABILITIES'],
+            ['3', '', 'True', 'Response: 101 Capability list:'],
+            ['33', '', 'True', 'Response: 200 lf only'],
+            ['36', 'True', '', 'Request: '],
+            ['37', '', 'True', 'Response: 500 What?'],
+            ['38', 'True', '', 'Request: XOVER 1-3'],
+            ['40', 'True', '', 'Request: LAST'],
+        ]
+
+    def test_nntp_starttls(self, cmd_tshark, capture_file, test_env):
+        '''A 382 response to STARTTLS (any case, with trailing text) starts
+        TLS: frames 21-22, 32 and 49. A rejected STARTTLS (frame 27), a
+        STARTTLS split over segments (frames 42-45; the first segment is
+        shorter than the keyword) and a 382 without a request stay NNTP.
+        The same in one and two passes: the state is only set in the first
+        pass.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'tls', ('frame.number', 'tls.handshake.type'), passes)
+            assert rows == [['21', '1'], ['22', '2'], ['32', '1'], ['49', '1']]
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {20, 24, 27, 31, 45, 48}', ('frame.number', '_ws.col.protocol'), passes)
+            assert rows == [[str(n), 'NNTP'] for n in (20, 24, 27, 31, 45, 48)]
+
+    def test_nntp_starttls_prefix(self, cmd_tshark, capture_file, test_env):
+        '''A request line that is a prefix of STARTTLS ("STAR", split over
+        segments in frame 42-43) and a response "38" are not read past the
+        end of the line ("NNTP: Do not read past the line when matching
+        STARTTLS"; valgrind found the over-read of the packet data).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {42, 43, 44}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [['42', 'Request: STAR'], ['43', 'Request: TTLS'], ['44', 'Response: 38']]
+
+    def test_nntp_multiline(self, cmd_tshark, capture_file, test_env):
+        '''The lines of a multi-line response are shown one by one.'''
+        stdout = subprocess.check_output((cmd_tshark, '-O', 'nntp',
+                '-r', capture_file('nntp_coverage.pcap.gz'), '-Y', 'frame.number == 11',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Subject: Hello' in stdout
+        assert '..a dot line' in stdout
