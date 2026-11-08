@@ -8,6 +8,7 @@
 '''Generic UDP Encapsulation (GUE) tests'''
 
 import subprocess
+import xml.etree.ElementTree as ET
 
 
 class TestGue:
@@ -73,6 +74,33 @@ class TestGue:
                                 encoding='utf-8', env=test_env)
 
         assert stdout == '4\t10.0.0.1,192.0.2.1\n'
+
+    def test_gue_variant1_item_length(self, cmd_tshark, capture_file, test_env):
+        '''Checks that the GUE protocol item for a variant 1 packet covers
+        the one byte it shares with the encapsulated IP header's version
+        field, instead of being reported as zero-length while its
+        gue.variant child field claims that byte for itself.'''
+
+        stdout = subprocess.check_output((cmd_tshark,
+                                '-r', capture_file('gue.pcapng.gz'),
+                                '-T', 'pdml',
+                                '-J', 'gue',
+                                '-Y', 'gue.variant == 1',
+                                ),
+                                encoding='utf-8', env=test_env)
+
+        tree = ET.fromstring(stdout)
+        gue_proto = tree.find(".//proto[@name='gue']")
+        variant_field = gue_proto.find("field[@name='gue.variant']")
+
+        proto_pos = int(gue_proto.get('pos'))
+        proto_size = int(gue_proto.get('size'))
+        field_pos = int(variant_field.get('pos'))
+        field_size = int(variant_field.get('size'))
+
+        assert proto_size == 1
+        assert field_pos >= proto_pos
+        assert field_pos + field_size <= proto_pos + proto_size
 
     def test_gue_control_message(self, cmd_tshark, capture_file, test_env):
         '''Checks the Info column of a GUE control message.'''

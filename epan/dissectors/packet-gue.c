@@ -85,8 +85,9 @@ dissect_gue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         dissector_handle_t next_handle;
 
         /* Direct encapsulation of IPv4 or IPv6: the UDP payload is the IP
-         * packet itself, so GUE consumes no bytes of it. */
-        ti = proto_tree_add_item(tree, proto_gue, tvb, 0, 0, ENC_NA);
+         * packet itself, and the two-bit variant shares its byte with the
+         * IP header's version field. */
+        ti = proto_tree_add_item(tree, proto_gue, tvb, 0, 1, ENC_NA);
         proto_item_append_text(ti, " (variant 1, direct IP encapsulation)");
         gue_tree = proto_item_add_subtree(ti, ett_gue);
         variant_ti = proto_tree_add_item(gue_tree, hf_gue_variant, tvb, 0, 1, ENC_BIG_ENDIAN);
