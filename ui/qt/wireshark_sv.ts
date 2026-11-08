@@ -64,22 +64,6 @@
         <translation>Licens</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">Katalogen finns inte</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">Skall katalogen %1 skapas?</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">Katalogen kunde inte skapas</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">Katalogen %1 kunde inte skapas.</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Visa i sökaren</translation>
     </message>
@@ -3149,26 +3133,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Fördelning av fältvärden</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Fältvärde</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Förekomster</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Procent</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Fördelning:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3289,7 +3253,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Procent</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -3372,6 +3336,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Protocol</source>
         <translation>Protokoll</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="unfinished">Grupp</translation>
     </message>
     <message>
         <source>Description</source>
@@ -3825,6 +3793,10 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Display filter:</source>
         <translation>Visningsfilter:</translation>
+    </message>
+    <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -4711,10 +4683,6 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     <message>
         <source>Author: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Theme by %1</source>
-        <translation type="vanished">Tema av %1</translation>
     </message>
 </context>
 <context>
@@ -5987,12 +5955,16 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Decimalt</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Huruvida den extra bearbetningen skall göras för att upptäcka början på ASCII-representationen vid slutet av en hex+ASCII-rad även om det ser ut som hexbyte:ar.&lt;/p&gt;&lt;p&gt;Aktivera inte om hexdumpen inte innehåller ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>ASCII-identifikation:</translation>
+        <translation type="vanished">ASCII-identifikation:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6047,6 +6019,14 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
         <translation>Huruvida filen innehåller information som indikerar paketets riktning (inkommande eller utgående) eller inte.</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>Riktningsindikationer:</translation>
     </message>
@@ -6092,7 +6072,7 @@ Relativt referensen: ej tillämpligt (utanför referensintervallet)</translation
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation>Little-endian:</translation>
+        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8320,27 +8300,27 @@ växla aktivt läge på en befintlig brytpunkt</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation>Inställningar</translation>
+        <translation type="vanished">Inställningar</translation>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation>Automatiskt (följ färgschemat)</translation>
+        <translation type="vanished">Automatiskt (följ färgschemat)</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation>Mörkt</translation>
+        <translation type="vanished">Mörkt</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation>Ljust</translation>
+        <translation type="vanished">Ljust</translation>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation>Färgtema för kodredigeraren</translation>
+        <translation type="vanished">Färgtema för kodredigeraren</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation>Tema för kodvy:</translation>
+        <translation type="vanished">Tema för kodvy:</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
@@ -8456,12 +8436,20 @@ växla aktivt läge på en befintlig brytpunkt</translation>
         <translation>Felsökaren är inaktiverad medan en fångst i realtid pågår. Stoppa fångsten för att åter aktivera den.</translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation>Felsökaren är inaktiverad. Markera för att aktivera.</translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
         <translation>Inaktiverad (fångst i realtid)</translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -10629,6 +10617,26 @@ växla aktivt läge på en befintlig brytpunkt</translation>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation>Avancerat</translation>
     </message>
@@ -12147,14 +12155,6 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
 %1: lägg till eller ta bort på den aktuella raden i redigeraren</translation>
     </message>
     <message>
-        <source>Count</source>
-        <translation type="vanished">Antal</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Procent</translation>
-    </message>
-    <message>
         <source> [Key Server]</source>
         <translation type="unfinished"></translation>
     </message>
@@ -12244,19 +12244,19 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">Katalogen finns inte</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">Skall katalogen %1 skapas?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">Katalogen kunde inte skapas</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">Katalogen %1 kunde inte skapas.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15041,19 +15041,19 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Spara statistik som …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Vanlig textfil (*.txt);;Kommaseparerade värden (*.csv);;XML-dokument (*.xml);;YAML-dokument (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Vanlig textfil (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">Fel när filen %1 sparades</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15076,6 +15076,10 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
     <message>
         <source>Display filter:</source>
         <translation>Visningsfilter:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -16087,22 +16091,6 @@ Detta startar om alla Lua-skript och kan påverka fångstanalysen.</translation>
         <source>Expand All</source>
         <translation>Fäll ut alla</translation>
     </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Spara statistik som …</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Vanlig textfil (*.txt);;Kommaseparerade värden (*.csv);;XML-dokument (*.xml);;YAML-dokument (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Vanlig textfil (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">Fel när filen %1 sparades</translation>
-    </message>
 </context>
 <context>
     <name>TcpDedupDialog</name>
@@ -16686,7 +16674,11 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16924,6 +16916,13 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
 </context>
 <context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished">Spara bild som…</translation>
+    </message>
+</context>
+<context>
     <name>ThemeManager</name>
     <message>
         <source>Theme &quot;%1&quot; not found.</source>
@@ -17016,7 +17015,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished">Spara förhandsgranskning av tema</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -17024,7 +17023,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished">Det gick inte att skriva bilden till ”%1”.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17066,18 +17065,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Spara bild som…</translation>
     </message>
     <message>
-        <source>Save Theme Preview</source>
-        <translation type="vanished">Spara förhandsgranskning av tema</translation>
-    </message>
-    <message>
-        <source>PNG Image (*.png)</source>
-        <translation type="vanished">PNG-bild (*.png)</translation>
-    </message>
-    <message>
-        <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="vanished">Det gick inte att skriva bilden till ”%1”.</translation>
-    </message>
-    <message>
         <source>Info</source>
         <translation>Information</translation>
     </message>
@@ -17092,10 +17079,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     <message>
         <source>Packets: %1</source>
         <translation>Paket: %1</translation>
-    </message>
-    <message>
-        <source>Displayed: %1 (100.0%)</source>
-        <translation type="vanished">Visade: %1 (100,0 %)</translation>
     </message>
 </context>
 <context>
@@ -17218,6 +17201,10 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
     </message>
     <message>
         <source>palette.mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fixed code editor default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17416,10 +17403,6 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished">Utvecklingsbygge</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17448,7 +17431,7 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17587,6 +17570,58 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17675,8 +17710,12 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>och extrapolera tiden för alla andra paket</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[ÅÅÅÅ-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[ÅÅÅÅ-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20301,6 +20340,14 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <translation>Gå till paketet refererat av det valda fältet.</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation>TLS-nyckelloggstartare</translation>
     </message>
@@ -20673,6 +20720,18 @@ Inställningar → Protokoll → TCP för att använda tabellen.</translation>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Avsluta &amp;utan att spara</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>

@@ -64,22 +64,6 @@
         <translation>Lisans</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">Dizin mevcut değil</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">%1 dizini oluşturulmalı mı?</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">Dizin oluşturulamadı</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">%1 dizini oluşturulamadı.</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Finder&apos;da Göster</translation>
     </message>
@@ -3331,6 +3315,10 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>İletişim Kuralı</translation>
     </message>
     <message>
+        <source>Group</source>
+        <translation type="unfinished">Grup</translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>Açıklama</translation>
     </message>
@@ -3782,6 +3770,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Display filter:</source>
         <translation>Ekran filtresi:</translation>
+    </message>
+    <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -5899,12 +5891,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Onluk</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Onaltılık bayt gibi görünse bile, bir hex+ASCII satırının sonunda ASCII gösteriminin başlangıcını tespit etmek için ek işlem yapılıp yapılmayacağı.&lt;/p&gt;&lt;p&gt;Onaltılık döküm ASCII içermiyorsa etkinleştirmeyin.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>ASCII tanımlaması:</translation>
+        <translation type="vanished">ASCII tanımlaması:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -5959,6 +5955,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>Dosyanın, paketin yönünü (gelen veya giden) gösteren bilgileri içerip içermediği.</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>Yön göstergesi:</translation>
     </message>
@@ -6000,10 +6004,6 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to treat multiple byte groups as being in little-endian byte order, instead of the default, network (big-endian) order.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Little-endian:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8221,30 +8221,6 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Settings</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Auto (follow color scheme)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Dark</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Light</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Color theme for the code editor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Code View Theme:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Type: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8337,11 +8313,19 @@ on an existing breakpoint, toggle its active state</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10468,6 +10452,26 @@ on an existing breakpoint, toggle its active state</source>
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation type="unfinished">Gelişmiş</translation>
     </message>
@@ -12059,19 +12063,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">Dizin mevcut değil</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">%1 dizini oluşturulmalı mı?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">Dizin oluşturulamadı</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">%1 dizini oluşturulamadı.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14848,19 +14852,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">İstatistikleri Farklı Kaydet…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Düz metin dosyası (*.txt);;Virgülle ayrılmış değerler (*.csv);;XML belgesi (*.xml);;YAML belgesi (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Düz metin dosyası (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">%1 dosyası kaydedilirken hata oluştu</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14883,6 +14887,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Display filter:</source>
         <translation>Görüntüleme filtresi:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -15854,22 +15862,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <source>Expand All</source>
         <translation>Hepsini Genişlet</translation>
     </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">İstatistikleri Farklı Kaydet…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Düz metin dosyası (*.txt);;Virgülle ayrılmış değerler (*.csv);;XML belgesi (*.xml);;YAML belgesi (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Düz metin dosyası (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">%1 dosyası kaydedilirken hata oluştu</translation>
-    </message>
 </context>
 <context>
     <name>TcpDedupDialog</name>
@@ -16452,7 +16444,11 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16686,6 +16682,13 @@ Preferences → Protocols → TCP to use this table.</source>
     <name>ThemeImportErrorDialog</name>
     <message>
         <source>Nothing was copied to your personal themes. Imported files are limited in size and may only contain meta data, colors and fonts.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -16971,6 +16974,10 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>fixed code editor default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>palette.mid, kept readable on palette.base</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17166,10 +17173,6 @@ Preferences → Protocols → TCP to use this table.</source>
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17198,7 +17201,7 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17337,6 +17340,58 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17425,8 +17480,12 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>ve diğer tüm paketler için zamanı tahmin edin</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[DD-MM-YYYY] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[DD-MM-YYYY] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20050,6 +20109,14 @@ Preferences → Protocols → TCP to use this table.</source>
         <translation>Seçili alan tarafından başvurulan pakete gidin.</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation type="unfinished"></translation>
     </message>
@@ -20421,6 +20488,18 @@ Preferences → Protocols → TCP to use this table.</source>
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Kaydetmeden &amp;çık</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>

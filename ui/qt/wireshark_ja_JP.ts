@@ -64,22 +64,6 @@
         <translation>ライセンス</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">ディレクトリがありません</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">ディレクトリ %1 を作成されますか？</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">ディレクトリを作成できませんでした</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">ディレクトリ %1 を作成できませんでした</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>ファインダーで表示</translation>
     </message>
@@ -3134,26 +3118,6 @@ Relative to reference: n/a (outside reference range)</source>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">フィールド値の分布</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">フィールド値</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">出現位置</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">パーセント</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">分布</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">ダイアログ</translation>
     </message>
@@ -3274,7 +3238,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">パーセント</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -3357,6 +3321,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Protocol</source>
         <translation>プロトコル</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="unfinished">グループ</translation>
     </message>
     <message>
         <source>Description</source>
@@ -3810,6 +3778,10 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Display filter:</source>
         <translation>表示フィルタ:</translation>
+    </message>
+    <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -4688,10 +4660,6 @@ Relative to reference: n/a (outside reference range)</source>
     <message>
         <source>Author: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Theme by %1</source>
-        <translation type="vanished">%1 によるテーマ</translation>
     </message>
 </context>
 <context>
@@ -5964,12 +5932,16 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>10進数</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;たとえ16進数バイト列のように見えても16進数+ASCII行の末尾にてASCII表現の開始を検出する追加処理をするかどうか。&lt;/p&gt;&lt;p&gt;16進数ダンプにASCIIを含まない場合には有効にしません。&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>ASCII 識別:</translation>
+        <translation type="vanished">ASCII 識別:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6024,6 +5996,14 @@ Relative to reference: n/a (outside reference range)</source>
         <translation>ファイルにパケットの向き（入力や出力）を示す情報が含まれていてもいなくても</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>方向指示:</translation>
     </message>
@@ -6069,7 +6049,7 @@ Relative to reference: n/a (outside reference range)</source>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation>リトルエンディアン:</translation>
+        <translation type="vanished">リトルエンディアン:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8291,27 +8271,27 @@ Shift+クリック: 空行では無効なブレークポイントを追加
     </message>
     <message>
         <source>Settings</source>
-        <translation>設定</translation>
+        <translation type="vanished">設定</translation>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation>自動 (配色に従う)</translation>
+        <translation type="vanished">自動 (配色に従う)</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation>ダーク</translation>
+        <translation type="vanished">ダーク</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation>ライト</translation>
+        <translation type="vanished">ライト</translation>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation>コードエディタのカラーテーマ</translation>
+        <translation type="vanished">コードエディタのカラーテーマ</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation>コード表示テーマ:</translation>
+        <translation type="vanished">コード表示テーマ:</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
@@ -8424,12 +8404,20 @@ Shift+クリック: 空行では無効なブレークポイントを追加
         <translation>  &#xa0; &#xa0; &#xa0; &#xa0; &#xa0; &lt;translation&gt;ライブキャプチャの実行中はデバッガが無効になります。再度有効化するにはキャプチャを停止してください</translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation>デバッガが無効です。チェックして有効にします</translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
         <translation>無効 (ライブキャプチャ)</translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -10588,6 +10576,26 @@ Shift+クリック: 空行では無効なブレークポイントを追加
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation type="unfinished">高度</translation>
     </message>
@@ -12184,19 +12192,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">ディレクトリがありません</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">ディレクトリ %1 を作成されますか？</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">ディレクトリを作成できませんでした</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">ディレクトリ %1 を作成できませんでした</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14973,19 +14981,19 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">…として統計を保存</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">プレインテキストファイル(*.txt);;カンマ区切りテキスト(*.csv);;XMLドキュメント(*.xml);;YAMLドキュメント (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">プレインテキストファイル(*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">ファイル保存エラー %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15008,6 +15016,10 @@ This will restart all Lua scripts and may affect capture analysis.</source>
     <message>
         <source>Display filter:</source>
         <translation>表示フィルタ:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -16019,22 +16031,6 @@ This will restart all Lua scripts and may affect capture analysis.</source>
         <source>Expand All</source>
         <translation>すべて展開</translation>
     </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">…として統計を保存</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">プレインテキストファイル(*.txt);;カンマ区切りテキスト(*.csv);;XMLドキュメント(*.xml);;YAMLドキュメント (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">プレインテキストファイル(*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">ファイル保存エラー %1</translation>
-    </message>
 </context>
 <context>
     <name>TcpDedupDialog</name>
@@ -16620,7 +16616,11 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16858,6 +16858,13 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
 </context>
 <context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished">...として画像を保存</translation>
+    </message>
+</context>
+<context>
     <name>ThemeManager</name>
     <message>
         <source>Theme &quot;%1&quot; not found.</source>
@@ -16950,7 +16957,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished">テーマプレビューを保存</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -16958,7 +16965,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished">イメージを &quot;%1&quot; に書き込めませんでした</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17000,18 +17007,6 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>...として画像を保存</translation>
     </message>
     <message>
-        <source>Save Theme Preview</source>
-        <translation type="vanished">テーマプレビューを保存</translation>
-    </message>
-    <message>
-        <source>PNG Image (*.png)</source>
-        <translation type="vanished">PNG画像 (*.png)</translation>
-    </message>
-    <message>
-        <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="vanished">イメージを &quot;%1&quot; に書き込めませんでした</translation>
-    </message>
-    <message>
         <source>Info</source>
         <translation>情報</translation>
     </message>
@@ -17026,10 +17021,6 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     <message>
         <source>Packets: %1</source>
         <translation>パケット: %1</translation>
-    </message>
-    <message>
-        <source>Displayed: %1 (100.0%)</source>
-        <translation type="vanished">表示: %1 (100.0%)</translation>
     </message>
 </context>
 <context>
@@ -17152,6 +17143,10 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
     </message>
     <message>
         <source>palette.mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fixed code editor default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17350,10 +17345,6 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished">開発ビルド</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished">リリースノート</translation>
     </message>
@@ -17382,7 +17373,7 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17521,6 +17512,58 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17609,8 +17652,12 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>そして、他のすべてのパケットの時間を推定します</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20234,6 +20281,14 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <translation>選択されたフィールドによって参照されたパケットへ移動します</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation>TLSキーログランチャー</translation>
     </message>
@@ -20606,6 +20661,18 @@ Alt+Shift を押しながら任意のウィジェットをクリックすると�
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>保存せずに終了(&amp;w)</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>

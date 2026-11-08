@@ -1694,11 +1694,23 @@ BACnetVendorIdentifiers[] = {
     { 1681, "Prosys OPC Ltd" },
     { 1682, "ATS Inland NW" },
     { 1683, "Ingenieria en Disenos Electronicos y Automatizacion" },
+    { 1684, "Certus Controls" },
     { 1685, "Jones AV Ltd." },
     { 1686, "Procon Electronics" },
     { 1687, "Zentec LLC" },
     { 1688, "Eko-Automatyka Sp. z.o.o." },
     { 1689, "MachDatum Private Limited" },
+    { 1690, "EnerGateway Limited" },
+    { 1691, "Syncon Intelligent Control Technology (Shanghai) Co., Ltd." },
+    { 1692, "Pilot Elektronik Muhendislik Sanayi ve Ticaret Ltd. Sti." },
+    { 1693, "Wironix Bina Teknolojileri San Ve Tic Ltd Sti" },
+    { 1694, "Xiamen Hysen Control Technology Co., Ltd." },
+    { 1695, "Ubisys Technologies GmbH" },
+    { 1696, "PN Controls Teknoloji A.S." },
+    { 1697, "WIZnet Co., Ltd." },
+    { 1698, "Lightnet sp. z o.o." },
+    { 1699, "Weesion s.r.o." },
+    { 1700, "Tinental S.r.l." },
     { 0, NULL }
 };
 value_string_ext BACnetVendorIdentifiers_ext = VALUE_STRING_EXT_INIT(BACnetVendorIdentifiers);

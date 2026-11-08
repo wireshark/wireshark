@@ -64,22 +64,6 @@
         <translation>Llicència</translation>
     </message>
     <message>
-        <source>The directory does not exist</source>
-        <translation type="vanished">Aquesta carpeta no existeix.</translation>
-    </message>
-    <message>
-        <source>Should the directory %1 be created?</source>
-        <translation type="vanished">Voleu crear la carpeta %1?</translation>
-    </message>
-    <message>
-        <source>The directory could not be created</source>
-        <translation type="vanished">La carpeta no s&apos;ha pogut crear.</translation>
-    </message>
-    <message>
-        <source>The directory %1 could not be created.</source>
-        <translation type="vanished">La carpeta %1 no s&apos;ha pogut crear.</translation>
-    </message>
-    <message>
         <source>Show in Finder</source>
         <translation>Mostra al cercador</translation>
     </message>
@@ -3149,26 +3133,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
 <context>
     <name>DistributionDialog</name>
     <message>
-        <source>Field Values Distribution</source>
-        <translation type="vanished">Distribució dels valors del camp</translation>
-    </message>
-    <message>
-        <source>Field Value</source>
-        <translation type="vanished">Valor del camp</translation>
-    </message>
-    <message>
-        <source>Occurrences</source>
-        <translation type="vanished">Freqüència</translation>
-    </message>
-    <message>
-        <source>Percent</source>
-        <translation type="vanished">Percentatge</translation>
-    </message>
-    <message>
-        <source>Distribution:</source>
-        <translation type="vanished">Distribució:</translation>
-    </message>
-    <message>
         <source>Dialog</source>
         <translation type="unfinished">Diàleg</translation>
     </message>
@@ -3289,7 +3253,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Percent</source>
-        <translation type="unfinished">Percentatge</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Value</source>
@@ -3372,6 +3336,10 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Protocol</source>
         <translation>Protocol</translation>
+    </message>
+    <message>
+        <source>Group</source>
+        <translation type="unfinished">Grup</translation>
     </message>
     <message>
         <source>Description</source>
@@ -3825,6 +3793,10 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Display filter:</source>
         <translation>Filtre de visualització:</translation>
+    </message>
+    <message>
+        <source>Level:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Export PDUs</source>
@@ -4711,10 +4683,6 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     <message>
         <source>Author: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Theme by %1</source>
-        <translation type="vanished">Tema de %1</translation>
     </message>
 </context>
 <context>
@@ -5987,12 +5955,16 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>Decimal</translation>
     </message>
     <message>
+        <source>Direction indication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Whether to do extra processing detecting the start of the ASCII representation at the end of a hex+ASCII line even if it looks like hex bytes.&lt;/p&gt;&lt;p&gt;Do not enable if the hex dump does not contain ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Indica si cal fer un processat extra per a detectar l&apos;inici de la representació ASCII al final d&apos;una línia hex+ASCII encara que semblin bytes en hexadecimal.&lt;/p&gt;&lt;p&gt;No ho activeu si el bolcat hexadecimal no conté ASCII.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>ASCII identification:</source>
-        <translation>Identificació ASCII:</translation>
+        <translation type="vanished">Identificació ASCII:</translation>
     </message>
     <message>
         <source>Regular Expression</source>
@@ -6047,6 +6019,14 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
         <translation>Indica si el fitxer conté informació indicant la direcció (entrant o sortint) del paquet.</translation>
     </message>
     <message>
+        <source>ASCII identification</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Little-endian</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Direction indication:</source>
         <translation>Indicació de direcció:</translation>
     </message>
@@ -6092,7 +6072,7 @@ Relatiu a la referència: n/a (fora del rang de referència)</translation>
     </message>
     <message>
         <source>Little-endian:</source>
-        <translation>Little-endian:</translation>
+        <translation type="vanished">Little-endian:</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifying data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;The only required group is data, but time, dir and seqno are also supported.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -8320,27 +8300,27 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
     </message>
     <message>
         <source>Settings</source>
-        <translation>Configuració</translation>
+        <translation type="vanished">Configuració</translation>
     </message>
     <message>
         <source>Auto (follow color scheme)</source>
-        <translation>Automàtic (segueix l&apos;esquema de color)</translation>
+        <translation type="vanished">Automàtic (segueix l&apos;esquema de color)</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation>Fosc</translation>
+        <translation type="vanished">Fosc</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation>Clar</translation>
+        <translation type="vanished">Clar</translation>
     </message>
     <message>
         <source>Color theme for the code editor</source>
-        <translation>Tema de color per a l&apos;editor de codi</translation>
+        <translation type="vanished">Tema de color per a l&apos;editor de codi</translation>
     </message>
     <message>
         <source>Code View Theme:</source>
-        <translation>Tema de la vista de codi:</translation>
+        <translation type="vanished">Tema de la vista de codi:</translation>
     </message>
     <message numerus="yes">
         <source>Are you sure you want to remove %Ln breakpoint(s)?</source>
@@ -8456,12 +8436,20 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
         <translation>El depurador està desactivat mentre s&apos;executa una captura en directe. Pareu la captura per a reactivar-lo.</translation>
     </message>
     <message>
+        <source>Debugger is disabled while the Preferences dialog is open. Close it to re-enable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Debugger is disabled. Check to enable.</source>
         <translation>El depurador està desactivat. Seleccioneu-ho per a activar.</translation>
     </message>
     <message>
         <source>Disabled (live capture)</source>
         <translation>Desactivat (captura en viu)</translation>
+    </message>
+    <message>
+        <source>Disabled (preferences)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Disabled</source>
@@ -10629,6 +10617,26 @@ en un punt d&apos;interrupció existent, commuta el seu estat entre actiu i desa
 <context>
     <name>PreferencesDialog</name>
     <message>
+        <source>Preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the list of preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show preference pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current preference page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Advanced</source>
         <translation type="unfinished">Avançat</translation>
     </message>
@@ -12236,19 +12244,19 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished">Aquesta carpeta no existeix.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished">Voleu crear la carpeta %1?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished">La carpeta no s&apos;ha pogut crear.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished">La carpeta %1 no s&apos;ha pogut crear.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15035,19 +15043,19 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <name>StatTableExporter</name>
     <message>
         <source>Save Statistics As…</source>
-        <translation type="unfinished">Desa les estadístiques com a…</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="unfinished">Fitxer de text net (*.txt);;Valors separats per comes (*.csv);;Document XML (*.xml);;Document YAML (*.yaml)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt)</source>
-        <translation type="unfinished">Fitxer de text net (*.txt)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Error saving file %1</source>
-        <translation type="unfinished">S&apos;ha produït un error mentre es desava el fitxer %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -15070,6 +15078,10 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
     <message>
         <source>Display filter:</source>
         <translation>Filtre de visualització:</translation>
+    </message>
+    <message>
+        <source>Encapsulation:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Strip Headers</source>
@@ -16080,22 +16092,6 @@ Es reiniciaran tots els scripts Lua i pot afectar a l&apos;anàlisi de la captur
         <source>Expand All</source>
         <translation>Expandeix-ho tot</translation>
     </message>
-    <message>
-        <source>Save Statistics As…</source>
-        <translation type="vanished">Desa les estadístiques com a…</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
-        <translation type="vanished">Fitxer de text net (*.txt);;Valors separats per comes (*.csv);;Document XML (*.xml);;Document YAML (*.yaml)</translation>
-    </message>
-    <message>
-        <source>Plain text file (*.txt)</source>
-        <translation type="vanished">Fitxer de text net (*.txt)</translation>
-    </message>
-    <message>
-        <source>Error saving file %1</source>
-        <translation type="vanished">S&apos;ha produït un error mentre es desava el fitxer %1</translation>
-    </message>
 </context>
 <context>
     <name>TcpDedupDialog</name>
@@ -16679,7 +16675,11 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The preview shows the theme&apos;s font.</source>
+        <source>Your monospace font preference on the Fonts page (%1) overrides the theme&apos;s monospace font, so this setting only applies where that preference is not set. The Packet List sample shows the theme&apos;s font, the Lua Code sample your preference.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Code</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -16917,6 +16917,13 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
 </context>
 <context>
+    <name>ThemeLuaCodePreview</name>
+    <message>
+        <source>Save Image As…</source>
+        <translation type="unfinished">Desa la imatge com a…</translation>
+    </message>
+</context>
+<context>
     <name>ThemeManager</name>
     <message>
         <source>Theme &quot;%1&quot; not found.</source>
@@ -17009,7 +17016,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Save Theme Preview</source>
-        <translation type="unfinished">Desa la vista prèvia del tema</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -17017,7 +17024,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="unfinished">No s&apos;ha pogut escriure la imatge a «%1».</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -17059,18 +17066,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>Desa la imatge com a…</translation>
     </message>
     <message>
-        <source>Save Theme Preview</source>
-        <translation type="vanished">Desa la vista prèvia del tema</translation>
-    </message>
-    <message>
-        <source>PNG Image (*.png)</source>
-        <translation type="vanished">Imatge PNG (*.png)</translation>
-    </message>
-    <message>
-        <source>Could not write the image to &quot;%1&quot;.</source>
-        <translation type="vanished">No s&apos;ha pogut escriure la imatge a «%1».</translation>
-    </message>
-    <message>
         <source>Info</source>
         <translation>Info</translation>
     </message>
@@ -17085,10 +17080,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     <message>
         <source>Packets: %1</source>
         <translation>Paquets: %1</translation>
-    </message>
-    <message>
-        <source>Displayed: %1 (100.0%)</source>
-        <translation type="vanished">Mostrats: %1 (100.0 %)</translation>
     </message>
 </context>
 <context>
@@ -17211,6 +17202,10 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
     </message>
     <message>
         <source>palette.mid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>fixed code editor default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17409,10 +17404,6 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
 <context>
     <name>ThemeWelcomePreview</name>
     <message>
-        <source>Development Build</source>
-        <translation type="unfinished">Versió de desenvolupament</translation>
-    </message>
-    <message>
         <source>Release Notes</source>
         <translation type="unfinished">Notes de la versió</translation>
     </message>
@@ -17441,7 +17432,7 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;4.8.0&lt;/span&gt;&lt;/b&gt;</source>
+        <source>Update available: %1 &lt;b&gt;&lt;span style=&quot;color:%2&quot;&gt;%3&lt;/span&gt;&lt;/b&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -17580,6 +17571,58 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Lua Debugger editor: background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: plain text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selection background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line number gutter and current line background.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: line the debugger is paused on; may be translucent.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: string literals.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: keywords (drawn bold).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: numbers.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: built-in names such as self.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: names of called functions.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lua Debugger editor: comments.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Follow Stream client background.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -17668,8 +17711,12 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>i extrapola el temps de tots els altres paquets</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[YYYY-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:small; font-style:italic;&quot;&gt;[AAAA-MM-DD] hh:mm:ss[.ddd] &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Undo all shifts</source>
@@ -20294,6 +20341,14 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <translation>Vés al paquet referenciat pel camp seleccionat.</translation>
     </message>
     <message>
+        <source>Appearance Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch between the System, Light and Dark appearance modes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Keylog Launcher</source>
         <translation>Interfície d&apos;inici del TLS keylog</translation>
     </message>
@@ -20666,6 +20721,18 @@ Preferències → Protocols → TCP per a fer servir aquesta taula.</translation
         <source>Quit &amp;without Saving</source>
         <oldsource>Quit without Saving</oldsource>
         <translation>Surt &amp;sense desar</translation>
+    </message>
+    <message>
+        <source>Appearance mode: Light. Click to switch to Dark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: Dark. Click to switch to System.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Appearance mode: System. Click to switch to Light.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>USB CDC Data</source>
