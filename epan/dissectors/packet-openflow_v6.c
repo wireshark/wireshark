@@ -1308,7 +1308,7 @@ dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* oxm_field */
     switch (oxm_class) {
     case OFPXMC_OPENFLOW_BASIC:
-        proto_tree_add_item_ret_uint(tree, hf_openflow_v6_oxm_field_basic, tvb, (offset * 8), 7, ENC_NA, &oxm_field);
+        proto_tree_add_item_ret_uint(tree, hf_openflow_v6_oxm_field_basic, tvb, offset, 1, ENC_BIG_ENDIAN, &oxm_field);
         break;
     case OFPXMC_PACKET_REGS:
         proto_tree_add_item_ret_uint(tree, hf_openflow_v6_oxm_register, tvb, offset, 1, ENC_BIG_ENDIAN, &oxm_field);
@@ -1354,7 +1354,7 @@ dissect_openflow_oxm_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     offset = dissect_openflow_oxm_header_v6(tvb, pinfo, oxm_tree, offset, length, &header);
 
-    oxm_end = offset + 4 + header.oxm_length;
+    oxm_end = offset + header.oxm_length;
     field_length = (header.oxm_hm == 0) ? header.oxm_length : (header.oxm_length / 2);
 
     if (header.oxm_class == OFPXMC_OPENFLOW_BASIC) {
