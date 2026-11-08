@@ -453,7 +453,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     uint16_t critical, type;
     uint32_t body_length, body_counter, aead = 0;
     uint32_t counter_next_proto_recs = 0, counter_aead = 0, counter_cookies = 0;
-    uint32_t *next_proto_list_item;
+    bool ntpv4_offered = false;
     proto_item *ti, *ti_record, *rt;
     proto_tree *nts_ke_tree, *record_tree;
     bool critical_bool, end_record = false;
@@ -462,7 +462,6 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         DIRECTION_REQUEST,
         DIRECTION_RESPONSE
     } direction = DIRECTION_UNKNOWN;
-    wmem_list_t *next_protos = wmem_list_new(pinfo->pool);
     conversation_t *conv;
     nts_ke_req_resp_t *conv_data;
     nts_cookie_t *cookie;
@@ -559,18 +558,22 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             case RECORD_TYPE_NEXT:
 
-                while(body_counter < body_length) {
+                while(body_counter + 2 <= body_length) {
                     uint32_t next_proto;
                     proto_tree_add_item_ret_uint(record_tree, hf_nts_ke_next_proto, tvb, offset, 2, ENC_BIG_ENDIAN, &next_proto);
                     offset += 2;
                     body_counter += 2;
 
                     /* Store list of offered/accepted next protocols */
-                    next_proto_list_item = wmem_new0(pinfo->pool, uint32_t);
-                    wmem_list_append(next_protos, next_proto_list_item);
-                    *next_proto_list_item = next_proto;
+                    if(next_proto == 0)
+                        ntpv4_offered = true;
 
                     col_append_str(pinfo->cinfo, COL_INFO, rval_to_str_const(next_proto, nts_ke_next_proto_rvals, "Unknown Proto"));
+                }
+
+                if(body_length % 2) {
+                    expert_add_info(pinfo, record_tree, &ei_nts_ke_body_length_illegal);
+                    offset += 1;
                 }
 
                 /* Critical bit is mandatory for this type */
@@ -617,12 +620,17 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             case RECORD_TYPE_AEAD:
 
-                while(body_counter < body_length) {
+                while(body_counter + 2 <= body_length) {
 
                     proto_tree_add_item_ret_uint(record_tree, hf_nts_ke_aead_algo, tvb, offset, 2, ENC_BIG_ENDIAN, &aead);
                     offset += 2;
                     body_counter += 2;
                     counter_aead++;
+                }
+
+                if(body_length % 2) {
+                    expert_add_info(pinfo, record_tree, &ei_nts_ke_body_length_illegal);
+                    offset += 1;
                 }
 
                 break;
@@ -637,7 +645,7 @@ dissect_nts_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 if (
                     nts_ke_extract_keys &&
                     aead > 0 &&
-                    wmem_list_find_custom(next_protos, GUINT_TO_POINTER(0x00), nts_find_list_callback)
+                    ntpv4_offered
                 ) {
                     cookie = nts_new_cookie(tvb_new_subset_length(tvb, offset, body_length), (uint16_t)aead, pinfo);
                 }
