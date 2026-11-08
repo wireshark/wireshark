@@ -513,7 +513,7 @@ dissect_ovs_flow_tunnel_key_attrs(tvbuff_t *tvb, void *data _U_,
 	int nla_type, int offset, int len)
 {
 	enum ws_ovs_tunnel_key_attr type =
-		(enum ws_ovs_tunnel_key_attr) nla_type;
+		(enum ws_ovs_tunnel_key_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_TUNNEL_KEY_ATTR_ID:
@@ -576,7 +576,7 @@ dissect_ovs_flow_key_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_key_attr type = (enum ws_ovs_key_attr) nla_type;
+	enum ws_ovs_key_attr type = (enum ws_ovs_key_attr) (nla_type & NLA_TYPE_MASK);
 	proto_item *pi;
 	proto_tree *ptree;
 
@@ -897,7 +897,7 @@ dissect_ovs_flow_nat_attrs(tvbuff_t *tvb, void *data _U_,
 	struct packet_netlink_data *nl_data _U_, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_nat_attr type = (enum ws_ovs_nat_attr) nla_type;
+	enum ws_ovs_nat_attr type = (enum ws_ovs_nat_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_NAT_ATTR_SRC:
@@ -933,7 +933,7 @@ dissect_ovs_flow_ct_action_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_ct_attr type = (enum ws_ovs_ct_attr) nla_type;
+	enum ws_ovs_ct_attr type = (enum ws_ovs_ct_attr) (nla_type & NLA_TYPE_MASK);
 	const uint8_t *str;
 
 	switch (type) {
@@ -997,7 +997,7 @@ dissect_ovs_flow_userspace_attrs(tvbuff_t *tvb, void *data _U_,
 	int nla_type, int offset, int len)
 {
 	enum ws_ovs_userspace_attr type =
-		(enum ws_ovs_userspace_attr) nla_type;
+		(enum ws_ovs_userspace_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_USERSPACE_ATTR_PID:
@@ -1026,7 +1026,7 @@ dissect_ovs_flow_sample_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_sample_attr type = (enum ws_ovs_sample_attr) nla_type;
+	enum ws_ovs_sample_attr type = (enum ws_ovs_sample_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_SAMPLE_ATTR_PROBABILITY:
@@ -1048,7 +1048,7 @@ dissect_ovs_flow_action_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_action_attr type = (enum ws_ovs_action_attr) nla_type;
+	enum ws_ovs_action_attr type = (enum ws_ovs_action_attr) (nla_type & NLA_TYPE_MASK);
 	uint32_t value;
 	proto_item *pi;
 	proto_tree *ptree;
@@ -1201,7 +1201,7 @@ dissect_ovs_flow_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_flow_attr type = (enum ws_ovs_flow_attr) nla_type;
+	enum ws_ovs_flow_attr type = (enum ws_ovs_flow_attr) (nla_type & NLA_TYPE_MASK);
 	proto_item *pi;
 	proto_tree *ptree;
 
