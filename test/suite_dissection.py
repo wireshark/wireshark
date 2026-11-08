@@ -105743,3 +105743,90 @@ class TestDissectNetlinkOvsPacket:
         assert self.fields(cmd_tshark, capture_file, test_env, 9,
                 'ovs_flow.key.ethertype', 'ovs_flow.action.output') == [
             '0x8100,0x0800\t2,2']
+
+
+class TestDissectNetlinkOvsVport:
+    '''Open vSwitch vport generic netlink family (ovs_vport) from the
+    synthetic capture ovs_vport_coverage.pcap.gz (LINKTYPE_NETLINK).
+    Frame 1 maps the family id 0x26 to its name.'''
+
+    CAP = 'ovs_vport_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, frame, *fields):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectNetlinkOvsVport.CAP),
+                '-Y', 'frame.number == %d' % frame,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_ovs_vport_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2-19 are dissected as ovs_vport without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert protocols == ['Netlink generic'] + ['ovs_vport'] * 18
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_ovs_vport_tunnel_options(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2: VXLAN port with the destination port and the GBP
+        extension (options -> extension nesting); frame 13: GENEVE port;
+        frame 14: wrong sized options are not decoded.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 2,
+                'ovs_vport.type', 'ovs_vport.name', 'ovs_vport.upcall_pid',
+                'ovs_vport.tunnel.dst_port', 'ovs_vport.vxlan_ext.gbp') == [
+            '4\tvxlan_sys_4789\t2468\t4789\t1']
+        assert self.fields(cmd_tshark, capture_file, test_env, 13,
+                'ovs_vport.tunnel.dst_port') == ['6081']
+        assert self.fields(cmd_tshark, capture_file, test_env, 14,
+                'ovs_vport.tunnel.dst_port', 'ovs_vport.vxlan_ext.gbp') == ['\t']
+
+    def test_ovs_vport_reply(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3: port number, type, name, three upcall pids,
+        statistics, ifindex, netnsid and the upcall statistics.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 3,
+                'ovs_vport.port_no', 'ovs_vport.type', 'ovs_vport.name',
+                'ovs_vport.upcall_pid', 'ovs_vport.stats.rx_packets',
+                'ovs_vport.stats.tx_dropped', 'ovs_vport.ifindex',
+                'ovs_vport.netnsid', 'ovs_vport.upcall_stats.success',
+                'ovs_vport.upcall_stats.fail') == [
+            '2\t1\teth1\t11,12,13\t100\t4\t9\t4294967295\t5000\t3']
+
+    def test_ovs_vport_wrong_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Frame 15: statistics of 63 and 65 octets and upcall counters of
+        7 and 9 octets are not decoded. Frame 16: a partial upcall pid is
+        ignored.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 15,
+                'ovs_vport.stats.rx_packets',
+                'ovs_vport.upcall_stats.success',
+                'ovs_vport.upcall_stats.fail') == ['\t\t']
+        assert self.fields(cmd_tshark, capture_file, test_env, 16,
+                'ovs_vport.upcall_pid') == ['1']
+
+    def test_ovs_vport_masked_type(self, cmd_tshark, capture_file, test_env):
+        '''Frame 17: attributes with NLA_F_NESTED / NLA_F_NET_BYTEORDER
+        are decoded by their masked type (raw data before
+        "netlink-ovs_vport: Mask the attribute type").'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 17,
+                'ovs_vport.port_no', 'ovs_vport.ifindex',
+                'ovs_vport.name') == ['5\t6\tmasked']
+
+    def test_ovs_vport_unknown_type(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8: an unknown vport type decodes with "Unknown (99)" in
+        the tree text.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 8 && ovs_vport.type == 99',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['8']
