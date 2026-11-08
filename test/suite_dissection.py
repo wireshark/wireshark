@@ -111238,3 +111238,75 @@ class TestDissectOicq:
         lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'udp && !oicq',
                 '-Tfields', '-eframe.number', '-eudp.dstport')
         assert lines == ['39\t8000', '40\t8000', '41\t8000']
+
+
+class TestDissectOipf:
+    CAP = 'oipf_coverage.pcap.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(TestDissectOipf.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_oipf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''23 DVB-CI frames: the SAS session setup, then 15 async messages
+        that the OIPF CI+ dissector decodes (two are too short and shown as
+        data). No malformed packets, no warnings or errors, the same in one
+        and two passes.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['DVB-CI'] * 23
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'oipf.ciplus.cmd_id',
+                '-Tfields', '-eframe.number')
+        assert lines == [str(n) for n in range(9, 22)]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture_file(self.CAP), '-V'),
+                    encoding='utf-8', env=test_env)
+            assert 'Malformed Packet' not in stdout
+            assert '[Severity level: Error]' not in stdout
+            assert '[Severity level: Warning]' not in stdout
+        one = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, '-2', '-Tfields', '-e_ws.col.info')
+        assert one == two
+        assert one[7] == 'SAS connect confirm: 0x0108113101190000, Ok'
+
+    def test_oipf_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command ids 1-5, an unknown id and 0xff, with the CA system id
+        and the transaction id.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 9 && frame.number <= 15',
+                '-Tfields', '-eoipf.ciplus.cmd_id', '-eoipf.ciplus.ca_system_id',
+                '-eoipf.ciplus.transaction_id', '-eoipf.ciplus.num_items', '-eoipf.ciplus.datatype_id')
+        assert lines == [
+            '0x01\t0x0b01\t0x00001001\t1\t0x02',
+            '0x02\t0x0b02\t0x00001002\t1\t0x03',
+            '0x03\t0x0b03\t0x00001003\t1\t0x04',
+            '0x04\t0x0b04\t0x00001004\t1\t0x05',
+            '0x05\t0x0b05\t0x00001005\t1\t0x06',
+            '0x06\t0x0b06\t0x00001006\t1\t0x07',
+            '0xff\t0x0bff\t0x000010ff\t1\t0x08',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {9, 15}', '-V'),
+                encoding='utf-8', env=test_env)
+        assert 'Command ID: send_msg (0x01)' in stdout
+        assert 'Command ID: Unknown (0xff)' in stdout
+        assert 'Datatype ID: oipf_country_code (0x02)' in stdout
+        assert 'Datatype ID: oipf_status (0x08)' in stdout
+
+    def test_oipf_data_items(self, cmd_tshark, capture_file, test_env):
+        '''Eight data items of every datatype, unknown ids, empty items, a
+        300 octet item, no items and trailing data.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {16, 17, 18, 19, 21}',
+                '-Tfields', '-eframe.number', '-eoipf.ciplus.num_items', '-eoipf.ciplus.datatype_id',
+                '-eoipf.ciplus.datatype_len')
+        assert lines == [
+            '16\t8\t0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x08\t3,3,25,1,1,25,1,1',
+            '17\t3\t0x09,0xff,0x00\t10,1,0',
+            '18\t0\t\t',
+            '19\t2\t0x01,0x02\t0,0',
+            '21\t1\t0x02\t3',
+        ]
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {16, 20}',
+                '-Tfields', '-eoipf.ciplus.data')
+        assert lines[0].split(',')[1] == '444555'
+        assert len(lines[1]) == 600
