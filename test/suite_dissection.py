@@ -104542,3 +104542,143 @@ class TestDissectNetgearEnsemble:
             '14\t2147483647\tap-kitchen',
             '15\t4294967294\tap-kitchen',
         ]
+
+
+class TestDissectNetlink:
+    '''Linux netlink (LINKTYPE_NETLINK) from the synthetic capture
+    netlink_coverage.pcap.gz: control messages, rtnetlink messages with
+    attributes, generic netlink (nlctrl, NET_DM) and attribute nesting.'''
+
+    def test_netlink_protocols(self, cmd_tshark, capture_file, test_env):
+        '''49 frames; none is malformed or has an error expert info, in one
+        and two passes. Frame 49 nests attributes 16383 levels deep and
+        crashed tshark before "Netlink: Bound message length and attribute
+        nesting"; hence the timeout.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 49
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'Netlink route': 25, 'Netlink': 14, 'net_dm': 7,
+                          'Netlink generic': 2, 'Packet': 1}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('netlink_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+
+    def test_netlink_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Attribute nesting stops at 32 levels with an expert info: not
+        for 1 and 31 levels (frames 43, 44), for 32 and more (45-49).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'netlink.nesting_too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert stdout.split() == ['45', '46', '47', '48', '49']
+
+    def test_netlink_control_messages(self, cmd_tshark, capture_file, test_env):
+        '''NOOP, ERROR (with the failed header), DONE and OVERRUN; messages
+        no subdissector claims are shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 8',
+                '-Tfields', '-eframe.number', '-enetlink.family',
+                '-enetlink.hdr_type', '-enetlink.hdr_len', '-enetlink.error',
+                '-edata.len',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t0x0000\t0x0001\t16\t\t',
+            '2\t0x0000\t0x0002,0x0012\t36,16\t-1\t',
+            '3\t0x0000\t0x0002,0x0010\t36,16\t0\t',
+            '4\t0x0000\t0x0003\t20\t\t4',
+            '5\t0x0000\t0x0004\t16\t\t',
+            '6\t0x0002\t0x0020\t34\t\t18',
+            '7\t0x0002\t0x0020\t16\t\t',
+            '8\t0x00ff\t0x1234\t20\t\t4',
+        ]
+
+    def test_netlink_flags(self, cmd_tshark, capture_file, test_env):
+        '''GET flags (root, match) or NEW flags (create, excl, replace,
+        append) are shown for requests with bits in 0x0f00; other messages
+        get the standard flags only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9, 10, 11, 12, 13}',
+                '-Tfields', '-eframe.number', '-enetlink.hdr_flags',
+                '-enetlink.hdr_flags.root', '-enetlink.hdr_flags.create',
+                '-enetlink.hdr_flags.multi',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '9\t0x0301,0x0301\t1\t0\t0,0',
+            '10\t0x0f05,0x0f05\t1\t1\t0,0',
+            '11\t0x003a\t\t\t1',
+            '12\t0x0700\t\t\t0',
+            '13\t0x0401,0x0401\t0\t1\t0,0',
+        ]
+
+    def test_netlink_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attribute lists: padding, a length beyond the message (clamped),
+        a length below 4 (the list stops), the net byteorder flag, the
+        nested flag, a legacy GETLINK whose attributes start unaligned and
+        big endian messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 15, 16, 18, 19, 20, 22, 23, 28, 29}',
+                '-Tfields', '-eframe.number', '-enetlink.attr_type',
+                '-enetlink-route.ifla_ifname', '-enetlink-route.ifla_mtu',
+                '-enetlink.attr_type.net_byteorder', '-enetlink.attr_type.nested',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '14\t0x0003,0x0004,0x0001\teth0\t1500\tFalse,False,False\tFalse,False,False',
+            '15\t0x4004\t\t9000\tTrue\tFalse',
+            '16\t0x8055\t\t\tFalse\tTrue',
+            '18\t0x0003\tab\t\tFalse\tFalse',
+            '19\t0x0004\t\t1500\tFalse\tFalse',
+            '20\t0x0004\t\t1500\tFalse\tFalse',
+            '22\t0x0003\teth01\t\tFalse\tFalse',
+            '23\t0x0003\tlo\t\tFalse\tFalse',
+            '28\t0x0003,0x0004\teth0\t1500\tFalse,False\tFalse,False',
+            '29\t0x4004\t\t9000\tTrue\tFalse',
+        ]
+
+    def test_netlink_multiple_messages(self, cmd_tshark, capture_file, test_env):
+        '''Several messages in one frame; a following message with a length
+        below 16 ends the frame without an error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number in {31, 33, 34, 35, 36, 37}',
+                '-Tfields', '-eframe.number', '-enetlink.hdr_len',
+                '-enetlink.hdr_type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '31\t44,44,20\t0x0003',
+            '33\t21,34\t0x0020,0x0021',
+            '34\t16\t0x0001',
+            '35\t16,4\t0x0001',
+            '36\t16,0\t0x0001',
+            '37\t16,15\t0x0001',
+        ]
+
+    def test_netlink_generic_ctrl_arrays(self, cmd_tshark, capture_file, test_env):
+        '''The nlctrl NEWFAMILY of frame 41 has the operations and the
+        multicast groups as arrays of nested attributes; it maps the
+        family id 0x20 to NET_DM, which dissects frames 43-49.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number == 41',
+                '-Tfields', '-egenl.ctrl.family_name', '-egenl.ctrl.family_id',
+                '-egenl.ctrl.op_id', '-egenl.ctrl.group_name',
+                '-egenl.ctrl.group_id', '-enetlink.attr_index',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['NET_DM\t0x0020\t5,6\tconfig,scan\t0x00000007,0x00000008\t1,2,1,2']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netlink_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 43',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert set(stdout.split()) == {'net_dm'}
