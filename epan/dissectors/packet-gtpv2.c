@@ -9594,7 +9594,10 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 }
                 gtp_session_count++;
             }
-            else if (gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE) {
+            else if (gtpv2_hdr->message != GTPV2_CREATE_SESSION_RESPONSE && gtpv2_hdr->teid >= 0) {
+                /* A message without a TEID in its header (ex an Echo Request) is not of a session */
+                uint32_t teid = (uint32_t)gtpv2_hdr->teid;
+
                 /* We have to check if its teid == teid_cp and ip.dst == gsn_ipv4 from the lists, if that is the case then we have to assign
                 the corresponding session ID */
 
@@ -9603,7 +9606,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     conversation_t  *conversation;
                     conversation = find_conversation_strat(pinfo, CONVERSATION_IP, NO_PORT_X, false);
 
-                    if ((get_gtp_session_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, &frame_teid_cp) == 1)) {
+                    if ((get_gtp_session_frame(pinfo->dst, teid, conversation ? conversation->conv_index : 0, &frame_teid_cp) == 1)) {
 
                         /* Then we have to set its session ID */
                         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
@@ -9620,7 +9623,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
                         /* If MBEAREQ and not already in the list then we create a new session*/
                         add_gtp_session(pinfo->num, gtp_session_count);
-                        map_header_teid(pinfo, (uint32_t)gtpv2_hdr->teid, conversation ? conversation->conv_index : 0, false);
+                        map_header_teid(pinfo, teid, conversation ? conversation->conv_index : 0, false);
 
                         if (args->imsi) {
                             imsi = wmem_strdup(wmem_file_scope(), args->imsi);
@@ -9630,7 +9633,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                             static char to_str_back_buf[32];
                             #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
 
-                            char* referenceid = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                            char* referenceid = uint_to_str_back(BACK_PTR, teid);
                             imsi = http2_get_imsi_from_location(referenceid);
                             if(imsi) {
                                 wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count), imsi);
@@ -9641,7 +9644,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                 }
 
                 else { // no deinterlacing supported/asked
-                    if ((get_frame(pinfo->dst, (uint32_t)gtpv2_hdr->teid, &frame_teid_cp) == 1)) {
+                    if ((get_frame(pinfo->dst, teid, &frame_teid_cp) == 1)) {
                         /* Then we have to set its session ID */
                         session = GPOINTER_TO_UINT(wmem_map_lookup(session_table, GUINT_TO_POINTER(frame_teid_cp)));
                         if (session) {
@@ -9657,7 +9660,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                     else if (gtpv2_hdr->message == GTPV2_MODIFY_BEARER_REQUEST) {
                         /* If MBEAREQ and not already in the list then we create a new session*/
                         add_gtp_session(pinfo->num, gtp_session_count);
-                        map_header_teid(pinfo, (uint32_t)gtpv2_hdr->teid, 0, true);
+                        map_header_teid(pinfo, teid, 0, true);
 
                         if (args->imsi) {
                             imsi = wmem_strdup(wmem_file_scope(), args->imsi);
@@ -9667,7 +9670,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
                             static char to_str_back_buf[32];
                             #define BACK_PTR (&to_str_back_buf[31]) /* pointer to NUL string terminator */
 
-                            char* location = uint_to_str_back(BACK_PTR, (uint32_t)gtpv2_hdr->teid);
+                            char* location = uint_to_str_back(BACK_PTR, teid);
                             imsi = http2_get_imsi_from_location(location);
                             if(imsi) {
                                 wmem_map_insert(session_imsi, GUINT_TO_POINTER(gtp_session_count), imsi);
