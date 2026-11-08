@@ -106875,3 +106875,72 @@ class TestDissectNhrp:
                 '-enhrp.devcap_ext.srccap', '-enhrp.unknown_ext.value')
         assert lines == ['33\t0x0003,0x0004,0x0005,0x0009,0x0009,0x0014,0x0000\tFalse,False,False,True,False,False,False\t\t0x00000001\t010203',
                          '35\t0x0008,0x0008,0x0008,0x0000\tFalse,False,False,False\t94,94,1193046\t\t']
+
+
+class TestDissectNisplus:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        env = dict(test_env, TZ='UTC')
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('nisplus_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=env).splitlines()
+
+    def test_nisplus_protocols(self, cmd_tshark, capture_file, test_env):
+        '''58 frames: 50 NIS+ and 8 NIS+ callback calls and replies, none
+        malformed or with an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 58
+        assert lines.count('NIS+') == 50
+        assert lines.count('NIS+ CB') == 8
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_nisplus_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every NIS+ v3 procedure (a call and a reply each) and every
+        callback procedure.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-enisplus.procedure_v3')
+        procs = [int(l) for l in lines if l]
+        assert sorted(set(procs)) == [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+        assert procs.count(1) == 6 and procs.count(0) == 2
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-enispluscb.procedure_v1')
+        assert sorted(l for l in lines if l) == ['0', '0', '1', '1', '2', '2', '3', '3']
+
+    def test_nisplus_change_time(self, cmd_tshark, capture_file, test_env):
+        '''The reply to CPTIME is only a time (the time item was added four
+        octets past the end of the reply, which made it malformed).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 38',
+                '-Tfields', '-e_ws.col.info', '-enisplus.log.time', '-e_ws.malformed')
+        assert lines == ['V3 CPTIME Reply (Call In 37)\t2023-11-14T22:20:00.000000000+0000\t']
+
+    def test_nisplus_objects(self, cmd_tshark, capture_file, test_env):
+        '''Every kind of object (directory, group, table, entry, link,
+        private, none and bogus) with its parts.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3',
+                '-Tfields', '-enisplus.object.type', '-enisplus.server.name', '-enisplus.endpoint.uaddr',
+                '-enisplus.table.col.name', '-enisplus.group.name', '-enisplus.entry.val',
+                '-enisplus.object.private', '-enisplus.attr.name')
+        assert lines == ['2,4,2,3,4,5,6,4,7,1,0,99\tnis1.example.,nis2.example.\t'
+                         '192.0.2.9.8.1,192.0.2.9.8.2,192.0.2.9.8.1\tname,passwd\t'
+                         'user1.org.example.,user2.org.example.\tuser1,*\t70726976617465206461746121\tattr1,attr2']
+
+    def test_nisplus_replies(self, cmd_tshark, capture_file, test_env):
+        '''Lookup, directory lookup, dump log, checkpoint and status replies.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {4, 26, 32, 40, 28}',
+                '-Tfields', '-eframe.number', '-enisplus.status', '-enisplus.cookie',
+                '-enisplus.cticks', '-enisplus.fd.dirname', '-enisplus.log.entry.type',
+                '-enisplus.checkpoint.zticks', '-enisplus.tag.value')
+        assert lines == [
+            '4\t0\t636f6f6b6965\t40\t\t\t\t',
+            '26\t0\t\t\torg.example.\t\t\t',
+            '28\t\t\t\t\t\t\t1.2.3,10,x',
+            '32\t0\t636f6f6b6965\t\t\t0,1,3,8\t\t',
+            '40\t\t\t\t\t\t11\t']
+
+    def test_nisplus_callback(self, cmd_tshark, capture_file, test_env):
+        '''The callback RECEIVE call carries the nine objects; the callback
+        entries are dissected as objects (the entry dissector used to consume
+        nothing, so a huge count took a minute).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 53',
+                '-Tfields', '-enisplus.object.type')
+        assert lines == ['2,4,2,3,4,5,6,4,7,1,0,99']
