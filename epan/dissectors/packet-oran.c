@@ -6439,7 +6439,7 @@ static uint32_t time_gap(const nstime_t *later, const nstime_t *earlier, uint32_
     if (delta.secs < 0 || (delta.secs == 0 && delta.nsecs < 0)) {
         return 0;
     }
-    if (delta.secs >= UINT32_MAX) {
+    if ((uint64_t)delta.secs >= UINT32_MAX) {
         return UINT32_MAX;
     }
     uint64_t units = ((uint64_t)delta.secs * (1000000000 / unit_ns)) +
