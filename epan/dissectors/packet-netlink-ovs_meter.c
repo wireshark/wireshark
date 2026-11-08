@@ -134,7 +134,7 @@ dissect_ovs_meter_band_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_band_attr type = (enum ws_ovs_band_attr) nla_type;
+	enum ws_ovs_band_attr type = (enum ws_ovs_band_attr) (nla_type & NLA_TYPE_MASK);
 	uint32_t value;
 	proto_item *pi;
 	proto_tree *ptree;
@@ -194,7 +194,7 @@ dissect_ovs_meter_attrs(tvbuff_t *tvb, void *data,
 	struct packet_netlink_data *nl_data, proto_tree *tree,
 	int nla_type, int offset, int len)
 {
-	enum ws_ovs_meter_attr type = (enum ws_ovs_meter_attr) nla_type;
+	enum ws_ovs_meter_attr type = (enum ws_ovs_meter_attr) (nla_type & NLA_TYPE_MASK);
 	uint32_t value;
 	proto_item *pi;
 	proto_tree *ptree;
