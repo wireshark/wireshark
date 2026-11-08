@@ -1082,10 +1082,10 @@ proto_register_nlm(void)
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nlm_request_in, {
 			"Request MSG in", "nlm.msg_in", FT_FRAMENUM, BASE_NONE,
-			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The RES packet is a response to the MSG in this packet", HFILL }},
+			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "The RES packet is a response to the MSG in this packet", HFILL }},
 		{ &hf_nlm_reply_in, {
 			"Reply RES in", "nlm.res_in", FT_FRAMENUM, BASE_NONE,
-			FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0, "The response to this MSG packet is in this packet", HFILL }},
+			FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0, "The response to this MSG packet is in this packet", HFILL }},
 		{ &hf_nlm_time, {
 			"Time from request", "nlm.time", FT_RELATIVE_TIME, BASE_NONE,
 			NULL, 0, "Time between Request and Reply for async NLM calls", HFILL }},
