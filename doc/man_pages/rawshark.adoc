@@ -88,7 +88,7 @@ as "packet number" 0. For each record, the packet number, matching fields,
 and a "1" or "0" are printed to indicate if the field matched any supplied
 display filter. A "-" is used to signal the end of a field description and
 at the end of each packet line. For example, the flags *-F ip.src -F
-dns.qry.type* might generate the following output:
+ dns.qry.type* might generate the following output:
 
     0 FT_IPv4 BASE_NONE - 1 FT_UINT16 BASE_HEX -
     1 1="1" 0="192.168.77.10" 1 -
@@ -358,3 +358,4 @@ https://www.wireshark.org/docs/man-pages.
 *Rawshark* uses the same packet dissection code that *Wireshark* does, as
 well as using many other modules from *Wireshark*; see the list of authors
 in the *Wireshark* man page for a list of authors of that code.
+
