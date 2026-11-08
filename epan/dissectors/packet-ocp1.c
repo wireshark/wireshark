@@ -825,7 +825,7 @@ decode_params_OcaLibVolType(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 {
     unsigned offset_m = offset;
     offset_m += decode_params_OcaBlobFixedLen(tvb, offset_m, 3, tree, "Authority");
-    proto_tree_add_item(tree, hf_ocp1_params_libvoltype_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ocp1_params_libvoltype_id, tvb, offset_m, 4, ENC_BIG_ENDIAN);
     offset_m += 4;
 
     return offset_m - offset;
@@ -977,7 +977,7 @@ decode_params_OcaTaskStatus(tvbuff_t *tvb, unsigned offset, proto_tree *tree)
 
     offset_m += decode_params_OcaTaskID(tvb, offset_m, tree);
     offset_m += decode_params_OcaTaskState(tvb, offset_m, tree);
-    proto_tree_add_item(tree, hf_ocp1_params_task_status_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_ocp1_params_task_status_error_code, tvb, offset_m, 2, ENC_BIG_ENDIAN);
     offset_m += 2;
 
     return offset_m - offset;
@@ -2527,6 +2527,14 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
     proto_tree *pdu_tree;
     proto_item *ti;
 
+    /* The size must cover the rest of the header and stay inside the data,
+     * so that the caller always advances and never leaves the tvb. */
+    if (header_pdu_size < OCP1_FRAME_HEADER_LEN - 1 ||
+        header_pdu_size >= tvb_reported_length_remaining(tvb, offset)) {
+        expert_add_info(pinfo, tree, &ei_ocp1_invalid_length);
+        return 0;
+    }
+
     /* Create trees */
     switch (pdu_type)
     {
@@ -2579,7 +2587,8 @@ dissect_ocp1_pdu(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree
     /* dissect PDU messages */
     switch (pdu_type)
     {
-        case (OCP1_PDU_TYPE_OCA_CMD || OCP1_PDU_TYPE_OCA_CMD_RRQ):
+        case OCP1_PDU_TYPE_OCA_CMD:
+        case OCP1_PDU_TYPE_OCA_CMD_RRQ:
 
             while (offset_m < (offset + header_pdu_size + 1)) {
                 /* first 4 byte of message is command size (incl. these 4 bytes) */
@@ -2687,24 +2696,31 @@ dissect_ocp1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 static unsigned
 get_ocp1_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-
-    bool another_pdu = true;
     unsigned size = 0;
 
     /* concat multiple PDUs into one protocol tree */
-    while(another_pdu) {
+    for (;;) {
+        uint32_t raw_size = tvb_get_uint32(tvb, offset + 3, ENC_BIG_ENDIAN);
 
-        unsigned pdu_size = tvb_get_uint32(tvb, offset + 3, ENC_BIG_ENDIAN) + 1;
+        /* The size field must cover at least the rest of the header, and
+         * the sum of all sizes must not wrap. */
+        if (raw_size < OCP1_FRAME_HEADER_LEN - 1 || raw_size >= UINT32_MAX - size)
+            break;
+
+        unsigned pdu_size = raw_size + 1;
+        unsigned remaining = tvb_captured_length_remaining(tvb, offset);
+
         size += pdu_size;
 
-        if (!(tvb_captured_length_remaining(tvb, offset + pdu_size) >= OCP1_FRAME_HEADER_LEN + 1) || pdu_size < OCP1_FRAME_HEADER_LEN - 1)
-            another_pdu = false;
+        /* Another PDU only if this one is complete and a header follows;
+         * every step advances by at least the header size and stays in the tvb. */
+        if (pdu_size >= remaining || remaining - pdu_size < OCP1_FRAME_HEADER_LEN + 1)
+            break;
 
         offset += pdu_size;
     }
 
     return size;
-
 }
 
 static int
