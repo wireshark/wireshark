@@ -849,10 +849,34 @@ dissect_socketcan_fd_littleendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static int
+dissect_socketcan_fd_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    return dissect_socketcan_common(tvb, pinfo, tree,
+                                    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN,
+                                    ENC_BIG_ENDIAN, /* Not used, as this is CAN FD, not CAN XL */
+                                    PACKET_TYPE_CAN_FD);
+}
+
+static int
 dissect_socketcan_xl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     return dissect_socketcan_common(tvb, pinfo, tree,
                                     byte_swap ? ENC_ANTI_HOST_ENDIAN : ENC_HOST_ENDIAN,
                                     ENC_HOST_ENDIAN,
+                                    PACKET_TYPE_CAN_XL);
+}
+
+static int
+dissect_socketcan_xl_littleendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    return dissect_socketcan_common(tvb, pinfo, tree,
+                                    byte_swap ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN,
+                                    ENC_LITTLE_ENDIAN,
+                                    PACKET_TYPE_CAN_XL);
+}
+
+static int
+dissect_socketcan_xl_bigendian(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
+    return dissect_socketcan_common(tvb, pinfo, tree,
+                                    byte_swap ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN,
+                                    ENC_BIG_ENDIAN,
                                     PACKET_TYPE_CAN_XL);
 }
 
@@ -1010,9 +1034,20 @@ proto_register_socketcan(void) {
     proto_canfd = proto_register_protocol("Controller Area Network FD", "CANFD", "canfd");
     socketcan_fd_handle = register_dissector("canfd", dissect_socketcan_fd, proto_canfd);
     register_dissector("canfd-littleendian", dissect_socketcan_fd_littleendian, proto_canfd);
+    /*
+     * For protocols that carry SocketCAN frames with all of the
+     * multi-byte header fields in one byte order regardless of the
+     * host, such as data sampled by psample (Netlink byte order). There
+     * is no "can-bigendian" counterpart for CAN classic, as that name is
+     * taken by LINKTYPE_CAN_SOCKETCAN (see above), which has its CAN
+     * classic ID/flags field big-endian.
+     */
+    register_dissector("canfd-bigendian", dissect_socketcan_fd_bigendian, proto_canfd);
 
     proto_canxl = proto_register_protocol("Controller Area Network XL", "CANXL", "canxl");
     socketcan_xl_handle = register_dissector("canxl", dissect_socketcan_xl, proto_canxl);
+    register_dissector("canxl-littleendian", dissect_socketcan_xl_littleendian, proto_canxl);
+    register_dissector("canxl-bigendian", dissect_socketcan_xl_bigendian, proto_canxl);
 
     proto_register_field_array(proto_can, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
