@@ -103663,3 +103663,46 @@ class TestDissectNcpSss:
             ['78', 'R Error - (-801) NICI operations have failed'],
             ['80', 'R Error - (-816) Length of the enumeration buffer is too short'],
         ]
+
+
+class TestDissectNcs:
+    '''Novell Cluster Services heartbeat (IP protocol 224) from the
+    synthetic capture ncs_coverage.pcap.gz: ten heartbeats, frames 1-8
+    over IPv4 (frame 6 to a multicast and 7 to the broadcast address),
+    9-10 over IPv6.'''
+
+    def test_ncs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NCS and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 10
+        assert protocols.count('NCS') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ncs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ncs_fields(self, cmd_tshark, capture_file, test_env):
+        '''The panning id and incarnation, also with trailing data and over
+        IPv6, and the info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ncs_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-encs.pan_id',
+                '-encs.incarnation', '-eipv6.nxt', '-eip.proto',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert len(rows) == 10
+        assert rows['1'] == ['0x00000001', '0x00000001', '', '224',
+                             'Novell Cluster Services Heartbeat']
+        assert rows['4'][:2] == ['0xdeadbeef', '0xffffffff']
+        assert rows['8'][:2] == ['0x00000055', '0x00000066']
+        assert rows['9'][:4] == ['0x00000007', '0x00000009', '224', '']
+        assert rows['10'][:2] == ['0x0a0b0c0d', '0x01020304']
