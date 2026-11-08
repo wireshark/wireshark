@@ -22,21 +22,20 @@ sshdig - Provide interfaces to capture system calls from a remote host through S
 [ *--extcap-capture-filter*=<capture filter> ]
 [ *--capture* ]
 [ *--fifo*=<path to file or pipe> ]
-[ *--remote-host*=<IP address> ]
-[ *--remote-port*=<TCP port> ]
-[ *--remote-username*=<username> ]
-[ *--remote-password*=<password> ]
-[ *--sshkey*=<private key path> ]
-[ *--sshkey-passphrase*=<private key passphrase> ]
-[ *--proxycommand*=<SSH proxy command> ]
-[ *--remote-capture-command-select*=<capture command selection> ]
+[ *--proxycommand*=<proxy command> ]
 [ *--remote-capture-command*=<capture command> ]
+[ *--remote-capture-command-select*=<capture command selection> ]
+[ *--remote-count*=<number> ]
+[ *--remote-host*=<remote host> ]
+[ *--remote-io-snaplen*=<snapshot length> ]
+[ *--remote-modern-bpf* ]
+[ *--remote-password*=<password> ]
+[ *--remote-port*=<remote port> ]
 [ *--remote-priv*=<privilege elevation command selection> ]
 [ *--remote-priv-user*=<privileged user name> ]
-[ *--remote-filter*=<remote capture filter> ]
-[ *--remote-count*=<number> ]
-[ *--remote-modern-bpf* ]
-[ *--remote-io-snaplen*=<snapshot length> ]
+[ *--remote-username*=<username> ]
+[ *--sshkey*=<private key path> ]
+[ *--sshkey-passphrase*=<private key passphrase> ]
 
 [manarg]
 *sshdig*
@@ -121,36 +120,36 @@ Start capturing from specified interface and write raw packet data to the locati
 --fifo=<path to file or pipe>::
 Save captured packet to file or send it through pipe.
 
+--proxycommand=<proxy command>::
+The command to use as proxy for the SSH connection.
+
+--remote-capture-command=<capture command>::
+A custom remote capture command that produces the remote stream that is shown in Stratoshark.
+The command must be able to produce a .scap stream written to STDOUT.
+
+--remote-capture-command-select=<capture command selection>::
+The command to run on the remote system.
+Either *sysdig* for a remote capture command using sysdig, or *other*, where the remote capture command must be provided with the *--remote-capture-command* option.
+
+--remote-count=<number>::
+The number of events to capture.
+
 --remote-host=<remote host>::
 The address of the remote host for capture.
 
---remote-port=<remote port>::
-The SSH port of the remote host.
+--remote-io-snaplen=<snapshot length>::
+The number of bytes to capture in each I/O event.
 
---remote-username=<username>::
-The username for SSH authentication.
+--remote-modern-bpf::
+Capture using an eBPF probe instead of the kernel module.
 
 --remote-password=<password>::
 The password to use (if not ssh-agent and pubkey are used). WARNING: the
 passwords are stored in plaintext and visible to all users on this system. It is
 recommended to use keyfiles with a SSH agent.
 
---sshkey=<SSH private key path>::
-The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
-
---sshkey-passphrase=<SSH private key passphrase>::
-The passphrase for the private key for authentication.
-
---proxycommand=<proxy command>::
-The command to use as proxy for the SSH connection.
-
---remote-capture-command-select=<capture command-selection>::
-The command to run on the remote system.
-Either *sysdig* for a remote capture command using sysdig, or *other*, where the remote capture command must be provided with the *--remote-capture-command* option.
-
---remote-capture-command=<capture command>::
-A custom remote capture command that produces the remote stream that is shown in Stratoshark.
-The command must be able to produce a .scap stream written to STDOUT.
+--remote-port=<remote port>::
+The SSH port of the remote host.
 
 --remote-priv=<privilege elevation command selection>::
 The command to use to achieve privilege elevation to capture on the remote host. Either none, sudo or doas.
@@ -158,18 +157,14 @@ The command to use to achieve privilege elevation to capture on the remote host.
 --remote-priv-user=<privileged user name>::
 If a command is used to achieve privilege elevation to capture on the remote host requires a user name it may be provided here.
 
---remote-filter=<capture filter>::
-The remote capture filter.
-This is passed to the remote capture program, and must comply with its syntax rules.
+--remote-username=<username>::
+The username for SSH authentication.
 
---remote-count=<number>::
-The number of events to capture.
+--sshkey=<private key path>::
+The path to a private key for authentication. NOTE: Only OPENSSH key/value pair format is supported.
 
---remote-modern-bpf::
-Capture using an eBPF probe instead of the kernel module.
-
---remote-io-snaplen=<snapshot length>::
-The number of bytes to capture in each I/O event.
+--sshkey-passphrase=<private key passphrase>::
+The passphrase for the private key for authentication.
 
 == EXAMPLES
 
