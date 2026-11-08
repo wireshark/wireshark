@@ -103933,3 +103933,89 @@ class TestDissectNdmp:
                 'ndmp.msg.unknown', '_ws.col.info')
         assert [r[0] for r in rows] == ['809', '810']
         assert rows[0][1].startswith('Unknown Message (0x101) Request')
+
+
+class TestDissectNdp:
+    '''Nortel Discovery Protocol (SONMP) from the synthetic capture
+    ndp_coverage.pcapng.gz: frames 1-6 hellos to the segment, flatnet and
+    other destinations, 7-24 chassis types, 25-39 backplane types, 40-45
+    states, 46-49 segment ids and link counts, 50 trailing data, 51-52
+    hellos in a Linux cooked capture (second interface of the capture).'''
+
+    def test_ndp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NDP and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ndp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 52
+        assert protocols.count('NDP') == 52
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ndp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ndp_info(self, cmd_tshark, capture_file, test_env):
+        '''The last byte of the Ethernet destination gives the "Segment"
+        or "FlatNet" prefix; other destinations and frames without an
+        Ethernet destination (Linux cooked capture) have none.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ndp_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 6 || frame.number >= 51',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info == {'1': 'Segment Hello', '2': 'FlatNet Hello',
+                        '3': 'Segment Hello', '4': 'FlatNet Hello',
+                        '5': 'Hello', '6': 'Hello', '51': 'Hello', '52': 'Hello'}
+
+    def test_ndp_fields(self, cmd_tshark, capture_file, test_env):
+        '''IP address, segment id, chassis, backplane, state and link
+        count of a few hellos, including the extreme values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ndp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2,47,50,52}',
+                '-Tfields', '-eframe.number', '-endp.ipaddress',
+                '-endp.segmentident', '-endp.chassis', '-endp.backplane',
+                '-endp.state', '-endp.numberoflinks',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r[1:] for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['2'] == ['10.0.0.2', '0x0a0b0c', '48', '10', '1', '24']
+        assert rows['47'] == ['192.0.2.255', '0xffffff', '40', '2', '2', '255']
+        assert rows['50'] == ['10.0.0.1', '0x010203', '40', '2', '2', '4']
+        assert rows['52'] == ['10.4.0.2', '0x010203', '40', '2', '2', '4']
+
+    def test_ndp_value_strings(self, cmd_tshark, capture_file, test_env):
+        '''Chassis, backplane and state names, and "Unknown" for the gaps
+        and values past the end of the tables.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('ndp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {7,13,14,15,16,22,23,24,25,29,38,39,40,42,44}',
+                '-O', 'ndp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()
+                 if l.strip().startswith(('Chassis type:', 'Backplane type:', 'State:'))]
+        chassis = [l for l in lines if l.startswith('Chassis')]
+        assert chassis[:9] == [
+            'Chassis type: other (1)',
+            'Chassis type: Unknown (30)',
+            'Chassis type: DDS (31)',
+            'Chassis type: Unknown (47)',
+            'Chassis type: BayStack 450 10/100/1000 Switches (48)',
+            'Chassis type: Unknown (214)',
+            'Chassis type: Unknown (255)',
+            'Chassis type: Unknown (0)',
+            'Chassis type: BayStack 350 Switch (40)']
+        backplane = [l for l in lines if l.startswith('Backplane')]
+        assert 'Backplane type: Ethernet, Tokenring and FDDI (5)' in backplane
+        assert 'Backplane type: Unknown (13)' in backplane
+        assert 'Backplane type: Unknown (255)' in backplane
+        state = [l for l in lines if l.startswith('State')]
+        assert 'State: Topology Change (1)' in state
+        assert 'State: New (3)' in state
+        assert 'State: Unknown (4)' in state
