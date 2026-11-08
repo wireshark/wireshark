@@ -474,7 +474,7 @@ proto_register_nsrp(void)
         },
         { &hf_nsrp_ifnum,
           { "Ifnum", "nsrp.ifnum",
-            FT_UINT16, BASE_HEX, NULL, 0,
+            FT_UINT8, BASE_HEX, NULL, 0,
             "NSRP IfNum", HFILL }
         },
         { &hf_nsrp_data,
