@@ -108379,3 +108379,73 @@ class TestDissectNovellPkis:
                      'certificateClass', 'enterpriseId',
                      'singletonRange'):
             assert text in stdout
+
+
+class TestDissectNrppa:
+    CAP = 'nrppa_coverage.pcap.gz'
+
+    def test_nrppa_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 18 frames decode as NRPPa (the last two inside NGAP), with
+        no malformed packet or expert info in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 18
+        assert protocols.count('NRPPa') == 16
+        assert protocols.count('NGAP/NRPPa') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_nrppa_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure codes of all frames, in order.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-Eoccurrence=f', '-enrppa.procedureCode',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == [
+            '0', '0', '2', '2', '2', '2', '3', '4', '5', '14', '9', '16',
+            '17', '17', '18', '18', '2', '2']
+
+    def test_nrppa_ecid_result(self, cmd_tshark, capture_file, test_env):
+        '''E-CID measurement result of frame 4: cell, TAC and the three
+        EUTRA measured values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 4', '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('nR-CellID: 1234567890',
+                     'servingCellTAC: 1 (0x000001)',
+                     'valueAngleOfArrival-EUTRA: 300',
+                     'valueTimingAdvanceType1-EUTRA: 1000',
+                     'valueTimingAdvanceType2-EUTRA: 7690',
+                     'Cell-Portion-ID: 1234'):
+            assert text in stdout
+
+    def test_nrppa_in_ngap(self, cmd_tshark, capture_file, test_env):
+        '''The NRPPa-PDU of the NGAP NRPPa transport messages is
+        dissected (frames 17 and 18).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ngap && nrppa',
+                '-Tfields', '-eframe.number', '-engap.procedureCode',
+                '-enrppa.procedureCode',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split() for l in stdout.splitlines()] == [
+            ['17', '50', '2'], ['18', '8', '2']]
+
+    def test_nrppa_criticality_diagnostics(self, cmd_tshark, capture_file, test_env):
+        '''Criticality diagnostics with an IE list in the error
+        indication of frame 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'nrppatransactionID: 77' in stdout
+        assert 'typeOfError: missing (1)' in stdout
