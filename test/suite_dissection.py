@@ -109087,3 +109087,127 @@ class TestDissectNstrace:
             ['37', '0x00', '', '', 'src-vm', 'dst-vm', '', ''],
             ['39', '0x00', '', '', '', '', '1', '2'],
         ]
+
+
+class TestDissectNtlmssp:
+    '''NTLMSSP from the synthetic capture ntlmssp_coverage.pcapng.gz: HTTP
+    (Authorization: NTLM), DCE/RPC authentication type 10, LDAP with a
+    GSS-SPNEGO bind, and Exported PDU for the helpers without a transport
+    (ntlmssp, ntlmssp_payload, ntlmssp_data_only, ntlmssp_verf). No keys,
+    passwords or ciphertext are involved: the key state comes from an
+    anonymous AUTHENTICATE (empty responses) with a placeholder session
+    key.'''
+
+    @staticmethod
+    def ntlmssp_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ntlmssp_coverage.pcapng.gz'),
+                '-Y', dfilter, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def ntlmssp_data_sources(cmd_tshark, capture_file, test_env, name):
+        '''Sizes of the data sources called "name" in a hex dump of the capture.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ntlmssp_coverage.pcapng.gz'), '-x',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        sizes = []
+        for line in stdout.splitlines():
+            if line.startswith(name + ' (') and line.endswith(' bytes):'):
+                sizes.append(int(line[len(name) + 2:-len(' bytes):')]))
+        return sizes
+
+    def test_ntlmssp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per carrying protocol, and no malformed packets or
+        error expert infos in one and two passes. The capture has the three
+        message types, an unknown type, anonymous and NTLMv2 exchanges, and
+        the DCE/RPC, LDAP and Exported PDU helpers.'''
+        protocols = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'frame', '-e_ws.col.protocol', '-eframe.protocols')
+        assert len(protocols) == 322
+        counts = {}
+        for p in protocols:
+            p, chain = p.split('\t')
+            p = 'exported_pdu' if chain.startswith('exported_pdu') else p
+            counts[p] = counts.get(p, 0) + 1
+        assert counts == {'TCP': 151, 'HTTP': 49, 'DCERPC': 89, 'LDAP': 9, 'exported_pdu': 24}
+        types = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'ntlmssp', '-entlmssp.messagetype')
+        assert sorted(types) == ['0x00000001'] * 17 + ['0x00000002'] * 30 + ['0x00000003'] * 28 + ['0x00000004']
+        for passes in ((), ('-2',)):
+            bad = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+
+    def test_ntlmssp_http_exchange(self, cmd_tshark, capture_file, test_env):
+        '''The NTLMv2 exchange over HTTP (frames 4 to 6): strings, version,
+        target info, client challenge and MIC.'''
+        rows = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {4,5,6}', '-eframe.number',
+                '-entlmssp.negotiate.domain', '-entlmssp.negotiate.callingworkstation',
+                '-entlmssp.version.major', '-entlmssp.version.build_number',
+                '-entlmssp.challenge.target_name', '-entlmssp.challenge.target_info.dns_computer_name',
+                '-entlmssp.ntlmserverchallenge',
+                '-entlmssp.auth.username', '-entlmssp.auth.domain', '-entlmssp.auth.hostname',
+                '-entlmssp.ntlmclientchallenge', '-entlmssp.authenticate.mic',
+                '-entlmssp.ntlmv2_response.nb_domain_name', '-entlmssp.ntlmv2_response.target_name')
+        assert rows == [
+            '4\tEXAMPLE\tCLIENT1\t10\t19041\t\t\t\t\t\t\t\t\t\t',
+            '5\t\t\t10\t19041\tEXAMPLE\tsrv1.example.test\t0102030405060708\t\t\t\t\t\t\t',
+            '6\t\t\t10\t19041\t\t\t\tuser1\tEXAMPLE\tCLIENT1\t0001020304050607'
+            '\ta0a1a2a3a4a5a6a7a8a9aaabacadaeaf\tEXAMPLE\tcifs/srv1',
+        ]
+
+    def test_ntlmssp_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Target info attributes with a length that does not fit their
+        type (a MsvAvTimestamp of two octets is not read as a time), an
+        unrecognized message type, and a blob over 10 KB.'''
+        rows = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'ntlmssp.target_info_attr.unknown || ntlmssp.target_info_attr.invalid || '
+                'ntlmssp.v2_key_too_long || ntlmssp.messagetype.unknown',
+                '-eframe.number', '-e_ws.expert.message')
+        assert rows == [
+            '67\tUnrecognized NTLMSSP Message',
+            '96\tUnknown NTLMSSP Target Info Attribute',
+            '97\tUnknown NTLMSSP Target Info Attribute',
+            '105\tUnknown NTLMSSP Target Info Attribute,Unknown NTLMSSP Target Info Attribute,'
+            'Invalid NTLMSSP Target Info AvPairs',
+            '106\tNTLM v2 key is 10300 bytes long, too big for our 10240 buffer',
+        ]
+
+    def test_ntlmssp_anonymous(self, cmd_tshark, capture_file, test_env):
+        '''Anonymous AUTHENTICATE messages are recognized, and the
+        anonymous key is derived for the 11 with a placeholder session key
+        and key exchange.'''
+        anon = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'ntlmssp.authenticated', '-eframe.number')
+        assert len(anon) == 12
+        keyed = self.ntlmssp_fields(cmd_tshark, capture_file, test_env,
+                'ntlmssp.sessionkey', '-eframe.number')
+        assert len(keyed) == 11
+
+    def test_ntlmssp_payload_cache_length(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames 3 and 4 of the helper section carry the same
+        12 signature and sequence octets, with 8 and 4000 octets of
+        payload. The payload cache keeps the first, shorter decrypted
+        buffer, so the data source of the second must be 8 octets, not
+        4000 (before "NTLMSSP: Fix over-reads of decrypted payload and
+        verifier buffers" it read 4000 octets of heap). DCE/RPC stubs of
+        256 octets and more keep their length (the stored length was a
+        uint8_t).'''
+        sizes = self.ntlmssp_data_sources(cmd_tshark, capture_file, test_env, 'Decrypted data')
+        assert 4000 not in sizes
+        assert sizes.count(8) == 2
+        assert sizes.count(300) == 5
+
+    def test_ntlmssp_verifier_length(self, cmd_tshark, capture_file, test_env):
+        '''DCE/RPC privacy-level requests with verifiers of 16, 40, 28 and
+        300 octets after the 4 octet version: the decrypted verifier
+        data source is never larger than the 16 octet buffer (before the
+        fix it was as long as the verifier, up to 296 octets).'''
+        sizes = self.ntlmssp_data_sources(cmd_tshark, capture_file, test_env,
+                                          'Decrypted NTLMSSP Verifier')
+        assert sizes and max(sizes) == 16
+        assert sizes.count(16) == 15
