@@ -107095,3 +107095,157 @@ class TestDissectNlm:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 215',
                             'nlm.msg_in', 'nlm.time', passes=('-2',), opts=self.MATCH)
         assert len(rows) == 1 and rows[0][1] == '213' and rows[0][2] != ''
+
+
+class TestDissectNlsp:
+    '''NLSP (NetWare Link Services Protocol, IPX socket 0x9001) over
+    Ethernet II / IPX, from the synthetic capture nlsp_coverage.pcap.gz.
+    Frames 1-13 L1 Hello, 14-19 WAN Hello, 20-40 L1 LSP, 41-44 L1 CSNP,
+    45-48 L1 PSNP, 49-58 header variations, 59-60 sockets.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('nlsp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_nlsp_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 60 frames are NLSP without malformed packets or error
+        expert infos, in one and two passes. The only expert infos are the
+        warnings for the unknown versions (49, 50) and packet types
+        (52-58).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'nlsp')
+        assert len(rows) == 60
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                passes=passes)
+            assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env, '_ws.expert')
+        assert [r[0] for r in rows] == ['49', '50'] + [str(n) for n in range(52, 59)]
+        for ptype, frames in ((15, 17), (17, 6), (18, 22), (24, 4), (26, 4)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                'nlsp.type == %d' % ptype)
+            assert len(rows) == frames
+
+    def test_nlsp_hello(self, cmd_tshark, capture_file, test_env):
+        '''The LAN Hello has the multicast flag and the designated router,
+        the WAN Hello the state and the local WAN circuit ID; both the
+        circuit type.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {1, 2, 3, 4, 5, 6, 14, 17, 18}',
+                            'nlsp.hello.multicast', 'nlsp.hello.state',
+                            'nlsp.hello.circuit_type', 'nlsp.hello.holding_timer',
+                            'nlsp.hello.priority', 'nlsp.hello.local_wan_circuit_id',
+                            'nlsp.hello.designated_router_pseudonode_id')
+        assert rows == [
+            ['1', 'True', '', '1', '30', '44', '', '1'],
+            ['2', 'False', '', '1', '30', '44', '', '1'],
+            ['3', 'True', '', '0', '30', '44', '', '1'],
+            ['4', 'True', '', '2', '30', '44', '', '1'],
+            ['5', 'True', '', '3', '30', '44', '', '1'],
+            ['6', 'True', '', '1', '65535', '127', '', '1'],
+            ['14', '', '0', '1', '60', '1', '3', ''],
+            ['17', '', '3', '1', '60', '1', '3', ''],
+            ['18', '', '0', '3', '60', '1', '255', ''],
+        ]
+
+    def test_nlsp_hello_clvs(self, cmd_tshark, capture_file, test_env):
+        '''Area addresses, neighbors, local MTU and an unknown CLV of the
+        Hello.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {6, 7, 8, 9, 10, 11, 12, 13}',
+                            'nlsp.area_address.network_number', 'nlsp.area_address.mask',
+                            'nlsp.neighbor', 'nlsp.hello_local_mtu.mtu_size',
+                            'nlsp.unknown_code')
+        assert rows == [
+            ['6', '0x0000a001', '0xffffff00', '', '', ''],
+            ['7', '0x0000a001,0x0000b002', '0xffffff00,0xffff0000', '', '', ''],
+            ['8', '', '', '02:00:00:00:00:0b,02:00:00:00:00:0c', '', ''],
+            ['9', '', '', '02:00:00:00:00:0b,02:00:00:00:00:0c,02:00:00:00:00:0a,02:00:00:00:00:0b', '', ''],
+            ['10', '', '', '', '1500', ''],
+            ['11', '', '', '', '', '85'],
+            ['12', '0x0000a001', '0xffffff00', '02:00:00:00:00:0b,02:00:00:00:00:0c', '1500', '85'],
+            ['13', '', '', '', '1500', ''],
+        ]
+
+    def test_nlsp_lsp(self, cmd_tshark, capture_file, test_env):
+        '''LSP header: flags, sequence number, lifetime and LSP ID; the
+        non-routing server flag is in the type byte.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {20, 21, 22, 23}',
+                            'nlsp.lsp.partition_repair', 'nlsp.lsp.attached_flag',
+                            'nlsp.lsp.lspdbol', 'nlsp.lsp.router_type',
+                            'nlsp.lsp_id_pseudonode_id', 'nlsp.lsp_id_lsp_number',
+                            'nlsp.sequence_number', 'nlsp.remaining_lifetime',
+                            'nlsp.nr')
+        assert rows == [
+            ['20', 'False', '0', 'False', '3', '0', '0', '0x00000010', '1200', 'False'],
+            ['21', 'True', '15', 'True', '1', '0', '0', '0xffffffff', '0', 'False'],
+            ['22', 'False', '1', 'False', '3', '5', '7', '0x00000010', '1200', 'False'],
+            ['23', 'False', '0', 'False', '3', '0', '0', '0x00000010', '1200', 'True'],
+        ]
+        # the Info column
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 22',
+                            '_ws.col.info')
+        assert rows == [['22', 'L1 LSP, LSP ID: 02:00:00:00:00:0b, '
+                               'Sequence: 0x00000010, Lifetime: 1200s']]
+
+    def test_nlsp_lsp_clvs(self, cmd_tshark, capture_file, test_env):
+        '''The LSP CLVs: management information, link information (media
+        type and cost flags), services information and external routes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {25, 26, 27, 28, 31, 32, 33, 34, 35}',
+                            'nlsp.mgt_info.name', 'nlsp.mgt_info.name_length',
+                            'nlsp.link_info.media_type', 'nlsp.link_info.mtu_size',
+                            'nlsp.svcs_info.service_name', 'nlsp.svcs_info.socket',
+                            'nlsp.ext_routes.network_number', 'nlsp.ext_routes.rip_delay')
+        assert rows == [
+            ['25', 'ROUTER-A', '8', '', '', '', '', '', ''],
+            ['26', '', '0', '', '', '', '', '', ''],
+            ['27', '', '', '2', '1500', '', '', '', ''],
+            ['28', '', '', '32768', '1500', '', '', '', ''],
+            ['31', '', '', '153', '1500', '', '', '', ''],
+            ['32', '', '', '', '', 'FILESERVER', '1105', '', ''],
+            ['33', '', '', '', '', '', '1106', '', ''],
+            ['34', '', '', '', '', '', '', '0x0000c001,0x0000c002', '5,65535'],
+            ['35', '', '', '', '', '', '', '0x0000c001', '5'],
+        ]
+        # the cost fields are present only when bit 7 of the flags is clear
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {27, 29, 30}',
+                            'nlsp.lsp.link_info_clv.flags.cost_present',
+                            'nlsp.lsp.link_info_clv.flags.cost')
+        assert rows == [['27', 'False', '0'], ['29', 'True', ''], ['30', 'True', '']]
+
+    def test_nlsp_clv_edges(self, cmd_tshark, capture_file, test_env):
+        '''A zero length CLV in the middle is shown as such; a zero length
+        CLV at the end, and a lone code octet at the end, are not (the
+        CLV walker stops when the length octet is the last one).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {38, 39, 40}',
+                            'nlsp.area_address.network_number')
+        assert rows == [['38', '0x0000a001'], ['39', '0x0000a001'], ['40', '0x0000a001']]
+
+    def test_nlsp_snp(self, cmd_tshark, capture_file, test_env):
+        '''CSNP and PSNP LSP entries.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'frame.number in {42, 43, 47}',
+                            'nlsp.csnp.lsp_sequence_number', 'nlsp.csnp.remaining_lifetime',
+                            'nlsp.csnp.lsp_checksum', 'nlsp.psnp.lsp_sequence_number',
+                            'nlsp.psnp.remaining_lifetime')
+        assert rows == [
+            ['42', '0x00000011', '1100', '0x1111', '', ''],
+            ['43', '0x00000011,0x22222222,0xffffffff', '1100,900,65535',
+             '0x1111,0x2222,0xffff', '', ''],
+            ['47', '', '', '', '0x00000011,0x22222222,0xffffffff', '1100,900,65535'],
+        ]
+
+    def test_nlsp_socket(self, cmd_tshark, capture_file, test_env):
+        '''NLSP is found from either IPX socket (frames 59 and 60). The LSP, CSNP and PSNP numbers are hex.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'nlsp && frame.number >= 59', 'ipx.src.socket', 'ipx.dst.socket')
+        assert rows == [['59', '0x9001', '0x1234'], ['60', '0x1234', '0x9001']]
