@@ -106785,3 +106785,93 @@ class TestDissectNgapCoverage:
                 '-q', '-z', 'ngap,tree'), encoding='utf-8', env=test_env).splitlines()
         row = [l.split() for l in lines if l.strip().startswith('ErrorIndication')][0]
         assert row[1] == '7'
+
+
+class TestDissectNhrp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('nhrp_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_nhrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is NHRP (IP protocol 54, GRE, IPv6 and LLC/SNAP) and
+        none is malformed or has an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 46
+        assert lines.count('NHRP') == 46
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {42, 43, 44}',
+                '-Tfields', '-eframe.protocols')
+        assert lines == ['eth:ethertype:ip:gre:nhrp', 'eth:llc:nhrp', 'eth:ethertype:ipv6:nhrp']
+
+    def test_nhrp_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''All eight packet types and an unknown one, 12 error codes and
+        error indications nested up to five levels.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-enhrp.hdr.op.type')
+        assert lines.count('1') == 15 and lines.count('2') == 3
+        assert [lines.count(str(i)) for i in range(3, 7)] == [1, 1, 1, 1]
+        assert lines.count('66') == 1 and lines.count('8') == 10
+        assert lines.count('7,3') == 12 and lines.count('7,7,7,7,3') == 1
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {8, 19, 20, 33}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '8\tNHRP Error Indication, Unrecognized Extension, ID=7',
+            '19\tNHRP Error Indication, Unknown Error (99), ID=7',
+            '20\tNHRP Error Indication, Protocol Error, Protocol Error, Protocol Error, Protocol Error, ID=7',
+            '33\tNHRP Resolution Request, ID=11']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 2', '-Tfields', '-e_ws.col.info')
+        assert lines[0].startswith('NHRP Resolution Reply, ID=1001, Code=Success, Code=Administratively Prohibited, ')
+
+    def test_nhrp_snap_long_form(self, cmd_tshark, capture_file, test_env):
+        '''With the long form protocol type (SNAP OUI and PID) the OUI is
+        decoded and the header fields after it are read at the right
+        place (the PID was not skipped).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'nhrp.hdr.pro.snap.oui == 0x00005e',
+                '-Tfields', '-eframe.number', '-enhrp.hdr.pro.snap.oui', '-enhrp.hdr.hopcnt',
+                '-enhrp.hdr.pktsz', '-enhrp.hdr.version', '-enhrp.reqid', '-enhrp.hdr.chksum.status',
+                '-enhrp.client.prot.addr')
+        assert lines == ['31\t94\t7\t56\t1\t0x00000005\t1\t10.0.0.1']
+
+    def test_nhrp_cie_subaddress(self, cmd_tshark, capture_file, test_env):
+        '''The client protocol address follows the client NBMA subaddress.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'nhrp.client.nbma.saddr && frame.number == 32',
+                '-Tfields', '-enhrp.client.nbma.addr', '-enhrp.client.nbma.saddr', '-enhrp.client.prot.addr')
+        assert lines == ['10.0.0.1,10.0.0.3\t112233,44\t10.0.0.2,10.0.0.4']
+
+    def test_nhrp_auth_extension(self, cmd_tshark, capture_file, test_env):
+        '''The authentication extension: 16 byte source address read at
+        offset 4 (frame 36), 4 and other sized source addresses, and without
+        the source address when the preference is off.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'nhrp.auth_ext.src_addr.ipv6',
+                '-Tfields', '-eframe.number', '-enhrp.auth_ext.src_addr.ipv6', '-enhrp.auth_ext.spi',
+                '-enhrp.auth_ext.data')
+        assert lines == ['36\t4041:4243:4445:4647:4849:4a4b:4c4d:4e4f\t77\tcafe']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {34, 41}',
+                '-Tfields', '-eframe.number', '-enhrp.auth_ext.src_addr', '-enhrp.auth_ext.src_addr_bytes',
+                '-enhrp.auth_ext.data')
+        assert lines == ['34\t192.0.2.1,192.0.2.1,192.0.2.1\t\tdeadbeef,0102',
+                         '41\t\t010203040506\t99']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-o', 'nhrp.auth_ext_has_addr:FALSE',
+                '-Y', 'frame.number == 34', '-Tfields', '-enhrp.auth_ext.src_addr', '-enhrp.auth_ext.data')
+        assert lines == ['\tc0000201deadbeef,c00002010102,c0000201']
+
+    def test_nhrp_traffic_indication(self, cmd_tshark, capture_file, test_env):
+        '''The packet that caused a traffic indication is dissected by
+        ethertype (IPv4, IPv6), NLPID or SNAP OUI (Cisco CDP).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 21 && frame.number <= 30',
+                '-Tfields', '-eframe.number', '-eframe.protocols')
+        assert [l.split('\t')[1].replace('eth:ethertype:ip:nhrp', 'N') for l in lines] == [
+            'N:ip:icmp:data', 'N:ip:icmp:data', 'N:clnp:data', 'N:ip:icmp:data', 'N:cdp',
+            'N:data', 'N:data', 'N:data', 'N:data', 'N:ipv6:data']
+
+    def test_nhrp_extensions(self, cmd_tshark, capture_file, test_env):
+        '''Responder address, forward and reverse record, NAT, device
+        capabilities, vendor private and unknown extensions.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {33, 35}',
+                '-Tfields', '-eframe.number', '-enhrp.ext.type', '-enhrp.ext.c', '-enhrp.vendor_ext.id',
+                '-enhrp.devcap_ext.srccap', '-enhrp.unknown_ext.value')
+        assert lines == ['33\t0x0003,0x0004,0x0005,0x0009,0x0009,0x0014,0x0000\tFalse,False,False,True,False,False,False\t\t0x00000001\t010203',
+                         '35\t0x0008,0x0008,0x0008,0x0000\tFalse,False,False,False\t94,94,1193046\t\t']
