@@ -74,7 +74,7 @@ dissect_ovs_ct_limit_attrs(tvbuff_t *tvb, void *data _U_,
 	int nla_type, int offset, int len)
 {
 	enum ws_ovs_ct_limit_attr type =
-		(enum ws_ovs_ct_limit_attr) nla_type;
+		(enum ws_ovs_ct_limit_attr) (nla_type & NLA_TYPE_MASK);
 
 	switch (type) {
 	case WS_OVS_CT_LIMIT_ATTR_ZONE_LIMIT:
