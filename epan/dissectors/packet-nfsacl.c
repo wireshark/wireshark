@@ -160,7 +160,7 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	aclcnt = tvb_get_ntohl(tvb, offset);
 
 	entry_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
-			ett_nfsacl_aclent_entries, NULL, "Total ACL entries: %d", aclcnt);
+			ett_nfsacl_aclent_entries, NULL, "Total ACL entries: %u", aclcnt);
 
 	offset += 4;
 
@@ -177,7 +177,7 @@ dissect_nfsacl_secattr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	dfaclcnt = tvb_get_ntohl(tvb, offset);
 
 	entry_tree = proto_tree_add_subtree_format(tree, tvb, offset, 4,
-			ett_nfsacl_aclent_entries, NULL, "Total default ACL entries: %d", dfaclcnt);
+			ett_nfsacl_aclent_entries, NULL, "Total default ACL entries: %u", dfaclcnt);
 
 	offset += 4;
 
