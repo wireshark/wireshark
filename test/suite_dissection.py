@@ -104462,3 +104462,83 @@ class TestDissectNetdump:
             assert f[:5] == [str(frame), '0x01', '0x%08x' % (frame - 13 + 100), str(code), info]
             assert bytes.fromhex(f[5]) == b'payload for ' + names[frame].encode()
         assert lines[3] == '27\t0x00\t0x00000005\t3\t0x00001000\t' + '00' * 23
+
+
+class TestDissectNetgearEnsemble:
+    '''Netgear Ensemble (NGE) from the synthetic capture
+    netgear_ensemble_coverage.pcapng.gz. NGE registers no port, only
+    Decode As (UDP 4554 in frames 1-12 and 16) and is also reached by name
+    from the Exported PDU frames 13-15.'''
+
+    DECODE_AS = ('-d', 'udp.port==4554,nge')
+
+    def test_nge_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames decode as NGE without malformed packets or
+        expert infos, in one and two passes (including the frames with a
+        TLV length of 0x7FFFFFFF and 0xFFFFFFFE that overflowed the
+        subtree length before "NGE: Avoid overflow of the ensemble
+        subtree length").'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netgear_ensemble_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 16
+        assert protocols.count('NGE') == 16
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE_AS,
+                    '-r', capture_file('netgear_ensemble_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_nge_exported_pdu_without_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''The Exported PDU frames name the dissector, so they need no
+        Decode As; the UDP frames do.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('netgear_ensemble_coverage.pcapng.gz'),
+                '-Y', 'nge',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['13', '14', '15']
+
+    def test_nge_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header, ensemble fields and the length-prefixed strings.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netgear_ensemble_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 5, 13}',
+                '-Tfields', '-eframe.number', '-enge.version', '-enge.sequence',
+                '-enge.tlv_len', '-enge.ensemble_name', '-enge.firmware_name',
+                '-enge.region_name', '-enge.firmware_version', '-enge.ap_name',
+                '-enge.ip', '-enge.mac', '-enge.uuid', '-enge.uptime',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        uuid = '11111111-1111-1111-1111-111111111111'
+        assert stdout.splitlines() == [
+            '1\t1\t1\t144\thome\tfw-1\tUS\t1.0.2\tap-kitchen\t192.0.2.7\t'
+            '02:00:00:00:00:07\t' + uuid + '\t3600',
+            '2\t1\t2\t116\t\t\t\t\t\t192.0.2.7\t02:00:00:00:00:07\t' + uuid + '\t3600',
+            '5\t1\t4\t143\thome\tfw-1\tUS\t1.0.2\tap-kitchen\t255.255.255.255\t'
+            'ff:ff:ff:ff:ff:ff\t00010203-0405-0607-0809-0a0b0c0d0e0f\t4294967295',
+            '13\t1\t12\t142\thome\tfw-1\tUS\t1.0.2\tap-kitchen\t192.0.2.7\t'
+            '02:00:00:00:00:07\t' + uuid + '\t3600',
+        ]
+
+    def test_nge_tlv_length_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The TLV length is shown as it is, also when length + 4 does not
+        fit in an int (frames 8, 9, 11, 14 and 15), and the dissection
+        continues past it.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('netgear_ensemble_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {8, 9, 10, 11, 12, 14, 15}',
+                '-Tfields', '-eframe.number', '-enge.tlv_len', '-enge.ap_name',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '8\t2147483647\tap-kitchen',
+            '9\t4294967294\tap-kitchen',
+            '10\t2147483643\tap-kitchen',
+            '11\t2147483644\tap-kitchen',
+            '12\t4294967295\tap-kitchen',
+            '14\t2147483647\tap-kitchen',
+            '15\t4294967294\tap-kitchen',
+        ]
