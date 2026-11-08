@@ -69264,7 +69264,8 @@ class TestDissectPfcpSession:
     def test_pfcp_session_gtpu_imsi(self, cmd_tshark, capture_file, test_env):
         '''With GTP session tracking as well, the GTP-U to the TEID of the
         Created PDR (frame 4) and to the TEID of the Outer Header Creation
-        (frame 5) gets the IMSI of the PFCP session, in one and two passes.'''
+        (frame 5) gets the IMSI of the PFCP session, in one and two passes,
+        but not the GTP-U with the same TEID to another UP (frame 13).'''
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *GTP_SESSION_OPTS, *passes,
                     '-r', capture_file('pfcp_session.pcap'),
@@ -69274,6 +69275,7 @@ class TestDissectPfcpSession:
             assert stdout.splitlines() == [
                 '0x00003101\t001010000000003',
                 '0x00004101\t001010000000003',
+                '0x00003101\t',
             ]
 
     def test_pfcp_session_without_imsi(self, cmd_tshark, capture_file, test_env):
@@ -69310,7 +69312,7 @@ class TestDissectPfcpSession:
         for passes in ((), ('-2',)):
             stdout = subprocess.check_output((cmd_tshark, *PFCP_SESSION_OPTS, *passes,
                     '-r', capture_file('pfcp_session.pcap'),
-                    '-Y', 'frame.number >= 11',
+                    '-Y', 'frame.number >= 11 && frame.number <= 12',
                     '-Tfields', '-epfcp.session', '-ee212.assoc.imsi',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == [
@@ -69332,12 +69334,14 @@ class TestDissectRanapSession:
         '''With SCCP association tracking, the GTP-U to the SGSN TEID of the
         RAB Assignment Request (frame 6) and to the RNC TEID of the RAB
         Assignment Response (frame 7) gets the IMSI of the Common ID of the
-        SCCP connection, in one and two passes.'''
+        SCCP connection, in one and two passes, but not the GTP-U with the
+        same TEID to another SGSN (frame 8).'''
         for passes in ((), ('-2',)):
             assert self.gtpu_imsi(cmd_tshark, capture_file, test_env, *passes,
                     '-o', 'sccp.trace_sccp:TRUE') == [
                 '0x00005101\t001010000000006',
                 '0x00006101\t001010000000006',
+                '0x00005101\t',
             ]
 
     def test_ranap_session_without_sccp_tracking(self, cmd_tshark, capture_file, test_env):
@@ -69346,6 +69350,7 @@ class TestDissectRanapSession:
         assert self.gtpu_imsi(cmd_tshark, capture_file, test_env) == [
             '0x00005101\t',
             '0x00006101\t',
+            '0x00005101\t',
         ]
         stdout = subprocess.check_output((cmd_tshark, '-o', 'sccp.trace_sccp:TRUE',
                 '-r', capture_file('ranap_session.pcap'),

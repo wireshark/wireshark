@@ -3976,6 +3976,10 @@ struct ngap_private_data {
   e212_number_type_t number_type;
   int8_t qos_flow_add_info_rel_type;
   struct ngap_tap_t *stats_tap;
+  /* The IPv4 and/or IPv6 address of the last TransportLayerAddress, for the
+   * GTP-TEID that follows it */
+  address transport_layer_address[2];
+  unsigned transport_layer_address_count;
 };
 
 enum {
@@ -5184,10 +5188,12 @@ dissect_ngap_TransportLayerAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
   int len;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, true, NULL, 0, &parameter_tvb, &len);
 
+  ngap_data->transport_layer_address_count = 0;
   if (!parameter_tvb)
     return offset;
 
@@ -5195,14 +5201,18 @@ dissect_ngap_TransportLayerAddress(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_
   if (len == 32) {
     /* IPv4 */
      proto_tree_add_item(subtree, hf_ngap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+     set_address_tvb(&ngap_data->transport_layer_address[ngap_data->transport_layer_address_count++], AT_IPv4, 4, parameter_tvb, 0);
   } else if (len == 128) {
     /* IPv6 */
      proto_tree_add_item(subtree, hf_ngap_transportLayerAddressIPv6, parameter_tvb, 0, 16, ENC_NA);
+     set_address_tvb(&ngap_data->transport_layer_address[ngap_data->transport_layer_address_count++], AT_IPv6, 16, parameter_tvb, 0);
   } else if (len == 160) {
     /* IPv4 */
      proto_tree_add_item(subtree, hf_ngap_transportLayerAddressIPv4, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+     set_address_tvb(&ngap_data->transport_layer_address[ngap_data->transport_layer_address_count++], AT_IPv4, 4, parameter_tvb, 0);
     /* IPv6 */
      proto_tree_add_item(subtree, hf_ngap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
+     set_address_tvb(&ngap_data->transport_layer_address[ngap_data->transport_layer_address_count++], AT_IPv6, 16, parameter_tvb, 4);
   }
 
 
@@ -5216,18 +5226,27 @@ dissect_ngap_GTP_TEID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
   tvbuff_t *parameter_tvb = NULL;
   uint32_t teid;
   const char *imsi = NULL;
+  struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+  unsigned addr_count = ngap_data->transport_layer_address_count;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        4, 4, false, &parameter_tvb);
 
+  /* The TransportLayerAddress before it is of this GTP-TEID only */
+  ngap_data->transport_layer_address_count = 0;
   if (!parameter_tvb)
     return offset;
 
-  if (proto_is_frame_protocol(actx->pinfo->layers, "http2")) {
+  if (!PINFO_FD_VISITED(actx->pinfo) && proto_is_frame_protocol(actx->pinfo->layers, "http2")) {
     imsi = http2_get_stream_imsi(actx->pinfo);
     if(imsi) {
       teid = tvb_get_uint32(parameter_tvb, 0, ENC_BIG_ENDIAN);
-      gtp_add_teid_imsi(teid, imsi);
+      if (addr_count == 0) {
+        gtp_add_teid_imsi(teid, imsi);
+      }
+      for (unsigned i = 0; i < addr_count; i++) {
+        gtp_add_fteid_imsi(teid, &ngap_data->transport_layer_address[i], imsi);
+      }
     }
   }
 

@@ -5356,6 +5356,8 @@ dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
   tvbuff_t *parameter_tvb=NULL;
   int saved_hf;
   uint32_t teid;
+  uint32_t ipv4;
+  address addr = ADDRESS_INIT_NONE;
   sccp_msg_info_t *sccp_info;
 
   saved_hf = hf_index;
@@ -5368,11 +5370,18 @@ dissect_ranap_GTP_TEI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
     return offset;
   proto_tree_add_item_ret_uint(tree, saved_hf, parameter_tvb, 0, 4, ENC_BIG_ENDIAN, &teid);
 
-  /* So that GTP-U with the TEID gets the IMSI of the SCCP connection */
+  /* So that GTP-U with the TEID gets the IMSI of the SCCP connection. The
+   * IPv4 transport layer address comes before the TEID; it is used once, so
+   * that a TEID without one does not get the address of another TEID */
+  ipv4 = private_data_get_transportLayerAddress_ipv4(actx);
+  private_data_set_transportLayerAddress_ipv4(actx, 0);
   sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, actx->pinfo->curr_layer_num);
   if (!PINFO_FD_VISITED(actx->pinfo) && teid != 0 &&
       sccp_info && sccp_info->data.co.assoc && sccp_info->data.co.assoc->imsi) {
-    gtp_add_teid_imsi(teid, sccp_info->data.co.assoc->imsi);
+    if (ipv4) {
+      set_address(&addr, AT_IPv4, 4, &ipv4);
+    }
+    gtp_add_fteid_imsi(teid, &addr, sccp_info->data.co.assoc->imsi);
   }
 
 

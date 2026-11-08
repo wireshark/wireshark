@@ -18,6 +18,8 @@
 #   5  RNC -> SGSN   RANAP RAB Assignment Response: RNC TEID
 #   6  RNC -> SGSN   GTP-U T-PDU to the SGSN TEID (frame 4)
 #   7  SGSN -> RNC   GTP-U T-PDU to the RNC TEID (frame 5)
+#   8  RNC -> SGSN2  GTP-U T-PDU to the SGSN TEID, but to another SGSN: not
+#                    of the SCCP connection
 
 import struct
 import sys
@@ -27,6 +29,7 @@ GTPU_PORT = 2152
 
 RNC = (10, 0, 6, 1)
 SGSN = (10, 0, 6, 2)
+SGSN2 = (10, 0, 6, 3)
 RNC_PC = 101
 SGSN_PC = 102
 
@@ -251,6 +254,7 @@ def main():
         iu(2, True, sccp_dt1(SGSN_LR, rab_assignment_response(5, RNC, RNC_TEID))),
         frame(RNC, SGSN, 17, udp(GTPU_PORT, gtpu_tpdu(SGSN_TEID))),
         frame(SGSN, RNC, 17, udp(GTPU_PORT, gtpu_tpdu(RNC_TEID))),
+        frame(RNC, SGSN2, 17, udp(GTPU_PORT, gtpu_tpdu(SGSN_TEID))),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)

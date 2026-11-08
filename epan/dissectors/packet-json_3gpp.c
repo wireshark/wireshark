@@ -345,7 +345,7 @@ static int hf_json_3gpp_suppfeat_nudm_pp_3_membersdata;
  * gtp.track_gtp_session)
  */
 static void
-json_3gpp_add_teid_imsi(packet_info* pinfo, uint32_t teid)
+json_3gpp_add_teid_imsi(packet_info* pinfo, uint32_t teid, const address* addr)
 {
 	const char *imsi;
 
@@ -354,7 +354,7 @@ json_3gpp_add_teid_imsi(packet_info* pinfo, uint32_t teid)
 	}
 	imsi = http2_get_stream_imsi(pinfo);
 	if (imsi) {
-		gtp_add_teid_imsi(teid, imsi);
+		gtp_add_fteid_imsi(teid, addr, imsi);
 	}
 }
 
@@ -379,10 +379,12 @@ dissect_base64decoded_eps_ie(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 	args.teid_list = wmem_list_new(pinfo->pool);
 	args.ip_list = wmem_list_new(pinfo->pool);
 	args.replaced_list = wmem_list_new(pinfo->pool);
+	args.fteid_list = wmem_list_new(pinfo->pool);
 	dissect_gtpv2_ie_common(bin_tvb, pinfo, sub_tree, 0, 0/* Message type 0, Reserved */, &args, 0);
 
-	for (wmem_list_frame_t *elem = wmem_list_head(args.teid_list); elem; elem = wmem_list_frame_next(elem)) {
-		json_3gpp_add_teid_imsi(pinfo, *(uint32_t *)wmem_list_frame_data(elem));
+	for (wmem_list_frame_t *elem = wmem_list_head(args.fteid_list); elem; elem = wmem_list_frame_next(elem)) {
+		const gtp_fteid_t *fteid = (const gtp_fteid_t *)wmem_list_frame_data(elem);
+		json_3gpp_add_teid_imsi(pinfo, fteid->teid, &fteid->addr);
 	}
 
 	return;
@@ -1399,8 +1401,9 @@ dissect_3gpp_gtp_teid(tvbuff_t* tvb, proto_tree* tree _U_, packet_info* pinfo, i
 			return;
 		}
 	}
+	/* The address of the TunnelInfo is in another member */
 	if (ws_hexstrtou32(teid_str, NULL, &teid)) {
-		json_3gpp_add_teid_imsi(pinfo, teid);
+		json_3gpp_add_teid_imsi(pinfo, teid, NULL);
 	}
 }
 

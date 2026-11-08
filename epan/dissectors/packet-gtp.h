@@ -253,6 +253,12 @@ bool is_cause_accepted(uint8_t cause, uint32_t version);
 /* Add teid map to IMSI from ex NGAP where both are known. */
 void gtp_add_teid_imsi(uint32_t teid, const char* imsi);
 
+/* Add <teid,addr> map to IMSI from ex PFCP where the F-TEID and the IMSI are
+ * known. GTP-U to that F-TEID without a GTP session gets the IMSI. If addr is
+ * NULL or AT_NONE, the same as gtp_add_teid_imsi().
+ */
+void gtp_add_fteid_imsi(uint32_t teid, const address *addr, const char *imsi);
+
 WS_DLL_PUBLIC
 unsigned decode_qos_umts(tvbuff_t * tvb, unsigned offset, packet_info * pinfo, proto_tree * tree, const char * qos_str, uint8_t type);
 

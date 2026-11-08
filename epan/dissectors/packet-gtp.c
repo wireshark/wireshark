@@ -2904,8 +2904,11 @@ is_cause_accepted(uint8_t cause, uint32_t version) {
     return false;
 }
 
-/* Relation between teid -> imsi */
+/* Relation between teid -> imsi, for a TEID whose address is not known */
 static wmem_map_t* teid_imsi;
+
+/* Relation between <teid,ip> -> imsi */
+static wmem_map_t* fteid_imsi;
 
 void
 gtp_add_teid_imsi(uint32_t teid, const char* imsi)
@@ -2915,12 +2918,47 @@ gtp_add_teid_imsi(uint32_t teid, const char* imsi)
     }
 }
 
-static char*
-gtp_get_imsi_from_teid(uint32_t teid)
+void
+gtp_add_fteid_imsi(uint32_t teid, const address *addr, const char *imsi)
 {
+    gtp_info_t info;
+    const void *map_key;
+    const char *old_imsi;
+
+    if (!g_gtp_session || !imsi) {
+        return;
+    }
+    if (!addr || addr->type == AT_NONE) {
+        gtp_add_teid_imsi(teid, imsi);
+        return;
+    }
+    info.teid = teid;
+    copy_address_shallow(&info.addr, addr);
+    if (wmem_map_lookup_extended(fteid_imsi, &info, &map_key, (void **)&old_imsi)) {
+        if (strcmp(old_imsi, imsi) == 0) {
+            return;
+        }
+    } else {
+        map_key = copy_frame_info_key(&info, false);
+    }
+    wmem_map_insert(fteid_imsi, map_key, wmem_strdup(wmem_file_scope(), imsi));
+}
+
+/* The IMSI of the F-TEID <teid,addr>, or else of the TEID with an unknown
+ * address */
+static char*
+gtp_get_imsi_from_fteid(const address *addr, uint32_t teid)
+{
+    gtp_info_t info;
     char *imsi = NULL;
+
     if(g_gtp_session) {
-        imsi = (char *)wmem_map_lookup(teid_imsi, GUINT_TO_POINTER(teid));
+        info.teid = teid;
+        copy_address_shallow(&info.addr, addr);
+        imsi = (char *)wmem_map_lookup(fteid_imsi, &info);
+        if (!imsi) {
+            imsi = (char *)wmem_map_lookup(teid_imsi, GUINT_TO_POINTER(teid));
+        }
     }
     return imsi;
 }
@@ -10181,7 +10219,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
 
         imsi = wmem_map_lookup(session_imsi, GUINT_TO_POINTER(session));
     } else {
-        imsi = gtp_get_imsi_from_teid((uint32_t)gtp_hdr->teid);
+        imsi = gtp_get_imsi_from_fteid(&pinfo->dst, (uint32_t)gtp_hdr->teid);
     }
     if (imsi) {
         add_assoc_imsi_item(tvb, pinfo, tree, imsi);
@@ -13478,6 +13516,7 @@ proto_register_gtp(void)
     rejected_frames = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     frame_map_deint = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_deint_equal);
     teid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
+    fteid_imsi = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), gtp_info_hash, gtp_info_equal);
     register_init_routine(gtp_init);
     gtp_tap = register_tap("gtp");
     gtpv1_tap = register_tap("gtpv1");

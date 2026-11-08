@@ -569,6 +569,10 @@ struct ngap_private_data {
   e212_number_type_t number_type;
   int8_t qos_flow_add_info_rel_type;
   struct ngap_tap_t *stats_tap;
+  /* The IPv4 and/or IPv6 address of the last TransportLayerAddress, for the
+   * GTP-TEID that follows it */
+  address transport_layer_address[2];
+  unsigned transport_layer_address_count;
 };
 
 enum {

@@ -31,6 +31,8 @@
 #                 2 in one packet, the second with the CP F-SEID of frame 1
 #  12  CP -> UP   Session Modification Request to the UP SEID: still of the
 #                 session of frame 1
+#  13  gNB -> UP2  GTP-U T-PDU to the N3 TEID of frame 2, but to another UP:
+#                 not of the session
 
 import struct
 import sys
@@ -42,6 +44,7 @@ CP = (10, 0, 4, 1)
 UP = (10, 0, 4, 2)
 UP_N3 = (10, 0, 5, 2)
 GNB = (10, 0, 5, 1)
+UP2_N3 = (10, 0, 5, 3)
 
 IMSI = '001010000000003'
 IMSI_2 = '001010000000005'
@@ -180,6 +183,7 @@ def main():
             SESSION_MODIFICATION_REQUEST, UP_SEID, 8, f_seid_ie(CP_SEID, CP))),
         frame(CP, UP, pfcp(
             SESSION_MODIFICATION_REQUEST, UP_SEID, 9)),
+        frame(GNB, UP2_N3, gtpu_tpdu(UP_N3_TEID), GTPU_PORT),
     ]
     with open(path, 'wb') as f:
         # pcap global header, LINKTYPE_ETHERNET (1)
