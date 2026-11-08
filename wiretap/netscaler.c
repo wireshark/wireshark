@@ -1961,9 +1961,9 @@ static bool nstrace_seek_read_v20(wtap *wth, int64_t seek_off,
         wtap_setup_packet_rec((rec), (wth)->file_encap);\
         (rec)->block = wtap_block_create(WTAP_BLOCK_PACKET);\
         TIMEDEFV##ver((rec),fp,type);\
-        SETETHOFFSET_##ver(rec);\
         FULLPART##SIZEDEFV##ver((rec),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((rec),enumprefix,type,structname);\
+        SETETHOFFSET_##ver(rec);\
         (rec)->rec_header.packet_header.pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##HEADERVER;\
         return true;\
     }while(0)
