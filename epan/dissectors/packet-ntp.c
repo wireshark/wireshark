@@ -1415,7 +1415,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 	proto_item *td, *ti;
 	uint16_t associd;
 	uint16_t datalen;
-	uint16_t data_offset;
+	int data_offset;
 	int length_remaining;
 	bool auth_diss = false;
 	ntp_trans_info_t *ntp_trans;
@@ -1578,14 +1578,15 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				 * if associd == 0 then data part contains a list of the form
 				 * <association identifier><status word>,
 				 */
-				while(datalen) {
+				unsigned remaining = datalen;
+				while(remaining >= 4) {
 					ti = proto_tree_add_item(data_tree, hf_ntpctrl_item, tvb, data_offset, 4, ENC_NA);
 					item_tree = proto_item_add_subtree(ti, ett_ntpctrl_item);
 					proto_tree_add_item(item_tree, hf_ntpctrl_associd, tvb, data_offset, 2, ENC_BIG_ENDIAN);
 					data_offset += 2;
 					proto_tree_add_bitmask(ntp_tree, tvb, data_offset, hf_ntpctrl_status, ett_ntpctrl_status, peer_status_flags, ENC_BIG_ENDIAN);
 					data_offset += 2;
-					datalen -= 4;
+					remaining -= 4;
 				}
 				break;
 			}
@@ -1628,7 +1629,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 		}
 	}
 
-	data_offset = 12+datalen;
+	data_offset = 12 + (int)datalen;
 
 	/* Check if there is authentication */
 	if (((flags2 & NTPCTRL_R_MASK) == 0) || auth_diss == true)
