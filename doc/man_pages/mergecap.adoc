@@ -18,6 +18,7 @@ mergecap - Merges two or more capture files into one
 [ *-I* <__IDB merge mode__> ]
 [ *-s* <__snaplen__> ]
 [ *-V* ]
+[ *--compress* <type> ]
 [ --no-merging-comment ]
 *-w* <__outfile__>|-
 <__infile__> [<__infile__> __...__]
@@ -162,7 +163,7 @@ for writing. The type given takes precedence over the extension of __outfile__.
 --no-merging-comment::
 +
 --
-Inhibit generating the capture comment "File created by merging:...". to the
+Inhibit generating the capture comment "File created by merging:..." to the
 output file
 
 By default a multiline capture comment is generated to the output (merged)
