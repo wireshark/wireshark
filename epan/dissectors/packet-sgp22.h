@@ -83,4 +83,13 @@ unsigned dissect_sgp22_ProfileClass(bool implicit_tag _U_, tvbuff_t *tvb _U_, un
 unsigned dissect_sgp22_RulesAuthorisationTable(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_sgp22_ISDRProprietaryApplicationTemplate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
+unsigned get_rsp_tag(tvbuff_t *tvb, uint32_t *tag);
+bool is_rsp_asn1_header(tvbuff_t *tvb, uint32_t *tag);
+
+bool is_sgp22_request(tvbuff_t *tvb);
+bool is_sgp22_response(tvbuff_t *tvb);
+
+int dissect_sgp22_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+int dissect_sgp22_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
 #endif  /* PACKET_SGP22_H */

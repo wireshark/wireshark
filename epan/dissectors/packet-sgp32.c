@@ -79,21 +79,6 @@ static int hf_sgp32_AuthenticateServerResponse_PDU;  /* AuthenticateServerRespon
 static int hf_sgp32_ProfileInstallationResult_PDU;  /* ProfileInstallationResult */
 static int hf_sgp32_EsipaMessageFromIpaToEim_PDU;  /* EsipaMessageFromIpaToEim */
 static int hf_sgp32_EsipaMessageFromEimToIpa_PDU;  /* EsipaMessageFromEimToIpa */
-static int hf_sgp32_InitiateAuthenticationRequestEsipa_PDU;  /* InitiateAuthenticationRequestEsipa */
-static int hf_sgp32_InitiateAuthenticationResponseEsipa_PDU;  /* InitiateAuthenticationResponseEsipa */
-static int hf_sgp32_AuthenticateClientRequestEsipa_PDU;  /* AuthenticateClientRequestEsipa */
-static int hf_sgp32_AuthenticateClientResponseEsipa_PDU;  /* AuthenticateClientResponseEsipa */
-static int hf_sgp32_GetBoundProfilePackageRequestEsipa_PDU;  /* GetBoundProfilePackageRequestEsipa */
-static int hf_sgp32_GetBoundProfilePackageResponseEsipa_PDU;  /* GetBoundProfilePackageResponseEsipa */
-static int hf_sgp32_HandleNotificationEsipa_PDU;  /* HandleNotificationEsipa */
-static int hf_sgp32_CancelSessionRequestEsipa_PDU;  /* CancelSessionRequestEsipa */
-static int hf_sgp32_CancelSessionResponseEsipa_PDU;  /* CancelSessionResponseEsipa */
-static int hf_sgp32_GetEimPackageRequest_PDU;     /* GetEimPackageRequest */
-static int hf_sgp32_GetEimPackageResponse_PDU;    /* GetEimPackageResponse */
-static int hf_sgp32_ProvideEimPackageResult_PDU;  /* ProvideEimPackageResult */
-static int hf_sgp32_ProvideEimPackageResultResponse_PDU;  /* ProvideEimPackageResultResponse */
-static int hf_sgp32_TransferEimPackageRequest_PDU;  /* TransferEimPackageRequest */
-static int hf_sgp32_TransferEimPackageResponse_PDU;  /* TransferEimPackageResponse */
 static int hf_sgp32_euiccPackageSigned;           /* EuiccPackageSigned */
 static int hf_sgp32_eimSignature;                 /* OCTET_STRING */
 static int hf_sgp32_eimId;                        /* UTF8String_SIZE_1_128 */
@@ -584,10 +569,9 @@ static int ett_sgp32_T_correlationId_01;
 
 static dissector_handle_t sgp22_handle;
 static dissector_handle_t sgp32_handle;
+static dissector_handle_t gsma_rsp_asn1_handle;
 
 /* Dissector tables */
-static dissector_table_t sgp22_request_dissector_table;
-static dissector_table_t sgp22_response_dissector_table;
 static dissector_table_t sgp32_request_dissector_table;
 static dissector_table_t sgp32_response_dissector_table;
 
@@ -5402,209 +5386,85 @@ static int dissect_EsipaMessageFromEimToIpa_PDU(tvbuff_t *tvb _U_, packet_info *
   offset = dissect_sgp32_EsipaMessageFromEimToIpa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_EsipaMessageFromEimToIpa_PDU);
   return offset;
 }
-static int dissect_InitiateAuthenticationRequestEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_InitiateAuthenticationRequestEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_InitiateAuthenticationRequestEsipa_PDU);
-  return offset;
-}
-static int dissect_InitiateAuthenticationResponseEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_InitiateAuthenticationResponseEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_InitiateAuthenticationResponseEsipa_PDU);
-  return offset;
-}
-static int dissect_AuthenticateClientRequestEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_AuthenticateClientRequestEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_AuthenticateClientRequestEsipa_PDU);
-  return offset;
-}
-static int dissect_AuthenticateClientResponseEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_AuthenticateClientResponseEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_AuthenticateClientResponseEsipa_PDU);
-  return offset;
-}
-static int dissect_GetBoundProfilePackageRequestEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_GetBoundProfilePackageRequestEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_GetBoundProfilePackageRequestEsipa_PDU);
-  return offset;
-}
-static int dissect_GetBoundProfilePackageResponseEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_GetBoundProfilePackageResponseEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_GetBoundProfilePackageResponseEsipa_PDU);
-  return offset;
-}
-static int dissect_HandleNotificationEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_HandleNotificationEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_HandleNotificationEsipa_PDU);
-  return offset;
-}
-static int dissect_CancelSessionRequestEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_CancelSessionRequestEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_CancelSessionRequestEsipa_PDU);
-  return offset;
-}
-static int dissect_CancelSessionResponseEsipa_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_CancelSessionResponseEsipa(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_CancelSessionResponseEsipa_PDU);
-  return offset;
-}
-static int dissect_GetEimPackageRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_GetEimPackageRequest(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_GetEimPackageRequest_PDU);
-  return offset;
-}
-static int dissect_GetEimPackageResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_GetEimPackageResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_GetEimPackageResponse_PDU);
-  return offset;
-}
-static int dissect_ProvideEimPackageResult_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_ProvideEimPackageResult(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProvideEimPackageResult_PDU);
-  return offset;
-}
-static int dissect_ProvideEimPackageResultResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_ProvideEimPackageResultResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_ProvideEimPackageResultResponse_PDU);
-  return offset;
-}
-static int dissect_TransferEimPackageRequest_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_TransferEimPackageRequest(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_TransferEimPackageRequest_PDU);
-  return offset;
-}
-static int dissect_TransferEimPackageResponse_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  unsigned offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
-  offset = dissect_sgp32_TransferEimPackageResponse(false, tvb, offset, &asn1_ctx, tree, hf_sgp32_TransferEimPackageResponse_PDU);
-  return offset;
-}
 
-
-static int get_sgp32_tag(tvbuff_t *tvb, uint32_t *tag)
-{
-  int offset = 0;
-
-  *tag = tvb_get_uint8(tvb, offset++);
-  if ((*tag & 0x1F) == 0x1F) {
-    *tag = (*tag << 8) | tvb_get_uint8(tvb, offset++);
-  }
-
-  return offset;
-}
-
-static bool is_asn1_header(tvbuff_t *tvb, uint32_t *tag)
-{
-  uint32_t length = 0;
-  int offset;
-
-  offset = get_sgp32_tag(tvb, tag);
-  offset = get_ber_length(tvb, offset, &length, NULL);
-
-  return ((offset + length) == tvb_reported_length(tvb));
-}
 
 bool is_sgp32_request(tvbuff_t *tvb)
 {
   uint32_t tag;
 
-  if (!is_asn1_header(tvb, &tag)) {
+  if (!is_rsp_asn1_header(tvb, &tag)) {
     return false;
   }
 
-  return dissector_get_uint_handle(sgp32_request_dissector_table, tag) ||
-         dissector_get_uint_handle(sgp22_request_dissector_table, tag);
+  return dissector_get_uint_handle(sgp32_request_dissector_table, tag) != NULL;
 }
 
 bool is_sgp32_response(tvbuff_t *tvb)
 {
   uint32_t tag;
 
-  if (!is_asn1_header(tvb, &tag)) {
+  if (!is_rsp_asn1_header(tvb, &tag)) {
     return false;
   }
 
-  return dissector_get_uint_handle(sgp32_response_dissector_table, tag) ||
-         dissector_get_uint_handle(sgp22_response_dissector_table, tag);
+  return dissector_get_uint_handle(sgp32_response_dissector_table, tag) != NULL;
+}
+
+static int dissect_sgp32_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_table_t table)
+{
+  proto_item *sgp32_ti;
+  proto_tree *sgp32_tree;
+  uint32_t tag = 0;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
+
+  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
+  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
+
+  get_rsp_tag(tvb, &tag);
+
+  return dissector_try_uint(table, tag, tvb, pinfo, sgp32_tree);
 }
 
 int dissect_sgp32_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *sgp32_ti;
-  proto_tree *sgp32_tree;
-  uint32_t tag = 0;
-  int offset;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
-
-  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
-  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
-
-  get_sgp32_tag(tvb, &tag);
-  offset = dissector_try_uint(sgp32_request_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  if (offset == 0) {
-    offset = dissector_try_uint(sgp22_request_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  }
-
-  return offset;
+  return dissect_sgp32_table(tvb, pinfo, tree, sgp32_request_dissector_table);
 }
 
 int dissect_sgp32_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+  return dissect_sgp32_table(tvb, pinfo, tree, sgp32_response_dissector_table);
+}
+
+static int dissect_sgp32_esipa_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
   proto_item *sgp32_ti;
   proto_tree *sgp32_tree;
-  uint32_t tag = 0;
-  int offset;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
 
   sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
   sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
 
-  get_sgp32_tag(tvb, &tag);
-  offset = dissector_try_uint(sgp32_response_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  if (offset == 0) {
-    offset = dissector_try_uint(sgp22_response_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  }
+  return dissect_EsipaMessageFromIpaToEim_PDU(tvb, pinfo, sgp32_tree, NULL);
+}
 
-  return offset;
+static int dissect_sgp32_esipa_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *sgp32_ti;
+  proto_tree *sgp32_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
+
+  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
+  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
+
+  return dissect_EsipaMessageFromEimToIpa_PDU(tvb, pinfo, sgp32_tree, NULL);
 }
 
 static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   media_content_info_t *content_info = (media_content_info_t *)data;
-  proto_item *sgp32_ti;
-  proto_tree *sgp32_tree;
-  uint32_t tag;
-  int offset;
 
   if (!content_info ||
       ((content_info->type != MEDIA_CONTAINER_HTTP_REQUEST) &&
@@ -5612,25 +5472,31 @@ static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return 0;
   }
 
-  /* Check for SGP.22 RemoteProfileProvisioning -- Tag 'A2' */
-  get_sgp32_tag(tvb, &tag);
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
+    return dissect_sgp32_esipa_request(tvb, pinfo, tree, NULL);
+  }
+
+  return dissect_sgp32_esipa_response(tvb, pinfo, tree, NULL);
+}
+
+/*
+ * SGP.22 (ES9+/ES11) and SGP.32 (ESipa) use the same media type.
+ * This dispatcher has no protocol, so only the dissector actually
+ * decoding the message is added to the protocol layers.
+ */
+static int dissect_gsma_rsp_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  uint32_t tag;
+
+  /* SGP.22 RemoteProfileProvisioningRequest/Response -- Tag 'A2' */
+  get_rsp_tag(tvb, &tag);
   if (tag == 0xA2) {
     return call_dissector_only(sgp22_handle, tvb, pinfo, tree, data);
   }
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
-  col_clear(pinfo->cinfo, COL_INFO);
-
-  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
-  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
-
-  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
-    offset = dissect_EsipaMessageFromIpaToEim_PDU(tvb, pinfo, sgp32_tree, NULL);
-  } else {
-    offset = dissect_EsipaMessageFromEimToIpa_PDU(tvb, pinfo, sgp32_tree, NULL);
-  }
-
-  return offset;
+  return call_dissector_only(sgp32_handle, tvb, pinfo, tree, data);
 }
 
 void proto_register_sgp32(void)
@@ -5827,66 +5693,6 @@ void proto_register_sgp32(void)
     { &hf_sgp32_EsipaMessageFromEimToIpa_PDU,
       { "EsipaMessageFromEimToIpa", "sgp32.EsipaMessageFromEimToIpa",
         FT_UINT32, BASE_DEC, VALS(sgp32_EsipaMessageFromEimToIpa_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_InitiateAuthenticationRequestEsipa_PDU,
-      { "InitiateAuthenticationRequestEsipa", "sgp32.InitiateAuthenticationRequestEsipa_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_InitiateAuthenticationResponseEsipa_PDU,
-      { "InitiateAuthenticationResponseEsipa", "sgp32.InitiateAuthenticationResponseEsipa",
-        FT_UINT32, BASE_DEC, VALS(sgp32_InitiateAuthenticationResponseEsipa_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_AuthenticateClientRequestEsipa_PDU,
-      { "AuthenticateClientRequestEsipa", "sgp32.AuthenticateClientRequestEsipa_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_AuthenticateClientResponseEsipa_PDU,
-      { "AuthenticateClientResponseEsipa", "sgp32.AuthenticateClientResponseEsipa",
-        FT_UINT32, BASE_DEC, VALS(sgp32_AuthenticateClientResponseEsipa_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_GetBoundProfilePackageRequestEsipa_PDU,
-      { "GetBoundProfilePackageRequestEsipa", "sgp32.GetBoundProfilePackageRequestEsipa_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_GetBoundProfilePackageResponseEsipa_PDU,
-      { "GetBoundProfilePackageResponseEsipa", "sgp32.GetBoundProfilePackageResponseEsipa",
-        FT_UINT32, BASE_DEC, VALS(sgp32_GetBoundProfilePackageResponseEsipa_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_HandleNotificationEsipa_PDU,
-      { "HandleNotificationEsipa", "sgp32.HandleNotificationEsipa",
-        FT_UINT32, BASE_DEC, VALS(sgp32_HandleNotificationEsipa_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_CancelSessionRequestEsipa_PDU,
-      { "CancelSessionRequestEsipa", "sgp32.CancelSessionRequestEsipa_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_CancelSessionResponseEsipa_PDU,
-      { "CancelSessionResponseEsipa", "sgp32.CancelSessionResponseEsipa",
-        FT_UINT32, BASE_DEC, VALS(sgp32_CancelSessionResponseEsipa_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_GetEimPackageRequest_PDU,
-      { "GetEimPackageRequest", "sgp32.GetEimPackageRequest_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_GetEimPackageResponse_PDU,
-      { "GetEimPackageResponse", "sgp32.GetEimPackageResponse",
-        FT_UINT32, BASE_DEC, VALS(sgp32_GetEimPackageResponse_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_ProvideEimPackageResult_PDU,
-      { "ProvideEimPackageResult", "sgp32.ProvideEimPackageResult_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_sgp32_ProvideEimPackageResultResponse_PDU,
-      { "ProvideEimPackageResultResponse", "sgp32.ProvideEimPackageResultResponse",
-        FT_UINT32, BASE_DEC, VALS(sgp32_ProvideEimPackageResultResponse_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_TransferEimPackageRequest_PDU,
-      { "TransferEimPackageRequest", "sgp32.TransferEimPackageRequest",
-        FT_UINT32, BASE_DEC, VALS(sgp32_TransferEimPackageRequest_U_vals), 0,
-        NULL, HFILL }},
-    { &hf_sgp32_TransferEimPackageResponse_PDU,
-      { "TransferEimPackageResponse", "sgp32.TransferEimPackageResponse",
-        FT_UINT32, BASE_DEC, VALS(sgp32_TransferEimPackageResponse_U_vals), 0,
         NULL, HFILL }},
     { &hf_sgp32_euiccPackageSigned,
       { "euiccPackageSigned", "sgp32.euiccPackageSigned_element",
@@ -7375,16 +7181,19 @@ void proto_register_sgp32(void)
 
   register_ber_syntax_dissector("SGP.32 Request", proto_sgp32, dissect_sgp32_request);
   register_ber_syntax_dissector("SGP.32 Response", proto_sgp32, dissect_sgp32_response);
+  register_ber_syntax_dissector("SGP.32 ESipa Request", proto_sgp32, dissect_sgp32_esipa_request);
+  register_ber_syntax_dissector("SGP.32 ESipa Response", proto_sgp32, dissect_sgp32_esipa_response);
+
+  gsma_rsp_asn1_handle = create_dissector_handle_with_name_and_description(dissect_gsma_rsp_asn1, -1, "gsma_rsp_asn1", "GSMA RSP ASN.1");
 }
 
 void proto_reg_handoff_sgp32(void)
 {
   sgp22_handle = find_dissector("sgp22");
-  sgp22_request_dissector_table = find_dissector_table("sgp22.request");
-  sgp22_response_dissector_table = find_dissector_table("sgp22.response");
 
-  dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
-  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
+  dissector_add_string("media_type", "application/x-gsma-rsp-asn1", gsma_rsp_asn1_handle);
+  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", gsma_rsp_asn1_handle);
+  dissector_add_for_decode_as("media_type", sgp32_handle);
 
   dissector_add_uint("sgp32.response", 0xBF21, create_dissector_handle(dissect_PrepareDownloadResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF22, create_dissector_handle(dissect_EUICCInfo2_PDU, proto_sgp32));
@@ -7394,23 +7203,8 @@ void proto_reg_handoff_sgp32(void)
   dissector_add_uint("sgp32.response", 0xBF2B, create_dissector_handle(dissect_RetrieveNotificationsListResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF37, create_dissector_handle(dissect_ProfileInstallationResult_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF38, create_dissector_handle(dissect_AuthenticateServerResponse_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationRequestEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF39, create_dissector_handle(dissect_InitiateAuthenticationResponseEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF3A, create_dissector_handle(dissect_GetBoundProfilePackageRequestEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF3A, create_dissector_handle(dissect_GetBoundProfilePackageResponseEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF3B, create_dissector_handle(dissect_AuthenticateClientRequestEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF3B, create_dissector_handle(dissect_AuthenticateClientResponseEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF3D, create_dissector_handle(dissect_HandleNotificationEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF41, create_dissector_handle(dissect_CancelSessionRequestEsipa_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF41, create_dissector_handle(dissect_CancelSessionResponseEsipa_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF42, create_dissector_handle(dissect_IpaeActivationRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF42, create_dissector_handle(dissect_IpaeActivationResponse_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF4E, create_dissector_handle(dissect_TransferEimPackageRequest_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF4E, create_dissector_handle(dissect_TransferEimPackageResponse_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF4F, create_dissector_handle(dissect_GetEimPackageRequest_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF4F, create_dissector_handle(dissect_GetEimPackageResponse_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.request", 0xBF50, create_dissector_handle(dissect_ProvideEimPackageResult_PDU, proto_sgp32));
-  dissector_add_uint("sgp32.response", 0xBF50, create_dissector_handle(dissect_ProvideEimPackageResultResponse_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF51, create_dissector_handle(dissect_EuiccPackageRequest_PDU, proto_sgp32));
   dissector_add_uint("sgp32.response", 0xBF51, create_dissector_handle(dissect_EuiccPackageResult_PDU, proto_sgp32));
   dissector_add_uint("sgp32.request", 0xBF52, create_dissector_handle(dissect_IpaEuiccDataRequest_PDU, proto_sgp32));

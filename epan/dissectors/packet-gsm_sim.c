@@ -18,6 +18,7 @@
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/reassemble.h>
 
 #include <wiretap/wtap.h>
@@ -581,6 +582,25 @@ typedef struct gsm_sim_transaction {
 } gsm_sim_transaction_t;
 
 static wmem_tree_t *transactions;
+
+/* eUICC type as indicated by the ISD-R proprietary application template, or inferred
+ * from the ES10 messages seen, keyed by frame number. */
+typedef enum {
+	RSP_TYPE_UNKNOWN,
+	RSP_TYPE_SGP22,
+	RSP_TYPE_SGP32
+} rsp_type_t;
+
+static const enum_val_t rsp_type_vals[] = {
+	{ "auto",  "Automatic", RSP_TYPE_UNKNOWN },
+	{ "sgp22", "SGP.22",    RSP_TYPE_SGP22 },
+	{ "sgp32", "SGP.32",    RSP_TYPE_SGP32 },
+	{ NULL, NULL, 0 }
+};
+
+static int pref_rsp_type = RSP_TYPE_UNKNOWN;
+static wmem_tree_t *rsp_types;
+
 static reassembly_table gsm_sim_reassembly_table;
 
 static int hf_gsm_sim_fragments;
@@ -1970,6 +1990,14 @@ dissect_fcp_proprietary_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	return offset;
 }
 
+static void
+set_rsp_type(packet_info *pinfo, rsp_type_t rsp_type)
+{
+	if (!PINFO_FD_VISITED(pinfo)) {
+		wmem_tree_insert32(rsp_types, pinfo->num, GUINT_TO_POINTER(rsp_type));
+	}
+}
+
 /* Dissect FCP (File Control Parameters) template as defined in ETSI TS 102.221 */
 static int
 dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
@@ -1980,6 +2008,7 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	uint32_t tag, len;
 	uint8_t tag_size, len_size;
 	uint8_t byte;
+	rsp_type_t rsp_type = RSP_TYPE_UNKNOWN;
 
 	int start_offset = offset;
 	int end_offset = offset + length;
@@ -2075,10 +2104,12 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		case 0xE0: /* ISDRProprietaryApplicationTemplate (SGP.22) */
 			subtvb = tvb_new_subset_length(tvb, start_offset, tag_size + len_size + len);
 			dissect_sgp22_ISDRProprietaryApplicationTemplate_PDU(subtvb, pinfo, value_tree, NULL);
+			rsp_type = RSP_TYPE_SGP22;
 			break;
 		case 0xE1: /* ISDRProprietaryApplicationTemplateIoT (SGP.32) */
 			subtvb = tvb_new_subset_length(tvb, start_offset, tag_size + len_size + len);
 			dissect_sgp32_ISDRProprietaryApplicationTemplateIoT_PDU(subtvb, pinfo, value_tree, NULL);
+			rsp_type = RSP_TYPE_SGP32;
 			break;
 		default:
 			/* Unknown tag */
@@ -2089,7 +2120,48 @@ dissect_fcp_template(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 		offset += len;
 	}
 
+	if (rsp_type != RSP_TYPE_UNKNOWN) {
+		set_rsp_type(pinfo, rsp_type);
+	}
+
 	return offset;
+}
+
+/* Dissect SGP.22 or SGP.32 ES10 messages, depending on the eUICC type. */
+static void
+dissect_rsp_store_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is_response)
+{
+	rsp_type_t rsp_type = (rsp_type_t)GPOINTER_TO_UINT(wmem_tree_lookup32_le(rsp_types, pinfo->num));
+	bool is_sgp22 = is_response ? is_sgp22_response(tvb) : is_sgp22_request(tvb);
+	bool is_sgp32 = is_response ? is_sgp32_response(tvb) : is_sgp32_request(tvb);
+
+	if (is_sgp22 && is_sgp32) {
+		/* Message redefined in SGP.32 */
+		if (pref_rsp_type != RSP_TYPE_UNKNOWN) {
+			rsp_type = (rsp_type_t)pref_rsp_type;
+		}
+
+		/* Use SGP.32 if the eUICC type is unknown, as it extends the SGP.22 messages. */
+		is_sgp22 = (rsp_type == RSP_TYPE_SGP22);
+		is_sgp32 = !is_sgp22;
+	} else if (is_sgp32 && rsp_type == RSP_TYPE_UNKNOWN) {
+		/* Message only defined in SGP.32 */
+		set_rsp_type(pinfo, RSP_TYPE_SGP32);
+	}
+
+	if (is_sgp32) {
+		if (is_response) {
+			dissect_sgp32_response(tvb, pinfo, tree, NULL);
+		} else {
+			dissect_sgp32_request(tvb, pinfo, tree, NULL);
+		}
+	} else if (is_sgp22) {
+		if (is_response) {
+			dissect_sgp22_response(tvb, pinfo, tree, NULL);
+		} else {
+			dissect_sgp22_request(tvb, pinfo, tree, NULL);
+		}
+	}
 }
 
 static int
@@ -2398,8 +2470,8 @@ dissect_storage_data_command(tvbuff_t *tvb, int offset, int length, packet_info 
 						  frag_msg, &gsm_sim_frag_items, NULL, sim_tree);
 	}
 
-	if (subtvb && ((gsm_sim_trans->cmd_p1 & 0x78) == 0x10) && is_sgp32_request(subtvb)) {
-		dissect_sgp32_request(subtvb, pinfo, tree, NULL);
+	if (subtvb && ((gsm_sim_trans->cmd_p1 & 0x78) == 0x10)) {
+		dissect_rsp_store_data(subtvb, pinfo, tree, false);
 	}
 }
 
@@ -2883,8 +2955,8 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 			}
 			break;
 		case 0xE2: /* STORE DATA */
-			if (((p1 & 0x78) == 0x10) && is_sgp32_response(subtvb)) {
-				dissect_sgp32_response(subtvb, pinfo, tree, NULL);
+			if (subtvb && ((p1 & 0x78) == 0x10)) {
+				dissect_rsp_store_data(subtvb, pinfo, tree, true);
 			}
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset, apdu_len, ENC_NA);
 			break;
@@ -5488,6 +5560,7 @@ proto_register_gsm_sim(void)
 		{ &ei_unknown_bytes, { "gsm_sim.unknown_bytes", PI_PROTOCOL, PI_WARN, "Unknown bytes", EXPFILL }},
 	};
 	expert_module_t *expert_gsm_sim;
+	module_t *gsm_sim_module;
 
 	proto_gsm_sim = proto_register_protocol("GSM SIM 11.11", "GSM SIM",
 						 "gsm_sim");
@@ -5497,7 +5570,14 @@ proto_register_gsm_sim(void)
 	expert_gsm_sim = expert_register_protocol(proto_gsm_sim);
 	expert_register_field_array(expert_gsm_sim, ei, array_length(ei));
 
+	gsm_sim_module = prefs_register_protocol(proto_gsm_sim, NULL);
+	prefs_register_enum_preference(gsm_sim_module, "rsp_type", "eUICC type",
+				       "Remote SIM Provisioning specification used for ES10 messages redefined in SGP.32. "
+				       "Automatic uses the ISD-R SELECT response, or the ES10 messages seen.",
+				       &pref_rsp_type, rsp_type_vals, false);
+
 	transactions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+	rsp_types = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 	reassembly_table_register (&gsm_sim_reassembly_table, &addresses_reassembly_table_functions);
 
 	/* This dissector is for SIMtrace, which always combines the command

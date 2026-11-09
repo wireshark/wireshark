@@ -37,10 +37,9 @@ static int ett_sgp32_tagList;
 
 static dissector_handle_t sgp22_handle;
 static dissector_handle_t sgp32_handle;
+static dissector_handle_t gsma_rsp_asn1_handle;
 
 /* Dissector tables */
-static dissector_table_t sgp22_request_dissector_table;
-static dissector_table_t sgp22_response_dissector_table;
 static dissector_table_t sgp32_request_dissector_table;
 static dissector_table_t sgp32_response_dissector_table;
 
@@ -78,102 +77,83 @@ static int dissect_sgp32_taglist(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 #include "packet-sgp32-fn.c"
 
-static int get_sgp32_tag(tvbuff_t *tvb, uint32_t *tag)
-{
-  int offset = 0;
-
-  *tag = tvb_get_uint8(tvb, offset++);
-  if ((*tag & 0x1F) == 0x1F) {
-    *tag = (*tag << 8) | tvb_get_uint8(tvb, offset++);
-  }
-
-  return offset;
-}
-
-static bool is_asn1_header(tvbuff_t *tvb, uint32_t *tag)
-{
-  uint32_t length = 0;
-  int offset;
-
-  offset = get_sgp32_tag(tvb, tag);
-  offset = get_ber_length(tvb, offset, &length, NULL);
-
-  return ((offset + length) == tvb_reported_length(tvb));
-}
-
 bool is_sgp32_request(tvbuff_t *tvb)
 {
   uint32_t tag;
 
-  if (!is_asn1_header(tvb, &tag)) {
+  if (!is_rsp_asn1_header(tvb, &tag)) {
     return false;
   }
 
-  return dissector_get_uint_handle(sgp32_request_dissector_table, tag) ||
-         dissector_get_uint_handle(sgp22_request_dissector_table, tag);
+  return dissector_get_uint_handle(sgp32_request_dissector_table, tag) != NULL;
 }
 
 bool is_sgp32_response(tvbuff_t *tvb)
 {
   uint32_t tag;
 
-  if (!is_asn1_header(tvb, &tag)) {
+  if (!is_rsp_asn1_header(tvb, &tag)) {
     return false;
   }
 
-  return dissector_get_uint_handle(sgp32_response_dissector_table, tag) ||
-         dissector_get_uint_handle(sgp22_response_dissector_table, tag);
+  return dissector_get_uint_handle(sgp32_response_dissector_table, tag) != NULL;
+}
+
+static int dissect_sgp32_table(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dissector_table_t table)
+{
+  proto_item *sgp32_ti;
+  proto_tree *sgp32_tree;
+  uint32_t tag = 0;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
+
+  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
+  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
+
+  get_rsp_tag(tvb, &tag);
+
+  return dissector_try_uint(table, tag, tvb, pinfo, sgp32_tree);
 }
 
 int dissect_sgp32_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *sgp32_ti;
-  proto_tree *sgp32_tree;
-  uint32_t tag = 0;
-  int offset;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
-
-  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
-  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
-
-  get_sgp32_tag(tvb, &tag);
-  offset = dissector_try_uint(sgp32_request_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  if (offset == 0) {
-    offset = dissector_try_uint(sgp22_request_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  }
-
-  return offset;
+  return dissect_sgp32_table(tvb, pinfo, tree, sgp32_request_dissector_table);
 }
 
 int dissect_sgp32_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
+  return dissect_sgp32_table(tvb, pinfo, tree, sgp32_response_dissector_table);
+}
+
+static int dissect_sgp32_esipa_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
   proto_item *sgp32_ti;
   proto_tree *sgp32_tree;
-  uint32_t tag = 0;
-  int offset;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
 
   sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
   sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
 
-  get_sgp32_tag(tvb, &tag);
-  offset = dissector_try_uint(sgp32_response_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  if (offset == 0) {
-    offset = dissector_try_uint(sgp22_response_dissector_table, tag, tvb, pinfo, sgp32_tree);
-  }
+  return dissect_EsipaMessageFromIpaToEim_PDU(tvb, pinfo, sgp32_tree, NULL);
+}
 
-  return offset;
+static int dissect_sgp32_esipa_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  proto_item *sgp32_ti;
+  proto_tree *sgp32_tree;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
+
+  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
+  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
+
+  return dissect_EsipaMessageFromEimToIpa_PDU(tvb, pinfo, sgp32_tree, NULL);
 }
 
 static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   media_content_info_t *content_info = (media_content_info_t *)data;
-  proto_item *sgp32_ti;
-  proto_tree *sgp32_tree;
-  uint32_t tag;
-  int offset;
 
   if (!content_info ||
       ((content_info->type != MEDIA_CONTAINER_HTTP_REQUEST) &&
@@ -181,25 +161,31 @@ static int dissect_sgp32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return 0;
   }
 
-  /* Check for SGP.22 RemoteProfileProvisioning -- Tag 'A2' */
-  get_sgp32_tag(tvb, &tag);
+  col_clear(pinfo->cinfo, COL_INFO);
+
+  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
+    return dissect_sgp32_esipa_request(tvb, pinfo, tree, NULL);
+  }
+
+  return dissect_sgp32_esipa_response(tvb, pinfo, tree, NULL);
+}
+
+/*
+ * SGP.22 (ES9+/ES11) and SGP.32 (ESipa) use the same media type.
+ * This dispatcher has no protocol, so only the dissector actually
+ * decoding the message is added to the protocol layers.
+ */
+static int dissect_gsma_rsp_asn1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  uint32_t tag;
+
+  /* SGP.22 RemoteProfileProvisioningRequest/Response -- Tag 'A2' */
+  get_rsp_tag(tvb, &tag);
   if (tag == 0xA2) {
     return call_dissector_only(sgp22_handle, tvb, pinfo, tree, data);
   }
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SGP.32");
-  col_clear(pinfo->cinfo, COL_INFO);
-
-  sgp32_ti = proto_tree_add_item(tree, proto_sgp32, tvb, 0, -1, ENC_NA);
-  sgp32_tree = proto_item_add_subtree(sgp32_ti, ett_sgp32);
-
-  if (content_info->type == MEDIA_CONTAINER_HTTP_REQUEST) {
-    offset = dissect_EsipaMessageFromIpaToEim_PDU(tvb, pinfo, sgp32_tree, NULL);
-  } else {
-    offset = dissect_EsipaMessageFromEimToIpa_PDU(tvb, pinfo, sgp32_tree, NULL);
-  }
-
-  return offset;
+  return call_dissector_only(sgp32_handle, tvb, pinfo, tree, data);
 }
 
 void proto_register_sgp32(void)
@@ -236,16 +222,19 @@ void proto_register_sgp32(void)
 
   register_ber_syntax_dissector("SGP.32 Request", proto_sgp32, dissect_sgp32_request);
   register_ber_syntax_dissector("SGP.32 Response", proto_sgp32, dissect_sgp32_response);
+  register_ber_syntax_dissector("SGP.32 ESipa Request", proto_sgp32, dissect_sgp32_esipa_request);
+  register_ber_syntax_dissector("SGP.32 ESipa Response", proto_sgp32, dissect_sgp32_esipa_response);
+
+  gsma_rsp_asn1_handle = create_dissector_handle_with_name_and_description(dissect_gsma_rsp_asn1, -1, "gsma_rsp_asn1", "GSMA RSP ASN.1");
 }
 
 void proto_reg_handoff_sgp32(void)
 {
   sgp22_handle = find_dissector("sgp22");
-  sgp22_request_dissector_table = find_dissector_table("sgp22.request");
-  sgp22_response_dissector_table = find_dissector_table("sgp22.response");
 
-  dissector_add_string("media_type", "application/x-gsma-rsp-asn1", sgp32_handle);
-  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", sgp32_handle);
+  dissector_add_string("media_type", "application/x-gsma-rsp-asn1", gsma_rsp_asn1_handle);
+  dissector_add_string("coap_uri_path", "/gsma/rsp2/asn1", gsma_rsp_asn1_handle);
+  dissector_add_for_decode_as("media_type", sgp32_handle);
 
 #include "packet-sgp32-dis-tab.c"
 }
