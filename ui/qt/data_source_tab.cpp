@@ -138,8 +138,6 @@ private:
 // The real fix is in Qt 6.10.1 and later.
 class DataSourceTabBar : public QTabBar
 {
-    Q_OBJECT
-
 public:
     explicit DataSourceTabBar(QWidget *parent = nullptr);
 
@@ -941,7 +939,3 @@ void DataSourceTab::captureFileClosing()
     annotations_.clear();
     annotations_session_notice_shown_ = false;
 }
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 3, 0) && QT_VERSION < QT_VERSION_CHECK(6, 10, 1)
-#include "data_source_tab.moc"
-#endif
