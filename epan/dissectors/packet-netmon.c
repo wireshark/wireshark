@@ -508,9 +508,9 @@ dissect_netmon_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_tree_add_item(event_tree, hf_netmon_event_timestamp, tvb, offset, 8, ENC_TIME_WINDOWS|ENC_LITTLE_ENDIAN);
 	offset += 8;
 
-	proto_tree_add_item(event_tree, hf_netmon_event_provider_id, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	/* Save the GUID to use in dissector table */
-	tvb_memcpy(tvb, &provider_guid.guid, offset, 16);
+	tvb_get_letohguid(tvb, offset, &provider_guid.guid);
+	proto_tree_add_guid(event_tree, hf_netmon_event_provider_id, tvb, offset, 16, &provider_guid.guid);
 	provider_guid.ver = 0; //version field not used
 	offset += 16;
 
