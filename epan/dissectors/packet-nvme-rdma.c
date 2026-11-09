@@ -25,7 +25,7 @@ Current dissection supports dissection of
 As part of it, it also calculates cmd completion latencies.
 
 This protocol is similar to iSCSI and SCSI dissection where iSCSI is
-transport protocol for carying SCSI commands and responses. Similarly
+transport protocol for carrying SCSI commands and responses. Similarly
 NVMe Fabrics - RDMA transport protocol carries NVMe commands.
 
      +----------+

@@ -2280,8 +2280,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
             offset += 90;
 
             /* 16-bit field with number of data areas */
-            num_reg = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(fastmsg_tree, hf_selfm_fastmsg_devdesc_num_region, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint16(fastmsg_tree, hf_selfm_fastmsg_devdesc_num_region, tvb, offset, 2, ENC_BIG_ENDIAN, &num_reg);
             offset += 2;
 
             /* Maximum size of 7 regions per message, check the seq_cnt to determine if we have stepped into

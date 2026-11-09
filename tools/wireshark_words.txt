@@ -465,8 +465,8 @@ circularly
 citic
 citrix
 cjt1sp
-cksum
 ckn
+cksum
 clasportinfo
 classifiers
 classmark
@@ -880,6 +880,8 @@ doxygen
 dpauxmon
 dpcch
 dpdch
+dplay
+dpnet
 dpnss
 dport
 drange
@@ -1840,8 +1842,8 @@ misconfiguration
 misconfigured
 mitel
 mitsubishi
-mkdir
 mka
+mkdir
 mkpdu
 mmdbresolve
 mmentry
@@ -2149,11 +2151,15 @@ ofpbic
 ofpbmc
 ofpbpc
 ofpbrc
+ofpcr
+ofpcrr
 ofpet
 ofpfc
 ofpfme
 ofpfmf
 ofpfmfc
+ofpgc
+ofpgfc
 ofpgmfc
 ofpgt
 ofpit
@@ -2163,11 +2169,14 @@ ofpmmfc
 ofpmofc
 ofpmp
 ofpopf
+ofposf
 ofppc
 ofppf
 ofppmfc
 ofppr
 ofprr
+ofptc
+ofptffc
 ofptfpt
 ofpxmc
 ofpxmt
@@ -2527,6 +2536,7 @@ radians
 radiotap
 radisys
 radix
+raknet
 ralink
 ramirez
 ranap
@@ -3552,6 +3562,7 @@ unspecific
 unstaged
 unsubscribe
 unsubscribed
+unsup
 unsupportable
 unsynchronised
 unsynchronized

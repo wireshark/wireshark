@@ -151,12 +151,10 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         ti = proto_tree_add_item(tree, proto_nsrp, tvb, 0, -1, ENC_NA);
         nsrp_tree = proto_item_add_subtree(ti, ett_nsrp);
 
-
         proto_tree_add_item(nsrp_tree, hf_nsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        msgtype = tvb_get_uint8(tvb, offset);
-        proto_tree_add_item(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msgtype);
         offset += 1;
 
         proto_tree_add_item(nsrp_tree, hf_nsrp_clust_id, tvb, offset, 1, ENC_BIG_ENDIAN);

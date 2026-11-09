@@ -1678,8 +1678,7 @@ dissect_openflow_hello_element_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset+=2;
 
     /* uint16_t length; */
-    elem_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(elem_tree, hf_openflow_v6_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(elem_tree, hf_openflow_v6_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN, &elem_length);
     offset+=2;
 
     if (elem_length < 4) {

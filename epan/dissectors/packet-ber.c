@@ -602,7 +602,7 @@ dissect_ber_tagged_type(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
     int         identifier_offset;
     int         identifier_len;
     uint32_t    tmp_len;
-    tvbuff_t   *next_tvb = tvb;
+    tvbuff_t   *next_tvb;
 
 #ifdef DEBUG_BER
 {

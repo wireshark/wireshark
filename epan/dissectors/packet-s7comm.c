@@ -2868,8 +2868,7 @@ s7comm_syntaxid_1200sym(tvbuff_t *tvb, packet_info* pinfo, uint32_t offset, prot
     for (int i = 0; i < (varspec_length - 10) / 4; i++) {
         sub_item = proto_tree_add_item(tree, hf_s7comm_tia1200_substructure_item, tvb, offset, 4, ENC_NA);
         sub_item_tree = proto_item_add_subtree(sub_item, ett_s7comm_param_subitem);
-        tia_lid_flags = tvb_get_uint8(tvb, offset) >> 4;
-        proto_tree_add_item(sub_item_tree, hf_s7comm_tia1200_var_lid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint8(sub_item_tree, hf_s7comm_tia1200_var_lid_flags, tvb, offset, 1, ENC_BIG_ENDIAN, &tia_lid_flags);
         tia_value = tvb_get_ntohl(tvb, offset) & 0x0fffffff;
         proto_item_append_text(sub_item, " [%d]: %s, Value: %u", i + 1,
             val_to_str(pinfo->pool, tia_lid_flags, tia1200_var_lid_flag_names, "Unknown flags: 0x%02x"),
@@ -4318,8 +4317,7 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb, packet_info* pinfo,
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 /* The job which has to be replaced */
-                job_subfunc = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item(td_tree, hf_s7comm_tis_job_function, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint8(td_tree, hf_s7comm_tis_job_function, tvb, offset, 1, ENC_NA, &job_subfunc);
                 offset += 1;
                 proto_tree_add_item(td_tree, hf_s7comm_tis_job_seqnr, tvb, offset, 1, ENC_NA);
                 offset += 1;
@@ -5235,11 +5233,9 @@ s7comm_decode_ud_tis_subfunc(tvbuff_t *tvb, packet_info* pinfo,
     uint16_t tp_size = 0;
     uint16_t td_size = 0;
 
-    tp_size = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(data_tree, hf_s7comm_tis_parametersize, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(data_tree, hf_s7comm_tis_parametersize, tvb, offset, 2, ENC_BIG_ENDIAN, &tp_size);
     offset += 2;
-    td_size = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(data_tree, hf_s7comm_tis_datasize, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(data_tree, hf_s7comm_tis_datasize, tvb, offset, 2, ENC_BIG_ENDIAN, &td_size);
     offset += 2;
     /* Parameter tree */
     offset = s7comm_decode_ud_tis_param(tvb, data_tree, type, tp_size, offset);
@@ -6295,8 +6291,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                     offset += 1;
                     proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_lang, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
-                    blocktype = tvb_get_uint8(tvb, offset);
-                    proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_subblk_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint8(data_tree, hf_s7comm_ud_blockinfo_subblk_type, tvb, offset, 1, ENC_BIG_ENDIAN, &blocktype);
                     offset += 1;
                     blocknumber = tvb_get_ntohs(tvb, offset);
                     proto_tree_add_uint(data_tree, hf_s7comm_ud_blockinfo_block_num, tvb, offset, 2, blocknumber);
@@ -6482,8 +6477,7 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
             if (type == S7COMM_UD_TYPE_REQ) {
                 proto_tree_add_item(data_tree, hf_s7comm_cycl_function, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(data_tree, hf_s7comm_cycl_jobid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                job_id = tvb_get_uint8(tvb, offset);
+                proto_tree_add_item_ret_uint8(data_tree, hf_s7comm_cycl_jobid, tvb, offset, 1, ENC_BIG_ENDIAN, &job_id);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", job_id);
                 offset += 1;
                 know_data = true;

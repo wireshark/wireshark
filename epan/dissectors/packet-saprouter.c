@@ -539,8 +539,7 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		proto_tree_add_item(saprouter_tree, hf_saprouter_ni_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
-		opcode = tvb_get_uint8(tvb, offset);
-		proto_tree_add_item(saprouter_tree, hf_saprouter_admin_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint8(saprouter_tree, hf_saprouter_admin_command, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
 		offset++;
 
 		switch (opcode){
@@ -585,16 +584,14 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 						return tvb_reported_length(tvb);
 					}
 					offset+=2; /* Skip 2 bytes for Cancel Route request*/
-					client_count = tvb_get_ntohs(tvb, offset);
-					proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_count_short, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item_ret_uint(saprouter_tree, hf_saprouter_admin_client_count_short, tvb, offset, 2, ENC_BIG_ENDIAN, &client_count);
 					offset+=2;
 				} else {
 					if (tvb_reported_length_remaining(tvb, offset) < 4) {
 						expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_control_invalid_length, "SAP Router trace connection request is shorter than 4 fixed bytes");
 						return tvb_reported_length(tvb);
 					}
-					client_count = tvb_get_ntohl(tvb, offset);
-					proto_tree_add_item(saprouter_tree, hf_saprouter_admin_client_count_int, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item_ret_uint(saprouter_tree, hf_saprouter_admin_client_count_int, tvb, offset, 4, ENC_BIG_ENDIAN, &client_count);
 					offset+=4;
 				}
 

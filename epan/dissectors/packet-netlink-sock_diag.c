@@ -626,8 +626,7 @@ dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, stru
 {
 	uint8_t af_family;
 
-	af_family = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint8(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA, &af_family);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netlink_sock_diag_state, tvb, offset, 1, ENC_NA);
@@ -663,8 +662,7 @@ dissect_sock_diag_inet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, st
 {
 	uint8_t af_family;
 
-	af_family = tvb_get_uint8(tvb, offset);
-	proto_tree_add_item(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint8(tree, hf_netlink_sock_diag_family, tvb, offset, 1, ENC_NA, &af_family);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netlink_sock_diag_inet_proto, tvb, offset, 1, ENC_NA);

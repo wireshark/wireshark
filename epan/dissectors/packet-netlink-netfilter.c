@@ -1195,9 +1195,7 @@ dissect_nfq_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_data
 		case WS_NFQA_HWADDR:
 			if (len >= 4) {
 				uint16_t addrlen;
-
-				proto_tree_add_item(tree, hf_nfq_hwaddr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-				addrlen = tvb_get_ntohs(tvb, offset);
+				proto_tree_add_item_ret_uint16(tree, hf_nfq_hwaddr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addrlen);
 				offset += 2;
 				proto_tree_add_item(tree, hf_padding, tvb, offset, 2, ENC_NA);
 				offset += 2;

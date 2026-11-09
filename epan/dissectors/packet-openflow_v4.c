@@ -1248,13 +1248,11 @@ dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     elem_tree = proto_tree_add_subtree(tree, tvb, offset, length - offset, ett_openflow_v4_hello_element, NULL, "Element");
 
     /* uint16_t type; */
-    elem_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(elem_tree, hf_openflow_v4_hello_element_type, tvb, offset, 2, ENC_BIG_ENDIAN, &elem_type);
     offset+=2;
 
     /* uint16_t length; */
-    elem_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(elem_tree, hf_openflow_v4_hello_element_length, tvb, offset, 2, ENC_BIG_ENDIAN, &elem_length);
     offset+=2;
 
     if (elem_length < 4) {
@@ -1957,8 +1955,7 @@ dissect_openflow_action_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     uint16_t act_type;
 
     /* uint16_t type; */
-    act_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v4_action_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v4_action_type, tvb, offset, 2, ENC_BIG_ENDIAN, &act_type);
     offset+=2;
 
     /* uint16_t length; */
@@ -2439,8 +2436,7 @@ dissect_openflow_instruction_header_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     uint16_t inst_type;
 
     /* uint16_t type; */
-    inst_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_openflow_v4_instruction_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(tree, hf_openflow_v4_instruction_type, tvb, offset, 2, ENC_BIG_ENDIAN, &inst_type);
     offset+=2;
 
     /* uint16_t length; */
@@ -4111,14 +4107,12 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     prop_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_openflow_v4_queue_prop, &ti, "Queue property");
 
     /* uint16_t property; */
-    prop_type = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_property, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint16(prop_tree, hf_openflow_v4_queue_prop_property, tvb, offset, 2, ENC_BIG_ENDIAN, &prop_type);
     offset+=2;
 
     /* uint16_t len; */
-    prop_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item_ret_uint16(prop_tree, hf_openflow_v4_queue_prop_len, tvb, offset, 2, ENC_BIG_ENDIAN, &prop_len);
     proto_item_set_len(ti, prop_len);
-    proto_tree_add_item(prop_tree, hf_openflow_v4_queue_prop_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint8_t pad[4]; */
