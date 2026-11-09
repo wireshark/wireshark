@@ -123,6 +123,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/themes/color_math.h
 	utils/themes/legacy_color_prefs_migration.h
 	utils/themes/native_title_bar.h
+	utils/themes/native_push_button.h
 	utils/themes/system_theme_detector.h
 	utils/themes/theme_format.h
 	utils/themes/theme_palette_builder.h
@@ -465,6 +466,7 @@ if(APPLE)
 	set(WIRESHARK_THEMES_PLATFORM_SRC
 		utils/themes/system_theme_detector_mac.mm
 		utils/themes/native_title_bar_mac.mm
+		utils/themes/native_push_button_mac.mm
 	)
 elseif(WIN32)
 	set(WIRESHARK_THEMES_PLATFORM_SRC

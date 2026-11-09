@@ -27,6 +27,15 @@
 #include <QStyleOptionViewItem>
 #include <QToolBar>
 
+#ifdef Q_OS_MACOS
+#include <ui/qt/utils/themes/native_push_button.h>
+
+#include <QFocusFrame>
+#include <QGuiApplication>
+#include <QPushButton>
+#include <QStyleHints>
+#endif
+
 static QString base_style_name_;
 
 #ifdef Q_OS_MACOS
@@ -165,8 +174,7 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
     const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option);
     if (type == CT_PushButton && button && !(button->features & QStyleOptionButton::Flat)
             && baseStyleName() == QLatin1String("macos")) {
-        const int bezel = QProxyStyle::sizeFromContents(type, option,
-                QSize(contentsSize.width(), 0), widget).height();
+        const int bezel = pushButtonBezelHeight(button, contentsSize.width(), widget);
         QStyleOptionButton probe = *button;
         if (size.height() > bezel) {
             probe.rect = QRect(0, 0, size.width(), bezel);
@@ -182,6 +190,67 @@ QSize ThemeStyler::sizeFromContents(ContentsType type, const QStyleOption *optio
 #endif
     return size;
 }
+
+#ifdef Q_OS_MACOS
+int ThemeStyler::pushButtonBezelHeight(const QStyleOptionButton *button, int contentsWidth,
+    const QWidget *widget) const
+{
+    // The base style returns at least the bezel height for empty content.
+    return QProxyStyle::sizeFromContents(CT_PushButton, button, QSize(contentsWidth, 0), widget).height();
+}
+
+bool ThemeStyler::takesFlexibleBezel(const QStyleOptionButton *button, const QWidget *widget) const
+{
+    if (!button || !widget || baseStyleName() != QLatin1String("macos"))
+        return false;
+    if (button->features & (QStyleOptionButton::Flat | QStyleOptionButton::CommandLinkButton))
+        return false;
+    // The base style draws no bevel without one of these states either.
+    if (!(button->state & (State_Raised | State_Sunken | State_On)))
+        return false;
+    // The native bezel is drawn in the window's native view; never create
+    // one just to paint.
+    if (widget->window()->effectiveWinId() == 0)
+        return false;
+    // Buttons of the bezel height get the native rounded bezel from the
+    // base style. Lower ones keep its square bezel, since the flexible
+    // bezel has a minimum height.
+    return button->rect.height() > pushButtonBezelHeight(button, button->rect.width(), widget);
+}
+
+bool ThemeStyler::pushButtonEmphasized(const QStyleOptionButton *button)
+{
+    return (button->state & State_On)
+            || (button->features & QStyleOptionButton::DefaultButton)
+            || ((button->features & QStyleOptionButton::AutoDefaultButton)
+                && (button->state & State_HasFocus));
+}
+
+NativePushButton::BezelState ThemeStyler::flexibleBezelState(const QStyleOptionButton *button)
+{
+    NativePushButton::BezelState state;
+    state.enabled = button->state & State_Enabled;
+    state.pressed = button->state & State_Sunken;
+    state.highlighted = (button->state & State_Active) && pushButtonEmphasized(button);
+    return state;
+}
+
+QRect ThemeStyler::flexibleBezelRect(const QStyleOptionButton *button, const QWidget *widget) const
+{
+    // At the bezel height the base style returns the visible outline of the
+    // native bezel as SE_PushButtonBevel, without its shadow. Keep its
+    // horizontal extent and its top and bottom insets, and stretch it to
+    // the button height.
+    const QRect &rect = button->rect;
+    QStyleOptionButton probe = *button;
+    probe.rect.setHeight(pushButtonBezelHeight(button, rect.width(), widget));
+    const QRect bevel = QProxyStyle::subElementRect(SE_PushButtonBevel, &probe, widget);
+    const int topInset = bevel.top() - probe.rect.top();
+    const int bottomInset = probe.rect.bottom() - bevel.bottom();
+    return QRect(bevel.left(), rect.top() + topInset, bevel.width(),
+                 rect.height() - topInset - bottomInset);
+}
+#endif
 
 void ThemeStyler::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
     QPainter *painter, const QWidget *widget) const
@@ -242,6 +311,107 @@ void ThemeStyler::drawControl(ControlElement element, const QStyleOption *option
     QPainter *painter, const QWidget *widget) const
 {
 #ifdef Q_OS_MACOS
+    // The macOS style draws a push button taller than its native bezel
+    // (zoomed fonts) as a flat square. Such buttons get AppKit's
+    // flexible-height rounded push bezel instead. Only the bevel is
+    // replaced: QCommonStyle composes CE_PushButton from bevel and label
+    // through proxy(), so the label and the hit rects stay the base
+    // style's.
+    if (element == CE_PushButtonBevel && option && painter) {
+        const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option);
+        if (btn && takesFlexibleBezel(btn, widget)) {
+            if (NativePushButton::drawFlexibleBezel(painter, flexibleBezelRect(btn, widget),
+                                                    flexibleBezelState(btn), widget)) {
+                if (btn->features & QStyleOptionButton::HasMenu) {
+                    // Menu arrow placement of QMacStyle's CE_PushButtonBevel
+                    // for square buttons (private, no API exposes it). For
+                    // a square button the base SE_PushButtonBevel is the
+                    // frame rect that code places the arrow in.
+                    const QRect ir = QProxyStyle::subElementRect(SE_PushButtonBevel, btn, widget);
+                    const int mbi = proxy()->pixelMetric(PM_MenuButtonIndicator, btn, widget);
+                    QStyleOption arrowOpt = *option;
+                    arrowOpt.rect = visualRect(btn->direction, ir,
+                                               QRect(ir.right() - mbi - 6, ir.height() / 2, mbi, mbi));
+                    proxy()->drawPrimitive(PE_IndicatorArrowDown, &arrowOpt, painter, widget);
+                }
+                return;
+            }
+        }
+    }
+
+    // The label color of QMacStyle's CE_PushButtonLabel depends on the
+    // accent state its own bevel code records in a private pointer, which
+    // is never updated for the buttons drawn above. Set the final color
+    // here from the option alone, with QMacStyle's rules.
+    if (element == CE_PushButtonLabel && option && painter && widget) {
+        const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(option);
+        if (btn) {
+            // The label option carries the contents rect; judge the button.
+            QStyleOptionButton buttonOpt = *btn;
+            buttonOpt.rect = widget->rect();
+            if (takesFlexibleBezel(&buttonOpt, widget)) {
+                QStyleOptionButton labelOpt = *btn;
+                const NativePushButton::BezelState state = flexibleBezelState(btn);
+                const bool emphasized = pushButtonEmphasized(btn);
+                // White label on the accent fill or a pressed bezel, as
+                // QMacStyle does for its rounded push button; menu buttons
+                // are never whitened.
+                if (!(btn->features & QStyleOptionButton::HasMenu)
+                        && (state.pressed || (state.enabled && state.highlighted)))
+                    labelOpt.palette.setColor(QPalette::ButtonText, Qt::white);
+                // QMacStyle's gray button rule: black on a light enabled
+                // non-accent bezel. Same color scheme test as QMacStyle.
+                const bool lightMode = QGuiApplication::styleHints()->colorScheme() != Qt::ColorScheme::Dark;
+                if (state.enabled && lightMode && !emphasized)
+                    labelOpt.palette.setColor(QPalette::ButtonText, Qt::black);
+                // QMacStyle forces black on a light button it does not
+                // consider default and that is not checked. Mark an
+                // emphasized button checked so that override, driven by
+                // the stale private pointer, never fires for it.
+                if (emphasized)
+                    labelOpt.state |= State_On;
+                QProxyStyle::drawControl(element, &labelOpt, painter, widget);
+                return;
+            }
+        }
+    }
+
+    // The focus ring of a button drawn above follows its flexible bezel.
+    if (element == CE_FocusFrame && option && painter) {
+        const QFocusFrame *frame = qobject_cast<const QFocusFrame *>(widget);
+        const QPushButton *button = frame ? qobject_cast<const QPushButton *>(frame->widget()) : nullptr;
+        if (button) {
+            // Rebuild the option QPushButton::initStyleOption() gives the bevel
+            // (that function is protected), so the take-over decision and the
+            // rect match the bevel path. Its private menuOpen -> State_Sunken is
+            // left out; State_Raised is always set, which the decision accepts
+            // either way.
+            QStyleOptionButton buttonOpt;
+            buttonOpt.initFrom(button);
+            if (button->isFlat())
+                buttonOpt.features |= QStyleOptionButton::Flat;
+            if (button->menu())
+                buttonOpt.features |= QStyleOptionButton::HasMenu;
+            if (button->isDefault())
+                buttonOpt.features |= QStyleOptionButton::DefaultButton;
+            if (button->autoDefault())
+                buttonOpt.features |= QStyleOptionButton::AutoDefaultButton;
+            buttonOpt.state |= State_Raised;
+            if (button->isDown())
+                buttonOpt.state |= State_Sunken;
+            if (button->isChecked())
+                buttonOpt.state |= State_On;
+            buttonOpt.rect = button->rect();
+            if (takesFlexibleBezel(&buttonOpt, button)) {
+                const QPoint offset = button->mapTo(button->window(), QPoint())
+                        - frame->mapTo(frame->window(), QPoint());
+                const QRect ring = flexibleBezelRect(&buttonOpt, button).translated(offset);
+                if (NativePushButton::drawFocusRing(painter, ring, button))
+                    return;
+            }
+        }
+    }
+
     // In the unified title and toolbar area the macOS style fills top
     // toolbars with transparent pixels so the window's native content
     // border shows through, which ignores the application palette. A

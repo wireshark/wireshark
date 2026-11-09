@@ -122,6 +122,7 @@ set(WIRESHARK_UTILS_HEADERS
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/color_math.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/legacy_color_prefs_migration.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar.h
+	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_push_button.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_format.h
 	${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/theme_palette_builder.h
@@ -444,6 +445,7 @@ if(APPLE)
 	set(WIRESHARK_THEMES_PLATFORM_SRC
 		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/system_theme_detector_mac.mm
 		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_title_bar_mac.mm
+		${CMAKE_SOURCE_DIR}/ui/qt/utils/themes/native_push_button_mac.mm
 	)
 elseif(WIN32)
 	set(WIRESHARK_THEMES_PLATFORM_SRC
