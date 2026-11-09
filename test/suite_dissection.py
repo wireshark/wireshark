@@ -102945,6 +102945,12 @@ class TestDissectNats:
             ), encoding='utf-8', env=test_env, timeout=120)
         ops = {int(l.split('\t')[0]): (l.split('\t') + [''])[1] for l in stdout.splitlines()}
         assert [ops[n] for n in (80, 82, 84, 86, 88, 90)] == ['INFO', 'CONNECT', '-ERR', 'INFO', 'INFO', '-ERR']
+        # INFO {"a":1} ending with a LF only passes the whole JSON object on
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('nats_coverage.pcap.gz'),
+                '-Y', 'frame.number == 86', '-Tfields', '-ejson.member_with_value', '-edata-text-lines',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['a:1\t']
         # PUB foo 4294967295 and HPUB with 4294967294 header bytes are not dissected as complete messages
         stdout = subprocess.check_output((cmd_tshark,
                 '-r', capture_file('nats_coverage.pcap.gz'),

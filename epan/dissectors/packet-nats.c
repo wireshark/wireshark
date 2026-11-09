@@ -864,6 +864,19 @@ static int dissect_nats_pong(tvbuff_t* tvb, unsigned offset, unsigned next_offse
     return next_offset - offset;
 }
 
+/* End of the text of the line [offset, next_offset), without the line end:
+ * CRLF, or a LF or CR alone, as tvb_find_line_end() takes them */
+static unsigned nats_line_text_end(tvbuff_t* tvb, unsigned offset, unsigned next_offset)
+{
+    unsigned end = next_offset;
+
+    if (end > offset && tvb_get_uint8(tvb, end - 1) == '\n')
+        end--;
+    if (end > offset && tvb_get_uint8(tvb, end - 1) == '\r')
+        end--;
+    return end;
+}
+
 static unsigned dissect_nats_info(tvbuff_t* tvb, unsigned offset, unsigned next_offset,
                              packet_info* pinfo, proto_tree* tree)
 {
@@ -877,7 +890,8 @@ static unsigned dissect_nats_info(tvbuff_t* tvb, unsigned offset, unsigned next_
     unsigned features_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned features_length = (next_offset > features_offset + EOL_LEN) ? next_offset - features_offset - EOL_LEN : 0;
+    unsigned text_end = nats_line_text_end(tvb, offset, next_offset);
+    unsigned features_length = (text_end > features_offset) ? text_end - features_offset : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "INFO");
 
@@ -912,7 +926,8 @@ static unsigned dissect_nats_connect(tvbuff_t* tvb, unsigned offset, unsigned ne
     unsigned features_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned features_length = (next_offset > features_offset + EOL_LEN) ? next_offset - features_offset - EOL_LEN : 0;
+    unsigned text_end = nats_line_text_end(tvb, offset, next_offset);
+    unsigned features_length = (text_end > features_offset) ? text_end - features_offset : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CONNECT");
 
@@ -973,7 +988,8 @@ static int dissect_nats_err(tvbuff_t* tvb, unsigned offset, unsigned next_offset
     unsigned message_offset = tvb_skip_wsp(tvb, op_offset + op_length,
                                        next_offset - op_offset - op_length);
 
-    unsigned message_length = (next_offset > message_offset + EOL_LEN) ? next_offset - message_offset - EOL_LEN : 0;
+    unsigned text_end = nats_line_text_end(tvb, offset, next_offset);
+    unsigned message_length = (text_end > message_offset) ? text_end - message_offset : 0;
 
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "-ERR");
 
