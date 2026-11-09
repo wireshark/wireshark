@@ -275,6 +275,102 @@ class TestTsharkDumpGlossaries:
         assert [unicode_env.pluginsdir] == pluginsdir
 
 
+class TestTsharkMibPaths:
+    '''The MIB and PIB search path that "tshark -G folders" shows.'''
+
+    @pytest.fixture
+    def mib_env(self, test_env, conf_path, features):
+        '''An environment with OID resolution enabled.'''
+        if not features.have_libsmi:
+            pytest.skip('Test requires libsmi.')
+        with open(os.path.join(conf_path, 'preferences'), 'w') as pref_file:
+            pref_file.write('nameres.load_smi_modules: TRUE\n')
+            # The default modules aren't installed everywhere.
+            pref_file.write('nameres.suppress_smi_errors: TRUE\n')
+        return test_env
+
+    @staticmethod
+    def norm(path):
+        return os.path.normcase(os.path.normpath(path))
+
+    @staticmethod
+    def make_mib_dir(path):
+        '''Create a directory with a module in it, and return its path.'''
+        os.makedirs(path)
+        with open(os.path.join(path, 'WS-TEST-MIB.txt'), 'w') as mib_file:
+            mib_file.write('WS-TEST-MIB DEFINITIONS ::= BEGIN\nEND\n')
+        return path
+
+    @staticmethod
+    def write_smi_paths(conf_path, paths):
+        with open(os.path.join(conf_path, 'smi_paths'), 'w') as uat_file:
+            for path in paths:
+                # uat.c replaces backslashes...
+                uat_file.write('"{}"\n'.format(path.replace('\\', '\\x5c')))
+
+    def mib_paths(self, cmd_tshark, env):
+        proc = subprocesstest.run((cmd_tshark, '-G', 'folders'), capture_output=True, env=env)
+        assert proc.returncode == ExitCodes.OK
+        return [self.norm(line.split('\t', 1)[1]) for line in proc.stdout.splitlines()
+                if line.startswith('MIB/PIB path:')]
+
+    def test_mib_path_disabled(self, cmd_tshark, test_env, conf_path, features):
+        '''There's no MIB path without OID resolution.'''
+        if not features.have_libsmi:
+            pytest.skip('Test requires libsmi.')
+        self.make_mib_dir(os.path.join(conf_path, 'snmp', 'mibs', 'ietf'))
+        assert self.mib_paths(cmd_tshark, test_env) == []
+
+    def test_mib_path_order(self, cmd_tshark, mib_env, conf_path, tmp_path):
+        '''The SMI Paths preference comes first, then the personal and data
+        file directories, searched recursively for directories with files.'''
+        pref_dir = self.make_mib_dir(str(tmp_path / 'pref-mibs' / 'vendor'))
+        self.write_smi_paths(conf_path, [str(tmp_path / 'pref-mibs')])
+        personal_dir = self.make_mib_dir(os.path.join(conf_path, 'snmp', 'mibs', 'ietf'))
+        empty_dir = os.path.join(conf_path, 'snmp', 'mibs', 'empty')
+        os.makedirs(empty_dir)
+        data_dir = tmp_path / 'data'
+        data_mib_dir = self.make_mib_dir(str(data_dir / 'snmp' / 'mibs' / 'iana'))
+        env = dict(mib_env, WIRESHARK_DATA_DIR=str(data_dir))
+
+        paths = self.mib_paths(cmd_tshark, env)
+        expected = [self.norm(d) for d in (pref_dir, personal_dir, data_mib_dir)]
+        for path in expected:
+            assert path in paths
+        positions = [paths.index(path) for path in expected]
+        assert positions == sorted(positions)
+        assert self.norm(empty_dir) not in paths
+        assert '' not in paths
+
+    def test_mib_path_pibs_yang(self, cmd_tshark, mib_env, conf_path, tmp_path):
+        '''The pibs and yang directories next to mibs are searched too,
+        after mibs and before the next snmp directory.'''
+        personal_snmp = os.path.join(conf_path, 'snmp')
+        data_dir = tmp_path / 'data'
+        data_snmp = str(data_dir / 'snmp')
+        expected = [self.make_mib_dir(os.path.join(snmp, module_dir, 'ietf'))
+                    for snmp in (personal_snmp, data_snmp)
+                    for module_dir in ('mibs', 'pibs', 'yang')]
+        env = dict(mib_env, WIRESHARK_DATA_DIR=str(data_dir))
+
+        paths = self.mib_paths(cmd_tshark, env)
+        expected = [self.norm(d) for d in expected]
+        for path in expected:
+            assert path in paths
+        positions = [paths.index(path) for path in expected]
+        assert positions == sorted(positions)
+
+    def test_mib_path_no_duplicates(self, cmd_tshark, mib_env, conf_path):
+        '''Each directory is listed once.'''
+        personal_mibs = os.path.join(conf_path, 'snmp', 'mibs')
+        personal_dir = self.make_mib_dir(os.path.join(personal_mibs, 'ietf'))
+        self.write_smi_paths(conf_path, [personal_mibs, personal_dir])
+
+        paths = self.mib_paths(cmd_tshark, mib_env)
+        assert paths.count(self.norm(personal_dir)) == 1
+        assert len(paths) == len(set(paths))
+
+
 class TestTsharkZExpert:
     def test_tshark_z_expert_all(self, cmd_tshark, capture_file, test_env):
         proc = subprocesstest.run((cmd_tshark, '-q', '-z', 'expert',

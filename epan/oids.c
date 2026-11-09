@@ -1284,6 +1284,23 @@ void oid_both_from_string(wmem_allocator_t *scope, const char *oid_str, char** r
 }
 
 #ifdef HAVE_LIBSMI
+/*
+ * Add a directory to the path if it isn't there yet. files_identical()
+ * can't compare directories that don't exist, so only pass ones that do.
+ */
+static void oid_add_path_entry(GHashTable* unique_paths, GString* path_str, const char* path)
+{
+	if (g_hash_table_add(unique_paths, g_strdup(path))) {
+		if (path_str->len > 0)
+			g_string_append(path_str, G_SEARCHPATH_SEPARATOR_S);
+		g_string_append(path_str, path);
+	}
+}
+
+/*
+ * Add a directory and its subdirectories that contain at least one file,
+ * which we presume are MIB or PIB modules.
+ */
 // NOLINTNEXTLINE(misc-no-recursion)
 static void oid_add_unique_path(GHashTable* unique_paths, GString* path_str, const char* path)
 {
@@ -1310,8 +1327,7 @@ static void oid_add_unique_path(GHashTable* unique_paths, GString* path_str, con
 			else {
 				if (file_count == 0) {
 					//There's at least one file in this directory, presume it's a MIB file and add it to the unique paths.
-					if (g_hash_table_add(unique_paths, g_strdup(path)))
-						g_string_append_printf(path_str, G_SEARCHPATH_SEPARATOR_S "%s", path);
+					oid_add_path_entry(unique_paths, path_str, path);
 				}
 				file_count++;
 			}
@@ -1319,6 +1335,26 @@ static void oid_add_unique_path(GHashTable* unique_paths, GString* path_str, con
 
 		}
 		ws_dir_close(dir);
+	}
+}
+
+/*
+ * Add the module directories in a snmp directory, recursively: MIBs,
+ * PIBs and YANG modules, in the layout that libsmi installs them in and
+ * that we install them in on Windows.
+ */
+static void oid_add_snmp_dir(GHashTable* unique_paths, GString* path_str, const char* snmp_dir)
+{
+	static const char * const module_dirs[] = { "mibs", "pibs", "yang" };
+	char* path;
+
+	if (!(snmp_dir && *snmp_dir))
+		return;
+
+	for (size_t i = 0; i < G_N_ELEMENTS(module_dirs); i++) {
+		path = g_build_filename(snmp_dir, module_dirs[i], (char *)NULL);
+		oid_add_unique_path(unique_paths, path_str, path);
+		g_free(path);
 	}
 }
 
@@ -1354,74 +1390,74 @@ oid_get_default_mib_path(const char* app_env_var_prefix _U_) {
 	//To limit the size of the MIB path, we use a hash table to store the unique paths.
 	GHashTable* unique_paths = g_hash_table_new_full(files_hash, files_identical_equal, NULL, g_free);
 
-#ifdef _WIN32
-	/* XXX - This is appropriate for MSYS2 installed via package,
-	 * but an MSYS2 install into the POSIX runtime should probably
-	 * use the other path (NB: check the search path separator.) */
-	path = get_datafile_path("snmp\\mibs", app_env_var_prefix);
-	oid_add_unique_path(unique_paths, path_str, path);
+	/*
+	 * libsmi searches the directories in order and loads the first file
+	 * it finds for a module, so put the directories that the user chose
+	 * first, then the ones with the modules that we install, then the
+	 * ones that libsmi was built or configured with.
+	 */
+
+	/* The directories in the SMI Paths preference, recursively. */
+	for (i = 0; i < num_smi_paths; i++) {
+		if (!(smi_paths[i].name && *smi_paths[i].name))
+			continue;
+
+		oid_add_unique_path(unique_paths, path_str, smi_paths[i].name);
+	}
+
+	/* snmp/mibs, pibs and yang in the personal configuration directory. */
+	path = get_persconffile_path("snmp", false, app_env_var_prefix);
+	oid_add_snmp_dir(unique_paths, path_str, path);
 	g_free(path);
 
-	/* The MIBs are installed in the program directory, which is also the
-	 * data file directory in an installation. In a build directory the
+	/* snmp/mibs, pibs and yang in the data file directory. */
+	path = get_datafile_path("snmp", app_env_var_prefix);
+	oid_add_snmp_dir(unique_paths, path_str, path);
+	g_free(path);
+
+#ifdef _WIN32
+	/* The modules are installed in the program directory, which is also
+	 * the data file directory in an installation. In a build directory the
 	 * data file directory is share\wireshark under the program directory,
 	 * so look in the program directory as well.
 	 * XXX - get_datafile_path has special handling for running in the
-	 * build directory for the hosts file, but not snmp/mibs.
+	 * build directory for the hosts file, but not snmp.
 	 */
 	if (get_progfile_dir() != NULL) {
-		path = g_build_filename(get_progfile_dir(), "snmp", "mibs", (char *)NULL);
-		oid_add_unique_path(unique_paths, path_str, path);
+		path = g_build_filename(get_progfile_dir(), "snmp", (char *)NULL);
+		oid_add_snmp_dir(unique_paths, path_str, path);
 		g_free(path);
 	}
+#endif
 
-	path = get_persconffile_path("snmp\\mibs", false, app_env_var_prefix);
-	oid_add_unique_path(unique_paths, path_str, path);
-	g_free(path);
-#else
-	// This directory is usually flat on UN*X systems, and we haven't
-	// recursively descended into it before. We could start.
-	g_hash_table_add(unique_paths, g_strdup("/usr/share/snmp/mibs"));
-	g_string_append(path_str, "/usr/share/snmp/mibs");
-
-	if (!smi_init_done)
+	/*
+	 * libsmi's path: the default that it was built with, changed by
+	 * smi.conf, .smirc and the SMIPATH environment variable. libsmi is
+	 * generally installed with the entire directory structure, so we
+	 * don't need to recurse here or check that there are files in each
+	 * directory. But the default path is set when libsmi is built, so it
+	 * can name directories that don't exist, such as ones under the
+	 * prefix that a packaged libsmi was built with. Skip those.
+	 */
+	if (!smi_init_done) {
 		smiInit("wireshark");
+		smi_init_done = true;
+	}
 	path = smiGetPath();
-	if (strlen(path) > 0 ) {
-		// Conversely to above, libsmi is generally compiled with the
-		// entire directory structure so we don't need to recurse here
-		// or check that there actually are files in each directory,
-		// at least if they exist. The default path is set when it is
-		// build, so it can name directories that don't exist, which
-		// may particularly be an issue in a macOS package install.
-		// We want to split them for adding to the unique hash table, and
-		// for checking if they exist, since files_identical() doesn't
-		// handle that.
-		// 20 is arbitrary here to have a limit; 12 is the number that
-		// libsmi seems to be compiled with currently.
-		char **paths = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
+	if (path && *path) {
+		char **paths = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 0);
 		for (i = 0; paths[i]; i++) {
-			//oid_add_unique_path(unique_paths, path_str, paths[i]);
-			if (test_for_directory(paths[i]) != EISDIR)
-				continue;
-			if (g_hash_table_add(unique_paths, g_strdup(paths[i])))
-				g_string_append_printf(path_str, G_SEARCHPATH_SEPARATOR_S "%s", paths[i]);
+			if (test_for_directory(paths[i]) == EISDIR)
+				oid_add_path_entry(unique_paths, path_str, paths[i]);
 		}
 		g_strfreev(paths);
 	}
 	smi_free(path);
 
-	if (oids_init_done == false)
-	{
-#endif
-		for (i = 0; i < num_smi_paths; i++) {
-			if (!(smi_paths[i].name && *smi_paths[i].name))
-				continue;
-
-			oid_add_unique_path(unique_paths, path_str, smi_paths[i].name);
-		}
 #ifndef _WIN32
-	}
+	/* Net-SNMP's MIBs. This directory is usually flat, so don't recurse. */
+	if (test_for_directory("/usr/share/snmp/mibs") == EISDIR)
+		oid_add_path_entry(unique_paths, path_str, "/usr/share/snmp/mibs");
 #endif
 
 	g_hash_table_destroy(unique_paths);

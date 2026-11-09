@@ -288,6 +288,7 @@ def features(cmd_tshark, make_env):
         have_zstd='+Zstandard' in tshark_v,
         have_zstd_fast=bool(zstd_versions) and min(zstd_versions) >= (1, 4, 0),
         have_plugins='Plugins: supported' in tshark_v,
+        have_libsmi='+libsmi' in tshark_v,
         have_pcap='libpcap' in tshark_runtime,
     )
 

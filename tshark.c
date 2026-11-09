@@ -882,7 +882,7 @@ about_folders(void)
     /* SMI MIBs/PIBs */
     path = oid_get_default_mib_path(application_configuration_environment_prefix());
 
-    resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 20);
+    resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 0);
 
     for(i = 0; resultArray[i]; i++)
         printf("%-21s\t%s\n", "MIB/PIB path:", g_strstrip(resultArray[i]));
