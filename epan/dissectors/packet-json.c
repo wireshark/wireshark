@@ -21,7 +21,7 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/tvbparse.h>
+#include <epan/prefs.h>
 #include <epan/proto_data.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
@@ -52,7 +52,7 @@ void proto_reg_handoff_json(void);
 void event_reg_handoff_json(void);
 
 static char* json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length_ptr);
-static const char* get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quotes);
+static const char* get_json_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int len, bool remove_quotes);
 
 static dissector_handle_t json_handle;
 static dissector_handle_t json_file_handle;
@@ -106,6 +106,8 @@ static int ett_json_plus;
 static int ett_json_plus_object;
 static int ett_json_plus_array;
 
+static expert_field ei_json_malformed = EI_INIT;
+
 /* Expert info identifiers for JSON+ */
 static expert_field ei_json_plus_invalid_json = EI_INIT;
 static expert_field ei_json_plus_parse_error = EI_INIT;
@@ -146,7 +148,6 @@ jsonplus_proto_port_matches(const json_protocol_t *p, unsigned port)
 }
 
 /* JSON+ constants */
-#define JSON_PLUS_MAX_TOKENS 4096
 #define JSON_PLUS_MAX_PATH_DEPTH 32
 
 /* Forward declaration for JSON+ dissection */
@@ -181,9 +182,6 @@ static bool ignore_leading_bytes;
 static bool hide_extended_path_based_filtering;
 
 static bool unescape_strings;
-
-static tvbparse_wanted_t* want;
-static tvbparse_wanted_t* want_ignore;
 
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t falco_json_handle;
@@ -225,16 +223,36 @@ typedef struct {
 	wmem_stack_t* stack_raw; /* Used for raw json form only */
 	json_mark_type_t prev_item_type_raw; /* Used for raw json form only */
 	proto_item* prev_item_raw; /* Used for raw json form only */
+
+	/* Tokenized JSON text (see json_tokenize()) */
+	tvbuff_t *tvb;
+	const char *buf;	/* JSON text; token offsets are relative to it */
+	int buf_len;
+	int base_offset;	/* tvb offset of buf[0] */
+	jsmntok_t *tokens;
+	int num_tokens;
+	int parse_result;	/* jsmn result: >= 0 on success, enum jsmnerr on error */
+	int parse_error_offset;	/* where jsmn stopped on error, relative to buf */
+	int error_offset;	/* first error found while dissecting, relative to buf, or -1 */
+	const char *error_msg;
 } json_parser_data_t;
+
+/* A JSON value or object member key, located in the tvb */
+typedef struct {
+	json_token_type_t type;
+	int offset;		/* tvb offset; strings include the quotation marks */
+	int len;
+	int close_offset;	/* objects and arrays: tvb offset of the closing bracket, or -1 if missing */
+} json_elem_t;
 
 #define JSON_COMPACT_TOP_ITEM -3
 #define JSON_COMPACT_OBJECT_WITH_KEY -2
 #define JSON_COMPACT_OBJECT_WITHOUT_KEY -1
 #define JSON_COMPACT_ARRAY 0
 
-#define JSON_ARRAY_BEGIN(json_tvbparse_data) wmem_stack_push(json_tvbparse_data->array_idx, GINT_TO_POINTER(JSON_COMPACT_ARRAY))
-#define JSON_OBJECT_BEGIN(json_tvbparse_data) wmem_stack_push(json_tvbparse_data->array_idx, GINT_TO_POINTER(JSON_COMPACT_OBJECT_WITHOUT_KEY))
-#define JSON_ARRAY_OBJECT_END(json_tvbparse_data) wmem_stack_pop(json_tvbparse_data->array_idx)
+#define JSON_ARRAY_BEGIN(data) wmem_stack_push((data)->array_idx, GINT_TO_POINTER(JSON_COMPACT_ARRAY))
+#define JSON_OBJECT_BEGIN(data) wmem_stack_push((data)->array_idx, GINT_TO_POINTER(JSON_COMPACT_OBJECT_WITHOUT_KEY))
+#define JSON_ARRAY_OBJECT_END(data) wmem_stack_pop((data)->array_idx)
 #define JSON_INSIDE_ARRAY(idx) (idx >= JSON_COMPACT_ARRAY)
 #define JSON_OBJECT_SET_HAS_KEY(idx) (idx == JSON_COMPACT_OBJECT_WITH_KEY)
 
@@ -471,7 +489,7 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 			}
 			else
 			{
-				/* not valid by JSON grammar (tvbparse rules should not allow it) */
+				/* not valid by JSON grammar (jsmn does not allow it) */
 				DISSECTOR_ASSERT_NOT_REACHED();
 			}
 		}
@@ -486,12 +504,12 @@ json_string_unescape(wmem_allocator_t *scope, const char *string, size_t *length
 /* This functions allocates memory with packet_scope but the returned pointer
  * cannot be freed. */
 static const char*
-get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quotes)
+get_json_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int len, bool remove_quotes)
 {
 	char *string;
 	size_t length;
 
-	string = (char*)tvb_get_string_enc(scope, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
+	string = (char*)tvb_get_string_enc(scope, tvb, offset, len, ENC_UTF_8);
 
 	if (unescape_strings) {
 		string = json_string_unescape(scope, string, &length);
@@ -514,12 +532,16 @@ get_json_string(wmem_allocator_t *scope, tvbparse_elem_t *tok, bool remove_quote
 
 GHashTable* json_header_fields_hash;
 
+/* If key_str is registered in json_header_fields_hash, add the registered
+ * field for each of the n_values values and call the registered decoder, if
+ * any, on it. Returns the last item added, or NULL if nothing was added.
+ */
 static proto_item*
-json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, packet_info* pinfo, bool use_compact)
+json_key_lookup(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char* key_str,
+		const json_elem_t* values, int n_values)
 {
-	proto_item* ti;
+	proto_item* ti = NULL;
 	int hf_id;
-	int offset, len;
 
 	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(json_header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
@@ -534,122 +556,28 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, const char* key_str, pac
 		return NULL;
 	}
 
-	/*
-	 * use_compact == true: "tok is the composed element of the member"
-	 *	This is only called from before_member when the value is a
-	 /	JSON_TOKEN_STRING.
-	 * use_compact == false: "tok is the composed element whose subelement is the value"
-	 *	For this, arrays with matching key are passed in before_array,
-	 *	strings are passed in after_value, and other types aren't passed in.
-	 */
-	const tvbparse_elem_t* value_tok = tok;
-	if (use_compact) {
-		/* tok refers to the member ("key":"value")
-		 * tok->sub is the key string
-		 * tok->sub->next is the ':'
-		 * tok->sub->last is a set with one element
-		 * tok->sub->last->sub is the value
+	for (int i = 0; i < n_values; i++) {
+		int offset = values[i].offset;
+		int len = values[i].len;
+
+		/* Remove the quotation marks from strings (the decoder functions
+		 * apparently expect that.)
 		 */
-		if (!tok->sub) {
-			return NULL;
+		if (values[i].type == JSON_TOKEN_STRING && len >= 2) {
+			offset += 1;
+			len -= 2;
 		}
-		value_tok = tok->sub->last;
-	}
-
-	/*
-	 * Handle array values: iterate over each element and call the decoder
-	 * for each string in the array.
-	 * Array structure (from tvbparse_set_seq):
-	 *   tok->sub = '[' char
-	 *   tok->sub->next = optional(set_seq(first_value, some(separator, value)))
-	 *   tok->sub->next->next = ']' char
-	 */
-	if (!use_compact && (json_token_type_t)tok->id == JSON_ARRAY) {
-		const tvbparse_elem_t* optional_tok = tok->sub ? tok->sub->next : NULL;
-		const tvbparse_elem_t* inner_seq = optional_tok ? optional_tok->sub : NULL;
-
-		if (!inner_seq) {
-			/* Empty array */
-			return NULL;
-		}
-
-		ti = NULL;
-		/* First value in the array: inner_seq->sub is a want_value (set_oneof) result */
-		const tvbparse_elem_t* cur_value = inner_seq->sub;
-		if (cur_value && cur_value->sub) {
-			const tvbparse_elem_t* val = cur_value->sub;
-			json_token_type_t val_id = (json_token_type_t)val->id;
-			offset = val->offset;
-			len = val->len;
-			if (val_id == JSON_TOKEN_STRING && len >= 2) {
-				offset += 1;
-				len -= 2;
-			}
-			ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
-			if (json_data_decoder_rec->json_data_decoder) {
-				(*json_data_decoder_rec->json_data_decoder)(val->tvb, tree, pinfo, offset, len, key_str);
-			}
-		}
-
-		/* Remaining values: inner_seq->sub->next is a tvbparse_some result
-		 * whose children are (separator, value) pairs linked via ->sub/->next
+		/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
+		 * types be supported (perhaps verified against the JSON token type?)
+		 * Should the encoding be ENC_UTF_8? Should the string be unescaped here?
 		 */
-		const tvbparse_elem_t* some_tok = inner_seq->sub ? inner_seq->sub->next : NULL;
-		if (some_tok) {
-			for (const tvbparse_elem_t* pair = some_tok->sub; pair != NULL; pair = pair->next) {
-				/* pair is a set_seq(separator, value)
-				 * pair->sub = separator, pair->sub->next = want_value result
-				 */
-				const tvbparse_elem_t* pair_value = pair->sub ? pair->sub->next : NULL;
-				if (pair_value && pair_value->sub) {
-					const tvbparse_elem_t* val = pair_value->sub;
-					json_token_type_t val_id = (json_token_type_t)val->id;
-					offset = val->offset;
-					len = val->len;
-					if (val_id == JSON_TOKEN_STRING && len >= 2) {
-						offset += 1;
-						len -= 2;
-					}
-					ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
-					if (json_data_decoder_rec->json_data_decoder) {
-						(*json_data_decoder_rec->json_data_decoder)(val->tvb, tree, pinfo, offset, len, key_str);
-					}
-				}
-			}
+		ti = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_ASCII);
+		if (json_data_decoder_rec->json_data_decoder) {
+			(*json_data_decoder_rec->json_data_decoder)(tvb, tree, pinfo, offset, len, key_str);
 		}
-
-		return ti;
 	}
 
-	/* tok is a set with one element
-	 * tok->sub is the value
-	 */
-	if (!(value_tok && value_tok->sub)) {
-		return NULL;
-	}
-	value_tok = value_tok->sub;
-
-	json_token_type_t value_id = (json_token_type_t)value_tok->id;
-
-	offset = value_tok->offset;
-	len = value_tok->len;
-	/* Remove the quotation marks from strings (the decoder functions
-	 * apparently expect that.)
-	 */
-	if (value_id == JSON_TOKEN_STRING && len >= 2) {
-		offset += 1;
-		len -= 2;
-	}
-	/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
-	 * types be supported (perhaps verified against the JSON token type?)
-	 * Should the encoding be ENC_UTF_8? Should the string be unescaped here?
-	 */
-	ti = proto_tree_add_item(tree, hf_id, tok->tvb, offset, len, ENC_ASCII);
-	if (json_data_decoder_rec->json_data_decoder) {
-		(*json_data_decoder_rec->json_data_decoder)(value_tok->tvb, tree, pinfo, offset, len, key_str);
-	}
 	return ti;
-
 }
 
 static char*
@@ -677,6 +605,904 @@ join_strings(wmem_allocator_t *pool, const char* string_a, const char* string_b,
 	return output_string;
 }
 
+/*
+ * Tokenizing
+ */
+
+/* Tokenize the JSON text buf[0, len) with jsmn into a token array allocated
+ * from scope, growing the array as needed.
+ *
+ * jsmn in strict mode rejects NaN. If allow_nan is set, a value starting
+ * with 'N' is accepted as a primitive anyway and *has_nan (if not NULL) is
+ * set; json_literal_type() checks the text later.
+ *
+ * Returns the jsmn result: >= 0 on success, or an enum jsmnerr with
+ * *error_offset set to where jsmn stopped. The tokens filled before an error
+ * are valid. buf is modified during the call but restored before returning.
+ */
+static int
+json_tokenize(wmem_allocator_t *scope, char *buf, int len, bool allow_nan,
+		jsmntok_t **tokens_out, int *num_tokens_out, int *error_offset, bool *has_nan)
+{
+	jsmn_parser parser;
+	unsigned max_tokens = (unsigned)len / 8 + 16;
+	jsmntok_t *tokens = wmem_alloc_array(scope, jsmntok_t, max_tokens);
+	wmem_array_t *nan_offsets = NULL;
+	int rc;
+
+	jsmn_init(&parser);
+	for (;;) {
+		rc = jsmn_parse(&parser, buf, (size_t)len, tokens, max_tokens);
+		if (rc == JSMN_ERROR_NOMEM) {
+			/* Every token starts at a different byte, so jsmn never
+			 * needs more than len tokens. */
+			if (max_tokens >= (unsigned)len)
+				break;
+			/* jsmn resumes where it stopped once given more tokens. */
+			max_tokens = MIN(max_tokens * 2, (unsigned)len);
+			tokens = (jsmntok_t *)wmem_realloc(scope, tokens, (size_t)max_tokens * sizeof(jsmntok_t));
+			continue;
+		}
+		if (rc == JSMN_ERROR_INVAL && allow_nan &&
+		    parser.pos < (unsigned)len && buf[parser.pos] == 'N') {
+			/* jsmn stopped at the 'N' without changing its state.
+			 * Make the value start like "null" and resume. */
+			if (!nan_offsets)
+				nan_offsets = wmem_array_new(scope, sizeof(unsigned));
+			wmem_array_append_one(nan_offsets, parser.pos);
+			buf[parser.pos] = 'n';
+			continue;
+		}
+		break;
+	}
+
+	if (nan_offsets) {
+		unsigned *offsets = (unsigned *)wmem_array_get_raw(nan_offsets);
+		for (unsigned i = 0; i < wmem_array_get_count(nan_offsets); i++) {
+			buf[offsets[i]] = 'N';
+		}
+		if (has_nan)
+			*has_nan = true;
+	}
+
+	*tokens_out = tokens;
+	*num_tokens_out = (int)parser.toknext;
+	*error_offset = rc < 0 ? (int)parser.pos : len;
+	return rc;
+}
+
+/*
+ * Tree building, called by the walker below in document order
+ */
+
+static void
+json_begin_object(json_parser_data_t *data, const json_elem_t *obj)
+{
+	tvbuff_t *tvb = data->tvb;
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
+	proto_tree *subtree;
+	proto_item *ti;
+
+	ti = proto_tree_add_item(tree, hf_json_object, tvb, obj->offset, obj->len, ENC_UTF_8);
+	if (json_hide_original_tree() && wmem_stack_count(data->stack) == 1) {
+		proto_item_set_hidden(ti);
+	}
+
+	subtree = proto_item_add_subtree(ti, ett_json_object);
+	wmem_stack_push(data->stack, subtree);
+
+	if (json_compact) {
+		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
+		proto_tree *subtree_compact;
+		proto_item *ti_compact;
+
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+
+		if (JSON_INSIDE_ARRAY(idx)) {
+			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_object_compact, tvb, obj->offset, obj->len, "%d:", idx);
+			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
+			json_array_index_increment(data);
+		} else {
+			subtree_compact = tree_compact;
+		}
+		wmem_stack_push(data->stack_compact, subtree_compact);
+
+		JSON_OBJECT_BEGIN(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw;
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_OBJECT) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			/* this is an object value of an member, add the "{" just after the member name */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, " {");
+		} else {
+			/* this object is either the top object or an element of an array, add the "{" as a single item */
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_object_raw, tvb, obj->offset, obj->len, "{");
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_object_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_OBJECT;
+	}
+}
+
+static void
+json_end_object(json_parser_data_t *data, const json_elem_t *obj)
+{
+	wmem_stack_pop(data->stack);
+
+	if (json_compact) {
+		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
+		proto_item *parent_item = proto_tree_get_parent(tree_compact);
+
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+
+		if (JSON_OBJECT_SET_HAS_KEY(idx))
+			proto_item_append_text(parent_item, " {...}");
+		else
+			proto_item_append_text(parent_item, " {}");
+
+		wmem_stack_pop(data->stack_compact);
+
+		JSON_ARRAY_OBJECT_END(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
+		proto_item* ti_raw = NULL;
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_OBJECT) { /* an empty object */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, "}");
+		} else if (obj->close_offset >= 0) {
+			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_object_raw, data->tvb, obj->close_offset, 1, "}");
+		}
+		wmem_stack_pop(data->stack_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_END_OBJECT;
+	}
+}
+
+/* value is NULL if the member has no (valid) value */
+static void
+json_begin_member(json_parser_data_t *data, const json_elem_t *key, const json_elem_t *value)
+{
+	tvbuff_t *tvb = data->tvb;
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
+	proto_tree *subtree;
+	proto_item *ti;
+	int member_offset = key->offset;
+	int member_len = value ? value->offset + value->len - key->offset : key->len;
+
+	const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tvb, key->offset, key->len, true);
+
+	ti = proto_tree_add_string(tree, hf_json_member, tvb, member_offset, member_len, key_string_without_quotation_marks);
+
+	subtree = proto_item_add_subtree(ti, ett_json_member);
+	wmem_stack_push(data->stack, subtree);
+
+	// extended path based filtering
+	char* last_key_string = (char*)wmem_stack_pop(data->stack_path);
+	char* base_path = (char*)wmem_stack_pop(data->stack_path);
+	wmem_stack_push(data->stack_path, base_path);
+	wmem_stack_push(data->stack_path, last_key_string);
+
+	char* path = join_strings(data->pinfo->pool, base_path, key_string_without_quotation_marks, '/');
+	wmem_stack_push(data->stack_path, path);
+	/* stack won't write/free pointer. */
+	wmem_stack_push(data->stack_path, (void *)key_string_without_quotation_marks);
+
+	if (json_compact) {
+		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
+		proto_tree *subtree_compact;
+		proto_item *ti_compact;
+
+		ti_compact = json_key_lookup(tree_compact, tvb, data->pinfo, key_string_without_quotation_marks, value, value ? 1 : 0);
+		if (!ti_compact) {
+			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_member_compact, tvb, member_offset, member_len, "\"%s\":", key_string_without_quotation_marks);
+		}
+
+		subtree_compact = proto_item_add_subtree(ti_compact, ett_json_member_compact);
+		wmem_stack_push(data->stack_compact, subtree_compact);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw;
+
+		if (data->prev_item_raw && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_OBJECT && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_ARRAY) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		ti_raw = json_key_lookup(tree_raw, tvb, data->pinfo, key_string_without_quotation_marks, value, value ? 1 : 0);
+		if (!ti_raw) {
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_member_raw, tvb, member_offset, member_len, "\"%s\":", key_string_without_quotation_marks);
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_member_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_MEMBER_NAME;
+	}
+}
+
+static void
+json_end_member(json_parser_data_t *data, const json_elem_t *key, const json_elem_t *value)
+{
+	tvbuff_t *tvb = data->tvb;
+	proto_tree *tree = (proto_tree *)wmem_stack_pop(data->stack);
+	int member_offset = key->offset;
+	int member_len = value ? value->offset + value->len - key->offset : key->len;
+
+	if (tree) {
+		const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tvb, key->offset, key->len, true);
+
+		proto_tree_add_string(tree, hf_json_key, tvb, key->offset, key->len, key_string_without_quotation_marks);
+	}
+
+	// extended path based filtering
+	wmem_stack_pop(data->stack_path); // Pop key
+	char* path = (char*)wmem_stack_pop(data->stack_path);
+	if (tree)
+	{
+		proto_item* path_item = proto_tree_add_string(tree, hf_json_path, tvb, member_offset, member_len, path);
+		proto_item_set_generated(path_item);
+		if (hide_extended_path_based_filtering)
+		{
+			proto_item_set_hidden(path_item);
+		}
+	}
+
+	if (json_compact) {
+		wmem_stack_pop(data->stack_compact);
+		json_object_add_key(data);
+	}
+
+	if (json_raw) {
+		wmem_stack_pop(data->stack_raw);
+	}
+}
+
+static void json_tok_to_elem(const json_parser_data_t *data, int idx, json_elem_t *elem);
+static int json_next_sibling(const json_parser_data_t *data, int idx);
+
+/* idx is the token index of the array, for looking up its elements */
+static void
+json_begin_array(json_parser_data_t *data, const json_elem_t *arr, int idx)
+{
+	tvbuff_t *tvb = data->tvb;
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
+	proto_tree *subtree;
+	proto_item *ti;
+
+	ti = proto_tree_add_item(tree, hf_json_array, tvb, arr->offset, arr->len, ENC_NA);
+	if (json_hide_original_tree() && wmem_stack_count(data->stack) == 1) {
+		proto_item_set_hidden(ti);
+	}
+
+	subtree = proto_item_add_subtree(ti, ett_json_array);
+	wmem_stack_push(data->stack, subtree);
+
+	// extended path based filtering
+	char* last_key_string = (char*)wmem_stack_pop(data->stack_path);
+	char* base_path = (char*)wmem_stack_pop(data->stack_path);
+	wmem_stack_push(data->stack_path, base_path);
+	wmem_stack_push(data->stack_path, last_key_string);
+
+	char* path = join_strings(data->pinfo->pool, base_path, "[]", '/');
+
+	wmem_stack_push(data->stack_path, path);
+	wmem_stack_push(data->stack_path, "[]");
+
+	// Try key_lookup on each element of the array
+	if (g_hash_table_contains(json_header_fields_hash, last_key_string)) {
+		const jsmntok_t *tok = &data->tokens[idx];
+		json_elem_t *items = wmem_alloc_array(data->pinfo->pool, json_elem_t, tok->size);
+		int n_items = 0;
+
+		for (int child = idx + 1; n_items < tok->size && child < data->num_tokens; n_items++) {
+			json_tok_to_elem(data, child, &items[n_items]);
+			child = json_next_sibling(data, child);
+		}
+		json_key_lookup(tree, tvb, data->pinfo, last_key_string, items, n_items);
+	}
+
+	if (json_compact) {
+		proto_tree* tree_compact = (proto_tree*)wmem_stack_peek(data->stack_compact);
+		proto_tree* subtree_compact;
+		proto_item* ti_compact;
+
+		int array_idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+
+		if (JSON_INSIDE_ARRAY(array_idx)) {
+			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_array_compact, tvb, arr->offset, arr->len, "%d:", array_idx);
+			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_array_compact);
+			json_array_index_increment(data);
+		} else {
+			subtree_compact = tree_compact;
+		}
+		wmem_stack_push(data->stack_compact, subtree_compact);
+
+		JSON_ARRAY_BEGIN(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* subtree_raw;
+		proto_item* ti_raw;
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_ARRAY) {
+			proto_item_append_text(data->prev_item_raw, ",");
+		}
+
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			/* this is an array value of an member, add the "[" just after the member name */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, " [");
+		} else {
+			/* this array is either the top element or an element of an array, add the "[" as a single item */
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_raw, tvb, arr->offset, arr->len, "[");
+		}
+
+		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_array_raw);
+		wmem_stack_push(data->stack_raw, subtree_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_ARRAY;
+	}
+}
+
+static void
+json_end_array(json_parser_data_t *data, const json_elem_t *arr)
+{
+	wmem_stack_pop(data->stack);
+
+	// extended path based filtering
+	wmem_stack_pop(data->stack_path); // Pop key
+	wmem_stack_pop(data->stack_path); // Pop path
+
+	if (json_compact) {
+		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
+		proto_item *parent_item = proto_tree_get_parent(tree_compact);
+
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+		if (idx == 0)
+			proto_item_append_text(parent_item, " []");
+		else
+			proto_item_append_text(parent_item, " [...]");
+
+		wmem_stack_pop(data->stack_compact);
+
+		JSON_ARRAY_OBJECT_END(data);
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
+		proto_item* ti_raw = NULL;
+		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_ARRAY) { /* an empty array */
+			ti_raw = data->prev_item_raw;
+			proto_item_append_text(ti_raw, "]");
+		} else if (arr->close_offset >= 0) {
+			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_array_raw, data->tvb, arr->close_offset, 1, "]");
+		}
+		wmem_stack_pop(data->stack_raw);
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_END_ARRAY;
+	}
+}
+
+/* A string, number, true, false, null or NaN */
+static void
+json_value(json_parser_data_t *data, const json_elem_t *val)
+{
+	tvbuff_t *tvb = data->tvb;
+	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
+	json_token_type_t value_id = val->type;
+
+	// extended path based filtering
+	char* key_string = (char*)wmem_stack_pop(data->stack_path);
+	char* path = (char*)wmem_stack_pop(data->stack_path);
+
+	/* Strings (always with their quotation marks here) without the quotation marks */
+	const char* value_str = get_json_string(data->pinfo->pool, tvb, val->offset, val->len,
+		value_id == JSON_TOKEN_STRING);
+
+	char* path_with_value = join_strings(data->pinfo->pool, path, value_str, ':');
+	char* memeber_with_value = join_strings(data->pinfo->pool, key_string, value_str, ':');
+	proto_item* path_with_value_item = proto_tree_add_string(tree, hf_json_path_with_value, tvb, val->offset, val->len, path_with_value);
+	proto_item* member_with_value_item = proto_tree_add_string(tree, hf_json_member_with_value, tvb, val->offset, val->len, memeber_with_value);
+
+	proto_item_set_generated(path_with_value_item);
+	proto_item_set_generated(member_with_value_item);
+
+	if (hide_extended_path_based_filtering)
+	{
+		proto_item_set_hidden(path_with_value_item);
+		proto_item_set_hidden(member_with_value_item);
+	}
+
+	wmem_stack_push(data->stack_path, path);
+	wmem_stack_push(data->stack_path, key_string);
+
+	switch (value_id) {
+		case JSON_TOKEN_STRING: {
+			// Try key_lookup
+			proto_item *key_lookup = json_key_lookup(tree, tvb, data->pinfo, key_string, val, 1);
+			if (!key_lookup) {
+				proto_tree_add_string(tree, hf_json_value_string, tvb, val->offset, val->len, value_str);
+			}
+
+			break;
+		}
+
+		case JSON_TOKEN_NUMBER:
+			proto_tree_add_double(tree, hf_json_value_number, tvb, val->offset, val->len, g_ascii_strtod(value_str, NULL));
+
+			break;
+
+		case JSON_TOKEN_FALSE:
+			proto_tree_add_item(tree, hf_json_value_false, tvb, val->offset, val->len, ENC_NA);
+
+			break;
+
+		case JSON_TOKEN_NULL:
+			proto_tree_add_item(tree, hf_json_value_null, tvb, val->offset, val->len, ENC_NA);
+
+			break;
+
+		case JSON_TOKEN_TRUE:
+			proto_tree_add_item(tree, hf_json_value_true, tvb, val->offset, val->len, ENC_NA);
+
+			break;
+
+		case JSON_TOKEN_NAN:
+			proto_tree_add_item(tree, hf_json_value_nan, tvb, val->offset, val->len, ENC_NA);
+
+			break;
+
+		default:
+			proto_tree_add_format_text(tree, tvb, val->offset, val->len);
+			break;
+	}
+
+	if (json_compact) {
+		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
+
+		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
+
+		char *val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tvb, val->offset, val->len, ENC_UTF_8);
+
+		if (JSON_INSIDE_ARRAY(idx)) {
+			proto_tree_add_none_format(tree_compact, hf_json_array_item_compact, tvb, val->offset, val->len, "%d: %s", idx, val_str);
+			json_array_index_increment(data);
+		} else {
+			proto_item *parent_item = proto_tree_get_parent(tree_compact);
+			proto_item_append_text(parent_item, " %s", val_str);
+		}
+	}
+
+	if (json_raw) {
+		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
+		proto_item* ti_raw;
+		char* val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tvb, val->offset, val->len, ENC_UTF_8);
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_VALUE) {
+			proto_item_append_text(data->prev_item_raw, ","); /* this value is an element of an array */
+		}
+
+		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
+			ti_raw = proto_tree_get_parent(tree_raw);
+			proto_item_append_text(ti_raw, " %s", val_str);
+		} else {
+			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_item_raw, tvb, val->offset, val->len, "%s", val_str);
+		}
+
+		data->prev_item_raw = ti_raw;
+		data->prev_item_type_raw = JSON_MARK_TYPE_VALUE;
+	}
+}
+
+/*
+ * Walking the tokens
+ *
+ * jsmn does not check everything the JSON grammar (RFC 8259) requires: it
+ * takes any run of printable characters starting with '-', a digit, 't',
+ * 'f' or 'n' as a primitive, and it does not check the ',' and ':'
+ * separators. The walker checks both, and stops at the first error.
+ */
+
+static bool
+json_is_ws(char c)
+{
+	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+static int
+json_skip_ws(const json_parser_data_t *data, int pos)
+{
+	while (pos < data->buf_len && json_is_ws(data->buf[pos]))
+		pos++;
+	return pos;
+}
+
+/* Start of token idx in buf, including the opening quotation mark of a string */
+static int
+json_tok_start(const json_parser_data_t *data, int idx)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	return tok->type == JSMN_STRING ? tok->start - 1 : tok->start;
+}
+
+/* End (exclusive) of token idx in buf, including the closing quotation mark
+ * of a string; -1 for an object or array that is not closed */
+static int
+json_tok_end(const json_parser_data_t *data, int idx)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	return tok->type == JSMN_STRING ? tok->end + 1 : tok->end;
+}
+
+/* Token index after the subtree of token idx */
+static int
+json_next_sibling(const json_parser_data_t *data, int idx)
+{
+	for (int remaining = 1; remaining > 0 && idx < data->num_tokens; idx++) {
+		remaining += data->tokens[idx].size - 1;
+	}
+	return idx;
+}
+
+/* Type of the primitive text s[0, len): true, false, null, NaN or a number
+ * as in RFC 8259 section 6. */
+static json_token_type_t
+json_literal_type(const char *s, int len)
+{
+	int pos = 0;
+	int digits;
+
+	if (len == 4 && memcmp(s, "true", 4) == 0)
+		return JSON_TOKEN_TRUE;
+	if (len == 5 && memcmp(s, "false", 5) == 0)
+		return JSON_TOKEN_FALSE;
+	if (len == 4 && memcmp(s, "null", 4) == 0)
+		return JSON_TOKEN_NULL;
+	if (len == 3 && memcmp(s, "NaN", 3) == 0)
+		return JSON_TOKEN_NAN;
+
+	/* number = [ minus ] int [ frac ] [ exp ] */
+	if (pos < len && s[pos] == '-')
+		pos++;
+	/* int = zero / ( digit1-9 *DIGIT ) */
+	if (pos < len && s[pos] == '0') {
+		pos++;
+	} else if (pos < len && s[pos] >= '1' && s[pos] <= '9') {
+		while (pos < len && g_ascii_isdigit(s[pos]))
+			pos++;
+	} else {
+		return JSON_TOKEN_INVALID;
+	}
+	/* frac = decimal-point 1*DIGIT */
+	if (pos < len && s[pos] == '.') {
+		pos++;
+		for (digits = 0; pos < len && g_ascii_isdigit(s[pos]); digits++)
+			pos++;
+		if (digits == 0)
+			return JSON_TOKEN_INVALID;
+	}
+	/* exp = e [ minus / plus ] 1*DIGIT */
+	if (pos < len && (s[pos] == 'e' || s[pos] == 'E')) {
+		pos++;
+		if (pos < len && (s[pos] == '-' || s[pos] == '+'))
+			pos++;
+		for (digits = 0; pos < len && g_ascii_isdigit(s[pos]); digits++)
+			pos++;
+		if (digits == 0)
+			return JSON_TOKEN_INVALID;
+	}
+	return pos == len ? JSON_TOKEN_NUMBER : JSON_TOKEN_INVALID;
+}
+
+static void
+json_tok_to_elem(const json_parser_data_t *data, int idx, json_elem_t *elem)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	int start = json_tok_start(data, idx);
+	int end = json_tok_end(data, idx);
+
+	elem->close_offset = -1;
+	switch (tok->type) {
+	case JSMN_OBJECT:
+	case JSMN_ARRAY:
+		elem->type = tok->type == JSMN_OBJECT ? JSON_OBJECT : JSON_ARRAY;
+		if (end > start) {
+			elem->close_offset = data->base_offset + end - 1;
+		} else {
+			/* Not closed: cover what jsmn got through */
+			end = MAX(data->parse_error_offset, start + 1);
+		}
+		break;
+	case JSMN_STRING:
+		elem->type = JSON_TOKEN_STRING;
+		break;
+	default:
+		elem->type = json_literal_type(data->buf + start, end - start);
+		break;
+	}
+	elem->offset = data->base_offset + start;
+	elem->len = end - start;
+}
+
+/* Record the first error found */
+static void
+json_set_error(json_parser_data_t *data, int pos, const char *msg)
+{
+	if (data->error_offset < 0) {
+		data->error_offset = pos;
+		data->error_msg = msg;
+	}
+}
+
+/* Record the error that made jsmn stop */
+static void
+json_set_parse_error(json_parser_data_t *data)
+{
+	int pos = data->parse_error_offset;
+
+	if (data->parse_result == JSMN_ERROR_PART) {
+		/* jsmn stops at a NUL as if the data ended there */
+		const char *nul = (const char *)memchr(data->buf + pos, '\0', data->buf_len - pos);
+
+		if (nul)
+			json_set_error(data, (int)(nul - data->buf), "unexpected NUL character");
+		else
+			json_set_error(data, pos, "unexpected end of data");
+	} else {
+		json_set_error(data, pos, "unexpected character");
+	}
+}
+
+/* Check that buf[from, to) holds whitespace around exactly one sep, or only
+ * whitespace if sep is '\0' */
+static bool
+json_check_gap(json_parser_data_t *data, int from, int to, char sep)
+{
+	bool seen = (sep == '\0');
+
+	for (int pos = from; pos < to; pos++) {
+		char c = data->buf[pos];
+
+		if (json_is_ws(c))
+			continue;
+		if (!seen && c == sep) {
+			seen = true;
+			continue;
+		}
+		json_set_error(data, pos, "unexpected character");
+		return false;
+	}
+	if (!seen) {
+		json_set_error(data, to, sep == ',' ? "expected ','" : "expected ':'");
+		return false;
+	}
+	return true;
+}
+
+static int json_walk_value(json_parser_data_t *data, int idx, unsigned depth);
+
+/* Returns the token index after the object, or -1 on error */
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+json_walk_object(json_parser_data_t *data, int idx, unsigned depth)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	json_elem_t obj;
+	int cursor = tok->start + 1;	/* end of the last member */
+	int next = idx + 1;
+	bool ok = true;
+
+	json_tok_to_elem(data, idx, &obj);
+	json_begin_object(data, &obj);
+
+	for (int k = 0; k < tok->size; k++) {
+		int key_idx = next;
+		int value_idx = key_idx + 1;
+		const jsmntok_t *key_tok;
+		json_elem_t key, value;
+
+		/* jsmn counts a child only once its token is filled */
+		if (key_idx >= data->num_tokens) {
+			json_set_parse_error(data);
+			ok = false;
+			break;
+		}
+		key_tok = &data->tokens[key_idx];
+		if (!json_check_gap(data, cursor, json_tok_start(data, key_idx), k == 0 ? '\0' : ',')) {
+			ok = false;
+			break;
+		}
+		if (key_tok->type != JSMN_STRING) {
+			json_set_error(data, json_tok_start(data, key_idx), "expected string");
+			ok = false;
+			break;
+		}
+		json_tok_to_elem(data, key_idx, &key);
+
+		if (key_tok->size == 0 ||
+		    !json_check_gap(data, json_tok_end(data, key_idx), json_tok_start(data, value_idx), ':')) {
+			/* No value; show the key anyway */
+			json_begin_member(data, &key, NULL);
+			json_end_member(data, &key, NULL);
+			if (key_tok->size == 0) {
+				int pos = json_skip_ws(data, json_tok_end(data, key_idx));
+
+				if (data->parse_result < 0 && value_idx >= data->num_tokens)
+					json_set_parse_error(data);
+				else if (pos < data->buf_len && data->buf[pos] == ':')
+					json_set_error(data, json_skip_ws(data, pos + 1), "expected value");
+				else
+					json_set_error(data, pos, "expected ':'");
+			}
+			ok = false;
+			break;
+		}
+
+		json_tok_to_elem(data, value_idx, &value);
+		json_begin_member(data, &key, &value);
+		next = json_walk_value(data, value_idx, depth);
+		json_end_member(data, &key, &value);
+		if (next < 0) {
+			ok = false;
+			break;
+		}
+		if (key_tok->size > 1) {
+			/* More than one value after the ':' */
+			json_set_error(data, json_tok_start(data, next), "expected ','");
+			ok = false;
+			break;
+		}
+		cursor = json_tok_end(data, value_idx);
+	}
+
+	if (ok) {
+		if (tok->end < 0) {
+			json_set_parse_error(data);
+			ok = false;
+		} else {
+			/* Nothing but whitespace before the '}' */
+			ok = json_check_gap(data, cursor, tok->end - 1, '\0');
+		}
+	}
+
+	json_end_object(data, &obj);
+	return ok ? next : -1;
+}
+
+/* Returns the token index after the array, or -1 on error */
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+json_walk_array(json_parser_data_t *data, int idx, unsigned depth)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	json_elem_t arr;
+	int cursor = tok->start + 1;	/* end of the last element */
+	int next = idx + 1;
+	bool ok = true;
+
+	json_tok_to_elem(data, idx, &arr);
+	json_begin_array(data, &arr, idx);
+
+	for (int k = 0; k < tok->size; k++) {
+		int item_idx = next;
+
+		if (item_idx >= data->num_tokens) {
+			json_set_parse_error(data);
+			ok = false;
+			break;
+		}
+		if (!json_check_gap(data, cursor, json_tok_start(data, item_idx), k == 0 ? '\0' : ',')) {
+			ok = false;
+			break;
+		}
+		next = json_walk_value(data, item_idx, depth);
+		if (next < 0) {
+			ok = false;
+			break;
+		}
+		cursor = json_tok_end(data, item_idx);
+	}
+
+	if (ok) {
+		if (tok->end < 0) {
+			json_set_parse_error(data);
+			ok = false;
+		} else {
+			/* Nothing but whitespace before the ']' */
+			ok = json_check_gap(data, cursor, tok->end - 1, '\0');
+		}
+	}
+
+	json_end_array(data, &arr);
+	return ok ? next : -1;
+}
+
+/* Dissect the value at token idx. Returns the token index after it, or -1
+ * on error.
+ *
+ * Objects and arrays nested deeper than a quarter of the maximum tree depth
+ * are reported as malformed instead of dissected: each object adds two
+ * levels to the tree (the object and its member), and the protocols that
+ * carry the JSON need some more. This also bounds the recursion. */
+static int
+// NOLINTNEXTLINE(misc-no-recursion)
+json_walk_value(json_parser_data_t *data, int idx, unsigned depth)
+{
+	const jsmntok_t *tok = &data->tokens[idx];
+	json_elem_t val;
+
+	if (tok->type == JSMN_OBJECT || tok->type == JSMN_ARRAY) {
+		if (depth >= prefs.gui_max_tree_depth / 4) {
+			json_set_error(data, tok->start, "nested too deeply");
+			return -1;
+		}
+		if (tok->type == JSMN_OBJECT)
+			return json_walk_object(data, idx, depth + 1);
+		return json_walk_array(data, idx, depth + 1);
+	}
+
+	json_tok_to_elem(data, idx, &val);
+	if (val.type == JSON_TOKEN_INVALID) {
+		json_set_error(data, json_tok_start(data, idx), "invalid value");
+		return -1;
+	}
+	json_value(data, &val);
+	if (tok->size != 0) {
+		/* jsmn took a ':' after this value as a member separator */
+		json_set_error(data, json_skip_ws(data, json_tok_end(data, idx)), "unexpected character");
+		return -1;
+	}
+	return idx + 1;
+}
+
+/* Dissect the objects and arrays at the start of the JSON text, one after
+ * the other. Returns how much of the text was dissected, including
+ * whitespace after the last value; on error, up to where the error is. */
+static int
+json_dissect_tokens(json_parser_data_t *data)
+{
+	int consumed = 0;
+	int idx = 0;
+
+	while (idx < data->num_tokens) {
+		const jsmntok_t *tok = &data->tokens[idx];
+
+		if ((tok->type != JSMN_OBJECT && tok->type != JSMN_ARRAY) ||
+		    tok->start != json_skip_ws(data, consumed))
+			break;
+
+		idx = json_walk_value(data, idx, 0);
+		if (idx < 0)
+			return MIN(data->error_offset, data->buf_len);
+
+		consumed = json_skip_ws(data, tok->end);
+	}
+	return consumed;
+}
+
 static int
 dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
@@ -691,7 +1517,6 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	proto_item *ti = NULL;
 
 	json_parser_data_t parser_data;
-	tvbparse_t *tt;
 
 	media_content_info_t *content_info;
 	const char *data_name;
@@ -890,9 +1715,24 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 		parser_data.prev_item_type_raw = JSON_MARK_TYPE_NONE;
 	}
 
+	/* Tokenize once, for the JSON+ form and for the other forms */
+	int json_len = buffer_length - offset;
+	char *json_buf = (char *)tvb_memdup(pinfo->pool, tvb, offset, json_len);
+	bool has_nan = false;
+
+	parser_data.tvb = tvb;
+	parser_data.buf = json_buf;
+	parser_data.buf_len = json_len;
+	parser_data.base_offset = offset;
+	parser_data.parse_result = json_tokenize(pinfo->pool, json_buf, json_len, true,
+		&parser_data.tokens, &parser_data.num_tokens, &parser_data.parse_error_offset, &has_nan);
+	parser_data.error_offset = -1;
+	parser_data.error_msg = NULL;
+
+	proto_tree* json_tree_plus = NULL;
 	if (json_plus) {
 		// JSON+ (dictionary-driven) dissection
-		proto_tree* json_tree_plus = json_hide_root_item() ? json_tree :
+		json_tree_plus = json_hide_root_item() ? json_tree :
 			proto_tree_add_subtree(json_tree, tvb, 0, -1, ett_json_plus, NULL, "JSON+ form:");
 
 		/* Add the protocol-presence boolean so the packet is filterable
@@ -905,55 +1745,44 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				tvb, 0, 0, true);
 			proto_item_set_hidden(pi);
 		}
+	}
 
-		// Get JSON data for JSON+ parser
-		unsigned len = tvb_reported_length_remaining(tvb, offset);
-		const char *json_buf = (const char *)tvb_memdup(pinfo->pool, tvb, offset, len);
+	offset += json_dissect_tokens(&parser_data);
 
-		// Validate JSON
-		bool is_valid = json_validate((const uint8_t *)json_buf, len);
+	if (parser_data.error_offset >= 0) {
+		int error_offset = parser_data.error_offset;
+
+		proto_tree_add_expert_format(json_tree, pinfo, &ei_json_malformed, tvb,
+			parser_data.base_offset + error_offset, error_offset < json_len ? 1 : 0,
+			"Malformed JSON: %s", parser_data.error_msg);
+	}
+
+	if (json_plus) {
+		/* What json_validate() accepts, without its limit of 1024 tokens.
+		 * jsmn also accepts e.g. a key without a value, which the JSON+
+		 * functions do not expect; json_dissect_tokens() did not. */
+		bool is_valid = json_len > 0 && json_buf[0] != '\0' &&
+			parser_data.parse_result >= 0 && !has_nan &&
+			parser_data.error_offset < 0;
 
 		if (!is_valid) {
 			proto_item *item = proto_tree_add_item(json_tree_plus, hf_json_binary_data,
-				tvb, offset, len, ENC_NA);
+				tvb, parser_data.base_offset, json_len, ENC_NA);
 			proto_item_append_text(ti, " [Invalid JSON]");
 			expert_add_info(pinfo, item, &ei_json_plus_invalid_json);
-		} else {
-			// Allocate token array for parsing
-			jsmntok_t *tokens = wmem_alloc_array(pinfo->pool, jsmntok_t, JSON_PLUS_MAX_TOKENS);
-
-			// Parse JSON
-			int num_tokens = json_parse_len(json_buf, len, tokens, JSON_PLUS_MAX_TOKENS);
-
-			if (num_tokens < 0) {
-				// Parse error
-				proto_item *item = proto_tree_add_item(json_tree_plus, hf_json_binary_data,
-					tvb, offset, len, ENC_NA);
-				proto_item_append_text(ti, " [JSON Parse Error: %d]", num_tokens);
-				expert_add_info_format(pinfo, item, &ei_json_plus_parse_error,
-					"JSON parse error: %d", num_tokens);
-			} else if (num_tokens > 0) {
-				// Check if dictionary is loaded
-				if (json_plus_dictionary.fields) {
-					const char *path_parts[JSON_PLUS_MAX_PATH_DEPTH];
-					jsonplus_display_json_tree_dict(tvb, json_tree_plus, pinfo, pinfo->pool, tokens, 0, json_buf,
-						path_parts, 0);
-				} else {
-					proto_tree_add_expert_format(json_tree_plus, pinfo, &ei_json_plus_parse_error,
-						tvb, offset, len,
-						"JSON+ dictionary not loaded. Check resources/protocols/json/config.txt");
-				}
+		} else if (parser_data.num_tokens > 0) {
+			// Check if dictionary is loaded
+			if (json_plus_dictionary.fields) {
+				const char *path_parts[JSON_PLUS_MAX_PATH_DEPTH];
+				jsonplus_display_json_tree_dict(tvb, json_tree_plus, pinfo, pinfo->pool, parser_data.tokens, 0, json_buf,
+					path_parts, 0);
+			} else {
+				proto_tree_add_expert_format(json_tree_plus, pinfo, &ei_json_plus_parse_error,
+					tvb, parser_data.base_offset, json_len,
+					"JSON+ dictionary not loaded. Check resources/protocols/json/config.txt");
 			}
 		}
 	}
-
-	tt = tvbparse_init(pinfo->pool, tvb, offset, buffer_length - offset, &parser_data, want_ignore);
-
-	/* only one json in packet? */
-	while (tvbparse_get(tt, want))
-	{ }
-
-	offset = tvbparse_curr_offset(tt);
 
 	proto_item_set_len(ti, offset);
 
@@ -978,606 +1807,21 @@ dissect_json_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	return dissect_json(tvb, pinfo, tree, NULL);
 }
 
-static void
-before_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
-	proto_tree *subtree;
-	proto_item *ti;
-
-	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
-	if (json_hide_original_tree() && wmem_stack_count(data->stack) == 1) {
-		proto_item_set_hidden(ti);
-	}
-
-	subtree = proto_item_add_subtree(ti, ett_json_object);
-	wmem_stack_push(data->stack, subtree);
-
-	if (json_compact) {
-		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
-		proto_tree *subtree_compact;
-		proto_item *ti_compact;
-
-		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
-
-		if (JSON_INSIDE_ARRAY(idx)) {
-			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_object_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
-			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_object_compact);
-			json_array_index_increment(data);
-		} else {
-			subtree_compact = tree_compact;
-		}
-		wmem_stack_push(data->stack_compact, subtree_compact);
-
-		JSON_OBJECT_BEGIN(data);
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_tree* subtree_raw;
-		proto_item* ti_raw;
-
-		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_OBJECT) {
-			proto_item_append_text(data->prev_item_raw, ",");
-		}
-
-		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
-			/* this is an object value of an member, add the "{" just after the member name */
-			ti_raw = data->prev_item_raw;
-			proto_item_append_text(ti_raw, " {");
-		} else {
-			/* this object is either the top object or an element of an array, add the "{" as a single item */
-			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_object_raw, tok->tvb, tok->offset, tok->len, "{");
-		}
-
-		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_object_raw);
-		wmem_stack_push(data->stack_raw, subtree_raw);
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_OBJECT;
-	}
-}
-
-static void
-after_object(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	wmem_stack_pop(data->stack);
-
-	if (json_compact) {
-		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
-		proto_item *parent_item = proto_tree_get_parent(tree_compact);
-
-		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
-
-		if (JSON_OBJECT_SET_HAS_KEY(idx))
-			proto_item_append_text(parent_item, " {...}");
-		else
-			proto_item_append_text(parent_item, " {}");
-
-		wmem_stack_pop(data->stack_compact);
-
-		JSON_ARRAY_OBJECT_END(data);
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
-		proto_item* ti_raw;
-		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_OBJECT) { /* an empty object */
-			ti_raw = data->prev_item_raw;
-			proto_item_append_text(ti_raw, "}");
-		} else {
-			tvbparse_elem_t* tok_last = tok->sub->last;
-			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_object_raw, tok_last->tvb, tok_last->offset, tok_last->len, "}");
-		}
-		wmem_stack_pop(data->stack_raw);
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_END_OBJECT;
-	}
-}
-
-static void
-before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
-	proto_tree *subtree;
-	proto_item *ti;
-
-	const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, tok->sub, true);
-
-	ti = proto_tree_add_string(tree, hf_json_member, tok->tvb, tok->offset, tok->len, key_string_without_quotation_marks);
-
-	subtree = proto_item_add_subtree(ti, ett_json_member);
-	wmem_stack_push(data->stack, subtree);
-
-	// extended path based filtering
-	char* last_key_string = (char*)wmem_stack_pop(data->stack_path);
-	char* base_path = (char*)wmem_stack_pop(data->stack_path);
-	wmem_stack_push(data->stack_path, base_path);
-	wmem_stack_push(data->stack_path, last_key_string);
-
-	char* path = join_strings(data->pinfo->pool, base_path, key_string_without_quotation_marks, '/');
-	wmem_stack_push(data->stack_path, path);
-	/* stack won't write/free pointer. */
-	wmem_stack_push(data->stack_path, (void *)key_string_without_quotation_marks);
-
-	if (json_compact) {
-		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
-		proto_tree *subtree_compact;
-		proto_item *ti_compact = NULL;
-
-		tvbparse_elem_t *key_tok = tok->sub;
-
-		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_compact = json_key_lookup(tree_compact, tok, key_string_without_quotation_marks, data->pinfo, true);
-			if (!ti_compact) {
-				ti_compact = proto_tree_add_none_format(tree_compact, hf_json_member_compact, tok->tvb, tok->offset, tok->len, "\"%s\":", key_string_without_quotation_marks);
-			}
-		} else {
-			ti_compact = proto_tree_add_item(tree_compact, hf_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
-		}
-
-		subtree_compact = proto_item_add_subtree(ti_compact, ett_json_member_compact);
-		wmem_stack_push(data->stack_compact, subtree_compact);
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_tree* subtree_raw;
-		proto_item* ti_raw = NULL;
-		tvbparse_elem_t* key_tok = tok->sub;
-
-		if (data->prev_item_raw && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_OBJECT && data->prev_item_type_raw != JSON_MARK_TYPE_BEGIN_ARRAY) {
-			proto_item_append_text(data->prev_item_raw, ",");
-		}
-
-		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
-			ti_raw = json_key_lookup(tree_raw, tok, key_string_without_quotation_marks, data->pinfo, true);
-			if (!ti_raw) {
-				ti_raw = proto_tree_add_none_format(tree_raw, hf_json_member_raw, tok->tvb, tok->offset, tok->len, "\"%s\":", key_string_without_quotation_marks);
-			}
-		} else {
-			ti_raw = proto_tree_add_item(tree_raw, hf_json_member_raw, tok->tvb, tok->offset, tok->len, ENC_NA);
-		}
-
-		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_member_raw);
-		wmem_stack_push(data->stack_raw, subtree_raw);
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_MEMBER_NAME;
-	}
-}
-
-static void
-after_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	proto_tree *tree = (proto_tree *)wmem_stack_pop(data->stack);
-
-	tvbparse_elem_t* key_tok = tok->sub;
-	if (tree && key_tok && key_tok->id == JSON_TOKEN_STRING) {
-
-		const char* key_string_without_quotation_marks = get_json_string(data->pinfo->pool, key_tok, true);
-
-		proto_tree_add_string(tree, hf_json_key, key_tok->tvb, key_tok->offset, key_tok->len, key_string_without_quotation_marks);
-	}
-
-	// extended path based filtering
-	wmem_stack_pop(data->stack_path); // Pop key
-	char* path = (char*)wmem_stack_pop(data->stack_path);
-	if (tree)
-	{
-		proto_item* path_item = proto_tree_add_string(tree, hf_json_path, tok->tvb, tok->offset, tok->len, path);
-		proto_item_set_generated(path_item);
-		if (hide_extended_path_based_filtering)
-		{
-			proto_item_set_hidden(path_item);
-		}
-	}
-
-	if (json_compact) {
-		wmem_stack_pop(data->stack_compact);
-		json_object_add_key(data);
-	}
-
-	if (json_raw) {
-		wmem_stack_pop(data->stack_raw);
-	}
-}
-
-static void
-before_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
-	proto_tree *subtree;
-	proto_item *ti;
-
-	ti = proto_tree_add_item(tree, hf_json_array, tok->tvb, tok->offset, tok->len, ENC_NA);
-	if (json_hide_original_tree() && wmem_stack_count(data->stack) == 1) {
-		proto_item_set_hidden(ti);
-	}
-
-	subtree = proto_item_add_subtree(ti, ett_json_array);
-	wmem_stack_push(data->stack, subtree);
-
-	// extended path based filtering
-	char* last_key_string = (char*)wmem_stack_pop(data->stack_path);
-	char* base_path = (char*)wmem_stack_pop(data->stack_path);
-	wmem_stack_push(data->stack_path, base_path);
-	wmem_stack_push(data->stack_path, last_key_string);
-
-	char* path = join_strings(data->pinfo->pool, base_path, "[]", '/');
-
-	wmem_stack_push(data->stack_path, path);
-	wmem_stack_push(data->stack_path, "[]");
-
-	// Try key_lookup
-	json_key_lookup(tree, tok, last_key_string, data->pinfo, false);
-
-	if (json_compact) {
-		proto_tree* tree_compact = (proto_tree*)wmem_stack_peek(data->stack_compact);
-		proto_tree* subtree_compact;
-		proto_item* ti_compact;
-
-		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
-
-		if (JSON_INSIDE_ARRAY(idx)) {
-			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_array_compact, tok->tvb, tok->offset, tok->len, "%d:", idx);
-			subtree_compact = proto_item_add_subtree(ti_compact, ett_json_array_compact);
-			json_array_index_increment(data);
-		} else {
-			subtree_compact = tree_compact;
-		}
-		wmem_stack_push(data->stack_compact, subtree_compact);
-
-		JSON_ARRAY_BEGIN(data);
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_tree* subtree_raw;
-		proto_item* ti_raw;
-
-		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_END_ARRAY) {
-			proto_item_append_text(data->prev_item_raw, ",");
-		}
-
-		if (data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
-			/* this is an array value of an member, add the "[" just after the member name */
-			ti_raw = data->prev_item_raw;
-			proto_item_append_text(ti_raw, " [");
-		} else {
-			/* this array is either the top element or an element of an array, add the "[" as a single item */
-			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_raw, tok->tvb, tok->offset, tok->len, "[");
-		}
-
-		subtree_raw = proto_item_add_subtree(ti_raw, ett_json_array_raw);
-		wmem_stack_push(data->stack_raw, subtree_raw);
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_BEGIN_ARRAY;
-	}
-}
-
-static void
-after_array(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t* tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	wmem_stack_pop(data->stack);
-
-	// extended path based filtering
-	wmem_stack_pop(data->stack_path); // Pop key
-	wmem_stack_pop(data->stack_path); // Pop path
-
-	if (json_compact) {
-		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
-		proto_item *parent_item = proto_tree_get_parent(tree_compact);
-
-		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
-		if (idx == 0)
-			proto_item_append_text(parent_item, " []");
-		else
-			proto_item_append_text(parent_item, " [...]");
-
-		wmem_stack_pop(data->stack_compact);
-
-		JSON_ARRAY_OBJECT_END(data);
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_tree* parent_tree = proto_tree_get_parent_tree(tree_raw);
-		proto_item* ti_raw;
-		if (data->prev_item_type_raw == JSON_MARK_TYPE_BEGIN_ARRAY) { /* an empty array */
-			ti_raw = data->prev_item_raw;
-			proto_item_append_text(ti_raw, "]");
-		} else {
-			tvbparse_elem_t* tok_last = tok->sub->last;
-			ti_raw = proto_tree_add_none_format(parent_tree, hf_json_array_raw, tok_last->tvb, tok_last->offset, tok_last->len, "]");
-		}
-		wmem_stack_pop(data->stack_raw);
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_END_ARRAY;
-	}
-}
-
-static void
-after_value(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
-	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
-
-	proto_tree *tree = (proto_tree *)wmem_stack_peek(data->stack);
-	json_token_type_t value_id = tok->sub ? (json_token_type_t)tok->sub->id : JSON_TOKEN_INVALID;
-
-	if (!(value_id == JSON_TOKEN_STRING || value_id == JSON_TOKEN_NUMBER || value_id == JSON_TOKEN_FALSE
-		|| value_id == JSON_TOKEN_NULL || value_id == JSON_TOKEN_TRUE || value_id == JSON_TOKEN_NAN))
-	{
-		return;
-	}
-
-	// extended path based filtering
-	char* key_string = (char*)wmem_stack_pop(data->stack_path);
-	char* path = (char*)wmem_stack_pop(data->stack_path);
-
-	const char* value_str = NULL;
-	if (value_id == JSON_TOKEN_STRING && tok->len >= 2)
-	{
-		value_str = get_json_string(data->pinfo->pool, tok, true);
-	}
-	else
-	{
-		value_str = get_json_string(data->pinfo->pool, tok, false);
-	}
-
-	char* path_with_value = join_strings(data->pinfo->pool, path, value_str, ':');
-	char* memeber_with_value = join_strings(data->pinfo->pool, key_string, value_str, ':');
-	proto_item* path_with_value_item = proto_tree_add_string(tree, hf_json_path_with_value, tok->tvb, tok->offset, tok->len, path_with_value);
-	proto_item* member_with_value_item = proto_tree_add_string(tree, hf_json_member_with_value, tok->tvb, tok->offset, tok->len, memeber_with_value);
-
-	proto_item_set_generated(path_with_value_item);
-	proto_item_set_generated(member_with_value_item);
-
-	if (hide_extended_path_based_filtering)
-	{
-		proto_item_set_hidden(path_with_value_item);
-		proto_item_set_hidden(member_with_value_item);
-	}
-
-	wmem_stack_push(data->stack_path, path);
-	wmem_stack_push(data->stack_path, key_string);
-
-	switch (value_id) {
-		case JSON_TOKEN_STRING:
-			if (tok->len >= 2) {
-				// Try key_lookup
-				proto_item *key_lookup = NULL;
-				key_lookup = json_key_lookup(tree, tok, key_string, data->pinfo, false);
-				if (!key_lookup) {
-					proto_tree_add_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, value_str);
-				}
-			}
-			else
-			{
-				proto_tree_add_item(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII | ENC_NA);
-			}
-
-			break;
-
-		case JSON_TOKEN_NUMBER:
-			proto_tree_add_double(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, g_ascii_strtod(value_str, NULL));
-
-			break;
-
-		case JSON_TOKEN_FALSE:
-			proto_tree_add_item(tree, hf_json_value_false, tok->tvb, tok->offset, tok->len, ENC_NA);
-
-			break;
-
-		case JSON_TOKEN_NULL:
-			proto_tree_add_item(tree, hf_json_value_null, tok->tvb, tok->offset, tok->len, ENC_NA);
-
-			break;
-
-		case JSON_TOKEN_TRUE:
-			proto_tree_add_item(tree, hf_json_value_true, tok->tvb, tok->offset, tok->len, ENC_NA);
-
-			break;
-
-		case JSON_TOKEN_NAN:
-			proto_tree_add_item(tree, hf_json_value_nan, tok->tvb, tok->offset, tok->len, ENC_NA);
-
-			break;
-
-		default:
-			proto_tree_add_format_text(tree, tok->tvb, tok->offset, tok->len);
-			break;
-	}
-
-	if (json_compact) {
-		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
-
-		int idx = GPOINTER_TO_INT(wmem_stack_peek(data->array_idx));
-
-		char *val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
-
-		if (JSON_INSIDE_ARRAY(idx)) {
-			proto_tree_add_none_format(tree_compact, hf_json_array_item_compact, tok->tvb, tok->offset, tok->len, "%d: %s", idx, val_str);
-			json_array_index_increment(data);
-		} else {
-			proto_item *parent_item = proto_tree_get_parent(tree_compact);
-			proto_item_append_text(parent_item, " %s", val_str);
-		}
-	}
-
-	if (json_raw) {
-		proto_tree* tree_raw = (proto_tree*)wmem_stack_peek(data->stack_raw);
-		proto_item* ti_raw;
-		char* val_str = (char*)tvb_get_string_enc(data->pinfo->pool, tok->tvb, tok->offset, tok->len, ENC_UTF_8);
-
-		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_VALUE) {
-			proto_item_append_text(data->prev_item_raw, ","); /* this value is an element of an array */
-		}
-
-		if (data->prev_item_raw && data->prev_item_type_raw == JSON_MARK_TYPE_MEMBER_NAME) {
-			ti_raw = proto_tree_get_parent(tree_raw);
-			proto_item_append_text(ti_raw, " %s", val_str);
-		} else {
-			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_array_item_raw, tok->tvb, tok->offset, tok->len, "%s", val_str);
-		}
-
-		data->prev_item_raw = ti_raw;
-		data->prev_item_type_raw = JSON_MARK_TYPE_VALUE;
-	}
-}
-
-static void
-init_json_parser(void) {
-	static tvbparse_wanted_t _want_object;
-	static tvbparse_wanted_t _want_array;
-
-	tvbparse_wanted_t *want_object, *want_array;
-	tvbparse_wanted_t *want_member;
-	tvbparse_wanted_t *want_string;
-	tvbparse_wanted_t *want_number, *want_int;
-	tvbparse_wanted_t *want_value;
-	tvbparse_wanted_t *want_value_separator;
-
-#define tvbparse_optional(id, private_data, before_cb, after_cb, wanted) \
-	tvbparse_some(id, 0, 1, private_data, before_cb, after_cb, wanted)
-
-	tvbparse_wanted_t *want_quot = tvbparse_char(-1,"\"",NULL,NULL,NULL);
-
-	want_string = tvbparse_set_seq(JSON_TOKEN_STRING, NULL, NULL, NULL,
-			want_quot,
-			tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
-				tvbparse_set_oneof(-1, NULL, NULL, NULL,
-					tvbparse_not_chars(-1, 0, 0, "\"" "\\", NULL, NULL, NULL), /* XXX, without invalid unicode characters */
-					tvbparse_set_seq(-1, NULL, NULL, NULL,
-						tvbparse_char(-1, "\\", NULL, NULL, NULL),
-						tvbparse_set_oneof(-1, NULL, NULL, NULL,
-							tvbparse_chars(-1, 0, 1, "\"" "\\" "/bfnrt", NULL, NULL, NULL),
-							tvbparse_set_seq(-1, NULL, NULL, NULL,
-								tvbparse_char(-1, "u", NULL, NULL, NULL),
-								tvbparse_chars(-1, 4, 4, "0123456789abcdefABCDEF", NULL, NULL, NULL),
-								NULL),
-							NULL),
-						NULL),
-					NULL)
-				),
-			want_quot,
-			NULL);
-
-	want_value_separator = tvbparse_char(-1, ",", NULL, NULL, NULL);
-
-	/* int = zero / ( digit1-9 *DIGIT ) */
-	want_int = tvbparse_set_oneof(-1, NULL, NULL, NULL,
-			tvbparse_char(-1, "0", NULL, NULL, NULL),
-			tvbparse_set_seq(-1, NULL, NULL, NULL,
-				tvbparse_chars(-1, 1, 1, "123456789", NULL, NULL, NULL),
-				tvbparse_optional(-1, NULL, NULL, NULL, /* tvbparse_chars() don't respect 0 as min_len ;/ */
-					tvbparse_chars(-1, 0, 0, "0123456789", NULL, NULL, NULL)),
-				NULL),
-			NULL);
-
-	/* number = [ minus ] int [ frac ] [ exp ] */
-	want_number = tvbparse_set_seq(JSON_TOKEN_NUMBER, NULL, NULL, NULL,
-			tvbparse_optional(-1, NULL, NULL, NULL, /* tvbparse_chars() don't respect 0 as min_len ;/ */
-				tvbparse_chars(-1, 0, 1, "-", NULL, NULL, NULL)),
-			want_int,
-			/* frac = decimal-point 1*DIGIT */
-			tvbparse_optional(-1, NULL, NULL, NULL,
-				tvbparse_set_seq(-1, NULL, NULL, NULL,
-					tvbparse_char(-1, ".", NULL, NULL, NULL),
-					tvbparse_chars(-1, 1, 0, "0123456789", NULL, NULL, NULL),
-					NULL)),
-			/* exp = e [ minus / plus ] 1*DIGIT */
-			tvbparse_optional(-1, NULL, NULL, NULL,
-				tvbparse_set_seq(-1, NULL, NULL, NULL,
-					tvbparse_char(-1, "eE", NULL, NULL, NULL),
-					tvbparse_optional(-1, NULL, NULL, NULL, /* tvbparse_chars() don't respect 0 as min_len ;/ */
-						tvbparse_chars(-1, 0, 1, "-+", NULL, NULL, NULL)),
-					tvbparse_chars(-1, 1, 0, "0123456789", NULL, NULL, NULL),
-					NULL)),
-			NULL);
-
-	/* value = false / null / true / object / array / number / string */
-	want_value = tvbparse_set_oneof(-1, NULL, NULL, after_value,
-			tvbparse_string(JSON_TOKEN_FALSE, "false", NULL, NULL, NULL),
-			tvbparse_string(JSON_TOKEN_NULL, "null", NULL, NULL, NULL),
-			tvbparse_string(JSON_TOKEN_TRUE, "true", NULL, NULL, NULL),
-			tvbparse_string(JSON_TOKEN_NAN, "NaN", NULL, NULL, NULL),
-			&_want_object,
-			&_want_array,
-			want_number,
-			want_string,
-			NULL);
-
-	/* array = begin-array [ value *( value-separator value ) ] end-array */
-	want_array = tvbparse_set_seq(JSON_ARRAY, NULL, before_array, after_array,
-			tvbparse_char(-1, "[", NULL, NULL, NULL),
-			tvbparse_optional(-1, NULL, NULL, NULL,
-				tvbparse_set_seq(-1, NULL, NULL, NULL,
-					want_value,
-					tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
-						tvbparse_set_seq(-1, NULL, NULL, NULL,
-							want_value_separator,
-							want_value,
-							NULL)),
-					NULL)
-				),
-			tvbparse_char(-1, "]", NULL, NULL, NULL),
-			NULL);
-	_want_array = *want_array;
-
-	/* member = string name-separator value */
-	want_member = tvbparse_set_seq(-1, NULL, before_member, after_member,
-			want_string,
-			tvbparse_char(-1, ":", NULL, NULL, NULL),
-			want_value,
-			NULL);
-
-	/* object = begin-object [ member *( value-separator member ) ] end-object */
-	want_object = tvbparse_set_seq(JSON_OBJECT, NULL, before_object, after_object,
-			tvbparse_char(-1, "{", NULL, NULL, NULL),
-			tvbparse_optional(-1, NULL, NULL, NULL,
-				tvbparse_set_seq(-1, NULL, NULL, NULL,
-					want_member,
-					tvbparse_some(-1, 0, INT_MAX, NULL, NULL, NULL,
-						tvbparse_set_seq(-1, NULL, NULL, NULL,
-							want_value_separator,
-							want_member,
-							NULL)),
-					NULL)
-				),
-			tvbparse_char(-1, "}", NULL, NULL, NULL),
-			NULL);
-	_want_object = *want_object;
-
-	want_ignore = tvbparse_chars(-1, 1, 0, " \t\r\n", NULL, NULL, NULL);
-
-	/* JSON-text = object / array */
-	want = tvbparse_set_oneof(-1, NULL, NULL, NULL,
-		want_object,
-		want_array,
-		/* tvbparse_not_chars(-1, 1, 0, " \t\r\n", NULL, NULL, NULL), */
-		NULL);
-
-	/* XXX, heur? */
-}
-
 /* This function tries to understand if the payload is json or not */
 static bool
 dissect_json_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-	unsigned len = tvb_captured_length(tvb);
-	const uint8_t* buf = tvb_get_string_enc(pinfo->pool, tvb, 0, len, ENC_ASCII);
+	int len = (int)tvb_captured_length(tvb);
+	jsmntok_t *tokens;
+	int num_tokens;
+	int error_offset;
 
-	if (json_validate(buf, len) == false)
+	/* An empty buffer or a leading NUL would make jsmn see an empty text */
+	if (len == 0 || tvb_get_uint8(tvb, 0) == '\0')
+		return false;
+
+	char *buf = (char *)tvb_memdup(pinfo->pool, tvb, 0, len);
+	if (json_tokenize(pinfo->pool, buf, len, false, &tokens, &num_tokens, &error_offset, NULL) < 0)
 		return false;
 
 	return (dissect_json(tvb, pinfo, tree, data) != 0);
@@ -3317,8 +3561,12 @@ common_register_json(void)
 		&ett_json_plus_array,
 	};
 
-	/* Expert info for JSON+ */
+	/* Expert info */
 	static ei_register_info ei[] = {
+		{ &ei_json_malformed,
+		  { "json.malformed", PI_MALFORMED, PI_ERROR,
+		    "Malformed JSON", EXPFILL }
+		},
 		{ &ei_json_plus_invalid_json,
 		  { "json.plus.invalid_json", PI_MALFORMED, PI_ERROR,
 		    "Invalid JSON syntax", EXPFILL }
@@ -3378,7 +3626,6 @@ common_register_json(void)
 	json_handle = register_dissector("json", dissect_json, proto_json);
 	json_file_handle = register_dissector("json_file", dissect_json_file, proto_json);
 
-	init_json_parser();
 	/* Use register_shutdown_routine (program-exit hook), NOT
 	 * register_cleanup_routine — the latter fires on every capture-file
 	 * close (via epan_free → cleanup_dissection), which would wipe the

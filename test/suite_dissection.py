@@ -69364,6 +69364,119 @@ class TestDissectRanapSession:
         ]
 
 
+class TestDissectJson:
+    '''JSON texts on UDP port 9999 from the synthetic capture
+    json_coverage.pcap.gz (49 frames, one text each, generated with Python
+    struct): valid ones in frames 1-18 and malformed ones in frames 19-49.'''
+
+    # Frame: (offset of the error in the UDP payload, expert info)
+    ERRORS = {
+        19: (6, "unexpected character"),    # {"a":1,}
+        20: (4, "unexpected character"),    # [1,2,]
+        21: (1, "unexpected character"),    # [,1]
+        22: (7, "unexpected character"),    # {"a":1,,"b":2}
+        23: (3, "expected ','"),            # [1 2]
+        24: (7, "expected ','"),            # {"a":1 "b":2}
+        25: (5, "unexpected character"),    # {"a" 1}
+        26: (5, "expected ':'"),            # {"a" "b"}
+        27: (4, "expected ':'"),            # {"a"}
+        28: (4, "unexpected character"),    # ["a":1]
+        29: (5, "unexpected character"),    # {"a"::1}
+        30: (9, "expected ','"),            # {"a":"x" "y"}
+        31: (7, "unexpected character"),    # {"a":1 :2}
+        32: (5, "invalid value"),           # {"a":tru}
+        33: (5, "invalid value"),           # {"a":01}
+        34: (1, "invalid value"),           # [1.,-,1e,1.2.3]
+        35: (5, "invalid value"),           # {"a":Nope}
+        36: (1, "unexpected character"),    # {1:2}
+        37: (1, "expected string"),         # {{}:1}
+        38: (11, "unexpected character"),   # {"a":{"b":1]}
+        39: (5, "unexpected character"),    # {"a":"\x"}
+        40: (8, "unexpected end of data"),  # {"a":[1,2
+        41: (5, "unexpected end of data"),  # {"a":"abc
+        42: (5, "unexpected end of data"),  # {"a":
+        43: (4, "unexpected end of data"),  # {"a"
+        44: (1, "unexpected end of data"),  # [1
+        45: (7, "unexpected NUL character"),  # {"a":"x<NUL>y"}
+        47: (13, "expected value"),         # {"a":1} {"b":}
+        48: (625, "nested too deeply"),     # 150 nested objects, 125 dissected
+    }
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('json_coverage.pcap.gz'),
+                '-d', 'udp.port==9999,json', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_json_malformed(self, cmd_tshark, capture_file, test_env):
+        '''Only the malformed texts get an expert info, at the byte where
+        they go wrong, in one and two passes. Text that is not JSON at all
+        (frame 49), or follows a complete object after a NUL (frame 46),
+        goes to data-text-lines without one.'''
+        import re
+        for passes in ((), ('-2',)):
+            pdml = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'json.malformed', '-Tpdml')
+            errors = {}
+            for packet in pdml.split('<packet>')[1:]:
+                frame = int(re.search(r'<field name="num" [^>]* show="(\d+)"', packet).group(1))
+                pos = int(re.search(r'<proto name="_ws.malformed" [^>]* pos="(\d+)"', packet).group(1))
+                msg = re.search(r'<field name="json.malformed" showname="Malformed JSON: ([^"]*)"', packet).group(1)
+                errors[frame] = (pos - 42, msg.replace('&#x27;', "'"))
+            assert errors == self.ERRORS
+
+    def test_json_malformed_all_forms(self, cmd_tshark, capture_file, test_env):
+        '''The compact, raw and JSON+ forms and unescaping do not change
+        which texts are malformed.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'json.compact_form:TRUE', '-o', 'json.raw_form:TRUE',
+                '-o', 'json.plus_form:TRUE', '-o', 'json.unescape_strings:TRUE',
+                '-Y', 'json.malformed', '-Tfields', '-eframe.number')
+        assert [int(f) for f in stdout.split()] == sorted(self.ERRORS)
+
+    def test_json_values(self, cmd_tshark, capture_file, test_env):
+        '''NaN values (frame 6), a 3GPP key decoder (frame 10), text after
+        an object (frame 5), 30 nested objects (frame 17) and the nesting
+        limit of a quarter of gui.max_tree_depth, 125 (frame 48).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 6, 10, 17, 48}', '-Tfields', '-eframe.number',
+                '-ejson.value.nan', '-ejson.3gpp.supi', '-edata-text-lines',
+                '-ejson.member', '-Eoccurrence=a', '-Eaggregator=,')
+        assert stdout.splitlines() == [
+            '5\t\t\tLine-based text data (1 lines)\ta',
+            '6\t1,1\t\t\ta,b',
+            '10\t\timsi-001010000000001\t\tsupi,epsBearerSetup,pei',
+            '17\t\t\t\t' + ','.join(['a'] * 30),
+            '48\t\t\tLine-based text data (1 lines)\t' + ','.join(['a'] * 125),
+        ]
+
+    def test_json_nesting_max_tree_depth(self, cmd_tshark, capture_file, test_env):
+        '''The nesting limit follows gui.max_tree_depth: with 64, 16 of the
+        30 nested objects in frame 17 are dissected, with an expert info
+        instead of exceeding the maximum tree depth; with 2000 all 150 of
+        frame 48 are.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'gui.max_tree_depth:64', '-o', 'json.compact_form:TRUE', '-o', 'json.raw_form:TRUE',
+                '-Y', 'frame.number == 17', '-Tfields', '-e_ws.expert.message', '-ejson.member',
+                '-Eoccurrence=a', '-Eaggregator=,')
+        assert stdout.splitlines() == ['Malformed JSON: nested too deeply\t' + ','.join(['a'] * 16)]
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'gui.max_tree_depth:2000',
+                '-Y', 'frame.number == 48', '-Tfields', '-e_ws.expert.message', '-ejson.member',
+                '-Eoccurrence=a', '-Eaggregator=,')
+        assert stdout.splitlines() == ['\t' + ','.join(['a'] * 150)]
+
+    def test_json_plus_many_tokens(self, cmd_tshark, capture_file, test_env):
+        '''JSON+ takes the array of 2000 objects in frame 18 (10001
+        tokens) as valid JSON; only the text followed by other text
+        (frame 5) and NaN (frame 6) are not.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'json.plus_form:TRUE',
+                '-Y', 'json.plus.invalid_json && frame.number <= 18', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['5', '6']
+
+
 class TestDissectJson3gppSession:
     def gtpu_imsi(self, cmd_tshark, capture_file, test_env, *args):
         stdout = subprocess.check_output((cmd_tshark, *args,
