@@ -11,9 +11,10 @@
 # and "FooAppPortable64" for 64-bit packages. We deviate from that here
 # by always appending a bit suffix.
 #
-# PA.com also tends to ship 32-bit and 64-bit executables in combined
-# packages. We don't do that because a) we're large and b) we build
-# our 32-bit and 64-bit packages independently in separate pipelines.
+# XXX - Does that still make sense today, when we don't support 32-bit on
+# Windows?
+#
+# This is a Wireshark-only package. We might want a Stratoshark PortableApps.
 
 set(PORTABLEAPPS_BITS 64)
 set(PORTABLEAPPS_BITS ${PORTABLEAPPS_BITS} PARENT_SCOPE)
@@ -40,6 +41,10 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 	set(_wireshark_portableapps_app_dir "${PORTABLEAPPS_LAUNCHER_STAGING_DIR}/App/${CMAKE_PROJECT_NAME}")
 	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}" _wireshark_portableapps_app_dir_native)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}" _datafile_dir_native)
+	file(TO_NATIVE_PATH "${WIRESHARK_DATAFILE_DIR}" _wireshark_datafile_dir_native)
+	file(TO_NATIVE_PATH "${WIRESHARK_PLUGIN_DIR}" _wireshark_plugins_dir_native)
+	# Or use ${PLUGIN_INSTALL_VERSION_LIBDIR} ?
+	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}/plugins/${PLUGIN_PATH_ID}" _wireshark_portableapps_plugins_dir_native)
 	file(TO_NATIVE_PATH "${_wireshark_portableapps_app_dir}/extcap" _wireshark_portableapps_extcap_dir_native)
 	file(TO_NATIVE_PATH "${DATAFILE_DIR}/extcap/${CMAKE_PROJECT_NAME}" _extcap_dir_native)
 	file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}/packaging/portableapps/xcopy-deploy-exclude-pdb.txt" _xcopy_deploy_exclude_pdb)
@@ -52,6 +57,15 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_wireshark_portableapps_app_dir}
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${_wireshark_portableapps_app_dir}
 		COMMAND xcopy ${_datafile_dir_native} ${_wireshark_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}+${_xcopy_deploy_exclude_other}
+		# The build directory has the data files in share/<application>,
+		# plugins in plugins/<application>/<version>, and extcaps in
+		# extcap/<application> for Wireshark and Stratoshark. Like the
+		# NSIS and WiX installers, install Wireshark's data files in the
+		# program directory and its plugins and extcaps without the
+		# application name, where an installed Wireshark looks for them.
+		# Stratoshark and its files (including Strato) are excluded.
+		COMMAND xcopy ${_wireshark_datafile_dir_native} ${_wireshark_portableapps_app_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}
+		COMMAND xcopy ${_wireshark_plugins_dir_native} ${_wireshark_portableapps_plugins_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}
 		COMMAND xcopy ${_extcap_dir_native} ${_wireshark_portableapps_extcap_dir_native} /D /I /E /Y /exclude:${_xcopy_deploy_exclude_pdb}
 	)
 

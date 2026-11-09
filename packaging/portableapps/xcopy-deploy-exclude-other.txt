@@ -8,4 +8,9 @@ lemon.exe
 make-
 test.exe
 uninstall.exe
+Stratoshark.
+strato.
+falcodump.
 extcap
+share
+plugins
