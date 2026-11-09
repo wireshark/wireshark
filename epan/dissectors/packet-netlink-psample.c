@@ -62,6 +62,12 @@ static int proto_netlink_psample;
 
 static dissector_handle_t netlink_psample_handle;
 static dissector_table_t sll_ltype_table;
+static dissector_handle_t can_le_handle;
+static dissector_handle_t can_be_handle;
+static dissector_handle_t canfd_le_handle;
+static dissector_handle_t canfd_be_handle;
+static dissector_handle_t canxl_le_handle;
+static dissector_handle_t canxl_be_handle;
 
 static int hf_psample_attrs;
 static int hf_psample_commands;
@@ -121,6 +127,8 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 	uint64_t value64, timestamp;
 	nstime_t ts_nstime;
 	tvbuff_t *next_tvb;
+	dissector_handle_t can_handle;
+	bool little_endian;
 	uint32_t value;
 
 	switch (type) {
@@ -150,7 +158,30 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 		return 1;
 	case WS_PSAMPLE_ATTR_DATA:
 		next_tvb = tvb_new_subset_length(tvb, offset, len);
-		if (!dissector_try_uint(sll_ltype_table, info->protocol, next_tvb, info->pinfo, tree))
+		/* The multi-byte SocketCAN header fields are in host byte order.
+		 * The sll.ltype CAN dissectors read them in the byte order of
+		 * the reading host (wiretap byte-swaps them in Linux cooked
+		 * captures), but here they are in the Netlink byte order. */
+		little_endian = (unsigned)nl_data->encoding == ENC_LITTLE_ENDIAN;
+		switch (info->protocol) {
+		case LINUX_SLL_P_CAN:
+			/* "can-bigendian" is the LINKTYPE_CAN_SOCKETCAN dissector,
+			 * which reads the CAN classic ID/flags field big-endian. */
+			can_handle = little_endian ? can_le_handle : can_be_handle;
+			break;
+		case LINUX_SLL_P_CANFD:
+			can_handle = little_endian ? canfd_le_handle : canfd_be_handle;
+			break;
+		case LINUX_SLL_P_CANXL:
+			can_handle = little_endian ? canxl_le_handle : canxl_be_handle;
+			break;
+		default:
+			can_handle = NULL;
+			break;
+		}
+		if (can_handle)
+			call_dissector(can_handle, next_tvb, info->pinfo, tree);
+		else if (!dissector_try_uint(sll_ltype_table, info->protocol, next_tvb, info->pinfo, tree))
 			call_data_dissector(next_tvb, info->pinfo, tree);
 		return 1;
 	case WS_PSAMPLE_ATTR_GROUP_REFCOUNT:
@@ -329,6 +360,12 @@ proto_reg_handoff_netlink_psample(void)
 {
 	dissector_add_string("genl.family", "psample", netlink_psample_handle);
 	sll_ltype_table = find_dissector_table("sll.ltype");
+	can_le_handle = find_dissector_add_dependency("can-littleendian", proto_netlink_psample);
+	can_be_handle = find_dissector_add_dependency("can-bigendian", proto_netlink_psample);
+	canfd_le_handle = find_dissector_add_dependency("canfd-littleendian", proto_netlink_psample);
+	canfd_be_handle = find_dissector_add_dependency("canfd-bigendian", proto_netlink_psample);
+	canxl_le_handle = find_dissector_add_dependency("canxl-littleendian", proto_netlink_psample);
+	canxl_be_handle = find_dissector_add_dependency("canxl-bigendian", proto_netlink_psample);
 }
 
 /*
