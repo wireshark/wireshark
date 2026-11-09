@@ -108240,3 +108240,20 @@ class TestDissectDnsSvcbDocpath:
             ), encoding='utf-8', env=test_env)
         assert '64' in stdout           # SVCB type
         assert 'dns-query' in stdout    # docpath segment
+
+
+class TestDissectDhcpv6SlapQuad:
+    def test_slap_quad_option(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv6 SLAP QUAD option quadrants and preferences are decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv6_slap_quad.pcap'),
+                '-Tfields',
+                '-e', 'dhcpv6.msgtype',
+                '-e', 'dhcpv6.slap_quad.quadrant',
+                '-e', 'dhcpv6.slap_quad.preference',
+            ), encoding='utf-8', env=test_env)
+        assert '2' in stdout        # Advertise
+        assert '0' in stdout        # AAI quadrant
+        assert '3' in stdout        # SAI quadrant
+        assert '100' in stdout      # AAI preference
+        assert '200' in stdout      # SAI preference

@@ -161,6 +161,8 @@ static int hf_bcmcs_servers_a;
 static int hf_remoteid_enterprise_id;
 static int hf_subscriber_id;
 static int hf_client_fqdn;
+static int hf_slap_quad_quadrant;
+static int hf_slap_quad_preference;
 static int hf_pana_agent;
 static int hf_opt_timezone;
 static int hf_opt_tzdb;
@@ -1219,6 +1221,14 @@ static const value_string s46_opt_code_vals[] = {
     { 95,      "MAP-T" },
     { 96,      "Lightweight 4over6" },
     { 0, NULL },
+};
+
+static const value_string slap_quadrant_vals[] = {
+    { 0, "AAI" },
+    { 1, "ELI" },
+    { 2, "Reserved by IEEE" },
+    { 3, "SAI" },
+    { 0, NULL }
 };
 
 static const value_string failover_binding_status_vals[] = {
@@ -3367,6 +3377,17 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
         }
         break;
+    case OPTION_SLAP_QUAD: /* Structured Local Address Plan (RFC 8948) */
+        if (optlen == 0 || optlen % 2 != 0) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option,
+                                   "SLAP QUAD: malformed option");
+            break;
+        }
+        for (i = 0; i < optlen; i += 2) {
+            proto_tree_add_item(subtree, hf_slap_quad_quadrant,   tvb, off+i,   1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_slap_quad_preference, tvb, off+i+1, 1, ENC_BIG_ENDIAN);
+        }
+        break;
     case OPTION_V6_DNR: {
         // This option is pretty complex, with variable-length fields, FQDN, list of addresses, and service parameters
         // that have their own encoding, borrowed from DNS on-wire. Ugh. For option syntax, see RFC9463, Section 4.1.
@@ -3819,6 +3840,10 @@ proto_register_dhcpv6(void)
           { "Remote-ID", "dhcpv6.remoteid_enterprise_id", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_subscriber_id,
           { "Subscriber-ID", "dhcpv6.subscriber_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_slap_quad_quadrant,
+          { "Quadrant", "dhcpv6.slap_quad.quadrant", FT_UINT8, BASE_DEC, VALS(slap_quadrant_vals), 0, "SLAP Quadrant identifier (RFC 8948)", HFILL }},
+        { &hf_slap_quad_preference,
+          { "Preference", "dhcpv6.slap_quad.preference", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_client_fqdn,
           { "Client Domain Name", "dhcpv6.client_domain", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_pana_agent,
