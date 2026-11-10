@@ -134648,3 +134648,60 @@ class TestDissectSccp:
             ['61', '2', 'CC DLR=51 SLR=68 '],
             ['134', '', 'DT1 DLR=48879 '],
         ]
+
+
+class TestDissectSccpmg:
+    '''SCCP management (SCCPMG) messages: UDT, XUDT and LUDT to SSN 1 in MTP3
+    (link type 141) and as bare SCCP (link type 142), from the synthetic
+    capture sccpmg_coverage.pcapng.gz (ITU).'''
+
+    CAP = 'sccpmg_coverage.pcapng.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSccpmg.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sccpmg_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes as SCCP management without malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert [r[0] for r in rows] == ['SCCPMG (Int. ITU)'] * 50
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_sccpmg_messages(self, cmd_tshark, capture_file, test_env):
+        '''Affected SSN, point code and subsystem multiplicity indicator of
+        the messages that have them.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 4, 38, 39, 40, 50}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esccpmg.ssn',
+                '-esccpmg.pc', '-esccpmg.smi')
+        assert rows == [
+            ['1', 'SSA ', '6', '4112', '0'],
+            ['4', 'SSA ', '9', '4115', '3'],
+            ['38', 'SST ', '9', '258', '0'],
+            ['39', 'SSP ', '10', '259', '2'],
+            ['40', 'SOR ', '11', '260', '3'],
+            ['50', 'SSA ', '6', '258', '3'],
+        ]
+
+    def test_sccpmg_congestion(self, cmd_tshark, capture_file, test_env):
+        '''SSC (subsystem congested) is dissected, with its congestion level
+        0 to 15, and is not reported as an unknown message (it used to
+        be, after its fields); the ANSI backup routing messages, which the
+        ITU standard does not know, and unknown types are.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'sccpmg.message_type == 6', '-Tfields', '-eframe.number',
+                '-esccpmg.congestion', '-e_ws.expert.message')
+        assert [r[1] for r in rows[:16]] == [str(i) for i in range(16)]
+        assert all(r[2] == '' for r in rows)
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'sccpmg.unknown_msg', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert rows == [['45', 'SBR '], ['46', 'SNR '], ['47', 'SRT '],
+                        ['48', 'Unknown '], ['49', 'Unknown ']]
