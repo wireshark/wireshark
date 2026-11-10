@@ -206,7 +206,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 			proto_tree_add_expert_remaining(sccpmg_tree, pinfo, &ei_sccpmg_unknown_msg, tvb, 0);
 			break;
 		}
-		/* else fallthrough */
+		break;
 	case SCCPMG_MESSAGE_TYPE_SSA:
 	case SCCPMG_MESSAGE_TYPE_SSP:
 	case SCCPMG_MESSAGE_TYPE_SST:
@@ -224,6 +224,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 			dissect_sccpmg_affected_pc(tvb, pinfo, sccpmg_tree);
 			dissect_sccpmg_smi(tvb, sccpmg_tree);
 			dissect_sccpmg_congestion_level(tvb, sccpmg_tree);
+			break;
 		}
 		/* else fallthrough */
 
