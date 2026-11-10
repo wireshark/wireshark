@@ -114641,3 +114641,145 @@ class TestDissectOuch:
         assert len(lines) == 3
         for line in lines:
             assert ' OUCH ' in line and line.endswith('Enter Order')
+
+
+class TestDissectP1:
+    '''P1 (X.411 Message Transfer, with P3 message access in the same file)
+    from the synthetic capture p1_coverage.pcapng.gz: the MTA transfer
+    service over RTSE and the MTS access protocol (P3) over ROS on the
+    OSI upper layers (TCP port 102), and X.509 CRLs in Exported PDU whose
+    extensions carry the attribute OIDs of P1.'''
+
+    def test_p1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 248
+        assert protocols.count('P1') == 8
+        assert protocols.count('P3') == 64
+        assert protocols.count('P22') == 21
+        assert protocols.count('RTSE') == 15
+        assert protocols.count('PKIX-CRL') == 14
+        assert protocols.count('ACSE') == 38
+        assert protocols.count('COTP') == 22
+        assert protocols.count('TCP') == 66
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p1_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_p1_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol and Info columns, and the P1, P3 and RTSE fields,
+        are the same in one and in two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p1_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-ep1.standard_extension', '-ep1.extension_attribute_type',
+                    '-ertse.fragment.count',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_p1_binds(self, cmd_tshark, capture_file, test_env):
+        '''MTA binds in the RTSE connection request and response: with
+        simple credentials, unauthenticated, strong credentials and a
+        bind error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6, 7, 40, 41, 52, 53}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tBind-Argument mta.example simple',
+            '7\tBind-Result mta.example simple',
+            '40\tBind-Argument',
+            '41\tBind-Result',
+            '52\tBind-Argument mta.example strong',
+            '53\tBind-Error (authentication-error)',
+        ]
+
+    def test_p1_rtse_transfers(self, cmd_tshark, capture_file, test_env):
+        '''The MTS-APDUs of the transfer service arrive in RTSE data
+        transfer segments, are reassembled at the major synchronisation
+        point, and reach P1 (a message with a built-in content type, an
+        extended one, a probe, reports) and P22 (the content).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'rtse.fragments',
+                '-Tfields', '-eframe.number', '-ertse.fragment.count', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t2\tP22\tInterPersonal Message (Test subject)',
+            '14\t3\tP22\tInterPersonal Message (Test subject)',
+            '17\t2\tP22\tInterPersonal Message (Test subject)',
+            '20\t2\tP1\tTransfer probe',
+            '23\t2\tP22\tInterPersonal delivery non-delivery report',
+            '26\t2\tP1\tTransfer delivery non-delivery report',
+            '29\t2\tP22\tInterPersonal Message (Test subject) delivery non-delivery report',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {10, 14, 17}',
+                '-Tfields', '-eframe.number', '-ep1.built_in', '-ep1.extended',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['10\t22\t', '14\t2\t', '17\t\t2.6.1.10.1']
+
+    def test_p1_p3_operations(self, cmd_tshark, capture_file, test_env):
+        '''Every P3 operation, result and error over ROS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'p3', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        names = {line.split(' ')[0] for line in stdout.splitlines()}
+        assert names >= {
+            'mts_bind_argument', 'mts_bind_result', 'mts_bind_error',
+            'message_submission_result', 'probe_submission_argument',
+            'probe_submission_result', 'cancel_deferred_delivery_argument',
+            'cancel_deferred_delivery_result', 'deferred_delivery_cancellation_rejected',
+            'submission_control_argument', 'submission_control_result',
+            'submission_control_violated', 'element_of_service_not_subscribed',
+            'originator_invalid', 'recipient_improperly_specified',
+            'message_submission_identifier_invalid', 'inconsistent_request',
+            'security_error', 'unsupported_critical_function', 'remote_bind_error',
+            'message_delivery_result', 'report_delivery_argument',
+            'report_delivery_result', 'control_violates_registration',
+            'operation_refused', 'register_argument', 'register_result',
+            'register_rejected', 'change_credentials_argument',
+            'change_credentials_result', 'old_credentials_incorrectly_specified',
+            'new_credentials_unacceptable',
+        }
+
+    def test_p1_extension_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Frame 74 submits a message whose originator name has all 40
+        extension attributes of an OR address (the template dispatches
+        them through the P1 extension attribute table).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 74',
+                '-Tfields', '-ep1.extension_attribute_type',
+            ), encoding='utf-8', env=test_env)
+        types = [int(t) for t in stdout.strip().split(',')]
+        assert types[:40] == list(range(1, 41))
+
+    def test_p1_mta_name_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frame 248 holds an MTANameAndOptionalGDI and an
+        InternalTraceInformationElement whose mta-name is an empty
+        constructed IA5String. P1 passed the missing tvb to
+        tvb_reported_length() (a dissector bug) before "P1: Check for a
+        missing MTAName before using it".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p1_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 248',
+                '-Tfields', '-eframe.number', '-ep1.routing_action', '-e_ws.malformed',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['248\t0\t\t']
