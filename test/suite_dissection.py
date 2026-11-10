@@ -128358,3 +128358,92 @@ class TestDissectRpcrdma:
                 'frame.number in {94, 95}', '-e_ws.col.protocol', '-e_ws.col.info') == [
             '94\tNFS\tV3 READ Call, FH: 0x52642f5c Offset: 0 Len: 5',
             '95\tDDP/RDMA\t20049 > 40000 Write [last DDP segment]']
+
+
+class TestDissectRpkiRtr:
+    '''RPKI-Router Protocol (TCP 323) from the synthetic capture
+    rpki_rtr_coverage.pcap.gz: versions 0, 1 and 2, every PDU type,
+    several PDUs in one segment and PDUs split over segments.'''
+
+    @staticmethod
+    def run_rtr(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rpki_rtr_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rpki_rtr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''38 RPKI-RTR frames, none malformed or with an error expert info,
+        in one and two passes, and the PDU types of all frames.'''
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'rpkirtr', '-Tfields', '-e_ws.col.protocol')
+        assert count_output(stdout) == 38
+        for passes in ((), ('-2',)):
+            stdout = self.run_rtr(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'rpkirtr', '-Tfields', '-erpki-rtr.pdu_type')
+        types = ','.join(line for line in stdout.splitlines())
+        for t in ('0', '1', '2', '3', '4', '6', '7', '8', '9', '10', '11', '5', '12', '200'):
+            assert t in types.split(',')
+
+    def test_rpki_rtr_router_key_reserved(self, cmd_tshark, capture_file, test_env):
+        '''The reserved field of a Router Key PDU is one octet ("RPKI-RTR:
+        Fix reserved field length and providers subtree"); it was two
+        octets long, covering the first octet of the length.'''
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'rpki-rtr.pdu_type == 9', '-Tfields', '-eframe.number',
+                '-erpki-rtr.reserved', '-erpki-rtr.length', '-erpki-rtr.as_number',
+                '-erpki-rtr.subject_key_identifier')
+        assert stdout.splitlines() == [
+            '26\t00\t123\t65001\t000102030405060708090a0b0c0d0e0f10111213',
+            '27\t00\t123\t65002\t1415161718191a1b1c1d1e1f2021222324252627',
+            '44\t00\t123\t65003\t28292a2b2c2d2e2f303132333435363738393a3b',
+        ]
+
+    def test_rpki_rtr_aspa_providers_subtree(self, cmd_tshark, capture_file, test_env):
+        '''The provider ASNs of an ASPA PDU are in a "Providers" subtree
+        (it used to be only an ett change of the protocol tree).'''
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 41', '-O', 'rpkirtr')
+        assert ('\n    ASPA Customer ASN: 64500\n    Providers\n'
+                '        ASPA Provider ASN: 64501\n        ASPA Provider ASN: 64502\n'
+                '        ASPA Provider ASN: 64503\n') in stdout
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 43', '-O', 'rpkirtr')
+        assert ('\n    Providers\n        ASPA Provider ASN: 4200000001\n') in stdout
+        # No providers: an empty subtree
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 42', '-O', 'rpkirtr')
+        assert '\n    ASPA Customer ASN: 64504\n    Providers\n' in stdout
+        assert 'Provider ASN' not in stdout
+
+    def test_rpki_rtr_values(self, cmd_tshark, capture_file, test_env):
+        '''Prefixes, End of Data intervals (versions 1 and 2 only), Error
+        Report text and several PDUs in one frame.'''
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 10, 15, 28, 45, 58, 63}',
+                '-Tfields', '-eframe.number', '-erpki-rtr.ipv4_prefix',
+                '-erpki-rtr.ipv6_prefix', '-erpki-rtr.max_length',
+                '-erpki-rtr.refresh_interval', '-erpki-rtr.retry_interval',
+                '-erpki-rtr.expire_interval', '-erpki-rtr.error_text',
+                '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '8\t198.51.100.0\t\t24\t\t\t\t\tIPv4 Prefix',
+            '10\t\t2001:db8::\t48\t\t\t\t\tIPv6 Prefix',
+            '15\t\t\t\t\t\t\tUnsupported Protocol Version\tError Report',
+            '28\t\t\t\t1800\t300\t3600\t\tEnd of Data',
+            '45\t\t\t\t900\t120\t1800\t\tEnd of Data',
+            '58\t192.0.2.0\t2001:db8:ffff::\t24,64\t3600\t600\t7200\t\t'
+                'Cache Response, IPv4 Prefix, IPv6 Prefix, End of Data',
+            '63\t\t\t\t\t\t\ta longer error text for the split case\t'
+                'Error Report, Serial Notify',
+        ]
+
+    def test_rpki_rtr_wrong_version(self, cmd_tshark, capture_file, test_env):
+        '''No frame has the wrong version warnings for Router Key and
+        ASPA PDUs (they are in the malformed capture only).'''
+        stdout = self.run_rtr(cmd_tshark, capture_file, test_env,
+                '-Y', 'rpkirtr.aspa.wrong_version || rpkirtr.router_key.wrong_version',
+                '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
