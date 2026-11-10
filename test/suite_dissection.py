@@ -126456,3 +126456,96 @@ class TestDissectRipng:
             'Route Table Entry: IPv6 Prefix: 2001:db8:2:3::/64 Metric: 15',
             'Route Table Entry: IPv6 Prefix: 2001:db8:4::5/128 Metric: 16',
         ]
+
+
+class TestDissectRk512:
+    CAP = 'rk512_coverage.pcap.gz'
+    # Connection 3 (TCP port 40002) is not accepted by the heuristic
+    DECODE_AS = ('-d', 'tcp.port==40002,rk512')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRk512.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rk512_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The TCP heuristic finds RK512 PDUs in all three connections
+        (13 frames); Decode As adds the three frames of the third that it
+        rejects. No frame is
+        malformed and only the unknown data type, non-zero reply header
+        and wrong checksum have warnings, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 26
+        assert protocols.count('RK512') == 13
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('RK512') == 16
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    *self.DECODE_AS, '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    *self.DECODE_AS, '-Y', '_ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert stdout == ['14\tChecksum incorrect [should be 0x4f23]',
+                              '24\tUnknown data type',
+                              '25\tReply header not zero']
+
+    def test_rk512_continuous_data(self, cmd_tshark, capture_file, test_env):
+        '''Continuous data: measurement (with checksum) and reflector data,
+        device codes, status and the data type.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rk512.data_type', '-Tfields', '-eframe.number',
+                '-erk512.device_code', '-erk512.status', '-erk512.scan_number',
+                '-erk512.telegram_number', '-erk512.data_type', '-erk512.size',
+                '-erk512.checksum_status')
+        assert lines == [
+            '4\t0x07\t0x0000\t1\t1\t0xbbbb\t550\t1',
+            '5\t0x08\t0x0001\t2\t2\t0xbbbb\t550\t1',
+            '6\t0x07\t0x0000\t3\t3\t0xcccc\t8\t',
+            '7\t0x07\t0x0000\t4\t4\t0xcccc\t12\t',
+            '12\t0x07\t0x0000\t7\t7\t0xbbbb\t550\t1',
+            '14\t0x07\t0x0000\t8\t8\t0xbbbb\t550\t0',
+            '26\t0x07\t0x0000\t9\t9\t0xbbbb\t550\t1',
+        ]
+
+    def test_rk512_measurement_points(self, cmd_tshark, capture_file, test_env):
+        '''541 measurement values per measurement PDU, with distance and
+        flags bits.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields',
+                '-erk512.measurement.data.distance',
+                '-erk512.measurement.data.flags')
+        distances = lines[0].split('\t')[0].split(',')
+        assert len(distances) == 541
+        assert distances[:3] == ['1', '4', '7']
+        flags = lines[0].split('\t')[1].split(',')
+        assert len(flags) == 541
+        assert flags[:3] == ['0x0000', '0x0001', '0x0002']
+
+    def test_rk512_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU in two TCP segments is dissected in the second one; two
+        PDUs in a segment are both dissected.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 11 || frame.number == 12 || frame.number == 13',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-erk512.data_block_type')
+        assert lines == [
+            '11\tTCP\t',
+            '12\tRK512\t0',
+            '13\tRK512\t23,25',
+        ]
+
+    def test_rk512_other_blocks(self, cmd_tshark, capture_file, test_env):
+        '''SCID, Token, Data Mode and unknown blocks, and the heuristic
+        starting at an octet after the first one.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Y', 'rk512 && !rk512.data_type',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '8\tSCID', '9\tToken', '10\tData Mode', '13\tToken',
+            '18\tSCID', '19\tToken', '23\tUnknown',
+        ]
