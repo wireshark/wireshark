@@ -138782,3 +138782,83 @@ class TestDissectSmbBrowse:
             ['100', '0x00008003', 'True', 'False'],
             ['102', '0xffffffff', 'True', 'True'],
         ]
+
+
+class TestDissectSmbFixes:
+    CAPTURE = 'smb_fixes_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        '''Run tshark on the capture and return the -T fields rows.'''
+        args = [cmd_tshark, *passes, '-r', capture_file('smb_fixes_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_fixes_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The capture holds SMB over TCP 445 only; no frame is malformed or
+        has a warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 123
+        assert protocols.count('SMB') == 120
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_smb_fixes_export_sparse(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A chunk that would grow an exported file by more than 64 MiB
+        beyond the data gathered so far is dropped (the file is out of
+        memory) instead of allocating and zeroing up to 4 GiB; files within
+        the limit are exported with the gaps zero filled.  tshark must
+        not need more than a small amount of memory for this.'''
+        export_dir = tmp_path / 'export'
+        export_dir.mkdir()
+        subprocess.check_call((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-q', '--export-objects', f'smb,{export_dir}',
+            ), env=test_env)
+        files = {p.name: p.read_bytes() for p in export_dir.iterdir()}
+        for name in ('gap0', 'gap1', 'gap2', 'first', 'fourgig', 'readfar', 'many0', 'many1', 'many2'):
+            assert files[f'%5csparse%5c{name}.bin'] == b'', name
+        small = files['%5csparse%5csmall.bin']
+        assert len(small) == 100004
+        assert small[:4] == b'K' * 4 and small[4:4096] == bytes(4092)
+        assert small[4096:4100] == b'L' * 4 and small[4100:100000] == bytes(95900)
+        assert small[100000:] == b'M' * 4
+
+    def test_smb_fixes_pipe_write_dataoffset(self, cmd_tshark, capture_file, test_env):
+        '''Write AndX with MESSAGE_START and RAW skips the 2 byte pipe write
+        length; a data offset of 0xFFFF must not wrap to 1.  The requests
+        decode with the same data offset in every pass.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'smb.cmd == 0x2f && smb.pipe.write_len',
+                               'smb.data_offset', 'smb.pipe.write_len', passes=passes)
+            assert [r[1] for r in rows] == ['59', '65533', '65534', '65535', '0', '65535', '65533']
+            assert all(r[2] == '6' for r in rows)
+            assert len(rows) == 7
+
+    def test_smb_fixes_nt_create_ea_length(self, cmd_tshark, capture_file, test_env):
+        '''NT Transact CREATE with an extended attribute list length of
+        0xFFFFFFFF or larger than the data is clamped to the data that is
+        left (it was taken as -1, to the end of the tvb, going back one
+        byte); the frames decode in every pass.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'smb.nt.function == 1 && smb.ea.list_length',
+                               'smb.ea.list_length', 'smb.ext_attr', passes=passes)
+            assert len(rows) == 13
+            lengths = [r[1] for r in rows]
+            assert '4294967295' in lengths and '2147483648' in lengths
+            # EA data is shown whenever data is left after the security descriptor
+            assert sum(1 for r in rows if r[2]) == 10
