@@ -137464,3 +137464,82 @@ class TestDissectSilabsDch:
             '50\t\t\t\t\t34\t7\t0x00',
             '51\t14\t\t\t\t\t67\t0x01',
         ]
+
+
+class TestDissectSimple:
+    OPTS = ('-d', 'udp.port==4321,simple', '-d', 'tcp.port==4322,simple')
+
+    def test_simple_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 33 frames are SIMPLE (three of them show their Link 16
+        words, 31 are over UDP port 4321 and two over TCP port 4322) and
+        none is malformed or has a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simple_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 33
+        assert protocols.count('SIMPLE') == 30
+        assert protocols.count('Link 16') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('simple_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_simple_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the packet type, the Link 16 words and the
+        status of the node; unknown types are shown as Unknown.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simple_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 3, 5, 6, 7, 21, 32, 33}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tLink 16, STN: 12345, Words: J3.2I J3.2E0 J3.2C5',
+            '2\tLink 16, STN: 77777, Words: J7.0I',
+            '3\tLink 16, STN: 12345, Words:',
+            '5\tStatus/Configuration, Name: NODE-ALPHA, STN: 04321, PU: 017',
+            '6\tStatus/Configuration, Name: N',
+            '7\tLink 11',
+            '21\tUnknown',
+            '32\tLink 16, STN: 12345, Words: J3.2I J3.2C1',
+            '33\tStatus/Configuration, Name: TCP-NODE, STN: 04321, PU: 017',
+        ]
+
+    def test_simple_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Nodes, packet types, the length and the checksum, which verifies
+        in every frame, and the names of nodes and subnodes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simple_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 5, 24, 26, 31}',
+                '-Tfields', '-eframe.number', '-esimple.src_node', '-esimple.src_subnode',
+                '-esimple.dst_node', '-esimple.dst_subnode', '-esimple.packet_type',
+                '-esimple.length', '-esimple.sequence_number', '-esimple.checksum.status',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t4\t129\t6\t1\t70\t1\t1',
+            '5\t1\t4\t129\t6\t61\t78\t1\t1',
+            '24\t128\t4\t160\t5\t63\t24\t1\t1',
+            '26\t170\t202\t200\t203\t63\t24\t1\t1',
+            '31\t0\t0\t255\t255\t63\t24\t1\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simple_coverage.pcap.gz'),
+                '-Y', 'simple.checksum.status != 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simple_coverage.pcap.gz'),
+                '-Y', 'frame.number in {24, 25, 26, 31}',
+                '-V', '-O', 'simple',
+            ), encoding='utf-8', env=test_env)
+        for text in ('Source Node: Unicast (128)', 'Destination Node: Multicast (160)',
+                     'Source Node: Multicast (168)', 'Destination Node: Adjacent (169)',
+                     'Source Node: Unknown (170)', 'Destination Subnode: IJMS (203)',
+                     'Source Subnode: File & Mail Transfers (4)',
+                     'Destination Subnode: Time Synchronisation (7)'):
+            assert text in stdout, text
