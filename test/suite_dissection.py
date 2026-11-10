@@ -136677,3 +136677,110 @@ class TestDissectSgp22:
                     '-Y', 'sgp22', '-O', 'sgp22',
                 ), encoding='utf-8', env=test_env))
         assert out[0] == out[1]
+
+
+class TestDissectSgp32:
+    '''SGP.32 (GSMA eSIM IoT remote provisioning) from the synthetic
+    capture sgp32_coverage.pcapng.gz: the ESipa messages in HTTP (media
+    type application/x-gsma-rsp-asn1) and CoAP (URI path /gsma/rsp2/asn1),
+    a BoundProfilePackage in an ESipa response (handed to SGP.22), and
+    Exported PDU frames naming "sgp32.request" and "sgp32.response" with
+    every PDU of the two tag tables. The PDUs are built from the ASN.1
+    modules with made-up values.'''
+
+    def test_sgp32_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; one and two passes show no
+        malformed packets and no warnings, and the only error is the
+        BoundProfilePackage nested 600 levels through an ESipa response
+        (frame 112, the reproducer of "SGP.22: Bound nested
+        BoundProfilePackage dissection", which failed an assertion of the
+        layer limit before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 631
+        assert protocols.count('SGP.32') == 622
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['112\tNested BoundProfilePackage is too deep']
+
+    def test_sgp32_esipa_alternatives(self, cmd_tshark, capture_file, test_env):
+        '''The ESipa messages of HTTP exchanges 1 and 2 (frames 4-18) name
+        every alternative of the two CHOICE types, requests IpaToEim and
+        responses EimToIpa, and the third round shows the rotation.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 4 && frame.number <= 18',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'initiateAuthenticationRequestEsipa', 'initiateAuthenticationResponseEsipa',
+            'authenticateClientRequestEsipa', 'authenticateClientResponseEsipa',
+            'getBoundProfilePackageRequestEsipa', 'getBoundProfilePackageResponseEsipa',
+            'cancelSessionRequestEsipa', 'cancelSessionResponseEsipa',
+            'handleNotificationEsipa', 'transferEimPackageRequest',
+            'transferEimPackageResponse', 'getEimPackageResponse',
+            'getEimPackageRequest', 'provideEimPackageResultResponse',
+            'provideEimPackageResult',
+        ]
+
+    def test_sgp32_exported_pdu_tables(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU of the sgp32.request and sgp32.response tables (43
+        types, 8 values each, 40 for five of them) decodes: frames 128 on are Exported PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Y', 'frame.encap_type == 155',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [line.split('\t') for line in stdout.splitlines()]
+        assert len(lines) == 504
+        assert lines[0][0] == '128'
+        assert all(line[1] == 'SGP.32' for line in lines)
+
+    def test_sgp32_tag_lists_and_rplmn(self, cmd_tshark, capture_file, test_env):
+        '''The tag lists (one and two octet tags) and the registered PLMN
+        (MCC/MNC as coded in TS 24.008) of the generated PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {16, 32, 97}',
+                '-Tfields', '-eframe.number', '-esgp32.rPLMN', '-esgp32.tagList', '-esgp32.tag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\t130014\t\t',
+            '32\t62f210\t\t',
+            '97\t\t4f9f70\t0x4f,0x9f70',
+        ]
+
+    def test_sgp32_esipa_bpp(self, cmd_tshark, capture_file, test_env):
+        '''A BoundProfilePackage in an ESipa response goes to the SGP.22
+        dissector, which reassembles its segments and nests; the fifth
+        nested level of the 600 deep one has the error.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Y', 'sgp22.bsp.nesting_too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['112']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                '-Y', 'sgp22.bsp.reassembled',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) >= 1
+
+    def test_sgp32_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The SGP.32 trees are the same in one and in two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sgp32_coverage.pcapng.gz'),
+                    '-Y', 'sgp32', '-O', 'sgp32',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
