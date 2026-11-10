@@ -423,7 +423,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 			tree2 = proto_item_add_subtree(item, ett_pw_satop);
 			{
 				tvbuff_t* tvb;
-				tvb = tvb_new_subset_length(tvb_original, PWC_SIZEOF_CW + payload_size, padding_size);
+				tvb = tvb_new_subset_length(tvb_original, encaps_size + payload_size, padding_size);
 				call_dissector(pw_padding_handle, tvb, pinfo, tree2);
 			}
 		}
