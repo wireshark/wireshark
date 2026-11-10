@@ -382,6 +382,10 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
 
+	/* reset the per-PDU values */
+	opcode = 0;
+	invokeid = 0;
+
 	conversation = find_or_create_conversation(pinfo);
 
 	/*

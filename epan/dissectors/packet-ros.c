@@ -473,7 +473,7 @@ dissect_ros_T_argument(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 	/* now add the opcode */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
@@ -515,7 +515,7 @@ dissect_ros_OperationResult(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned o
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
 	/* now add the opcode */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
@@ -580,7 +580,7 @@ dissect_ros_T_parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offse
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
 	/* now add the opcode  (really the error code) */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
@@ -971,6 +971,10 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 
 	/* save parent_tree so subdissectors can create new top nodes */
 	top_tree=parent_tree;
+
+	/* reset the per-PDU values */
+	opcode = 0;
+	invokeid = 0;
 
 	conversation = find_or_create_conversation(pinfo);
 

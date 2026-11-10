@@ -40,7 +40,7 @@ Reject/problem/returnResult	rejectResult
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 	/* now add the opcode */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
@@ -58,7 +58,7 @@ Reject/problem/returnResult	rejectResult
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_RESULT);
 	/* now add the opcode */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
@@ -76,7 +76,7 @@ Reject/problem/returnResult	rejectResult
 	/* this should be ROS! */
 	session->ros_op = (ROS_OP_INVOKE | ROS_OP_ERROR);
 	/* now add the opcode  (really the error code) */
-	session->ros_op |= opcode;
+	session->ros_op |= (opcode & ROS_OP_OPCODE_MASK);
 	offset = call_ros_oid_callback(oid, tvb, offset, actx->pinfo, top_tree, session);
   }
 
