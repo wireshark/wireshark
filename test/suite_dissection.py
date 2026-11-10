@@ -121061,3 +121061,61 @@ class TestDissectPwEth:
                       ('12', '12'), ('18', '18')]
         nocw = [l[0] for l in lines if l[1] == 'True']
         assert nocw == ['4', '5', '6', '7', '8', '9', '11', '13', '14']
+
+
+class TestDissectPwFr:
+    # The FR pseudowire is reached with Decode As: MPLS label 3001.
+    OPTS = ('-d', 'mpls.label==3001,pwfr')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_fr_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_fr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-9 carry Frame Relay payloads (IPv4/UDP), 10 and 11
+        are IPv4 and IPv6 handed over by the first nibble, 12 is a PW
+        ACH carrying PW OAM. No malformed packets or errors, in one and
+        two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-efr')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 12
+        assert [l[1] for l in lines] == ['UDP'] * 11 + ['PW OAM']
+        assert [l[0] for l in lines if l[2]] == ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_fr_control_word(self, cmd_tshark, capture_file, test_env):
+        '''FECN, BECN, DE and C/R bits, fragmentation, length (nonzero
+        for payloads below 64 octets), sequence number and padding.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'pwfr', '-Tfields', '-eframe.number',
+                '-epwfr.fecn', '-epwfr.becn', '-epwfr.de', '-epwfr.cr',
+                '-epwfr.frag', '-epwfr.length', '-epwfr.seqno',
+                '-epwfr.padding')
+        assert stdout.splitlines() == [
+            '1\t0\t0\t0\t0\t0\t30\t1\t',
+            '2\t0\t0\t0\t0\t0\t0\t2\t',
+            '3\t0\t0\t0\t0\t0\t30\t3\t000000000000',
+            '4\t1\t1\t1\t1\t0\t30\t4\t',
+            '5\t0\t0\t0\t0\t1\t30\t5\t',
+            '6\t0\t0\t0\t0\t2\t30\t6\t',
+            '7\t0\t0\t0\t0\t3\t30\t7\t',
+            '8\t0\t0\t0\t0\t0\t35\t8\t',
+            '9\t0\t0\t0\t0\t0\t0\t9\t']
+
+    def test_pw_fr_padding(self, cmd_tshark, capture_file, test_env):
+        '''Padding after the payload is shown below the sequence number.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number == 3', '-V', '-O', 'pwfr')
+        lines = stdout.splitlines()
+        start = lines.index('PW Frame Relay DLCI Control Word: 0x001e0003')
+        assert lines[start + 7:start + 9] == [
+            '    Sequence number: 3',
+            '    Padding: 000000000000']
