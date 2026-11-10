@@ -129703,3 +129703,96 @@ class TestDissectRtcpCoverage:
                 'frame.number in {3, 4}', 'frame.number', '_ws.col.protocol',
                 opts=('-o', 'rtcp.default_protocol:SRTCP'))
         assert [r.split('\t')[:2] for r in rows] == [['3', 'SRTCP'], ['4', 'SRTCP']]
+
+
+class TestDissectRtitcp:
+    '''RTI TCP Transport Protocol (heuristic on any TCP port) from the
+    synthetic capture rtitcp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rtitcp_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rtitcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames decode as RTI-TCP or RTPS; the 7 plain TCP frames are
+        segments before a PDU is complete. No malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                '_ws.col.protocol')
+        assert len(rows) == 60
+        assert rows.count('RTI-TCP') == 47
+        assert rows.count('RTPS') == 6
+        assert rows.count('TCP') == 7
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+
+    def test_rtitcp_wrapped_length(self, cmd_tshark, capture_file, test_env):
+        '''A control message with msg_length 0xfff0 and the CRC header is
+        65536 octets long; its length wrapped to 0 in a uint16_t and
+        tshark looped forever before "RTITCP: Fix a message length wrap
+        that loops forever" (hence the timeout). Frames 54 and 56 are the
+        second segments of the two reproducers.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {54, 56}', 'frame.number',
+                'rtitcp.header.message_length', 'rtitcp.attributes_list_length')
+        assert rows == ['54\t65520\t0', '56\t65520\t0']
+
+    def test_rtitcp_attribute_lengths(self, cmd_tshark, capture_file, test_env):
+        '''An ERROR_CODE attribute shorter than 4 octets used to add a
+        string of negative length; the port attribute is 4 octets and the
+        connection type 1 octet long (frames 57-60).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 57', 'frame.number',
+                'rtitcp.control.attribute.error_code',
+                'rtitcp.control.attribute.error_code.description',
+                'rtitcp.control.attribute_port',
+                'rtitcp.control_attribute.connection_type')
+        assert rows == ['57\t0x00000000\t\t\t', '58\t0x00000000\t\t\t',
+                        '59\t\t\t0\t', '60\t\t\t\t0x00']
+
+    def test_rtitcp_error_codes(self, cmd_tshark, capture_file, test_env):
+        '''Error code attributes with and without a description.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtitcp.control.attribute.error_code && frame.number < 30',
+                'frame.number', 'rtitcp.control.attribute.error_code',
+                'rtitcp.control.attribute.error_code.description')
+        assert rows[:2] == ['16\t0x00000000\t', '17\t0x00000001\ttransport class mismatch']
+        assert rows[-1] == '23\t0x00001fff\tq'
+
+    def test_rtitcp_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by transaction id; the
+        request side only learns its response in the second pass.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtitcp.response_to', 'frame.number', 'rtitcp.response_to',
+                'rtitcp.response_time')
+        assert [r.split('\t')[:2] for r in rows] == [
+            ['2', '1'], ['4', '3'], ['6', '5'], ['8', '7'], ['10', '9'],
+            ['12', '11'], ['32', '31'], ['41', '40'], ['50', '49']]
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtitcp.response_in', 'frame.number', 'rtitcp.response_in',
+                passes=('-2',))
+        assert rows == ['1\t2', '3\t4', '5\t6', '7\t8', '9\t10', '11\t12',
+                        '31\t32', '40\t41', '49\t50']
+
+    def test_rtitcp_info(self, cmd_tshark, capture_file, test_env):
+        '''Attributes show up in the Info column; several control messages
+        in one segment, locators, reassembled PDUs, RTPS data.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {7, 14, 15, 34, 36, 39, 42, 45}',
+                'frame.number', '_ws.col.info')
+        assert rows == [
+            '7\tConnection Bind Request (10.1.2.3:7400, TLSV4_WAN, 000102030405060708090a0b0c0d0e0f)',
+            '14\tServer Logical Port Request (172.16.0.9:9000, 172.16.0.10:9001, 1, aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)',
+            '15\tServer Logical Port Request (2021:2223:2425:2627:2829:2a2b:2c2d:2e2f, 1.2.3.4:5, 2001:db8::1)',
+            '34\tLiveliness Request, Liveliness Request, Finalize Session Indication',
+            '36\tConnection Bind Request (10.9.8.7:1234, 5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a)',
+            '39\tServer Logical Port Request (77, TCPV4_WAN)',
+            '42\tINFO_TS',
+            '45\tINFO_TS, HEADER_EXTENSION',
+        ]
