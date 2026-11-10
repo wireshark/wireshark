@@ -122700,3 +122700,186 @@ class TestDissectQuakeworld:
                 '-equakeworld.connectionless.command',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == '6\tUnknown'
+
+
+class TestDissectQuicCoverage:
+    '''QUIC headers, Version Negotiation, Retry, coalescing and connection
+    tracking, from the synthetic capture quic_coverage.pcap.gz. The
+    capture has no packet protection of its own: the payload of every
+    protected packet is filler that cannot be decrypted, so the tests
+    cover the unprotected parts and the failed-decryption paths.'''
+
+    CAPTURE = 'quic_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=()):
+        '''Run tshark, return one list of tab separated columns per frame.'''
+        args = [cmd_tshark, *passes, '-r', capture_file(TestDissectQuicCoverage.CAPTURE)]
+        if filt:
+            args += ['-Y', filt]
+        args += ['-Tfields', *('-e' + f for f in fields)]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_quic_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-94 and 103-117 decode as QUIC, 95-102 are datagrams the
+        heuristic refuses (plain UDP). No malformed packets and no error
+        expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '', 'frame.number', '_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 117
+        assert protocols.count('QUIC') == 109
+        assert protocols.count('UDP') == 8
+        assert [r[0] for r in rows if r[1] == 'UDP'] == [str(n) for n in range(95, 103)]
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes)
+            assert rows == []
+
+    def test_quic_coalesced_length_assert(self, cmd_tshark, capture_file, test_env):
+        '''Frames 115-117: an Initial whose Length is too short for the
+        16 byte header protection sample, alone and coalesced with another
+        Initial. On the second pass header deprotection used to be
+        skipped, the first packet returned normally and
+        DISSECTOR_ASSERT(quic_packet) failed in dissect_quic() (a dissector
+        bug in frame 115 and 117 with -2; fixed in "QUIC: Fix an assertion
+        on coalesced packets and bound frame lengths"). Both passes give
+        two packets in frames 115 and 117 and no dissector bug.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               'frame.number >= 115',
+                               'frame.number', 'quic.packet_length', '_ws.malformed', passes=passes)
+            assert rows == [
+                ['115', '18,65', ''],
+                ['116', '18', ''],
+                ['117', '36,65', ''],
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'frame.number >= 115', '-V',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert 'Dissector bug' not in stdout
+            assert 'Failed to create decryption context: Header deprotection failed' in stdout
+
+    def test_quic_version_negotiation(self, cmd_tshark, capture_file, test_env):
+        '''Version Negotiation lists the supported versions (frame 79, a
+        GREASE version among them), with and without versions (81, 82);
+        forcing version negotiation has no connection (83, a Retry type
+        packet) or a note when data is appended (84).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {79, 81, 82, 83, 84}',
+                           'frame.number', '_ws.col.info', 'quic.supported_version',
+                           'quic.dcid', 'quic.scid', '_ws.expert.message')
+        assert rows[0] == ['79',
+                           'Version Negotiation, DCID=008dd1d4d7dadde0, SCID=008cc1c4c7cacdd0',
+                           '0x00000001,0x6b3343cf,0xff00001d,0x1a2a3a4a',
+                           '008dd1d4d7dadde0', '008cc1c4c7cacdd0', '']
+        assert rows[1][1] == 'Version Negotiation, DCID=008dd1d4d7dadde0, SCID=008ee1e4e7eaedf0'
+        assert rows[1][2] == ''
+        assert rows[2][1:] == ['Version Negotiation', '0x00000001', '', '', '']
+        assert rows[3][1].startswith('Forcing Version Negotiation, DCID=008ff1f4f7fafd00')
+        assert rows[3][5] == 'Unknown QUIC connection. Missing Initial Packet or migrated connection?'
+        assert rows[4][5] == "Data appended after a Forcing VN can't be decrypted"
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Y', 'frame.number == 79', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.strip() for l in stdout.splitlines() if 'Supported Version' in l] == [
+            'Supported Version: 1 (0x00000001)',
+            'Supported Version: 2 (0x6b3343cf)',
+            'Supported Version: draft-29 (0xff00001d)',
+            'Supported Version: Unknown (0x1a2a3a4a) (GREASE)',
+        ]
+
+    def test_quic_retry(self, cmd_tshark, capture_file, test_env):
+        '''Retry packets: the integrity tag of the filler is wrong (23, 25,
+        27, 30, 33, 39), unknown connections cannot be verified (28), drafts 24
+        and older carry the original DCID and no tag (36), and several
+        Retry packets before the client's answer are all accepted
+        (104-106, 107 answers the first).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {23, 25, 27, 28, 30, 33, 36, 39, 104, 105, 106}',
+                           'frame.number', 'quic.odcil', '_ws.expert.message')
+        msgs = {r[0]: r[2] for r in rows}
+        for n in (23, 25, 27, 30, 33, 39, 104, 105, 106):
+            assert msgs[str(n)] == 'Retry Integrity Tag verification failure', n
+        assert msgs['28'] == ('Unknown QUIC connection. Missing Initial Packet or migrated '
+                              'connection?,Cannot verify Retry Packet due to unknown ODCID')
+        assert msgs['36'] == ''
+        assert [r[1] for r in rows if r[0] == '36'] == ['8']
+        # the client Initial that answers a Retry carries the token and
+        # is in the same connection as the Retry
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {22, 23, 24, 107}',
+                           'frame.number', 'quic.connection.number', 'quic.token_length')
+        assert rows == [['22', '2', '0'], ['23', '2', ''], ['24', '2', '24'], ['107', '29', '16']]
+
+    def test_quic_connections(self, cmd_tshark, capture_file, test_env):
+        '''Connection tracking by connection ID: short header packets of
+        the first connection after a second connection started on the
+        same UDP 5-tuple (frames 17 and 19), a client that moves to
+        another port (20, 21, found by the heuristic), a client Initial
+        whose DCID is a connection ID of another connection starts a new
+        one (112), zero length connection IDs (85-89), and packets without
+        an Initial (13, 28, 92-94, "Unknown QUIC connection").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {16, 17, 18, 19, 20, 21, 108, 109, 110, 111, 112}',
+                           'frame.number', 'quic.connection.number', 'udp.srcport', 'udp.dstport')
+        assert rows == [
+            ['16', '1', '50001', '4436'],
+            ['17', '0', '4436', '50001'],
+            ['18', '1', '4436', '50001'],
+            ['19', '0', '50001', '4436'],
+            ['20', '0', '51000', '4436'],
+            ['21', '0', '4436', '51000'],
+            ['108', '30', '50061', '4436'],
+            ['109', '30', '4436', '50061'],
+            ['110', '31', '50062', '4436'],
+            ['111', '31', '4436', '50062'],
+            ['112', '32', '50061', '4436'],
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {85, 86, 87, 88, 89}',
+                           'frame.number', 'quic.connection.number', 'quic.dcid', 'quic.scil',
+                           'quic.dcil')
+        assert [r[1] for r in rows] == ['26'] * 5
+        # the short headers of a connection with empty connection IDs carry no DCID
+        assert [r[2] for r in rows[3:]] == ['', '']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {13, 28, 92, 93, 94}',
+                           'frame.number', 'quic.connection.number', '_ws.expert.message')
+        for r in rows:
+            assert r[1] == ''
+            assert 'Unknown QUIC connection' in r[2]
+
+    def test_quic_coalescing(self, cmd_tshark, capture_file, test_env):
+        '''Coalesced packets: Initial + Handshake (2), Initial + 0-RTT (5),
+        two short headers split at the DCID (8), three packets (113);
+        padding after an Initial, a packet with another DCID and a long
+        header with the fixed bit clear are not packets (9-11, 114).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {2, 5, 8, 9, 10, 11, 113, 114}',
+                           'frame.number', 'quic.packet_length', 'quic.long.packet_type',
+                           '_ws.expert.message')
+        by = {r[0]: r for r in rows}
+        assert by['2'][1:3] == ['90,99', '0,2']
+        assert by['5'][1:3] == ['90,76', '0,1']
+        assert by['8'][1:3] == ['43,43', '']
+        assert by['113'][1:3] == ['69,69,69', '0,2,2']
+        for n in ('9', '10', '11', '114'):
+            assert '(Random) padding data appended to the datagram' in by[n][3], n
+            assert ',' not in by[n][1]
+
+    def test_quic_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Failed decryption without keys: Initial packets (the Initial
+        keys come from the DCID) fail the authentication tag of the
+        filler, Handshake and 0-RTT packets have no keys, short header
+        packets have no TLS handshake. A server Initial with a token is a
+        protocol violation (12).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 3, 5, 6, 12}',
+                           'frame.number', '_ws.expert.message')
+        msgs = {r[0]: r[1] for r in rows}
+        assert msgs['1'] == 'Decryption failed: Decryption (checktag) failed: Checksum error'
+        assert msgs['3'] == 'Failed to create decryption context: Unable to retrieve cipher information'
+        assert 'Failed to create decryption context: Secrets are not available' in msgs['5']
+        assert msgs['6'] == ('Failed to create decryption context: Missing TLS handshake, '
+                             'unsupported ciphers or padding')
+        assert msgs['12'].startswith('Initial packets sent by the server must set the Token Length field to 0,')
