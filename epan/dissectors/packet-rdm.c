@@ -5201,7 +5201,7 @@ dissect_manufacturer_specific_pid(tvbuff_t *tvb, unsigned offset, packet_info *p
 
   if (consumed < pdl) {
     proto_tree_add_item(tree, hf_rdm_parameter_data_raw, tvb, offset, pdl - consumed, ENC_NA);
-    offset += pdl;
+    offset += pdl - consumed;
   }
 
   return offset;
@@ -6097,7 +6097,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     device_manufacturer_id = get_device_manufacturer_id(command_class, source_manufacturer_id, destination_manufacturer_id);
     offset = dissect_rdm_mdb(tvb, offset, pinfo, rdm_tree, device_manufacturer_id);
 
-    padding_size = offset - (message_length - 1);
+    padding_size = (int)(message_length - 1) - (int)offset;
     if (padding_size > 0) {
       proto_tree_add_item(rdm_tree, hf_rdm_intron, tvb,
           offset, padding_size, ENC_NA);
