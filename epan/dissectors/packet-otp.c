@@ -312,7 +312,7 @@ static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tre
     uint32_t module_number;
     proto_tree_add_item_ret_uint(module_tree, hf_otp_module_esta_number, tvb, offset, 2, ENC_BIG_ENDIAN, &module_number);
     offset+=2;
-    proto_item_append_text(module_item, ", ESTA: %s", val_to_str(pinfo->pool, module_number, otp_module_esta_names, ", ESTA: Unknown (%u)"));
+    proto_item_append_text(module_item, ", ESTA: %s", val_to_str(pinfo->pool, module_number, otp_module_esta_names, "Unknown (%u)"));
 
     switch (module_number) {
         case OTP_MODULE_ESTA_POS: {
@@ -391,12 +391,13 @@ static int dissect_otp_module_layer(tvbuff_t* tvb, packet_info* pinfo, proto_tre
         default:
             /* Unknown module type - just skip it */
             expert_add_info(pinfo, module_tree, &ei_otp_module_number);
-            break;
+            return pdu_end;
     }
 
 
     if (offset != pdu_end) {
         expert_add_info(pinfo, module_tree, &ei_otp_pdu_len);
+        return pdu_end;
     } else if (manf_id != OTP_MANFID_ESTA) {
         /* Likely a known module (we consumed the correct amount of data). And not using the ESTA manf code */
         expert_add_info(pinfo, module_tree, &ei_otp_module_manfid);
@@ -512,7 +513,7 @@ static int dissect_otp_advertisement_module_layer(tvbuff_t* tvb, packet_info* pi
         if (manf_id == OTP_MANFID_ESTA || manf_id == OTP_MANFID_CHAMSYS) {
             uint32_t mod_number;
             proto_tree_add_item_ret_uint(id_tree, hf_otp_module_esta_number, tvb, offset, 2, ENC_BIG_ENDIAN, &mod_number);
-            proto_item_append_text(id, ", ESTA: %s", val_to_str(pinfo->pool, mod_number, otp_module_esta_names, ", ESTA: Unknown (%d)"));
+            proto_item_append_text(id, ", ESTA: %s", val_to_str(pinfo->pool, mod_number, otp_module_esta_names, "Unknown (%u)"));
         } else {
             proto_item_append_text(id, ", Unknown Manufacturer");
             proto_tree_add_item(id_tree, hf_otp_module_module_number, tvb, offset, 2, ENC_BIG_ENDIAN);
