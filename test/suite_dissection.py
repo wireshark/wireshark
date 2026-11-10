@@ -127234,3 +127234,69 @@ class TestDissectRmtLct:
             encoding='utf-8', env=test_env, timeout=120).splitlines()
         assert '(Source)' in summary[35] and 'SBN' not in summary[35]
         assert '(Repair)' in summary[36] and 'SBN: 3' in summary[36]
+
+
+class TestDissectRmtNorm:
+    '''NORM (with the FEC payload ID and EXT_FTI of RMT-FEC and RMT-LCT)
+    from the synthetic capture rmt_norm_coverage.pcapng.gz. NORM has no
+    port and its UDP heuristic is disabled by default, so the packets
+    are Exported PDU frames naming "norm" (interface 0); the last six
+    frames are UDP (interface 1) and only the heuristic
+    (--enable-heuristic rmt_norm_udp) takes the first two of them.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=(), extra=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes, *extra,
+                '-r', capture_file('rmt_norm_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_norm_frames(self, cmd_tshark, capture_file, test_env):
+        '''Message types of the 33 Exported PDU frames and the heuristic
+        frames; no malformed packets or error expert infos in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, *fields, **kw):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes, **kw)
+            assert fr('norm', 'frame.number') == [str(n) for n in range(1, 34)]
+            assert fr('norm', 'norm.type', 'frame.number')[:9] == \
+                ['1\t1', '1\t2', '1\t3', '2\t4', '2\t5', '2\t6', '2\t7', '2\t8', '2\t9']
+            assert fr('norm.type == 3', 'norm.flavor') == \
+                ['1', '1', '2', '3', '3', '1', '4', '4', '4', '5', '5', '5', '6', '7', '99']
+            assert fr('norm.type == 5', 'norm.ack.type') == ['1', '2', '77']
+            assert fr('norm.version == 2', 'frame.number') == ['32']
+            assert fr('norm', 'frame.number', extra=('--enable-heuristic', 'rmt_norm_udp'))[-2:] == ['34', '35']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_norm_fields(self, cmd_tshark, capture_file, test_env):
+        '''CC nodes, NACK data items, FEC instance ids and transfer lengths
+        (the instance id is 16 bits wide: "RMT-FEC: Keep the instance ID
+        per packet and use 16 bits"), stream data.'''
+        def fr(f, *fields):
+            return self.fields(cmd_tshark, capture_file, test_env, f, *fields)
+        assert fr('norm.cc_node_id', 'frame.number', 'norm.cc_node_id') == \
+            ['16\t0.0.0.1,0.0.0.2', '17\t0.0.0.3']
+        assert fr('norm.nack.length', 'frame.number', 'norm.nack.length') == \
+            ['19\t12', '20\t8,12,4', '28\t8,12', '30\t4']
+        assert fr('rmt-fec.instance_id', 'frame.number', 'rmt-fec.instance_id') == \
+            ['2\t4660', '5\t17185', '15\t0', '19\t7', '28\t0']
+        assert fr('rmt-fec.fti.transfer_length', 'frame.number', 'rmt-fec.fti.transfer_length') == \
+            ['2\t5000', '5\t100', '8\t4886718345', '15\t5000', '19\t1000', '28\t5']
+        assert fr('norm.flag.stream == 1', 'frame.number', 'norm.payload.len', 'norm.payload.offset') == \
+            ['7\t12\t1000']
+
+    def test_norm_ext_fti_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The EXT_FTI of REPAIR_ADV (frame 19) and NACK (frame 28) is
+        decoded the same way in one and two passes: the FEC encoding id
+        is kept per packet ("RMT-NORM: Keep the FEC encoding ID per
+        packet"), it used to be taken from the previous pass.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rmt_norm_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {19, 20, 28}', '-V', '-O', 'norm,rmt-fec'),
+                encoding='utf-8', env=test_env, timeout=120))
+        assert outs[0] == outs[1]
+        assert 'FEC Instance ID' in outs[0]
