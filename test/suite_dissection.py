@@ -129885,3 +129885,169 @@ class TestDissectRtls:
                 'rtls.cmr_messages')
         assert rows == ['29\tCompound messages nested too deeply,'
                         'Malformed Packet (Exception occurred)\t1,1,1,1,1,1,1,1,1']
+
+
+class TestDissectRtmpt:
+    '''RTMP (RTMPT) over TCP 1935, RTMP tunnelled in HTTP and AMF in HTTP
+    from the synthetic capture rtmpt_coverage.pcap.gz (RTMPE, the
+    encrypted variant, is not covered). Frames 77-78 are the reproducers
+    of the AMF3/Chunk Stream ID fixes and frame 135 of the aggregate
+    fix ("RTMPT: Dissect aggregate tags within their own length").'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtmpt_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_rtmpt_frames(self, cmd_tshark, capture_file, test_env):
+        '''200 frames have an RTMP layer and 5 an AMF layer; none is
+        malformed or has an error expert info, in one and two passes, and
+        both passes give the same Info column.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'rtmpt', '-Tfields', '-eframe.number')
+        assert len(lines) == 200
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'amf', '-Tfields', '-eframe.number')
+        assert lines == ['389', '390', '391', '392', '393']
+        info = {}
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+            info[passes] = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-e_ws.col.info')
+        assert info[()] == info[('-2',)]
+
+    def test_rtmpt_handshake_and_control(self, cmd_tshark, capture_file, test_env):
+        '''Handshake frames of the session on TCP 1935 and every protocol
+        control and user control message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 4 && frame.number <= 25 && rtmpt',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '4\tHandshake C0+C1', '5\tHandshake S0+S1+S2', '6\tHandshake C2',
+            '7\tWindow Acknowledgement Size 2500000', '8\tWindow Acknowledgement Size 2500000',
+            '9\tSet Peer Bandwidth 5000000,Hard', '10\tSet Peer Bandwidth 5000001,Soft',
+            '11\tSet Peer Bandwidth 5000002,Dynamic', '12\tSet Peer Bandwidth 5000007,Unknown (7)',
+            '13\tSet Chunk Size 4096', '14\tSet Chunk Size 256',
+            '15\tStream Begin 1|Stream EOF 1|Stream Dry 1', '16\tSet Buffer Length 1,3000ms',
+            '17\tStream Is Recorded 1|Ping Request', '18\tPing Response',
+            '19\tUser Control Message 0x1f', '20\tStream Begin', '21\tSet Buffer Length',
+            '22\tAbort Message 5', '23\tAcknowledgement 123456', '24\tSet Chunk Size 0',
+            '25\tSet Chunk Size 256',
+        ]
+
+    def test_rtmpt_commands(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the commands, and the matching of _result and
+        _error to the call by transaction ID (rtmpt.function.*).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 26 && frame.number <= 41 && rtmpt',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ertmpt.function.call',
+                '-ertmpt.function.response')
+        assert lines == [
+            "26\tconnect('live')\t\t", "27\t_result('NetConnection.Connect.Success')\t\t26",
+            "28\treleaseStream('mystream')\t\t", "29\tFCPublish('mystream')\t\t",
+            "30\tcreateStream()\t\t", "31\t_result()\t\t30", "32\tpublish('mystream')\t\t",
+            "33\tonStatus('NetStream.Publish.Start')\t\t", "34\tplay('vod/file')\t\t",
+            "35\tplay2('vod/file2')\t\t", "36\tonStatus('NetStream.Play.Start')\t\t",
+            "37\tonBWDone()\t\t", "38\tcustomCall()\t\t", "39\t_error('NetConnection.Call.Failed')\t\t38",
+            "40\tserverCall()\t\t", "41\t_result()\t\t40",
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {40, 41, 375, 376, 379, 381}',
+                '-Tfields', '-eframe.number', '-ertmpt.function.call', '-ertmpt.function.response')
+        # the call in frame 40 is also the "call" of 41; frames 376 and 381
+        # answer 375 and 379 (HTTP tunnel)
+        assert [l for l in lines if l.split('\t')[0] in ('376', '381')] == ['376\t\t375', '381\t\t379']
+
+    def test_rtmpt_fix_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frame 77 (csid 70, AMF3 array with the associative name "ab"
+        and an object reference) and frame 78 (video multitrack with many
+        codecs) of the AMF3 offsets fix; frame 135, an aggregate of 12
+        script tags that each hold a long string within the tag (the
+        aggregate fix), where every tag has its own string.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {77, 78}', '-Tfields', '-eframe.number',
+                '-ertmpt.header.csid', '-eamf.string', '-eamf.amf3_type',
+                '-ertmpt.video.fourcc', '-ertmpt.video.multitrack.track.id',
+                '-ertmpt.video.multitrack.track.length')
+        assert lines == [
+            '77\t70\ttest,ab\t0x09,0x04,0x0a,0x04\t\t\t',
+            '78\t4\t\t\tavc1,hvc1\t0,1\t2,1',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 135', '-Tfields', '-eframe.number',
+                '-ertmpt.tag.type', '-ertmpt.tag.datasize', '-eamf.longstring',
+                '-eamf.stringlength')
+        assert lines == ['135\t' + '\t'.join(','.join([v] * 12) for v in
+                         ('18', '9', 'abcd', '4'))]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {134, 136}', '-Tfields', '-eframe.number',
+                '-ertmpt.tag.type', '-ertmpt.tag.datasize', '-ertmpt.audio.multitrack.track.id',
+                '-ertmpt.video.multitrack.track.id')
+        assert lines == ['134\t8,9,18,48,48\t4,4,33,6,0\t\t',
+                         '136\t8,9\t17,20\t0,1\t0,1']
+
+    def test_rtmpt_headers(self, cmd_tshark, capture_file, test_env):
+        '''Chunk Stream IDs from the 2 and 3 octet basic headers, extended
+        timestamps of type 0, 1 and 2 headers.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtmpt.header.csid > 63', '-Tfields', '-eframe.number', '-ertmpt.header.csid')
+        assert lines == ['77\t70', '150\t64', '151\t319', '152\t320', '153\t65599',
+                         '154\t1000', '300\t65', '307\t330', '312\t330']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 155 && frame.number <= 161', '-Tfields', '-eframe.number',
+                '-ertmpt.header.format', '-ertmpt.header.ets')
+        assert lines == ['155\t0\t16777216', '156\t1\t16777472', '157\t2\t16777728',
+                         '158\t0\t33554432', '159\t1\t33554432', '160\t2\t33554432',
+                         '161\t0\t16777215']
+
+    def test_rtmpt_amf_values(self, cmd_tshark, capture_file, test_env):
+        '''AMF0 and AMF3 values: the integers of 1 to 4 octets in frame 65
+        and the number of values of each message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 65', '-Tfields', '-eamf.integer')
+        assert lines == ['0,127,128,16383,16384,2097151,2097152,536870911']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {57, 66, 67}', '-Tfields', '-eframe.number',
+                '-eamf.classname', '-eamf.membername', '-eamf.traitcount')
+        assert lines[0].startswith('57\t') and lines[0].split('\t')[1:] == ['', '', '']
+        assert lines[2].split('\t')[1:] == ['Cls,Dyn,Both', 'a,b,k,m,z,n', '2,0,1,2']
+
+    def test_rtmpt_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic is off by default: the connection on TCP 31935 is
+        TCP payload. With it on, the server handshake at the expected
+        sequence numbers selects RTMP for the rest of the connection (the
+        client C0+C1 before it is not recognised).'''
+        args = ('-Y', 'tcp.port == 31935 && rtmpt', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert self.fields(cmd_tshark, capture_file, test_env, *args) == []
+        lines = self.fields(cmd_tshark, capture_file, test_env, '--enable-heuristic', 'rtmpt_tcp', *args)
+        assert lines == ['352\tHandshake S0+S1+S2', '353\tHandshake C2',
+                         '354\tWindow Acknowledgement Size 5000000',
+                         "355\t_result('NetConnection.Connect.Success')"]
+
+    def test_rtmpt_http(self, cmd_tshark, capture_file, test_env):
+        '''RTMP tunnelled in HTTP (application/x-fcs), AMF in HTTP
+        (application/x-amf) and a connection that starts mid-stream.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.port == 80 && rtmpt', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '371\tHandshake C0+C1', '372\tHandshake S0+S1+S2', '373\tHandshake C2',
+            '374\tWindow Acknowledgement Size 2500000', "375\tconnect('http')",
+            "376\t_result('NetConnection.Connect.Success')|Stream Begin 0",
+            '379\tcreateStream()', '381\t_result()', "384\tonStatus('NetStream.Play.Start')"]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'amf', '-Tfields', '-eframe.number', '-eamf.header_count',
+                '-eamf.message_count', '-eamf.header.name', '-eamf.message.target_uri',
+                '-eamf.header.length', '-eamf.message.length')
+        assert lines == [
+            '389\t2\t1\tCredentials,Other\tsvc.method\t4294967295,8\t4294967295',
+            '390\t0\t1\t\tsvc.other\t\t12',
+            '391\t1\t0\tH3\t\t3\t',
+            '392\t3\t1\tA,B,C\tt\t9,9,2\t9',
+            '393\t0\t1\t\t/1/onResult\t\t5']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 315 && frame.number <= 330 && rtmpt',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == ['316\tVideo Data', '321\tVideo Data', "323\tplay('mid')", '324\tVideo Data']
