@@ -136265,3 +136265,90 @@ class TestDissectSercosiii:
                                           '-Y', 'frame.number == 9', '-V', '-O', 'siii'),
                                          encoding='utf-8', env=test_env)
         assert 'Device 128' in stdout and 'Device 255' in stdout
+
+
+class TestDissectSes:
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00600000'
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, dfilter, *fields, passes=(), opts=()):
+        args = [cmd_tshark, *passes, *opts, '-r', cap, '-Y', dfilter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_ses_frames(self, cmd_tshark, capture_file, test_env):
+        '''SPDUs over COTP (TPKT port 102), over Exported PDU and over CLTP
+        (IP protocol 39), without malformed packets or warnings, in one
+        and two passes.'''
+        cap = capture_file('ses_coverage.pcapng.gz')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, cap, 'frame', '_ws.col.protocol', passes=passes)
+            prot = [r[1] for r in rows]
+            assert len(prot) == 79
+            assert (prot.count('SES'), prot.count('PRES'), prot.count('CLSES'), prot.count('TCP'),
+                    prot.count('COTP')) == (54, 12, 2, 6, 5)
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+
+    def test_ses_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the SPDU types.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('ses_coverage.pcapng.gz'),
+                           'frame.number in {5, 11, 24, 34, 45, 46, 50, 70, 72, 75, 77}', '_ws.col.info')
+        assert {r[0]: r[1] for r in rows} == {
+            '5': 'CONNECT (CN) SPDU', '11': 'CONNECT DATA OVERFLOW (CDO) SPDU',
+            '24': 'FINISH (FN) SPDU', '34': 'Please tokens PDU', '45': 'Give tokens PDU',
+            '46': 'MINOR SYNC POINT (MIP) SPDU', '50': 'ACTIVITY START (AS) SPDU',
+            '70': 'UNIT DATA (UD) SPDU', '72': 'TYPED DATA (TD) SPDU',
+            '75': 'CAPABILITY DATA ACK (CDA) SPDU', '77': 'MAJOR SYNC POINT (MAP) SPDU',
+        }
+
+    def test_ses_connect_parameters(self, cmd_tshark, capture_file, test_env):
+        '''CONNECT parameters in a parameter group, plain and with the
+        extended (3 octet) length form.'''
+        cap = capture_file('ses_coverage.pcapng.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 4',
+                           'ses.called_ss_user_reference', 'ses.calling_ss_user_reference',
+                           'ses.common_reference', 'ses.initial_serial_number',
+                           'ses.proposed_tsdu_maximum_size_i2r', 'ses.calling_session_selector')
+        assert rows == [['4', '43414c4c4544', '43414c4c494e47', '434f4d4d4f4e2d524546',
+                         '000001', '65528', '0001']]
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number in {5, 6}', 'ses.length')
+        assert rows == [['5', '328'], ['6', '323']]
+
+    def test_ses_refuse_reasons(self, cmd_tshark, capture_file, test_env):
+        '''Every REFUSE reason code (frames 13-23), and the reason of the
+        ACTIVITY DISCARD and EXCEPTION DATA SPDUs.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('ses_coverage.pcapng.gz'),
+                           'ses.reason_code', 'ses.reason_code')
+        assert [r[0] for r in rows] == [str(i) for i in list(range(13, 24)) + [52, 54]]
+        assert [r[1] for r in rows] == ['0', '1', '2', '129', '130', '131', '132', '133', '134', '200', '2', '1', '2']
+
+    def test_ses_group_in_group(self, cmd_tshark, capture_file, test_env):
+        '''Parameter groups inside a parameter group are shown as items.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('ses_coverage.pcapng.gz'),
+                           'ses.parameter_group_inside_parameter_group',
+                           'ses.parameter_group_inside_parameter_group')
+        assert len(rows) == 1 and len(rows[0][1].split(',')) == 5
+
+    def test_ses_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A data transfer sequence is reassembled (and a second one with
+        only two segments); with reassembly off the segments are handed on
+        one by one.'''
+        cap = capture_file('ses_coverage.pcapng.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'ses.segments',
+                           'ses.segment.count', 'ses.reassembled.length')
+        assert rows == [['39', '3', '70'], ['42', '3', '70'], ['44', '2', '14']]
+        stdout = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-Y', 'frame.number in {37, 38, 39}',
+                                          '-V', '-O', 'ses'), encoding='utf-8', env=test_env)
+        assert stdout.count('[Reassembled SES in frame: 39]') == 2
+        assert '[3 SES segments (70 bytes): #37(20), #38(21), #39(29)]' in stdout
+        rows = self.fields(cmd_tshark, test_env, cap, 'ses.segments', 'ses.segment.count',
+                           opts=('-o', 'ses.desegment:FALSE'))
+        assert rows == []
+
+    def test_ses_clses(self, cmd_tshark, capture_file, test_env):
+        '''Unit data SPDUs over connectionless transport.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('ses_coverage.pcapng.gz'),
+                           'clsp', '_ws.col.protocol', '_ws.col.info', 'ip.proto')
+        assert rows == [['70', 'CLSES', 'UNIT DATA (UD) SPDU', '39'], ['71', 'CLSES', 'UNIT DATA (UD) SPDU', '39']]
