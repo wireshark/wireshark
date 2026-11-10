@@ -125761,3 +125761,82 @@ class TestDissectRfc2190:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rfc2190.pbframes',
                 'rfc2190.rr', 'rfc2190.dbq', 'rfc2190.trb', 'rfc2190.tr', filt='frame.number == 21')
         assert rows == [['21', 'True', '524287', '3', '7', '250']]
+
+
+class TestDissectRfidFelica:
+    '''Sony FeliCa (packet-rfid-felica.c) carried by PN532 HCI in bulk
+    transfers of USB device 04e6:5591 (usbmon), from the synthetic capture
+    rfid_felica_coverage.pcap.gz. FeliCa is only handed the payload of
+    InListPassiveTarget (frames 3-46) by default; frames 47-142 are
+    InCommunicateThru frames that need the "Payload Type" preference of
+    PN532 (pn532.prtype532:felica).'''
+
+    FELICA = ('-o', 'pn532.prtype532:felica')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, opts=(), passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rfid_felica_coverage.pcap.gz'),
+                '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_felica_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 142 frames decode without malformed packets or error expert
+        infos, in one and two passes, with and without the preference.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 142
+        assert protocols.count('FeliCa') == 41
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', opts=self.FELICA)
+        assert [r[0] for r in rows].count('FeliCa') == 138
+        for passes in ((), ('-2',)):
+            for opts in ((), self.FELICA):
+                rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                        filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        opts=opts, passes=passes)
+                assert rows == []
+
+    def test_felica_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every FeliCa command and response opcode is named; the opcode
+        of an unknown command is shown without a name.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                filt='felica.opcode in {0x00, 0x01, 0x06, 0x07, 0x0a, 0x4c, 0x4d, 0x7e}',
+                opts=self.FELICA)
+        infos = {r[0] for r in rows}
+        assert {'Polling', 'Polling (Response)', 'Read Without Encryption',
+                'Read Without Encryption (Response)', 'Search Service Code',
+                'Update Random ID', 'Unknown'} <= infos
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'felica.opcode',
+                filt='felica.opcode', opts=self.FELICA)
+        assert len({r[0] for r in rows}) == 42
+
+    def test_felica_polling(self, cmd_tshark, capture_file, test_env):
+        '''Polling with every request code and system code; the Polling
+        response carries the system code only when 19 octets long.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'felica.sys_code', 'felica.req.code', 'felica.timeslot',
+                filt='frame.number in {3, 46, 48, 49, 50, 52, 53, 140}', opts=self.FELICA)
+        assert rows == [['3', '0xffff', '0x01', '0x00'], ['46', '0xffff', '0x00', '0x03'],
+                        ['48', '0xffff', '0x01', '0x03'], ['49', '0x12fc', '', ''],
+                        ['50', '0xffff', '0x02', '0x03'], ['52', '0x88b4', '0x00', '0x00'],
+                        ['53', '0x88b4', '', ''], ['140', '0x1234', '0x01', '0x00']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'felica.idm',
+                filt='frame.number in {47, 49}', opts=self.FELICA)
+        assert rows == [['47', '0x0102030405060708'], ['49', '0x0102030405060708']]
+
+    def test_felica_read_without_encryption(self, cmd_tshark, capture_file, test_env):
+        '''Read Without Encryption lists one block number per block; its
+        response shows the status flags and the data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'felica.svc_code',
+                'felica.blocks', 'felica.block.nbr',
+                filt='frame.number in {54, 56, 58}', opts=self.FELICA)
+        assert rows == [['54', '0x0900', '0', ''], ['56', '0x0900', '1', '32768'],
+                        ['58', '0x0900', '3', '32768,32769,32770']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'felica.status.flag1', 'felica.status.flag2', 'felica.blocks',
+                filt='frame.number in {57, 59}', opts=self.FELICA)
+        assert rows == [['57', '0x00', '0x00', '1'], ['59', '0xa5', '0x00', '3']]
