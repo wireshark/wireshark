@@ -121436,3 +121436,50 @@ class TestDissectQ2931:
         assert d['28'][0] == '0' and d['28'][1] == ''
         assert d['29'][0] == '1' and d['29'][2] == 'True'
         assert d['30'][:2] == ['5', '123456789a']
+
+
+class TestDissectQ708:
+    '''ITU-T Q.708 ISPC analysis (packet-q708.c) from the synthetic capture
+    q708_coverage.pcapng.gz: MTP3 frames (link type MTP3) and M3UA DATA
+    messages over SCTP with network indicator 0 (international) and the
+    point codes of the dissector's own tables, codes with a known SANC but
+    no name, unknown codes, and network indicators 1 to 3, which are not
+    analysed. 84 frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q708_coverage.pcapng.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q708_protocols(self, cmd_tshark, capture_file, test_env):
+        '''84 frames without malformed packets or error expert infos in one
+        and two passes; 78 of them (the network indicator 0 frames, MTP3 and
+        M3UA) carry the Q.708 analysis of both point codes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 84
+        assert len([r for r in rows if r[0].startswith('mtp3')]) == 58
+        assert len([r for r in rows if r[0].endswith('sctp:m3ua:data')]) == 26
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'q708.sanc', '-eframe.number')
+            assert len(rows) == 78
+
+    def test_q708_names(self, cmd_tshark, capture_file, test_env):
+        '''SANC, point name and operator of known and unknown point codes
+        (destination first, then origin) in MTP3 and M3UA frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 51, 53, 60}', '-eframe.number', '-eq708.sanc',
+                '-eq708.ispc_name', '-eq708.ispc_operator_name')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['1'] == ['513,512', 'Roma/via T. Mestrelli,TLI Vaduz',
+                          'BT Italia S.p.A.,Telecom Liechtenstein AG']
+        assert d['51'] == ['12,512', 'Unknown,TLI Eschen', 'Unknown,Telecom Liechtenstein AG']
+        assert d['53'] == ['', '', '']      # network indicator 1: not analysed
+        assert d['60'] == ['512,512', 'TLI Eschen,iMetrik STP 01',
+                           'Telecom Liechtenstein AG,iMetrik Global (Europe) AG']
