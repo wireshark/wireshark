@@ -366,6 +366,9 @@ static int dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         {
             proto_item_set_len(rdt_packet_tree, offset-previous_offset);
         }
+        /* Stop if a sub-dissector made no progress */
+        if (offset == -1 || (unsigned)offset <= previous_offset)
+            break;
         previous_offset = offset;
     }
 
@@ -382,7 +385,7 @@ static int dissect_rdt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 unsigned dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     uint8_t     need_reliable_flag;
@@ -428,7 +431,7 @@ unsigned dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -511,7 +514,7 @@ unsigned dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 unsigned dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     uint16_t    stream_id;
@@ -547,7 +550,7 @@ unsigned dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -587,7 +590,7 @@ unsigned dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_
 unsigned dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     proto_tree  *flags_tree;
@@ -614,7 +617,7 @@ unsigned dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, 
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -648,7 +651,7 @@ unsigned dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, 
 unsigned dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     uint8_t     lost_high_flag;
@@ -679,7 +682,7 @@ unsigned dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -839,7 +842,7 @@ unsigned dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_
 unsigned dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     proto_tree  *flags_tree;
@@ -866,7 +869,7 @@ unsigned dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -896,7 +899,7 @@ unsigned dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 unsigned dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     uint32_t    server_out_time;
@@ -924,7 +927,7 @@ unsigned dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, pr
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -1084,7 +1087,7 @@ unsigned dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *
 unsigned dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
 {
     unsigned    start_offset = offset;
-    uint16_t    packet_length;
+    uint32_t    packet_length;
     uint8_t     flags1;
     uint8_t     length_included_flag;
     proto_tree  *flags_tree;
@@ -1111,7 +1114,7 @@ unsigned dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_
     /* Length field is optional */
     if (length_included_flag)
     {
-        proto_tree_add_item_ret_uint16(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
+        proto_tree_add_item_ret_uint(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN, &packet_length);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
