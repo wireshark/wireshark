@@ -867,6 +867,18 @@ clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len, int *nu
     return telnet_tvb;
 }
 
+/* Names are copied from the packet into fixed buffers and shown in item
+ * labels, which must be valid UTF-8: replace any octet that is not ASCII. */
+static void
+selfm_ascii_name(char *name)
+{
+    for (; *name != '\0'; name++) {
+        if ((unsigned char)*name >= 0x80) {
+            *name = '?';
+        }
+    }
+}
+
 /******************************************************************************************************/
 /* Execute dissection of Fast Meter configuration frames independent of any GUI access of said frames */
 /* Load configuration information into fm_config_frame struct */
@@ -909,6 +921,7 @@ static fm_config_frame* fmconfig_frame_fast(tvbuff_t *tvb)
         fm_analog_info *analog = &(frame->analogs[count]);
         tvb_memcpy(tvb, analog->name, offset, FM_CONFIG_ANA_CHNAME_LEN);
         analog->name[FM_CONFIG_ANA_CHNAME_LEN] = '\0'; /* Put a terminating null onto the end of the AI Channel name */
+        selfm_ascii_name(analog->name);
         analog->type = tvb_get_uint8(tvb, offset+6);
         analog->sf_type = tvb_get_uint8(tvb, offset+7);
         analog->sf_offset = tvb_get_ntohs(tvb, offset+8);
@@ -943,6 +956,7 @@ static fastmsg_dataitem* fastmsg_dataitem_save(tvbuff_t *tvb, int offset)
     /* retrieve data item name and terminate with a null */
     tvb_memcpy(tvb, dataitem->name, offset, 10);
     dataitem->name[10] = '\0'; /* Put a terminating null onto the end of the string */
+    selfm_ascii_name(dataitem->name);
 
     /* retrieve data item quantity and type */
     dataitem->quantity = tvb_get_ntohs(tvb, offset+10);
@@ -966,6 +980,7 @@ static fastmsg_dataregion* fastmsg_dataregion_save(tvbuff_t *tvb, int offset)
     /* retrieve data region name and terminate with a null */
     tvb_memcpy(tvb, dataregion->name, offset, 10);
     dataregion->name[10] = '\0'; /* Put a terminating null onto the end of the string */
+    selfm_ascii_name(dataregion->name);
 
     return dataregion;
 
@@ -1355,7 +1370,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                         ai_sf_fp = 1;
                                     }
 
-                                    proto_tree_add_uint(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value16, tvb, offset, ch_size, ai_int16val);
+                                    proto_tree_add_int(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_value16, tvb, offset, ch_size, ai_int16val);
                                     proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_scale_factor, tvb, offset, ch_size, ((float)ai_int16val*ai_sf_fp));
                                     offset += ch_size;
                                     break;
@@ -1682,7 +1697,8 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
     proto_item        *pi_baseaddr=NULL, *pi_fnum=NULL, *pi_type=NULL, *pi_qty=NULL;
     proto_tree        *fastmsg_tag_tree=NULL, *fmdata_dig_tree=NULL;
     uint32_t          base_addr;
-    uint16_t          data_size, num_addr, cnt;
+    uint32_t          data_size, cnt;
+    uint16_t          num_addr;
     uint8_t           seq_cnt;
     bool              seq_fir, seq_fin, save_fragmented;
     int               payload_offset=0;
@@ -2090,7 +2106,7 @@ dissect_fastmsg_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
                 elmt_ts_offset = (uint32_t)((tvb_get_uint8(tvb, offset+1) << 16) | (tvb_get_uint8(tvb, offset+2) << 8) | (tvb_get_uint8(tvb, offset+3)));
 
                 /* Bit shift the appropriate element from the 32-bit elmt_status word to position 0 and get the bit state for use in the tree */
-                elmt_status = ((elmt_status32 >> cnt) & 0x01);
+                elmt_status = (cnt < 32) ? ((elmt_status32 >> cnt) & 0x01) : 0;
 
                 /* Build the tree */
                 fastmsg_element_tree = proto_tree_add_subtree_format(fastmsg_elementlist_tree, tvb, offset, 4, ett_selfm_fastmsg_element, NULL,
@@ -2403,6 +2419,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item    *selfm_item=NULL;
     proto_tree    *selfm_tree=NULL;
     int           offset=0, cnt=0, consumed_bytes=0;
+    int           fm_offset;
     uint32_t      base_addr;
     uint16_t      msg_type, len, num_items;
     uint8_t       seq, seq_cnt;
@@ -2482,37 +2499,19 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
 
             /* Set offset to start of data items */
-            offset = 18;
+            fm_offset = 18;
 
             /* Enter the single frame multiple times, retrieving a single dataitem per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
-                fastmsg_dataitem *dataitem_ptr = fastmsg_dataitem_save(selfm_tvb, offset);
+                fastmsg_dataitem *dataitem_ptr = fastmsg_dataitem_save(selfm_tvb, fm_offset);
                 dataitem_ptr->fnum = pinfo->num;
                 dataitem_ptr->base_address = base_addr;
                 dataitem_ptr->index_pos = cnt;
 
                 /* Store the data item configuration info in the fastmsg_dataitems list */
                 wmem_list_append(fm_conv_data->fastmsg_dataitems, dataitem_ptr);
-                offset += 14;
+                fm_offset += 14;
             }
-        }
-
-        /* 3. Attempt re-assembly during first pass with Read Response Messages data payloads that span multiple */
-        /* packets.  The final data payload will be assembled on the packet with the seq_fin bit set.            */
-        if ((CMD_FAST_MSG == msg_type) && (tvb_get_uint8(selfm_tvb, offset+9) == FAST_MSG_READ_RESP)) {
-
-            seq = tvb_get_uint8(selfm_tvb, offset+10);
-
-            /* Set offset to where the dissect_fastmsg_readresp_frame function would normally be called, */
-            /* right before base address & num_items */
-            offset = 12;
-
-            /* Call the same read response function that will be called during GUI dissection */
-            offset = dissect_fastmsg_readresp_frame( selfm_tvb, tree, pinfo, offset, seq);
-
-            /* Skip CRC16 */
-            offset += 2;
-
         }
 
         /* 4. Fill conversation data array with Fast Message Data Region info from Device Desc Response Messages.  This */
@@ -2534,19 +2533,17 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
             }
 
             /* Set offset to start of data regions */
-            offset = 106;
+            fm_offset = 106;
 
             /* Enter the single frame multiple times, retrieving a single data region per entry */
             for (cnt = 1; (cnt <= num_items); cnt++) {
-                uint32_t base_address = tvb_get_ntohl(selfm_tvb, offset+10);
-                fastmsg_dataregion *dataregion_ptr = fastmsg_dataregion_save(selfm_tvb, offset);
+                uint32_t base_address = tvb_get_ntohl(selfm_tvb, fm_offset+10);
+                fastmsg_dataregion *dataregion_ptr = fastmsg_dataregion_save(selfm_tvb, fm_offset);
 
                 /* Store the data region info in the fastmsg_dataregions tree */
                 wmem_tree_insert32(fm_conv_data->fastmsg_dataregions, base_address, dataregion_ptr);
-                offset += 18;
+                fm_offset += 18;
             }
-
-            offset = len;
         }
     } /* if (!visited) */
 
@@ -3013,7 +3010,7 @@ proto_register_selfm(void)
         { "Reassembled SEL Fast Msg length", "selfm.respdata.fragment.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0, "The total length of the reassembled payload", HFILL }},
         /* Generated from convert_proto_tree_add_text.pl */
         { &hf_selfm_fmconfig_ai_channel, { "Analog Channel Name", "selfm.fmconfig.ai_channel", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fmdata_ai_value16, { "Value (Raw)", "selfm.fmdata.ai.value16", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_ai_value16, { "Value (Raw)", "selfm.fmdata.ai.value16", FT_INT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmdata_ai_scale_factor, { "Value (w/ Scale Factor)", "selfm.fmdata.ai.value_scale_factor", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmdata_ai_value_float, { "Value", "selfm.fmdata.ai.value_float", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmdata_ai_value_double, { "Value", "selfm.fmdata.ai.value_double", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
