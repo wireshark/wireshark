@@ -116999,3 +116999,53 @@ class TestDissectPeap:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert count_output(stdout) == 0
+
+
+class TestDissectPeekremote:
+    '''PEEKREMOTE (OmniPeek remote capture over UDP) from the synthetic
+    capture peekremote_coverage.pcap.gz: the legacy 20 byte header on UDP
+    port 5000 (the tapa dissector owns that port, so the tests use Decode As
+    udp.port==5000,peekremote), header versions 2 and 3 reached by the
+    heuristic dissector.'''
+
+    CAPTURE = 'peekremote_coverage.pcap.gz'
+    DECODE_AS = ('-d', 'udp.port==5000,peekremote')
+
+    def test_peekremote_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_peekremote_header_versions(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'peekremote.header_version', '-Tfields', '-eframe.number',
+                '-epeekremote.header_version',
+            ), encoding='utf-8', env=test_env)
+        versions = [line.split('\t')[1] for line in stdout.splitlines()]
+        assert versions.count('2') == 27
+        assert versions.count('3') == 3
+
+    def test_peekremote_legacy_noise_percent(self, cmd_tshark, capture_file, test_env):
+        '''The noise percent is the byte after the signal percent (it was
+        read from the signal byte).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 1', '-Tfields', '-epeekremote.signal_percent',
+                '-epeekremote.noise_percent', '-epeekremote.channel',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '80\t10\t1'
+
+    def test_peekremote_11n_short_gi(self, cmd_tshark, capture_file, test_env):
+        '''The short guard interval of an 11n header goes to the 11n
+        member of the radio information (frame 32 has the half GI flag).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {31, 32, 33}', '-Tfields', '-eframe.number',
+                '-ewlan_radio.11n.short_gi',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['31\t', '32\tTrue', '33\tFalse']
