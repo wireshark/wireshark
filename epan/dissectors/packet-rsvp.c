@@ -656,8 +656,6 @@ static int rsvp_tap;
  * RSVP five-tuple. Note that the values of the five-tuple are determined
  * from the session object and sender template/filter spec for PATH/RESV
  * messages.
- * Update rsvp_request_equal() when you add stuff here. You might also
- * have to update rsvp_request_hash().
  * TODO: Support for IPv6 conversations.
  */
 
@@ -718,50 +716,6 @@ typedef struct rsvp_template_filter_info {
     address source;
     uint16_t udp_source_port;
 } rsvp_template_filter_info;
-
-/*
- * The actual request key consists of a union of the various session objects
- * (which are uniquely identified based on the session type), and the
- * source_info structure, which has the information derived from the sender
- * template or the filter spec.
- * The request key is populated by copying the information from the
- * rsvp_conversation_info structure (rsvph), which in turn is populated when
- * the session, filter and sender template objects are dissected.
- */
-struct rsvp_request_key {
-    uint32_t session_type;
-
-    union { /* differentiated by session_type field */
-        rsvp_session_ipv4_info session_ipv4;
-        rsvp_session_ipv6_info session_ipv6;
-        rsvp_session_ipv4_lsp_info session_ipv4_lsp;
-        rsvp_session_ipv6_lsp_info session_ipv6_lsp;
-        rsvp_session_agg_ipv4_info session_agg_ipv4;
-        rsvp_session_ipv4_uni_info session_ipv4_uni;
-        rsvp_session_ipv4_p2mp_lsp_info session_ipv4_p2mp_lsp;
-        rsvp_session_ipv6_p2mp_lsp_info session_ipv6_p2mp_lsp;
-        rsvp_session_ipv4_enni_info session_ipv4_enni;
-    } u;
-
-    rsvp_template_filter_info source_info;
-    uint32_t conversation;
-};
-
-/*
- * At present, there is nothing particularly important that we need to
- * store for the request value for each rsvp_request_key, so we just
- * store the unique 32-bit identifier internally allocated for the key
- * (and stored in the conversation attribute of rsvp_request_key above.
- * If this changes in the future, then other stuff can be added here.
- */
-struct rsvp_request_val {
-    uint32_t value;
-};
-
-/*
- * Initialize the conversation related data structures.
- */
-static wmem_map_t *rsvp_request_hash;
 
 /*
  * The list of tree types
@@ -1971,168 +1925,6 @@ static const unit_name_string units_word_not_including_header = { " word, not in
 
 static int hf_rsvp_filter[RSVPF_MAX];
 
-/* RSVP Conversation related Hash functions */
-
-/*
- * Compare two RSVP request keys to see if they are equal. Return 1 if they
- * are, 0 otherwise.
- * Two RSVP request keys are equal if and only if they have the exactly the
- * same internal conversation identifier, session type, and matching values in
- * the session info and source info structures.
- */
-static int
-rsvp_equal(const void *k1, const void *k2)
-{
-    const struct rsvp_request_key *key1 = (const struct rsvp_request_key*) k1;
-    const struct rsvp_request_key *key2 = (const struct rsvp_request_key*) k2;
-
-    if (key1->conversation != key2->conversation) {
-        return 0;
-    }
-
-    if (key1->session_type != key2->session_type) {
-        return 0;
-    }
-
-    switch (key1->session_type) {
-    case RSVP_SESSION_TYPE_IPV4:
-        if (addresses_equal(&key1->u.session_ipv4.destination,
-                            &key2->u.session_ipv4.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv4.protocol != key2->u.session_ipv4.protocol)
-            return 0;
-
-        if (key1->u.session_ipv4.udp_dest_port != key2->u.session_ipv4.udp_dest_port)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_IPV6:
-        /* this is not supported yet for conversations */
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_LSP:
-        if (addresses_equal(&key1->u.session_ipv4_lsp.destination,
-                            &key2->u.session_ipv4_lsp.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv4_lsp.udp_dest_port !=
-            key2->u.session_ipv4_lsp.udp_dest_port)
-            return 0;
-
-
-        if (key1->u.session_ipv4_lsp.ext_tunnel_id !=
-            key2->u.session_ipv4_lsp.ext_tunnel_id)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        if (addresses_equal(&key1->u.session_agg_ipv4.destination,
-                            &key2->u.session_agg_ipv4.destination) == false)
-            return 0;
-
-        if (key1->u.session_agg_ipv4.dscp != key2->u.session_agg_ipv4.dscp)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_AGGREGATE_IPV6:
-        /* this is not supported yet for conversations */
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_UNI:
-        if (addresses_equal(&key1->u.session_ipv4_uni.destination,
-                            &key2->u.session_ipv4_uni.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv4_uni.udp_dest_port !=
-            key2->u.session_ipv4_uni.udp_dest_port)
-            return 0;
-
-
-        if (key1->u.session_ipv4_uni.ext_tunnel_id !=
-            key2->u.session_ipv4_uni.ext_tunnel_id)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
-        if (addresses_equal(&key1->u.session_ipv4_p2mp_lsp.destination,
-                            &key2->u.session_ipv4_p2mp_lsp.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv4_p2mp_lsp.udp_dest_port !=
-            key2->u.session_ipv4_p2mp_lsp.udp_dest_port)
-            return 0;
-
-
-        if (key1->u.session_ipv4_p2mp_lsp.ext_tunnel_id !=
-            key2->u.session_ipv4_p2mp_lsp.ext_tunnel_id)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
-        if (addresses_equal(&key1->u.session_ipv6_p2mp_lsp.destination,
-                            &key2->u.session_ipv6_p2mp_lsp.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv6_p2mp_lsp.udp_dest_port !=
-            key2->u.session_ipv6_p2mp_lsp.udp_dest_port)
-            return 0;
-
-
-        if (key1->u.session_ipv6_p2mp_lsp.ext_tunnel_id !=
-            key2->u.session_ipv6_p2mp_lsp.ext_tunnel_id)
-            return 0;
-
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        if (addresses_equal(&key1->u.session_ipv4_enni.destination,
-                            &key2->u.session_ipv4_enni.destination) == false)
-            return 0;
-
-        if (key1->u.session_ipv4_enni.udp_dest_port !=
-            key2->u.session_ipv4_enni.udp_dest_port)
-            return 0;
-
-
-        if (key1->u.session_ipv4_enni.ext_tunnel_id !=
-            key2->u.session_ipv4_enni.ext_tunnel_id)
-            return 0;
-
-        break;
-
-    default:
-        /* This should never happen. */
-        break;
-    }
-
-    if (addresses_equal(&key1->source_info.source,
-                        &key2->source_info.source) == false)
-        return 0;
-
-    if (key1->source_info.udp_source_port != key2->source_info.udp_source_port)
-        return 0;
-
-    /* If we get here, the two keys are equal. */
-    return 1;
-}
-
-/*
- * Calculate a hash key for the supplied RSVP request. The internally allocated
- * conversation-id is unique, so we just use that.
- */
-static unsigned
-rsvp_hash(const void *k)
-{
-    const struct rsvp_request_key *key = (const struct rsvp_request_key*) k;
-    return key->conversation;
-}
-
 static const char* rsvp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
 {
     if ((filter == CONV_FT_SRC_ADDRESS) && (conv->src_address.type == AT_IPv4))
@@ -2664,9 +2456,9 @@ summary_template(wmem_allocator_t *pool, tvbuff_t *tvb, int offset)
     case 13:
         return wmem_strdup_printf(pool,
                                   "%s: P2MP_LSP_TUNNEL_IPv6, IPv6 tunnel sender address %s, LSP ID: %d, Sub-Group ID %d. ", objtype,
-                                  tvb_ip_to_str(pool, tvb, offset+4),
+                                  tvb_ip6_to_str(pool, tvb, offset+4),
                                   tvb_get_ntohs(tvb, offset+22),
-                                  tvb_get_ntohs(tvb, offset+40));
+                                  tvb_get_ntohs(tvb, offset+42));
         break;
     default:
         return wmem_strdup_printf(pool,
@@ -4797,7 +4589,7 @@ dissect_rsvp_label(proto_tree *ti, proto_tree *rsvp_object_tree,
         break;
 
     case 2:
-        unassigned_upstream_label = tvb_get_ntoh24(tvb, offset2);
+        unassigned_upstream_label = tvb_get_ntohl(tvb, offset2);
         if(unassigned_upstream_label == 0xffffffff){ /* Unassigned upstream label, see RFC 8359 */
             proto_item_append_text(ti, ":  Unassigned upstream label ( 0x%x )",unassigned_upstream_label);
         }
@@ -6248,7 +6040,7 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                 proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_type, tvb, offset2+l+3, 1, k);
                 proto_tree_add_uint(rsvp_gen_uni_subtree, hf_rsvp_class_length, tvb, offset2+l, 2, sobj_len);
                 proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_gen_uni_direction,
-                             tvb, offset+l+2, 1, ENC_BIG_ENDIAN);
+                             tvb, offset2+l+4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_egress_label_type, tvb, offset2+l+7, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(rsvp_gen_uni_subtree, hf_rsvp_gen_uni_logical_port_id, tvb, offset2+l+8, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti2, ": %s, Label type %d, Port ID %d, Label ",
@@ -6300,12 +6092,12 @@ dissect_rsvp_gen_uni(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_object
                 break;
             }
 
-            if (tvb_get_uint8(tvb, offset2+l+1) < 1) {
-                proto_tree_add_expert_format(rsvp_gen_uni_subtree, pinfo, &ei_rsvp_invalid_length, tvb, offset2+l+1, 1,
-                    "Invalid length: %u", tvb_get_uint8(tvb, offset2+l+1));
+            if (sobj_len < 1) {
+                proto_tree_add_expert_format(rsvp_gen_uni_subtree, pinfo, &ei_rsvp_invalid_length, tvb, offset2+l, 2,
+                    "Invalid length: %u", sobj_len);
                 return;
             }
-            l += tvb_get_uint8(tvb, offset2+l+1);
+            l += sobj_len;
             if (l < mylen) {
                 if (i < 4)
                     proto_item_append_text(ti, ", ");
@@ -6759,7 +6551,12 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
 
                     proto_tree_add_item_ret_uint(rsvp_object_tree, hf_rsvp_3gpp_obj_tft_qos_list_len, tvb, offset, 2, ENC_BIG_ENDIAN, &tft_qos_list_len);
                     offset+=2;
-                    tft_qos_list_len-=2;
+                    if (tft_qos_list_len < 2) {
+                        proto_tree_add_expert(rsvp_object_tree, pinfo, &ei_rsvp_invalid_length, tvb, offset-2, 2);
+                        tft_qos_list_len = 0;
+                    } else {
+                        tft_qos_list_len-=2;
+                    }
                     if(tft_qos_list_len > 0){
                         while (tft_qos_list_len>0) {
                             int bit_offset; /* offset in bits */
@@ -6824,13 +6621,13 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                                     proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_token_rate, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
                                     bit_offset+=16;
                                     /* Max_Latency 0 or 8 */
-                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_latency, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_latency, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
                                     bit_offset+=8;
                                     /* Max_Loss_Rate 0 or 8 */
-                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_loss_rte, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_max_loss_rte, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
                                     bit_offset+=8;
                                     /* Delay_Var_Sensitive 0 or 1 */
-                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_delay_var_sensitive, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+                                    proto_tree_add_bits_item(qos_att_tree, hf_rsvp_3gpp_qos_attribute_delay_var_sensitive, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
                                     bit_offset+=1;
                                 }
                                 /* Padd to fill up to octet boundary, Reserved 0-7 as needed */
@@ -6862,6 +6659,15 @@ dissect_rsvp_3gpp_object(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_ob
                 }else{
                     proto_tree_add_item(rsvp_object_tree, hf_rsvp_ie_data, tvb, offset, length-2, ENC_NA);
                 }
+                obj_length = obj_length - length;
+            } else {
+                /* Unknown IE: skip over its data */
+                if (length < 2) {
+                    proto_tree_add_expert(rsvp_object_tree, pinfo, &ei_rsvp_invalid_length, tvb, offset-4, 2);
+                    break;
+                }
+                proto_tree_add_item(rsvp_object_tree, hf_rsvp_ie_data, tvb, offset, length-2, ENC_NA);
+                offset += length-2;
                 obj_length = obj_length - length;
             }
         }
@@ -7506,7 +7312,7 @@ dissect_rsvp_call_attributes(proto_tree *ti _U_, packet_info* pinfo, proto_tree 
  * JUNIPER PROPRIETARY
  *---------------------------------------------------------------------------*/
 static void
-dissect_rsvp_juniper(proto_tree *ti _U_,
+dissect_rsvp_juniper(proto_tree *ti _U_, packet_info *pinfo,
                                 proto_tree *rsvp_object_tree,
                                 tvbuff_t *tvb,
                                 int offset, int obj_length,
@@ -7525,6 +7331,7 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
      */
 
     proto_item *hidden_item;
+    int end_offset = offset + obj_length;
 
     hidden_item = proto_tree_add_item(rsvp_object_tree,
                                       hf_rsvp_filter[RSVPF_JUNIPER],
@@ -7546,7 +7353,7 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_padlength, tvb,
             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        while (tlvs > 0) {
+        while (tlvs > 0 && offset + 2 <= end_offset) {
             uint8_t t, l;
             t = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_type, tvb,
@@ -7556,6 +7363,11 @@ dissect_rsvp_juniper(proto_tree *ti _U_,
             proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_length, tvb,
                 offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
+            if (l < 2 || offset + (l - 2) > end_offset) {
+                proto_tree_add_expert_format(rsvp_object_tree, pinfo, &ei_rsvp_invalid_length,
+                                    tvb, offset - 1, 1, "Invalid TLV length: %u", l);
+                break;
+            }
             switch (t) {
             case 0x01:
                 proto_tree_add_item(rsvp_object_tree, hf_rsvp_juniper_attrib_cos, tvb,
@@ -7945,7 +7757,7 @@ dissect_rsvp_msg_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             break;
 
         case RSVP_CLASS_JUNIPER_PROPERTIES:
-            dissect_rsvp_juniper(ti, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
+            dissect_rsvp_juniper(ti, pinfo, rsvp_object_tree, tvb, offset, obj_length, rsvp_class, type);
             break;
         case RSVP_CLASS_NULL:
         default:
@@ -8012,9 +7824,6 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool e2
     int    session_off, tempfilt_off;
 
     rsvp_conversation_info  *rsvph;
-    conversation_t          *conversation;
-    struct rsvp_request_key  request_key, *new_request_key;
-    struct rsvp_request_val *request_val;
 
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -8050,131 +7859,6 @@ dissect_rsvp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool e2
         (message_type == RSVP_MSG_SREFRESH) ||
         (message_type == RSVP_MSG_HELLO))
       return;
-
-    /* Find out what conversation this packet is part of. */
-    conversation = find_or_create_conversation(pinfo);
-
-    /* Now build the request key */
-    memset(&request_key, 0, sizeof(request_key));
-    request_key.conversation = conversation->conv_index;
-    request_key.session_type = rsvph->session_type;
-
-    switch (request_key.session_type) {
-    case RSVP_SESSION_TYPE_IPV4:
-        set_address(&request_key.u.session_ipv4.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv4.protocol = rsvph->protocol;
-        request_key.u.session_ipv4.udp_dest_port = rsvph->udp_dest_port;
-        break;
-
-    case RSVP_SESSION_TYPE_IPV6:
-        /* Not supported yet */
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_LSP:
-        set_address(&request_key.u.session_ipv4_lsp.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv4_lsp.udp_dest_port = rsvph->udp_dest_port;
-        request_key.u.session_ipv4_lsp.ext_tunnel_id = rsvph->ext_tunnel_id;
-        break;
-
-    case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-        set_address(&request_key.u.session_agg_ipv4.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_agg_ipv4.dscp = rsvph->dscp;
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_UNI:
-        set_address(&request_key.u.session_ipv4_uni.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv4_uni.udp_dest_port = rsvph->udp_dest_port;
-        request_key.u.session_ipv4_uni.ext_tunnel_id = rsvph->ext_tunnel_id;
-        break;
-
-    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
-        set_address(&request_key.u.session_ipv4_p2mp_lsp.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv4_p2mp_lsp.udp_dest_port = rsvph->udp_dest_port;
-        request_key.u.session_ipv4_p2mp_lsp.ext_tunnel_id = rsvph->ext_tunnel_id;
-        break;
-
-    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
-        set_address(&request_key.u.session_ipv6_p2mp_lsp.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv6_p2mp_lsp.udp_dest_port = rsvph->udp_dest_port;
-        request_key.u.session_ipv6_p2mp_lsp.ext_tunnel_id = rsvph->ext_tunnel_id_ipv6_pre;
-        break;
-
-    case RSVP_SESSION_TYPE_IPV4_E_NNI:
-        set_address(&request_key.u.session_ipv4_enni.destination,
-                    rsvph->destination.type, rsvph->destination.len,
-                    rsvph->destination.data);
-        request_key.u.session_ipv4_enni.udp_dest_port = rsvph->udp_dest_port;
-        request_key.u.session_ipv4_enni.ext_tunnel_id = rsvph->ext_tunnel_id;
-        break;
-    default:
-        /* This should never happen. */
-        proto_tree_add_expert(tree, pinfo, &ei_rsvp_session_type, tvb, 0, 0);
-        break;
-    }
-
-    copy_address_shallow(&request_key.source_info.source, &rsvph->source);
-    request_key.source_info.udp_source_port = rsvph->udp_source_port;
-
-    /* See if a request with this key already exists */
-    request_val =
-        (struct rsvp_request_val *) wmem_map_lookup(rsvp_request_hash,
-                                                        &request_key);
-
-    /* If not, insert the new request key into the hash table */
-    if (!request_val) {
-        new_request_key = (struct rsvp_request_key *)wmem_memdup(
-              wmem_file_scope(), &request_key, sizeof(struct rsvp_request_key));
-        switch (request_key.session_type) {
-        case RSVP_SESSION_TYPE_IPV4:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4.destination,
-                              &request_key.u.session_ipv4.destination);
-            break;
-        case RSVP_SESSION_TYPE_IPV4_LSP:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_lsp.destination,
-                              &request_key.u.session_ipv4_lsp.destination);
-            break;
-        case RSVP_SESSION_TYPE_AGGREGATE_IPV4:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_agg_ipv4.destination,
-                              &request_key.u.session_agg_ipv4.destination);
-            break;
-        case RSVP_SESSION_TYPE_IPV4_UNI:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_uni.destination,
-                              &request_key.u.session_ipv4_uni.destination);
-            break;
-        case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_p2mp_lsp.destination,
-                              &request_key.u.session_ipv4_p2mp_lsp.destination);
-            break;
-        case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv6_p2mp_lsp.destination,
-                              &request_key.u.session_ipv6_p2mp_lsp.destination);
-            break;
-        case RSVP_SESSION_TYPE_IPV4_E_NNI:
-            copy_address_wmem(wmem_file_scope(), &new_request_key->u.session_ipv4_enni.destination,
-                              &request_key.u.session_ipv4_enni.destination);
-            break;
-        default:
-            break;
-        }
-        copy_address_wmem(wmem_file_scope(), &new_request_key->source_info.source, &rsvph->source);
-
-        request_val = wmem_new(wmem_file_scope(), struct rsvp_request_val);
-        request_val->value = conversation->conv_index;
-
-        wmem_map_insert(rsvp_request_hash, new_request_key, request_val);
-    }
 
     tap_queue_packet(rsvp_tap, pinfo, rsvph);
 }
@@ -9813,7 +9497,7 @@ proto_register_rsvp(void)
         },
         { &hf_rsvp_3gpp_qos_attribute_prof_id,
          { "ProfileID", "rsvp.3gpp_obj.r_qos_blob.prof_id",
-           FT_UINT8, BASE_DEC, NULL, 0x0,
+           FT_UINT16, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
         { &hf_rsvp_3gpp_qos_attribute_traff_cls,
@@ -10404,8 +10088,6 @@ proto_register_rsvp(void)
     expert_rsvp = expert_register_protocol(proto_rsvp);
     expert_register_field_array(expert_rsvp, ei, array_length(ei));
     register_rsvp_prefs();
-
-    rsvp_request_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), rsvp_hash, rsvp_equal);
 
     register_conversation_table(proto_rsvp, true, rsvp_conversation_packet, rsvp_endpoint_packet);
 
