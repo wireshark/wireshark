@@ -131044,3 +131044,309 @@ class TestDissectRtpproxyCoverage:
                 '-Tfields', '-eframe.number', '-ertpproxy.callid',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['84\t', '85\t', '89\tng-call-1']
+
+
+class TestDissectRtps:
+    '''Real-Time Publish-Subscribe (RTPS) from the synthetic capture
+    rtps_coverage.pcapng.gz: UDP and TCP datagrams reached by the
+    heuristics, and a second interface with an Exported PDU naming
+    rtpsvt (frame 210). The capture holds the submessages of RTPS 1.2 and
+    2.x, every parameter id that decodes, the fragments that RTPS
+    reassembles, typecodes, TypeObjects (version 1 and the XTypes
+    TypeInformation and TypeLookup), the built-in discovery and service
+    writers and the reproducers of "RTPS: Bound TypeObject and typecode
+    dissection, fix stack pointers" (frames 206-210).
+    Secure submessages are only framed: nothing is encrypted.'''
+
+    UD = ('-o', 'rtps.enable_user_data_dissection:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('rtps_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def _repro(cmd_tshark, result_file, test_env, name, frames, *args, flt=None):
+        '''Writes frames (UDP payloads to port 7411) to a pcap file and
+        dissects it.'''
+        def udp(payload):
+            udp = struct.pack('!HHHH', 7410, 7411, 8 + len(payload), 0) + payload
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            return bytes(6) + bytes(6) + b'\x08\x00' + ip + udp
+        path = result_file(name)
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            for fr in frames:
+                f.write(struct.pack('<IIII', 0, 0, len(udp(fr)), len(udp(fr))))
+                f.write(udp(fr))
+        cmd = [cmd_tshark, '-r', path, *args]
+        if flt:
+            cmd += ['-Y', flt, '-Tfields', '-eframe.number']
+        return subprocess.check_output(cmd, encoding='utf-8', env=test_env, timeout=300)
+
+    PREFIX = bytes.fromhex('0a0b0c0d0e0f101112131415')
+
+    @classmethod
+    def _message(cls, writer, payload):
+        '''An RTPS message with one RTPS_DATA submessage from writer.'''
+        body = struct.pack('<HH', 0, 16) + struct.pack('>II', 0, writer) + struct.pack('<iI', 0, 1) + payload
+        return b'RTPS\x02\x03\x01\x01' + cls.PREFIX + struct.pack('<BBH', 0x15, 0x05, len(body)) + body
+
+    def test_rtps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''402 frames: 399 RTPS (one of them an Exported PDU) and three UDP
+        datagrams that are not RTPS (too short, wrong magic, wrong major
+        version). No malformed packets or error expert infos in one and
+        two passes; the Exported PDU of frame 210 is also clean with the
+        checksum check on (see test_rtps_root_message).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                'frame.number', '_ws.col.protocol')
+        assert len(rows) == 402
+        assert sum(r.endswith('\tRTPS') for r in rows) == 399
+        assert [r for r in rows if not r.endswith('\tRTPS')] == ['203\tUDP', '204\tUDP', '205\tUDP']
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+
+    def test_rtps_port_mapping(self, cmd_tshark, capture_file, test_env):
+        '''The default port mapping: domain, participant index and nature
+        of the destination port, for multicast and unicast ports.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {33, 34, 35, 36, 39, 41, 45, 51, 53}',
+                'frame.number', 'udp.dstport', 'rtps.domain_id',
+                'rtps.participant_idx', 'rtps.traffic_nature')
+        assert rows == [
+            '33\t7400\t0\t\t2',
+            '34\t7401\t0\t\t1',
+            '35\t7410\t0\t0\t0',
+            '36\t7411\t0\t0\t3',
+            '39\t7650\t1\t\t2',
+            '41\t7660\t1\t0\t0',
+            '45\t65400\t232\t\t2',
+            '51\t7400\t0\t0\t0',
+            '53\t7410\t1\t0\t0',
+        ]
+
+    def test_rtps_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments of a discovery sample are reassembled (frames
+        115-117 and 118-119, the second one with two fragments in one
+        submessage), and the same links show in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {115, 116, 117, 118, 119}',
+                'frame.number', 'rtps.reassembled.length', '_ws.col.info')
+        assert rows[2] == '117\t180\tDATA_FRAG [Reassembled](p)'
+        assert rows[4] == '119\t180\tDATA_FRAG [Reassembled](p)'
+        assert rows[0] == '115\t\tDATA_FRAG [RTPS fragment](p)'
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {115, 116, 118}',
+                'frame.number', 'rtps.reassembled.in', passes=('-2',))
+        assert rows == ['115\t117', '116\t117', '118\t119,119']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {117, 119}',
+                'frame.number', 'rtps.reassembled.length',
+                opts=('-o', 'rtps.enable_rtps_reassembly:FALSE'))
+        assert rows == ['117\t', '119\t']
+
+    def test_rtps_topic_info_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The topic and type of a writer come from its discovery data
+        (frame 142 for the user writer 0x00000102): samples that precede
+        it show the topic only in the second pass.'''
+        flt = 'frame.number in {92, 143}'
+        fields = ('frame.number', 'rtps.param.topicName', 'rtps.param.typeName',
+                  'rtps.dcps_publication_data_frame_number')
+        assert self._fields(cmd_tshark, capture_file, test_env, flt, *fields) == [
+            '92\t\t\t',
+            '143\tSensorTopic\tSensor\t142']
+        assert self._fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=('-2',)) == [
+            '92\tSensorTopic\tSensor\t138',
+            '143\tSensorTopic\tSensor\t142']
+
+    def test_rtps_typecode(self, cmd_tshark, capture_file, test_env):
+        '''A typecode with nested structs, unions, enums, sequences of
+        structs and unions, arrays and aliases decodes in full (frame 138,
+        and the big endian one of 139): members are not reported as
+        overlapping.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {138, 139, 140, 141}',
+                'frame.number', 'rtps.struct', 'rtps.union')
+        assert rows[0].split('\t')[1].startswith('AllTypes,Color,Inner')
+        assert rows[0].split('\t')[2].startswith('U3,U1,U2')
+        for r in rows:
+            assert '\t' in r
+        types = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 138', 'rtps.datatype')[0].split(',')
+        for t in ('short', 'unsigned long', 'long double', 'wchar', 'string<32>', 'wstring<8>', 'MyLong'):
+            assert t in types
+
+    def test_rtps_user_data(self, cmd_tshark, capture_file, test_env):
+        '''With the preference, the user data of frame 143 is dissected
+        from the TypeObject of frame 142: integers, a string, a sequence
+        and an array, a nested struct, a union, the base type of a derived
+        struct, a mutable struct and the enum.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 143',
+                'rtps.dissection.int32', 'rtps.dissection.string', 'rtps.dissection.uint64',
+                opts=self.UD)
+        ints, strings, uint64 = rows[0].split('\t')
+        assert ints.split(',')[:3] == ['-7', '7', '0']
+        assert '99' in ints.split(',')
+        assert strings == 'hello,ab'
+        assert uint64 == '10'
+        # without the preference the sample is not dissected
+        assert self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 143',
+                'rtps.dissection.int32') == ['']
+
+    def test_rtps_xtypes(self, cmd_tshark, capture_file, test_env):
+        '''XTypes: TypeInformation in discovery (frame 148), TypeLookup
+        requests (149-152 and 157, which holds every kind of type id) and
+        replies (153-156) with TypeObjects of aliases, structs, unions and
+        enums.'''
+        ids = lambda n: self._fields(cmd_tshark, capture_file, test_env, 'frame.number == %d' % n,
+                                     'rtps.type_id.discriminator')[0].split(',')
+        assert ids(148) == ['0xf1', '0xf1', '0xf2', '0xf1', '0xf1', '0xf2']
+        assert ids(149) == ['0xf2', '0xf1', '0x05']
+        assert ids(157) == ['0x01', '0x05', '0x0c', '0x70', '0x71', '0x72', '0x73', '0xf1', '0xf2',
+                            '0xb0', '0x99', '0x80', '0x05', '0x81', '0x70', '0x90', '0x05', '0x91',
+                            '0x05', '0xa0', '0x05', '0x71', '0xa1', '0x05', '0x05']
+        reply = ids(156)
+        assert reply[:6] == ['0xf2', '0xf2', '0x05', '0xf1', '0xf1', '0x05']
+        infos = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {148, 149, 153, 156}', 'frame.number', '_ws.col.info')
+        assert infos == ['148\tDATA(w) -> XTopic', '149\tDATA(trq)', '153\tDATA(trp)', '156\tDATA(trp)']
+
+    def test_rtps_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the writer and the status of the sample.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {168, 169, 170}', 'frame.number', '_ws.col.info')
+        assert rows == [
+            '168\tDATA(P[__]), DATA(t[_D]), DATA(w[U_]), DATA(r[UD]), DATA(p), DATA(m[__]), '
+            'DATA(s[_D]), DATA(V[U_]), DATA(M[UD]), DATA(W)',
+            '169\tDATA(R[__]), DATA(Pb[_D]), DATA(Pb[U_]), DATA(Pc[UD]), DATA(Pc), DATA(sPc[__]), '
+            'DATA(sPc[_D]), DATA(trq[U_]), DATA(trq[UD]), DATA(trq)',
+            '170\tDATA(trq[__]), DATA(trp[_D]), DATA(trp[U_]), DATA(trp[UD]), DATA(trp), '
+            'DATA(P[__]), DATA([_D]) -> SensorTopic, DATA([U_])',
+        ]
+
+    def test_rtps_coherent_sets(self, cmd_tshark, capture_file, test_env):
+        '''Coherent sets start where the coherent set sequence number is the
+        writer sequence number and end with a new set, an unknown sequence
+        number or PID_END_COHERENT_SET (frames 193 and 194).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {193, 194}',
+                'frame.number', 'rtps.coherent_set.start', 'rtps.coherent_set.end')
+        assert rows == ['193\t100,103,106,108,110\t100,18446744069414584320,106',
+                        '194\t5\t5']
+
+    def test_rtps_compressed_sample(self, cmd_tshark, capture_file, test_env):
+        '''A zlib compressed sample (frame 107) is decompressed.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 107',
+                'rtps.param.uncompressed_serialized_length')
+        assert rows == ['80']
+
+    def test_rtps_root_message(self, cmd_tshark, capture_file, test_env):
+        '''Frame 210 is an Exported PDU naming rtpsvt: RTPS-PROC dissects
+        the main frame, then the submessages of frame1 with a
+        HEADER_EXTENSION that holds a CRC. With the checksum check on, the
+        header extension reads the message that dissect_rtps() kept for
+        it; this crashed (use of a dead stack variable) before "RTPS: Bound
+        TypeObject and typecode dissection, fix stack pointers".'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 210',
+                'frame.number', 'rtps.checksum_error',
+                opts=('-o', 'rtps.enable_rtps_checksum_check:TRUE'))
+        assert rows == ['210\t1']
+        assert self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 210',
+                'frame.number', 'rtps.checksum_error') == ['210\t']
+
+    def test_rtps_typeobject_maps_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''A sample from a META_GROUP writer (frame 206) comes before a
+        TypeObject that defines the type id of the built-in
+        InstanceStateDataResponse (frame 207). The built-in type wins and
+        the TypeObject maps are only filled in the first pass, so one and
+        two passes agree; frame 209 is a built-in type sample after an
+        ARRAY element with an empty bound sequence (208).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {206, 209}', 'frame.number', 'rtps.user_data_dissection_error',
+                    '_ws.col.info', passes=passes)
+            assert rows == ['206\t1\tDATA -> InstanceStateDataResponse',
+                            '209\t1\tDATA -> InstanceStateDataResponse']
+
+    def test_rtps_typecode_overlap(self, cmd_tshark, result_file, test_env):
+        '''A typecode whose struct members overlap (all members share one
+        nested struct) is rejected instead of costing members^depth work.'''
+        M, D = 4, 6
+        level = struct.pack('<IHHI', 10, 0, 0, 0) + struct.pack('<I', M)
+        for j in range(M):
+            level += struct.pack('<HHI', 6, 0, 8 * (M - 1 - j))
+        level += struct.pack('<BBHBBH', 0, 0, 0xffff, 0, 0, 0)
+        tc = level * D + struct.pack('<IHH', 1, 0, 0)
+        pl = struct.pack('>HH', 3, 0) + struct.pack('<HH', 0x47, len(tc)) + tc + struct.pack('<HH', 1, 0)
+        out = self._repro(cmd_tshark, result_file, test_env, 'rtps_overlap.pcap',
+                          [self._message(0x000003c2, pl)], flt='rtps.value_too_large')
+        assert out.split() == ['1']
+
+    def test_rtps_typecode_sequence_depth(self, cmd_tshark, result_file, test_env):
+        '''Nested sequence typecodes are cut off at the dissection depth
+        limit instead of recursing until the stack is exhausted.'''
+        level = struct.pack('<IHHI', 14, 8, 0, 0)
+        pl = struct.pack('>HH', 3, 0) + struct.pack('<HH', 0x47, 12) + level * 5000
+        out = self._repro(cmd_tshark, result_file, test_env, 'rtps_seq_depth.pcap',
+                          [self._message(0x000003c2, pl)], flt='rtps.typecode_too_deep')
+        assert out.split() == ['1']
+
+    def test_rtps_type_id_depth(self, cmd_tshark, result_file, test_env):
+        '''A PID_TYPE_INFORMATION whose type identifier is a chain of 10000
+        nested plain sequence identifiers is cut off with an expert info.
+        Before "RTPS: Bound TypeObject and typecode dissection, fix stack
+        pointers" the recursion had no bound and, without a tree, a longer
+        chain overflowed the stack.'''
+        val = bytes(12) + bytes((0x80, 0, 0, 0, 1)) * 10000 + b'\x01' + bytes(4)
+        val += bytes(-len(val) % 4)
+        pl = struct.pack('>HH', 3, 0) + struct.pack('<HH', 0x75, len(val)) + val + struct.pack('<HH', 1, 0)
+        frames = [self._message(0x000003c2, pl)]
+        self._repro(cmd_tshark, result_file, test_env, 'rtps_type_id_depth.pcap', frames)
+        out = self._repro(cmd_tshark, result_file, test_env, 'rtps_type_id_depth.pcap',
+                          frames, flt='rtps.type_id_too_deep')
+        assert out.split() == ['1']
+
+    def test_rtps_typeobject_work_limit(self, cmd_tshark, result_file, test_env):
+        '''A TypeObject cannot take over a built-in type id, and the
+        dissection of one sample is limited in work: a chain of 4 structs
+        with 60 members each (13 million visits) ends in "User data
+        dissection failed" quickly.'''
+        def pid(p, v):
+            v += b'\0' * (-len(v) % 4)
+            return struct.pack('<HH', p, len(v)) + v
+        def tid(t):
+            return struct.pack('<H', 0x0e) + bytes(6) + struct.pack('<Q', t)
+        def string(s):
+            raw = s.encode() + b'\0'
+            raw = struct.pack('<I', len(raw)) + raw
+            return raw + bytes(-len(raw) % 4)
+        def lib(t, name):
+            v = struct.pack('<HH', 1, 0x0e) + bytes(4) + struct.pack('<Q', t) + string(name)
+            return pid(0, v) + pid(0, struct.pack('<I', 0))
+        def member(i, t):
+            v = struct.pack('<HH', 0, 0) + struct.pack('<I', i) + tid(t) + string('m')
+            return pid(0, v) + pid(0, struct.pack('<I', 0))
+        def struct_el(t, kids):
+            body = lib(t, 'S') + pid(0, struct.pack('<HH', 0, 0))
+            mem = struct.pack('<I', len(kids)) + b''.join(member(i + 1, k) for i, k in enumerate(kids))
+            body += pid(0, mem)
+            el = pid(0, struct.pack('<I', 22)) + pid(1, body) + struct.pack('<HH', 0x3f02, 0)
+            return el
+        top = 0x9d6d4c879b0e6aa9
+        tids = [top, 0x1001, 0x1002, 0x1003]
+        els = [struct_el(tids[k], [tids[k + 1] if k < 3 else 0x4242424242424242] * 60) for k in range(4)]
+        lib_ = struct.pack('<I', 4) + b''.join(els)
+        to = pid(0, lib_) + pid(1, tid(top)) + struct.pack('<HH', 0x3f02, 0)
+        # 4 elements of about 3 KB each: the TypeObject needs 3 UDP datagrams of at most 64 KB
+        assert len(to) < 60000
+        pl = struct.pack('>HH', 3, 0) + struct.pack('<HH', 0x72, len(to)) + to + struct.pack('<HH', 1, 0)
+        discovery = self._message(0x000003c2, pl)
+        sample = self._message(0x0000018c, struct.pack('>HH', 1, 0) + bytes(8))
+        out = self._repro(cmd_tshark, result_file, test_env, 'rtps_work.pcap',
+                          [discovery, sample], flt='rtps.user_data_dissection_error')
+        assert out.split() == ['2']
