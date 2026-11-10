@@ -135671,3 +135671,56 @@ class TestDissectScylla:
                     '-Tfields', '-e_ws.expert.message',
                 ), encoding='utf-8', env=test_env, timeout=60)
             assert 'Feature length exceeds the negotiation data' in stdout
+
+
+class TestDissectSdh:
+    OPTS = ('-o', 'sdh.data.rate:Guess')
+
+    def test_sdh_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every ERF RAW_LINK record is an SDH frame and none is malformed
+        or has an expert info, in one and two passes, at the default data
+        rate (OC-3) and when the rate is guessed.'''
+        for opts in ((), self.OPTS):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('sdh_coverage.erf.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['SDH'] * 26
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *opts, *passes,
+                        '-r', capture_file('sdh_coverage.erf.gz'),
+                        '-Y', '_ws.malformed || _ws.expert',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_sdh_default_rate(self, cmd_tshark, capture_file, test_env):
+        '''At the default OC-3 rate the AU pointer, the J1 octet it points
+        at (the offset wraps modulo the frame, +9 SOH octets per 87 columns)
+        and the S1 sync status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sdh_coverage.erf.gz'),
+                '-Y', 'frame.number <= 18',
+                '-Tfields', '-eframe.number', '-esdh.au', '-esdh.j1',
+                '-esdh.s1', '-esdh.m1',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '522', '90', '0x00', '7']
+        assert [l[1] for l in lines[1:12]] == ['0', '1', '86', '87', '88', '174', '261', '609', '782', '783', '1022']
+        assert [l[2] for l in lines[1:12]] == [str(64 + i) for i in range(11)]
+        assert [l[3] for l in lines[12:17]] == ['0x02', '0x04', '0x08', '0x0b', '0x0f']
+
+    def test_sdh_guess_rate(self, cmd_tshark, capture_file, test_env):
+        '''With the data rate set to "Guess" the rate comes from the raw
+        link extension header (frames 19-21), and from the frame length
+        when the header has no usable rate (frames 22-26): the J1 octet is
+        found at the right place for OC-12, OC-24 and OC-48 frames.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('sdh_coverage.erf.gz'),
+                '-Y', 'frame.number >= 19',
+                '-Tfields', '-eframe.number', '-esdh.au', '-esdh.j1',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '19\t522\t98', '20\t600\t99', '21\t90\t100', '22\t100\t101',
+            '23\t200\t102', '24\t300\t103', '25\t400\t104', '26\t522\t105',
+        ]
