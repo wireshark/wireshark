@@ -14943,6 +14943,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   pdu_type = 0;
   ProtocolIE_ID = 0;
+  ProcedureCode = 0xFFFFFFFF;
 
   /* make entry in the Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RANAP");
