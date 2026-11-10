@@ -1007,8 +1007,8 @@ rtpproxy_lookup_query(rtpproxy_conv_info_t *rtpproxy_conv, const char* cookie, p
     rtpproxy_info = (rtpproxy_info_t *)wmem_tree_lookup_string(rtpproxy_conv->trans, cookie, 0);
     if ((rtpproxy_info == NULL) || (rtpproxy_info->command != 'q'))
         return NULL;
-    if (rtpproxy_info->req_frame == pinfo->num)
-        return NULL; /* That's the query itself */
+    if (rtpproxy_info->req_frame >= pinfo->num)
+        return NULL; /* That's the query itself, or a later one */
     return rtpproxy_info;
 }
 
@@ -1333,7 +1333,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
                 /* Extract Port */
                 tvb_get_string_uint16(tvb, offset, realsize - offset, ENC_STR_DEC, &port, &new_offset);
-                col_append_fstr(pinfo->cinfo, COL_INFO, ":%s", tmpstr);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ":%u", port);
                 proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_port, tvb, offset, new_offset - offset, port);
                 /* Skip whitespace */
                 if (!rtpproxy_next_field(tvb, &offset, new_offset, realsize))
