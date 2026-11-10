@@ -116972,3 +116972,30 @@ class TestDissectPduTransport:
                 '-Y', 'autosar-nm', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['7']
+
+
+class TestDissectPeap:
+    '''PEAP (Protected EAP) from the synthetic capture peap_coverage.pcapng.gz.
+    The dissector is only called by the EAP dissector, as the application
+    data dissector of the TLS dissector for the decrypted records of an
+    EAP-PEAP exchange. The capture has no TLS keys, so it only has Exported
+    PDU frames that name the dissector; there is no EAP layer, so it
+    declines every frame (the "no EAP layer" path of "PEAP: Fix pseudo EAP
+    subset length and layer number check").'''
+
+    CAPTURE = 'peap_coverage.pcapng.gz'
+
+    def test_peap_no_eap_layer(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert [line.split('\t')[0] for line in stdout.splitlines()] == ['1', '2', '3', '4']
+            assert not any('PEAP' in line for line in stdout.splitlines())
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
