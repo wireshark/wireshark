@@ -116126,3 +116126,85 @@ class TestDissectPcnfsd:
             '51\tc7\tdave\tpw\t\t\t\t\t\t',
             '52\t\t\t\t0\t1004\t100,1\t1\t/h6\t18',
         ]
+
+
+class TestDissectPcomtcp:
+    '''PCOM/TCP (Unitronics PLCs, TCP port 20256) from the synthetic capture
+    pcomtcp_coverage.pcap.gz: ASCII mode requests and replies for every
+    command code, binary mode requests and replies, unknown commands and
+    bad reserved fields. Each PDU is in its own TCP segment.'''
+
+    CAPTURE = 'pcomtcp_coverage.pcap.gz'
+
+    def test_pcomtcp_protocols(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split('\n')[:-1]
+            assert protocols == ['PCOM/TCP'] * 89
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pcomtcp_modes(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        infos = stdout.splitlines()
+        assert infos[:2] == ['Query in ASCII mode', 'Reply in ASCII mode']
+        assert infos.count('Query in ASCII mode') == 34
+        assert infos.count('Reply in ASCII mode') == 34
+        assert infos.count('Query in Binary mode') == 12
+        assert infos.count('Reply in Binary mode') == 9
+
+    def test_pcomtcp_ascii_values(self, cmd_tshark, capture_file, test_env):
+        '''Read replies and write requests list their operands; the
+        command code of a reply to a three character code has two.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {20, 28, 31, 32, 36, 43, 49, 57}',
+                '-Tfields', '-eframe.number', '-epcomascii.command_code',
+                '-epcomascii.address', '-epcomascii.length',
+                '-epcomascii.address_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\tRE\t\t\t0,5,A,F,4,9,E,3',
+            '28\tGF\t\t\t0000,0025,004A',
+            '31\tRNH\t0000\t02\t',
+            '32\tRN\t\t\t00000000,00000025',
+            '36\tRN\t\t\t00000000,00000025,0000004A',
+            '43\tSA\t0000\t04\t1,2,3,4',
+            '49\tSF\t0000\t02\t0001,0002',
+            '57\tSNL\t0000\t02\t00000001,00000002',
+        ]
+
+    def test_pcomtcp_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Unknown command codes and bad reserved values are warnings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', '_ws.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '63\tUnsupported Command', '64\tUnsupported Command', '65\tUnsupported Command',
+            '81\tUnsupported Command', '82\tUnsupported Command',
+            "84\tIsn't 0xfe", "85\tIsn't 1", "86\tIsn't 0", "87\tIsn't 0", "88\tIsn't 0",
+        ]
+
+    def test_pcomtcp_binary(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {69, 70, 73, 74, 75, 76}',
+                '-Tfields', '-eframe.number', '-epcombinary.command',
+                '-epcombinary.data_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '69\t0x0c\t0', '70\t0x8c\t11', '73\t0x04\t0', '74\t0x84\t32',
+            '75\t0x44\t4', '76\t0xc4\t0',
+        ]
