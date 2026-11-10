@@ -117876,3 +117876,42 @@ class TestDissectPkix1implicit:
                            '-eframe.number', '-epkix1implicit.accessMethod')
         want = '1.3.6.1.5.5.7.48.1,1.3.6.1.5.5.7.48.2,1.3.6.1.5.5.7.48.99'
         assert out == ['2\t' + want, '3\t' + want, '5\t' + want]
+
+
+class TestDissectPkixac:
+    '''PKIX attribute certificates (in CMS SignedData, v2AttrCert) with the
+    authentication, access identity, charging identity, group, role and
+    clearance attributes and the AA controls, targets and proxying
+    extensions, in Exported PDU "cms" frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkixac_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkixac_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 5 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 5
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkixac_extensions(self, cmd_tshark, capture_file, test_env):
+        '''AA controls in frames 2, 3 and 5, targets in 2 and 5 (three
+        targets: name, group and certificate), clearance in frame 1.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixac.AAControls_element',
+                           '-eframe.number', '-epkixac.Targets')
+        assert out == ['2\t3,2,1', '3\t', '5\t3,2,1']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixac.Clearance_element',
+                           '-eframe.number')
+        assert out == ['1']
