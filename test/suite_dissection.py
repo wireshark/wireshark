@@ -121953,3 +121953,141 @@ class TestDissectQcdiag:
         # cannot convert times after the year 3000 to a date.
         if sys.platform != 'win32':
             assert outs[0].splitlines()[1].split('\t')[1].split()[2] == '13129'
+
+
+class TestDissectQcdiagLog:
+    '''QCDIAG LOG items (Get Log responses of QCDIAG over GSMTAP, UDP 4729)
+    from the synthetic capture qcdiag_log_coverage.pcap.gz: the WCDMA, GSM,
+    UMTS, LTE and NR log codes that are decoded and handed to GSMTAP, RRC,
+    NAS and RLC dissectors, and the reproducers of the fixes for the
+    leaked tvbuffs, the packet time that was overwritten with the device
+    time, and the WCDMA RRC subtype.'''
+
+    CAP = 'qcdiag_log_coverage.pcap.gz'
+    NFRAMES = 289
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectQcdiagLog.CAP), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+
+    def test_qcdiag_log_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-288 are QCDIAG, frame 289 a plain UDP packet. There are no
+        malformed packets and no error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'qcdiag', '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == self.NFRAMES - 1
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+
+    def test_qcdiag_log_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocols the log items are handed to, by count: UMTS RRC,
+        LAPDm and GSM RLC/MAC, LTE and NR RRC, LTE NAS (GSMTAP) and NR NAS.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protos = stdout.splitlines()
+        assert len(protos) == self.NFRAMES
+        counts = {p: protos.count(p) for p in set(protos)}
+        assert counts['RRC'] == 31
+        assert counts['LAPDm'] == 10
+        assert counts['GSM RLC/MAC'] == 8
+        assert counts['GSMTAP/NAS-EPS'] == 19
+        assert counts['QCDIAG/NAS-5GS'] == 7
+        assert counts['NR RRC'] == 49
+        assert sum(n for p, n in counts.items() if p.startswith('LTE RRC')) == 76
+        assert counts['LTE RRC BCCH_BCH'] == 10
+        assert counts['LTE RRC UL_DCCH_NB'] == 2
+
+    def test_qcdiag_log_wcdma_rrc_subtype(self, cmd_tshark, capture_file, test_env):
+        '''The GSMTAP UMTS RRC subtype follows the WCDMA RRC channel type
+        (frames 7-15, and the reproducer of channel types 0, 2 and 3 in
+        frames 35-37). The code stored the comparison result (always 1)
+        for the first channel type map, so every channel type was decoded as
+        UL-DCCH.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 7 && frame.number <= 37',
+                '-Tfields', '-eframe.number', '-egsmtap.rrc_sub_type')
+        subs = dict(l.split('\t') for l in stdout.splitlines())
+        assert [subs[str(n)] for n in range(7, 16)] == ['3', '1', '2', '0', '8', '7', '4', '9', '10']
+        assert [subs[str(n)] for n in (35, 36, 37)] == ['3', '2', '0']
+        assert subs['34'] == '255'
+
+    def test_qcdiag_log_frame_time(self, cmd_tshark, capture_file, test_env):
+        '''The QCDIAG LOG time stamp is shown as a field (frames 285-287,
+        also a huge value) and is not written into the frame time: the
+        relative and delta times are the one second steps of the capture,
+        in one and two passes. Before the fix the first pass differed
+        from -2.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number >= 285 && frame.number <= 289',
+                    '-Tfields', '-eframe.number', '-eframe.time_relative',
+                    '-eframe.time_delta', passes=passes)
+            rows = [l.replace(',', '.').split('\t') for l in stdout.splitlines()]
+            assert [float(r[1]) for r in rows] == [284.0, 285.0, 286.0, 287.0, 288.0]
+            assert [float(r[2]) for r in rows] == [1.0] * 5
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+        if sys.platform == 'win32':
+            # Windows cannot convert times after the year 3000 to a date.
+            return
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 286', '-Tfields', '-eqcdiag_log.ts')
+        assert stdout.split()[2] == '13129'
+
+    def test_qcdiag_log_rlc_over_udp(self, cmd_tshark, capture_file, test_env):
+        '''The RLC PDUs of the WCDMA RLC log items are handed to UDP; the "RLC
+        over UDP" heuristic dissector is disabled by default, so they are
+        UDP data (frames 51, 54), and so is an unrelated UDP packet that
+        starts with "umts-rlc" (frame 289) after such a log item (frame 288).
+        With the heuristic enabled they are decoded as RLC.'''
+        flt = 'frame.number in {51, 54, 288, 289}'
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', flt, '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert stdout.splitlines() == ['51\tUDP', '54\tUDP', '288\tUDP', '289\tUDP']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', flt, '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '--enable-heuristic', 'rlc_udp')
+        assert stdout.splitlines() == ['51\tRLC', '54\tRLC', '288\tRLC', '289\tRLC']
+
+    def test_qcdiag_log_fields(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: cell reselection ranking, cell id, ciphering,
+        frequency scan and the LTE and NR RRC headers.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 3, 4}', '-Tfields',
+                '-eqcdiag_log.wcdma_crr.num_3g', '-eqcdiag_log.wcdma_crr.num_2g',
+                '-eqcdiag_log.wcdma_crr.psc_3g', '-eqcdiag_log.wcdma_crr.rscp_3g',
+                '-eqcdiag_log.wcdma_crr.arfcn_2g')
+        assert stdout.splitlines() == ['2\t1\t100,101\t59,69\t33'] * 3
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'qcdiag_log.wcdma_cid.mcc', '-Tfields', '-eframe.number',
+                '-eqcdiag_log.wcdma_cid.mcc', '-eqcdiag_log.wcdma_cid.mnc')
+        assert stdout.splitlines() == ['47\t240\t01', '48\t310\t410', '49\t262\t07',
+                                       '50\t28305\t28305']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {56, 57}', '-Tfields',
+                '-eqcdiag_log.wcdma_rlc.lcid', '-eqcdiag_log.wcdma_rlc.ciph_countc')
+        assert stdout.splitlines() == ['1,2\t0x00000064,0x00000065',
+                                       '1,2,3\t0x000000c8,0x000000c9,0x000000ca']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {59, 60}', '-Tfields',
+                '-eqcdiag_log.wcdma_freq_scan.arfcn',
+                '-eqcdiag_log.wcdma_freq_scan.rssi_raw', '-eqcdiag_log.wcdma_freq_scan.rssi_dbm')
+        assert stdout.splitlines() == ['10663,10688\t100,150\t-65,-41', '10663\t\t-72']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {92, 93, 94}', '-Tfields', '-eqcdiag_log.lte_rrc.pdu',
+                '-eqcdiag_log.lte_rrc.earfcn', '-eqcdiag_log.lte_rrc.sfn',
+                '-eqcdiag_log.lte_rrc_rel', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '5\t1300\t4660\t9.2.0\tRRCConnectionReestablishment',
+            '1\t1300\t4660\t9.2.0\tMasterInformationBlock (SFN=0)',
+            '2\t1300\t4660\t9.2.0\tSystemInformation [ SIB2 ]']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {201, 260}', '-Tfields', '-eqcdiag_log.nr_rrc.ncgi',
+                '-eqcdiag_log.nr_rrc.arfcn', '-eqcdiag_log.nr_rrc_rel')
+        assert stdout.splitlines() == ['\t632628\t15.2.0', '4886718345\t632628\t15.2.0']
