@@ -120647,3 +120647,31 @@ class TestDissectPtpip:
                 '-Y', 'frame.number in {28, 29}', '-Tfields', '-eframe.number',
                 '-eptpip.opcode', '-eptpip.respcode')
         assert rows == [['28', '0x0001', ''], ['29', '', '0x0001']]
+
+
+class TestDissectPulse:
+    '''PULSE heartbeats (UDP 539) from the synthetic capture
+    pulse_coverage.pcap.gz.'''
+
+    def test_pulse_frames(self, cmd_tshark, capture_file, test_env):
+        '''Six frames decode as PULSE in both byte orders, with and
+        without trailing bytes; a 3 byte datagram and an unknown magic
+        are left to UDP. No malformed packets or errors in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pulse_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.col.info', '-epulse.magic',
+                    '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert stdout.splitlines() == [
+                '1\tPULSE\trunning\t0xbdaddbda\t',
+                '2\tPULSE\tstopped\t0xadbddabd\t',
+                '3\tPULSE\trunning\t0xbdaddbda\t',
+                '4\tPULSE\tstopped\t0xadbddabd\t',
+                '5\tPULSE\trunning\t0xbdaddbda\t',
+                '6\tPULSE\tstopped\t0xadbddabd\t',
+                '7\tUDP\t539 → 539 Len=3\t\t',
+                '8\tUDP\t539 → 539 Len=4\t\t',
+            ]
