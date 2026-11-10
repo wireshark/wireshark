@@ -268,6 +268,12 @@ typedef struct {
 	wmem_tree_t* pdus;
 } egfx_pdu_info_t;
 
+/* Decompressed ZGFX data of one PDU, kept for later passes. */
+typedef struct {
+	const uint8_t *data;
+	unsigned len;
+} egfx_zgfx_data_t;
+
 typedef struct {
 	int startNum;
 	int endNum;
@@ -374,7 +380,12 @@ dissect_rdp_egfx_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
 			return offset;
 		}
 
-		int nextOffset = offset + (pduLength - 8);
+		if (pduLength - 8 > tvb_reported_length_remaining(tvb, offset)) {
+			expert_add_info_format(pinfo, item, &ei_egfx_pdulen_invalid, "pduLength is %u, larger than the remaining data", pduLength);
+			return tvb_captured_length(tvb);
+		}
+
+		unsigned nextOffset = offset + (pduLength - 8);
 		switch (cmdId) {
 		case RDPGFX_CMDID_CAPSADVERTISE: {
 			uint16_t capsSetCount = tvb_get_uint16(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -829,12 +840,19 @@ dissect_rdp_egfx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, voi
 		if (!PINFO_FD_VISITED(pinfo)) {
 			work_tvb = rdp8_decompress(infos->zgfx, wmem_file_scope(), tvb, 0);
 			if (work_tvb) {
-				//printf("%d: zgfx sz=%d\n", pinfo->num, tvb_captured_length(work_tvb));
-				wmem_tree_insert32(pdu_infos->pdus, hash, work_tvb);
+				/* The tvb is freed with this packet; keep its (file scope)
+				   data for later passes. */
+				egfx_zgfx_data_t *zdata = wmem_new(wmem_file_scope(), egfx_zgfx_data_t);
+				tvb_set_child_real_data_tvbuff(tvb, work_tvb);
+				zdata->len = tvb_captured_length(work_tvb);
+				zdata->data = zdata->len ? tvb_get_ptr(work_tvb, 0, zdata->len) : NULL;
+				wmem_tree_insert32(pdu_infos->pdus, hash, zdata);
 			}
 		} else {
+			egfx_zgfx_data_t *zdata;
 			pdu_infos = p_get_proto_data(wmem_file_scope(), pinfo, proto_rdp_egfx, EGFX_PDU_KEY);
-			work_tvb = wmem_tree_lookup32(pdu_infos->pdus, hash);
+			zdata = wmem_tree_lookup32(pdu_infos->pdus, hash);
+			work_tvb = zdata ? tvb_new_child_real_data(tvb, zdata->data, zdata->len, zdata->len) : NULL;
 		}
 
 		if (work_tvb)
