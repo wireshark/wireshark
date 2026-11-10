@@ -128235,3 +128235,126 @@ class TestDissectRpc:
         assert [(r[0], r[1], r[2]) for r in rows] == [
             ('Portmap(100000)', '2', '39'), ('NFS(100003)', '3', '19'),
             ('NFS(100003)', '4', '3'), ('NFS(100003)', '9', '1')]
+
+
+class TestDissectRpcrdma:
+    '''RPC-over-RDMA (RFC 8166) from the synthetic capture
+    rpcrdma_coverage.pcapng.gz: RoCEv2 (set up with the InfiniBand
+    connection manager) and iWARP (MPA/DDP/RDMAP over TCP, found by the
+    heuristics), carrying NFS v3, plus Exported PDU frames that reach the
+    "rpcordma" dissector directly.'''
+
+    @staticmethod
+    def info(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rpcrdma_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_rpcrdma_protocols(self, cmd_tshark, capture_file, test_env):
+        '''102 frames; no malformed frame and no error expert info, in one
+        and two passes (the same protocol columns in both).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpcrdma_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 102
+            assert protocols.count('RPCoRDMA') == 14
+            assert protocols.count('NFS') == 37
+            assert protocols.count('RRoCE') == 31
+            assert protocols.count('DDP/RDMA') == 15
+            assert protocols.count('MPA') == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpcrdma_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rpcrdma_message_types(self, cmd_tshark, capture_file, test_env):
+        '''RDMA_MSGP (2), RDMA_NOMSG (1), RDMA_DONE (3) and RDMA_ERROR (4)
+        with the error codes ERR_VERS (1), ERR_CHUNK (2) and an unknown one.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number >= 6 && frame.number <= 12 && rpcordma',
+                '-erpcordma.msg_type', '-erpcordma.errcode') == [
+            '6\t2\t', '7\t2\t', '8\t1\t', '9\t3\t', '10\t4\t1', '11\t4\t2', '12\t4\t9']
+
+    def test_rpcrdma_send_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''RDMA_MSG split over SEND_FIRST/MIDDLE/LAST (frames 16-18) and
+        SEND_FIRST/SEND_LAST_INVAL (19-20): the last frame holds the NFS
+        WRITE call.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {18, 20, 21}', '-e_ws.col.info') == [
+            '18\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 64 FILE_SYNC',
+            '20\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 11 FILE_SYNC',
+            '21\tV3 WRITE Reply (Call In 20) Len: 0 Stable: 11']
+
+    def test_rpcrdma_read_chunks(self, cmd_tshark, capture_file, test_env):
+        '''The reduced WRITE call announces a read chunk (position 72), the
+        RDMA read response completes the call: one READ_RESPONSE_ONLY (frame
+        24), first/middle/last (frame 30), a list of two chunks (frame 36).'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {22, 26, 32}', '-erpcordma.reads_count',
+                '-erpcordma.position') == ['22\t1\t72', '26\t1\t72', '32\t2\t72,80']
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {24, 30, 36}', '-e_ws.col.info') == [
+            '24\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 100 FILE_SYNC',
+            '30\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 150 FILE_SYNC',
+            '36\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 32 FILE_SYNC']
+
+    def test_rpcrdma_reply_chunks(self, cmd_tshark, capture_file, test_env):
+        '''The reply is written with RDMA writes (one packet in frame 47,
+        two in frames 50-51); the RDMA_NOMSG frame reassembles it (24 and
+        100 bytes) and shows the NFS reply (frames 48 and 52).'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {48, 52}', '-e_ws.col.info',
+                '-erpcordma.reassembled.length') == [
+            '48\tV3 NULL Reply (Call In 46)\t24', '52\tV3 NULL Reply (Call In 49)\t100']
+
+    def test_rpcrdma_position_zero_read_chunk(self, cmd_tshark, capture_file, test_env):
+        '''A read chunk at position 0 carries the whole call: frame 53 is
+        RDMA_NOMSG, the last read response (frame 56, with 2 padding
+        bytes) holds the NFS call.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {53, 56}', '-e_ws.col.info') == [
+            '53\tRDMA_NOMSG XID 0x14', '56\tV3 NULL Call']
+
+    def test_rpcrdma_stale_infiniband_info(self, cmd_tshark, capture_file, test_env):
+        '''Fix "RPCoRDMA: Do not use stale InfiniBand/iWARP info": RDMA_DONE
+        over RoCEv2 (frame 65) is followed by Exported PDU frames that reach
+        the "rpcordma" dissector without InfiniBand info (a read chunk at
+        position 4 in frame 66). Stack-use-after-return under ASAN before
+        the fix.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number >= 65 && frame.number <= 68',
+                '-e_ws.col.protocol', '-e_ws.col.info') == [
+            '65\tRPCoRDMA\tRDMA_DONE XID 0x9001',
+            '66\tRPCoRDMA\tRDMA_MSG XID 0x2',
+            '67\tRPCoRDMA\tRDMA_DONE XID 0x9002',
+            '68\tNFS\tV3 NULL Call']
+
+    def test_rpcrdma_iwarp(self, cmd_tshark, capture_file, test_env):
+        '''iWARP: SENDs in two and three DDP segments, a read chunk of 101
+        bytes in two read responses (the XDR padding is added by the
+        dissector) and of 100 bytes in one, a reply chunk.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {74, 75, 77, 80, 84, 85, 88, 98}', '-e_ws.col.info') == [
+            '74\tV3 NULL Call',
+            '75\tV3 NULL Reply (Call In 74)',
+            '77\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 60 FILE_SYNC',
+            '80\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 60 FILE_SYNC',
+            '84\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 101 FILE_SYNC',
+            '85\tV3 WRITE Reply (Call In 84) Len: 0 Stable: 101',
+            '88\tV3 WRITE Call, FH: 0x52642f5c Offset: 0 Len: 100 FILE_SYNC',
+            '98\tV3 NULL Reply (Call In 96)']
+
+    def test_rpcrdma_iwarp_unaligned_write(self, cmd_tshark, capture_file, test_env):
+        '''Fix "... fix a tvb leak": an iWARP write chunk of 5 bytes (frames
+        94-95): the padding fragment is added with a child tvb. A leak
+        under ASAN before the fix; here the call and the write decode.'''
+        assert self.info(cmd_tshark, capture_file, test_env,
+                'frame.number in {94, 95}', '-e_ws.col.protocol', '-e_ws.col.info') == [
+            '94\tNFS\tV3 READ Call, FH: 0x52642f5c Offset: 0 Len: 5',
+            '95\tDDP/RDMA\t20049 > 40000 Write [last DDP segment]']
