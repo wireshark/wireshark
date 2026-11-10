@@ -122246,3 +122246,53 @@ class TestDissectQnet6:
         stdout = self._run(cmd_tshark, capture_file, test_env,
                 '-Y', 'ip.proto == 106', '-Tfields', '-eframe.number', '-e_ws.col.protocol')
         assert stdout.splitlines() == ['52\tQNET_LR', '219\tQNET_KIF', '220\tQNET_KIF']
+
+
+class TestDissectQsig:
+    '''QSIG (and the Q.932 Facility IE and ROSE components that carry it)
+    from the synthetic capture qsig_coverage.pcap.gz: Q.931 messages in LAPD
+    frames (link type LINUX_LAPD). 864 frames: an invoke of every QSIG
+    operation (local and global opcodes), results, errors, rejects, and the
+    QSIG information elements of codesets 4 and 5. QSIG is the default
+    Q.932 facility encoding, so no preference is needed.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('qsig_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_qsig_protocols(self, cmd_tshark, capture_file, test_env):
+        '''864 frames, no malformed packets and no error expert infos in one
+        and two passes; the four undecoded operations are warnings.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 864
+        assert all(r[0].startswith('lapd:q931') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'q932.ros.undecoded', '-eframe.number')
+        assert len(rows) == 4
+
+    def test_qsig_operations(self, cmd_tshark, capture_file, test_env):
+        '''Local (frame 2) and global (frame 368) opcodes reach the same
+        operation (calledName, QSIG-NA); counts of operations and errors.'''
+        for f in ('2', '368'):
+            rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == ' + f,
+                    '-eqsig.operation', '-eqsig.service')
+            assert rows == [['1', '13868']]
+        for flt, n in (('qsig.operation', 689), ('qsig.error', 79), ('q932.pp == 0x11', 850)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', flt, '-eframe.number')
+            assert len(rows) == n
+
+    def test_qsig_information_elements(self, cmd_tshark, capture_file, test_env):
+        '''Transit counter (codeset 4) and party category (codeset 5) IEs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'qsig.tc || qsig.pc',
+                '-eframe.number', '-eqsig.tc', '-eqsig.pc')
+        d = {r[0]: r[1:] for r in rows}
+        assert len(rows) == 10
+        assert d['851'][0] == '1' and d['852'][0] == '5' and d['853'][0] == '31'
+        assert d['855'][1] == '0x00' and d['856'][1] == '0x01'
