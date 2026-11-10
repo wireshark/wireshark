@@ -17,6 +17,7 @@
 #include <epan/oui.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-q931.h"
 #include "packet-arp.h"
 #include "packet-osi.h"
@@ -151,6 +152,9 @@ static int ett_q2931_ie_ext;
 static int ett_q2931_nsap;
 
 static expert_field ei_q2931_atm_identifier;
+static expert_field ei_q2931_cause_too_deep;
+
+#define Q2931_MAX_CAUSE_NESTING 8
 static expert_field ei_q2931_aal_parameter_identifier;
 static expert_field ei_q2931_e2e_transit_delay_identifier;
 static expert_field ei_q2931_bband_sending_complete_id;
@@ -462,7 +466,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 	/*
 	 * Now get the rest of the IE.
 	 */
-	if (aal_type == 0x40) {
+	if (aal_type == Q2931_USER_DEFINED_AAL) {
 		/*
 		 * User-defined AAL.
 		 */
@@ -472,7 +476,7 @@ dissect_q2931_aal_parameters_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, i
 		return;
 	}
 
-	while (len >= 0) {
+	while (len > 0) {
 		ti = proto_tree_add_item_ret_uint8(tree, hf_q2931_aal_parameter_identifier, tvb, offset, 1, ENC_NA, &identifier);
 		offset++;
 		len--;
@@ -632,7 +636,7 @@ dissect_q2931_atm_cell_rate_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, in
 	uint32_t value;
 	proto_item* ti;
 
-	while (len >= 0) {
+	while (len > 0) {
 		ti = proto_tree_add_item_ret_uint8(tree, hf_q2931_atm_identifier, tvb, offset, 1, ENC_NA, &identifier);
 
 		switch (identifier) {
@@ -1134,6 +1138,7 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	uint8_t info_element;
 	uint8_t info_element_ext;
 	uint16_t info_element_len;
+	unsigned depth;
 
 	if (len == 0)
 		return;
@@ -1199,9 +1204,18 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 		info_element = tvb_get_uint8(tvb, offset);
 		info_element_ext = tvb_get_uint8(tvb, offset + 1);
 		info_element_len = tvb_get_ntohs(tvb, offset + 2);
-		// We recurse here, but we'll run out of packet before we run out of stack.
+		/* Bound the nesting of cause IEs per packet. */
+		depth = p_get_proto_depth(pinfo, proto_q2931);
+		if (depth >= Q2931_MAX_CAUSE_NESTING) {
+			proto_tree_add_expert_remaining(tree, pinfo, &ei_q2931_cause_too_deep, tvb, offset);
+			break;
+		}
+		p_set_proto_depth(pinfo, proto_q2931, depth + 1);
+		increment_dissection_depth(pinfo);
 		dissect_q2931_ie(tvb, pinfo, offset, info_element_len, tree,
 		    info_element, info_element_ext);
+		decrement_dissection_depth(pinfo);
+		p_set_proto_depth(pinfo, proto_q2931, depth);
 		break;
 
 	case Q2931_CAUSE_ACCESS_INFO_DISC:
@@ -1209,19 +1223,19 @@ dissect_q2931_cause_ie(tvbuff_t *tvb, packet_info* pinfo, int offset, int len,
 	case Q2931_CAUSE_MAND_IE_MISSING:
 	case Q2931_CAUSE_IE_NONEX_OR_UNIMPL:
 	case Q2931_CAUSE_INVALID_IE_CONTENTS:
-		do {
+		while (len > 0) {
 			proto_tree_add_item(tree, hf_q2931_cause_information_element, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
-		} while (len >= 0);
+		}
 		break;
 
 	case Q2931_CAUSE_CELL_RATE_UNAVAIL:
-		do {
+		while (len > 0) {
 			proto_tree_add_item(tree, hf_q2931_cause_cell_rate_subfield_identifier, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			len -= 1;
-		} while (len >= 0);
+		}
 		break;
 
 	case Q2931_CAUSE_CHAN_NONEXISTENT:
@@ -1558,7 +1572,7 @@ dissect_q2931_bband_sending_compl_ie(tvbuff_t *tvb, packet_info* pinfo, int offs
 	uint8_t identifier;
 	proto_item* ti;
 
-	while (len >= 0) {
+	while (len > 0) {
 		ti = proto_tree_add_item(tree, hf_q2931_bband_sending_complete_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		identifier = tvb_get_uint8(tvb, offset);
 		switch (identifier) {
@@ -2533,6 +2547,7 @@ proto_register_q2931(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_q2931_cause_too_deep, { "q2931.cause.too_deep", PI_PROTOCOL, PI_WARN, "Cause information elements nested too deeply", EXPFILL }},
 		{ &ei_q2931_atm_identifier, { "q2931.atm_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown ATM traffic descriptor element", EXPFILL }},
 		{ &ei_q2931_aal_parameter_identifier, { "q2931.aal.parameter_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown AAL parameter", EXPFILL }},
 		{ &ei_q2931_e2e_transit_delay_identifier, { "q2931.transit_delay.parameter_identifier.unknown", PI_PROTOCOL, PI_WARN, "Unknown transit delay identifier", EXPFILL }},
