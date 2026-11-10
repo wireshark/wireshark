@@ -113411,3 +113411,89 @@ class TestDissectOpus:
             '52\t3\tAdditional padding bytes MUST be set to zero by the encoder',
             '57\t4\t',
         ]
+
+
+class TestDissectOranCoverage:
+    '''Supplementary O-RAN FH CUS capture for the per-section state change
+    (a section no longer holds a 273-entry beamId array), the section reMask
+    initialisation and the SE 27 text and tree.'''
+
+    @staticmethod
+    def run_tshark(cmd_tshark, capture, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                                       encoding='utf-8', env=test_env)
+
+    def test_oran_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts, and no malformed packets or warnings in one and
+        two passes.'''
+        cap = capture_file('oran_fixes_coverage.pcap.gz')
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 11
+        assert protocols.count('O-RAN-FH-C') == 8
+        assert protocols.count('O-RAN-FH-U') == 3
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_oran_coverage_se27(self, cmd_tshark, capture_file, test_env):
+        '''SE 27: numElements 0 means 256 and is shown with the closing
+        parenthesis, and the beamIds are in the extension subtree.'''
+        cap = capture_file('oran_fixes_coverage.pcap.gz')
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 3',
+                                 '-V', '-O', 'oran_fh_cus')
+        assert 'numElements: 0 (256)' in stdout
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 3',
+                                 '-Tfields', '-eoran_fh_cus.beamId')
+        beam_ids = stdout.strip().split(',')
+        assert beam_ids.count('1000') == 1 and beam_ids.count('1255') == 1
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 4',
+                                 '-V', '-O', 'oran_fh_cus')
+        lines = stdout.splitlines()
+        indent = lambda text: next(len(l) - len(l.lstrip()) for l in lines if text in l)
+        # The beamIds are siblings of numElements (the extension subtree), not
+        # in the section subtree above it
+        assert indent('Beam ID: 2000') == indent('numElements: 3')
+        assert indent('Beam ID: 3000') == indent('beamType: Range of beamId values')
+
+    def test_oran_coverage_section_state(self, cmd_tshark, capture_file, test_env):
+        '''A section redefined by a later C-plane message: the U-plane frame
+        shows the beamId of the new definition, not the SE 11 bundle beams.'''
+        cap = capture_file('oran_fixes_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, cap, test_env, *passes,
+                    '-Y', 'frame.number == 7', '-V', '-O', 'oran_fh_cus')
+            assert stdout.count('[BeamId:11]') == 4
+            assert '[BeamId:9]' not in stdout and '[BeamId:130]' not in stdout
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-Y', 'frame.number == 5',
+                                 '-Tfields', '-eoran_fh_cus.beamId')
+        assert stdout.split() == ['9,130,131']
+
+    def test_oran_coverage_many_sections(self, cmd_tshark, capture_file, test_env):
+        '''C-plane and U-plane frames with 255 sections each dissect in
+        both passes; the U-plane frames link to the C-plane.'''
+        cap = capture_file('oran_fixes_coverage.pcap.gz')
+        stdout = self.run_tshark(cmd_tshark, cap, test_env, '-2', '-Y', 'frame.number >= 8',
+                                 '-Tfields', '-eframe.number', '-eoran_fh_cus.sectionId')
+        for line in stdout.splitlines():
+            frame, ids = line.split('\t')
+            assert len(ids.split(',')) == 255, frame
+
+    # Two frames (pcap): an ST1 section with reMask 0x5a5, then an ST6 section with SE 5
+    ST6_SE5_PCAP = bytes.fromhex(
+        'd4c3b2a1020004000000000000000000ffff00000100000000f153651400000026000000260000000200000000020200'
+        '00000001aefe10020014200100809001000001010000001000015a51000300f15365280000003e0000003e0000000200'
+        '00000002020000000001aefe1002002c20010180900100400106012283e9010000000102d872d872d872d872d872d872'
+        'd872d8720502fff080000000')
+
+    def test_oran_coverage_st6_se5_remask(self, cmd_tshark, test_env, tmp_path):
+        '''SE 5 in an ST6 section (which has no section reMask) after an ST1
+        section with reMask 0x5a5: the reMask checks must not use a stale
+        value from the earlier frame.'''
+        capture = tmp_path / 'st6_se5.pcap'
+        capture.write_bytes(self.ST6_SE5_PCAP)
+        stdout = self.run_tshark(cmd_tshark, str(capture), test_env, '-V', '-O', 'oran_fh_cus')
+        assert 'section reMask' not in stdout
+        assert 'should not appear in ST 6' in stdout
