@@ -118232,3 +118232,49 @@ class TestDissectPktc:
                 '-Tfields', '-epktc.mtafqdn.manu_cert_revoked',
             ), encoding='utf-8', env=env)
         assert stdout.split() == ['2020-07-04T04:05:20.000000000+0000', '2106-02-07T06:28:15.000000000+0000']
+
+
+class TestDissectPktgen:
+    def test_pktgen_clean(self, cmd_tshark, capture_file, test_env):
+        '''11 frames, none malformed or with an error expert info, in one
+        and in two passes, and the same Info column in both.'''
+        cap = capture_file('pktgen_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) == 11
+
+    def test_pktgen_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic accepts packets with the magic number and at least
+        16 octets of UDP payload; the others stay UDP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktgen_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-epktgen.seqnum',
+                '-epktgen.tvusec',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == ['PKTGEN'] * 7 + ['UDP'] * 3 + ['PKTGEN']
+        assert [l[2] for l in lines[:7]] == ['1', '2', '3', '4', '4294967295', '6', '7']
+        assert [l[3] for l in lines[:7]] == ['250000', '250000', '0', '999999', '1', '1000000', '4294967295']
+
+    def test_pktgen_usec_out_of_range(self, cmd_tshark, capture_file, test_env):
+        '''A microseconds value of 1000000 or more is reported and the
+        timestamp item is left out (before the fix it was multiplied
+        into a negative nanoseconds value).'''
+        cap = capture_file('pktgen_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'pktgen.usec_invalid', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6', '7']
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'pktgen && !pktgen.timestamp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['6', '7']
