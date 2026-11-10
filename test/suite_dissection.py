@@ -129413,3 +129413,52 @@ class TestDissectRtacser:
                 '-emodbus.func_code',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['23\t1\t3', '25\t1\t3', '27\t2\t6', '29\t0\t1']
+
+
+class TestDissectRtag:
+    '''IEEE 802.1CB R-TAG (ethertype 0xf1c1) from the synthetic capture
+    rtag_coverage.pcap.gz. The ethertype is claimed by packet-rtag.c, not
+    by packet-ieee8021cb.c, which is registered earlier.'''
+
+    def test_rtag_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 13 frames have an R-TAG layer, none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtag_coverage.pcap.gz'),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert all(p.startswith('eth:ethertype:rtag:') for p in protocols)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtag_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_rtag_fields(self, cmd_tshark, capture_file, test_env):
+        '''Sequence numbers, reserved field, encapsulated ethertype and the
+        Info column of the encapsulated protocol; a nested R-TAG (frame 8)
+        and an Ethernet trailer after the IPv4 datagram (frames 11, 12).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtag_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ertag.seqno', '-ertag.reserved',
+                '-ertag.protocol', '-ertag.trailer', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t0x0000\t0x0800\t\tUDP',
+            '2\t1\t0x0000\t0x0800\t\tUDP',
+            '3\t65535\t0x0000\t0x0800\t\tUDP',
+            '4\t2\t0x1234\t0x0800\t\tUDP',
+            '5\t3\t0x0000\t0x0806\t\tARP',
+            '6\t4\t0x0000\t0x86dd\t\tUDP',
+            '7\t5\t0x0000\t0x8100\t\tUDP',
+            '8\t6,7\t0x0000,0x0000\t0xf1c1,0x0800\t\tUDP',
+            '9\t8\t0x0000\t0x88b5\t\t0x88b5',
+            '10\t9\t0x0000\t0x0800\t\tUDP',
+            '11\t10\t0x0000\t0x0800\t00000000000000000000\tUDP',
+            '12\t11\t0x0000\t0x0800\tdeadbeef01020304\tUDP',
+            '13\t12\t0x0000\t0x0800\t\tICMP',
+        ]
