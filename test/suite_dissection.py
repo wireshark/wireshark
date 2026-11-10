@@ -122490,3 +122490,103 @@ class TestDissectQuake2:
                 'frame.number >= 25 && frame.number <= 48',
                 'quake2.game.server.command')
         assert [l.split('\t')[1] for l in out] == [str(i) for i in range(22)] + ['6', '20']
+
+
+class TestDissectQuake3:
+    '''Quake III Arena over UDP 27960-27963 (servers) and 27950-27953
+    (master), from the synthetic capture quake3_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('quake3_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_quake3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 34 frames decode as QUAKE3 without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('quake3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['QUAKE3'] * 34
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_quake3_server_commands(self, cmd_tshark, capture_file, test_env):
+        '''Connectionless commands to and from a server, on the first and
+        the last of the four server ports, and an unknown command.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 14', '_ws.col.info', 'quake3.connectionless.command')
+        assert out == [
+            '1\tConnectionless Client to Server\tRequest Status',
+            '2\tConnectionless Server to Client\tReply Status',
+            '3\tConnectionless Client to Server\tRequest Info',
+            '4\tConnectionless Server to Client\tReply Info',
+            '5\tConnectionless Client to Server\tRequest Challenge',
+            '6\tConnectionless Server to Client\tReply Challenge',
+            '7\tConnectionless Client to Server\tRequest Connect',
+            '8\tConnectionless Server to Client\tReply Connect',
+            '9\tConnectionless Client to Server\tRequest Remote Command',
+            '10\tConnectionless Server to Client\tReply Remote Command',
+            '11\tConnectionless Unknown\tUnknown',
+            '12\tConnectionless Unknown\tUnknown',
+            '13\tConnectionless Client to Server\tRequest Status',
+            '14\tConnectionless Server to Client\tReply Status',
+        ]
+
+    def test_quake3_master_commands(self, cmd_tshark, capture_file, test_env):
+        '''Master server commands, also on master ports 27951 and 27953.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 15 && frame.number <= 26',
+                '_ws.col.info', 'quake3.connectionless.command')
+        assert [l.split('\t', 1)[1] for l in out] == [
+            'Connectionless Client to Master\tRequest Motto of the Day',
+            'Connectionless Master to Client\tReply Motto of the Day',
+            'Connectionless Client to Master\tRequest Servers',
+            'Connectionless Master to Client\tReply Servers',
+            'Connectionless Master to Client\tReply Servers',
+            'Connectionless Master to Client\tReply Servers',
+            'Connectionless Client to Master\tRequest Key Authorization',
+            'Connectionless Client to Master\tRequest IP Authorization',
+            'Connectionless Master to Client\tReply IP Authorization',
+            'Connectionless Client to Master\tRequest Servers',
+            'Connectionless Client to Master\tRequest Motto of the Day',
+            'Connectionless Master to Client\tReply IP Authorization',
+        ]
+
+    def test_quake3_server_list(self, cmd_tshark, capture_file, test_env):
+        '''getserversResponse: the address and port of each 7 octet
+        entry; a tail shorter than an entry is ignored. The "\\EOT" end
+        marker is shown as one more entry.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {18, 19, 20}', 'quake3.server.addr',
+                'quake3.server.port')
+        assert out == [
+            '18\t192.0.2.20,192.0.2.21,198.51.100.7,69.79.84.0\t27960,27961,27960,0',
+            '19\t\t',
+            '20\t192.0.2.22\t27962',
+        ]
+
+    def test_quake3_game(self, cmd_tshark, capture_file, test_env):
+        '''Game packets: 16 bit sequence numbers with the reliable bit,
+        the qport only from the client, the direction from the port: only the base server port (27960)
+        is client to server, a packet to 27962 counts as server to client.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 27', '_ws.col.info', 'quake3.game.seq1',
+                'quake3.game.rel1', 'quake3.game.seq2', 'quake3.game.rel2',
+                'quake3.game.qport', 'data.len')
+        assert out == [
+            '27\tGame Client to Server\t1\tFalse\t0\tFalse\t4660\t',
+            '28\tGame Client to Server\t2\tTrue\t1\tFalse\t4660\t4',
+            '29\tGame Client to Server\t3\tFalse\t2\tTrue\t4660\t8',
+            '30\tGame Server to Client\t1\tFalse\t0\tFalse\t\t',
+            '31\tGame Server to Client\t2\tTrue\t1\tFalse\t\t3',
+            '32\tGame Server to Client\t32767\tFalse\t32767\tFalse\t\t3',
+            '33\tGame Server to Client\t32767\tTrue\t32766\tTrue\t\t3',
+            '34\tGame Server to Client\t2\tFalse\t1\tFalse\t\t4',
+        ]
