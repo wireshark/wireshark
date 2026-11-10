@@ -122091,3 +122091,59 @@ class TestDissectQcdiagLog:
                 '-Y', 'frame.number in {201, 260}', '-Tfields', '-eqcdiag_log.nr_rrc.ncgi',
                 '-eqcdiag_log.nr_rrc.arfcn', '-eqcdiag_log.nr_rrc_rel')
         assert stdout.splitlines() == ['\t632628\t15.2.0', '4886718345\t632628\t15.2.0']
+
+
+class TestDissectQllc:
+    '''QLLC (packet-qllc.c) from the synthetic capture qllc_coverage.pcap.gz:
+    X.25 over XOT (TCP 1998) with two virtual circuits carrying QLLC (Q bit
+    set) and SNA (Q bit clear). QLLC is only called when the X.25
+    preference x25.payload_is_qllc_sna is on, so every run passes it
+    (QLLC_OPTS). 55 frames.'''
+
+    QLLC_OPTS = ('-o', 'x25.payload_is_qllc_sna:TRUE')
+
+    def _fields(self, cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *self.QLLC_OPTS,
+                '-r', capture_file('qllc_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_qllc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''55 frames: 40 QLLC, 5 SNA, 7 X.25 and 3 TCP, without malformed
+        packets or error expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 55
+        protocols = [r[0] for r in rows]
+        assert protocols.count('QLLC') == 40
+        assert protocols.count('SNA') == 5
+        assert protocols.count('X.25') == 7
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+
+    def test_qllc_without_preference(self, cmd_tshark, capture_file, test_env):
+        '''Without the preference the Q bit data is not QLLC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('qllc_coverage.pcap.gz'), '-Y', 'qllc', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert stdout.strip() == ''
+
+    def test_qllc_control_fields(self, cmd_tshark, capture_file, test_env):
+        '''The control field names: QDISC (command, address 0xff) and QRD
+        (response) share a value; QRR with the address 0xff is not a
+        command; unknown values are shown in the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'qllc', '-eframe.number',
+                '-e_ws.col.info', '-eqllc.address', '-eqllc.control')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['10'] == ['QSIM', '0xff', '0x17']
+        assert d['13'] == ['QSM', '0xff', '0x93']
+        assert d['16'] == ['QRR', '0xff', '0xf1']
+        assert d['18'] == ['QDISC', '0xff', '0x53']
+        assert d['29'] == ['QRD', '0x01', '0x53']
+        assert d['31'] == ['QUI - reply required', '0x00', '0x13']
+        assert d['37'] == ['QXID', '0x00', '0xbf']
+        assert d['41'] == ['Control Field: 0x01 (unknown)', '0xff', '0x01']
+        assert d['46'] == ['QRR', '0xff', '0xf1']
