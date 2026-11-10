@@ -128670,3 +128670,46 @@ class TestDissectRrcCoverage:
                     'rrc.SysInfoType1_element'):
             lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
             assert count_output('\n'.join(lines)) >= 1, flt
+
+
+class TestDissectRrlpCoverage:
+    '''Synthetic RRLP capture (Exported PDU, dissector name rrlp): every
+    RRLP component (MsrPosition, assistance data, protocol error and the
+    later releases) with random values.'''
+    CAPTURE = 'rrlp_coverage.pcapng.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rrlp_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_rrlp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''760 Exported PDU frames, all dissected as RRLP, no malformed
+        packets or error expert infos in one and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rrlp', '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['RRLP'] * 760
+        assert len(self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')) == 760
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_rrlp_components(self, cmd_tshark, capture_file, test_env):
+        '''All ten RRLP component alternatives are present (those of the
+        later releases after the extension marker).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rrlp', '-Tfields', '-errlp.component')
+        assert set(lines) >= {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'}
+
+    def test_rrlp_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The RRLP tree is the same in one and two passes.'''
+        args = ('-Y', 'rrlp', '-V')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 100000
+        assert one == two
+
+    def test_rrlp_geographical_description(self, cmd_tshark, capture_file, test_env):
+        '''Ext-GeographicalInformation is decoded as a geographical
+        description (shape, latitude and longitude).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'gsm_a.gad.sign_of_latitude', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) >= 1
