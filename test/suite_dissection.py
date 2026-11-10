@@ -118073,3 +118073,85 @@ class TestDissectPkixtsp:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkixtsp.pki_status',
                            '-eframe.number', '-epkixtsp.pki_status')
         assert out == ['3\t0', '4\t0', '5\t2', '6\t2', '7\t1']
+
+
+class TestDissectPktap:
+    @staticmethod
+    def make_pcap(path, packets):
+        '''Write the packets (LINKTYPE_PKTAP, 258) to a pcap file.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 258))
+            for i, p in enumerate(packets):
+                f.write(struct.pack('<IIII', 1 + i, 0, len(p), len(p)))
+                f.write(p)
+
+    @staticmethod
+    def header(dlt=1, rectype=1, hdrlen=108):
+        return struct.pack('<III', hdrlen, rectype, dlt) + bytes(hdrlen - 12)
+
+    def test_pktap_clean(self, cmd_tshark, capture_file, test_env):
+        '''12 frames, none malformed or with an error expert info, in one
+        and in two passes, and the same Info column in both.'''
+        cap = capture_file('pktap_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) == 12
+
+    def test_pktap_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''The fixed header fields of the frames, the DLT of the payload and
+        the dissector the payload goes to.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-epktap.hdrlen', '-epktap.rectype',
+                '-epktap.dlt', '-epktap.ifname', '-epktap.pid', '-epktap.cmdname',
+                '-epktap.epid', '-epktap.ecmdname', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '108', '1', '1', 'en0', '1234', 'curl', '4321', 'effective', 'DISCARD']
+        assert lines[2][:5] == ['3', '108', '1', '0', 'en0']
+        assert lines[3][3:5] == ['12', 'utun0']
+        assert lines[4][3:5] == ['101', 'utun1']
+        assert lines[5][:4] == ['6', '108', '0', '1']      # record type 0: nothing follows
+        assert lines[5][9] == 'PKTAP'
+        assert lines[6][2] == '2'
+        assert lines[7][1] == '124'                         # extended header: payload follows it
+        assert lines[7][9] == 'DISCARD'
+        assert lines[9][4] == 'abcdefghijklmnopqrstuvw'
+
+    def test_pktap_nested(self, cmd_tshark, capture_file, test_env):
+        '''A PKTAP header inside a PKTAP header is dissected twice.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9',
+                '-Tfields', '-epktap.ifname', '-epktap.dlt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'outer,inner\t258,1'
+
+    def test_pktap_header_length_too_short(self, cmd_tshark, result_file, test_env):
+        '''A header length below the minimum of 108 is reported.'''
+        pcap = result_file('pktap_short_header.pcap')
+        self.make_pcap(pcap, [struct.pack('<III', 107, 1, 1) + bytes(104)])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Y', 'pktap.hdrlen_too_short', '-Tfields', '-epktap.hdrlen',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '107'
+
+    def test_pktap_nesting_limit(self, cmd_tshark, result_file, test_env):
+        '''PKTAP headers nested without end are stopped by the nesting limit
+        of pcap_pktdata instead of the dissector layer limit (which asserted
+        before the fix).'''
+        pcap = result_file('pktap_recursion.pcap')
+        self.make_pcap(pcap, [self.header(dlt=258) * 40])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Y', 'pcap_pktdata.nesting_too_deep', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1'
