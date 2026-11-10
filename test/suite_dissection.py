@@ -122957,3 +122957,254 @@ class TestDissectR09:
                 'frame.number >= 17 && frame.number <= 20 && r09') == []
         assert len(self.fields(cmd_tshark, capture_file, test_env,
                 'frame.number >= 14 && frame.number <= 16 && r09')) == 3
+
+
+class TestDissectRadius:
+    # The main capture: no malformed frames; the fix reproducers that end in
+    # an expert info are in the second capture.
+    CAP = 'radius_coverage.pcap.gz'
+    CAP_BAD = 'radius_coverage_malformed.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, *args):
+        '''Run tshark -Tfields on a capture and return the lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(name), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_radius_protocols(self, cmd_tshark, capture_file, test_env):
+        '''UDP, TCP (with reassembly) and ICMP error carriers; the 3 UDP
+        frames with a bad length or an unknown code are not RADIUS.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 80
+        assert lines.count('RADIUS') == 70
+        assert lines.count('ICMP') == 2
+        assert lines.count('UDP') == 3
+        assert lines.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || radius.invalid_length',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_radius_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The RADIUS frames give the same columns in one and two passes
+        (the conversation and duplicate detection is kept per file). The
+        link from a request to its response (radius.rspframe) is only
+        known in the second pass, so it is left out.'''
+        args = ('-Y', 'radius && !tcp', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eradius.reqframe', '-eradius.dup', '-eradius.req.dup',
+                '-eradius.rsp.dup', '-e_ws.expert.message')
+        one = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, self.CAP, '-2', *args)
+        assert one == two
+        assert len(one) == 68
+
+    def test_radius_conversations(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by identifier and by the
+        client address and port; duplicates are marked.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number <= 15 || frame.number in {19,20,37,38,70,71}',
+                '-Tfields', '-eframe.number', '-eradius.reqframe', '-eradius.rspframe',
+                '-eradius.dup', '-eradius.req.dup', '-eradius.rsp.dup')
+        rows = [tuple(l.split('\t')) for l in lines]
+        assert rows[0] == ('1', '', '', '', '', '')
+        assert rows[1] == ('2', '1', '', '', '', '')        # Access-Accept answers frame 1
+        assert rows[3] == ('4', '3', '', '', '', '')        # Access-Reject answers frame 3
+        assert rows[5] == ('6', '', '', '3', '5', '')       # duplicate Access-Request
+        assert rows[7] == ('8', '5', '', '3', '', '7')      # duplicate Access-Challenge
+        assert rows[8] == ('9', '', '', '', '', '')         # no request from that address and port
+        assert rows[9] == ('10', '', '', '', '', '')        # request has another identifier
+        assert rows[11] == ('12', '11', '', '', '', '')     # Accounting-Response
+        assert rows[12] == ('13', '', '', '', '', '')       # same identifier again: a new call
+        assert rows[13] == ('14', '', '', '', '', '')       # response before its request
+        assert ('20', '19', '', '', '', '') in rows         # Password-Ack
+        assert ('38', '37', '', '', '', '') in rows         # Disconnect-ACK
+        # Frames in an ICMP error are not matched at all
+        assert ('70', '', '', '', '', '') in rows
+        assert ('71', '', '', '', '', '') in rows
+
+    def test_radius_codes(self, cmd_tshark, capture_file, test_env):
+        '''All request and response codes, with and without conversation
+        tracking.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'radius.code', '-Tfields', '-e_ws.col.info')
+        info = [l.split(' id=')[0] for l in lines if ' id=' in l]
+        for name in ('Access-Request', 'Access-Accept', 'Access-Reject', 'Access-Challenge',
+                     'Accounting-Request', 'Accounting-Response', 'Password-Request',
+                     'Password-Ack', 'Password-Reject', 'Resource-Free-Request',
+                     'Resource-Free-Response', 'Resource-Query-Request', 'Query_Response',
+                     'NAS-Reboot-Request', 'NAS-Reboot-Response', 'Event-Request',
+                     'Event-Response', 'ALU-State-Request', 'ALU-State-Accept',
+                     'ALU-State-Reject', 'ALU-State-Error', 'Disconnect-Request',
+                     'Disconnect-ACK', 'Disconnect-NAK', 'CoA-Request', 'CoA-ACK',
+                     'CoA-NAK', 'Accounting-Status', 'Accounting-Message', 'Status-Server',
+                     'Status-Client', 'Alternate-Resource-Reclaim-Request', 'Next-Passcode',
+                     'New-Pin', 'Terminate-Session', 'Password-Expired',
+                     'IP-Address-Allocate', 'IP-Address-Release'):
+            if name == 'Access-Challenge':
+                continue    # shown by EAP in the Info column
+            assert name in info, name
+
+    def test_radius_simple_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Strings, addresses, integers of every width, dates and the
+        attributes with a dissector of their own (CHAP, IPX, VLAN).'''
+        def one(frame, *names):
+            args = []
+            for n in names:
+                args += ['-e', n]
+            return self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                    '-Y', 'frame.number == %d' % frame, '-Tfields', *args)[0].split('\t')
+        assert one(1, 'radius.User_Name', 'radius.NAS_IP_Address', 'radius.Service_Type',
+                   'radius.Calling_Station_Id') == ['alice', '192.0.2.1', '2', '00-11-22-33-44-55']
+        assert one(1, 'radius.NAS_IPv6_Address') == ['102:304:506:708:90a:b0c:d0e:f10']
+        assert one(2, 'radius.State', 'radius.Reply_Message') == ['010203', 'Welcome']
+        # 1, 2, 3 and 8 octet integers; the 5 octet one is not decoded
+        assert one(3, 'radius.NAS_Port') == ['1,258,66051,5']
+        assert one(3, 'radius.CHAP_Ident', 'radius.CHAP_String') == ['0x05', '404142434445464748494a4b4c4d4e4f']
+        assert one(3, 'radius.Framed-IPX-Network') == ['0x00000000fffffffe,0x0000000000001234']
+        assert one(3, 'radius.egress_vlanid', 'radius.egress_vlan_name') == ['100,4095', 'vlan-a,name']
+        assert one(63, 'radius.MIP6_Feature_Vector') == ['0102030405060708,0102']
+        assert one(63, 'radius.WiMAX_GMT_Timezone_offset') == ['-16,-16,1,258,66051']
+        assert one(63, 'radius.Framed_IPv6_Prefix') == ['00400102030405060708,0000']
+        assert one(63, 'radius.Framed_Interface_Id') == ['0001020304050607,01']
+        # Special values of Framed-IP-Address and Login-IP-Host are shown by name
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1,2}', '-V', '-O', 'radius')
+        text = '\n'.join(lines)
+        assert 'Framed-IP-Address: Assigned' in text
+        assert 'Framed-IP-Address: Negotiated' in text
+        assert 'Framed-IP-Address: 10.1.2.3' in text
+        assert 'Framed-IP-Address: [wrong length for IP address]' in text
+        assert 'Login-IP-Host: User-selected' in text
+        assert 'Login-IP-Host: NAS-selected' in text
+        assert 'NAS-IP-Address: [wrong length for IP address]' in text
+        assert 'Framed-IPX-Network' in '\n'.join(self.fields(cmd_tshark, capture_file, test_env,
+                self.CAP, '-Y', 'frame.number == 3', '-V', '-O', 'radius'))
+
+    def test_radius_tagged_and_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''Tagged tunnel attributes; the tag is only shown when it is at
+        most 0x1f. Encrypted attributes are decrypted with the default
+        (empty) shared secret, so only the shape is checked here.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 61', '-Tfields', '-eradius.Tunnel_Type',
+                '-eradius.Tunnel_Type.tag', '-eradius.Tunnel_Private_Group_Id',
+                '-eradius.Tunnel_Private_Group_Id.tag')
+        assert lines == ['13,1073741837\t0x01\tvlan10,plain\t0x01']
+        # Encrypted values without a request cannot be decrypted
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 9', '-Tfields', '-eradius.User_Password_encrypted')
+        assert lines == ['404142434445464748494a4b4c4d4e4f']
+
+    def test_radius_ascend_filter(self, cmd_tshark, capture_file, test_env):
+        '''Ascend-Data-Filter as IPv4 and IPv6, the generic summary text and
+        a filter of the wrong length.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 57', '-V', '-O', 'radius')
+        text = '\n'.join(lines)
+        assert ('Ascend-Data-Filter: ipv4 in forward tcp srcip 10.0.0.1/24 srcport eq 0 '
+                'dstip 10.0.0.2/32 dstport gt 80') in text
+        assert 'Ascend-Data-Filter: ipv6 in forward udp srcip 102:304:506:708:90a:b0c:d0e:f10/64' in text
+        assert 'Ascend-Data-Filter: Wrong attribute length 10' in text
+        assert 'Lucent-Data-Filter: ipv4 in forward tcp' in text
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 57', '-Tfields', '-eradius.ascenddatafilter.protocol',
+                '-eradius.ascenddatafilter.src_port')
+        assert lines == ['6,17,0,1,99,6\t1024,53,0,0,7,1024']
+
+    def test_radius_vendor_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Vendor-specific attributes: VPI/VCI, MS-TimeZone, WiMAX
+        combo addresses and MAC addresses, unknown vendors.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 58', '-Tfields', '-eradius.Cosine-Vpi',
+                '-eradius.Cosine-Vci', '-eradius.Cisco_AVPair', '-eradius.WiMAX_DHCPv4_Server',
+                '-eradius.WiMAX_DHCPv4_Server_ipv6',
+                '-eradius.Fortinet_WirelessController_Device_MAC', '-eradius.Unknown_Attribute')
+        assert lines == ['1\t2\tcisco-avpair=foo\t10.0.0.8\t1:203:405:607:809:a0b:c0d:e0f'
+                         '\t000102030405\t756e6b6e6f776e2d76656e646f72,00000001']
+        text = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 58', '-V', '-O', 'radius'))
+        assert 'Cosine-VPI-VCI: 1/2' in text
+        assert 'Cosine-VPI-VCI: [Wrong Length for VP/VC AVP]' in text
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 58', '-Tfields', '-eradius.3gpp_ms_tmime_zone')
+        assert lines == ['4001']
+
+    def test_radius_wimax_fragments(self, cmd_tshark, capture_file, test_env):
+        '''WiMAX continuation fragments of one attribute are reassembled
+        when the last fragment arrives.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 60', '-Tfields', '-eradius.vsa_fragment',
+                '-eradius.WiMAX_AAA_Session_Id')
+        assert lines == ['667261672d6f6e652d,667261672d74776f2d,6c617374,7878787878787878'
+                         '\t667261672d6f6e652d667261672d74776f2d6c617374,736f6c6f']
+
+    def test_radius_tlv_and_extended(self, cmd_tshark, capture_file, test_env):
+        '''TLV attributes (standard, vendor and unknown TLV types) and the
+        extended and long-extended attribute space of RFC 6929.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 64', '-Tfields', '-eradius.IPv6_6rd_IPv4MaskLen',
+                '-eradius.IPv6_6rd_BR_IPv4_Address', '-eradius.3GPP2_Remote_IP_Address_Value',
+                '-eradius.WiMAX_Release')
+        assert lines == ['32,1\t10.0.0.1,1.2.3.4\t10.1.1.1,10.1.1.1\trel-1']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 65', '-Tfields', '-eradius.avp.extended_type',
+                '-eradius.avp.extended_more', '-eradius.avp.vendor_id',
+                '-eradius.Frag_Status', '-eradius.Response_Length')
+        assert lines == ['1,8,3,99,1,5,8,26,26,26,26,26,5\tFalse,True,False,True,False,False'
+                         '\t11344,11344,11344,99999,4\t2\t1000']
+
+    def test_radius_eap(self, cmd_tshark, capture_file, test_env):
+        '''EAP-Message attributes are reassembled and handed to EAP; a
+        non-consecutive EAP-Message is not appended.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 66', '-Tfields', '-eeap.code', '-eeap.type', '-eeap.len')
+        assert lines == ['2\t1\t400']
+        text = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 66', '-V', '-O', 'radius'))
+        assert 'Last Segment[2]' in text
+        assert '(non-consecutive)' in text
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {5,7}', '-Tfields', '-eeap.code', '-eeap.type')
+        assert lines == ['2\t1', '1\t4']
+
+    def test_radius_tcp(self, cmd_tshark, capture_file, test_env):
+        '''RADIUS over TCP: PDUs are reassembled across segments (frames
+        78 and 79); a PDU that starts at the end of a segment is shown in
+        the segment that completes it.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, '-2',
+                '-Y', 'frame.number >= 75 && tcp', '-Tfields', '-eframe.number',
+                '-eradius.code', '-eradius.id', '-etcp.reassembled_in')
+        assert lines == ['75\t1\t70\t', '76\t2\t70\t77', '77\t4\t71\t', '78\t\t\t79',
+                         '79\t1\t72\t', '80\t\t\t']
+
+    def test_radius_fix_extended_long(self, cmd_tshark, capture_file, test_env):
+        '''A long extended attribute (245/246) shorter than 4 octets gets
+        an expert info and stops the attribute loop (it wrapped the
+        length before the fix).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP_BAD,
+                '-Y', 'frame.number <= 2', '-Tfields', '-eframe.number',
+                '-e_ws.expert.message', '-eradius.User_Name', '-eradius.NAS_Port')
+        assert lines == ['1\tLong Extended AVP too short: length 3 < 4\t\t',
+                         '2\tLong Extended AVP too short: length 3 < 4\t\t']
+
+    def test_radius_fix_vsa_short(self, cmd_tshark, capture_file, test_env):
+        '''After a VSA with a too short inner length the dissection resumes
+        after the whole VSA, so the bytes inside it are not decoded as
+        top-level attributes (they showed a User-Name "evil" before the fix).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP_BAD,
+                '-Y', 'frame.number == 3', '-Tfields', '-e_ws.expert.message',
+                '-eradius.User_Name', '-eradius.NAS_Port')
+        assert lines == ['VSA too short\t\t7']
+
+    def test_radius_malformed(self, cmd_tshark, capture_file, test_env):
+        '''Truncated attributes are reported with an expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP_BAD,
+                '-Y', 'radius.invalid_length', '-Tfields', '-eframe.number',
+                '-e_ws.expert.message')
+        assert lines[3] == '4\tNot enough room in packet for AVP header'
+        assert '5\tAVP too short: length 1 < 2' in lines
+        assert '7\tExtended AVP too short: length 2 < 3' in lines
+        assert '9\tAVP too short; no room for vendor ID' in lines
+        assert '12\tAVP too short for tag' in lines
+        assert '15\tTLV too short: length 1 < 2' in lines
