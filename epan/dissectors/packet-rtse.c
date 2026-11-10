@@ -173,7 +173,7 @@ call_rtse_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *
 
         expert_add_info_format(pinfo, item, &ei_rtse_dissector_oid_not_implemented,
                                        "RTSE: Dissector for OID %s not implemented", oid);
-        len = dissect_unknown_ber(pinfo, next_tvb, offset, next_tree);
+        len = dissect_unknown_ber(pinfo, next_tvb, 0, next_tree);
     }
 
     offset += len;
