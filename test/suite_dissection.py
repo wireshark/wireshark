@@ -113905,3 +113905,149 @@ class TestDissectOsiOptions:
         lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'osi.options.none',
                 '-Tfields', '-eframe.number', '-e_ws.expert.severity')
         assert lines == ['16\t4194304']
+
+
+class TestDissectOsiTp:
+    # COTP and CLTP over CLNP (LLC SAP 0xFE, NSEL 0x21 and the Inactive Subset), IP protocol
+    # 39, TPKT on TCP port 102 and CLTP over UDP; the last frames hold ATN TPDUs that are only
+    # decoded with cotp.decode_atn.
+    ATN = ('-o', 'cotp.decode_atn:TRUE')
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('ositp_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env).splitlines()
+
+    def test_ositp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without a malformed packet or a warning or
+        error expert info, in one and two passes and with ATN decoding.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 127
+        assert {p: lines.count(p) for p in set(lines)} == {
+            'COTP': 91, 'CLNP': 19, 'CLTP': 4, 'H1': 5, 'IPv4': 4, 'RDP': 3, 'R-GOOSE': 1}
+        for passes in ((), ('-2',), self.ATN):
+            lines = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_ositp_atn_frames(self, cmd_tshark, capture_file, test_env):
+        '''With ATN decoding the TPDUs with the ATN extended checksum are COTP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, *self.ATN,
+                '-Tfields', '-e_ws.col.protocol')
+        assert {p: lines.count(p) for p in set(lines)} == {
+            'COTP': 101, 'CLNP': 2, 'CLTP': 4, 'H1': 5, 'IPv4': 4, 'RDP': 3, 'R-GOOSE': 1, 'TPKT': 7}
+
+    def test_ositp_tpdus(self, cmd_tshark, capture_file, test_env):
+        '''Info column of connection, data, expedited, ack, reject, error and
+        unit data TPDUs, of several TPDUs in one PDU, a zero length
+        indicator and an unknown TPDU type.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        info = {int(l.split('\t')[0]): l.split('\t', 1)[1] for l in lines}
+        assert info[1] == 'CR TPDU src-ref: 0x1234 dst-ref: 0x0000'
+        assert info[2] == 'CC TPDU src-ref: 0x5678 dst-ref: 0x1234'
+        assert info[13] == 'DR TPDU src-ref: 0x5678 dst-ref: 0x1234'
+        assert info[15] == 'DC TPDU src-ref: 0x1234 dst-ref: 0x5678'
+        assert info[18] == 'DT TPDU (3) dst-ref: 0x1234 EOT'
+        assert info[28] == 'ED TPDU (1) dst-ref: 0x1234'
+        assert info[32] == 'RJ TPDU (7) dst-ref: 0x1234'
+        assert info[33] == 'RJ TPDU (8) dst-ref: 0x1234'
+        assert info[36] == 'AK TPDU (7) dst-ref: 0x1234 Credit: 8'
+        assert info[38] == 'EA TPDU (3) dst-ref: 0x1234'
+        assert info[42] == 'ER TPDU dst-ref: 0x1234'
+        assert info[46] == 'UD TPDU'
+        assert info[48] == ('RJ TPDU (1) dst-ref: 0x1234, AK TPDU (2) dst-ref: 0x1234, '
+                            'ER TPDU dst-ref: 0x1234')
+        assert info[49] == 'RJ TPDU (1) dst-ref: 0x1234, Length indicator is zero'
+        assert info[51] == 'RJ TPDU (1) dst-ref: 0x1234, DT TPDU (1) dst-ref: 0x1234 EOT'
+        assert info[52] == 'Length indicator is zero'
+        assert info[53] == 'Unknown TPDU type (0x3)'
+
+    def test_ositp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segments of a TSDU are reassembled for class 4 (normal and
+        extended numbering) and for class 0 over TPKT, in each direction.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'cotp.segments', '-Tfields', '-eframe.number',
+                '-ecotp.reassembled.length', '-ecotp.segment')
+        assert lines == ['25\t12\t23,24,25', '27\t8\t26,27', '64\t18\t63,64', '67\t16\t66,67']
+        lines = self._fields(cmd_tshark, capture_file, test_env, '-o', 'cotp.reassemble:FALSE',
+                '-Y', 'cotp.segments', '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_ositp_class0_references(self, cmd_tshark, capture_file, test_env):
+        '''The destination reference of a class 0 DT TPDU is taken from the
+        CR and CC TPDUs of the connection (also when both ends have the same
+        address) and is absent when no CR was seen.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {63, 64, 65, 66, 67, 70, 74, 75, 76}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        assert [l.split('\t', 1)[1] for l in lines] == [
+            'DT TPDU (0) dst-ref: 0x0b0b [COTP fragment, 10 bytes]',
+            'DT TPDU (0) dst-ref: 0x0b0b EOT',
+            'DT TPDU (0) dst-ref: 0x0b0b EOT',
+            'DT TPDU (0) dst-ref: 0x0a0a [COTP fragment, 9 bytes]',
+            'DT TPDU (0) dst-ref: 0x0a0a EOT',
+            'DT TPDU (0) EOT',
+            'CR TPDU src-ref: 0x0d0d dst-ref: 0x0000',
+            'CC TPDU src-ref: 0x0e0e dst-ref: 0x0d0d',
+            'DT TPDU (0) dst-ref: 0x0e0e EOT']
+
+    def test_ositp_parameters(self, cmd_tshark, capture_file, test_env):
+        '''TSAPs as strings or bytes, and the parameters of a class 4 CR.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 4}', '-Tfields', '-eframe.number',
+                '-ecotp.src-tsap', '-ecotp.dst-tsap', '-ecotp.class')
+        assert lines == ['1\tclient\t0x0001\t0', '2\tserver\tclient\t0', '4\t0x000102\t0xfffe\t4']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-Tfields', '-ecotp.ack_time', '-ecotp.vp_priority',
+                '-ecotp.checksum.status', '-ecotp.vp_version_nr', '-ecotp.tpdu_size',
+                '-ecotp.parameter_value')
+        assert lines == ['300\t5\t1\t1\t8192\taabb']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-Tfields', '-ecotp.preferred_maximum_tpdu_size',
+                '-ecotp.inactivity_timer')
+        assert lines == ['2048,32768,32768,32768\t600']
+
+    def test_ositp_checksums(self, cmd_tshark, capture_file, test_env):
+        '''The ISO 8073 checksums of the TPDUs are good; the one that is zero is
+        "not present" (status 3).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'cotp.checksum', '-Tfields', '-ecotp.checksum.status')
+        assert set(lines) == {'1', '3'}
+        assert lines.count('3') == 2
+
+    def test_ositp_atn_checksums(self, cmd_tshark, capture_file, test_env):
+        '''The 16 and 32 bit ATN extended checksums of the DT TPDUs of frames
+        83-86 are good; without ATN decoding they are not decoded.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env, *self.ATN,
+                '-Y', 'frame.number >= 83 && frame.number <= 86', '-Tfields', '-eframe.number',
+                '-ecotp.atn_extended_checksum', '-ecotp.atn_extended_checksum.status')
+        assert lines == ['83\t0x6ee1\t1', '84\t0xfc4f\t1', '85\t0x0889ceea\t1', '86\t0xcfb39b28\t1']
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 83 && frame.number <= 86', '-e_ws.col.protocol', '-Tfields')
+        assert lines == ['CLNP'] * 4
+
+    def test_ositp_subdissectors(self, cmd_tshark, capture_file, test_env):
+        '''Heuristic subdissectors: RDP in the variable part of CR and CC, H1 in
+        DT/ED/CC data (also in the Inactive Subset), R-GOOSE for CLTP over UDP.'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp || h1 || cltp || frame.number == 73', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol')
+        protocols = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+        assert [n for n, p in protocols.items() if p == 'RDP'] == [11, 12, 71]
+        assert [n for n, p in protocols.items() if p == 'H1'] == [10, 19, 31, 56, 57]
+        assert protocols[73] == 'R-GOOSE'
+
+    def test_ositp_short_li(self, cmd_tshark, capture_file, test_env):
+        '''TPDUs whose length indicator is shorter than the fixed part of the
+        TPDU are not COTP (fixed in "OSI-COTP: Check the minimum length
+        indicator"): IP protocol 39 frames 77-80 and 82 are data, not a TPDU
+        with extra parameters (they used to end in a malformed packet).'''
+        lines = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 77 && frame.number <= 82', '-Tfields', '-eframe.number',
+                '-eframe.protocols')
+        assert lines == [
+            '77\teth:ethertype:ip:data', '78\teth:ethertype:ip:data',
+            '79\teth:ethertype:ip:data', '80\teth:ethertype:ip:data',
+            '81\teth:ethertype:ip:cotp:data', '82\teth:ethertype:ip:cotp:data']
