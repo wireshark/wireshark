@@ -19,6 +19,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
 #include <epan/wmem_scopes.h>
@@ -247,6 +248,22 @@ raknet_get_session_state(packet_info *pinfo) {
     return state;
 }
 
+/*
+ * Whether encryption is in use for this frame. The session state holds
+ * the value of the last Open Connection Reply seen so far on the first
+ * pass; keep that answer per frame so that later passes use the same one.
+ */
+static bool
+raknet_use_encryption(const raknet_session_state_t *state, packet_info *pinfo)
+{
+    if (!PINFO_FD_VISITED(pinfo)) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_raknet, 0,
+                         GUINT_TO_POINTER(state->use_encryption ? 2 : 1));
+        return state->use_encryption;
+    }
+    return GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_raknet, 0)) == 2;
+}
+
 void
 raknet_conversation_set_dissector(packet_info *pinfo, const dissector_handle_t handle) {
     raknet_session_state_t *state;
@@ -359,6 +376,7 @@ raknet_dissect_open_connection_reply_1(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree *sub_tree;
     int offset;
     raknet_session_state_t* state;
+    bool use_encryption;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
 
@@ -372,13 +390,16 @@ raknet_dissect_open_connection_reply_1(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 8;
 
     state = raknet_get_session_state(pinfo);
-    state->use_encryption = tvb_get_uint8(tvb, offset) ? true : false;
+    use_encryption = tvb_get_uint8(tvb, offset) ? true : false;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        state->use_encryption = use_encryption;
+    }
 
     proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb,
                         offset, 1, ENC_NA);
     offset += 1;
 
-    if (state->use_encryption) {
+    if (use_encryption) {
         proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb,
                             offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
@@ -410,7 +431,7 @@ raknet_dissect_open_connection_request_2(tvbuff_t *tvb, packet_info *pinfo, prot
     offset += 16;
 
     state = raknet_get_session_state(pinfo);
-    if (state->use_encryption) {
+    if (raknet_use_encryption(state, pinfo)) {
         bool client_wrote_challenge;
 
         proto_tree_add_item(sub_tree, hf_raknet_cookie, tvb, offset,
@@ -450,6 +471,7 @@ raknet_dissect_open_connection_reply_2(tvbuff_t *tvb, packet_info *pinfo, proto_
     proto_tree *sub_tree;
     int offset;
     raknet_session_state_t* state;
+    bool use_encryption;
 
     sub_tree = init_raknet_offline_message(tvb, pinfo, tree, &offset);
 
@@ -469,13 +491,16 @@ raknet_dissect_open_connection_reply_2(tvbuff_t *tvb, packet_info *pinfo, proto_
     offset += 2;
 
     state = raknet_get_session_state(pinfo);
-    state->use_encryption = tvb_get_uint8(tvb, offset) ? true : false;
+    use_encryption = tvb_get_uint8(tvb, offset) ? true : false;
+    if (!PINFO_FD_VISITED(pinfo)) {
+        state->use_encryption = use_encryption;
+    }
 
     proto_tree_add_item(sub_tree, hf_raknet_use_encryption, tvb, offset,
                         1, ENC_NA);
     offset += 1;
 
-    if (state->use_encryption) {
+    if (use_encryption) {
         proto_tree_add_item(sub_tree, hf_raknet_server_answer, tvb, offset,
                             128, ENC_NA);
         offset += 128;
@@ -1234,7 +1259,7 @@ raknet_dissect_connected_message(tvbuff_t *tvb, packet_info *pinfo,
     uint8_t msg_type;
 
     state = raknet_get_session_state(pinfo);
-    if (state->use_encryption) {
+    if (raknet_use_encryption(state, pinfo)) {
         /*
          * RakNet uses ChaCha stream cipher to encrypt messages, which
          * is currently not supported by this dissector.
