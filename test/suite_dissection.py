@@ -127505,3 +127505,50 @@ class TestDissectRomon:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert stdout.strip() == ''
+
+
+class TestDissectRoofnet:
+    '''Roofnet on Ethertypes 0x0641 and 0x0643-0x0645, from the synthetic
+    capture roofnet_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('roofnet_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_roofnet_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames are Roofnet with the expected message types,
+        number of links and flags; no malformed packets or error expert
+        infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('roofnet', 'roofnet.type') == \
+                ['1', '1', '2', '4', '4', '8', '4', '4,4', '16', '2', '1', '4']
+            assert fr('roofnet', 'roofnet.nlinks') == \
+                ['0', '3', '2', '1', '0', '3', '1', '0,0', '1', '10', '3', '0']
+            assert fr('roofnet.flags.layer2 == 1', 'frame.number') == ['7', '8', '9']
+            assert fr('roofnet.flags.update == 1', 'frame.number') == ['3', '9']
+            assert fr('roofnet.flags.error == 1', 'frame.number') == ['6']
+            assert fr('roofnet && udp', 'frame.number') == ['4', '5', '7', '8', '12']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_roofnet_short_frame(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 ends where the data would start (the data offset is
+        past the end of the frame). The remaining length is clamped to 0
+        ("Roofnet: Use an unsigned type for the remaining data length")
+        instead of wrapping, so there is no "more payload" expert info.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                          'roofnet.datalength', '_ws.expert.message')
+        assert out == ['0\t']
+
+    def test_roofnet_links(self, cmd_tshark, capture_file, test_env):
+        '''The link descriptions of frame 2.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 2',
+                          'roofnet.link.src', 'roofnet.link.dst', 'roofnet.link.forward',
+                          'roofnet.link.age')
+        assert out == ['10.0.0.1,10.0.0.2,10.0.0.3\t10.0.0.2,10.0.0.3,0.0.0.0\t100,80,60\t1,2,3']
