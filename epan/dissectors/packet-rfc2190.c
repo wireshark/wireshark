@@ -92,7 +92,8 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
      * header is defined in mode C to support fragmentation at MB boundaries
      * for frames that are coded with the PB-frames option.
      */
-    if( rfc2190_version == 0x00) {
+    /* F=0 is mode A; F=1, P=0 is mode B; F=1, P=1 is mode C */
+    if( rfc2190_version < 0x02) {
         col_append_str( pinfo->cinfo, COL_INFO, "MODE A ");
         hdr_len = 4;
     }
@@ -100,7 +101,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         col_append_str( pinfo->cinfo, COL_INFO, "MODE B ");
         hdr_len = 8;
     }
-    else if( rfc2190_version == 0x03) {
+    else {
         col_append_str( pinfo->cinfo, COL_INFO, "MODE C ");
         hdr_len = 12;
     }
@@ -122,7 +123,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         /* SRC 2nd octet, 3 bits */
         proto_tree_add_item( rfc2190_tree, hf_rfc2190_srcformat, tvb, offset, 1, ENC_BIG_ENDIAN );
 
-        if(rfc2190_version == 0x00) { /* MODE A */
+        if(hdr_len == 4) { /* MODE A */
             /* I flag, 1 bit */
             proto_tree_add_item(rfc2190_tree, hf_rfc2190_picture_coding_type_modeA, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* U flag, 1 bit */
@@ -195,7 +196,7 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
             offset++;
 
-            if(rfc2190_version == 0x03) { /* MODE C */
+            if(hdr_len == 12) { /* MODE C */
                 /* Reserved 9th to 11th octet, 8 + 8 + 3 bits */
                 proto_tree_add_item( rfc2190_tree, hf_rfc2190_rr, tvb, offset, 3, ENC_BIG_ENDIAN);
 
@@ -214,20 +215,8 @@ dissect_rfc2190( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
                 offset++;
             } /* end mode c */
         } /* end not mode a */
-    } else {
-        switch(rfc2190_version) {
-            case 0x00: /* MODE A */
-                offset += 4;
-                break;
-            case 0x01: /* MODE B */
-                offset += 8;
-                break;
-            case 0x02: /* MODE C */
-                offset += 12;
-                break;
-        }
     }
-
+    offset = hdr_len;
 
     /* The rest of the packet is the H.263 stream */
     next_tvb = tvb_new_subset_remaining( tvb, offset);
