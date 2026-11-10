@@ -1142,7 +1142,7 @@ void srtcp_add_address( packet_info *pinfo,
      * Update the conversation data.
      */
     p_conv_data->setup_method_set = true;
-    (void) g_strlcpy(p_conv_data->setup_method, setup_method, MAX_RTCP_SETUP_METHOD_SIZE);
+    (void) g_strlcpy(p_conv_data->setup_method, setup_method, sizeof(p_conv_data->setup_method));
     p_conv_data->setup_frame_number = setup_frame_number;
     p_conv_data->srtcp_info = srtcp_info;
 }
@@ -1311,10 +1311,9 @@ dissect_rtcp_rtpfb_tmmbr_tmmbn_fci( tvbuff_t *tvb, unsigned offset, proto_tree *
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_mantissa, tvb, offset, 3, ENC_BIG_ENDIAN );
     mantissa = (tvb_get_ntohl( tvb, offset) & 0x3fffe00) >> 9;
     proto_tree_add_string_format_value( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_bitrate, tvb, offset, 3, "", "%u*2^%u", mantissa, exp);
-    offset += 3;
-    /* Overhead */
-    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead, tvb, offset, 2, ENC_BIG_ENDIAN );
-    offset += 1;
+    /* Overhead 9 bit, the low bits of the last two octets */
+    proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_tmbbr_fci_measuredoverhead, tvb, offset + 2, 2, ENC_BIG_ENDIAN );
+    offset += 4;
 
     if (top_item != NULL) {
         if (is_notification == 1) {
@@ -1594,13 +1593,13 @@ dissect_rtcp_asfb_ms( tvbuff_t *tvb, unsigned offset, proto_tree *tree, packet_i
         /* MS Dominant Speaker History */
         rtcp_ms_ds_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_ms_ds, NULL, "MS Dominant Speaker History");
         col_append_str(pinfo->cinfo, COL_INFO, "( MS-DSH )");
-        while (length-- && tvb_captured_length_remaining (tvb, offset) >= 4)
+        while (length >= 4 && tvb_captured_length_remaining (tvb, offset) >= 4)
         {
             item = proto_tree_add_item( rtcp_ms_ds_tree, hf_rtcp_psfb_ms_msi, tvb, offset, 4, ENC_BIG_ENDIAN );
             msi = tvb_get_ntohl (tvb, offset);
             proto_item_append_text(item," %s", val_to_str_const(msi, rtcp_ssrc_values, ""));
             offset += 4;
-            length --;
+            length -= 4;
         }
     }
     else
@@ -1652,18 +1651,16 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree, p
     if (top_item != NULL) {
         proto_item_append_text(top_item, ": REMB: max bitrate=%" PRIu64, bitrate);
     }
-    *read_fci = 2 + (numberSsrcs);
+    *read_fci += 2 + (numberSsrcs);
 
     return offset;
 }
 
 static int
-dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *rtcp_tree, int pkt_len)
+dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree *rtcp_tree, int pkt_len, uint8_t *delta_array, uint16_t *pkt_seq_array)
 {
     proto_tree *fci_tree, *pkt_chunk_tree, *recv_delta_tree;
     proto_item *item       = NULL;
-    uint8_t *delta_array;
-    uint16_t *pkt_seq_array;
     uint32_t i, pkt_base_seq, pkt_seq_num, pkt_count, delta_index = 0;
     int fci_length        = pkt_len - RTCP_TRANSPORT_CC_HEADER_LENGTH;
     int padding_length     = offset;
@@ -1678,9 +1675,6 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info
     /* packet status count */
     proto_tree_add_item_ret_uint( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_pkt_stats_cnt, tvb, offset, 2, ENC_BIG_ENDIAN, &pkt_count );
     offset += 2;
-
-    delta_array   = wmem_alloc0_array( pinfo->pool, uint8_t, pkt_count );
-    pkt_seq_array = wmem_alloc0_array( pinfo->pool, uint16_t, pkt_count );
 
     /* reference time */
     proto_tree_add_item( fci_tree, hf_rtcp_rtpfb_transport_cc_fci_ref_time, tvb, offset, 3, ENC_BIG_ENDIAN );
@@ -1867,7 +1861,7 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info
 
     /* recv delta */
     recv_delta_tree = proto_tree_add_subtree_format( fci_tree, tvb, offset, 0, ett_ssrc, NULL, "Recv Delta" );
-    for (i = 0; i < pkt_count; i++ )
+    for (i = 0; i < delta_index; i++ )
     {
         if ( delta_array[i] == 1 )
         {
@@ -1908,13 +1902,9 @@ dissect_rtcp_rtpfb_transport_cc_fci( tvbuff_t *tvb, unsigned offset, packet_info
     padding_length = fci_length - (offset - padding_length);
     if ( padding_length > 0 )
     {
-        proto_tree_add_item( recv_delta_tree, hf_rtcp_rtpfb_transport_cc_fci_recv_delta_padding, tvb, offset, padding_length, ENC_BIG_ENDIAN );
+        proto_tree_add_item( recv_delta_tree, hf_rtcp_rtpfb_transport_cc_fci_recv_delta_padding, tvb, offset, padding_length, ENC_NA );
         offset += padding_length;
     }
-
-    /* delta_array / pkt_seq_array will be freed out of pinfo->pool */
-    delta_array = NULL;
-    pkt_seq_array = NULL;
 
     return offset;
 }
@@ -1925,6 +1915,8 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     unsigned offset = 0;
 
     unsigned packet_len = (tvb_get_uint16( tvb, offset + 2, ENC_BIG_ENDIAN) + 1) * 4;
+    uint8_t *delta_array;
+    uint16_t *pkt_seq_array;
 
     offset = dissect_rtcp_rtpfb_header( tvb, offset, rtcp_tree);
 
@@ -1932,9 +1924,13 @@ dissect_rtcp_rtpfb_transport_cc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     proto_tree_add_item( rtcp_tree, hf_rtcp_ssrc_media_source, tvb, offset, 4, ENC_BIG_ENDIAN );
     offset += 4;
 
+    /* Allocate once per RTCP packet; only the first delta_index entries are used */
+    delta_array   = wmem_alloc_array(pinfo->pool, uint8_t, 65536);
+    pkt_seq_array = wmem_alloc_array(pinfo->pool, uint16_t, 65536);
+
     while (offset < packet_len)
     {
-        offset = dissect_rtcp_rtpfb_transport_cc_fci( tvb, offset, pinfo, rtcp_tree, packet_len);
+        offset = dissect_rtcp_rtpfb_transport_cc_fci( tvb, offset, pinfo, rtcp_tree, packet_len, delta_array, pkt_seq_array);
     }
 
     return offset;
@@ -2193,7 +2189,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, unsigned offset, proto_tree *rtcp_tree,
     }
 
     /* Append undecoded FCI information */
-    if ((packet_length - (offset - base_offset)) > 0) {
+    if (offset - base_offset < packet_length) {
         proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), ENC_NA );
         offset = base_offset + packet_length;
     }
@@ -2884,7 +2880,7 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, unsigned offset, proto_
                     /* Floor revoke */
                     proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_rej_cause_floor_revoke, tvb, offset, 2, ENC_BIG_ENDIAN, &cause);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                        val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_deny_vals, "Unknown"));
+                        val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_revoke_vals, "Unknown"));
                     break;
                 default:
                     proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -4101,9 +4097,10 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, proto_tree *
             offset+=4;
             proto_tree_add_item(content_tree, hf_rtcp_xr_idms_source_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
-            proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts, tvb, offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
             item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
             proto_item_set_generated(item);
+            offset+=8;
 
             proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
@@ -4363,6 +4360,8 @@ dissect_rtcp_profile_specific_extensions (packet_info *pinfo, tvbuff_t *tvb, pro
                     remaining, ENC_NA);
             bytes_consumed = remaining;
         }
+        if (bytes_consumed > remaining)
+            bytes_consumed = remaining;
         offset += bytes_consumed;
         remaining -= bytes_consumed;
     }
@@ -5011,7 +5010,9 @@ dissect_rtcp_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                  * exception later either when trying to consume the remaining
                  * opaque bytes or add the padding.
                  */
-                packet_length -= tvb_get_uint8(tvb, padding_offset);
+                unsigned pad_count = tvb_get_uint8(tvb, padding_offset);
+                if (pad_count <= packet_length)
+                    packet_length -= pad_count;
             }
         }
 
@@ -7438,8 +7439,8 @@ proto_register_rtcp(void)
             {
                 "Recv Delta Padding",
                 "rtcp.rtpfb.transportcc.recv_delta.padding",
-                FT_UINT16,
-                BASE_HEX,
+                FT_BYTES,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL, HFILL
