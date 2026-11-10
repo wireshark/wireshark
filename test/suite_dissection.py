@@ -130898,3 +130898,149 @@ class TestDissectRtpMidi:
                 '-ertpmidi.sj_chapter_d_syscom_legal', '-ertpmidi.sj_chapter_d_syscom_data',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['77\t0x05\t\t', '78\t\taabb\t']
+
+
+class TestDissectRtpproxyCoverage:
+    def test_rtpproxy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames are RTPproxy, RTPproxy-ng, RTP and RTCP (set up from the
+        replies), none is malformed and the only expert infos are the
+        no-LF-on-TCP warnings and the "no notification IP" comments, in one
+        and two passes (and the response timeout in two).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 118
+        assert protocols.count('RTP') == 5
+        assert protocols.count('RTCP') == 1
+        assert protocols.count('RTPproxy-ng') + protocols.count('RTPproxy-ng/SDP') == 10
+        assert protocols.count('UDP') == 2
+        assert protocols.count('RTPproxy') == 118 - 5 - 1 - 10 - 2
+        for passes, expected in (((), '15 100 101 118'), (('-2',), '15 78 100 101 118')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == expected.split()
+
+    def test_rtpproxy_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of requests, replies, sub-commands, errors and
+        queries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1,2,8,9,10,11,31,38,56,62,65,69,71,73,82,85,91,100}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t', 1) for l in stdout.splitlines()] == [
+            ['1', 'Request: Handshake/Ping'],
+            ['2', 'Reply: 1'],
+            ['8', 'Reply: 20260306'],
+            ['9', 'Request: Offer/Update c0,8,101,z20d101u1l10.0.0.9r192.0.2.5w, Call-ID: call1@host, IP: 192.0.2.1:5004, Tag: from1, Media id: 1, Tag: to1, Media id: 1'],
+            ['10', 'Reply: 35000 192.0.2.50'],
+            ['11', 'Request: Offer/Update l[2001:db8::1]r[2001:db8::2]Ae6, Call-ID: call2, IP: [2001:db8::5]:5006, Tag: from2, Tag: to2'],
+            ['31', 'Request: Offer/Update, Call-ID: callid1, IP: 192.0.2.10:5004, Tag: tag1'],
+            ['38', 'Reply: sessions created: 3 active sessions: 1'],
+            ['56', 'Reply: 30 120 118 0.250 7'],
+            ['62', 'Error reply: E50'],
+            ['65', 'Request: Get statistics v'],
+            ['69', 'Error reply: E7'],
+            ['71', 'Error reply: E999'],
+            ['73', 'Reply: 35022 192.0.2.57, Result: 5, Result: 0'],
+            ['82', 'Request: offer, Call-ID: ng-call-1'],
+            ['85', 'Reply: ok'],
+            ['91', 'Reply: error, Call-ID: ng-call-2'],
+            ['100', 'Request: Offer/Update, Call-ID: call20, IP: 192.0.2.20:5040, Tag: from20, Tag: to20'],
+        ]
+
+    def test_rtpproxy_ip_and_port(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the port after the IP of an Update
+        (it showed the IP twice before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 31',
+                '-Tfields', '-e_ws.col.info', '-ertpproxy.ipv4', '-ertpproxy.port',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ('Request: Offer/Update, Call-ID: callid1, IP: 192.0.2.10:5004, Tag: tag1'
+                                  '\t192.0.2.10\t5004')
+
+    def test_rtpproxy_query_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''A request whose cookie a later Query reuses stays a request in
+        the second pass (it became a "Reply" before the fix).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {28,29,30}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t', 1) for l in stdout.splitlines()] == [
+                ['28', 'Request: Delete an active session (Bye/Cancel/Error), Call-ID: call11, Tag: tag1'],
+                ['29', 'Request: Query info about a session, Call-ID: call11, Tag: tag1, Tag: tag2'],
+                ['30', 'Reply: 5 7'],
+            ]
+
+    def test_rtpproxy_transaction_links(self, cmd_tshark, capture_file, test_env):
+        '''Requests link to their replies and back (second pass), and the
+        slow reply gets a timeout expert info.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1,2,77,78}',
+                '-Tfields', '-eframe.number', '-ertpproxy.response_in', '-ertpproxy.request_in',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][:3] == ['1', '2', '']
+        assert rows[1][:3] == ['2', '', '1']
+        assert rows[2][:3] == ['77', '78', '']
+        assert rows[3][:3] == ['78', '', '77']
+        assert rows[3][3].startswith('Response timeout 2')
+
+    def test_rtpproxy_sets_up_rtp(self, cmd_tshark, capture_file, test_env):
+        '''The relay address in a reply sets up RTP and RTCP; the RTP
+        streams say that RTPproxy set them up.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'rtp || rtcp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertp.setup-method',
+                '-ertp.setup-frame',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '92\tRTP\tRTPproxy\t10',
+            '93\tRTP\tRTPproxy\t10',
+            '94\tRTP\tRTPproxy\t10',
+            '95\tRTCP\t\t',
+            '96\tRTP\tRTPproxy\t18',
+            '97\tRTP\tRTPproxy\t18',
+        ]
+
+    def test_rtpproxy_query_counters(self, cmd_tshark, capture_file, test_env):
+        '''Counters in a Query reply are named after the Query, or by the
+        name in the reply.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {56,58}',
+                '-Tfields', '-eframe.number', '-ertpproxy.counter.ttl',
+                '-ertpproxy.counter.npkts_ina', '-ertpproxy.counter.nrelayed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '56\t30\t120\t118',
+            '58\t25\t10\t9',
+        ]
+
+    def test_rtpproxy_tcp_and_ng(self, cmd_tshark, capture_file, test_env):
+        '''TCP without a terminating line feed is flagged (frames 100 and
+        101); an ng reply that has no call-id shows the call-id of its
+        request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', '_ws.expert.message contains "LF"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['100', '101']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpproxy_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {84,85,89}',
+                '-Tfields', '-eframe.number', '-ertpproxy.callid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['84\t', '85\t', '89\tng-call-1']
