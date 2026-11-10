@@ -21,6 +21,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/tfs.h>
 #include <epan/unit_strings.h>
@@ -63,6 +65,10 @@ static void dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *sim
 
 /* Wireshark ID of the SIMULCRYPT protocol */
 static int proto_simulcrypt;
+
+static expert_field ei_simulcrypt_nesting;
+
+#define SIMULCRYPT_MAX_EIS_NESTING 4
 
 /* Dissector handle for SIMULCRYPT protocol */
 static dissector_handle_t simulcrypt_handle;
@@ -873,7 +879,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		{
 			if(tab_ecm_inter[i].ecmg_port==pinfo->srcport) /* ECMG source port */
 			{ /* recognise port & ca_system_id and hence protocol name for ECM datagram */
-				next_tvb = tvb_new_subset_remaining(tvb, offset);
+				next_tvb = tvb_new_subset_length(tvb, offset, plen);
 				simulcrypt_ecm_datagram_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_ecm_datagram);
 				if(tab_ecm_inter[i].protocol_handle != NULL)
 				{
@@ -955,6 +961,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 	uint32_t    pvaluedec;    /* parameter decimal value */
 	unsigned    ca_system_id;
 	unsigned    i;
+	unsigned    depth;
 
 	switch (ptype) {
 	case SIMULCRYPT_EIS_CHANNEL_ID:
@@ -977,7 +984,16 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		simulcrypt_ecm_group_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_ecm_group);
 
 		/* dissect subtree */
+		depth = p_get_proto_depth(pinfo, proto_simulcrypt);
+		if (depth >= SIMULCRYPT_MAX_EIS_NESTING) {
+			expert_add_info(pinfo, simulcrypt_item, &ei_simulcrypt_nesting);
+			break;
+		}
+		p_set_proto_depth(pinfo, proto_simulcrypt, depth + 1);
+		increment_dissection_depth(pinfo);
 		dissect_simulcrypt_data(simulcrypt_ecm_group_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_EIS_SCS, true);
+		decrement_dissection_depth(pinfo);
+		p_set_proto_depth(pinfo, proto_simulcrypt, depth);
 		break;
 	case SIMULCRYPT_EIS_SCG_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_scg_id, tvb, offset, plen, ENC_BIG_ENDIAN);
@@ -1803,6 +1819,11 @@ proto_register_simulcrypt (void)
 		&ett_simulcrypt_table_period_pair
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_simulcrypt_nesting, { "simulcrypt.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+			"ECM_group nested too deeply", EXPFILL }}
+	};
+	expert_module_t *expert_simulcrypt;
 	module_t *simulcrypt_module;
 
 	/* execute protocol initialization only once */
@@ -1810,6 +1831,8 @@ proto_register_simulcrypt (void)
 
 	proto_register_field_array (proto_simulcrypt, hf, array_length (hf));
 	proto_register_subtree_array (ett, array_length (ett));
+	expert_simulcrypt = expert_register_protocol(proto_simulcrypt);
+	expert_register_field_array(expert_simulcrypt, ei, array_length(ei));
 
 	register_init_routine(simulcrypt_init);
 
