@@ -2732,117 +2732,127 @@ dissect_http3_qpack_decoder_stream(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         TRY {
             uint8_t opcode;             /* The instruction opcode */
             unsigned varint_len;
+            bool bad_integer = false;
 
             opcode = tvb_get_uint8(tvb, inst_offset) & QPACK_OPCODE_MASK;
 
             ws_noisy("Decoding opcode=%" PRIu8 " decoded=%d start=%d current=%d end=%d",
                 opcode, (offset - start_offset), start_offset, offset, end_offset);
 
-            if (opcode & QPACK_OPCODE_SECTION_ACK) {
-                uint64_t stream_id = 0;
+            /* A break below must not leave the TRY block, or ENDTRY
+             * would not pop the exception handler. */
+            do {
+                if (opcode & QPACK_OPCODE_SECTION_ACK) {
+                    uint64_t stream_id = 0;
 
-                /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.1
-                 *
-                 *   0   1   2   3   4   5   6   7
-                 * +---+---+---+---+---+---+---+---+
-                 * | 1 |  Stream ID (7+)           |
-                 * +---+---------------------------+
-                 */
+                    /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.1
+                     *
+                     *   0   1   2   3   4   5   6   7
+                     * +---+---+---+---+---+---+---+---+
+                     * | 1 |  Stream ID (7+)           |
+                     * +---+---------------------------+
+                     */
 
-                /* Read the 7-encoded name stream ID */
-                varint_len = read_qpack_prefixed_integer(tvb, offset, 7, &stream_id, NULL);
-                if (varint_len == 0) {
-                    offset = end_offset;
-                    break;
+                    /* Read the 7-encoded name stream ID */
+                    varint_len = read_qpack_prefixed_integer(tvb, offset, 7, &stream_id, NULL);
+                    if (varint_len == 0) {
+                        offset = end_offset;
+                        bad_integer = true;
+                        break;
+                    }
+                    offset       += varint_len;
+
+                    /* Update the instruction length */
+                    inst_len    = offset - inst_offset;
+
+                    /* Add the protocol tree items */
+                    opcode_ti   = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_section_ack,
+                            tvb, inst_offset, inst_len, ENC_NA);
+                    opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
+                    proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_section_ack_stream_id,
+                            tvb, inst_offset, inst_len, stream_id);
+
+                    instr_buf = wmem_strbuf_new(pinfo->pool, "SECTION_ACK");
+                    wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
+                    proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                    wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
+                } else if (opcode & QPACK_OPCODE_STREAM_CANCEL) {
+                    uint64_t stream_id      = 0;
+
+                    /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.2
+                     *
+                     *   0   1   2   3   4   5   6   7
+                     * +---+---+---+---+---+---+---+---+
+                     * | 0 | 1 | Stream ID (6+)        |
+                     * +---+---+---+-------------------+
+                     */
+
+                    /* Read the 6-encoded name stream ID */
+                    varint_len = read_qpack_prefixed_integer(tvb, offset, 6, &stream_id, NULL);
+                    if (varint_len == 0) {
+                        offset = end_offset;
+                        bad_integer = true;
+                        break;
+                    }
+                    offset       += varint_len;
+
+                    /* Update the instruction length */
+                    inst_len  = offset - inst_offset;
+
+                    /* Add the protocol tree items */
+                    opcode_ti = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_cancel_stream,
+                            tvb, inst_offset, inst_len, ENC_NA);
+                    opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
+                    proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_cancel_stream_id,
+                            tvb, inst_offset, inst_len,stream_id);
+
+                    instr_buf = wmem_strbuf_new(pinfo->pool, "STREAM_CANCEL");
+                    wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
+                    proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                    wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
+                } else if (opcode == QPACK_OPCODE_ICNT_INCREMENT) {
+                    uint64_t icnt_inc      = 0;
+
+                    /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.3
+                     *
+                     *   0   1   2   3   4   5   6   7
+                     * +---+---+---+---+---+---+---+---+
+                     * | 0 | 0 |  Increment (6+)       |
+                     * +---+---+-----------------------+
+                     */
+
+                    /* Read the 6-encoded instruction count increment */
+                    varint_len = read_qpack_prefixed_integer(tvb, offset, 6, &icnt_inc, NULL);
+                    if (varint_len == 0) {
+                        offset = end_offset;
+                        bad_integer = true;
+                        break;
+                    }
+                    offset       += varint_len;
+
+                    /* Update the instruction length */
+                    inst_len   = offset - inst_offset;
+                    /* Add the protocol tree items */
+
+                    opcode_ti   = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_icnt_increment,
+                            tvb, inst_offset, inst_len, ENC_NA);
+                    opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
+                    proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_icnt_increment_value,
+                            tvb, inst_offset, inst_len,icnt_inc);
+
+                    instr_buf = wmem_strbuf_new(pinfo->pool, "ICNT_INC");
+                    wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "]", icnt_inc);
+                    proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
+                    wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
+                } else {
+                    ws_debug("Opcode=%" PRIu8 ": UNKNOWN", opcode);
+                    can_continue = false;
                 }
-                offset       += varint_len;
-
-                /* Update the instruction length */
-                inst_len    = offset - inst_offset;
-
-                /* Add the protocol tree items */
-                opcode_ti   = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_section_ack,
-                        tvb, inst_offset, inst_len, ENC_NA);
-                opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
-                proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_section_ack_stream_id,
-                        tvb, inst_offset, inst_len, stream_id);
-
-                instr_buf = wmem_strbuf_new(pinfo->pool, "SECTION_ACK");
-                wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
-                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
-                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
-            } else if (opcode & QPACK_OPCODE_STREAM_CANCEL) {
-                uint64_t stream_id      = 0;
-
-                /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.2
-                 *
-                 *   0   1   2   3   4   5   6   7
-                 * +---+---+---+---+---+---+---+---+
-                 * | 0 | 1 | Stream ID (6+)        |
-                 * +---+---+---+-------------------+
-                 */
-
-                /* Read the 6-encoded name stream ID */
-                varint_len = read_qpack_prefixed_integer(tvb, offset, 6, &stream_id, NULL);
-                if (varint_len == 0) {
-                    offset = end_offset;
-                    break;
-                }
-                offset       += varint_len;
-
-                /* Update the instruction length */
-                inst_len  = offset - inst_offset;
-
-                /* Add the protocol tree items */
-                opcode_ti = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_cancel_stream,
-                        tvb, inst_offset, inst_len, ENC_NA);
-                opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
-                proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_cancel_stream_id,
-                        tvb, inst_offset, inst_len,stream_id);
-
-                instr_buf = wmem_strbuf_new(pinfo->pool, "STREAM_CANCEL");
-                wmem_strbuf_append_printf(instr_buf, "[id=%" PRIu64 "]", stream_id);
-                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
-                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
-            } else if (opcode == QPACK_OPCODE_ICNT_INCREMENT) {
-                uint64_t icnt_inc      = 0;
-
-                /* https://datatracker.ietf.org/doc/html/rfc9204#section-4.4.3
-                 *
-                 *   0   1   2   3   4   5   6   7
-                 * +---+---+---+---+---+---+---+---+
-                 * | 0 | 0 |  Increment (6+)       |
-                 * +---+---+-----------------------+
-                 */
-
-                /* Read the 6-encoded instruction count increment */
-                varint_len = read_qpack_prefixed_integer(tvb, offset, 6, &icnt_inc, NULL);
-                if (varint_len == 0) {
-                    offset = end_offset;
-                    break;
-                }
-                offset       += varint_len;
-
-                /* Update the instruction length */
-                inst_len   = offset - inst_offset;
-                /* Add the protocol tree items */
-
-                opcode_ti   = proto_tree_add_item(tree, hf_http3_qpack_decoder_opcode_icnt_increment,
-                        tvb, inst_offset, inst_len, ENC_NA);
-                opcode_tree = proto_item_add_subtree(opcode_ti, ett_http3_qpack_opcode);
-                proto_tree_add_uint64(opcode_tree, hf_http3_qpack_decoder_opcode_icnt_increment_value,
-                        tvb, inst_offset, inst_len,icnt_inc);
-
-                instr_buf = wmem_strbuf_new(pinfo->pool, "ICNT_INC");
-                wmem_strbuf_append_printf(instr_buf, "[%" PRIu64 "]", icnt_inc);
-                proto_item_set_text(opcode_ti, "%s", wmem_strbuf_get_str(instr_buf));
-                wmem_strbuf_append_printf(follow_buf, "%s\n", wmem_strbuf_finalize(instr_buf));
-            } else {
-                ws_debug("Opcode=%" PRIu8 ": UNKNOWN", opcode);
-                can_continue = false;
-            }
+            } while (0);
             /* Increment the instruction count */
-            icnt ++;
+            if (!bad_integer) {
+                icnt ++;
+            }
         }
         CATCH(ReportedBoundsError) {
             /* We could not parse the last instruction, hence roll back `parsing_offset' . */
