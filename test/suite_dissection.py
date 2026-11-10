@@ -117952,3 +117952,40 @@ class TestDissectPkixalgs:
         out = self._fields(cmd_tshark, capture_file, test_env,
                            'x509af.algorithm.id == 1.2.840.113549.1.1.10', '-eframe.number')
         assert out == ['35', '36', '37', '38']
+
+
+class TestDissectPkixproxy:
+    '''PKIX proxy certificate information extensions (RFC 3820) with and
+    without path length constraint and policy, in Exported PDU "cms"
+    frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkixproxy_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkixproxy_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 5 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 5
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkixproxy_info(self, cmd_tshark, capture_file, test_env):
+        '''Path length constraint and policy language of each frame.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixproxy.policyLanguage',
+                           '-eframe.number', '-epkixproxy.pCPathLenConstraint',
+                           '-epkixproxy.policyLanguage')
+        assert out == ['1\t\t1.3.6.1.5.5.7.21.1', '2\t3\t1.3.6.1.5.5.7.21.1',
+                       '3\t0\t1.3.6.1.5.5.7.21.2', '4\t\t1.3.6.1.5.5.7.21.0',
+                       '5\t65535\t1.2.3']
