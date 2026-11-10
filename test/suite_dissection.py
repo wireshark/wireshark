@@ -113632,3 +113632,97 @@ class TestDissectOsc:
                 '-Tfields', '-eosc.message.header.path',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '/a'
+
+
+class TestDissectOscore:
+    # oscore_coverage.pcapng.gz: CoAP requests and responses on UDP port 5683
+    # with the OSCORE option. The payloads are arbitrary bytes, not ciphertext,
+    # and the security contexts of the tests have placeholder secrets: nothing
+    # is decrypted and the authentication tag check always fails. What is
+    # tested is the context lookup, the partial IV checks and the error paths.
+    CAP = 'oscore_coverage.pcapng.gz'
+    CONTEXTS = (
+        '-o', 'uat:oscore_contexts:"01","02","0102030405060708090a0b0c0d0e0f10","","","AES-CCM-16-64-128 (CCM*)"',
+        '-o', 'uat:oscore_contexts:"","","00112233445566778899aabbccddeeff","","","AES-CCM-16-64-128 (CCM*)"',
+        '-o', 'uat:oscore_contexts:"01","02","ffeeddccbbaa99887766554433221100","","aabb","AES-CCM-16-64-128 (CCM*)"',
+    )
+
+    @staticmethod
+    def messages(cmd_tshark, capture, env, *opts):
+        stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=env)
+        return [l.split('\t') + [''] for l in stdout.splitlines()]
+
+    def test_oscore_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-33: OSCORE except the three requests that are too short
+        for OSCORE (frames 17-19 stay CoAP); the two Exported PDU frames 34
+        and 35 are declined by OSCORE (no CoAP information); in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.CONTEXTS,
+                    '-r', capture_file(self.CAP),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split('\n')[:-1]
+            assert len(protocols) == 35
+            assert protocols.count('OSCORE') == 30
+            assert protocols[16:19] == ['CoAP'] * 3
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.CONTEXTS,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_oscore_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''With the placeholder contexts: tag check failures for requests
+        and responses (responses by the transaction or with their own
+        partial IV), and the error messages of the paths before that.'''
+        msgs = {int(m[0]): m[1] for m in self.messages(cmd_tshark,
+                capture_file(self.CAP), test_env, *self.CONTEXTS)}
+        tag = 'Authentication tag check failed'
+        iv = "Partial IV not found - can't decrypt"
+        ctx = "Security context not set - can't decrypt"
+        bad = 'Partial IV length from the lower layer is invalid'
+        for n in list(range(1, 13)) + [14, 15, 16, 20, 25, 26, 29, 32, 33]:
+            assert msgs[n].split(',')[-1] == tag, n
+        assert msgs[13] == 'Retransmitted,' + tag
+        for n in (17, 18, 19, 34, 35):
+            assert msgs[n] == ''
+        for n in (21, 22, 23):        # no partial IV, empty option, no request
+            assert msgs[n] == iv, n
+        for n in (24, 31):            # other KID, long KID
+            assert msgs[n] == ctx, n
+        for n in (27, 28, 30):        # partial IV of 6 and 7 octets
+            assert msgs[n] == bad, n
+
+    def test_oscore_without_context(self, cmd_tshark, capture_file, test_env):
+        '''Without a security context nothing can be decrypted: the frames
+        with a partial IV say "context not set", the others are unchanged.'''
+        msgs = {int(m[0]): m[1] for m in self.messages(cmd_tshark,
+                capture_file(self.CAP), test_env)}
+        ctx = "Security context not set - can't decrypt"
+        assert len([m for m in msgs.values() if m.endswith(ctx)]) == 27
+        assert [n for n, m in msgs.items() if 'Partial IV not found' in m] == [21, 22, 23]
+        assert msgs[17] == '' and msgs[18] == '' and msgs[19] == ''
+
+    def test_oscore_option_fields(self, cmd_tshark, capture_file, test_env):
+        '''The OSCORE option in the CoAP request: key ID, partial IV and key
+        ID context.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1 || frame.number == 3 || frame.number == 16 || frame.number == 24 || frame.number == 25',
+                '-Tfields', '-eframe.number', '-ecoap.opt.object_security_kid',
+                '-ecoap.opt.object_security_piv',
+                '-ecoap.opt.object_security_kid_context',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[:3] for l in lines] == [
+            ['1', '01', '98'],
+            ['3', '01', '31ca'],
+            ['16', '', '2a2b'],
+            ['24', '0102', '04'],
+            ['25', '01', '04'],
+        ]
+        assert lines[4].split('\t')[3] == 'aabb'
