@@ -135071,3 +135071,55 @@ class TestDissectScsiOsd:
                 '-Yframe.number >= 318 && frame.number <= 330 && scsi_osd.additional_length',
                 '-eframe.number', '-escsi_osd2.object_descriptor_format')
         assert [r[1] for r in rows] == ['0x01', '0x02', '0x21', '0x22', '0x11', '0x12', '0x22']
+
+
+class TestDissectScsiSbc:
+    '''SCSI block commands (packet-scsi-sbc.c) from the synthetic capture
+    scsi_sbc_coverage.pcap.gz: SCSI over iSCSI (TCP 3260) to a disk
+    (LUN 0), a CD/DVD drive (LUN 1) and a LUN that was never inquired
+    (LUN 2, default command set).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scsi_sbc_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_sbc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU, without malformed packets or
+        expert info warnings or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 298
+        assert all(r[0] == 'iSCSI' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_sbc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_sbc_read_capacity(self, cmd_tshark, capture_file, test_env):
+        '''READ CAPACITY(10) and (16) responses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yscsi_sbc.returned_lba',
+                '-eframe.number', '-escsi_sbc.returned_lba', '-escsi_sbc.blocksize')
+        assert rows == [['242', '1048575', '512'], ['244', '4294967295', '4096'],
+                        ['246', '0', '1'], ['248', '1073741823', '512'],
+                        ['250', '2147483647', '2048']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yscsi_sbc.lalba',
+                '-eframe.number', '-escsi_sbc.lba64_add', '-escsi_sbc.blocksize')
+        assert rows[0] == ['252', '0x0000000001000000', '512']
+        assert rows[3] == ['258', '0xffffffffffffffff', '4294967295']
+
+    def test_scsi_sbc_lba_status_unmap(self, cmd_tshark, capture_file, test_env):
+        '''GET LBA STATUS descriptors and the UNMAP block descriptors.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Yscsi_sbc.get_lba_status.start_lba || scsi_sbc.unmap.lba',
+                '-eframe.number', '-escsi_sbc.get_lba_status.start_lba',
+                '-escsi_sbc.get_lba_status.num_blocks', '-escsi_sbc.get_lba_status.provisioning_type',
+                '-escsi_sbc.unmap.lba', '-escsi_sbc.unmap.num_blocks')
+        assert rows[1][:4] == ['262', '0,8,24', '8,16,1', '0,1,2']
+        assert rows[2][0] == '271'
+        assert rows[2][4:] == ['0,100,4096', '1,16,1024']
