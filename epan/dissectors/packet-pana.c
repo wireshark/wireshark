@@ -18,6 +18,8 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 
 #include <wsutil/array.h>
@@ -78,6 +80,11 @@ static dissector_handle_t eap_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_pana;
+
+static expert_field ei_pana_nesting;
+static expert_field ei_pana_bad_nested_pdu;
+
+#define PANA_MAX_NESTING 4
 static int hf_pana_reserved_type;
 static int hf_pana_length_type;
 static int hf_pana_msg_type;
@@ -315,7 +322,7 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 
                 /* Check AVP flags for vendor specific AVP */
                 if (avp_flags & PANA_AVP_FLAG_V) {
-                        vendor_id      = tvb_get_ntohl(tvb, 8);
+                        vendor_id      = tvb_get_ntohl(tvb, offset + 8);
                         avp_hdr_length = 12;
                 } else {
                         vendor_id = 0;
@@ -434,8 +441,18 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                                                                 tvb, offset, avp_data_length,
                                                                                 ett_pana_avp, NULL, "AVP Value (PANA packet)");
                                         encap_tvb = tvb_new_subset_length(tvb, offset, avp_data_length);
-                                        // We recurse here, but we'll run out of packet before we run out of stack.
-                                        dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
+                                        unsigned nesting = p_get_proto_depth(pinfo, proto_pana);
+                                        if (nesting >= PANA_MAX_NESTING) {
+                                                proto_tree_add_expert_remaining(avp_encap_tree, pinfo, &ei_pana_nesting, encap_tvb, 0);
+                                        } else if (tvb_reported_length(encap_tvb) < 16 ||
+                                                   tvb_captured_length(encap_tvb) < 16 ||
+                                                   tvb_get_ntohs(encap_tvb, 2) < 16) {
+                                                proto_tree_add_expert_remaining(avp_encap_tree, pinfo, &ei_pana_bad_nested_pdu, encap_tvb, 0);
+                                        } else {
+                                                p_set_proto_depth(pinfo, proto_pana, nesting + 1);
+                                                dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
+                                                p_set_proto_depth(pinfo, proto_pana, nesting);
+                                        }
                                         break;
                                 }
                         }
@@ -865,6 +882,18 @@ proto_register_pana(void)
 
         };
 
+        static ei_register_info ei[] = {
+                { &ei_pana_nesting,
+                  { "pana.nesting", PI_MALFORMED, PI_ERROR,
+                    "Too many nested PANA messages", EXPFILL }
+                },
+                { &ei_pana_bad_nested_pdu,
+                  { "pana.nested_pdu_bad", PI_MALFORMED, PI_WARN,
+                    "Invalid nested PANA message", EXPFILL }
+                }
+        };
+        expert_module_t *expert_pana;
+
         /* Setup protocol subtree array */
         static int *ett[] = {
                 &ett_pana,
@@ -880,6 +909,8 @@ proto_register_pana(void)
         /* Required function calls to register the header fields and subtrees used */
         proto_register_field_array(proto_pana, hf, array_length(hf));
         proto_register_subtree_array(ett, array_length(ett));
+        expert_pana = expert_register_protocol(proto_pana);
+        expert_register_field_array(expert_pana, ei, array_length(ei));
 
         /* Register the dissector handle */
         pana_handle = register_dissector("pana", dissect_pana, proto_pana);
