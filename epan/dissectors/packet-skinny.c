@@ -2364,6 +2364,7 @@ dissect_skinny_displayLabel(ptvcursor_t *cursor, packet_info *pinfo, int hfindex
     }
   }
   if (show_replaced_str) {
+    g_free(si->additionalInfo);
     si->additionalInfo = ws_strdup_printf("\"%s\"", wmem_strbuf_get_str(wmem_new));
     proto_item_append_text(item, " => \"%s\"" , wmem_strbuf_get_str(wmem_new));
   }
