@@ -264,8 +264,10 @@ static const value_string rtitcp_attribute_connection_type_vals[] = {
 static void rtitcp_util_add_error_attribute(proto_tree *attribute, tvbuff_t* tvb,
                              int offset, unsigned size) {
     proto_tree_add_item(attribute, hf_rtitcp_control_attribute_error_code_value, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(attribute, hf_rtitcp_control_attribute_error_code_description, tvb, offset + 4,
-            size - 4, ENC_ASCII);
+    if (size > 4) {
+        proto_tree_add_item(attribute, hf_rtitcp_control_attribute_error_code_description, tvb, offset + 4,
+                size - 4, ENC_ASCII);
+    }
 }
 
 static void rtitcp_util_add_locator_t(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t * tvb,
@@ -344,7 +346,7 @@ static unsigned dissect_attribute(tvbuff_t *tvb, packet_info *pinfo,
             (*first_attribute) = false;
             proto_item_append_text(attribute, " (Port = %u)", port);
             proto_tree_add_item(attribute, hf_rtitcp_control_attribute_port, tvb,
-                    attributes_list_offset+offset+4, attribute_length, ENC_BIG_ENDIAN);
+                    attributes_list_offset+offset+4, 4, ENC_BIG_ENDIAN);
             break;
         }
         case RTPS_LOCATOR_ADDRESS_ATTRIBUTE_TYPE: {
@@ -373,7 +375,7 @@ static unsigned dissect_attribute(tvbuff_t *tvb, packet_info *pinfo,
         case CONNECTION_TYPE_ATTRIBUTE_TYPE: {
             uint8_t attribute_connection_type = tvb_get_uint8(tvb, attributes_list_offset+offset+4);
             proto_tree_add_item(attribute, hf_rtitcp_control_attribute_connection_type, tvb,
-                    attributes_list_offset+offset+4, attribute_length, ENC_BIG_ENDIAN);
+                    attributes_list_offset+offset+4, 1, ENC_BIG_ENDIAN);
             if (*first_attribute) {
                 proto_item_append_text(rtitcp_message," (");
                 col_append_str(pinfo->cinfo, COL_INFO, " (");
@@ -434,7 +436,7 @@ static proto_tree* print_header(proto_tree *tree, proto_tree *rtitcp_message, tv
 
     return rtitcp_message;
 }
-static uint16_t dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, packet_info *pinfo,
+static unsigned dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, packet_info *pinfo,
                                   unsigned offset) {
 
    /* 0...2...........7...............15.............23...............31
@@ -618,7 +620,7 @@ static uint16_t dissect_control_message(proto_tree *rtitcp_tree, tvbuff_t *tvb, 
 /* This function dissects all the control messages found */
 static unsigned dissect_rtitcp_control_protocol(proto_tree *rtitcp_tree, tvbuff_t *tvb, packet_info *pinfo) {
     unsigned offset;
-    uint16_t msg_length;
+    unsigned msg_length;
     uint32_t tvb_len;
 
     offset = 0;
@@ -626,6 +628,8 @@ static unsigned dissect_rtitcp_control_protocol(proto_tree *rtitcp_tree, tvbuff_
 
     while (offset < tvb_len) {
         msg_length = dissect_control_message(rtitcp_tree, tvb, pinfo, offset);
+        if (msg_length == 0)
+            break;
         offset += msg_length;
     }
 
