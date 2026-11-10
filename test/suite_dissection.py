@@ -137043,3 +137043,177 @@ class TestDissectShim6:
             '16\t305419896\t\t2001:db8::11,2001:db8::12\t\t',
             '23\t305419896\t\t\t0:0:2001:db8::\t0:11:2001:db8::',
         ]
+
+
+class TestDissectSigcomp:
+    '''SigComp over UDP and TCP (ports 5555 and 6666) and behind SIP, from
+    the synthetic capture sigcomp_coverage.pcap.gz. The UDVM runs only
+    with sigcomp.decomp.msg:TRUE (DECOMP below); the decompressed messages
+    are SIP requests. Frames 41-47 are the reproducers of "SigComp: Fix
+    UDVM memory and loop bounds".'''
+
+    DECOMP = ('-o', 'sigcomp.decomp.msg:TRUE')
+
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sigcomp_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+
+    def fields(self, cmd_tshark, capture_file, test_env, filt, *fields, opts=()):
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *opts,
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields))
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sigcomp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences the 63 frames are SigComp headers (the first segment
+        of a TCP message waits for the second), with and without the
+        decompression none is malformed or has an error expert info, in one and
+        two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 63
+        assert protocols.count('SIGCOMP') == 62
+        assert protocols.count('TCP') == 1
+        for opts in ((), self.DECOMP):
+            for passes in ((), ('-2',)):
+                stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number')
+                assert count_output(stdout) == 0
+
+    def test_sigcomp_decompressed_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every program rebuilds its SIP message, so the Call-ID shows what
+        the UDVM did: INPUT-BYTES, the ALU and the memory operand forms, CALL, SWITCH and
+        COMPARE, COPY-LITERAL, MEMSET, COPY-OFFSET, SHA-1 and CRC, a window
+        with byte_copy_left and right, INPUT-BITS and INPUT-HUFFMAN in all
+        eight bit orders, state creation and access, message format 1 with
+        6, 9 and 12 octet identifiers and the static dictionary.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'sip', 'frame.number', 'sip.Call-ID',
+                           opts=self.DECOMP)
+        callid = {int(r[0]): r[1] for r in rows}
+        expect = {1: 'c1', 2: 'c2', 3: 'c2', 4: 'c2', 5: 'c2', 6: 'c2', 7: 'c2', 8: 'c3', 9: 'flow',
+                  10: 'copy2', 11: 'copy2', 12: 'wrap', 29: 'st1', 30: 'st1', 31: 'st2',
+                  32: 'ab01', 33: 'ab02', 34: 'ab03', 35: 'ab04', 36: 'ab05', 37: 'ab06', 38: 'ab07',
+                  39: 'dict', 40: 'accwrap', 41: 'sha1', 42: 'repro', 62: 'sipudp', 63: 'sipudp'}
+        for i in range(8):
+            expect[13 + i] = 'bits%d' % i
+            expect[21 + i] = 'huff%d' % i
+        for frame, cid in expect.items():
+            assert callid[frame] == cid + '@pc33.example.com', frame
+        # TCP: two messages in one segment, one over two segments
+        assert callid[56] == 'tcp1@pc33.example.com'
+        assert callid[57] == 'tcp2@pc33.example.com,tcp3@pc33.example.com'
+        assert callid[59] == 'tcp4@pc33.example.com'
+        assert 58 not in callid
+        assert len(callid) == len(expect) + 3
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2', *self.DECOMP,
+                '-Y', 'sip', '-Tfields', '-eframe.number', '-esip.Call-ID')
+        assert {int(l.split('\t')[0]): l.split('\t')[1] for l in stdout.splitlines()} == callid
+
+    def test_sigcomp_message_formats(self, cmd_tshark, capture_file, test_env):
+        '''Message format 2 with the code at the destinations 0, 1, 2 and 15, a
+        returned feedback item of one octet and with a length, message format
+        1 with partial state identifiers of 6, 9 and 12 octets, UDP over IPv6
+        and port 6666.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 3, 4, 5, 6, 7}',
+                           'frame.number', 'sigcomp.destination', 'sigcomp.code.len',
+                           'sigcomp.returned.feedback.item', 'ipv6.src', 'udp.dstport')
+        assert [r[0] for r in rows] == ['1', '3', '4', '5', '6', '7']
+        assert [r[1] for r in rows] == ['0x01', '0x00', '0x0f', '0x01', '0x01', '0x01']
+        assert rows[3][3] == '15'
+        assert bytes.fromhex(rows[4][3]) == b'FEEDBACK-ITEM'
+        assert rows[5][4:] == ['2001:db8::10', '6666']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {33, 34, 35, 36, 37}',
+                           'frame.number', 'sigcomp.partial.state.identifier',
+                           'sigcomp.returned.feedback.item')
+        assert [len(r[1]) for r in rows] == [12, 18, 24, 12, 12]
+        assert rows[0][1] == rows[1][1][:12] == rows[2][1][:12]
+        assert rows[3][2] == '2a'
+        assert bytes.fromhex(rows[4][2]) == b'RETURNED-FEEDBACK'
+
+    def test_sigcomp_nack(self, cmd_tshark, capture_file, test_env):
+        '''NACK messages: the reason, the failed opcode and the details that
+        depend on the reason (state identifier, cycles per bit, memory size).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'sigcomp.nack.reason',
+                           'frame.number', 'sigcomp.nack.reason', 'sigcomp.nack.failed_op_code',
+                           'sigcomp.nack.state_id', 'sigcomp.nack.cycles_per_bit', 'sigcomp.memory_size')
+        assert [(r[0], r[1]) for r in rows] == [
+            ('48', '1'), ('49', '21'), ('50', '23'), ('51', '2'), ('52', '18'), ('53', '3'),
+            ('54', '19'), ('55', '25'), ('60', '1'), ('61', '3')]
+        assert [r[2] for r in rows[:6]] == ['31', '31', '32', '1', '34', '0']
+        assert rows[0][3] == 'fbe507dfe5e6' and rows[1][3] == 'fbe507dfe5e6010203'
+        assert len(rows[2][3]) == 40
+        assert rows[3][4] == '16' and rows[4][5] == '256'
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-Y', 'sigcomp.nack.reason',
+                '-Tfields', '-e_ws.expert.message')
+        assert stdout.count('SigComp NACK (reason=') == 10
+        assert 'reason=STATE_NOT_FOUND, opcode=STATE-ACCESS' in stdout
+
+    def test_sigcomp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Over TCP the 0xFFFF delimiter ends a message and 0xFF 0x00 is a
+        literal 0xFF. Frame 58 is the first part of a message that frame 59
+        completes, frame 61 starts with a delimiter.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {58, 59, 61}',
+                           'frame.number', 'tcp.reassembled_in', 'tcp.reassembled.data', 'sigcomp.nack.reason',
+                           opts=('-2',))
+        assert rows[0][:2] == ['58', '59']
+        assert rows[1][0] == '59' and len(rows[1][2]) == 2 * 299
+        assert rows[2][3] == '3'
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'tcp.desegment_tcp_streams:FALSE',
+                '-Y', 'frame.number == 59', '-Tfields', '-esigcomp.tcp_fragment')
+        assert stdout.strip() == ''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'tcp.desegment_tcp_streams:FALSE',
+                '-Y', 'frame.number in {58, 59}', '-Tfields', '-e_ws.col.protocol', '-e_ws.expert.message')
+        assert stdout.count('TCP Fragment') >= 1
+
+    def test_sigcomp_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of the fixes, with the decompression on: a state
+        item whose address and length reach past the end of the memory
+        (frame 43) is refused; a reference operand at the last address
+        (44) and COPY-OFFSET with the offset 65535 in a loop (45, it is
+        charged the steps of the loop and runs out of cycles at once); a
+        STATE-ACCESS whose identifier runs off the memory (46); a message
+        that outputs itself, which SIP gives back to SigComp (47, five
+        levels and a warning); the SHA-1 digest of frame 41 is complete.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.DECOMP,
+                '-Y', 'frame.number >= 42 && frame.number <= 47', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-esigcomp.wireshark_udvm_diagnostic', '-e_ws.expert.message')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['42', '43', '44', '45', '46', '47']
+        assert lines[0][1] == 'SIGCOMP/SIP'
+        assert 'Failed to Access state' in lines[1][3]
+        assert lines[1][2] == ''
+        assert 'Maximum number of UDVM cycles reached' in lines[3][3]
+        assert 'No state match' in lines[4][3]
+        assert lines[5][1] == 'SIGCOMP/SIGCOMP/SIGCOMP/SIGCOMP/SIGCOMP/'
+        assert 'SigComp nested too deeply' in lines[5][3]
+        assert 'Dissector bug' not in stdout
+
+    def test_sigcomp_udvm_code(self, cmd_tshark, capture_file, test_env):
+        '''The UDVM code of the uploaded bytecode is dissected into its
+        instructions and operands with sigcomp.display.udvm.code.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sigcomp.display.udvm.code:TRUE',
+                '-o', 'sigcomp.display.bytecode:TRUE', '-Y', 'frame.number in {8, 9, 10, 13, 21, 29}',
+                '-Tfields', '-esigcomp.udvm.instr')
+        instrs = set(int(x) for x in ','.join(stdout.split()).split(','))
+        for i in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+                  26, 27, 28, 29, 30, 32, 33, 34, 35):
+            assert i in instrs, i
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sigcomp.display.udvm.code:TRUE',
+                '-Y', 'frame.number == 1', '-V')
+        assert 'UDVM instruction 1 at UDVM-address 128' in stdout
+        assert 'INPUT-BYTES' in stdout
+
+    def test_sigcomp_execution_trace(self, cmd_tshark, capture_file, test_env):
+        '''The execution trace of the UDVM at its levels of detail, and the
+        decompressed message as text.'''
+        for level, needle in (('low-detail', 'Loading result'), ('medium-detail', 'Copying value'),
+                              ('high-detail', 'Getting value')):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.DECOMP,
+                    '-o', 'sigcomp.show.udvm.execution:' + level, '-Y', 'frame.number in {1, 8, 10, 13, 29}', '-V')
+            assert 'UDVM EXECUTION STARTED' in stdout
+            assert 'END-MESSAGE' in stdout or level == 'low-detail'
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *self.DECOMP,
+                '-o', 'sigcomp.display.decomp.msg.as.txt:TRUE', '-Y', 'frame.number == 1', '-V')
+        assert 'Decompressed SigComp message as raw text' in stdout
