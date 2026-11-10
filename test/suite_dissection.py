@@ -113064,3 +113064,69 @@ class TestDissectOpenthread:
         assert rows[3][1] == '0x0002'     # ack
         assert rows[4][1:3] == ['0x0003', '0x04']   # data request
         assert all(r[4] == '' for r in rows)    # CRC octets were trimmed
+
+
+class TestDissectOpenvpn:
+    '''OpenVPN on UDP and TCP port 1194 from the synthetic capture
+    openvpn_coverage.pcap.gz: a UDP session with the control, ack, reset
+    and data opcodes, tls-auth (detected by the dissector, 20 octet
+    made-up HMAC), tls-crypt with wrapped client keys, and a TCP session.
+    No HMAC is computed or checked; the octets are made-up patterns.'''
+
+    def test_openvpn_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 29 OpenVPN frames decode without malformed packets or
+        warning/error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openvpn_coverage.pcap.gz'),
+                    '-Y', 'openvpn', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 29
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openvpn_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_openvpn_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''The opcodes and key IDs of the UDP session, the P_DATA_V2 peer
+        IDs and the acknowledgement arrays.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openvpn_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 13 && openvpn',
+                '-Tfields', '-eframe.number', '-eopenvpn.opcode', '-eopenvpn.keyid',
+                '-eopenvpn.mpidarraylength', '-eopenvpn.peerid',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t0x07\t0\t0\t', '2\t0x08\t0\t1\t', '3\t0x05\t0\t1\t', '4\t0x04\t0\t0\t',
+            '5\t0x05\t0\t2\t', '6\t0x04\t0\t0\t', '7\t0x04\t0\t1\t', '8\t0x03\t0\t0\t',
+            '9\t0x01\t1\t0\t', '10\t0x02\t1\t0\t', '11\t0x06\t0\t\t',
+            '12\t0x09\t0\t\t7', '13\t0x09\t2\t\t256',
+        ]
+
+    def test_openvpn_tls_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A TLS ClientHello split over two P_CONTROL_V1 packets is
+        reassembled in frame 6 (UDP); another over two TCP PDUs, one of
+        them split over two TCP segments, in frame 31.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openvpn_coverage.pcap.gz'),
+                '-Y', 'tls.handshake.type == 1',
+                '-Tfields', '-eframe.number', '-eopenvpn.reassembled.in',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['6\t6', '17\t', '31\t31']
+
+    def test_openvpn_tls_auth_and_crypt(self, cmd_tshark, capture_file, test_env):
+        '''tls-auth is detected (20 octet HMAC, packet ID); tls-crypt
+        packets have a 32 octet HMAC and the wrapped client key length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openvpn_coverage.pcap.gz'),
+                '-Y', 'openvpn.hmac',
+                '-Tfields', '-eframe.number', '-eopenvpn.pid',
+                '-eopenvpn.hmac', '-eopenvpn.wkc_len',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['14', '15', '16', '17', '18', '19', '20', '21', '22']
+        assert [len(r[2]) for r in rows[:5]] == [40] * 5
+        assert [len(r[2]) for r in rows[5:]] == [64] * 4
+        assert [r[3] for r in rows[5:]] == ['120', '2', '64', '']
