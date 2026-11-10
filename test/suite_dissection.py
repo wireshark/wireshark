@@ -129087,3 +129087,72 @@ class TestDissectRstat:
         assert stdout.splitlines() == [
             '42\tV2 NULL Call  ; V1 STATS Call',
             '43\tV2 NULL Reply (Call In 42)  ; V1 STATS Reply (Call In 42)']
+
+
+class TestDissectRsvd:
+    '''RSVD (Remote Shared Virtual Disk) tunnel operations in SMB2 IOCTL
+    (FSCTL_SVHDX_SYNC_TUNNEL_REQUEST and the async variant) on TCP 445,
+    from the synthetic capture rsvd_coverage.pcap.gz (87 frames).'''
+
+    @staticmethod
+    def rsvd_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rsvd_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rsvd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 87 frames are RSVD and none is malformed or has an error
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                                     'rsvd', '-e_ws.col.protocol', passes=passes)
+            assert len(lines) == 87
+            assert all(l.endswith('\tRSVD') for l in lines)
+            lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                                     '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                     passes=passes)
+            assert lines == []
+
+    def test_rsvd_srb_status(self, cmd_tshark, capture_file, test_env):
+        '''The SRB_STATUS response of frame 14 shows SrbStatus as a masked
+        field. It raised a dissector bug (an exception whenever a tree was
+        built) before "RSVD: Fix a dissector bug on every SRB status
+        response". Frame 16 has SrbStatus 0.'''
+        for passes in ((), ('-2',)):
+            lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                    'frame.number in {14, 16}',
+                    '-ersvd.svhdx_srb_status_srb_status', '-ersvd.svhdx_srb_status_key',
+                    '-ersvd.svhdx_srb_status_sense_info_ex_length', passes=passes)
+            assert lines == ['14\t0x01\t1\t4', '16\t0x00\t2\t0']
+
+    def test_rsvd_scsi_large(self, cmd_tshark, capture_file, test_env):
+        '''A WRITE(10) request carrying 40000 octets (frame 44) and a
+        READ(10) response with 40000 octets (frame 46) were cut off:
+        the length handed to the sub-dissectors was 16 bits and went
+        negative. The SCSI command is dissected now.'''
+        lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {44, 46}', '-e_ws.col.info',
+                '-ersvd.svhdx_scsi_data_transfer_length')
+        assert lines[0].startswith('44\tSCSI Write(10) LUN: 0xffff 0 bytes (78 blocks) at LBA: 0x00000000')
+        assert lines[0].endswith('\t40000')
+        assert lines[1].startswith('46\t')
+        assert lines[1].endswith('\t40000')
+
+    def test_rsvd_operations(self, cmd_tshark, capture_file, test_env):
+        '''Operation codes of requests and responses.'''
+        lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 7, 11, 17, 48, 56, 64, 74, 76, 86, 87}',
+                '-ersvd.svhdx_operation_code')
+        assert lines == [
+            '1\t0x02001001', '2\t0x02001001', '7\t0x02001005', '11\t0x02001006',
+            '17\t0x02001002', '48\t0x02002101', '56\t0x02002101', '64\t0x02002002',
+            '74\t0x02002006', '76\t0x0200200d', '86\t0x02009999', '87\t0x02009999']
+
+    def test_rsvd_convert_to_vhdset(self, cmd_tshark, capture_file, test_env):
+        '''ConvertToVHDSet carries the destination name as UTF-16.'''
+        lines = self.rsvd_fields(cmd_tshark, capture_file, test_env,
+                'rsvd.svhdx_meta_operation.dst_vhdset_name',
+                '-ersvd.svhdx_meta_operation.dst_vhdset_name')
+        assert lines == ['56\tsnap.vhds']
