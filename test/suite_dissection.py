@@ -134341,3 +134341,54 @@ class TestDissectSbasL5:
         rows = [l.split('\t') for l in stdout.splitlines()]
         assert [int(r[1]) for r in rows] == list(range(64))
         assert [r[0] for r in rows[:6]] == ['0x05', '0x0c', '0x06', '0x09', '0x03', '0x0a']
+
+
+class TestDissectSbcAp:
+    '''Synthetic SBc-AP capture (SCTP PPI 24 and SCTP port 29168, 154
+    frames): every SBc-AP procedure with random IE values, warning
+    messages in every data coding scheme, and the PDU alternatives that
+    have no procedure.'''
+    CAPTURE = 'sbc_ap_coverage.pcapng.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('sbc_ap_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_sbc_ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''154 SBcAP frames (134 by the SCTP payload protocol identifier,
+        20 by the SCTP port 29168); no malformed packets or error expert
+        infos in one and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['SBcAP'] * 154
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sctp.data_payload_proto_id == 0', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) == 20
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_sbc_ap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure code (0 to 6) is in the capture.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-esbc-ap.procedureCode')
+        codes = {int(x) for l in lines for x in l.split(',') if x.strip()}
+        assert codes >= set(range(7))
+
+    def test_sbc_ap_warning_messages(self, cmd_tshark, capture_file, test_env):
+        '''Warning messages: 105 frames have a serial number, 29 a decoded
+        warning page, with 1, 2, 3, 5 and 15 pages.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sbc_ap.SerialNumber.gs', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) == 105
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sbc-ap.WarningMessageContents.decoded_page',
+                '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) == 29
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sbc-ap.WarningMessageContents.nb_pages',
+                '-Tfields', '-esbc-ap.WarningMessageContents.nb_pages')
+        assert {int(x) for x in lines} == {1, 2, 3, 5, 15}
+
+    def test_sbc_ap_extension_id_type(self, cmd_tshark, test_env):
+        '''sbc-ap.ext_id is FT_UINT16, not FT_UINT8 (the extension ids
+        are INTEGER (0..65535)).'''
+        out = subprocess.check_output((cmd_tshark, '-G', 'fields'), encoding='utf-8', env=test_env, timeout=300)
+        types = {l.split('\t')[3] for l in out.splitlines() if l.split('\t')[2:3] == ['sbc-ap.ext_id']}
+        assert types == {'FT_UINT16'}
