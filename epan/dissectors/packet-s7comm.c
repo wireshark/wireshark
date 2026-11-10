@@ -19,6 +19,7 @@
 #include <wsutil/array.h>
 #include <wsutil/strtoi.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include "packet-s7comm.h"
 #include "packet-s7comm_szl_ids.h"
@@ -1438,6 +1439,9 @@ static heur_dissector_list_t s7comm_heur_subdissector_list_block_data;
 
 static expert_field ei_s7comm_data_blockcontrol_block_num_invalid;
 static expert_field ei_s7comm_ud_blockinfo_block_num_ascii_invalid;
+static expert_field ei_s7comm_tis_replacejob_too_deep;
+
+#define S7COMM_MAX_REPLACEJOB_NESTING 8
 
 /* PI service name IDs. Index represents the index in pi_service_names */
 typedef enum
@@ -3892,7 +3896,7 @@ s7comm_decode_ud_tis_blockstat(tvbuff_t *tvb,
         } else {
             proto_tree_add_item(td_tree, hf_s7comm_tis_blockstat_reserved, tvb, offset, 1, ENC_NA);
             offset += 1;
-            line_cnt = (td_size - 2) / 2;
+            line_cnt = (td_size < 2) ? 0 : (td_size - 2) / 2;
         }
         proto_tree_add_bitmask(td_tree, tvb, offset, hf_s7comm_diagdata_registerflag,
             ett_s7comm_diagdata_registerflag, s7comm_diagdata_registerflag_fields, ENC_BIG_ENDIAN);
@@ -4332,8 +4336,18 @@ s7comm_decode_ud_tis_jobs(tvbuff_t *tvb, packet_info* pinfo,
                 }
                 /* New job data tree */
                 if (job_td_size > 0) {
-                    // We recurse here, but we'll run out of packet before we run out of stack.
-                    offset = s7comm_decode_ud_tis_data(tvb, pinfo, td_tree, S7COMM_UD_TYPE_REQ, job_subfunc, job_td_size, offset);
+                    /* A Replace job can contain another Replace job; bound the nesting. */
+                    unsigned nest = p_get_proto_depth(pinfo, proto_s7comm);
+                    if (nest >= S7COMM_MAX_REPLACEJOB_NESTING) {
+                        expert_add_info(pinfo, td_tree, &ei_s7comm_tis_replacejob_too_deep);
+                        offset = tvb_reported_length(tvb);
+                    } else {
+                        p_set_proto_depth(pinfo, proto_s7comm, nest + 1);
+                        increment_dissection_depth(pinfo);
+                        offset = s7comm_decode_ud_tis_data(tvb, pinfo, td_tree, S7COMM_UD_TYPE_REQ, job_subfunc, job_td_size, offset);
+                        decrement_dissection_depth(pinfo);
+                        p_set_proto_depth(pinfo, proto_s7comm, nest);
+                    }
                 }
                 break;
         }
@@ -5004,6 +5018,9 @@ s7comm_decode_ud_tis_bstack(tvbuff_t *tvb, packet_info* pinfo,
                     proto_tree_add_item(item_tree, hf_s7comm_tis_bstack_reserved, tvb, offset, 2, ENC_NA);
                     offset += 2;
                     rem -= 4;
+                    if (rem < 0) {
+                        break;
+                    }
                     if (rem >= 8) {
                         offset = s7comm_add_timestamp_to_tree(tvb, item_tree, offset, false, false);
                         rem -= 8;
@@ -5189,7 +5206,6 @@ s7comm_decode_ud_tis_data(tvbuff_t *tvb, packet_info* pinfo,
             case S7COMM_UD_SUBF_TIS_READJOBLIST:
             case S7COMM_UD_SUBF_TIS_READJOB:
             case S7COMM_UD_SUBF_TIS_REPLACEJOB:
-                // We recurse here, but we'll run out of packet before we run out of stack.
                 offset = s7comm_decode_ud_tis_jobs(tvb, pinfo, td_tree, td_size, type, subfunc, offset);
                 break;
             case S7COMM_UD_SUBF_TIS_MODVAR:
@@ -8562,7 +8578,9 @@ proto_register_s7comm (void)
         { &ei_s7comm_data_blockcontrol_block_num_invalid, { "s7comm.data.blockcontrol.block_number.invalid", PI_MALFORMED, PI_ERROR,
             "Block number must be a string containing an integer", EXPFILL }},
         { &ei_s7comm_ud_blockinfo_block_num_ascii_invalid, { "s7comm.data.blockinfo.block_number.invalid", PI_MALFORMED, PI_ERROR,
-            "Block info must be a string containing an integer", EXPFILL }}
+            "Block info must be a string containing an integer", EXPFILL }},
+        { &ei_s7comm_tis_replacejob_too_deep, { "s7comm.tis.replacejob.too_deep", PI_MALFORMED, PI_ERROR,
+            "Replace job nested too deeply", EXPFILL }}
     };
 
     static int *ett[] = {
