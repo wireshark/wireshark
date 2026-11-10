@@ -117049,3 +117049,81 @@ class TestDissectPeekremote:
                 '-ewlan_radio.11n.short_gi',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['31\t', '32\tTrue', '33\tFalse']
+
+
+class TestDissectPer:
+    '''The PER runtime (packet-per.c) through the PER based dissectors
+    that default transports and Exported PDU reach, from the synthetic
+    capture per_coverage.pcapng.gz: 164 H.245 messages (aligned PER,
+    including OCTET STRINGs that are sent in 16K fragments), LTE RRC,
+    NR RRC, 3G RRC, LPP and T.124 (unaligned PER and aligned PER),
+    ULP over TCP 7275, six NGAP PDUs with open types over SCTP and the
+    TETRA frame that reproduces "PER: Use 64-bit fields for large
+    integers".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('per_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_per_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, and no malformed packets or error expert infos
+        in one and in two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                 '-e_ws.col.protocol')
+        assert len(protocols) == 716
+        counts = {p.strip(): protocols.count(p) for p in set(protocols)}
+        assert counts['H.245'] == 164
+        assert counts['NGAP'] == 6
+        assert counts['TETRA'] == 1
+        assert counts['LPP'] == 40
+        assert counts['T.124'] == 27
+        assert counts['ULP'] == 45
+        assert counts.get('NR RRC', 0) + counts.get('NR RRC/NAS-5GS', 0) == 110
+        assert sum(c for p, c in counts.items() if p.startswith('LTE RRC')) == 194
+        for passes in ((), ('-2',)):
+            frames = self._fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                  '-eframe.number', passes=passes)
+            assert count_output('\n'.join(frames)) == 0
+
+    def test_per_integer_uint64(self, cmd_tshark, capture_file, test_env):
+        '''A 24-bit TETRA network time lands in an FT_UINT64 field; before
+        the fix the dissector reported a dissector bug.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'tetra',
+                           '-etetra.network_time')
+        assert out == ['658188']
+
+    def test_per_fragmented_octet_string(self, cmd_tshark, capture_file, test_env):
+        '''Fragmented OCTET STRINGs (16384 octet blocks and a tail) are
+        reassembled; frames 159-164 hold 16384, 32768, 16385, 49159, 65535
+        and 70000 octets.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {159..164}',
+                           '-eframe.number', '-eh245.nsd_data')
+        sizes = {int(f.split('\t')[0]): len(f.split('\t')[1]) // 2 for f in out}
+        assert sizes == {159: 16384, 160: 32768, 161: 16385, 162: 49159,
+                         163: 65535, 164: 70000}
+
+    def test_per_open_types(self, cmd_tshark, capture_file, test_env):
+        '''NGAP information elements are open types; the PrintableString
+        and the 40-bit AMF UE NGAP ID decode.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'ngap',
+                           '-eframe.number', '-engap.AMFName', '-engap.RANNodeName',
+                           '-engap.AMF_UE_NGAP_ID', '-engap.RAN_UE_NGAP_ID')
+        assert out[0] == '710\tamf-one\t\t\t'
+        assert out[1] == '711\t\tgnb-one\t\t'
+        assert out[3] == '713\t\t\t78187493530\t7'
+        assert out[5] == '715\ta\t\t\t'
+
+    def test_per_aligned_and_unaligned(self, cmd_tshark, capture_file, test_env):
+        '''The first H.245 message (aligned PER) is a vendorIdentification
+        indication, frame 200 an LTE RRC DL-DCCH message (unaligned).'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 200}', '-eframe.number',
+                           '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.strip() for l in out] == ['1\tH.245\tvendorIdentification',
+                                          '200\tLTE RRC DL_DCCH']
