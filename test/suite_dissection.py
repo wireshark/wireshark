@@ -137727,3 +137727,191 @@ class TestDissectSinecap:
                     '-ecotp.segment.count', '-esinecap.pduid', '-edata.len',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['11\t\t2\t0x0004\t40']
+
+
+class TestDissectSip:
+    '''SIP from the synthetic capture sip_coverage.pcapng.gz: REGISTER with
+    bindings and a digest challenge (frames 1-14), an INVITE with every
+    known header (15-24), responses of all classes (25-76), all methods
+    (77-102), bodies (103-115), URI, Via and header variants (116-175),
+    retransmissions and request/response matching (176-194), TCP (195-243),
+    SCTP, SigComp, ICMP, TURN, Exported PDUs, WebSocket (244-265) and the
+    reproducers of the fixes (266-268). The digest values are made up.'''
+
+    PCAP = 'sip_coverage.pcapng.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args, '-r', capture_file('sip_coverage.pcapng.gz')),
+                encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    @staticmethod
+    def pcap(frames):
+        '''A pcap with Ethernet/IPv4/UDP frames (a list of payloads, UDP
+        5060 from 192.0.2.1 to 192.0.2.2), built without any file.'''
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for i, payload in enumerate(frames):
+            udp = struct.pack('>HHHH', 5060, 5060, 8 + len(payload), 0) + payload
+            ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), i + 1, 0, 64, 17, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            total = sum(struct.unpack('>10H', ip))
+            while total >> 16:
+                total = (total & 0xffff) + (total >> 16)
+            ip = ip[:10] + struct.pack('>H', ~total & 0xffff) + ip[12:]
+            frame = b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01\x08\x00' + ip + udp
+            out += struct.pack('<IIII', 1700000000 + i, 0, len(frame), len(frame)) + frame
+        return out
+
+    def test_sip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol column of every frame, and no malformed packets or
+        warning or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                '-Tfields', '-e_ws.col.protocol')
+            assert len(lines) == 268
+            counts = {p: lines.count(p) for p in set(lines)}
+            assert counts == {'SIP': 209, 'SIP/SDP': 8, 'SIP/SDP/ISUP(ITU)': 1, 'SIP/sipfrag': 1,
+                              'SIP/XML': 4, 'TCP': 38, 'HTTP': 2, 'SCTP': 2, 'SIGCOMP': 1,
+                              'ICMP': 1, 'UDP': 1}
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_sip_request_line_and_counts(self, cmd_tshark, capture_file, test_env):
+        '''Every method (also an unknown one) and the Info column of the
+        REGISTER frames that count bindings.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'sip.Method',
+            '-Tfields', '-esip.Method')
+        methods = {m for l in lines for m in l.split(',')}
+        assert methods >= {'REGISTER', 'INVITE', 'ACK', 'BYE', 'CANCEL', 'DO', 'INFO', 'MESSAGE',
+                           'NOTIFY', 'OPTIONS', 'PRACK', 'QAUTH', 'REFER', 'SPRACK', 'SUBSCRIBE',
+                           'UPDATE', 'PUBLISH', 'FOOBAR'}
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {5, 6, 7, 8, 9, 11, 12, 13}',
+            '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '5\tRequest: REGISTER sip:example.com  (remove all bindings) | ',
+            '6\tStatus: 200 OK (REGISTER)  (0 bindings) | ',
+            '7\tRequest: REGISTER sip:example.com  (fetch bindings) | ',
+            '8\tStatus: 200 OK (REGISTER)  (1 binding) | ',
+            '9\tRequest: REGISTER sip:example.com  (1 binding) | ',
+            '11\tRequest: REGISTER sip:example.com  (remove 1 binding) | ',
+            '12\tRequest: REGISTER sip:example.com  (remove 1 binding) (add 1 binding) | ',
+            '13\tStatus: 200 OK (REGISTER)  (removed 1 binding) (1 binding kept) | ',
+        ]
+
+    def test_sip_all_headers(self, cmd_tshark, capture_file, test_env):
+        '''Values decoded from the INVITE with every header (frame 15): Via,
+        Reason, Security-*, RAck, P-Access-Network-Info, authentication,
+        Feature-Caps, Route and Session-ID.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 15',
+            '-Tfields', '-esip.Via.branch', '-esip.Via.transport', '-esip.Via.sent-by.port',
+            '-esip.reason_cause_q850', '-esip.reason_text', '-esip.sec_mechanism',
+            '-esip.sec_mechanism.alg', '-esip.sec_mechanism.spi_c', '-esip.sec_mechanism.port_s',
+            '-esip.RAck.RSeq.seq', '-esip.RAck.CSeq.method',
+            '-esip.P-Access-Network-Info.access-type', '-esip.P-Access-Network-Info.utran-cell-id-3gpp',
+            '-esip.auth.scheme', '-esip.auth.nc', '-esip.icid_value', '-esip.Route.host',
+            '-esip.r-uri.user', '-esip.pai.user', '-esip.ppi.user', '-esip.from.tag')
+        assert lines == [
+            'z9hG4bKi1\tUDP\t5060\t16\tCall completed elsewhere,Terminated\t'
+            'ipsec-3gpp,tls,ipsec-3gpp,ipsec-3gpp\thmac-sha-1-96,hmac-sha-1-96,hmac-md5-96\t98765432,1111,1\t'
+            '7531,5064,4\t776656\tINVITE\t3GPP-E-UTRAN-FDD\t234150999999999\tDigest,Digest,Digest\t00000001\t'
+            '"AyretyU0dm+6O2IrT5tAFrbHLso=023551024"\tserver10.biloxi.com,bigbox3.site3.atlanta.com\t'
+            'bob\tbob\talice\tai1']
+
+    def test_sip_session_id(self, cmd_tshark, capture_file, test_env):
+        '''Session-ID with a remote UUID decodes both UUIDs (frame 266 is
+        the layout of the leak reproducer, frame 267 a plain ";remote="
+        that was never decoded before the fix in the same commit), with and
+        without the logme parameter.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {140, 141, 267}',
+            '-Tfields', '-eframe.number', '-esip.Session-ID.remote_uuid', '-esip.Session-ID.logme')
+        assert lines == [
+            '140\tfedcba98-7654-3210-fedc-ba9876543210\t',
+            '141\tfedcba98-7654-3210-fedc-ba9876543210\tTrue',
+            '267\t01234567-89ab-cdef-0123-456789abcdef\t',
+        ]
+        # the odd layout of the leak reproducer is dissected without errors
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 266 && sip.Session-ID.remote_uuid',
+            '-Tfields', '-eframe.number')
+        assert lines == ['266']
+
+    def test_sip_nested_message_sip(self, cmd_tshark, result_file, test_env):
+        '''A message/sip body that holds a message/sip body, nested more
+        than the limit, gets an expert info at the fifth level instead
+        of running into the dissection depth assertion ("SIP: Fix Session-ID
+        leak and bound message/sip nesting").'''
+        def sip(body=None):
+            hdr = b'OPTIONS sip:b@192.0.2.2 SIP/2.0\r\nVia: SIP/2.0/UDP 192.0.2.1:5060;branch=z9hG4bK1\r\nCall-ID: n@h\r\nCSeq: 1 OPTIONS\r\n'
+            if body is None:
+                return hdr + b'\r\n'
+            return hdr + b'Content-Type: message/sip\r\nContent-Length: %d\r\n\r\n' % len(body) + body
+        msg = sip()
+        for _ in range(8):
+            msg = sip(msg)
+        path = result_file('sip_nested.pcap')
+        with open(path, 'wb') as f:
+            f.write(self.pcap([msg]))
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes, '-r', path, '-Y', 'sip.nesting_too_deep',
+                    '-Tfields', '-eframe.number', '-esip.Method'),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', env=test_env, timeout=120)
+            assert proc.returncode == 0
+            assert proc.stdout.split() == ['1', 'OPTIONS,OPTIONS,OPTIONS,OPTIONS,OPTIONS']
+            assert 'Dissector bug' not in proc.stderr
+
+    def test_sip_nested_below_limit(self, cmd_tshark, capture_file, test_env):
+        '''Four levels of message/sip (frame 268) and three (frame 106) are
+        dissected without an expert info.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {106, 268}',
+            '-Tfields', '-eframe.number', '-esip.Call-ID')
+        assert lines == ['106\tn1@192.0.2.1,n2@192.0.2.1,n3@192.0.2.1',
+                         '268\tnn1@192.0.2.1,nn2@192.0.2.1,nn3@192.0.2.1,nn4@192.0.2.1']
+
+    def test_sip_resend_and_matching(self, cmd_tshark, capture_file, test_env):
+        '''A request sent twice and a final response sent twice are
+        marked as resends of the first frame; the INVITE that is sent
+        again before any response is one too.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'sip.resend == True',
+            '-Tfields', '-eframe.number', '-esip.resend-original')
+        assert lines[:3] == ['177\t176', '179\t178', '192\t191']
+
+    def test_sip_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''An INVITE split over three TCP segments (frames 198-200, in
+        the middle of the headers and of the body) reassembles in the
+        last one; two messages in one segment (frame 202).'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-2', '-Y', 'frame.number in {198, 199, 200, 202}',
+            '-Tfields', '-eframe.number', '-etcp.reassembled_in', '-esip.Method')
+        assert lines == ['198\t200\t', '199\t200\t', '200\t\tINVITE', '202\t\tACK,OPTIONS']
+        # also without a tree
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-2', '-Y', 'sip', '-Tfields', '-eframe.number')
+        assert '200' in lines and '202' in lines
+
+    def test_sip_transports(self, cmd_tshark, capture_file, test_env):
+        '''SIP over SCTP (heuristic), in an ICMP error, as the WebSocket
+        subprotocol and from Exported PDUs; SigComp is handed over.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 244 && frame.number <= 265',
+            '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-esip.Method')
+        got = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert got['249'] == ['SIP', 'OPTIONS'] and got['250'] == ['SIP', 'OPTIONS']   # SCTP, unspecified PPID
+        assert got['251'][0] == 'SIGCOMP'
+        assert got['252'] == ['ICMP', 'OPTIONS']
+        assert got['253'] == ['SIP', 'OPTIONS'] and got['254'] == ['SIP', 'OPTIONS']  # Exported PDU
+        assert got['255'] == ['SIP', 'OPTIONS']                                       # TURN ChannelData
+        assert got['261'] == ['SIP', 'OPTIONS'] and got['262'][0] == 'SIP'            # WebSocket
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'websocket && sip', '-Tfields', '-eframe.number')
+        assert lines == ['261', '262']
+
+    def test_sip_custom_header(self, cmd_tshark, capture_file, test_env):
+        '''A header from the custom header table is a field.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env,
+            '-o', 'uat:custom_sip_header_fields:"X-Custom-Header","A custom header"',
+            '-Y', 'frame.number == 15', '-Tfields', '-esip.X-Custom-Header')
+        assert lines == ['some value']
+
+    def test_sip_bodies(self, cmd_tshark, capture_file, test_env):
+        '''Bodies are handed to their dissectors: SDP, sipfrag, XML, ISUP.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'isup || sipfrag || xml',
+            '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['85\tSIP/sipfrag', '99\tSIP/XML', '103\tSIP/SDP/ISUP(ITU)',
+                         '112\tSIP/XML', '114\tSIP/XML', '115\tSIP/XML']
