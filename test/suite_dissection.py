@@ -127619,3 +127619,40 @@ class TestDissectRoonDiscovery:
                   'roon_disco.is_dev') == ['core\t2.0 (build 1)\t9330\t9333\tk1,k2\tTrue']
         assert fr('frame.number == 8', 'roon_disco.is_dev') == ['False']
         assert fr('roon_disco.query_service_id', 'frame.number') == ['1', '5', '15']
+
+
+class TestDissectRoqDatagram:
+    '''RoQ DATAGRAM payloads (flow identifier, RTP or RTCP packet) from the
+    synthetic capture roq_coverage.pcapng.gz. They are handed to the
+    "roq.datagram" dissector by Exported PDU, because the real carrier,
+    QUIC, only reaches RoQ after the packet protection is removed. The
+    stream mapping (roq) needs QUIC stream data and is covered by
+    TestDissectRoq and its keyed capture.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('roq_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_roq_datagrams(self, cmd_tshark, capture_file, test_env):
+        '''Flow identifiers of every varint size, RTP and RTCP demultiplexing
+        by the packet type octet (RFC 5761), no malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('roq', 'roq.flow_id') == [
+                '0', '5', '63', '64', '16383', '16384', '1073741823', '1073741824',
+                '4611686018427387903', '1', '2', '3', '3', '4', '4', '4', '4']
+            assert fr('roq && rtp', 'frame.number') == \
+                [str(n) for n in range(1, 12)] + ['16', '17']
+            assert fr('roq && rtcp', 'frame.number') == ['12', '13', '14']
+            assert fr('rtcp.pt == 200', 'frame.number') == ['12']
+            assert fr('rtcp.pt == 201', 'frame.number') == ['13']
+            assert fr('rtp.p_type == 0', 'frame.number') == ['10']
+            assert fr('!roq', 'frame.number') == ['18']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
