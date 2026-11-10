@@ -241,10 +241,10 @@ static unsigned dissect_feccode(proto_tree *tree, tvbuff_t *tvb, unsigned offset
     uint8_t             encoding_id = tvb_get_uint8(tvb, offset);
 
     /* Save encoding ID */
-    norm_data = wmem_new0(wmem_file_scope(), norm_packet_data_t);
+    norm_data = wmem_new0(pinfo->pool, norm_packet_data_t);
     norm_data->encoding_id = encoding_id;
 
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_rmt_norm, 0, norm_data);
+    p_set_proto_data(pinfo->pool, pinfo, proto_rmt_norm, 0, norm_data);
 
     proto_tree_add_item(tree, hf_fec_encoding_id, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     if (reserved) {
@@ -272,7 +272,7 @@ static unsigned dissect_norm_hdrext(proto_tree *tree, packet_info *pinfo,
                                  tvbuff_t *tvb, unsigned offset, uint8_t hlen)
 {
     lct_data_exchange_t  data_exchange;
-    norm_packet_data_t  *packet_data = (norm_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rmt_norm, 0);
+    norm_packet_data_t  *packet_data = (norm_packet_data_t *)p_get_proto_data(pinfo->pool, pinfo, proto_rmt_norm, 0);
 
     memset(&data_exchange, 0, sizeof(data_exchange));
 
@@ -370,10 +370,10 @@ static void dissect_norm_info(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
     offset += 1;
 
     /* Save encoding ID */
-    norm_data = wmem_new0(wmem_file_scope(), norm_packet_data_t);
+    norm_data = wmem_new0(pinfo->pool, norm_packet_data_t);
     norm_data->encoding_id = tvb_get_uint8(tvb, offset);
 
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_rmt_norm, 0, norm_data);
+    p_set_proto_data(pinfo->pool, pinfo, proto_rmt_norm, 0, norm_data);
 
     proto_tree_add_item(tree, hf_fec_encoding_id,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
     proto_tree_add_item(tree, hf_object_transport_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
