@@ -122147,3 +122147,102 @@ class TestDissectQllc:
         assert d['37'] == ['QXID', '0x00', '0xbf']
         assert d['41'] == ['Control Field: 0x01 (unknown)', '0xff', '0x01']
         assert d['46'] == ['QRR', '0xff', '0xf1']
+
+
+class TestDissectQnet6:
+    '''QNX6 QNET (LWL4) over Ethernet type 0x8204 and IPv4 protocol 106 from
+    the synthetic capture qnet6_coverage.pcap.gz: LWL4 packets (little and
+    big endian), QoS, node resolver, LAN resolver and KIF messages with
+    every IO message and combined message chains, including the reproducers
+    of the fixes for the unbounded nesting of combined messages and the link
+    extra data length.'''
+
+    CAP = 'qnet6_coverage.pcap.gz'
+    NFRAMES = 220
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectQnet6.CAP), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+
+    def test_qnet6_frames(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes; the two warnings are the chains of
+        combined messages that are too deep (frames 213 and 216).'''
+        for passes in ((), ('-2',)):
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-e_ws.col.protocol', passes=passes)
+            protos = stdout.splitlines()
+            assert len(protos) == self.NFRAMES
+            counts = {p: protos.count(p) for p in set(protos)}
+            assert counts == {'QNET_KIF': 175, 'QNET_LR': 8, 'QNET_LWL4': 14,
+                              'QNET_NR': 13, 'QNET_QOS': 10}
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert stdout.split() == ['213', '216']
+
+    def test_qnet6_crc(self, cmd_tshark, capture_file, test_env):
+        '''The LWL4 crc is checked for first and last packets: 214 are
+        correct and two (frames 16 and the big endian one) are not.
+        With the preference off only the packet that has the crc bit
+        set is checked.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env, '-V')
+        assert stdout.count('[correct]') == 214
+        assert stdout.count('[incorrect, should be') == 2
+        stdout = self._run(cmd_tshark, capture_file, test_env, '-V', '-o', 'lwl4.check_crc:FALSE')
+        assert stdout.count('[correct]') == 1
+        assert stdout.count('[incorrect') == 0
+
+    def test_qnet6_combine_depth(self, cmd_tshark, capture_file, test_env):
+        '''Chains of combined _IO_CLOSE messages: 15 and 16 levels decode
+        completely, a chain of 20 stops after 16 with the warning "Combined
+        messages nested too deeply" (little endian frames 211-213, big
+        endian 214-216). The chain used to recurse until the stack was
+        exhausted.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 211 && frame.number <= 216',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-e_ws.expert.message')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1].count('_IO_CLOSE') for r in rows] == [15, 16, 16, 15, 16, 16]
+        assert [len(r) > 2 and r[2] != '' for r in rows] == [False, False, True, False, False, True]
+        assert rows[2][2] == 'Combined messages nested too deeply'
+
+    def test_qnet6_link_extra_length(self, cmd_tshark, capture_file, test_env):
+        '''The link extra data of _IO_CONNECT is shown with at most four
+        octets (frames 217, little endian with 8 octets, and 218, big endian
+        with 3). A longer value raised a type/length mismatch.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {217, 218}', '-Tfields', '-eframe.number',
+                '-eqnet6.kif.msgsend.msg.connect.extra.link.ocb',
+                '-eqnet6.kif.msgsend.msg.connect.extra_len')
+        assert stdout.splitlines() == ['217\t0x07000000\t0x0008', '218\t0x00000007\t0x0003']
+
+    def test_qnet6_resolvers(self, cmd_tshark, capture_file, test_env):
+        '''Node resolver and LAN resolver messages decode alike in little
+        and big endian (frames 34-37 and 40-43; 45-48), the name and
+        address pairs of the LAN resolver are shown in the Info column.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'qnet6.nr.req_id', '-Tfields', '-eframe.number',
+                '-eqnet6.nr.req_id', '-eqnet6.nr.req_name')
+        assert stdout.splitlines() == ['34\t0x1234\tnode-a', '35\t0x1235\tnode-b',
+                                       '40\t0x1234\tnode-a', '41\t0x1235\tnode-b']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {45, 46, 47, 48}', '-Tfields', '-e_ws.col.info')
+        infos = stdout.splitlines()
+        assert infos[0] == infos[2]
+        assert infos[1] == infos[3]
+        assert infos[0] == 'Who is "bob.example.org"? Tell "alice.example.net"@02:00:00:00:00:01'
+        assert infos[1] == 'To "bob.example.org", "alice.example.net" is at 02:00:00:00:00:01'
+
+    def test_qnet6_ip_protocol(self, cmd_tshark, capture_file, test_env):
+        '''LWL4 is also reached through IPv4 protocol 106 (frames 52, 219, 220).'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'ip.proto == 106', '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert stdout.splitlines() == ['52\tQNET_LR', '219\tQNET_KIF', '220\tQNET_KIF']
