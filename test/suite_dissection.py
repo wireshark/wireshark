@@ -126677,3 +126677,99 @@ class TestDissectRlcLte:
         out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
                          'frame.number in {119, 120}', '-eframe.number', '-e_ws.col.info')
         assert out == ['119\tDLInformationTransfer-NB', '120\tRRCConnectionRelease-NB']
+
+
+class TestDissectRlcNr:
+    '''RLC-NR from the synthetic capture rlc_nr_coverage.pcapng.gz: RLC PDUs in
+    the UDP framing of the RLC-NR wiki page. The heuristic (rlc_nr_udp) is
+    disabled by default; DRB SDUs reach PDCP-NR only with
+    rlc-nr.call_pdcp_for_ul_drb / call_pdcp_for_dl_drb and UM reassembly is
+    off by default, so OPTS set them (uplink: 12 bit SN with SDAP header,
+    downlink: 18 bit SN).'''
+
+    HEUR = ('--enable-heuristic', 'rlc_nr_udp')
+    OPTS = ('--enable-heuristic', 'rlc_nr_udp', '-o', 'rlc-nr.reassemble_um_frames:TRUE',
+            '-o', 'rlc-nr.call_pdcp_for_ul_drb:pdcp-drb-sn-12-with-sdap',
+            '-o', 'rlc-nr.call_pdcp_for_dl_drb:pdcp-drb-sn-18')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, opts, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rlc_nr_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', *fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_rlc_nr_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 86 frames decode (49 end in RLC-NR, 26 in the IP packet of a
+        DRB SDU, 11 in NR RRC) without malformed packets or error expert
+        infos, in one and two passes and with the default preferences.'''
+        for opts in (self.OPTS, self.HEUR):
+            for passes in ((), ('-2',)):
+                out = self.lines(cmd_tshark, capture_file, test_env, opts, self.BAD,
+                                 '-eframe.number', passes=passes)
+                assert out == []
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS, '', '-e_ws.col.protocol')
+        assert len(out) == 86
+        assert out.count('RLC-NR') == 49
+        assert out.count('UDP') == 26
+        assert out.count('NR RRC') == 11
+        out = self.lines(cmd_tshark, capture_file, test_env, (), '', '-eframe.number')
+        assert len(out) == 86
+
+    def test_rlc_nr_18_bit_nack_before_ack(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1: status PDU with 18 bit SNs, ACK_SN 10 and NACK_SN 262140,
+        which is just behind the ACK across the 2^18 wrap. Before "RLC-NR:
+        Fix 18-bit SN limit and SDAP header flag" the SN limit was 262044 and
+        "NACK must not be ahead of ACK in status PDU" was reported.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS, 'frame.number == 1',
+                         '-eframe.number', '-erlc-nr.am.ack-sn', '-erlc-nr.am.nack-sn',
+                         '-erlc-nr.am.nack-sn.ahead-ack', '-e_ws.malformed')
+        assert out == ['1\t10\t262140\t\t']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS, 'rlc-nr.am.nack-sn.ahead-ack',
+                         '-eframe.number')
+        assert out == []
+
+    def test_rlc_nr_status_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Status PDUs with NACKs, partial NACKs (SOstart/SOend) and NACK
+        ranges, for 12 bit (frames 67-76) and 18 bit SNs (77-86).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {69, 73, 76, 83}', '-eframe.number',
+                         '-erlc-nr.am.ack-sn', '-erlc-nr.am.nack-sn', '-erlc-nr.am.nack-range',
+                         '-erlc-nr.am.so-start', '-erlc-nr.am.so-end', '-erlc-nr.am.nacks')
+        assert out == [
+            '69\t9\t3,5,8\t\t\t\t3',
+            '73\t20\t4,12,15\t5,2\t1\t2\t8',
+            '76\t30\t10\t255\t\t\t255',
+            '83\t20\t4,12,15\t5,2\t1\t2\t8',
+        ]
+
+    def test_rlc_nr_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segmented SDUs of AM and UM (with the UM reassembly preference) are
+        reassembled and passed on: 15 frames carry a reassembled SDU; frame
+        14 is the last of three UM segments and holds 35 octets.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'rlc-nr.reassembled.length', '-eframe.number')
+        assert len(out) == 15
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {14, 16, 21}', '-eframe.number',
+                         '-erlc-nr.reassembled.length', '-erlc-nr.fragment.count')
+        assert out == ['14\t35\t3', '16\t35\t2', '21\t35\t5']
+        # without the UM reassembly preference the UM SDUs stay in pieces
+        out = self.lines(cmd_tshark, capture_file, test_env, self.HEUR,
+                         'rlc-nr.reassembled.length && rlc-nr.um', '-eframe.number')
+        assert out == []
+
+    def test_rlc_nr_rrc_and_pdcp(self, cmd_tshark, capture_file, test_env):
+        '''TM on the common channels reaches NR RRC; an 8 octet UL-CCCH PDU is
+        an UL-CCCH1 message (frames 2-7). The uplink DRB SDU of frame 22 has
+        an SDAP header, the downlink one of frame 10 has none.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number >= 2 && frame.number <= 7', '-eframe.number', '-e_ws.col.info')
+        assert out == ['2\tMIB', '3\tSystem Information [ ]', '4\tPaging',
+                       '5\tRRC Setup Request', '6\tRRC Resume Request 1', '7\tRRC Setup']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {10, 22}', '-eframe.number', '-epdcp-nr.sdap')
+        assert out == ['10\tFalse', '22\tTrue']
