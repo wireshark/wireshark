@@ -134123,3 +134123,105 @@ class TestDissectSapsnc:
         assert lines[0] == 'Control message, opcode=SNC request'
         assert lines[1] == 'Control message, opcode=SNC handshake complete'
         assert lines[2].startswith('Routed message, SNC protected, from client.example:3299 to igs.example:40000')
+
+
+class TestDissectSasp:
+    def test_sasp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every message on TCP port 3860 is SASP; the three TCP segments
+        of the split registration request (the last of them is the
+        message) and the first segment of a split reply are shown as TCP.
+        No frame is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sasp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 61
+        assert protocols.count('SASP') == 58
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sasp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sasp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every request and reply type is named in the Info column, in
+        one and two passes, with the same message lengths.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sasp_coverage.pcap.gz'),
+                    '-Y', 'sasp',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-esasp.msg.len',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert len(lines) == 58
+            info = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+            assert info['1'] == ['Registration Request', '137']
+            assert info['2'] == ['Registration Reply', '18']
+            assert info['12'] == ['Deregistration Request', '64']
+            assert info['15'] == ['Deregistration Reply', '18']
+            assert info['23'] == ['Get Weights Request', '45']
+            assert info['24'] == ['Get Weights Response', '189']
+            assert info['32'] == ['Send Weights Request', '102']
+            assert info['34'] == ['Set LB State Request', '23']
+            assert info['37'] == ['Set LB State Reply', '18']
+            assert info['42'] == ['Set Member State Request', '147']
+            assert info['44'] == ['Set Member State Reply', '18']
+
+    def test_sasp_dereg_reason(self, cmd_tshark, capture_file, test_env):
+        '''The reason of a Deregistration Request does not depend on the
+        requests before it (a static flag made every request after the
+        first show ", No Reason"), in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sasp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {12, 13, 14}',
+                    '-V', '-O', 'sasp',
+                ), encoding='utf-8', env=test_env)
+            reasons = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Reason:')]
+            assert reasons == [
+                'Reason: 0x00 (No Reason)',
+                'Reason: 0x01 (Learned & Purposeful)',
+                'Reason: 0x00 (No Reason)',
+            ]
+
+    def test_sasp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A registration request in three TCP segments is reassembled in
+        frame 56 with all eight members, and two replies in one segment
+        are both dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sasp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 56',
+                '-V', '-O', 'sasp',
+            ), encoding='utf-8', env=test_env)
+        assert '[3 Reassembled TCP Segments (271 bytes): #54(30), #55(40), #56(201)]' in stdout
+        assert stdout.count('Member Data Comp (2001:db8::') == 8
+        assert 'Mem Data Comp-Label: host8' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sasp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {57, 59}',
+                '-Tfields', '-eframe.number', '-esasp.msg.id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['57\t40,41', '59\t40,41']
+
+    def test_sasp_members(self, cmd_tshark, capture_file, test_env):
+        '''Member addresses, ports, protocols and labels, the weights and
+        the flags of a Get Weights Response and a Set LB State Request.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sasp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 24, 34}',
+                '-V', '-O', 'sasp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Member Data Comp (2001:db8::2)' in lines
+        assert 'Mem Data Comp-Protocol: UDP (0x11)' in lines
+        assert 'Mem Data Comp-Port: 8080' in lines
+        assert 'Mem Data Comp-Label: web1' in lines
+        assert 'Wt Entry Data Comp-weight: 30' in lines
+        assert 'Set LB State Req-LB UID: lb1' in lines
+        assert 'Set LB State Req-LB Health: Most Healthy (0x7f)' in lines
