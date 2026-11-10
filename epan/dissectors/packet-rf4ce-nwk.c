@@ -849,7 +849,7 @@ static int dissect_rf4ce_nwk_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             }
         }
 
-        offset += decrypted_offset;
+        offset = decrypted_offset;
     }
     else
     {
@@ -1069,7 +1069,9 @@ static void dissect_rf4ce_nwk_cmd_pair_req(tvbuff_t *tvb, packet_info *pinfo, pr
     proto_tree_add_item(tree, hf_rf4ce_nwk_pair_req_key_exch_num, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
 
     expected_transfer_count = tvb_get_uint8(tvb, *offset) + 1;
-    keypair_context_init((const uint8_t *)pinfo->dl_src.data, (const uint8_t *)pinfo->dl_dst.data, expected_transfer_count);
+    if (pinfo->dl_src.type == AT_EUI64 && pinfo->dl_src.len == 8 &&
+        pinfo->dl_dst.type == AT_EUI64 && pinfo->dl_dst.len == 8)
+        keypair_context_init((const uint8_t *)pinfo->dl_src.data, (const uint8_t *)pinfo->dl_dst.data, expected_transfer_count);
     *offset += 1;
 }
 
@@ -1091,8 +1093,10 @@ static void dissect_rf4ce_nwk_cmd_pair_rsp(tvbuff_t *tvb, packet_info *pinfo, pr
     dissect_rf4ce_nwk_common_vendor_info(tvb, tree, offset);
     dissect_rf4ce_nwk_common_app_capabilities(tvb, tree, offset, RF4CE_NWK_USR_STR_PARSING_MASK_NONE);
 
-    rf4ce_addr_table_add_addrs(pinfo->dl_dst.data, allocated_nwk_addr);
-    rf4ce_addr_table_add_addrs(pinfo->dl_src.data, nwk_addr);
+    if (pinfo->dl_dst.type == AT_EUI64 && pinfo->dl_dst.len == 8)
+        rf4ce_addr_table_add_addrs(pinfo->dl_dst.data, allocated_nwk_addr);
+    if (pinfo->dl_src.type == AT_EUI64 && pinfo->dl_src.len == 8)
+        rf4ce_addr_table_add_addrs(pinfo->dl_src.data, nwk_addr);
 }
 
 static void dissect_rf4ce_nwk_cmd_key_seed(tvbuff_t *tvb, proto_tree *tree, int *offset)
