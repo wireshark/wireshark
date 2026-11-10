@@ -136784,3 +136784,101 @@ class TestDissectSgp32:
                     '-Y', 'sgp32', '-O', 'sgp32',
                 ), encoding='utf-8', env=test_env))
         assert out[0] == out[1]
+
+
+class TestDissectSgsap:
+    def test_sgsap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every one of the 49 SCTP packets (port 29118) is SGSAP. None is
+        malformed or has a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgsap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 49
+        assert protocols.count('SGSAP') == 49
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sgsap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sgsap_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type of the specification (25 of them), the
+        unassigned ones and an unknown one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgsap_coverage.pcap.gz'),
+                '-Tfields', '-esgsap.msg_type', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env)
+        types = [int(t, 16) if t else None for t in stdout.splitlines()]
+        assert sorted(set(t for t in types if t is not None)) == [
+            0x01, 0x02, 0x03, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+            0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, 0x1c,
+            0x1d, 0x1f]
+        assert types[47] is None        # unknown message type: not decoded
+
+    def test_sgsap_elements(self, cmd_tshark, capture_file, test_env):
+        '''MME and VLR names (as labels or as text), EPS location update
+        type, service indicator, IMEISV, ECI, CN-Id, LCS indicator, UE EMM
+        mode, additional paging indicator, detach types and SGs causes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgsap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 9, 10, 11, 12, 13, 14, 16, 18, 20, 25, 27, 29, 31, 33, 34, 37, 40, 41, 42, 44, 45, 48}',
+                '-Tfields', '-eframe.number', '-esgsap.msg_type', '-esgsap.mme_name',
+                '-esgsap.vlr_name', '-esgsap.eps_location_update_type',
+                '-esgsap.service_indicator', '-esgsap.imeisv', '-esgsap.eci', '-esgsap.cn_id',
+                '-esgsap.lcs_indicator', '-esgsap.ue_emm_mode', '-esgsap.csri',
+                '-esgsap.imsi_det_eps', '-esgsap.imsi_det_non_eps', '-esgsap.sgs_cause',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x09\tmme.example.com\t\t1\t\t2345670123456789\t1193046\t\t\t\t\t\t\t',
+            '2\t0x09\tmme.epc.mnc001.mcc262.3gppnetwork.org\t\t2\t\t\t\t\t\t\t\t\t\t',
+            '9\t0x01\t\tvlr.example.com\t\t1\t\t\t7\t1\t\tTrue\t\t\t',
+            '10\t0x01\t\tvlr.example.net\t\t2\t\t\t\t\t\tFalse\t\t\t',
+            '11\t0x01\t\tvlr.example.com\t\t85\t\t\t\t\t\t\t\t\t',
+            '12\t0x02\t\t\t\t\t\t\t\t\t\t\t\t\t6',
+            '13\t0x06\t\t\t\t1\t2345670123456789\t1193046\t\t\t1\t\t\t\t',
+            '14\t0x06\t\t\t\t2\t\t\t\t\t0\t\t\t\t',
+            '16\t0x1b\t\t\t\t\t\t\t\t\t\t\t\t\t13',
+            '18\t0x18\t\t\t\t\t\t1193046\t\t\t\t\t\t\t',
+            '20\t0x08\t\t\t\t\t2345670123456789\t1193046\t\t\t\t\t\t\t',
+            '25\t0x0f\t\t\t\t\t\t\t\t\t\t\t\t\t14',
+            '27\t0x11\tmme.example.com\t\t\t\t\t\t\t\t\t\t1\t\t',
+            '29\t0x13\tmme.example.com\t\t\t\t\t\t\t\t\t\t\t2\t',
+            '31\t0x11\tmme.example.com\t\t\t\t\t\t\t\t\t\t3\t\t',
+            '33\t0x1f\t\t\t\t\t\t\t\t\t\t\t\t\t14',
+            '34\t0x15\tmme.example.com\tvlr.example.com\t\t\t\t\t\t\t\t\t\t\t',
+            '37\t0x16\t\tvlr.example.com\t\t\t\t\t\t\t\t\t\t\t',
+            '40\t0x1d,0x01\t\tvlr.example.com\t\t1\t\t\t\t\t\t\t\t\t7',
+            '41\t0x1d,0x03\t\t\t\t\t\t\t\t\t\t\t\t\t12',
+            '42\t0x1d,0x7e\t\t\t\t\t\t\t\t\t\t\t\t\t12',
+            '44\t0x1d,0x1d,0x1d,0x1d,0x1d\t\t\t\t\t\t\t\t\t\t\t\t\t7,7,7,7,8',
+            '45\t0x03\t\t\t\t\t\t\t\t\t\t\t\t\t',
+            '48\t\t\t\t\t\t\t\t\t\t\t\t\t\t',
+        ]
+
+    def test_sgsap_info(self, cmd_tshark, capture_file, test_env):
+        '''The SMS carried in a NAS message container is decoded by the
+        GSM DTAP dissector, and the erroneous message of a status message
+        (nested, or of an unassigned type) is shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgsap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {19, 20, 21, 22, 40, 44}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '19 SGsAP-DOWNLINK-UNITDATA(DTAP) (SMS) CP-ACK',
+            '20 SGsAP-UPLINK-UNITDATA(DTAP) (SMS) CP-ERROR',
+            '21 SGsAP-UPLINK-UNITDATA(DTAP) (SMS) CP-ACK',
+            '22 SGsAP-MM-INFORMATION-REQUEST',
+            '40 SGsAP-STATUS',
+            '44 SGsAP-STATUS',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgsap_coverage.pcap.gz'),
+                '-Y', 'frame.number == 44',
+                '-V', '-O', 'sgsap',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('Erroneous message - SGsAP-STATUS') == 4
