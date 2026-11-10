@@ -120559,3 +120559,91 @@ class TestDissectPtpCoverage:
                       'ptp.v2.analysis.pdelayreqtores || frame.number in {52, 70}',
                 '-Tfields', '-eframe.number', '-e_ws.expert', passes=('-2',))
         assert rows == [['52', ''], ['70', '']]
+
+
+class TestDissectPtpip:
+    '''PTP/IP (TCP 15740), the command and event connections of a session,
+    from the synthetic capture ptpip_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ptpip_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ptpip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''40 frames, all PTP/IP; no malformed packets or expert infos, in
+        one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 40
+        assert [r[0] for r in rows] == ['PTP/IP'] * 40
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+
+    def test_ptpip_init(self, cmd_tshark, capture_file, test_env):
+        '''The init packets: GUID, UTF-16 host name (empty, ASCII and
+        outside ASCII), protocol version as major.minor and the connection
+        number.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 4, 39, 40}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eptpip.name',
+                '-eptpip.version', '-eptpip.connection')
+        assert rows == [
+            ['1', 'Init Command Request GUID: 101112131415161718191a1b1c1d1e1f Name: Initiator', 'Initiator', '1.0', ''],
+            ['2', 'Init Command Ack Connection #:7 GUID: 101112131415161718191a1b1c1d1e1f Name: Camera', 'Camera', '1.1', '7'],
+            ['3', 'Init Event Request Connection #:7', '', '', '7'],
+            ['4', 'Init Event Ack', '', '', ''],
+            ['39', 'Init Command Request GUID: 101112131415161718191a1b1c1d1e1f Name: ', '', '2.3', ''],
+            ['40', 'Init Command Ack Connection #:8 GUID: 101112131415161718191a1b1c1d1e1f Name: Kämera €', 'Kämera €', '0.0', '8'],
+        ]
+
+    def test_ptpip_operations_and_data(self, cmd_tshark, capture_file, test_env):
+        '''Operation requests with their own dissection (GetDeviceInfo,
+        OpenSession, GetStorageIDs, CloseSession), the others by packet
+        type, a data transfer with a known and with an unknown length,
+        events and the packet types that are only named.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 6, 7, 8, 10, 13, 16, 17, 31, 33, 38}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eptpip.opcode',
+                '-eptpip.datalen', '-eptpip.opcode.param.sessionid',
+                '-eptpip.eventcode')
+        assert rows == [
+            ['5', 'GetDeviceInfo Transaction ID: 1', '0x1001', '', '', ''],
+            ['6', 'Start Data Packet  Transaction ID: 1', '', '12', '', ''],
+            ['7', 'Data Packet  Transaction ID: 1', '', '', '', ''],
+            ['8', 'End Data Packet  Transaction ID: 1', '', '', '', ''],
+            ['10', 'OpenSession Transaction ID: 2', '0x1002', '', '0x00001234', ''],
+            ['13', 'Start Data Packet  Transaction ID: 3 Data Length Unknown', '', '18446744073709551615', '', ''],
+            ['16', 'CloseSession Transaction ID: 4', '0x1003', '', '', ''],
+            ['17', 'Operation Request Packet  Transaction ID: 5', '0x1007', '', '', ''],
+            ['31', 'Event Packet  Transaction ID: 0', '', '', '', '0x4002'],
+            ['33', 'Picture Transfer Protocol', '', '', '', ''],
+            ['38', 'Picture Transfer Protocol', '', '', '', ''],
+        ]
+
+    def test_ptpip_vendor(self, cmd_tshark, capture_file, test_env):
+        '''The camera vendor preference names the operation codes of the
+        vendor range (0x9001 is a Canon operation, 0x9101 an Olympus one)
+        and the response codes (0xa001 is a Canon, Kodak or Nikon
+        response); codes below 0x1000 do not take the vendor path.'''
+        for vendor, frame, text in (
+                ('Canon', 21, 'Operation Code: CANON_GetPartialObjectInfo (0x9001)'),
+                ('Olympus', 25, 'Operation Code: OLYMPUS_Capture (0x9101)'),
+                ('Eastman_Kodak', 23, 'Operation Code: EK_FilenameRequired (0xa001)'),
+                ('Unknown', 21, 'Operation Code: 0x9001'),
+                ('Canon', 27, 'Operation Code: Unknown (0xb002)')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-o', 'ptpip.vendor:' + vendor,
+                    '-r', capture_file('ptpip_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V', '-O', 'ptpip',
+                ), encoding='utf-8', env=test_env)
+            assert '    ' + text in stdout.splitlines()
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {28, 29}', '-Tfields', '-eframe.number',
+                '-eptpip.opcode', '-eptpip.respcode')
+        assert rows == [['28', '0x0001', ''], ['29', '', '0x0001']]
