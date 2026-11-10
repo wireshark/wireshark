@@ -129796,3 +129796,92 @@ class TestDissectRtitcp:
             '42\tINFO_TS',
             '45\tINFO_TS, HEADER_EXTENSION',
         ]
+
+
+class TestDissectRtls:
+    '''Real Time Location System (RTLS) from the synthetic capture
+    rtls_coverage.pcap.gz. RTLS has no default port, so the frames are
+    Exported PDUs that name the rtls dissector. Frame 29 is the
+    reproducer of "RTLS: Bound the nesting of compound messages".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rtls_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rtls_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 29 frames are RTLS; frames 1-28 have no malformed packets
+        and no error expert infos in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                '_ws.col.protocol')
+        assert rows == ['RTLS'] * 29
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 28 && (_ws.malformed || '
+                    '_ws.expert.severity >= 0x00800000)',
+                    'frame.number', passes=passes) == []
+
+    def test_rtls_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Info column per message type, including unknown types.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 4, 5, 8, 9, 19, 20, 22}',
+                'frame.number', '_ws.col.info')
+        assert rows == [
+            '1\tAR_AS_CONFIG_SET', '4\tAR_NACK', '5\tAR_TAG_REPORT',
+            '8\tAR_STATION_EX_REPORT', '9\tAR_AP_EX_REPORT',
+            '19\tAR_MMS_CONFIG_SET', '20\t(unknown 153)',
+            '22\tAR_COMPOUND_MESSAGE_REPORT']
+
+    def test_rtls_nack_flags(self, cmd_tshark, capture_file, test_env):
+        '''The reserved NACK flags cover bits 2-15 (mask 0xfffc; it was
+        0xfc on a 16 bit field before the fix).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 14 && rtls.nack.flags', 'frame.number',
+                'rtls.nack.flags', 'rtls.nack.flags.internal_errors',
+                'rtls.nack.flags.station_not_found', 'rtls.nack.flags.reserved')
+        assert rows == [
+            '4\t0x0003\t0x0001\t0x0001\t0x0000',
+            '10\t0x0000\t0x0000\t0x0000\t0x0000',
+            '11\t0x0001\t0x0001\t0x0000\t0x0000',
+            '12\t0x0002\t0x0000\t0x0001\t0x0000',
+            '13\t0xfffc\t0x0000\t0x0000\t0x3fff',
+            '14\t0xffff\t0x0001\t0x0001\t0x3fff']
+
+    def test_rtls_values(self, cmd_tshark, capture_file, test_env):
+        '''Field values of a tag report and the extended reports.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 5', 'rtls.tr.rssi', 'rtls.tr.timestamp',
+                'rtls.tr.sequence', 'rtls.tr.channel')
+        assert rows == ['176\t123456\t77\t6']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {8, 9}', 'frame.number', 'rtls.ser.essid',
+                'rtls.aer.essid')
+        assert rows == ['8\tESSID-one\t', '9\t\tap-essid']
+
+    def test_rtls_compound(self, cmd_tshark, capture_file, test_env):
+        '''Compound messages, up to 7 levels of nesting (frame 26) decode;
+        a message of unknown type inside one is left undecoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 22', 'frame.number', 'rtls.cmr_messages',
+                '_ws.expert.message')
+        assert rows[0] == '22\t3\t'
+        assert rows[1] == '23\t4\t'
+        assert rows[2] == '24\t6\t'
+        assert rows[3] == '25\t1,1,1,1\t'
+        assert rows[4] == '26\t1,1,1,1,1,1,1,1\t'
+        assert rows[5].startswith('27\t1\tUndecoded Payload')
+        assert rows[6] == '28\t0\t'
+
+    def test_rtls_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''12 nested compound messages stop at the limit of 8 with an
+        expert info; the signature then lies past the end of the packet.
+        Before the fix the recursion had no limit (tree-depth abort, or a
+        stack overflow without a tree).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 29', 'frame.number', '_ws.expert.message',
+                'rtls.cmr_messages')
+        assert rows == ['29\tCompound messages nested too deeply,'
+                        'Malformed Packet (Exception occurred)\t1,1,1,1,1,1,1,1,1']
