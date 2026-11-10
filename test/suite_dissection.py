@@ -122296,3 +122296,106 @@ class TestDissectQsig:
         assert len(rows) == 10
         assert d['851'][0] == '1' and d['852'][0] == '5' and d['853'][0] == '31'
         assert d['855'][1] == '0x00' and d['856'][1] == '0x01'
+
+
+class TestDissectQuake:
+    '''Quake (NetQuake, UDP 26000) from the synthetic capture
+    quake_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name), '-Y', flt, '-Tfields',
+                '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_quake_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 26 frames decode as QUAKE without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('quake_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['QUAKE'] * 26
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('quake_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_quake_control_requests(self, cmd_tshark, capture_file, test_env):
+        '''Control requests: connect, server_info, player_info, rule_info.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'frame.number <= 5',
+                'quake.control.command', 'quake.control.connect.game',
+                'quake.control.connect.version', 'quake.control.server_info.game',
+                'quake.control.player_info.player', 'quake.control.rule_info.lastrule')
+        assert out == [
+            '1\t0x01\tQUAKE\t3\t\t\t',
+            '2\t0x02\t\t\tQUAKE\t\t',
+            '3\t0x03\t\t\t\t0\t',
+            '4\t0x04\t\t\t\t\t',
+            '5\t0x04\t\t\t\t\tsv_gravity',
+        ]
+
+    def test_quake_control_replies(self, cmd_tshark, capture_file, test_env):
+        '''Control replies: accept, reject, server_info, player_info with
+        the colour nibbles, rule_info (also without a rule).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'frame.number in {6,7,8}',
+                'quake.control.accept.port', 'quake.control.reject.reason',
+                'quake.control.server_info.address', 'quake.control.server_info.server',
+                'quake.control.server_info.map', 'quake.control.server_info.num_player',
+                'quake.control.server_info.max_player')
+        assert out == [
+            '6\t26000\t\t\t\t\t\t',
+            '7\t\tServer is full.\t\t\t\t\t',
+            '8\t\t\t192.0.2.20:26000\tExample server\te1m1\t3\t16',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'quake.control.player_info.name',
+                'quake.control.player_info.name',
+                'quake.control.player_info.colors.shirt',
+                'quake.control.player_info.colors.pants',
+                'quake.control.player_info.frags',
+                'quake.control.player_info.connect_time',
+                'quake.control.player_info.address')
+        assert out == [
+            '9\tPlayer One\t4\t13\t12\t345\t192.0.2.30:27500',
+            '10\tTwo\t0\t0\t0\t0\t',
+            '11\tThree\t15\t15\t1\t2\tx',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'quake.control.rule_info.rule',
+                'quake.control.rule_info.rule', 'quake.control.rule_info.value')
+        assert out == ['12\tsv_gravity\t800', '13\tdeathmatch\t1']
+
+    def test_quake_data(self, cmd_tshark, capture_file, test_env):
+        '''Data frames: the sequence number and the flag bits; a frame
+        with the control bit and the data bit is not a control frame.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'frame.number >= 17',
+                'quake.header.flags', 'quake.header.sequence',
+                'quake.header.flags.data', 'quake.header.flags.ack',
+                'quake.header.flags.no_ack', 'quake.header.flags.endmsg',
+                'quake.header.flags.unreliable', 'quake.header.flags.control')
+        assert out[:8] == [
+            '17\t0x0001\t0x00000000\tTrue\tFalse\tFalse\tFalse\tFalse\tFalse',
+            '18\t0x0009\t0x00000001\tTrue\tFalse\tFalse\tTrue\tFalse\tFalse',
+            '19\t0x0002\t0x00000001\tFalse\tTrue\tFalse\tFalse\tFalse\tFalse',
+            '20\t0x0004\t0x00000002\tFalse\tFalse\tTrue\tFalse\tFalse\tFalse',
+            '21\t0x0010\t0x01020304\tFalse\tFalse\tFalse\tFalse\tTrue\tFalse',
+            '22\t0x0019\t0xfffffffe\tTrue\tFalse\tFalse\tTrue\tTrue\tFalse',
+            '23\t0x8001\t0x00000005\tTrue\tFalse\tFalse\tFalse\tFalse\tTrue',
+            '24\t0x0000\t0x00000000\tFalse\tFalse\tFalse\tFalse\tFalse\tFalse',
+        ]
+
+    def test_quake_unknown_command(self, cmd_tshark, capture_file, test_env):
+        '''Unknown control commands are shown as data in both directions.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'quake_coverage.pcap.gz', 'quake.control.command==0x99||quake.control.command==0x55',
+                'quake.control.command', 'data.len')
+        assert out == ['15\t0x99\t3', '16\t0x55\t3']
