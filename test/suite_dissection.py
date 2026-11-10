@@ -117989,3 +117989,42 @@ class TestDissectPkixproxy:
         assert out == ['1\t\t1.3.6.1.5.5.7.21.1', '2\t3\t1.3.6.1.5.5.7.21.1',
                        '3\t0\t1.3.6.1.5.5.7.21.2', '4\t\t1.3.6.1.5.5.7.21.0',
                        '5\t65535\t1.2.3']
+
+
+class TestDissectPkixqualified:
+    '''PKIX qualified certificate extensions: QC statements, biometric
+    info, subject directory attributes (date and place of birth, gender,
+    citizenship, residence) and the XMPP and SRV other names, in
+    Exported PDU "cms" frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkixqualified_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkixqualified_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 5 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 5
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkixqualified_values(self, cmd_tshark, capture_file, test_env):
+        '''XMPP address and SRV name (frame 4), biometric source URIs
+        (frames 2 and 5).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixqualified.XmppAddr',
+                           '-eframe.number', '-epkixqualified.XmppAddr', '-epkixqualified.SRVName')
+        assert out == ['4\tuser@xmpp.example\t_sip._tcp.example.com']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixqualified.biometricDataHash',
+                           '-eframe.number', '-epkixqualified.sourceDataUri')
+        assert out == ['2\thttp://example/b1', '5\thttp://example/b1']
