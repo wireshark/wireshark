@@ -117915,3 +117915,40 @@ class TestDissectPkixac:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkixac.Clearance_element',
                            '-eframe.number')
         assert out == ['1']
+
+
+class TestDissectPkixalgs:
+    '''PKIX algorithm identifiers and parameters in certificates: the
+    signature algorithm OIDs with BER callbacks (RSA, ECDSA, DSA, EdDSA,
+    SM2, MD2/4/5), DSA, Diffie-Hellman, KEA, EC (named, implicit,
+    specified curve) and RSASSA-PSS parameters, in Exported PDU "cms"
+    frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkixalgs_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkixalgs_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 39 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 39
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkixalgs_pss(self, cmd_tshark, capture_file, test_env):
+        '''RSASSA-PSS: as a public key algorithm (frame 35), as a
+        signature algorithm (36, 37 with empty parameters) and MGF1 (38).'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'x509af.algorithm.id == 1.2.840.113549.1.1.10', '-eframe.number')
+        assert out == ['35', '36', '37', '38']
