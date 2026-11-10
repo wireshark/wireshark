@@ -487,7 +487,7 @@ typedef struct pcp_conv_info_t {
     wmem_map_t *pmid_to_name;
     uint32_t last_pmns_names_frame;
     uint32_t last_processed_pmns_names_frame;
-    bool using_good_labels;
+    uint32_t good_labels_frame; /* frame that announced LABELS, 0 if none */
 } pcp_conv_info_t;
 
 /* function prototypes */
@@ -1716,9 +1716,11 @@ static int dissect_pcp_partial_features(tvbuff_t *tvb, packet_info *pinfo, proto
     proto_tree_add_bitmask(tree, tvb, offset, hf_pcp_features_flags, ett_pcp_start_features, pcp_feature_flags_header_fields, ENC_BIG_ENDIAN);
     offset += 2;
 
-    if ((feature_flags & PCP_PDU_FLAG_LABELS) == PCP_PDU_FLAG_LABELS && server_to_client(pinfo)) {
+    if (!PINFO_FD_VISITED(pinfo) && (feature_flags & PCP_PDU_FLAG_LABELS) == PCP_PDU_FLAG_LABELS && server_to_client(pinfo)) {
         pcp_conv_info_t *pcp_conv_info = get_pcp_conversation_info(pinfo);
-        pcp_conv_info->using_good_labels = true;
+        if (pcp_conv_info->good_labels_frame == 0) {
+            pcp_conv_info->good_labels_frame = pinfo->num;
+        }
     }
 
     return offset;
@@ -1826,7 +1828,8 @@ static int dissect_pcp_partial_label(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 static bool is_using_good_labels(packet_info *pinfo)
 {
     /* Try to establish if we've got good labels from an earlier START PDU */
-    return get_pcp_conversation_info(pinfo)->using_good_labels;
+    uint32_t frame = get_pcp_conversation_info(pinfo)->good_labels_frame;
+    return frame != 0 && pinfo->num > frame;
 }
 
 static bool label_value_length_looks_like_wrong_endianness(tvbuff_t *tvb, uint16_t value_offset, uint16_t value_length)
@@ -1865,7 +1868,7 @@ static int dissect_pcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         pcp_conv_info->pmid_to_name = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         pcp_conv_info->last_pmns_names_frame = 0;
         pcp_conv_info->last_processed_pmns_names_frame = 0;
-        pcp_conv_info->using_good_labels = false;
+        pcp_conv_info->good_labels_frame = 0;
     }
 
     root_pcp_item = proto_tree_add_item(tree, proto_pcp, tvb, 0, -1, ENC_NA);
