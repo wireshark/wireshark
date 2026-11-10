@@ -118387,3 +118387,79 @@ class TestDissectPldm:
                 '-Tfields', '-epldm.base.typeSupported',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '0x00,0x02,0x03,0x04,0x05,0x3f'
+
+
+class TestDissectPle:
+    def test_ple_clean(self, cmd_tshark, capture_file, test_env):
+        '''11 frames, none malformed or with an error expert info, in one
+        and in two passes, and the same Info column in both.'''
+        cap = capture_file('ple_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) == 11
+
+    def test_ple_control_word(self, cmd_tshark, capture_file, test_env):
+        '''The control word bits and the sequence numbers: the 16 bit CW
+        and RTP sequence numbers are concatenated when they differ.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ple_coverage.pcap.gz'),
+                '-Y', 'ple && frame.number <= 10',
+                '-Tfields', '-eframe.number', '-eple.cw.l', '-eple.cw.r',
+                '-eple.cw.cw_frg', '-eple.cw.seq', '-eple.seq',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:3] for l in lines] == [
+            ['1', 'False', 'False'], ['2', 'False', 'False'], ['3', 'False', 'False'],
+            ['4', 'True', 'False'], ['5', 'False', 'True'], ['6', 'True', 'True'],
+            ['7', 'False', 'False'], ['8', 'False', 'False'], ['9', 'False', 'False'],
+            ['10', 'False', 'False']]
+        assert [l[4] for l in lines] == ['1', '2', '4660', '5', '6', '7', '8', '9', '10', '11']
+        assert [l[5] for l in lines] == ['1', '2', str(0xabcd1234), '5', '6', '7', '8', '9', '10', '11']
+
+    def test_ple_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''RSV, FRG and LEN must be zero.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ple_coverage.pcap.gz'),
+                '-Y', 'ple.reserved || ple.fragmentation || ple.length',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7', '8', '9']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ple_coverage.pcap.gz'),
+                '-Y', 'ple.reserved', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7']
+
+    def test_ple_preferences_and_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3 has different CW and RTP sequence numbers: reported with
+        the "standard" sequence number size, concatenated with "extended";
+        frame 11 is PLE over UDP only with Decode As.'''
+        cap = capture_file('ple_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-o', 'ple.seq_num_size:standard',
+                '-Y', 'ple.sequence', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3']
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-o', 'ple.seq_num_size:extended',
+                '-Y', 'frame.number == 1', '-Tfields', '-eple.seq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == str(0x00010001)
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-d', 'udp.port==5000,ple', '-Y', 'ple && frame.number == 11',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'PLE'
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'ple && frame.number == 11', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == ''
