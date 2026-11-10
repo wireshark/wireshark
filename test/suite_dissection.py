@@ -120675,3 +120675,170 @@ class TestDissectPulse:
                 '7\tUDP\t539 → 539 Len=3\t\t',
                 '8\tUDP\t539 → 539 Len=4\t\t',
             ]
+
+
+class TestDissectPvfs2:
+    '''PVFS2 (Parallel Virtual File System) over TCP port 3334 and found by
+    the heuristic dissector on another port, from the synthetic capture
+    pvfs2_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pvfs2_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pvfs2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All PVFS frames decode without malformed packets or error
+        expert infos, in one and two passes; 19 frames are TCP handshake
+        or the segments of reassembled PDUs.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 174
+        assert protocols.count('PVFS') == 155
+        assert protocols.count('TCP') == 19
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_pvfs2_server_ops(self, cmd_tshark, capture_file, test_env):
+        '''Every server operation except WRITE_COMPLETION (a response only)
+        appears in a request, and so does an unknown operation.'''
+        ops = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.mode == 2', '-Tfields', '-epvfs.server_op')
+        assert len(ops) == 77
+        assert set(ops) == {str(i) for i in range(32) if i != 14} | {'77'}
+        infos = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.server_op in {28, 77}',
+                '-Tfields', '-e_ws.col.info')
+        assert infos == [
+            'PVFS_SERV_PROTO_ERROR (request)',
+            'PVFS_SERV_PROTO_ERROR (response)',
+            '77 (unknown) (request)',
+            '77 (unknown) (response)',
+        ]
+
+    def test_pvfs2_errors(self, cmd_tshark, capture_file, test_env):
+        '''Responses with a PVFS error code, an errno and an unknown
+        code.'''
+        infos = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.col.info contains "Error"',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [i.split('\t')[1] for i in infos] == [
+            'PVFS_SERV_SETATTR (response) Error: PVFS_ENOTDIR',
+            'PVFS_SERV_LOOKUP_PATH (response) Error: PVFS_ENOENT',
+            'PVFS_SERV_MGMT_DSPACE_INFO_LIST (response) Error: PVFS_ENOENT',
+            'PVFS_SERV_MGMT_NOOP (response) Error: PVFS_ENXIO',
+            'PVFS_SERV_MGMT_NOOP (response) Error: Unknown error: 2',
+            'PVFS_SERV_MGMT_NOOP (response) Error: Unknown error: 1073741923',
+            'PVFS_SERV_IO (response) Error: PVFS_ENXIO',
+        ]
+
+    def test_pvfs2_dspace_info_list(self, cmd_tshark, capture_file, test_env):
+        '''The dspace_info_count is skipped before the first dspace_info
+        ("PVFS2: Skip dspace_info_count in the dspace info list response"):
+        frame 73 holds one dspace_info whose error code is PVFS_ENOENT;
+        before the fix the first dspace_info read the count as its
+        error code, and the frame had no error.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.mgmt_dspace_info_list_response.dspace_info_count',
+                '-Tfields', '-eframe.number',
+                '-epvfs.mgmt_dspace_info_list_response.dspace_info_count',
+                '-epvfs.error')
+        assert lines == [
+            '71\t2\t0x00000000,0x00000000,0x00000000',
+            '73\t1\t0x00000000,0x40000002',
+            '75\t0\t0x00000000',
+        ]
+
+    def test_pvfs2_io_tracking(self, cmd_tshark, capture_file, test_env):
+        '''The frame after the response of an IO request is flow data,
+        a later frame with the same tag is an ordinary response; the
+        same in two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {124, 125, 126, 127, 128, 129, 132, 133, 134, 135}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info')
+            lines = [l for l in lines if '\tPVFS' in l]
+            assert lines == [
+                '124\tPVFS_SERV_IO (request)',
+                '125\tPVFS_SERV_IO (response)',
+                '126\tPVFS flow data',
+                '127\tPVFS_SERV_WRITE_COMPLETION (response)',
+                '128\tPVFS_SERV_IO (request)',
+                '129\tPVFS_SERV_IO (response)',
+                '132\tPVFS flow data',
+                '133\tPVFS_SERV_IO (request)',
+                '134\tPVFS_SERV_IO (response) Error: PVFS_ENXIO',
+                '135\tPVFS flow data',
+            ]
+
+    def test_pvfs2_getconfig(self, cmd_tshark, capture_file, test_env):
+        '''The server configuration lines of GETCONFIG responses, including
+        a configuration of 17013 bytes over several TCP segments.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.getconfig_response.total_bytes',
+                '-Tfields', '-eframe.number',
+                '-epvfs.getconfig_response.lines',
+                '-epvfs.getconfig_response.config_bytes')
+        assert lines == [
+            '139\t18\t328',
+            '141\t5\t23',
+            '143\t0\t0',
+            '145\t\t',
+            '153\t502\t17013',
+        ]
+        entries = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {139, 141}',
+                '-Tfields', '-epvfs.getconfig_response_entry')
+        assert entries == [
+            'UnexpectedRequests 50,LogFile /var/log/pvfs2-server.log,'
+            'Alias host1 tcp://host1:3334,Alias host2 tcp://host2:3334,'
+            'Name pvfs2-fs,ID 1234567,Range host1 4-2147483650,'
+            'RootHandle 1048576,Trailing line with no section',
+            'k v,x y',
+        ]
+        big = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 153',
+                '-Tfields', '-epvfs.getconfig_response_entry')[0].split(',')
+        assert len(big) == 500
+        assert big[0] == 'Entry000 value-000 with some text'
+        assert big[-1] == 'Entry499 value-499 with some text'
+
+    def test_pvfs2_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A READDIR response with 150 entries spread over five TCP
+        segments, and PDUs sharing or splitting TCP segments.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.dirent_count',
+                '-Tfields', '-eframe.number', '-epvfs.dirent_count')
+        assert lines == ['45\t3', '47\t0', '159\t150', '174\t1']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {160, 161, 162, 163, 164, 165, 166, 167}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['160\tPVFS', '161\tPVFS', '162\tPVFS', '163\tTCP',
+                         '164\tPVFS', '165\tPVFS', '166\tPVFS', '167\tPVFS']
+
+    def test_pvfs2_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The connection on TCP port 5555 is found by the heuristic
+        dissector; with the heuristic disabled it is plain TCP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.port == 5555 && pvfs', '-Tfields', '-eframe.number')
+        assert lines == ['171', '172', '173', '174']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '--disable-heuristic', 'pvfs_tcp',
+                '-Y', 'tcp.port == 5555 && pvfs', '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_pvfs2_object_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The distribution of metafile attributes: the simple_stripe
+        distribution carries a strip size, even in upper case.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'pvfs.strip_size && frame.number < 125',
+                '-Tfields', '-eframe.number', '-epvfs.distribution',
+                '-epvfs.strip_size')
+        assert lines[0] == '11\tsimple_stripe\t65536'
+        assert '121\tSIMPLE_STRIPE\t4096' in lines
+        assert all(l.split('\t')[0] != '123' for l in lines)
