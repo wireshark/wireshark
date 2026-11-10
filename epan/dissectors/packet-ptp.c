@@ -4049,7 +4049,7 @@ dissect_ptp_v2_tlvs(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_it
             proto_tree *ptp_tlv_tree = proto_tree_add_subtree(ptp_tree, tvb, offset, tlv_length + PTP_V2_TLV_HEADER_LENGTH, ett_ptp_v2_tlv, &ti_tlv, "Path trace TLV");
             offset += dissect_ptp_v2_tlv_tlvtype_length(tvb, offset, ptp_tlv_tree);
 
-            unsigned tlv_end = offset + tlv_length + PTP_V2_TLV_HEADER_LENGTH;
+            unsigned tlv_end = offset_loopstart + PTP_V2_TLV_HEADER_LENGTH + tlv_length;
 
             while (offset + 8 <= tlv_end) {
                 proto_tree_add_item(ptp_tlv_tree, hf_ptp_v2_an_tlv_pathsequence, tvb, offset, 8, ENC_BIG_ENDIAN);
