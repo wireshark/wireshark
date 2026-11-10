@@ -60,7 +60,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     int              offset = 0;
     tvbuff_t        *next_tvb;
     uint16_t         packet_code;
-    uint16_t         length;
+    unsigned         length;
     uint8_t          checksum;
     urb_info_t      *urb;
 
@@ -112,7 +112,7 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     } else if (packet_code == 0xFFFF) { /* Extended Information Frame */
         col_set_str(pinfo->cinfo, COL_INFO, "Extended Information Frame");
 
-        proto_tree_add_item_ret_uint16(main_tree, hf_extended_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
+        proto_tree_add_item_ret_uint(main_tree, hf_extended_length, tvb, offset, 2, ENC_BIG_ENDIAN, &length);
         offset += 2;
 
         checksum = (length >> 8) + (length & 0xFF) + tvb_get_uint8(tvb, offset);
@@ -129,13 +129,13 @@ dissect_pn532_hci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             checksum += tvb_get_uint8(tvb, offset - length);
             length -= 1;
         }
-        proto_tree_add_checksum(main_tree, tvb, offset, hf_data_checksum, hf_data_checksum_status, &ei_invalid_data_checksum, pinfo, 0,
+        proto_tree_add_checksum(main_tree, tvb, offset, hf_data_checksum, hf_data_checksum_status, &ei_invalid_data_checksum, pinfo, checksum,
                             ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_ZERO);
         offset += 1;
     } else { /* Normal Information Frame */
         col_set_str(pinfo->cinfo, COL_INFO, "Normal Information Frame");
 
-        proto_tree_add_item_ret_uint16(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
+        proto_tree_add_item_ret_uint(main_tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
         offset += 1;
 
         checksum = length + tvb_get_uint8(tvb, offset);
