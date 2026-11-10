@@ -127552,3 +127552,70 @@ class TestDissectRoofnet:
                           'roofnet.link.src', 'roofnet.link.dst', 'roofnet.link.forward',
                           'roofnet.link.age')
         assert out == ['10.0.0.1,10.0.0.2,10.0.0.3\t10.0.0.2,10.0.0.3,0.0.0.0\t100,80,60\t1,2,3']
+
+
+class TestDissectRoonDiscovery:
+    '''Roon discovery (SOOD) on UDP 9003, from the synthetic capture
+    roon_discovery_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('roon_discovery_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_roon_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-18 are Roon discovery, 19-21 are not (too short, wrong
+        marker, unknown message type). No malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('roon_disco', 'frame.number') == [str(n) for n in range(1, 19)]
+            assert fr('!roon_disco', 'frame.number') == ['19', '20', '21']
+            assert fr('roon_disco.direction == "Query"', 'frame.number') == \
+                ['1', '5', '7', '9', '10', '11', '12', '13', '14', '15']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_roon_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Replies are matched to their request on the first pass and on
+        later passes alike. Frames 3 and 4 repeat the _tid of frame 1,
+        which is already answered by frame 2: they are not matched, in
+        one or two passes (they used to be matched with -2 only: "Roon
+        Discovery: Make reply matching independent of the pass"). Frame 8
+        is found through the conversation although it comes from an
+        ephemeral port, and its upper case _tid is folded.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, 'roon_disco.resp_to',
+                              'frame.number', 'roon_disco.resp_to', passes=passes)
+            assert out == ['2\t1', '8\t7']
+            infos = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {3, 4}',
+                                '_ws.col.info', passes=passes)
+            assert infos == ['Unknown Roon Service Reply'] * 2
+        # The request side and "no response" are only known on later passes
+        out = self.fields(cmd_tshark, capture_file, test_env, 'roon_disco.resp_in',
+                          'frame.number', 'roon_disco.resp_in', passes=('-2',))
+        assert out == ['1\t2', '7\t8']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'roon_disco.no_resp',
+                          'frame.number', passes=('-2',))
+        assert out == ['5', '9', '10', '11', '12', '13', '14']
+
+    def test_roon_fields(self, cmd_tshark, capture_file, test_env):
+        '''Service names, the fallback name for a query without or with an
+        unknown service id, string and boolean fields.'''
+        def fr(f, *fields):
+            return self.fields(cmd_tshark, capture_file, test_env, f, *fields)
+        infos = fr('frame.number in {1, 2, 7, 9, 10, 11, 12, 13, 14}', '_ws.col.info')
+        assert [i.split(' [')[0] for i in infos] == [
+            'Roon Server Query', 'Roon Server Reply', 'Roon Discovery Query',
+            'Roon API Client Query', 'Roon Endpoint Query', 'Roon RATT Query',
+            'Roon New Client Query', 'Unknown Roon Service Query',
+            'Unknown Roon Service Query']
+        assert fr('frame.number == 2', 'roon_disco.name', 'roon_disco.display_version',
+                  'roon_disco.http_port', 'roon_disco.tcp_port_v2', 'roon_disco.code_signing_keys',
+                  'roon_disco.is_dev') == ['core\t2.0 (build 1)\t9330\t9333\tk1,k2\tTrue']
+        assert fr('frame.number == 8', 'roon_disco.is_dev') == ['False']
+        assert fr('roon_disco.query_service_id', 'frame.number') == ['1', '5', '15']
