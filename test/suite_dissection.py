@@ -115059,3 +115059,114 @@ class TestDissectP772:
                 '-Y', 'p3 && p772', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['10', '12', '14']
+
+
+class TestDissectP7:
+    '''P7 (X.413 Message Store access, packet-p7.c) from the synthetic
+    capture p7_coverage.pcapng.gz: P7 over ROS on the OSI upper layers
+    (TCP port 102), and X.509 CRLs in Exported PDU whose extensions carry
+    the OIDs P7 registers.'''
+
+    def test_p7_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 177
+        assert protocols.count('P7') == 96
+        assert protocols.count('P22') == 2
+        assert protocols.count('PKIX-CRL') == 7
+        assert protocols.count('ACSE') == 24
+        assert protocols.count('COTP') == 12
+        assert protocols.count('TCP') == 36
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p7_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_p7_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol and Info columns are the same in one and in two
+        passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p7_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_p7_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column: the bind (the initiator OR address), the
+        summarize range and count, the list, fetch and the errors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {8, 9, 10, 11, 12, 13, 14, 15, 34}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\tms_bind_argument (initiator=/C=AU/A= /P=Example/O=Org/S=Smith/G=Alice/I=AS/Q=Jr/OU=Sales/DD.type=value) simple',
+            '9\tms_bind_result simple',
+            '10\tsummarize_argument (range= from 1 to 10)',
+            '11\tsummarize_result (count=12)',
+            '12\tsummarize_argument',
+            '13\tsummarize_result (count=3)',
+            '14\tsummarize_argument',
+            '15\tsummarize_result (count=0)',
+            '34\tlist_argument (range= from 1 to 10)',
+        ]
+
+    def test_p7_operations(self, cmd_tshark, capture_file, test_env):
+        '''Every message store operation, result and error over ROS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Y', 'p7', '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        names = {line.split(' ')[0] for line in stdout.splitlines()}
+        assert names >= {
+            'ms_bind_argument', 'ms_bind_result', 'ms_bind_error',
+            'summarize_argument', 'summarize_result', 'list_argument', 'list_result',
+            'fetch_argument', 'fetch_result', 'delete_argument', 'delete_result',
+            'register_MS_argument', 'register_MS_result', 'alert_argument',
+            'alert_result', 'modify_argument', 'modify_result',
+            'ms_message_submission_result', 'ms_probe_submission_argument',
+            'ms_probe_submission_result', 'attribute_error',
+            'auto_action_request_error', 'delete_error', 'fetch_restriction_error',
+            'range_error', 'sequence_number_error', 'service_error',
+            'invalid_parameters_error', 'message_group_error', 'ms_extension_error',
+            'register_ms_error', 'modify_error', 'entry_class_error',
+        }
+
+    def test_p7_filters(self, cmd_tshark, capture_file, test_env):
+        '''The filter alternatives (item, and, or, not) of the selectors.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Y', 'p7.and || p7.or || p7.not',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 3
+
+    def test_p7_attribute_oids(self, cmd_tshark, capture_file, test_env):
+        '''The seven CRL frames reach the OID dissectors of P7.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Y', 'frame.protocols contains "x509af" && frame.protocols contains "p7"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 7
+
+    def test_p7_submission_content(self, cmd_tshark, capture_file, test_env):
+        '''The content of a message submission is handed to P22.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p7_coverage.pcapng.gz'),
+                '-Y', 'p22', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '58\tInterPersonal Message (Test subject)',
+            '60\tInterPersonal Message (Test subject)',
+        ]
