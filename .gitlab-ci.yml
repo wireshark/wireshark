@@ -44,16 +44,6 @@ variables:
     --non-interactive --obscure"
   # --no-output
   WS_AQTINSTALL_LOCATION: "aqtinstall@git+https://github.com/miurahr/aqtinstall.git@5be32a75a81513792d95f13065b72cac3381c612"
-  # The ccache release that the Windows jobs download if their image
-  # doesn't have ccache.
-  WS_CCACHE_VERSION: "4.14.2"
-  WS_CCACHE_WINDOWS_X64_SHA256: "6993ce645e53192cec592ee23186200b574ac4c59097ecde8d9cfd681b47ae84"
-  WS_CCACHE_WINDOWS_ARM64_SHA256: "47ea5a0ed661bea53962d8fb8ee9a1769092d979a6f7c73d3081499b3305b2ab"
-  # The Ninja release that the Windows jobs download if their image
-  # doesn't have Ninja.
-  WS_NINJA_VERSION: "1.13.2"
-  WS_NINJA_WINDOWS_X64_SHA256: "07fc8261b42b20e71d1720b39068c2e14ffcee6396b76fb7a795fb460b78dc65"
-  WS_NINJA_WINDOWS_ARM64_SHA256: "e52f0bdef9dfb1003229dbd6508a508c4073fd017247002adc66e5e806cb0391"
 
 workflow:
   auto_cancel:
@@ -242,69 +232,6 @@ workflow:
     - mkdir build
     - cd build
   needs: []
-
-# Put Ninja on the path in a Windows job: the one in the image if it has
-# one, otherwise the WS_NINJA_VERSION release, which we download once into
-# the runner's persistent builds directory, next to wireshark-x64-libs.
-# XXX Remove this when the image has Ninja (wireshark-containers!100).
-.windows-ninja:
-  script:
-    - |
-      if (-Not (Get-Command ninja -ErrorAction SilentlyContinue)) {
-        if ($env:VCVARS_ARCH -eq "arm64") {
-          $ninjaAsset = "ninja-winarm64"
-          $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)-arm64"
-          $ninjaSha256 = $env:WS_NINJA_WINDOWS_ARM64_SHA256
-        } else {
-          $ninjaAsset = "ninja-win"
-          $ninjaDir = "$env:CI_PROJECT_DIR\..\ninja-$($env:WS_NINJA_VERSION)"
-          $ninjaSha256 = $env:WS_NINJA_WINDOWS_X64_SHA256
-        }
-        if (-Not (Test-Path "$ninjaDir\ninja.exe")) {
-          Write-Host "Downloading Ninja $($env:WS_NINJA_VERSION) to $ninjaDir"
-          $ninjaZip = "$env:TEMP\$ninjaAsset-$($env:WS_NINJA_VERSION).zip"
-          Invoke-WebRequest -UseBasicParsing -OutFile $ninjaZip -Uri "https://github.com/ninja-build/ninja/releases/download/v$($env:WS_NINJA_VERSION)/$ninjaAsset.zip"
-          if ((Get-FileHash $ninjaZip -Algorithm SHA256).Hash -ne $ninjaSha256) {
-            Write-Host "$ninjaZip doesn't have the expected SHA-256 hash"
-            Exit 1
-          }
-          Expand-Archive -Force $ninjaZip -DestinationPath $ninjaDir
-          Remove-Item $ninjaZip
-        }
-        $env:Path = "$ninjaDir;$env:Path"
-      }
-    - Write-Host "Ninja $(ninja --version) from $((Get-Command ninja).Source)"
-
-# Put ccache on the path in a Windows job: the one in the image if it
-# has one, otherwise the WS_CCACHE_VERSION release, which we download
-# once into the runner's persistent builds directory, next to
-# wireshark-x64-libs.
-.windows-ccache:
-  script:
-    - |
-      if (-Not (Get-Command ccache -ErrorAction SilentlyContinue)) {
-        if ($env:VCVARS_ARCH -eq "arm64") {
-          $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-aarch64"
-          $ccacheSha256 = $env:WS_CCACHE_WINDOWS_ARM64_SHA256
-        } else {
-          $ccacheName = "ccache-$($env:WS_CCACHE_VERSION)-windows-x86_64"
-          $ccacheSha256 = $env:WS_CCACHE_WINDOWS_X64_SHA256
-        }
-        $ccacheDir = "$env:CI_PROJECT_DIR\..\$ccacheName"
-        if (-Not (Test-Path "$ccacheDir\ccache.exe")) {
-          Write-Host "Downloading ccache $($env:WS_CCACHE_VERSION) to $ccacheDir"
-          $ccacheZip = "$env:TEMP\$ccacheName.zip"
-          Invoke-WebRequest -UseBasicParsing -OutFile $ccacheZip -Uri "https://github.com/ccache/ccache/releases/download/v$($env:WS_CCACHE_VERSION)/$ccacheName.zip"
-          if ((Get-FileHash $ccacheZip -Algorithm SHA256).Hash -ne $ccacheSha256) {
-            Write-Host "$ccacheZip doesn't have the expected SHA-256 hash"
-            Exit 1
-          }
-          Expand-Archive -Force $ccacheZip -DestinationPath "$env:CI_PROJECT_DIR\.."
-          Remove-Item $ccacheZip
-        }
-        $env:Path = "$ccacheDir;$env:Path"
-      }
-    - Write-Host "$(ccache --version | Select-Object -First 1) from $((Get-Command ccache).Source)"
 
 # macOS runners are still beta:
 # https://about.gitlab.com/blog/2021/08/23/build-cloud-for-macos-beta/
@@ -656,8 +583,6 @@ Windows x64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - !reference [.windows-ninja, script]
-    - !reference [.windows-ccache, script]
     # Show whether the cache from earlier jobs is there.
     - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
     - ccache --zero-stats
@@ -700,7 +625,6 @@ Windows x64 Package:
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
   after_script:
-    - !reference [.windows-ccache, script]
     - ccache --show-stats --verbose
   artifacts:
     paths:
@@ -720,8 +644,6 @@ Windows Arm64 Package:
     name: windows-package
   script:
     - C:\Windows\py.exe ..\tools\make-version.py --set-release --wireshark-version-file=wireshark_version.txt --stratoshark-version-file=stratoshark_version.txt ..
-    - !reference [.windows-ninja, script]
-    - !reference [.windows-ccache, script]
     # Show whether the cache from earlier jobs is there.
     - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
     - ccache --zero-stats
@@ -758,7 +680,6 @@ Windows Arm64 Package:
     - if (Test-Path env:S3_DESTINATION_RELEASE) { rclone copy . "wireshark:$env:S3_DESTINATION_RELEASE" --include "*shark-release-info-*-windows-*.ini" --missing-on-dst - }
     - C:\Windows\py.exe -m pytest --enable-stratoshark --enable-release
   after_script:
-    - !reference [.windows-ccache, script]
     - ccache --show-stats --verbose
   artifacts:
     paths:
@@ -1184,8 +1105,6 @@ Windows Build:
     - job: "Commit Check"
       optional: true
   script:
-    - !reference [.windows-ninja, script]
-    - !reference [.windows-ccache, script]
     # Show whether the cache from earlier jobs is there. The runner runs
     # jobs concurrently, and each of its slots has its own cache.
     - ccache --show-stats --verbose | Select-String -Pattern '^(Cache directory:|\s*Cache size|\s*Files:)'
@@ -1208,7 +1127,6 @@ Windows Build:
     - $cpack = Join-Path (Split-Path (Get-Command cmake).Source) cpack.exe
     - '& $cpack -G ZIP -C Debug -D CPACK_COMPONENTS_ALL=Unspecified'
   after_script:
-    - !reference [.windows-ccache, script]
     - ccache --show-stats --verbose
   artifacts:
     when: always
