@@ -92,25 +92,28 @@ typedef struct _tap_pingpongprotocol_rec_t {
 static void
 dissect_pingpongprotocol_ping_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  uint16_t ping_data_length;
+  unsigned ping_data_length;
 
   proto_tree_add_item(message_tree, hf_ping_messageno, message_tvb, PING_MESSAGENO_OFFSET, PING_MESSAGENO_LENGTH, ENC_BIG_ENDIAN);
 
-  ping_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - PING_DATA_OFFSET;
-  if (ping_data_length > 0)
+  ping_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
+  if (ping_data_length > PING_DATA_OFFSET) {
+    ping_data_length -= PING_DATA_OFFSET;
     proto_tree_add_item(message_tree, hf_ping_data, message_tvb, PING_DATA_OFFSET, ping_data_length, ENC_NA);
+  }
 }
 
 static void
 dissect_pingpongprotocol_pong_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  uint16_t pong_data_length;
+  unsigned pong_data_length;
 
   proto_tree_add_item(message_tree, hf_pong_messageno, message_tvb, PONG_MESSAGENO_OFFSET, PONG_MESSAGENO_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_pong_replyno,   message_tvb, PONG_REPLYNO_OFFSET,   PONG_REPLYNO_LENGTH,   ENC_BIG_ENDIAN);
 
-  pong_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - PONG_DATA_OFFSET;
-  if (pong_data_length > 0) {
+  pong_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
+  if (pong_data_length > PONG_DATA_OFFSET) {
+    pong_data_length -= PONG_DATA_OFFSET;
     proto_tree_add_item(message_tree, hf_pong_data, message_tvb, PONG_DATA_OFFSET, pong_data_length, ENC_NA);
   }
 }
