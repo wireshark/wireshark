@@ -118463,3 +118463,93 @@ class TestDissectPle:
                 '-Y', 'ple && frame.number == 11', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == ''
+
+
+class TestDissectPmproxy:
+    '''PMPROXY (TCP 44322), the banner exchange, the proxy line and the
+    hand-off to PCP, from the synthetic capture
+    pmproxy_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pmproxy_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_pmproxy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''19 frames: 11 PMPROXY and 8 PCP; no malformed packets or expert
+        infos, in one and two passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 19
+        assert [r[0] for r in rows].count('PMPROXY') == 11
+        assert [r[0] for r in rows].count('PCP') == 8
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+
+    def test_pmproxy_info(self, cmd_tshark, capture_file, test_env):
+        '''Banners, proxy lines with a host and port, a host only and an
+        empty line, then PCP PDUs; the Info column is the same in one and
+        two passes.'''
+        expected = [
+            ['1', 'PMPROXY', 'Server exchange'],
+            ['2', 'PMPROXY', 'Client exchange'],
+            ['3', 'PMPROXY', 'Proxy Host=localhost, Port=44321'],
+            ['4', 'PCP', 'Server > Client [ERROR] error=PM_ERR_NAME '],
+            ['5', 'PCP', 'Client > Server [CREDS] Features=[AUTH]'],
+            ['6', 'PCP', 'Server > Client [ERROR] error=PM_ERR_NOCONTEXT '],
+            ['7', 'PMPROXY', 'Client exchange'],
+            ['8', 'PMPROXY', 'Proxy Host=hostonly, Port='],
+            ['9', 'PMPROXY', 'Proxy Host=, Port='],
+            ['10', 'PMPROXY', 'Proxy Host=a.example.org, Port=80'],
+            ['11', 'PCP', 'Server > Client [CREDS] Features=[AUTH]'],
+            ['12', 'PMPROXY', 'Server exchange'],
+            ['13', 'PMPROXY', 'Client exchange'],
+            ['14', 'PMPROXY', 'Proxy Host=localhost, Port=44321'],
+            ['15', 'PCP', 'Server > Client [START] Features=[]'],
+            ['16', 'PCP', 'Client > Server [ERROR] error=PM_ERR_NAME '],
+            ['17', 'PMPROXY', 'Proxy Host=pmproxy-server, Port=2'],
+            ['18', 'PCP', 'Client > Server [CREDS] Features=[AUTH]'],
+            ['19', 'PCP', 'Server > Client [ERROR] error=PM_ERR_NAME '],
+        ]
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.col.info', passes=passes)
+            assert rows == expected
+
+    def test_pmproxy_first_pcp_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The first PCP PDU after the proxy line (frame 15, all ASCII so
+        it does not look like binary data) is dissected as PCP on the
+        first pass, not left as an empty PMPROXY frame.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 15', '-Tfields', '-e_ws.col.protocol',
+                '-epcp.type', '-epcp.length')
+        assert rows == [['PCP', '0x00007000', '20']]
+
+    def test_pmproxy_fields(self, cmd_tshark, capture_file, test_env):
+        '''Banner versions, then host and port (tshark escapes the
+        newline); the port is missing when the line has a host only, both when it is empty.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'pmproxy.client_version || pmproxy.server_version',
+                '-Tfields', '-eframe.number',
+                '-epmproxy.client_version', '-epmproxy.server_version')
+        assert rows[0:3] == [
+            ['1', '', 'pmproxy-server 1\\n'],
+            ['2', 'pmproxy-client 1\\n', ''],
+            ['7', 'pmproxy-client 1\\n', ''],
+        ]
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'pmproxy.host', '-Tfields', '-eframe.number',
+                '-epmproxy.host', '-epmproxy.port')
+        assert rows == [
+            ['3', 'localhost', '44321'],
+            ['8', 'hostonly', ''],
+            ['10', 'a.example.org', '80'],
+            ['14', 'localhost', '44321'],
+            ['17', 'pmproxy-server', '2'],
+        ]
