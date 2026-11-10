@@ -121483,3 +121483,120 @@ class TestDissectQ708:
         assert d['53'] == ['', '', '']      # network indicator 1: not analysed
         assert d['60'] == ['512,512', 'TLI Eschen,iMetrik STP 01',
                            'Telecom Liechtenstein AG,iMetrik Global (Europe) AG']
+
+
+class TestDissectQ931:
+    '''Q.931 from the synthetic capture q931_coverage.pcapng.gz: LAPD I
+    frames (link type LINUX_LAPD, SAPI 0), Q.931 over TPKT over TCP (the
+    heuristic) and over SCTP (payload protocol 13). 492 frames: every
+    message type, every information element the dissector decodes,
+    segmented messages (reassembly) and the reproducers of
+    "Q.931: Fix a few field offsets and strings" (frames 476-479).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q931_coverage.pcapng.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q931_protocols(self, cmd_tshark, capture_file, test_env):
+        '''492 frames: 488 Q.931 and four TCP handshake or header-only
+        frames, no malformed packets and no error expert infos in one and
+        two passes. The only warnings are four unknown single-octet IEs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 492
+        protocols = [r[0] for r in rows]
+        assert protocols.count('Q.931') == 488
+        assert protocols.count('TCP') == 4
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert.severity == warning', '-eframe.number')
+            assert [r[0] for r in rows] == ['63', '65', '66', '83']
+
+    def test_q931_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types and the Info column of LAPD, TPKT and SCTP frames.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-eframe.number', '-e_ws.col.info', '-eframe.protocols')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['1'][0].endswith('| ESCAPE')
+        assert d['5'][0].endswith('| SETUP')
+        assert d['28'][0].endswith('| DISCONNECT')
+        assert d['40'][0].endswith('| Unknown (0x77)')
+        assert d['49'][0].endswith('| Unknown (0x7B)')
+        assert d['483'][0] == 'SETUP' and d['483'][1].endswith(':tcp:q931:q931')
+        assert d['487'][0] == 'Unknown (0x7B)'
+        assert d['491'][0] == 'SETUP' and d['491'][1].endswith(':sctp:q931')
+        assert d['492'][0] == 'INFORMATION' and d['492'][1].endswith(':sctp:q931')
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {44, 45, 46, 47, 48}',
+                '-eframe.number', '-eq931.call_ref_len', '-eq931.call_ref', '-eq931.call_ref_flag')
+        assert rows == [['44', '0', '', ''], ['45', '1', '34', 'True'], ['46', '2', '1234', 'True'],
+                        ['47', '3', '001234', 'True'], ['48', '4', '00001234', 'True']]
+
+    def test_q931_segments(self, cmd_tshark, capture_file, test_env):
+        '''Segmented messages are reassembled when the last segment
+        arrives; a first segment while a message is open restarts it.
+        The second pass also shows "reassembled in" on the earlier segments.'''
+        args = ('-Y', 'frame.number >= 462 && frame.number <= 470', '-eframe.number',
+                '-eq931.reassembled_in', '-eq931.reassembled.length', '-eq931.segment.count',
+                '-eq931.display_information')
+        rows = self._fields(cmd_tshark, capture_file, test_env, *args)
+        d = {r[0]: r[1:] for r in rows}
+        assert d['465'] == ['', '18', '3', 'AAAA,BBBB,CCCC']
+        assert d['466'] == ['', '12', '2', 'XXXX,YYYY']
+        assert d['467'] == ['', '', '', 'ZZZZ']
+        assert d['470'] == ['', '12', '2', '3333,4444']
+        assert d['462'][0] == ''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        d = {r[0]: r[1:] for r in rows}
+        assert [d[f][0] for f in ('462', '463', '464', '468', '469')] == ['465', '465', '466', '469', '470']
+        assert d['465'] == ['', '18', '3', 'AAAA,BBBB,CCCC']
+
+    def test_q931_ie_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of a few information elements.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'q931.called_party_number.digits || q931.calling_party_number.digits',
+                '-eframe.number', '-eq931.called_party_number.digits', '-eq931.calling_party_number.digits')
+        assert ['385', '12125551234', ''] in rows
+        assert ['373', '', '12125551234'] in rows
+
+    def test_q931_offset_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 476-479. The transit delay selection (3-octet value) is
+        shown at its own octets, not after the IE (frame 476, 477); the
+        layer 2 window size reads "7 k" (frame 478); octet 5c is consumed
+        so the duplex and modem type come from octet 5d (frame 479).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q931_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 476', '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        import json
+        def find(obj, key):
+            if isinstance(obj, dict):
+                if key in obj:
+                    return obj[key]
+                for v in obj.values():
+                    r = find(v, key)
+                    if r is not None:
+                        return r
+            return None
+        pkt = json.loads(stdout)[0]['_source']['layers']
+        raw = find(pkt, 'q931.transit_delay_raw')
+        assert raw[0] == '010283' and raw[2] == 3
+        # The IE content starts after the 4 octets of Q.931 header and 2 of IE header
+        # (offset counted from the start of the LAPD frame data).
+        assert raw[1] == 10
+        assert find(pkt, 'q931.transit_delay') == '16643'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q931_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 478', '-V', '-O', 'q931',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert 'Window size: 7 k' in stdout
+        assert '%u' not in stdout
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 479',
+                '-eq931.bearer_capability.duplex', '-eq931.bearer_capability.modem_type',
+                '-eq931.bearer_capability.stop_bits', '-eq931.bearer_capability.data_bits')
+        assert rows == [['True', '0x13', '0x00', '0x03']]
