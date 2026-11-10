@@ -133776,3 +133776,66 @@ class TestDissectSapms:
         assert lines[0][0] == '115' and num(lines[0][1]) == [1, 46, 21, 21, 21, 0]
         assert num(lines[0][2]) == [11, 10, 31] and lines[0][3] == '6'
         assert lines[1][0] == '116' and num(lines[1][1]) == [2, 102, 126]
+
+
+class TestDissectSapni:
+    def test_sapni_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP NI on TCP 3200 and 40000 carrying SAP IGS, SAP Diag, SAP
+        Enqueue (heuristic), SAP Router and plain NI messages; none is
+        malformed or has an error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapni_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 36
+            assert protocols.count('SAPNI') == 3
+            assert protocols.count('SAPIGS') == 9
+            assert protocols.count('SAPROUTER') == 4
+            assert protocols.count('SAPENQUEUE') == 2
+            assert protocols.count('SAPDIAG') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapni_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sapni_messages(self, cmd_tshark, capture_file, test_env):
+        '''Ping, pong (a pong in a TCP conversation is a route accepted
+        message for SAP Router), a zero length message and two messages in
+        one segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapni_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 8, 9, 10}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esapni.length',
+                '-esapni.ping',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:3] == ['4', 'Ping message', '8']
+        assert lines[1][1] == 'Pong message (route accepted)'
+        assert lines[2][:3] == ['8', 'Length=0 ', '0']
+        assert lines[3][2] == '8,192'
+        assert lines[4][2] == '3'
+
+    def test_sapni_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages split over TCP segments, also in the middle of the
+        length field, and a message followed by the start of the next.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('sapni_coverage.pcap.gz'),
+                '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['11\t13', '12\t13', '14\t15', '16\t17']
+
+    def test_sapni_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''The payload goes to SAP IGS (40000), SAP Diag (3200), SAP Enqueue
+        (heuristic, found by the magic bytes) and SAP Router (3299).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapni_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21, 27, 28, 29, 30, 31}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['21', 'SAPDIAG', '27', 'SAPENQUEUE', '28', 'SAPENQUEUE',
+                '29', 'SAPROUTER', '30', 'SAPROUTER', '31', 'SAPIGS']
