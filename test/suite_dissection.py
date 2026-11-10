@@ -118928,3 +118928,129 @@ class TestDissectPpcap:
                     capture_output=True, encoding='utf-8', env=test_env)
             assert proc.returncode == 0
             assert 'Signalling Connection Control Part' in proc.stdout
+
+
+class TestDissectPpi:
+    @staticmethod
+    def make_pcap(path, packets):
+        '''Write the packets (LINKTYPE_PPI, 192) to a pcap file.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 192))
+            for i, p in enumerate(packets):
+                f.write(struct.pack('<IIII', 1 + i, 0, len(p), len(p)))
+                f.write(p)
+
+    def test_ppi_clean(self, cmd_tshark, capture_file, test_env):
+        '''79 frames, none malformed or with an error expert info, in one
+        and in two passes, and the same Info column in both.'''
+        cap = capture_file('ppi_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) == 79
+
+    def test_ppi_phy_from_channel_and_rate(self, cmd_tshark, capture_file, test_env):
+        '''The PHY handed to the 802.11 dissector comes from the channel
+        flags or, without usable flags, from the data rate and frequency.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 15',
+                '-Tfields', '-eframe.number', '-ewlan_radio.phy', '-ewlan_radio.channel',
+            ), encoding='utf-8', env=test_env)
+        phys = [l.split('\t') for l in stdout.splitlines()]
+        # 1 FHSS, 2 DSSS, 3 11a, 4 11b, 5 11g, 6 11g with a DSSS rate is 11b,
+        # 7 11g, 8 11a (turbo), 9 11g (super g), 10 DSSS rate, 11 OFDM rate
+        # on 2.4 GHz, 12 OFDM rate on 5 GHz, 13 OFDM rate without frequency
+        assert [p[1] if len(p) > 1 else '' for p in phys] == [
+            '1', '3', '5', '4', '6', '4', '6', '5', '6', '4', '6', '5', '', '4', '3']
+        assert phys[2][2] == '36'
+        assert phys[11][2] == '36'
+
+    def test_ppi_ampdu_list_in_last_frame_only(self, cmd_tshark, capture_file, test_env):
+        '''The fragment list is in the last frame of an aggregate only:
+        before the fix every frame listed all earlier fragments, which made
+        the number of tree items quadratic in the number of MPDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 38 && frame.number <= 77',
+                '-Tfields', '-eframe.number', '-eppi.80211n-mac.ampdu',
+                '-eppi.80211n-mac.ampdu.count',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 40
+        for l in lines[:-1]:
+            assert l[1:] == ['', '']
+        assert lines[-1][0] == '77'
+        assert lines[-1][1].split(',') == [str(n) for n in range(38, 78)]
+        assert lines[-1][2] == '40'
+
+    def test_ppi_ampdu_aggregates(self, cmd_tshark, capture_file, test_env):
+        '''Interleaved aggregates are tracked by A-MPDU id, a delimiter CRC
+        error ends an aggregate, and an aggregate may have one MPDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'ppi.80211n-mac.ampdu && frame.number < 38',
+                '-Tfields', '-eframe.number', '-eppi.80211n-mac.ampdu',
+                '-eppi.80211n-mac.ampdu.count', '-eppi.80211n-mac.ampdu.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '35\t32,34,35\t3\t', '36\t33,36\t2\t', '37\t37\t1\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 32 && frame.number <= 34',
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['IEEE 802.11n\tUnreassembled A-MPDU data'] * 3
+
+    def test_ppi_ampdu_empty_last_mpdu(self, cmd_tshark, capture_file, test_env):
+        '''The last MPDU is empty, so the aggregate is listed up to the
+        earlier frame and that frame is shown as the one it is reassembled in.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 79',
+                '-Tfields', '-eppi.80211n-mac.ampdu', '-eppi.80211n-mac.ampdu.count',
+                '-eppi.80211n-mac.ampdu.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '78\t1\t78'
+
+    def test_ppi_tags_and_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Tags without their own dissector are shown as bytes, PPI inside
+        PPI is dissected twice.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 26',
+                '-Tfields', '-eppi.reserved', '-eppi.fnet',
+            ), encoding='utf-8', env=test_env)
+        reserved, fnet = stdout.rstrip('\n').split('\t')
+        assert len(reserved.split(',')) == 4
+        assert fnet == '17c00500666c756b65'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 31', '-Tfields', '-eppi.version', '-eppi.dlt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0,0\t192,105'
+
+    def test_ppi_header_length_too_short(self, cmd_tshark, result_file, test_env):
+        '''A header length below 8 and a field longer than the rest of the
+        header are reported and stop the dissection (before the fix the
+        length underflowed and the payload was read as PPI fields).'''
+        pcap = result_file('ppi_short_header.pcap')
+        payload = bytes.fromhex('020000000001020000000002' '88b5') + bytes(20)
+        self.make_pcap(pcap, [
+            struct.pack('<BBHI', 0, 0, 4, 1) + payload,
+            struct.pack('<BBHI', 0, 0, 16, 1) + struct.pack('<HH', 2, 100) + b'\0' * 4 + payload,
+        ])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('1\tPPI header length 4 is less than the header size (8)')
+        assert lines[1].startswith('2\tField length 104 is greater than the remaining PPI header length 8')
