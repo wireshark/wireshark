@@ -139625,3 +139625,63 @@ class TestDissectSmpte2038:
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'st2016_3', ['st2016_3.afd.code'])
         assert rows == ['8']
+
+
+class TestDissectSmpte211020:
+    '''SMPTE ST 2110-20 (uncompressed video over RTP), from the synthetic
+    capture smpte_2110_20_coverage.pcapng.gz: a SIP INVITE with an SDP
+    rtpmap "ST2110-20" announces the RTP stream (frames 2-11); frames 12
+    and 13 are Exported PDU frames naming st2110_20.'''
+
+    CAP = 'smpte_2110_20_coverage.pcapng.gz'
+
+    def test_st2110_20_frames(self, cmd_tshark, capture_file, test_env):
+        '''Twelve frames decode as ST2110-20 (RTP stream announced through
+        SDP, plus the two Exported PDU frames); no malformed frames and no
+        error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'st2110_20',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 12
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_st2110_20_srd(self, cmd_tshark, capture_file, test_env):
+        '''One to three SRD headers per packet and their rows.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'st2110_20 && frame.number <= 4',
+                '-Tfields', '-eframe.number', '-Eoccurrence=a', '-Eaggregator=,',
+                '-est2110_20.srd_rows', '-est2110_20.srd_row_num',
+                '-est2110_20.srd_cont_bit', '-est2110_20.srd_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t1\t0\t0\t16',
+            '3\t2\t1,2\t1,0\t8,8',
+            '4\t3\t1079,1079,3\t1,1,0\t4,4,4',
+        ]
+
+    def test_st2110_20_seq_32bit(self, cmd_tshark, capture_file, test_env):
+        '''st2110_20.seq is 32 bits wide ("ST 2110-20: Make the sequence
+        number field 32 bits wide"): it can be filtered on above 65535,
+        for the Exported PDU frame (RTP sequence number 0, extended
+        sequence number 0x0102) and for RTP frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'st2110_20.seq == 16908288',
+                '-Tfields', '-eframe.number', '-est2110_20.ext_seq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['9\t258', '12\t258']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 7',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'Seq=16973823, Time=9000, FirstRow=20, Rows=1'
