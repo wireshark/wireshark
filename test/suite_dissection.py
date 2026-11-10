@@ -119430,3 +119430,71 @@ class TestDissectPptp:
             ['7', '', '', '', '16909060', '', '', '', ''],
             ['8', '', '', '', '', '5551234567', '11', '100000000', ''],
         ]
+
+
+class TestDissectPres:
+    '''The OSI presentation protocol (ISO 8823) and CL-PRES (ISO 9576)
+    from the synthetic capture pres_coverage.pcapng.gz: associations on
+    TCP 102 (TPKT, COTP, session, presentation) with CP, CPA, CPR, ARU,
+    ARP, data, typed data (AC, ACA, user data) and resynchronize PPDUs,
+    every PDV-list form, and a connectionless PPDU in an Exported PDU
+    for the session dissector. Frames 179-180 use a context identifier
+    that is never defined: the users table of the preferences supplies
+    the abstract syntax.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('pres_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pres_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, no malformed packets or error expert infos in
+        one and two passes, and the same columns in both passes.'''
+        columns = {}
+        for passes in ((), ('-2',)):
+            out = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                               '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            columns[passes] = out
+            frames = self._fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                  '-eframe.number', passes=passes)
+            assert count_output('\n'.join(frames)) == 0
+        assert columns[()] == columns[('-2',)]
+        protocols = [l.split('\t')[0].strip() for l in columns[()]]
+        assert len(protocols) == 186
+        assert protocols.count('PRES') == 41
+        assert protocols.count('CL-PRES') == 1
+        assert protocols.count('SES') == 8
+        assert protocols.count('FTAM') == 13
+        assert protocols.count('ACSE') == 3
+
+    def test_pres_ppdus(self, cmd_tshark, capture_file, test_env):
+        '''The PPDU types: CP, CPA, abort, CPR and typed data.'''
+        for field, count in (('pres.cptype', 14), ('pres.cpapdu', 10),
+                             ('pres.aborttype', 6), ('pres.cprtype', 3),
+                             ('pres.Typed_data_type', 5)):
+            out = self._fields(cmd_tshark, capture_file, test_env, field, '-eframe.number')
+            assert len(out) == count, field
+
+    def test_pres_context_definition(self, cmd_tshark, capture_file, test_env):
+        '''The context definition list of the first CP: identifiers, abstract
+        syntaxes and the transfer syntax.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                           '-epres.abstract_syntax_name', '-epres.transfer_syntax_name',
+                           '-epres.presentation_context_identifier')
+        assert out == ['2.2.1.0.1,1.0.8571.2.1,1.3.9999.1,2.2.1.0.1,2.2.1.0.1\t2.1.1\t1,3,5,7,1']
+
+    def test_pres_users_table(self, cmd_tshark, capture_file, test_env):
+        '''Context 2 of frames 179 and 180 is not defined; without the
+        users table the FTAM PDU is not dissected, with it it is.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {179, 180}', '-eframe.number',
+                           '-eftam.f_terminate_request_element')
+        assert out == ['179\t', '180\t']
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {179, 180}', '-eframe.number', '-e_ws.col.protocol',
+                           opts=('-o', 'uat:pres_context_list:"2","1.0.8571.2.1"'))
+        assert [l.split('\t')[1] for l in out] == ['FTAM', 'FTAM']
