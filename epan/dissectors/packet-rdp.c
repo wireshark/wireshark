@@ -39,6 +39,8 @@ static dissector_handle_t cliprdr_handle;
 static dissector_handle_t snd_handle;
 static dissector_handle_t rdpdr_handle;
 static dissector_handle_t conctrl_handle;
+static dissector_handle_t rdp_senddata_handle;
+static dissector_handle_t rdp_msgchannel_handle;
 
 static int ett_rdp;
 
@@ -1829,7 +1831,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
                    */
 		  if (first) {
 			  context->packetLen = context->pendingLen = length;
-			  context->currentPayload = wmem_array_sized_new(wmem_file_scope(), 1, length);
+			  context->currentPayload = wmem_array_new(wmem_file_scope(), 1);
 			  context->chunks = wmem_array_new(wmem_file_scope(), sizeof(rdp_channel_pdu_chunk_t *));
 			  context->startFrame = pinfo->num;
 		  }
@@ -1840,13 +1842,15 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
                           /* XXX - Check if length == context->packetLen; else
                            * something went wrong (missing/out of order?) */
                           chunk = wmem_alloc(wmem_file_scope(), sizeof(*chunk));
-                          chunk->tvb = NULL;
+                          chunk->data = NULL;
+                          chunk->length = 0;
+                          chunk->reportedLength = 0;
                           chunk->startFrame = context->startFrame;
                           chunk->endFrame = 0;
                           wmem_multimap_insert32(chunksMap, GUINT_TO_POINTER(key), pinfo->num, chunk);
 
                           wmem_array_append(context->currentPayload, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
-                          context->pendingLen -= payloadLen;
+                          context->pendingLen = ((uint32_t)payloadLen > context->pendingLen) ? 0 : context->pendingLen - payloadLen;
                           wmem_array_append(context->chunks, &chunk, 1);
 
                           if (last) {
@@ -1856,7 +1860,9 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
                                   }
 #endif
                                   chunk->reassembled = !first;
-                                  chunk->tvb = tvb_new_real_data(wmem_array_get_raw(context->currentPayload), context->packetLen - context->pendingLen, context->packetLen);
+                                  chunk->data = (const uint8_t *)wmem_array_get_raw(context->currentPayload);
+                                  chunk->length = context->packetLen - context->pendingLen;
+                                  chunk->reportedLength = context->packetLen;
 
                                   for (unsigned i = 0; i < wmem_array_get_count(context->chunks); i++) {
                                           rdp_channel_pdu_chunk_t *c = *(rdp_channel_pdu_chunk_t**) wmem_array_index(context->chunks, i);
@@ -1871,11 +1877,11 @@ dissect_rdp_channelPDU(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto
 		  chunk = (rdp_channel_pdu_chunk_t *)wmem_multimap_lookup32(chunksMap, GUINT_TO_POINTER(key), pinfo->num);
 	  }
 
-	  if (chunk && chunk->tvb) {
+	  if (chunk && chunk->data) {
 		  tvbuff_t *showTvb;
 		  if (chunk->reassembled) {
-			  showTvb = chunk->tvb;
-			  add_new_data_source(pinfo, chunk->tvb, "Reassembled channel PDUs");
+			  showTvb = tvb_new_child_real_data(tvb, chunk->data, chunk->length, chunk->reportedLength);
+			  add_new_data_source(pinfo, showTvb, "Reassembled channel PDUs");
 		  } else {
 			  showTvb = tvb_new_subset_length(tvb, offset, length);
 		  }
@@ -2331,7 +2337,7 @@ rdp_transport_set_udp_conversation(const packet_info *pinfo _U_, bool reliable, 
 #if 0
 		printf("%d: strange, TCP conversation was not existing when adding UDP part\n", pinfo->num);
 #endif
-		transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
+		transport_link = wmem_new0(wmem_file_scope(), rdp_transports_link_t);
 
 		memcpy(&transport_link->key, &key, sizeof(key));
 	}
@@ -2426,7 +2432,7 @@ dissect_rdp_MessageChannelData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 		transport_link = (rdp_transports_link_t *)wmem_map_lookup(rdp_transport_links, &transport_key);
 		if (!transport_link) {
-			transport_link = wmem_new(wmem_file_scope(), rdp_transports_link_t);
+			transport_link = wmem_new0(wmem_file_scope(), rdp_transports_link_t);
 
 			memcpy(&transport_link->key, &transport_key, sizeof(transport_key));
 			transport_link->tcp_conversation = find_or_create_conversation(pinfo);
@@ -2715,6 +2721,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   if (rdp_info && (t124_get_last_channelId() == rdp_info->staticChannelId)) {
 
+    flags = 0;
     offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, false, &flags);
 
     if (!(flags & SEC_ENCRYPT)) {
@@ -2760,6 +2767,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   /* Virtual Channel */
   //col_append_sep_str(pinfo->cinfo, COL_INFO, ",", "Virtual Channel PDU");
 
+  flags = 0;
   offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, false, &flags);
 
   if (!(flags & SEC_ENCRYPT))
@@ -3126,7 +3134,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       lcl_offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sn_fields, 0);
 
       rdp_info->staticChannelId = mcsChannelId;
-      register_t124_sd_dissector(pinfo, mcsChannelId, dissect_rdp_SendData, proto_rdp);
+      if (!PINFO_FD_VISITED(pinfo))
+        dissector_add_uint("t124.sd", mcsChannelId, rdp_senddata_handle);
 
       if (channelCount > 0) {
         array_fields[0].fixedLength = channelCount * 2;
@@ -3140,8 +3149,10 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             rdp_info->staticChannels[i].value = channelId;
           }
 
-          /* register SendData on this for now */
-          register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
+          /* register SendData on this for now (first pass only, at most
+           * RDP_MAX_CHANNELS channels) */
+          if (!PINFO_FD_VISITED(pinfo) && i < RDP_MAX_CHANNELS)
+            dissector_add_uint("t124.sd", channelId, rdp_senddata_handle);
         }
         if (channelCount % 2)
           /*lcl_offset =*/ dissect_rdp_fields(tvb, lcl_offset, pinfo, next_tree, pad_fields, 0);
@@ -3154,7 +3165,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       next_tree = proto_item_add_subtree(pi, ett_rdp_serverMsgChannelData);
       /*offset    =*/ dissect_rdp_fields(tvb, offset, pinfo, next_tree, msgchannel_fields, length);
       rdp_info->messageChannelId = messageChannelId;
-      register_t124_sd_dissector(pinfo, messageChannelId, dissect_rdp_MessageChannelData, proto_rdp);
+      if (!PINFO_FD_VISITED(pinfo))
+        dissector_add_uint("t124.sd", messageChannelId, rdp_msgchannel_handle);
       break;
 
     case SC_MULTITRANSPORT:
@@ -3225,8 +3237,10 @@ dissect_rdpNegReq(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tree
 
   rdp_conv_info_t *rdp_info = rdp_get_conversation_data(pinfo);
 
-  copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
-  rdp_info->serverAddr.port = pinfo->destport;
+  if (!PINFO_FD_VISITED(pinfo)) {
+    copy_address_wmem(wmem_file_scope(), &rdp_info->serverAddr.addr, &pinfo->dst);
+    rdp_info->serverAddr.port = pinfo->destport;
+  }
 
   col_append_str(pinfo->cinfo, COL_INFO, "Negotiate Request");
 
@@ -5603,6 +5617,9 @@ proto_reg_handoff_rdp(void)
   snd_handle = find_dissector("rdp_snd");
   rdpdr_handle = find_dissector("rdpdr");
   conctrl_handle = find_dissector("rdp_conctrl");
+
+  rdp_senddata_handle = create_dissector_handle(dissect_rdp_SendData, proto_rdp);
+  rdp_msgchannel_handle = create_dissector_handle(dissect_rdp_MessageChannelData, proto_rdp);
 
   heur_dissector_add("cotp_cr", dissect_rdp_cr_heur, "RDP", "rdp_cr", proto_rdp, HEURISTIC_ENABLE);
   heur_dissector_add("cotp_cc", dissect_rdp_cc_heur, "RDP", "rdp_cc", proto_rdp, HEURISTIC_ENABLE);

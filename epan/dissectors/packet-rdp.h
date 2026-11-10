@@ -41,7 +41,11 @@ typedef struct {
 typedef struct {
 	uint32_t startFrame;
 	uint32_t endFrame;
-	tvbuff_t* tvb;
+	/* Reassembled payload (file scope); a tvb is built from it on
+	 * every pass, as a tvb kept across passes would never be freed. */
+	const uint8_t *data;
+	unsigned length;
+	unsigned reportedLength;
 	bool reassembled;
 } rdp_channel_pdu_chunk_t;
 
