@@ -117346,3 +117346,69 @@ class TestDissectPflog:
         assert len(lines) == 6
         assert lines[0].startswith('54\t[pass xl0/#3]')
         assert any('[unknown (3) xl0/#65535]' in l for l in lines)
+
+
+class TestDissectPgm:
+    '''PGM (IP protocol 113, and UDP ports 3055-3056 named by the
+    pgm.udp.port preference) from the synthetic capture
+    pgm_coverage.pcap.gz: every packet type and option.'''
+
+    CAPTURE = 'pgm_coverage.pcap.gz'
+    UDP = ('-o', 'pgm.udp.port:3055-3056')
+
+    def test_pgm_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''The unsupported address families and the bad option lengths of
+        some frames are warnings; there are no errors.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.UDP,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pgm', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 64
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.UDP,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pgm_udp_needs_preference(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Y', 'pgm', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 60
+
+    def test_pgm_types(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.UDP,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number <= 16',
+                '-Tfields', '-epgm.hdr.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['0x00', '0x00', '0x04', '0x05', '0x08', '0x08', '0x09',
+            '0x0a', '0x01', '0x01', '0x01', '0x02', '0x0b', '0x0d', '0x0f', '0x00']
+
+    def test_pgm_checksum_field(self, cmd_tshark, capture_file, test_env):
+        '''The checksum is the pgm.hdr.cksum field (it used to be added
+        as the 1 byte status field and pgm.hdr.cksum was never set), and
+        a zero checksum of a non-data packet is "Not present".'''
+        stdout = subprocess.check_output((cmd_tshark, *self.UDP,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 16}',
+                '-Tfields', '-eframe.number', '-epgm.hdr.cksum', '-epgm.hdr.cksum.status',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][0] == '1' and lines[0][1] != '' and lines[0][2] == '1'
+        assert lines[1] == ['16', '0x0000', '3']
+
+    def test_pgm_options(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.UDP,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pgm.opts.nak.list', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) >= 6
+        stdout = subprocess.check_output((cmd_tshark, *self.UDP,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pgm.opts.type.invalid || pgm.address_format_invalid',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['17', '36', '39', '44']
