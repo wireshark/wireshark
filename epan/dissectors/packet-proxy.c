@@ -24,6 +24,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/strtoi.h>
@@ -78,6 +79,7 @@ static int hf_proxy2_tlv_ssl_key_alg;
 
 static expert_field ei_proxy_header_length_too_small;
 static expert_field ei_proxy_bad_format;
+static expert_field ei_proxy_nesting;
 
 
 static int ett_proxy1;
@@ -158,9 +160,33 @@ typedef struct _proxy_conv_info_t {
     uint32_t setup_frame;
 } proxy_conv_info_t;
 
+#define PROXY_MAX_NESTING 4
+
+static int
+dissect_proxy_proxied_inner(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    unsigned offset, void* data, proxy_conv_info_t *proxy_info);
+
 static int
 dissect_proxy_proxied(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
     int offset, void* data, proxy_conv_info_t *proxy_info)
+{
+    unsigned nesting = p_get_proto_depth(pinfo, proto_proxy);
+    int ret;
+
+    /* The payload may itself be a PROXY header, bound the nesting. */
+    if (nesting >= PROXY_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_proxy_nesting, tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
+    }
+    p_set_proto_depth(pinfo, proto_proxy, nesting + 1);
+    ret = dissect_proxy_proxied_inner(tvb, pinfo, tree, offset, data, proxy_info);
+    p_set_proto_depth(pinfo, proto_proxy, nesting);
+    return ret;
+}
+
+static int
+dissect_proxy_proxied_inner(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
+    unsigned offset, void* data, proxy_conv_info_t *proxy_info)
 {
     conversation_t* conv = find_or_create_conversation(pinfo);
     /* A PROXY header was parsed here or in a previous frame, and
@@ -253,6 +279,7 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         uint32_t type, length;
         proto_item *ti_tlv;
         proto_tree *tlv_tree;
+        unsigned tlv_end;
 
         ti_tlv = proto_tree_add_item(proxy_tree, hf_proxy2_tlv, tvb, offset, 3, ENC_NA);
         tlv_tree = proto_item_add_subtree(ti_tlv, ett_proxy2_tlv);
@@ -267,11 +294,16 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
         proto_tree_add_item(tlv_tree, hf_proxy2_tlv_value, tvb, offset, length, ENC_NA);
         switch (type) {
         case PP2_TYPE_SSL: /* SSL */
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_client, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            offset = dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, next_offset);
+            tlv_end = offset + length;
+            if (length >= 5) {
+                proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_client, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_verify, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                /* The sub-TLVs end with the SSL TLV. */
+                dissect_proxy_v2_tlv(tvb, pinfo, tlv_tree, offset, tlv_end);
+            }
+            offset = tlv_end;
         break;
         case PP2_SUBTYPE_SSL_VERSION: /* SSL Version */
             proto_tree_add_item(tlv_tree, hf_proxy2_tlv_ssl_version, tvb, offset, length, ENC_ASCII);
@@ -920,6 +952,10 @@ proto_register_proxy(void)
         { &ei_proxy_bad_format,
           { "proxy.bad_format", PI_MALFORMED, PI_WARN,
             "Badly formatted PROXY header line", EXPFILL }
+        },
+        { &ei_proxy_nesting,
+          { "proxy.nesting", PI_MALFORMED, PI_ERROR,
+            "Too many nested PROXY headers", EXPFILL }
         }
     };
 
