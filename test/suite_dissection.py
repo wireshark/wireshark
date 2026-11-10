@@ -138032,3 +138032,135 @@ class TestDissectSita:
             '14\tLocal\t0x05\t0x1f\tFalse\t\t\tFalse\tFalse',
             '24\tRemote\t0x55\t0x03\tFalse\tFalse\tFalse\t\t',
         ]
+
+
+class TestDissectSkinny:
+    '''SKINNY (Cisco Skinny Client Control Protocol) on TCP port 2000 from
+    the synthetic capture skinny_coverage.pcap.gz. mkskinny.py builds the
+    PDUs from SkinnyProtocolOptimized.xml, the file the dissector is
+    generated from: one TCP stream with a call flow and the reproducer
+    of the display label leak, and one stream per header version (0, 11,
+    17, 22) with every message of the XML (unions once per branch),
+    packed several to a segment and some split over two segments.'''
+
+    def test_skinny_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; one and two passes show no
+        malformed packets and no expert infos of warning or error
+        severity.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 978
+        assert protocols.count('SKINNY') == 368
+        assert protocols.count('SKINNY/REQ') == 261
+        assert protocols.count('SKINNY/RESP') == 291
+        assert protocols.count('SKINNY/XML') == 12
+        assert protocols.count('SKINNY/REQ/XML') == 8
+        assert protocols.count('SKINNY/RESP/XML') == 8
+        assert protocols.count('TCP') == 30
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('skinny_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_skinny_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The columns and the SKINNY trees are the same in one and in two
+        passes (the "Response In" links of requests, which the tracking
+        only knows in the second pass, left out). A request or response
+        PDU is alone in its segment in this capture: the links are keyed by
+        frame number (see the README).'''
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('skinny_coverage.pcap.gz'),
+                    '-Y', 'skinny', '-O', 'skinny',
+                ), encoding='utf-8', env=test_env)
+            out.append([line for line in stdout.splitlines() if 'Response In' not in line])
+        assert out[0] == out[1]
+
+    def test_skinny_call_flow(self, cmd_tshark, capture_file, test_env):
+        '''The registration and call set-up of the first stream (frames
+        4-17) and the request/response links of the tracking (shown on
+        both sides in the second pass): the pass through party id ties
+        OpenReceiveChannelAck to its request.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 4 && frame.number <= 17',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eskinny.response_to',
+                '-eskinny.response_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tRegisterReq \t\t5',
+            '5\tRegisterAck \t4\t',
+            '6\tCapabilitiesRes \t\t',
+            '7\tSoftKeyTemplateReq \t\t',
+            '8\tSoftKeyTemplateRes \t\t',
+            '9\tCallState \t\t',
+            '10\tCallInfo \t\t',
+            '11\tOpenReceiveChannel \t\t12',
+            '12\tOpenReceiveChannelAck \t11\t',
+            '13\tStartMediaTransmission \t\t',
+            '14\tStopMediaTransmission \t\t',
+            '15\tCloseReceiveChannel \t\t',
+            '16\tKeepAliveReq \t\t',
+            '17\tKeepAliveAck \t\t',
+        ]
+
+    def test_skinny_display_labels(self, cmd_tshark, capture_file, test_env):
+        '''SoftKeyTemplateRes with 32 soft keys whose labels hold an
+        embedded label code (frames 18 and 19, the reproducer of "SKINNY: Fix
+        leak of additionalInfo for display labels": every label after the
+        first leaked the string of the one before): each label is shown
+        with its translation.'''
+        for frame in (18, 19):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('skinny_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame,
+                    '-O', 'skinny',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.count('=> "AcctXXXXXXXXXXXXX"') == 64
+            assert stdout.count('SoftKeyTemplateRes') >= 1
+
+    def test_skinny_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split over two TCP segments are reassembled: the frame with
+        the end of the PDU lists the segments and the PDU length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Y', 'tcp.segments',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 205
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19',
+                '-Tfields', '-etcp.reassembled.length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['664\tSoftKeyTemplateRes SoftKeyTemplateRes ']
+
+    def test_skinny_header_versions(self, cmd_tshark, capture_file, test_env):
+        '''All header versions of the streams appear: Basic, V11, V17 and V22 (the fields of the messages depend on them).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Y', 'skinny',
+                '-Tfields', '-eskinny.hdr_version',
+            ), encoding='utf-8', env=test_env)
+        versions = set()
+        for line in stdout.splitlines():
+            versions.update(line.split(','))
+        assert versions == {'0x00000000', '0x0000000b', '0x00000011', '0x00000016'}
+
+    def test_skinny_ip_address_kinds(self, cmd_tshark, capture_file, test_env):
+        '''Addresses with and without the IPv4/IPv6 selector (V17 and later)
+        and the RTP/SRTP address of the receive channel acknowledgement.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('skinny_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-eskinny.ipAddr.ipv6', '-eskinny.portNumber',
+                '-eskinny.passThroughPartyId',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['2001:db8::a\t4\t74565']
