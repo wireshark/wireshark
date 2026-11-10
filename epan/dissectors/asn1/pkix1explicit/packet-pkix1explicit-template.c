@@ -97,7 +97,7 @@ void proto_register_pkix1explicit(void) {
 	NULL, HFILL }},
 
     { &hf_pkix1explicit_addressFamily_safi,
-      { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
+      { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT8, BASE_DEC, NULL, 0,
 	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
 #include "packet-pkix1explicit-hfarr.c"
   };

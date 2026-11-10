@@ -91,7 +91,7 @@ TeletexDomainDefinedAttribute/value teletexAttribute-value
 	subtree = proto_item_add_subtree(actx->created_item, ett_pkix1explicit_addressFamily);
 	proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_afn, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
 	if(tvb_reported_length(parameter_tvb)>2)
-		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 2, 1, ENC_BIG_ENDIAN);
 
 #.TYPE_ATTR
 Features/_item TYPE = FT_UINT16  STRINGS = VALS(tls_hello_extension_types) BLURB = "TLS Extension that MUST be supported by the server"

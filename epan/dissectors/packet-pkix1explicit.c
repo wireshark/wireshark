@@ -547,7 +547,7 @@ dissect_pkix1explicit_T_addressFamily(bool implicit_tag _U_, tvbuff_t *tvb _U_, 
 	subtree = proto_item_add_subtree(actx->created_item, ett_pkix1explicit_addressFamily);
 	proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_afn, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
 	if(tvb_reported_length(parameter_tvb)>2)
-		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtree, hf_pkix1explicit_addressFamily_safi, parameter_tvb, 2, 1, ENC_BIG_ENDIAN);
 
 
   return offset;
@@ -831,7 +831,7 @@ void proto_register_pkix1explicit(void) {
 	NULL, HFILL }},
 
     { &hf_pkix1explicit_addressFamily_safi,
-      { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT16, BASE_DEC, NULL, 0,
+      { "Subsequent Address Family Identifiers (SAFI)", "pkix1explicit.addressfamily.safi", FT_UINT8, BASE_DEC, NULL, 0,
 	"Subsequent Address Family Identifiers (SAFI) RFC4760", HFILL }},
     { &hf_pkix1explicit_Extensions_PDU,
       { "Extensions", "pkix1explicit.Extensions",
