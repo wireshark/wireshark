@@ -120188,3 +120188,87 @@ class TestDissectProxy:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['1']
+
+
+class TestDissectPrp:
+    '''PRP Redundancy Control Trailers, a heuristic dissector of the
+    Ethernet trailer, from the synthetic capture
+    prp_coverage.pcapng.gz.'''
+
+    def test_prp_trailers(self, cmd_tshark, capture_file, test_env):
+        '''Which frames have a PRP-0 or PRP-1 trailer, with sequence
+        number, LAN and size; no frame is malformed or has an error
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('prp_coverage.pcapng.gz'),
+                    '-Y', 'prp',
+                    '-Tfields', '-eframe.number', '-eprp.trailer.version',
+                    '-eprp.trailer.prp_sequence_nr', '-eprp.trailer.prp_lan',
+                    '-eprp.trailer.prp_size',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                ['1', 'PRP-1', '1', '10', '74'],
+                ['2', 'PRP-1', '2', '11', '75'],
+                ['3', 'PRP-1', '3', '10', '94'],
+                ['4', 'PRP-1', '4', '11', '100'],
+                ['5', 'PRP-0', '5', '10', '72'],
+                ['6', 'PRP-0', '6', '11', '82'],
+                ['8', 'PRP-0', '264', '10', '32'],
+                ['9', 'PRP-1', '265', '11', '34'],
+                ['10', 'PRP-1', '266', '10', '7'],
+                ['11', 'PRP-0', '267', '11', '32'],
+                ['12', 'PRP-0', '268', '10', '46'],
+                ['13', 'PRP-1', '269', '10', '46'],
+                ['18', 'PRP-1', '18', '10', '74'],
+                ['19', 'PRP-0', '19', '11', '76'],
+                ['20', 'PRP-0', '20', '10', '32'],
+                ['21', 'PRP-1', '21', '11', '34'],
+                ['23', 'PRP-1', '23', '11', '3'],
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('prp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_prp1_lsdu_size(self, cmd_tshark, capture_file, test_env):
+        '''The PRP-1 LSDU size is shown as correct or wrong.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('prp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 4}',
+                '-V', '-O', 'prp',
+            ), encoding='utf-8', env=test_env)
+        assert '    LSDU size: 74 [correct]' in stdout
+        assert '    LSDU size: 100 [WRONG, should be 74]' in stdout
+
+    def test_prp_not_a_trailer(self, cmd_tshark, capture_file, test_env):
+        '''Wrong size, short trailers, a LAN id that is not A or B and no
+        trailer at all are not PRP; the bytes stay in eth.trailer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('prp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {7, 14, 15, 16, 17, 22}',
+                '-Tfields', '-eframe.number', '-eprp.trailer.version',
+                '-eeth.trailer',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['7', '14', '15', '16', '17', '22']
+        assert all(l[1] == '' for l in lines)
+        assert lines[1][2] == '1234'
+        assert lines[2][2] == '12'
+        assert lines[5][2] == ''
+
+    def test_prp0_before_padding(self, cmd_tshark, capture_file, test_env):
+        '''A PRP-0 trailer in front of zero padding is found by the
+        search; with PRP-1 after padding the padding is shown too.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('prp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {11, 12, 13}',
+                '-Tfields', '-eframe.number', '-eeth.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t',
+            '12\t' + '00' * 14,
+            '13\t' + '00' * 12,
+        ]
