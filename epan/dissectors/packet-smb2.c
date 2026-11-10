@@ -92,6 +92,7 @@ static int proto_smb2;
 
 /* pinfo proto data key, set while dissecting decompressed data */
 #define SMB2_PROTO_DATA_DECOMPRESSING 0
+#define SMB2_PROTO_DATA_DECOMP_TOTAL 1
 static int hf_smb2_cmd;
 static int hf_smb2_request_in;
 static int hf_smb2_response_to;
@@ -1759,6 +1760,10 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 
 	g_hash_table_destroy(conv->matched);
 	g_hash_table_destroy(conv->unmatched);
+	if (conv->asyncs)
+		g_hash_table_destroy(conv->asyncs);
+	if (conv->asy_cancels)
+		g_hash_table_destroy(conv->asy_cancels);
 
 	/* This conversation is gone, return false to indicate we don't
 	 * want to be called again for this conversation. */
@@ -4200,7 +4205,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
-dissect_smb2_share_redirect_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_share_redirect_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_tree *tree;
 	proto_item *item = NULL;
@@ -4239,8 +4244,18 @@ dissect_smb2_share_redirect_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	/* ip addr list */
 	ips_item = proto_tree_add_item(tree, hf_smb2_error_redir_ip_list, tvb, offset, 0, ENC_NA);
 	ips_tree = proto_item_add_subtree(ips_item, ett_smb2_error_redir_ip_list);
-	for (i = 0; i < ip_count; i++)
+	for (i = 0; i < ip_count; i++) {
+		int prev_offset = offset;
+
 		offset = dissect_windows_sockaddr_storage(tvb, pinfo, ips_tree, offset, -1);
+		if (offset <= prev_offset) {
+			/* An unknown address family has no length, so the
+			 * rest of the list cannot be dissected. */
+			proto_tree_add_expert_format_remaining(ips_tree, pinfo, &ei_smb2_invalid_length, tvb, prev_offset,
+					"Unknown address family in the IP address list. Malformed packet");
+			return;
+		}
+	}
 
 	/* resource name */
 	dissect_smb2_olb_off_string(pinfo, tree, tvb, &res_olb, offset, OLB_TYPE_UNICODE_STRING);
@@ -10980,7 +10995,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 	offset_length_buffer_t  tag_olb;
 	offset_length_buffer_t  data_olb;
 	const char *tag;
-	uint16_t    chain_offset;
+	uint32_t    chain_offset;
 	int         offset      = 0;
 	int         len         = -1;
 	proto_item *sub_item;
@@ -12558,6 +12573,31 @@ decrypt_smb_payload(packet_info *pinfo,
 /*
   Append tvb[offset:offset+length] to out
 */
+/* The decompressed output of all the compressed PDUs in one frame is bounded
+ * by MAX_UNCOMPRESSED_SIZE in total; keep a running total per frame. */
+static unsigned
+smb2_decomp_budget_left(packet_info *pinfo)
+{
+	unsigned total = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMP_TOTAL));
+
+	return total >= MAX_UNCOMPRESSED_SIZE ? 0 : MAX_UNCOMPRESSED_SIZE - total;
+}
+
+/* Charge n bytes against the budget. Returns false if it does not fit. */
+static bool
+smb2_decomp_charge(packet_info *pinfo, uint64_t n)
+{
+	unsigned total;
+
+	if (n > smb2_decomp_budget_left(pinfo))
+		return false;
+	total = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMP_TOTAL));
+	total += (unsigned)n;
+	p_remove_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMP_TOTAL);
+	p_add_proto_data(pinfo->pool, pinfo, proto_smb2, SMB2_PROTO_DATA_DECOMP_TOTAL, GUINT_TO_POINTER(total));
+	return true;
+}
+
 static void
 append_uncompress_data(wmem_array_t *out, tvbuff_t *tvb, int offset, unsigned length)
 {
@@ -12567,7 +12607,7 @@ append_uncompress_data(wmem_array_t *out, tvbuff_t *tvb, int offset, unsigned le
 }
 
 static int
-dissect_smb2_compression_pattern_v1(proto_tree *tree,
+dissect_smb2_compression_pattern_v1(packet_info *pinfo, proto_tree *tree,
 				    tvbuff_t *tvb, int offset, int length,
 				    wmem_array_t *out, bool *ok)
 {
@@ -12593,8 +12633,13 @@ dissect_smb2_compression_pattern_v1(proto_tree *tree,
 
 	proto_item_append_text(pat_item, " 0x%02x repeated %u times", pattern, times);
 
-	if (times > MAX_UNCOMPRESSED_SIZE) {
-		*ok = false;
+	if (*ok) {
+		if (out) {
+			if (!smb2_decomp_charge(pinfo, times))
+				*ok = false;
+		} else if (times > MAX_UNCOMPRESSED_SIZE) {
+			*ok = false;
+		}
 	}
 
 	if (out && *ok) {
@@ -12663,6 +12708,16 @@ dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 		*ok = false;
 	}
 
+	/* Charge what this payload will add to the output against the
+	 * per-frame budget (Pattern_V1 charges itself). */
+	if (*ok && alg == SMB2_COMP_ALG_NONE && !smb2_decomp_charge(pinfo, length)) {
+		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (too big)");
+		*ok = false;
+	} else if (*ok && lz_based && !smb2_decomp_charge(pinfo, orig_size)) {
+		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (too big)");
+		*ok = false;
+	}
+
 	if (!*ok && (lz_based || alg == SMB2_COMP_ALG_NONE)) {
 		goto out;
 	}
@@ -12681,7 +12736,7 @@ dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 		uncomp_tvb = tvb_uncompress_lznt1(tvb, offset, length);
 		break;
 	case SMB2_COMP_ALG_PATTERN_V1:
-		dissect_smb2_compression_pattern_v1(subtree, tvb, offset, length, out, ok);
+		dissect_smb2_compression_pattern_v1(pinfo, subtree, tvb, offset, length, out, ok);
 		break;
 	default:
 		// XXX - This should be an expert info, probably not in column
@@ -12780,7 +12835,8 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 
 	*comp_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset));
 
-	if (scti->orig_size > MAX_UNCOMPRESSED_SIZE || scti->comp_offset > MAX_UNCOMPRESSED_SIZE) {
+	if (scti->orig_size > MAX_UNCOMPRESSED_SIZE || scti->comp_offset > MAX_UNCOMPRESSED_SIZE ||
+	    !smb2_decomp_charge(pinfo, (uint64_t)scti->orig_size + scti->comp_offset)) {
 		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (too big)");
 		goto out;
 	}
@@ -12896,7 +12952,11 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 		add_new_data_source(pinfo, *plain_tvb, "Decrypted SMB3");
 	}
 
-	offset += sti->size;
+	/* The size comes from the packet; do not let the offset wrap. */
+	if (sti->size > (unsigned)tvb_reported_length_remaining(tvb, offset))
+		offset += tvb_reported_length_remaining(tvb, offset);
+	else
+		offset += sti->size;
 	return offset;
 }
 
