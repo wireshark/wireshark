@@ -117412,3 +117412,138 @@ class TestDissectPgm:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['17', '36', '39', '44']
+
+
+class TestDissectPgsqlCoverage:
+    '''PostgreSQL (TCP 5432 and Exported PDU) from the synthetic capture
+    pgsql_coverage.pcapng.gz: startup, authentication (MD5, SASL, GSS-API,
+    SSPI), simple and extended queries, copy, SSL and GSS-API encryption
+    requests, direct TLS, logical and physical replication.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('pgsql_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_pgsql_frames(self, cmd_tshark, capture_file, test_env):
+        '''108 frames decode as PGSQL, 2 as TLS (the ClientHello after
+        SSLRequest and the direct TLS one); no malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'pgsql')
+        assert len(rows) == 108
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tls.handshake.type == 1')
+        assert [r[0] for r in rows] == ['84', '99']
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_pgsql_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The PGSQL tree is the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pgsql_coverage.pcapng.gz'), '-V', '-Opgsql',
+                    '-Y', 'pgsql'), encoding='utf-8', env=test_env, timeout=120))
+        assert outs[0] == outs[1]
+
+    def test_pgsql_queries_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Simple and extended queries; the query of frame 35 arrives in
+        two segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'pgsql.query', 'pgsql.query')
+        assert rows[:6] == [
+            ['10', 'SELECT id, name, price FROM items WHERE price > 10'],
+            ['12', 'SELECT $1::int, $2::text'],
+            ['24', 'COPY items TO STDOUT'],
+            ['26', 'COPY items FROM STDIN'],
+            ['35', 'SELECT now()'],
+            ['105', 'SELECT 1'],
+        ]
+
+    def test_pgsql_authentication(self, cmd_tshark, capture_file, test_env):
+        '''The MD5 salt, the SASL message types that follow the server's
+        request and the GSS response messages.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 7', 'pgsql.salt')
+        assert rows == [['7', '01020304']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'pgsql.type contains "SASL"', 'pgsql.type', 'pgsql.auth.sasl.mech')
+        assert rows == [
+            ['54', 'SASLInitialResponse message', 'SCRAM-SHA-256'],
+            ['56', 'SASLResponse message', ''],
+            ['66', 'SASLInitialResponse message', 'SCRAM-SHA-256'],
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'pgsql.type == "GSSResponse message"')
+        assert [r[0] for r in rows] == ['72', '73', '75', '77']
+
+    def test_pgsql_copy_response_formats(self, cmd_tshark, capture_file, test_env):
+        '''CopyOut/CopyIn/CopyBoth responses show the overall format and
+        every column format. The loop stopped two entries early before
+        "PGSQL: Fix tuple lengths, copy column formats, streamed txn
+        state".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {25, 27, 30}', 'pgsql.format')
+        assert rows == [['25', '0,0,0,1'], ['27', '0,0'], ['30', '1,1']]
+
+    def test_pgsql_streamed_txn(self, cmd_tshark, capture_file, test_env):
+        '''Messages of a streamed transaction carry an xid, also when the
+        Stream Start and Stream Stop are in the same segment, in one and
+        two passes. The flag was kept per frame before "PGSQL: Fix tuple
+        lengths, copy column formats, streamed txn state", so the second
+        pass decoded the xid as the relation OID.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number >= 147 && frame.number <= 151',
+                    'pgsql.xid', 'pgsql.relation_oid', 'pgsql.logical.msg_type',
+                    passes=passes)
+            assert rows == [
+                ['147', '900,900,900,900,900,900,900,900', '16384,16384,16384',
+                 'Stream Start,Relation,Type,Insert,Update,Delete,Truncate,Message,Stream Stop'],
+                ['148', '', '16384', 'Insert'],
+                ['149', '901', '', 'Stream Start'],
+                ['150', '901', '16384', 'Insert'],
+                ['151', '', '', 'Stream Stop'],
+            ]
+
+    def test_pgsql_old_tuple_length(self, cmd_tshark, capture_file, test_env):
+        '''The Key and Old tuple subtrees have the length of the tuple
+        and no more. The Key tuple of an Update with one 2 byte column
+        is 10 bytes; before "PGSQL: Fix tuple lengths, copy column
+        formats, streamed txn state" it covered the New tuple too.'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pgsql_coverage.pcapng.gz'), '-Y', 'frame.number == 145',
+                '-Tpdml'), encoding='utf-8', env=test_env, timeout=120)
+        sizes = [(f.get('show'), int(f.get('size')))
+                 for f in ET.fromstring(stdout).iter('field')
+                 if f.get('name') == '' and f.get('show') in ('Key', 'Old tuple', 'New tuple')]
+        assert ('Key', 10) in sizes and ('Old tuple', 11) in sizes
+        assert [s for s in sizes if s[0] == 'Key'] == [('Key', 10), ('Key', 10)]
+
+    def test_pgsql_encryption_requests(self, cmd_tshark, capture_file, test_env):
+        '''SSLRequest and GSSENCRequest are followed by a response of one
+        byte; GSS-API wrapped messages with a signed-only token are
+        dissected as PGSQL messages.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'pgsql.type contains "GSS-API encrypted" || pgsql.type contains "encrypt"',
+                'pgsql.type')
+        by_frame = {r[0]: r[1] for r in rows}
+        assert by_frame['103'] == 'GSS encrypt request'
+        assert by_frame['104'] == 'GSS encrypt response'
+        assert by_frame['105'] == 'GSS-API encrypted message,Simple query'
+        assert by_frame['106'] == 'GSS-API encrypted message,Ready for query'
+        assert by_frame['119'] == 'GSS encrypt response,Error'
+
+    def test_pgsql_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU entries naming pgsql and pgsql.gssapi (frames 158
+        to 160) are dissected without a TCP session.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'exported_pdu', 'exported_pdu.prot_name', '_ws.col.protocol')
+        assert rows == [
+            ['158', 'pgsql.gssapi', 'PGSQL'],
+            ['159', 'pgsql', 'PGSQL'],
+            ['160', 'pgsql', 'PGSQL'],
+        ]
