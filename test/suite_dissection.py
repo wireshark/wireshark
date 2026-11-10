@@ -124611,3 +124611,78 @@ class TestDissectRdpMultitransport:
         assert rows[2] == ['41', 'CreateChannel Request(bar)']
         assert rows[3] == ['42', 'CreateChannel Request(q)']
         assert all(len(r) == 1 or r[1] == '' for r in rows[4:])       # data that is not RDPMT
+
+
+class TestDissectRdpRail:
+    '''RDP RemoteApp (RAIL) from the synthetic capture rdp_rail_coverage.pcapng.gz:
+    an RDP session on TCP 3389 with the static channel "rail" and the dynamic
+    channels "Microsoft::Windows::RDS::RAIL" and "rail".'''
+
+    CAPTURE = 'rdp_rail_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpRail.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rail_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 154
+        assert protocols.count('RAIL') == 138
+        assert protocols.count('DRDYNVC') == 3
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_rail_handshake_and_orders(self, cmd_tshark, capture_file, test_env):
+        '''Handshake, extended handshake, client status and every order type
+        (the order name is in the info column).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_rail && frame.number <= 17', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-erdp_rail.handshake.buildNumber')
+        assert stdout.splitlines() == [
+            '12\tHandshake\t0x00004a61', '13\tHandshake\t0x00004a61',
+            '14\tHandshakeEx\t0x00004a61', '15\tHandshakeEx\t0x00004a61',
+            '16\tClient status\t', '17\tClient status\t']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_rail', '-Tfields', '-e_ws.col.info')
+        infos = stdout.splitlines()
+        for name in ('Execute', 'Exec result', 'System menu', 'Language bar info', 'Taskbar info',
+                     'Compartment info', 'Z-order sync', 'Power display request', 'Snap arrange',
+                     'Text scale info', 'Caret blink info', 'window create body', 'window icon body',
+                     'notify icon body change', 'order2D', 'Unknown RAIL command'):
+            assert any(i.startswith(name) for i in infos), name
+
+    def test_rail_sysparam_and_window_orders(self, cmd_tshark, capture_file, test_env):
+        '''System parameters are named by direction (server and client
+        parameters), window orders show the window id, the z-order body shows
+        the id it carries.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_rail && frame.number >= 135', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert lines[0] == '135\tclient system parameters RAIL_SPI_CLOSED_CAPTION_REGION_OPACITY'
+        assert lines[1] == '136\tclient system parameters <unknown client param>'
+        assert '139\tCloak|windowId=0x1234' in lines
+        assert '144\tzorder|windowId=0xabcd' in lines
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_rail.sysparam.serverparameter', '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines()[1:3] == ['Server system parameters SPI_SETSCREENSAVEACTIVE',
+                                           'Server system parameters SPI_SETSCREENSAVESECURE']
+
+    def test_rail_dynamic_channels(self, cmd_tshark, capture_file, test_env):
+        '''RAIL over the dynamic channels, also reassembled; a PDU in several
+        channel PDUs is dissected once.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 145', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['RDP', 'Virtual Channel PDU rail'], ['RDP', 'Virtual Channel PDU rail'],
+            ['RAIL', 'Execute'], ['RAIL', 'Execute'],
+            ['DRDYNVC', 'CreateChannel Request(Microsoft::Windows::RDS::RAIL)'],
+            ['DRDYNVC', 'CreateChannel Request(rail)'], ['RAIL', 'Handshake'], ['RAIL', 'HandshakeEx'],
+            ['DRDYNVC', 'Data first'], ['RAIL', 'Handshake']]
