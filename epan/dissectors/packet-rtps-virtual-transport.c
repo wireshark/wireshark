@@ -957,6 +957,10 @@ static int dissect_parameter_transport_rtps_type(
                 transport_data->direction = value;
             }
             break;
+        default:
+            /* Unknown parameter: skip id, length and value */
+            offset = OFFSET_TO_VAL + param_length;
+            break;
     }
     return offset;
 }
