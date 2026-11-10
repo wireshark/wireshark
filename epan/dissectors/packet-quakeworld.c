@@ -76,12 +76,12 @@ static expert_field ei_quakeworld_connectionless_command_invalid;
 #define MAX_TEXT_SIZE	2048
 
 static const char *
-COM_Parse (wmem_allocator_t* allocator, const char *data, int data_len, int* token_start, int* token_len)
+COM_Parse (wmem_allocator_t* allocator, const char *data, int data_len, const char **token, int* token_start, int* token_len)
 {
 	int c;
-	char* com_token = (char*)wmem_alloc(allocator, data_len+1);
+	const char *begin;
 
-	com_token[0] = '\0';
+	*token = "";
 	*token_start = 0;
 	*token_len = 0;
 
@@ -113,31 +113,31 @@ skipwhite:
 	if (c == '\"') {
 		data++;
 		(*token_start)++;
+		begin = data;
 		while (*token_len < data_len) {
-			c = *data++;
+			c = *data;
 			if ((c=='\"') || (c=='\0')) {
-				com_token[*token_len] = '\0';
+				*token = wmem_strndup(allocator, begin, *token_len);
+				if (c == '\"')
+					data++;
 				return data;
 			}
-			com_token[*token_len] = c;
+			data++;
 			(*token_len)++;
 		}
-	}
-
-	if (*token_len == data_len) {
-		com_token[*token_len] = '\0';
+		*token = wmem_strndup(allocator, begin, *token_len);
 		return data;
 	}
 
 	/* parse a regular word */
+	begin = data;
 	do {
-		com_token[*token_len] = c;
 		data++;
 		(*token_len)++;
 		c = *data;
 	} while (( c != ' ') && (!g_ascii_iscntrl(c)) && (*token_len < data_len));
 
-	com_token[*token_len] = '\0';
+	*token = wmem_strndup(allocator, begin, *token_len);
 	return data;
 }
 
@@ -189,12 +189,13 @@ static void
 Cmd_TokenizeString(wmem_allocator_t* allocator, const char* text, int text_len)
 {
 	int start;
+	const char *com_token;
 	int com_token_start;
 	int com_token_length;
 	cmd_argc = 0;
 
 	start = 0;
-	while (start < text_len) {
+	while (start < text_len && cmd_argc < MAX_ARGS) {
 
 		/* skip whitespace up to a \n */
 		while (*text && *text <= ' ' && *text != '\n' && start < text_len) {
@@ -211,16 +212,14 @@ Cmd_TokenizeString(wmem_allocator_t* allocator, const char* text, int text_len)
 		if ((!*text) || (start == text_len))
 			return;
 
-		text = COM_Parse (allocator, text, text_len-start, &com_token_start, &com_token_length);
+		text = COM_Parse (allocator, text, text_len-start, &com_token, &com_token_start, &com_token_length);
 		if (!text)
 			return;
 
-		if (cmd_argc < MAX_ARGS) {
-			cmd_argv[cmd_argc] = (char*)text;
-			cmd_argv_start[cmd_argc] = start + com_token_start;
-			cmd_argv_length[cmd_argc] = com_token_length;
-			cmd_argc++;
-		}
+		cmd_argv[cmd_argc] = com_token;
+		cmd_argv_start[cmd_argc] = start + com_token_start;
+		cmd_argv_length[cmd_argc] = com_token_length;
+		cmd_argc++;
 
 		start += com_token_start + com_token_length;
 	}
@@ -401,7 +400,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					tvb, offset, command_len, command);
 				argument_item = proto_tree_add_string(text_tree,
 					hf_quakeworld_connectionless_arguments,
-					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1),
+					tvb, offset + Cmd_Argv_start(1), len - Cmd_Argv_start(1),
 					text + Cmd_Argv_start(1));
 				argument_tree = proto_item_add_subtree(argument_item,
 								       ett_quakeworld_connectionless_arguments);
