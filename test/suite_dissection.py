@@ -138291,3 +138291,96 @@ class TestDissectSlimp3:
             '30\tDiscovery Response, Server Address: 192.0.2.1. Server Port: 3483',
             '31\tAck, Sequence: 5',
         ]
+
+
+class TestDissectSll:
+    '''SLL (Linux cooked capture v1 and v2) from the synthetic capture
+    sll_coverage.pcapng.gz: interface 0 is LINKTYPE_LINUX_SLL, interface 1
+    LINKTYPE_LINUX_SLL2; the frames come in pairs (v1, v2).'''
+
+    CAP = 'sll_coverage.pcapng.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_sll_clean(self, cmd_tshark, capture_file, test_env):
+        '''76 of the 78 frames have an SLL tree (the two netlink frames go
+        to the netlink dissector first), none is malformed and none has an expert
+        info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert len(self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'sll',
+                    ['frame.number'], *passes)) == 76
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+
+    def test_sll_header(self, cmd_tshark, capture_file, test_env):
+        '''Packet types 0-5 of SLL v1, and the link-layer address lengths 0,
+        4, 6, 8 and 10 of v1 and v2 (only the first 8 octets are shown;
+        the v2 header has an interface index and reserved field).'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'sll.pkttype && frame.interface_id == 0 && frame.number <= 12',
+                ['frame.number', 'sll.pkttype'])
+        assert rows == ['1\t0', '3\t1', '5\t2', '7\t3', '9\t4', '11\t5']
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number >= 13 && frame.number <= 22',
+                ['frame.number', 'sll.halen', 'sll.src.eth', 'sll.src.ipv4',
+                 'sll.src.other', 'sll.unused', 'sll.ifindex'])
+        assert rows == [
+            '13\t0\t\t\t\t0000000000000000\t',
+            '14\t0\t\t\t\t0000000000000000\t2',
+            '15\t4\t\t192.0.2.1\t\t00000000\t',
+            '16\t4\t\t192.0.2.1\t\t00000000\t2',
+            '17\t6\t02:00:00:00:00:01\t\t\t0000\t',
+            '18\t6\t02:00:00:00:00:01\t\t\t0000\t2',
+            '19\t8\t\t\t0102030405060708\t\t',
+            '20\t8\t\t\t0102030405060708\t\t2',
+            '21\t10\t\t\t0001020304050607\t\t',
+            '22\t10\t\t\t0001020304050607\t\t2',
+        ]
+
+    def test_sll_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Ethertypes, Linux protocol types, hardware types that select a
+        dissector (radiotap, GRE) and netlink.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.interface_id == 0 && frame.number >= 23',
+                ['frame.number', 'frame.protocols'])
+        d = dict(r.split('\t') for r in rows)
+        assert d['23'] == 'sll:ethertype:arp'
+        assert d['25'] == 'sll:ethertype:ipv6:udp:discard'
+        assert d['27'] == 'sll:ethertype:ip:udp:discard'
+        assert d['29'] == 'sll:ethertype:data'
+        assert d['31'] == 'sll:ipx'
+        assert d['33'] == 'sll:eth:ethertype:ip:udp:discard'
+        assert d['35'] == 'sll:llc:ip:udp:discard'
+        assert d['37'] == 'sll:ppp:ip:udp:discard'
+        assert d['39'] == 'sll:can'
+        assert d['41'] == 'sll:canfd:data'
+        assert d['43'] == 'sll:irlap'
+        assert d['45'] == 'sll:wpan'
+        assert d['55'] == 'sll:radiotap:wlan_radio:wlan'
+        assert d['61'] == 'sll:ip:udp:discard'
+        assert d['63'] == 'sll:ipv6:udp:discard'
+        assert d['67'] == 'sll:arp'
+        assert d['71'] == 'sll:netlink:data'
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'sll.ltype || sll.etype || sll.gretype',
+                ['frame.number', 'sll.ltype', 'sll.etype', 'sll.gretype'])
+        by = {r.split('\t')[0]: r.split('\t')[1:] for r in rows}
+        assert by['35'] == ['0x0004', '', '']
+        assert by['61'] == ['', '', '0x0800']
+        assert by['23'] == ['', '0x0806', '']
+
+    def test_sll_tap(self, cmd_tshark, capture_file, test_env):
+        '''The SLL conversation and endpoint tables count the packets by
+        source link-layer address (78 frames: 68 Ethernet, 6 without
+        address, 2 IPv4 addresses and 2 netlink frames that are not
+        counted).'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-q', '-z', 'endpoints,sll'), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.split() for l in stdout.splitlines()]
+        counts = {l[0]: int(l[1]) for l in lines if len(l) > 2 and l[1].isdigit()}
+        assert counts == {'02:00:00:00:00:01': 68, 'NONE': 6, '192.0.2.1': 2}
