@@ -3271,7 +3271,10 @@ proto_reg_handoff_dtls(void)
 void
 dtls_dissector_add(unsigned port, dissector_handle_t handle)
 {
-  ssl_association_add("dtls.port", dtls_handle, handle, port, false);
+  if (dtls_handle) {
+    dissector_delete_uint("udp.port", port, dtls_handle);
+    ssl_association_add("dtls.port", dtls_handle, handle, port, false);
+  }
 }
 
 void

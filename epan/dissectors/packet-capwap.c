@@ -23,7 +23,7 @@
 
 #include "packet-ieee80211.h"
 
-void proto_register_capwap_control(void);
+void proto_register_capwap(void);
 void proto_reg_handoff_capwap(void);
 
 static dissector_handle_t capwap_control_handle;
@@ -3534,7 +3534,7 @@ apply_capwap_prefs(void)
 }
 
 void
-proto_register_capwap_control(void)
+proto_register_capwap(void)
 {
     module_t *capwap_module;
 

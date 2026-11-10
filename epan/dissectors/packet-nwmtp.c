@@ -14,7 +14,7 @@
 
 #include <epan/packet.h>
 
-void proto_register_mwmtp(void);
+void proto_register_nwmtp(void);
 void proto_reg_handoff_nwmtp(void);
 
 static dissector_handle_t mtp_handle;
@@ -27,7 +27,7 @@ static int hf_nwmtp_data_index;
 static int hf_nwmtp_data_length;
 
 /* subtree pointer */
-static int ett_mwmtp;
+static int ett_nwmtp;
 
 static dissector_handle_t nwmtp_handle;
 
@@ -78,7 +78,7 @@ static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 					tvb, offset, len + 12,
 					"NexusWare C7 UDP Protocol");
 
-			nwmtp_tree = proto_item_add_subtree(ti, ett_mwmtp);
+			nwmtp_tree = proto_item_add_subtree(ti, ett_nwmtp);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_transp_type,
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_data_type,
@@ -106,7 +106,7 @@ static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 	return tvb_captured_length(tvb);
 }
 
-void proto_register_mwmtp(void)
+void proto_register_nwmtp(void)
 {
 	static hf_register_info hf[] = {
 		{&hf_nwmtp_transp_type,
@@ -137,7 +137,7 @@ void proto_register_mwmtp(void)
 	};
 
 	static int *ett[] = {
-		&ett_mwmtp,
+		&ett_nwmtp,
 	};
 
 	proto_nwmtp =

@@ -73,7 +73,7 @@ static void dissect_ptpIP_protocol_version     (tvbuff_t *tvb, packet_info *pinf
 static void dissect_ptpIP_guid                 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t *offset);
 
 void proto_register_ptpip( void );
-void proto_reg_handoff_ptpIP( void );
+void proto_reg_handoff_ptpip( void );
 
 static dissector_handle_t ptpIP_handle;
 
@@ -1102,7 +1102,7 @@ void proto_register_ptpip( void )
 
 }
 
-void proto_reg_handoff_ptpIP( void ) {
+void proto_reg_handoff_ptpip( void ) {
     dissector_add_uint_with_preference("tcp.port", PTPIP_PORT, ptpIP_handle);
 }
 

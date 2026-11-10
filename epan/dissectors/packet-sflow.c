@@ -796,7 +796,7 @@ static dissector_table_t   header_subdissector_table;
 
 static const unit_name_string units_total_packets = { " total packet", " total packets" };
 
-void proto_reg_handoff_sflow_245(void);
+void proto_reg_handoff_sflow(void);
 
 /* dissect a sampled header - layer 2 protocols */
 static int
@@ -3956,7 +3956,7 @@ proto_register_sflow(void) {
 }
 
 void
-proto_reg_handoff_sflow_245(void) {
+proto_reg_handoff_sflow(void) {
 
     dissector_add_uint_range_with_preference("udp.port", SFLOW_UDP_PORTS, sflow_handle);
 }

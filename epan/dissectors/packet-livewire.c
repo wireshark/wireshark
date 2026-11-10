@@ -44,6 +44,9 @@
 #define AXIA_INTERCOM_PORT 5000
 #define AXIA_RTP_PORT 5004
 
+void proto_register_lwadv(void);
+void proto_reg_handoff_lwadv(void);
+
 static int proto_axia_adv;
 static int proto_axia_gpio;
 static int proto_axia_clock;
@@ -1168,7 +1171,7 @@ void proto_register_lwadv(void)
     lwcp_handle = register_dissector("axia_lwcp", dissect_lwcp, proto_axia_lwcp);
     lwcp_tcp_handle = register_dissector("axia_lwcp-tcp", dissect_lwcp_tcp, proto_axia_lwcp);
 }
-void proto_reg_handoff_axia(void)
+void proto_reg_handoff_lwadv(void)
 {
     axia_sources = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     axia_nodes = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

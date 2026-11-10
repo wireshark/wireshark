@@ -15,7 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
-void proto_register_ipa(void);
+void proto_register_gsm_ipa(void);
 void proto_reg_handoff_gsm_ipa(void);
 
 /*
@@ -388,7 +388,7 @@ dissect_ipa_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	return tvb_captured_length(tvb);
 }
 
-void proto_register_ipa(void)
+void proto_register_gsm_ipa(void)
 {
 	module_t *ipa_module;
 

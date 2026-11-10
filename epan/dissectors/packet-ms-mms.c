@@ -269,7 +269,7 @@ static const value_string server_to_client_error_vals[] =
 /*************************/
 /* Function declarations */
 void proto_register_msmms(void);
-void proto_reg_handoff_msmms_command(void);
+void proto_reg_handoff_msmms(void);
 
 static int dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -1859,7 +1859,7 @@ void proto_register_msmms(void)
     msmms_handle = register_dissector("msmms", dissect_msmms_pdu, proto_msmms);
 }
 
-void proto_reg_handoff_msmms_command(void)
+void proto_reg_handoff_msmms(void)
 {
     /* Control commands using TCP port */
     dissector_add_uint_with_preference("tcp.port", MSMMS_PORT, msmms_handle);

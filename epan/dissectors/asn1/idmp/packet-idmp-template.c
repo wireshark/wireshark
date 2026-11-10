@@ -31,7 +31,7 @@
 
 
 void proto_register_idmp(void);
-void proto_reg_handoff_idm(void);
+void proto_reg_handoff_idmp(void);
 void register_idmp_protocol_info(const char *oid, const ros_info_t *rinfo, int proto _U_, const char *name);
 
 static bool           idmp_desegment       = true;
@@ -343,6 +343,6 @@ void proto_register_idmp(void)
 
 
 /*--- proto_reg_handoff_idm --- */
-void proto_reg_handoff_idm(void) {
+void proto_reg_handoff_idmp(void) {
     dissector_add_uint_with_preference("tcp.port", IDMP_TCP_PORT, idmp_handle);
 }

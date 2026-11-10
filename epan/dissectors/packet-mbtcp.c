@@ -63,8 +63,7 @@
 #include "packet-tls.h"
 
 void proto_register_modbus(void);
-void proto_reg_handoff_mbtcp(void);
-void proto_reg_handoff_mbrtu(void);
+void proto_reg_handoff_modbus(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_mbtcp;
@@ -2260,8 +2259,9 @@ proto_register_modbus(void)
    create the code that calls these routines.
  */
 void
-proto_reg_handoff_mbtcp(void)
+proto_reg_handoff_modbus(void)
 {
+    /* mbtcp */
     dissector_add_uint_with_preference("tcp.port", PORT_MBTCP, mbtcp_handle);
     dissector_add_uint_with_preference("udp.port", PORT_MBTCP, mbudp_handle);
     dissector_add_uint_with_preference("tls.port", PORT_MBTLS, mbtls_handle);
@@ -2270,11 +2270,8 @@ proto_reg_handoff_mbtcp(void)
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 
     ssl_dissector_add(PORT_MBTLS, mbtls_handle);
-}
 
-void
-proto_reg_handoff_mbrtu(void)
-{
+    /* mbrtu*/
     dissector_handle_t mbrtu_udp_handle = create_dissector_handle(dissect_mbrtu_udp, proto_mbrtu);
     dissector_handle_t mbrtu_tcp_handle = create_dissector_handle(dissect_mbrtu_tcp, proto_mbrtu);
 
@@ -2290,6 +2287,7 @@ proto_reg_handoff_mbrtu(void)
     dissector_add_for_decode_as("usb.protocol", mbrtu_handle);
 
 }
+
 
 /*
  * Editor modelines
