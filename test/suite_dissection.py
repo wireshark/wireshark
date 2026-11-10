@@ -138862,3 +138862,61 @@ class TestDissectSmbFixes:
             assert '4294967295' in lengths and '2147483648' in lengths
             # EA data is shown whenever data is left after the security descriptor
             assert sum(1 for r in rows if r[2]) == 10
+
+
+class TestDissectSmbCommon:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        '''Run tshark on the capture and return the -T fields rows.'''
+        args = [cmd_tshark, *passes, '-r', capture_file('smb_common_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_common_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SMB NETLOGON messages in mailslot writes (TCP 445 and NetBIOS
+        datagrams) use the helpers of packet-smb-common.c; none is
+        malformed or has a warning or error expert info in one or two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smb_common_coverage.pcap.gz'), '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 40
+        assert protocols.count('SMB_NETLOGON') == 31
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('smb_common_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_smb_common_ascii_strings(self, cmd_tshark, capture_file, test_env):
+        '''display_ms_string(): NUL terminated ASCII strings.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 10',
+                           'smb_netlogon.computer_name', 'smb_netlogon.user_name', 'smb_netlogon.mailslot_name')
+        assert rows == [['10', 'CLIENT1', 'alice', r'\\MAILSLOT\\TEMP\\LOGON']]
+
+    def test_smb_common_unicode_strings(self, cmd_tshark, capture_file, test_env):
+        '''display_unicode_string(): UTF-16 strings, aligned to a word.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb_netlogon.unicode_pdc_name',
+                           'smb_netlogon.unicode_pdc_name', 'smb_netlogon.domain_name', '_ws.col.info')
+        assert ['PDC1', 'DOMAIN'] in [r[1:3] for r in rows]
+        assert ['PDC12', 'DOM'] in [r[1:3] for r in rows]
+        assert any(r[3] == 'Announce Startup of PDC: host PDC1, domain DOMAIN' for r in rows)
+
+    def test_smb_common_compressed_strings(self, cmd_tshark, capture_file, test_env):
+        '''dissect_ms_compressed_string(): DNS style names with a pointer
+        back to the forest name, in the Active Directory responses.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'smb_netlogon.forest_dns_name',
+                               'smb_netlogon.forest_dns_name', 'smb_netlogon.domain_dns_name',
+                               'smb_netlogon.server_dns_name', 'smb_netlogon.server_site_name',
+                               'smb_netlogon.client_site_name', passes=passes)
+            assert len(rows) == 4       # 0x17 and 0x19, over TCP and in NetBIOS datagrams
+            for r in rows:
+                assert r[1:] == ['example.com', 'ad.example.com', 'dc1.ad.example.com',
+                                 'Default-First-Site-Name', 'Site2']
