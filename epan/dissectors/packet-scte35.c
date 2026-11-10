@@ -71,6 +71,10 @@ static dissector_table_t scte35_cmd_dissector_table;
 
 /* splice_info_section table */
 static int ett_scte35_splice_info_section;
+static int ett_scte35_descriptor;
+static int ett_scte35_component;
+static int ett_scte35_splice;
+static int ett_scte35_splice_time;
 
 /* splice_info_section fields */
 static int hf_table_id;
@@ -469,7 +473,7 @@ dissect_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uint8
     /* Create a subtree for the component. */
     component_tag = tvb_get_uint8(tvb, offset);
     proto_tree_add_subtree_format(
-        tree, tvb, offset, min_length, idx, &component_tree,
+        tree, tvb, offset, min_length, ett_scte35_component, &component_tree,
         "Component %d (0x%02x)", idx, component_tag);
 
     /* Parse out component flags. */
@@ -563,7 +567,7 @@ dissect_scte35_splice_insert(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 return offset;
 
             tsf = tvb_get_bits8(tvb, offset * 8, 1);
-            proto_tree_add_subtree(si_tree, tvb, offset, tsf ? 5 : 1, 0, &st_tree, "Program Splice Time");
+            proto_tree_add_subtree(si_tree, tvb, offset, tsf ? 5 : 1, ett_scte35_splice_time, &st_tree, "Program Splice Time");
             proto_tree_add_item(st_tree, hf_splice_time_specified_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(st_tree, hf_splice_time_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -782,7 +786,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
         /* Add a subtree for the splice. */
         proto_tree_add_subtree_format(
-            ss_tree, tvb, offset, splice_length, splice, &sp_tree,
+            ss_tree, tvb, offset, splice_length, ett_scte35_splice, &sp_tree,
             "Splice %d", splice);
 
         /* Show the splice header. */
@@ -823,7 +827,7 @@ dissect_scte35_splice_schedule(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
                 /* Parse out each component stream. */
                 for (component = 0; component < component_count; ++component) {
-                    proto_tree_add_subtree_format(sp_tree, tvb, offset, 5, component, &component_tree,
+                    proto_tree_add_subtree_format(sp_tree, tvb, offset, 5, ett_scte35_component, &component_tree,
                         "Component %d", component);
                     proto_tree_add_item(component_tree, hf_splice_component_tag, tvb,
                         offset, 1, ENC_NA);
@@ -1003,7 +1007,7 @@ dissect_scte35_component(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree *subtree;
 
     /* Create the subtree. */
-    proto_tree_add_subtree_format(tree, tvb, offset, 6, idx, &subtree, "Component %d", idx);
+    proto_tree_add_subtree_format(tree, tvb, offset, 6, ett_scte35_component, &subtree, "Component %d", idx);
 
     /* Display the component fields. */
     proto_tree_add_item(subtree, hf_descriptor_component_tag, tvb,
@@ -1132,7 +1136,7 @@ dissect_scte35_splice_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     tag = tvb_get_uint8(tvb, offset);
     length = tvb_get_uint8(tvb, offset + 1);
     proto_tree_add_subtree_format(
-            tree, tvb, offset, length + 2, idx, &subtree,
+            tree, tvb, offset, length + 2, ett_scte35_descriptor, &subtree,
             "Descriptor %d (0x%02x)", idx, tag);
 
     /* Parse descriptor headers */
@@ -1307,6 +1311,10 @@ proto_register_scte35(void)
 {
     static int *ett[] = {
         &ett_scte35_splice_info_section,
+        &ett_scte35_descriptor,
+        &ett_scte35_component,
+        &ett_scte35_splice,
+        &ett_scte35_splice_time,
     };
 
     static hf_register_info hf[] = {
