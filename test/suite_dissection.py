@@ -128447,3 +128447,65 @@ class TestDissectRpkiRtr:
                 '-Y', 'rpkirtr.aspa.wrong_version || rpkirtr.router_key.wrong_version',
                 '-Tfields', '-eframe.number')
         assert count_output(stdout) == 0
+
+
+class TestDissectRpl:
+    '''RPL (Remote Program Load, 802.3 LLC DSAP 0xFC) from the synthetic
+    capture rpl_coverage.pcap.gz. Frames 1-27 are valid; frames 28 and 29
+    nest containers deeper than the limit of 8.'''
+
+    @staticmethod
+    def run_rpl(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rpl_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rpl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''29 RPL frames; frames 1-27 have no malformed packets or error
+        expert infos in one and two passes.'''
+        stdout = self.run_rpl(cmd_tshark, capture_file, test_env,
+                '-Y', 'rpl', '-Tfields', '-e_ws.col.protocol')
+        assert count_output(stdout) == 29
+        for passes in ((), ('-2',)):
+            stdout = self.run_rpl(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number <= 27 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_rpl_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''Eight nested containers are dissected (frame 25); nesting deeper
+        (10 and 300 levels, frames 28 and 29) stops after 8 containers with
+        an expert info and does not reach the innermost vector ("RPL: Bound
+        the container recursion"; it used to recurse without a limit).'''
+        stdout = self.run_rpl(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {25, 28, 29}', '-Tfields', '-eframe.number',
+                '-erpl.len', '-erpl.corrval', '-erpl.nesting_too_deep')
+        assert stdout.splitlines() == [
+            '25\t36,32,28,24,20,16,12,8\t0x00000001\t',
+            '28\t48,44,40,36,32,28,24,20\t\t1',
+            '29\t1208,1204,1200,1196,1192,1188,1184,1180\t\t1',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run_rpl(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rpl.nesting_too_deep', '-Tfields', '-eframe.number')
+            assert stdout.split() == ['28', '29']
+
+    def test_rpl_values(self, cmd_tshark, capture_file, test_env):
+        '''Fields of the FIND command, the loader information, the file data
+        response and the data shown for unknown vectors and trailing octets.'''
+        stdout = self.run_rpl(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 5, 18, 19, 22, 23, 24}', '-Tfields',
+                '-eframe.number', '-erpl.corrval', '-erpl.sap', '-erpl.sequence',
+                '-erpl.config', '-erpl.shortname', '-erpl.laddress', '-erpl.xaddress',
+                '-erpl.flags', '-edata.data', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert lines[0] == ('1\t0x01020304\t0xf8\t\t0001020304050607\t41444150544552303031'
+                '\t\t\t\t\tFIND Command')
+        assert lines[1].split('\t')[:4] == ['5', '0x00000007', '', '0x00000002']
+        assert lines[1].endswith('\tFile Data Response')
+        assert lines[2] == ('18\t\t\t\t0001020304050607\t41444150544552303031\t\t\t\t\t'
+                'Loader Info Sub-Vector')
+        assert lines[3] == '19\t\t\t\t\t\t0x00001000\t0x00002000\t0x81\t\tLoader Header'
+        assert lines[4] == '22\t\t\t\t\t\t\t\t\t756e6b6e6f776e207061796c6f6164\tUnknown Type'
+        assert lines[5] == '23\t0x01020304\t0xf8\t\t\t\t\t\t\t01020304\tFIND Command'
+        assert lines[6] == '24\t0x00000003\t\t\t\t\t\t\t\t747261696c696e67206f6374657473\tFOUND Frame'
