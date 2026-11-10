@@ -132545,3 +132545,98 @@ class TestDissectS5066dts:
         assert lines == ['81\ts5066dts', '82\ts5066dts', '83\tTCP', '84\tTCP',
                          '85\ts5066dts', '86\ts5066dts', '87\tTCP', '88\tTCP',
                          '89\tTCP']
+
+
+class TestDissectS5066sis:
+    '''STANAG 5066 SIS (S_Primitives) over TCP port 5066 (registered by
+    default) from the synthetic capture s5066sis_coverage.pcap.gz.'''
+
+    CAP = 's5066sis_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectS5066sis.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_s5066sis_protocols(self, cmd_tshark, capture_file, test_env):
+        '''53 S5066 frames (all 27 primitives, undefined types and
+        several PDUs in a segment), two frames that are not S5066, none
+        malformed or with an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('S5066') == 53
+        assert protocols.count('TCP') == 10
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_s5066sis_primitives(self, cmd_tshark, capture_file, test_env):
+        '''Each primitive is named in the Info column.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 's5066sis', '-Tfields', '-e_ws.col.info')
+        names = [l.split('PDU type ')[1] for l in lines if 'PDU type' in l]
+        for n in ('S_BIND_REQUEST', 'S_UNBIND_REQUEST', 'S_BIND_ACCEPTED',
+                  'S_BIND_REJECTED', 'S_UNBIND_INDICATION',
+                  'S_HARD_LINK_ESTABLISH', 'S_HARD_LINK_TERMINATE',
+                  'S_HARD_LINK_ESTABLISHED', 'S_HARD_LINK_REJECTED',
+                  'S_HARD_LINK_TERMINATED', 'S_HARD_LINK_INDICATION',
+                  'S_HARD_LINK_ACCEPT', 'S_HARD_LINK_REJECT',
+                  'S_SUBNET_AVAILABILITY', 'S_DATAFLOW_ON', 'S_DATAFLOW_OFF',
+                  'S_KEEP_ALIVE', 'S_MANAGEMENT_MESSAGE_REQUEST',
+                  'S_MANAGEMENT_MESSAGE_INDICATION', 'S_UNIDATA_REQUEST',
+                  'S_UNIDATA_INDICATION', 'S_UNIDATA_REQUEST_CONFIRM',
+                  'S_UNIDATA_REQUEST_REJECTED', 'S_EXPEDITED_UNIDATA_REQUEST',
+                  'S_EXPEDITED_UNIDATA_INDICATION',
+                  'S_EXPEDITED_UNIDATA_REQUEST_CONFIRM',
+                  'S_EXPEDITED_UNIDATA_REQUEST_REJECTED'):
+            assert n in names, n
+        assert 'Unknown (0x00)' in names
+        assert 'Unknown (0x63)' in names
+
+    def test_s5066sis_management_body(self, cmd_tshark, capture_file, test_env):
+        '''The management message body is the rest of the PDU, also when
+        it is empty (the size is computed without unsigned wrap, see
+        "S5066 SIS: Avoid unsigned underflow in management body size").'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {27, 28, 29, 30}',
+                '-Tfields', '-eframe.number', '-es5066sis.18.body',
+                '-es5066sis.19.body')
+        assert lines == [
+            '27\t' + b'management request body'.hex() + '\t',
+            '28\t\t' + b'management indication body'.hex(),
+            '29\t<MISSING>\t', '30\t\t<MISSING>']
+
+    def test_s5066sis_non_arq_with_errors(self, cmd_tshark, capture_file, test_env):
+        '''Non-ARQ with errors: the errored and not received blocks;
+        the Rockwell Collins layout with four extra octets.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {38, 39, 40, 50}',
+                '-Tfields', '-eframe.number', '-es5066sis.21.err_blocks',
+                '-es5066sis.21.err_ptr', '-es5066sis.21.err_size',
+                '-es5066sis.21.nrx_blocks', '-es5066sis.21.nrx_ptr',
+                '-es5066sis.25.err_blocks', '-es5066sis.25.nrx_blocks')
+        assert lines == [
+            '38\t2\t0x0000,0x000a\t4,2\t1\t0x0014\t\t',
+            '39\t1\t\t\t2\t\t\t',
+            '40\t1\t0x0001\t1\t0\t\t\t',
+            '50\t\t\t\t\t\t1\t2']
+
+    def test_s5066sis_client_transport_header(self, cmd_tshark, capture_file, test_env):
+        '''The client transport layer header follows for SAP 2, 6 and 7.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {37, 40, 50}',
+                '-Tfields', '-eframe.number', '-es5066sis.ctl.conn_id',
+                '-es5066sis.ctl.updu_id', '-es5066sis.ctl.app_id')
+        assert lines == ['37\t0x01\t0x07\t0x0010', '40\t0x01\t0x07\t0x00ff',
+                         '50\t0x01\t0x07\t0x0010']
+
+    def test_s5066sis_edition_one_needs_the_preference(self, cmd_tshark, capture_file, test_env):
+        '''The main capture is edition 1.2; its frames are not S5066 when
+        the preference for edition 1 is set.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 's5066sis.edition_one:TRUE', '-Y', 's5066sis',
+                '-Tfields', '-eframe.number')
+        assert len(lines) < 53
