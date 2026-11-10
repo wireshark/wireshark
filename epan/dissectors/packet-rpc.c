@@ -385,7 +385,7 @@ rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
 	rpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, 0);
 	tap_data = (rpcstat_tap_data_t*)rpc_srt_table->table_specific_data;
 
-	if ((int)ri->proc >= rpc_srt_table->num_procs) {
+	if (ri->proc >= (uint32_t)rpc_srt_table->num_procs) {
 		/* don't handle this since its outside of known table */
 		return TAP_PACKET_DONT_REDRAW;
 	}
@@ -1055,7 +1055,7 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	proto_tree_add_item(context_tree, hf_rpc_authgss_ctx, tvb, offset, context_length, ENC_NA);
 	offset += context_length;
 
-	offset = (offset + 3) & 0xffffffc;
+	offset = (offset + 3) & ~3U;
 
 	if (context_length > 16) {
 		/* we only track contexts up to 16 bytes in size */
@@ -1081,11 +1081,13 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 		context_info->destroy_frame = 0;
 		wmem_tree_insert32_array(authgss_contexts, &tkey[0], context_info);
 	}
-	if (is_create) {
-		context_info->create_frame = pinfo->num;
-	}
-	if (is_destroy) {
-		context_info->destroy_frame = pinfo->num;
+	if (!PINFO_FD_VISITED(pinfo)) {
+		if (is_create) {
+			context_info->create_frame = pinfo->num;
+		}
+		if (is_destroy) {
+			context_info->destroy_frame = pinfo->num;
+		}
 	}
 
 	if (context_info->create_frame) {
@@ -1835,12 +1837,22 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* look up the request */
 		xid = tvb_get_ntohl(tvb, offset);
 		rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
+		bool store = !PINFO_FD_VISITED(pinfo);
+		if (rpc_call != NULL &&
+		    (rpc_call->prog != prog || rpc_call->vers != vers || rpc_call->proc != proc)) {
+			/* An entry for another procedure: do not hand it to
+			   this procedure's dissector. Use a per-packet entry
+			   and leave the stored one alone, so that later
+			   passes see the same state as the first one. */
+			rpc_call = NULL;
+			store = false;
+		}
 		if (rpc_call == NULL) {
 			/* We didn't find it; create a new entry.
 			   Prepare the value data.
 			   Not all of it is needed for handling indirect
 			   calls, so we set a bunch of items to 0. */
-			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
+			rpc_call = wmem_new(store ? wmem_file_scope() : pinfo->pool, rpc_call_info_value);
 			rpc_call->req_num = 0;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -1856,7 +1868,8 @@ dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->gss_proc = 0;
 			rpc_call->gss_svc = 0;
 			/* store it */
-			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
+			if (store)
+				wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 	}
 	else {
@@ -2485,6 +2498,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* look up the request */
 		rpc_call = (rpc_call_info_value *)wmem_tree_lookup32(rpc_conv_info->xids, xid);
+		if (rpc_call && (rpc_call->prog != prog || rpc_call->vers != vers ||
+				 rpc_call->proc != proc)) {
+			/* Same XID but a different procedure: a new call,
+			   not a retransmission. */
+			rpc_call = NULL;
+		}
 		if (rpc_call) {
 			/* We've seen a request with this XID, with the same
 			   source and destination, before - but was it
@@ -2509,7 +2528,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			   frame numbers are 1-origin, so we use 0
 			   to mean "we don't yet know in which frame
 			   the reply for this call appears". */
-			rpc_call = wmem_new(wmem_file_scope(), rpc_call_info_value);
+			rpc_call = wmem_new(PINFO_FD_VISITED(pinfo) ? pinfo->pool : wmem_file_scope(), rpc_call_info_value);
 			rpc_call->req_num = pinfo->num;
 			rpc_call->rep_num = 0;
 			rpc_call->prog = prog;
@@ -2523,7 +2542,8 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			rpc_call->req_time = pinfo->abs_ts;
 
 			/* store it */
-			wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
+			if (!PINFO_FD_VISITED(pinfo))
+				wmem_tree_insert32(rpc_conv_info->xids, xid, (void *)rpc_call);
 		}
 
 		if(rpc_call->rep_num){
