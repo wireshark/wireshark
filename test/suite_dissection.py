@@ -132837,3 +132837,71 @@ class TestDissectS7commSzl:
         lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number in {349, 350}',
                 '-V', '-O', 's7comm')
         assert not [l for l in lines if l.startswith('        SZL data tree')]
+
+
+class TestDissectSabp:
+    '''Synthetic SABP capture (UDP and TCP port 3452, SCTP PPI 31): every
+    SABP procedure and outcome with random IE values, cell broadcast pages
+    in every data coding scheme, TCP framing and the reproducer of "SABP:
+    Reset the encoding state per PDU and clamp the page length".'''
+    CAPTURE = 'sabp_coverage.pcapng.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('sabp_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_sabp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''225 frames: 219 SABP and 6 TCP frames (the handshake and three
+        TCP segments that wait for the rest of a PDU); no malformed packets
+        or error expert infos in one and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 225
+        assert lines.count('SABP') == 219
+        assert lines.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_sabp_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure code (0 to 7) is in the capture.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sabp', '-Tfields', '-esabp.procedureCode')
+        codes = {int(x) for l in lines for x in l.split(',') if x.strip()}
+        assert codes >= set(range(8))
+
+    def test_sabp_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frames 215, 217 and 220 are PDUs reassembled from two TCP
+        segments (the first segments of frames 215 and 217 are shorter
+        than the 5 octets that SABP needs to read the length). Frame 218
+        holds two PDUs in one segment; only the first is dissected (the
+        TCP dissector does not loop over the PDUs of a segment).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'tcp.segments', '-Tfields',
+                '-eframe.number', '-etcp.segment.count')
+        assert lines == ['215\t2', '217\t2', '220\t2']
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 218', '-Tfields',
+                '-e_ws.col.protocol', '-esabp.procedureCode')
+        assert len(lines) == 1 and lines[0].startswith('SABP\t')
+
+    def test_sabp_encoding_state(self, cmd_tshark, capture_file, test_env):
+        '''Frames 223 and 224 (Broadcast-Message-Content only, then a
+        Data-Coding-Scheme only): the encoding of the second PDU is not
+        used for the first one, with and without -2. In frame 225 the
+        Data-Coding-Scheme (UCS2) comes first and the page is decoded.'''
+        for passes in ((), ('-2',)):
+            out = self.lines(cmd_tshark, capture_file, test_env, *passes, '-Y', 'frame.number == 223', '-V')
+            assert any('Unhandled encoding 0 of CBS String' in l for l in out)
+            assert not any('CBS Page Content' in l for l in out)
+            out = self.lines(cmd_tshark, capture_file, test_env, *passes, '-Y', 'frame.number == 225', '-V')
+            assert any('CBS Page Content: Hello SABP page' in l for l in out)
+            assert not any('Unhandled encoding' in l for l in out)
+
+    def test_sabp_pages(self, cmd_tshark, capture_file, test_env):
+        '''Write-Replace pages: 46 frames have a decoded page, and the
+        number of pages is 0 to 16 (a count above 15 stops the page
+        dissection).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sabp.cb_page_content', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) == 46
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sabp.no_of_pages', '-Tfields', '-esabp.no_of_pages')
+        counts = {int(x) for x in lines}
+        assert 15 in counts and 16 in counts
