@@ -208,6 +208,7 @@ static bool use_seq_ack_analysis = true;
 static reassembly_table p_mul_reassembly_table;
 
 static uint32_t message_id_offset;
+static bool message_id_offset_set;
 
 static const fragment_items p_mul_frag_items = {
   /* Fragment subtrees */
@@ -506,7 +507,7 @@ static p_mul_seq_val *register_p_mul_id (packet_info *pinfo, address *addr, uint
     pkg_data = (p_mul_seq_val *)wmem_map_lookup (pkg_list, GUINT_TO_POINTER(message_id));
   }
 
-  DISSECTOR_ASSERT (pkg_data);
+  /* May be NULL if the ID was not seen on the first pass */
   return pkg_data;
 }
 
@@ -951,9 +952,10 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     /* Message Id */
     message_id = tvb_get_ntohl (tvb, offset);
     if (use_relative_msgid) {
-      if (message_id_offset == 0) {
+      if (!message_id_offset_set) {
         /* First P_Mul package - initialize message_id_offset */
         message_id_offset = message_id;
+        message_id_offset_set = true;
       }
       message_id -= message_id_offset;
       proto_tree_add_uint_format_value(p_mul_tree, hf_message_id, tvb, offset, 4,
@@ -1085,9 +1087,10 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       /* Message Id */
       message_id = tvb_get_ntohl (tvb, offset);
       if (use_relative_msgid) {
-        if (message_id_offset == 0) {
+        if (!message_id_offset_set) {
           /* First P_Mul package - initialize message_id_offset */
           message_id_offset = message_id;
+          message_id_offset_set = true;
         }
         message_id -= message_id_offset;
         proto_tree_add_uint_format_value(field_tree, hf_message_id, tvb, offset, 4,
@@ -1298,6 +1301,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 static void p_mul_init_routine (void)
 {
   message_id_offset = 0;
+  message_id_offset_set = false;
 }
 
 void proto_register_p_mul (void)
