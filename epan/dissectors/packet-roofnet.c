@@ -179,10 +179,11 @@ static void dissect_roofnet_link(proto_tree *tree, packet_info *pinfo, tvbuff_t 
 static void dissect_roofnet_data(proto_tree *tree, tvbuff_t *tvb, packet_info * pinfo, int offset, uint16_t flags)
 {
   uint16_t roofnet_datalen = 0;
-  uint16_t remaining_datalen = 0;
+  unsigned remaining_datalen = 0;
 
   roofnet_datalen = tvb_get_ntohs(tvb, ROOFNET_OFFSET_DATA_LENGTH);
-  remaining_datalen = tvb_reported_length_remaining(tvb, offset);
+  remaining_datalen = tvb_reported_length_remaining(tvb, offset) > 0 ?
+                      (unsigned)tvb_reported_length_remaining(tvb, offset) : 0;
 
 
   /* dissect on remaining_datalen */
