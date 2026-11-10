@@ -15,6 +15,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
+#include <epan/proto_data.h>
 
 #include <wiretap/pcap-encap.h>
 
@@ -33,6 +35,10 @@ static int ett_pcap_pktdata_pseudoheader;
 
 static expert_field ei_pcap_pktdata_linktype_unknown;
 static expert_field ei_pcap_pktdata_cant_generate_phdr;
+static expert_field ei_pcap_pktdata_nesting;
+
+/* Maximum nesting of pcap_pktdata inside itself (PPI, PKTAP, ...) in one packet */
+#define PCAP_PKTDATA_MAX_NESTING 4
 
 static dissector_table_t wtap_encap_table;
 
@@ -274,7 +280,7 @@ static const value_string pseudoheader_bluetooth_direction_vals[] = {
 static int
 dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    int          offset = 0;
+    volatile int offset = 0;
     uint32_t    *link_type;
     tvbuff_t    *next_tvb;
     proto_item  *pseudoheader_item;
@@ -287,6 +293,15 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         return 0;
 
     link_type = (uint32_t *) data;
+
+    /*
+     * PPI and PKTAP carry a LINKTYPE_ value that can name PPI or PKTAP
+     * again, so bound the nesting per packet.
+     */
+    if (p_get_proto_depth(pinfo, proto_pcap_pktdata) >= PCAP_PKTDATA_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_pcap_pktdata_nesting, tvb, 0);
+        return tvb_captured_length(tvb);
+    }
 
     /*
      * We're passed a pointer to a LINKTYPE_ value.
@@ -392,7 +407,14 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    offset = dissector_try_uint_with_data(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, true, phdr);
+    p_set_proto_depth(pinfo, proto_pcap_pktdata, p_get_proto_depth(pinfo, proto_pcap_pktdata) + 1);
+    increment_dissection_depth(pinfo);
+    TRY {
+        offset = dissector_try_uint_with_data(wtap_encap_table, pinfo->rec->rec_header.packet_header.pkt_encap, next_tvb, pinfo, tree, true, phdr);
+    } FINALLY {
+        decrement_dissection_depth(pinfo);
+        p_set_proto_depth(pinfo, proto_pcap_pktdata, p_get_proto_depth(pinfo, proto_pcap_pktdata) - 1);
+    } ENDTRY;
 
     return offset;
 }
@@ -424,6 +446,7 @@ proto_register_pcap_pktdata(void)
 
     static ei_register_info ei[] = {
         { &ei_pcap_pktdata_linktype_unknown, { "pcap_pktdata.linktype_unknown", PI_UNDECODED, PI_NOTE, "That link-layer header type is not supported", EXPFILL }},
+        { &ei_pcap_pktdata_nesting, { "pcap_pktdata.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Too many nested link-layer headers", EXPFILL }},
         { &ei_pcap_pktdata_cant_generate_phdr, { "pcap_pktdata.cant_generate_phdr", PI_UNDECODED, PI_NOTE, "No pseudo-header can be generated for that link-layer header type", EXPFILL }},
     };
 
