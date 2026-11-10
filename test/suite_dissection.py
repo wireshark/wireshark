@@ -132427,3 +132427,121 @@ class TestDissectS1ap:
         two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
         assert len(one) > 40000
         assert one == two
+
+
+class TestDissectS5066dts:
+    '''STANAG 5066 DTS layer (D_PDUs) from the synthetic capture
+    s5066dts_coverage.pcapng.gz: D_PDUs in the link-layer type 237
+    (STANAG 5066 D_PDU), found by default, and D_PDUs over TCP to port 5066,
+    which need the preference s5066dts.tcp.port (no default port).'''
+
+    CAP = 's5066dts_coverage.pcapng.gz'
+    OPTS = ('-o', 's5066dts.tcp.port:5066')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectS5066dts.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_s5066dts_protocols(self, cmd_tshark, capture_file, test_env):
+        '''80 D_PDUs (one D_PDU with a short address is shorter than the
+        15 octets the dissector requires and stays "Packet"), none
+        malformed or with an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 91
+        assert protocols.count('s5066dts') == 80
+        assert protocols.count('Packet') == 1
+        assert protocols.count('TCP') == 10
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        # Without the preference the TCP frames are not dissected
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('s5066dts') == 76
+
+    def test_s5066dts_dpdu_types(self, cmd_tshark, capture_file, test_env):
+        '''Every D_PDU type is named in the Info column, with the EOW type,
+        the sequence number or the receive lower window edge.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number <= 19',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = {l.split('\t')[0]: l.split('\t')[1] for l in lines if '\t' in l}
+        assert info['1'] == 'DpduType=0 (DATA_ONLY) EowType=RESERVED EOT=0 Seq=5'
+        assert info['2'].endswith('EOT=77 Seq=255')
+        assert info['3'] == 'DpduType=1 (ACK_ONLY) EowType=RESERVED EOT=0 RxLWE=9'
+        assert info['5'].endswith('Seq=7 RxLWE=8')
+        assert info['7'].startswith('DpduType=3 (RESET_WIN_RESYNC)')
+        assert info['9'].startswith('DpduType=4 (EXP_DATA_ONLY)')
+        assert info['10'].startswith('DpduType=5 (EXP_ACK_ONLY)')
+        assert info['12'].startswith('DpduType=7 (NON_ARQ_DATA)')
+        assert info['13'].startswith('DpduType=8 (EXP_NON_ARQ_DATA)')
+        assert info['14'].startswith('DpduType=15 (WARNING)')
+        assert info['15'].startswith('DpduType=9 (Unknown (0x09))')
+        assert info['16'].endswith('FrameID=66')
+        assert info['19'] == 'DpduType=6 (MANAGEMENT) EowType=15 (HFTRP_TOKEN:RTT) EOT=0 FrameID=69'
+
+    def test_s5066dts_eow_types(self, cmd_tshark, capture_file, test_env):
+        '''Engineering order wire types 0-6, user defined 8-14 and the
+        HFTRP token types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {27, 28, 29, 30, 31, 32, 33, 34, 20, 21, 22, 23, 24, 25}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        eow = {l.split('\t')[0]: l.split('\t')[1].split(' EOT')[0].split(' ', 2)[2] for l in lines}
+        assert eow == {
+            '27': 'EowType=RESERVED', '28': 'EowType=1 (DRC_REQUEST)',
+            '29': 'EowType=2 (DRC_RESPONSE)', '30': 'EowType=3 (UNRECOGNIZED_TYPE)',
+            '31': 'EowType=4 (CAPABILITY)', '32': 'EowType=5 (ALM_REQUEST)',
+            '33': 'EowType=6 (ALM_RESPONSE)', '34': 'EowType=UNSPECIFIED',
+            '20': 'EowType=15 (HFTRP_TOKEN:ACK)', '21': 'EowType=15 (HFTRP_TOKEN:SLS)',
+            '22': 'EowType=15 (HFTRP_TOKEN:SET)', '23': 'EowType=15 (HFTRP_TOKEN:REL)',
+            '24': 'EowType=15 (HFTRP_TOKEN:DEL)',
+            '25': 'EowType=15 (HFTRP_TOKEN:UNKNOWN_HFTRP_TOKEN)',
+        }
+
+    def test_s5066dts_checksums(self, cmd_tshark, capture_file, test_env):
+        '''The header and C_PDU checksums are shown as correct or with the
+        expected value.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {1, 71, 72}', '-V', '-O', 's5066dts'),
+                encoding='utf-8', env=test_env)
+        assert 'CRC on header: 0x494f (Correct)' in stdout
+        assert 'CRC on C_PDU segment: 0x1931db05 (Correct)' in stdout
+        assert 'CRC on header: 0x5bfb (Incorrect, should be ae0e)' in stdout
+        assert 'CRC on C_PDU segment: 0xf2143f1e (Incorrect, should be c0b428a)' in stdout
+
+    def test_s5066dts_header_size_too_small(self, cmd_tshark, capture_file, test_env):
+        '''Frames 73-77 have a header size that is smaller than the
+        type specific fields (fixed by "S5066 DTS: Avoid unsigned underflow in ack and
+        message sizes"): the acknowledgements and the extended management message
+        are not shown (they were shown with a negative length and the
+        offset moved back before the fix).'''
+        for frame, field in ((73, 's5066dts.ack_only.acks'),
+                             (74, 's5066dts.data_ack.acks'),
+                             (75, 's5066dts.exp_ack_only.acks'),
+                             (76, 's5066dts.management.extended_message'),
+                             (77, 's5066dts.management.extended_message.ring_address')):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                    '-Y', f'frame.number == {frame} && {field}',
+                    '-Tfields', '-eframe.number')
+            assert lines == [], field
+        # while the frame itself is dissected
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {73, 77}', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol')
+        assert lines == ['73\ts5066dts', '77\ts5066dts']
+
+    def test_s5066dts_tcp(self, cmd_tshark, capture_file, test_env):
+        '''D_PDUs to the configured port, one split over three segments;
+        from the server (the destination port is not configured) and with
+        junk before the sync pattern they are not dissected.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number >= 81 && frame.number <= 89',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['81\ts5066dts', '82\ts5066dts', '83\tTCP', '84\tTCP',
+                         '85\ts5066dts', '86\ts5066dts', '87\tTCP', '88\tTCP',
+                         '89\tTCP']
