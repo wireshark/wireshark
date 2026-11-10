@@ -132251,3 +132251,93 @@ class TestDissectRx:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert str(frame) in stdout.split(), name
+
+
+class TestDissectS101:
+    '''S101 (Ember+ framing) with Glow payloads, TCP port 9000 (default),
+    from the synthetic capture s101_coverage.pcap.gz: escaped (0xFE)
+    and unescaped (0xF8) frames, keepalives, fragments.'''
+
+    CAP = 's101_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectS101.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_s101_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Glow and S101 frames, none malformed and no expert info other
+        (frame 18 has a bad CRC, shown by the checksum status only), in one
+        and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 46
+        assert protocols.count('Glow') == 17
+        assert protocols.count('S101') == 9
+        assert protocols.count('TCP') == 20
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert && !tcp',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_s101_frame_variants(self, cmd_tshark, capture_file, test_env):
+        '''Variant 1 frames (0xFE, escaped, with CRC), variant 2 frames
+        (0xF8, with the length), keepalives; several frames in a segment,
+        also at an offset that is not 0 for variant 2.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 6, 7, 11, 24, 26, 27, 28}',
+                '-Tfields', '-eframe.number', '-es101.format',
+                '-es101.cmdtype', '-es101.lensize', '-es101.msglen',
+                '-es101.crc.status')
+        assert lines == [
+            '4\t0xfe\t0x00\t\t\t1',
+            '6\t0xfe\t0x01\t\t\t1',
+            '7\t0xfe\t0x02\t\t\t1',
+            '11\t0xfe,0xfe,0xfe\t0x00,0x02,0x00\t\t\t1,1,1',
+            '24\t0xf8\t0x00\t2\t0024\t',
+            '26\t0xf8\t0x00\t4\t00000024\t',
+            '27\t0xf8,0xf8\t0x00,0x00\t2,2\t0024,003b\t',
+            '28\t0xf8,0xfe,0xf8\t0x00,0x00,0x00\t2,3\t003b,000024\t1',
+        ]
+        # The second variant 2 frame of frame 27 is fully dissected (the
+        # fields were read from offset 2 to 7 of the segment before the fix
+        # "S101: Fix the offsets of the variant 2 header").
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 27',
+                '-Tfields', '-es101.slot', '-es101.msgtype', '-es101.cmdtype',
+                '-es101.version', '-es101.flags', '-es101.dtdtype')
+        assert lines == ['0x00,0x00\t0x0e,0x0e\t0x00,0x00\t1,1\t0xc0,0xc0\t1,1']
+
+    def test_s101_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message in three fragments (variant 1), in two fragments
+        (variant 2), first and middle in one segment, and fragments of two
+        sources that do not mix; the Info column says what each frame is.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 's101.msg.reassembled.length',
+                    '-Tfields', '-eframe.number', '-es101.msg.reassembled.length',
+                    '-e_ws.col.protocol')
+            assert lines == ['14\t944\tGlow', '16\t944\tGlow',
+                             '31\t944\tGlow', '42\t944\tGlow']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {12, 13, 14, 15}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = {l.split('\t')[0]: l.split('\t')[1] for l in lines}
+        assert '(Message' not in info['12']
+        assert info['13'].endswith('(Message fragment)')
+        assert info['14'].endswith('(Message Reassembled)')
+        assert info['15'].endswith('(Message fragment)')
+
+    def test_s101_empty_packet_and_bad_crc(self, cmd_tshark, capture_file, test_env):
+        '''The empty-packet flag shows no Glow; a bad CRC gives checksum status 0.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {17, 18}',
+                '-Tfields', '-eframe.number', '-es101.flags',
+                '-es101.crc.status', '-e_ws.col.protocol')
+        assert lines == ['17\t0x20\t1\tS101', '18\t0xc0\t0\tGlow']
