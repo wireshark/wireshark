@@ -127998,3 +127998,240 @@ class TestDissectRpcap:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['26\tR|UDP', '27\tTCP', '28\tR|UDP']
+
+
+class TestDissectRpc:
+    '''ONC RPC (RFC 5531) from the synthetic capture rpc_coverage.pcapng.gz:
+    portmap and NFS calls over UDP and TCP, the credential and verifier
+    flavours, reply states, retransmissions, XID reuse, record marking and
+    fragments, the SRT tap. RPCSEC_GSS integrity and privacy (they need
+    keys) and TLS are not covered.'''
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, flt, *fields, args=()):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('rpc_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_rpc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''184 frames; no malformed frame and no error expert info in one
+        and two passes; the same protocol columns in both.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpc_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 184
+            assert protocols.count('Portmap') == 89
+            assert protocols.count('NFS') == 50
+            assert protocols.count('RPC') == 22
+            assert protocols.count('TCP') == 23
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rpc_registered_and_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''UDP port 111 is registered, NFS on port 4444 is found by the
+        heuristic; a program that Wireshark does not know is only RPC
+        "Continuation" (frames 11-12), as is a datagram that is not RPC.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number >= 5 && frame.number <= 14',
+                '-e_ws.col.protocol', '-e_ws.col.info') == [
+            '5\tNFS\tV3 NULL Call', '6\tNFS\tV3 NULL Reply (Call In 5)',
+            '7\tNFS\tV4 NULL Call', '8\tNFS\tV4 NULL Reply (Call In 7)',
+            '9\tNFS\tV9 proc-77 Call', '10\tNFS\tV9 proc-77 Reply (Call In 9)',
+            '11\tRPC\tContinuation', '12\tRPC\tContinuation',
+            '13\tRPC\tContinuation', '14\tRPC\tContinuation']
+
+    def test_rpc_unknown_programs_preference(self, cmd_tshark, capture_file, test_env):
+        '''rpc.dissect_unknown_programs: the call to program 399999 is
+        shown as an unknown RPC program and its reply matches the call.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {11, 12, 13}',
+                '-e_ws.col.protocol', '-e_ws.col.info',
+                args=('-o', 'rpc.dissect_unknown_programs:TRUE')) == [
+            '11\tUnknown RPC program 399999\tV1 proc-0 Call',
+            '12\tRPC\tV1 proc-0 Reply (Call In 11)',
+            '13\tRPC\tContinuation']
+
+    def test_rpc_authunix(self, cmd_tshark, capture_file, test_env):
+        '''AUTH_UNIX credentials with 3, 0 and 20 groups.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {16, 18, 20}',
+                '-erpc.auth.machinename', '-erpc.auth.uid', '-erpc.auth.gid')
+        assert rows[0] == '16\tclient1\t1000\t100,4,24,27'
+        assert rows[1] == '18\th\t0\t0'
+        assert rows[2].startswith('20\tclient-with-a-long-machine-name.example.org\t65534\t65534,100,101,')
+        assert rows[2].endswith(',118,119')
+
+    def test_rpc_other_credentials(self, cmd_tshark, capture_file, test_env):
+        '''AUTH_SHORT and an unknown flavour (opaque data), AUTH_DES full
+        name, nickname and an unknown name kind, AUTH_UNIX as verifier, the
+        Gluster flavours (AUTH_RSA, AUTH_GLUSTERFS, AUTH_GLUSTERFS_V3) and
+        AUTH_GSSAPI.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                'rpc.msgtyp == 0 && frame.number >= 22 && frame.number <= 52',
+                '-erpc.auth.flavor', '-erpc.authdes.namekind', '-erpc.auth.lk_owner')
+        assert rows == [
+            '22\t2,0\t\t', '24\t77,0\t\t', '26\t77,0\t\t',
+            '28\t3,3\t0\t', '30\t3,3\t1\t', '32\t3,0\t2\t',
+            '34\t0,1\t\t', '36\t5,0\t\t4c4b4f574e455231',
+            '38\t390039,0\t\t4f574e4552425954', '40\t390040,0\t\t4f574e4552425954',
+            '42\t300001,0\t\t', '44\t300001,0\t\t', '46\t300001,0\t\t',
+            '48\t300001,0\t\t', '50\t300001,0\t\t', '52\t300001,0\t\t']
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {43, 45, 47, 49, 51}',
+                '-e_ws.col.info') == [
+            '43\tV2 NULL Reply (Call In 42)',
+            '45\tAUTH_GSSAPI_INIT Reply XID 0x1015',
+            '47\tAUTH_GSSAPI_CONTINUE_INIT Reply XID 0x1016',
+            '49\tAUTH_GSSAPI_MSG Reply XID 0x1017',
+            '51\tAUTH_GSSAPI_DESTROY Reply XID 0x1018']
+
+    def test_rpc_gss_contexts(self, cmd_tshark, capture_file, test_env):
+        '''RPCSEC_GSS context handles: INIT call (frame 54) and reply (55),
+        DATA calls show where the context was created and, after the
+        DESTROY (frame 68), destroyed; the handle of 17 bytes is not
+        tracked. (The service is none: integrity and privacy need keys.)'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {54, 56, 58, 60, 62, 64, 66, 68, 70}',
+                '-erpc.authgss.procedure', '-erpc.authgss.context.created_frame',
+                '-erpc.authgss.context.destroyed_frame') == [
+            '54\t1\t\t', '56\t0\t55\t', '58\t1\t\t', '60\t0\t59\t', '62\t2\t\t',
+            '64\t1\t\t', '66\t0\t63\t', '68\t3\t55\t68', '70\t0\t55\t68']
+
+    def test_rpc_reply_states(self, cmd_tshark, capture_file, test_env):
+        '''Accept states PROG_UNAVAIL to SYSTEM_ERR and an unknown one,
+        PROG_MISMATCH with the version range, denied calls with
+        RPC_MISMATCH, AUTH_ERROR and an unknown reject state.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {75, 77, 79, 81, 83, 85}',
+                '-erpc.state_accept', '-erpc.programversion.min', '-erpc.programversion.max') == [
+            '75\t1\t\t', '77\t2\t2\t3', '79\t3\t\t', '81\t4\t\t', '83\t5\t\t', '85\t1234\t\t']
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {87, 89, 91}',
+                '-erpc.state_reject', '-erpc.state_auth', '-erpc.version.min', '-erpc.version.max') == [
+            '87\t0\t\t2\t2', '89\t1\t5\t\t', '91\t9\t\t\t']
+
+    def test_rpc_retransmission(self, cmd_tshark, capture_file, test_env):
+        '''A retransmitted call, a duplicate reply and a late retransmission.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {95, 97, 98}',
+                '-e_ws.col.info') == [
+            '95\t[RPC retransmission of #94]V2 GETPORT Call NFS(100003) V:3 UDP',
+            '97\t[RPC duplicate of #96]V2 GETPORT Reply (Call In 94) Port:2049',
+            '98\t[RPC retransmission of #94]V2 GETPORT Call (Reply In 96) NFS(100003) V:3 UDP']
+
+    def test_rpc_xid_reuse(self, cmd_tshark, capture_file, test_env):
+        '''Fix "RPC: Fix type confusion on reused XIDs ...": an NFS ACCESS
+        call and a portmap GETPORT call with the same XID (frames 99-100):
+        the reply is dissected as a GETPORT reply (before the fix as an NFS
+        reply with the wrong private data: a crash). The same with CALLIT,
+        whose argument length 16 is the XID of an NFS ACCESS call (frames
+        102-105): the ACCESS reply stays an NFS reply.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {101, 104, 105}',
+                    '-e_ws.col.info', args=passes)
+            assert rows[0] == '101\tV2 GETPORT Reply (Call In 100) Port:2049'
+            assert rows[1].startswith('104\tV3 ACCESS Reply (Call In 102), [Allowed: RD LU MD XT DL]')
+            assert rows[2].startswith('105\tV2 CALLIT Reply (Call In 103)')
+
+    def test_rpc_indirect_call(self, cmd_tshark, capture_file, test_env):
+        '''CALLIT replies whose first word matches the argument length the
+        call was recorded under are dissected as the indirect procedure
+        (frame 116 holds the GETPORT port); otherwise as data.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {115, 116, 117, 118}',
+                '-eportmap.port', '-eportmap.proc', '-e_ws.col.info')
+        assert [r.split('\t')[0] for r in rows] == ['115', '116', '117', '118']
+        assert rows[1].startswith('116\t16')
+
+    def test_rpc_srt_negative_procedure(self, cmd_tshark, capture_file, test_env):
+        '''Fix "... an SRT tap overflow": an NFS v3 call with procedure
+        0x80000000 (frames 106-107) wrote outside the table with
+        -z rpc,srt,100003,3; now it is ignored.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpc_coverage.pcapng.gz'),
+                '-q', '-z', 'rpc,srt,100003,3',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert 'RPC SRT Statistics:' in lines
+        access = [l for l in lines if l.split()[1:2] == ['ACCESS']]
+        assert len(access) == 1 and access[0].split()[2] == '1'
+        assert not [l for l in lines if '2147483648' in l]
+
+    def test_rpc_gss_context_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''Fix "... GSS context create/destroy frames are set only when
+        !PINFO_FD_VISITED": two INIT exchanges return the same context
+        (frames 108-114). On the first pass each frame shows the state
+        reached so far; with -2 the state no longer changes while the
+        frames are dissected again, so every frame shows the final one.'''
+        fields = ('-erpc.authgss.context.created_frame', '-erpc.authgss.context.destroyed_frame')
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number >= 108 && frame.number <= 114',
+                *fields) == [
+            '108\t\t', '109\t109\t', '110\t109\t', '111\t\t', '112\t112\t', '113\t112\t', '114\t112\t114']
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number >= 108 && frame.number <= 114',
+                *fields, args=('-2',)) == [
+            '108\t\t', '109\t112\t114', '110\t112\t114', '111\t\t', '112\t112\t114',
+            '113\t112\t114', '114\t112\t114']
+
+    def test_rpc_tcp_record_marking(self, cmd_tshark, capture_file, test_env):
+        '''Two records in one segment (frame 126), a call split over two TCP
+        segments (128-129) and a reply over three (130-132); a record in
+        three RPC fragments (133-135, with the reassembled call in 135),
+        three fragments in one segment (138).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {126, 129, 132, 133, 134, 135, 138, 141}',
+                '-e_ws.col.info')
+        assert rows == [
+            '126\tV2 GETPORT Call NFS(100003) V:3 TCP  ; V2 NULL Call',
+            '129\tV2 GETPORT Call NFS(100003) V:3 TCP',
+            '132\tV2 GETPORT Reply (Call In 129) Port:2049',
+            '133\tFragment', '134\tFragment',
+            '135\tV2 GETPORT Call NFS(100003) V:3 TCP',
+            '138\tFragmentFragment  ; V2 GETPORT Call NFS(100003) V:3 TCP',
+            '141\tFragmentV2 GETPORT Call NFS(100003) V:3 TCP']
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {133, 134, 138}',
+                '-erpc.lastfrag', '-erpc.fraglen') == [
+            '133\tFalse\t24', '134\tFalse\t20', '138\tFalse,False,True\t24,20,12']
+
+    def test_rpc_tcp_not_rpc(self, cmd_tshark, capture_file, test_env):
+        '''Data on port 111 that is not RPC, a record mark that is too
+        large, a reply without a call and short segments are "Continuation".'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number >= 151 && frame.number <= 155',
+                '-e_ws.col.info') == ['151\tContinuation', '152\tContinuation',
+                '153\tContinuation', '154\tContinuation', '155\tContinuation']
+
+    def test_rpc_tcp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''On TCP port 41000 only the heuristic recognises RPC: complete
+        records, a split call (161-162), pipelined records; on port 41002
+        the first call, split in two segments, is found as well (170).'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {159, 162, 164, 170, 172}',
+                '-e_ws.col.protocol', '-e_ws.col.info') == [
+            '159\tNFS\tV3 NULL Call', '162\tNFS\tV3 NULL Call',
+            '164\tNFS\tV4 NULL Call  ; V4 NULL Call',
+            '170\tNFS\tV3 NULL Call', '172\tNFS\tV3 NULL Reply (Call In 170)']
+
+    def test_rpc_find_fragment_start(self, cmd_tshark, capture_file, test_env):
+        '''A stream that starts in the middle of a record (frame 176): the
+        reply is found only with rpc.find_fragment_start.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number == 176',
+                '-e_ws.col.protocol') == ['176\tTCP']
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number == 176',
+                '-e_ws.col.protocol', '-e_ws.col.info',
+                args=('-o', 'rpc.find_fragment_start:TRUE')) == ['176\tRPC\tV0 proc-0 Reply']
+
+    def test_rpc_auth_tls_and_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The AUTH_TLS probe (frames 180-181); the Exported PDU entry
+        points rpc-tcp and rpc-with-tls without TCP or TLS information.'''
+        assert self.rows(cmd_tshark, capture_file, test_env, 'frame.number in {180, 181, 183}',
+                '-erpc.auth.flavor', '-e_ws.col.info') == [
+            '180\t7,0\tV3 NULL Call', '181\t7\tV3 NULL Reply (Call In 180)',
+            '183\t0,0\tV2 NULL Call']
+
+    def test_rpc_programs_statistics(self, cmd_tshark, capture_file, test_env):
+        '''rpc,programs: calls per program and version (the times are not
+        compared).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpc_coverage.pcapng.gz'),
+                '-q', '-z', 'rpc,programs',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split() for l in stdout.splitlines() if l.startswith(('Portmap', 'NFS'))]
+        assert [(r[0], r[1], r[2]) for r in rows] == [
+            ('Portmap(100000)', '2', '39'), ('NFS(100003)', '3', '19'),
+            ('NFS(100003)', '4', '3'), ('NFS(100003)', '9', '1')]
