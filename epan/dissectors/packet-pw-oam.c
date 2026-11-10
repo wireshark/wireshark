@@ -123,7 +123,7 @@ dissect_pw_oam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
           http://www.iana.org/assignments/ldp-namespaces/ldp-namespaces.xml */
 
       case 0x096A: /* PW-Status TLV */
-        dissect_pw_status_tlv (tvb, tree, offset);
+        dissect_pw_status_tlv (tvb, pw_oam_tree, offset);
         break;
 
       default:
