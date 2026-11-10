@@ -912,7 +912,7 @@ dissect_smb_logon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	/* skip next byte */
 	offset += 1;
 
-	if (cmd<LOGON_LAST_CMD) {
+	if (cmd<=LOGON_LAST_CMD) {
 		(dissect_smb_logon_cmds[cmd])(tvb, pinfo,
 		    smb_logon_tree, offset);
 	} else {
