@@ -866,6 +866,10 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                  tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
     }
 
+    if (tot_len < PPI_V0_HEADER_LEN) {
+        proto_tree_add_expert_format_remaining(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, 8, "PPI header length %u is less than the header size (%u)", tot_len, PPI_V0_HEADER_LEN);
+        return tvb_captured_length(tvb);
+    }
     tot_len -= PPI_V0_HEADER_LEN;
     offset += 8;
 
@@ -879,6 +883,10 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     while (tot_len > 0) {
         data_type = tvb_get_letohs(tvb, offset);
         data_len = tvb_get_letohs(tvb, offset + 2) + 4;
+        if (data_len > tot_len) {
+            proto_tree_add_expert_format_remaining(ppi_tree, pinfo, &ei_ppi_invalid_length, tvb, offset, "Field length %u is greater than the remaining PPI header length %u", data_len, tot_len);
+            return tvb_captured_length(tvb);
+        }
         tot_len -= data_len;
 
         switch (data_type) {
@@ -1135,8 +1143,12 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         /* Do reassembly? */
         fd_head = fragment_get(&ampdu_reassembly_table, pinfo, ampdu_id, NULL);
 
-        /* Show our fragments */
-        if (fd_head && tree) {
+        /*
+         * Show our fragments, but only in the last frame of the
+         * aggregate: listing them in every frame makes the number of
+         * tree items quadratic in the number of MPDUs.
+         */
+        if (fd_head && tree && !DOT11N_MORE_AGGREGATES(n_ext_flags)) {
             ft_fdh = fd_head->next;
             /* List our fragments */
             seg_tree = proto_tree_add_subtree_format(ppi_tree, tvb, offset, -1,
@@ -1168,7 +1180,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (fd_head && !DOT11N_MORE_AGGREGATES(n_ext_flags)) {
             if (tree) {
                 ti = proto_tree_add_protocol_format(tree, proto_aggregate,
-                    tvb, 0, tot_len, "IEEE 802.11 Aggregate MPDU");
+                    tvb, 0, -1, "IEEE 802.11 Aggregate MPDU");
                 agg_tree = proto_item_add_subtree(ti, ett_ampdu);
             }
 
