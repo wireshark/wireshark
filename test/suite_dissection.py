@@ -135220,3 +135220,80 @@ class TestDissectScsiSsc:
                 '-escsi_ssc.readposition.set_number')
         assert rows[0] == ['190', '4096', '7', '3']
         assert rows[1][:2] == ['194', '4096']
+
+
+class TestDissectScte35:
+    def test_scte35_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every datagram is MPEG-2 transport stream packets with one or
+        more SCTE-35 splice_info_sections (table ID 0xFC); none is
+        malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scte35_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['SCTE-35'] * 29
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scte35_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_scte35_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every splice command type: the Info column of the command
+        dissectors (time_signal, private_command, splice_insert,
+        splice_schedule) and the sections whose command has no dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scte35_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-escte35.splice_command_type',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        def text(n):
+            return info[str(n)][1].replace('40000 → 5004 Len=188 ', '').strip()
+        assert [text(n) for n in (1, 3, 4, 5)] == ['Table 0xfc'] * 4
+        assert [info[str(n)][0] for n in (1, 3, 4, 5)] == ['0x00', '0x07', '0x01', '0x08']
+        assert text(6) == 'Time Signal (Future)'
+        assert text(7) == 'Time Signal (Immediate)'
+        assert text(8) == 'Private Command (0x43554549)'
+        assert text(9) == 'Private Command (0xdeadbeef)'
+        assert [text(n) for n in range(10, 17)] == [
+            'Splice Insertion Event 0x0000100%d' % i for i in range(1, 7)
+        ] + ['Splice Cancellation Event 0x00001007']
+        assert text(17) == 'Splice Schedule (4 splices)'
+        assert text(18) == 'Splice Schedule (0 splices)'
+        assert text(19) == 'Splice Schedule (1 splices)'
+
+    def test_scte35_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Avail, DTMF and segmentation descriptors, reserved descriptor
+        tags, the encrypted flag and a section split over transport stream
+        packets (frame 29: 60 avail descriptors and a segmentation
+        descriptor).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scte35_coverage.pcap.gz'),
+                '-Y', 'frame.number in {20, 21, 25, 26, 29}',
+                '-Tfields', '-eframe.number',
+                '-escte35.splice_descriptor.tag',
+                '-escte35.encrypted_packet', '-escte35.pts_adjustment',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['20', '0x00,0x01,0x02', 'False', '90000']
+        assert lines[1] == ['21', '0x01,0x01', 'False', '0']
+        assert lines[2] == ['25', '0x03,0x04,0x80', 'False', '0']
+        assert lines[3] == ['26', '0x00', 'True', '0']
+        assert lines[4][0] == '29'
+        assert lines[4][1] == ','.join(['0x00'] * 60 + ['0x02'])
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scte35_coverage.pcap.gz'),
+                '-Y', 'scte35.splice_descriptor.dtmf || scte35.splice_descriptor.upid',
+                '-Tfields', '-eframe.number',
+                '-escte35.splice_descriptor.dtmf',
+                '-escte35.splice_descriptor.upid',
+                '-escte35.splice_descriptor.segmentation_type_id',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['20'][0] == '*123#'
+        assert rows['22'][1] == 'ABCD1234'
+        assert rows['22'][2] == '0x30'
+        assert rows['23'][1] == '10.5240/ABCD-EFGH-1234-5678-9012-Z'
