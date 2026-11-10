@@ -1263,10 +1263,10 @@ dissect_osd_partition_id(packet_info *pinfo, tvbuff_t *tvb, int offset,
             pikey[1].length = 0;
             wmem_tree_insert32_array(lun_info->partitions, &pikey[0], part_info);
         }
-        if (is_created) {
+        if (is_created && !PINFO_FD_VISITED(pinfo)) {
             part_info->created_in = pinfo->num;
         }
-        if (is_removed) {
+        if (is_removed && !PINFO_FD_VISITED(pinfo)) {
             part_info->removed_in = pinfo->num;
         }
         if (item) {
