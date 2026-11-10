@@ -119498,3 +119498,540 @@ class TestDissectPres:
                            'frame.number in {179, 180}', '-eframe.number', '-e_ws.col.protocol',
                            opts=('-o', 'uat:pres_context_list:"2","1.0.8571.2.1"'))
         assert [l.split('\t')[1] for l in out] == ['FTAM', 'FTAM']
+
+
+class TestDissectProtobufCoverage:
+    '''Protobuf from the synthetic capture protobuf_coverage.pcap.gz: UDP
+    messages on ports 30001-30007 (message types from a UAT), HTTP
+    "application/x-protobuf" bodies (untyped, or typed by the request URI),
+    and gRPC. The .proto files are written to a temporary directory by the
+    tests (they are class attributes here).'''
+
+    PROTO2 = r'''syntax = "proto2";
+package cov;
+import "google/protobuf/timestamp.proto";
+
+enum Color { RED = 0; GREEN = 1; BLUE = 2; }
+
+message Inner {
+  optional string name = 1;
+  optional int32 id = 2;
+}
+
+message Scalars {
+  optional double f_double = 1;
+  optional float f_float = 2;
+  optional int32 f_int32 = 3;
+  optional int64 f_int64 = 4;
+  optional uint32 f_uint32 = 5;
+  optional uint64 f_uint64 = 6;
+  optional sint32 f_sint32 = 7;
+  optional sint64 f_sint64 = 8;
+  optional fixed32 f_fixed32 = 9;
+  optional fixed64 f_fixed64 = 10;
+  optional sfixed32 f_sfixed32 = 11;
+  optional sfixed64 f_sfixed64 = 12;
+  optional bool f_bool = 13;
+  optional string f_string = 14;
+  optional bytes f_bytes = 15;
+  optional Color f_enum = 16;
+  optional Inner f_msg = 17;
+  optional google.protobuf.Timestamp f_ts = 18;
+  optional group Grp = 19 {
+    optional int32 g1 = 1;
+    optional string g2 = 2;
+  }
+}
+
+message Repeated {
+  repeated int32 p_int32 = 1 [packed = true];
+  repeated int64 p_int64 = 2 [packed = true];
+  repeated uint32 p_uint32 = 3 [packed = true];
+  repeated uint64 p_uint64 = 4 [packed = true];
+  repeated sint32 p_sint32 = 5 [packed = true];
+  repeated sint64 p_sint64 = 6 [packed = true];
+  repeated bool p_bool = 7 [packed = true];
+  repeated Color p_enum = 8 [packed = true];
+  repeated fixed32 p_fixed32 = 9 [packed = true];
+  repeated sfixed32 p_sfixed32 = 10 [packed = true];
+  repeated float p_float = 11 [packed = true];
+  repeated fixed64 p_fixed64 = 12 [packed = true];
+  repeated sfixed64 p_sfixed64 = 13 [packed = true];
+  repeated double p_double = 14 [packed = true];
+  repeated int32 u_int32 = 15;
+  repeated string u_string = 16;
+  repeated Inner u_msg = 17;
+  repeated Color u_enum = 18;
+  repeated bytes u_bytes = 19;
+  optional int32 tail = 20;
+}
+
+message Defaults {
+  required int32 req = 1;
+  optional int32 d_int32 = 2 [default = -7];
+  optional int64 d_int64 = 3 [default = -9000000000];
+  optional uint32 d_uint32 = 4 [default = 7];
+  optional uint64 d_uint64 = 5 [default = 9000000000];
+  optional sint32 d_sint32 = 6 [default = -3];
+  optional sint64 d_sint64 = 7 [default = -4];
+  optional fixed32 d_fixed32 = 8 [default = 8];
+  optional fixed64 d_fixed64 = 9 [default = 9];
+  optional sfixed32 d_sfixed32 = 10 [default = -10];
+  optional sfixed64 d_sfixed64 = 11 [default = -11];
+  optional bool d_bool = 12 [default = true];
+  optional float d_float = 13 [default = 1.5];
+  optional double d_double = 14 [default = 2.25];
+  optional string d_string = 15 [default = "hello"];
+  optional bytes d_bytes = 16 [default = "\001\002abc"];
+  optional Color d_enum = 17 [default = BLUE];
+  optional int32 n_int32 = 18;
+  optional int64 n_int64 = 19;
+  optional uint32 n_uint32 = 20;
+  optional uint64 n_uint64 = 21;
+  optional sint32 n_sint32 = 22;
+  optional sint64 n_sint64 = 23;
+  optional fixed32 n_fixed32 = 24;
+  optional fixed64 n_fixed64 = 25;
+  optional sfixed32 n_sfixed32 = 26;
+  optional sfixed64 n_sfixed64 = 27;
+  optional bool n_bool = 28;
+  optional float n_float = 29;
+  optional double n_double = 30;
+  optional string n_string = 31;
+  optional bytes n_bytes = 32;
+  optional Color n_enum = 33;
+  optional Inner n_msg = 34;
+  repeated int32 n_rep = 35;
+}
+
+message Oneofs {
+  oneof choice {
+    int32 a = 1;
+    string b = 2;
+    Inner c = 3;
+  }
+  map<string, int32> m_si = 4;
+  map<int32, Inner> m_ii = 5;
+  map<bool, bytes> m_bb = 6;
+}
+
+message Nested {
+  optional int32 v = 1;
+  optional Nested next = 2;
+}
+'''
+
+    PROTO3 = r'''syntax = "proto3";
+package cov3;
+
+enum Mode { MODE_ZERO = 0; MODE_ONE = 1; }
+
+message Msg3 {
+  int32 a = 1;
+  string b = 2;
+  bytes c = 3;
+  bool d = 4;
+  Mode e = 5;
+  repeated int32 r = 6;
+  repeated string s = 7;
+  repeated double dd = 8;
+  map<string, string> kv = 9;
+}
+
+service Svc {
+  rpc Call(Msg3) returns (Msg3);
+}
+'''
+
+    PROTO_ADC = r'''syntax = "proto2";
+package adc.sip;
+
+message RequestPDU {
+  optional string id = 1;
+  optional bytes body = 2;
+}
+
+message ResponsePDU {
+  optional bytes body = 1;
+}
+'''
+
+    BROKEN = r'''syntax = "proto2";
+package brk;
+
+message Broken {
+  optional bool flag = 1;
+  optional uint32 n = 2;
+  optional NoSuchType bad = 3;
+  optional int32 tail = 4;
+}
+'''
+
+    UDP_TYPES = (
+        ('30001', 'cov.Scalars'), ('30002', 'cov.Repeated'),
+        ('30003', 'cov.Defaults'), ('30004', 'cov.Oneofs'),
+        ('30005', 'cov.Nested'), ('30006', 'cov3.Msg3'),
+        ('30007', 'cov.NoSuchMessage'), ('30009', 'adc.sip.RequestPDU'),
+        ('30010', 'adc.sip.ResponsePDU'),
+    )
+
+    URI_TYPES = (
+        ('/api/cov', 'cov.Scalars'), ('/api/*/items', 'cov.Repeated'),
+        ('/exact', 'cov.Oneofs'), ('/star/*', 'cov.Scalars'),
+        ('/*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a', 'cov.Nested'),
+    )
+
+    @staticmethod
+    def options(dirs, tmp_path, *extra, broken=False):
+        '''-o options: the search paths (well-known types, the directory with
+        the .proto files written here), the UDP and URI message types.'''
+        protos = tmp_path / ('broken' if broken else 'protos')
+        protos.mkdir()
+        if broken:
+            (protos / 'broken.proto').write_text(TestDissectProtobufCoverage.BROKEN)
+        else:
+            (protos / 'cov2.proto').write_text(TestDissectProtobufCoverage.PROTO2)
+            (protos / 'cov3.proto').write_text(TestDissectProtobufCoverage.PROTO3)
+            (protos / 'adc.proto').write_text(TestDissectProtobufCoverage.PROTO_ADC)
+        wkt = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        opts = ['-o', 'uat:protobuf_search_paths: "{}","FALSE"'.format(wkt),
+                '-o', 'uat:protobuf_search_paths: "{}","TRUE"'.format(str(protos).replace('\\', '/')),
+                '-o', 'protobuf.use_utc: TRUE']
+        if broken:
+            opts += ['-o', 'uat:protobuf_udp_message_types: "30008","brk.Broken"']
+        else:
+            for port, name in TestDissectProtobufCoverage.UDP_TYPES:
+                opts += ['-o', 'uat:protobuf_udp_message_types: "{}","{}"'.format(port, name)]
+            for uri, name in TestDissectProtobufCoverage.URI_TYPES:
+                opts += ['-o', 'uat:protobuf_uri_message_types: "{}","{}"'.format(uri, name)]
+        for e in extra:
+            opts += ['-o', e]
+        return opts
+
+    @staticmethod
+    def tshark_fields(cmd_tshark, test_env, capture, opts, flt, *fields, passes=()):
+        '''Run tshark -Tfields on the frames selected by flt, return the lines
+        split at tabs.'''
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', capture, *opts,
+                '-Y', flt, '-Tfields', *('-e' + f for f in fields)),
+            encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_protobuf_default_prefs(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences the HTTP "application/x-protobuf" bodies
+        and gRPC messages are dissected without a message type, the MySQL X
+        and Sparkplug B messages with the types of the .proto files that
+        are installed; no malformed packets or error expert infos, in one
+        and two passes.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, (), 'protobuf',
+                                       'frame.number', '_ws.col.protocol', passes=passes)
+            assert [l[0] for l in lines] == [
+                '38', '40', '42', '49', '51', '53', '55', '57', '59', '61', '63', '65',
+                '67', '72', '74', '76', '78', '83', '85', '87', '89', '91', '93', '102',
+                '104', '115', '117', '119']
+            protocols = [l[1] for l in lines]
+            assert protocols.count('HTTP/PB(<UNKNOWN>)') == 17
+            assert protocols.count('GRPC/PB(<UNKNOWN>)') == 3
+            assert protocols[17:23] == [
+                'mysqlx/PB(Mysqlx.Connection.CapabilitiesGet)', 'mysqlx/PB(Mysqlx.Ok)',
+                'mysqlx/PB(Mysqlx.Session.AuthenticateStart)', 'mysqlx/PB(Mysqlx.Error)',
+                'mysqlx/PB(Mysqlx.Sql.StmtExecute)', 'mysqlx/PB(Mysqlx.Sql.StmtExecuteOk)']
+            assert protocols[23:25] == [
+                'SparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)'] * 2
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, (),
+                                       '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                       'frame.number', passes=passes)
+            assert lines == []
+
+    def test_protobuf_global_protos(self, cmd_tshark, capture_file, test_env):
+        '''Message types given by other dissectors as "message,<type>"
+        (MySQL X, Sparkplug B): field names and values.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, (),
+                                   'frame.number in {87, 89, 91, 102}',
+                                   'frame.number', 'protobuf.message.name',
+                                   'protobuf.field.name', 'protobuf.field.value.string')
+        assert lines[0][:3] == ['87', 'Mysqlx.Session.AuthenticateStart',
+                                'mech_name,auth_data,initial_response']
+        assert lines[0][3] == 'MYSQL41,'.rstrip(',') or lines[0][3].startswith('MYSQL41')
+        assert lines[1][:3] == ['89', 'Mysqlx.Error', 'severity,code,msg,sql_state']
+        assert lines[1][3] == 'Access denied,HY000'
+        assert lines[2][:2] == ['91', 'Mysqlx.Sql.StmtExecute']
+        assert lines[3][1].startswith('com.cirruslink.sparkplug.protobuf.Payload,')
+        assert 'temperature' in lines[3][3] and 'tank 1' in lines[3][3]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'frame.number == 89', '-V'),
+            encoding='utf-8', env=test_env)
+        assert 'Field(1): severity = FATAL(1) (enum)' in stdout
+        assert 'Field(2): code = 1045 (uint32)' in stdout
+
+    def test_protobuf_undefined_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fields without a message type (frame 38): numbered, with the
+        wire type, as uint32 or uint64; length-delimited fields only with
+        try_dissect_as_string or show_all_types.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, (), 'frame.number == 38',
+                                   'protobuf.field.number', 'protobuf.field.wiretype',
+                                   'protobuf.field.value.uint32',
+                                   'protobuf.field.value.uint64',
+                                   'protobuf.field.value.string')
+        assert lines[0][0].startswith('1,2,3,4,5,6,7,8,9')
+        assert lines[0][2].startswith('1,300,')
+        assert lines[0][3].startswith('1099511627776')
+        assert lines[0][4] == ''
+        lines = self.tshark_fields(cmd_tshark, test_env, cap,
+                                   ('-o', 'protobuf.try_dissect_as_string: TRUE',),
+                                   'frame.number == 38', 'protobuf.field.value.string')
+        assert lines[0][0].startswith('plain text,')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-o', 'protobuf.show_all_types: TRUE',
+                '-Y', 'frame.number == 38', '-V', '-O', 'protobuf'),
+            encoding='utf-8', env=test_env)
+        assert '(string)' in stdout and '(bytes)' in stdout and '(message)' in stdout
+
+    def test_protobuf_typed_udp(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''The UDP messages (frames 1-34, 125 and 126, by the UDP message type UAT), the
+        URI typed HTTP bodies, the gRPC messages, in one and two passes:
+        no malformed packets and no error expert infos.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        for passes in ((), ('-2',)):
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'protobuf && udp',
+                                       'frame.number', '_ws.col.protocol', passes=passes)
+            assert len(lines) == 36
+            assert [l[1] for l in lines].count('UDP/PB(cov.Scalars)') == 14
+            assert [l[1] for l in lines].count('UDP/PB(cov.Repeated)') == 6
+            assert [l[1] for l in lines].count('UDP/PB(cov.Defaults)') == 4
+            assert [l[1] for l in lines].count('UDP/PB(cov.Oneofs)') == 4
+            assert [l[1] for l in lines].count('UDP/PB(cov.Nested)') == 2
+            assert [l[1] for l in lines].count('UDP/PB(cov3.Msg3)') == 2
+            assert [l[1] for l in lines].count('UDP/PB(<UNKNOWN>)') == 2
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts,
+                                       '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                       'frame.number', passes=passes)
+            assert lines == []
+
+    def test_protobuf_scalar_values(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Every scalar type of cov.Scalars (frame 1) and the negative
+        integers, unknown enum value and bool of frame 7.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 1',
+                                   'protobuf.field.name', 'protobuf.field.value.int32',
+                                   'protobuf.field.value.uint32', 'protobuf.field.value.int64',
+                                   'protobuf.field.value.uint64', 'protobuf.field.value.bool',
+                                   'protobuf.field.value.string')
+        names, int32, uint32, int64, uint64, boolean, string = lines[0]
+        assert names.startswith('f_double,f_float,f_int32,f_int64,f_uint32,f_uint64,'
+                                'f_sint32,f_sint64,f_fixed32,f_fixed64,f_sfixed32,f_sfixed64,'
+                                'f_bool,f_string,f_bytes,f_enum,f_msg,name,id,f_ts,seconds')
+        assert int32 == '150,-3,-5,2,5'          # int32, sint32, sfixed32, enum, Inner.id
+        assert uint32 == '4000000000,3735928559'  # uint32, fixed32
+        assert int64 == '-2,-5,-6,1700000000'     # int64, sint64, sfixed64, Timestamp.seconds
+        assert uint64 == '9223372036854775813,1234605616436508552'
+        assert boolean == 'True'
+        assert string == 'héllo,in'
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 7',
+                                   'protobuf.field.value.int32', 'protobuf.field.value.int64',
+                                   'protobuf.field.value.bool')
+        assert lines == [['-1,0', '-1,-1', 'True']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, *opts,
+                '-Y', 'frame.number == 2', '-V', '-O', 'protobuf'),
+            encoding='utf-8', env=test_env)
+        assert 'Field(16): f_enum = 9 (enum)' in stdout            # not in the enum
+        assert 'Field(13): f_bool = false (bool)' in stdout
+        assert '[Message Value: 2023-11-14T22:13:20.500Z]' in stdout
+
+    def test_protobuf_timestamp(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''google.protobuf.Timestamp as RFC 3339 in UTC, with the nanoseconds
+        in three, six and nine digits, and a value gmtime() fails on.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        for frame, text in ((2, '2023-11-14T22:13:20.500Z'), (3, '2023-11-14T22:13:20.123456789Z'),
+                            (4, '1970-01-01T00:00:01.000120Z'),
+                            (5, '2023-11-14T22:13:20.000000001Z'), (6, '1970-01-01T00:00:00Z'),
+                            (13, 'Not representable')):
+            stdout = subprocess.check_output((cmd_tshark, '-r', cap, *opts,
+                    '-Y', 'frame.number == {}'.format(frame), '-V', '-O', 'protobuf'),
+                encoding='utf-8', env=test_env)
+            assert '[Message Value: {}]'.format(text) in stdout, frame
+
+    def test_protobuf_json_mapping(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''The JSON mapping of the messages, including the BOOL of two bytes
+        and the repeated, map and enum fields.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path, 'protobuf.display_json_mapping: TRUE')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number in {1, 8, 20, 28}',
+                                   'frame.number', 'protobuf_json.line')
+        json = dict((l[0], l[1]) for l in lines)
+        for text in ('"f_int32": 150', '"f_int64": "-2"', '"f_uint32": 4000000000',
+                     '"f_uint64": "9223372036854775813"', '"f_sint32": -3', '"f_bool": true',
+                     '"f_string": "héllo"', '"f_enum": "BLUE"', '"f_msg": {', '"name": "in"',
+                     '"f_ts": "2023-11-14T22:13:20Z"'):
+            assert text in json['1'], text
+        # a BOOL that uses more than one byte is null; the dissector used to assert
+        assert '"f_bool": null' in json['8'] and '"f_int32": 7' in json['8']
+        assert '"u_int32": [' in json['20'] and '"tail": 1' in json['20']
+        assert '"m_si": [' in json['28'] and '"key": "k1"' in json['28']
+        assert '"m_ii": [' in json['28'] and '"m_bb": [' in json['28']
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts,
+                                   '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                   'frame.number')
+        assert lines == []
+
+    def test_protobuf_packed_repeated(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Packed repeated fields of every type (frame 15) and packed fields
+        sent unpacked (frame 17).'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, *opts,
+                '-Y', 'frame.number == 15', '-V', '-O', 'protobuf'),
+            encoding='utf-8', env=test_env)
+        for text in ('Field(1): p_int32 = [ 1 (int32), 300 (int32), -1 (int32)]',
+                     'Field(2): p_int64 = [ -2 (int64), 5 (int64)]',
+                     'Field(3): p_uint32 = [ 7 (uint32), 4000000000 (uint32)]',
+                     'Field(5): p_sint32 = [ -1 (sint32), 2 (sint32)]',
+                     'Field(7): p_bool = [ true (bool), false (bool)]',
+                     'Field(8): p_enum = [ RED(0) (enum), GREEN(1) (enum), BLUE(2) (enum), 7 (enum)]',
+                     'Field(9): p_fixed32 = [ 1 (fixed32), 2 (fixed32)]',
+                     'Field(12): p_fixed64 = [ 1 (fixed64), 2 (fixed64)]',
+                     'Field(15): u_int32 = 1 (int32)', 'Field(16): u_string = a (string)'):
+            assert text in stdout, text
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 17',
+                                   'protobuf.field.name', 'protobuf.field.value.repeated')
+        assert lines[0][0] == 'p_int32,p_float,p_double'
+
+    def test_protobuf_default_values(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Missing fields shown with their default values for every policy,
+        and the warning for a missing required field.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        none = self.tshark_fields(cmd_tshark, test_env, cap, self.options(dirs, tmp_path),
+                                  'frame.number == 21', 'protobuf.field.name')
+        assert none == [['req']]
+        counts = {}
+        for policy in ('decl', 'enbl', 'all'):
+            sub = tmp_path / policy
+            sub.mkdir()
+            opts = self.options(dirs, sub, 'protobuf.add_default_value: ' + policy)
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 21',
+                                       'protobuf.field.name')
+            counts[policy] = lines[0][0].split(',')
+        assert counts['decl'][:2] == ['req', 'd_int32'] and len(counts['decl']) == 17
+        assert 'd_enum' in counts['enbl'] and 'n_bool' in counts['enbl'] and 'n_enum' in counts['enbl']
+        assert 'n_int32' not in counts['enbl']
+        assert 'n_int32' in counts['all'] and 'n_string' in counts['all'] and 'n_msg' not in counts['all']
+        sub = tmp_path / 'warn'
+        sub.mkdir()
+        opts = self.options(dirs, sub, 'protobuf.add_default_value: decl')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 24',
+                                   '_ws.expert.message')
+        assert lines == [["missing required field 'req'"]]
+
+    def test_protobuf_pbf_as_hf(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Fields and messages as Wireshark fields (pbf. and pbm.), with the
+        Timestamp as a time field and filters on typed values.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path, 'protobuf.pbf_as_hf: TRUE',
+                            'protobuf.preload_protos: TRUE')
+        for flt, frames in (
+                ('pbf.cov.Scalars.f_int32 == 150', ['1', '49']),
+                ('pbf.cov.Scalars.f_sint32 == -3 && pbf.cov.Scalars.f_bool', ['1', '49']),
+                ('pbf.cov.Scalars.f_enum == 9', ['2']),
+                ('pbf.cov.Scalars.f_ts > "2023-11-14T22:13:20.4Z" && pbf.cov.Scalars.f_ts < "2023-11-14T22:13:20.6Z"', ['2']),
+                ('pbf.cov.Scalars.f_string contains "llo"', ['1', '49']),
+                ('pbf.cov.Inner.name == "in"', ['1', '49']),
+                ('pbf.cov.Repeated.u_string == "bb"', ['15', '53']),
+                ('pbm.cov.Nested && pbf.cov.Nested.v == 40', ['30']),
+                ('pbf.cov3.Msg3.kv', ['31']),
+                ('pbf.com.cirruslink.sparkplug.protobuf.Payload.seq == 9', ['102', '104'])):
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, flt, 'frame.number')
+            assert [l[0] for l in lines] == frames, flt
+
+    def test_protobuf_bytes_as_string(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''bytes fields shown as strings, with and without pbf_as_hf.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path, 'protobuf.bytes_as_string: TRUE',
+                            'protobuf.pbf_as_hf: TRUE', 'protobuf.show_details: TRUE',
+                            'protobuf.preload_protos: TRUE')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'frame.number == 31',
+                                   'pbf.cov3.Msg3.b', 'pbf.cov3.Msg3.c', 'protobuf.message.name')
+        assert lines[0][0] == 'b'
+        assert lines[0][2].split(',')[0] == 'cov3.Msg3'
+
+    def test_protobuf_uri_message_types(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Message types by request URI (exact, "*" in the middle and at
+        the end, no match) for requests and for the responses.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'protobuf && tcp.port == 8080',
+                                   'frame.number', 'protobuf.message.name')
+        lines = [[l[0], l[1].split(',')[0]] for l in lines]   # the nested messages follow
+        assert lines == [
+            ['38', '<UNKNOWN>'], ['40', '<UNKNOWN>'], ['42', '<UNKNOWN>'],
+            ['49', 'cov.Scalars'], ['51', 'cov.Scalars'], ['53', 'cov.Repeated'],
+            ['55', 'cov.Repeated'], ['57', '<UNKNOWN>'], ['59', '<UNKNOWN>'],
+            ['61', '<UNKNOWN>'], ['63', '<UNKNOWN>'], ['65', 'cov.Oneofs'],
+            ['67', 'cov.Oneofs'], ['72', 'cov.Scalars'], ['74', 'cov.Scalars'],
+            ['76', '<UNKNOWN>'], ['78', '<UNKNOWN>']]
+
+    def test_protobuf_default_type(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''default_type is used when nothing else gives a message type.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path, 'protobuf.default_type: cov.Oneofs')
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'protobuf && tcp.port == 8080 && frame.number in {38, 57, 76}',
+                                   'frame.number', 'protobuf.message.name')
+        lines = [[l[0], l[1].split(',')[0]] for l in lines]
+        assert lines == [['38', 'cov.Oneofs'], ['57', 'cov.Oneofs'], ['76', 'cov.Oneofs']]
+
+    def test_protobuf_grpc(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''gRPC: the message type of a method from the service definition
+        (request and response); a method that is not known stays untyped.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        opts = self.options(dirs, tmp_path)
+        lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'protobuf && tcp.port == 50051',
+                                   'frame.number', 'protobuf.message.name', 'protobuf.field.name')
+        assert lines == [
+            ['115', 'cov3.Msg3', 'a,b,r'], ['117', 'cov3.Msg3', 'a,b'],
+            ['119', '<UNKNOWN>', '<UNKNOWN>,<UNKNOWN>']]
+
+    def test_protobuf_fixed_bugs(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''Reproducers of "Protobuf: Fix JSON mapping state, unresolved hf and
+        field length": a BOOL of two bytes with the JSON mapping and a field
+        of an unresolved type with pbf_as_hf made the dissector assert.'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        for extra in (('protobuf.display_json_mapping: TRUE',),
+                      ('protobuf.pbf_as_hf: TRUE',),
+                      ('protobuf.pbf_as_hf: TRUE', 'protobuf.display_json_mapping: TRUE')):
+            sub = tmp_path / str(len(extra) + len(extra[0]))
+            sub.mkdir()
+            opts = self.options(dirs, sub, *extra, broken=True)
+            stdout = subprocess.run((cmd_tshark, '-r', cap, *opts, '-V'),
+                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                    encoding='utf-8', env=test_env).stdout
+            assert 'Dissector bug' not in stdout
+            assert 'Bad json_dumper state' not in stdout
+            assert 'hf must have been initialized' not in stdout
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'protobuf && udp.port == 30008',
+                                       'protobuf.message.name', 'protobuf.field.name')
+            assert len(lines) == 4
+            assert all(l[0] == 'brk.Broken' for l in lines)
+            assert lines[1][1].startswith('flag')
+
+    def test_protobuf_field_subdissector(self, cmd_tshark, dirs, capture_file, test_env, tmp_path):
+        '''The "protobuf_field" dissector table: SIP registers for
+        adc.sip.RequestPDU.body and adc.sip.ResponsePDU.body, so the bytes
+        fields are dissected as SIP (also with bytes_as_string).'''
+        cap = capture_file('protobuf_coverage.pcap.gz')
+        for n, extra in enumerate(((), ('protobuf.bytes_as_string: TRUE',
+                                        'protobuf.pbf_as_hf: TRUE',
+                                        'protobuf.preload_protos: TRUE'))):
+            sub = tmp_path / str(n)
+            sub.mkdir()
+            opts = self.options(dirs, sub, *extra)
+            lines = self.tshark_fields(cmd_tshark, test_env, cap, opts, 'sip',
+                                       'frame.number', 'sip.Method', 'sip.Status-Code',
+                                       'protobuf.message.name')
+            assert [l[:3] for l in lines] == [['125', 'OPTIONS', ''], ['126', '', '200']]
+            assert lines[0][3] == 'adc.sip.RequestPDU' and lines[1][3] == 'adc.sip.ResponsePDU'
