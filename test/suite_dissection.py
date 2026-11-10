@@ -132905,3 +132905,63 @@ class TestDissectSabp:
         lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sabp.no_of_pages', '-Tfields', '-esabp.no_of_pages')
         counts = {int(x) for x in lines}
         assert 15 in counts and 16 in counts
+
+
+class TestDissectSadmind:
+    '''SADMIND (ONC RPC program 100232, versions 1 to 3, only the NULL
+    procedure is defined) from the synthetic capture
+    sadmind_coverage.pcap.gz, over UDP (RPC heuristic) and TCP.'''
+
+    def test_sadmind_protocols(self, cmd_tshark, capture_file, test_env):
+        '''24 SADMIND frames and five TCP frames without malformed
+        packets or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sadmind_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 29
+        assert protocols.count('SADMIND') == 24
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sadmind_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sadmind_null_procedures(self, cmd_tshark, capture_file, test_env):
+        '''The NULL procedure of each version has its own procedure field
+        and is named NULL; other procedures and versions are not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sadmind_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 5, 9, 11, 13, 22, 24, 26}',
+                '-Tfields', '-eframe.number', '-esadmind.procedure_v1',
+                '-esadmind.procedure_v2', '-esadmind.procedure_v3',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t\t\tV1 NULL Call',
+            '3\t\t0\t\tV2 NULL Call',
+            '5\t\t\t0\tV3 NULL Call',
+            '9\t1\t\t\tV1 proc-1 Call',
+            '11\t\t\t7\tV3 proc-7 Call',
+            '13\t\t\t\tV4 proc-0 Call',
+            '22\t0\t\t\tV1 NULL Call',
+            '24\t\t0\t\tV2 NULL Call',
+            '26\t\t\t0\tV3 NULL Call',
+        ]
+
+    def test_sadmind_reply_matching(self, cmd_tshark, capture_file, test_env):
+        '''Each reply is matched to its call in the second pass.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('sadmind_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 6, 23}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tV1 NULL Reply (Call In 1)',
+            '6\tV3 NULL Reply (Call In 5)',
+            '23\tV1 NULL Reply (Call In 22)',
+        ]
