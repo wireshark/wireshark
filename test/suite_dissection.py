@@ -139685,3 +139685,70 @@ class TestDissectSmpte211020:
                 '-Tfields', '-e_ws.col.info',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'Seq=16973823, Time=9000, FirstRow=20, Rows=1'
+
+
+class TestDissectSmpte211040:
+    '''SMPTE ST 2110-40 (RFC 8331 ancillary data over RTP) from the
+    synthetic capture smpte_2110_40_coverage.pcapng.gz: a SIP INVITE whose
+    SDP rtpmap is "smpte291" announces the RTP stream (frames 2-18); frame
+    19 is an Exported PDU frame naming st2110_40.'''
+
+    CAP = 'smpte_2110_40_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_st2110_40_clean(self, cmd_tshark, capture_file, test_env):
+        '''Eighteen frames decode as ST 2110-40; no malformed frames and no
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert len(self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    'st2110_40', ['frame.number'], *passes)) == 18
+            assert self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+
+    def test_st2110_40_header(self, cmd_tshark, capture_file, test_env):
+        '''ANC counts, F field, line numbers and offsets (including the
+        special values), S bit and stream number, extended sequence
+        number.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st2110_40 && frame.number in {2, 4, 5, 6, 7, 8, 9, 12}',
+                ['frame.number', 'st2110_40.anc_count', 'st2110_40.f',
+                 'st2110_40.line_number', 'st2110_40.ho', 'st2110_40.s',
+                 'st2110_40.streamnum', 'st2110_40.extendedsequencenumber'])
+        assert rows == [
+            '2\t0\t0x00\t\t\t\t\t0x0000',
+            '4\t1\t0x02\t20\t100\tFalse\t0\t0x0000',
+            '5\t1\t0x03\t21\t4094\tTrue\t5\t0x0000',
+            '6\t1\t0x00\t2047\t4095\tFalse\t0\t0x0000',
+            '7\t1\t0x00\t2046\t4094\tFalse\t0\t0x0000',
+            '8\t1\t0x00\t2045\t4093\tFalse\t0\t0x0000',
+            '9\t1\t0x00\t100\t4092\tFalse\t0\t0x0000',
+            '12\t1\t0x00\t41\t0\tFalse\t0\t0x1234',
+        ]
+
+    def test_st2110_40_payloads(self, cmd_tshark, capture_file, test_env):
+        '''Ten ANC packets in one RTP payload; time codes and a CDP are
+        passed on to the ST 291 subdissectors; the Exported PDU frame
+        holds two ANC packets.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {10, 19}', ['frame.number', 'st2110_40.anc_count',
+                 'st2110_40.data_count'])
+        assert rows == [
+            '10\t10\t0,1,2,3,4,5,6,7,8,9',
+            '19\t2\t16,8',
+        ]
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st12_2 || st334_2', ['frame.number', 'st12_2.timecode', 'st334_2.timecode'])
+        assert rows == [
+            '3\t12:34:56:07\t',
+            '12\t01:02:03;04\t',
+            '13\t\t12:34:56:07',
+            '14\t\t',
+            '18\t12:34:56:07\t',
+            '19\t12:34:56:07\t',
+        ]
