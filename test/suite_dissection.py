@@ -123638,3 +123638,81 @@ class TestDissectRaw:
             '8\t0x0021\t192.0.2.1',
             '9\t0x0021\t192.0.2.1',
         ]
+
+
+class TestDissectRcV3:
+    '''E2SM-RC v3.05 (packet-rc-v3.c, generated from asn1/rc-v3) carried in
+    E2AP messages over SCTP (PPID 70), from the synthetic capture
+    rc-v3_coverage.pcap.gz. E2AP finds the service model through the RAN
+    function table: an E2setupRequest announces the RAN function with the
+    short name ORAN-E2SM-RC and its OID.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rc-v3_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_rc_v3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 1110 frames are E2AP messages without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rc-v3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        info = stdout.splitlines()
+        assert len(info) == 1110
+        assert info.count('E2setupRequest') == 2
+        assert info.count('E2setupResponse') == 1
+        for name in ('RICsubscriptionRequest', 'RICsubscriptionResponse',
+                     'RICindication', 'RICcontrolRequest', 'RICcontrolAcknowledge',
+                     'RICcontrolFailure', 'RICQueryRequest', 'RICQueryResponse',
+                     'RICQueryFailure'):
+            assert info.count(name) == 123
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_rc_v3_ran_function(self, cmd_tshark, capture_file, test_env):
+        '''The RAN function definition (decoded by packet-rc-v3.c with the
+        short name and OID taken from it: the code in rc-v3.cnf) is in
+        the two E2setupRequests.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'rc-v3.E2SM_RC_RANFunctionDefinition_element',
+                'rc-v3.ranFunction_ShortName', 'rc-v3.ranFunction_E2SM_OID',
+                'rc-v3.ranFunction_Instance')
+        assert len(out) == 2
+        assert out[0] == '1\tORAN-E2SM-RC\t1.3.6.1.4.1.53148.1.1.2.3\t2'
+        assert out[1].endswith('\tORAN-E2SM-RC\t1.3.6.1.4.1.53148.1.1.2.3\t7')
+
+    def test_rc_v3_service_model_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Every kind of RC v3 PDU is decoded: the number of frames with
+        each of them.'''
+        expected = {
+            'EventTrigger': 123, 'ActionDefinition': 123,
+            'IndicationHeader': 123, 'IndicationMessage': 123,
+            'CallProcessID': 492, 'ControlHeader': 123, 'ControlMessage': 123,
+            'ControlOutcome': 246, 'QueryHeader': 123, 'QueryDefinition': 123,
+            'QueryOutcome': 123,
+        }
+        for pdu, n in expected.items():
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                    'rc-v3.E2SM_RC_%s_element' % pdu)
+            assert len(out) == n, pdu
+
+    def test_rc_v3_formats(self, cmd_tshark, capture_file, test_env):
+        '''The formats of the PDUs in the first frames: indication,
+        control and query messages (the field is present in the frame).'''
+        for flt, frames in (
+                ('rc-v3.indicationHeader_Format1_element', ['5']),
+                ('rc-v3.controlHeader_Format1_element', ['6']),
+                ('rc-v3.controlOutcome_Format1_element', ['7']),
+                ('rc-v3.controlOutcome_Format2_element', ['8']),
+                ('rc-v3.E2SM_RC_QueryDefinition_element', ['9']),
+                ('rc-v3.E2SM_RC_QueryOutcome_element', ['10'])):
+            out = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number <= 11 && ' + flt)
+            assert out == frames, flt
