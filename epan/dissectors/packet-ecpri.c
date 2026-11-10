@@ -447,6 +447,10 @@ typedef struct {
 /* Cached for calling ORAN FH CUS dissector for message types that it handles */
 static dissector_handle_t oran_fh_handle;
 
+/* Dissector table so vendor-specific dissectors can register by eCPRI message
+ * type for "Reserved or Vendor Specific" message types. */
+static dissector_table_t ecpri_vendorspecific_table;
+
 /**************************************************************************************************/
 /* Main dissection function                                                                       */
 /**************************************************************************************************/
@@ -1220,8 +1224,32 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                     }
                     break;
                 default:
-                    /* Reserved or Vendor Specific */
-                    offset += payload_size;
+                    /* Reserved or Vendor Specific.
+                     * Offer the payload to a vendor-specific dissector registered
+                     * in the "ecpri.vendorspecific" dissector table, keyed by the
+                     * eCPRI message type.  The message type is also passed via the
+                     * data argument (pointer to msg_type) for dissectors that want
+                     * it.  If a vendor dissector claims it, account for the bytes
+                     * it consumed; otherwise skip the whole payload as before.
+                     */
+                    {
+                        int dissected = dissector_try_uint_with_data(ecpri_vendorspecific_table,
+                                                                     msg_type, fh_tvb, pinfo,
+                                                                     tree, true, &msg_type);
+                        if (dissected > 0)
+                        {
+                            offset += dissected;
+                            /* Skip any remaining (undissected) payload bytes */
+                            if (payload_size > (unsigned)dissected)
+                            {
+                                offset += payload_size - (unsigned)dissected;
+                            }
+                        }
+                        else
+                        {
+                            offset += payload_size;
+                        }
+                    }
                     break;
                 }
         }
@@ -1366,6 +1394,11 @@ void proto_register_ecpri(void)
     proto_ecpri = proto_register_protocol("evolved Common Public Radio Interface", "eCPRI", "ecpri"); /* name, short name, abbreviation */
     ecpri_handle = register_dissector("ecpri", dissect_ecpri, proto_ecpri);
 
+    /* Dissector table so vendor-specific dissectors can register for the
+     * "Reserved or Vendor Specific" eCPRI message types, keyed by message type. */
+    ecpri_vendorspecific_table = register_dissector_table("ecpri.vendorspecific",
+            "eCPRI Vendor Specific (by message type)",
+            proto_ecpri, FT_UINT8, BASE_DEC);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_ecpri, hf, array_length(hf));
