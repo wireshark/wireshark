@@ -211,7 +211,7 @@ dissect_option_route(unsigned char parm_type, int offset, unsigned char parm_len
 
   if ( parm_type == OSI_OPT_SOURCE_ROUTING ) {
     next_hop = tvb_get_uint8(tvb, offset + 1);
-    netl     = tvb_get_uint8(tvb, next_hop + 2);
+    netl     = tvb_get_uint8(tvb, offset + next_hop + 2);
     this_hop = offset + 2;  /* points to first netl */
 
     proto_tree_add_uint_format_value(tree, hf_osi_options_source_routing, tvb, offset + next_hop, netl,
@@ -245,8 +245,8 @@ dissect_option_route(unsigned char parm_type, int offset, unsigned char parm_len
                           "Recording Terminated : No more space !");
 
     if ( last_hop == 255 || last_hop == 0x03 )
-      this_hop = parm_len + 1;   /* recording terminated,
-                                  * or not begun, nothing to show */
+      this_hop = offset + last_hop - 2;   /* recording terminated,
+                                           * or not begun, nothing to show */
     else
       this_hop = offset + 2;         /* points to first netl */
   }
@@ -293,7 +293,7 @@ dissect_option_rfd(const unsigned char error, const unsigned char field, int off
     expert_add_info(pinfo, ti, &ei_osi_options_rfd_error_class);
   }
 
-  proto_tree_add_uint(tree, hf_osi_options_rfd_field, tvb, offset + field, 1, field);
+  proto_tree_add_uint(tree, hf_osi_options_rfd_field, tvb, offset + 1, 1, field);
 }
 
 /* ############################## Dissection Functions ###################### */
@@ -364,9 +364,11 @@ dissect_osi_options(unsigned char opt_len, tvbuff_t *tvb, int offset, proto_tree
             break;
 
           case OSI_OPT_SEC_GLOBAL_UNIQUE:
-              next_tvb = tvb_new_subset_length(tvb, offset + 1, parm_len - 1);
-              (void) dissector_try_payload_with_data(subdissector_decode_as_opt_security_table,
-                                     next_tvb, pinfo, osi_option_tree, true, NULL);
+              if (parm_len > 1) {
+                next_tvb = tvb_new_subset_length(tvb, offset + 1, parm_len - 1);
+                (void) dissector_try_payload_with_data(subdissector_decode_as_opt_security_table,
+                                       next_tvb, pinfo, osi_option_tree, true, NULL);
+              }
               break;
           }
           break;
