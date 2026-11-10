@@ -135724,3 +135724,63 @@ class TestDissectSdh:
             '19\t522\t98', '20\t600\t99', '21\t90\t100', '22\t100\t101',
             '23\t200\t102', '24\t300\t103', '25\t400\t104', '26\t522\t105',
         ]
+
+
+class TestDissectSdlc:
+    # Sniffer file; the direction comes from the frame status byte.
+    CAP = 'sdlc_coverage.syc.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectSdlc.CAP), *args),
+                encoding='utf-8', env=test_env)
+        return stdout.splitlines()
+
+    def test_sdlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is SDLC or SNA, none is malformed or has an expert
+        info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 166
+        assert rows.count('SDLC') == 148
+        assert rows.count('SNA') == 18
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(rows)) == 0
+
+    def test_sdlc_info(self, cmd_tshark, capture_file, test_env):
+        '''Supervisory and unnumbered frames, command and response.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-e_ws.col.def_src')
+        info = {r.split('\t')[0]: r.split('\t')[1:] for r in rows}
+        assert info['16'] == ['S, func=RR, N(R)=0', 'DTE']
+        assert info['17'] == ['S P, func=RR, N(R)=5', 'DTE']
+        assert info['166'] == ['S, func=RR, N(R)=0', 'DCE']
+        assert info['164'][0] == 'U F, func=UA'
+        assert info['20'][0] == 'S, func=REJ, N(R)=0'
+        assert info['21'][0] == 'S P, func=REJ, N(R)=5'
+
+    def test_sdlc_control(self, cmd_tshark, capture_file, test_env):
+        '''Control field values and the command/response direction.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sdlc', '-Tfields', '-eframe.number',
+                '-esdlc.address', '-esdlc.control.ftype',
+                '-esdlc.control.s_ftype', '-esdlc.control.n_r',
+                '-esdlc.control.u_modifier_cmd',
+                '-esdlc.control.u_modifier_resp')
+        assert len(rows) == 166
+        cols = {r.split('\t')[0]: r.split('\t')[1:] for r in rows}
+        # frame 1: outbound I frame, N(S)=N(R)=0
+        assert cols['1'][:2] == ['0xc1', '0x00']
+        # frame 16: supervisory RR, N(R)=0 (no U modifier)
+        assert cols['16'] == ['0xc1', '0x01', '0x00', '0', '', '']
+        assert cols['21'] == ['0xc1', '0x01', '0x02', '5', '', '']
+        # outbound U frames carry a command modifier, inbound a response
+        assert cols['41'][4:] == ['0x08', '']       # UP command
+        assert cols['100'][4:] == ['', '0x01']      # RIM response
+        assert any(c[4] != '' and c[5] == '' for c in cols.values())
+        assert any(c[5] != '' and c[4] == '' for c in cols.values())
