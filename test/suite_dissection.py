@@ -116342,3 +116342,93 @@ class TestDissectPcp:
         assert f[2] == 'hostname,domainname'
         assert f[3] == 'h1,d'
         assert 'Label returned an error' in f[4]
+
+
+class TestDissectPdc:
+    '''PDC (the MPDU protocol that carries ASTERIX over TCP) from the
+    synthetic capture pdc_coverage.pcap.gz. PDC has no default port, so
+    the capture is decoded with Decode As tcp.port 30000. It has every
+    MPDU type, SIMPDU variable parameters, PDUs split over several
+    segments or sharing a segment, and IPv6.'''
+
+    CAPTURE = 'pdc_coverage.pcap.gz'
+    DECODE_AS = ('-d', 'tcp.port==30000,pdc')
+
+    def test_pdc_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert protocols.count('PDC') == 22
+            assert protocols.count('ASTERIX') == 11
+
+    def test_pdc_mpdus(self, cmd_tshark, capture_file, test_env):
+        '''The MPDU codes and the length indicators in order.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pdc', '-Tfields', '-epdc.mpducode',
+            ), encoding='utf-8', env=test_env)
+        codes = stdout.split()
+        assert codes[:8] == ['1'] * 8
+        assert codes[8] == '2'
+        assert codes[9:14] == ['3'] * 5
+        assert codes[14:16] == ['4', '4']
+        assert codes[16:18] == ['5', '5']
+        assert codes[18:20] == ['6', '6']
+        assert codes[20:22] == ['8', '8']
+
+    def test_pdc_simpdu(self, cmd_tshark, capture_file, test_env):
+        '''State, YR-ADMU-NR and the variable part with the version,
+        references and transport selector parameters.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {5, 9, 11}',
+                '-Tfields', '-eframe.number', '-epdc.cdt', '-epdc.state',
+                '-epdc.yradmunr', '-epdc.simpdu.param',
+                '-epdc.simpdu.variable.version', '-epdc.simpdu.variable.refsrc',
+                '-epdc.simpdu.tsel',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t5\t2\t77\t\t\t\t',
+            '9\t3\t3\t16909060\t2,3,4\t2\t4369\t16962',
+            '11\t3\t5\t16909060\t2,2\t3,4\t\t',
+        ]
+
+    def test_pdc_drmpdu_and_data(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {13, 16, 17, 19, 21, 25}',
+                '-Tfields', '-eframe.number', '-epdc.drmpdu.abort',
+                '-epdc.drmpdu.mode', '-epdc.drmpdu.init', '-epdc.drmpdu.reason',
+                '-epdc.dtmpdu.usersize', '-epdc.admpdu.usersize',
+                '-epdc.akmpdu.mns', '-epdc.akmpdu.cdt',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\t0\t0\t0\t0\t\t\t\t',
+            '16\t1\t7\t0\t2\t\t\t\t',
+            '17\t1\t7\t1\t3\t\t\t\t',
+            '19\t\t\t\t\t20\t\t\t',
+            '21\t\t\t\t\t\t20\t\t',
+            '25\t\t\t\t\t\t\t1\t2046',
+        ]
+
+    def test_pdc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Data PDUs split in two and in three segments, and several PDUs
+        in one segment: tcp.pdu.size lists the PDU sizes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {27, 30, 32, 35, 36, 37, 39}',
+                '-Tfields', '-eframe.number', '-etcp.pdu.size', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '27\t24\tDTMPDU', '30\t24\tDTMPDU', '32\t28\tADMPDU', '35\t17\tSIMPDU',
+            '36\t8,8,2\tRSMPDU', '37\t14,24,8\tAKMPDU', '39\t24\tDTMPDU',
+        ]
