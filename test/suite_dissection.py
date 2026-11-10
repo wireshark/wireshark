@@ -136352,3 +136352,128 @@ class TestDissectSes:
         rows = self.fields(cmd_tshark, test_env, capture_file('ses_coverage.pcapng.gz'),
                            'clsp', '_ws.col.protocol', '_ws.col.info', 'ip.proto')
         assert rows == [['70', 'CLSES', 'UNIT DATA (UD) SPDU', '39'], ['71', 'CLSES', 'UNIT DATA (UD) SPDU', '39']]
+
+
+class TestDissectSflow:
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00600000'
+    INFO = (
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 1, 1 samples',
+        'V5, agent 2001:db08::1, sub-agent ID 7, seq 2, 2 samples',
+        'V5, sub-agent ID 7, seq 3, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 4, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 5, 5 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 6, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 7, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 8, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 9, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 10, 1 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 11, 2 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 12, 4 samples',
+        'V5, agent 10.1.1.1, sub-agent ID 7, seq 13, 1 samples',
+        'V4, agent 10.1.1.1, seq 1, 1 samples',
+        'V4, agent 2001:db08::1, seq 2, 3 samples',
+        'V4, agent 10.1.1.1, seq 3, 2 samples',
+        'V4, agent 10.1.1.1, seq 4, 8 samples',
+        'V2, agent 10.1.1.1, seq 5, 2 samples',
+    )
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, dfilter, *fields, passes=(), opts=()):
+        args = [cmd_tshark, *passes, *opts, '-r', cap, '-Y', dfilter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_sflow_frames(self, cmd_tshark, capture_file, test_env):
+        '''18 datagrams (versions 2, 4 and 5) are sFlow, the 19th (unknown
+        agent address type) is left as UDP; none is malformed or has a
+        warning or error expert info, in one and two passes.'''
+        cap = capture_file('sflow_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, cap, 'frame', '_ws.col.protocol', '_ws.col.info',
+                               passes=passes)
+            assert len(rows) == 19
+            assert [r[1] for r in rows] == ['sFlow'] * 18 + ['UDP']
+            assert [r[2] for r in rows[:18]] == list(self.INFO)
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+
+    def test_sflow_versions_and_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Datagram versions, and sFlow samples that carry sFlow datagrams
+        in their sampled headers (frame 8 holds three datagrams).'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('sflow_coverage.pcap.gz'),
+                           'sflow_245.version', 'sflow_245.version')
+        assert [r[1] for r in rows] == ['5'] * 7 + ['5,5,5'] + ['5'] * 5 + ['4'] * 4 + ['2']
+
+    def test_sflow_header_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Sampled headers of every registered kind and an unregistered one.'''
+        cap = capture_file('sflow_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 6', 'sflow_245.header_protocol')
+        assert rows == [['6', '1,1,1,11,12,13,7,99,3,15']]
+        # the sampled headers are dissected: Ethernet, IPv4, IPv6, MPLS, PPP, Token Ring
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 6 && udp.port == 2', '_ws.col.protocol')
+        assert rows == [['6', 'sFlow']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 6', '-V'),
+                                         encoding='utf-8', env=test_env)
+        for text in ('Ethernet II, Src:', 'MultiProtocol Label Switching Header', 'Point-to-Point Protocol',
+                     'Token-Ring', 'Internet Protocol Version 6'):
+            assert text in stdout, text
+        # with dissection of the sampled headers disabled only raw data remains
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 6', '-V',
+                                          '-o', 'sflow.enable_dissection:FALSE'),
+                                         encoding='utf-8', env=test_env)
+        assert 'MultiProtocol Label Switching Header' not in stdout
+        assert 'Data (' in stdout
+
+    def test_sflow_gateway(self, cmd_tshark, capture_file, test_env):
+        '''AS paths of the extended gateway data: v5 and v4 sets and sequences,
+        v2 plain AS lists, and the community list.'''
+        cap = capture_file('sflow_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'sflow_245.dstAS', 'sflow_245.dstAS',
+                           'sflow_245.communityEntries', 'sflow_245.localpref')
+        by = {r[0]: r[1:] for r in rows}
+        # (the communities are shown with the same field as the AS numbers)
+        assert by['2'] == ['65001,65002,65003,100,200', '2,0', '150,150']
+        assert by['14'] == ['65001,65002,100', '1', '150']
+        assert by['16'] == ['1,2', '0', '150']
+        assert by['18'] == ['65001,65002', '', '']
+
+    def test_sflow_80211(self, cmd_tshark, capture_file, test_env):
+        '''802.11 flow records: payload suite types, rx/tx durations and
+        retransmission counts.'''
+        cap = capture_file('sflow_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 4',
+                           'sflow_5.extended_80211.rx.packet_duration',
+                           'sflow_5.extended_80211.tx.retransmissions',
+                           'sflow_5.extended_80211.tx.packet_duration',
+                           'sflow_5.extended_80211.payload_length')
+        assert rows == [['4', '1500,0', '0,1,2', '0,300,300', '5,3']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 4', '-V'),
+                                         encoding='utf-8', env=test_env)
+        assert 'Default (0xFAC)' in stdout
+        assert 'Other vendor (0x123456)' in stdout
+        assert 'Packet transmitted successfully on first attempt' in stdout
+
+    def test_sflow_counters(self, cmd_tshark, capture_file, test_env):
+        '''Counters records of every kind.'''
+        cap = capture_file('sflow_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 9',
+                           'sflow_245.ifindex', 'sflow_245.ifspeed', 'sflow_245.vlan_id',
+                           'sflow_245.dot3StatsSymbolErrors', 'sflow_245.dot5StatsFreqErrors',
+                           'sflow_245.dot12HCOutHighPriorityOctets')
+        assert rows == [['9', '3', '1000000000', '100', '12', '17', '14']]
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number == 10',
+                           'sflow_5.cpu_5s', 'sflow_5.cpu_5m', 'sflow_5.elapsed_time',
+                           'sflow_5.dot11QoSCFPollsLostCount')
+        assert rows == [['10', '10', '30', '1000', '19']]
+
+    def test_sflow_output_interface(self, cmd_tshark, capture_file, test_env):
+        '''Flow sample output interface formats: ifindex, discard, multiple.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('sflow_coverage.pcap.gz'),
+                                          '-Y', 'frame.number in {1, 2, 3, 4, 5}', '-V'),
+                                         encoding='utf-8', env=test_env)
+        for text in ('Output interface format: ifindex (0)', 'Output interface format: packet discarded (1)',
+                     'Output interface format: multiple interfaces (2)',
+                     'unknown number of interfaces greater than 1',
+                     'Output interface expanded format: Unknown (3)'):
+            assert text in stdout, text
