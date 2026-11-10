@@ -134779,3 +134779,78 @@ class TestDissectScop:
         assert lines[2].startswith('27\t40100')
         assert lines[3] == '28\tReserved Type'
         assert lines[4] == '30\tData, Src: 0x0002, Dst: 0x0001'
+
+
+class TestDissectScriptingservice:
+    def test_ssp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every DATA chunk with the payload protocol identifier 35 or the
+        legacy 0x29097604 is SSP; the first two fragments of the upload
+        are SCTP and the third frame has the reassembled message. No frame
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scriptingservice_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('SSP') == 26
+        assert protocols.count('SCTP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scriptingservice_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ssp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, status values, not-ready reasons and texts, and
+        the reassembled upload (516 octets).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scriptingservice_coverage.pcap.gz'),
+                '-Y', 'ssp',
+                '-Tfields', '-eframe.number', '-essp.message_type',
+                '-essp.message_length', '-essp.message_status',
+                '-essp.message_reason', '-essp.message_info',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'] == ['1', '18', '', '', 'ssp server 1.0']
+        assert rows['3'] == ['1', '10', '', '', 'legacy']
+        assert rows['4'] == ['0', '12', '', '1', 'busy']
+        assert rows['5'] == ['0', '17', '', '2', 'no memory']
+        assert rows['6'] == ['0', '9', '', '99', '?']
+        assert rows['13'] == ['5', '8', '0', '', '']
+        assert rows['14'] == ['6', '8', '7', '', '']
+        assert rows['15'] == ['6', '8', '4294967295', '', '']
+        assert rows['21'] == ['9', '11', '', '', '']
+        assert rows['25'] == ['2', '516', '', '', '']
+
+    def test_ssp_environment(self, cmd_tshark, capture_file, test_env):
+        '''The U-Bit of Environment messages and the hash.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scriptingservice_coverage.pcap.gz'),
+                '-Y', 'ssp.message_type == 7',
+                '-Tfields', '-eframe.number', '-essp.environment_u_bit',
+                '-essp.message_hash',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\tTrue\t' + bytes(range(20)).hex(),
+            '19\tFalse\t' + bytes(range(20, 40)).hex(),
+            '20\tTrue\t' + bytes(range(40, 60)).hex(),
+        ]
+
+    def test_ssp_stat(self, cmd_tshark, capture_file, test_env):
+        '''-z ssprotocol,stat counts every message once in one and two
+        passes (the unknown message types have no row).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scriptingservice_coverage.pcap.gz'),
+                    '-q', '-z', 'ssprotocol,stat',
+                ), encoding='utf-8', env=test_env)
+            rows = {l.split('|')[0].strip(): l.split('|')[1:4:2] for l in stdout.splitlines() if '|' in l and 'Message Type' not in l}
+            assert {k: (v[0].strip(), v[1].strip()) for k, v in rows.items()} == {
+                'Not Ready': ('4', '46'), 'Ready': ('4', '42'),
+                'Upload': ('3', '564'), 'Download': ('2', '48'),
+                'Keep-Alive': ('2', '8'), 'Keep-Alive Ack': ('2', '12'),
+                'Status': ('4', '30'), 'Environment': ('3', '72'),
+            }
