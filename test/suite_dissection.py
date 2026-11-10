@@ -132150,3 +132150,104 @@ class TestDissectRwall:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 26
+
+
+class TestDissectRx:
+    '''RX (the AFS transport) from the synthetic capture
+    rx_coverage.pcap.gz, on the default UDP ports 7000-7009 and 7021.
+    The RESPONSE packets carry arbitrary filler in the "encrypted" part;
+    the dissector only shows the fields and does not decrypt.'''
+
+    def test_rx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''37 frames are RX (six of them carry AFS data), two are not RX
+        (shorter than the header, unknown type) and none is malformed
+        or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rx_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [l.strip() for l in stdout.splitlines()]
+        assert len(protocols) == 45
+        assert protocols.count('RX') == 37
+        assert protocols.count('AFS (RX)') == 6
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rx_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rx_ack(self, cmd_tshark, capture_file, test_env):
+        '''ACK reasons, the ACK/NACK list and the optional MTU, window and
+        packet fields after the padding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rx_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 8, 12, 16, 18, 20, 21, 22, 23, 24}',
+                '-Tfields', '-eframe.number', '-erx.reason',
+                '-erx.num_acks', '-erx.ack_type', '-erx.max_mtu',
+                '-erx.if_mtu', '-erx.rwind', '-erx.max_packets',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = {l.split('\t')[0]: l.split('\t')[1:8] for l in stdout.splitlines()}
+        assert lines['7'] == ['1', '0', '', '', '', '', '']
+        assert lines['8'] == ['2', '2', '1,0', '', '', '', '']
+        assert lines['12'] == ['6', '3', '1,1,0', '', '', '', '']
+        assert lines['16'] == ['10', '1', '0', '', '', '', '']
+        assert lines['18'] == ['1', '4', '1,1,0,1', '', '', '', '']
+        assert lines['20'] == ['1', '1', '1', '1444', '', '', '']
+        assert lines['21'] == ['1', '1', '1', '1444', '1500', '', '']
+        assert lines['22'] == ['1', '1', '1', '1444', '1500', '32', '']
+        assert lines['23'] == ['1', '1', '1', '1444', '1500', '32', '4']
+        # Padding and a partial word: only the first word is shown
+        assert lines['24'] == ['1', '0', '', '1444', '', '', '']
+        # Reasons are named in the Info column
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rx_coverage.pcap.gz'),
+                '-Y', 'rx.type == 2 && frame.number <= 16',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('  ')[0] for l in stdout.splitlines()] == [
+            'ACK Ack Requested', 'ACK Duplicate Packet', 'ACK Out Of Sequence',
+            'ACK Exceeds Window', 'ACK No Space', 'ACK Ping',
+            'ACK Ping Response', 'ACK Delay', 'ACK Idle', 'ACK 10']
+
+    def test_rx_other_types(self, cmd_tshark, capture_file, test_env):
+        '''ACKALL, VERSION (request and NAT ping, by CID), ABORT, CHALLENGE
+        and RESPONSE (versions 1 and 2, with ticket).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rx_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 27 && frame.number <= 43',
+                '-Tfields', '-eframe.number', '-erx.abort_code',
+                '-erx.version', '-erx.nonce', '-erx.min_level',
+                '-erx.ticket_len', '-erx.kvno', '-erx.level', '-erx.cid',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert lines['27'][9].startswith('ACKALL  Seq: 0  Call: 1  Source Port: 7001  Destination Port: 7001')
+        assert lines['28'][9].startswith('VERSION request  ')
+        assert lines['29'][9].startswith('VERSION NAT ping  ')
+        assert lines['32'][1] == '176851'
+        assert lines['32'][9].startswith('ABORT  Seq: 1  Call: 3  ')
+        assert lines['34'][2:5] == ['2', '0x01020304', '1']
+        assert lines['35'][2:5] == ['1', '', '']
+        assert lines['36'][2] == '2'
+        assert lines['36'][5:8] == ['0', '1', '2']
+        assert lines['39'][5] == '32'
+        assert lines['40'][2] == '1'
+        assert lines['40'][5] == ''
+        assert lines['42'][9].endswith('Source Port: 50000  Destination Port: 7009  ')
+        assert lines['41'][9].endswith('Source Port: 7021  Destination Port: 7021  ')
+
+    def test_rx_flags(self, cmd_tshark, capture_file, test_env):
+        '''Every flag bit has its own field.'''
+        for name, frame in (('client_init', 1), ('request_ack', 1),
+                            ('last_packet', 1), ('more_packets', 3),
+                            ('free_packet', 3)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('rx_coverage.pcap.gz'),
+                    '-Y', f'rx.flags.{name} == 1',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert str(frame) in stdout.split(), name
