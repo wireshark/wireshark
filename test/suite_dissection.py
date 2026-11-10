@@ -117793,3 +117793,49 @@ class TestDissectPkinit:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkinit.KDCDHKeyInfo_element',
                            '-eframe.number')
         assert out == ['3', '4']
+
+
+class TestDissectPkix1explicit:
+    '''PKIX1 explicit extensions in certificates (IP address and AS
+    identifier blocks, TLS features, policies, alternative names,
+    Diffie-Hellman parameters) and a CSR with an extension request, in
+    Exported PDU frames. Frame 2 is the IP address block with SAFI bytes
+    that reproduces "PKIX1Explicit: Read the SAFI at offset 2".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkix1explicit_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkix1explicit_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 11
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkix1explicit_ipaddrblocks(self, cmd_tshark, capture_file, test_env):
+        '''The SAFI is the third octet of the address family (frame 2).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkix1explicit.addressfamily.safi',
+                           '-eframe.number', '-epkix1explicit.addressfamily.safi',
+                           '-epkix1explicit.addressFamily')
+        assert out == ['2\t1,2\t000101,000202,0001']
+
+    def test_pkix1explicit_extensions(self, cmd_tshark, capture_file, test_env):
+        '''TLS features (frames 5 and 8), AS identifiers (3, 4, 8, 11).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkix1explicit.Features_item',
+                           '-eframe.number', '-epkix1explicit.Features_item')
+        assert out == ['5\t5,17', '8\t5,17']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkix1explicit.asnum',
+                           '-eframe.number')
+        assert out == ['3', '4', '8', '11']
