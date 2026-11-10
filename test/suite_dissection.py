@@ -114885,3 +114885,85 @@ class TestDissectP22:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 18
+
+
+class TestDissectP4rpc:
+    '''P4RPC (Perforce) from the synthetic capture p4rpc_coverage.pcapng.gz.
+    The TCP streams on ports 1666 and 3000 are found by the P4RPC
+    heuristic; frames 29 and 30 are Exported PDUs naming p4rpc and
+    p4rpc.tls. Frame 21 is the reproducer of "P4RPC: Put the time-string
+    and NUL experts at the right offset": its non-numeric time string
+    expert (malformed group) is expected.'''
+
+    def test_p4rpc_frames(self, cmd_tshark, capture_file, test_env):
+        '''14 P4RPC frames, and no malformed packets or error expert infos
+        other than frame 21, in one and two passes. Frames 25-28 are
+        data that the heuristic rejects.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                    '-Y', 'p4rpc', '-Tfields', '-eframe.number', '-ep4rpc.func',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['4', '5', '6', '7', '8', '9', '12', '13', '14', '15',
+                                            '19', '20', '21', '29', '30']
+            assert rows[7][1] == 'first,second'
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                    '-Y', '(_ws.malformed || _ws.expert.severity >= 0x00800000) && frame.number != 21',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_p4rpc_fields(self, cmd_tshark, capture_file, test_env):
+        '''Hidden alias fields, syncTime, the number of messages and the
+        haveRec structures with 32 and 64 bit and unset times.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {5, 6, 7, 13}',
+                '-Tfields', '-eframe.number', '-ep4rpc.num.msgs', '-ep4rpc.handle',
+                '-ep4rpc.confirm', '-ep4rpc.synctime', '-ep4rpc.action',
+                '-ep4rpc.have.file.rev', '-ep4rpc.have.file.datetime',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '5\t1\th1\tyes\t\t\t\t',
+            '6\t1\t\t\t1700000000\t\t\t',
+            '7\t1\t\t\t\tedit\t3,4,5\t1700000000,1700000001,0',
+            '13\t2\th3\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                '-Y', 'p4rpc.synctime > 1699999999',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['6', '29']
+
+    def test_p4rpc_time_strings(self, cmd_tshark, capture_file, test_env):
+        '''Time parameters get an ISO 8601 string in UTC; zero means
+        "not set". The var=val tree is optional.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 6', '-V', '-O', 'p4rpc',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'syncTime = {1700000000} (2023-11-14 22:13:20Z)' in stdout
+        assert 'headModTime = {0} (not set)' in stdout
+        assert 'headTime = {1500000000} (2017-07-14 02:40:00Z)' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'p4rpc.message_params_as_tree:FALSE',
+                '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 6', '-V', '-O', 'p4rpc',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'theirTime = {1700000200} (2023-11-14 22:16:40Z)' in stdout
+
+    def test_p4rpc_timestr_expert_offset(self, cmd_tshark, capture_file, test_env):
+        '''The non-numeric time string expert of the last parameter is
+        placed on the value, with and without the var=val tree: the
+        packet is not an exception (was "[Malformed Packet: P4RPC]"
+        with message_params_as_tree off).'''
+        for opts in ((), ('-o', 'p4rpc.message_params_as_tree:FALSE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('p4rpc_coverage.pcapng.gz'),
+                    '-Y', 'frame.number == 21',
+                    '-Tfields', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.strip() == 'Time string contains non-numeric character'
