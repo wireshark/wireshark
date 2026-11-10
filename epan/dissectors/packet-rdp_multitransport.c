@@ -95,7 +95,8 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 	}
 
 
-	offset += subheader_len - 4;
+	if (subheader_len >= 4)
+		offset += subheader_len - 4;
 
 	switch (action) {
 	case RDPMT_TUNNEL_CREATE_REQ: {
@@ -114,7 +115,7 @@ dissect_rdpmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 
 		proto_tree_add_item(subtree, hf_rdpmt_createreq_cookie, tvb, offset, 16, ENC_NA);
 		tvb_memcpy(tvb, cookie, offset, 16);
-		offset += 4;
+		offset += 16;
 
 		rdp_transport_set_udp_conversation(pinfo, rdpudp_is_reliable_transport(pinfo), reqId, cookie, conv);
 		break;
