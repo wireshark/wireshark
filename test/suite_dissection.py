@@ -139572,3 +139572,56 @@ class TestDissectSmpp:
         rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number == 156', ['frame.number', '_ws.col.protocol', '_ws.col.info'])
         assert rows == ['156\tSMPP\tEnquire_link']
+
+
+class TestDissectSmpte2038:
+    '''SMPTE ST 2038 (ANC data in MPEG-2 TS PES packets) from the synthetic
+    capture smpte_2038_coverage.pcapng.gz. A PMT with the registration
+    descriptor "VANC" selects the dissector for the private-data PES.
+    Frames 2-3 hold ten PES packets with valid ANC records.'''
+
+    CAP = 'smpte_2038_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_st2038_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames, no expert infos at all, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+            assert self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    'st2038', ['frame.number', 'st2038.anc_count'], *passes) == [
+                '2\t1,2,1,1,8,2',
+                '3\t2,0,1,1',
+            ]
+
+    def test_st2038_records(self, cmd_tshark, capture_file, test_env):
+        '''Line numbers, C/Y channel, DID/SDID and DBN of the records, and
+        the trailing stuffing bytes.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st2038', ['frame.number', 'st2038.line_number', 'st2038.c_not_y',
+                           'st291.did', 'st2038.stuffing_bytes'])
+        assert rows[0].split('\t')[1:4] == [
+            '9,10,10,12,12,20,20,20,20,20,20,20,20,21,21',
+            'False,True,False,False,False,False,False,False,False,False,False,False,False,False,True',
+            '0x60,0x41,0x41,0xe0,0xec,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x45,0x44,0x41',
+        ]
+        assert rows[0].split('\t')[4] == 'ffffffffff'
+        assert rows[1].split('\t')[1] == '2047,2047,9,9'
+        assert rows[1].split('\t')[4] == 'ffffffff'
+
+    def test_st2038_time_code(self, cmd_tshark, capture_file, test_env):
+        '''Subdissectors are called for the UDW: ST 12-2 time code and
+        ST 2016-3 AFD.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st12_2', ['st12_2.timecode'])
+        assert rows == ['12:34:56:07', '23:59:59:24,12:34:56:07']
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st2016_3', ['st2016_3.afd.code'])
+        assert rows == ['8']
