@@ -127010,3 +127010,81 @@ class TestDissectRmp:
         out = self.fields(cmd_tshark, capture_file, test_env,
                           'rmp.type == 3 && data', 'frame.number', 'rmp.sessionid', 'data.data')
         assert out == ['12\t0x4242\t' + b'trailing boot done data'.hex()]
+
+
+class TestDissectRmtAlc:
+    '''ALC (with LCT and FEC) over UDP, found by the heuristic dissector
+    through the ATSC3 LLS SLT table, from the synthetic capture
+    rmt_alc_coverage.pcapng.gz. Interface 0 is Ethernet, interface 1 is
+    ATSC ALP (which selects the ATSC3 mode of ALC). The SLT is a zlib
+    compressed XML table, so the tests need zlib.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rmt_alc_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def need_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '--version'), encoding='utf-8', env=test_env)
+        if 'zlib' not in out.lower():
+            pytest.skip('tshark was built without zlib')
+
+    def test_alc_frames(self, cmd_tshark, capture_file, test_env):
+        '''Which frames are ALC, in ATSC3 mode, with the expected payload
+        decoding; no malformed packets or error expert infos in one and
+        two passes.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('alc', 'frame.number') == \
+                [str(n) for n in [2, 3, 4, 5, 6, 7] + list(range(10, 21))]
+            assert fr('alc.atsc3 == 1', 'frame.number') == [str(n) for n in range(10, 21)]
+            assert fr('alc.version != 1', 'frame.number') == ['7']
+            assert fr('!alc && udp', 'frame.number') == ['1', '8', '9']
+            assert fr('alc.object_start_offset', 'alc.object_start_offset') == \
+                ['0', '0', '0', '0', '1316', '0', '5', '9']
+            assert fr('alc && xml', 'frame.number') == ['2', '10', '12']
+            assert fr('alc && mp4', 'frame.number') == ['11']
+            assert fr('alc.payload.uncompressed', 'frame.number') == ['12']
+            assert fr('rmt-lct.spi == 1', 'frame.number') == ['10', '11', '12', '13', '14', '15', '19', '20']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_alc_is_sp_without_tree(self, cmd_tshark, capture_file, test_env):
+        '''Frame 10 is an ATSC3 source packet. The Info column must be the
+        same when no protocol tree is built ("RMT-LCT: Set is_sp also
+        when no tree is built"): source packets have a start offset and no
+        FEC header. Decode As is needed here because the SLT table the
+        heuristic uses is only filled when a tree is built.'''
+        self.need_zlib(cmd_tshark, test_env)
+        cap = capture_file('rmt_alc_coverage.pcapng.gz')
+        # no -Y and no -V: the summary is made without a protocol tree
+        summary = subprocess.check_output((cmd_tshark, '-d', 'udp.port==4001,alc', '-r', cap),
+                                          encoding='utf-8', env=test_env, timeout=120).splitlines()
+        assert '(Source)' in summary[9] and 'SBN' not in summary[9]
+        assert 'ALC' in summary[9]
+
+    def test_alc_channel_info(self, cmd_tshark, capture_file, test_env):
+        '''ATSC3 packets show the service and channel from the SLT.'''
+        self.need_zlib(cmd_tshark, test_env)
+        info = self.fields(cmd_tshark, capture_file, test_env, 'alc.atsc3 == 1', '_ws.col.info')
+        assert 'ServiceID: 1001 Channel: 5.1' in info[0]
+        assert info[2].endswith('ServiceID: 1002')
+        assert 'ServiceID: 1003 Channel: 7.2' in info[5]
+
+    def test_alc_prefs(self, cmd_tshark, capture_file, test_env):
+        '''Preferences: without the codepoint as FEC id there is no FEC
+        header; the ATSC3 mode can be disabled.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for opt, flt, expect in (
+                ('alc.lct.codepoint_as_fec_id:FALSE', 'rmt-fec', []),
+                ('alc.lct.atsc3.mode:disabled', 'alc.atsc3 == 1', [])):
+            out = subprocess.check_output((cmd_tshark, '-o', opt,
+                    '-r', capture_file('rmt_alc_coverage.pcapng.gz'), '-Y', flt,
+                    '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env, timeout=120)
+            assert out.split() == expect
