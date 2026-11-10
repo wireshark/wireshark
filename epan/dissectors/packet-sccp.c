@@ -882,7 +882,7 @@ sccp_reassembly_get_id(packet_info *pinfo, uint32_t offset, uint32_t key, bool m
 
 static tvbuff_t *
 sccp_reassemble_fragments(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                          uint16_t length_offset, uint32_t source_local_ref, bool more_frags,
+                          unsigned length_offset, uint32_t source_local_ref, bool more_frags,
                           uint8_t pointer_length)
 {
   bool      save_fragmented;
@@ -1155,7 +1155,7 @@ looks_like_valid_sccp(uint32_t frame_num _U_, tvbuff_t *tvb, uint8_t my_mtp3_sta
     }
 
     /* Check that the variable pointers are within bounds */
-    if (called_ptr > len || calling_ptr > len || data_ptr > len)
+    if (called_ptr >= len || calling_ptr >= len || data_ptr >= len)
       RETURN_FALSE;
 
     /* Check that the lengths of the variable parameters are within bounds */
@@ -1347,7 +1347,7 @@ looks_like_valid_sccp(uint32_t frame_num _U_, tvbuff_t *tvb, uint8_t my_mtp3_sta
 
     data_ptr = tvb_get_uint8(tvb, offset) + offset;
     /* Verify the data pointer is within bounds */
-    if (data_ptr > len)
+    if (data_ptr >= len)
       RETURN_FALSE;
     offset += POINTER_LENGTH;
 
@@ -2785,7 +2785,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
   if (parameter_type == PARAMETER_DATA && remaining_length > 255 && parameter_length == 255) {
     expert_add_info_format(pinfo, pi, &ei_sccp_externally_reassembled, "Possibly externally reassembled (remaining length %u > %u), check SCCP preferences", remaining_length, parameter_length);
     if (dt1_ignore_length) {
-      parameter_length = remaining_length;
+      parameter_length = (uint16_t)MIN(remaining_length, 0xFFFF);
     }
   } else if (!sccp_show_length) {
     /* The user doesn't want to see it... */
@@ -2873,11 +2873,11 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 static int
 dissect_xudt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                     proto_tree *tree, unsigned offset, sccp_decode_context_t *sccp_info,
-                    uint16_t *optional_pointer_p, uint16_t *orig_opt_ptr_p,
+                    unsigned *optional_pointer_p, unsigned *orig_opt_ptr_p,
                     uint8_t pointer_length)
 {
-  uint16_t  variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
-  uint16_t  optional_pointer  = 0, orig_opt_ptr = 0, optional_pointer1 = 0;
+  unsigned  variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
+  unsigned  optional_pointer  = 0, orig_opt_ptr = 0, optional_pointer1 = 0;
   uint8_t   optional_param_type = 0;
   tvbuff_t *new_tvb = NULL;
   uint32_t  source_local_ref = 0;
@@ -2986,8 +2986,8 @@ static int
 dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
                      proto_tree *tree)
 {
-  uint16_t  variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
-  uint16_t  optional_pointer  = 0, orig_opt_ptr = 0;
+  unsigned  variable_pointer1 = 0, variable_pointer2 = 0, variable_pointer3 = 0;
+  unsigned  optional_pointer  = 0, orig_opt_ptr = 0;
   int   offset = 0;
   tvbuff_t *new_tvb = NULL;
   uint32_t  source_local_ref = 0;
