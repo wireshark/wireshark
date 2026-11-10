@@ -222,6 +222,8 @@ riemann_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset)
 
     size = riemann_get_uint64(tvb, offset, &len);
     offset += len;
+    if (size > (uint64_t)tvb_reported_length_remaining(tvb, offset))
+        return wmem_strdup(scope, "");
     return (char*)tvb_get_string_enc(scope, tvb, offset, (int)size, ENC_ASCII);
 }
 
@@ -254,15 +256,23 @@ riemann_dissect_sint64(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset,
 }
 
 static unsigned
-riemann_dissect_string(proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
+riemann_dissect_string(packet_info *pinfo, proto_tree *riemann_tree, tvbuff_t *tvb, unsigned offset, int hf_index)
 {
     uint64_t size;
     unsigned   len = 0, orig_offset = offset;
+    int        remaining;
 
     size = riemann_get_uint64(tvb, offset, &len);
     offset += len;
+    remaining = tvb_reported_length_remaining(tvb, offset);
+    if (remaining < 0 || size > (uint64_t)remaining) {
+        /* String longer than the data: report it and consume the rest */
+        proto_tree_add_expert_format_remaining(riemann_tree, pinfo, &ei_error_insufficient_data,
+                                               tvb, offset, "String size %" PRIu64 " exceeds remaining data", size);
+        return tvb_reported_length(tvb) - orig_offset;
+    }
     proto_tree_add_item(riemann_tree, hf_index, tvb, offset, (int)size, ENC_ASCII);
-    offset += (int)size;
+    offset += (unsigned)size;
 
     return offset - orig_offset;
 }
@@ -293,11 +303,11 @@ riemann_dissect_attribute(packet_info *pinfo, proto_tree *riemann_tree,
         switch (fn) {
         case RIEMANN_FN_ATTRIBUTE_KEY:
             VERIFY_WIRE_FORMAT("Attribute.key", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(attribute_tree, tvb, offset, hf_riemann_attribute_key);
+            len = riemann_dissect_string(pinfo, attribute_tree, tvb, offset, hf_riemann_attribute_key);
             break;
         case RIEMANN_FN_ATTRIBUTE_VALUE:
             VERIFY_WIRE_FORMAT("Attribute.value", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(attribute_tree, tvb, offset, hf_riemann_attribute_value);
+            len = riemann_dissect_string(pinfo, attribute_tree, tvb, offset, hf_riemann_attribute_value);
             break;
         default:
             len = 0;
@@ -337,7 +347,7 @@ riemann_dissect_query(packet_info *pinfo, proto_tree *riemann_tree,
         case RIEMANN_FN_QUERY_STRING:
             VERIFY_WIRE_FORMAT("Query.string", RIEMANN_WIRE_BYTES);
             col_append_str(pinfo->cinfo, COL_INFO, riemann_get_string(pinfo->pool, tvb, offset));
-            len = riemann_dissect_string(query_tree, tvb, offset, hf_riemann_query_string);
+            len = riemann_dissect_string(pinfo, query_tree, tvb, offset, hf_riemann_query_string);
             break;
         default:
             len = 0;
@@ -382,27 +392,27 @@ riemann_dissect_event(packet_info *pinfo, proto_tree *riemann_tree,
             break;
         case RIEMANN_FN_EVENT_STATE:
             VERIFY_WIRE_FORMAT("Event.state", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_state);
+            len = riemann_dissect_string(pinfo, event_tree, tvb, offset, hf_riemann_event_state);
             break;
         case RIEMANN_FN_EVENT_SERVICE:
             VERIFY_WIRE_FORMAT("Event.service", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
-            len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_service);
+            len = riemann_dissect_string(pinfo, event_tree, tvb, offset, hf_riemann_event_service);
             need_comma = true;
             break;
         case RIEMANN_FN_EVENT_HOST:
             VERIFY_WIRE_FORMAT("Event.host", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
-            len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_host);
+            len = riemann_dissect_string(pinfo, event_tree, tvb, offset, hf_riemann_event_host);
             need_comma = true;
             break;
         case RIEMANN_FN_EVENT_DESCRIPTION:
             VERIFY_WIRE_FORMAT("Event.description", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_description);
+            len = riemann_dissect_string(pinfo, event_tree, tvb, offset, hf_riemann_event_description);
             break;
         case RIEMANN_FN_EVENT_TAGS:
             VERIFY_WIRE_FORMAT("Event.tags", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(event_tree, tvb, offset, hf_riemann_event_tag);
+            len = riemann_dissect_string(pinfo, event_tree, tvb, offset, hf_riemann_event_tag);
             break;
         case RIEMANN_FN_EVENT_TTL:
             VERIFY_WIRE_FORMAT("Event.ttl", RIEMANN_WIRE_FLOAT);
@@ -476,22 +486,22 @@ riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
         case RIEMANN_FN_STATE_SERVICE:
             VERIFY_WIRE_FORMAT("State.service", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
-            len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_service);
+            len = riemann_dissect_string(pinfo, state_tree, tvb, offset, hf_riemann_state_service);
             need_comma = true;
             break;
         case RIEMANN_FN_STATE_HOST:
             VERIFY_WIRE_FORMAT("State.host", RIEMANN_WIRE_BYTES);
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", comma, riemann_get_string(pinfo->pool, tvb, offset));
-            len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_host);
+            len = riemann_dissect_string(pinfo, state_tree, tvb, offset, hf_riemann_state_host);
             need_comma = true;
             break;
         case RIEMANN_FN_STATE_DESCRIPTION:
             VERIFY_WIRE_FORMAT("State.description", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_description);
+            len = riemann_dissect_string(pinfo, state_tree, tvb, offset, hf_riemann_state_description);
             break;
         case RIEMANN_FN_STATE_TAGS:
             VERIFY_WIRE_FORMAT("State.tags", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_tag);
+            len = riemann_dissect_string(pinfo, state_tree, tvb, offset, hf_riemann_state_tag);
             break;
         case RIEMANN_FN_STATE_TTL:
             VERIFY_WIRE_FORMAT("State.ttl", RIEMANN_WIRE_FLOAT);
@@ -500,7 +510,7 @@ riemann_dissect_state(packet_info *pinfo, proto_tree *riemann_tree,
             break;
         case RIEMANN_FN_STATE_STATE:
             VERIFY_WIRE_FORMAT("State.state", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(state_tree, tvb, offset, hf_riemann_state_state);
+            len = riemann_dissect_string(pinfo, state_tree, tvb, offset, hf_riemann_state_state);
             break;
         case RIEMANN_FN_STATE_ONCE:
             VERIFY_WIRE_FORMAT("State.once", RIEMANN_WIRE_INTEGER);
@@ -545,7 +555,7 @@ riemann_dissect_msg(packet_info *pinfo, proto_item *pi, proto_tree *riemann_tree
             break;
         case RIEMANN_FN_MSG_ERROR:
             VERIFY_WIRE_FORMAT("Msg.error", RIEMANN_WIRE_BYTES);
-            len = riemann_dissect_string(riemann_tree, tvb, offset, hf_riemann_msg_error);
+            len = riemann_dissect_string(pinfo, riemann_tree, tvb, offset, hf_riemann_msg_error);
             break;
         case RIEMANN_FN_MSG_QUERY:
             VERIFY_WIRE_FORMAT("Msg.query", RIEMANN_WIRE_BYTES);
