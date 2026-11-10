@@ -134,6 +134,9 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 	int offset = 0;
 	payload_type_type payload_type = PPCAP_UNKNOWN;
 
+	/* Do not carry the SSN over from another packet */
+	ssn = INVALID_SSN;
+
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "PPCAP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -298,8 +301,10 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 		else
 		{
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_source_ip_address2, tvb, offset, msg_len, ENC_NA);
-			set_address_tvb(&pinfo->net_src, AT_IPv6, 6, tvb, offset);
-			copy_address_shallow(&pinfo->src, &pinfo->net_src);
+			if (msg_len >= 16) {
+				set_address_tvb(&pinfo->net_src, AT_IPv6, 16, tvb, offset);
+				copy_address_shallow(&pinfo->src, &pinfo->net_src);
+			}
 		}
 	}
 
@@ -307,8 +312,12 @@ dissect_ppcap_source_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppc
 
 	{
 		proto_tree_add_item(ppcap_tree1, hf_ppcap_source_nodeid, tvb, offset, msg_len, ENC_ASCII);
-		set_address_tvb(&pinfo->net_src, AT_STRINGZ, msg_len, tvb, offset);
-		copy_address_shallow(&pinfo->src, &pinfo->net_src);
+		if (msg_len) {
+			/* AT_STRINGZ needs a NUL terminated copy, not packet bytes */
+			char *nodeid = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, msg_len, ENC_UTF_8);
+			set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(nodeid) + 1, nodeid);
+			copy_address_shallow(&pinfo->src, &pinfo->net_src);
+		}
 	}
 	if (msg_len%4)
 		msg_len = msg_len + (4 - (msg_len%4));
@@ -388,8 +397,10 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		else
 		{
 			proto_tree_add_item(ppcap_tree1, hf_ppcap_destination_ip_address2, tvb, offset, msg_len, ENC_NA);
-			set_address_tvb(&pinfo->net_dst, AT_IPv6, 6, tvb, offset);
-			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+			if (msg_len >= 16) {
+				set_address_tvb(&pinfo->net_dst, AT_IPv6, 16, tvb, offset);
+				copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+			}
 		}
 	}
 
@@ -397,8 +408,10 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	{
 		const uint8_t *string;
 		proto_tree_add_item_ret_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, ENC_UTF_8|ENC_NA, pinfo->pool, &string);
-		set_address_tvb(&pinfo->net_dst, AT_STRINGZ, msg_len, tvb, offset);
-		copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+		if (msg_len && string) {
+			set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen((const char *)string) + 1, string);
+			copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+		}
 	}
 
 	if (msg_len%4)
