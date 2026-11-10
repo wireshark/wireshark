@@ -118627,3 +118627,68 @@ class TestDissectPMul:
             '45\tBad checksum',
             '46\tBad checksum,Address PDU missing',
         ]
+
+
+class TestDissectPnrp:
+    '''PNRP (Peer Name Resolution Protocol) over UDP port 3540 from the
+    synthetic capture pnrp_coverage.pcap.gz.'''
+
+    def test_pnrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 23 frames are PNRP, with no malformed frame and no error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pnrp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 23
+        assert protocols.count('PNRP') == 23
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pnrp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pnrp_two_messages(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the reproducer of "PNRP: Fix the loop guard that
+        broke multi-message packets": a NONCE followed by a HASHED_NONCE.
+        The second message used to be reported as malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pnrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-epnrp.segment.nonce', '-epnrp.segment.hashednonce',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n') == '11' * 16 + '\t' + '22' * 16 + '\t'
+
+    def test_pnrp_split_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The AUTHORITY message split over frames 21 and 22 is
+        reassembled in frame 22 (317 octets, two fragments) and its cert
+        chain and CPA are decoded from the reassembled data.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('pnrp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {21, 22}',
+                '-Tfields', '-eframe.number',
+                '-epnrp.segment.splitControls.reassembled_length',
+                '-epnrp.segment.splitControls.fragment_count',
+                '-epnrp.segment.splitControls.reassembled_in',
+                '-epnrp.encodedCPA.friendlyName', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '21\t\t\t22\t\tPNRP AUTHORITY Message  [Fragmented message]'
+        assert lines[1] == '22\t317\t2\t\tpeer.example\tPNRP AUTHORITY Message '
+
+    def test_pnrp_cpa(self, cmd_tshark, capture_file, test_env):
+        '''The CPA of frame 18 has the A, C, F and R flags: binary
+        authority, classifier hash and friendly name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pnrp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 18',
+                '-Tfields', '-epnrp.encodedCPA.flags', '-epnrp.encodedCPA.binaryAuthority',
+                '-epnrp.encodedCPA.classifierHash', '-epnrp.encodedCPA.friendlyName',
+                '-epnrp.payload.port', '-epnrp.signature.hash_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n') == '\t'.join((
+            '0x1d', '44' * 20, '55' * 20, 'peer.example', '5000,5001', '0x0000800c'))
