@@ -130380,3 +130380,111 @@ class TestDissectHttp3Decrypt:
                 subprocess.check_output((cmd_tshark, *passes, '-r',
                                          capture_file('http3_repro_decoder_break.pcapng.gz')),
                                         env=test_env, timeout=120)
+
+
+class TestDissectRtnet:
+    '''RTnet (RTmac with TDMA and TDMA-V1, and RTcfg) from the synthetic
+    capture rtnet_coverage.pcapng.gz: ethertypes 0x9021 and 0x9022,
+    registered by default.'''
+
+    def test_rtnet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 54 frames decode (RTmac, TDMA, TDMA-V1, RTcfg and the
+        tunnelled IPv4/ARP), none is malformed or has an expert info, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [l.strip() for l in stdout.splitlines()]
+        assert len(protocols) == 54
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'TDMA': 10, 'TDMA-V1': 11, 'RTmac': 5, 'RTcfg': 22,
+                          'UDP': 4, 'ARP': 2}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rtnet_rtmac_recursion(self, cmd_tshark, capture_file, test_env):
+        '''A tunnelled RTmac header whose type is RTmac itself is followed
+        for a few levels and then handed to the data dissector (the
+        reproducer of "RTnet: Bound nesting of tunneled RTmac headers"; frame 30 has
+        600 nested headers and was a "Dissector bug" before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {30, 31}',
+                '-Tfields', '-eframe.number', '-ertmac.header.ver',
+                '-ertmac.header.type', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '30\t2,2,2,2,2\tRTmac,RTmac,RTmac,RTmac,Unknown\t2401',
+            '31\t1,1,1,1,1\tRTmac,RTmac,RTmac,RTmac,Unknown\t32',
+        ]
+
+    def test_rtnet_tdma(self, cmd_tshark, capture_file, test_env):
+        '''TDMA synchronisation and calibration messages with the time
+        stamp differences shown in the stamps.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 5, 6}',
+                '-Tfields', '-eframe.number', '-etdma.id',
+                '-etdma.sync.cycle', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0000\t7\tSynchronisation',
+            '2\t0x0000\t8\tSynchronisation',
+            '4\t0x0011\t\tReply Calibration',
+            '5\t0x0011\t\tReply Calibration',
+            '6\t0x7777\t\tUnknown (0x7777)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 5}',
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('Transmission Time Stamp: 1000 (-500)',
+                     'Transmission Time Stamp: 5000 (+1000)',
+                     'Transmission Time Stamp: 150 (-50)',
+                     'Transmission Time Stamp: 300 (+100)'):
+            assert text in stdout
+
+    def test_rtnet_tdma_v1(self, cmd_tshark, capture_file, test_env):
+        '''All nine TDMA-V1 messages are named; the station list holds
+        a station per entry.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Y', 'tdma-v1.msg',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-etdma-v1.msg.station_list.nr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\tNotify Master\t', '16\tRequest Test\t',
+            '17\tAcknowledge Test\t', '18\tRequest Config\t',
+            '19\tAcknowledge Config\t', '20\tAck Ack Config\t',
+            '21\tStation List\t', '22\tStation List\t1,2,3',
+            '23\tRequest Change Offset\t', '24\tStart of Frame\t',
+            '25\tUnknown (0x0099)\t',
+        ]
+
+    def test_rtnet_rtcfg(self, cmd_tshark, capture_file, test_env):
+        '''RTcfg messages with MAC and IP addressing, flags and
+        configuration data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtnet_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {34, 36, 40, 44, 45, 49}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ertcfg.client_ip_address', '-ertcfg.server_ip_address',
+                '-ertcfg.client_flags', '-ertcfg.active_stations',
+                '-ertcfg.config_offset', '-ertcfg.ack_length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '34\tStage 1 Config\t10.1.0.5\t10.1.0.1\t\t\t\t',
+            '36\tNew Announce\t10.1.0.5\t\t0x01\t\t\t',
+            '40\tStage 2 Config\t\t\t\t3\t\t',
+            '44\tStage 2 Fragment\t\t\t\t\t1000\t',
+            '45\tAcknowledge\t\t\t\t\t\t2048',
+            '49\tDead Station\t10.1.0.5\t\t\t\t\t',
+        ]
