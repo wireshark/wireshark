@@ -369,7 +369,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset += 2;
             }
             if(op_type == 2) { // write only
-                nvalues = (tvb_reported_length(tvb)-3-offset) / op_size;
+                nvalues = (tvb_reported_length(tvb) > offset + 3) ? (tvb_reported_length(tvb)-3-offset) / op_size : 0;
                 for (unsigned i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
                              tvb, offset, op_size , ENC_ASCII);
@@ -378,7 +378,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
         } else { // reply
              if(op_type == 1) { // read only
-                nvalues = (tvb_reported_length(tvb)-offset-3) / op_size;
+                nvalues = (tvb_reported_length(tvb) > offset + 3) ? (tvb_reported_length(tvb)-offset-3) / op_size : 0;
                 for (unsigned i = 0; i < nvalues; i++) {
                     proto_tree_add_item(pcomascii_tree, hf_pcomascii_address_value,
                              tvb, offset, op_size , ENC_ASCII);
@@ -389,7 +389,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     }
 
-    if (tvb_reported_length(tvb)-offset-3 > 0){ // remaining (variable) bytes between CC and checksum
+    if (tvb_reported_length(tvb) > offset + 3){ // remaining (variable) bytes between CC and checksum
         hf_pcomascii_command_item = proto_tree_add_item(pcomascii_tree, hf_pcomascii_command, tvb,
                 offset, tvb_reported_length(tvb)-offset-3, ENC_ASCII);
         offset += (tvb_reported_length(tvb)-offset-3); //-3 from checksum and etx
@@ -492,10 +492,11 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_header_checksum, tvb,
             offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    if ((tvb_reported_length(tvb) - 27) > 0) // ( -3 footer - 24 header)
+    if (tvb_reported_length(tvb) > 27) { // ( -3 footer - 24 header)
         proto_tree_add_item(pcombinary_tree, hf_pcombinary_data, tvb,
                 offset, tvb_reported_length(tvb)-27, ENC_NA);
-    offset += (tvb_reported_length(tvb)-27);
+        offset += (tvb_reported_length(tvb)-27);
+    }
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_footer_checksum, tvb,
             offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
