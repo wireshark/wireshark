@@ -95,6 +95,7 @@ static int ett_scylla_read_data;
 static bool scylla_desegment = true;
 
 static expert_field ei_scylla_response_missing;
+static expert_field ei_scylla_bad_feature_len;
 
 enum scylla_packets {
     CLIENT_ID = 0,
@@ -337,12 +338,16 @@ dissect_scylla_negotiation_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sc
     proto_tree_add_item(scylla_negotiation_tree, hf_scylla_negotiation_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     scylla_features_tree = proto_tree_add_subtree(scylla_negotiation_tree, tvb, offset, len, ett_scylla_negotiation_features, NULL, "Negotiation features");
-    while (len > 0) {
+    while (len >= 8) {
         proto_tree_add_item_ret_uint(scylla_features_tree, hf_scylla_feature_number, tvb, offset, 4, ENC_LITTLE_ENDIAN, &feature_number);
         offset += 4;
         proto_tree_add_item_ret_uint(scylla_features_tree, hf_scylla_feature_len, tvb, offset, 4, ENC_LITTLE_ENDIAN, &feature_len);
         offset += 4;
         len -= 8;
+        if (feature_len > len) {
+            proto_tree_add_expert_remaining(scylla_features_tree, pinfo, &ei_scylla_bad_feature_len, tvb, offset);
+            break;
+        }
         if (feature_len > 0) {
             switch (feature_number)
             {
@@ -570,7 +575,7 @@ dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     if (response_expected(verb_type)) {
         if (!PINFO_FD_VISITED(pinfo)) {
             uint64_t *key = wmem_new(wmem_file_scope(), uint64_t);
-            request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
+            request_response_t *val = wmem_new0(wmem_file_scope(), request_response_t);
             *key = msg_id;
             val->verb_type = verb_type;
             val->request_frame_num = pinfo->num;
@@ -634,6 +639,9 @@ proto_register_scylla(void)
         { &ei_scylla_response_missing,
           { "scylla.ei_scylla_response_missing",
                   PI_COMMENTS_GROUP, PI_NOTE, "Response has not arrived yet", EXPFILL }},
+        { &ei_scylla_bad_feature_len,
+          { "scylla.bad_feature_len",
+                  PI_MALFORMED, PI_ERROR, "Feature length exceeds the negotiation data", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
