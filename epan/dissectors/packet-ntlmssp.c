@@ -2349,7 +2349,9 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
         if (conv_ntlmssp_info->rc4_state_initialized) {
           /* XXX - Do we really need to reinitialize the cipher contexts? */
           gcry_cipher_close(conv_ntlmssp_info->rc4_handle_server);
+          conv_ntlmssp_info->rc4_handle_server = NULL;
           gcry_cipher_close(conv_ntlmssp_info->rc4_handle_client);
+          conv_ntlmssp_info->rc4_handle_client = NULL;
         }
         conv_ntlmssp_info->rc4_state_initialized = false;
         ntlmssp_create_session_key(pinfo,
