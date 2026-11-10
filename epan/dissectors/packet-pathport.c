@@ -590,7 +590,7 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     pathport_tree = proto_item_add_subtree(ti, ett_pathport);
     offset = dissect_header(tvb, pathport_tree, PATHPORT_HEADER_OFFSET);
     remaining_len = tvb_reported_length_remaining(tvb, offset);
-    offset = dissect_multiple_pdus(tvb, pinfo, tree, offset, remaining_len);
+    offset = dissect_multiple_pdus(tvb, pinfo, pathport_tree, offset, remaining_len);
 
     return offset;
 }
