@@ -115674,3 +115674,63 @@ class TestDissectPathport:
         assert lines[start + 1] == '    Header'
         assert lines[start + 8] == '    PDU : ARP Reply'
         assert lines[start + 9] == '        PDU: ARP Reply (0x0302)'
+
+
+class TestDissectUmtsPcap:
+    '''UMTS PCAP (Iupc positioning calculation application part) from the
+    synthetic capture umts_pcap_coverage.pcap.gz: PDUs of every elementary
+    procedure, carried in Exported PDU frames that name "pcap" (there is
+    no default SCCP subsystem number for PCAP).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('umts_pcap_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=240)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_umts_pcap_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 358 frames are PCAP: 238 initiating messages, 60 successful
+        and 60 unsuccessful outcomes; no malformed packets or error expert
+        infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'pcap', '_ws.col.protocol',
+                           'pcap.PCAP_PDU')
+        assert len(rows) == 358
+        assert {r[2] for r in rows} == {'0', '1', '2'}
+        pdus = [r[2] for r in rows]
+        assert (pdus.count('0'), pdus.count('1'), pdus.count('2')) == (238, 60, 60)
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert rows == []
+
+    def test_umts_pcap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''The 14 procedure codes of the Iupc interface all turn up, with
+        PDUs of the three outcome kinds.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'pcap', 'pcap.procedureCode')
+        counts = {}
+        for r in rows:
+            code = r[1].split(',')[0]
+            counts[code] = counts.get(code, 0) + 1
+        assert sorted(counts, key=int) == [str(i) for i in range(1, 15)]
+        assert counts['1'] == 45 and counts['2'] == 73 and counts['9'] == 45 and counts['10'] == 45
+        assert counts['3'] == 15 and counts['14'] == 15
+
+    def test_umts_pcap_imsi_and_extensions(self, cmd_tshark, capture_file, test_env):
+        '''The IMSI is decoded as a TBCD string (15 digits and 5 digits)
+        and the extension containers dissect their IEs (GANSS reference
+        time result 114 and UC-ID 44 in extension single containers).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'e212.imsi', 'e212.imsi')
+        assert {i for r in rows for i in r[1].split(',')} == {'001010123456789', '00101'}
+        for flt in ('pcap.id == 114', 'pcap.id == 44', 'pcap.ext_id == 87', 'pcap.id == 18'):
+            assert self.fields(cmd_tshark, capture_file, test_env, flt), flt
+
+    def test_umts_pcap_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The tree is the same in one and two passes.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('umts_pcap_coverage.pcap.gz'), '-V', '-Opcap',
+                    '-Y', 'pcap'), encoding='utf-8', env=test_env, timeout=240))
+        assert outs[0] == outs[1]
