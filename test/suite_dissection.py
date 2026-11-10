@@ -134058,3 +134058,68 @@ class TestDissectSaprouter:
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\tRoute password found', '12\tRoute password found',
                 '16\tInfo password found']
+
+
+class TestDissectSapsnc:
+    def test_sapsnc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SNC frames in SAP Router control and routed messages and in
+        Exported PDUs; none is malformed or has an expert info, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapsnc_coverage.pcapng.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 22
+            assert protocols.count('SAPROUTER') == 17
+            assert protocols.count('SAPIGS') == 2
+            assert protocols.count('SAPSNC') == 3
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapsnc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sapsnc_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frame type, header length, token and data length, mechanism
+        and extension field length of the SNC frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapsnc_coverage.pcapng.gz'),
+                '-Y', 'sapsnc.frame',
+                '-Tfields', '-eframe.number', '-esapsnc.frame.type',
+                '-esapsnc.frame.header_length', '-esapsnc.frame.tokenlength',
+                '-esapsnc.frame.datalength', '-esapsnc.frame.mech_id',
+                '-esapsnc.frame.ext_field_length',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 20
+        assert lines[0] == ['3', '0x01', '24', '20', '0', '0x0002', '']
+        assert lines[1] == ['4', '0x04', '40', '12', '0', '0x0002', '10']
+        assert lines[5] == ['8', '0x07', '24', '0', '192', '0x0002', '']
+        assert lines[15] == ['18', '0x01', '70', '8', '0', '0x000a', '40']
+        assert [l[1] for l in lines[8:15]] == ['0x00', '0x06', '0x0a', '0x0b', '0x0c', '0x0d', '0x0e']
+
+    def test_sapsnc_unwrapped_data(self, cmd_tshark, capture_file, test_env):
+        '''The data of DATA_OPEN and DATA_MIC frames of an SNC protected
+        route is dissected by the destination service (SAP IGS).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapsnc_coverage.pcapng.gz'),
+                '-Y', 'sapigs.function',
+                '-Tfields', '-eframe.number', '-esapigs.function',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[0] for l in stdout.splitlines()] == ['8', '9']
+        assert all(l.split('\t')[1].strip() == 'ADM:PONG' for l in stdout.splitlines())
+
+    def test_sapsnc_router_state(self, cmd_tshark, capture_file, test_env):
+        '''The SNC request marks the conversation as SNC protected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapsnc_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {3, 4, 5, 8}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == 'Control message, opcode=SNC request'
+        assert lines[1] == 'Control message, opcode=SNC handshake complete'
+        assert lines[2].startswith('Routed message, SNC protected, from client.example:3299 to igs.example:40000')
