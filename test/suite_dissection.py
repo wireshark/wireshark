@@ -113018,3 +113018,49 @@ class TestDissectOpenflowV6:
         assert by_frame[57][0] == '10.0.0.0,10.0.0.2,10.1.1.1,10.1.1.0,10.1.1.2'
         assert by_frame[57][1] == '255.255.255.0,255.255.255.0'
         assert by_frame[58][4] == '2001:db8::1,2001:db8::1,2001:db8::1'
+
+
+class TestDissectOpenthread:
+    '''OpenThread (channel octet, IEEE 802.15.4 frame without FCS, two
+    phoney CRC octets) from the synthetic capture
+    openthread_coverage.pcapng.gz. It carries the PDUs as Exported PDU,
+    since OpenThread is registered only for Decode As.'''
+
+    def test_openthread_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 8 frames are OpenThread, with the channel and the
+        802.15.4 payload, and decode without malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openthread_coverage.pcapng.gz'),
+                    '-Y', 'openthread',
+                    '-Tfields', '-eframe.number', '-eopenthread.channel',
+                    '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '1\t11\tICMPv6', '2\t15\tICMPv6', '3\t20\tThread',
+                '4\t26\tIEEE 802.15.4', '5\t12\tIEEE 802.15.4',
+                '6\t13\tICMPv6', '7\t14\tIEEE 802.15.4', '8\t25\tIEEE 802.15.4',
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openthread_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_openthread_wpan_types(self, cmd_tshark, capture_file, test_env):
+        '''The 802.15.4 frame types and the trailing CRC trimming: the
+        Thread beacon, the acknowledgement, the data request and the
+        6LoWPAN-carried ICMPv6 echo.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openthread_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-ewpan.frame_type',
+                '-ewpan.cmd', '-eicmpv6.type', '-ewpan.fcs',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][3] == '128' and rows[1][3] == '129'
+        assert rows[2][1] == '0x0000'     # beacon
+        assert rows[3][1] == '0x0002'     # ack
+        assert rows[4][1:3] == ['0x0003', '0x04']   # data request
+        assert all(r[4] == '' for r in rows)    # CRC octets were trimmed
