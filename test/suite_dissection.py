@@ -118840,3 +118840,91 @@ class TestDissectPortmap:
             '22\t111,2049,5000\t\t',
             '48\t\ttcp,udp6\tsuperuser,superuser',
         ]
+
+
+class TestDissectPpcap:
+    '''PPCAP (Proprietary PCAP) from the synthetic Exported PDU capture
+    ppcap_coverage.pcap.gz (every frame names the "ppcap" dissector, the
+    only way to reach it).'''
+
+    def test_ppcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''17 frames: the PPCAP payload dissectors (SIP, H.248, GTPv2,
+        SGSAP, BSSAP, TCAP) are called, one frame is PPCAP only. No
+        malformed frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppcap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('SIP') == 7
+        assert protocols.count('TCAP') == 5
+        for proto in ('H.248', 'GTPv2', 'SGSAP', 'BSSAP', 'PPCAP'):
+            assert protocols.count(proto) == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ppcap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ppcap_node_id_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1 and 2 are the reproducers of "PPCAP: Use NUL
+        terminated copies for string addresses": a Node Id source
+        address of length 0 (g_strlcpy(NULL) before the fix, so GLib
+        criticals are made fatal here) and a destination Node Id that
+        had no NUL after it ("abc" followed by garbage).'''
+        env = dict(test_env, G_DEBUG='fatal-criticals')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppcap_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 2 || frame.number == 15',
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src',
+                '-e_ws.col.def_dst', '-eppcap.source_nodeid',
+                '-eppcap.destination_address',
+            ), encoding='utf-8', env=env)
+        assert stdout.splitlines() == [
+            '1\t\tabc\t\tabc',
+            '2\tnodeA\tabc\tnodeA\tabc',
+            '15\tabcdefgh\t192.0.2.9\tabcdefgh\t',
+        ]
+
+    def test_ppcap_addresses(self, cmd_tshark, capture_file, test_env):
+        '''IPv4, IPv6 and SS7 point code addresses become the packet's
+        source and destination.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppcap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 5, 7, 9, 14, 16}',
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src',
+                '-e_ws.col.def_dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t192.0.2.1\t192.0.2.2',
+            '5\t2001:db8::1\t2001:db8::2',
+            '7\t100\t200',
+            '9\t8\t1',
+            '14\t2001:db8::1\tnode-b',
+            '16\t88\t77',
+        ]
+
+    # Exported PDU naming ppcap: SPC source address, no destination address,
+    # SCCP payload (reproducer of "SCCP: Check that the destination is a
+    # point code before using it").
+    SCCP_NULL_DST = bytes.fromhex(
+        'd4c3b2a102000400000000000000000000000400fc00000001f1536500000000'
+        '3c0000003c000000000c00087070636170000000000000000001000473636370'
+        '0003000200000002000000010002001409000305070242080242080862064804'
+        '00000001'
+    )
+
+    def test_ppcap_sccp_without_destination(self, cmd_tshark, result_file, test_env):
+        '''A point code source with no destination used to make SCCP
+        dereference the empty destination address (SIGSEGV).'''
+        path = result_file('ppcap_sccp_null_dst.pcap')
+        with open(path, 'wb') as f:
+            f.write(self.SCCP_NULL_DST)
+        for passes in ((), ('-2',)):
+            proc = subprocess.run((cmd_tshark, *passes, '-r', path, '-V'),
+                    capture_output=True, encoding='utf-8', env=test_env)
+            assert proc.returncode == 0
+            assert 'Signalling Connection Control Part' in proc.stdout
