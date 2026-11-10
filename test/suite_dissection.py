@@ -126889,3 +126889,43 @@ class TestDissectRlogin:
         stdout = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 27 && _ws.malformed', '-Tfields', '-eframe.number')
         assert stdout == []
+
+
+class TestDissectRmcp:
+    '''RMCP on UDP 623 and RSP on UDP 664, from the synthetic capture
+    rmcp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def frames(cmd_tshark, capture_file, test_env, display_filter, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('rmcp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [int(n) for n in stdout.split()]
+
+    def test_rmcp_frames(self, cmd_tshark, capture_file, test_env):
+        '''RMCP is recognized for the ASF, IPMI and OEM classes and ACKs;
+        an unknown class on UDP 623 is not RMCP. The RSP frames carry an
+        RMCP message after the session ID and sequence. No malformed
+        packets or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f):
+                return self.frames(cmd_tshark, capture_file, test_env, f, *passes)
+            assert fr('rmcp') == [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12]
+            assert fr('rsp') == [10, 11, 12, 13]
+            assert fr('rmcp.class == 6') == [1, 2, 3, 9, 10, 12]
+            assert fr('rmcp.class == 7') == [4, 5, 11]
+            assert fr('rmcp.class == 8') == [6, 7]
+            assert fr('rmcp.type == 1') == [3, 4, 12]
+            assert fr('asf') == [1, 2, 9, 10]
+            assert fr('!rmcp && udp.port == 623') == [8]
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000') == []
+
+    def test_rsp_fields(self, cmd_tshark, capture_file, test_env):
+        '''RSP session ID and sequence.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rmcp_coverage.pcap.gz'),
+                '-Y', 'rsp', '-Tfields', '-ersp.session_id', '-ersp.sequence',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['0x00000000', '0x00000005', '0x12345678', '0x00000006',
+                                  '0x00000000', '0x00000007', '0x00000000', '0x00000008']
