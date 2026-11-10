@@ -131435,3 +131435,99 @@ class TestDissectRtpsProcessed:
             '9\t0x31,0x30,0x32,0x15,0x07',
             '11\t0x09,0x07,0x09,0x07',
         ]
+
+
+class TestDissectRtpsVirtualTransport:
+    '''RTPS virtual transport (RTPS-VT, RTI Network Capture Utility records)
+    from the synthetic capture rtps_virtual_transport_coverage.pcap.gz.
+    The records are Exported PDUs (link type 252) that name the rtpsvt
+    dissector; the main frames carry small RTPS messages. Frame 45 is the
+    reproducer of "RTPSVT: Skip unknown transport parameters" (an
+    unknown parameter id with a length).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rtps_virtual_transport_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rtpsvt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''45 records: 41 decode as RTPS, the loss info records, the
+        record with another content kind and the one whose main frame is
+        empty have no RTPS. No malformed packets or error expert infos in
+        one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                'frame.number', '_ws.col.protocol')
+        assert len(rows) == 45
+        assert [r.split('\t')[0] for r in rows if r.endswith('\tRTPS')].__len__() == 41
+        assert [r for r in rows if not r.endswith('\tRTPS')] == [
+            '35\t', '36\t', '37\t', '39\t']
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+
+    def test_rtpsvt_addresses(self, cmd_tshark, capture_file, test_env):
+        '''Source and destination: IPv4, IPv6, the process ID of shared
+        memory ("shmem_prefix" and the pid); missing addresses stay empty.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 16, 17, 18, 19, 25, 27}',
+                'frame.number', '_ws.col.def_src', '_ws.col.def_dst')
+        assert rows == [
+            '1\t192.0.2.1\t192.0.2.2',
+            '16\t2001:db8::1\t2001:db8::1',
+            '17\t4242\t4242',
+            '18\t4242\t192.0.2.9',
+            '19\t192.0.2.9\t2001:db8::1',
+            '25\t\t192.0.2.2',
+            '27\t192.0.2.1\t',
+        ]
+
+    def test_rtpsvt_direction_and_ports(self, cmd_tshark, capture_file, test_env):
+        '''The direction (a missing one stays unset) and the ports.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 20, 28, 29, 30}',
+                'frame.number', 'rtpsvt.direction', 'rtpsvt.rtps_port', 'rtpsvt.port')
+        assert rows == [
+            '1\tOUTBOUND\t7411\t7411',
+            '20\tINBOUND\t7411\t7411',
+            '28\tOUTBOUND\t\t7411',
+            '29\tOUTBOUND\t7411\t',
+            '30\t\t7411\t7411',
+        ]
+
+    def test_rtpsvt_identifier(self, cmd_tshark, capture_file, test_env):
+        '''Transport class, monitoring GUID prefix and sequence number; a
+        parameter of length 0 leaves its field out (frames 22 and 23).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 3, 14, 15, 22, 23}',
+                'frame.number', 'rtpsvt.class', 'rtpsvt.monitoring_guid', 'rtpsvt.seqNr')
+        assert rows == [
+            '1\tANY\t0a0b0c0d0e0f101112131415\t0',
+            '2\tUDPv4\t0a0b0c0d0e0f101112131415\t1',
+            '3\tUDPv6\t0a0b0c0d0e0f101112131415\t2',
+            '14\tUDPv4_WAN\t0a0b0c0d0e0f101112131415\t1',
+            '15\t77\t0a0b0c0d0e0f101112131415\t77',
+            '22\t\t0a0b0c0d0e0f101112131415\t5',
+            '23\tUDPv4\t\t5',
+        ]
+
+    def test_rtpsvt_loss_info(self, cmd_tshark, capture_file, test_env):
+        '''A loss info record reports the missing messages in the Info
+        column and with an expert info; a record that is neither RTPS nor
+        loss info is accepted without a dissection.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 35', 'frame.number', '_ws.col.info', '_ws.expert.message')
+        assert rows == ['35\tMissing RTPS messages [7-12]\t'
+                        'Missing RTPS Messages because of full buffer pool']
+
+    def test_rtpsvt_unknown_parameter(self, cmd_tshark, capture_file, test_env):
+        '''An unknown parameter id with a length is skipped, so the
+        parameters after it (destination port, direction) and the main
+        frame are still dissected (frame 45).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 45', 'frame.number', 'rtpsvt.direction',
+                'rtpsvt.port', 'rtpsvt.rtps_port', '_ws.col.info')
+        assert rows == ['45\tOUTBOUND\t7411\t7411\tINFO_TS, HEARTBEAT']
