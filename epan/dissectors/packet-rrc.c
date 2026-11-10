@@ -78,6 +78,9 @@ enum rrc_sib_segment_type {
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
 
+/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
+#define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
+
 typedef struct umts_rrc_private_data_t
 {
   uint32_t s_rnc_id; /* The S-RNC ID part of a U-RNTI */
@@ -95,6 +98,7 @@ typedef struct umts_rrc_private_data_t
   enum rrc_ue_state rrc_state_indicator;
   enum rrc_sib_segment_type curr_sib_segment_type;
   uint32_t curr_sib_type;
+  uint8_t num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW]; /* Channels detected per HS-DSCH MAC-flow in this PDU */
 } umts_rrc_private_data_t;
 
 
@@ -18372,10 +18376,6 @@ static const value_string rrc_ims_info_atgw_trans_det_cont_type[] = {
 };
 static uint32_t flowd;
 static int type;
-
-/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
-#define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
-static uint8_t num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
 
 /**
  * Return the maximum counter, useful for initiating counters
@@ -46425,6 +46425,7 @@ dissect_rrc_DL_TransportChannelType_r5(tvbuff_t *tvb _U_, uint32_t offset _U_, a
     unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
+    uint8_t *nch;
 
       offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_rrc_DL_TransportChannelType_r5, DL_TransportChannelType_r5_choice,
@@ -46433,9 +46434,10 @@ dissect_rrc_DL_TransportChannelType_r5(tvbuff_t *tvb _U_, uint32_t offset _U_, a
 
     /*TODO: This should probably be done better*/
     if(type == 4){    /*If this is type HS-DSCH*/
-        num_chans_per_flow[flowd]++;
+        nch = umts_rrc_get_private_data(actx)->num_chans_per_flow;
+        nch[flowd]++;
 
-        if(num_chans_per_flow[flowd] > 1 ){
+        if(nch[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
             if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){
@@ -49921,6 +49923,7 @@ dissect_rrc_DL_TransportChannelType_r7(tvbuff_t *tvb _U_, uint32_t offset _U_, a
     unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
+    uint8_t *nch;
 
       offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_rrc_DL_TransportChannelType_r7, DL_TransportChannelType_r7_choice,
@@ -49929,10 +49932,11 @@ dissect_rrc_DL_TransportChannelType_r7(tvbuff_t *tvb _U_, uint32_t offset _U_, a
 
     /*TODO: This should probably be done better*/
     if(type == 4){    /*If this is type HS-DSCH*/
-        num_chans_per_flow[flowd]++;
+        nch = umts_rrc_get_private_data(actx)->num_chans_per_flow;
+        nch[flowd]++;
 
 
-        if(num_chans_per_flow[flowd] > 1 ){
+        if(nch[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
             if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){
@@ -112126,7 +112130,7 @@ dissect_rrc_SecurityModeComplete(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ct
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
 
   /*If FP info or RLC info is missing , skip all this*/
-  if(fpinf != NULL || rlcinf != NULL){
+  if(fpinf != NULL && rlcinf != NULL){
     ciphering_info = get_or_create_cipher_info(fpinf, rlcinf);
     private_data_set_ciphering_info(actx, ciphering_info);
   }
@@ -165177,9 +165181,6 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
-
-    /*Clear memory*/
-    memset(num_chans_per_flow,0,sizeof(uint8_t)*RRC_MAX_NUM_HSDHSCH_MACDFLOW);
 
     /* create the rrc protocol tree */
     rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);

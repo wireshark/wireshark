@@ -819,7 +819,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   rlcinf = (rlc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_umts_rlc, 0);
 
   /*If FP info or RLC info is missing , skip all this*/
-  if(fpinf != NULL || rlcinf != NULL){
+  if(fpinf != NULL && rlcinf != NULL){
     ciphering_info = get_or_create_cipher_info(fpinf, rlcinf);
     private_data_set_ciphering_info(actx, ciphering_info);
   }
@@ -1632,14 +1632,16 @@ if(state_dec <= 3) {
     unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
+    uint8_t *nch;
 
     %(DEFAULT_BODY)s
 
     /*TODO: This should probably be done better*/
     if(type == 4){    /*If this is type HS-DSCH*/
-        num_chans_per_flow[flowd]++;
+        nch = umts_rrc_get_private_data(actx)->num_chans_per_flow;
+        nch[flowd]++;
 
-        if(num_chans_per_flow[flowd] > 1 ){
+        if(nch[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
             if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){
@@ -1669,15 +1671,17 @@ if(state_dec <= 3) {
     unsigned *cur_val=NULL;
     struct rrc_info *rrcinf;
     fp_info *fpinf;
+    uint8_t *nch;
 
     %(DEFAULT_BODY)s
 
     /*TODO: This should probably be done better*/
     if(type == 4){    /*If this is type HS-DSCH*/
-        num_chans_per_flow[flowd]++;
+        nch = umts_rrc_get_private_data(actx)->num_chans_per_flow;
+        nch[flowd]++;
 
 
-        if(num_chans_per_flow[flowd] > 1 ){
+        if(nch[flowd] > 1 ){
             rrcinf = (rrc_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_rrc, 0);
             fpinf = (fp_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_fp, 0);
             if((rrcinf == NULL) || (fpinf == NULL) || (rrcinf->hrnti[fpinf->cur_tb] == 0)){

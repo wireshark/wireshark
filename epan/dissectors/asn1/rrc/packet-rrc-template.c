@@ -73,6 +73,9 @@ enum rrc_sib_segment_type {
 /* through this API, which ensures that they will not overwrite each other!! */
 /*****************************************************************************/
 
+/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
+#define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
+
 typedef struct umts_rrc_private_data_t
 {
   uint32_t s_rnc_id; /* The S-RNC ID part of a U-RNTI */
@@ -90,6 +93,7 @@ typedef struct umts_rrc_private_data_t
   enum rrc_ue_state rrc_state_indicator;
   enum rrc_sib_segment_type curr_sib_segment_type;
   uint32_t curr_sib_type;
+  uint8_t num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW]; /* Channels detected per HS-DSCH MAC-flow in this PDU */
 } umts_rrc_private_data_t;
 
 
@@ -367,10 +371,6 @@ static const value_string rrc_ims_info_atgw_trans_det_cont_type[] = {
 static uint32_t flowd;
 static int type;
 
-/*Stores how many channels we have detected for a HS-DSCH MAC-flow*/
-#define    RRC_MAX_NUM_HSDHSCH_MACDFLOW 8
-static uint8_t num_chans_per_flow[RRC_MAX_NUM_HSDHSCH_MACDFLOW];
-
 /**
  * Return the maximum counter, useful for initiating counters
  */
@@ -485,9 +485,6 @@ dissect_rrc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* make entry in the Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RRC");
-
-    /*Clear memory*/
-    memset(num_chans_per_flow,0,sizeof(uint8_t)*RRC_MAX_NUM_HSDHSCH_MACDFLOW);
 
     /* create the rrc protocol tree */
     rrc_item = proto_tree_add_item(tree, proto_rrc, tvb, 0, -1, ENC_NA);
