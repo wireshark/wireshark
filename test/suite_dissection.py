@@ -130194,3 +130194,185 @@ class TestDissectQuicDecrypt:
                                           '-Y', 'roq', '-Tfields', '-e', 'frame.number'),
                                          encoding='utf-8', env=test_env, timeout=120)
         assert stdout.split()
+
+
+class TestDissectHttp3Decrypt:
+    '''HTTP/3 over decrypted QUIC, from the synthetic capture
+    http3_decrypt_coverage.pcapng.gz. The traffic was produced by the aioquic
+    library (client and server exchanged in memory over 127.0.0.1) and the
+    TLS secrets of every connection are stored in the capture in a
+    Decryption Secrets Block. Tests that need QPACK header decoding skip
+    without nghttp3. Connection IDs and the lengths of protected packets
+    change when the capture is regenerated, so the tests select by content.'''
+
+    CAPTURE = 'http3_decrypt_coverage.pcapng.gz'
+    FRAME_COUNT = 213
+    CONNECTIONS = 8
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output(
+            [cmd_tshark, *passes, '-r', capture_file(TestDissectHttp3Decrypt.CAPTURE), *args],
+            encoding='utf-8', env=test_env, timeout=120)
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=(), extra=()):
+        '''Return one list of tab separated columns per frame.'''
+        args = list(extra)
+        if filt:
+            args += ['-Y', filt]
+        args += ['-Tfields', *('-e' + f for f in fields)]
+        out = TestDissectHttp3Decrypt.run(cmd_tshark, capture_file, test_env, *args, passes=passes)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_http3_decrypt_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes)
+            assert rows == []
+            rows = self.fields(cmd_tshark, capture_file, test_env, '', 'frame.number', passes=passes)
+            assert len(rows) == self.FRAME_COUNT
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.connection.number', 'quic.connection.number')
+        assert sorted({int(r[0]) for r in rows}) == list(range(self.CONNECTIONS))
+
+    def test_http3_frame_and_stream_types(self, cmd_tshark, capture_file, test_env):
+        '''DATA, HEADERS, CANCEL_PUSH, SETTINGS, PUSH_PROMISE, GOAWAY,
+        MAX_PUSH_ID, PRIORITY_UPDATE and WebTransport stream frames, control,
+        push, QPACK encoder and decoder streams and an unknown stream type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.frame_type', 'http3.frame_type')
+        types = {int(t, 0) for r in rows for t in r[0].split(',')}
+        assert {0x0, 0x1, 0x3, 0x4, 0x5, 0x7, 0xd, 0xf0700, 0xf0701, 0x41} <= types
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.stream_uni_type', 'http3.stream_uni_type')
+        stypes = {int(t, 0) for r in rows for t in r[0].split(',')}
+        assert {0, 1, 2, 3, 0x54} <= stypes
+        out = self.run(cmd_tshark, capture_file, test_env, '-q', '-zexpert,warn')
+        assert 'Unknown stream type 0x77' in out
+
+    def test_http3_settings(self, cmd_tshark, capture_file, test_env):
+        '''QPACK table capacity (default, none, tiny), field section size,
+        extended CONNECT, H3 datagrams, WebTransport and unknown settings.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.qpack.max_table_capacity',
+                           'http3.settings.qpack.max_table_capacity')
+        assert {r[0] for r in rows} == {'4096', '0', '256'}
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.max_field_section_size == 16384',
+                           'frame.number')
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.extended_connect == 1', 'frame.number')
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.h3_datagram == 1', 'frame.number')
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.webtransport == 1', 'frame.number')
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.settings.h3_datagram_draft04 == 1', 'frame.number')
+
+    def test_http3_requests_responses(self, cmd_tshark, capture_file, test_env, features):
+        '''QPACK decoded headers (static and dynamic table), request and
+        response matching, trailers.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.headers.method && http3.headers.path',
+                               'http3.headers.method', 'http3.headers.path', passes=passes)
+            paths = [pair for r in rows for pair in zip(r[0].split(','), r[1].split(','))]
+            assert ('GET', '/index.html') in paths
+            assert ('POST', '/upload') in paths
+            assert ('GET', '/item/3') in paths
+            assert ('CONNECT', '/wt') in paths
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.headers.user_agent', 'http3.headers.user_agent',
+                               passes=passes)
+            assert rows and all(v == 'aioquic-test' for r in rows for v in r[0].split(','))
+        # the forward link from a request to its response exists from the second pass on
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.response_in && http3.headers.path == "/index.html"',
+                           'http3.response_in', passes=('-2',))
+        assert len(rows) == 1
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.headers.status == 201', 'http3.request_in')
+        assert len(rows) == 1 and rows[0][0]
+        # the dynamic table: a header value that was inserted by the encoder
+        # and is referenced in later requests
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'http3.headers.path == "/item/2"', '-V')
+        assert 'x-custom' in out and 'value-one' in out
+        assert 'session=abcdef0123456789' in out
+
+    def test_http3_qpack_streams(self, cmd_tshark, capture_file, test_env, features):
+        '''QPACK encoder instructions (insert with name reference, insert
+        with literal name, set capacity, duplicate) and decoder instructions
+        (section acknowledgement, stream cancellation). The insert count increment
+        is never sent by the QPACK decoder of aioquic.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        for passes in ((), ('-2',)):
+            for f in ('http3.qpack.encoder.opcode.insert_indexed', 'http3.qpack.encoder.opcode.insert',
+                      'http3.qpack.encoder.opcode.dtable_cap', 'http3.qpack.encoder.opcode.duplicate',
+                      'http3.qpack.decoder.opcode.section_ack', 'http3.qpack.decoder.opcode.cancel_stream'):
+                assert self.fields(cmd_tshark, capture_file, test_env, f, 'frame.number', passes=passes), f
+
+    def test_http3_body_reassembly(self, cmd_tshark, capture_file, test_env, features):
+        '''A 5120 byte response body in DATA frames over many QUIC packets is
+        reassembled, and so is a 51 byte POST body sent in three DATA frames.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.body.reassembled.length',
+                               'http3.body.reassembled.length', passes=passes)
+            lengths = sorted(int(r[0]) for r in rows)
+            assert 5120 in lengths and 51 in lengths
+
+    def test_http3_content_types(self, cmd_tshark, capture_file, test_env, features):
+        '''JSON bodies go to the JSON dissector; gzip bodies are only
+        decompressed with the preference.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        assert self.fields(cmd_tshark, capture_file, test_env, 'json', 'frame.number')
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'http3.headers.content_encoding == "gzip"', '-V')
+        assert 'Content-encoded entity body (gzip)' in out
+        proc = subprocess.run([cmd_tshark, '-r', capture_file(self.CAPTURE), '-o', 'http3.decompress_body:TRUE',
+                               '-Y', 'http3.headers.content_encoding == "gzip"', '-V'],
+                              encoding='utf-8', env=test_env, timeout=120, capture_output=True)
+        if proc.returncode != 0 and 'decompress_body' in proc.stderr:
+            pytest.skip('Built without a decompression library.')
+        assert 'Content-encoded entity body (gzip): 50 bytes -> 500 bytes' in proc.stdout
+
+    def test_http3_push(self, cmd_tshark, capture_file, test_env, features):
+        '''PUSH_PROMISE with its pushed response on a push stream.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'http3.frame_type == 5', '-V')
+        assert 'PUSH_PROMISE' in out and '/pushed.css' in out
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.push_id', 'frame.number')
+
+    def test_http3_connect_and_websocket(self, cmd_tshark, capture_file, test_env, features):
+        '''Plain CONNECT (tunnelled data) and extended CONNECT with
+        :protocol websocket, whose DATA frames carry WebSocket frames.'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.headers.protocol == "websocket"',
+                           'http3.headers.method', 'http3.headers.protocol')
+        assert rows == [['CONNECT', 'websocket']]
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'websocket', '-T', 'fields', '-e', 'websocket.payload.text')
+        assert 'hello websocket' in out and 'reply from the server' in out
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'http3.headers.authority == "tunnel.example.net:443"', '-V')
+        assert 'tunnelled' in out or 'CONNECT' in out
+
+    def test_http3_datagrams_and_webtransport(self, cmd_tshark, capture_file, test_env):
+        '''H3 datagrams carry the quarter stream ID of the CONNECT stream; a
+        WebTransport bidirectional stream is signalled with frame type 0x41.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'http3.datagram', 'http3.datagram.quarter_stream_id')
+        assert len(rows) == 2 and rows[0] == rows[1]
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.frame_type == 0x41', 'frame.number')
+
+    def test_http3_follow_stream(self, cmd_tshark, capture_file, test_env, features):
+        '''Follow HTTP/3 stream 0 of the first connection (headers and data).'''
+        if not features.have_nghttp3:
+            pytest.skip('Requires nghttp3.')
+        out = self.run(cmd_tshark, capture_file, test_env, '-q', '-zfollow,http3,ascii,0,0')
+        assert ':path: /index.html' in out
+        assert '<html>hello world</html>' in out
+
+    def test_http3_qpack_decoder_stream_bad_integer(self, cmd_tshark, capture_file, test_env):
+        '''A QPACK decoder stream instruction whose prefixed integer does not
+        fit in 62 bits used to leave the TRY block with "break", so tshark
+        aborted in except_pop() in builds with assertions, in about half of
+        the runs. Run it a few times, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            for _ in range(8):
+                subprocess.check_output((cmd_tshark, *passes, '-r',
+                                         capture_file('http3_repro_decoder_break.pcapng.gz')),
+                                        env=test_env, timeout=120)
