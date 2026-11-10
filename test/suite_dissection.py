@@ -127656,3 +127656,111 @@ class TestDissectRoqDatagram:
             assert fr('rtp.p_type == 0', 'frame.number') == ['10']
             assert fr('!roq', 'frame.number') == ['18']
             assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+
+class TestDissectRos:
+    '''ROS (X.880 Remote Operations Service) from the synthetic capture
+    ros_coverage.pcap.gz: associations over the OSI upper layers on TCP
+    102. ROS has no port; it dissects the ROSE APDUs of DAP (abstract
+    syntax found in the ROS protocol table, frames 8-100) and DISP (the
+    "ros.oid" table, frames 113-120).'''
+
+    @staticmethod
+    def run_ros(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('ros_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_ros_protocols(self, cmd_tshark, capture_file, test_env):
+        '''71 DAP, 8 DISP and 22 ROS-only frames (rejects and results
+        without a decodable body); none has a malformed packet or a
+        warning or error expert info, in one and two passes.'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env,
+                '-Y', 'ros', '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 101
+        assert (protocols.count('DAP'), protocols.count('DISP'),
+                protocols.count('ROS')) == (71, 8, 22)
+        for passes in ((), ('-2',)):
+            stdout = self.run_ros(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'ros && (_ws.malformed || _ws.expert.severity >= 0x00600000)',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_ros_operations_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the binds, invokes, results and errors
+        (the sub-dissector is chosen with the operation or error code).'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, '
+                      '22, 23, 24, 25, 26, 27, 33, 35, 37, 39, 42, 43, 113, 114, 115, 116, 117, 118, 119, 120}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        infos = {int(l.split('\t')[0]): l.split('\t')[1].split(' ')[0]
+                 for l in stdout.splitlines()}
+        assert [infos[n] for n in range(8, 28)] == [
+            'directoryBind_argument', 'directoryBind_result',
+            'read_argument', 'read_result', 'compare_argument', 'compare_result',
+            'abandon_argument', 'abandon_result', 'list_argument', 'list_result',
+            'search_argument', 'search_result', 'addEntry_argument', 'addEntry_result',
+            'removeEntry_argument', 'removeEntry_result', 'modifyEntry_argument',
+            'modifyEntry_result', 'modifyDN_argument', 'modifyDN_result']
+        assert [infos[n] for n in (33, 35, 37, 39, 42, 43)] == [
+            'serviceError', 'nameError', 'abandoned', 'updateError',
+            'directoryBind_argument', 'directoryBindError']
+        assert [infos[n] for n in range(113, 121)] == [
+            'Shadow-Bind-Argument', 'Shadow-Bind-Result', 'Request-Shadow-Update-Argument',
+            'Request-Shadow-Result', 'Request-Shadow-Update-Argument', 'Shadow-Error',
+            'Shadow-Bind-Argument', 'Shadow-Bind-Error']
+
+    def test_ros_rejects(self, cmd_tshark, capture_file, test_env):
+        '''Every reject problem of the four kinds, and a reject with an
+        absent invoke id.'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 45 && frame.number <= 86 && ros.reject_element',
+                '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            'Reject ' + p for p in (
+                'unrecognizedPDU', 'mistypedPDU', 'badlyStructuredPDU',
+                'duplicateInvocation', 'unrecognizedOperation', 'mistypedArgument',
+                'resourceLimitation', 'releaseInProgress', 'unrecognizedLinkedId',
+                'linkedResponseUnexpected', 'unexpectedLinkedOperation',
+                'unrecognizedInvocation', 'resultResponseUnexpected', 'mistypedResult',
+                'unrecognizedInvocation', 'errorResponseUnexpected', 'unrecognizedError',
+                'unexpectedError', 'mistypedParameter', 'unrecognizedOperation')]
+
+    def test_ros_opcode_mask(self, cmd_tshark, capture_file, test_env):
+        '''Operation and error codes above 24 bits do not change the PDU
+        type ("ROS: Mask the opcode and reset per-PDU state"): the invoke
+        with the code 0x20000001 (frame 94) is a read argument, the
+        result with 0x10000001 a read result and the error 0x7f000003 a
+        service error. Before the fix they went to the wrong
+        sub-dissector or to none.'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {94, 95, 96, 97}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-eros.opcode', '-eros.errcode')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1].split(' ')[0]) for r in rows] == [
+            ('94', 'read_argument'), ('95', 'read_result'), ('96', 'read_argument'),
+            ('97', 'serviceError')]
+        assert [r[2] + r[3] for r in rows] == ['536870913', '268435457', '16777217', '2130706435']
+
+    def test_ros_absent_invoke_id(self, cmd_tshark, capture_file, test_env):
+        '''An invoke whose invoke id is absent (frame 99) does not reuse the
+        invoke id of the previous packet: the result of invoke id 200
+        (frame 100) is the response to the first invoke (frame 98).'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {98, 99, 100}', '-Tfields', '-eframe.number',
+                '-eros.response_in', '-eros.response_to')
+        assert stdout.splitlines() == ['98\t\t', '99\t\t', '100\t\t98']
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {98, 99, 100}', '-Tfields', '-eframe.number',
+                '-eros.response_in', '-eros.response_to')
+        assert stdout.splitlines() == ['98\t100\t', '99\t\t', '100\t\t98']
+
+    def test_ros_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''Invokes and results with the same invoke id are linked (the
+        invoke gets "Response In" in the second pass).'''
+        stdout = self.run_ros(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 10 && frame.number <= 29',
+                '-Tfields', '-eframe.number', '-eros.response_in', '-eros.response_to')
+        assert stdout.splitlines() == [
+            '%d\t%s\t%s' % (n, n + 1 if n % 2 == 0 else '', n - 1 if n % 2 else '')
+            for n in range(10, 30)]
