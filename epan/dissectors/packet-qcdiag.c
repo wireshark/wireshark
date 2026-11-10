@@ -467,8 +467,8 @@ qcdiag_parse_timestamp(tvbuff_t *tvb, uint32_t offset)
 
     total = ((upper + lower) / 1000.0) + epoch;
 
-    timestamp.secs  = (unsigned)total;
-    timestamp.nsecs = (unsigned)((total - (unsigned)total) * 1000000000);
+    timestamp.secs  = (time_t)total;
+    timestamp.nsecs = (int)((total - (double)timestamp.secs) * 1000000000);
 
     return timestamp;
 }
@@ -1381,10 +1381,10 @@ dissect_qcdiag_log_config_retreive_id_ranges(tvbuff_t *tvb, uint32_t offset, pac
     num_ranges = (length - offset) / 4; // num_ranges expected to be 16
 
     for (uint32_t i=0; i < num_ranges; i++) {
-        range = (uint32_t)tvb_get_uint8(tvb, offset+i);
+        range = tvb_get_uint32(tvb, offset+(4*i), ENC_LITTLE_ENDIAN);
         if (range == 0) continue;
 
-        pi = proto_tree_add_format_text(tree, tvb, offset+(4*i), 1);
+        pi = proto_tree_add_format_text(tree, tvb, offset+(4*i), 4);
         proto_item_set_text(pi, "%u: %u", i, range);
     }
 }
