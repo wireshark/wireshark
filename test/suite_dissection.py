@@ -135167,3 +135167,56 @@ class TestDissectScsiSmc:
         assert rows[0][0].startswith('TAPE00,TAPE01,TAPE02,TAPE03,EXPORT,EXPORT,TAPE00')
         assert rows[0][1] == '3'
         assert rows[0][2] == '5'
+
+
+class TestDissectScsiSsc:
+    '''SCSI stream commands (packet-scsi-ssc.c) from the synthetic capture
+    scsi_ssc_coverage.pcap.gz: SCSI over iSCSI (TCP 3260) to a tape drive
+    (LUN 0).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scsi_ssc_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_ssc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU, without malformed packets or
+        expert info warnings or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 272
+        assert all(r[0] == 'iSCSI' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_ssc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_ssc_read_block_limits(self, cmd_tshark, capture_file, test_env):
+        '''READ BLOCK LIMITS responses (the granularity is shown as a
+        power of two).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 172 || frame.number == 174',
+                '-eframe.number', '-escsi_ssc.readblocklimits.granularity',
+                '-escsi_ssc.readblocklimits.max_block_length_limit',
+                '-escsi_ssc.readblocklimits.min_block_length_limit')
+        assert rows == [['172', '8', '262144', '1'], ['174', '1', '65536', '512']]
+
+    def test_scsi_ssc_read_position(self, cmd_tshark, capture_file, test_env):
+        '''READ POSITION in the short, long and extended forms: the
+        fields that are marked unknown (BPU, BCU, BYCU) are not shown.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Yscsi_ssc.readposition.first_block_location', '-eframe.number',
+                '-escsi_ssc.readposition.first_block_location',
+                '-escsi_ssc.readposition.num_blocks_buffer')
+        assert rows[0] == ['176', '16', '5']
+        assert len(rows) >= 8
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Yscsi_ssc.readposition.block_number', '-eframe.number',
+                '-escsi_ssc.readposition.block_number', '-escsi_ssc.readposition.file_number',
+                '-escsi_ssc.readposition.set_number')
+        assert rows[0] == ['190', '4096', '7', '3']
+        assert rows[1][:2] == ['194', '4096']
