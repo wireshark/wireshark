@@ -504,7 +504,7 @@ dissect_osc_message(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tre
             {
                 uint32_t sec  = tvb_get_ntohl(tvb, offset);
                 uint32_t frac = tvb_get_ntohl(tvb, offset+4);
-                nstime_t ns;
+                nstime_t ns = NSTIME_INIT_ZERO;
                 if( (sec == 0) && (frac == 1) )
                     proto_tree_add_time_format_value(message_tree, hf_osc_message_timetag_type, tvb, offset, 8, &ns, immediate_fmt, immediate_str);
                 else
@@ -735,7 +735,7 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
     int          end = offset + len;
     uint32_t     sec;
     uint32_t     frac;
-    nstime_t     ns;
+    nstime_t     ns = NSTIME_INIT_ZERO;
 
     /* check for valid #bundle */
     if(tvb_strneql(tvb, offset, bundle_str, 8) != 0)
@@ -776,16 +776,19 @@ dissect_osc_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_item *ti, proto_tree
         switch(tvb_get_uint8(tvb, offset))
         {
             case '#': /* this is a bundle */
-                if(dissect_osc_bundle(tvb, pinfo, ti, bundle_tree, offset, size))
+                if(dissect_osc_bundle(tvb, pinfo, ti, bundle_tree, offset, size)) {
+                    decrement_dissection_depth(pinfo);
                     return -1;
-                else
-                    break;
+                }
+                break;
             case '/': /* this is a message */
-                if(dissect_osc_message(tvb, pinfo, ti, bundle_tree, offset, size))
+                if(dissect_osc_message(tvb, pinfo, ti, bundle_tree, offset, size)) {
+                    decrement_dissection_depth(pinfo);
                     return -1;
-                else
-                    break;
+                }
+                break;
             default:
+                decrement_dissection_depth(pinfo);
                 return -1; /* neither message nor bundle */
         }
         decrement_dissection_depth(pinfo);
