@@ -116054,3 +116054,75 @@ class TestDissectPcli:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert len(stdout.split()) == 17
+
+
+class TestDissectPcnfsd:
+    '''PC-NFS (ONC RPC program 150001, versions 1 and 2) over UDP from the
+    synthetic capture pcnfsd_coverage.pcap.gz: every procedure of both
+    versions, the MAPID and AUTH procedures with their obscured identity
+    and password, empty strings, group lists and IPv6.'''
+
+    CAPTURE = 'pcnfsd_coverage.pcap.gz'
+
+    def test_pcnfsd_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pcnfsd', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 52
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pcnfsd_procedures(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'rpc.msgtyp == 0 && pcnfsd',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        calls = [line.strip() for line in stdout.splitlines()]
+        assert calls[:4] == ['V1 NULL Call', 'V1 AUTH Call', 'V1 PR_INIT Call', 'V1 PR_START Call']
+        assert calls[4:16] == ['V2 NULL Call', 'V2 INFO Call', 'V2 PR_INIT Call',
+            'V2 PR_START Call', 'V2 PR_LIST Call', 'V2 PR_QUEUE Call', 'V2 PR_STATUS Call',
+            'V2 PR_CANCEL Call', 'V2 PR_ADMIN Call', 'V2 PR_REQUEUE Call', 'V2 PR_HOLD Call',
+            'V2 PR_RELEASE Call']
+        assert calls[16] == 'V2 ALERT Call'
+        assert calls.count('V2 MAPID Call') == 3
+        assert calls.count('V2 AUTH Call') == 7
+
+    def test_pcnfsd_mapid(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {35, 36}',
+                '-Tfields', '-eframe.number', '-epcnfsd.comment', '-epcnfsd.mapreq',
+                '-epcnfsd.mapreq_status', '-epcnfsd.username', '-epcnfsd.uid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '35\tmapid comment\t0,1,2,3\t\t,,alice,staff\t1000,100,0,0',
+            '36\treply comment\t0,1,2,3\t0,0,1,2\talice,staff,,staff\t1000,100,0,0',
+        ]
+
+    def test_pcnfsd_auth(self, cmd_tshark, capture_file, test_env):
+        '''The ident and password are XORed with 0x5b; the dissector shows
+        the clear text. The reply has the user, groups, home directory and
+        umask (def_umask is octal, shown here in decimal).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {39, 40, 42, 51, 52}',
+                '-Tfields', '-eframe.number', '-epcnfsd.auth.client',
+                '-epcnfsd.auth.ident.clear',
+                '-epcnfsd.auth.password.clear', '-epcnfsd.status', '-epcnfsd.uid',
+                '-epcnfsd.gid', '-epcnfsd.gids.count', '-epcnfsd.homedir',
+                '-epcnfsd.def_umask',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '39\tclient1\talice\tp4ssw0rd!\t\t\t\t\t\t',
+            '40\t\t\t\t0\t1000\t100,100,10,20\t3\t/home/alice\t18',
+            '42\t\t\t\t1\t0\t0\t0\t\t63',
+            '51\tc7\tdave\tpw\t\t\t\t\t\t',
+            '52\t\t\t\t0\t1004\t100,1\t1\t/h6\t18',
+        ]
