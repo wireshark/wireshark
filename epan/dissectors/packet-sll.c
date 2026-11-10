@@ -253,13 +253,13 @@ add_ll_address(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 	case 4:
 		set_address_tvb(&pinfo->dl_src, AT_IPv4, 4, tvb, ha_offset);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-		copy_address_wmem(wmem_file_scope(), &tap_data->src_address, &pinfo->src);
+		copy_address_wmem(pinfo->pool, &tap_data->src_address, &pinfo->src);
 		proto_tree_add_item(tree, hf_sll_src_ipv4, tvb, ha_offset, 4, ENC_BIG_ENDIAN);
 		break;
 	case 6:
 		set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, ha_offset);
 		copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-		copy_address_wmem(wmem_file_scope(), &tap_data->src_address, &pinfo->src);
+		copy_address_wmem(pinfo->pool, &tap_data->src_address, &pinfo->src);
 		proto_tree_add_item(tree, hf_sll_src_eth, tvb, ha_offset, 6, ENC_NA);
 		break;
 	case 0:
@@ -458,7 +458,7 @@ dissect_sll_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int enca
 	ti = proto_tree_add_protocol_format(tree, proto_sll, tvb, 0,
 			header_size, "Linux cooked capture v%d", version);
 	fh_tree = proto_item_add_subtree(ti, ett_sll);
-	tap_data = wmem_new0(wmem_file_scope(), sll_tap_data);
+	tap_data = wmem_new0(pinfo->pool, sll_tap_data);
 
 	switch (encap) {
 
