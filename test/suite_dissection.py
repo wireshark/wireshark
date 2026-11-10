@@ -126549,3 +126549,131 @@ class TestDissectRk512:
             '8\tSCID', '9\tToken', '10\tData Mode', '13\tToken',
             '18\tSCID', '19\tToken', '23\tUnknown',
         ]
+
+
+class TestDissectRlcLte:
+    '''RLC-LTE from the synthetic capture rlc_lte_coverage.pcapng.gz: RLC PDUs
+    in the UDP framing of the RLC-LTE wiki page (frames 1-128, heuristic
+    rlc_lte_udp, disabled by default) and, in frames 129-148, MAC-LTE frames
+    (Exported PDU "mac-lte-framed") that carry RLC SRB and DRB PDUs.
+    UDP_OPTS enable the heuristic and the sequence analysis of frames that are
+    not in MAC-LTE (rlc-only); MAC_OPTS keep the default analysis (MAC frames
+    only) and take the LCID to DRB mapping from the RRC messages.'''
+
+    UDP_OPTS = ('--enable-heuristic', 'rlc_lte_udp',
+                '-o', 'mac-lte.lcid_to_drb_mapping_source:from-configuration-protocol',
+                '-o', 'rlc-lte.do_sequence_analysis_am:rlc-only',
+                '-o', 'rlc-lte.do_sequence_analysis:rlc-only')
+    MAC_OPTS = ('--enable-heuristic', 'rlc_lte_udp',
+                '-o', 'mac-lte.lcid_to_drb_mapping_source:from-configuration-protocol')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, opts, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rlc_lte_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', *fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_rlc_lte_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 148 frames decode without malformed packets or error expert
+        infos, in one and two passes, with the sequence analysis of the UDP
+        frames and with the default analysis of the MAC frames.'''
+        for opts in (self.UDP_OPTS, self.MAC_OPTS):
+            for passes in ((), ('-2',)):
+                out = self.lines(cmd_tshark, capture_file, test_env, opts, self.BAD,
+                                 '-eframe.number', passes=passes)
+                assert out == []
+            out = self.lines(cmd_tshark, capture_file, test_env, opts, '', '-eframe.number')
+            assert len(out) == 148
+
+    def test_rlc_lte_protocols(self, cmd_tshark, capture_file, test_env):
+        '''45 frames end in RLC-LTE, 53 in the IP/UDP packet of a DRB SDU,
+        6 in PDCP-LTE and 42 in LTE RRC (TM channels, SRB SDUs, RRC in MAC).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS, '', '-e_ws.col.protocol')
+        assert len(out) == 148
+        assert out.count('RLC-LTE') == 45
+        assert out.count('UDP') == 53
+        assert out.count('PDCP-LTE') == 6
+        assert len([p for p in out if p.startswith('LTE RRC')]) == 42
+
+    def test_rlc_lte_extensions_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''UM PDUs with one to three extension parts (frames 17, 18: LIs of
+        34 octets), and 12 SDUs rebuilt from segments; frame 21 is the last of
+        three segments and holds 34 octets.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'frame.number in {17, 18}', '-eframe.number', '-erlc-lte.um.fi',
+                         '-erlc-lte.um.sn', '-erlc-lte.extension.li')
+        assert out == ['17\t0x00\t2\t34,34', '18\t0x00\t3\t34,34,34']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'rlc-lte.reassembly-info', '-eframe.number')
+        assert len(out) == 12
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'frame.number == 21', '-eframe.number',
+                         '-erlc-lte.reassembly-info.number-of-segments',
+                         '-erlc-lte.reassembly-info.total-length')
+        assert out == ['21\t3\t34']
+
+    def test_rlc_lte_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''UM and AM sequence analysis of the UDP frames: missing and
+        repeated SNs, retransmissions and framing info that does not
+        continue the previous PDU are reported as warnings.'''
+        counts = {
+            'rlc-lte.sequence-analysis.um-sn.missing': 3,
+            'rlc-lte.sequence-analysis.um-sn.repeated': 9,
+            'rlc-lte.sequence-analysis.am-sn.missing': 3,
+            'rlc-lte.sequence-analysis.retx.expert': 3,
+            'rlc-lte.sequence-analysis.repeated-frame.expert': 1,
+            'rlc-lte.sequence-analysis.last-segment-not-continued': 1,
+            'rlc-lte.sequence-analysis.last-segment-complete': 1,
+        }
+        for field, count in counts.items():
+            out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS, field, '-eframe.number')
+            assert len(out) == count, field
+
+    def test_rlc_lte_status_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Status PDUs: NACKs, partial NACKs with SOstart / SOend, 16 bit SNs
+        (frames 102, 103) and a PDU with 520 NACKs (frame 110).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'frame.number in {79, 80, 87, 88, 102}', '-eframe.number',
+                         '-erlc-lte.am.ack-sn', '-erlc-lte.am.nack-sn',
+                         '-erlc-lte.am.so-start', '-erlc-lte.am.so-end')
+        assert out == [
+            '79\t3\t1\t\t',
+            '80\t4\t0,2\t\t',
+            '87\t5\t2,3,4\t0,5\t10,32767',
+            '88\t6\t1\t3\t4',
+            '102\t1008\t1002,1003\t4\t65535',
+        ]
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'frame.number == 110', '-erlc-lte.am.nacks')
+        assert out == ['520']
+
+    def test_rlc_lte_over_mac(self, cmd_tshark, capture_file, test_env):
+        '''RLC called by MAC-LTE (frames 129-148): the DRBs set up by the RRC
+        message of frame 129 are found (frames 137 and 138 carry DRB 3 on
+        UM and DRB 4 on AM), the default sequence analysis works
+        on MAC frames and a MAC retransmission (frames 142, 144, 145) is
+        flagged. Frame 138 skips UM SNs.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.MAC_OPTS,
+                         'mac-lte && rlc-lte', '-eframe.number')
+        assert len(out) == 18
+        out = self.lines(cmd_tshark, capture_file, test_env, self.MAC_OPTS,
+                         'rlc-lte.sequence-analysis.mac-retx', '-eframe.number')
+        assert out == ['142', '144', '145']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.MAC_OPTS,
+                         'rlc-lte.sequence-analysis.um-sn.missing', '-eframe.number')
+        assert out == ['138']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.MAC_OPTS,
+                         'frame.number in {137, 138}', '-eframe.number', '-erlc-lte.channel-id',
+                         '-erlc-lte.mode')
+        assert out == ['137\t3,4\t2,4', '138\t3,4\t2,4']
+
+    def test_rlc_lte_narrowband(self, cmd_tshark, capture_file, test_env):
+        '''Narrowband SRB1 and SRB1bis PDUs (no PDCP header on SRB1bis) reach
+        NB-IoT RRC (frames 119 and 120).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.UDP_OPTS,
+                         'frame.number in {119, 120}', '-eframe.number', '-e_ws.col.info')
+        assert out == ['119\tDLInformationTransfer-NB', '120\tRRCConnectionRelease-NB']
