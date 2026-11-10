@@ -479,7 +479,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
     int offset=0, string_len=0;
     uint8_t msgtype;
     uint32_t bignum;
-    nstime_t ts;
+    nstime_t ts = NSTIME_INIT_ZERO;
 
     /* message type */
     msgtype = tvb_get_uint8(tvb, offset);
