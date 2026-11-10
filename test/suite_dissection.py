@@ -136956,3 +136956,90 @@ class TestDissectShicp:
         assert lines[5][0] == '9' and lines[5][14] == '0x01'
         assert lines[6][0] == '12' and lines[6][15] == '0x00'
         assert lines[7][0] == '13' and lines[7][15] == '0x01'
+
+
+class TestDissectShim6:
+    def test_shim6_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 30 frames carry SHIM6 (IPv6 next header 140; two of them
+        over IPv4, IP protocol 140). None is malformed or has a warning or
+        error (the checksums verify), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shim6_coverage.pcap.gz'),
+                '-Y', 'shim6',
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('IPv6') == 28
+        assert protocols.count('IPv4') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('shim6_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shim6_coverage.pcap.gz'),
+                '-Y', 'shim6.checksum.status == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 27       # every control message (26 over IPv6, 1 over IPv4)
+
+    def test_shim6_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, options, locators, probes and the P bit (the
+        first occurrence of each field in the frame).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shim6_coverage.pcap.gz'),
+                '-Tfields', '-E', 'occurrence=f', '-eframe.number', '-eshim6.type',
+                '-eshim6.opt.type', '-eshim6.opt.locnum', '-eshim6.opt.elemlen',
+                '-eshim6.opt.fii', '-eshim6.reap', '-eshim6.psent', '-eshim6.precvd',
+                '-eshim6.p',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t\t\t\t\t\t\t\tFalse',
+            '2\t2\t\t\t\t\t\t\t\tFalse',
+            '3\t3\t\t\t\t\t\t\t\tFalse',
+            '4\t4\t\t\t\t\t\t\t\tFalse',
+            '5\t5\t\t\t\t\t\t\t\tFalse',
+            '6\t6\t\t\t\t\t\t\t\tFalse',
+            '7\t64\t\t\t\t\t\t\t\tFalse',
+            '8\t65\t\t\t\t\t\t\t\tFalse',
+            '9\t66\t\t\t\t\t\t\t\tFalse',
+            '10\t127\t0\t\t\t\t\t\t\tFalse',
+            '11\t67\t\t\t\t\t0\t0\t0\tFalse',
+            '12\t67\t\t\t\t\t1\t2\t0\tFalse',
+            '13\t67\t\t\t\t\t2\t0\t1\tFalse',
+            '14\t67\t\t\t\t\t3\t1\t2\tFalse',
+            '15\t1\t1\t\t\t\t\t\t\tFalse',
+            '16\t1\t2\t2\t\t\t\t\t\tFalse',
+            '17\t1\t2\t8\t\t\t\t\t\tFalse',
+            '18\t1\t3\t\t3\t\t\t\t\tFalse',
+            '19\t1\t3\t\t2\t\t\t\t\tFalse',
+            '20\t1\t3\t\t1\t\t\t\t\tFalse',
+            '21\t1\t4\t\t\t\t\t\t\tFalse',
+            '22\t1\t5\t\t\t\t\t\t\tFalse',
+            '23\t1\t6\t\t\t\t\t\t\tFalse',
+            '24\t1\t7\t\t\t917508\t\t\t\tFalse',
+            '25\t1\t85\t\t\t\t\t\t\tFalse',
+            '26\t1\t1\t\t\t917508\t\t\t\tFalse',
+            '27\t\t\t\t\t\t\t\t\tTrue',
+            '28\t\t\t\t\t\t\t\t\tTrue',
+            '29\t1\t\t\t\t\t\t\t\tFalse',
+            '30\t\t\t\t\t\t\t\t\tTrue',
+        ]
+
+    def test_shim6_locators_and_nonces(self, cmd_tshark, capture_file, test_env):
+        '''The locator list, the nonces of the handshake messages and the
+        ULID pair option.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shim6_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 16, 23}',
+                '-Tfields', '-eframe.number', '-eshim6.inonce', '-eshim6.rnonce',
+                '-eshim6.locator', '-eshim6.sulid', '-eshim6.rulid',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t572662306\t858993459\t\t\t',
+            '16\t305419896\t\t2001:db8::11,2001:db8::12\t\t',
+            '23\t305419896\t\t\t0:0:2001:db8::\t0:11:2001:db8::',
+        ]
