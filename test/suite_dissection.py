@@ -134290,3 +134290,54 @@ class TestDissectSbasL1:
         assert [r[3:5] for r in rows[86:93]] == [
             ['0', '0'], ['3', '7'], ['10', '13'], ['11', '5'], ['15', '14'], ['5', '15'], ['12', '15'],
         ]
+
+
+class TestDissectSbasL5:
+    def test_sbas_l5_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The EMS file has 79 L5 records, every one SBAS L5; the types
+        with a dissector (MT 0, 31, 63) are named in the Info column, the
+        others are shown as SBAS L5 with data. No record is malformed and
+        none has an error expert info, in one and two passes. The only
+        warnings are MT 0 ("Do Not Use").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l5_coverage.ems.gz'),
+                '-Tfields', '-eframe.protocols', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 79
+        assert all(l.startswith('ems:sbas_l5') for l in lines)
+        protocols = [l.split('\t')[1] for l in lines]
+        assert protocols.count('SBAS L5') == 61
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbas_l5_coverage.ems.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbas_l5_coverage.ems.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert set(l.split('\t')[1] for l in stdout.splitlines()) == {'MT is 0'}
+            assert len(stdout.splitlines()) == 5
+
+    def test_sbas_l5_checksums(self, cmd_tshark, capture_file, test_env):
+        '''Every checksum is correct (CRC-24Q over the 226 bit message)
+        and the six preamble values are accepted.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l5_coverage.ems.gz'),
+                '-V', '-O', 'sbas_l5',
+            ), encoding='utf-8', env=test_env)
+        crcs = [l for l in stdout.splitlines() if 'Checksum:' in l]
+        assert len(crcs) == 79
+        assert all(l.endswith('[correct]') for l in crcs)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l5_coverage.ems.gz'),
+                '-Y', 'frame.number <= 64',
+                '-Tfields', '-esbas_l5.preamble', '-esbas_l5.mt',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [int(r[1]) for r in rows] == list(range(64))
+        assert [r[0] for r in rows[:6]] == ['0x05', '0x0c', '0x06', '0x09', '0x03', '0x0a']
