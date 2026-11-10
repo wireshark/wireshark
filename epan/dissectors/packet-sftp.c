@@ -289,7 +289,6 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
                 slen = dissect_sftp_attrs(tvb, pinfo, offset, sftp_tree);
-                proto_item_set_len(sftp_tree, slen);
                 offset += slen;
                 wmem_strbuf_append_printf(title, " SSH_FXP_SETSTAT (%d) id=%u [%s]", typ, id, path);
                 break;
@@ -377,7 +376,7 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 uint8_t * newpath = tvb_get_string_enc(pinfo->pool, tvb, offset, slen, ENC_UTF_8);
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_path, tvb, offset, slen, ENC_UTF_8);
                 offset += slen;
-                wmem_strbuf_append_printf(title, " SSH_FXP_STAT (%d) id=%u [%s] > [%s]", typ, id, oldpath, newpath);
+                wmem_strbuf_append_printf(title, " SSH_FXP_RENAME (%d) id=%u [%s] > [%s]", typ, id, oldpath, newpath);
                 break;
                 }
 //        case SSH_FXP_READLINK:{
@@ -457,7 +456,6 @@ static int dissect_sftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 proto_tree_add_item(sftp_tree, hf_ssh_sftp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 slen = dissect_sftp_attrs(tvb, pinfo, offset, sftp_tree);
-                proto_item_set_len(sftp_tree, slen);
                 offset += slen;
                 break;
                 }
