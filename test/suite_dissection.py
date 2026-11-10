@@ -128713,3 +128713,83 @@ class TestDissectRrlpCoverage:
         description (shape, latitude and longitude).'''
         lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'gsm_a.gad.sign_of_latitude', '-Tfields', '-eframe.number')
         assert count_output('\n'.join(lines)) >= 1
+
+
+class TestDissectRsh:
+    '''RSH (Remote Shell, TCP 514) from the synthetic capture
+    rsh_coverage.pcap.gz: setup fields in one packet or split over
+    packets, fields that do not look right (the packet is data), data in
+    both directions and the Info column preferences.'''
+
+    FIELDS = ('-ersh.stderr_port', '-ersh.client_username', '-ersh.server_username',
+              '-ersh.command')
+
+    @staticmethod
+    def run_rsh(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rsh_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rsh_protocols(self, cmd_tshark, capture_file, test_env):
+        '''32 RSH frames, none malformed or with an error expert info, in
+        one and two passes.'''
+        stdout = self.run_rsh(cmd_tshark, capture_file, test_env,
+                '-Y', 'rsh', '-Tfields', '-e_ws.col.protocol')
+        assert count_output(stdout) == 32
+        for passes in ((), ('-2',)):
+            stdout = self.run_rsh(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_rsh_setup_fields(self, cmd_tshark, capture_file, test_env):
+        '''The setup fields in one packet (frame 4), one per packet
+        (15-18), an empty server username (42), a skipped unprintable
+        server username (54) and fields over two packets (62, 63). A
+        non-numeric stderr port, an overlong or unprintable client
+        username, an empty command and a command over 256 octets leave
+        only data (28, 34, 38, 46, 50, 58).'''
+        for passes in ((), ('-2',)):
+            stdout = self.run_rsh(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {4, 15, 16, 17, 18, 28, 33, 34, 38, 42, 46, '
+                          '50, 54, 58, 62, 63}',
+                    '-Tfields', '-eframe.number', *self.FIELDS)
+            assert stdout.splitlines() == [
+                '4\t1022\talice\tbob\tuptime',
+                '15\t\t\t\t',
+                '16\t\tcarol\t\t',
+                '17\t\t\troot\t',
+                '18\t\t\t\tls -l /tmp',
+                '28\t\t\t\t',
+                '33\t0\t\t\t',
+                '34\t\t\t\t',
+                '38\t0\t\t\t',
+                '42\t0\tdave\t\twhoami',
+                '46\t0\terin\tfrank\t',
+                '50\t\t\t\t',
+                '54\t0\tgina\t\tdate',
+                '58\t0\thank\tivy\t',
+                '62\t2000\tjane\t\t',
+                '63\t\t\tkim\techo hi',
+            ]
+
+    def test_rsh_data_and_info(self, cmd_tshark, capture_file, test_env):
+        '''Data in both directions and the Info column with the client
+        username and command preferences on.'''
+        stdout = self.run_rsh(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 6, 19, 21, 68}',
+                '-Tfields', '-eframe.number', '-ersh.client_server_data',
+                '-ersh.server_client_data', '-e_ws.col.info',
+                '-o', 'rsh.info_show_client_username:TRUE',
+                '-o', 'rsh.info_show_command:TRUE')
+        assert stdout.splitlines() == [
+            '4\t\t\tSession Establishment',
+            '5\t\t00\tClient username:alice Server username:bob Command:uptime '
+                'Server -> Client Data',
+            '6\t696e707574206c696e650a\t\tClient username:alice Server username:bob '
+                'Command:uptime Client -> Server data',
+            '19\t\t00\tClient username:carol Server username:root Command:ls -l /tmp '
+                'Server -> Client Data',
+            '21\t6d6f72650a\t\tClient username:carol Server username:root '
+                'Command:ls -l /tmp Client -> Server data',
+            '68\t\t62616e6e65720a\tServer -> Client Data',
+        ]
