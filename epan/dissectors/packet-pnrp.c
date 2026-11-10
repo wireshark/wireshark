@@ -391,7 +391,8 @@ static const fragment_items pnrp_frag_items = {
 static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     /* Variable declaration */
-    int offset, start_offset;
+    int offset, loop_offset;
+    bool reassembled = false, switched;
     int padding_bytes;
     uint8_t message_type;
     char* str_message_type;
@@ -487,8 +488,9 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      *------------------------------*/
 
     /* The following part has dynamic length depending on message type */
-    start_offset = offset;
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        loop_offset = offset;
+        switched = false;
         /* Determine the Field Type */
         field_type = tvb_get_ntohs(tvb,offset );
         /* Determine length of this message */
@@ -750,9 +752,12 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                                                (buffer_len != (frag_offset + remaining_len)));
                 frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled PNRP message",
                                                     frag_data, &pnrp_frag_items, NULL, pnrp_message_tree);
-                if (frag_tvb) {
+                if (frag_tvb && !reassembled) {
+                    /* Switch to the reassembled data only once */
                     tvb = frag_tvb;
                     offset = 0;
+                    reassembled = true;
+                    switched = true;
                 } else {
                     proto_tree_add_item(pnrp_message_tree, hf_pnrp_fragmented_payload, tvb, offset, -1, ENC_NA);
                     col_append_str(pinfo->cinfo, COL_INFO, " [Fragmented message]");
@@ -831,8 +836,8 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 offset += data_length;
                 break;
         }
-        // SPLIT_CONTROLS might reset our offset.
-        if (start_offset <= offset) {
+        /* Every message must advance; SPLIT_CONTROLS resets our offset once. */
+        if (!switched && offset <= loop_offset) {
             THROW(ReportedBoundsError);
         }
     }
