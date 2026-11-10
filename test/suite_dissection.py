@@ -116208,3 +116208,137 @@ class TestDissectPcomtcp:
             '69\t0x0c\t0', '70\t0x8c\t11', '73\t0x04\t0', '74\t0x84\t32',
             '75\t0x44\t4', '76\t0xc4\t0',
         ]
+
+
+class TestDissectPcp:
+    '''Performance Co-Pilot (PCP) on TCP 44321, from the synthetic capture
+    pcp_coverage.pcap.gz. Frames 1-41 are one session, 42-46 LABEL PDUs
+    around a START that announces LABELS, 47-49 SECURE_ACK STARTs.'''
+
+    @staticmethod
+    def pcp_tree(cmd_tshark, capture_file, test_env, frames, *passes):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', frames, '-V', '-O', 'pcp',
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_pcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-49 are PCP (frame 19 is the first TCP segment of a
+        reassembled FETCH) and none is malformed or has an error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 49
+        assert protocols.count('PCP') == 48
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pcp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_pcp_labels_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 42 and 43 are LABEL PDUs before the START of frame 44
+        that announces LABELS. A second pass used to treat them as
+        coming after it (value length 256 and a malformed frame), see
+        "PCP: Update the LABELS state on the first pass only".'''
+        one = self.pcp_tree(cmd_tshark, capture_file, test_env, 'frame.number in {42,43,45}')
+        two = self.pcp_tree(cmd_tshark, capture_file, test_env, 'frame.number in {42,43,45}', '-2')
+        assert one == two
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'pcp.label',
+                '-Tfields', '-eframe.number', '-epcp.label.sets.label.valuelen',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        # little-endian guess, plausible big-endian value length, known good labels
+        assert rows['42'][0] == '1' and 'endianness' in rows['42'][1]
+        assert rows['43'][0] == '1' and 'endianness' in rows['43'][1]
+        assert rows['45'][0] == '1' and rows['45'][1] == ''
+
+    def test_pcp_pmid_names(self, cmd_tshark, capture_file, test_env):
+        '''The names of PMNS_NAMES (frame 8) map to the ids of the
+        PMNS_IDS of frame 9 and are shown for the PMIDs of the FETCH
+        reassembled in frame 20; a name list whose count differs from the
+        ids (frames 10-11) maps nothing.'''
+        out = self.pcp_tree(cmd_tshark, capture_file, test_env, 'frame.number in {9,11,20}')
+        assert out.count('(kernel.all.load)') == 2
+        assert out.count('(kernel.all.nusers)') == 2
+        assert out.count('(mem.str)') == 1
+        assert out.count('(Metric name unknown)') == 3 + 1
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20',
+                '-Tfields', '-e_ws.col.info', '-epcp.fetch.numpmid', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip().split('\t')[1] == '3'
+
+    def test_pcp_result_values(self, cmd_tshark, capture_file, test_env):
+        '''The RESULT of frame 21 has one value of every type: insitu,
+        int32, uint32, int64, uint64, float, double, string, aggregate;
+        the event, unknown and unimplemented types get an expert info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 21',
+                '-Tfields', '-epcp.result.numval', '-epcp.instance.value.int',
+                '-epcp.instance.value.int64', '-epcp.instance.value.uint64',
+                '-epcp.instance.value.string', '-epcp.instance.value.bytes',
+                '-e_ws.expert.message', '-epcp.results.numpmid',
+                '-Eseparator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        f = stdout.strip().split(';')
+        assert f[1].split(',')[0] == '-5'
+        assert f[2] == '-1099511627776'
+        assert f[3] == '1099511627776'
+        assert f[4] == 'hello'
+        assert f[5].split(',') == ['01020304', '05060708']
+        assert f[7] == '15'
+        for msg in ('PM_TYPE_EVENT', 'PM_TYPE_UNKNOWN', 'Unimplemented Value Type'):
+            assert msg in f[6]
+        out = self.pcp_tree(cmd_tshark, capture_file, test_env, 'frame.number in {21,22}')
+        assert 'Value Encoding Format: PM_VAL_INSITU (0)' in out
+        assert 'Value Encoding Format: PM_VAL_SPTR (2)' in out
+        assert 'Instance Value: 3735928559' in out
+
+    def test_pcp_errors_and_secure_ack(self, cmd_tshark, capture_file, test_env):
+        '''ERROR PDUs are told from START by the sign of the status. A
+        START that holds only the status is the SECURE_ACK reply of a
+        TLS upgrade (frame 48) or its failure (frame 49).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'pcp.error', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['7', '13', '14', '15', '16']
+        assert 'error=PM_ERR_NAME' in rows[0][1]
+        assert 'Unknown Error:-99999' in rows[3][1]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'pcp.ssl_upgrade || pcp.ssl_upgrade_failed',
+                '-Tfields', '-eframe.number', '-epcp.ssl_upgrade',
+                '-epcp.ssl_upgrade_failed',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['48\t1\t', '49\t\t1']
+
+    def test_pcp_label_sets(self, cmd_tshark, capture_file, test_env):
+        '''Frame 38 has two label sets. The first holds hostname and
+        domainname labels, the second returns an error count.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 38',
+                '-Tfields', '-epcp.label.nsets', '-epcp.label.sets.nlabels',
+                '-epcp.label.sets.label.name', '-epcp.label.sets.label.value',
+                '-e_ws.expert.message', '-Eseparator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        f = stdout.strip().split(';')
+        assert f[0] == '2'
+        assert f[1] == '2,-12372'
+        assert f[2] == 'hostname,domainname'
+        assert f[3] == 'h1,d'
+        assert 'Label returned an error' in f[4]
