@@ -117127,3 +117127,159 @@ class TestDissectPer:
                            '-e_ws.col.protocol', '-e_ws.col.info')
         assert [l.strip() for l in out] == ['1\tH.245\tvendorIdentification',
                                           '200\tLTE RRC DL_DCCH']
+
+
+class TestDissectPfcpCoverage:
+    '''PFCP (UDP 8805) and the vendor IEs of Broadband Forum, Nokia, Juniper
+    and Travelping, from the synthetic capture pfcp_coverage.pcapng.gz:
+    frames 1-23 node messages, 24-31 session messages, 32-45 header
+    variants, 46-329 one frame per IE type, 330-446 vendor IEs, 447-567
+    grouped IEs, 568-571 IEs with trailing octets, 572-573 nested grouped
+    IEs (14 levels), 574-577 Exported PDU, 578-591 hand built IEs, 592-627
+    session flows. Frames 574-577 are Exported PDU frames naming the vendor
+    IE dissectors.'''
+
+    SESSION = ('-o', 'pfcp.track_pfcp_session:TRUE')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('pfcp_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_pfcp_coverage_protocols(self, cmd_tshark, capture_file, test_env):
+        '''627 frames, 623 of them PFCP and 4 Exported PDU, without
+        malformed packets and error expert infos in one and two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'pfcp', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 623
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'exported_pdu', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 4
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, *passes, '-Y', 'pfcp', '-V')
+            assert count_output(stdout, 'Malformed') == 0
+            assert count_output(stdout, 'Grouped IE nesting too deep') == 0
+
+    def test_pfcp_coverage_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames that name the vendor IE dissectors call them
+        without the data of the PFCP dissector; tshark crashed on the
+        grouped IE of pfcp_bbf_ies before "PFCP: Bound grouped IE nesting
+        and fix session tracking costs".'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'exported_pdu', '-Tfields', '-eframe.number', '-eexported_pdu.prot_name',
+                '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '574\tpfcp_bbf_ies\t',
+            '575\tpfcp_nokia_ies\t',
+            '576\tpfcp_jnpr_ies\t',
+            '577\tpfcp_travelping_ies\t',
+        ]
+
+    def test_pfcp_coverage_nested_grouped_ie(self, cmd_tshark, capture_file, test_env):
+        '''Fourteen nested grouped IEs are below the nesting limit: the
+        innermost PDR ID is decoded, for 3GPP and for BBF IEs.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 572', '-Tfields', '-eframe.number', '-epfcp.pdr_id')
+        assert stdout.splitlines() == ['572\t1']
+        for n in (572, 573):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number == %d' % n, '-V')
+            assert count_output(stdout, 'Grouped IE') == 14
+
+    def test_pfcp_coverage_sdf_filter_smmii(self, cmd_tshark, capture_file, test_env):
+        '''The (S)RTP multiplexed media identification instances of frame
+        578 are decoded one after the other, also after an instance that is
+        longer than its flags describe.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'pfcp.sdf_filter.smmii.media_identification_tag',
+                '-Tfields', '-eframe.number', '-epfcp.sdf_filter.smmii.media_identification_tag')
+        assert stdout.splitlines() == ['578\t6d6964,7879']
+
+    def test_pfcp_coverage_remote_gtp_u_peer(self, cmd_tshark, capture_file, test_env):
+        '''The time stamp after the network instance of a Remote GTP-U Peer
+        is decoded at the right offset, so every frame gives the same time.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {586, 627}', '-Tfields', '-eframe.number',
+                '-epfcp.remote_gtp_u_peer.time_stamp', '-epfcp.network_instance')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['586', '627']
+        stamps = lines[0][1].split(',') + lines[1][1].split(',')
+        assert len(stamps) == 3
+        assert len(set(stamps)) == 1
+        assert lines[0][2].split(',')[-2:] == ['internet', 'internet']
+
+    def test_pfcp_coverage_bbf_nat_port_forward(self, cmd_tshark, capture_file, test_env):
+        '''Every NAT port forward entry shows its own address.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 578 && pfcp.bbf.nat_port_forward', '-V')
+        entries = [l.strip() for l in stdout.splitlines() if 'NAT Port Forward:' in l]
+        assert entries == [
+            'NAT Port Forward: proto=UDP: 10.0.0.1:5060 -> 5060',
+            'NAT Port Forward: proto=TCP: 10.0.0.2:80 -> 8080',
+            'NAT Port Forward: proto=UDP: 10.0.0.3:53 -> 5353',
+        ]
+
+    def test_pfcp_coverage_vendor_ies(self, cmd_tshark, capture_file, test_env):
+        '''A few vendor IEs of the hand built frames.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 578 && frame.number <= 591', '-V')
+        assert 'IPv6 Prefix (Broadband Forum) : 2001:db8::2/64' in stdout
+        assert 'Detailed Statistics (Nokia) : 2 ingress queue counters (object 1 mode 2)' in stdout
+        assert 'Detailed Statistics (Nokia) : 3 egress queue counters (object 1 mode 2)' in stdout
+        assert 'Detailed Statistics (Nokia) : 1 ingress policer counter (object 1 mode 3)' in stdout
+
+    def test_pfcp_coverage_response_matching(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched on the sequence number; with
+        a maximum interval of 2 ms a response after 40 ms is not matched.'''
+        args = ('-Y', 'frame.number in {1, 2, 3, 4, 594, 595}', '-Tfields', '-eframe.number',
+                '-epfcp.response_in', '-epfcp.response_to')
+        # the request shows its response on the second pass only
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, *args)
+        assert stdout.splitlines() == ['1\t\t', '2\t\t1', '3\t\t', '4\t\t3', '594\t\t', '595\t\t594']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert stdout.splitlines() == ['1\t2\t', '2\t\t1', '3\t4\t', '4\t\t3', '594\t595\t', '595\t\t594']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-2', '-o', 'pfcp.pair_max_interval:2', *args)
+        assert stdout.splitlines() == ['1\t2\t', '2\t\t1', '3\t4\t', '4\t\t3', '594\t\t', '595\t\t']
+
+    def test_pfcp_coverage_srt(self, cmd_tshark, capture_file, test_env):
+        '''The PFCP SRT statistics count the matched pairs.'''
+        import re
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-q', '-z', 'pfcp,srt')
+        assert re.search(r'PFCP Heartbeat Request\s+4\s', stdout)
+        assert re.search(r'PFCP Association Setup Request\s+4\s', stdout)
+        assert re.search(r'PFCP Session Establishment Request\s+7\s', stdout)
+        assert re.search(r'PFCP Session Deletion Request\s+2\s', stdout)
+
+    def test_pfcp_coverage_session_tracking(self, cmd_tshark, capture_file, test_env):
+        '''With session tracking the messages of a session share its number
+        and IMSI. The rejected session (600-605) does not keep the Session
+        Report Request (604) to its CP SEID, a node message that carries an
+        F-SEID (614) has no session.'''
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, *self.SESSION, *passes,
+                    '-Y', 'frame.number >= 592 && frame.number <= 627',
+                    '-Tfields', '-eframe.number', '-epfcp.session')
+            sessions = {int(l.split('\t')[0]): l.split('\t')[1] if '\t' in l else ''
+                        for l in stdout.splitlines()}
+            assert {sessions[n] for n in range(592, 600)} == {'5'}
+            assert {sessions[n] for n in (600, 601, 602, 603, 605)} == {'6'}
+            assert sessions[604] == ''
+            assert sessions[614] == '' and sessions[615] == ''
+            assert sessions[606] == sessions[609] and sessions[606] not in ('', '5', '6')
+            assert sessions[610] == sessions[613]
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, *self.SESSION,
+                '-Y', 'frame.number == 592', '-Tfields', '-ee212.assoc.imsi')
+        assert stdout.split(',')[0].strip() == '001010000000011'
+
+    def test_pfcp_coverage_many_seids(self, cmd_tshark, capture_file, test_env):
+        '''A message with 70 F-SEIDs: only 64 are kept for the session
+        tracking, which says so; the tracking cost stays small.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, *self.SESSION,
+                '-Y', '_ws.expert.message contains "Too many SEIDs"', '-Tfields', '-eframe.number')
+        assert stdout.splitlines() == ['621']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert.message contains "Too many SEIDs"', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
