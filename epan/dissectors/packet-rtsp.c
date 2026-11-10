@@ -578,7 +578,7 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
     bool      is_video      = false; /* FIX ME - need to indicate video or not */
     address   src_addr;
     address   dst_addr;
-    uint32_t  ip4_addr;
+    uint32_t  dst_ip4, src_ip4;
     rtp_dyn_payload_t *rtp_dyn_payload = NULL;
 
     if (rtsp_type_packet != RTSP_REPLY) {
@@ -653,13 +653,17 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             /* Skip leading " */
             tmp++;
             tmp2=strstr(tmp,":");
+            if (!tmp2) {
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
+                return;
+            }
             tmp3=g_strndup(tmp,tmp2-tmp);
-            if (!str_to_ip(tmp3, &ip4_addr)) {
+            if (!str_to_ip(tmp3, &dst_ip4)) {
                 g_free(tmp3);
                 expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
                 return;
             }
-            set_address(&dst_addr, AT_IPv4, 4, &ip4_addr);
+            set_address(&dst_addr, AT_IPv4, 4, &dst_ip4);
             g_free(tmp3);
         }
         else if (sscanf(tmp, "\"%u.%u.%u.%u\"", &ipv4_1, &ipv4_2, &ipv4_3, &ipv4_4) == 4) {
@@ -669,13 +673,17 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             /* Skip leading " */
             tmp++;
             tmp2=strstr(tmp,"\"");
+            if (!tmp2) {
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
+                return;
+            }
             tmp3=g_strndup(tmp,tmp2-tmp);
-            if (!str_to_ip(tmp3, &ip4_addr)) {
+            if (!str_to_ip(tmp3, &dst_ip4)) {
                 g_free(tmp3);
                 expert_add_info(pinfo, ti, &ei_rtsp_bad_server_ip_address);
                 return;
             }
-            set_address(&dst_addr, AT_IPv4, 4, &ip4_addr);
+            set_address(&dst_addr, AT_IPv4, 4, &dst_ip4);
             g_free(tmp3);
         }
         else
@@ -703,13 +711,17 @@ rtsp_create_conversation(packet_info *pinfo, proto_item *ti,
             /* Skip leading " */
             tmp++;
             tmp2=strstr(tmp,":");
+            if (!tmp2) {
+                expert_add_info(pinfo, ti, &ei_rtsp_bad_client_ip_address);
+                return;
+            }
             tmp3=g_strndup(tmp,tmp2-tmp);
-            if (!str_to_ip(tmp3, &ip4_addr)) {
+            if (!str_to_ip(tmp3, &src_ip4)) {
                 g_free(tmp3);
                 expert_add_info(pinfo, ti, &ei_rtsp_bad_client_ip_address);
                 return;
             }
-            set_address(&src_addr, AT_IPv4, 4, &ip4_addr);
+            set_address(&src_addr, AT_IPv4, 4, &src_ip4);
             g_free(tmp3);
         }
     }
@@ -1239,7 +1251,7 @@ dissect_rtspmessage(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
                 if (tvb_find_uint8_length(tvb, value_offset, value_len, ';', &semi_colon_offset)) {
                     /* m-parameter present */
                     par_end_offset = tvb_skip_wsp_return(tvb, semi_colon_offset-1);
-                    value_len = par_end_offset - offset;
+                    value_len = par_end_offset > offset ? par_end_offset - offset : 0;
                 }
 
                 media_type_str_lower_case = ascii_strdown_inplace(
