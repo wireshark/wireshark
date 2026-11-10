@@ -130668,3 +130668,89 @@ class TestDissectRtp:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertp.seq',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['86\tSBC\t10', '89\tRTP\t20']
+
+
+class TestDissectRtpEd137:
+    def test_rtp_ed137_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is SIP and the other 54 frames are RTP with ED-137
+        header extensions; none is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 55
+        assert protocols[0] == 'SIP/SDP'
+        assert protocols.count('RTP') == 54
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rtp_ed137_info(self, cmd_tshark, capture_file, test_env):
+        '''PTT, SQU, SQI, CLIMAX delay and RRC are summarised in the Info
+        column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,11,12,30,31,32,33,34,35,36,37}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t', 1)[0] + ' ' + l.split(', Time=')[1].split(', ', 1)[-1]
+                for l in stdout.splitlines()] == [
+            '4 Mark, PTT', '11 SQU', '12 PTT, SQU', '30 SQI=10', '31 SQI N/A',
+            '32 SQI=20', '33 CMX=80ms rel', '34 CMX=200ms abs',
+            '35 SQI=7, CMX=10ms rel', '36 PTT, RRC', '37 RRC',
+        ]
+
+    def test_rtp_ed137_fields(self, cmd_tshark, capture_file, test_env):
+        '''The ED-137 word (profile 0x0067) and the ED-137A header (profile
+        0x0167) fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,11,13,30,33,36}',
+                '-Tfields', '-eframe.number', '-ertp.ext.profile',
+                '-ertp.ext.ed137.ptt_type', '-ertp.ext.ed137.squ', '-ertp.ext.ed137.ptt_id',
+                '-ertp.ext.ed137a.ptt_type', '-ertp.ext.ed137a.squ',
+                '-ertp.ext.ed137a.ft.sqi.qidx', '-ertp.ext.ed137a.ft.climax_delay.relative_value',
+                '-ertp.ext.ed137b.ft.rrc.mstxf1',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0x0067\t1\t0\t2\t\t\t\t\t',
+            '11\t0x0067\t0\t1\t0\t\t\t\t\t',
+            '13\t0x0067\t1\t1\t0\t\t\t\t\t',
+            '30\t0x0167\t\t\t\t0\t0\t10\t\t',
+            '33\t0x0167\t\t\t\t0\t0\t\t40\t',
+            '36\t0x0167\t\t\t\t1\t0\t\t\t1',
+        ]
+
+    def test_rtp_ed137_rmm_mam_tracking(self, cmd_tshark, capture_file, test_env):
+        '''A MAM response is matched to its RMM request by the T1 value;
+        both get links in the second pass.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42,43,44,45,46,47}',
+                '-Tfields', '-eframe.number',
+                '-ertp.ext.ed137.ft.climax_ddc.rmm.response_in',
+                '-ertp.ext.ed137.ft.climax_ddc.mam.request_in',
+                '-ertp.ext.ed137b.ft.climax_ddc.rmm_t1',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '42\t43\t\t4096',
+            '43\t\t42\t',
+            '44\t45\t\t8192',
+            '45\t\t44\t',
+            '46\t47\t\t8388592',
+            '47\t\t46\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_ed137_coverage.pcap.gz'),
+                '-Y', 'frame.number in {43,45}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = stdout.splitlines()
+        assert info[0].endswith(' (request in 42)') and ', MAM=' in info[0]
+        assert info[1].endswith(' (request in 44)') and ', NMR, MAM>' in info[1]
