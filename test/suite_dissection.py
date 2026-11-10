@@ -115299,3 +115299,64 @@ class TestDissectPacketbb:
         assert lines[1] == ('12\t\t\t192.0.2.1,192.0.2.2,192.0.2.3,5.6.7.8,9.10.11.12,'
                             '10.1.2.9,10.3.4.9,10.1.2.0,10.3.4.0,7.0.1.2\t\t')
         assert lines[2] == ('16\t\t\t1.2.3.4,5.6.7.8,9.10.11.12\t00,01,02,00,01,02\t0xa00f')
+
+
+class TestDissectPacketlogger:
+    '''Apple PacketLogger files (Bluetooth HCI, syslog and info records)
+    from the synthetic capture packetlogger_coverage.pklg.gz.'''
+
+    def test_packetlogger_protocols(self, cmd_tshark, capture_file, test_env):
+        '''27 records: HCI commands and events, L2CAP, SCO, and 13
+        PacketLogger records (LMP, syslog, kernel, ...). No malformed
+        frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetlogger_coverage.pklg.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 27
+        assert protocols.count('PKTLOG') == 13
+        assert protocols.count('HCI_CMD') == 4
+        assert protocols.count('HCI_EVT') == 6
+        assert protocols.count('L2CAP') == 2
+        assert protocols.count('HCI_SCO') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('packetlogger_coverage.pklg.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_packetlogger_syslog(self, cmd_tshark, capture_file, test_env):
+        '''The two syslog records (one with empty strings) and a kernel
+        info record.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetlogger_coverage.pklg.gz'),
+                '-Y', 'frame.number in {17, 18, 23}',
+                '-Tfields', '-eframe.number', '-epacketlogger.type',
+                '-epacketlogger.syslog.process_id', '-epacketlogger.syslog.message_type',
+                '-epacketlogger.syslog.process', '-epacketlogger.syslog.sender',
+                '-epacketlogger.syslog.subsystem', '-epacketlogger.syslog.category',
+                '-epacketlogger.syslog.message', '-epacketlogger.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '17\t0xf7\t321\t5\tbluetoothd\tlibBluetooth\tcom.example.bt\tdiscovery\tInquiry started\t',
+            '18\t0xf7\t322\t6\t\t\t\t\t\t',
+            '23\t0xfc\t\t\t\t\t\t\t\tnote: user clicked connect',
+        ]
+
+    def test_packetlogger_hci(self, cmd_tshark, capture_file, test_env):
+        '''HCI records are handed to the HCI dissectors with the sent and
+        received direction of the record type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetlogger_coverage.pklg.gz'),
+                '-Y', 'frame.number <= 14',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\tSent Reset'
+        assert lines[1] == '2\tRcvd Command Complete (Reset)'
+        assert lines[9] == '10\tRcvd Connect Complete'
+        assert lines[10] == '11\tSent Information Request (Connectionless MTU)'
+        assert lines[13] == '14\tRcvd SCO - Correctly Received Data'
