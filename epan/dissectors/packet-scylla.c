@@ -445,7 +445,7 @@ dissect_scylla_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     if (response_expected(verb_type)) {
         if (!PINFO_FD_VISITED(pinfo)) {
             uint64_t *key = wmem_new(wmem_file_scope(), uint64_t);
-            request_response_t *val = wmem_new(wmem_file_scope(), request_response_t);
+            request_response_t *val = wmem_new0(wmem_file_scope(), request_response_t);
             *key = msg_id;
             val->verb_type = verb_type;
             val->request_frame_num = pinfo->num;
