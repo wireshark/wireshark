@@ -115450,3 +115450,51 @@ class TestDissectPaHbbackup:
                 '-Tfields', '-ehbbak.unknown1', '-eudp.srcport',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip('\n') == '0a0b0c0d0e0f\t40000'
+
+
+class TestDissectPaltalk:
+    '''Paltalk Messenger over TCP, claimed by the heuristic dissector for
+    streams with an address in 199.106.0.0/15, from the synthetic capture
+    paltalk_coverage.pcap.gz.'''
+
+    def test_paltalk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''12 frames: 8 Paltalk (frame 5 is the first part of a PDU
+        that is completed in frame 6), and 4 TCP segments of streams that
+        are not Paltalk (no address in the network, and IPv6). No
+        malformed frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('paltalk_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('Paltalk') == 8
+        assert protocols.count('TCP') == 4
+        assert protocols[4] == 'TCP'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('paltalk_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_paltalk_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Type, version and length of every PDU: the empty PDU, two PDUs
+        in one segment (frames 4 and 7), a PDU over two segments (frame 6).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('paltalk_coverage.pcap.gz'),
+                '-Y', 'paltalk',
+                '-Tfields', '-eframe.number', '-epaltalk.type',
+                '-epaltalk.version', '-epaltalk.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x0001\t138\t13',
+            '2\t0x0002\t138\t7',
+            '3\t0x0003\t138\t0',
+            '4\t0x0004,0x0005\t138,138\t3,3',
+            '6\t0x0006\t138\t200',
+            '7\t0x0007,0x0008\t138,138\t300,1',
+            '8\t0x1001\t138\t20',
+            '9\t0x1002\t138\t3',
+        ]
