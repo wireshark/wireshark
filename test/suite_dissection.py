@@ -130815,3 +130815,86 @@ class TestDissectRtpEvents:
             '272\t102\t1\tFalse\tFalse\t20\t320',
             '275\t100\t192\tFalse\tFalse\t0\t0',
         ]
+
+
+class TestDissectRtpMidi:
+    def test_rtp_midi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-2 are SIP, 3-76 and 79-82 are RTP-MIDI over RTP, and 77-78 are
+        RTP-MIDI called from Exported PDUs; none is malformed or has an
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 82
+        assert protocols[:2] == ['SIP/SDP', 'SIP/SDP']
+        assert protocols.count('RTP-MIDI') == 80
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rtp_midi_command_section(self, cmd_tshark, capture_file, test_env):
+        '''Delta times of one to four octets, long command headers and the
+        MIDI commands of the command section.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6,10,13}',
+                '-Tfields', '-eframe.number',
+                '-ertpmidi.deltatime_2', '-ertpmidi.deltatime_3', '-ertpmidi.deltatime_4',
+                '-ertpmidi.cmd_length_long',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['6', '10', '13']
+        assert rows[0][1] and rows[0][2] and rows[0][3] and rows[0][4] == '23'
+        assert rows[1][4] == '23'
+        assert rows[2][4] == '359'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4,7,8}',
+                '-Tfields', '-eframe.number', '-ertpmidi.cmd_length_short',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\t3', '7\t9', '8\t11']
+
+    def test_rtp_midi_journal_chapters(self, cmd_tshark, capture_file, test_env):
+        '''System journal chapters Q (clock) and X (FIRST of four octets),
+        channel journal chapters P and N are decoded.'''
+        def frames(flt):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                    '-Y', flt, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            return stdout.split()
+        assert frames('rtpmidi.sj_chapter_q_clock') == ['27', '30']
+        assert frames('rtpmidi.sj_chapter_x_first_4') == ['39']
+        assert frames('rtpmidi.sj_chapter_x_invalid_data') == ['35', '41', '82']
+        assert frames('rtpmidi.cj_chapter_p_program') == ['43', '44', '59', '60']
+        assert frames('rtpmidi.cj_chapter_n_log_note') == ['50', '51', '59']
+        assert frames('rtpmidi.cj_chapter_w_first') == ['46', '59', '60']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {43,44,60}',
+                '-Tfields', '-eframe.number', '-ertpmidi.cj_chapter_p_program',
+                '-ertpmidi.chanjour_channel',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '43\t1\t0x000000',
+            '44\t5\t0x000003',
+            '60\t1\t0x000000,0x000001,0x00000f',
+        ]
+
+    def test_rtp_midi_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''The FIRST field of chapter X is decoded (the check was inverted
+        and the system journal was dropped), and the LEGAL field of an F4
+        command is not followed by a bogus "Erroneous Data" item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_midi_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {77,78}',
+                '-Tfields', '-eframe.number', '-ertpmidi.sj_chapter_x_first_1',
+                '-ertpmidi.sj_chapter_d_syscom_legal', '-ertpmidi.sj_chapter_d_syscom_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['77\t0x05\t\t', '78\t\taabb\t']
