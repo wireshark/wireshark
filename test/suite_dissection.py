@@ -139488,3 +139488,87 @@ class TestDissectSmp:
                 'tds && frame.number > 20', ['frame.number'],
                 *self.SMP_PORT, '-d', 'smp.payload,tds')
         assert rows == ['25', '26']
+
+
+class TestDissectSmpp:
+    '''SMPP from the synthetic capture smpp_coverage.pcapng.gz: a session
+    on TCP 2775 (found by the smpp_tcp heuristic) with every operation,
+    response and optional parameter, PDUs on TCP 9999, a second session
+    and an Exported PDU frame (frame 156).'''
+
+    CAP = 'smpp_coverage.pcapng.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_smpp_clean(self, cmd_tshark, capture_file, test_env):
+        '''146 frames are SMPP; no malformed frame and no warning or error
+        expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            assert len(self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'smpp',
+                    ['frame.number'], *passes)) == 146
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    ['frame.number'], *passes) == []
+
+    def test_smpp_commands(self, cmd_tshark, capture_file, test_env):
+        '''The number of PDUs of every command id (requests and
+        responses).'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'smpp',
+                ['smpp.command_id'])
+        ids = [x for r in rows for x in r.split(',')]
+        counts = {c: ids.count(c) for c in set(ids)}
+        assert counts == {
+            '0x00000001': 2, '0x00000002': 1, '0x00000003': 1, '0x00000004': 10,
+            '0x00000005': 32, '0x00000006': 1, '0x00000007': 2, '0x00000008': 1,
+            '0x00000009': 2, '0x0000000b': 1, '0x00000015': 8, '0x00000021': 3,
+            '0x00000102': 2, '0x00000103': 2, '0x00000111': 2, '0x00000112': 1,
+            '0x00000113': 1, '0x01000001': 2, '0x01000002': 2,
+            '0x80000000': 1, '0x80000001': 2, '0x80000002': 1, '0x80000003': 2,
+            '0x80000004': 10, '0x80000005': 32, '0x80000006': 1, '0x80000007': 2,
+            '0x80000008': 1, '0x80000009': 2, '0x80000015': 5, '0x80000021': 3,
+            '0x80000103': 2, '0x80000111': 2, '0x80000112': 1, '0x80000113': 1,
+            '0x81000001': 2, '0x81000002': 2}
+
+    def test_smpp_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Responses are matched with their requests (per conversation); the
+        requests show the response only in the second pass.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {4, 5, 6, 7}',
+                ['frame.number', '_ws.col.info', 'smpp.request_in', 'smpp.response_in'], '-2')
+        assert rows == [
+            '4\tBind_receiver\t\t5',
+            '5\tBind_receiver - resp: "Ok"\t4\t',
+            '6\tBind_transmitter\t\t7',
+            '7\tBind_transmitter - resp: "Ok"\t6\t',
+        ]
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'smpp.message_id && frame.number < 30', ['frame.number', 'smpp.message_id'])
+        assert rows == ['16\tmsg-0001', '18\tmsg-0002', '22\tmsg-0003']
+
+    def test_smpp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Short messages in several PDUs are reassembled from the user
+        data header (frames 75-79) and from the SAR parameters (87-90).'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {75, 77, 79, 87, 89}', ['frame.number', '_ws.col.info'])
+        assert rows == [
+            '75\tDeliver_sm (Short Message fragment 1 of 3)',
+            '77\tDeliver_sm (Short Message fragment 2 of 3)',
+            '79\tDeliver_sm (Short Message Reassembled)',
+            '87\tSubmit_sm (Short Message fragment 1 of 2)',
+            '89\tSubmit_sm (Short Message Reassembled)',
+        ]
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'smpp.sar_msg_ref_num', ['frame.number', 'smpp.sar_msg_ref_num',
+                 'smpp.sar_total_segments', 'smpp.sar_segment_seqnum'])
+        assert rows[:2] == ['87\t4660\t2\t1', '89\t4660\t2\t2']
+
+    def test_smpp_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The Exported PDU frame is dissected without TCP.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number == 156', ['frame.number', '_ws.col.protocol', '_ws.col.info'])
+        assert rows == ['156\tSMPP\tEnquire_link']
