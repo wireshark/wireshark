@@ -118553,3 +118553,77 @@ class TestDissectPmproxy:
             ['14', 'localhost', '44321'],
             ['17', 'pmproxy-server', '2'],
         ]
+
+
+class TestDissectPMul:
+    '''P_Mul (ACP142) from the synthetic Exported PDU capture
+    p_mul_coverage.pcap.gz (every frame names the "p_mul" dissector).'''
+
+    def test_p_mul_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 46 frames are P_MUL with no malformed frame and no
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p_mul_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 46
+        assert protocols.count('P_MUL') == 46
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p_mul_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_p_mul_relative_msgid_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-2 are the reproducer of "P_MUL: Do not assert on a
+        relative message ID seen on a later pass": the first PDU has
+        message ID 0, the second 5. The second pass asserted before the
+        fix; now both passes show the same IDs.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p_mul_coverage.pcap.gz'),
+                    '-Y', 'frame.number <= 2',
+                    '-Tfields', '-eframe.number', '-ep_mul.message_id',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '1\t0\tAddress PDU, No PDUs: 0, Count of Dest: 1, MSID: 0',
+                '2\t5\tAddress PDU, No PDUs: 0, Count of Dest: 1, MSID: 5',
+            ]
+
+    def test_p_mul_reassembly_and_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Message 10: three Data PDUs reassembled in frame 6, then the
+        Ack, retransmission and duplicate Ack analysis.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('p_mul_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 3 && frame.number <= 13',
+                '-Tfields', '-eframe.number', '-ep_mul.reassembled.length',
+                '-ep_mul.analysis.retrans_no', '-ep_mul.analysis.dup_ack_no',
+                '-ep_mul.no_missing_seq_no', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[3] == ('6\t11\t\t\t\tData PDU, Seq no: 3, MSID: 10 '
+                            '(Message Reassembled)')
+        assert lines[5].startswith('8\t\t\t\t2\t')
+        assert lines[6].startswith('9\t\t1\t\t\t[Retrans 5#1] Data PDU, Seq no: 2')
+        assert lines[8].startswith('11\t\t\t1\t\t[Dup ACK 7#1] Ack PDU')
+
+    def test_p_mul_missing_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Expert infos for a missing previous Data PDU, an illegal
+        sequence number, a Data PDU without an Address PDU and a bad
+        checksum.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p_mul_coverage.pcap.gz'),
+                '-Y', 'p_mul.analysis.prev_pdu_missing || p_mul.seq_no.illegal '
+                      '|| p_mul.checksum_bad.expert',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '16\tPrevious PDU missing',
+            '18\tIllegal seq number',
+            '45\tBad checksum',
+            '46\tBad checksum,Address PDU missing',
+        ]
