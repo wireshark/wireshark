@@ -1306,7 +1306,8 @@ dissect_rsl_ie_enc_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_item(ie_tree, hf_rsl_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* key */
-    proto_tree_add_item(ie_tree, hf_rsl_key, tvb, offset+1, length -1, ENC_NA);
+    if (length > 1)
+        proto_tree_add_item(ie_tree, hf_rsl_key, tvb, offset+1, length -1, ENC_NA);
 
     return offset + length;
 
@@ -1741,6 +1742,7 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree *ie_tree;
     unsigned    length;
     uint8_t     ie_id;
+    int         ie_offset;
 
     if (is_mandatory == false) {
         ie_id = tvb_get_uint8(tvb, offset);
@@ -1758,6 +1760,7 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_item_set_len(ti, length+2);
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
+    ie_offset = offset;
 
     /*
      * Physical Context Information:
@@ -1766,13 +1769,12 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
      *  forwarded from one TRX/channel to another.
      */
     if(global_rsl_dissect_phy_ctx_inf){
-        offset = dissect_phy_ctx_ie(tvb, pinfo, ie_tree, offset, length);
+        dissect_phy_ctx_ie(tvb, pinfo, ie_tree, offset, length);
     }else{
         proto_tree_add_item(ie_tree, hf_rsl_phy_ctx, tvb, offset, length, ENC_NA);
-        offset = offset + length;
     }
 
-    return offset;
+    return ie_offset + length;
 }
 /*
  * 9.3.17 Access Delay M TV 2
@@ -1809,6 +1811,7 @@ dissect_rsl_ie_rach_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_item *ti;
     proto_tree *ie_tree;
     unsigned    length;
+    unsigned    orig_length;
     uint8_t     ie_id;
     int         ie_offset;
 
@@ -1829,6 +1832,11 @@ dissect_rsl_ie_rach_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     ie_offset = offset;
+    orig_length = length;
+
+    /* The three counters need 6 octets */
+    if (length < 6)
+        return ie_offset + orig_length;
 
     /*
      * This element is used to carry information on the load of the RACH (Random Access Channel)
@@ -1852,9 +1860,8 @@ dissect_rsl_ie_rach_load(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     if ( length > 0) {
         proto_tree_add_item(ie_tree, hf_rsl_rach_supplementary_information, tvb, offset, length, ENC_NA);
     }
-    offset = ie_offset + length;
 
-    return offset;
+    return ie_offset + orig_length;
 }
 
 /*
@@ -1961,6 +1968,7 @@ dissect_rsl_ie_resource_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     proto_tree *ie_tree;
     uint8_t     ie_id;
     unsigned    length;
+    unsigned    orig_length;
     int         ie_offset;
 
     if (is_mandatory == false) {
@@ -1983,8 +1991,9 @@ dissect_rsl_ie_resource_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     offset++;
 
     ie_offset = offset;
+    orig_length = length;
 
-    while (length > 0) {
+    while (length >= 2) {
         proto_tree_add_item(ie_tree, hf_rsl_ch_no_Cbits, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* TN is time slot number, binary represented as in 3GPP TS 45.002.
          * 3 Bits
@@ -2000,7 +2009,7 @@ dissect_rsl_ie_resource_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         offset++;
         length = length - 2;
     }
-    return ie_offset + length;
+    return ie_offset + orig_length;
 }
 
 /*
@@ -2044,9 +2053,8 @@ dissect_rsl_ie_rlm_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     /* octet = tvb_get_uint8(tvb, offset); */
     proto_tree_add_item(ie_tree, hf_rsl_extension_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ie_tree, hf_rsl_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
 
-    return offset;
+    return offset + length;
 }
 
 /*
@@ -2648,6 +2656,8 @@ dissect_rsl_ie_err_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
     unsigned    length;
     uint8_t     ie_id;
+    tvbuff_t   *msg_tvb;
+
     if (is_mandatory == false) {
         ie_id = tvb_get_uint8(tvb, offset);
         if (ie_id != RSL_IE_ERR_MSG)
@@ -2666,10 +2676,11 @@ dissect_rsl_ie_err_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* Received Message */
-    offset = dissct_rsl_msg(tvb, pinfo, ie_tree, offset);
+    /* Received Message, within the IE only */
+    msg_tvb = tvb_new_subset_length(tvb, offset, length);
+    dissct_rsl_msg(msg_tvb, pinfo, ie_tree, 0);
 
-    return offset;
+    return offset + length;
 }
 
 /*
@@ -3996,6 +4007,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
     proto_tree_add_item_ret_uint8(tree, hf_rsl_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
 
     if (msg_disc == RSL_MSGDISC_IPACCESS) {
+        /* ip.access messages only when nanoBTS definitions are enabled */
+        if (!global_rsl_use_nano_bts)
+            return offset;
         offset = dissct_rsl_ipaccess_msg(tvb, pinfo, tree, offset);
         return offset;
     }
