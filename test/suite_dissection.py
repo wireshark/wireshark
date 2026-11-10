@@ -121600,3 +121600,68 @@ class TestDissectQ931:
                 '-eq931.bearer_capability.duplex', '-eq931.bearer_capability.modem_type',
                 '-eq931.bearer_capability.stop_bits', '-eq931.bearer_capability.data_bits')
         assert rows == [['True', '0x13', '0x00', '0x03']]
+
+
+class TestDissectQ932:
+    '''Q.932 information elements (packet-q932.c) from the synthetic capture
+    q932_coverage.pcap.gz: Q.931 messages in LAPD frames (link type
+    LINUX_LAPD) with Facility IEs (protocol profiles, Network Facility
+    Extension, Network Protocol Profile and Interpretation components,
+    DSE and ACSE APDUs, unknown components, ROSE invokes), Notification
+    indicator IEs and Facility IEs nested through QSIG arguments (frames
+    207-210). 210 frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q932_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q932_protocols(self, cmd_tshark, capture_file, test_env):
+        '''210 frames, no malformed packets and no error expert infos in one
+        and two passes; 176 Facility IEs and 34 Notification indicator IEs.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 210
+        assert all(r[0].startswith('lapd:q931:q932') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+        for flt, n in (('q932.ie.type == 0x1c', 176), ('q932.ie.type == 0x27', 34)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', flt, '-eframe.number')
+            assert len(rows) == n
+
+    def test_q932_components(self, cmd_tshark, capture_file, test_env):
+        '''Protocol profiles, the standalone components and the "not
+        supported" components.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {5, 7, 12, 21, 22, 26, 30, 35}', '-eframe.number',
+                '-eq932.pp', '-eq932.NetworkProtocolProfile', '-eq932.InterpretationComponent',
+                '-e_ws.expert.message')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['5'][0] == '0x11'
+        assert d['7'][1] == '32'
+        assert d['12'][2] == '2'
+        assert d['21'][0] == '0x12' and d['22'][0] == '0x13'
+        assert d['26'][3] == 'DSE APDU (not supported)'
+        assert d['30'][3] == 'ACSE APDU (not supported)'
+        assert d['35'][3] == 'Unknown Component'
+
+    def test_q932_notification_indicator(self, cmd_tshark, capture_file, test_env):
+        '''Notification descriptions of the Notification indicator IE.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {173, 177, 199, 202}', '-eframe.number', '-eq932.nd')
+        assert rows == [['173', '0x00'], ['177', '0x42'], ['199', '0x03'], ['202', '0x7f']]
+
+    def test_q932_nested_facility(self, cmd_tshark, capture_file, test_env):
+        '''A Facility IE whose invoke argument holds a Q.931 Facility IE
+        holding another one, 1, 2, 6 and 11 levels deep, decodes every level
+        in one and two passes (the ROS state is file-scope, so the nesting
+        must not disturb the outer components).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 207', '-eframe.number', '-eq932.ie.type')
+            assert [(r[0], len(r[1].split(','))) for r in rows] == [
+                ('207', 1), ('208', 2), ('209', 6), ('210', 11)]
