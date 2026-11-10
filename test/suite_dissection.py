@@ -136178,3 +136178,90 @@ class TestDissectSelfm:
             encoding='utf-8', env=test_env, timeout=60)
         # the Read Response runs out of data and ends in an exception
         assert stdout.split() == ['2']
+
+
+class TestDissectSercosiii:
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00600000'
+    INFO = (
+        'MDT0 Channel=P Phase=CP0', 'MDT0 Channel=S Phase=CP0', 'MDT0 Channel=P Phase=CP0',
+        'MDT0 Channel=S Phase=CP0', 'AT 0 Channel=P Phase=CP0', 'AT 0 Channel=S Phase=CP0',
+        'AT 1 Channel=P Phase=CP0', 'MDT0 Channel=P Phase=CP1', 'MDT1 Channel=S Phase=CP2',
+        'MDT2 Channel=P Phase=CP1', 'MDT3 Channel=S Phase=CP2', 'AT 0 Channel=S Phase=CP2',
+        'AT 1 Channel=P Phase=CP1', 'AT 2 Channel=S Phase=CP2', 'AT 3 Channel=P Phase=CP1',
+        'MDT9 Channel=P Phase=CP1', 'AT 15 Channel=P Phase=CP2', 'MDT0 Channel=P Phase=CP3',
+        'MDT0 Channel=S Phase=CP4', 'MDT1 Channel=P Phase=CP3', 'MDT2 Channel=S Phase=CP4',
+        'AT 0 Channel=P Phase=CP3', 'AT 0 Channel=S Phase=CP4', 'AT 3 Channel=P Phase=CP3',
+        'AT 1 Channel=S Phase=CP4',
+    )
+
+    @staticmethod
+    def fields(cmd_tshark, test_env, cap, dfilter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', cap, '-Y', dfilter, '-Tfields', '-eframe.number']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in out.splitlines()]
+
+    def test_siii_frames(self, cmd_tshark, capture_file, test_env):
+        '''MDTs and ATs of every communication phase, in one and two
+        passes, without malformed packets or warnings.'''
+        cap = capture_file('sercosiii_coverage.pcap.gz')
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, test_env, cap, 'frame', '_ws.col.protocol', '_ws.col.info',
+                               passes=passes)
+            assert len(rows) == 25
+            assert [r[2] for r in rows] == list(self.INFO)
+            assert [r[1] for r in rows].count('SIII MDT') == 13
+            assert [r[1] for r in rows].count('SIII AT') == 12
+            assert self.fields(cmd_tshark, test_env, cap, self.BAD, passes=passes) == []
+
+    def test_siii_version_bits(self, cmd_tshark, capture_file, test_env):
+        '''The communication version of the MDT0 in CP0.'''
+        rows = self.fields(cmd_tshark, test_env, capture_file('sercosiii_coverage.pcap.gz'),
+                           'siii.mdt.version', 'siii.mdt.version',
+                           'siii.mdt.version.mdt0_cp0_switch_off_sercos_telegram',
+                           'siii.mdt.version.mdt0_cp0_fast_cp_switch',
+                           'siii.mdt.version.mdt0_cp0_transm_comm_parameter',
+                           'siii.mdt.version.initprocvers',
+                           'siii.mdt.version.num_mdt_at_cp1_2')
+        assert rows == [
+            ['1', '0x00000000', 'False', 'False', 'False', 'False', '0x00000000'],
+            ['2', '0x0070ff01', 'True', 'True', 'True', 'True', '0x00000000'],
+            ['3', '0x00210100', 'False', 'True', 'False', 'True', '0x00000001'],
+            ['4', '0x00130001', 'False', 'False', 'True', 'False', '0x00000003'],
+        ]
+
+    def test_siii_at_cp0_devices(self, cmd_tshark, capture_file, test_env):
+        '''The topology of an AT0 in CP0: the number of recognised devices
+        and the Sercos addresses.'''
+        cap = capture_file('sercosiii_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'frame.number in {5, 6}', 'siii.at.cp0.num_devices')
+        assert rows == [['5', '0'], ['6', '24']]
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', 'frame.number == 6',
+                                          '-V', '-O', 'siii'), encoding='utf-8', env=test_env)
+        assert 'Sercos Address 1: 1' in stdout
+        assert 'Sercos Address 24: 24' in stdout
+        assert 'Sercos Address 25: No Device' in stdout
+
+    def test_siii_hot_plug(self, cmd_tshark, capture_file, test_env):
+        '''The hot plug field of MDT0 and AT0 in CP3 and CP4 (other telegram
+        numbers have none).'''
+        cap = capture_file('sercosiii_coverage.pcap.gz')
+        rows = self.fields(cmd_tshark, test_env, cap, 'siii.mdt.hp.sercosaddress || siii.at.hp.sercosaddress',
+                           'siii.mdt.hp.sercosaddress', 'siii.at.hp.sercosaddress')
+        assert [r[0] for r in rows] == ['18', '19', '22', '23']
+        assert rows[0][1] == '0x0001' and rows[1][1] == '0x01ff'
+        assert rows[2][2] == '0x0002' and rows[3][2] == '0x0003'
+
+    def test_siii_service_channel_idn(self, cmd_tshark, capture_file, test_env):
+        '''Service channel with a data block element that carries an IDN.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('sercosiii_coverage.pcap.gz'),
+                                          '-Y', 'frame.number == 8', '-V', '-O', 'siii'),
+                                         encoding='utf-8', env=test_env)
+        assert 'Service Channels' in stdout
+        assert 'Device 0' in stdout and 'Device 127' in stdout
+        assert 'Device 255' not in stdout
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('sercosiii_coverage.pcap.gz'),
+                                          '-Y', 'frame.number == 9', '-V', '-O', 'siii'),
+                                         encoding='utf-8', env=test_env)
+        assert 'Device 128' in stdout and 'Device 255' in stdout
