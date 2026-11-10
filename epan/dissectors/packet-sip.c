@@ -51,6 +51,7 @@
 #include "packet-media-type.h"
 #include "packet-acdr.h"
 
+#include <epan/proto_data.h>
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
 
 /* un-comment the following as well as this line in conversation.c, to enable debug printing */
@@ -298,6 +299,10 @@ static expert_field ei_sip_method_invalid;
 static expert_field ei_sip_Status_Code_invalid;
 static expert_field ei_sip_authorization_invalid;
 static expert_field ei_sip_session_id_sess_id;
+static expert_field ei_sip_nesting_too_deep;
+
+/* Maximum nesting of SIP messages carried as bodies of other SIP messages */
+#define SIP_MAX_NESTING 4
 
 /* patterns used for tvb_ws_mempbrk_pattern_uint8 */
 static ws_mempbrk_pattern pbrk_comma_semi;
@@ -1675,7 +1680,6 @@ dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_
 
     /* split the line at the commas */
     while (line_end_offset > current_offset){
-        comma_offset = tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ',', &comma_offset);
         if(!tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ',', &comma_offset)){
             if(first_time == true){
                 /* It was only on parameter no need to split it up */
@@ -2904,7 +2908,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, unsig
 
     if (current_offset < line_end_offset) {
         /* Parse parameter and value */
-        if (!tvb_find_uint8_length(tvb, current_offset + 1, length, '=', &equals_offset)) {
+        if (tvb_find_uint8_length(tvb, current_offset + 1, line_end_offset - current_offset - 1, '=', &equals_offset)) {
             /* Extract the parameter name */
             GByteArray *uuid = g_byte_array_sized_new(16);
             char *param_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset,
@@ -2951,8 +2955,11 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, unsig
                 while(tvb_find_uint8_length(tvb, current_offset, line_end_offset - current_offset, ';', &semi_colon_offset)){
                     current_offset = semi_colon_offset + 1;
                     if(current_offset != line_end_offset){
-                        logme_end_offset = current_offset + 5;
+                        logme_end_offset = MIN(current_offset + 5, line_end_offset);
                         current_offset = tvb_skip_wsp_return(tvb,semi_colon_offset);
+                        if (logme_end_offset < current_offset) {
+                            logme_end_offset = current_offset;
+                        }
                         /* Extract logme parameter name */
                         char *name = (char*)tvb_get_string_enc(pinfo->pool, tvb, current_offset,logme_end_offset - current_offset, ENC_UTF_8|ENC_NA);
                         if(g_ascii_strcasecmp(name, "logme") == 0){
@@ -3375,6 +3382,7 @@ dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, pa
     const char *cseq_method = "";
     char   *call_id = NULL;
     char   *media_type_str_lower_case = NULL;
+    unsigned sip_nesting;
     media_content_info_t content_info = { MEDIA_CONTAINER_SIP_DATA, NULL, NULL, NULL };
     char   *content_encoding_parameter_str = NULL;
     unsigned   resend_for_packet = 0;
@@ -4712,7 +4720,7 @@ dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, pa
             .hf_id = hf_sip_call_id_gen,
             .add_hidden = sip_hide_generatd_call_ids,
             .hf_type = SDP_TRACE_ID_HF_TYPE_STR,
-            .trace_id.str = wmem_strdup(wmem_file_scope(), call_id),
+            .trace_id.str = wmem_strdup(PINFO_FD_VISITED(pinfo) ? pinfo->pool : wmem_file_scope(), call_id),
         };
         content_info.data = &setup_info;
 
@@ -4746,7 +4754,12 @@ dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, pa
         }
 
         /* give the content type parameters to sub dissectors */
-        if ( media_type_str_lower_case != NULL ) {
+        sip_nesting = p_get_proto_depth(pinfo, proto_sip);
+        if (sip_nesting >= SIP_MAX_NESTING) {
+            expert_add_info(pinfo, ti_a, &ei_sip_nesting_too_deep);
+        } else if ( media_type_str_lower_case != NULL ) {
+            p_set_proto_depth(pinfo, proto_sip, sip_nesting + 1);
+            increment_dissection_depth(pinfo);
             /* SDP needs a transport layer to determine request/response */
             if (!strcmp(media_type_str_lower_case, "application/sdp")) {
                 /* Resends don't count */
@@ -4810,6 +4823,8 @@ dissect_sip_common(tvbuff_t *tvb, unsigned offset, unsigned remaining_length, pa
                 DENDENT();
                 DPRINT(("done calling dissector_try_string_with_data() with found_match=%u", found_match));
             }
+            decrement_dissection_depth(pinfo);
+            p_set_proto_depth(pinfo, proto_sip, sip_nesting);
             /* If no match dump as text */
         }
         if ( found_match == 0 )
@@ -7539,7 +7554,8 @@ void proto_register_sip(void)
         { &ei_sip_method_invalid, { "sip.Cseq.method.invalid", PI_MALFORMED, PI_NOTE, "Invalid method value", EXPFILL }},
         { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }},
         { &ei_sip_authorization_invalid, { "sip.authorization.invalid", PI_PROTOCOL, PI_WARN, "Invalid authorization response for known credentials", EXPFILL }},
-        { &ei_sip_session_id_sess_id,{ "sip.Session-ID.sess_id.invalid", PI_PROTOCOL, PI_WARN, "Session ID cannot be empty", EXPFILL }}
+        { &ei_sip_session_id_sess_id,{ "sip.Session-ID.sess_id.invalid", PI_PROTOCOL, PI_WARN, "Session ID cannot be empty", EXPFILL }},
+        { &ei_sip_nesting_too_deep, { "sip.nesting_too_deep", PI_MALFORMED, PI_ERROR, "SIP message body nested too deeply", EXPFILL }}
     };
 
     module_t *sip_module;
