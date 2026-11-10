@@ -117649,3 +117649,48 @@ class TestDissectPingPongProtocol:
         assert stdout.splitlines() == [
             '18\t8\t\t', '19\t4\t\t', '20\t0\t\t', '21\t16\t\t', '22\t4\t\t', '23\t0\t\t',
         ]
+
+
+class TestDissectPkcs10:
+    '''PKCS#10 certificate requests and request infos (Exported PDU
+    "pkcs10" and "pkcs10.cri"), with challenge password, extension
+    request, extended certificate attribute and unknown attributes, RSA,
+    EC and Diffie-Hellman keys.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkcs10_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkcs10_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 12 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 12
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkcs10_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute types of each request: challengePassword,
+        extensionRequest and extendedCertificateAttributes (a nested
+        attribute list).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkcs10.type',
+                           '-eframe.number', '-epkcs10.type')
+        assert out == [
+            '3\t1.2.840.113549.1.9.7', '4\t1.2.840.113549.1.9.7',
+            '5\t1.2.840.113549.1.9.14', '6\t1.2.840.113549.1.9.14',
+            '7\t1.2.840.113549.1.9.9,1.2.840.113549.1.9.7',
+            '8\t1.2.840.113549.1.9.9,1.2.840.113549.1.9.7',
+            '9\t1.2.840.113549.1.9.7', '10\t1.2.840.113549.1.9.7']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkcs10.CertificationRequest_element',
+                           '-eframe.number')
+        assert out == ['1', '3', '5', '7', '9', '11']
