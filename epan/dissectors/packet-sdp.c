@@ -1801,12 +1801,12 @@ dissect_sdp_media_attribute_path(packet_info *pinfo, tvbuff_t *tvb, char *attrib
 
 static void
 dissect_sdp_media_attribute_h248_item(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
-                                      char *attribute_value, const char *msrp_res)
+                                      char *attribute_value)
 {
     const char   *h324ext_h223lcparm = "h324ext/h223lcparm";
     tvbuff_t     *h245_tvb;
 
-    if (strncmp((char*)attribute_value, h324ext_h223lcparm, strlen(msrp_res)) == 0) {
+    if (strncmp((char*)attribute_value, h324ext_h223lcparm, strlen(h324ext_h223lcparm)) == 0) {
         /* A.5.1.3 H.223 Logical channel parameters
          * This property indicates the H.245
          * H223LogicalChannelsParameters structure encoded by applying the PER specified in
@@ -2078,7 +2078,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
             break;
         case SDP_H248_ITEM:
             /* Decode h248 item ITU-T Rec. H.248.12 (2001)/Amd.1 (11/2002)*/
-            dissect_sdp_media_attribute_h248_item(sdp_media_attribute_tree, pinfo, tvb, attribute_value, msrp_res);
+            dissect_sdp_media_attribute_h248_item(sdp_media_attribute_tree, pinfo, tvb, attribute_value);
             break;
         case SDP_CRYPTO:
             dissect_sdp_media_attribute_crypto(sdp_media_attribute_tree, pinfo, tvb, transport_info, offset);
@@ -2325,9 +2325,14 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
             ascii_strdown_inplace(media_desc->control_uri);
             /* If there are multiple entries with the same URI they SHOULD be
              * the same, so we could free the existing entry.  */
+            /* The map owns its own copy: the payload of the media
+             * description is freed or applied again independently
+             * (offer/answer, the same URI used twice). */
             rtp_dyn_payload_t *old_rtp_pt;
-            old_rtp_pt = wmem_map_insert(sdp_rtsp_control_map, media_desc->control_uri, media_desc->media.rtp_dyn_payload);
-            if (old_rtp_pt && old_rtp_pt != media_desc->media.rtp_dyn_payload) {
+            old_rtp_pt = wmem_map_insert(sdp_rtsp_control_map, media_desc->control_uri,
+                                         media_desc->media.rtp_dyn_payload ?
+                                         rtp_dyn_payload_dup(media_desc->media.rtp_dyn_payload) : NULL);
+            if (old_rtp_pt) {
                 rtp_dyn_payload_free(old_rtp_pt);
             }
         }
@@ -2454,6 +2459,24 @@ apply_sdp_transport(packet_info *pinfo, transport_info_t *transport_info, int re
     }
 }
 
+/* Transport setup runs the line dissectors without a tree. A malformed line
+ * must not stop the setup, so exceptions are caught here, outside the loop
+ * in setup_sdp_transport(), where its locals could be clobbered. */
+static void
+call_sdp_subdissector_for_setup(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, int hf,
+                                int length, transport_info_t *transport_info,
+                                session_info_t *session_info,
+                                media_description_t *media_desc,
+                                sdp_data_t *sdp_data)
+{
+    TRY {
+        call_sdp_subdissector(tvb_new_subset_length(tvb, offset, length), pinfo, hf, NULL,
+                              length, transport_info, session_info, media_desc, sdp_data);
+    } CATCH_NONFATAL_ERRORS {
+        /* Malformed line: ignore it for the transport setup. */
+    } ENDTRY;
+}
+
 void
 setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type exchange_type,
     int request_frame, const bool delay, sdp_setup_info_t *setup_info)
@@ -2576,14 +2599,11 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         if (hf != hf_unknown)
         {
             DINDENT();
-            call_sdp_subdissector(tvb_new_subset_length(tvb, offset + tokenoffset,
-                                                   linelen - tokenoffset),
-                                    pinfo,
-                                    hf, NULL, linelen-tokenoffset,
-                                    transport_info,
-                                    in_media_description ? NULL : &session_info,
-                                    media_desc,
-                                    &sdp_data);
+            call_sdp_subdissector_for_setup(tvb, offset + tokenoffset,
+                                            pinfo, hf, linelen - tokenoffset,
+                                            transport_info,
+                                            in_media_description ? NULL : &session_info,
+                                            media_desc, &sdp_data);
             DENDENT();
         }
 
