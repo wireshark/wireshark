@@ -130051,3 +130051,146 @@ class TestDissectRtmpt:
                 '-Y', 'frame.number >= 315 && frame.number <= 330 && rtmpt',
                 '-Tfields', '-eframe.number', '-e_ws.col.info')
         assert lines == ['316\tVideo Data', '321\tVideo Data', "323\tplay('mid')", '324\tVideo Data']
+
+
+class TestDissectQuicDecrypt:
+    '''Decrypted QUIC, from the synthetic capture quic_decrypt_coverage.pcapng.gz.
+    The traffic was produced by the aioquic library (client and server
+    exchanged in memory over 127.0.0.1) and the TLS secrets of every
+    connection are stored in the capture in a Decryption Secrets Block, so
+    no key log file or preference is needed. Frame numbers, connection IDs
+    and the lengths of protected packets change when the capture is
+    regenerated (TLS randomness), so the tests select by content.'''
+
+    CAPTURE = 'quic_decrypt_coverage.pcapng.gz'
+    FRAME_COUNT = 303
+    CONNECTIONS = 16
+    MQTT_TOPICS = ['t/ooo', 't/split', 't/drop', 't/dup', 't/m0', 't/m1', 't/m2', 't/m3', 't/m4',
+                   't/overlap', 't/overlap2', 't/big']
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output(
+            [cmd_tshark, *passes, '-r', capture_file(TestDissectQuicDecrypt.CAPTURE), *args],
+            encoding='utf-8', env=test_env, timeout=120)
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, filt, *fields, passes=(), extra=()):
+        '''Return one list of tab separated columns per frame.'''
+        args = list(extra)
+        if filt:
+            args += ['-Y', filt]
+        args += ['-Tfields', *('-e' + f for f in fields)]
+        out = TestDissectQuicDecrypt.run(cmd_tshark, capture_file, test_env, *args, passes=passes)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_quic_decrypt_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one pass and in
+        two passes; every connection decrypts to frames.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes)
+            assert rows == []
+            rows = self.fields(cmd_tshark, capture_file, test_env, '', 'frame.number', passes=passes)
+            assert len(rows) == self.FRAME_COUNT
+        # Connections 0 to 15 are numbered in order of appearance.
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.connection.number', 'quic.connection.number')
+        assert sorted({int(r[0]) for r in rows}) == list(range(self.CONNECTIONS))
+
+    def test_quic_two_pass_same_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The protocol column and the decoded frame types do not change
+        with a second pass.'''
+        a = self.fields(cmd_tshark, capture_file, test_env, '', 'frame.number', '_ws.col.protocol', 'quic.frame_type')
+        b = self.fields(cmd_tshark, capture_file, test_env, '', 'frame.number', '_ws.col.protocol', 'quic.frame_type',
+                        passes=('-2',))
+        assert a == b
+
+    def test_quic_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''Every QUIC frame type that aioquic sends or that was injected
+        into an aioquic packet is dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.frame_type', 'quic.frame_type')
+        seen = {int(t, 16) for r in rows for t in r[0].split(',')}
+        wanted = set(range(0x00, 0x20)) | {0x30, 0x31, 0xac, 0xaf, 0x2f5, 0x9f81a6, 0x9f81a7}
+        wanted |= set(range(0x15228c00, 0x15228c0f)) - {0x15228c02, 0x15228c03, 0x15228c04}
+        assert sorted(hex(t) for t in wanted - seen) == []
+        # the unknown frame type 0x3fff is reported, not a malformed packet
+        assert 0x3fff in seen
+
+    def test_quic_versions_and_ciphers(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 and version 2 handshakes and the three TLS 1.3 AEAD suites.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.version', 'quic.version')
+        versions = {v for r in rows for v in r[0].split(',')}
+        assert {'0x00000001', '0x6b3343cf', '0x00000000', '0x1a2a3a4a'} <= versions
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tls.handshake.type == 2', 'tls.handshake.ciphersuite')
+        assert {r[0] for r in rows} == {'0x1301', '0x1302', '0x1303'}
+
+    def test_quic_mqtt_stream_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''MQTT messages split over STREAM frames, out of order, with
+        retransmitted and overlapping data, are reassembled the same way in
+        both passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'mqtt.msgtype == 3', 'mqtt.topic', passes=passes)
+            assert [r[0] for r in rows] == self.MQTT_TOPICS
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'mqtt.topic == "t/ooo"', '-V')
+        assert 'Reassembled QUIC STREAM Data' in out
+
+    def test_quic_stream_expert_infos(self, cmd_tshark, capture_file, test_env):
+        out = self.run(cmd_tshark, capture_file, test_env, '-q', '-zexpert,note')
+        assert 'This QUIC frame has a reused stream offset (retransmission?)' in out
+        assert 'This QUIC frame overlaps a previous frame in the stream' in out
+
+    def test_quic_key_update(self, cmd_tshark, capture_file, test_env):
+        '''Key updates: packets of the second key phase decrypt.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.key_phase == 1 && quic.frame_type',
+                           'frame.number')
+        assert len(rows) >= 10
+
+    def test_quic_retry_verified(self, cmd_tshark, capture_file, test_env):
+        '''Retry packets of version 1 and 2 with a valid integrity tag.'''
+        out = self.run(cmd_tshark, capture_file, test_env, '-Y', 'quic.retry_integrity_tag', '-V')
+        assert out.count('[verified]') == 2
+
+    def test_quic_zero_rtt_and_alpn_alias(self, cmd_tshark, capture_file, test_env):
+        '''0-RTT data of a resumed connection (ALPN doq-i03) goes to the DoQ
+        dissector, ALPN h3-32 to HTTP/3.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.long.packet_type == 1 && dns', 'dns.qry.name')
+        assert rows == [['early.example.net']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'dns.flags.response == 1', 'dns.qry.name')
+        assert [r[0] for r in rows] == ['early.example.net', 'later.example.net']
+        assert self.fields(cmd_tshark, capture_file, test_env, 'http3.frame_type == 4', 'frame.number')
+
+    def test_quic_stateless_reset(self, cmd_tshark, capture_file, test_env):
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.stateless_reset_token', 'frame.number')
+        assert len(rows) == 1
+
+    def test_quic_migration(self, cmd_tshark, capture_file, test_env):
+        '''After the client moves to another UDP port the server sends a
+        PATH_CHALLENGE and the client answers with PATH_RESPONSE.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'quic.frame_type == 0x1a || quic.frame_type == 0x1b',
+                           'quic.connection.number', 'udp.srcport', 'quic.frame_type')
+        assert len(rows) >= 2
+        conn = rows[0][0]
+        ports = {r[1] for r in self.fields(cmd_tshark, capture_file, test_env,
+                                           'quic.connection.number == %s' % conn, 'quic.connection.number', 'udp.srcport')}
+        assert len(ports) == 3
+
+    def test_quic_transport_parameters(self, cmd_tshark, capture_file, test_env):
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tls.handshake.type == 1',
+                           'tls.quic.parameter.initial_max_data', 'tls.quic.parameter.max_datagram_frame_size')
+        assert ['200000', '1200'] in rows
+        assert ['1048576', ''] in rows
+
+    def test_quic_follow_stream(self, cmd_tshark, capture_file, test_env):
+        '''Follow QUIC stream 0 of the first connection.'''
+        out = self.run(cmd_tshark, capture_file, test_env, '-q', '-zfollow,quic,ascii,0,0')
+        assert 'hello hello hello' in out
+        assert 'world world world' in out
+
+    def test_quic_roq_datagram_alias(self, cmd_tshark, capture_file, test_env):
+        '''ALPN "roq-09" is aliased to "roq" for DATAGRAM frames too, so RoQ
+        dissects them.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAPTURE),
+                                          '-Y', 'roq', '-Tfields', '-e', 'frame.number'),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split()
