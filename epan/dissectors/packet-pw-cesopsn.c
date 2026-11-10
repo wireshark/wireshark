@@ -252,7 +252,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				pwc_item_append_cw(item2,tvb_get_ntohl(tvb, 0),false);
 				{
 					proto_tree* tree3;
-					tree3 = proto_item_add_subtree(item, ett_pw_cesopsn);
+					tree3 = proto_item_add_subtree(item2, ett_pw_cesopsn);
 					{
 						proto_item* item3;
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
