@@ -113353,3 +113353,61 @@ class TestDissectOptommp:
             '106\t0x01\t0x0040',
             '107\t0x02,0x07,0x06\t0x0014',
         ]
+
+
+class TestDissectOpus:
+    '''Opus in RTP, reached by the rtpmap "opus/48000/2" of the SDP in the
+    SIP INVITE of frame 1, from the synthetic capture
+    opus_coverage.pcap.gz.'''
+
+    def test_opus_frames(self, cmd_tshark, capture_file, test_env):
+        '''55 Opus packets (34 code 0, 2 code 1, 5 code 2, 14 code 3)
+        without malformed packets or error expert infos, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('opus_coverage.pcap.gz'),
+                    '-Y', 'opus', '-Tfields', '-eopus.TOC.c',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            codes = stdout.split()
+            assert len(codes) == 55
+            assert [codes.count(c) for c in '0123'] == [34, 2, 5, 14]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('opus_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_opus_vbr_two_byte_size(self, cmd_tshark, capture_file, test_env):
+        '''A code 3 VBR packet whose first frame has the two-octet size
+        field 252,1 (256 octets) has the frame sizes 256 and the rest, and
+        no R1 error (fixed in "Opus: Read the second VBR size byte
+        correctly, widen frame sizes"). Frame 42 has a 700 octet code 2
+        frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opus_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 55, 56}',
+                '-Tfields', '-eframe.number', '-eopus.frame_size', '-eopus.FC.m',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '42\t700\t\t',
+            '55\t256\t2\t',
+            '56\t400,300\t3\t',
+        ]
+
+    def test_opus_padding(self, cmd_tshark, capture_file, test_env):
+        '''Padding of 5, 600 and 3 octets, the last with a non-zero
+        octet that gets the "MUST be set to zero" warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opus_coverage.pcap.gz'),
+                '-Y', 'opus.padding_size > 0',
+                '-Tfields', '-eframe.number', '-eopus.padding_size',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '50\t5\t', '51\t600\t',
+            '52\t3\tAdditional padding bytes MUST be set to zero by the encoder',
+            '57\t4\t',
+        ]
