@@ -137543,3 +137543,130 @@ class TestDissectSimple:
                      'Source Subnode: File & Mail Transfers (4)',
                      'Destination Subnode: Time Synchronisation (7)'):
             assert text in stdout, text
+
+
+class TestDissectSimulcrypt:
+    OPTS = ('-d', 'tcp.port==12345,simulcrypt', '-d', 'udp.port==12346,simulcrypt')
+
+    def test_simulcrypt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''58 of the 59 frames are SIMULCRYPT (one TCP segment holds only
+        the first part of a message); none is malformed or has a warning
+        other than the two nested ECM_Group ones, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 59
+        assert protocols.count('SIMULCRYPT') == 58
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '41\tECM_group nested too deeply',
+                '42\tECM_group nested too deeply',
+            ]
+
+    def test_simulcrypt_nested_ecm_group(self, cmd_tshark, capture_file, test_env):
+        '''An ECM_Group nested three levels deep is decoded, the fifth
+        level (frame 41) and the ninth (frame 42, the reproducer of the
+        unbounded recursion) are reported once and skipped, with
+        the contents of the skipped level not decoded; the tree depth
+        limit is not reached.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 40 && frame.number <= 42',
+                '-Tfields', '-eframe.number', '-esimulcrypt.parameter.ecm_group',
+                '-esimulcrypt.ecm_id', '-esimulcrypt.nesting_too_deep',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['40', '41', '42']
+        assert lines[0][2] == '1,2,3'
+        assert lines[1][2] == ''
+        assert lines[2][2] == ''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'simulcrypt.nesting_too_deep',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['41', '42']
+
+    def test_simulcrypt_interfaces(self, cmd_tshark, capture_file, test_env):
+        '''The interface follows from the message type: ECMG (frames 1-14),
+        EMMG (15-27), EIS (28-42), PSIG <-> MUX (43-46, 52, 53), MUX <->
+        CiM (47, 48), PSIG <-> CiP (49-51), CP-SIG (54), user defined
+        (55) and a reserved type (56).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'simulcrypt',
+                '-Tfields', '-eframe.number', '-esimulcrypt.message.interface',
+            ), encoding='utf-8', env=test_env)
+        iface = {}
+        for line in stdout.splitlines():
+            n, i = line.split('\t')
+            iface[int(n)] = i
+        expect = [(1, 14, '1'), (15, 27, '2'), (28, 42, '4'), (43, 46, '5'),
+                  (47, 48, '6'), (49, 51, '7'), (52, 53, '5'), (54, 54, '3'),
+                  (55, 55, '8'), (56, 56, '0')]
+        for first, last, value in expect:
+            for n in range(first, last + 1):
+                assert iface[n] == value, n
+        assert iface[57] == '1,1'
+        assert iface[59] == '1'
+
+    def test_simulcrypt_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message type or shows it as unknown.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 6, 28, 40, 47, 54, 55, 56, 59}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t40000 > 12345 Info Type:[CHANNEL_SETUP]',
+            '6\t12345 > 40000 Info Type:[ECM_RESPONSE]',
+            '28\t40004 > 12345 Info Type:[CHANNEL_SET_UP]',
+            '40\t40004 > 12345 Info Type:[SCG_PROVISION]',
+            '47\t40005 > 12345 Info Type:[CIM_STREAM_SECTION_PROVISION]',
+            '54\t40005 > 12345 Info Type:[Unknown Type:0x311]',
+            '55\t40005 > 12345 Info Type:[Unknown Type:0x8001]',
+            '56\t40005 > 12345 Info Type:[Unknown Type:0x599]',
+            '59\t40006 > 12345 Info Type:[CW_PROVISION]',
+        ]
+
+    def test_simulcrypt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Two messages in one segment (frame 57) and a message split over
+        two segments (frames 58 and 59, shown in the second; the link
+        from the first segment needs the second pass).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-2',
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 57',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-esimulcrypt.message.type', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '57\tSIMULCRYPT\t0x0002,0x0102\t',
+            '58\tTCP\t\t59',
+            '59\tSIMULCRYPT\t0x0201\t',
+        ]
+
+    def test_simulcrypt_values(self, cmd_tshark, capture_file, test_env):
+        '''Activation time (EIS and PSIG), the SuperCAS ID and the
+        parameters that are shown with a unit.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('simulcrypt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 30, 45}',
+                '-Tfields', '-eframe.number', '-esimulcrypt.parameter.year',
+                '-esimulcrypt.parameter.hour', '-esimulcrypt.parameter.minute',
+                '-esimulcrypt.parameter.second', '-esimulcrypt.parameter.hundredth_second',
+                '-esimulcrypt.parameter.ca_system_id', '-esimulcrypt.parameter.ca_subsystem_id',
+                '-esimulcrypt.delay_start', '-esimulcrypt.ecm_rep_period',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t\t\t\t\t\t\t\t-50\t100',
+            '30\t2026\t5\t30\t15\t50\t19182\t2\t\t',
+            '45\t2026\t5\t30\t15\t50\t\t\t\t',
+        ]
