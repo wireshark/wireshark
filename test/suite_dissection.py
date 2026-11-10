@@ -123571,3 +123571,70 @@ class TestDissectRanapCoverage:
         flt = ('-Y', 'rrc', '-Tfields', '-eframe.number')
         assert count_output('\n'.join(self.lines(cmd_tshark, capture_file, test_env, '-o', 'ranap.dissect_rrc_container:TRUE', *flt))) == 18
         assert count_output('\n'.join(self.lines(cmd_tshark, capture_file, test_env, *flt))) == 0
+
+
+class TestDissectRaw:
+    '''Raw IP link layers (LINKTYPE_RAW 101, LINKTYPE_IPV4 228,
+    LINKTYPE_IPV6 229) from the synthetic capture
+    raw_coverage.pcapng.gz: the version is taken from the first nibble
+    and the old Linux/Irix PPP quirks are recognised.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('raw_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_raw_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 19 frames have the Raw protocol (three interfaces) and no
+        malformed packets or error expert infos, in one and two passes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'raw',
+                'frame.interface_id', '_ws.col.protocol')
+        assert [l.split('\t')[1] for l in out] == (
+            ['0'] * 14 + ['1', '1', '2', '2', '1'])
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_raw_next_protocol(self, cmd_tshark, capture_file, test_env):
+        '''What follows the Raw layer: IPv4, IPv6, PPP in HDLC framing,
+        the ISDN fake MAC and one byte prefixes, the ten zero octets of a
+        down connection (then IPv4 or IPv6), data.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'raw',
+                'frame.protocols')
+        assert out == [
+            '1\traw:ip:udp:data',                  # IPv4
+            '2\traw:ipv6:udp:data',                # IPv6
+            '3\traw:ip:icmp:ip:udp',
+            '4\traw:ip:udp:dns',
+            '5\traw:ip:udp:data',                  # padding after the datagram
+            '6\traw:ppp:ip:udp:data',              # ff 03 00 21
+            '7\traw:ppp:lcp',
+            '8\traw:ppp:ip:udp:data',              # fake MAC before the PPP header
+            '9\traw:ppp:ip:udp:data',              # one octet before the PPP header
+            '10\traw:ip:udp:data',                 # ten zero octets, then IPv4
+            '11\traw:ip:ipv6:udp:data',            # ten zero octets, then IPv6
+            '12\traw:data',                        # neither IP nor PPP
+            '13\traw:data',                        # nine zero octets: not the down marker
+            '14\traw:data',                        # version nibble 8
+            '15\traw:ip:udp:data',                 # LINKTYPE_IPV4
+            '16\traw:ip:icmp:ip:udp',
+            '17\traw:ipv6:udp:data',               # LINKTYPE_IPV6
+            '18\traw:ipv6:icmpv6',
+            '19\traw:ip:udp:data',
+        ]
+
+    def test_raw_ppp_prefixes(self, cmd_tshark, capture_file, test_env):
+        '''PPP protocol and addresses after the HDLC header in the
+        three prefix forms.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'ppp', 'ppp.protocol', 'ip.src')
+        assert out == [
+            '6\t0x0021\t192.0.2.1',
+            '7\t0xc021\t',
+            '8\t0x0021\t192.0.2.1',
+            '9\t0x0021\t192.0.2.1',
+        ]
