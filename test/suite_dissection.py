@@ -121806,3 +121806,150 @@ class TestDissectQ933:
             ['460', '', '8380479', '2'],
             ['461', '', '598048', '1'],
         ]
+
+
+class TestDissectQcdiag:
+    '''QCDIAG over GSMTAP (UDP 4729, payload type 0x11) from the synthetic
+    capture qcdiag_coverage.pcap.gz: every command the dissector knows,
+    requests and responses, the log configuration operations, the custom
+    (0xff) messages and the reproducers of the fixes of the log
+    configuration ID ranges and of the timestamp conversion.'''
+
+    CAP = 'qcdiag_coverage.pcap.gz'
+    NFRAMES = 56
+
+    @staticmethod
+    def _run(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectQcdiag.CAP), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+
+    def test_qcdiag_frames(self, cmd_tshark, capture_file, test_env):
+        '''All frames are QCDIAG, without malformed packets or error
+        expert infos, in one and two passes. The only GSMTAP payload
+        is QCDIAG.'''
+        for passes in ((), ('-2',)):
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'qcdiag', '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == self.NFRAMES
+            stdout = self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+
+    def test_qcdiag_commands(self, cmd_tshark, capture_file, test_env):
+        '''The command codes of the capture, in frame order (the custom
+        messages and the Get Log items carry their own code).'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eqcdiag.cmd', '-eqcdiag.len')
+        cmds = [l.split('\t')[0] for l in stdout.splitlines()]
+        assert len(cmds) == self.NFRAMES
+        assert cmds[0:5] == ['0x00', '0x00', '0x01', '0x01', '0x10']
+        assert cmds[5:9] == ['0x13', '0x14', '0x15', '0x18']
+        assert cmds[18:22] == ['0x4b'] * 4
+        # operations 2 and 5 (frames 28, 29) have no decoder and no command item
+        assert cmds[22:27] == ['0x73'] * 5
+        assert cmds[27:29] == ['', '']
+        assert cmds[29:33] == ['0x73'] * 4
+        assert cmds[33:39] == ['0x78'] * 6
+        assert cmds[39:45] == ['0x7b', '0x7c', '0x7c', '0x7c', '0x7c', '0x7c']
+        assert cmds[45:50] == ['0x10', '0x00', '0x1d', '0xc8', '0x10']
+        assert cmds[50:52] == ['', '']
+        assert cmds.count('0x73') == 11
+
+    def test_qcdiag_version_and_esn(self, cmd_tshark, capture_file, test_env):
+        '''The version response (frame 2) shows the strings and numbers,
+        and the ESN response (frame 4) the serial number.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2', '-Tfields',
+                '-eqcdiag.verno.comp_date', '-eqcdiag.verno.comp_time',
+                '-eqcdiag.verno.rel_date', '-eqcdiag.verno.rel_time',
+                '-eqcdiag.verno.ver_dir', '-eqcdiag.verno.scm',
+                '-eqcdiag.verno.mob_cai_rev', '-eqcdiag.verno.mob_model',
+                '-eqcdiag.verno.mob_firm_rev', '-eqcdiag.verno.sci',
+                '-eqcdiag.verno.msm_ver')
+        assert stdout.rstrip('\n').split('\t') == [
+            'Mar  1 2020', '12:34:56', 'Apr 10 2020', '01:02:03', 'V1.2.3  ',
+            '64', '5', '17', '258', '2', '1.23']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-eqcdiag.esn')
+        assert stdout == '0x12345678\n'
+
+    def test_qcdiag_log_config_id_ranges(self, cmd_tshark, capture_file, test_env):
+        '''The ID ranges of a Logging Configuration response are read as
+        4-byte little-endian values (frame 55: 0x100 to 0x103; the code
+        read them at the wrong width and showed "1: 1"). Zero entries
+        are not listed.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 55', '-V')
+        lines = [l.strip() for l in stdout.splitlines()]
+        i = lines.index('Status: Success (0)')
+        assert lines[i + 1:i + 5] == ['0: 256', '1: 257', '2: 258', '3: 259']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 26', '-V')
+        lines = [l.strip() for l in stdout.splitlines()]
+        i = lines.index('Status: Success (0)')
+        assert lines[i + 1:i + 6] == ['1: 256', '2: 450', '4: 16', '8: 512', '15: 768']
+
+    def test_qcdiag_log_config_masks(self, cmd_tshark, capture_file, test_env):
+        '''Set Log Mask request and response and Get Log Mask request
+        and response: operation, equipment ID and last item, and the
+        list of enabled log codes.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'qcdiag.logcfg.operation >= 3', '-Tfields', '-eframe.number',
+                '-eqcdiag.logcfg.operation', '-eqcdiag.logcfg.equip_id',
+                '-eqcdiag.logcfg.last_item', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['30', '31', '32', '33', '56']
+        assert rows[0][1:] == ['3', '5', '33', 'Set Log Mask Request']
+        assert rows[1][1:] == ['3', '4', '12', 'Set Log Mask Response']
+        assert rows[2][1:] == ['4', '5', '', 'Get Log Mask Request']
+        assert rows[3][1:] == ['4', '5', '24', 'Get Log Mask Response']
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 31', '-V')
+        assert '0x4000, 0x4001' in stdout
+        assert '0x400c' in stdout
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 30', '-V')
+        assert '0x5000, 0x5002' in stdout
+
+    def test_qcdiag_ext_build_id(self, cmd_tshark, capture_file, test_env):
+        '''Extended build ID responses: both strings, both empty, only
+        the software revision terminated, none terminated.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'qcdiag.ext_build_id.msm', '-Tfields', '-eframe.number',
+                '-eqcdiag.ext_build_id.sw_rev', '-eqcdiag.ext_build_id.mob_model_str')
+        assert stdout.splitlines() == [
+            '42\tSWREV-1.0\tMODEL-X',
+            '43\t(empty)\t(empty)',
+            '44\tswrev only\t',
+            '45\t\t',
+        ]
+
+    def test_qcdiag_custom_messages(self, cmd_tshark, capture_file, test_env):
+        '''Custom (0xff) messages: a request, text lines, and a Get Log
+        item inside a custom message.'''
+        stdout = self._run(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 46 && frame.number <= 50', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][1] == 'Get Log Request'
+        assert rows[1][1] == 'Version Information Response'
+        assert rows[2][1] == 'Timestamp Response'
+        assert rows[3][1] == 'Unknown Command (0xc8) Response'
+        assert 'WCDMA RRC States' in rows[4][1]
+
+    def test_qcdiag_timestamps(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp conversion of a huge value (frame 15) does not
+        convert out-of-range floating point to an integer; one pass and
+        two passes show the same text.'''
+        outs = [self._run(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number in {14, 15, 16, 48}', '-Tfields',
+                    '-eframe.number', '-eqcdiag.ts', '-eqcdiag.parm_set.set_time',
+                    '-eqcdiag_log.ts', passes=p) for p in ((), ('-2',))]
+        assert outs[0] == outs[1]
+        assert count_output(outs[0]) == 4
+        # frame 15: TIME_STAMP 0xffff... is far in the future. Windows
+        # cannot convert times after the year 3000 to a date.
+        if sys.platform != 'win32':
+            assert outs[0].splitlines()[1].split('\t')[1].split()[2] == '13129'
