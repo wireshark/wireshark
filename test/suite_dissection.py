@@ -117283,3 +117283,66 @@ class TestDissectPfcpCoverage:
         stdout = self.tshark(cmd_tshark, capture_file, test_env,
                 '-Y', '_ws.expert.message contains "Too many SEIDs"', '-Tfields', '-eframe.number')
         assert count_output(stdout) == 0
+
+
+class TestDissectPflog:
+    '''PFLOG (OpenBSD pf log headers, link type 117) and the pre 3.4 header
+    (Exported PDU "pflog-old", as link type 17 only exists on OpenBSD
+    builds) from the synthetic capture pflog_coverage.pcapng.gz.'''
+
+    CAPTURE = 'pflog_coverage.pcapng.gz'
+
+    def test_pflog_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pflog', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 53
+
+    def test_pflog_header_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Header lengths 45, 61, 100 and one in between; the packet
+        behind the header starts at the padded length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'pflog.id_endian:big',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 2, 3, 4, 5, 8}',
+                '-Tfields', '-eframe.number', '-epflog.length', '-epflog.af',
+                '-epflog.uid', '-epflog.pid', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t45\t2\t\t\t[pass em0/1] 1234 → 80 Len=5',
+            '2\t61\t2\t1000\t4321\t[pass em0/1] 1234 → 80 Len=5',
+            '3\t100\t2\t1000\t4321\t[pass em0/1] 1234 → 80 Len=5',
+            '4\t72\t2\t1000\t4321\t[pass em0/1] 1234 → 80 Len=5',
+            '5\t100\t24\t1000\t4321\t[pass em0/1] 1234 → 80 Len=6',
+            '8\t100\t99\t1000\t4321\t[pass em0/1] ',
+        ]
+
+    def test_pflog_actions(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {12, 20, 21}',
+                '-Tfields', '-epflog.action', '-epflog.reason', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t[block em0/1] 1234 → 80 Len=5',
+            '9\t9\t[nordr em0/9] 1234 → 80 Len=5',
+            '10\t10\t[synproxy-drop em0/10] 1234 → 80 Len=5',
+        ]
+
+    def test_pflog_old_header(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pflog-old', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 6
+        assert lines[0].startswith('54\t[pass xl0/#3]')
+        assert any('[unknown (3) xl0/#65535]' in l for l in lines)
