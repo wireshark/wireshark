@@ -130488,3 +130488,183 @@ class TestDissectRtnet:
             '45\tAcknowledge\t\t\t\t\t\t2048',
             '49\tDead Station\t10.1.0.5\t\t\t\t\t',
         ]
+
+
+class TestDissectRtp:
+    def test_rtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Streams set up by SDP in SIP are RTP / SRTP, and their payloads
+        reach the payload dissectors; only the RFC 2198 nested warnings
+        (frames 26 and 95) are expert infos, and nothing is malformed, in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 116
+        assert protocols.count('SIP/SDP') == 8
+        assert protocols.count('SRTP') == 5
+        assert protocols.count('RTP EVENT') == 3
+        assert protocols.count('H.223') == 5
+        assert protocols.count('RTCP') == 1
+        assert protocols.count('CESoETH (w RTP)') == 5
+        assert protocols.count('PLE') == 3
+        assert protocols.count('AMR') >= 5
+        assert protocols.count("SBC") == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '26\tRFC 2198 data nested inside RFC 2198 data',
+                '95\tRFC 2198 data nested inside RFC 2198 data',
+            ]
+
+    def test_rtp_stream_setup(self, cmd_tshark, capture_file, test_env):
+        '''The frame and the protocol that set up the stream: the first
+        call, the second call, and the SBC streams from Exported PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {5,39,86,92}',
+                '-Tfields', '-eframe.number', '-ertp.setup-frame', '-ertp.setup-method',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['5\t1\tSDP', '39\t3\tSDP', '86\t86\tBT A2DP', '92\t92\tDECODE AS']
+
+    def test_rtp_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''CSRC list, padding and header extensions (one byte, two byte and
+        other profiles).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {10,11,12,13,58,60,61,63}',
+                '-Tfields', '-eframe.number', '-ertp.csrc.item', '-ertp.padding.count',
+                '-ertp.ext.profile', '-ertp.ext.rfc5285.id', '-ertp.ext.rfc5285.len',
+                '-ertp.hdr_ext',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][:3] == ['10', '0x01020304', '']
+        assert rows[1][:3] == ['11', '0x01020304,0x05060708,0x090a0b0c', '']
+        assert rows[2][:3] == ['12', '', '4']
+        assert rows[3][:3] == ['13', '', '1']
+        assert rows[4][:6] == ['58', '', '', '0xbede', '1', '1']
+        assert rows[5][:6] == ['60', '', '', '0x1005', '1,2,3', '2,0,1']
+        assert rows[6][:6] == ['61', '', '', '0x1000', '4', '8']
+        assert rows[7][:4] == ['63', '', '', '0x4321']
+        assert rows[7][6] == '0x11223344,0x55667788'
+
+    def test_rtp_extended_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''Sequence number and timestamp wraps, an out-of-order packet over
+        the wrap and large jumps.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'rtp.ssrc == 0xc0000007',
+                '-Tfields', '-ertp.seq', '-ertp.extseq',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['65533', '65533'], ['65534', '65534'], ['65535', '65535'],
+            ['0', '65536'], ['1', '65537'], ['65535', '65535'],
+            ['3', '65539'], ['5', '65541'], ['36864', '36864'], ['8192', '8192'],
+        ]
+
+    def test_rtp_rfc2198(self, cmd_tshark, capture_file, test_env):
+        '''RFC 2198 blocks: redundant G.711, an event as the primary block,
+        an unknown block type, and RED inside RED (the second level is
+        shown as data with a warning instead of recursing).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {22,23,24,25,26,95}',
+                '-Tfields', '-eframe.number', '-ertp.p_type', '-ertp.follow',
+                '-ertp.block-length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t99,0,0\tTrue,False\t160',
+            '23\t99,0,8,101\tTrue,True,False\t160,160',
+            '24\t99,0\tFalse\t',
+            '25\t99,105,0\tTrue,False\t4',
+            '26\t99,0,99\tTrue,False\t20',
+            '95\t99,99\tFalse\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {23,95}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertpevent.event_id',
+                '-ertp.rfc2198_nested',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:3] for l in stdout.splitlines()] == [
+            ['23', 'RTP EVENT', '3'], ['95', 'RTP', '']]
+
+    def test_rtp_srtp_framing(self, cmd_tshark, capture_file, test_env):
+        '''SRTP is not decrypted: the encrypted payload, MKI and
+        authentication tag are shown by length (80, 4 and 10 octets).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {34,36}',
+                '-Tfields', '-eframe.number', '-esrtp.enc_payload', '-esrtp.mki',
+                '-esrtp.auth_tag',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [len(r[1]) // 2 for r in rows] == [80, 20]
+        assert [r[2] for r in rows] == ['00000001', '00000001']
+        assert [r[3] for r in rows] == ['77777777777777777777'] * 2
+
+    def test_rtp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A H.223 MUX-PDU split over RTP packets (CLEARMODE, bit-swapped)
+        is reassembled by RTP, with and without the second pass.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {47,48,49,50,51}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-ertp.reassembled.length',
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[1] for r in rows] == ['RTP', 'H.223', 'RTP', 'RTP', 'H.223']
+            assert rows[1][2] == '5' and rows[4][2] == '5'
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {47,50}',
+                '-Tfields', '-eframe.number', '-ertp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['47\t48', '50\t51']
+
+    def test_rtp_demultiplexing(self, cmd_tshark, capture_file, test_env):
+        '''RFC 7983: STUN (TURN channel data), ZRTP, DTLS and unknown
+        versions on the RTP port, and RTCP in the RTP port.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {21,78,79,80,81,82,83,85}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['21', 'RTCP', 'Sender Report   '],
+            ['78', 'STUN', 'ChannelData TURN Message'],
+            ['79', 'ZRTP', 'Ping Packet'],
+            ['80', 'DTLSv1.2', 'Change Cipher Spec'],
+            ['81', 'RTP', 'Unknown RTP version 0'],
+            ['82', 'RTP', 'Unknown RTP version 1'],
+            ['83', 'RTP', 'Unknown RTP version 3'],
+            ['85', 'STUN', 'ChannelData TURN Message'],
+        ]
+
+    def test_rtp_ccc_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''PacketCable CCC: the RTP packet is decoded after the 12 octet
+        CCC header (the whole PDU was handed to RTP, so the packet showed
+        as Data, before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 96',
+                '-Tfields', '-e_ws.col.protocol', '-epkt_ccc.ccc_id', '-ertp.ssrc',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'RTP\t7\t0x0e000002'
+
+    def test_rtp_a2dp_without_payload(self, cmd_tshark, capture_file, test_env):
+        '''A2DP packets from Exported PDUs: SBC frames, and the packet with
+        no payload at all (its payload length wrapped to 4294967295 for the
+        RTP player tap before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {86,89}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertp.seq',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['86\tSBC\t10', '89\tRTP\t20']
