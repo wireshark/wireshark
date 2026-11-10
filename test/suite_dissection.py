@@ -119054,3 +119054,76 @@ class TestDissectPpi:
         lines = stdout.splitlines()
         assert lines[0].startswith('1\tPPI header length 4 is less than the header size (8)')
         assert lines[1].startswith('2\tField length 104 is greater than the remaining PPI header length 8')
+
+
+class TestDissectPpiGeolocation:
+    def test_ppi_geolocation_clean(self, cmd_tshark, capture_file, test_env):
+        '''39 frames with GPS, Vector, Sensor and Antenna tags, none
+        malformed or with an error expert info, in one and in two passes.'''
+        cap = capture_file('ppi-geolocation_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        assert count_output(outputs[0]) == 39
+
+    def test_ppi_geolocation_gps(self, cmd_tshark, capture_file, test_env):
+        '''GPS tags: versions 1 and 2, latitude and longitude, description.'''
+        cap = capture_file('ppi-geolocation_coverage.pcap.gz')
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'ppi_gps',
+                '-Tfields', '-eframe.number', '-eppi_gps.version', '-eppi_gps.descr',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['1', '2', '3', '4', '5', '6', '7', '8', '38']
+        assert [l[1] for l in lines] == ['2', '1', '2', '2', '2', '2', '2', '2', '2']
+        assert lines[0][2] == 'gps description'
+        assert lines[6][2] == 'only a description'
+        # Latitude 59.3293, longitude 18.0686 (display filters do not
+        # depend on the locale)
+        stdout = subprocess.check_output((cmd_tshark, '-r', cap,
+                '-Y', 'ppi_gps.lat > 59.3292 && ppi_gps.lat < 59.3294 && '
+                      'ppi_gps.lon > 18.0685 && ppi_gps.lon < 18.0687',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '2']
+
+    def test_ppi_geolocation_vector(self, cmd_tshark, capture_file, test_env):
+        '''Vector tags: versions 1, 2 and an unknown version 3.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi-geolocation_coverage.pcap.gz'),
+                '-Y', 'ppi_vector',
+                '-Tfields', '-eframe.number', '-eppi_vector.version',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == [str(n) for n in range(9, 20)] + ['38', '39']
+        assert [l[1] for l in lines] == ['1', '1'] + ['2'] * 8 + ['3', '2', '1']
+
+    def test_ppi_geolocation_sensor(self, cmd_tshark, capture_file, test_env):
+        '''Sensor tags: every sensor type and an unknown one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi-geolocation_coverage.pcap.gz'),
+                '-Y', 'ppi_sensor.sensortype',
+                '-Tfields', '-eframe.number', '-eppi_sensor.sensortype',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == ['0', '1', '2', '3', '100', '101', '1000', '1001',
+                                         '1002', '2000', '2001', '5', '1', '1']
+
+    def test_ppi_geolocation_antenna(self, cmd_tshark, capture_file, test_env):
+        '''Antenna tags: gain and beam id.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ppi-geolocation_coverage.pcap.gz'),
+                '-Y', 'ppi_antenna',
+                '-Tfields', '-eframe.number', '-eppi_antenna.gaindb', '-eppi_antenna.beamid',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines == [['34', '12', '0x0004'], ['35', '12', '0x0004'], ['36', '12', '0x0004'],
+                         ['37', '3', '0x0001'], ['38', '2', '']]
