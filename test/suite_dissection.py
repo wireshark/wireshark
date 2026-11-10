@@ -118762,3 +118762,81 @@ class TestDissectPop:
         rows = [l.split() for l in stdout.splitlines() if l.strip().split()[:1] in (['6'], ['37'])]
         assert rows[0][:3] == ['6', 'POP3', 'alice']
         assert rows[1][:3] == ['37', 'POP3', '(null)']
+
+
+class TestDissectPortmap:
+    '''Portmap / rpcbind (ONC RPC program 100000, versions 1-4) over UDP
+    and TCP port 111 from the synthetic capture portmap_coverage.pcap.gz.'''
+
+    def test_portmap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''86 frames: 84 Portmap and two NFS (frames 81-82, an NFS call to
+        port 111 that is not Portmap). No malformed frame and no error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('portmap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 86
+        assert protocols.count('Portmap') == 84
+        assert protocols.count('NFS') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('portmap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_portmap_getport(self, cmd_tshark, capture_file, test_env):
+        '''GETPORT calls and replies (versions 1 and 2): the program and
+        protocol of each call and the port or "not available" in the reply.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('portmap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 8, 9, 10, 13, 14, 15}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tV2 GETPORT Call NFS(100003) V:3 UDP',
+            '8\tV2 GETPORT Reply (Call In 7) Port:2049',
+            '9\tV2 GETPORT Call MOUNT(100005) V:1 TCP',
+            '10\tV2 GETPORT Reply (Call In 9) PROGRAM_NOT_AVAILABLE',
+            '13\tV2 GETPORT Call Unknown(390000) V:1 UDP',
+            '14\tV2 GETPORT Reply (Call In 13) PROGRAM_NOT_AVAILABLE',
+            '15\tV2 GETPORT Call NFS(100003) V:3 Reserved',
+        ]
+
+    def test_portmap_callit_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Frames 31 and 33 are CALLIT calls whose indirect call is again
+        CALLIT, nested 4 and 6 deep (frames 63-64 are the same with
+        version 3); frame 34 and 64 are the replies. The limit of 4 levels added by
+        "Portmap: Bound the nesting of CALLIT and RMTCALL calls" gives an
+        expert info for the 6 levels only (before the fix a 1000 levels
+        deep call stopped at a generic dissection depth assertion).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('portmap_coverage.pcap.gz'),
+                    '-Y', 'portmap.nesting_too_deep || frame.number in {31, 33}',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '31\t',
+                '33\tToo many nested CALLIT/RMTCALL calls',
+                '34\tToo many nested CALLIT/RMTCALL calls',
+                '63\tToo many nested CALLIT/RMTCALL calls',
+                '64\tToo many nested CALLIT/RMTCALL calls',
+            ]
+
+    def test_portmap_dump(self, cmd_tshark, capture_file, test_env):
+        '''The version 2 DUMP reply of frame 22 lists three map entries,
+        the version 3 reply of frame 48 two rpcb entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('portmap_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22, 48}',
+                '-Tfields', '-eframe.number', '-eportmap.port',
+                '-eportmap.rpcb.netid', '-eportmap.rpcb.owner',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '22\t111,2049,5000\t\t',
+            '48\t\ttcp,udp6\tsuperuser,superuser',
+        ]
