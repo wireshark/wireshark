@@ -461,7 +461,7 @@ rsip_parameter(tvbuff_t *tvb, packet_info* pinfo, proto_tree *rsip_tree, int off
 		    hf_rsip_parameter_vendor_specific_subtype, tvb, off + 5,
 		    2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(v_tree,
-		    hf_rsip_parameter_vendor_specific_value, tvb, off + 9,
+		    hf_rsip_parameter_vendor_specific_value, tvb, off + 7,
 		    paramlen - 4, ENC_NA);
 		break;
 	case 22:	/* SPI */
