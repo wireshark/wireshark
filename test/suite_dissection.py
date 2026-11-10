@@ -115881,3 +115881,112 @@ class TestDissectPcapPktdata:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['25', '26', '27', '29', '30']
+
+
+class TestDissectPcep:
+    '''Path Computation Element communication Protocol (PCEP) on TCP
+    4189, from the synthetic capture pcep_coverage.pcap.gz (54 frames,
+    one PCEP message per frame unless noted).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, frames, *names, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pcep_coverage.pcap.gz'),
+                '-Y', frames, '-Tfields', '-eframe.number',
+                *('-e' + n for n in names), '-Eseparator=;',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split(';') for line in stdout.splitlines()]
+
+    def test_pcep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-54 are PCEP (frame 52 is the first TCP segment of a
+        message that frame 53 completes) and none is malformed or has an
+        error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pcep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 54
+        assert protocols.count('PCEP') == 53
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pcep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_pcep_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type is present; frame 54 holds two Keepalives
+        in one segment and frame 51 has an undefined message type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'pcep', 'pcep.msg')
+        types = [t for r in rows for t in r[1].split(',')]
+        for t in range(1, 14):
+            assert str(t) in types
+        assert types.count('99') == 1
+        assert dict((r[0], r[1]) for r in rows)['54'] == '2,2'
+
+    def test_pcep_op_conf_assoc_range(self, cmd_tshark, capture_file, test_env):
+        '''The TLVs after an OP-CONF-ASSOC-RANGE TLV are found at the
+        right place, see "PCEP: Walk the OP-CONF-ASSOC-RANGE entries
+        with their own offset": STATEFUL-PCE-CAPABILITY and
+        SYMBOLIC-PATH-NAME follow it in frames 45 and 46; frame 46 has
+        a range TLV of length 4 (no whole entry); frame 47 has three
+        entries followed by a GLOBAL-ASSOCIATION-SOURCE TLV.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {45,46,47}', 'pcep.tlv.type',
+                           'pcep.op_conf_assoc_range.start_assoc',
+                           'pcep.tlv.symbolic-path-name')
+        assert rows == [
+            ['45', '29,16,17', '100', 'NAME'],
+            ['46', '29,16,17', '', 'NAME'],
+            ['47', '29,30', '100,7,9', ''],
+        ]
+
+    def test_pcep_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message split over two TCP segments (frames 52 and 53) is
+        reassembled.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {52,53}', 'tcp.reassembled_in',
+                           'pcep.msg', passes=('-2',))
+        assert rows == [['52', '53', ''], ['53', '', '3']]
+
+    def test_pcep_errors_and_unknown_objects(self, cmd_tshark, capture_file, test_env):
+        '''Frames 28-32 carry PCEP ERROR objects of every defined error
+        type; frames 48 and 49 carry objects that have no dissector and
+        unknown classes, which get expert infos.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {28,29,30,31}', 'pcep.error.type')
+        types = set(t for r in rows for t in r[1].split(','))
+        for t in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17, 18, 19, 20,
+                  21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 99):
+            assert str(t) in types
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {48,49}', '_ws.expert.message')
+        assert 'Unknown object (200)' in rows[1][1]
+        assert 'Unknown object (18)' in rows[1][1]
+        assert 'PCEP Object BODY non defined (1)' in rows[0][1]
+
+    def test_pcep_segment_routing(self, cmd_tshark, capture_file, test_env):
+        '''The SR sub-objects of the ERO (frame 21) and RRO (frame 22)
+        show the MPLS label (16001) of each SID that is an MPLS label
+        stack entry: eleven in the ERO, eight in the RRO.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {21,22}', 'pcep.subobj.sr.sid.label')
+        labels = dict((r[0], r[1].split(',')) for r in rows)
+        assert labels['21'] == ['16001'] * 11
+        assert labels['22'] == ['16001'] * 8
+
+    def test_pcep_association_and_binding(self, cmd_tshark, capture_file, test_env):
+        '''Frame 43 holds ASSOCIATION objects of the policy association
+        type with extended association IDs (colour 100); frame 41 has
+        TE-PATH-BINDING TLVs with a label and a label stack entry.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {41,43}',
+                           'pcep.tlv.te_path_binding.bsid.label', 'pcep.obj.lsp.plsp-id',
+                           'pcep.tlv.extended_association_id.color')
+        by = dict((r[0], r[1:]) for r in rows)
+        assert by['41'][0] == '16001,16001'
+        assert by['41'][1] == '51'
+        assert by['43'][2] == '100,100,100'
