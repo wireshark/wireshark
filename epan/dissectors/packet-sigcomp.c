@@ -24,6 +24,7 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 #include <epan/exceptions.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/crc16.h>
@@ -150,6 +151,7 @@ static expert_field ei_sigcomp_invalid_instruction;
 static expert_field ei_sigcomp_invalid_shift_value;
 /* Generated from convert_proto_tree_add_text.pl */
 static expert_field ei_sigcomp_tcp_fragment;
+static expert_field ei_sigcomp_nesting_too_deep;
 static expert_field ei_sigcomp_decompression_failure;
 static expert_field ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic;
 static expert_field ei_sigcomp_all_remaining_parameters_zero;
@@ -326,6 +328,26 @@ static int dissect_udvm_reference_operand(tvbuff_t *udvm_tvb, proto_tree *sigcom
 static void tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree);
 
 static int dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
+/* The decompressed message is handed to SIP, which may hand it back to
+ * SigComp when it starts with 0xF8; bound that nesting. */
+#define SIGCOMP_MAX_NESTING 4
+
+static void
+sigcomp_call_sip(tvbuff_t *decomp_tvb, packet_info *pinfo, proto_tree *top_tree, proto_tree *sigcomp_tree)
+{
+    unsigned nesting = p_get_proto_depth(pinfo, proto_sigcomp);
+
+    if (nesting >= SIGCOMP_MAX_NESTING) {
+        proto_tree_add_expert(sigcomp_tree, pinfo, &ei_sigcomp_nesting_too_deep, decomp_tvb, 0, 0);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_sigcomp, nesting + 1);
+    increment_dissection_depth(pinfo);
+    call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_sigcomp, nesting);
+}
 
 static proto_tree *top_tree;
 
@@ -975,8 +997,8 @@ static int udvm_state_access(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     n = 0;
-    while ( n < p_id_length && n < STATE_BUFFER_SIZE && p_id_start + n < UDVM_MEMORY_SIZE ) {
-        partial_state[n] = buff[p_id_start + n];
+    while ( n < p_id_length && n < STATE_BUFFER_SIZE ) {
+        partial_state[n] = buff[(p_id_start + n) & 0xffff];
         n++;
     }
     partial_state_str = bytes_to_str(pinfo->pool, partial_state, p_id_length);
@@ -1289,7 +1311,7 @@ decode_udvm_literal_operand(uint8_t *buff,unsigned operand_address, uint16_t *va
             /*
              * 10nnnnnn nnnnnnnn               N                   0 - 16383
              */
-            temp_data = buff[operand_address] & 0x1f;
+            temp_data = buff[operand_address] & 0x3f;
             operand = temp_data << 8;
             temp_data = buff[(operand_address + 1) & 0xffff];
             operand = operand | temp_data;
@@ -1301,9 +1323,9 @@ decode_udvm_literal_operand(uint8_t *buff,unsigned operand_address, uint16_t *va
              * 111000000 nnnnnnnn nnnnnnnn      N                   0 - 65535
              */
             offset ++;
-            temp_data = buff[operand_address] & 0x1f;
-            operand = temp_data << 8;
             temp_data = buff[(operand_address + 1) & 0xffff];
+            operand = temp_data << 8;
+            temp_data = buff[(operand_address + 2) & 0xffff];
             operand = operand | temp_data;
             *value = operand;
             offset = offset + 2;
@@ -1371,9 +1393,8 @@ dissect_udvm_reference_operand_memory(uint8_t *buff,unsigned operand_address, ui
             /*
              * 11000000 nnnnnnnn nnnnnnnn      memory[N]           0 - 65535
              */
-            operand_address++;
-            operand = buff[operand_address] << 8;
-            operand = operand | buff[(operand_address + 1) & 0xffff];
+            operand = buff[(operand_address + 1) & 0xffff] << 8;
+            operand = operand | buff[(operand_address + 2) & 0xffff];
             *result_dest = operand;
             temp_data16 = buff[operand] << 8;
             temp_data16 = temp_data16 | buff[(operand+1) & 0xffff];
@@ -2521,14 +2542,14 @@ execute_next_instruction:
         }
 
         while (n<length) {
-            uint16_t handle_now = length;
+            uint16_t handle_now = length - n;
 
             if ( k < byte_copy_right && byte_copy_right <= k + (length-n) ) {
-                handle_now = byte_copy_right - position;
+                handle_now = byte_copy_right - k;
             }
 
-            if ((k + handle_now >= UDVM_MEMORY_SIZE) ||
-                (n + handle_now >= UDVM_MEMORY_SIZE)) {
+            if ((k + handle_now > UDVM_MEMORY_SIZE) ||
+                (n + handle_now > UDVM_MEMORY_SIZE)) {
                 gcry_md_close(sha1_handle);
                 goto decompression_failure;
             }
@@ -2552,7 +2573,6 @@ execute_next_instruction:
             buff[k] = sha1_digest_buf[n];
 
             k = ( k + 1 ) & 0xffff;
-            n++;
 
             if ( k == byte_copy_right ) {
                 k = byte_copy_left;
@@ -3047,7 +3067,12 @@ execute_next_instruction:
          * is inefficient but the logic is simple.
          *
          * FUTURE: This could be optimised.
+         *
+         * Charge the steps of the loop to the cycle budget; the check
+         * before the next instruction fails the decompression if the
+         * maximum is exceeded.
          */
+        used_udvm_cycles = used_udvm_cycles + multy_offset;
         for (position = ref_destination, i = 0; i < multy_offset; i++)
         {
             if ( position == byte_copy_left )
@@ -3908,7 +3933,7 @@ execute_next_instruction:
                 proto_tree_add_uint_format(udvm_tree, hf_udvm_bits, bytecode_tvb, offset, (next_operand_address-operand_address), bits_n,
                                     "Addr: %u      bits_n %u", operand_address, bits_n);
             }
-            if (bits_n > 31)
+            if (bits_n > 16)
                 break;
 
             offset += (next_operand_address-operand_address);
@@ -5007,6 +5032,13 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 return tvb_captured_length(tvb);
             }
 
+            /* The state must lie within the UDVM memory to be shown */
+            if ((uint32_t)state_length + state_address > UDVM_MEMORY_SIZE) {
+                proto_tree_add_expert_format_remaining(sigcomp_tree, pinfo, &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, tvb, 0,
+                                                                                         "Failed to Access state Wireshark UDVM diagnostic: %s", val_to_str(pinfo->pool, 3, result_code_vals,"Unknown (%u)"));
+                return tvb_captured_length(tvb);
+            }
+
             udvm_tvb = tvb_new_child_real_data(tvb, buff,state_length+state_address,state_length+state_address);
             add_new_data_source(pinfo, udvm_tvb, "State/ExecutionTrace");
 
@@ -5037,7 +5069,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
                 col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
                 col_set_fence(pinfo->cinfo,COL_PROTOCOL);
-                call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
+                sigcomp_call_sip(decomp_tvb, pinfo, top_tree, sigcomp_tree);
             }
         }/* if decompress */
 
@@ -5168,7 +5200,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
                     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
                     col_set_fence(pinfo->cinfo,COL_PROTOCOL);
-                    call_dissector(sip_handle, decomp_tvb, pinfo, top_tree);
+                    sigcomp_call_sip(decomp_tvb, pinfo, top_tree, sigcomp_tree);
                 }
             } /* if decompress */
         }/*if len==0 */
@@ -6841,6 +6873,7 @@ proto_register_sigcomp(void)
         { &ei_sigcomp_sigcomp_message_decompression_failure, { "sigcomp.message_decompression_failure", PI_PROTOCOL, PI_WARN, "SigComp message Decompression failure", EXPFILL }},
         { &ei_sigcomp_execution_of_this_instruction_is_not_implemented, { "sigcomp.execution_of_this_instruction_is_not_implemented", PI_UNDECODED, PI_WARN, "Execution of this instruction is NOT implemented", EXPFILL }},
         { &ei_sigcomp_decompression_failure, { "sigcomp.decompression_failure_expert", PI_PROTOCOL, PI_WARN, "DECOMPRESSION FAILURE", EXPFILL }},
+        { &ei_sigcomp_nesting_too_deep, { "sigcomp.nesting_too_deep", PI_PROTOCOL, PI_WARN, "SigComp nested too deeply, not dissected", EXPFILL }},
         { &ei_sigcomp_tcp_fragment, { "sigcomp.tcp_fragment", PI_MALFORMED, PI_ERROR, "TCP Fragment", EXPFILL }},
         { &ei_sigcomp_failed_to_access_state_wireshark_udvm_diagnostic, { "sigcomp.failed_to_access_state_wireshark_udvm_diagnostic", PI_PROTOCOL, PI_WARN, "Failed to Access state Wireshark UDVM diagnostic", EXPFILL }},
         { &ei_sigcomp_all_remaining_parameters_zero, { "sigcomp.all_remaining_parameters", PI_PROTOCOL, PI_NOTE, "All remaining parameters = 0(Not in the uploaded code as UDVM buffer initialized to Zero", EXPFILL }},
