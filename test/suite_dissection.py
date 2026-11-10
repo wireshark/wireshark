@@ -132640,3 +132640,123 @@ class TestDissectS5066sis:
                 '-o', 's5066sis.edition_one:TRUE', '-Y', 's5066sis',
                 '-Tfields', '-eframe.number')
         assert len(lines) < 53
+
+
+class TestDissectS7comm:
+    '''S7COMM (Siemens S7 communication) over TPKT/COTP on TCP port 102,
+    from the synthetic capture s7comm_coverage.pcap.gz. S7COMM is a COTP
+    heuristic dissector, so no Decode As is needed. Frames 426 and 428
+    hold Replace jobs nested 10 levels deep (the reproducer of "S7COMM:
+    Bound recursion through nested TIS replace jobs"): they are the only
+    frames with an error expert info.'''
+
+    DEEP = (426, 428)
+
+    @staticmethod
+    def tshark_fields(cmd_tshark, capture_file, test_env, passes, filt, *fields):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('s7comm_coverage.pcap.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_s7comm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode as S7COMM (421 of them), COTP (8) or TCP (3)
+        without malformed packets or error expert infos, in one and two
+        passes, except the two frames of the nesting reproducer.'''
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (), 'frame', '_ws.col.protocol')
+        protocols = [p.strip() for p in lines]
+        assert len(protocols) == 432
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {'S7COMM': 421, 'COTP': 8, 'TCP': 3}
+        for passes in ((), ('-2',)):
+            lines = self.tshark_fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number')
+            assert [int(n) for n in lines] == list(self.DEEP)
+            lines = self.tshark_fields(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.expert.message == "Replace job nested too deeply"', 'frame.number')
+            assert [int(n) for n in lines] == list(self.DEEP)
+
+    def test_s7comm_replacejob_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Frames 423 and 425 (the latter in two COTP segments) nest the
+        job 8 levels deep and decode in full. Frames 426 and 428 nest 10
+        levels: the dissector stops with an expert info after 8 levels
+        (and no longer recurses once per 8 bytes of the PDU).'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark_fields(cmd_tshark, capture_file, test_env, passes,
+                    'frame.number in {423, 425, 426, 428}', 'frame.number',
+                    's7comm.tis.job.function', 's7comm.tis.replacejob.too_deep')
+            assert lines == [
+                '423\t18,18,18,18,18,18,18,14,5\t',
+                '425\t18,18,18,18,18,18,18,14,5\t',
+                '426\t18,18,18,18,18,18,18,18,18\t1',
+                '428\t18,18,18,18,18,18,18,18,18\t1',
+            ]
+
+    def test_s7comm_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Userdata reassembly: the NC programming upload of frames 412-414
+        and the SZL response of frames 416-417 are reassembled in the
+        last fragment; the links in the earlier fragments appear in the
+        second pass. COTP segments (424, 427) are handed to S7COMM in
+        the last segment (425, 428).'''
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {412, 413, 414, 416, 417}', 'frame.number',
+                's7comm.reassembled.in', 's7comm.reassembled.length')
+        assert lines == ['412\t\t', '413\t\t', '414\t\t75', '416\t\t', '417\t\t64']
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, ('-2',),
+                'frame.number in {412, 413, 414, 416, 417}', 'frame.number',
+                's7comm.reassembled.in', 's7comm.reassembled.length')
+        assert lines == ['412\t414\t', '413\t414\t', '414\t\t75', '416\t417\t', '417\t\t64']
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, ('-2',),
+                'frame.number in {424, 425, 427, 428}', 'frame.number', 'cotp.reassembled_in',
+                's7comm.header.rosctr')
+        assert lines == ['424\t425\t', '425\t\t7', '427\t428\t', '428\t\t7']
+
+    def test_s7comm_passes_agree(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame is the same in one and two passes.'''
+        one = self.tshark_fields(cmd_tshark, capture_file, test_env, (), 'frame', '_ws.col.info')
+        two = self.tshark_fields(cmd_tshark, capture_file, test_env, ('-2',), 'frame', '_ws.col.info')
+        assert len(one) == 432
+        assert one == two
+
+    def test_s7comm_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values: setup communication, PI services, block names,
+        file names, diagnostic events and the mode transitions.'''
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                's7comm.param.pdu_length', 'frame.number', 's7comm.param.pdu_length')
+        assert lines == ['6\t480', '7\t240', '12\t240']
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {49, 50, 51, 54, 58, 59, 63, 65, 80, 83, 84, 85}',
+                'frame.number', '_ws.col.info')
+        assert lines == [
+            '49\tROSCTR:[Job     ] Function:[Request download] -> Block:[DB1]',
+            '50\tROSCTR:[Job     ] Function:[Request download] -> Block:[SDB2]',
+            '51\tROSCTR:[Job     ] Function:[Request download] File:[XA0001234]',
+            '54\tROSCTR:[Job     ] Function:[Download block] -> Block:[FC10]',
+            '58\tROSCTR:[Job     ] Function:[Download ended] -> Block:[SFC11]',
+            '59\tROSCTR:[Job     ] Function:[Download ended] -> Block:[FB12] -> Errorcode:[0x8104]',
+            '63\tROSCTR:[Job     ] Function:[Start upload] -> Block:[OB1]',
+            '65\tROSCTR:[Job     ] Function:[Start upload] File:[_1A00003P]',
+            '80\tROSCTR:[Job     ] Function:[PI-Service] -> _INSE(OB1, DB2)',
+            '83\tROSCTR:[Job     ] Function:[PI-Service] -> _INSE()',
+            '84\tROSCTR:[Job     ] Function:[PI-Service] -> P_PROGRAM()',
+            '85\tROSCTR:[Job     ] Function:[PI-Service] -> P_PROGRAM("COLD")',
+        ]
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                's7comm.param.pistart.servicename', 's7comm.param.pistart.servicename')
+        names = [n for n in lines if n]
+        assert len(names) == 71
+        assert names[:3] == ['P_PROGRAM', '_INSE', '_INS2']
+        assert '_N_TMFPBP' in names and '_N_TSEARC' in names
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                's7comm.cpu.diag_msg.eventid', 'frame.number', 's7comm.cpu.diag_msg.eventid', '_ws.col.info')
+        assert lines[0].endswith("Event='Operating mode: RUN/STOP (STOP: entering state, RUN: leaving state)'")
+        assert lines[1].endswith('EventID=0x8abc')
+        assert lines[3].endswith("Event='Start request for cyclic interrupt OB with special handling (S7-300 only)'")
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                's7comm.alarm.event_id', 'frame.number', 's7comm.alarm.event_id')
+        assert lines[0] == '313\t0x11000001'
+        assert lines[2] == '315\t0x11000001,0x11000001'
+        lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
+                'frame.number in {378, 380, 383}', '_ws.col.info')
+        assert [l.split(' -> ')[-1] for l in lines] == ['[STOP]', '[RUN]', '[Unknown mode: 0x05]']
