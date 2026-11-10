@@ -133389,3 +133389,93 @@ class TestDissectSapdiag:
                 '-Y', 'frame.number == 38', '-V',
             ), encoding='utf-8', env=test_env)
         assert 'Function Name: Z_FUNCTION' in stdout or 'Function Name: Z_FUNCTION' in stdout.replace('Z_RFC_FUNCTION', 'Z_FUNCTION')
+
+
+class TestDissectSapenqueue:
+    def test_sapenqueue_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP Enqueue Server messages, found by the SAP NI heuristic on
+        TCP 3200 and 40000: 32 SAPENQUEUE frames, the handshakes, one
+        20 byte message with the magic bytes that is not an Enqueue message
+        (the heuristic needs 24 bytes) and is dissected as SAP IGS by port.
+        None is malformed or has an error expert info, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 46
+            assert protocols.count('SAPENQUEUE') == 32
+            assert protocols.count('SAPIGS') == 2
+            assert protocols.count('TCP') == 12
+            assert protocols[35] == 'SAPIGS'
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sapenqueue_headers(self, cmd_tshark, capture_file, test_env):
+        '''Destination, opcode and type of the messages found through the
+        conversation (the first message of a conversation is read through
+        the heuristic, without the NI length, see README).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6, 10, 12, 16, 17, 18, 21, 42}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\tDest=CONNECTION_ADMIN,Type=SYNC_REQUEST,Opcode=Loopback packet',
+            '6\tDest=CONNECTION_ADMIN,Type=SYNC_REQUEST,Opcode=Keepalive',
+            '10\tDest=CONNECTION_ADMIN,Type=SYNC_REQUEST,Opcode=Unknown',
+            '12\tDest=CONNECTION_ADMIN,Type=RESPONSE,Opcode=Parameter Response',
+            '16\tDest=SYNC_ENQUEUE,Type=SYNC_REQUEST',
+            '17\tDest=ASYNC_ENQUEUE,Type=ASYNC_REQUEST',
+            '18\tDest=STAT_QUERY,Type=SYNC_REQUEST',
+            '21\tDest=Unknown,Type=SYNC_REQUEST',
+            '42\tDest=CONNECTION_ADMIN,Type=RESPONSE,Opcode=Keepalive',
+        ]
+
+    def test_sapenqueue_conn_admin_params(self, cmd_tshark, capture_file, test_env):
+        '''Connection admin parameters: every parameter id, and the
+        Unicode support value of 8 bytes and of 0 bytes (the value is a byte
+        string now; a length other than 1-4 made the packet malformed).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                '-Y', 'sapenqueue.conn_admin.params.param.id',
+                '-Tfields', '-eframe.number', '-esapenqueue.conn_admin.params.count',
+                '-esapenqueue.conn_admin.params.param.id',
+                '-esapenqueue.conn_admin.params.param.name',
+                '-esapenqueue.conn_admin.params.param.value_bytes',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['11', '8', '0,1,2,3,4,5,6,9', 'ENQ_CLIENT', '00000001']
+        assert lines[1] == ['12', '4', '4,3,6,0', 'ENQ_SERVER', '55']
+        assert lines[2] == ['13', '1', '6', '', '0102030405060708']
+        assert lines[3][:4] == ['14', '1', '6', ''] and lines[3][4] in ('', '<MISSING>')
+
+    def test_sapenqueue_server_admin_trace(self, cmd_tshark, capture_file, test_env):
+        '''Server admin trace requests with patterns, a pattern of 255
+        characters (its length byte plus one wrapped to 0 before the fix),
+        no pattern, and every action.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                '-Y', 'sapenqueue.server_admin.trace.pattern.value',
+                '-Tfields', '-eframe.number', '-esapenqueue.server_admin.trace.pattern.value',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        by_frame = {l[0]: l[1].split(',') for l in lines}
+        assert by_frame['26'] == ['*', 'ENQ*', 'x' * 10]
+        assert by_frame['27'] == ['p' * 255, 'tail']
+        assert [by_frame[str(i)] for i in (29, 30, 31, 32)] == [['pat']] * 4
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapenqueue_coverage.pcap.gz'),
+                '-Y', 'sapenqueue.server_admin.opcode',
+                '-Tfields', '-eframe.number', '-esapenqueue.server_admin.opcode',
+                '-esapenqueue.server_admin.trace.action',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[:2] for l in stdout.splitlines()] == [
+            ['23', '1'], ['24', '2'], ['25', '4'], ['26', '6'], ['27', '6'], ['28', '6'],
+            ['29', '6'], ['30', '6'], ['31', '6'], ['32', '6']]
