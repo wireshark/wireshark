@@ -1263,10 +1263,14 @@ dissect_saphdb_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				/* If the packet is compressed, the message header and the first segment header is sent uncompressed. We dissect the
 				 * first segment only and add a new item with the compressed buffer. Adding an expert warning as well. */
 				if (compressed) {
-					offset += dissect_saphdb_segment(tvb, pinfo, message_buffer_tree, NULL, offset, number_of_segments, 1, compressed);
-					compressed_buffer_item = proto_tree_add_item(message_buffer_tree, hf_saphdb_compressed_buffer, tvb, offset, varpartlength, ENC_NA);
-					if (global_saphdb_highlight_items){
-						expert_add_info(pinfo, compressed_buffer_item, &ei_saphdb_compressed_unknown);
+					int segment_length = dissect_saphdb_segment(tvb, pinfo, message_buffer_tree, NULL, offset, number_of_segments, 1, compressed);
+					offset += segment_length;
+					/* The compressed buffer is what is left of the variable part after the first segment header */
+					if (segment_length >= 0 && (uint32_t)segment_length < varpartlength) {
+						compressed_buffer_item = proto_tree_add_item(message_buffer_tree, hf_saphdb_compressed_buffer, tvb, offset, varpartlength - segment_length, ENC_NA);
+						if (global_saphdb_highlight_items){
+							expert_add_info(pinfo, compressed_buffer_item, &ei_saphdb_compressed_unknown);
+						}
 					}
 
 				} else {
