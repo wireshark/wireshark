@@ -787,8 +787,8 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
 
                 proto_tree_add_item(pn532_tree, hf_pn532_parameters_length, tvb, offset, 1, ENC_NA);
-                length = tvb_captured_length_remaining(tvb, offset);
                 offset += 1;
+                length = tvb_captured_length_remaining(tvb, offset);
 
                 proto_tree_add_item(pn532_tree, hf_pn532_data_out, tvb, offset, length, ENC_NA);
                 offset += length;
@@ -1221,7 +1221,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         switch(baudrate) {
         case ISO_IEC_14443A_106:
             while (tvb_reported_length_remaining(tvb, offset) >= 4) {
-                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, 6, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(pn532_tree, hf_pn532_14443a_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
             break;
@@ -1286,8 +1286,10 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     proto_tree_add_item_ret_uint8(sub_tree, hf_pn532_ats_length, tvb, offset, 1, ENC_BIG_ENDIAN, &length);
                     offset += 1;
 
-                    proto_tree_add_item(sub_tree, hf_pn532_ats, tvb, offset, length - 1, ENC_NA);
-                    offset += length - 1;
+                    if (length > 1) {
+                        proto_tree_add_item(sub_tree, hf_pn532_ats, tvb, offset, length - 1, ENC_NA);
+                        offset += length - 1;
+                    }
                 }
                 break;
             case FELICA_212:
