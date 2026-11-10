@@ -124312,3 +124312,57 @@ class TestDissectRdpDrdynvc:
             assert progress[2] == '10-20/30'                # middle fragment
             assert progress[3] == ''                        # too big: no progress
             assert progress[4] == '20-30/30'
+
+
+class TestDissectRdpEar:
+    '''RDP authentication redirection (RDPEAR) from the synthetic capture
+    rdp_ear_coverage.pcapng.gz: an RDP session on TCP 3389 with the dynamic
+    channel Microsoft::Windows::RDS::AuthRedirection and the UDP side of a
+    multitransport connection. Everything inside the GSS-API wrap needs
+    Kerberos keys and is not covered: the PDUs carry GSS-API framing only.'''
+
+    CAPTURE = 'rdp_ear_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpEar.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_ear_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 29
+        assert protocols.count('RDPEAR') == 12
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdp_ear', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_ear_header(self, cmd_tshark, capture_file, test_env):
+        '''Magic, length, version and context of the PDU header, in both
+        directions; an NTLMSSP negotiate token in the GSS-API wrap; a PDU
+        reassembled from fragments; two PDUs in one DVC PDU.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_ear', '-Tfields', '-eframe.number', '-erdp_ear.magic', '-erdp_ear.length',
+                '-erdp_ear.version', '-erdp_ear.tspkgcontext', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '14\t0x4eacc3c8\t7\t0x00000001\t0x0000000000001234\t',
+            '15\t0x4eacc3c8\t7\t0x00000001\t0x0000000000005678\t',
+            '16\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
+            '17\t0x4eacc3c8\t32\t0x00000001\t0x0000000000005678\tNTLMSSP_NEGOTIATE',
+            '18\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\t',
+            '19\t0x4eacc3c8\t32\t0x00000001\t0x0000000000005678\t',
+            '20\t0x4eacc3c8\t45\t0x00000001\t0x0000000000001234\t',
+            '21\t0x4eacc3c8\t45\t0x00000001\t0x0000000000005678\t',
+            '22\t0x4eacc3c9\t32\t0x00000002\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
+            '24\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
+            '25\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
+            '29\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE']
