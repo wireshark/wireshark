@@ -139308,3 +139308,113 @@ class TestDissectSmc:
         assert info['76'].endswith('[SMC-Rv2] Confirm Link (v2)')
         assert info['78'].endswith('[SMC-Rv2] Add Link (v2)')
         assert info['81'].endswith('[SMC-Rv2] Request Add Link (v2)')
+
+
+class TestDissectSml:
+    '''SML (Smart Message Language) from the synthetic capture
+    sml_coverage.pcapng.gz: frames 1-32 are Exported PDU frames that name
+    the sml dissector (SML has no default port); frames 33-44 are UDP and
+    TCP port 7259, which need Decode As (SML_PORTS).'''
+
+    CAP = 'sml_coverage.pcapng.gz'
+    SML_PORTS = ('-d', 'udp.port==7259,sml', '-d', 'tcp.port==7259,sml')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_sml_clean(self, cmd_tshark, capture_file, test_env):
+        '''41 frames (37 with two passes, which do not dissect the first
+        segments of reassembled files again) decode without malformed
+        packets, warnings or errors. With the CRC check enabled every
+        CRC is good except the one of the file in frame 32 (made wrong on
+        purpose) and the one-octet message CRC in frame 17.'''
+        for opts in ((), ('-2',), ('-o', 'sml.reassemble:FALSE')):
+            rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'sml',
+                    ['frame.number'], *self.SML_PORTS, *opts)
+            # in one pass the first segments of a reassembled file are dissected too
+            assert len(rows) == (37 if opts == ('-2',) else 41)
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    ['frame.number'], *self.SML_PORTS, *opts) == []
+        assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'sml.crc.status == 0', ['frame.number'], *self.SML_PORTS,
+                '-o', 'sml.crc:TRUE') == ['17', '32']
+
+    def test_sml_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message types seen in the Info column.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number <= 32', ['frame.number', '_ws.col.info'])
+        info = {r.split('\t')[0]: r.split('\t')[1] for r in rows}
+        assert info['1'] == 'OpenReq; '
+        assert info['2'] == 'OpenReq; OpenRes; '
+        assert info['3'] == 'OpenRes; CloseReq; CloseRes; '
+        assert info['5'] == 'GetProfilePackReq; '
+        assert info['7'] == 'GetProfileListReq; '
+        assert info['9'] == 'GetProfilePackRes; '
+        assert info['11'] == 'GetProfileListRes; '
+        assert info['13'] == 'GetListReq; '
+        assert info['15'] == 'GetListRes; '
+        assert info['18'] == 'GetProcParameterReq; '
+        assert info['20'] == 'GetProcParameterRes; '
+        assert info['25'] == 'SetProcParameterReq; '
+        assert info['28'] == 'AttentionRes; '
+        assert info['31'] == 'OpenReq; CloseReq; '
+
+    def test_sml_attention(self, cmd_tshark, capture_file, test_env):
+        '''AttentionRes with its attentionNo of six octets.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'sml.attentionno', ['frame.number', 'sml.attentionno'])
+        assert rows == ['28\t0xc7c7', '29\t0x0102', '30\t0xc7c7']
+
+    def test_sml_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''SML over UDP and over TCP, where files are split over several
+        segments and reassembled; two files in one segment.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'sml && frame.number >= 33', ['frame.number', '_ws.col.info'], *self.SML_PORTS)
+        assert rows[0] == '33\tOpenReq; GetListRes; CloseReq; '
+        assert rows[-2] == '43\tOpenReq; CloseReq; '
+        assert rows[-1] == '44\tCloseReq; CloseReq; '
+
+    @staticmethod
+    def _pcap(path, payload):
+        '''A one-frame Exported PDU capture (link type 252) naming "sml".'''
+        name = b'sml\x00'
+        tags = struct.pack('!HH', 12, len(name)) + name + struct.pack('!HH', 0, 0)
+        data = tags + payload
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 252))
+            f.write(struct.pack('<IIII', 1700000000, 0, len(data), len(data)))
+            f.write(data)
+
+    def test_sml_attention_loop(self, cmd_tshark, test_env, tmp_path):
+        '''An AttentionRes whose attentionNo length wraps the offset back
+        into the first message used to loop forever ("SML: Fix endless
+        loops from length underflow and backwards offset").'''
+        hdr = bytes.fromhex('1b1b1b1b01010101')
+        mh = bytes.fromhex('76020062006200726 3ff0173 01'.replace(' ', ''))
+        m0 = mh + bytes.fromhex('07000000000000') + bytes.fromhex('0101630000 00'.replace(' ', ''))
+        q = len(hdr) + len(mh) + 7
+        a1 = len(hdr) + len(m0) + len(mh)
+        nib = '%08x' % ((q - a1) & 0xffffffff)
+        alen = bytes([0x80 | int(c, 16) for c in nib[:-1]]) + bytes([int(nib[-1], 16)])
+        cap = str(tmp_path / 'loop.pcap')
+        self._pcap(cap, hdr + m0 + mh + alen + b'\x00' * 8)
+        for opts in ((), ('-2',), ('-V',)):
+            subprocess.check_output((cmd_tshark, *opts, '-r', cap),
+                    encoding='utf-8', env=test_env, timeout=60)
+
+    def test_sml_zero_advance(self, cmd_tshark, test_env, tmp_path):
+        '''A length byte of zero gave a negative data length and a list
+        count of 0xffffffff made the loops run 4G times without advancing.'''
+        hdr = bytes.fromhex('1b1b1b1b01010101')
+        zm = bytes.fromhex('7602006200620072630300 7f'.replace(' ', '')) + bytes.fromhex('010101010101') + \
+            bytes.fromhex('ff8f8f8f8f8f8f0f') + b'\x00' * 16
+        cap = str(tmp_path / 'zero.pcap')
+        self._pcap(cap, hdr + zm)
+        for opts in ((), ('-V',)):
+            subprocess.check_output((cmd_tshark, *opts, '-r', cap),
+                    encoding='utf-8', env=test_env, timeout=60)
