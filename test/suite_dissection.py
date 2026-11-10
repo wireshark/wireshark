@@ -133206,3 +133206,94 @@ class TestDissectSane:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 78', '-Tfields', '-esane.device.name')
         assert lines == ['net:scanner0,net:s1']
+
+
+class TestDissectSap:
+    def test_sap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is SAP, with SDP when the payload is readable, or
+        RTSP; none is malformed or has an error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sap_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 15
+            assert protocols.count('SAP/SDP') == 10
+            assert protocols.count('SAP') == 3
+            assert protocols.count('RTSP') == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sap_header(self, cmd_tshark, capture_file, test_env):
+        '''Message type, version, address type and the originating source
+        of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esap.flags.t', '-esap.flags.v',
+                '-esap.flags.a', '-esap.message_identifier_hash',
+                '-esap.originating_source', '-esap.originating_source.ipv6',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', 'False', '1', 'False', '0x1234', '192.0.2.10', '', 'Announcement (v1)']
+        assert lines[1][1] == 'True' and lines[1][7] == 'Deletion (v1)'
+        assert lines[2][3] == 'True' and lines[2][5] == '' and lines[2][6] == '2001:db8::a'
+        assert lines[10][2] == '0' and lines[10][7] == 'Announcement (v0)'
+
+    def test_sap_payload_type_and_sdp(self, cmd_tshark, capture_file, test_env):
+        '''The optional payload type string, with and without a NUL, and
+        the SDP that follows it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esap.payload_type', '-esdp.session_name',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '', 'Coverage session']
+        assert lines[3] == ['4', 'application/sdp', 'Coverage session']
+        assert lines[9] == ['10', 'text/plain', '']
+
+    def test_sap_authentication(self, cmd_tshark, capture_file, test_env):
+        '''Authentication data with and without padding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sap_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esap.auth.len', '-esap.auth.flags.t',
+                '-esap.auth.flags.p', '-esap.auth.data_padding.len',
+                '-esap.auth.subheader',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[4] == ['5', '2', '0', 'False', '', '01020304050607']
+        assert lines[5] == ['6', '2', '1', 'True', '3', 'aabbccdd']
+        assert lines[11][3] == 'True' and lines[11][4] == '0'
+
+    def test_sap_encrypted_compressed(self, cmd_tshark, capture_file, test_env):
+        '''Encrypted and compressed payloads are not decoded and get a
+        warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sap_coverage.pcap.gz'),
+                '-Y', 'sap.encrypted || sap.compressed || sap.compressed_and_encrypted',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tThe rest of the packet is encrypted',
+            '8\tThe rest of the packet is compressed',
+            '9\tThe rest of the packet is compressed and encrypted',
+        ]
+
+    def test_sap_rtsp_control(self, cmd_tshark, capture_file, test_env):
+        '''An announcement whose SDP has a=control is followed by an RTSP
+        SETUP for the control URL (SDP / RTSP interplay).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sap_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 13',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '13\tSAP/SDP\tAnnouncement (v1)',
+            '14\tRTSP\tSETUP rtsp://192.0.2.10/stream/audio RTSP/1.0',
+            '15\tRTSP\tReply: RTSP/1.0 200 OK',
+        ]
