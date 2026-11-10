@@ -1079,6 +1079,9 @@ typedef struct _free_chunk {
 							the last offset captured. In most cases, the real
 							file length would be different.
 */
+/* Largest gap of never-seen data that we are willing to allocate in memory */
+#define SMB_EO_MAX_GAP (64U*1024*1024)
+
 static void
 insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *eo_info)
 {
@@ -1192,7 +1195,8 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 		   dropped, so do not start a new (incomplete) copy of it */
 	} else if (!entry->payload_data) {
 		/* This is a New file */
-		if (calculated_size > UINT32_MAX) {
+		if (calculated_size > UINT32_MAX ||
+		    calculated_size > file->data_gathered + SMB_EO_MAX_GAP) {
 			/*
 			 * The argument to g_try_malloc() is
 			 * a size_t, however the maximum size of a file
@@ -1216,7 +1220,8 @@ insert_chunk(active_file   *file, export_object_entry_t *entry, const smb_eo_t *
 		if (calculated_size > (uint64_t) entry->payload_len &&
 			!file->is_out_of_memory) {
 			/* We need more memory */
-			if (calculated_size > UINT32_MAX) {
+			if (calculated_size > UINT32_MAX ||
+			    calculated_size > file->data_gathered + SMB_EO_MAX_GAP) {
 				/*
 				 * As for g_try_malloc(), so for
 				 * g_try_realloc().
@@ -7845,7 +7850,8 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 			CHECK_BYTE_COUNT(2);
 			proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
-			dataoffset += 2;
+			if (dataoffset <= UINT16_MAX - 2)
+				dataoffset += 2;
 			bc -= 2;
 			datalen = (datalen >= 2) ? datalen - 2 : 0;
 		}
@@ -9548,8 +9554,13 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		/* extended attributes */
 		if (ea_len) {
-			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ea_len, ENC_NA);
-			offset += ea_len;
+			int avail = tvb_reported_length_remaining(tvb, offset);
+			if (avail > 0) {
+				if (ea_len > (uint32_t)avail)
+					ea_len = (uint32_t)avail;
+				proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ea_len, ENC_NA);
+				offset += ea_len;
+			}
 		}
 
 		break;
