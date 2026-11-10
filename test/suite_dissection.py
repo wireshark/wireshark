@@ -129156,3 +129156,140 @@ class TestDissectRsvd:
                 'rsvd.svhdx_meta_operation.dst_vhdset_name',
                 '-ersvd.svhdx_meta_operation.dst_vhdset_name')
         assert lines == ['56\tsnap.vhds']
+
+
+class TestDissectRsvp:
+    '''RSVP (RFC 2205 and the TE/GMPLS/UNI extensions) over IP protocol
+    46, RSVP-E2EI (IP protocol 134), UDP 3455 and IPv6, from the
+    synthetic capture rsvp_coverage.pcap.gz (318 frames). Frames 312-317
+    are 64 KB datagrams of Juniper objects, the reproducer of the TLV
+    loop that was not bounded by the object length.'''
+
+    @staticmethod
+    def rsvp_fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('rsvp_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def rsvp_verbose(cmd_tshark, capture_file, test_env, frame, opts=()):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('rsvp_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % frame, '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rsvp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''318 frames: 316 RSVP and two RSVP-E2EI, none malformed or with an
+        error expert info, in one and two passes. Before "RSVP: Bound
+        the Juniper TLV loop, drop the unused request hash" each of the
+        six 64 KB frames took seconds (16 s for the capture); the timeout
+        is generous for slow and sanitizer builds.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rsvp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 318
+        assert protocols.count('RSVP') == 316
+        assert protocols.count('RSVP-E2EI') == 2
+        for passes in ((), ('-2',)):
+            lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert lines == []
+
+    def test_rsvp_juniper(self, cmd_tshark, capture_file, test_env):
+        '''Frame 190 has the seven Juniper TLV types (CoS, two metrics,
+        CCC status, path, an unknown one, CoS again). The 8 octet objects of
+        the loop reproducer (frames 191, 312-317) decode without errors.'''
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 190', '-ersvp.juniper.tlvs', '-ersvp.juniper.type')
+        assert lines == ['190\t7\t0x01,0x02,0x04,0x08,0x10,0x20,0x01']
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'rsvp.juniper.tlvs && frame.number >= 191', '-ersvp.juniper.padlength')
+        assert [l.split('\t')[0] for l in lines] == ['191'] + [str(n) for n in range(312, 318)]
+
+    def test_rsvp_3gpp2(self, cmd_tshark, capture_file, test_env):
+        '''The QoS attribute sets of frame 166: the Profile ID is a 16 bit
+        field (65535) and Max_Latency, Max_Loss_Rate and Delay_Var_Sensitive
+        are 8, 8 and 1 bits (170, 85, 1). Frame 167 has a 3GPP2 IE of an
+        unknown type, which is skipped over its data.'''
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {166, 167}',
+                '-ersvp.3gpp_obj.r_qos_blob.prof_id', '-ersvp.3gpp_obj.r_qos_blob.max_latency',
+                '-ersvp.3gpp_obj.r_qos_blob.max_loss_rte', '-ersvp.3gpp_obj.r_qos_blob.delay_var_sensitive',
+                '-ersvp.3gpp_obj.ie_type')
+        assert lines == ['166\t65535\t170\t85\t1\t0', '167\t\t\t\t\t85']
+        # QoS check confirm (frame 172) and the delete frames
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {171, 172, 175}', '-ersvp.3gpp_obj.tft_opcode',
+                '-ersvp.3gpp_obj.qos_result_code', '-ersvp.3gpp_obj.flow_id')
+        assert lines == ['171\t5,130\t\t1,2,3,4,5', '172\t129\t0\t7', '175\t2\t\t']
+
+    def test_rsvp_summaries(self, cmd_tshark, capture_file, test_env):
+        '''The sender template summary of an IPv6 P2MP session (frame 211)
+        prints the IPv6 sender and reads the Sub-Group ID at the right
+        offset; an unassigned upstream label (0xffffffff, frame 109) is
+        recognised; frame 151 has both TNAs around an egress label.'''
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 211', '-e_ws.col.info')
+        assert lines[0].endswith('SENDER TEMPLATE: P2MP_LSP_TUNNEL_IPv6, IPv6 tunnel sender '
+                                 'address 2001:db8:2::2, LSP ID: 14, Sub-Group ID 6. ')
+        out = self.rsvp_verbose(cmd_tshark, capture_file, test_env, 109)
+        assert 'UPSTREAM LABEL:  Unassigned upstream label ( 0xffffffff )' in out
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 151', '-ersvp.guni.srctna.ipv4', '-ersvp.guni.dsttna.ipv4',
+                '-ersvp.gen_uni.direction', '-ersvp.egress.label')
+        assert lines == ['151\t192.0.2.1\t198.51.100.1\tTrue\t273,546']
+
+    def test_rsvp_checksum(self, cmd_tshark, capture_file, test_env):
+        '''Frames 63-65: an incorrect message checksum, a zero checksum
+        without and with an integrity object.'''
+        results = []
+        for frame in (63, 64, 65):
+            out = self.rsvp_verbose(cmd_tshark, capture_file, test_env, frame)
+            line = [l.strip() for l in out.splitlines() if 'Message Checksum' in l]
+            assert len(line) == 1
+            results.append(line[0].split(' [')[1].rstrip(']'))
+        assert results == ['incorrect, should be 0x1fba', 'incorrect, should be 0x1fba',
+                           'ignored, integrity object used']
+
+    def test_rsvp_bundle(self, cmd_tshark, capture_file, test_env):
+        '''Frame 203 is a BUNDLE of PATH, RESV and ACK messages: dissected
+        by default, listed as not dissected with the preference off.'''
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 203',
+                '-e_ws.col.info', '-ersvp.msg')
+        assert lines == ['203\tComponent Messages Dissected\t12,1,2,13']
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env, 'frame.number == 203',
+                '-e_ws.col.info', '-ersvp.msg', '-e_ws.expert.message',
+                opts=('-o', 'rsvp.process_bundle:FALSE'))
+        assert lines == ['203\tComponent Messages Not Dissected\t12\tBundle Component Messages Not Dissected']
+
+    def test_rsvp_generalized_labels(self, cmd_tshark, capture_file, test_env):
+        '''The generalized label preference selects the interpretation of
+        frames 95-108.'''
+        for opt, text in (('data', 'Generalized: '), ('SUKLM', 'SONET/SDH: S='),
+                          ('G694', 'Wavelength: grid='), ('G709', 'G.709 ODUk: t3=')):
+            out = self.rsvp_verbose(cmd_tshark, capture_file, test_env, 95,
+                                    opts=('-o', 'rsvp.generalized_label_options:' + opt))
+            assert text in out
+
+    def test_rsvp_transports(self, cmd_tshark, capture_file, test_env):
+        '''IP protocol 134, UDP 3455 and IPv6 carry RSVP.'''
+        lines = self.rsvp_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {205, 206, 207, 208, 209, 210, 211}',
+                '-e_ws.col.protocol', '-eudp.dstport', '-eipv6.nxt')
+        assert lines == ['205\tRSVP-E2EI\t\t', '206\tRSVP-E2EI\t\t', '207\tRSVP\t3455\t',
+                         '208\tRSVP\t3455\t', '209\tRSVP\t\t46', '210\tRSVP\t\t46', '211\tRSVP\t\t46']
+
+    def test_rsvp_conversations(self, cmd_tshark, capture_file, test_env):
+        '''The conversation tap: the session destination and sender of the
+        PATH messages form the main conversation (300 frames).'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', '-z', 'conv,rsvp',
+                '-r', capture_file('rsvp_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [l.split() for l in stdout.splitlines() if '<->' in l]
+        assert rows[0][:3] == ['192.0.2.1', '<->', '198.51.100.1']
+        assert rows[0][3:6] == ['0', '0', 'bytes']
+        assert rows[0][6] == '300'
