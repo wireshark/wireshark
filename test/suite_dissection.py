@@ -122883,3 +122883,77 @@ class TestDissectQuicCoverage:
         assert msgs['6'] == ('Failed to create decryption context: Missing TLS handshake, '
                              'unsupported ciphers or padding')
         assert msgs['12'].startswith('Initial packets sent by the server must set the Token Length field to 0,')
+
+
+class TestDissectR09:
+    '''R09.x public transport priority telegrams, carried in the
+    PtActivation of the CAM public transport container (GeoNetworking,
+    BTP port 2001), from the synthetic capture r09_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('r09_coverage.pcapng.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_r09_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 21 frames decode as CAM without malformed packets or error
+        expert infos, in one and two passes; 17 of them hold an R09
+        telegram.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('r09_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['CAM'] * 21
+        assert len(self.fields(cmd_tshark, capture_file, test_env, 'r09')) == 17
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_r09_lengths(self, cmd_tshark, capture_file, test_env):
+        '''Every TL from 0 to 8: the Info text and the fields that exist
+        for that length.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 9', '_ws.col.info', 'r09.tl', 'r09.mp',
+                'r09.pr', 'r09.ha', 'r09.ln', 'r09.kn', 'r09.zl')
+        assert out == [
+            '1\tCAM R09.10 MP=1\t0\t1\t\t\t\t\t',
+            '2\tCAM R09.11 MP=258\t1\t258\t\t\t\t\t',
+            '3\tCAM R09.12 MP=4095\t2\t4095\t0\t0\t\t\t',
+            '4\tCAM R09.13 MP=4660\t3\t4660\t1\t1\t012\t\t',
+            '5\tCAM R09.14 MP=65535\t4\t65535\t2\t2\t945\t07\t',
+            '6\tCAM R09.15 MP=1\t5\t1\t3\t3\t199\t99\t',
+            '7\tCAM R09.16 MP=17185\t6\t17185\t3\t0\t000\t10\t5',
+            '8\tCAM R09.17 MP=255\t7\t255\t0\t2\t055\t20\t',
+            '9\tCAM R09.18 MP=30583\t8\t30583\t1\t1\t077\t33\t',
+        ]
+
+    def test_r09_tl8(self, cmd_tshark, capture_file, test_env):
+        '''TL 8: vehicle number and operator.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {9, 12, 13, 15}', 'r09.fn', 'r09.un', 'r09.zn')
+        assert out == [
+            '9\t456\t90\t000',
+            '12\t000\t00\t000',
+            '13\t999\t90\t990',
+            '15\t789\t10\t670',
+        ]
+
+    def test_r09_infobytes(self, cmd_tshark, capture_file, test_env):
+        '''Infobyte 1 and 2: modus, type, sign and amount of the
+        deviation.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {2, 3, 21}', 'r09.modus', 'r09.ty',
+                'r09.zv', 'r09.zw')
+        assert out == ['2\t9\t1\t1\t3', '3\t9\t1\t0\t7', '21\t9\t1\t1\t7']
+
+    def test_r09_not_r09(self, cmd_tshark, capture_file, test_env):
+        '''Frames 17-20: infobyte 1 is not 0x91, other activation types
+        and no activation: no R09 tree.'''
+        assert self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 17 && frame.number <= 20 && r09') == []
+        assert len(self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 14 && frame.number <= 16 && r09')) == 3
