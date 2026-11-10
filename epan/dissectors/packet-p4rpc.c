@@ -672,7 +672,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
                 if( non_numeric )
                 {
                     proto_tree_add_expert_format( ti_tree, pinfo,
-                        &ei_p4rpc_timestr_non_numeric, tvb, offset+vallen,
+                        &ei_p4rpc_timestr_non_numeric, tvb, val_offset,
                         vallen,
                         "Time string contains non-numeric character" );
                 }
@@ -688,7 +688,7 @@ dissect_one_p4rpc_message( tvbuff_t *tvb, uint32_t offset, uint32_t *seqno _U_,
             if( zero )
             {
                 proto_tree_add_expert_format( ti_tree, pinfo, &ei_p4rpc_msg_val_nul,
-                    tvb, offset+vallen, 1,
+                    tvb, nul_offset, 1,
                     "Invalid terminating NUL byte is 0x%0X instead of 0x0",
                     zero );
             }
