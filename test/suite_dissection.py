@@ -120842,3 +120842,91 @@ class TestDissectPvfs2:
         assert lines[0] == '11\tsimple_stripe\t65536'
         assert '121\tSIMPLE_STRIPE\t4096' in lines
         assert all(l.split('\t')[0] != '123' for l in lines)
+
+
+class TestDissectPwAtm:
+    # The ATM pseudowires are reached with Decode As on MPLS labels:
+    # 5001 N:1 with CW, 5002 N:1 without CW, 5003 1:1 and AAL5 PDU,
+    # 5004 AAL5 SDU.
+    OPTS = ('-d', 'mpls.label==5001,mplspwatmn1cw',
+            '-d', 'mpls.label==5002,mplspwatmn1nocw',
+            '-d', 'mpls.label==5003,mplspwatm11_or_aal5pdu',
+            '-d', 'mpls.label==5004,mplspwatmaal5sdu')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_atm_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_atm_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no errors in one and two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-eframe.number')
+        assert len(stdout.split()) == 30
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_atm_cells(self, cmd_tshark, capture_file, test_env):
+        '''The Protocol and Info columns of the frames made of ATM cells:
+        cumulative VPI, VCI, PTI and CLP are shown only when they are the
+        same in every cell.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number <= 12 || frame.number in {18, 19, 20, 21, 22, 23, 24, 25}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '1\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00100, PTI:0, CLP:0',
+            '2\tMPLS PW ATM N:1 no CW\t2 ATM cells, VPI:0005, VCI:00100, PTI:0',
+            '3\tMPLS PW ATM N:1 no CW\t3 ATM cells, CLP:0',
+            '4\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0007, VCI:00200, PTI:3, CLP:1',
+            '5\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00100, PTI:5, CLP:0',
+            '6\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00100, PTI:4, CLP:0',
+            '7\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00100, PTI:6, CLP:0',
+            '8\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00100, PTI:7, CLP:0',
+            '9\tMPLS PW ATM N:1 no CW\t1 ATM cell, VPI:0005, VCI:00003, PTI:0, CLP:0',
+            '10\tMPLS PW ATM N:1 CW\t1 ATM cell, VPI:0001, VCI:00032, PTI:0, CLP:0',
+            '11\tMPLS PW ATM N:1 CW\t3 ATM cells, VPI:0001, VCI:00032, PTI:0',
+            '12\tMPLS PW ATM N:1 CW\t1 ATM cell, VPI:0001, VCI:00032, PTI:5, CLP:0',
+            '18\tMPLS PW ATM 1:1 VCC\t1 ATM cell, PTI:0, CLP:0',
+            '19\tMPLS PW ATM 1:1 VCC\t2 ATM cells',
+            '20\tMPLS PW ATM 1:1 VCC\t1 ATM cell, PTI:5, CLP:0',
+            '21\tMPLS PW ATM 1:1 VCC\t1 ATM cell, PTI:7, CLP:0',
+            '22\tMPLS PW ATM 1:1 VCC\t1 ATM cell, PTI:2, CLP:1',
+            '23\tMPLS PW ATM 1:1 VPC\t1 ATM cell, VCI:00077, PTI:0, CLP:0',
+            '24\tMPLS PW ATM 1:1 VPC\t2 ATM cells, CLP:0',
+            '25\tMPLS PW ATM 1:1 VPC\t1 ATM cell, VCI:00003, PTI:4, CLP:0']
+
+    def test_pw_atm_oam_cells(self, cmd_tshark, capture_file, test_env):
+        '''Cells with an administrative PTI (4, 5, 6) or VCI 3 are handed
+        to the ATM OAM dissector, in every mode and in the AAL5 SDU
+        admin cell mode.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'oamaal', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['5', '6', '7', '9', '12', '16', '17', '20', '25']
+
+    def test_pw_atm_aal5(self, cmd_tshark, capture_file, test_env):
+        '''AAL5 SDU (frames 13-15, the SDU without trailer, with padding in
+        frame 15) and AAL5 PDU (frames 26-27, with trailer), carrying
+        LLC/SNAP, IPv4 and UDP.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number in {13, 14, 15, 26, 27}', '-Tfields',
+                '-eframe.number', '-eudp.dstport', '-epw.padding.len',
+                '-eatm.aal5t_len')
+        assert stdout.splitlines() == [
+            '13\t6001\t\t', '14\t6001\t\t', '15\t6001\t5\t',
+            '26\t6001\t\t39', '27\t6001\t\t69']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number == 27', '-V', '-O', 'mplspwatmcontrolword')
+        assert 'MPLS PW ATM Control Word: 0x00000a87, M:1  V:0  RSV:0  U:1  EFCI:1  CLP:1' in stdout
+
+    def test_pw_atm_first_nibble(self, cmd_tshark, capture_file, test_env):
+        '''A first nibble of 4, 6 and 1 hands the payload to IPv4, IPv6 and
+        the PW ACH (PW OAM) in the CW modes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number >= 28', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol')
+        assert stdout.splitlines() == ['28\tUDP', '29\tUDP', '30\tPW OAM']
