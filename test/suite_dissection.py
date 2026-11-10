@@ -132080,3 +132080,73 @@ class TestDissectRudp:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert str(frame) in stdout.split(), name
+
+
+class TestDissectRwall:
+    '''Remote Wall (ONC RPC program 100008) from the synthetic capture
+    rwall_coverage.pcap.gz: UDP calls and replies (RPC heuristic on a
+    UDP port), TCP with record marking, and RPC errors.'''
+
+    def test_rwall_protocols(self, cmd_tshark, capture_file, test_env):
+        '''34 frames are RWALL, three are the TCP handshake, and none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rwall_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 37
+        assert protocols.count('RWALL') == 34
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rwall_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rwall_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message strings of the WALL calls, from empty to 400
+        octets, over UDP and TCP (also two calls in one segment).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rwall_coverage.pcap.gz'),
+                '-Y', 'rwall.message',
+                '-Tfields', '-eframe.number', '-erwall.message',
+            ), encoding='utf-8', env=test_env)
+        msgs = {l.split('\t')[0]: l.split('\t')[1] for l in stdout.splitlines()
+                if '\t' in l}
+        assert msgs['5'] == 'x'
+        assert msgs['7'] == 'xy'
+        assert msgs['9'] == 'xyz'
+        assert msgs['11'] == 'wxyz'
+        assert msgs['13'] == 'vwxyz'
+        assert msgs['15'].startswith('The system will go down')
+        assert msgs['19'] == 'A' * 400
+        assert msgs['21'] == 'Broadcast from root'
+        assert msgs['32'] == 'over TCP'
+        assert msgs['34'] == 'second message'
+        assert msgs['36'] == 'first in segment,second in segment'
+        assert msgs.get('3', '') == ''
+
+    def test_rwall_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure 2 of version 1 is named RWALL, the NULL procedure of
+        version 1 and procedures of other versions are not.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rwall_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 23, 25, 27}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tV1 proc-0 Call',
+            '3\tV1 RWALL Call',
+            '23\tV1 proc-5 Call',
+            '25\tV2 proc-2 Call',
+            '27\tV3 proc-2 Call',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rwall_coverage.pcap.gz'),
+                '-Y', 'rwall.procedure_v1 == 2',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 26
