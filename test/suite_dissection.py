@@ -113235,3 +113235,57 @@ class TestDissectOpenwire:
             '42\tjava.lang.Exception\t',
             '43\t\t',
         ]
+
+
+class TestDissectOpsi:
+    '''OPSI (Open Policy Service Interface, TCP port 4002) from the
+    synthetic capture opsi_coverage.pcap.gz.'''
+
+    def test_opsi_frames(self, cmd_tshark, capture_file, test_env):
+        '''14 OPSI frames with the opcodes of the capture, without
+        malformed packets or error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('opsi_coverage.pcap.gz'),
+                    '-Y', 'opsi',
+                    '-Tfields', '-eframe.number', '-eopsi.opcode',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[1] for r in rows] == ['1', '2', '3', '3', '3', '4', '5', '6', '9', '4',
+                                            '3', '4,6', '3', '3']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('opsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_opsi_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attributes of every decoder kind: string, IPv4, 32-bit
+        integer and value-string; and the unknown-attribute warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opsi_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-eopsi.attr.user_name', '-eopsi.attr.nas_ip_addr',
+                '-eopsi.attr.nas_port', '-eopsi.attr.service_type',
+                '-eopsi.attr.framed_netmask', '-eopsi.attr.nas_port_type',
+                '-eopsi.session_id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip().split('\t') == [
+            'alice', '192.0.2.10', '0x00001234', '2', '255.255.255.0', '', '7']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opsi_coverage.pcap.gz'),
+                '-Y', 'opsi.attr_unknown',
+                '-Tfields', '-eframe.number', '-eopsi.attr_unknown',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split('\t')[0] == '13'
+
+    def test_opsi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split over three TCP segments is reassembled in the
+        last one; two PDUs in one segment are both dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('opsi_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 15, 16, 17}',
+                '-Tfields', '-eframe.number', '-eopsi.length', '-eopsi.opcode',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['14\t\t', '15\t\t', '16\t270\t3', '17\t16,16\t4,6']
