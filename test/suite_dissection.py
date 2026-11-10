@@ -135297,3 +135297,270 @@ class TestDissectScte35:
         assert rows['22'][1] == 'ABCD1234'
         assert rows['22'][2] == '0x30'
         assert rows['23'][1] == '10.5240/ABCD-EFGH-1234-5678-9012-Z'
+
+
+class TestDissectSctp:
+    '''SCTP over IPv4 and IPv6 (IP protocol 132), over UDP 9899 and as
+    link-layer type DLT_SCTP (interface 1 of the pcapng), from the
+    synthetic capture sctp_coverage.pcapng.gz. Frame 6 is the SACK and
+    frame 101 the message of the reproducers of "SCTP: Bound the fragments
+    stored per message".'''
+
+    @staticmethod
+    def run_tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sctp_coverage.pcapng.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+
+    def test_sctp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 152 frames are SCTP or the protocols carried over it, and none is
+        malformed or has an error expert info, in one and two passes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 152
+        assert protocols.count('SCTP') == 143
+        assert protocols.count('M3UA (RFC 4666)') == 8
+        assert protocols.count('SIP') == 1
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_sctp_sack_acks_data(self, cmd_tshark, capture_file, test_env):
+        '''The SACK in frame 6 acknowledges the DATA chunk of frame 5, with the
+        default relative TSNs and with the absolute ones. The relative
+        TSN was subtracted twice before "SCTP: Bound the fragments stored
+        per message", and no SACK acknowledged anything.'''
+        for opts in ((), ('-o', 'sctp.relative_tsns:FALSE')):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2', *opts,
+                    '-Y', 'frame.number <= 6 && (sctp.ack_frame || sctp.acked)',
+                    '-Tfields', '-eframe.number', '-esctp.ack', '-esctp.ack_frame', '-esctp.acked')
+            assert stdout.splitlines() == ['5\t\t\t6', '6\t1000\t5\t']
+
+    def test_sctp_fragment_limit(self, cmd_tshark, capture_file, test_env):
+        '''Frame 101 holds 1030 unordered middle fragments of one message. Only
+        1024 are kept; the other six get the expert info. Before
+        "SCTP: Bound the fragments stored per message" every
+        fragment walked the whole list and 80000 of them took minutes.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'sctp.too_many_fragments', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['101']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 101', '-Tfields', '-e_ws.expert.message')
+        assert stdout.count('Too many fragments in one message, not reassembled') == 6
+
+    def test_sctp_stat_zero_length_chunk(self, cmd_tshark, result_file, test_env):
+        '''A DATA chunk with a length of 0 is malformed. The statistics tap
+        got the packet anyway and read the chunk type outside of any
+        TRY block, so tshark -z sctp,stat aborted before "SCTP: Bound
+        the fragments stored per message".'''
+        sctp = struct.pack('!HHII', 5000, 5001, 1, 0) + struct.pack('!BBH', 0, 0, 0) + bytes(4)
+        ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(sctp), 1, 0, 64, 132, 0,
+                         bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+        frame = bytes(12) + b'\x08\x00' + ip + sctp
+        path = result_file('sctp_zero_length_chunk.pcap')
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+        stdout = subprocess.check_output((cmd_tshark, '-r', path, '-q', '-z', 'sctp,stat'),
+                                         encoding='utf-8', env=test_env, timeout=60)
+        assert 'SCTP Statistics' in stdout
+
+    def test_sctp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments are reassembled in order (frames 10-12), out of order (13-15),
+        unordered (16 and 17, again 63 and 64 and 85 and 86), as the
+        M3UA message of frames 18 and 19, as I-DATA (32-34, 35 and 36,
+        65 and 66), with the beginnings and ends of other messages
+        pending (78-96) and in the second pass.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'sctp.reassembled_in', '-Tfields', '-eframe.number', '-esctp.reassembled_in')
+        pairs = [tuple(int(x) for x in line.split('\t')) for line in stdout.splitlines()]
+        assert pairs == [
+            (10, 12), (11, 12), (13, 15), (14, 15), (16, 17), (18, 19), (32, 34), (33, 34),
+            (35, 36), (63, 64), (65, 66), (78, 80), (79, 80), (81, 84), (83, 84), (85, 86),
+            (87, 91), (90, 91), (94, 96), (95, 96), (114, 118), (115, 118), (116, 118), (117, 118),
+        ]
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-V',
+                '-Y', 'frame.number in {12, 15, 19, 34, 91, 118}')
+        assert stdout.count('Reassembled SCTP Fragments (103 bytes, 3 fragments)') == 1
+        assert stdout.count('Reassembled SCTP Fragments (90 bytes, 3 fragments)') == 1
+        assert stdout.count('Reassembled SCTP Fragments (12 bytes, 2 fragments)') == 1
+        assert stdout.count('Reassembled SCTP Fragments (72 bytes, 3 fragments)') == 1
+        assert stdout.count('Reassembled SCTP Fragments (18 bytes, 3 fragments)') == 1
+        assert stdout.count('Reassembled SCTP Fragments (40 bytes, 5 fragments)') == 1
+        # The reassembled M3UA messages reach M3UA
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'm3ua', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['7', '19', '37', '108', '109', '111', '118', '142']
+        # Without reassembly the fragments stay fragments
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.reassembly:FALSE',
+                '-Y', 'sctp.fragments', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_sctp_tsn_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Retransmissions (frames 20-24), one after the acknowledgement (21),
+        and the duplicate fragment found without the TSN analysis.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'sctp.retransmission || sctp.retransmitted_count || sctp.retransmitted_after_ack',
+                '-Tfields', '-eframe.number', '-esctp.retransmission', '-esctp.retransmitted',
+                '-esctp.retransmitted_count', '-esctp.retransmitted_after_ack')
+        assert stdout.splitlines() == [
+            '5\t\t21\t1\t', '8\t\t22,23,24\t3\t', '10\t\t20\t1\t',
+            '20\t10\t\t\t', '21\t5\t\t\t6', '22\t8\t\t\t', '23\t8\t\t\t', '24\t8\t\t\t',
+        ]
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'sctp.retransmitted_after_ack.expert || sctp.retransmission.more_than_twice',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == ['8', '21']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.tsn_analysis:FALSE',
+                '-Y', 'sctp.duplicate', '-Tfields', '-eframe.number', '-esctp.duplicate')
+        assert stdout.splitlines() == ['20\t10']
+
+    def test_sctp_absolute_tsn_wrap(self, cmd_tshark, capture_file, test_env):
+        '''Frames 114-118 are the fragments of an M3UA message whose TSNs
+        wrap from 0xffffffff to 0. They are reassembled with the
+        absolute TSNs too, also in the second pass.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-o', 'sctp.relative_tsns:FALSE', '-Y', 'frame.number == 118', '-V')
+            assert 'Reassembled SCTP Fragments (40 bytes, 5 fragments)' in stdout
+            assert stdout.count('Frame: 11') == 5
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-2',
+                '-o', 'sctp.relative_tsns:FALSE', '-Y', 'sctp.reassembled_in',
+                '-Tfields', '-eframe.number', '-esctp.reassembled_in')
+        assert stdout.splitlines()[-4:] == ['114\t118', '115\t118', '116\t118', '117\t118']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.relative_tsns:FALSE',
+                '-Y', 'frame.number >= 114 && frame.number <= 118', '-Tfields', '-esctp.data_tsn_raw')
+        assert stdout.split() == ['4294967294', '4294967295', '0', '1', '2']
+
+    def test_sctp_checksums(self, cmd_tshark, capture_file, test_env):
+        '''Most frames carry a correct CRC32c; frames 104-110 (the IPv6
+        association) an Adler-32 and frames 111-112 a zero checksum.
+        The checksum type preference selects what is verified.'''
+        status = {}
+        for kind in ('crc-32c', 'adler-32', 'automatic'):
+            stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.checksum:' + kind,
+                    '-Tfields', '-eframe.number', '-esctp.checksum.status')
+            status[kind] = {}
+            for line in stdout.splitlines():
+                num, st = line.split('\t')
+                status[kind][int(num)] = st.split(',')[0]
+        assert [n for n, s in status['crc-32c'].items() if s != '1'] == list(range(104, 113))
+        assert [n for n, s in status['adler-32'].items() if s == '1'] == list(range(104, 111))
+        assert [n for n, s in status['automatic'].items() if s != '1'] == [111, 112]
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.checksum:crc-32c',
+                '-Y', 'frame.number >= 100 && _ws.expert.message contains "Bad SCTP checksum"',
+                '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(104, 113)]
+
+    def test_sctp_association_index(self, cmd_tshark, capture_file, test_env):
+        '''The association index follows the verification tags: the whole
+        handshake and the later frames of the first association have index 0,
+        the next associations are numbered in the order they appear.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-o', 'sctp.association_index:TRUE',
+                '-Tfields', '-eframe.number', '-esctp.assoc_index')
+        index = {}
+        for line in stdout.splitlines():
+            num, idx = line.split('\t')
+            index[int(num)] = idx
+        assert all(index[n] == '0' for n in range(1, 57))
+        assert index[104] == '2'
+        assert index[122] == '3'
+        assert index[126] == '4'
+        assert index[130] == '5'
+        assert index[134] == '6'
+        assert index[142] == '11'
+        assert index[149] == '17'
+        # Without it the field is only a placeholder
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1', '-V')
+        assert 'Association index: disabled (enable in preferences)' in stdout
+
+    def test_sctp_chunks_parameters_causes(self, cmd_tshark, capture_file, test_env):
+        '''The INIT and INIT ACK parameters, the stream reset and ASCONF parameters
+        and the causes of the two ERROR chunks, by type.'''
+        def values(frame, field):
+            out = self.run_tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number == %d' % frame, '-Tfields', '-e' + field)
+            return out.strip().split(',')
+        assert values(1, 'sctp.parameter_type') == [
+            '0x0005', '0x0006', '0x0009', '0x000b', '0x000c', '0x8000', '0x8001', '0x8002',
+            '0x8003', '0x8004', '0x8006', '0x8008', '0xc000', '0xc006', '0x8010', '0x4020', '0x0f00']
+        assert values(2, 'sctp.parameter_type') == [
+            '0x0007', '0x0005', '0x0006', '0x0005', '0x000b', '0x0008', '0x8010', '0x8006',
+            '0x8008', '0x8001', '0x8004', '0xc000']
+        assert values(49, 'sctp.parameter_type') == ['0x000d', '0x000e', '0x000f']
+        assert values(50, 'sctp.parameter_type') == [
+            '0x0010', '0x0010', '0x0010', '0x0011', '0x0012', '0x000d', '0x000e']
+        assert values(51, 'sctp.parameter_type') == [
+            '0x0005', '0xc001', '0x0005', '0xc002', '0x0006', '0xc004', '0x0005', '0xc001', '0x000b']
+        assert values(52, 'sctp.parameter_type') == [
+            '0xc005', '0xc003', '0x0005', '0xc003', '0xc001', '0x0005', '0x0005', '0xc005']
+        assert values(55, 'sctp.cause_code') == ['0x%04x' % c for c in range(1, 11)]
+        assert values(56, 'sctp.cause_code') == [
+            '0x000b', '0x000c', '0x000d', '0x0064', '0x0065', '0x0066', '0x0067', '0x00a0',
+            '0x00a1', '0x00a2', '0x00a3', '0x00a4', '0x0105', '0x7777', '0x7778']
+        assert values(44, 'sctp.chunk_type') == ['15', '0']
+        assert values(55, 'sctp.chunk_type') == ['9', '254']
+        assert values(57, 'sctp.chunk_type') == ['129', '0']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-esctp.chunk_type')
+        types = {}
+        for t in ','.join(stdout.split()).split(','):
+            types[int(t)] = types.get(int(t), 0) + 1
+        for t in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 64, 65, 128, 129, 130, 132,
+                  192, 193, 194, 255):
+            assert t in types, t
+
+    def test_sctp_sack_gaps(self, cmd_tshark, capture_file, test_env):
+        '''SACK and NR-SACK with gap blocks, duplicate TSNs and the expert infos
+        for a zero window, more than 100 gap-acknowledged TSNs and gaps out of order.'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {9, 27, 29}', '-Tfields', '-eframe.number',
+                '-esctp.sack_number_of_gap_blocks', '-esctp.sack_number_of_tsns_gap_acked',
+                '-esctp.nr_sack_number_of_gap_blocks', '-esctp.nr_sack_number_of_nr_gap_blocks')
+        assert stdout.splitlines() == ['9\t1\t1\t\t', '27\t2\t130\t\t', '29\t\t\t1\t2']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env, '-Y',
+                'sctp.sack_a_rwnd.expert || sctp.sack_number_of_tsns_gap_acked.100 || '
+                'sctp.sack_gap_block_out_of_order || sctp.nr_sack_number_of_tsns_gap_acked.100 || '
+                'sctp.nr_sack_number_of_tsns_nr_gap_acked.100', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['26', '27', '28', '30', '97']
+
+    def test_sctp_payload_dissectors(self, cmd_tshark, capture_file, test_env):
+        '''The payload goes to the dissector of the PPID (7), of the lower or
+        higher port (109, 142), of the heuristic dissector (SIP, frame 62), or is
+        shown as data when none matches (151, and the PPIDs of frame 103).'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {7, 109, 142, 62, 103, 151}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-esctp.data_payload_proto_id')
+        assert stdout.splitlines() == [
+            '7\tM3UA (RFC 4666)\t3', '62\tSIP\t0', '103\tSCTP\t100,101,102,103',
+            '109\tM3UA (RFC 4666)\t0', '142\tM3UA (RFC 4666)\t0', '151\tSCTP\t46']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 62', '-Tfields', '-esip.Method', '-esip.Call-ID')
+        assert stdout.strip() == 'OPTIONS\tsctp1@host.example.com'
+        # A Decode As for the PPID or the port replaces the default
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-d', 'sctp.ppi==3,data', '-Y', 'm3ua', '-Tfields', '-eframe.number')
+        assert stdout.split() == ['109', '111', '118', '142']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-d', 'sctp.ppi==3,data', '-d', 'sctp.port==2905,data',
+                '-Y', 'm3ua', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-o', 'sctp.ulp_dissection:FALSE', '-Y', 'm3ua || sip', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+
+    def test_sctp_encapsulations(self, cmd_tshark, capture_file, test_env):
+        '''SCTP over UDP port 9899 (frames 122-125) and as link-layer type
+        DLT_SCTP, which has no IP addresses (126-129).'''
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 122 && frame.number <= 129', '-Tfields', '-eframe.number',
+                '-eframe.interface_id', '-eudp.dstport', '-esctp.chunk_type', '-esctp.srcport')
+        assert stdout.splitlines() == [
+            '122\t0\t9899\t1\t7000', '123\t0\t9899\t2\t7001', '124\t0\t9899\t0\t7000',
+            '125\t0\t9899\t3\t7001', '126\t1\t\t1\t8000', '127\t1\t\t2\t8001',
+            '128\t1\t\t0,0\t8000', '129\t1\t\t3\t8001']
+        stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 128', '-Tfields', '-eip.src', '-esctp.data_payload_proto_id')
+        assert stdout.rstrip('\n') == '\t0,0'
