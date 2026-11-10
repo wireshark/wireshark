@@ -121119,3 +121119,70 @@ class TestDissectPwFr:
         assert lines[start + 7:start + 9] == [
             '    Sequence number: 3',
             '    Padding: 000000000000']
+
+
+class TestDissectPwHdlc:
+    # Both HDLC pseudowires are reached with Decode As: MPLS label 4001
+    # (Frame Relay port mode) and 4002 (PPP).
+    OPTS = ('-d', 'mpls.label==4001,pw_hdlc_nocw_fr',
+            '-d', 'mpls.label==4002,pw_hdlc_nocw_hdlc_ppp')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_hdlc_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_hdlc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-22 are PPP in HDLC (IPv4/UDP in frames 1 and 4, LCP
+        echo requests in the others), frames 23-26 are Frame Relay with
+        IPv4/UDP. No malformed packets or errors, in one and two
+        passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 26
+        assert protocols.count('PPP LCP') == 20
+        assert protocols.count('UDP') == 6
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_hdlc_ppp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Address, C/R bit, control field, frame type and, for U
+        frames, the poll/final bit and every modifier.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'pw_hdlc.control_field', '-Tfields', '-eframe.number',
+                '-epw_hdlc.address', '-epw_hdlc.cr_bit',
+                '-epw_hdlc.control_field', '-epw_hdlc.pf_bit',
+                '-epw_hdlc.modifier')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 22
+        assert lines[0] == ['1', '0xfc', '1', '0x03', '0', '0x00']
+        assert lines[1] == ['2', '0x01', '0', '0x03', '0', '0x00']
+        assert lines[2] == ['3', '0x01', '1', '0x03', '0', '0x00']
+        # I frame and S frame have no poll/final bit and modifier
+        assert lines[3] == ['4', '0xfc', '1', '0x00', '', '']
+        assert lines[4] == ['5', '0xfc', '1', '0x01', '', '']
+        # every U frame modifier
+        assert [(l[3], l[5]) for l in lines[5:20]] == [
+            ('0x03', '0x00'), ('0x23', '0x08'), ('0x43', '0x10'),
+            ('0x63', '0x18'), ('0x83', '0x20'), ('0xe3', '0x38'),
+            ('0x07', '0x01'), ('0x87', '0x21'), ('0x0f', '0x03'),
+            ('0x2f', '0x0b'), ('0x4f', '0x13'), ('0x6f', '0x1b'),
+            ('0x8f', '0x23'), ('0xaf', '0x2b'), ('0xcf', '0x33')]
+        assert lines[20] == ['21', '0xfc', '1', '0x13', '1', '0x00']
+        assert lines[21] == ['22', '0xfc', '1', '0x5b', '1', '0x12']
+
+    def test_pw_hdlc_frame_relay(self, cmd_tshark, capture_file, test_env):
+        '''Frames 23-26 go straight to the Frame Relay dissector (no
+        HDLC header): DLCIs of two and three octet addresses and a SNAP
+        encapsulated payload.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number >= 23', '-Tfields', '-eframe.number',
+                '-efr.dlci', '-eudp.dstport')
+        assert stdout.splitlines() == [
+            '23\t16\t6001', '24\t114\t6001', '25\t1032\t6001', '26\t32\t6001']
