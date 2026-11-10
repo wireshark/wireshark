@@ -133675,3 +133675,104 @@ class TestDissectSapigs:
                     '-esapigs.portwatcher_version', '-esapigs.interpreter',
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['46\tADM:REGPW\tPW001\t\t', '47\tADM:REGIP\tPW001\t\t']
+
+
+class TestDissectSapms:
+    def test_sapms_protocols(self, cmd_tshark, capture_file, test_env):
+        '''117 SAP MS messages over SAP NI (TCP 3600 with the client on the
+        SAP NI port 40000, no SYN); none is malformed or has an error expert
+        info, in one and two passes. The only expert infos are the notes
+        for unknown versions and partially dissected opcodes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapms_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['SAPMS'] * 117
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapms_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapms_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['21', '26', '31', '114', '115', '116']
+
+    def test_sapms_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields, flag and iflag, and the diag port.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapms_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 41, 60}',
+                '-Tfields', '-eframe.number', '-esapms.toname', '-esapms.fromname',
+                '-esapms.flag', '-esapms.iflag', '-esapms.diag_port', '-esapms.opcode',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', 'MSG_SERVER', 'CLIENT_1', '0x00', '0x00', '3201', '0x00',
+                'Flag=Unknown,IFlag=Unknown, Opcode=MS_DP_ADM']
+        assert lines[1][3:5] == ['0x02', '0x01'] and lines[1][5] == ''
+        assert lines[2][3] == '0x03' and lines[2][7].endswith('Opcode=MS_GET_SECURITY_KEY')
+        assert lines[3][3] == '0x01'
+
+    def test_sapms_server_list(self, cmd_tshark, capture_file, test_env):
+        '''Client entries of every version (1 to 4, and an unknown version
+        handled as 4) in server add, sub, mod and list messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapms_coverage.pcap.gz'),
+                '-Y', 'sapms.serverlst.client',
+                '-Tfields', '-eframe.number', '-esapms.serverlst.name', '-esapms.serverlst.host',
+                '-esapms.serverlst.hostaddr4', '-esapms.serverlst.servno',
+                '-esapms.serverlst.sysservice', '-esapms.opcode.version',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:6] == ['17', 'SRV1', 'host1', '192.0.2.7', '3200', ''] and int(lines[0][6], 0) == 1
+        by_frame = {}
+        for l in lines:
+            by_frame.setdefault(l[0], []).append(l)
+        assert int(by_frame['20'][0][5], 0) == 16 and int(by_frame['20'][0][6], 0) == 4
+        assert by_frame['32'][0][1] == 'A,B'
+        assert [int(x, 0) for x in by_frame['32'][0][5].split(',')] == [16, 7]
+
+    def test_sapms_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''A selection of opcode bodies: logon, properties, ACL, SID, log
+        counter, ASCS gateway, text, counters, shutdown reason.'''
+        def fields(flt, *names):
+            out = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('sapms_coverage.pcap.gz'), '-Y', flt, '-Tfields',
+                    *(a for n in names for a in ('-e', n))),
+                encoding='utf-8', env=test_env)
+            return [l.split('\t') for l in out.splitlines()]
+        assert fields('frame.number == 72', 'sapms.logon.name', 'sapms.logon.prot',
+                'sapms.logon.host', 'sapms.logon.address6', 'sapms.logon.end') == [
+            ['logon1', 'DIAG', 'h.example', '2001:db8::7', '1']]
+        assert fields('frame.number == 75', 'sapms.logon.response_tail') == [['7461696c21']]
+        assert fields('frame.number == 62', 'sapms.text.name', 'sapms.text.value') == [
+            ['TXT1', 'some text value']]
+        assert fields('frame.number == 71', 'sapms.counter.uuid') == [
+            ['COUNTER-UUID-1,COUNTER-UUID-1,COUNTER-UUID-1']]
+        assert fields('frame.number == 78', 'sapms.shutdown.reason') == [['reason']]
+        assert fields('frame.number == 102', 'sapms.check_acl.acl') == [['acl-one,acl-two']]
+        assert fields('frame.number == 104', 'sapms.sid') == [['SID']]
+        assert fields('frame.number == 106', 'sapms.log_counter.count') == [['2']]
+        assert fields('frame.number == 108', 'sapms.ascs_gateway.tag') == [['1,2,3,4,0']]
+        assert fields('frame.number == 89', 'sapms.property.vhost.value') == [['']]
+        assert fields('frame.number == 88', 'sapms.property.vhost.value') == [['vhost.ex']]
+
+    def test_sapms_adm(self, cmd_tshark, capture_file, test_env):
+        '''ADM records: profile and shared parameter, RZL strings with an
+        integer value and without, and a partially dissected opcode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapms_coverage.pcap.gz'),
+                '-Y', 'sapms.adm.record.opcode',
+                '-Tfields', '-eframe.number', '-esapms.adm.record.opcode',
+                '-esapms.adm.rzl_strg.type', '-esapms.adm.recno',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        num = lambda x: [int(v, 0) for v in x.split(',')]
+        assert lines[0][0] == '115' and num(lines[0][1]) == [1, 46, 21, 21, 21, 0]
+        assert num(lines[0][2]) == [11, 10, 31] and lines[0][3] == '6'
+        assert lines[1][0] == '116' and num(lines[1][1]) == [2, 102, 126]
