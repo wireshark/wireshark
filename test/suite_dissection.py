@@ -133592,3 +133592,86 @@ class TestDissectSaphdb:
             assert [l[0] for l in lines] == ['87', '88']
             assert all(l[1] == '1' and l[2] == '2' for l in lines)
             assert all(l[3] == 'Packet is compressed and decompression is not supported' for l in lines)
+
+
+class TestDissectSapigs:
+    def test_sapigs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP IGS over SAP NI (TCP 40000): 43 SAP IGS frames, the
+        handshake and the two segments of a reassembled message; none is
+        malformed or has an error expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapigs_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 48
+            assert protocols.count('SAPIGS') == 43
+            assert protocols.count('TCP') == 5
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapigs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sapigs_functions(self, cmd_tshark, capture_file, test_env):
+        '''The function name of every message, and the administration
+        fields of the port watcher and interpreter registrations.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapigs_coverage.pcap.gz'),
+                '-Y', 'sapigs',
+                '-Tfields', '-eframe.number', '-esapigs.function', '-esapigs.portwatcher',
+                '-esapigs.portwatcher_version', '-esapigs.interpreter',
+                '-esapigs.portwatcher_info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 43
+        assert lines[0][:3] == ['4', 'ADM:PING', 'PW001']
+        assert lines[1][:2] == ['5', 'ADM:PONG']
+        assert lines[2][:4] == ['6', 'ADM:REGPW', 'PW001', '7.53']
+        assert lines[3] == ['7', 'ADM:REGIP', 'PW001', '7.53', 'IP01', 'free']
+        assert lines[4] == ['8', 'ADM:FREEIP', 'PW001', '7.53', 'IP01', 'busy']
+        assert [l[1] for l in lines[5:27]][-1] == 'NOSUCHFUNCTION'
+        assert [l[0] for l in lines[-4:]] == ['45', '46', '47', '48']
+
+    def test_sapigs_data(self, cmd_tshark, capture_file, test_env):
+        '''Call back data (raw and sized), data messages with definition
+        tables, a message reassembled from three segments, and the chart
+        configuration.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapigs_coverage.pcap.gz'),
+                '-Y', 'sapigs.eye_catcher || sapigs.chart_config',
+                '-Tfields', '-eframe.number', '-esapigs.function', '-esapigs.eye_catcher',
+                '-esapigs.codepage', '-esapigs.table_name', '-esapigs.chart_config',
+                '-esapigs.table_data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        by_frame = {l[0]: l for l in lines}
+        assert by_frame['31'][2].startswith('TransMagic')
+        assert by_frame['34'][1:5] == ['ZIPPER', 'IGSDATA', '1100', '']
+        assert by_frame['35'][4] == 'IMG'
+        assert by_frame['38'][1] == 'XMLCHART' and by_frame['38'][4] == 'T1,T2'
+        assert by_frame['40'][5] == 'CHARTCONFIG01'
+        assert by_frame['41'][5] == 'CHARTCONFIG02' and by_frame['41'][6] == ''
+        # the data item of frame 45 (data offset beyond the packet) is skipped
+        assert '45' in by_frame and by_frame['45'][6] == ''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('sapigs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {36, 37}',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['36\t38', '37\t38']
+
+    def test_sapigs_short_registration(self, cmd_tshark, capture_file, test_env):
+        '''Registration messages that end right after the first item are
+        decoded without an exception (the remaining length past the end of
+        the packet is negative).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapigs_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 46 && frame.number <= 47 && !_ws.malformed',
+                    '-Tfields', '-eframe.number', '-esapigs.function', '-esapigs.portwatcher',
+                    '-esapigs.portwatcher_version', '-esapigs.interpreter',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['46\tADM:REGPW\tPW001\t\t', '47\tADM:REGIP\tPW001\t\t']
