@@ -131876,3 +131876,98 @@ class TestDissectRtsp:
                 '-Tfields', '-eframe.number', '-e_ws.expert.message'),
                 encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\tBad server IP address']
+
+
+class TestDissectRttrp:
+    '''RTTrP (Real-Time Tracking Protocol, motion and lighting) from the
+    synthetic capture rttrp_coverage.pcap.gz. There is no port: the
+    enabled-by-default UDP heuristic finds the datagrams (UDP port 24002).'''
+
+    CAP = 'rttrp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRttrp.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rttrp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 38 datagrams are RTTrP (17 motion and 21 lighting) and none
+        is malformed or has an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['RTTrP'] * 38
+        infos = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert sum(i.startswith('RTTrPM,') for i in infos) == 17
+        assert sum(i.startswith('RTTrPL,') for i in infos) == 21
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_rttrp_byte_orders(self, cmd_tshark, capture_file, test_env):
+        '''The integer and float byte orders come from the two signatures;
+        all four combinations give the same values.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 13, 15, 17}',
+                '-Tfields', '-eframe.number', '-erttrp.int_signature',
+                '-erttrp.float_signature', '-erttrp.trackable.timestamp',
+                '-erttrp.trackable.data.latency',
+                '-erttrp.trackable.data.point_index',
+                '-erttrp.orientation.order')
+        sigs = {l.split('\t')[0]: tuple(l.split('\t')[1:3]) for l in lines}
+        assert sigs == {'2': ('0x5441', '0x3443'), '13': ('0x4154', '0x4334'),
+                        '15': ('0x5441', '0x4334'), '17': ('0x4154', '0x3443')}
+        for l in lines:
+            assert l.split('\t')[3:] == ['123456', '5,9,11,7', '3,2', '0x0123']
+
+    def test_rttrp_zones(self, cmd_tshark, capture_file, test_env):
+        '''Zone collision modules, in the old ($ delimited) and new
+        (counted) forms.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 6 && frame.number <= 11',
+                '-Tfields', '-eframe.number',
+                '-erttrp.trackable.data.zone.name',
+                '-erttrp.trackable.data.zone_count')
+        assert lines == ['6\talpha,beta,gamma\t', '7\talpha,beta\t', '8\t\t',
+                         '9\tsolo\t', '10\tnorth,south\t2', '11\t\t0']
+
+    def test_rttrp_lighting(self, cmd_tshark, capture_file, test_env):
+        '''Lighting output with universes, spots and channels, and the
+        lighting sync module.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {18, 21, 23, 26}',
+                '-Tfields', '-eframe.number',
+                '-erttrp.lighting.universe.id',
+                '-erttrp.lighting.universe.spot.id',
+                '-erttrp.lighting.universe.spot.channel.value',
+                '-erttrp.lighting.sequence', '-erttrp.lighting.device_id',
+                '-erttrp.lighting.device_sequence_number')
+        assert lines == [
+            '18\t1,2\t1,2,3\t255,128,1\t100\t\t',
+            '21\t\t\t\t\t16909060\t77',
+            '23\t1,2\t1,2,3\t255,128,1\t100\t\t',
+            '26\t\t\t\t\t16909060\t77',
+        ]
+
+    def test_rttrp_universes_with_spot_counts_but_no_spots(self, cmd_tshark, capture_file, test_env):
+        '''Frame 38 holds 1200 universe modules of 7 octets that each claim
+        600 spots (the reproducer of "RTTrp: Fix quadratic work on overlapping modules"). The
+        spots used to be parsed over the following universes, 1200 x 600
+        module parses, with error expert infos; now each universe stops at
+        the end of its module and the frame has no expert info.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 38',
+                '-Tfields', '-erttrp.lighting.universe.id')
+        assert len(lines[0].split(',')) == 1200
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 38 && (rttrp.module_type.invalid_type '
+                      '|| rttrp.module_size.mismatch)',
+                '-Tfields', '-eframe.number')
+        assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 38',
+                '-Tfields', '-erttrp.lighting.universe.spot.id')
+        assert lines == ['']
