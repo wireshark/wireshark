@@ -275,7 +275,7 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     flags_tree = proto_item_add_subtree(ti_flags, ett_flags_nd);
                     proto_tree_add_item(flags_tree, hf_rpkirtr_flags_rk,           tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
-                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved,         tvb, offset, 2, ENC_NA);
+                    proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_reserved,         tvb, offset, 1, ENC_NA);
                     offset += 1;
                     proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_length,           tvb, offset, 4, ENC_BIG_ENDIAN);
                     /* TODO: Add check length ? */
@@ -333,7 +333,8 @@ static int dissect_rpkirtr_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                     proto_tree_add_item(rpkirtr_tree, hf_rpkirtr_aspa_customer_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                     // provider AS's (4B*cnt_asns)
-                    proto_tree *providers_tree = proto_item_add_subtree(rpkirtr_tree, ett_providers);
+                    unsigned providers_len = (unsigned)MIN((uint64_t)cnt_asns * 4, (uint64_t)tvb_reported_length_remaining(tvb, offset));
+                    proto_tree *providers_tree = proto_tree_add_subtree(rpkirtr_tree, tvb, offset, providers_len, ett_providers, NULL, "Providers");
                     for (unsigned i = 0; i < cnt_asns; i++) {
                         proto_tree_add_item(providers_tree, hf_rpkirtr_aspa_provider_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
                         offset += 4;
