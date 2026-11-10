@@ -979,9 +979,13 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, unsigned offset, unsigned len,
         proto_tree_add_item(tree, hf_q931_bearer_capability_stop_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_q931_bearer_capability_data_bits, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_q931_bearer_capability_parity, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        len -= 1;
 
         if (octet & Q931_IE_VL_EXTENSION)
             goto l1_done;
+        if (len == 0)
+            return;
         proto_tree_add_item(tree, hf_q931_bearer_capability_duplex, tvb, offset, 1, ENC_NA);
         proto_tree_add_item(tree, hf_q931_bearer_capability_modem_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
@@ -1026,7 +1030,7 @@ l1_done:
             return;
         octet = tvb_get_uint8(tvb, offset) & 0x7F;
         proto_tree_add_uint_format_value(tree, hf_q931_bearer_capability_window_size, tvb, offset, 1,
-            octet, "octet & 0x7F%u k", octet);
+            octet, "%u k", octet);
         offset += 1;
         len -= 1;
     }
@@ -1847,6 +1851,7 @@ dissect_q931_uint16_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, un
     uint8_t octet;
     uint16_t value;
     int value_len;
+    unsigned start_offset = offset;
 
     value_len = 0;
 
@@ -1894,11 +1899,10 @@ dissect_q931_uint16_value(tvbuff_t *tvb, packet_info *pinfo, unsigned offset, un
         goto bad_length;
     }
     value |= (octet & 0x7F);
-    offset += 1;
     /*len -= 1;*/
     value_len++;
 
-    proto_tree_add_uint(tree, hf_value, tvb, offset, value_len, value);
+    proto_tree_add_uint(tree, hf_value, tvb, start_offset, value_len, value);
     return value_len;
 
 past_end:
