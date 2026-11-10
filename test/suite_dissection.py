@@ -119249,3 +119249,102 @@ class TestDissectPppCoverage:
                                  'ppp.direction')
         assert [f[0] for f in frames] == ['1', '1', '0', '0', '0', '1', '0'] or \
             sorted(f[0] for f in frames) == ['0', '0', '0', '0', '1', '1', '1']
+
+
+class TestDissectPppoe:
+    '''PPPoE discovery (ethertype 0x8863) and session (0x8864 and the
+    PPP-over-Ethernet link-layer type) from the synthetic capture
+    pppoe_coverage.pcapng.gz: every discovery code and tag, the DSLF
+    vendor sub-tags, the Credits tag in session frames, padding and
+    wrong payload lengths. The names and values are made up.'''
+
+    @staticmethod
+    def pppoe_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('pppoe_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', '-Eseparator=|']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('|') for line in stdout.splitlines()]
+
+    def test_pppoe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''82 frames: 58 discovery frames, then session frames that carry
+        PPP (LCP, IPCP, IPv6CP, IPv4). None is malformed or has an error
+        expert info, in one and two passes.'''
+        frames = self.pppoe_fields(cmd_tshark, capture_file, test_env, '', '_ws.col.protocol')
+        assert len(frames) == 82
+        protocols = [f[0] for f in frames]
+        assert protocols.count('PPPoED') == 58
+        assert protocols.count('PPP LCP') == 7
+        assert protocols.count('PPP IPCP') == 2
+        assert protocols.count('PPP IPV6CP') == 2
+        assert protocols.count('IPv4') == 1
+        assert protocols.count('UDP') == 12
+        for passes in ((), ('-2',)):
+            frames = self.pppoe_fields(cmd_tshark, capture_file, test_env,
+                                       '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                       'frame.number', passes=passes)
+            assert frames == []
+
+    def test_pppoe_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''PPPoE keeps no state: one and two passes give the same fields.'''
+        fields = ('frame.number', '_ws.col.info', 'frame.protocols', 'pppoe.code',
+                  'pppoe.session_id', 'pppoe.payload_length', 'pppoed.tag')
+        one = self.pppoe_fields(cmd_tshark, capture_file, test_env, '', *fields)
+        two = self.pppoe_fields(cmd_tshark, capture_file, test_env, '', *fields, passes=('-2',))
+        assert len(one) == 82
+        assert one == two
+
+    def test_pppoe_unknown_tag_data(self, cmd_tshark, capture_file, test_env):
+        '''The data of an unknown tag starts after the tag header (frame
+        55: "ABC"); before "PPPoE: Fix the data offset of unknown discovery tags"
+        it started at the length field and showed 000341.'''
+        frames = self.pppoe_fields(cmd_tshark, capture_file, test_env, 'pppoed.tag.unknown_data',
+                                   'frame.number', 'pppoed.tag.unknown_data')
+        assert frames == [['53', '0102'], ['55', '414243'], ['56', '0001']]
+
+    def test_pppoe_dslf_tags(self, cmd_tshark, capture_file, test_env):
+        '''Frame 43 holds the DSLF vendor sub-tags (vendor id 3561).'''
+        frames = self.pppoe_fields(cmd_tshark, capture_file, test_env, 'frame.number == 43',
+                                   'pppoed.tags.vendor_id', 'pppoed.tags.circuit_id',
+                                   'pppoed.tags.remote_id', 'pppoed.tags.act_data_rate_up',
+                                   'pppoed.tags.act_data_rate_down', 'pppoed.tags.access_loop_encap.data_link',
+                                   'pppoed.tags.access_loop_encap.encap_1',
+                                   'pppoed.tags.access_loop_encap.encap_2')
+        assert frames == [['3561', 'circuit-7/0/1', 'remote-id', '1000', '20000', '0x00', '0x01', '0x05']]
+
+    def test_pppoe_discovery_values(self, cmd_tshark, capture_file, test_env):
+        '''The AC-Name goes to the Info column, Credits, Sequence
+        Number and Credit Scale Factor tags, and the data rate units of
+        the Metrics tag.'''
+        frames = self.pppoe_fields(cmd_tshark, capture_file, test_env, 'frame.number in {2, 18}',
+                                   'frame.number', '_ws.col.info', 'pppoed.tags.seq_num',
+                                   'pppoed.tags.credit_scale', 'pppoed.tags.credits.fcn',
+                                   'pppoed.tags.credits.bcn')
+        assert frames == [
+            ['2', 'Active Discovery Offer (PADO) AC-Name=\'ac-one\'', '', '', '', ''],
+            ['18', 'Active Discovery Session-Grant (PADG)', '0x0001', '128', '1', '2'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('pppoe_coverage.pcapng.gz'),
+                                          '-Y', 'frame.number == 22', '-V'),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        assert 'Curr. datarate: 1500 kbps' in stdout
+        assert 'Max. datarate: 2500 kbps' in stdout
+
+    def test_pppoe_session(self, cmd_tshark, capture_file, test_env):
+        '''Session frames: the Credits tag in front of the PPP packet
+        (frames 74, 75 and 82), padding after the PPP packet (frames 72
+        and 73) and the frames of the PPP-over-Ethernet link-layer type
+        (80-82).'''
+        frames = self.pppoe_fields(cmd_tshark, capture_file, test_env, 'frame.number >= 59',
+                                   'frame.number', 'frame.protocols', 'pppoe.payload_length',
+                                   'pppoes.tags.credits.fcn', '_ws.expert.message')
+        by_number = {f[0]: f[1:] for f in frames}
+        assert by_number['82'] == ['pppoes:ppp:ip:udp', '38', '1', '']
+        assert by_number['75'][0] == 'eth:ethertype:pppoes:ppp:lcp'
+        assert by_number['72'][1] == by_number['73'][1] == '80'
+        assert by_number['72'][3] == by_number['73'][3] == ''
+        for n in ('80', '81', '82'):
+            assert by_number[n][0].startswith('pppoes:ppp')
