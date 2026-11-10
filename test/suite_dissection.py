@@ -123959,3 +123959,72 @@ class TestDissectRdp:
         stdout = self.run_fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'rdp.encryptionMethod', '-Tfields', '-erdp.encryptionMethod', '-E', 'occurrence=f')
         assert stdout.split()[:5] == ['0x00000000', '0x00000002', '0x00000010', '0x00000001', '0x00000008']
+
+
+class TestDissectRdpCliprdr:
+    '''RDP clipboard channel (CLIPRDR) from the synthetic capture
+    rdp_cliprdr_coverage.pcapng.gz: two RDP sessions on TCP 3389 with the
+    static channel "cliprdr" (the first never announces long format names,
+    the second does) and the dynamic channel "cliprdr".'''
+
+    CAPTURE = 'rdp_cliprdr_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpCliprdr.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_cliprdr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 84
+        assert protocols.count('CLIPRDR') == 53
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdp_cliprdr', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_cliprdr_format_lists(self, cmd_tshark, capture_file, test_env):
+        '''Format lists with short names (32 octets, also without a NUL) and
+        with long names after both sides announced them.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_cliprdr.formatshort || rdp_cliprdr.formatlong', '-Tfields', '-eframe.number',
+                '-erdp_cliprdr.formatshort', '-erdp_cliprdr.formatlong')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['15', 'CF_UNICODETEXT,,private format', '']
+        assert lines[1] == ['16', 'CF_TEXT,,' + 'x' * 32, '']
+        assert [l[0] for l in lines if l[1]].count('55') == 1
+        assert lines[-3] == ['80', '', 'CF_UNICODETEXT,,private']
+        assert lines[-2] == ['81', '', 'CF_DIB,Rich Text Format']
+        assert lines[-1][0] == '84' and lines[-1][2].startswith('long format 0,long format 1,')
+
+    def test_cliprdr_capabilities_and_requests(self, cmd_tshark, capture_file, test_env):
+        '''Capability flags and a data request for every known format.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_cliprdr.capasetflags', '-Tfields', '-eframe.number', '-erdp_cliprdr.capasetflags')
+        assert stdout.splitlines() == ['13\t0x0000003c', '14\t0x00000000', '78\t0x0000003e', '79\t0x00000002']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_cliprdr.requestedformatid', '-Tfields', '-e_ws.col.info')
+        infos = stdout.splitlines()
+        assert len(infos) == 24
+        assert infos[0] == 'Format data request - CB_RAW'
+        assert infos[13] == 'Format data request - CF_UNICODETEXT'
+        assert infos[-1] == 'Format data request - Unknown format'
+
+    def test_cliprdr_reassembly_and_wrapped_length(self, cmd_tshark, capture_file, test_env):
+        '''A format list of 40 entries in chunks is dissected once (frame
+        55); PDUs whose length wraps the 32 bit PDU length do not loop or run
+        backwards (they used to return a wrapped next offset).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 53 && rdp_cliprdr', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert '55\tFormat list' in lines
+        assert '60\tMonitor ready' in lines and '61\tFormat list' in lines
