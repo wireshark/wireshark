@@ -138513,3 +138513,176 @@ class TestDissectSlsk:
         rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number >= 126', ['frame.number', 'slsk.message.code'])
         assert rows[-2:] == ['127\t14', '128\t32,32,2']
+
+
+class TestDissectSmb2:
+    '''SMB2/3 over TCP 445, 139 from the synthetic capture
+    smb2_coverage.pcap.gz: negotiate contexts of every kind, sessions,
+    trees, create contexts, all file, file system, security and quota
+    information classes, find classes, ioctls, named pipe reassembly,
+    read/write channels, async requests, cancels, breaks, compound
+    requests, compression transforms (LZ77, LZ77+Huffman, LZNT1,
+    Pattern_V1, chained) and encrypted messages that cannot be decrypted
+    (no keys are used).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=(), options=()):
+        args = [cmd_tshark, *passes, *options, '-r', capture_file('smb2_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_smb2_share_redirect_ip_loop(self, cmd_tshark, capture_file, test_env):
+        '''Share redirect errors with an IP address count of 2^32 - 1 or
+        2^31 - 1 over addresses of known and unknown families, from
+        smb2_redirect_loop.pcap.gz. The address list stops with an expert
+        info at the first address that does not move the offset forward.
+        Before "SMB2: Bound decompression and the redirect IP loop, free
+        async tables" the offset moved back and forth and the loop ran up
+        to 2^32 times, without a tree with no bound at all.'''
+        capture = capture_file('smb2_redirect_loop.pcap.gz')
+        for args in ((), ('-V',), ('-2',)):
+            subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                                    encoding='utf-8', env=test_env, timeout=60)
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture, '-Y', 'smb2.invalid_length',
+                                          '-Tfields', '-eframe.number'),
+                                         encoding='utf-8', env=test_env, timeout=60)
+        assert count_output(stdout) == 4
+
+    def test_smb2_frames(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames and no error expert infos in one and two
+        passes; the number of SMB2 messages and of a few commands.'''
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes) == []
+        assert len(self.fields(cmd_tshark, capture_file, test_env, 'smb2', 'frame.number')) == 843
+        cmds = self.fields(cmd_tshark, capture_file, test_env, 'smb2.cmd', 'smb2.cmd')
+        counts = {c: sum(1 for x in cmds for y in x.split(',') if y == str(c)) for c in range(20)}
+        assert counts[0] == 34
+        assert counts[5] == 61
+        assert counts[8] == 68
+        assert counts[11] == 171
+        assert counts[14] == 49
+
+    def test_smb2_negotiate(self, cmd_tshark, capture_file, test_env):
+        '''The negotiate request carries every kind of negotiate context
+        and the responses pick the dialects of the connections.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                           'smb2.negotiate_context.type', 'smb2.dialect_count')
+        assert rows == ['0x0001,0x0002,0x0003,0x0005,0x0006,0x0007,0x0008,0x0100,0x0077\t5']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb2.cmd == 0 && smb2.flags.response == 1',
+                           'smb2.dialect')
+        assert rows[:12] == ['0x0311'] * 6 + ['0x0300', '0x0302', '0x0202', '0x0210', '0x02ff', '0x0210']
+
+    def test_smb2_compression(self, cmd_tshark, capture_file, test_env):
+        '''LZ77, LZ77+Huffman (with and without matches) and LZNT1
+        (compressed and stored chunks), plain, whole message and chained
+        with Pattern_V1 payloads are decompressed to the data that was
+        compressed.  LZNT1 is not supported on big endian.'''
+        if sys.byteorder == 'big':
+            pytest.skip('LZNT1 is supported on little endian only')
+        data1 = bytes((i // 7) & 0xff for i in range(1500)) + b'a' * 600 + bytes(range(256)) * 2
+        expected = {
+            479: data1,                                                       # LZ77
+            481: b'b' * 3000,                                                 # LZ77+Huffman
+            483: bytes((i * 3) & 0x3f for i in range(3000)),                  # LZ77+Huffman with matches
+            485: b'c' * 3000 + bytes(range(100)),                             # LZNT1
+            487: bytes(range(200)) * 10,                                      # LZNT1, stored chunks
+            491: b'd' * 100,                                                  # the whole message in LZ77
+            493: b'e' * 3000,                                                 # chained: none + LZ77
+            495: b'\xaa' * 256,                                               # chained: none + Pattern_V1
+            497: b'\x11' * 100 + b'\x22' * 50 + bytes(range(256)) * 4,        # chained: Pattern_V1, LZNT1
+            499: b'h' * 700,                                                  # chained: LZ77+Huffman
+        }
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '_ws.col.info contains "Decomp. SMB3" && smb2.cmd == 8',
+                           'frame.number', 'data.data')
+        got = {int(r.split('\t')[0]): bytes.fromhex(r.split('\t')[1]) for r in rows}
+        for frame, data in expected.items():
+            assert got.get(frame) == data, frame
+
+    def test_smb2_compression_failures(self, cmd_tshark, capture_file, test_env):
+        '''Unknown algorithms, wrong sizes, bad streams and sizes above
+        the limit are reported in the Info column, in one and two passes;
+        chained Pattern_V1 payloads of 16 MiB each in several PDUs of one
+        frame are refused after the first 16 MiB ("SMB2: Bound
+        decompression and the redirect IP loop, free async tables";
+        before, the second payload and
+        every further PDU allocated 16 MiB more).'''
+        for passes in ((), ('-2',)):
+            for what, frames in (('(unknown)', ['500', '506']),
+                                 ('(invalid)', ['501', '502', '503', '504', '508']),
+                                 ('(too big)', ['505', '507', '510', '829'])):
+                assert self.fields(cmd_tshark, capture_file, test_env,
+                                   f'_ws.col.info contains "{what}"', 'frame.number', passes=passes) == frames, what
+        # three PDUs with two 16 MiB payloads each: only the first payload of the first PDU is
+        # decompressed, so the last PDU does not end in "Decomp. SMB3"
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 509', '_ws.col.info')
+        assert rows == ['']
+
+    def test_smb2_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''Transform headers with random content cannot be decrypted (no
+        keys): they are shown as encrypted.  An OriginalMessageSize of
+        0xFFFFFFFF wrapped the offset and the next message was dissected
+        backwards ("Encrypted SMB3; Invalid header") before "SMB2: Bound
+        decompression and the redirect IP loop, free async tables".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info contains "Encrypted SMB3"', '_ws.col.info')
+        assert len(rows) >= 20
+        assert all(r.startswith('Encrypted SMB3') for r in rows)
+        assert self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info contains "Invalid header"', 'frame.number') == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.port == 49230 && tcp.len > 0',
+                           '_ws.col.info')
+        assert rows == ['Encrypted SMB3']
+
+    def test_smb2_create_context_chain(self, cmd_tshark, capture_file, test_env):
+        '''The NextEntryOffset of a create context is 32 bits: the second
+        context after a first one of more than 64 KiB is found.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb2.cmd == 5 && frame.number > 850', 'smb2.tag')
+        assert rows == ['Zzzz,MxAc', 'MxAc']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 11', 'smb2.tag')
+        assert rows[0].count(',') == 14
+
+    def test_smb2_async(self, cmd_tshark, capture_file, test_env):
+        '''Interim responses, cancels by AsyncId and by message id and
+        the STATUS_CANCELLED responses are linked to their requests.'''
+        pending = self.fields(cmd_tshark, capture_file, test_env, 'smb2.nt_status == 0x00000103',
+                              'frame.number', 'smb2.aid')
+        assert len(pending) == 11
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'smb2.cancelled_resp_in || smb2.cancel_req_in',
+                               'frame.number', 'smb2.cancelled_resp_in', 'smb2.cancel_req_in', passes=passes)
+            assert len(rows) >= 10
+
+    def test_smb2_pipe(self, cmd_tshark, capture_file, test_env):
+        '''A DCE/RPC bind written in two SMB2 writes and its response
+        read in two reads is reassembled; the bind is seen once.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'dcerpc', 'frame.number', 'dcerpc.pkt_type')
+        assert rows[:2] == ['305\t11', '310\t12']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb2.pipe.reassembled_in',
+                           'frame.number', 'smb2.pipe.reassembled_in', passes=('-2',))
+        assert rows == ['303\t305', '308\t310']
+
+    def test_smb2_find(self, cmd_tshark, capture_file, test_env):
+        '''Every directory information class lists the same entries.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb2.cmd == 14 && smb2.flags.response == 1 && smb2.filename',
+                           'smb2.filename')
+        assert rows[0] == '.,..,file1.txt,file2.txt,späce name.txt'
+        assert rows.count(rows[0]) >= 7
+
+    def test_smb2_tcp_segmentation(self, cmd_tshark, capture_file, test_env):
+        '''An NBSS PDU in two or three TCP segments is reassembled, and
+        two PDUs in one segment are both dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.port == 49280 && (smb2.cmd == 8 || smb2.cmd == 13)',
+                           'smb2.cmd', 'smb2.flags.response')
+        assert rows == ['8\tFalse', '8\tTrue', '13,13\tFalse,False', '13\tTrue', '13\tTrue']
+
+    def test_smb2_passes_agree(self, cmd_tshark, capture_file, test_env):
+        '''The commands and statuses of all messages are the same in one
+        and two passes.'''
+        one = self.fields(cmd_tshark, capture_file, test_env, 'smb2', 'frame.number', 'smb2.cmd', 'smb2.nt_status')
+        two = self.fields(cmd_tshark, capture_file, test_env, 'smb2', 'frame.number', 'smb2.cmd', 'smb2.nt_status',
+                          passes=('-2',))
+        assert one == two
