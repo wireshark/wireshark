@@ -138235,3 +138235,59 @@ class TestDissectSkype:
             '5\t\t\t203.0.113.9\t0xc6336407\t\t\t\t',
             '28\t203.0.113.9\t0xc6336407\t\t\t\t\t\t',
         ]
+
+
+class TestDissectSlimp3:
+    def test_slimp3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''31 of the 32 frames are SliMP3 (UDP ports 3483 and 1069); the one
+        with an unknown opcode stays UDP. None is malformed or has a
+        warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('slimp3_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 32
+        assert protocols.count('SliMP3') == 31
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('slimp3_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_slimp3_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every opcode: infrared codes of the SLIMP3 and
+        JVC remotes, display text, stream control, MPEG data (new and old
+        protocol), discovery and acknowledgements.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('slimp3_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 15, 16, 20, 21, 22, 23, 26, 27, 28, 29, 30, 31}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tInfrared Remote Code, SLIMP3: play',
+            '2\tInfrared Remote Code, SLIMP3: Unknown (0x12345678)',
+            '3\tInfrared Remote Code, JVC: One',
+            '4\tInfrared Remote Code, JVC: Unknown (0x1234)',
+            '5\tInfrared Remote Code, 0xabcdef01',
+            '6\tInfrared Remote Code, SLIMP3: power',
+            '7\tDisplay, .Hi x..|||||A',
+            '9\tDisplay, |B.C',
+            '10\tDisplay',
+            '12\tStream Control, Reset buffer, Start New Stream',
+            '15\tStream Control, Unknown (0x9)',
+            '16\tHello',
+            '20\tI2C, Response',
+            '21\tI2C, Request',
+            '22\tData Request, Offset: 582 bytes',
+            '23\tMPEG Data, Go, 32 bytes at 512, Sequence: 1',
+            '26\tMPEG Data, Unknown (0x9), 32 bytes at 2048, Sequence: 4',
+            '27\tMPEG Data, Length: 32 bytes, Offset: 5496 bytes.',
+            '28\tData Request, Offset: 136 bytes',
+            '29\tDiscovery Request, Device ID: 3. Firmware: 2.1',
+            '30\tDiscovery Response, Server Address: 192.0.2.1. Server Port: 3483',
+            '31\tAck, Sequence: 5',
+        ]
