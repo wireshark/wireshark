@@ -137670,3 +137670,60 @@ class TestDissectSimulcrypt:
             '30\t2026\t5\t30\t15\t50\t19182\t2\t\t',
             '45\t2026\t5\t30\t15\t50\t\t\t\t',
         ]
+
+
+class TestDissectSinecap:
+    def test_sinecap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight telegrams are SINEC AP (five over TCP, one reassembled
+        from two COTP TPDUs, two over the OSI inactive subset); the four
+        with a wrong protocol id or length are left to COTP. None is
+        malformed or has a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sinecap_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols.count('SINEC-AP') == 8
+        assert protocols.count('COTP') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sinecap_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sinecap_command_classes(self, cmd_tshark, capture_file, test_env):
+        '''ACK without data carries an error class and code, serial
+        transfer carries two modifiers, an unknown class is decoded like
+        a serial transfer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sinecap_coverage.pcap.gz'),
+                '-Y', 'sinecap',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-esinecap.comcls', '-esinecap.pduid', '-esinecap.errcls',
+                '-esinecap.errcod', '-esinecap.modfr1', '-esinecap.modfr2',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tACK without data\t0x00\t0x5678\t0x00\t0x00\t\t',
+            '2\tACK without data\t0x00\t0x5678\t0x81\t0x05\t\t',
+            '3\tSerial transfer\t0x04\t0x0001\t\t\t0x11\t0x22',
+            '4\tSerial transfer\t0x04\t0x0002\t\t\t0x33\t0x44',
+            '5\tUNKNOWN command class\t0x7f\t0x0003\t\t\t0x55\t0x66',
+            '11\tSerial transfer\t0x04\t0x0004\t\t\t0x00\t0x00',
+            '12\tACK without data\t0x00\t0x0010\t0x01\t0x02\t\t',
+            '13\tSerial transfer\t0x04\t0x0011\t\t\t0x00\t0x00',
+        ]
+
+    def test_sinecap_reassembled(self, cmd_tshark, capture_file, test_env):
+        '''A telegram split over two COTP TPDUs is dissected in the frame
+        with the last fragment, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sinecap_coverage.pcap.gz'),
+                    '-Y', 'sinecap && cotp.segment.count',
+                    '-Tfields', '-eframe.number', '-ecotp.reassembled_in',
+                    '-ecotp.segment.count', '-esinecap.pduid', '-edata.len',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['11\t\t2\t0x0004\t40']
