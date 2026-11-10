@@ -197,6 +197,10 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 
 	pduLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 8;
 	nextOffset = offset + pduLength;
+	if (pduLength < 8) {
+		/* pduLength wrapped around */
+		nextOffset = tvb_captured_length(tvb);
+	}
 
 	item = proto_tree_add_item(parent_tree, proto_rdp_cliprdr, tvb, offset, pduLength, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdp_cliprdr);
@@ -223,12 +227,12 @@ dissect_rdp_cliprdr(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tr
 		while(tvb_captured_length_remaining(tvb, offset)) {
 			formatId = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
-			unsigned strSz = longNames ? tvb_unicode_strsize(tvb, offset + 4) : tvb_strsize(tvb, offset + 4);
+			unsigned strSz = longNames ? tvb_unicode_strsize(tvb, offset + 4) : 32;
 			int nullPos = offset + 4 + strSz;
 
 			char formatIdStr[] = "format 0xXXXXXXXX";
 			snprintf(formatIdStr, sizeof(formatIdStr), "format 0x%x", formatId);
-			const char *formatName = val_to_str(wmem_file_scope(), formatId, knownFormats_vals, formatIdStr);
+			const char *formatName = val_to_str(pinfo->pool, formatId, knownFormats_vals, formatIdStr);
 
 			proto_tree *format_tree = proto_tree_add_subtree(tree, tvb, offset, nullPos - offset, ett_rdp_cliprdr_format, NULL, formatName);
 
