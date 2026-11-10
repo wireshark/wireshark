@@ -125351,3 +125351,36 @@ class TestDissectResp:
         rows = self.fields(cmd_tshark, capture_file, test_env,
                 'frame.number == 129', 'resp.verbatim_string.value', 'json.array')
         assert rows[0][0] == '5b315d'
+
+
+class TestDissectRetixBpdu:
+    '''Retix Spanning Tree (R-STP) behind LLC DSAP/SSAP 0x80 and the 3Com XNS
+    type 0x0004, from the synthetic capture retix-bpdu_coverage.pcap.gz.'''
+
+    def test_retix_bpdu_frames(self, cmd_tshark, capture_file, test_env):
+        '''All six frames decode as R-STP without malformed packets or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('retix-bpdu_coverage.pcap.gz'),
+                    '-Y', 'r-stp', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 6
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('retix-bpdu_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_retix_bpdu_fields(self, cmd_tshark, capture_file, test_env):
+        '''Root and bridge MAC, timers and the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('retix-bpdu_coverage.pcap.gz'),
+                '-Y', 'frame.number == 2', '-Tfields',
+                '-er-stp.root.hw', '-er-stp.bridge.hw', '-er-stp.maxage',
+                '-er-stp.hello', '-er-stp.forward', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == ['02:00:00:00:00:01',
+                '02:00:00:00:00:02', '5120', '512', '3840',
+                'Bridge MAC 02:00:00:00:00:02']
