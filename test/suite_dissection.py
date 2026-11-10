@@ -121186,3 +121186,67 @@ class TestDissectPwHdlc:
                 '-efr.dlci', '-eudp.dstport')
         assert stdout.splitlines() == [
             '23\t16\t6001', '24\t114\t6001', '25\t1032\t6001', '26\t32\t6001']
+
+
+class TestDissectPwOam:
+    # PW OAM is reached by default: the MPLS first nibble 1 (PW ACH,
+    # channel type 0x0027) and the generic associated channel label 13.
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, passes, *args):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pw_oam_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_oam_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All nine frames are PW OAM (frame 7 through label 13, the
+        others through a PW ACH) and none is malformed or has an error, in
+        one and two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['PW OAM'] * 9
+        assert [l[1] for l in lines] == ['eth:ethertype:mpls:pw_oam'] * 6 + [
+            'eth:ethertype:mpls:pwach:pw_oam', 'eth:ethertype:mpls:pw_oam',
+            'eth:ethertype:mpls:pw_oam']
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_oam_fields(self, cmd_tshark, capture_file, test_env):
+        '''Refresh timer, TLV length, the acknowledgement flag and the PW
+        status TLV (status codes, and the TLVs that are not decoded).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Tfields', '-eframe.number', '-epw_oam.refresh-timer',
+                '-epw_oam.total-tlv-len', '-epw_oam.flags_a',
+                '-epw_oam.tlv-type', '-epw_oam.tlv-len', '-epw_oam.code')
+        assert stdout.splitlines() == [
+            '1\t0x0258\t0x08\tFalse\t0x096a\t0x0004\t0x00000002',
+            '2\t0x0258\t0x08\tTrue\t0x096a\t0x0004\t0x00000004',
+            '3\t0x0258\t0x08\tFalse\t0x096a\t0x0004\t0x00000020',
+            '4\t0x0000\t0x08\tFalse\t0x096a\t0x0004\t0x00000040',
+            '5\t0x0258\t0x08\tFalse\t0x096a\t0x0004\t0x00000006',
+            '6\t0x0258\t0x08\tFalse\t\t\t',
+            '7\t0x0258\t0x08\tFalse\t0x096a\t0x0004\t0x00000002',
+            '8\t0x0258\t0x08\tFalse\t\t\t',
+            '9\t0x0258\t0x0c\tFalse\t0x096a\t0x0004\t0x00000002']
+
+    def test_pw_oam_status_tlv_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The PW Status TLV is inside the PW OAM item (it was a second
+        top-level item before the fix).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number == 1', '-V', '-O', 'pw_oam')
+        lines = stdout.splitlines()
+        start = lines.index('Pseudo-Wire OAM')
+        assert lines[start + 1:start + 9] == [
+            '    Refresh-Timer: 0x0258',
+            '    TLV Length: 0x08',
+            '    Flags: 0x00',
+            '        0... .... = Acknowledgement: False',
+            '    Pseudo-Wire Status TLV',
+            '        00.. .... .... .... = Reserved: 0x0',
+            '        ..00 1001 0110 1010 = TLV Type: 0x096a',
+            '        TLV Length: 0x0004']
+        assert lines[start + 9] == ('        Status code: Local Attachment Circuit(ingress) '
+                                    'Receive Fault (0x00000002)')
