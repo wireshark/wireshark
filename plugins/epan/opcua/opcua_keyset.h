@@ -19,11 +19,20 @@
 
 #include <stdint.h>
 
+typedef enum {
+    OPCUA_CIPHER_AES_CBC = 0,
+    OPCUA_CIPHER_AES_GCM,
+    OPCUA_CIPHER_CHACHA20_POLY1305
+} opcua_cipher_type_t;
+
 /** symmetric encryption keyset */
 struct ua_keyset {
     uint64_t id; /** keyset identifier: combination of securechannel_id and token_id */
-    unsigned char client_iv[16]; /**< Client side IV. Always 128 bit. */
-    unsigned char server_iv[16]; /**< Server side IV. Always 128 bit. */
+    opcua_cipher_type_t cipher_type; /**< Symmetric cipher algorithm type */
+    unsigned char client_iv[16]; /**< Client side IV / Implicit Salt. */
+    unsigned char server_iv[16]; /**< Server side IV / Implicit Salt. */
+    unsigned int client_iv_len; /**< Client IV length (12 or 16 bytes). */
+    unsigned int server_iv_len; /**< Server IV length (12 or 16 bytes). */
     unsigned char client_key[32]; /**< client encryption key */
     unsigned char server_key[32]; /**< server encryption key */
     unsigned int client_key_len; /**< AES key length: 16 (AES-128) or 32 (AES-256) */

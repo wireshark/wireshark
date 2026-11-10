@@ -58,6 +58,14 @@ static int hf_opcua_transport_rqid;
 #define UA_SECURITY_POLICY_AES128_SHA256_RSAOAEP_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes128_Sha256_RsaOaep"
 /** Defined security policy URL from Part 7 OPC UA Specification. */
 #define UA_SECURITY_POLICY_AES256_SHA256_RSAPSS_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes256_Sha256_RsaPss"
+/** Enhanced Security Policy URLs from Part 7 OPC UA Specification. */
+#define UA_SECURITY_POLICY_ECC_NISTP256_AESGCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#ECC-nistP256-AesGcm"
+#define UA_SECURITY_POLICY_ECC_NISTP384_AESGCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#ECC-nistP384-AesGcm"
+#define UA_SECURITY_POLICY_ECC_BRAINPOOLP256R1_AESGCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#ECC-brainpoolP256r1-AesGcm"
+#define UA_SECURITY_POLICY_ECC_BRAINPOOLP384R1_AESGCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#ECC-brainpoolP384r1-AesGcm"
+#define UA_SECURITY_POLICY_ECC_CURVE25519_CHACHAPOLY_STRING "http://opcfoundation.org/UA/SecurityPolicy#ECC-curve25519-ChaChaPoly"
+#define UA_SECURITY_POLICY_AES128_GCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes128-GCM"
+#define UA_SECURITY_POLICY_AES256_GCM_STRING "http://opcfoundation.org/UA/SecurityPolicy#Aes256-GCM"
 
 /** Register transport layer types. */
 void registerTransportLayerTypes(int proto)
@@ -225,6 +233,25 @@ static int opcua_string_compare(const uint8_t *text, int text_len, const char *r
     return -1;
 }
 
+/* Helper function for case-insensitive substring search */
+static bool opcua_str_contains_caseless(const char *haystack, int hlen, const char *needle)
+{
+    if (!haystack || hlen <= 0 || !needle) return false;
+    size_t nlen = strlen(needle);
+    if ((size_t)hlen < nlen) return false;
+    for (int i = 0; i <= hlen - (int)nlen; i++) {
+        bool match = true;
+        for (size_t j = 0; j < nlen; j++) {
+            if (g_ascii_tolower(haystack[i + j]) != g_ascii_tolower(needle[j])) {
+                match = false;
+                break;
+            }
+        }
+        if (match) return true;
+    }
+    return false;
+}
+
 int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int *pOffset, struct ua_metadata *data)
 {
     const uint8_t *sec_policy = NULL;
@@ -242,34 +269,66 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
     parseCertificate(tree, tvb, pinfo, pOffset, hf_opcua_transport_scert);
     parseByteString(tree, tvb, pinfo, pOffset, hf_opcua_transport_rcthumb);
 
-    if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_NONE_STRING ) == 0) {
+    if (sec_policy != NULL && sec_policy_len > 0 &&
+        opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_NONE_STRING) == 0) {
         store_encryption_info(pinfo, UA_MessageMode_None, 0);
+        encrypted = false;
     } else {
         uint8_t sig_len = 0;
-        // OPN is always encrypted for Policies != None, for both message modes Sign and SignAndEncrypted
-        encrypted = true;
-        // determine signature length based on security policy
-        if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC128RSA15_STRING ) == 0) {
-            sig_len = 20;
-        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256_STRING ) == 0) {
-            sig_len = 20;
-        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256SHA256_STRING ) == 0) {
-            sig_len = 32;
-        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES128_SHA256_RSAOAEP_STRING ) == 0) {
-            sig_len = 32;
-        } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES256_SHA256_RSAPSS_STRING ) == 0) {
-            sig_len = 32;
+        bool is_enhanced_ecc_policy = false;
+
+        if (sec_policy != NULL && sec_policy_len > 0) {
+            if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_ECC_NISTP256_AESGCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_ECC_NISTP384_AESGCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_ECC_BRAINPOOLP256R1_AESGCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_ECC_BRAINPOOLP384R1_AESGCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES128_GCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES256_GCM_STRING ) == 0 ||
+                opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_ECC_CURVE25519_CHACHAPOLY_STRING ) == 0 ||
+                opcua_str_contains_caseless((const char *)sec_policy, sec_policy_len, "gcm") ||
+                opcua_str_contains_caseless((const char *)sec_policy, sec_policy_len, "ecc") ||
+                opcua_str_contains_caseless((const char *)sec_policy, sec_policy_len, "chacha") ||
+                opcua_str_contains_caseless((const char *)sec_policy, sec_policy_len, "poly")) {
+                is_enhanced_ecc_policy = true;
+                sig_len = 0;
+            } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC128RSA15_STRING ) == 0 ||
+                       opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256_STRING ) == 0) {
+                sig_len = 20;
+            } else if (opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_BASIC256SHA256_STRING ) == 0 ||
+                       opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES128_SHA256_RSAOAEP_STRING ) == 0 ||
+                       opcua_string_compare(sec_policy, sec_policy_len, UA_SECURITY_POLICY_AES256_SHA256_RSAPSS_STRING ) == 0) {
+                sig_len = 32;
+            }
+        } else {
+            /* Response message where sec_policy string is empty or NULL.
+             * Query stored conversation info.
+             */
+            enum ua_message_mode conv_mode = UA_MessageMode_None;
+            uint8_t conv_sig_len = 0;
+            get_encryption_info(pinfo, &conv_mode, &conv_sig_len);
+            if (conv_sig_len == 0) {
+                is_enhanced_ecc_policy = true;
+                sig_len = 0;
+            } else {
+                sig_len = conv_sig_len;
+            }
         }
-        // We don't know the messagemode without decrypting the OPN, so we assume it is SignAndEncrypt,
-        // we will try to decode the next service (CreateSession) and if it succeeds we change the mode to Sign
-        // or SignAndEncrypt accordingly
+
+        // OPN is asymmetric encrypted ONLY for legacy RSA policies != None
+        if (!is_enhanced_ecc_policy) {
+            encrypted = true;
+        } else {
+            encrypted = false;
+        }
+
+        // Store encryption info for subsequent symmetric messages (MSG, CLO) on this secure channel
         store_encryption_info(pinfo, UA_MessageMode_MaybeEncrypted, sig_len);
     }
 
     data->encrypted = encrypted;
     if (!encrypted) {
         parseSequenceHeader(tree, tvb, pOffset, data);
-        ServiceId = parseService(tree, tvb, pinfo,pOffset, data);
+        ServiceId = parseService(tree, tvb, pinfo, pOffset, data);
     }
 
     return ServiceId;

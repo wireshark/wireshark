@@ -58,6 +58,9 @@ struct ua_keyset *ua_keysets_add(void)
     /* return new element */
     tmp = &g_keysets[g_num_keysets++];
     memset(tmp, 0, sizeof(*tmp));
+    tmp->cipher_type = OPCUA_CIPHER_AES_CBC;
+    tmp->client_iv_len = 16;
+    tmp->server_iv_len = 16;
     /* default to 32 byte sig_len if missing.
      * This is the most likely length for SHA256 based signatures,
      * SHA1 based signatures with 16 bytes are deprecated.
@@ -104,12 +107,19 @@ struct ua_keyset *ua_keysets_lookup(uint64_t id)
 {
     struct ua_keyset *tmp, key;
 
-    if (!g_sorted) return NULL;
+    if (g_sorted) {
+        key.id = id;
+        tmp = bsearch(&key, g_keysets, g_num_keysets, sizeof(struct ua_keyset), keyset_compare);
+        return tmp;
+    }
 
-    key.id = id;
-    tmp = bsearch(&key, g_keysets, g_num_keysets, sizeof(struct ua_keyset), keyset_compare);
+    for (unsigned int i = 0; i < g_num_keysets; ++i) {
+        if (g_keysets[i].id == id) {
+            return &g_keysets[i];
+        }
+    }
 
-    return tmp;
+    return NULL;
 }
 
 static void print_hex(unsigned char *data, unsigned int data_len)
