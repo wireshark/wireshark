@@ -1836,8 +1836,46 @@ typedef struct {
     uint16_t startPrb;
     uint16_t numPrb;
     uint16_t numSymbols;
-    uint16_t beamIds[273];
+    /* beamId of the section, covering startPrb..startPrb+numPrb (and 0 elsewhere) */
+    uint16_t beamId;
+    /* Per-PRB beamIds, only allocated (file scope) when an extension sets
+     * different beamIds for ranges of PRBs.  Never modified once a U-plane
+     * frame may have copied this struct (a new array is allocated for each
+     * C-plane definition), so the copy can be shallow. */
+    uint16_t *beamIds;
 } section_details_t;
+
+#define ORAN_MAX_PRBS 273
+
+/* BeamId to use for the given PRB of this section */
+static uint16_t
+section_details_get_beam_id(const section_details_t *details, unsigned prb)
+{
+    if (details->beamIds) {
+        return details->beamIds[prb];
+    }
+    if (prb >= details->startPrb && prb <= (unsigned)details->startPrb + details->numPrb) {
+        return details->beamId;
+    }
+    return 0;
+}
+
+/* Set beamId of one PRB (C-plane only, on first pass) */
+static void
+section_details_set_beam_id(section_details_t *details, unsigned prb, uint16_t beam_id)
+{
+    if (prb >= ORAN_MAX_PRBS) {
+        return;
+    }
+    if (!details->beamIds) {
+        uint16_t *beam_ids = wmem_alloc(wmem_file_scope(), ORAN_MAX_PRBS * sizeof(uint16_t));
+        for (unsigned n = 0; n < ORAN_MAX_PRBS; n++) {
+            beam_ids[n] = section_details_get_beam_id(details, n);
+        }
+        details->beamIds = beam_ids;
+    }
+    details->beamIds[prb] = beam_id;
+}
 
 typedef struct {
     uint16_t sectionId;
@@ -2677,10 +2715,8 @@ static uint32_t dissect_bfw_bundle(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
     if (!PINFO_FD_VISITED(pinfo)) {
         if (section_details) {
-            for (unsigned prb = bundle->start; prb <= bundle->end; prb++) {
-                if (prb < 273) {
-                    section_details->beamIds[prb] = beam_id;
-                }
+            for (unsigned prb = bundle->start; prb <= bundle->end && prb < ORAN_MAX_PRBS; prb++) {
+                section_details_set_beam_id(section_details, prb, (uint16_t)beam_id);
             }
         }
     }
@@ -3389,11 +3425,9 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             data_section->sectionId = sectionId;
             details->startPrb = startPrbc;
             details->numPrb = numPrbc;
-            for (unsigned prb = startPrbc; prb <= startPrbc+numPrbc; prb++) {
-                if (prb < 273) {
-                    details->beamIds[prb] = section_beamId;
-                }
-            }
+            /* Fresh per-PRB array (if any) for this definition, see section_details_t */
+            details->beamId = (uint16_t)section_beamId;
+            details->beamIds = NULL;
         }
     }
 
@@ -4290,10 +4324,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         if (!PINFO_FD_VISITED(pinfo)) {
                             if (data_section) {
                                 /* Set beamId only for range of PRBs */
-                                for (unsigned prb = ext11_settings.bundles[n].start; prb <= ext11_settings.bundles[n].end; prb++) {
-                                    if (prb < 273) {
-                                        data_section->details[index_to_use].beamIds[prb] = beam_id;
-                                    }
+                                for (unsigned prb = ext11_settings.bundles[n].start; prb <= ext11_settings.bundles[n].end && prb < ORAN_MAX_PRBS; prb++) {
+                                    section_details_set_beam_id(&data_section->details[index_to_use], prb, (uint16_t)beam_id);
                                 }
                             }
                         }
@@ -5226,7 +5258,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item *num_elements_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
                 if (num_elements == 0) {
                     num_elements = 256;
-                    proto_item_append_text(num_elements_ti, " (256");
+                    proto_item_append_text(num_elements_ti, " (256)");
                 }
 
                 offset += 1;
@@ -5237,14 +5269,14 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         for (unsigned n=0; n < num_elements; n++) {
                             /* reserved (1 bit) + beamId */
                             add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
-                            proto_tree_add_item(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(extension_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                         }
                         break;
                     case 1:
                         /* reserved (1 bit) + beamId */
                         add_reserved_field(extension_tree, hf_oran_reserved_1bit, tvb, offset, 1);
-                        proto_tree_add_item(c_section_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(extension_tree, hf_oran_beamId, tvb, offset, 2, ENC_BIG_ENDIAN);
                         offset += 2;
                         break;
                     default:
@@ -7437,6 +7469,7 @@ static int dissect_oran_u_section_header(tvbuff_t *tvb, packet_info *pinfo, unsi
                 expected_section_data_t *cplane_data = wmem_tree_lookup32(cplane_state->expected_sections[direction],
                                                                           *sectionIdPtr);
                 if (cplane_data) {
+                    /* Shallow copy is fine, see section_details_t */
                     section_data = wmem_memdup(wmem_file_scope(), cplane_data, sizeof(expected_section_data_t));
                     wmem_tree_insert32(result->expected_sections, *sectionIdPtr, section_data);
                 }
@@ -7807,7 +7840,7 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
         if (section_details) {
             if ((startPrbu + i*(1+rb)) < 273) {
                 proto_item *beamid_ti = proto_tree_add_uint(rb_tree, hf_oran_beamId, tvb, 0, 0,
-                                                            section_details->beamIds[startPrbu + i*(1+rb)]);
+                                                            section_details_get_beam_id(section_details, startPrbu + i*(1+rb)));
                 proto_item_set_generated(beamid_ti);
             }
         }
@@ -7843,7 +7876,7 @@ static int dissect_oran_u_section(tvbuff_t *tvb, packet_info *pinfo, unsigned of
             proto_item_append_text(prbHeading, " (%u REs)", samples);
             if (section_details) {
                 if ((startPrbu + i*(1+rb)) < 273) {
-                    proto_item_append_text(prbHeading, " [BeamId:%u]", section_details->beamIds[startPrbu + i*(1+rb)]);
+                    proto_item_append_text(prbHeading, " [BeamId:%u]", section_details_get_beam_id(section_details, startPrbu + i*(1+rb)));
                 }
             }
 
