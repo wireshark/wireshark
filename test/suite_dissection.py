@@ -126773,3 +126773,47 @@ class TestDissectRlcNr:
         out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
                          'frame.number in {10, 22}', '-eframe.number', '-epdcp-nr.sdap')
         assert out == ['10\tFalse', '22\tTrue']
+
+
+class TestDissectRlm:
+    CAP = 'rlm_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRlm.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rlm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Seven frames are RLM, six fail one of the heuristic tests (same
+        ports, port range 3000-3015, version 2, length 8) and stay UDP.
+        None is malformed or has an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['RLM'] * 7 + ['UDP'] * 6
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_rlm_fields(self, cmd_tshark, capture_file, test_env):
+        '''Type names in the Info column and the fields of each message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rlm', '-Tfields', '-e_ws.col.info', '-erlm.version',
+                '-erlm.type', '-erlm.unknown', '-erlm.tid', '-erlm.unknown2')
+        assert lines == [
+            'Start request\t2\t1\t0x0000\t1\t0x0000',
+            'Start acknowledgement\t2\t2\t0x0000\t1\t0x0001',
+            'Echo request\t2\t5\t0x0203\t2\t0x0000',
+            'Echo reply\t2\t6\t0x0203\t2\t0xbeef',
+            'Unknown type\t2\t9\t0x0000\t65535\t0x0000',
+            'Unknown type\t2\t3\t0x0000\t3\t0x0000',
+            'Unknown type\t2\t4\t0x0000\t3\t0x0000',
+        ]
+
+    def test_rlm_type_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The type is shown with its name.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 3', '-V', '-O', 'rlm')
+        assert '    Type: 5 (Echo request)' in lines
