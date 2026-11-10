@@ -125056,3 +125056,53 @@ class TestDissectRedback:
         stdout = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 6', '-Tfields', '-eip.proto')
         assert stdout == ['17']
+
+
+class TestDissectRedbackli:
+    CAP = 'redbackli_coverage.pcapng.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRedbackli.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_redbackli_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All six frames carry Redback LI (three found by the UDP
+        heuristic, three as Exported PDU) with an IPv4 UDP packet; none is
+        malformed or has an expert info, in one and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'redbackli', '-Tfields', '-eframe.number', '-eip.proto')
+        assert lines == ['1\t17,17', '2\t17,17', '3\t17,17', '4\t17', '5\t17', '6\t17']
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_redbackli_avps(self, cmd_tshark, capture_file, test_env):
+        '''Every AVP type: sequence number, LI id, session id, label,
+        direction, accounting session id and the end of header.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'redbackli', '-Tfields', '-eframe.number',
+                '-eredbackli.avptype', '-eredbackli.avplen',
+                '-eredbackli.seqno', '-eredbackli.liid', '-eredbackli.sessid',
+                '-eredbackli.label', '-eredbackli.dir', '-eredbackli.acctid')
+        assert lines[0] == '1\t1,2,3,20,4,40,0\t4,4,4,7,1,4,1\t1\t4097\t8194\ttap-one\t01\ta0a1a2a3'
+        assert lines[1] == '2\t1,2,3,0\t4,4,4,0\t2\t4097\t8194\t\t\t'
+        assert lines[2] == '3\t3,1,2,20,4,0\t4,4,4,0,1,1\t3\t4098\t8195\t\t02\t'
+        assert lines[3] == '4\t1,2,3,40,0\t4,4,4,2,1\t4\t4097\t8194\t\t\t0102'
+
+    def test_redbackli_integer_avp_with_wrong_length(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of the fix on the branch: sequence number, LI id and
+        session id AVPs whose length is not 4 are shown as unknown bytes
+        and do not run past the AVP (they used to be Malformed).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 5', '-Tfields', '-eredbackli.avplen',
+                '-eredbackli.seqno', '-eredbackli.liid', '-eredbackli.sessid',
+                '-eredbackli.unknownavp')
+        assert lines == ['2,6,1,3,8,1\t\t\t\t0005,000000000006,07,010203,0000000000000000']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6', '-Tfields', '-eredbackli.avplen',
+                '-eredbackli.unknownavp')
+        assert lines == ['0,0,0,1\t']
