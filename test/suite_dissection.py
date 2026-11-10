@@ -126323,3 +126323,87 @@ class TestDissectRiemann:
                 '-Y', 'riemann.insufficient_data', '-Tfields',
                 '-eframe.number', '-e_ws.col.protocol')
         assert lines == ['16\triemann', '17\triemann']
+
+
+class TestDissectRip:
+    CAP = 'rip_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRip.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is RIP (the Protocol column shows the version);
+        none is malformed and only the three unknown address families have
+        an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 18
+        assert protocols.count('RIPv1') == 7
+        assert protocols.count('RIPv2') == 10
+        assert protocols.count('RIP') == 1
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert stdout == []
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number',
+                    '-e_ws.expert.message')
+            assert stdout == ['14\tUnknown address family 65535',
+                              '15\tUnknown address family 99',
+                              '18\tUnknown address family 65535']
+
+    def test_rip_info(self, cmd_tshark, capture_file, test_env):
+        '''Commands and versions of every frame.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-erip.command',
+                '-erip.version', '-e_ws.col.info')
+        assert lines[:9] == [
+            '1\t1\t1\tRequest',
+            '2\t2\t1\tResponse',
+            '3\t2\t2\tResponse',
+            '4\t1\t2\tRequest',
+            '5\t3\t1\tTraceon',
+            '6\t4\t1\tTraceoff',
+            '7\t5\t1\tVendor specific (Sun)',
+            '8\t9\t3\tUnknown command (9)',
+            '9\t2\t2\tResponse',
+        ]
+
+    def test_rip_entries(self, cmd_tshark, capture_file, test_env):
+        '''Entries of RIPv1 and RIPv2, with and without an address.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 2 || frame.number == 3 || frame.number == 17', '-Tfields',
+                '-eframe.number', '-erip.family', '-erip.ip', '-erip.netmask',
+                '-erip.next_hop', '-erip.route_tag', '-erip.metric')
+        assert lines[0] == '1\t0\t\t\t\t\t16'
+        assert lines[1] == '2\t2,2\t10.1.0.0,10.2.0.0\t\t\t\t1,3'
+        assert lines[2] == '3\t2,0\t10.3.0.0\t255.255.0.0,255.0.0.0\t192.0.2.254,192.0.2.253\t7,9\t2,16'
+        assert lines[3].split('\t')[0] == '17'
+        assert lines[3].split('\t')[2].count(',') == 24
+
+    def test_rip_authentication(self, cmd_tshark, capture_file, test_env):
+        '''Simple password, keyed MD5 with its trailer, other types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rip.auth.type', '-Tfields', '-eframe.number',
+                '-erip.auth.type', '-erip.auth.passwd', '-erip.digest_offset',
+                '-erip.key_id', '-erip.auth_data_len', '-erip.seq_num',
+                '-erip.authentication_data')
+        assert lines == [
+            '9\t2\tsecret\t\t\t\t\t',
+            '10\t3\t\t44\t1\t16\t4096\t000102030405060708090a0b0c0d0e0f',
+            '11\t3\t\t24\t2\t16\t4097\t101112131415161718191a1b1c1d1e1f',
+            '12\t1\t\t\t\t\t\t',
+            '13\t4\t\t\t\t\t\t',
+            '18\t3\t\t24\t3\t16\t4098\t' + '00' * 16,
+        ]
+
+    def test_rip_routing_domain(self, cmd_tshark, capture_file, test_env):
+        '''The routing domain of the RIPv2 header is shown only with the
+        preference.'''
+        args = ('-Y', 'frame.number == 4', '-Tfields', '-erip.routing_domain')
+        assert self.fields(cmd_tshark, capture_file, test_env, *args) == ['']
+        assert self.fields(cmd_tshark, capture_file, test_env,
+                '-orip.display_routing_domain:TRUE', *args) == ['258']
