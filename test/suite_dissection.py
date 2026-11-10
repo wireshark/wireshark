@@ -118692,3 +118692,73 @@ class TestDissectPnrp:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip('\n') == '\t'.join((
             '0x1d', '44' * 20, '55' * 20, 'peer.example', '5000,5001', '0x0000800c'))
+
+
+class TestDissectPop:
+    '''POP3 over TCP port 110 from the synthetic capture
+    pop_coverage.pcap.gz.'''
+
+    def test_pop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''57 frames in four sessions: 5 carry an Internet Message Format
+        body (POP/IMF), the rest are POP lines. No malformed frame and
+        no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pop_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 57
+        assert protocols.count('POP') == 52
+        assert protocols.count('POP/IMF') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pop_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pop_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The RETR response of frames 16-19 (three segments, 144
+        octets) and the TOP response of frames 21-23 (135 octets) are
+        reassembled and decoded as IMF. The first pass only knows the
+        reassembled frames 19 and 23; with `-2` the fragments 17, 18 and 22
+        also show the frame they are reassembled in.'''
+        expected = {
+            (): ['19\t144\t\tfirst', '23\t135\t\tsecond'],
+            ('-2',): ['17\t\t19\t', '18\t\t19\t', '19\t144\t\tfirst',
+                     '22\t\t23\t', '23\t135\t\tsecond'],
+        }
+        for passes in expected:
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pop_coverage.pcap.gz'),
+                    '-Y', 'pop.data.reassembled.length || pop.data.reassembled.in',
+                    '-Tfields', '-eframe.number', '-epop.data.reassembled.length',
+                    '-epop.data.reassembled.in', '-eimf.subject',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == expected[passes]
+
+    def test_pop_requests(self, cmd_tshark, capture_file, test_env):
+        '''Commands and responses of session 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pop_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 12',
+                '-Tfields', '-eframe.number', '-epop.request.command',
+                '-epop.request.parameter', '-epop.response.indicator',
+                '-epop.response.description', '-epop.response.data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t\t\t+OK\tPOP3 server ready <1896.697170952@example.com>\t'
+        assert lines[1] == '2\tUSER\talice\t\t\t'
+        assert lines[4] == '5\t\t\t-ERR\talready given\t'
+        assert lines[10] == '11\t\t\t+OK\t2 messages (320 octets)\t,,'
+
+    def test_pop_credentials(self, cmd_tshark, capture_file, test_env):
+        '''The credentials tap sees the USER/PASS pair of session 1 and a
+        PASS without a USER in session 2.'''
+        stdout = subprocess.check_output((cmd_tshark, '-q', '-z', 'credentials',
+                '-r', capture_file('pop_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split() for l in stdout.splitlines() if l.strip().split()[:1] in (['6'], ['37'])]
+        assert rows[0][:3] == ['6', 'POP3', 'alice']
+        assert rows[1][:3] == ['37', 'POP3', '(null)']
