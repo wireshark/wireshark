@@ -276,6 +276,11 @@ dissect_pagp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                    "Unknown data - TLV len=0");
             return offset;
         }
+        if ( len < 4 ) {
+            expert_add_info_format(pinfo, len_item, &ei_pagp_tlv_length,
+                                   "TLV length too small (< 4)");
+            return offset;
+        }
         if ( tvb_reported_length_remaining(tvb, offset) < len ) {
             expert_add_info_format(pinfo, len_item, &ei_pagp_tlv_length,
                                    "TLV length too large");
