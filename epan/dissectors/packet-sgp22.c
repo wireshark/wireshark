@@ -19,6 +19,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/oids.h>
 
 #include "packet-ber.h"
@@ -554,6 +555,9 @@ static int ett_sgp22_SEQUENCE_OF_EventEntries;
 static int ett_sgp22_EventEntries;
 
 static expert_field ei_sgp22_bsp_segment_short;
+static expert_field ei_sgp22_bsp_nesting;
+
+#define SGP22_MAX_BPP_NESTING 4
 
 static dissector_handle_t sgp22_handle;
 static dissector_table_t sgp22_request_table;
@@ -673,7 +677,14 @@ static void sgp22_bsp_reassemble(asn1_ctx_t *actx, sgp22_bpp_t *bpp)
 
     if ((seq == SGP22_BSP_SEQ_88) && (tvb_reported_length(next_tvb) > 2)) {
       /* The '88' segments are MACed only, not encrypted (SGP.22 2.5.4.3). */
+      unsigned depth = p_get_proto_depth(actx->pinfo, proto_sgp22);
+      if (depth >= SGP22_MAX_BPP_NESTING) {
+        expert_add_info(actx->pinfo, actx->created_item, &ei_sgp22_bsp_nesting);
+        continue;
+      }
+      p_set_proto_depth(actx->pinfo, proto_sgp22, depth + 1);
       dissector_try_uint(sgp22_request_table, tvb_get_ntohs(next_tvb, 0), next_tvb, actx->pinfo, bpp->tree[seq]);
+      p_set_proto_depth(actx->pinfo, proto_sgp22, depth);
     }
   }
 }
@@ -6861,6 +6872,9 @@ void proto_register_sgp22(void)
     { &ei_sgp22_bsp_segment_short,
       { "sgp22.bsp.segment_too_short", PI_MALFORMED, PI_ERROR,
         "BSP segment is too short to hold a C-MAC", EXPFILL }},
+    { &ei_sgp22_bsp_nesting,
+      { "sgp22.bsp.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+        "Nested BoundProfilePackage is too deep", EXPFILL }},
   };
 
   expert_module_t *expert_sgp22;
