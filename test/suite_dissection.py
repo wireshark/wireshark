@@ -122590,3 +122590,113 @@ class TestDissectQuake3:
             '33\tGame Server to Client\t32767\tTrue\t32766\tTrue\t\t3',
             '34\tGame Server to Client\t2\tFalse\t1\tFalse\t\t4',
         ]
+
+
+class TestDissectQuakeworld:
+    '''QuakeWorld over UDP 27500 from the synthetic capture
+    quakeworld_coverage.pcap.gz. Frames 1-6 are the reproducers of
+    "QuakeWorld: Fix quadratic allocation in the command tokenizer".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('quakeworld_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_quakeworld_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 52 frames decode as QUAKEWORLD without malformed packets
+        or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('quakeworld_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['QUAKEWORLD'] * 52
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_quakeworld_commands_recognised(self, cmd_tshark, capture_file, test_env):
+        '''The client to server commands are recognised (they all showed
+        "Unknown" before the fix to the tokenizer).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 5 || frame.number in {7, 8, 9, 10, 11, 12, 13}',
+                'quakeworld.connectionless.command')
+        assert out == [
+            '1\tPing', '2\tStatus', '3\tConnect', '4\tUnknown', '5\tRemote Command',
+            '7\tLog', '8\tGet Challenge', '9\tPing', '10\tPing', '11\tAck',
+            '12\tAck', '13\tUnknown',
+        ]
+
+    def test_quakeworld_connect(self, cmd_tshark, capture_file, test_env):
+        '''connect: version, qport, challenge and the infostring pairs.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {3, 25, 28, 30, 32}',
+                'quakeworld.connectionless.connect.version',
+                'quakeworld.connectionless.connect.qport',
+                'quakeworld.connectionless.connect.challenge',
+                'quakeworld.connectionless.connect.infostring')
+        assert out == [
+            '3\t28\t1234\t5678\t\\\\name\\\\x\\\\team\\\\y',
+            '25\t28\t1234\t5678\t\\\\name\\\\Player\\\\team\\\\red\\\\topcolor\\\\3\\\\bottomcolor\\\\4',
+            '28\t28\t1234\t5678\t\\\\onlykey',
+            '30\t28\t1234\t5678\t',
+            '32\t28\t1234\t-1\t\\\\a\\\\b',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 25',
+                'quakeworld.connectionless.connect.infostring.key',
+                'quakeworld.connectionless.connect.infostring.value')
+        assert out == ['25\tname,team,topcolor,bottomcolor\tPlayer,red,3,4']
+
+    def test_quakeworld_rcon(self, cmd_tshark, capture_file, test_env):
+        '''rcon: the password and the command; quoted arguments lose the
+        quotes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {5, 34, 35, 36}',
+                'quakeworld.connectionless.rcon.password',
+                'quakeworld.connectionless.rcon.command')
+        assert out == [
+            '5\tpw\tstatus now ',
+            '34\tsecret\t',
+            '35\tsecret\tmap e1m1 ',
+            '36\tsecret\tsay hello world again ',
+        ]
+
+    def test_quakeworld_server_commands(self, cmd_tshark, capture_file, test_env):
+        '''Server to client commands.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 39 && frame.number <= 46',
+                'quakeworld.connectionless.command')
+        assert out == [
+            '39\tConnected', '40\tClient Command', '41\tPrint', '42\tPing',
+            '43\tChallenge', '44\tChallenge', '45\tUnknown', '46\tUnknown',
+        ]
+
+    def test_quakeworld_game(self, cmd_tshark, capture_file, test_env):
+        '''Game packets: sequence numbers with the reliable bit, the
+        qport only from the client.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 47', '_ws.col.info', 'quakeworld.game.seq1',
+                'quakeworld.game.rel1', 'quakeworld.game.seq2',
+                'quakeworld.game.rel2', 'quakeworld.game.qport', 'data.len')
+        assert out == [
+            '47\tClient to Server Game\t1\tFalse\t0\tFalse\t4660\t',
+            '48\tClient to Server Game\t2\tTrue\t1\tFalse\t4660\t3',
+            '49\tClient to Server Game\t3\tFalse\t2\tTrue\t4660\t8',
+            '50\tServer to Client Game\t1\tFalse\t0\tFalse\t\t',
+            '51\tServer to Client Game\t2\tTrue\t1\tFalse\t\t3',
+            '52\tServer to Client Game\t2147483647\tFalse\t2147483646\tTrue\t\t4',
+        ]
+
+    def test_quakeworld_tokenizer_memory(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6 is 64 kB of one-character tokens. COM_Parse allocated
+        all the remaining text for every token (about 1 GB in total); the
+        frame must now decode quickly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('quakeworld_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6', '-Tfields', '-eframe.number',
+                '-equakeworld.connectionless.command',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '6\tUnknown'
