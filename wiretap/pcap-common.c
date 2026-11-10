@@ -490,8 +490,8 @@ static const struct {
 	/* ATSC Link-Layer Protocol (A/330) packets */
 	{ 289,		WTAP_ENCAP_ATSC_ALP },
 
-	/* Event Tracing for Windows records */
-	{ 290,		WTAP_ENCAP_ETW },
+	/* (OLD) Event Tracing for Windows records v1 */
+	/* { 290,	WTAP_ENCAP_ETW }, */
 
 	/* Serial NCP (Network Co-Processor) protocol for Zigbee stack ZBOSS */
 	{ 292,		WTAP_ENCAP_ZBNCP },
@@ -521,6 +521,9 @@ static const struct {
 
 	/* DECT_NR TAP (DECT-2020 New Radio (NR) TAP header) */
 	{ 304,		WTAP_ENCAP_DECT_NR_TAP },
+
+	/* Event Tracing for Windows records v2 */
+	{ 305,		WTAP_ENCAP_ETW },
 
 	/*
 	 * To repeat:
