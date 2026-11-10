@@ -128793,3 +128793,81 @@ class TestDissectRsh:
                 'Command:ls -l /tmp Client -> Server data',
             '68\t\t62616e6e65720a\tServer -> Client Data',
         ]
+
+
+class TestDissectRsip:
+    '''RSIP (Realm Specific IP, UDP and TCP 4555) from the synthetic
+    capture rsip_coverage.pcap.gz.'''
+
+    @staticmethod
+    def run_rsip(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rsip_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rsip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''40 RSIP frames (34 UDP and 6 TCP), none malformed or with an
+        error expert info, in one and two passes, and the message types of
+        the UDP frames.'''
+        stdout = self.run_rsip(cmd_tshark, capture_file, test_env,
+                '-Y', 'rsip', '-Tfields', '-e_ws.col.protocol')
+        assert count_output(stdout) == 40
+        for passes in ((), ('-2',)):
+            stdout = self.run_rsip(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+        stdout = self.run_rsip(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 19', '-Tfields', '-ersip.message_type')
+        assert stdout.split() == ['2', '3', '6', '7', '8', '9', '10', '11', '12', '13',
+                '14', '15', '16', '17', '4', '5', '1', '22', '23']
+
+    def test_rsip_vendor_specific_value(self, cmd_tshark, capture_file, test_env):
+        '''The value of a Vendor Specific parameter follows the vendor ID and
+        subtype, at octet 7 of the parameter ("RSIP: Fix the offset of the
+        vendor specific value"); it started two octets late.'''
+        import xml.etree.ElementTree as ET
+        stdout = self.run_rsip(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 20', '-Tpdml')
+        fields = {f.get('name'): f for f in ET.fromstring(stdout).iter('field')}
+        vid = fields['rsip.parameter.vendor_specific.vendor_id']
+        sub = fields['rsip.parameter.vendor_specific.subtype']
+        val = fields['rsip.parameter.vendor_specific.value']
+        assert (vid.get('pos'), vid.get('size'), vid.get('show')) == ('49', '2', '2571')
+        assert (sub.get('pos'), sub.get('size'), sub.get('show')) == ('51', '2', '258')
+        assert (val.get('pos'), val.get('size')) == ('53', '6')
+
+    def test_rsip_parameter_text(self, cmd_tshark, capture_file, test_env):
+        '''The summary of the parameters: addresses of every type, port
+        lists and ranges, lease time, the unknown values and parameters.'''
+        stdout = self.run_rsip(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {6, 22, 23, 25, 26, 27, 28}', '-O', 'rsip')
+        lines = [l.strip() for l in stdout.splitlines() if l.startswith('    ')
+                 and not l.startswith('     ')]
+        for expected in (
+                'Address: 192.0.2.77', 'Port: List of 3 Ports', 'Port: List of 4 Ports',
+                'Lease Time: 1200 seconds', 'Tunnel Type: IP-IP Tunnel',
+                'Address: rsip.example.test', 'Address: Any IPv4 Address',
+                'Address: Any IPv4 Netmask', 'Address: Any IPv6 Address',
+                'Address: Any Fully Qualified Domain Name', 'Address: Unknown Address Type',
+                'Address(netmask): 255.255.255.0', 'Address: 2001:db8::1',
+                'Address: host.example.test', 'Port: 1000 - 1004', 'Port: List of 8 Ports',
+                'RSIP Method: Unknown RSIP Method (7)',
+                'Flow Policy: Undefined Local Flow Policy (7)/Undefined Remote Flow Policy (8)',
+                'Error: Undefined Error (999)', 'Error: IPsec SPI Unavailable',
+                'Unknown (77)', 'Unknown (99)'):
+            assert expected in lines, expected
+
+    def test_rsip_tcp_and_header(self, cmd_tshark, capture_file, test_env):
+        '''The TCP frames and the message types of the Info column.'''
+        stdout = self.run_rsip(cmd_tshark, capture_file, test_env,
+                '-Y', 'rsip && (tcp || frame.number == 29)', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '29\tUnknown Message Type (0x63)',
+            '38\tRegister Request',
+            '39\tRegister Response',
+            '40\tAssign Request RSA-IP',
+            '41\tAssign Response RSA-IP',
+            '42\tDeregister Request',
+            '43\tDeregister Response',
+        ]
