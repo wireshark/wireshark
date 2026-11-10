@@ -115599,3 +115599,78 @@ class TestDissectPana:
         # four levels are dissected, the fifth holds the error
         assert stdout.count('AVP Value (PANA packet)') == 5
         assert 'Too many nested PANA messages' in stdout
+
+
+class TestDissectPathport:
+    # Pathport is reached by default: UDP port 3792 and the UDP heuristic.
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, passes, *args):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pathport_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pathport_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-15 are Pathport (frames 1-13 and 15 by the
+        heuristic or the port); frame 16 is shorter than a Pathport packet
+        and stays UDP. No malformed packets or errors, in one and two
+        passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert protocols == ['Pathport'] * 15 + ['UDP']
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pathport_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of ARP requests and replies (well known and
+        unknown IDs), xDMX data (with universe and channel) and other
+        PDUs.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'pathport', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '1\tWho has Broadcast? Tell Manage',
+            '2\tWho has A000002? Tell A000001',
+            '3\tA000001 is at 192.0.2.1',
+            '4\tData is at 192.0.2.2',
+            '5\tGet',
+            '6\tGet',
+            '7\tGet Reply',
+            '8\tSet',
+            '9\tARP Extend Info',
+            '10\txDMX Data - 10 channels @ 512 (Univ 2.0)',
+            '11\txDMX Data - 8 channels @ 0 (Univ 1.0)',
+            '12\tUnknown (0999)',
+            '13\tA000001 is at 192.0.2.1',
+            '14\tWho has Broadcast? Tell Manage',
+            '15\tWho has Broadcast? Tell Manage']
+
+    def test_pathport_pdus(self, cmd_tshark, capture_file, test_env):
+        '''PDU types, property IDs (Get, Get Reply, Set, ARP Extend Info)
+        and data blocks.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'pathport', '-Tfields', '-eframe.number',
+                '-epathport.pdu', '-epathport.pid', '-epathport.get.pid',
+                '-epathport.data.dst', '-epathport.arp.ip')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == [
+            '0x0301', '0x0301', '0x0302', '0x0302', '0x0222', '0x0222',
+            '0x0223', '0x0400', '0x0303', '0x0100', '0x0100', '0x0999',
+            '0x0302,0x0222', '0x0301', '0x0301,0x0301']
+        assert lines[6][2] == '0x0401,0x0413,0x0421,0x0422,0x0000,0x04e1,0x3333,0xffff'
+        assert lines[4][3] == '0x0401,0x0411,0x0413,0x0482,0x0461,0x04dd,0x0702,0x0000,0xffff,0x1101,0x7777'
+        assert lines[10][4] == '0x0000,0x0400'
+        assert lines[2][5] == '192.0.2.1'
+
+    def test_pathport_pdu_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The PDUs are inside the Pathport item, next to the header
+        (they were added to the top-level tree before the fix).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number == 3', '-V', '-O', 'pathport')
+        lines = stdout.splitlines()
+        start = lines.index('Pathport Protocol')
+        assert lines[start + 1] == '    Header'
+        assert lines[start + 8] == '    PDU : ARP Reply'
+        assert lines[start + 9] == '        PDU: ARP Reply (0x0302)'
