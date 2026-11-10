@@ -437,7 +437,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				drdynvc_pdu_info_t *pduInfo = NULL;
 				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 				int payloadLen = tvb_reported_length_remaining(tvb, offset);
-				bool isSinglePacket = (fullPduLen == (uint32_t)payloadLen);
+				bool isSinglePacket = (fullPduLen <= (uint32_t)payloadLen);
 				drdynvc_pinfo_t *drdynvcPinfo = getDrDynPacketInfo(pinfo);
 				uint32_t key = crc32_ccitt_tvb_offset(tvb, offset, payloadLen);
 
@@ -455,7 +455,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 							wmem_destroy_array(pendingPacket->chunks);
 						pendingPacket->chunks = wmem_array_new(wmem_file_scope(), sizeof(drdynvc_pdu_info_t*));
 
-						pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
+						pduInfo = wmem_new0(wmem_file_scope(), drdynvc_pdu_info_t);
 						pduInfo->reassembled = true;
 						pduInfo->startReassemblyFrame = pinfo->num;
 						pduInfo->progressStart = 0;
@@ -468,7 +468,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						pendingPacket->packetLen = fullPduLen;
 						pendingPacket->pendingLen = fullPduLen - payloadLen;
 						pendingPacket->startFrame = pinfo->num;
-						pendingPacket->currentPacket = wmem_array_sized_new(wmem_file_scope(), 1, fullPduLen);
+						pendingPacket->currentPacket = wmem_array_new(wmem_file_scope(), 1);
 						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(tvb, offset, payloadLen), payloadLen);
 					} else {
 						if (pendingPacket->pendingLen || pendingPacket->chunks)
@@ -530,8 +530,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				if (!PINFO_FD_VISITED(pinfo)) {
 					drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 
-					pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
-					wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
+					pduInfo = wmem_new0(wmem_file_scope(), drdynvc_pdu_info_t);
 
 					if (pendingPacket->pendingLen) {
 						/* we have a fragmented packet in progress */
@@ -566,8 +565,10 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 							wmem_destroy_array(pendingPacket->chunks);
 							pendingPacket->chunks = NULL;
 						}
+						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 					} else {
 						/* single data packet */
+						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 						pduInfo->reassembled = false;
 						pduInfo->decodePayload = true;
 						pduInfo->progressStart = 0;
