@@ -114147,3 +114147,161 @@ class TestDissectOsmoTrx:
         assert lines[10] == '170\t2\tRSP\tSETFORMAT\t0\t2'
         assert lines[13] == '173\t2\tRSP\tSETSLOT\t1\t2 1'
         assert lines[14] == '174\t2\tIND\tCLOCK\t\t123456'
+
+
+class TestDissectOspfCoverage:
+    def test_ospf_frames(self, cmd_tshark, capture_file, test_env):
+        '''OSPFv2 over IPv4 and OSPFv3 over IPv6, every packet type, and
+        none of them is malformed or has an expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 34
+        assert all(l.startswith('OSPF\t') for l in lines)
+        infos = [l.split('\t')[1] for l in lines]
+        assert infos[0:15] == [
+            'Hello Packet', 'Hello Packet', 'Hello Packet', 'Hello Packet',
+            'Hello Packet', 'DB Description', 'DB Description', 'DB Description',
+            'LS Request', 'LS Acknowledge', 'LS Update', 'LS Update', 'Unknown (9)',
+            'Hello Packet', 'LS Request']
+        assert infos.count('Hello Packet') == 13
+        assert infos.count('DB Description') == 7
+        assert infos.count('LS Update') == 8
+        assert infos.count('LS Request') == 3
+        assert infos.count('LS Acknowledge') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ospf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ospf_authentication(self, cmd_tshark, capture_file, test_env):
+        '''None, simple password, cryptographic (the digest after the packet
+        in the appendix) and an unknown authentication type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-eospf.auth.type',
+                '-eospf.auth.simple', '-eospf.auth.crypt.key_id',
+                '-eospf.auth.crypt.data_length', '-eospf.auth.crypt.data',
+                '-eospf.auth.unknown', '-eospf.instance_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t\t\t\t\t\t0',
+            '2\t1\tsecret\t\t\t\t\t3',
+            '3\t2\t\t1\t16\ta0a1a2a3a4a5a6a7a8a9aaabacadaeaf\t\t0',
+            '4\t7\t\t\t\t\t0001020304050607\t0',
+        ]
+
+    def test_ospf_lls_v2(self, cmd_tshark, capture_file, test_env):
+        '''The LLS data block of an OSPFv2 Hello: extended options, the
+        cryptographic sequence number and the link-local signaling ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-eospf.lls.data_length', '-eospf.lls.ext.options',
+                '-eospf.v2.lls.sequence_number', '-eospf.v3.lls.ll_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == ['48', '0x00000003', '0x0000004d', '01020304']
+
+    def test_ospf_lls_v3_relays(self, cmd_tshark, capture_file, test_env):
+        '''The TLVs that follow the relay TLVs of an OSPFv3 LLS block are
+        dissected (the relay TLV used to move the offset past them).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 21',
+                '-Tfields', '-eospf.v3.lls.dropped_neighbor',
+                '-eospf.v3.lls.neighbor', '-eospf.v3.lls.willingness',
+                '-eospf.v3.lls.request_from', '-eospf.v3.lls.full_state_for',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == [
+            '192.0.2.2,192.0.2.3', '192.0.2.5,192.0.2.6,192.0.2.5,192.0.2.6',
+            '128', '192.0.2.2,192.0.2.3', '192.0.2.2']
+
+    def test_ospf_v3_authentication_trailer(self, cmd_tshark, capture_file, test_env):
+        '''The authentication trailer of OSPFv3 Hello and DB Description
+        packets, alone and after an LLS block.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'ospf.at',
+                '-Tfields', '-eframe.number', '-eospf.at.auth_type',
+                '-eospf.at.auth_data_len', '-eospf.at.auth_data',
+            ), encoding='utf-8', env=test_env)
+        data = '000102030405060708090a0b0c0d0e0f'
+        assert stdout.splitlines() == [
+            '22\t1\t32\t' + data,
+            '23\t1\t32\t' + data,
+            '27\t1\t32\t' + data,
+        ]
+
+    def test_ospf_v2_lsas(self, cmd_tshark, capture_file, test_env):
+        '''The router, network, summary, ASBR summary, AS external and NSSA
+        LSAs of frame 11 and the links of the router LSA.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 11',
+                '-Tfields', '-eospf.lsa.router.linktype',
+                '-eospf.lsa.router.linkid', '-eospf.lsa.asext.fwdaddr',
+                '-eospf.lsa.network.attchrtr', '-eospf.ls.number_of_lsas',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '1,2,3,4,3'
+        assert fields[1] == '192.0.2.2,192.0.2.5,10.1.0.0,192.0.2.7,10.2.0.0'
+        assert fields[2] == '192.0.2.3,0.0.0.0,192.0.2.3'
+        assert fields[3] == '192.0.2.1,192.0.2.2'
+        assert fields[4] == '7'
+
+    def test_ospf_opaque_lsas(self, cmd_tshark, capture_file, test_env):
+        '''The opaque LSAs of frame 17: MPLS-TE with its link sub-TLVs,
+        grace, router information, extended prefix, extended link and
+        extended inter-area ASBR.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-Tfields', '-eospf.mpls.linktype', '-eospf.mpls.linkcolor',
+                '-eospf.grace.period', '-eospf.dynhostname',
+                '-eospf.oif.local_node_id', '-eospf.mpls.bc.model_id',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '1'
+        assert fields[1] == '0x80000005'
+        assert fields[2] == '120'
+        assert fields[3] == 'router1.example.net'
+        assert fields[4] == '192.0.2.1'
+        assert fields[5] == '1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-V', '-O', 'ospf',
+            ), encoding='utf-8', env=test_env)
+        for text in ('MPLS Traffic Engineering LSA', 'Opaque Router Information LSA',
+                     'OSPFv2 Extended Prefix Opaque LSA', 'OSPFv2 Extended Link Opaque LSA',
+                     'OSPFv2 Extended Inter-Area ASBR LSA', 'Restart Reason: Software Restart (1)',
+                     'Restart IP: 192.0.2.1', 'Grace Period: 120 seconds',
+                     'Grid: DWDM (1)', 'Grid: CWDM (2)', 'Grid: Flexi (3)',
+                     'Channel Spacing: 6.25GHz (5)',
+                     'Flexible Algorithm Definition'):
+            assert text in stdout, text
+
+    def test_ospf_v3_lsas(self, cmd_tshark, capture_file, test_env):
+        '''OSPFv3 LSAs with IPv6 and with IPv4 address families (instance
+        ID 70), base and extended.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ospf_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 30',
+                '-Tfields', '-eframe.number', '-eospf.v3.address_prefix.ipv6',
+                '-eospf.v3.address_prefix.ipv4',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].split('\t')[1:] == [
+            '2001:db8:1::,2001:db8:2::,2001:db8:2::,2001:db8:2::,2001:db8:1::,2001:db8:2::,'
+            '2001:db8:1::,2001:db8:2::', '']
+        assert lines[1].split('\t')[1:] == [
+            '', '10.1.0.0,10.2.0.0,10.2.0.0,10.2.0.0,10.1.0.0,10.2.0.0,10.1.0.0,10.2.0.0']
+        assert lines[2].split('\t')[1:] == ['2001:db8:1::,2001:db8:1::,2001:db8:1::', '']
+        assert lines[3].split('\t')[1:] == ['', '10.1.0.0,10.1.0.0,10.1.0.0']
