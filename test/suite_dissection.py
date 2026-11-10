@@ -124157,3 +124157,158 @@ class TestDissectRdpdr:
                                               'RDPDR_DELETE_PRINTER_EVENT', 'RDPDR_RENAME_PRINTER_EVENT']
         assert rows[-1][1:] == ['RDPDR', 'C:, status=0x0']
         assert ['168', 'RDPDR', 'Device list announce'] in rows
+
+
+class TestDissectRdpDrdynvc:
+    '''RDP dynamic virtual channels (DRDYNVC) from the synthetic capture
+    drdynvc_coverage.pcapng.gz: the static channel "drdynvc" of an RDP
+    session on TCP 3389 (capabilities, channel creation for every known
+    channel type, single and reassembled data, ZGFX compressed data,
+    soft-sync), the UDP side of a multitransport connection and, in the last
+    frames, the reproducers of the fixes on the branch (Exported PDUs).'''
+
+    CAPTURE = 'drdynvc_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpDrdynvc.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    @staticmethod
+    def progress(cmd_tshark, capture_file, test_env, dfilter, *passes):
+        '''The "DataProgress" values of every selected frame ('' if none).
+        The field is a generated string without a value of its own, so the
+        text of the field is read from the PDML output.'''
+        import re
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectRdpDrdynvc.CAPTURE), '-Y', dfilter, '-T', 'pdml'),
+                encoding='utf-8', env=test_env, timeout=120)
+        out = []
+        for packet in stdout.split('<packet>')[1:]:
+            m = re.search(r'showname="DataProgress: ([^"]*)"', packet)
+            out.append(m.group(1) if m else '')
+        return out
+
+    def test_drdynvc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 139
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['DRDYNVC'] == 91
+        assert counts['CLIPRDR'] == 18
+        assert counts['RDPECAM'] == 4
+        assert counts['EGFX'] == 4
+        assert counts['RDPSND'] == 3
+        assert counts['RDPDR'] == 3
+        assert counts['RAIL'] == 3
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_drdynvc_capabilities_and_create(self, cmd_tshark, capture_file, test_env):
+        '''Capabilities of versions 1-3 and channel creation: a response links
+        to its request and the channel name is known from the request.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 12 && frame.number <= 17',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-erdp_drdynvc.capabilities.version',
+                '-erdp_drdynvc.capabilities.prioritycharge1', '-erdp_drdynvc.createreqframeid')
+        assert stdout.splitlines() == [
+            '12\tCapabilities request\t3\t490\t',
+            '13\tCapabilities response\t3\t\t',
+            '14\tCapabilities request\t1\t\t',
+            '15\tCapabilities request\t2\t2\t',
+            '16\tCreateChannel Request(Microsoft::Windows::RDS::Graphics)\t\t\t',
+            '17\tCreateChannel Response(Microsoft::Windows::RDS::Graphics)\t\t\t16',
+        ]
+
+    def test_drdynvc_channel_dispatch(self, cmd_tshark, capture_file, test_env):
+        '''Single data PDUs and reassembled data go to the dissector of the
+        channel type; unknown channel types and unknown channel ids show raw
+        data.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 54 && frame.number <= 64',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['EGFX', 'Start frame'], ['RAIL', 'Handshake'], ['CLIPRDR', 'Monitor ready'],
+            ['CLIPRDR', 'Monitor ready'], ['RDPDR', 'Server announce'], ['RDPSND', 'Training'],
+            ['RDPECAM', 'Data,SelectVersion'], ['RDPECAM', 'Data,SelectVersion'],
+            ['DRDYNVC', 'Data'], ['DRDYNVC', 'Data'], ['DRDYNVC', 'Data']]
+
+    def test_drdynvc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A CLIPRDR format list sent as DATA_FIRST + DATA + DATA is shown by
+        the CLIPRDR dissector in the last PDU; the fragments show their
+        progress; a reassembly restarted by a new DATA_FIRST works.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 65 && frame.number <= 71',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '65\tDRDYNVC\tData first',
+            '66\tDRDYNVC\tData',
+            '67\tCLIPRDR\tFormat list',
+            '68\tDRDYNVC\tData first',
+            '69\tCLIPRDR\tFormat list',
+            '70\tDRDYNVC\tData first',
+            '71\tCLIPRDR\tFormat list',
+        ]
+        assert self.progress(cmd_tshark, capture_file, test_env, 'frame.number >= 65 && frame.number <= 71') == [
+            '0-16/44', '16-30/44', '30-44/44', '0-20/44', '20-44/44', '0-10/44', '10-44/44']
+
+    def test_drdynvc_compressed(self, cmd_tshark, capture_file, test_env):
+        '''ZGFX compressed PDUs (raw, literal, back reference, unencoded
+        run, multipart segments) are decompressed before the channel dissector
+        sees them.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 101 && frame.number <= 114',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['CLIPRDR', 'Monitor ready'], ['CLIPRDR', 'Monitor ready'], ['CLIPRDR', 'Monitor ready'],
+            ['CLIPRDR', 'Format list'], ['CLIPRDR', 'Format list'], ['CLIPRDR', 'Format list'],
+            ['DRDYNVC', 'Data compressed'], ['CLIPRDR', 'Monitor ready'],
+            ['DRDYNVC', 'Data compressed'], ['DRDYNVC', 'Data compressed'],
+            ['DRDYNVC', 'Data compressed first'], ['DRDYNVC', 'Data compressed first'],
+            ['DRDYNVC', 'Data compressed first'], ['EGFX', 'Start frame']]
+
+    def test_drdynvc_softsync_and_udp(self, cmd_tshark, capture_file, test_env):
+        '''Soft-sync requests name the channels they list; the RDPMT tunnel
+        request of the UDP side links to the TCP connection, so DRDYNVC PDUs
+        on UDP use the channels of the TCP connection.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_drdynvc.softsyncreq.channel.dvcid', '-Tfields', '-eframe.number',
+                '-erdp_drdynvc.softsyncreq.channel.dvcid', '-erdp_drdynvc.channelName')
+        assert stdout.splitlines() == [
+            '118\t0x00000001,0x00000003,0x00000007,0x00000004,0x00000005,0x00067932\t'
+            'Microsoft::Windows::RDS::Graphics,cliprdr,RDCamera_Device_Enumerator,rdpdr,AUDIO_PLAYBACK_DVC',
+            '129\t0x0000001f\tcliprdr']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 124 && frame.number <= 130',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['', 'TunnelCreateRequest'], ['DRDYNVC', 'CreateChannel Request(cliprdr)'],
+            ['CLIPRDR', 'Monitor ready'], ['DRDYNVC', 'Data first'], ['CLIPRDR', 'Format list'],
+            ['DRDYNVC', 'SoftSync Request'], ['DRDYNVC', 'Close request']]
+
+    def test_drdynvc_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 131-139: a middle fragment and a fragment larger than the
+        pending data (their PDU info was not initialized and was used as a
+        tvb on the second pass), and DATA_FIRST PDUs that announce 4 GiB.
+        tshark -2 must not crash, the oversized fragment shows no progress.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 131', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-erdp_drdynvc.length')
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert lines[0][:2] == ['131', 'CreateChannel Request(foo)']
+            assert [l[2] for l in lines[5:]] == ['4294967295'] * 4
+            progress = self.progress(cmd_tshark, capture_file, test_env, 'frame.number >= 131', *passes)
+            assert progress[2] == '10-20/30'                # middle fragment
+            assert progress[3] == ''                        # too big: no progress
+            assert progress[4] == '20-30/30'
