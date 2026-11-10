@@ -126817,3 +126817,75 @@ class TestDissectRlm:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 3', '-V', '-O', 'rlm')
         assert '    Type: 5 (Echo request)' in lines
+
+
+class TestDissectRlogin:
+    CAP = 'rlogin_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRlogin.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rlogin_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames are Rlogin (TCP port 513); none is malformed or
+        has an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['Rlogin'] * 28
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_rlogin_info(self, cmd_tshark, capture_file, test_env):
+        '''Handshake, user information, the user name remembered for later
+        frames, control messages and terminal information.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert lines[0] == 'Start Handshake'
+        assert lines[1] == 'Startup info received'
+        assert lines[2].endswith(', (User information)')
+        assert lines[3] == 'User name: root, Data: login: '
+        assert lines[5:10] == [
+            'User name: root, Control Message (Raw mode)',
+            'User name: root, Control Message (Window size request)',
+            'User name: root, Control Message (Clear buffer)',
+            'User name: root, Control Message (Cooked mode)',
+            'User name: root, Control Message (Unknown)',
+        ]
+        assert lines[10] == 'User name: root, Data: hello'
+        assert lines[11] == 'User name: root, Terminal Info (rows=24, cols=80)'
+        assert lines[12] == 'User name: root, Terminal Info (rows=50, cols=132)'
+        assert lines[19] == 'Terminal Info, (User information) (rows=25, cols=80)'
+
+    def test_rlogin_user_info(self, cmd_tshark, capture_file, test_env):
+        '''User and terminal information in the second client segment, in
+        the segment with the handshake, with a long name, without a speed.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rlogin.terminal_type || rlogin.client_user_name',
+                '-Tfields', '-eframe.number', '-erlogin.client_user_name',
+                '-erlogin.terminal_type', '-erlogin.terminal_speed')
+        assert lines[0] == '3\troot\txterm\t38400'
+        assert lines[1] == '17\tbob\t\t'
+        assert lines[2] == '20\tcarol\txterm\t9600'
+        assert lines[3] == '24\t' + 'u' * 40 + '\tvt220\t19200'
+        assert lines[4] == '25\tdave\tansi\t1200'
+
+    def test_rlogin_urg0_and_terminal_info_offset(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of the bugs fixed on the branch: URG with an urgent
+        pointer of 0 is plain data (it threw an exception), and window
+        information after leading data has the right rows and columns
+        (it showed the bytes of "ss" as the number of rows).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 27 || frame.number == 28',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-erlogin.window_size.rows', '-erlogin.window_size.cols',
+                '-erlogin.data')
+        assert lines[0].startswith('27\tData: hello\t\t\t')
+        assert lines[1].startswith('28\tTerminal Info (rows=24, cols=80)\t24\t80\t')
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 27 && _ws.malformed', '-Tfields', '-eframe.number')
+        assert stdout == []
