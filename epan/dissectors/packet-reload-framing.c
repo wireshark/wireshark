@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
+#include <epan/proto_data.h>
 #include <epan/exported_pdu.h>
 #include "packet-tcp.h"
 
@@ -96,7 +97,7 @@ get_reload_framing_message_length(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 
   if (tvb_get_uint8(tvb, offset) == DATA) {
-    length = 1 + 4 + 3 + tvb_get_ntoh24(tvb, 1 + 4);
+    length = 1 + 4 + 3 + tvb_get_ntoh24(tvb, offset + 1 + 4);
   }
 
   return length;
@@ -162,7 +163,16 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     break;
   case ACK:
     /* Require previous ACK (i.e., reload_framing_info attached to conversation). */
-    if (effective_length < 9 || ! reload_framing_info) {
+    if (effective_length < 9) {
+      return 0;
+    }
+    if (!PINFO_FD_VISITED(pinfo)) {
+      if (!reload_framing_info) {
+        return 0;
+      }
+      /* Remember that this frame was accepted, so that later passes agree. */
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_reload_framing, 0, GUINT_TO_POINTER(1));
+    } else if (!p_get_proto_data(wmem_file_scope(), pinfo, proto_reload_framing, 0)) {
       return 0;
     }
     break;
@@ -404,7 +414,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             }
             else {
               /* just a pair */
-              proto_item_append_text(ti_received, ",%u", (sequence-32+indx-1));
+              proto_item_append_text(ti_parsed_received, ",%u", (sequence-32+indx-1));
             }
           }
           else {
