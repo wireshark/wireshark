@@ -136477,3 +136477,90 @@ class TestDissectSflow:
                      'unknown number of interfaces greater than 1',
                      'Output interface expanded format: Unknown (3)'):
             assert text in stdout, text
+
+
+class TestDissectSftp:
+    # SFTP is called by the SSH dissector after decryption; the capture uses
+    # Exported PDU frames that name the sftp dissector.
+    INFO = (
+        'SSH_FXP_INIT', 'SSH_FXP_VERSION', 'SSH_FXP_OPEN', 'SSH_FXP_OPEN', 'SSH_FXP_OPEN',
+        'SSH_FXP_CLOSE', 'SSH_FXP_READ', 'SSH_FXP_WRITE', 'SSH_FXP_WRITE', 'SSH_FXP_LSTAT',
+        'SSH_FXP_FSTAT', 'SSH_FXP_SETSTAT', 'SSH_FXP_FSETSTAT', 'SSH_FXP_OPENDIR',
+        'SSH_FXP_READDIR', 'SSH_FXP_REMOVE', 'SSH_FXP_MKDIR', 'SSH_FXP_RMDIR',
+        'SSH_FXP_REALPATH', 'SSH_FXP_STAT', 'SSH_FXP_RENAME', 'SSH_FXP_READLINK',
+        'SSH_FXP_LINK', 'SSH_FXP_BLOCK', 'SSH_FXP_UNBLOCK', 'SSH_FXP_STATUS',
+        'SSH_FXP_STATUS', 'SSH_FXP_STATUS', 'SSH_FXP_HANDLE', 'SSH_FXP_DATA',
+        'SSH_FXP_DATA', 'SSH_FXP_NAME', 'SSH_FXP_NAME', 'SSH_FXP_ATTRS', 'SSH_FXP_ATTRS',
+        'SSH_FXP_EXTENDED', 'SSH_FXP_EXTENDED_REPLY', 'Unknown (99)', 'Unknown (250)',
+    )
+
+    def test_sftp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is one SFTP packet, none is malformed or has an
+        expert info, in one and two passes; the Info column names the
+        packet type.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sftp_coverage.pcap.gz'),
+                    '-Y', 'sftp', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[1] for r in rows] == list(self.INFO)
+            assert [r[0] for r in rows] == [str(i + 1) for i in range(len(self.INFO))]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sftp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sftp_titles(self, cmd_tshark, capture_file, test_env):
+        '''The summary line of the SFTP tree names the request, including
+        SSH_FXP_RENAME (it used to say SSH_FXP_STAT).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sftp_coverage.pcap.gz'),
+                '-Y', 'sftp', '-V', '-O', 'sftp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l for l in stdout.splitlines() if l.startswith('SSH File Transfer Protocol')]
+        assert len(lines) == 39
+        assert lines[20] == 'SSH File Transfer Protocol, SSH_FXP_RENAME (18) id=19 [/tmp/a] > [/tmp/b]'
+        assert lines[19] == 'SSH File Transfer Protocol, SSH_FXP_STAT (17) id=18 [/home/user/file.txt]'
+        assert lines[2] == 'SSH File Transfer Protocol, SSH_FXP_OPEN (3) id=1 [/home/user/file.txt]'
+        assert lines[7] == 'SSH File Transfer Protocol, SSH_FXP_WRITE (6) id=6 {00000001020304ff} len=15'
+        assert lines[25] == 'SSH File Transfer Protocol, SSH_FXP_STATUS (101) id=24 code=0 [OK]'
+        assert lines[26] == 'SSH File Transfer Protocol, SSH_FXP_STATUS (101) id=25 code=2 [No such file]'
+        assert lines[37] == 'SSH File Transfer Protocol, unknown (99)'
+
+    def test_sftp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''File attributes: size, owner, mode, extended count.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sftp_coverage.pcap.gz'),
+                '-Y', 'sftp.attrs.flags', '-Tfields', '-eframe.number',
+                '-esftp.attrs.flags', '-esftp.attrs.size', '-esftp.attrs.uid', '-esftp.attrs.gid',
+                '-esftp.attrs.permissions', '-esftp.attrs.extended_count',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r for r in (l.split('\t') for l in stdout.splitlines())}
+        # OPEN with every attribute: flags 0xf, size, uid, gid, permissions 0100644 (33188)
+        assert rows['4'][1:] == ['15', '1234', '1000', '100', '33188', '']
+        # OPEN with the extended bit: flags 0x80000004, permissions, extended count 2
+        assert rows['5'][1] == '2147483652'
+        assert rows['5'][5] == '33188'
+        assert rows['5'][6] == '2'
+        # ATTRS with size and permissions, then with the extended bit
+        assert rows['34'][1:] == ['5', '1234', '', '', '33188', '']
+        assert rows['35'][6] == '3'
+        # NAME with two entries: the attributes of both
+        assert rows['32'][1].split(',') == ['15', '4']
+
+    def test_sftp_name_and_status(self, cmd_tshark, capture_file, test_env):
+        '''NAME entries and STATUS messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sftp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {26, 27, 32}', '-Tfields', '-eframe.number',
+                '-esftp.status', '-esftp.error_message', '-esftp.lang_tag',
+                '-esftp.name_count', '-esftp.name_fn', '-esftp.name_ln',
+            ), encoding='utf-8', env=test_env)
+        rows = {r[0]: r for r in (l.split('\t') for l in stdout.splitlines())}
+        assert rows['26'][1:5] == ['0', 'OK', 'en', '']
+        assert rows['27'][1:5] == ['2', 'No such file', 'en-US', '']
+        assert rows['32'][4] == '2'
+        assert rows['32'][5] == 'file.txt,dir'
+        assert rows['32'][6].startswith('-rw-r--r--   1 user group 1234 Nov 14 file.txt,drwxr-xr-x')
