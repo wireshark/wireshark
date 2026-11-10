@@ -128871,3 +128871,146 @@ class TestDissectRsip:
             '42\tDeregister Request',
             '43\tDeregister Response',
         ]
+
+
+class TestDissectRsl:
+    '''GSM A-bis RSL (3GPP TS 48.058) in ip.access (IPA) frames over TCP
+    3006, from the synthetic capture rsl_coverage.pcap.gz. Frames 4-183
+    are standard messages, 184-210 are ip.access messages (decoded with
+    "Use nanoBTS definitions"), 211-212 RTP for a CRCX ACK. Frames
+    141-149 are the reproducers of "RSL: Fix IE lengths and returned
+    offsets".'''
+
+    NANO = ('-o', 'gsm_abis_rsl.use_ipaccess_rsl:TRUE')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('rsl_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rsl_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 204 RSL frames decode without malformed packets or error
+        expert infos, in one and two passes and with the preferences.'''
+        for opts in ((), ('-2',), self.NANO + ('-2',),
+                     self.NANO + ('-o', 'gsm_abis_rsl.use_osmocom_rsl:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('rsl_coverage.pcap.gz'),
+                    '-Y', 'gsm_abis_rsl', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 204
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('rsl_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_rsl_rach_load(self, cmd_tshark, capture_file, test_env):
+        '''The RACH Load IE returns the offset after the whole IE, so the
+        Paging Load IE that follows is decoded (frames 141, 142). An IE
+        shorter than the three counters (frame 143) has none of them.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {141, 142, 143}', 'frame.number',
+                          'gsm_abis_rsl.rach_slot_cnt', 'gsm_abis_rsl.rach_acc_cnt',
+                          'gsm_abis_rsl.supplementary_information',
+                          'gsm_abis_rsl.paging_load')
+        assert out == [
+            '141\t1\t3\t\t4660',
+            '142\t1\t3\t1\t4660',
+            '143\t\t\t\t4660',
+        ]
+
+    def test_rsl_resource_info(self, cmd_tshark, capture_file, test_env):
+        '''An odd Resource Information IE length does not run on over the
+        rest of the packet (frame 144, one octet of length, no pairs);
+        frame 145 has one pair.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {144, 145}', 'frame.number',
+                          'gsm_abis_rsl.interf_band', 'gsm_abis_rsl.ch_no_Cbits',
+                          '_ws.malformed')
+        assert out == ['144\t\t\t', '145\t1\t2\t']
+
+    def test_rsl_erroneous_message(self, cmd_tshark, capture_file, test_env):
+        '''The Erroneous Message IE is dissected within its length: the
+        embedded ip.access message is dropped without "Use nanoBTS
+        definitions" (frame 146: no IEs, no RTP conversation) and
+        decoded with it; the inner message does not take the 0x1c 0x55
+        of the outer one (frame 147); 30 nested messages (frame 148).'''
+        flds = ('frame.number', 'gsm_abis_rsl.msg_type',
+                'gsm_abis_rsl.ipacc.local_ip', 'gsm_abis_rsl.ipacc.local_port',
+                'gsm_abis_rsl.ipacc.conn_id')
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {146, 147}', *flds)
+        assert out == ['146\t0x1c,0x71\t\t\t', '147\t0x1c,0x1c\t\t\t']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {146, 147}', *flds, opts=self.NANO)
+        assert out == ['146\t0x1c,0x71\t192.0.2.10\t5000\t1',
+                       '147\t0x1c,0x1c\t\t\t']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number == 148', 'gsm_abis_rsl.msg_type')
+        types = out[0].split(',')
+        assert len(types) == 31
+        assert types.count('0x1c') == 30 and types[-1] == '0x04'
+
+    def test_rsl_physical_context(self, cmd_tshark, capture_file, test_env):
+        '''Physical Context IEs of the three known inner types are
+        dissected (frames 46-48); with the preference off the content is
+        a plain byte field; an unknown inner type is skipped (frame
+        149).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {46, 47, 48, 49, 149}', 'frame.number',
+                          'gsm_abis_rsl.phy_ctx_ie_id', 'gsm_abis_rsl.phy_ctx_rx_lvl_ext',
+                          'gsm_abis_rsl.phy_ctx')
+        assert out == [
+            '46\t0x42,0x43,0x45\t0x21\t',
+            '47\t0x43,0x45\t0x21\t',
+            '48\t0x45\t0x21\t',
+            '49\t\t\t',
+            '149\t\t\t',
+        ]
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {46, 48}', 'frame.number',
+                          'gsm_abis_rsl.phy_ctx_ie_id', 'gsm_abis_rsl.phy_ctx',
+                          opts=('-o', 'gsm_abis_rsl.dissect_phy_ctx_inf:FALSE'))
+        assert out[0] == '46\t\t4202aabb43023304450121'
+        assert out[1] == '48\t\t450121'
+
+    def test_rsl_decoded_values(self, cmd_tshark, capture_file, test_env):
+        '''Channel activation with encryption information (frame 76:
+        algorithm 2 and an eight octet key; with length 1, frame 90, no
+        key), the Osmocom ETWS command (frame 140) and the warning for a
+        bad speech or data indicator.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {76, 90}', 'frame.number',
+                          'gsm_abis_rsl.alg_id', 'gsm_abis_rsl.key')
+        assert out == ['76\t2\t0102030405060708', '90\t1\t']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number == 140', 'gsm_abis_rsl.etws_pn')
+        assert out == ['00010203040506070809']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'gsm_abis_rsl.speech_or_data_indicator.bad',
+                          'frame.number')
+        assert len(out) == 1
+
+    def test_rsl_ipaccess(self, cmd_tshark, capture_file, test_env):
+        '''ip.access messages are decoded only with "Use nanoBTS
+        definitions". CRCX ACKs (frames 186-188, 191, 200) carry the
+        local address and port; the AMR RTP of frames 211-212 is
+        recognised from the learned RTP address and port.'''
+        flds = ('frame.number', 'gsm_abis_rsl.ipacc.local_ip',
+                'gsm_abis_rsl.ipacc.local_port', 'gsm_abis_rsl.ipacc.rtp_payload')
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {185, 186, 187, 188}', *flds, opts=self.NANO)
+        assert out == ['185\t\t\t98', '186\t192.0.2.11\t16384\t98',
+                       '187\t192.0.2.11\t16386\t3', '188\t192.0.2.11\t16388\t98']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {186, 211}', 'frame.number',
+                          'rtp.p_type', '_ws.col.protocol', opts=self.NANO)
+        assert out == ['186\t\tRSL', '211\t98\tAMR']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {186, 211}', 'frame.number',
+                          'rtp.p_type', '_ws.col.protocol')
+        assert out == ['186\t\tRSL', '211\t\tUDP']
