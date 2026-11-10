@@ -134705,3 +134705,77 @@ class TestDissectSccpmg:
                 '-Y', 'sccpmg.unknown_msg', '-Tfields', '-eframe.number', '-e_ws.col.info')
         assert rows == [['45', 'SBR '], ['46', 'SNR '], ['47', 'SRT '],
                         ['48', 'Unknown '], ['49', 'Unknown ']]
+
+
+class TestDissectScop:
+    def test_scop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every datagram and TCP message on ports 17755-17756 is SCoP; the
+        bridge service hands its payload to IEEE 802.15.4; the first two
+        TCP segments of the split message are TCP. No frame is malformed
+        or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scop_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 34
+        assert protocols.count('SCoP') == 29
+        assert protocols.count('IEEE 802.15.4') == 3
+        assert protocols.count('TCP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scop_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_scop_hello_response_status(self, cmd_tshark, capture_file, test_env):
+        '''The Hello Response status is read from the status field, not
+        from the reserved octet before it: frame 3 has the reserved octet
+        1 and status 0 and shows Success (it showed Failure before the
+        fix); frames 4 and 5 have a non-zero status.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scop_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 3, 4, 5}',
+                '-V', '-O', 'scop',
+            ), encoding='utf-8', env=test_env)
+        status = [l.strip() for l in stdout.splitlines() if l.strip().startswith('Status:')]
+        assert status == ['Status: Success', 'Status: Success', 'Status: Failure', 'Status: Failure']
+
+    def test_scop_types(self, cmd_tshark, capture_file, test_env):
+        '''Packet types, transports and services.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scop_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-escop.transport',
+                '-escop.service', '-escop.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'] == ['1', '0', '0', 'Hello']
+        assert rows['6'] == ['1', '0', '2', 'Hello Acknowledgment']
+        assert rows['7'] == ['1', '0', '4', 'Goodbye']
+        assert rows['9'] == ['1', '0', '6', 'Keep Alive Ping']
+        assert rows['11'] == ['1', '0', '3', 'Reserved Type']
+        assert rows['15'] == ['131', '0', '6', 'Keep Alive Ping']
+        assert rows['19'][:2] == ['1', '2']
+        assert rows['20'][:2] == ['1', '77']
+        # CCM* transports stop after the header
+        assert rows['21'][:3] == ['129', '', '']
+        assert rows['22'][:3] == ['130', '', '']
+        assert rows['25'] == ['2,2,2', '0,0,0', '2,6,7', 'Keep Alive Pong']
+
+    def test_scop_bridge(self, cmd_tshark, capture_file, test_env):
+        '''The bridge service payload is an IEEE 802.15.4 frame (UDP and
+        TCP), and the TCP message split over three segments is reassembled
+        in frame 28.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scop_coverage.pcap.gz'),
+                '-Y', 'frame.number in {17, 18, 27, 28, 30}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '17\tData, Src: 0x0002, Dst: 0x0001'
+        assert lines[1] == '18\tAck'
+        assert lines[2].startswith('27\t40100')
+        assert lines[3] == '28\tReserved Type'
+        assert lines[4] == '30\tData, Src: 0x0002, Dst: 0x0001'
