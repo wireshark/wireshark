@@ -169,6 +169,7 @@ EntryClassErrorParameter/problem										ABBREV=entryClassErrorParameter.proble
 MessageGroupErrorParameter/problem										ABBREV=messageGroupErrorParameter.group-problem
 ServiceErrorParameter/problem											ABBREV=serviceErrorParameter.problem
 ModifyErrorParameter/problem											ABBREV=modifyErrorParameter.problem
+RegistrationTypes/extended-registrations/_item							TYPE=FT_OID DISPLAY=BASE_NONE STRINGS=NULL
 
 # This table creates the value_string to name P7 operation codes and errors
 # in file packet-p7-table.c which is included in the template file
