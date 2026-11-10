@@ -1244,9 +1244,15 @@ dissect_per_integer(tvbuff_t *tvb, uint32_t offset, asn1_ctx_t *actx, proto_tree
 	if (! hfi)
 		THROW(ReportedBoundsError);
 	if (FT_IS_INT(hfi->type)) {
-		it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		if (FT_IS_INT32(hfi->type))
+			it=proto_tree_add_int(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		else
+			it=proto_tree_add_int64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, (int32_t)val);
 	} else if (FT_IS_UINT(hfi->type)) {
-		it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		if (FT_IS_UINT32(hfi->type))
+			it=proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
+		else
+			it=proto_tree_add_uint64(tree, hf_index, tvb, (offset>>3)-(length+1), length+1, val);
 	} else {
 		proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_field_not_integer, tvb, (offset>>3)-(length+1), length+1,
 										"Field is not an integer: %s", hfi->abbrev);
