@@ -17,4 +17,13 @@
 
 #include "packet-sgp22-exp.h"
 
+unsigned get_rsp_tag(tvbuff_t *tvb, uint32_t *tag);
+bool is_rsp_asn1_header(tvbuff_t *tvb, uint32_t *tag);
+
+bool is_sgp22_request(tvbuff_t *tvb);
+bool is_sgp22_response(tvbuff_t *tvb);
+
+int dissect_sgp22_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+int dissect_sgp22_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+
 #endif  /* PACKET_SGP22_H */
