@@ -1211,7 +1211,7 @@ store_uint16(uint8_t **array_ptr, uint16_t value) {
 }
 
 static tvbuff_t*
-get_udp_hdr_tvb(packet_info *pinfo _U_, uint16_t pdu_size, const char *string)
+get_udp_hdr_tvb(tvbuff_t *parent, packet_info *pinfo, uint16_t pdu_size, const char *string)
 {
     tvbuff_t *udp_hdr_tvb;
     uint8_t *udp_bytes, *arr_ptr;
@@ -1231,13 +1231,13 @@ get_udp_hdr_tvb(packet_info *pinfo _U_, uint16_t pdu_size, const char *string)
     store_uint16(&arr_ptr, udp_len);       /* Length */
     store_uint16(&arr_ptr, 0xffff);        /* Checksum */
 
-    udp_hdr_tvb = tvb_new_real_data(udp_bytes, udp_hdr_len, udp_hdr_len);
+    udp_hdr_tvb = tvb_new_child_real_data(parent, udp_bytes, udp_hdr_len, udp_hdr_len);
 
     return udp_hdr_tvb;
 }
 
 static tvbuff_t*
-get_rlc_hdr_tvb(packet_info *pinfo, uint8_t direction)
+get_rlc_hdr_tvb(tvbuff_t *parent, packet_info *pinfo, uint8_t direction)
 {
     tvbuff_t *rlc_hdr_tvb;
     uint8_t *rlc_bytes;
@@ -1255,13 +1255,13 @@ get_rlc_hdr_tvb(packet_info *pinfo, uint8_t direction)
     rlc_bytes[str_len++] = direction;
     rlc_bytes[str_len++] = RLC_PAYLOAD_TAG;
 
-    rlc_hdr_tvb = tvb_new_real_data(rlc_bytes, rlc_hdr_len, rlc_hdr_len);
+    rlc_hdr_tvb = tvb_new_child_real_data(parent, rlc_bytes, rlc_hdr_len, rlc_hdr_len);
 
     return rlc_hdr_tvb;
 }
 
 static tvbuff_t*
-get_gsmtap_hdr_tvb(packet_info *pinfo, uint8_t type, uint16_t arfcn, uint32_t frame_nr, uint8_t subtype, uint8_t subslot)
+get_gsmtap_hdr_tvb(tvbuff_t *parent, packet_info *pinfo, uint8_t type, uint16_t arfcn, uint32_t frame_nr, uint8_t subtype, uint8_t subslot)
 {
     tvbuff_t *gsmtap_hdr_tvb;
     uint8_t *gsmtap_bytes;
@@ -1280,7 +1280,7 @@ get_gsmtap_hdr_tvb(packet_info *pinfo, uint8_t type, uint16_t arfcn, uint32_t fr
     gsmtap_bytes[GSMTAP_HDR_SUB_TYPE]        = subtype;
     gsmtap_bytes[GSMTAP_HDR_SUB_SLOT]        = subslot;
 
-    gsmtap_hdr_tvb = tvb_new_real_data(gsmtap_bytes, 16, 16);
+    gsmtap_hdr_tvb = tvb_new_child_real_data(parent, gsmtap_bytes, 16, 16);
 
     return gsmtap_hdr_tvb;
 }
@@ -1653,7 +1653,7 @@ dissect_qcdiag_log_wcdma_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo,
         arfcn[1] = umts_last_uarfcn_ul[1];
     }
 
-    if ((subtype = try_val_to_int(chan_type, umts_channel_type_map_v1) != UINT32_MAX)) {
+    if ((subtype = try_val_to_int(chan_type, umts_channel_type_map_v1)) != UINT32_MAX) {
         /* subtype is from umts_channel_type_map_v1 */
 
         /* Set the Channel Type header field */
@@ -1742,7 +1742,7 @@ dissect_qcdiag_log_wcdma_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo,
         proto_tree_add_item(log_tree, hf_qcdiag_subtype, tvb, offset-1, 1, ENC_NA);
     }
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UMTS_RRC, arfcn[0], 0, subtype, 0);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_UMTS_RRC, arfcn[0], 0, subtype, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -1935,8 +1935,8 @@ dissect_qcdiag_log_wcdma_rlc_dl_am_signaling_pdu(tvbuff_t *tvb, uint32_t offset,
         proto_tree_add_uint(subtree, hf_qcdiag_wcdma_rlc_pdu_size_bits, tvb, offset, 2, pdu_size);
         offset += 2;
 
-        udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
-        rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_DOWNLINK);
+        udp_hdr_tvb = get_udp_hdr_tvb(tvb, pinfo, pdu_size, RLC_START_STRING);
+        rlc_hdr_tvb = get_rlc_hdr_tvb(tvb, pinfo, DIRECTION_DOWNLINK);
         payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
 
         offset += pdu_size;
@@ -1991,8 +1991,8 @@ dissect_qcdiag_log_wcdma_rlc_ul_am_signaling_pdu(tvbuff_t *tvb, uint32_t offset,
         proto_tree_add_uint(subtree, hf_qcdiag_wcdma_rlc_pdu_size_bits, tvb, offset, 2, pdu_size);
         offset += 2;
 
-        udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
-        rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_UPLINK);
+        udp_hdr_tvb = get_udp_hdr_tvb(tvb, pinfo, pdu_size, RLC_START_STRING);
+        rlc_hdr_tvb = get_rlc_hdr_tvb(tvb, pinfo, DIRECTION_UPLINK);
         payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
 
         offset += pdu_size;
@@ -2030,8 +2030,8 @@ dissect_qcdiag_log_wcdma_rlc_ul_am_control_pdu(tvbuff_t *tvb, uint32_t offset, p
     proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_pdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_size);
     offset += 2;
 
-    udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
-    rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_UPLINK);
+    udp_hdr_tvb = get_udp_hdr_tvb(tvb, pinfo, pdu_size, RLC_START_STRING);
+    rlc_hdr_tvb = get_rlc_hdr_tvb(tvb, pinfo, DIRECTION_UPLINK);
     payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
 
     /* To be able to call "RLC over UDP", an UDP header is also required */
@@ -2066,8 +2066,8 @@ dissect_qcdiag_log_wcdma_rlc_dl_am_control_pdu(tvbuff_t *tvb, uint32_t offset, p
     proto_tree_add_item_ret_uint16(log_tree, hf_qcdiag_wcdma_rlc_pdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN, &pdu_size);
     offset += 2;
 
-    udp_hdr_tvb = get_udp_hdr_tvb(pinfo, pdu_size, RLC_START_STRING);
-    rlc_hdr_tvb = get_rlc_hdr_tvb(pinfo, DIRECTION_DOWNLINK);
+    udp_hdr_tvb = get_udp_hdr_tvb(tvb, pinfo, pdu_size, RLC_START_STRING);
+    rlc_hdr_tvb = get_rlc_hdr_tvb(tvb, pinfo, DIRECTION_DOWNLINK);
     payload_tvb = tvb_new_subset_length(tvb, offset, pdu_size);
 
     /* To be able to call "RLC over UDP", an UDP header is also required */
@@ -2284,7 +2284,7 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
         lapdm_bytes[1] = 0x03;           /* Control field */
         lapdm_bytes[2] = length | 0x01;  /* length field */
 
-        lapdm_tvb = tvb_new_real_data(lapdm_bytes, 3, 3);
+        lapdm_tvb = tvb_new_child_real_data(tvb, lapdm_bytes, 3, 3);
     } else if (channel_type == 4) {
         /* SACCH/8 expects SACCH L1/LAPDm header */
         lapdm_bytes = (uint8_t*)wmem_alloc0(pinfo->pool, 5);
@@ -2295,10 +2295,10 @@ dissect_qcdiag_log_rr(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, proto_
         lapdm_bytes[3] = 0x03;           /* Control field */
         lapdm_bytes[4] = length | 0x01;  /* length field */
 
-        lapdm_tvb = tvb_new_real_data(lapdm_bytes, 5, 5);
+        lapdm_tvb = tvb_new_child_real_data(tvb, lapdm_bytes, 5, 5);
     }
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -2416,8 +2416,8 @@ dissect_qcdiag_log_gprs_mac(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
         mac_hdr_bytes[0] += mac_hdr_dl_usf;
     }
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
-    mac_hdr_tvb = tvb_new_real_data(mac_hdr_bytes, 1, 1);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_UM, arfcn[0], 0, channel_type, 0);
+    mac_hdr_tvb = tvb_new_child_real_data(tvb, mac_hdr_bytes, 1, 1);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -2450,7 +2450,7 @@ dissect_qcdiag_log_umts_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, 
 
     arfcn = (uint16_t)(direction) << 14;
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_ABIS, arfcn, 0, 0, 0);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_ABIS, arfcn, 0, 0, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -2555,7 +2555,7 @@ dissect_qcdiag_log_lte_rrc(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
     frame_nr = (sfn & 0xfff0) >> 4;
     subslot = sfn & 0x000f;
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_LTE_RRC, arfcn, frame_nr, subtype, subslot);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_LTE_RRC, arfcn, frame_nr, subtype, subslot);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -2610,7 +2610,7 @@ dissect_qcdiag_log_lte_nas(tvbuff_t *tvb, uint32_t offset, packet_info *pinfo, p
 
     arfcn = (direction) ? GSMTAP_ARFCN_F_UPLINK : 0;
 
-    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(pinfo, GSMTAP_TYPE_LTE_NAS, arfcn, 0, !plain, 0);
+    gsmtap_hdr_tvb = get_gsmtap_hdr_tvb(tvb, pinfo, GSMTAP_TYPE_LTE_NAS, arfcn, 0, !plain, 0);
     payload_tvb = tvb_new_subset_remaining(tvb, offset);
 
     gsmtap_tvb = tvb_new_composite();
@@ -2856,8 +2856,6 @@ dissect_qcdiag_log(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     offset += 8;
 
     abs_time = qcdiag_parse_timestamp(tvb, offset);
-    pinfo->abs_ts = abs_time;
-    pinfo->fd->abs_ts = abs_time;
 
     /* local time in our time zone, with month and day */
     timestamp = abs_time_to_str(pinfo->pool, &abs_time, ABSOLUTE_TIME_LOCAL, true);
