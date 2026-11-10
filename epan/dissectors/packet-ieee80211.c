@@ -19520,8 +19520,8 @@ const value_string ieee80211_rsn_cipher_vals[] = {
 #define AKMS_FT_FILS_SHA256       0x000FAC10
 #define AKMS_FT_FILS_SHA384       0x000FAC11
 #define AKMS_OWE                  0x000FAC12
-#define AKMS_SAE_GROUP_DEPEND     0x000FAC18
-#define AKMS_FT_SAE_GROUP_DEPEND  0x000FAC19
+#define AKMS_SAE_EXT_KEY          0x000FAC18
+#define AKMS_FT_SAE_EXT_KEY       0x000FAC19
 #define AKMS_EPPKE                0x000FAC1D
 
 static const value_string ieee80211_rsn_keymgmt_vals[] = {
@@ -19547,8 +19547,8 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {19, "FT using PSK (SHA384)"},
   {20, "PSK (SHA384)"},
   {21, "PASN"},
-  {24, "SAE (GROUP-DEPEND)"},
-  {25, "FT using SAE (GROUP-DEPEND)"},
+  {24, "SAE (EXT-KEY)"},
+  {25, "FT using SAE (EXT-KEY)"},
   {29, "EPPKE"},
   {0, NULL}
 };
@@ -22932,7 +22932,7 @@ static bool is_ft_akm_suite(uint32_t akm_suite)
     case AKMS_FT_IEEE802_1X_SHA384:
     case AKMS_FT_FILS_SHA256:
     case AKMS_FT_FILS_SHA384:
-    case AKMS_FT_SAE_GROUP_DEPEND:
+    case AKMS_FT_SAE_EXT_KEY:
       return true;
     default:
       return false;
@@ -24005,8 +24005,8 @@ static uint16_t determine_mic_len(packet_info *pinfo, bool assoc_frame,
       /* For OWE the length of MIC depends on the selected group */
       *group_depend = true;
       eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
-    } else if (conversation_data->last_akm_suite == AKMS_SAE_GROUP_DEPEND ||
-               conversation_data->last_akm_suite == AKMS_FT_SAE_GROUP_DEPEND) {
+    } else if (conversation_data->last_akm_suite == AKMS_SAE_EXT_KEY ||
+               conversation_data->last_akm_suite == AKMS_FT_SAE_EXT_KEY) {
       *group_depend = true;
       *defaulted = true;
     }
@@ -24020,8 +24020,8 @@ static uint16_t determine_mic_len(packet_info *pinfo, bool assoc_frame,
       /* For OWE the length of MIC depends on the selected group */
       *group_depend = true;
       eapol_key_mic_len = get_mic_len_owe(packet_data->owe_group);
-    } else if (packet_data->last_akm_suite == AKMS_SAE_GROUP_DEPEND ||
-               packet_data->last_akm_suite == AKMS_FT_SAE_GROUP_DEPEND) {
+    } else if (packet_data->last_akm_suite == AKMS_SAE_EXT_KEY ||
+               packet_data->last_akm_suite == AKMS_FT_SAE_EXT_KEY) {
       *group_depend = true;
       *defaulted = true;
     }
