@@ -32,6 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
@@ -671,7 +672,10 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
 
     if (pbf_as_hf && field_full_name) {
         hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
-        DISSECTOR_ASSERT_HINT(hf_id_ptr && (*hf_id_ptr) > 0, "hf must have been initialized properly");
+        /* A field whose type could not be resolved has no hf. */
+        if (hf_id_ptr && *hf_id_ptr <= 0) {
+            hf_id_ptr = NULL;
+        }
     }
 
     if (pbf_as_hf && hf_id_ptr && !show_details) {
@@ -803,7 +807,12 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         break;
 
     case PROTOBUF_TYPE_BOOL:
-        if (length > 1) break; /* boolean should not use more than one bytes */
+        if (length > 1) { /* boolean should not use more than one bytes */
+            if (field_desc && dumper) {
+                json_dumper_value_anyf(dumper, "null");
+            }
+            break;
+        }
         proto_tree_add_boolean(value_tree, hf_protobuf_value_bool, tvb, offset, length, value);
         proto_item_append_text(ti_field, "%s %s", prepend_text, value ? "true" : "false");
         if (!hide_fields_in_info && is_top_level) {
@@ -888,6 +897,10 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
         } else {
             /* we don't continue with unknown message type */
         }
+        if (!sub_message_desc && field_desc && dumper) {
+            /* a member name has been written, so a value must follow */
+            json_dumper_value_anyf(dumper, "null");
+        }
         break;
 
     case PROTOBUF_TYPE_UINT32:
@@ -938,6 +951,10 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, unsigned off
     default:
         /* ignore unknown field type */
         add_datatype = false;
+        if (field_desc && dumper) {
+            /* a member name has been written, so a value must follow */
+            json_dumper_value_anyf(dumper, "null");
+        }
         break;
     }
 
@@ -1098,6 +1115,11 @@ dissect_one_protobuf_field(tvbuff_t *tvb, unsigned* offset, unsigned maxlen, pac
         /* this time value_uint64 is the length of following value bytes */
         value_length_size = tvb_get_varint(tvb, *offset, maxlen - tag_length, &value_uint64, ENC_VARINT_PROTOBUF);
         if (value_length_size == 0) {
+            expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_length_delimited_field);
+            return false;
+        }
+
+        if (value_uint64 > maxlen - tag_length - value_length_size) {
             expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_length_delimited_field);
             return false;
         }
@@ -1299,7 +1321,10 @@ add_missing_fields_with_default_values(tvbuff_t* tvb, unsigned offset, packet_in
         hf_id_ptr = NULL;
         if (pbf_as_hf && field_full_name) {
             hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
-            DISSECTOR_ASSERT_HINT(hf_id_ptr && (*hf_id_ptr) > 0, "hf must have been initialized properly");
+            /* A field whose type could not be resolved has no hf. */
+            if (hf_id_ptr && *hf_id_ptr <= 0) {
+                hf_id_ptr = NULL;
+            }
         }
 
         pbf_tree = field_tree;
@@ -1717,6 +1742,12 @@ uri_matches_pattern(const char *request_uri, const char *uri_pattern, int depth)
 }
 
 
+static void
+protobuf_free_gstring_cb(void *arg)
+{
+    g_string_free((GString *)arg, true);
+}
+
 static int
 dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1848,9 +1879,8 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             .flags = JSON_DUMPER_FLAGS_PRETTY_PRINT | JSON_DUMPER_FLAGS_NO_DEBUG,
         };
 
-        /* Dissecting can throw an exception, ideally CLEANUP_PUSH and _POP
-         * should be used to free the GString to avoid a leak.
-         */
+        /* Dissecting can throw an exception, so free the GString then. */
+        CLEANUP_PUSH(protobuf_free_gstring_cb, dumper.output_string);
         dissect_protobuf_message(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
                                  protobuf_tree, message_desc,
                                  -1,  // no hf item
@@ -1858,8 +1888,13 @@ dissect_protobuf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                                  &dumper,
                                  NULL,  // scope
                                  NULL); // retval
+        CLEANUP_POP;
 
-        DISSECTOR_ASSERT_HINT(json_dumper_finish(&dumper), "Bad json_dumper state");
+        if (!json_dumper_finish(&dumper)) {
+            expert_add_info(pinfo, proto_tree_get_parent(protobuf_tree), &ei_protobuf_failed_parse_field);
+            g_string_free(dumper.output_string, true);
+            return tvb_captured_length(tvb);
+        }
         ti = proto_tree_add_item(tree, proto_protobuf_json_mapping, tvb, 0, -1, ENC_NA);
         protobuf_json_tree = proto_item_add_subtree(ti, ett_protobuf_json);
 
