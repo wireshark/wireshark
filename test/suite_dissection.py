@@ -135006,3 +135006,68 @@ class TestDissectScsiMmc:
         rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 186',
                 '-escsi_mmc.report_key.region_mask', '-escsi_mmc.report_key.rpc_scheme')
         assert rows == [['0xfe', '0x01']]
+
+
+class TestDissectScsiOsd:
+    '''SCSI object based storage commands (packet-scsi-osd.c) from the
+    synthetic capture scsi_osd_coverage.pcap.gz: OSD-1 and OSD-2 commands
+    over iSCSI (TCP 3260) to two object storage devices (INQUIRY device
+    type 0x11, LUNs 0 and 1).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('scsi_osd_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_osd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU, without malformed packets or
+        expert info warnings or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 588
+        assert all(r[0] == 'iSCSI' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_osd_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_osd_partition_state(self, cmd_tshark, capture_file, test_env):
+        '''LIST, CREATE PARTITION, READ, REMOVE PARTITION, CREATE
+        PARTITION again, GET ATTRIBUTES and LIST for partition 0x10000
+        (OSD-1, frames 245-258). One pass shows the frame numbers learned so
+        far, two passes show the final ones on every frame: the frame
+        numbers are recorded on the first pass only (frames 251 removed it, 253
+        created it again), a second pass does not overwrite them.'''
+        args = ('-Yframe.number >= 245 && frame.number <= 258 && scsi_osd.partition_id',
+                '-eframe.number', '-escsi_osd.partition.created_in', '-escsi_osd.partition.removed_in')
+        rows = {r[0]: r[1:] for r in self._fields(cmd_tshark, capture_file, test_env, *args)}
+        assert rows['245'] == ['', '']
+        assert rows['249'] == ['247', '']
+        assert rows['255'] == ['253', '251']
+        for passes in (('-2',), ('-2', '-R', 'iscsi')):
+            rows = {r[0]: r[1:] for r in self._fields(cmd_tshark, capture_file, test_env, *args, passes=passes)}
+            assert rows['245'] == ['253', '251']
+            assert rows['249'] == ['253', '251']
+            assert rows['255'] == ['253', '251']
+
+    def test_scsi_osd_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Attribute lists in the data out and data in of SET ATTRIBUTES,
+        WRITE, CREATE, GET ATTRIBUTES and READ (frame 273: OSD-1 set list with
+        the four known attributes and an unknown one).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 273',
+                '-escsi_osd.attributes.page', '-escsi_osd.attribute.number', '-escsi_osd.attribute.length')
+        assert rows == [['0x00000001,0xfffffffe,0xfffffffe,0xfffffffe,0x30000001',
+                         '0x00000082,0x00000002,0x00000003,0x00000004,0x00000077', '8,1,8,8,3']]
+
+    def test_scsi_osd_list(self, cmd_tshark, capture_file, test_env):
+        '''OSD-2 LIST and LIST COLLECTION with every object descriptor
+        format.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Yframe.number >= 318 && frame.number <= 330 && scsi_osd.additional_length',
+                '-eframe.number', '-escsi_osd2.object_descriptor_format')
+        assert [r[1] for r in rows] == ['0x01', '0x02', '0x21', '0x22', '0x11', '0x12', '0x22']
