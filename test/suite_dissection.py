@@ -137379,3 +137379,88 @@ class TestDissectSignalPdu:
                                  self.P + 'counter_raw',
                                  opts=('-o', 'signal_pdu.payload_dissector_hide_raw_values:FALSE'))
         assert lines == ['1\t1']
+
+
+class TestDissectSilabsDch:
+    def silabs_fields(self, cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        args = []
+        for field in fields:
+            args += ['-e', field]
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('silabs_dch_coverage.pcapng.gz'), '-Y', dfilter,
+                '-Tfields', '-eframe.number', *args,
+            ), encoding='utf-8', env=test_env).splitlines()
+
+    def test_silabs_dch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The 63 frames of the two interfaces (link-layer type 298): 4 debug
+        channel messages that are not decoded, 12 EFR32 packets with
+        protocols that are not decoded, 29 IEEE 802.15.4 PDUs (Zigbee,
+        Thread, custom and Wi-SUN) and 18 BLE PDUs. None is malformed or has
+        an error, in one and two passes.'''
+        protocols = [l.split('\t')[1] for l in self.silabs_fields(cmd_tshark, capture_file, test_env,
+                                                             'frame', '_ws.col.protocol')]
+        assert len(protocols) == 63
+        assert protocols.count('IEEE 802.15.4') == 29
+        assert protocols.count('LE LL') == 18
+        assert protocols.count('Packet') == 16
+        for passes in ((), ('-2',)):
+            assert self.silabs_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                      passes=passes) == []
+
+    def test_silabs_dch_ble_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''A data PDU that comes before the CONNECT_IND of its access address
+        is dissected the same way in the second pass (the connection role
+        is kept per frame; reproducer: the direction, and with it the
+        sequence number analysis, changed with -2).'''
+        fields = ('_ws.col.info', 'btle.data_header.sequence_number',
+                  'btle.data_header.next_expected_sequence_number', '_ws.expert.message',
+                  'silabs-dch.channel', 'silabs-dch.rssi')
+        first = self.silabs_fields(cmd_tshark, capture_file, test_env, 'frame.number <= 24', *fields)
+        second = self.silabs_fields(cmd_tshark, capture_file, test_env, 'frame.number <= 24', *fields,
+                                    passes=('-2',))
+        assert first == second
+        assert len(first) == 24
+        by_frame = {int(l.split('\t')[0]): l.split('\t')[1:] for l in first}
+        # frames 5 and 6 come before the CONNECT_IND (frame 7) of their access address
+        assert by_frame[5][0] == 'Empty PDU' and by_frame[5][1:3] == ['0', '0']
+        assert 'Retransmission' not in by_frame[5][3] and 'Retransmission' not in by_frame[6][3]
+        assert by_frame[7][0] == 'CONNECT_IND'
+
+    def test_silabs_dch_efr32_fields(self, cmd_tshark, capture_file, test_env):
+        '''Debug channel header, hardware start and end, RSSI (offset for
+        the version 1 appended info), syncword, channel and protocol.'''
+        lines = self.silabs_fields(cmd_tshark, capture_file, test_env,
+                                   'frame.number in {1, 3, 7, 25, 46, 52, 55, 56}',
+                                   'silabs-dch.type', '_ws.col.info', 'silabs-dch.channel',
+                                   'silabs-dch.rssi', 'silabs-dch.syncword',
+                                   'silabs-dch.status_protocolid', '_ws.expert.message')
+        assert lines == [
+            '1\t0x0001\tDebug Message Type: Reset notice\t\t\t\t\tDebug message type - Reset notice not supported yet',
+            '3\t0x7777\tDebug Message Type: Unknown\t\t\t\t\tDebug message type - Unknown not supported yet',
+            '7\t0x002a\tCONNECT_IND\t12\t-2\t0x8e89bed6\t0x03\t',
+            '25\t0x002a\tData Request\t26\t\t\t0x05\t',
+            '46\t0x002a\tWi-SUN FSK Mode Switch PHR\t6\t14\t\t0x07\t',
+            '52\t0x002a\tDebug Message Type: EFR Rx packet\t2\t14\t\t0x00\tProtocol - Custom not supported yet',
+            '55\t0x002a\tDebug Message Type: EFR Rx packet\t2\t14\t\t0x06\tProtocol - Z-Wave on RAIL not supported yet',
+            '56\t0x002a\tDebug Message Type: EFR Rx packet\t2\t14\t\t0x09\tProtocol - Unknown not supported yet',
+        ]
+
+    def test_silabs_dch_wisun(self, cmd_tshark, capture_file, test_env):
+        '''Wi-SUN on RAIL: FSK PHR (also after a 0x0b or 0x00 garbage octet),
+        the mode switch PHR, the OFDM PHR, and PHRs that match nothing.'''
+        lines = self.silabs_fields(cmd_tshark, capture_file, test_env, 'silabs-dch.status_protocolid == 7',
+                                   'silabs-dch.phr_fsk.length', 'silabs-dch.phr_wisun_fsk_ms.phymodeid',
+                                   'silabs-dch.phr_ofdm.length', 'silabs-dch.phr_ofdm.rate',
+                                   'silabs-dch.phr', 'silabs-dch.channel', 'silabs-dch.radio_cfg_id')
+        assert lines == [
+            '43\t14\t\t\t\t\t67\t0x01',
+            '44\t14\t\t\t\t\t4\t0x00',
+            '45\t14\t\t\t\t\t133\t0x02',
+            '46\t\t0x0004\t\t\t\t6\t0x00',
+            '47\t\t0x0004\t\t\t\t6\t0x00',
+            '48\t\t\t14\t0\t\t7\t0x00',
+            '49\t\t\t\t\t30566\t8\t0x00',
+            '50\t\t\t\t\t34\t7\t0x00',
+            '51\t14\t\t\t\t\t67\t0x01',
+        ]
