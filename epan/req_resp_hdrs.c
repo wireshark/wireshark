@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <glib.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -22,32 +23,105 @@
 #include <epan/req_resp_hdrs.h>
 
 /*
+ * Parse a Content-Length header field value.
+ *
+ * RFC 9110 Section 8.6 defines the field value grammar as
+ * Content-Length = 1*DIGIT.  RFC 9112 Section 6.3, rule 5 additionally
+ * allows a comma-separated list whose non-empty members are all valid
+ * and identical (e.g. "5, 5") to be treated as a single value.
+ *
+ * This helper is shared by the HTTP dissector's header parser and HTTP's
+ * req_resp_hdrs_do_reassembly() path so that both agree on what a
+ * Content-Length is.  A value that does not match 1*DIGIT (signs,
+ * whitespace between digits, trailing junk) or that lists differing
+ * values is rejected; on success *content_length is set to the
+ * (possibly normalized) value.
+ *
+ * HTTP's current reassembly implementation uses 32-bit lengths, so values
+ * above INT32_MAX are rejected here as unsupported for HTTP framing.  This
+ * keeps HTTP header processing and reassembly on the same range policy.
+ */
+WS_DLL_PUBLIC bool req_resp_hdrs_parse_content_length(const char *value,
+						      int64_t *content_length) {
+	const char *p = value;
+	int64_t first = 0;
+	bool have_first = false;
+
+	while (true) {
+		const char *comma;
+		const char *end;
+		int64_t member = 0;
+
+		/* Skip HTTP OWS before a list member. */
+		while (*p == ' ' || *p == '\t')
+			p++;
+		comma = strchr(p, ',');
+		end = comma ? comma : p + strlen(p);
+		/* Strip HTTP OWS from the end of this list member. */
+		while (end > p && (end[-1] == ' ' || end[-1] == '\t'))
+			end--;
+		if (end == p) {
+			/* Empty list elements are not valid Content-Length values. */
+			return false;
+		}
+		for (const char *digit = p; digit < end; digit++) {
+			if (!g_ascii_isdigit(*digit)) {
+				return false;
+			}
+			if (member > (INT32_MAX - (*digit - '0')) / 10)
+				return false;
+			member = member * 10 + (*digit - '0');
+		}
+		if (!have_first) {
+			first = member;
+			have_first = true;
+		} else if (member != first) {
+			/* Comma-separated list with differing values. */
+			return false;
+		}
+		if (comma == NULL)
+			break;
+		p = comma + 1;
+	}
+
+	*content_length = first;
+	return true;
+}
+
+/*
  * Optionally do reassembly of the request/response line, headers, and body.
  */
-bool
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
+bool req_resp_hdrs_do_reassembly(
+    tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const bool desegment_headers, const bool desegment_body,
-    bool desegment_until_fin, int *last_chunk_offset,
-	dissector_table_t streaming_subdissector_table, dissector_handle_t *streaming_chunk_handle)
-{
-	unsigned	next_offset = offset;
-	unsigned	next_offset_sav;
-	unsigned	length_remaining, reported_length_remaining;
-	unsigned	linelen;
-	char		*header_val;
-	int		content_length;
-	bool	content_length_found = false;
-	bool	content_type_found = false;
-	bool	chunked_encoding = false;
-	char		*line;
-	char		*content_type = NULL;
+    bool desegment_until_fin, bool allow_content_length_list,
+    int *last_chunk_offset, dissector_table_t streaming_subdissector_table,
+    dissector_handle_t *streaming_chunk_handle) {
+	unsigned next_offset = offset;
+	unsigned next_offset_sav;
+	unsigned length_remaining, reported_length_remaining;
+	unsigned linelen;
+	char *header_val;
+	int content_length;
+	bool content_length_found = false;
+	bool content_length_valid = false;
+	bool content_length_conflict = false;
+	bool content_length_invalid = false;
+	int64_t content_length_first = 0;
+	bool content_type_found = false;
+	bool chunked_encoding = false;
+	char *line;
+	char *content_type = NULL;
 	dissector_handle_t streaming_handle = NULL;
 	bool streaming_chunk_mode = false;
 
-	DISSECTOR_ASSERT_HINT((streaming_subdissector_table && streaming_chunk_handle)
-		|| (streaming_subdissector_table == NULL && streaming_chunk_handle == NULL),
-		"The streaming_subdissector_table and streaming_chunk_handle arguments must "
-		"be both given or both NULL.");
+	DISSECTOR_ASSERT_HINT(
+	    (streaming_subdissector_table && streaming_chunk_handle) ||
+		(streaming_subdissector_table == NULL &&
+		 streaming_chunk_handle == NULL),
+	    "The streaming_subdissector_table and streaming_chunk_handle arguments "
+	    "must "
+	    "be both given or both NULL.");
 
 	/* Check whether the first line is the beginning of a chunk.
 	 * If it is the beginning of a chunk, we assume we are working
@@ -55,8 +129,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 * and at least one chunk should have been dissected in the previous
 	 * packets and now we are processing subsequent chunks.
 	 */
-	if (desegment_body && streaming_subdissector_table
-		&& starts_with_chunk_size(tvb, offset, pinfo)) {
+	if (desegment_body && streaming_subdissector_table &&
+	    starts_with_chunk_size(tvb, offset, pinfo)) {
 		streaming_chunk_mode = true;
 	}
 
@@ -99,8 +173,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 *
 	 * If tvb starts with chunk size, then we just ignore headers parsing.
 	 */
-	if (!streaming_chunk_mode
-		&& desegment_headers && pinfo->can_desegment) {
+	if (!streaming_chunk_mode && desegment_headers && pinfo->can_desegment) {
 		for (;;) {
 			next_offset_sav = next_offset;
 
@@ -120,8 +193,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				return false;
 			}
 
-			length_remaining = tvb_captured_length_remaining(tvb,
-			    next_offset);
+			length_remaining = tvb_captured_length_remaining(tvb, next_offset);
 
 			/*
 			 * Request one more byte if we cannot find a header
@@ -129,7 +201,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * cannot desegment and will just take the whole buffer
 			 * if we don't find a line end.
 			 */
-			if (!tvb_find_line_end_remaining(tvb, next_offset, &linelen, &next_offset) &&
+			if (!tvb_find_line_end_remaining(tvb, next_offset, &linelen,
+							 &next_offset) &&
 			    length_remaining >= reported_length_remaining) {
 				/*
 				 * Not enough data; ask for one more
@@ -140,7 +213,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				return false;
 			}
 
-                        if (linelen == 0) {
+			if (linelen == 0) {
 				/*
 				 * We found the end of the headers.
 				 */
@@ -161,33 +234,52 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				 * character doesn't match. Shaves about 20% off the load time of
 				 * one of my sample files that's HTTP-alike. */
 				unsigned char first_byte = tvb_get_uint8(tvb, next_offset_sav);
-				if (! (first_byte == 'c' || first_byte == 'C' ||
-				       first_byte == 't' || first_byte == 'T')) {
+				if (!(first_byte == 'c' || first_byte == 'C' || first_byte == 't' ||
+				      first_byte == 'T')) {
 					continue;
 				}
 
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				line = (char*)tvb_get_string_enc(pinfo->pool, tvb, next_offset_sav, linelen, ENC_UTF_8|ENC_NA);
+				line = (char *)tvb_get_string_enc(pinfo->pool, tvb, next_offset_sav,
+								  linelen, ENC_UTF_8 | ENC_NA);
 				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
 					/* SSTP sets 2^64 as length, but does not really have such a
 					 * large payload. Since the current tvb APIs are limited to
 					 * 2^31-1 bytes, ignore large values we cannot handle. */
-					header_val = g_strstrip(line + 15);
-					if (ws_strtoi32(header_val, NULL, &content_length) && content_length >= 0)
+					int64_t cl_value;
+					if (allow_content_length_list &&
+					    !req_resp_hdrs_parse_content_length(line + 15, &cl_value)) {
+						/* Invalid or unsupported Content-Length; the
+						 * message framing cannot use this value. */
+						content_length_invalid = true;
+					} else if (allow_content_length_list && !content_length_valid) {
+						content_length_first = cl_value;
+						content_length_valid = true;
+					} else if (allow_content_length_list &&
+						   cl_value != content_length_first) {
+						/* Multiple Content-Length header fields with
+						 * differing values; do not choose one. */
+						content_length_conflict = true;
+					} else if (!allow_content_length_list &&
+						   ws_strtoi32(g_strstrip(line + 15), NULL,
+							       &content_length) &&
+						   content_length >= 0) {
 						content_length_found = true;
+					}
 				} else if (g_ascii_strncasecmp(line, "Content-Type:", 13) == 0) {
 					content_type_found = true;
-					content_type = line+13;
+					content_type = line + 13;
 					while (*content_type == ' ') {
 						content_type++;
 					}
 					g_strchomp(content_type);
 					if (streaming_subdissector_table) {
-						streaming_handle = dissector_get_string_handle(streaming_subdissector_table, content_type);
+						streaming_handle = dissector_get_string_handle(
+						    streaming_subdissector_table, content_type);
 					}
-				} else if (g_ascii_strncasecmp( line, "Transfer-Encoding:", 18) == 0) {
+				} else if (g_ascii_strncasecmp(line, "Transfer-Encoding:", 18) == 0) {
 					/*
 					 * Find out if this Transfer-Encoding is
 					 * chunked.  It should be, since the
@@ -201,16 +293,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					char *p;
 					unsigned len;
 
-					header_val = line+18;
+					header_val = line + 18;
 					p = header_val;
-					len = (unsigned) strlen(header_val);
+					len = (unsigned)strlen(header_val);
 					/* Skip white space */
-					while (p < header_val + len &&
-					    (*p == ' ' || *p == '\t'))
+					while (p < header_val + len && (*p == ' ' || *p == '\t'))
 						p++;
 					if (p <= header_val + len) {
-						if (g_ascii_strncasecmp(p, "chunked", 7)
-						    == 0) {
+						if (g_ascii_strncasecmp(p, "chunked", 7) == 0) {
 							/*
 							 * Don't bother looking
 							 * for extensions;
@@ -230,9 +320,23 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	if (streaming_chunk_mode) {
 		/* the tvb starts with chunk size without HTTP headers */
 		chunked_encoding = true;
-	} else if (desegment_body && chunked_encoding && streaming_handle && streaming_chunk_handle) {
+	} else if (desegment_body && chunked_encoding && streaming_handle &&
+		   streaming_chunk_handle) {
 		streaming_chunk_mode = true;
 		*streaming_chunk_handle = streaming_handle;
+	}
+
+	/*
+	 * A Content-Length may only be used for framing when it is valid,
+	 * present exactly once (or as a list of identical values), and not
+	 * accompanied by an invalid Content-Length.  Differing or invalid
+	 * values make the message framing indeterminate (RFC 9112
+	 * Section 6.3, rule 5), so do not arbitrarily pick one.
+	 */
+	if (allow_content_length_list && content_length_valid &&
+	    !content_length_conflict && !content_length_invalid) {
+		content_length = (int)content_length_first;
+		content_length_found = true;
 	}
 
 	/*
@@ -273,8 +377,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				unsigned chunk_offset = 0;
 
 				reported_length_remaining =
-				    tvb_reported_length_remaining(tvb,
-				    next_offset);
+				    tvb_reported_length_remaining(tvb, next_offset);
 
 				if (reported_length_remaining == 0 && streaming_chunk_mode) {
 					return true;
@@ -286,14 +389,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return false;
 				}
 
-				length_remaining = tvb_captured_length_remaining(tvb,
-				    next_offset);
+				length_remaining = tvb_captured_length_remaining(tvb, next_offset);
 
-				if (!tvb_find_line_end_remaining(tvb, next_offset, &linelen, &chunk_offset) &&
+				if (!tvb_find_line_end_remaining(tvb, next_offset, &linelen,
+								 &chunk_offset) &&
 				    length_remaining >= reported_length_remaining) {
-					 pinfo->desegment_offset = offset;
-					 pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-					 return false;
+					pinfo->desegment_offset = offset;
+					pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+					return false;
 				}
 
 				/* We have a line with the chunk size in it.*/
@@ -307,13 +410,14 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				}
 
 				unsigned chunk_end;
-				if (!tvb_get_string_uint(tvb, next_offset, linelen, ENC_STR_HEX, &chunk_size, &chunk_end)) {
+				if (!tvb_get_string_uint(tvb, next_offset, linelen, ENC_STR_HEX,
+							 &chunk_size, &chunk_end)) {
 					/* We couldn't get the chunk size,
 					 * so stop trying.
 					 */
 					return true;
 				}
-				if (chunk_size > 1U<<31) {
+				if (chunk_size > 1U << 31) {
 					/* Chunk size is unreasonable. */
 					/* XXX What /is/ reasonable? */
 					return true;
@@ -324,7 +428,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 * This is the last chunk.  Let's pull in the
 					 * trailing CRLF.
 					 */
-					if (!tvb_find_line_end_remaining(tvb, chunk_offset, &linelen, &chunk_offset) &&
+					if (!tvb_find_line_end_remaining(tvb, chunk_offset, &linelen,
+									 &chunk_offset) &&
 					    length_remaining >= reported_length_remaining) {
 						pinfo->desegment_offset = offset;
 						pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
@@ -339,18 +444,17 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 * Skip to the next chunk if we
 					 * already have it
 					 */
-					if (reported_length_remaining >
-					        chunk_size) {
+					if (reported_length_remaining > chunk_size) {
 
-						next_offset = chunk_offset
-						    + chunk_size + 2;
+						next_offset = chunk_offset + chunk_size + 2;
 					} else {
 						/*
 						 * Fetch this chunk, plus the
 						 * trailing CRLF.
 						 */
 						if (streaming_chunk_mode) {
-							unsigned size_remaining = chunk_size + linelen + 4 - reported_length_remaining;
+							unsigned size_remaining =
+							    chunk_size + linelen + 4 - reported_length_remaining;
 							if (size_remaining == 0) {
 								return true;
 							} else {
@@ -365,20 +469,23 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 						}
 					}
 				}
-
 			}
 		} else if (content_length_found) {
-			if (content_length >= 128*1024) { /* MS-RPCH stipulate that the content-length must be between 128K and 2G */
+			if (content_length >=
+			    128 * 1024) { /* MS-RPCH stipulate that the content-length must be
+					     between 128K and 2G */
 				char *tmp;
 				if (content_type_found &&
-				strncmp(content_type, "application/rpc", 15) == 0) {
+				    strncmp(content_type, "application/rpc", 15) == 0) {
 					/* It looks like a RPC_IN_DATA request or a RPC_OUT_DATA response
 					 * in which the content-length is meaningless
 					 */
 					return true;
 				}
-				/* Following sizeof will return the length of the string + \0 we need to not count it*/
-				tmp = (char*)tvb_get_string_enc(pinfo->pool, tvb, 0, sizeof("RPC_OUT_DATA") - 1, ENC_ASCII);
+				/* Following sizeof will return the length of the string + \0 we need to
+				 * not count it*/
+				tmp = (char *)tvb_get_string_enc(pinfo->pool, tvb, 0,
+								 sizeof("RPC_OUT_DATA") - 1, ENC_ASCII);
 				if ((strncmp(tmp, "RPC_IN_DATA", sizeof("RPC_IN_DATA") - 1) == 0) ||
 				    (strncmp(tmp, "RPC_OUT_DATA", sizeof("RPC_OUT_DATA") - 1) == 0)) {
 					return true;
@@ -386,8 +493,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			}
 			/* next_offset has been set to the end of the headers */
 			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-				length_remaining = tvb_captured_length_remaining(tvb,
-				    next_offset);
+				length_remaining = tvb_captured_length_remaining(tvb, next_offset);
 				reported_length_remaining =
 				    tvb_reported_length_remaining(tvb, next_offset);
 				if (length_remaining < reported_length_remaining) {
@@ -398,8 +504,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return true;
 				}
 				pinfo->desegment_offset = offset;
-				pinfo->desegment_len =
-				    content_length - length_remaining;
+				pinfo->desegment_len = content_length - length_remaining;
 				return false;
 			}
 		} else if (desegment_until_fin && pinfo->can_desegment) {
@@ -414,7 +519,8 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * as 0, so do not request more segments either.
 			 */
 			length_remaining = tvb_captured_length_remaining(tvb, next_offset);
-			reported_length_remaining = tvb_reported_length_remaining(tvb, next_offset);
+			reported_length_remaining =
+			    tvb_reported_length_remaining(tvb, next_offset);
 			if (length_remaining < reported_length_remaining) {
 				/*
 				 * It's a waste of time asking for more
@@ -428,7 +534,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 
 			return false;
 		}
-
 	}
 
 	/*

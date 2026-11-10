@@ -42,6 +42,332 @@ class TestDissectHttpHeaderSyntax:
         assert stdout == '1\n'
 
 
+class TestDissectHttpContentLength:
+    '''Regression tests for Content-Length framing/smuggling indicators.
+
+    RFC 9110 Section 8.6 defines Content-Length = 1*DIGIT.  RFC 9112
+    Section 6.3, rule 5 requires an invalid Content-Length to be treated
+    as an unrecoverable framing error, except for a comma-separated list
+    whose members are all valid and identical (which is normalized to
+    that single value).  These tests exercise the resulting
+    http.content_length.invalid, http.content_length.duplicate and
+    http.content_length.duplicate_identical expert infos.
+    '''
+
+    PAYLOADS = {
+        'valid': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 0d 0a 0d 0a 68 65
+00000030  6c 6c 6f
+''',
+        'leading_zeros': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 30 35 0d 0a 0d 0a 68
+00000030  65 6c 6c 6f
+''',
+        'list_identical': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 2c 20 35 0d 0a 0d
+00000030  0a 68 65 6c 6c 6f
+''',
+        'duplicate_conflicting': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 0d 0a 43 6f 6e 74
+00000030  65 6e 74 2d 4c 65 6e 67 74 68 3a 20 30 0d 0a 0d
+00000040  0a 68 65 6c 6c 6f
+''',
+        'duplicate_identical': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 0d 0a 43 6f 6e 74
+00000030  65 6e 74 2d 4c 65 6e 67 74 68 3a 20 35 0d 0a 0d
+00000040  0a 68 65 6c 6c 6f
+''',
+        'list_conflicting': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 2c 20 33 0d 0a 0d
+00000030  0a 68 65 6c 6c 6f
+''',
+        'empty_member': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 2c 2c 35 0d 0a 0d
+00000030  0a 68 65 6c 6c 6f
+''',
+        'leading_comma': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 2c 35 0d 0a 0d 0a 68
+00000030  65 6c 6c 6f
+''',
+        'trailing_comma': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 2c 0d 0a 0d 0a 68
+00000030  65 6c 6c 6f
+''',
+        'vertical_tab': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 0b 0d 0a 0d 0a 68
+00000030  65 6c 6c 6f
+''',
+        'trailing_junk': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 20 78 79 7a 0d 0a
+00000030  0d 0a 68 65 6c 6c 6f
+''',
+        'plus_sign': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 2b 35 0d 0a 0d 0a 68
+00000030  65 6c 6c 6f
+''',
+        'overflow': '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 39 39 39 39 39 39 39
+00000030  39 39 39 39 39 39 39 39 39 39 39 39 39 0d 0a 0d
+00000040  0a 68 65 6c 6c 6f
+''',
+    }
+
+    @pytest.mark.parametrize('case,length,invalid,duplicate,duplicate_identical', (
+        ('valid', '5', '', '', ''),
+        ('leading_zeros', '5', '', '', ''),
+        ('list_identical', '5', '', '', ''),
+        ('duplicate_conflicting', '5,0', '', '1', ''),
+        ('duplicate_identical', '5,5', '', '', '1'),
+        ('list_conflicting', '', '1', '', ''),
+        ('empty_member', '', '1', '', ''),
+        ('leading_comma', '', '1', '', ''),
+        ('trailing_comma', '', '1', '', ''),
+        ('vertical_tab', '', '1', '', ''),
+        ('trailing_junk', '', '1', '', ''),
+        ('plus_sign', '', '1', '', ''),
+        ('overflow', '', '1', '', ''),
+    ))
+    def test_http_content_length_expert_infos(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env,
+                                              case, length, invalid, duplicate, duplicate_identical):
+        testin_file = result_file('http-content-length-' + case + '.txt')
+        testout_file = result_file('http-content-length-' + case + '.pcap')
+        with open(testin_file, 'w') as f:
+            f.write(self.PAYLOADS[case])
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.content_length',
+                '-ehttp.content_length.invalid',
+                '-ehttp.content_length.duplicate',
+                '-ehttp.content_length.duplicate_identical',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == length
+        assert fields[1] == invalid
+        assert fields[2] == duplicate
+        assert fields[3] == duplicate_identical
+
+    @pytest.mark.parametrize('value,valid', (
+        ('5,5', True),
+        ('0000000000000000000000000005', True),
+        ('5 ,5', True),
+        ('5, 5', True),
+        ('5 , 5', True),
+        ('5 ,3', False),
+        ('5, 3', False),
+        ('5 , 3', False),
+        ('5,', False),
+        (',5', False),
+    ))
+    def test_http_content_length_list_ows(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env,
+                                         value, valid):
+        '''OWS around list delimiters is trimmed without skipping members.'''
+        testin_file = result_file('http-content-length-list-ows.txt')
+        testout_file = result_file('http-content-length-list-ows.pcap')
+        request = b'GET / HTTP/1.1\r\nHost: x\r\nContent-Length: ' + value.encode() + b'\r\n\r\nhello'
+        with open(testin_file, 'w') as f:
+            for offset in range(0, len(request), 16):
+                chunk = request[offset:offset + 16]
+                f.write(f'{offset:08x}  {" ".join(f"{byte:02x}" for byte in chunk)}\n')
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.content_length',
+                '-ehttp.content_length.invalid',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        if valid:
+            assert fields == ['5', '']
+        else:
+            assert fields == ['', '1']
+
+    @pytest.mark.parametrize('value,valid', (
+        ('2147483647', True),
+        ('2147483648', False),
+        ('2147483649', False),
+        ('9223372036854775807', False),
+        ('9223372036854775808', False),
+    ))
+    def test_http_content_length_reassembly_range(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env,
+                                                  value, valid):
+        '''HTTP header parsing uses the range supported by HTTP reassembly.'''
+        testin_file = result_file('http-content-length-range.txt')
+        testout_file = result_file('http-content-length-range.pcap')
+        request = b'GET / HTTP/1.1\r\nHost: x\r\nContent-Length: ' + value.encode() + b'\r\n\r\nhello'
+        with open(testin_file, 'w') as f:
+            for offset in range(0, len(request), 16):
+                chunk = request[offset:offset + 16]
+                f.write(f'{offset:08x}  {" ".join(f"{byte:02x}" for byte in chunk)}\n')
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-o', 'http.desegment_body:FALSE',
+                '-Tfields',
+                '-ehttp.content_length',
+                '-ehttp.content_length.invalid',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        if valid:
+            assert fields == [value, '']
+        else:
+            assert fields == ['', '1']
+
+    def test_http_conflicting_content_length_does_not_frame_next_request(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''Conflicting lengths must not consume the following pipelined request.'''
+        testin_file = result_file('http-content-length-conflict-reassembly.txt')
+        testout_file = result_file('http-content-length-conflict-reassembly.pcap')
+        requests = (b'POST /first HTTP/1.1\r\nHost: x\r\nContent-Length: 5\r\n'
+                    b'Content-Length: 3\r\n\r\n'
+                    b'GET /next HTTP/1.1\r\nHost: x\r\n\r\n')
+        with open(testin_file, 'w') as f:
+            for offset in range(0, len(requests), 16):
+                chunk = requests[offset:offset + 16]
+                f.write(f'{offset:08x}  {" ".join(f"{byte:02x}" for byte in chunk)}\n')
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.request.uri',
+                '-ehttp.content_length.duplicate',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.rstrip('\n').splitlines()
+        assert any('/next' in line for line in lines)
+        assert any(line.endswith('\t1') for line in lines)
+
+    def test_http_unsupported_content_length_does_not_frame_next_request(
+            self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''A value above INT32_MAX must not consume the following request.'''
+        testin_file = result_file('http-content-length-range-reassembly.txt')
+        testout_file = result_file('http-content-length-range-reassembly.pcap')
+        requests = (b'POST /first HTTP/1.1\r\nHost: x\r\nContent-Length: 2147483648\r\n\r\n'
+                    b'GET /next HTTP/1.1\r\nHost: x\r\n\r\n')
+        with open(testin_file, 'w') as f:
+            for offset in range(0, len(requests), 16):
+                chunk = requests[offset:offset + 16]
+                f.write(f'{offset:08x}  {" ".join(f"{byte:02x}" for byte in chunk)}\n')
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.request.uri',
+                '-ehttp.content_length.invalid',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.rstrip('\n').splitlines()
+        assert any('/next' in line for line in lines)
+        assert any(line.endswith('\t1') for line in lines)
+
+    def test_http_content_length_with_transfer_encoding(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''A valid Content-Length must still be accepted when Transfer-Encoding is present,
+        and the pre-existing http.te_and_length warning must remain.'''
+        testin_file = result_file('http-content-length-te.txt')
+        testout_file = result_file('http-content-length-te.pcap')
+        payload = '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 35 0d 0a 54 72 61 6e
+00000030  73 66 65 72 2d 45 6e 63 6f 64 69 6e 67 3a 20 63
+00000040  68 75 6e 6b 65 64 0d 0a 0d 0a 30 0d 0a 0d 0a
+'''
+        with open(testin_file, 'w') as f:
+            f.write(payload)
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.content_length',
+                '-ehttp.content_length.invalid',
+                '-ehttp.te_and_length',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == '5'
+        assert fields[1] == ''
+        assert fields[2] == '1'
+
+    @pytest.mark.parametrize('case,content_length,invalid', (
+        ('te_before_valid', '5', ''),
+        ('te_before_invalid', '', '1'),
+        ('invalid_before_te', '', '1'),
+    ))
+    def test_http_content_length_transfer_encoding_ordering(self, cmd_text2pcap, cmd_tshark, result_file,
+                                                             base_env, test_env, case, content_length, invalid):
+        if case == 'te_before_valid':
+            payload = '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 54 72 61 6e 73 66 65
+00000020  72 2d 45 6e 63 6f 64 69 6e 67 3a 20 63 68 75 6e
+00000030  6b 65 64 0d 0a 43 6f 6e 74 65 6e 74 2d 4c 65 6e
+00000040  67 74 68 3a 20 35 0d 0a 0d 0a 30 0d 0a 0d 0a
+'''
+        elif case == 'te_before_invalid':
+            payload = '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 54 72 61 6e 73 66 65
+00000020  72 2d 45 6e 63 6f 64 69 6e 67 3a 20 63 68 75 6e
+00000030  6b 65 64 0d 0a 43 6f 6e 74 65 6e 74 2d 4c 65 6e
+00000040  67 74 68 3a 20 78 0d 0a 0d 0a 30 0d 0a 0d 0a
+'''
+        else:
+            payload = '''\
+00000000  47 45 54 20 2f 20 48 54 54 50 2f 31 2e 31 0d 0a
+00000010  48 6f 73 74 3a 20 78 0d 0a 43 6f 6e 74 65 6e 74
+00000020  2d 4c 65 6e 67 74 68 3a 20 78 0d 0a 54 72 61 6e
+00000030  73 66 65 72 2d 45 6e 63 6f 64 69 6e 67 3a 20 63
+00000040  68 75 6e 6b 65 64 0d 0a 0d 0a 30 0d 0a 0d 0a
+'''
+        testin_file = result_file('http-content-length-' + case + '.txt')
+        testout_file = result_file('http-content-length-' + case + '.pcap')
+        with open(testin_file, 'w') as f:
+            f.write(payload)
+        subprocess.check_call((cmd_text2pcap, '-T', '12345,80', testin_file, testout_file), env=base_env)
+
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', testout_file,
+                '-Tfields',
+                '-ehttp.content_length',
+                '-ehttp.content_length.invalid',
+                '-ehttp.te_and_length',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] == content_length
+        assert fields[1] == invalid
+        assert fields[2] == '1'
+
+
 class TestDissectIcmpv6NeighborDiscovery:
     def test_nd_hop_limit_validation(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
         valid_in = result_file('icmpv6-nd-hlim-valid.txt')
@@ -74632,7 +74958,8 @@ class TestDissectHttpCoverage:
         assert counts['IPP'] == 2
         for passes in ((), ('-2',)):
             bad = self.rows(cmd_tshark, capture_file, test_env,
-                            self.CLEAN + ' && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                            self.CLEAN + ' && (_ws.malformed || _ws.expert.severity >= 0x00800000) && '
+                            '!http.content_length.invalid && !http.content_length.duplicate',
                             'frame.number', passes=passes)
             assert bad == []
 

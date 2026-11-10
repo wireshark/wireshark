@@ -928,7 +928,7 @@ dissect_rtspmessage(tvbuff_t *tvb, unsigned offset, packet_info *pinfo, proto_tr
          * assumes zero if missing.
          */
         if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-            rtsp_desegment_headers, rtsp_desegment_body, false, NULL,
+            rtsp_desegment_headers, rtsp_desegment_body, false, false, NULL,
             NULL, NULL)) {
             /*
              * More data needed for desegmentation.

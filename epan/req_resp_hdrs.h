@@ -14,7 +14,24 @@
 #include <wsutil/strtoi.h>
 
 /**
- *  @brief Optionally do reassembly of the request/response line, headers, and body.
+ * @brief Parse a Content-Length header field value.
+ *
+ * Validates the value against the grammar in RFC 9110 Section 8.6
+ * (Content-Length = 1*DIGIT) and RFC 9112 Section 6.3, rule 5, which
+ * also permits a comma-separated list of identical values. HTTP values
+ * above INT32_MAX are rejected because the current reassembly APIs use
+ * 32-bit lengths.
+ *
+ * @param value The field value, without the leading "Content-Length:".
+ * @param[out] content_length The parsed (possibly normalized) value.
+ * @return true if the value is a valid Content-Length, false otherwise.
+ */
+WS_DLL_PUBLIC bool req_resp_hdrs_parse_content_length(const char *value,
+						      int64_t *content_length);
+
+/**
+ *  @brief Optionally do reassembly of the request/response line, headers, and
+ * body.
  *
  *  @param tvb  The buffer.
  *  @param offset   The offset in the buffer to begin inspection.
@@ -24,6 +41,8 @@
  *  @param desegment_until_fin  When desegment_body is enabled and no
  *  Content-Length header is found, assume that all data following the headers
  *  are part of the body.
+ * @param allow_content_length_list  Accept an HTTP comma-separated list of
+ *  identical Content-Length values.
  *  @param[in,out] last_chunk_offset  For the chunked Transfer-Encoding,
  *  the offset (relative to the initial tvb offset) of the last chunk size
  *  found.  The result can be fed back into a future call in order to skip
@@ -37,11 +56,12 @@
  *  Content-Type header)
  *  @return true if desegmentation is complete otherwise false
  */
-WS_DLL_PUBLIC bool
-req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const  int offset, packet_info *pinfo,
+WS_DLL_PUBLIC bool req_resp_hdrs_do_reassembly(
+    tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const bool desegment_headers, const bool desegment_body,
-    bool desegment_until_fin, int *last_chunk_offset,
-	dissector_table_t streaming_subdissector_table, dissector_handle_t *streaming_chunk_handle);
+    bool desegment_until_fin, bool allow_content_length_list,
+    int *last_chunk_offset, dissector_table_t streaming_subdissector_table,
+    dissector_handle_t *streaming_chunk_handle);
 
 /**
  * @brief Checks if the given TVB's first line starts with a chunk size.
@@ -52,25 +72,24 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const  int offset, packet_info *pinfo
  * @return true If the TVB starts with a valid chunk size, false otherwise.
  */
 static inline bool
-starts_with_chunk_size(tvbuff_t* tvb, const int offset, packet_info* pinfo)
-{
+starts_with_chunk_size(tvbuff_t *tvb, const int offset, packet_info *pinfo) {
 	unsigned chunk_size = 0;
 	unsigned linelen;
 
 	if (!tvb_find_line_end_remaining(tvb, offset, &linelen, NULL))
 		return false;
 
-	char* chunk_string = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
-	char* c = chunk_string;
+	char *chunk_string = (char *)tvb_get_string_enc(pinfo->pool, tvb, offset, linelen, ENC_ASCII);
+	char *c = chunk_string;
 
 	/* ignore extensions, including optional BWS ("bad whitespace")
-         * in the grammar for historical reasons, see RFC 9112 7.1.1.
-         */
+	 * in the grammar for historical reasons, see RFC 9112 7.1.1.
+	 */
 	if ((c = strpbrk(c, "; \t"))) {
 		*c = '\0';
 	}
 
-        if (!ws_hexstrtou32(chunk_string, NULL, &chunk_size)) {
+	if (!ws_hexstrtou32(chunk_string, NULL, &chunk_size)) {
 		return false; /* can not get chunk size*/
 	} else if (chunk_size > (1U << 31)) {
 		return false; /* chunk size is unreasonable */

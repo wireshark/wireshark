@@ -162,6 +162,9 @@ static expert_field ei_http_decompression_disabled;
 static expert_field ei_http_response_code_invalid;
 static expert_field ei_http_request_uri_invalid;
 static expert_field ei_http_request_uri_whitespace;
+static expert_field ei_http_content_length_invalid;
+static expert_field ei_http_content_length_duplicate;
+static expert_field ei_http_content_length_duplicate_identical;
 
 static dissector_handle_t http_handle;
 static dissector_handle_t http_tcp_handle;
@@ -343,6 +346,8 @@ typedef struct {
 	char    *upgrade;
 	http_transfer_coding transfer_encoding;
 	bool have_content_length;
+	bool content_length_valid;   /* a syntactically valid value was seen */
+	bool content_length_invalid; /* an invalid value was seen */
 	bool transfer_encoding_chunked;
 } headers_t;
 
@@ -1465,8 +1470,9 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 		/* No complete line was found in this segment, do
 		 * desegmentation if we're told to.
 		 */
-		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-		    http_desegment_headers, http_desegment_body, false, &chunk_offset,
+		if (!req_resp_hdrs_do_reassembly(
+			tvb, offset, pinfo, http_desegment_headers,
+			http_desegment_body, false, true, &chunk_offset,
 			streaming_content_type_dissector_table, &handle)) {
 			/*
 			 * More data needed for desegmentation.
@@ -1572,21 +1578,26 @@ dissect_http_message(tvbuff_t *tvb, unsigned offset, packet_info *pinfo,
 				try_desegment_body = false;
 			}
 		}
-		if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-		    http_desegment_headers, try_desegment_body, http_type == MEDIA_CONTAINER_HTTP_RESPONSE, &chunk_offset,
-			streaming_content_type_dissector_table, &handle)) {
+		if (!req_resp_hdrs_do_reassembly(
+			tvb, offset, pinfo, http_desegment_headers,
+			try_desegment_body,
+			http_type == MEDIA_CONTAINER_HTTP_RESPONSE, true,
+			&chunk_offset, streaming_content_type_dissector_table,
+			&handle)) {
 			/*
 			 * More data needed for desegmentation.
 			 */
 			if (seq && chunk_map && chunk_offset) {
-				wmem_map_insert(chunk_map, GUINT_TO_POINTER(*seq), GINT_TO_POINTER(chunk_offset));
+				wmem_map_insert(chunk_map, GUINT_TO_POINTER(*seq),
+						GINT_TO_POINTER(chunk_offset));
 			}
 			return -1;
 		}
 
 		if (handle && http_desegment_body && http_dechunk_body) {
-			/* This handle is set because there is a header 'Transfer-Encoding: chunked', and
-			 * a streaming mode reassembly supported subdissector is found according to the
+			/* This handle is set because there is a header
+			 * 'Transfer-Encoding: chunked', and a streaming mode
+			 * reassembly supported subdissector is found according to the
 			 * header of Content-Type.
 			 */
 			streaming_chunk_mode = true;
@@ -3637,8 +3648,6 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 	uint8_t *value_bytes;
 	char *value;
 	char *header_name;
-	char *p;
-	unsigned char *up;
 	proto_item *hdr_item = NULL, *it;
 	unsigned f;
 	bool header_name_trailing_ws;
@@ -3928,50 +3937,86 @@ process_header(tvbuff_t *tvb, unsigned offset, unsigned next_offset,
 				eh_ptr->content_type_parameters = NULL;
 			break;
 
-		case HDR_CONTENT_LENGTH:
+		case HDR_CONTENT_LENGTH: {
+			int64_t new_content_length;
+
 			if (streaming_chunk_mode) {
-				/* Transfer-Encoding overrides Content-Length (RFC 9112 6.3). */
+				/* Transfer-Encoding overrides Content-Length (RFC
+				 * 9112 6.3). */
 				expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
 				break;
 			}
-			errno = 0;
-			eh_ptr->content_length = g_ascii_strtoll(value, &p, 10);
-			up = (unsigned char *)p;
-			if (eh_ptr->content_length < 0 ||
-			    p == value ||
-			    errno == ERANGE ||
-			    (*up != '\0' && !g_ascii_isspace(*up))) {
-				/*
-				 * Content length not valid; pretend
-				 * we don't have it.
-				 */
-				eh_ptr->have_content_length = false;
-			} else {
+			if (req_resp_hdrs_parse_content_length(value,
+							       &new_content_length)) {
 				proto_tree *header_tree;
 				proto_item *tree_item;
 				/*
-				 * We do have a valid content length.
+				 * A syntactically valid Content-Length.  RFC 9110
+				 * Section 8.6 allows duplicate identical values
+				 * (whether as a repeated header field or as a list),
+				 * but several header fields with differing values mean
+				 * the message framing is invalid and MUST be treated
+				 * as an error (RFC 9112 Section 6.3, rule 5); such
+				 * disagreement can be used for request smuggling, so
+				 * do not arbitrarily pick one of the values.
 				 */
-				eh_ptr->have_content_length = true;
-				header_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
-				tree_item = proto_tree_add_uint64(header_tree, hf_http_content_length,
-					tvb, offset, len, eh_ptr->content_length);
+				if (eh_ptr->content_length_valid) {
+					if (eh_ptr->content_length == new_content_length) {
+						expert_add_info(
+						    pinfo, hdr_item,
+						    &ei_http_content_length_duplicate_identical);
+					} else {
+						expert_add_info(pinfo, hdr_item,
+								&ei_http_content_length_duplicate);
+						eh_ptr->have_content_length = false;
+					}
+				} else {
+					eh_ptr->content_length = new_content_length;
+					eh_ptr->content_length_valid = true;
+					if (!eh_ptr->content_length_invalid)
+						eh_ptr->have_content_length = true;
+				}
+				header_tree =
+				    proto_item_add_subtree(hdr_item, ett_http_header_item);
+				tree_item = proto_tree_add_uint64(
+				    header_tree, hf_http_content_length, tvb, offset, len,
+				    new_content_length);
 				proto_item_set_generated(tree_item);
+				if (eh_ptr->transfer_encoding != HTTP_TE_NONE) {
+					expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
+				}
+			} else {
+				/*
+				 * Content length not valid; pretend we don't have it.
+				 * RFC 9112 Section 6.3 rule 5 requires treating an
+				 * invalid Content-Length as an unrecoverable framing
+				 * error; flag it as a potential request smuggling
+				 * (Section 11.2) indicator.
+				 */
+				eh_ptr->content_length_invalid = true;
+				eh_ptr->have_content_length = false;
+				expert_add_info(pinfo, hdr_item,
+						&ei_http_content_length_invalid);
 				if (eh_ptr->transfer_encoding != HTTP_TE_NONE) {
 					expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
 				}
 			}
 			break;
+		}
 
 		case HDR_CONTENT_ENCODING:
-			if (scope == NULL) { /* identical to (PINFO_FD_VISITED(pinfo) && streaming_chunk_mode) */
-				break; /* eh_ptr->content_encoding must have been set during first scan */
+			if (scope == NULL) { /* identical to (PINFO_FD_VISITED(pinfo)
+						&& streaming_chunk_mode) */
+				break;	     /* eh_ptr->content_encoding must have been set during
+						first scan */
 			}
-			eh_ptr->content_encoding = wmem_strndup(scope, value, value_len);
+			eh_ptr->content_encoding =
+			    wmem_strndup(scope, value, value_len);
 			break;
 
 		case HDR_TRANSFER_ENCODING:
-			if (eh_ptr->have_content_length) {
+			if (eh_ptr->content_length_valid ||
+			    eh_ptr->content_length_invalid) {
 				expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
 			}
 			if (!http_parse_transfer_coding(value, eh_ptr)) {
@@ -5048,21 +5093,75 @@ proto_register_http(void)
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_http_te_and_length, { "http.te_and_length", PI_MALFORMED, PI_WARN, "The Content-Length and Transfer-Encoding header must not be set together", EXPFILL }},
-		{ &ei_http_tunnel_too_deep, { "http.tunnel_too_deep", PI_MALFORMED, PI_ERROR, "Tunnels nested too deep, not dissecting the tunnelled data", EXPFILL }},
-		{ &ei_http_te_unknown, { "http.te_unknown", PI_UNDECODED, PI_WARN, "Unknown transfer coding name in Transfer-Encoding header", EXPFILL }},
-		{ &ei_http_subdissector_failed, { "http.subdissector_failed", PI_MALFORMED, PI_NOTE, "HTTP body subdissector failed, trying heuristic subdissector", EXPFILL }},
-		{ &ei_http_tls_port, { "http.tls_port", PI_SECURITY, PI_WARN, "Unencrypted HTTP protocol detected over encrypted port, could indicate a dangerous misconfiguration.", EXPFILL }},
-		{ &ei_http_excess_data, { "http.excess_data", PI_PROTOCOL, PI_WARN, "Excess data after a body (not a new request/response), previous Content-Length bogus?", EXPFILL }},
-		{ &ei_http_leading_crlf, { "http.leading_crlf", PI_MALFORMED, PI_ERROR, "Leading CRLF previous message in the stream may have extra CRLF", EXPFILL }},
-		{ &ei_http_bad_header_name, { "http.bad_header_name", PI_PROTOCOL, PI_WARN, "Illegal characters found in header name", EXPFILL }},
-		{ &ei_http_header_name_trailing_ws, { "http.header_name.trailing_whitespace", PI_PROTOCOL, PI_WARN, "Whitespace before header colon", EXPFILL }},
-		{ &ei_http_bad_header_value_nul, { "http.header_value.invalid_nul_char", PI_PROTOCOL, PI_WARN, "Invalid NUL byte in HTTP header value", EXPFILL }},
-		{ &ei_http_decompression_failed, { "http.decompression_failed", PI_UNDECODED, PI_WARN, "Decompression failed", EXPFILL }},
-		{ &ei_http_decompression_disabled, { "http.decompression_disabled", PI_UNDECODED, PI_CHAT, "Decompression disabled", EXPFILL }},
-		{ &ei_http_response_code_invalid, { "http.response.code.invalid", PI_MALFORMED, PI_WARN, "Invalid HTTP response status code token", EXPFILL }},
-		{ &ei_http_request_uri_invalid, { "http.request.uri.invalid", PI_MALFORMED, PI_ERROR, "Invalid request target", EXPFILL }},
-		{ &ei_http_request_uri_whitespace, { "http.request.uri.whitespace", PI_PROTOCOL, PI_WARN, "Request target contains whitespace", EXPFILL }},
+	    {&ei_http_te_and_length,
+	     {"http.te_and_length", PI_MALFORMED, PI_WARN,
+	      "The Content-Length and Transfer-Encoding header must not be set "
+	      "together",
+	      EXPFILL}},
+	    {&ei_http_tunnel_too_deep,
+	     {"http.tunnel_too_deep", PI_MALFORMED, PI_ERROR,
+	      "Tunnels nested too deep, not dissecting the tunnelled data",
+	      EXPFILL}},
+	    {&ei_http_te_unknown,
+	     {"http.te_unknown", PI_UNDECODED, PI_WARN,
+	      "Unknown transfer coding name in Transfer-Encoding header",
+	      EXPFILL}},
+	    {&ei_http_subdissector_failed,
+	     {"http.subdissector_failed", PI_MALFORMED, PI_NOTE,
+	      "HTTP body subdissector failed, trying heuristic subdissector",
+	      EXPFILL}},
+	    {&ei_http_tls_port,
+	     {"http.tls_port", PI_SECURITY, PI_WARN,
+	      "Unencrypted HTTP protocol detected over encrypted port, could "
+	      "indicate a dangerous misconfiguration.",
+	      EXPFILL}},
+	    {&ei_http_excess_data,
+	     {"http.excess_data", PI_PROTOCOL, PI_WARN,
+	      "Excess data after a body (not a new request/response), previous "
+	      "Content-Length bogus?",
+	      EXPFILL}},
+	    {&ei_http_leading_crlf,
+	     {"http.leading_crlf", PI_MALFORMED, PI_ERROR,
+	      "Leading CRLF previous message in the stream may have extra CRLF",
+	      EXPFILL}},
+	    {&ei_http_bad_header_name,
+	     {"http.bad_header_name", PI_PROTOCOL, PI_WARN,
+	      "Illegal characters found in header name", EXPFILL}},
+	    {&ei_http_header_name_trailing_ws,
+	     {"http.header_name.trailing_whitespace", PI_PROTOCOL, PI_WARN,
+	      "Whitespace before header colon", EXPFILL}},
+	    {&ei_http_bad_header_value_nul,
+	     {"http.header_value.invalid_nul_char", PI_PROTOCOL, PI_WARN,
+	      "Invalid NUL byte in HTTP header value", EXPFILL}},
+	    {&ei_http_decompression_failed,
+	     {"http.decompression_failed", PI_UNDECODED, PI_WARN,
+	      "Decompression failed", EXPFILL}},
+	    {&ei_http_decompression_disabled,
+	     {"http.decompression_disabled", PI_UNDECODED, PI_CHAT,
+	      "Decompression disabled", EXPFILL}},
+	    {&ei_http_response_code_invalid,
+	     {"http.response.code.invalid", PI_MALFORMED, PI_WARN,
+	      "Invalid HTTP response status code token", EXPFILL}},
+	    {&ei_http_request_uri_invalid,
+	     {"http.request.uri.invalid", PI_MALFORMED, PI_ERROR,
+	      "Invalid request target", EXPFILL}},
+	    {&ei_http_request_uri_whitespace,
+	     {"http.request.uri.whitespace", PI_PROTOCOL, PI_WARN,
+	      "Request target contains whitespace", EXPFILL}},
+	    {&ei_http_content_length_invalid,
+	     {"http.content_length.invalid", PI_MALFORMED, PI_WARN,
+	      "Invalid or unsupported Content-Length header value (must match "
+	      "1*DIGIT and fit the HTTP reassembly limit); message framing is "
+	      "undefined",
+	      EXPFILL}},
+	    {&ei_http_content_length_duplicate,
+	     {"http.content_length.duplicate", PI_MALFORMED, PI_WARN,
+	      "Conflicting Content-Length header values; message framing is "
+	      "invalid (possible request smuggling)",
+	      EXPFILL}},
+	    {&ei_http_content_length_duplicate_identical,
+	     {"http.content_length.duplicate_identical", PI_PROTOCOL, PI_NOTE,
+	      "Duplicate identical Content-Length header value", EXPFILL}},
 
 	};
 
