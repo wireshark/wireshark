@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 
 void proto_reg_handoff_rtls(void);
 void proto_register_rtls(void);
@@ -96,6 +97,9 @@ static int * const rtls_nack_flags[] = {
 };
 
 static expert_field ei_rtls_undecoded;
+static expert_field ei_rtls_too_deep;
+
+#define RTLS_MAX_NESTING 8
 static int ett_rtls;
 static int ett_rtls_message;
 static int ett_rtls_nack_flags;
@@ -214,7 +218,7 @@ dissect_rtls_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtls_tree
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_rtls_message_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *rtls_tree, unsigned offset, unsigned type)
+dissect_rtls_message_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtls_tree, unsigned offset, unsigned type)
 {
     proto_item *ti_rssi;
 
@@ -363,8 +367,17 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
 
                 offset = dissect_rtls_header(tvb, pinfo, sub_tree, offset, &data_length);
 
-                // We recurse here, but we'll run out of packet before we run out of stack.
+                /* Bound the nesting of compound messages per packet. */
+                unsigned depth = p_get_proto_depth(pinfo, proto_rtls);
+                if (depth >= RTLS_MAX_NESTING) {
+                    proto_tree_add_expert_remaining(sub_tree, pinfo, &ei_rtls_too_deep, tvb, offset);
+                    return tvb_reported_length(tvb);
+                }
+                p_set_proto_depth(pinfo, proto_rtls, depth + 1);
+                increment_dissection_depth(pinfo);
                 offset = dissect_rtls_message_type(tvb, pinfo, sub_tree, offset, type);
+                decrement_dissection_depth(pinfo);
+                p_set_proto_depth(pinfo, proto_rtls, depth);
 
                 proto_item_set_len(sub_tree, data_length + RTLS_HDR_LENGTH);
                 cmr_messages--;
@@ -501,7 +514,7 @@ proto_register_rtls(void)
         },
         { &hf_rtls_nack_flags_reserved,
           { "Reserved", "rtls.nack.flags.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFC,
+            FT_UINT16, BASE_HEX, NULL, 0xFFFC,
             NULL, HFILL }
         },
 
@@ -759,6 +772,9 @@ proto_register_rtls(void)
     static ei_register_info ei[] = {
         { &ei_rtls_undecoded,
           { "rtls.undecoded", PI_UNDECODED, PI_NOTE, "Undecoded Payload", EXPFILL }
+        },
+        { &ei_rtls_too_deep,
+          { "rtls.too_deep", PI_PROTOCOL, PI_WARN, "Compound messages nested too deeply", EXPFILL }
         }
     };
 
