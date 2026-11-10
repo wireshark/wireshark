@@ -136011,3 +136011,170 @@ class TestDissectSebek:
                            '22', '192.0.2.2', '40022', '1', '6']
         assert [r[13] for r in rows[7:12]] == ['6', '17', '1', '6', '17']
         assert [r[12] for r in rows[7:12]] == ['1', '2', '3', '4', '5']
+
+
+class TestDissectSelfm:
+    # The Exported PDU frames name the dissector; the TCP stream (port 2023)
+    # needs Decode As because SEL Protocol has no default port.
+    OPTS = ('-d', 'tcp.port==2023,selfm')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00600000'
+
+    @staticmethod
+    def exp_pdu(payload, name='selfm'):
+        n = name.encode()
+        pad = (4 - len(n) % 4) % 4
+        return struct.pack('>HH', 12, len(n) + pad) + n + b'\0' * pad + struct.pack('>HH', 0, 0) + payload
+
+    @staticmethod
+    def fastmsg(func, seq, body):
+        total = 12 + len(body) + 2
+        return struct.pack('>HB', 0xA546, total) + b'\0' * 5 + bytes([0, func, seq, 0]) + body + b'\0\0'
+
+    def test_selfm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every Exported PDU frame is SEL Protocol and nothing is malformed
+        or has a warning or error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 119
+        assert protocols.count('SEL Protocol') == 107
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('selfm_coverage.pcapng.gz'),
+                    '-Y', self.BAD, '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_selfm_crc(self, cmd_tshark, capture_file, test_env):
+        '''All Fast Message CRC16 values are correct.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-o', 'selfm.crc_verification:TRUE',
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        assert 'Incorrect CRC' not in stdout
+        assert stdout.count(' [OK]') > 60
+
+    def test_selfm_first_pass(self, cmd_tshark, capture_file, test_env):
+        '''Data Format Responses and single frame Read Responses decode the
+        same in one pass as with -2, and are not malformed (the first pass
+        used to leave the offset of the Fast Message in a wrong place).'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('selfm_coverage.pcapng.gz'),
+                    '-Y', 'selfm.fastmsg.funccode == 0xb1 || '
+                          '(selfm.fastmsg.funccode == 0x90 && selfm.fastmsg.seq == 0xc0)',
+                    '-V', '-O', 'selfm',
+                ), encoding='utf-8', env=test_env)
+            assert 'Malformed' not in stdout
+            assert stdout.count('Data Item Name: ') >= 12
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+
+    def test_selfm_readresp_values(self, cmd_tshark, capture_file, test_env):
+        '''The Read Response of region 0x1000 is decoded using the Data
+        Format Response: strings, bit rows, signed and unsigned values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 67', '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        for text in ('Data Item Name: TEXT8', 'Value: ABCDEFGH', 'Data Item Name: INT16', 'Data Item Name: FLOAT',
+                     'Value 1 (int16): -1', 'Value 3 (int16): 32767', 'Value 2 (uint16): 65535',
+                     'Value 1 (int32): -100000', 'Value 2 (uint32): 4000000000',
+                     '8-bit Binary Items (Row:  2) [  0 1 0 1 1 0 1 0  ]'):
+            assert text in stdout, text
+        assert '[Using frame number 65 (Index Pos: 1) as Data Format Reference]' in stdout
+
+    def test_selfm_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Read Responses split over several frames are reassembled, over
+        Exported PDU and over TCP, in one pass and with -2.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('selfm_coverage.pcapng.gz'),
+                    '-Y', 'selfm.respdata.fragments',
+                    '-Tfields', '-eframe.number', '-eselfm.respdata.fragment.count',
+                    '-eselfm.respdata.fragment.reassembled.length', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[:3] for r in rows] == [['74', '3', '36'], ['110', '3', '8']]
+            assert all('Reassembled Data Response' in r[3] for r in rows)
+        # the earlier fragments point at the final frame (needs the second pass)
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-2',
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'selfm.respdata.fragment.reassembled_in',
+                '-Tfields', '-eframe.number', '-eselfm.respdata.fragment.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['72', '74', '73', '74', '108', '110', '109', '110']
+        # the reassembled payload is decoded with the Data Format Response of region 0x2000
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS, '-2',
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 74', '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        assert '[3 SEL Fast Msg Response Data Fragments (36 bytes): #72(14), #73(14), #74(8)]' in stdout
+        assert '[Reassembled SEL Fast Msg length: 36]' in stdout
+        assert 'Data Item Name: ITEM17' in stdout
+        assert 'Value 1 (uint16): 273' in stdout
+
+    def test_selfm_ser_status_shift(self, cmd_tshark, capture_file, test_env):
+        '''In an Unsolicited SER response with 40 elements only the event
+        whose bit is set is asserted (the status word was shifted by 32 or
+        more for events 33 to 40).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 79', '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        assert 'Reported Event 2 (Index: 1 [Unknown], New State: Asserted)' in stdout
+        assert 'Reported Event 34 (Index: 33 [Unknown], New State: Deasserted)' in stdout
+        assert stdout.count('New State: Asserted') == 1
+
+    def test_selfm_ser_list(self, cmd_tshark, capture_file, test_env):
+        '''Index names come from the ser_list preference.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-o', 'selfm.ser_list:RELAY1,RELAY2,RELAY3',
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 96', '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        assert 'Index: 0 [RELAY1]' in stdout
+        assert 'Index: 1 [RELAY2]' in stdout
+        assert 'Index: 254 [POWER_UP]' in stdout
+        assert 'Index: 255 [SET_CHNG]' in stdout
+
+    def test_selfm_signed_analog(self, cmd_tshark, capture_file, test_env):
+        '''A negative 16 bit analog value is shown as a signed number.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'selfm.fmdata.ai.value16', '-Tfields', '-eframe.number',
+                '-eselfm.fmdata.ai.value16',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['81', '100,-200,7', '83', '10,20,30,40', '89', '5', '95', '-5']
+
+    def test_selfm_telnet_iac(self, cmd_tshark, capture_file, test_env):
+        '''Doubled 0xFF bytes of a Telnet session are removed: the Read
+        Response over TCP carries 0xFFFF values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('selfm_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 112', '-V', '-O', 'selfm',
+            ), encoding='utf-8', env=test_env)
+        assert 'Value 1 (uint16): 65535' in stdout
+        assert 'Value 2 (uint16): 65535' in stdout
+
+    def test_selfm_readresp_quantity_loop(self, cmd_tshark, test_env, tmp_path):
+        '''A Data Format Response with quantity 0xFFFF followed by a Read
+        Response used to make the dissector loop forever (16 bit counter).'''
+        items = struct.pack('>IH', 0x1000, 1) + b'ITEMNAME00' + struct.pack('>HH', 0xFFFF, 0x0031)
+        pdus = [self.fastmsg(0xB1, 0xC0, items),
+                self.fastmsg(0x90, 0xC0, struct.pack('>IH', 0x1000, 4) + b'\x00\x01\x00\x02\x00\x03\x00\x04')]
+        pcap = tmp_path / 'selfm_loop.pcap'
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 252))
+            for i, p in enumerate(pdus):
+                p = self.exp_pdu(p)
+                f.write(struct.pack('<IIII', 1000 + i, 0, len(p), len(p)) + p)
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(pcap), '-Y', '_ws.malformed',
+                '-Tfields', '-eframe.number'),
+            encoding='utf-8', env=test_env, timeout=60)
+        # the Read Response runs out of data and ends in an exception
+        assert stdout.split() == ['2']
