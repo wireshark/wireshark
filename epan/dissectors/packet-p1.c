@@ -1022,10 +1022,10 @@ dissect_p1_MTAName(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
                                                         1, ub_mta_name_length, hf_index, &mtaname);
 
 
-	if (ctx && ctx->do_address) {
-		proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
-	} else {
-		if (mtaname) {
+	if (mtaname) {
+		if (ctx && ctx->do_address) {
+			proto_item_append_text(actx->subtree.tree, " %s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
+		} else {
 			col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", tvb_format_text(actx->pinfo->pool, mtaname, 0, tvb_reported_length(mtaname)));
 		}
 	}
@@ -2516,7 +2516,7 @@ static const value_string p1_BuiltInContentType_U_vals[] = {
 
 static int
 dissect_p1_BuiltInContentType_U(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	static uint32_t	ict = -1;
+	uint32_t	ict = 0;
 	p1_address_ctx_t* ctx;
 
 	if (actx->subtree.tree_ctx == NULL)
@@ -3257,7 +3257,7 @@ dissect_p1_Content(bool implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn
 			proto_tree *next_tree;
 
 			item = proto_tree_add_expert(actx->subtree.top_tree ? actx->subtree.top_tree : tree, actx->pinfo, &ei_p1_unknown_built_in_content_type,
-							  next_tvb, 0, tvb_reported_length_remaining(tvb, offset));
+							  next_tvb, 0, tvb_reported_length(next_tvb));
 			next_tree=proto_item_add_subtree(item, ett_p1_content_unknown);
 
 			dissect_unknown_ber(actx->pinfo, next_tvb, 0, next_tree);
