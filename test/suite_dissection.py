@@ -115415,3 +115415,38 @@ class TestDissectPagp:
                 '7\tUnknown data - TLV len=0\t',
                 '8\tTLV length too large\t',
             ]
+
+
+class TestDissectPaHbbackup:
+    '''Palo Alto Heartbeat Backup (Ethertype 0x8988) from the synthetic
+    capture pa-hbbackup_coverage.pcap.gz.'''
+
+    def test_pa_hbbackup_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Five frames, each with a Heartbeat Backup header followed by
+        the inner Ethertype payload: IPv4/UDP (three), ARP and an
+        unregistered Ethertype. No malformed frame and no error expert
+        info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pa-hbbackup_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-ehbbak.etype',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['UDP', 'ARP', '0x88b5', 'UDP', 'UDP']
+        assert [l[1] for l in lines] == ['0x0800', '0x0806', '0x88b5', '0x0800',
+                                         '0x8988,0x8988,0x0800']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pa-hbbackup_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pa_hbbackup_header(self, cmd_tshark, capture_file, test_env):
+        '''The six unknown octets of the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pa-hbbackup_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-ehbbak.unknown1', '-eudp.srcport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n') == '0a0b0c0d0e0f\t40000'
