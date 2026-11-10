@@ -532,18 +532,15 @@ get_json_string(wmem_allocator_t *scope, tvbuff_t *tvb, int offset, int len, boo
 
 GHashTable* json_header_fields_hash;
 
-/* If key_str is registered in json_header_fields_hash, add the registered
- * field for each of the n_values values and call the registered decoder, if
- * any, on it. Returns the last item added, or NULL if nothing was added.
+/* The decoder registered for key_str in json_header_fields_hash, or NULL if
+ * there is none or its protocol is disabled.
  */
-static proto_item*
-json_key_lookup(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char* key_str,
-		const json_elem_t* values, int n_values)
+static json_data_decoder_t*
+json_key_decoder(const char* key_str)
 {
-	proto_item* ti = NULL;
+	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(json_header_fields_hash, key_str);
 	int hf_id;
 
-	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t*)g_hash_table_lookup(json_header_fields_hash, key_str);
 	if (json_data_decoder_rec == NULL) {
 		return NULL;
 	}
@@ -555,28 +552,70 @@ json_key_lookup(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char*
 	if (!proto_is_protocol_enabled(find_protocol_by_id(proto_id))) {
 		return NULL;
 	}
+	return json_data_decoder_rec;
+}
 
-	for (int i = 0; i < n_values; i++) {
-		int offset = values[i].offset;
-		int len = values[i].len;
+/* Add the field registered for key_str for value and call the registered
+ * decoder, if any, on it.
+ */
+static proto_item*
+json_key_add_value(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char* key_str,
+		const json_data_decoder_t* json_data_decoder_rec, const json_elem_t* value)
+{
+	proto_item* ti;
+	int offset = value->offset;
+	int len = value->len;
 
-		/* Remove the quotation marks from strings (the decoder functions
-		 * apparently expect that.)
-		 */
-		if (values[i].type == JSON_TOKEN_STRING && len >= 2) {
-			offset += 1;
-			len -= 2;
-		}
-		/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
-		 * types be supported (perhaps verified against the JSON token type?)
-		 * Should the encoding be ENC_UTF_8? Should the string be unescaped here?
-		 */
-		ti = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_ASCII);
-		if (json_data_decoder_rec->json_data_decoder) {
-			(*json_data_decoder_rec->json_data_decoder)(tvb, tree, pinfo, offset, len, key_str);
-		}
+	/* Remove the quotation marks from strings (the decoder functions
+	 * apparently expect that.)
+	 */
+	if (value->type == JSON_TOKEN_STRING && len >= 2) {
+		offset += 1;
+		len -= 2;
 	}
+	/* XXX - Every hf_id in packet-json_3gpp.c is a FT_STRING. Should other
+	 * types be supported (perhaps verified against the JSON token type?)
+	 * Should the encoding be ENC_UTF_8? Should the string be unescaped here?
+	 */
+	ti = proto_tree_add_item(tree, *json_data_decoder_rec->hf_id, tvb, offset, len, ENC_ASCII);
+	if (json_data_decoder_rec->json_data_decoder) {
+		(*json_data_decoder_rec->json_data_decoder)(tvb, tree, pinfo, offset, len, key_str);
+	}
+	return ti;
+}
 
+/* If key_str is registered in json_header_fields_hash, add the registered
+ * field for value (if not NULL) and call the registered decoder, if any, on
+ * it. Returns the item added, or NULL if nothing was added.
+ */
+static proto_item*
+json_key_lookup(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char* key_str,
+		const json_elem_t* value)
+{
+	json_data_decoder_t* json_data_decoder_rec = json_key_decoder(key_str);
+
+	if (json_data_decoder_rec == NULL || value == NULL) {
+		return NULL;
+	}
+	return json_key_add_value(tree, tvb, pinfo, key_str, json_data_decoder_rec, value);
+}
+
+/* Like json_key_lookup(), for each of the n_values values of an array.
+ * Returns the last item added, or NULL if nothing was added.
+ */
+static proto_item*
+json_key_lookup_array(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, const char* key_str,
+		const json_elem_t* values, int n_values)
+{
+	json_data_decoder_t* json_data_decoder_rec = json_key_decoder(key_str);
+	proto_item* ti = NULL;
+
+	if (json_data_decoder_rec == NULL) {
+		return NULL;
+	}
+	for (int i = 0; i < n_values; i++) {
+		ti = json_key_add_value(tree, tvb, pinfo, key_str, json_data_decoder_rec, &values[i]);
+	}
 	return ti;
 }
 
@@ -808,7 +847,7 @@ json_begin_member(json_parser_data_t *data, const json_elem_t *key, const json_e
 		proto_tree *subtree_compact;
 		proto_item *ti_compact;
 
-		ti_compact = json_key_lookup(tree_compact, tvb, data->pinfo, key_string_without_quotation_marks, value, value ? 1 : 0);
+		ti_compact = json_key_lookup(tree_compact, tvb, data->pinfo, key_string_without_quotation_marks, value);
 		if (!ti_compact) {
 			ti_compact = proto_tree_add_none_format(tree_compact, hf_json_member_compact, tvb, member_offset, member_len, "\"%s\":", key_string_without_quotation_marks);
 		}
@@ -826,7 +865,7 @@ json_begin_member(json_parser_data_t *data, const json_elem_t *key, const json_e
 			proto_item_append_text(data->prev_item_raw, ",");
 		}
 
-		ti_raw = json_key_lookup(tree_raw, tvb, data->pinfo, key_string_without_quotation_marks, value, value ? 1 : 0);
+		ti_raw = json_key_lookup(tree_raw, tvb, data->pinfo, key_string_without_quotation_marks, value);
 		if (!ti_raw) {
 			ti_raw = proto_tree_add_none_format(tree_raw, hf_json_member_raw, tvb, member_offset, member_len, "\"%s\":", key_string_without_quotation_marks);
 		}
@@ -917,7 +956,7 @@ json_begin_array(json_parser_data_t *data, const json_elem_t *arr, int idx)
 			json_tok_to_elem(data, child, &items[n_items]);
 			child = json_next_sibling(data, child);
 		}
-		json_key_lookup(tree, tvb, data->pinfo, last_key_string, items, n_items);
+		json_key_lookup_array(tree, tvb, data->pinfo, last_key_string, items, n_items);
 	}
 
 	if (json_compact) {
@@ -1042,7 +1081,7 @@ json_value(json_parser_data_t *data, const json_elem_t *val)
 	switch (value_id) {
 		case JSON_TOKEN_STRING: {
 			// Try key_lookup
-			proto_item *key_lookup = json_key_lookup(tree, tvb, data->pinfo, key_string, val, 1);
+			proto_item *key_lookup = json_key_lookup(tree, tvb, data->pinfo, key_string, val);
 			if (!key_lookup) {
 				proto_tree_add_string(tree, hf_json_value_string, tvb, val->offset, val->len, value_str);
 			}
