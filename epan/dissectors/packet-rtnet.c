@@ -18,6 +18,7 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/etypes.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 /*
@@ -48,6 +49,7 @@ static const value_string rtmac_type_vals[] = {
 };
 
 #define RTMAC_FLAG_TUNNEL   0x01
+#define RTMAC_MAX_NESTING   4    /* RTmac headers tunneled in RTmac */
 #define RTMAC_FLAGS_RES     0xFE
 
 #define RTCFG_MSG_S1_CONFIG    0x0
@@ -543,6 +545,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_item *item;
   dissector_handle_t dissector=NULL;
   const char *type_str=NULL;
+  unsigned nesting;
 
   /* Read the header */
   type = tvb_get_ntohs(tvb, offset);
@@ -559,6 +562,10 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
       dissector = dissector_get_uint_handle(ethertype_table, type);
     }
   }
+  /* A tunneled type can name RTmac itself; bound the nesting per packet */
+  nesting = p_get_proto_depth(pinfo, proto_rtmac);
+  if (nesting >= RTMAC_MAX_NESTING)
+    dissector = NULL;
   if (!dissector)
     dissector = data_handle;
 
@@ -621,13 +628,17 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         break;
 
       default:
+        p_set_proto_depth(pinfo, proto_rtmac, nesting + 1);
         call_dissector(dissector, next_tvb, pinfo, tree);
+        p_set_proto_depth(pinfo, proto_rtmac, nesting);
         break;
     }
   } else {
-    if (flags & RTMAC_FLAG_TUNNEL)
+    if (flags & RTMAC_FLAG_TUNNEL) {
+      p_set_proto_depth(pinfo, proto_rtmac, nesting + 1);
       call_dissector(dissector, next_tvb, pinfo, tree);
-    else {
+      p_set_proto_depth(pinfo, proto_rtmac, nesting);
+    } else {
       switch (type) {
         case RTMAC_TYPE_TDMA:
           dissect_rtnet_tdma(next_tvb, pinfo, tree);
