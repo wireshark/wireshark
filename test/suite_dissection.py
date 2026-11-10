@@ -138427,3 +138427,89 @@ class TestDissectSlowprotocols:
                 '-Tfields', '-eslow.subtype', '-eframe.len',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == '0x02\t132'
+
+
+class TestDissectSlsk:
+    '''SoulSeek from the synthetic capture slsk_coverage.pcap.gz: server
+    messages on TCP port 2234 (frames 1-102) and peer messages on port
+    2240 (frames 103-128), including zlib compressed shared file lists,
+    search results and folder contents.'''
+
+    CAP = 'slsk_coverage.pcap.gz'
+    COMPRESSED = ['97', '98', '99', '100', '101', '102', '113', '114', '119']
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    @staticmethod
+    def _have_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
+        return '+zlib' in out
+
+    def test_slsk_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames and no errors in one and two passes. The
+        warning "Unknown Data (not interpreted)" is shown for the nine
+        compressed messages, whose uncompressed contents are decoded but
+        whose offset is not advanced (see the README).'''
+        for passes in ((), ('-2',)):
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    ['frame.number'], *passes) == []
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    'slsk.unknown_data', ['frame.number'], *passes) == self.COMPRESSED
+            assert len(self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    'slsk', ['frame.number'], *passes)) == 121
+
+    def test_slsk_messages(self, cmd_tshark, capture_file, test_env):
+        '''Login, Connect To Peer with its connection types, user lists,
+        recommendations and rankings.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'slsk.password', ['frame.number', 'slsk.username', 'slsk.password', 'slsk.version'])
+        assert rows == ['4\talice\tsecret\t181']
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'slsk.connection.type', ['frame.number', 'slsk.connection.type'])
+        assert rows == ['23\tP', '24\tF', '25\tD', '26\tX', '27\tPP', '28\tP',
+                        '106\tP', '107\tF', '108\tD', '109\tX']
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {17, 19, 42, 44, 54, 82}',
+                ['frame.number', 'slsk.room.users', 'slsk.user', 'slsk.ranking',
+                 'slsk.recommendation'])
+        assert rows == [
+            '17\t2,2,2\talice,bob\t\t',
+            '19\t3\tu1,u2\t\t',
+            '42\t\t\t10,4294967293\tjazz,rock',
+            '44\t\t\t1000,900\talice,bob',
+            '54\t2,10,20\t\t\t',
+            '82\t\t\t4,2\tjazz,blues,swing',
+        ]
+
+    def test_slsk_compressed(self, cmd_tshark, capture_file, test_env):
+        '''The zlib compressed messages are uncompressed; the shared file
+        list has two directories with three files.'''
+        if not self._have_zlib(cmd_tshark, test_env):
+            pytest.skip('tshark was built without zlib')
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {97, 100, 101}',
+                ['frame.number', 'slsk.compressed_packet_length', 'slsk.uncompressed_packet_length',
+                 'slsk.num_directories', 'slsk.directory_name', 'slsk.filename', 'slsk.num_files'])
+        assert rows == [
+            '97\t94\t160\t2\tmusic\\\\rock,music\\\\jazz\ta.mp3,b.mp3,c.flac\t2,1',
+            '100\t67\t103\t\t\tx.mp3,y.ogg\t2',
+            '101\t70\t114\t1\tmusic\\\\rock,music\\\\rock\ta.mp3,b.mp3\t2',
+        ]
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'slsk.compr.packet', ['frame.number'], '-o', 'slsk.decompress:FALSE')
+        assert [r for r in rows] == self.COMPRESSED
+        assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'slsk.num_directories', ['frame.number'], '-o', 'slsk.decompress:FALSE') == []
+
+    def test_slsk_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message split over two TCP segments (frames 126-127) and three
+        messages in one segment (frame 128).'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number >= 126', ['frame.number', 'slsk.message.code'])
+        assert rows[-2:] == ['127\t14', '128\t32,32,2']
