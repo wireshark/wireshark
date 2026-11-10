@@ -83,6 +83,10 @@ dissect_rdp_snd(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree _
 
 	pduLength = tvb_get_uint32(tvb, offset + 2, ENC_LITTLE_ENDIAN) + 4;
 	nextOffset = offset + pduLength;
+	if (pduLength < 4) {
+		/* pduLength wrapped around */
+		nextOffset = tvb_captured_length(tvb);
+	}
 
 	item = proto_tree_add_item(parent_tree, proto_rdp_snd, tvb, offset, pduLength, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdp_snd);
