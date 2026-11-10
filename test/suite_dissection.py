@@ -126241,3 +126241,85 @@ class TestDissectRgmp:
                 '-Y', 'frame.number == 7', '-Tfields', '-eigmp.type',
                 '-ergmp.type')
         assert lines == ['0xff\t']
+
+
+class TestDissectRiemann:
+    CAP = 'riemann_coverage.pcapng.gz'
+    # No default port: Decode As for port 5555 (the Exported PDU frames
+    # need nothing)
+    DECODE_AS = ('-d', 'udp.port==5555,riemann', '-d', 'tcp.port==5555,riemann')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRiemann.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_riemann_default_preferences(self, cmd_tshark, capture_file, test_env):
+        '''Without Decode As only the four Exported PDU frames are
+        Riemann.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 17
+        assert protocols.count('riemann') == 4
+        assert protocols[13:] == ['riemann'] * 4
+
+    def test_riemann_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As, 16 of the 17 frames are Riemann (the other is
+        the first segment of a PDU split over two segments); none is
+        malformed or has an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('riemann') == 16
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    *self.DECODE_AS, '-Y', '_ws.malformed || _ws.expert.severity >= 4194304',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            # only the two reproducers of the string size fix
+            assert stdout == [
+                '16\tString size 4294967295 exceeds remaining data',
+                '17\tString size 2147483647 exceeds remaining data']
+
+    def test_riemann_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: events and states list service and host, queries
+        show the query string.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Y', 'riemann', '-Tfields', '-e_ws.col.info')
+        assert lines[0] == 'Event: cpu, web0; '
+        assert lines[1] == 'Event: mem, web1; swap, web2; '
+        assert lines[2] == 'State: disk, db1; '
+        assert 'Query: service = "cpu" and host =~ "web%"' in lines
+        assert 'Query: state = "ok"' in lines
+        assert 'Event: cpu, web4; tail; ' in lines
+
+    def test_riemann_event_fields(self, cmd_tshark, capture_file, test_env):
+        '''An event with every field, attributes included.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Y', 'frame.number == 1', '-Tfields',
+                '-eriemann.event.state', '-eriemann.event.service',
+                '-eriemann.event.host', '-eriemann.event.description',
+                '-eriemann.event.tag', '-eriemann.event.time',
+                '-eriemann.event.time_micros', '-eriemann.event.metric_sint64',
+                '-eriemann.attribute.key', '-eriemann.attribute.value')
+        assert lines == ['ok\tcpu\tweb0\tcpu usage\tprod,linux\t1700000000\t'
+                         '1700000000123456\t-42\tdc,rack\tams,12']
+
+    def test_riemann_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU in two segments is dissected in the second one; the
+        two-PDU segment shows both.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                *self.DECODE_AS, '-Y', 'frame.number >= 11 && frame.number <= 13',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines[0].startswith('11\tTCP')
+        assert lines[1] == '12\triemann'
+
+    def test_riemann_string_size_larger_than_data(self, cmd_tshark, capture_file, test_env):
+        '''Reproducers of the fix on the branch: a string size larger than
+        the data left (0xFFFFFFFF or 0x7fffffff, which became -1 as an int)
+        gives the insufficient data expert info and the item ends at the end
+        of the packet, not before the string.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'riemann.insufficient_data', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['16\triemann', '17\triemann']
