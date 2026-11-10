@@ -427,6 +427,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
 
             int seqnum_len;
 
+            p_pdcp_nr_info->sdap_header = 0;
             switch (rlc_info->bearerType) {
                 case BEARER_TYPE_SRB:
                     p_pdcp_nr_info->plane = NR_SIGNALING_PLANE;
@@ -450,11 +451,15 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                             break;
                         case PDCP_drb_SN_12_with_SDAP:
                             p_pdcp_nr_info->seqnum_length = 12;
-                            p_pdcp_nr_info->sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                            p_pdcp_nr_info->sdap_header |= (rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
+                                                               PDCP_NR_UL_SDAP_HEADER_PRESENT :
+                                                               PDCP_NR_DL_SDAP_HEADER_PRESENT;
                             break;
                         case PDCP_drb_SN_18_with_SDAP:
                             p_pdcp_nr_info->seqnum_length = 18;
-                            p_pdcp_nr_info->sdap_header = PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                            p_pdcp_nr_info->sdap_header |= (rlc_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
+                                                               PDCP_NR_UL_SDAP_HEADER_PRESENT :
+                                                               PDCP_NR_DL_SDAP_HEADER_PRESENT;
                             break;
 
                         case PDCP_drb_SN_signalled:
@@ -474,13 +479,13 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                                 if (p_pdcp_nr_info->direction == DIRECTION_UPLINK) {
                                     p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_ul;
                                     if (params->pdcp_sdap_ul) {
-                                        p_pdcp_nr_info->sdap_header &= PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                                        p_pdcp_nr_info->sdap_header |= PDCP_NR_UL_SDAP_HEADER_PRESENT;
                                     }
                                 }
                                 else {
                                     p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_dl;
                                     if (params->pdcp_sdap_dl) {
-                                        p_pdcp_nr_info->sdap_header &= PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                                        p_pdcp_nr_info->sdap_header |= PDCP_NR_DL_SDAP_HEADER_PRESENT;
                                     }
                                 }
                                 p_pdcp_nr_info->maci_present = params->pdcp_integrity;
@@ -767,7 +772,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
         reserved_bits2 = 1;
     } else if (p_rlc_nr_info->sequenceNumberLength == AM_SN_LENGTH_18_BITS) {
         sn_size = 18;
-        sn_limit = 262044;
+        sn_limit = 262144;
         reserved_bits1 = 1;
         reserved_bits2 = 3;
     } else {
