@@ -91,7 +91,7 @@ static int hf_resp_attribute_length;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_elements);
 static int dissect_resp_entries(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int array_depth, int64_t expected_entries, int ett_entry_type);
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str, const char data_type);
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, int str_len, const char *bulk_string_as_str, const char data_type);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
 
@@ -208,6 +208,17 @@ static int dissect_resp_big_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return string_length + CRLF_LENGTH;
 }
 
+/* Clamp a declared string length so that adding CRLF_LENGTH cannot overflow */
+static int resp_clamp_length(int64_t length) {
+    if (length > INT_MAX - 2 * CRLF_LENGTH) {
+        return INT_MAX - 2 * CRLF_LENGTH;
+    }
+    if (length < INT_MIN) {
+        return INT_MIN;
+    }
+    return (int)length;
+}
+
 static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, int bulk_string_string_length, int array_depth, const char data_type) {
     const char *bulk_string_length_as_str;
     int bulk_string_length;
@@ -228,9 +239,9 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
             ett_resp_bulk_x = ett_resp_bulk_string;
             break;
         case '!':
-            hf_resp_bulk_x = hf_resp_bulk_string;
-            hf_resp_bulk_x_value = hf_resp_bulk_string_value;
-            hf_resp_bulk_x_length = hf_resp_bulk_string_length;
+            hf_resp_bulk_x = hf_resp_bulk_error;
+            hf_resp_bulk_x_value = hf_resp_bulk_error_value;
+            hf_resp_bulk_x_length = hf_resp_bulk_error_length;
             ett_resp_bulk_x = ett_resp_bulk_error;
             break;
         default:
@@ -239,7 +250,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     bulk_string_length_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    bulk_string_length = (int)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
+    bulk_string_length = resp_clamp_length(g_ascii_strtoll(bulk_string_length_as_str, NULL, 10));
     /* Negative string lengths */
     if (bulk_string_length < 0) {
         /* NULL string */
@@ -292,7 +303,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     const char *bulk_string_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
     if (g_str_is_ascii(bulk_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", bulk_string_as_str);
-        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_as_str, '$');
+        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_captured_length, bulk_string_as_str, '$');
     } else if(array_depth == 0) {
         /* Otherwise, just append that we captured bulk strings (and only do so if they aren't part of an array */
         col_append_fstr(pinfo->cinfo, COL_INFO, " BulkString(%d)", bulk_string_length);
@@ -302,7 +313,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 }
 
 /* Maybe rename? also used for Verbatim String and Bulk Error */
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const char *bulk_string_as_str, const char data_type) {
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, int str_len, const char *bulk_string_as_str, const char data_type) {
     char *data_type_format_string;
         switch (data_type) {
             case '$':
@@ -324,13 +335,13 @@ static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, 
 
         /* Is it worth trying the JSON dissector? */
         if (prefs_try_json_on_string &&                 /* preference enabled */
-            bulk_string_length >= 2 &&                  /* at least 2 chars long */
+            str_len >= 2 &&                             /* at least 2 chars long */
             /* and has format {..} or [..] */
-            ((bulk_string_as_str[0] == '{' && bulk_string_as_str[bulk_string_length-1] == '}') ||
-             (bulk_string_as_str[0] == '[' && bulk_string_as_str[bulk_string_length-1] == ']'))) {
+            ((bulk_string_as_str[0] == '{' && bulk_string_as_str[str_len-1] == '}') ||
+             (bulk_string_as_str[0] == '[' && bulk_string_as_str[str_len-1] == ']'))) {
 
             /* Create TVB just with string */
-            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)bulk_string_as_str, bulk_string_length, bulk_string_length);
+            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, (const uint8_t*)bulk_string_as_str, str_len, str_len);
             add_new_data_source(pinfo, json_tvb, "JSON string");
 
             /* Call JSON dissector on this TVB */
@@ -364,7 +375,7 @@ static int dissect_resp_verbatim_string(tvbuff_t *tvb, packet_info *pinfo, proto
 
     verbatim_string_length_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    verbatim_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    verbatim_string_length = (int)g_ascii_strtoll(verbatim_string_length_as_str, NULL, 10);
+    verbatim_string_length = resp_clamp_length(g_ascii_strtoll(verbatim_string_length_as_str, NULL, 10));
     /* Negative string lengths */
     if (verbatim_string_length < 0) {
         /* NULL string */
@@ -405,19 +416,22 @@ static int dissect_resp_verbatim_string(tvbuff_t *tvb, packet_info *pinfo, proto
     resp_string_tree = proto_item_add_subtree(resp_string_item, ett_resp_verbatim_string);
     proto_tree_add_int(resp_string_tree, hf_resp_verbatim_string_length, tvb, offset, verbatim_string_string_length + CRLF_LENGTH, verbatim_string_length);
     offset += verbatim_string_string_length + CRLF_LENGTH;
-    if (verbatim_string_captured_length > 0) {
+    int verbatim_value_length = 0;
+    if (verbatim_string_captured_length >= VERBATIM_STRING_ENCODING_LENGTH + 1) {
+        verbatim_value_length = verbatim_string_captured_length - (VERBATIM_STRING_ENCODING_LENGTH + 1);
         const char *enc_value = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset,VERBATIM_STRING_ENCODING_LENGTH, ENC_ASCII);
         proto_tree_add_string(resp_string_tree, hf_resp_verbatim_string_encoding, tvb, offset, VERBATIM_STRING_ENCODING_LENGTH, enc_value);
         offset += VERBATIM_STRING_ENCODING_LENGTH + 1; // skip the ':' that separates encoding from the actual value
-        proto_tree_add_item(resp_string_tree, hf_resp_verbatim_string_value, tvb, offset, verbatim_string_captured_length - VERBATIM_STRING_ENCODING_LENGTH, ENC_NA);
+        proto_tree_add_item(resp_string_tree, hf_resp_verbatim_string_value, tvb, offset, verbatim_value_length, ENC_NA);
     }
 
     /* Enhance display */
-    const char *verbatim_string_as_str = (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, verbatim_string_captured_length - VERBATIM_STRING_ENCODING_LENGTH, ENC_NA);
+    const char *verbatim_string_as_str = verbatim_value_length > 0 ?
+        (char*)tvb_get_string_enc(pinfo->pool, tvb, offset, verbatim_value_length, ENC_NA) : "";
     // printf("verbatim_string_as_str: %s", verbatim_string_as_str);
     if (g_str_is_ascii(verbatim_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", verbatim_string_as_str);
-        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, verbatim_string_length, verbatim_string_as_str, '=');
+        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, verbatim_string_length, verbatim_value_length, verbatim_string_as_str, '=');
     } else if(array_depth == 0) {
         /* Otherwise, just append that we captured bulk strings (and only do so if they aren't part of an array */
         col_append_fstr(pinfo->cinfo, COL_INFO, " VerbatimString(%d)", verbatim_string_length);
