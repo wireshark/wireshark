@@ -18,6 +18,9 @@
 #include <epan/expert.h>
 #include <epan/in_cksum.h>
 #include <epan/to_str.h>
+#include <epan/tfs.h>
+#include <epan/proto_data.h>
+#include <wsutil/array.h>
 #include "packet-igmp.h"
 
 void proto_register_pim(void);
@@ -340,6 +343,7 @@ static int ett_pim_opt;
 static int ett_pim_addr_flags;
 
 static expert_field ei_pim_cksum;
+static expert_field ei_pim_nesting;
 
 static dissector_handle_t pim_handle;
 static dissector_handle_t pimv1_handle;
@@ -483,6 +487,30 @@ static const value_string unique_infinity_t[] = {
 };
 
 /* This function is only called from the IGMP dissector */
+#define PIM_MAX_REGISTER_NESTING 4
+
+/*
+ * Dissect the data packet encapsulated in a Register message, limiting
+ * how deeply Register messages can be nested within each other.
+ */
+static void
+pim_dissect_nested(dissector_handle_t handle, tvbuff_t *next_tvb, packet_info *pinfo,
+                   proto_tree *tree, proto_tree *pimopt_tree,
+                   tvbuff_t *tvb, int offset)
+{
+    unsigned depth = p_get_proto_depth(pinfo, proto_pim);
+
+    if (depth >= PIM_MAX_REGISTER_NESTING) {
+        proto_tree_add_expert_remaining(pimopt_tree, pinfo, &ei_pim_nesting, tvb, offset);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_pim, depth + 1);
+    increment_dissection_depth(pinfo);
+    call_dissector(handle, next_tvb, pinfo, use_main_tree ? tree : pimopt_tree);
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_pim, depth);
+}
+
 static int
 dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
     uint8_t pim_type;
@@ -631,18 +659,10 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             break;
         case 4: /* IPv4 */
-            if (use_main_tree) {
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-            } else {
-                call_dissector(ip_handle, next_tvb, pinfo, pimopt_tree);
-            }
+            pim_dissect_nested(ip_handle, next_tvb, pinfo, tree, pimopt_tree, tvb, offset);
             break;
         case 6: /* IPv6 */
-            if (use_main_tree) {
-                call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-            } else {
-                call_dissector(ipv6_handle, next_tvb, pinfo, pimopt_tree);
-            }
+            pim_dissect_nested(ipv6_handle, next_tvb, pinfo, tree, pimopt_tree, tvb, offset);
             break;
         default:
             break;
@@ -782,7 +802,7 @@ static bool
 dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset, enum pimv2_addrtype at,
                  const char* label, proto_item** ret_item, int hf_ip4, int hf_ip6, int *advance) {
     uint8_t af, et, flags, mask_len, ja_af;
-    ws_in6_addr ipv6;
+    ws_in6_addr ipv6, rloc_ipv6;
     uint32_t ipv4 = 0;
     proto_item* ti = NULL;
     proto_tree* addr_tree = NULL;
@@ -876,18 +896,19 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                         proto_tree_add_item(ja_tree, hf_pim_attribute_transport_mode, tvb, ja_offset, 1, ENC_NA);
                         break;
                     case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
-                        ja_af = tvb_get_uint8(tvb, offset);
+                        ja_af = tvb_get_uint8(tvb, ja_offset);
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
+                                                                       tvb_get_ipv4(tvb, ja_offset + 1), "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
+                                tvb_get_ipv6(tvb, ja_offset + 1, &rloc_ipv6);
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
+                                                                       &rloc_ipv6, "RLOC: %s", tvb_ip6_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
@@ -1040,18 +1061,19 @@ dissect_pim_addr(packet_info *pinfo, proto_tree* tree, tvbuff_t *tvb, int offset
                         }
                         break;
                     case PIM_JOIN_ATTRIBUTE_TYPE_RLOC:
-                        ja_af = tvb_get_uint8(tvb, offset);
+                        ja_af = tvb_get_uint8(tvb, ja_offset);
                         switch(ja_af) {
                             case AFNUM_INET:
                                 rloc_tree = proto_tree_add_ipv4_format(ja_tree, hf_ip4, tvb, ja_offset, ja_length,
-                                                                       ipv4, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
+                                                                       tvb_get_ipv4(tvb, ja_offset + 1), "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv4, tvb, ja_offset + 1, 4, ENC_BIG_ENDIAN);
                                 break;
                             case AFNUM_INET6:
+                                tvb_get_ipv6(tvb, ja_offset + 1, &rloc_ipv6);
                                 rloc_tree = proto_tree_add_ipv6_format(ja_tree, hf_ip6, tvb, ja_offset, ja_length,
-                                                                       &ipv6, "RLOC: %s", tvb_ip_to_str(pinfo->pool, tvb, ja_offset+ 1));
+                                                                       &rloc_ipv6, "RLOC: %s", tvb_ip6_to_str(pinfo->pool, tvb, ja_offset+ 1));
                                 rloc_sub_tree = proto_item_add_subtree(rloc_tree, ett_pim);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_addr_af, tvb, ja_offset, 1, ENC_NA);
                                 proto_tree_add_item(rloc_sub_tree, hf_pim_rloc_addr_ipv6, tvb, ja_offset + 1, 16, ENC_NA);
@@ -1145,7 +1167,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (PIM_TYPE(pim_typever) == PIM_TYPE_DF_ELECT) {
         proto_tree_add_item(pim_tree, hf_pim_df_elect_subtype, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(pim_tree, hf_pim_df_elect_rsvd, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-        pim_bidir_subtype = tvb_get_uint8(tvb,offset);
+        pim_bidir_subtype = tvb_get_uint8(tvb, offset + 1) >> 4;
     } else if ((PIM_TYPE(pim_typever) == PIM_TYPE_PACKED_REGISTER)) {
         /*
          * [version-4bits][type-4bits][0x[SubType-4bits][Flagbits-4bits]
@@ -1369,18 +1391,10 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 proto_item_append_text(ti, "for an unknown protocol");
             break;
         case 4: /* IPv4 */
-            if (use_main_tree) {
-                call_dissector(ip_handle, next_tvb, pinfo, tree);
-            } else {
-                call_dissector(ip_handle, next_tvb, pinfo, pimopt_tree);
-            }
+            pim_dissect_nested(ip_handle, next_tvb, pinfo, tree, pimopt_tree, tvb, offset);
             break;
         case 6: /* IPv6 */
-            if (use_main_tree) {
-                call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-            } else {
-                call_dissector(ipv6_handle, next_tvb, pinfo, pimopt_tree);
-            }
+            pim_dissect_nested(ipv6_handle, next_tvb, pinfo, tree, pimopt_tree, tvb, offset);
             break;
         default:
             break;
@@ -2385,7 +2399,8 @@ proto_register_pim(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_pim_cksum, { "pim.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_pim_cksum,            { "pim.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
+        { &ei_pim_nesting, { "pim.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Register messages nested too deeply", EXPFILL }},
     };
 
     expert_module_t* expert_pim;
