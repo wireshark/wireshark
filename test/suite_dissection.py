@@ -132341,3 +132341,89 @@ class TestDissectS101:
                 '-Tfields', '-eframe.number', '-es101.flags',
                 '-es101.crc.status', '-e_ws.col.protocol')
         assert lines == ['17\t0x20\t1\tS101', '18\t0xc0\t0\tGlow']
+
+
+class TestDissectS1ap:
+    '''Synthetic S1AP capture (SCTP PPI 18, 695 frames): random PDUs of
+    every S1AP procedure with the nested RRC, NGAP, RANAP, LPPa, NAS and
+    LPP containers, an NB-IoT eNB (S1 Setup with the RAT type, Initial UE
+    Message with the same TAI and a 24-bit eNB-UE-S1AP-ID, then PDUs with
+    NB-IoT containers) and the reproducers of the fixes in
+    "S1AP: Fix M-TMSI tvb, NB-IoT keys, UE ID width and extension ID
+    type".'''
+    CAPTURE = 's1ap_coverage.pcapng.gz'
+    ERRORS = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('s1ap_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_s1ap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''695 frames, none with a malformed packet or an error expert info
+        in one and two passes; the nested protocols are dissected.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 695
+        assert lines.count('S1AP') == 603
+        assert lines.count('S1AP/LPPa') == 28
+        assert lines.count('BSSGP') == 10
+        assert lines.count('gcsna') == 7
+        assert sum(l.startswith('S1AP/NAS-EPS') for l in lines) == 47
+        for passes in ((), ('-2',), ('-o', 's1ap.dissect_container:FALSE')):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes, '-Y', self.ERRORS, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_s1ap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every S1AP procedure code from 0 to 67 is in the capture.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 's1ap', '-Tfields', '-es1ap.procedureCode')
+        codes = {int(x) for l in lines for x in l.split(',') if x.strip()}
+        assert codes >= set(range(68))
+
+    def test_s1ap_mtmsi(self, cmd_tshark, capture_file, test_env):
+        '''The hidden 3gpp.tmsi item of the M-TMSI shows the M-TMSI
+        0x11223344 (287454020), not the first 4 octets of the PDU (frames
+        687 to 695, also nested).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 687', '-Tfields',
+                '-es1ap.m_TMSI', '-e3gpp.tmsi')
+        assert len(lines) == 9
+        for l in lines:
+            assert set(l.replace('\t', ',').split(',')) == {'287454020'}
+
+    def test_s1ap_extension_id(self, cmd_tshark, capture_file, test_env):
+        '''ProtocolExtensionID is a 16-bit field: an extension id above
+        255 (300, ContextatSource, in frame 688) can be filtered on.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 's1ap.ext_id == 300', '-Tfields', '-eframe.number')
+        assert lines == ['688']
+
+    def test_s1ap_extension_id_type(self, cmd_tshark, test_env):
+        '''s1ap.ext_id is FT_UINT16, not FT_UINT8.'''
+        out = subprocess.check_output((cmd_tshark, '-G', 'fields'), encoding='utf-8', env=test_env, timeout=300)
+        assert [l.split('\t')[3] for l in out.splitlines() if l.split('\t')[2:3] == ['s1ap.ext_id']] == ['FT_UINT16']
+
+    def test_s1ap_nested_s1_message(self, cmd_tshark, capture_file, test_env):
+        '''S1-Message IEs (S1AP inside S1AP) nest 1, 2 and 5 levels deep in
+        frames 690 to 695 (SCTP and Exported PDU).'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 687', '-Tfields', '-eframe.protocols')
+        assert [l.count('s1ap') for l in lines] == [1, 1, 1, 2, 2, 3, 3, 6, 6]
+
+    def test_s1ap_nbiot(self, cmd_tshark, capture_file, test_env):
+        '''The S1 Setup Request of frame 399 marks the TA as NB-IoT and the
+        Initial UE Message of frame 400 (eNB-UE-S1AP-ID 0x123456) has that
+        TAI, so the later PDUs of that UE carry NB-IoT containers: with the
+        automatic setting there are no errors, forced to legacy LTE the
+        NB-IoT containers (frames after 399) fail, and the legacy
+        containers of the frames before 399 fail when forced to NB-IoT.'''
+        for pref, lo, hi, n in (('automatic', 0, 0, 0), ('legacy', 399, 10000, 8), ('nb-iot', 0, 398, 4)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-o', 's1ap.dissect_lte_container_as:' + pref,
+                    '-Y', self.ERRORS, '-Tfields', '-eframe.number')
+            frames = [int(x) for x in lines]
+            assert len(frames) == n, pref
+            assert all(lo <= f <= hi for f in frames), pref
+
+    def test_s1ap_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The S1AP trees are the same in one and two passes.'''
+        args = ('-Y', 's1ap', '-V', '-O', 's1ap')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 40000
+        assert one == two
