@@ -79,9 +79,8 @@ dissect_ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, void *data _
     offset += 4;
 
     uint16_t datlg = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN);
-    offset += 2;
 
-    ws_assert(offset == 22);
+    ws_assert(offset == 20);
 
     /* check pdu and data length */
     if (pdulg != tvb_captured_length(tvb))
