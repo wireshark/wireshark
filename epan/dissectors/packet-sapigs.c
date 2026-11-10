@@ -21,6 +21,7 @@
 #include <inttypes.h>
 #include <stdlib.h>
 
+#include <limits.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
@@ -128,8 +129,8 @@ void proto_register_sapigs(void);
 static bool
 sapigs_tvb_has_remaining(tvbuff_t *tvb, uint32_t offset, unsigned length)
 {
-	unsigned remaining = tvb_reported_length_remaining(tvb, offset);
-	return remaining >= length;
+	int remaining = tvb_reported_length_remaining(tvb, offset);
+	return remaining >= 0 && (unsigned)remaining >= length;
 }
 
 
@@ -303,7 +304,7 @@ dissect_sapigs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				}
 			}
 			/* Data */
-			if ((data_length > 0) && (tvb_reported_length_remaining(tvb, data_offset) >= data_length)) {
+			if ((data_length > 0) && data_offset <= (unsigned)INT_MAX && sapigs_tvb_has_remaining(tvb, data_offset, data_length)) {
 				proto_tree_add_item(sapigs_tree, hf_sapigs_data, tvb, data_offset, data_length, ENC_NA);
 			}
 			break;
