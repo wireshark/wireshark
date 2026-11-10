@@ -326,7 +326,8 @@ uint16_t check_atn_ec_16(
       c0 -= tvb_get_uint8(tvb, i) ;
     }
 
-    if( (i >= offset_iso8073_val) && /* ignore 16 bit ISO 8073 checksum, if present*/
+    if( (offset_iso8073_val) && /* ignore 16 bit ISO 8073 checksum, if present*/
+        (i >= offset_iso8073_val) &&
         (i < (offset_iso8073_val + 2) ) ) {
       c0 -= tvb_get_uint8(tvb, i) ;
     }
