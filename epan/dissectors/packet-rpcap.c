@@ -18,6 +18,7 @@
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/tfs.h>
@@ -537,7 +538,7 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item (tree, hf_if_scopeid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 108, ENC_NA);
+    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 100, ENC_NA);
     offset += 100;
     break;
 
@@ -851,7 +852,7 @@ dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
-dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo,
                           proto_tree *parent_tree, int offset)
 {
   proto_tree *tree;
@@ -860,7 +861,8 @@ dissect_rpcap_open_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
   ti = proto_tree_add_item (parent_tree, hf_open_reply, tvb, offset, -1, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_open_reply);
 
-  linktype = tvb_get_ntohl (tvb, offset);
+  if (!PINFO_FD_VISITED(pinfo))
+    linktype = tvb_get_ntohl (tvb, offset);
   proto_tree_add_item (tree, hf_linktype, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
@@ -1007,6 +1009,16 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   tvbuff_t *new_tvb;
   unsigned caplen, len, frame_no;
   int reported_length_remaining;
+  int *p_linktype, pkt_linktype;
+
+  /* The link type is the one in effect when this frame was first dissected */
+  p_linktype = (int *)p_get_proto_data (wmem_file_scope(), pinfo, proto_rpcap, 0);
+  if (p_linktype == NULL) {
+    p_linktype = wmem_new (wmem_file_scope(), int);
+    *p_linktype = linktype;
+    p_add_proto_data (wmem_file_scope(), pinfo, proto_rpcap, 0, p_linktype);
+  }
+  pkt_linktype = *p_linktype;
 
   ti = proto_tree_add_item (parent_tree, hf_packet, tvb, offset, 20, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_packet);
@@ -1037,9 +1049,9 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
   }
 
   new_tvb = tvb_new_subset_length_caplen (tvb, offset, caplen, len);
-  if (decode_content && linktype != -1) {
+  if (decode_content && pkt_linktype != -1) {
     TRY {
-      call_dissector_with_data(pcap_pktdata_handle, new_tvb, pinfo, top_tree, &linktype);
+      call_dissector_with_data(pcap_pktdata_handle, new_tvb, pinfo, top_tree, &pkt_linktype);
     }
     CATCH_BOUNDS_ERRORS {
       show_exception(tvb, pinfo, top_tree, EXCEPT_CODE, GET_MESSAGE);
@@ -1057,7 +1069,7 @@ dissect_rpcap_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree,
       register_frame_end_routine(pinfo, rpcap_frame_end);
     }
   } else {
-    if (linktype == -1) {
+    if (pkt_linktype == -1) {
       proto_item_append_text (ti, ", Unknown link-layer type");
     }
     call_data_dissector(new_tvb, pinfo, top_tree);
