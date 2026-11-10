@@ -123834,3 +123834,128 @@ class TestDissectRdmEtc:
         out = self.fields(cmd_tshark, capture_file, test_env,
                 'frame.number >= 2 && frame.number <= 8 && rdm.pid', 'rdm.pid')
         assert len(out) >= 6
+
+
+class TestDissectRdp:
+    '''RDP (MS-RDPBCGR) from the synthetic capture rdp_coverage.pcapng.gz:
+    TPKT/COTP/T.125 connections on TCP 3389 (negotiation, ClientData,
+    ServerData, licensing, share control, virtual channels, message channel,
+    encrypted sessions with placeholder data) and Exported PDUs that stand
+    for decrypted TLS data (fast-path, RDSTLS) and the UDP side of a
+    multitransport connection.'''
+
+    CAPTURE = 'rdp_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdp.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per top protocol column; no malformed packets and no
+        warnings or errors in one and two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 331
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['RDP'] == 216
+        assert counts['T.125'] == 24
+        assert counts['CLIPRDR'] == 10
+        assert counts['CONCTRL'] == 4
+        assert counts['DRDYNVC'] == 3
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_rdp_two_passes_equal(self, cmd_tshark, capture_file, test_env):
+        '''The columns of every frame are the same in one and two passes.'''
+        out = [self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+               for passes in ((), ('-2',))]
+        assert out[0] == out[1]
+
+    def test_rdp_connection_setup(self, cmd_tshark, capture_file, test_env):
+        '''Negotiation (routing token and cookie, correlation info, failure),
+        ClientData and ServerData values.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 6, 7, 31}',
+                '-Tfields', '-eframe.number', '-erdp.rt_cookie', '-erdp.negReq.requestedProtocols',
+                '-erdp.client.name', '-erdp.desktop.width', '-erdp.channelCount', '-erdp.userName')
+        assert stdout.splitlines() == [
+            '4\tCookie: mstshash=alice\t0x0000000b\t\t\t\t',
+            '6\t\t\tCLIENT\t1024\t7\t',
+            '7\t\t\t\t\t7\t',
+            '31\t\t\t\t\t\talice',
+        ]
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp.negFailure.failureCode', '-Tfields', '-eframe.number', '-erdp.negFailure.failureCode')
+        assert stdout.splitlines() == ['158\t0x00000005', '163\t0x00000080']
+
+    def test_rdp_channels(self, cmd_tshark, capture_file, test_env):
+        '''Channel PDUs reach the dissector of their channel; a chunked
+        CLIPRDR format list is reassembled in the last chunk (both
+        directions); a channel PDU whose length has bit 0x08 is not shown as
+        encrypted (the security flags of the licensing stage used to carry
+        over).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 64 && frame.number <= 84',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-erdp_cliprdr.formatid')
+        lines = stdout.splitlines()
+        assert [l.split('\t')[1] for l in lines[:6]] == ['DRDYNVC', 'RDPDR', 'RDPSND', 'CLIPRDR', 'RAIL', 'CONCTRL']
+        assert [l.split('\t') for l in lines if l.split('\t')[2]] == [
+            ['78', 'CLIPRDR', '0x00000001'], ['80', 'CLIPRDR', '0x00000001']]
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 317 && rdp.flags.encrypt == 1', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 0
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 317 && rdp_cliprdr', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == ['330\tMonitor ready', '331\tUnknown clipboard command']
+
+    def test_rdp_fastpath(self, cmd_tshark, capture_file, test_env):
+        '''Client input events and server updates of the fast-path PDUs.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {116, 118, 119, 121, 122, 130, 132, 133}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '116\tFast-Path PDU,Scancode',
+            '118\tFast-Path PDU,Mouse,Mouse',
+            '119\tFast-Path PDU,MouseEx',
+            '121\tFast-Path PDU,Unicode',
+            '122\tFast-Path PDU,RelMouse',
+            '130\tFast-Path PDU,Orders',
+            '132\tFast-Path PDU,Palette',
+            '133\tFast-Path PDU,Synchronize',
+        ]
+
+    def test_rdp_message_channel(self, cmd_tshark, capture_file, test_env):
+        '''Multitransport request and response, autodetect requests and
+        responses, heartbeat; the RDPMT tunnel request of the UDP side links
+        to the TCP connection.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 87 && frame.number <= 115',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        assert info['87'] == 'MultiTransportRequest'
+        assert info['90'] == 'MultiTransport response'
+        assert info['91'] == 'Autodetect Req'
+        assert info['107'] == 'Autodetect Resp'
+        assert info['111'] == 'Heartbeat'
+        assert info['113'] == 'TunnelCreateRequest'
+        assert info['114'] == 'CreateChannel Request(udp)'
+
+    def test_rdp_rdstls_and_encrypted(self, cmd_tshark, capture_file, test_env):
+        '''RDSTLS PDUs after a negotiate response that selects it, the
+        security exchange and the PDUs shown as encrypted.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp.rdstls.pdutype', '-Tfields', '-eframe.number', '-erdp.rdstls.pdutype')
+        assert stdout.splitlines() == ['179\t0x0001', '180\t0x0001', '181\t0x0002', '182\t0x0002', '183\t0x0004']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 208 && frame.number <= 262',
+                '-Tfields', '-e_ws.col.info')
+        assert sum('[Encrypted]' in line for line in stdout.splitlines()) == 16
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp.encryptionMethod', '-Tfields', '-erdp.encryptionMethod', '-E', 'occurrence=f')
+        assert stdout.split()[:5] == ['0x00000000', '0x00000002', '0x00000010', '0x00000001', '0x00000008']
