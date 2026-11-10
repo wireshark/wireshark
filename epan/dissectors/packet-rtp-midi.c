@@ -1604,6 +1604,7 @@ decode_sj_chapter_d_f4( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		proto_tree_add_item( rtp_midi_field_tree, hf_rtp_midi_sj_chapter_d_syscom_legal, tvb, offset, f4length, ENC_NA );
 		offset	 += f4length;
+		f4length = 0;
 	}
 
 	/* if we still have data, the length-field was incorrect we dump the data here and abort! */
@@ -2105,7 +2106,7 @@ decode_sj_chapter_x( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, un
 		for ( i=0; i < 4; i++ ) {
 
 			/* do we still fit in the dissected packet & in the length restriction of this chapter? */
-			if ( ( !( consumed >= max_length ) ) || ( !tvb_bytes_exist( tvb, offset + fieldlen, 1 ) ) ) {
+			if ( ( consumed >= max_length ) || ( !tvb_bytes_exist( tvb, offset + fieldlen, 1 ) ) ) {
 				return -1;
 			}
 
