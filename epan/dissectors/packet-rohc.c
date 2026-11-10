@@ -2925,13 +2925,13 @@ start_over:
             /* How long does the CID info say it is? */
             get_self_describing_var_len_val(tvb, rohc_tree, offset+1, hf_rohc_large_cid, &val_len);
             /* How many bytes do we actually have? */
-            unsigned len = tvb_captured_length_remaining(tvb, offset + val_len);
+            unsigned len = tvb_captured_length_remaining(tvb, offset + 1 + val_len);
             /* Composite TVBs don't handle the case if the captured length
              * is less than the reported length. */
             uint8_t *payload_data = (uint8_t *)wmem_alloc(pinfo->pool, len + 1);
             tvb_memcpy(tvb, payload_data, offset, 1);
             tvb_memcpy(tvb, &payload_data[1], offset+1+val_len, len);
-            next_tvb = tvb_new_child_real_data(tvb, payload_data, len, 1 + tvb_reported_length_remaining(tvb, offset + val_len));
+            next_tvb = tvb_new_child_real_data(tvb, payload_data, len + 1, 1 + tvb_reported_length_remaining(tvb, offset + 1 + val_len));
             add_new_data_source(pinfo, next_tvb, "Payload");
         }
         else {
@@ -3066,7 +3066,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_large_cid,
               { "Large CID","rohc.large_cid",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
@@ -3470,7 +3470,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_ts,
               { "Compressed RTP timestamp","rohc.tp",
-                FT_UINT16, BASE_DEC, NULL, 0x0,
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL , HFILL
               }
             },
