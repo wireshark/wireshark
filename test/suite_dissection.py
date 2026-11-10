@@ -115170,3 +115170,77 @@ class TestDissectP7:
             '58\tInterPersonal Message (Test subject)',
             '60\tInterPersonal Message (Test subject)',
         ]
+
+
+class TestDissectPackclient:
+    '''PackClient (launcher and core transport) over TCP, from the
+    synthetic capture packclient_coverage.pcap.gz. The streams use ports
+    that no dissector claims: the TCP heuristic binds each stream because
+    its first segment holds a complete valid launcher PDU. The launcher
+    PDU types are covered by the existing TestPackClient tests; this one
+    uses the whole conversation in one capture.'''
+
+    def test_packclient_protocols(self, cmd_tshark, capture_file, test_env):
+        '''26 frames: 24 PACKCLIENT frames and one TCP segment that
+        starts a PDU completed in the next frame (frames 20-21), no
+        malformed frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packclient_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 26
+        assert protocols.count('PACKCLIENT') == 25
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('packclient_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_packclient_launcher_to_core(self, cmd_tshark, capture_file, test_env):
+        '''The launcher objects, both envelope byte orders and the phase
+        of each frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packclient_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 7',
+                '-Tfields', '-eframe.number', '-epackclient.phase',
+                '-epackclient.envelope.format', '-epackclient.plk1.lz4_flag',
+                '-epackclient.plk1.original_size', '-epackclient.plh1.tick_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tLauncher\t\t\t\t72623859790382856',
+            '2\tLauncher\t\t\t\t',
+            '3\tLauncher\t\t\t\t',
+            '4\tLauncher\t\t0x00\t24\t',
+            '5\tLauncher\t\t0x01\t8192\t',
+            '6\tLauncher\tLauncher (big-endian length)\t\t\t',
+            '7\tCore\tCore (little-endian length)\t\t\t',
+        ]
+
+    def test_packclient_core(self, cmd_tshark, capture_file, test_env):
+        '''Core messages: the command text for every prefix, a PV10 JPEG
+        of 22 octets, an unknown type and a PDU split over two segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packclient_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 8 && frame.number <= 19',
+                '-Tfields', '-eframe.number', '-epackclient.core.command',
+                '-epackclient.pv10.jpeg_length', '-epackclient.message_type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '8\tINP|mouse,10,20\t\t0x00000001'
+        assert [l.split('\t')[1] for l in lines[:6]] == [
+            'INP|mouse,10,20', 'SYS|ping', 'TLM|cpu=3;mem=40', 'SCR|capture 1',
+            'Q|status', 'PIPE|stdout']
+        assert lines[9] == '17\t\t22\t0x00000012'
+        assert lines[10] == '18\t\t\t0x00000030'
+        assert lines[11] == '19\tINP|a,SYS|b\t\t0x00000001,0x00000002'
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('packclient_coverage.pcap.gz'),
+                '-Y', 'frame.number in {20, 21}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-epackclient.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['20\tTCP\t', '21\tPACKCLIENT\t0x00000003']
