@@ -125903,3 +125903,91 @@ class TestDissectRfidMifare:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.operand',
                 filt='mifare.operand', opts=self.MIFARE)
         assert [r[0] for r in rows] == ['5', '-2', '0', '2147483647', '-2147483648', '1']
+
+
+class TestDissectRfidPn532:
+    '''NXP PN532 commands and responses (packet-rfid-pn532.c) carried by
+    PN532 HCI in bulk transfers of USB device 04e6:5591 (usbmon), from the
+    synthetic capture rfid_pn532_coverage.pcap.gz. Frames 194-314 are
+    only dissected as FeliCa, MiFare and ISO 7816 with the "Payload
+    Type" preference (pn532.prtype532).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, opts=(), passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rfid_pn532_coverage.pcap.gz'),
+                '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_pn532_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 314 frames decode as USB, PN532, FeliCa and (with the
+        preference) MiFare and ISO 7816 without malformed packets or error
+        expert infos, in one and two passes and with every payload type.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 314
+        assert protocols.count('USB') == 2
+        assert protocols.count('PN532') == 309
+        assert protocols.count('FeliCa') == 3
+        for passes in ((), ('-2',)):
+            for ptype in ('data', 'felica', 'mifare', 'iso7816'):
+                rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                        filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        opts=('-o', 'pn532.prtype532:' + ptype), passes=passes)
+                assert rows == []
+
+    def test_pn532_response_pairing(self, cmd_tshark, capture_file, test_env):
+        '''A response is paired with its command when both use the same
+        endpoint byte: frame 10 answers the Diagnose of frame 9. The data
+        of a Diagnose test 0 response is shown (the data length used to
+        be taken one byte too long).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'pn532.response_for', 'pn532.data_out', filt='frame.number in {9, 10}')
+        assert rows == [['9', '', ''], ['10', '9', '70696e67']]
+
+    def test_pn532_14443a_uids(self, cmd_tshark, capture_file, test_env):
+        '''Every UID of an InListPassiveTarget request is read at its own
+        offset (all of them used to show the value at offset 6).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'pn532.iso.14443a.uid', filt='pn532.iso.14443a.uid')
+        assert rows == [['159', '0x0000000001020304,0x0000000004030201']]
+
+    def test_pn532_ats_length(self, cmd_tshark, capture_file, test_env):
+        '''An ATS length of 0 or 1 adds no ATS item and leaves no data
+        unexpected (a length of 0 used to move the offset back).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'pn532.ats_length', 'pn532.ats', '_ws.expert.message',
+                filt='frame.number in {160, 162, 164, 166}')
+        assert rows == [['160', '5', '01000220', ''], ['162', '0', '', ''],
+                        ['164', '1', '', ''], ['166', '3', '7880', '']]
+
+    def test_pn532_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Unknown commands and RFConfiguration items are notes, trailing
+        data is a warning.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='pn532.expert.unknown_data || pn532.expert.unexpected_data')
+        frames = [int(r[0]) for r in rows]
+        assert frames == [30, 33, 37, 83, 88, 172, 180, 184, 188, 189, 190, 191, 193]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='pn532.expert.unknown_data')
+        assert [r[0] for r in rows] == ['83', '180', '184', '188', '189']
+
+    def test_pn532_payload_types(self, cmd_tshark, capture_file, test_env):
+        '''The payload type preference selects the dissector for
+        InDataExchange and InCommunicateThru data.'''
+        for ptype, proto, count in (('felica', 'FeliCa', 102), ('mifare', 'MiFare', 14),
+                                    ('iso7816', 'ISO 7816', 28)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
+                    opts=('-o', 'pn532.prtype532:' + ptype))
+            assert [r[0] for r in rows].count(proto) == count
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', '_ws.col.info',
+                filt='iso7816 && frame.number >= 309',
+                opts=('-o', 'pn532.prtype532:iso7816'))
+        assert rows[0] == ['309', 'Select file']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.cmd', 'mifare.block.addr',
+                filt='mifare.cmd == 0x60', opts=('-o', 'pn532.prtype532:mifare'))
+        assert rows[0] == ['0x60', '4']
