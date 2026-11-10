@@ -121665,3 +121665,53 @@ class TestDissectQ932:
                     '-Y', 'frame.number >= 207', '-eframe.number', '-eq932.ie.type')
             assert [(r[0], len(r[1].split(','))) for r in rows] == [
                 ('207', 1), ('208', 2), ('209', 6), ('210', 11)]
+
+
+class TestDissectQ932Ros:
+    '''Q.932 ROSE components (packet-q932-ros.c) from the synthetic capture
+    q932_ros_coverage.pcap.gz: Q.931 FACILITY and other messages in LAPD
+    frames (link type LINUX_LAPD). 85 frames: invoke, return result, return
+    error and reject in every form (invoke id present or absent, linked id,
+    local and global operation and error codes, with and without argument,
+    every problem value).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q932_ros_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q932_ros_protocols(self, cmd_tshark, capture_file, test_env):
+        '''85 frames, no malformed packets and no error expert infos in one
+        and two passes. Operations nobody registered are "Undecoded"
+        warnings.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 85
+        assert all(r[0].startswith('lapd:q931:q932:q932.ros') for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+        for flt, n in (('q932.ros.invoke_element', 38), ('q932.ros.returnResult_element', 11),
+                       ('q932.ros.returnError_element', 16), ('q932.ros.reject_element', 22),
+                       ('q932.ros.undecoded', 7)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, '-Y', flt, '-eframe.number')
+            assert len(rows) == n, flt
+
+    def test_q932_ros_fields(self, cmd_tshark, capture_file, test_env):
+        '''Operation and error codes (local and global), linked ids and
+        reject problems.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 14, 27, 28, 34, 53, 56, 76}', '-eframe.number',
+                '-eq932.ros.local', '-eq932.ros.global', '-eq932.ros.linkedIdPresent',
+                '-eq932.ros.general', '-eq932.ros.invokeProblem', '-eq932.ros.absent_element')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['8'][0] == '800'
+        assert d['14'][1] == '2.5.4.3'
+        assert d['27'][2] == '1' and d['28'][2] == '300'
+        assert d['34'][1] == '1.3.12.9.17'
+        assert d['53'][1] == '1.3.12.9.5'
+        assert d['56'][3] == '0'
+        assert d['76'][3] == '1'
