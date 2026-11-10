@@ -121715,3 +121715,94 @@ class TestDissectQ932Ros:
         assert d['53'][1] == '1.3.12.9.5'
         assert d['56'][3] == '0'
         assert d['76'][3] == '1'
+
+
+class TestDissectQ933:
+    '''Q.933 (Frame Relay signalling and link management) from the
+    synthetic capture q933_coverage.pcap.gz: Frame Relay frames (link type
+    107) on DLCI 0 with NLPID 0x08, reaching Q.933 through the "fr.osinl"
+    table. 461 frames: every message type, the IEs the dissector decodes,
+    the Frame Relay report type, link integrity verification and PVC
+    status IEs (also in codeset 5 and with the ANSI identifiers), and the
+    reproducers of "Q.933: Fix field offsets, DLCI and channel
+    identification" (frames 456-461).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q933_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q933_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 461 frames are Frame Relay carrying Q.933, without malformed
+        packets or error expert infos in one and two passes. The only
+        warning is frame 21 (single-octet IEs that are not decoded).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 461
+        assert all(r[0] == 'fr:q933' for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert.severity == warning', '-eframe.number')
+            assert rows == [['21']]
+
+    def test_q933_link_management(self, cmd_tshark, capture_file, test_env):
+        '''A link verification exchange and a full status report with two
+        PVCs (DLCI 5 and 7), report type, sequence numbers and status.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 432 && frame.number <= 435', '-eframe.number',
+                    '-e_ws.col.info', '-eq933.report_type', '-eq933.link_verification.txseq',
+                    '-eq933.link_verification.rxseq', '-eq933.dlci', '-eq933.status')
+            assert rows == [
+                ['432', 'STATUS ENQUIRY', '1', '1', '0', '', ''],
+                ['433', 'STATUS', '1', '1', '1', '', ''],
+                ['434', 'STATUS ENQUIRY', '0', '2', '1', '', ''],
+                ['435', 'STATUS', '0', '2', '2', '5,7', '1,0'],
+            ]
+
+    def test_q933_pvc_status(self, cmd_tshark, capture_file, test_env):
+        '''PVC status IEs with DLCIs of 10 and 16 bits.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {422, 423}', '-eframe.number', '-eq933.dlci', '-eq933.status')
+        assert rows == [['422', '5', '1'], ['423', '4672', '2']]
+
+    def test_q933_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Frames 456-461. The transit delay selection IE (3-octet value) is
+        shown at its own octets, not after the IE (frame 456); the channel
+        identification with an explicit interface identifier and a
+        "not basic" channel decodes the channel type octet (frames 457 and
+        458); a DLCI of 4 octets is assembled from octets 1-4 with the
+        corrected shifts, the status being octet 5 (frames 459-461).'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q933_coverage.pcap.gz'),
+                '-Y', 'frame.number == 456', '-T', 'json', '-x',
+            ), encoding='utf-8', env=test_env, timeout=300)
+
+        def find(obj, key):
+            if isinstance(obj, dict):
+                if key in obj:
+                    return obj[key]
+                for v in obj.values():
+                    r = find(v, key)
+                    if r is not None:
+                        return r
+            return None
+        raw = find(json.loads(stdout)[0]['_source']['layers'], 'q933.transit_delay_raw')
+        # Frame Relay header (3 octets), Q.933 header (4), IE header (2)
+        assert raw[0] == '010283' and raw[1] == 9 and raw[2] == 3
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 457 && frame.number <= 461', '-eframe.number',
+                '-eq933.channel_type', '-eq933.dlci', '-eq933.status')
+        assert rows == [
+            ['457', '0x03', '', ''],
+            ['458', '0x03', '', ''],
+            ['459', '', '598016', '2'],
+            ['460', '', '8380479', '2'],
+            ['461', '', '598048', '1'],
+        ]
