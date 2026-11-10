@@ -124807,3 +124807,135 @@ class TestDissectRdpudp:
         assert rows['46'] == ['0xc350', '0x0000c350']              # from the previous base
         assert rows['47'] == ['0x0005', '0x00010005']
         assert rows['49'] == ['0x0064', '0x00010064']
+
+
+class TestDissectRdt:
+    CAP = 'rdt_coverage.pcapng.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRdt.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    @staticmethod
+    def frame(cmd_tshark, capture_file, test_env, number, *efields):
+        lines = TestDissectRdt.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == %d' % number, '-Tfields',
+                *('-e' + f for f in efields))
+        assert len(lines) == 1
+        return lines[0]
+
+    def test_rdt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''33 frames are RDT (UDP port 6970, streams set up by RTSP, RTSP
+        interleaved and Exported PDU); none is malformed and only TCP
+        connection set-up has expert infos (chat), in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 43
+        assert protocols.count('RDT') == 33
+        assert protocols.count('RTSP') == 4
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 4194304',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_rdt_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the data and control packets.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 28', '-Tfields', '-e_ws.col.info')
+        lines = [l.strip() for l in lines]
+        assert lines[0] == 'DATA: stream-id=01 asm-rule=00 seq=00001 ts=00100'
+        assert lines[1] == 'DATA: stream-id=300 asm-rule=500 seq=00002 ts=00200'
+        assert lines[3:5] == ['ASM-ACTION: stream-id=03 rel-seqno=00007',
+                              'ASM-ACTION: stream-id=4000 rel-seqno=00008']
+        assert lines[5:7] == ['BANDWIDTH-REPORT:'] * 2
+        assert lines[7:9] == ['ACK: lh=1', 'ACK: lh=0']
+        assert lines[9:12] == ['RTT-REQUEST:', 'RTT-RESPONSE:', 'CONGESTION:']
+        assert lines[12:14] == ['STREAM-END: stream-id=02', 'STREAM-END: stream-id=09']
+        assert lines[14:16] == ['REPORT:'] * 2
+        assert lines[16:18] == ['LATENCY-REPORT: t=5000'] * 2
+        assert lines[18:20] == ['TRANSPORT-INFO-REQUEST:'] * 2
+        assert lines[20:23] == ['RESPONSE:'] * 3
+        assert lines[23:25] == ['BW-PROBING:'] * 2
+        assert lines[25] == 'UNKNOWN-CTL:'
+        assert lines[26] == ('RTT-REQUEST:  CONGESTION:  ACK: lh=0  '
+                'ASM-ACTION: stream-id=03 rel-seqno=00007  '
+                'LATENCY-REPORT: t=5000  BANDWIDTH-REPORT:  REPORT:  '
+                'BW-PROBING:  DATA: stream-id=02 asm-rule=00 seq=00004 ts=00400')
+        assert lines[27] == ('RTT-REQUEST:  RTT-RESPONSE:  STREAM-END: stream-id=05  '
+                'TRANSPORT-INFO-REQUEST:  DATA: stream-id=03 asm-rule=00 seq=00005 ts=00500')
+
+    def test_rdt_data_packet_fields(self, cmd_tshark, capture_file, test_env):
+        '''Data packet with the length, the extended stream id and rule,
+        and the total-reliable field.'''
+        assert self.frame(cmd_tshark, capture_file, test_env, 2,
+                'rdt.length-included', 'rdt.need-reliable', 'rdt.stream-id',
+                'rdt.is-reliable', 'rdt.back-to-back', 'rdt.slow-data',
+                'rdt.asm-rule', 'rdt.stream-id-expansion',
+                'rdt.asm-rule-expansion', 'rdt.total-reliable',
+                'rdt.packet-length', 'rdt.timestamp', 'rdt.sequence-number'
+                ) == '1\t1\t31\t1\t1\t1\t63\t300\t500\t17\t19\t200\t2'
+
+    def test_rdt_control_packet_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fields of the control packets.'''
+        f = lambda n, *e: self.frame(cmd_tshark, capture_file, test_env, n, *e)
+        assert f(6, 'rdt.bwid-report-interval', 'rdt.bwid-report-bandwidth',
+                 'rdt.bwid-report-sequence') == '1000\t2000000\t5'
+        assert f(11, 'rdt.rtrp-ts-sec', 'rdt.rtrp-ts-usec') == '1700000000\t123456'
+        assert f(12, 'rdt.cong-xmit-mult', 'rdt.cong-recv-mult') == '65536\t131072'
+        assert f(14, 'rdt.stre-need-reliable', 'rdt.stre-stream-id',
+                 'rdt.stre-packet-sent', 'rdt.stre-ext-flag', 'rdt.stre-seqno',
+                 'rdt.timestamp', 'rdt.stream-id-expansion',
+                 'rdt.total-reliable', 'rdt.stre-reason-dummy-flags1',
+                 'rdt.stre-reason-dummy-type', 'rdt.stre-reason-code'
+                 ) == '1\t31\t1\t1\t9\t1000\t9\t3\t0x55\t0x1234\t0xdeadbeef'
+        assert f(19, 'rdt.tirq-request-rtt-info', 'rdt.tirq-request-buffer-info',
+                 'rdt.tirq-request-time-msec') == '1\t1\t77'
+        assert f(21, 'rdt.tirp-has-rtt-info', 'rdt.tirp-is-delayed',
+                 'rdt.tirp-has-buffer-info', 'rdt.tirp-request-time-msec',
+                 'rdt.tirp-response-time-msec', 'rdt.tirp-buffer-info-count',
+                 'rdt.tirp-buffer-info-stream-id',
+                 'rdt.tirp-buffer-info-lowest-timestamp',
+                 'rdt.tirp-buffer-info-highest-timestamp',
+                 'rdt.tirp-buffer-info-bytes-buffered'
+                 ) == '1\t1\t1\t111\t222\t2\t1,2\t0,1000\t500,1500\t4096,8192'
+        assert f(24, 'rdt.bwpp-seqno', 'rdt.packet-length') == '3\t10'
+        assert f(26, 'rdt.unk-flags1', 'rdt.packet-type') == '19\t0xff20'
+        assert f(17, 'rdt.lrpt-server-out-time') == '5000'
+
+    def test_rdt_several_packets_in_a_frame(self, cmd_tshark, capture_file, test_env):
+        '''Eight packets in one datagram, the last a data packet.'''
+        assert self.frame(cmd_tshark, capture_file, test_env, 27,
+                'rdt.packet-type', 'rdt.packet-length'
+                ) == '0xff03,0xff05,0xff02,0xff00,0xff08,0xff01,0xff07,0xff0b\t8,9,9,12,8,10,14'
+
+    def test_rdt_setup_by_rtsp(self, cmd_tshark, capture_file, test_env):
+        '''The RTSP SETUP reply creates the conversation: the RDT
+        packets on the port from the Transport header show how they were
+        set up, unless the preference is off.'''
+        args = (cmd_tshark, capture_file, test_env)
+        assert self.frame(*args, 34, 'rdt.setup-frame', 'rdt.setup-method',
+                'rdt.feature-level') == '33\tRTSP\t2'
+        assert self.frame(*args, 35, 'rdt.setup-frame', 'rdt.setup-method',
+                'rdt.feature-level') == '33\tRTSP\t2'
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-ordt.show_setup_info:FALSE',
+                '-Y', 'frame.number == 34', '-Tfields', '-erdt.setup-method')
+        assert lines == ['']
+        # Interleaved in RTSP over TCP, set up as x-pn-tng
+        assert self.frame(*args, 41, '_ws.col.protocol', 'rdt.packet-length',
+                'rdt.sequence-number') == 'RDT\t21\t20'
+
+    def test_rdt_exported_pdu_70000_octets(self, cmd_tshark, capture_file, test_env):
+        '''A data packet of 70000 octets without the length field: the
+        packet length used to be a 16 bit value and the dissector looped
+        for ever (fixed on the branch).'''
+        assert self.frame(cmd_tshark, capture_file, test_env, 43,
+                'frame.len', '_ws.col.protocol', 'rdt.sequence-number',
+                'rdt.timestamp') == '70012\tRDT\t1\t0'
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 43 && (_ws.malformed || _ws.expert)',
+                '-Tfields', '-eframe.number')
+        assert stdout == []
