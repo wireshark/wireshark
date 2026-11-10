@@ -126972,3 +126972,41 @@ class TestDissectRmi:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert [l.split('\t') for l in stdout.splitlines()] == [
             ['10', '192.0.2.20', '40000'], ['0', '[Empty]', '1099'], ['1', 'a', '7']]
+
+
+class TestDissectRmp:
+    '''HP Remote Maintenance Protocol (RMP) over 802.2 LLC and HPEXT, from
+    the synthetic capture rmp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rmp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rmp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-20 are RMP (the 21st has an XSAP that is not RMP),
+        with the expected message types; no malformed packets or error
+        expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert len(fr('rmp', 'frame.number')) == 20
+            assert fr('rmp', 'rmp.type') == ['0x01'] * 3 + ['0x81'] * 2 + ['0x02'] * 2 + \
+                ['0x82'] * 3 + ['0x03'] * 2 + ['0x55'] + ['0x81'] * 7
+            assert fr('rmp.retcode == 0x19', 'frame.number') == ['10']
+            assert fr('rmp.machtype', 'rmp.machtype') == ['9000/720', '9000/720', '9000/735']
+            assert fr('rmp.filename', 'rmp.filename')[:4] == ['SYSHPUX'] * 3 + ['']
+            assert fr('!rmp && hpext', 'frame.number') == ['21']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_rmp_boot_done_data(self, cmd_tshark, capture_file, test_env):
+        '''The data after the BOOT_DONE header starts after the session
+        ID (offset 8), see "RMP: Fix the data offset in BOOT_DONE": it
+        used to start at offset 6 and show the session ID again.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'rmp.type == 3 && data', 'frame.number', 'rmp.sessionid', 'data.data')
+        assert out == ['12\t0x4242\t' + b'trailing boot done data'.hex()]
