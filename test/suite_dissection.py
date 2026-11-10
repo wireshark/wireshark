@@ -120035,3 +120035,156 @@ message Broken {
                                        'protobuf.message.name')
             assert [l[:3] for l in lines] == [['125', 'OPTIONS', ''], ['126', '', '200']]
             assert lines[0][3] == 'adc.sip.RequestPDU' and lines[1][3] == 'adc.sip.ResponsePDU'
+
+
+class TestDissectProxy:
+    '''PROXY protocol v1 and v2 over TCP port 9999 (found by the TCP
+    heuristic, the proxied HTTP by the proxied ports) and v2 over UDP
+    (proxied STUN), from the synthetic capture proxy_coverage.pcap.gz.'''
+
+    def test_proxy_frames(self, cmd_tshark, capture_file, test_env):
+        '''The frames with a PROXY header, in one and two passes, and no
+        malformed packets or error expert infos in the whole capture.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('proxy_coverage.pcap.gz'),
+                    '-Y', 'proxy',
+                    '-Tfields', '-eframe.number', '-eproxy.v1.proto',
+                    '-eproxy.v2.cmd', '-eproxy.v2.addr_family_protocol',
+                    '-eproxy.srcport', '-eproxy.dstport',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                ['4', 'TCP4', '', '', '51234', '80'],
+                ['15', 'TCP6', '', '', '51235', '80'],
+                ['22', 'UNKNOWN', '', '', '', ''],
+                ['29', 'TCP4', '', '', '51236', '80'],
+                ['36', '', '1', '0x11', '51234', '80'],
+                ['47', '', '1', '0x21', '51235', '80'],
+                ['54', '', '1', '0x31', '', ''],
+                ['59', '', '1', '0x32', '', ''],
+                ['64', '', '0', '0x11', '51234', '80'],
+                ['69', '', '0', '0x00', '', ''],
+                ['74', '', '1', '0x00', '', ''],
+                ['79', '', '1', '0x00', '', ''],
+                ['84', '', '1', '0x12', '51234', '80'],
+                ['89', '', '1', '0x22', '51235', '80'],
+                ['94', '', '1', '0x11', '51234', '80'],
+                ['99', '', '1', '0x11', '51234', '80'],
+                ['103', '', '1', '0x12', '51234', '80'],
+                ['104', '', '1', '0x22', '51235', '80'],
+                ['105', '', '1', '0x12', '51234', '80'],
+                ['106', '', '0', '0x12', '51234', '80'],
+                ['107', '', '1', '0x32', '', ''],
+                ['108', '', '1', '0x00', '', ''],
+                ['109', '', '1', '0x12', '51234', '80'],
+                ['110', '', '1,1', '0x12,0x12', '51234,51234', '80,80'],
+            ]
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('proxy_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_proxy_proxied_payload(self, cmd_tshark, capture_file, test_env):
+        '''The payload after the header is dissected with the proxied
+        ports (HTTP on port 80), also in later segments, in the reverse
+        direction and after reassembly of a POST that starts in the
+        segment with the header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('proxy_coverage.pcap.gz'),
+                '-Y', 'http',
+                '-Tfields', '-eframe.number', '-ehttp.request.uri',
+                '-ehttp.response.code',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == [
+            '4', '6', '8', '10', '15', '17', '31', '38', '40', '42', '47', '49',
+            '84', '89', '94', '101']
+        assert dict((l[0], l[1]) for l in lines)['4'] == '/one'
+        assert dict((l[0], l[1]) for l in lines)['38'] == '/up'
+        assert dict((l[0], l[2]) for l in lines)['6'] == '200'
+        # the POST body is reassembled in frame 38 (header in frame 36)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('proxy_coverage.pcap.gz'),
+                '-Y', 'frame.number == 38',
+                '-Tfields', '-ehttp.request.uri', '-ehttp.content_length',
+                '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['/up', '20', '38']
+
+    def test_proxy_v2_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''All TLV types of frame 36; the SSL sub-TLVs end with the SSL TLV
+        so the following TLVs are not nested under it (fix of "PROXY:
+        Bound nested PROXY headers, end SSL sub-TLVs at the TLV end").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('proxy_coverage.pcap.gz'),
+                '-Y', 'frame.number == 36',
+                '-Tfields', '-eproxy.v2.tlv.type', '-eproxy.v2.tlv.ssl.version',
+                '-eproxy.v2.tlv.ssl.cn', '-eproxy.v2.tlv.ssl.cipher',
+                '-eproxy.v2.tlv.ssl.sig_alg', '-eproxy.v2.tlv.ssl.keu_alg',
+            ), encoding='utf-8', env=test_env)
+        f = stdout.rstrip('\n').split('\t')
+        assert f[0] == '0x01,0x02,0x03,0x04,0x05,0x20,0x21,0x22,0x23,0x24,0x25,0x30,0xea,0x99,0x00'
+        assert f[1:] == ['TLSv1.3', 'client.example', 'TLS_AES_256_GCM_SHA384',
+                         'RSA-SHA256', 'RSA2048']
+        # frame 94: an SSL TLV with one sub-TLV, then AUTHORITY at the top
+        # level, then an SSL TLV that is too short for sub-TLVs
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('proxy_coverage.pcap.gz'),
+                '-Y', 'frame.number == 94',
+                '-V', '-O', 'proxy',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        tops = [l for l in lines if l.startswith('    TLV: ')]
+        assert tops == ['    TLV: (t=32,l=10) SSL', '    TLV: (t=2,l=13) AUTHORITY',
+                        '    TLV: (t=32,l=2) SSL']
+        assert '        TLV: (t=34,l=2) SSL CN: cn' in lines
+
+    def test_proxy_udp(self, cmd_tshark, capture_file, test_env):
+        '''PROXY v2 over UDP: the proxied STUN message is dissected, the
+        header does not set up a conversation, LOCAL and UNIX headers are
+        shown too, two nested headers are dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('proxy_coverage.pcap.gz'),
+                '-Y', 'udp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['103', 'STUN', 'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80 | Binding Request'],
+            ['104', 'STUN', 'PROXY 2001:db8::7 → 2001:db8::9, 51235 → 80 | Binding Request'],
+            ['105', 'STUN', 'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80 | Binding Request'],
+            ['106', 'STUN', 'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80 | Binding Request'],
+            ['107', 'STUN', '40000 → 9999 Len=260 | Binding Request'],
+            ['108', 'PROXYv2', '40000 → 9999 Len=39 | '],
+            ['109', 'PROXYv2', 'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80'],
+            ['110', 'STUN', 'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80 | '
+                            'PROXY 198.51.100.7 → 203.0.113.9, 51234 → 80 | Binding Request'],
+            ['111', 'STUN', 'Binding Request'],
+        ]
+
+    def test_proxy_nesting_limit(self, cmd_tshark, test_env, tmp_path):
+        '''More than four nested PROXY v2 headers over UDP are refused
+        with an expert info instead of the generic dissection depth
+        assertion ("PROXY: Bound nested PROXY headers, end SSL sub-TLVs at
+        the TLV end"). The reproducer (six nested headers) is made here
+        because the expert info is an error and the capture has none.'''
+        magic = bytes([0x0d, 0x0a, 0x0d, 0x0a, 0x00, 0x0d, 0x0a, 0x51, 0x55, 0x49, 0x54, 0x0a])
+        hdr = magic + bytes([0x21, 0x00]) + struct.pack('>H', 0)
+        payload = hdr * 6 + b'X'
+        udp = struct.pack('>HHHH', 40000, 9999, 8 + len(payload), 0) + payload
+        iph = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                          bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        pkt = bytes.fromhex('020000000002020000000001') + b'\x08\x00' + iph + udp
+        path = str(tmp_path / 'proxy_nesting.pcap')
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(pkt), len(pkt)))
+            f.write(pkt)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', path,
+                '-Y', 'proxy.nesting',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1']
