@@ -128602,3 +128602,71 @@ class TestDissectRquota:
         assert stdout.splitlines() == [
             '70\tV1 GETQUOTA Call  ; V2 GETACTIVEQUOTA Call',
             '71\tV1 GETQUOTA Reply (Call In 70)  ; V2 GETACTIVEQUOTA Reply (Call In 70)']
+
+
+class TestDissectRrcCoverage:
+    '''Synthetic UMTS RRC capture: every RRC PDU type (channel messages,
+    system information blocks, inter-node containers) with random values,
+    through GSMTAP (UDP 4729) and Exported PDU, and the reproducer of "RRC:
+    Keep the HS-DSCH channel count per PDU".'''
+    CAPTURE = 'rrc_coverage.pcapng.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rrc_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_rrc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''1222 frames, 566 over GSMTAP and 656 Exported PDU, all
+        dissected as RRC; no malformed packets or error expert infos in one
+        and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 1222
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'gsmtap.rrc_sub_type', '-Tfields', '-eframe.number')
+        assert len(lines) == 566
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'exported_pdu', '-Tfields', '-eframe.number')
+        assert len(lines) == 656
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rrc', '-Tfields', '-eframe.number')
+        assert len(lines) == 1222
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_rrc_message_types(self, cmd_tshark, capture_file, test_env):
+        '''142 DL-DCCH and 131 UL-DCCH messages, system information and
+        the other channel PDUs are in the capture.'''
+        for flt, n in (('rrc.DL_DCCH_Message_element', 142), ('rrc.UL_DCCH_Message_element', 131),
+                       ('rrc.MasterInformationBlock_element', 24)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == n, flt
+
+    def test_rrc_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The RRC tree is the same in one and two passes.'''
+        args = ('-Y', 'rrc', '-V')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 100000
+        assert one == two
+
+    def test_rrc_hsdsch_channel_count(self, cmd_tshark, capture_file, test_env):
+        '''The last two frames are the same DL-DCCH message over GSMTAP.
+        The per flow HS-DSCH channel count was a file-scope static, so the
+        "no H-RNTI" expert info of a frame depended on the frames dissected
+        before it; it is the same per frame in one and two passes.'''
+        args = ('-Y', 'rrc.no_hrnti', '-Tfields', '-eframe.number')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert one == two == ['876']
+        last = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 1221',
+                '-Tfields', '-e_ws.expert.message', '-e_ws.col.info')
+        assert len(last) == 2
+        assert last[0] == last[1]
+
+    def test_rrc_nested(self, cmd_tshark, capture_file, test_env):
+        '''NAS messages, the SIBs of a System-Information-Container and
+        the inter-RAT handover info are dissected inside RRC.'''
+        for flt in ('gsm_a.dtap', 'rrc.MasterInformationBlock_element && frame.protocols contains "exported_pdu"',
+                    'rrc.SysInfoType1_element'):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) >= 1, flt
