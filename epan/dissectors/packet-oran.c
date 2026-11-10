@@ -1747,7 +1747,7 @@ addPcOrRtcid(tvbuff_t *tvb, proto_tree *tree, int *offset, int hf, uint16_t *eAx
 
 /* 5.1.3.2.8  ecpriSeqid (message identifier) */
 static int
-addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti, packet_info *pinfo)
+addSeqid(tvbuff_t *tvb, proto_tree *oran_tree, int offset, int plane, uint8_t *seq_id, proto_item **seq_id_ti, packet_info *pinfo _U_)
 {
     /* Subtree */
     proto_item *seqIdItem = proto_tree_add_item(oran_tree, hf_oran_ecpri_seqid, tvb, offset, 2, ENC_NA);
@@ -4215,7 +4215,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 proto_item *num_elements_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_num_elements, tvb, offset, 1, ENC_BIG_ENDIAN, &num_elements);
                 if (num_elements == 0) {
                     num_elements = 256;
-                    proto_item_append_text(num_elements_ti, " (256");
+                    proto_item_append_text(num_elements_ti, " (256)");
                 }
 
                 offset += 1;
