@@ -124549,3 +124549,65 @@ class TestDissectRdpEgfx:
                 '4\tinvalid compression\t8388608\t',
                 '5\tpduLength is 4, not < 8\t8388608\t',
                 '6\tpduLength is 4096, larger than the remaining data\t8388608\t']
+
+
+class TestDissectRdpMultitransport:
+    '''RDP multitransport tunnel (RDPMT) from the synthetic capture
+    rdp_multitransport_coverage.pcapng.gz: an RDP session on TCP 3389 with a
+    message channel (multitransport requests) and Exported PDUs for the
+    decrypted (D)TLS tunnel on UDP (dissector rdpmt and the heuristic
+    dissectors rdpmt_dtls and rdpmt_tls_).'''
+
+    CAPTURE = 'rdp_multitransport_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpMultitransport.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rdpmt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 54
+        assert protocols.count('DRDYNVC') == 22
+        assert protocols.count('RDP') == 7
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 12', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_rdpmt_tunnel(self, cmd_tshark, capture_file, test_env):
+        '''Tunnel create request and response, data carrying DRDYNVC PDUs, the
+        request id and the cookie; a header length below 4 does not move the
+        offset (the offset used to run backwards).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpmt', '-Tfields', '-eframe.number', '-erdpmt.action', '-erdpmt.createrequest.requestid',
+                '-erdpmt.createresponse.hrresponse', '-erdpmt.createrequest.cookie')
+        lines = stdout.splitlines()
+        assert lines[0] == ('14\t0x00\t0x55667788\t\t000102030405060708090a0b0c0d0e0f')
+        assert lines[1] == '15\t0x01\t\t0\t'
+        assert lines[2] == '16\t0x01\t\t-2147467259\t'
+        assert '37\t0x01\t\t0\t' in lines and '38\t0x01\t\t0\t' in lines
+
+    def test_rdpmt_subheaders_and_heuristics(self, cmd_tshark, capture_file, test_env):
+        '''Auto detect sub headers in both directions; the heuristic
+        dissectors accept the tunnel PDUs and reject data that is not RDPMT.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpmt.headerlen > 4', '-Tfields', '-eframe.number')
+        assert count_output(stdout) == 18            # 13 + 4 sub headers, one heuristic frame
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 39 && frame.number <= 51', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0] == ['39', 'TunnelCreateRequest']
+        assert rows[1] == ['40', 'TunnelCreateResponse']
+        assert rows[2] == ['41', 'CreateChannel Request(bar)']
+        assert rows[3] == ['42', 'CreateChannel Request(q)']
+        assert all(len(r) == 1 or r[1] == '' for r in rows[4:])       # data that is not RDPMT
