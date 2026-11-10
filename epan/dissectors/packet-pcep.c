@@ -1872,6 +1872,7 @@ dissect_pcep_path_setup_capabilities_sub_tlvs(proto_tree *pcep_tlv, packet_info*
                proto_tree_add_item(sub_tlv, hf_pcep_sr_pce_capability_sub_tlv_msd, tvb, offset + 4 + j + 3, 1, ENC_NA);
                break;
         }
+        padding = WS_PADDING_TO_4(sub_tlv_length);
     }
 
 }
@@ -2021,22 +2022,20 @@ dissect_pcep_tlvs_with_scope(proto_tree *pcep_obj, packet_info* pinfo, tvbuff_t 
                 break;
 
             case 29:    /* OP-CONF-ASSOC-RANGE */
-                offset += 4 + j;
-                while(tlv_length > 0) {
-                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_reserved, tvb, offset, 2, ENC_NA);
-                    offset += 2;
-                    tlv_length -= 2;
-                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_assoc_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    tlv_length -= 2;
-                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_start_assoc, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    tlv_length -= 2;
-                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_range, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    tlv_length -= 2;
+            {
+                unsigned range_offset = offset + 4 + j;
+                unsigned range_remaining = tlv_length;
+
+                while (range_remaining >= 8) {
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_reserved, tvb, range_offset, 2, ENC_NA);
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_assoc_type, tvb, range_offset + 2, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_start_assoc, tvb, range_offset + 4, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_range, tvb, range_offset + 6, 2, ENC_BIG_ENDIAN);
+                    range_offset += 8;
+                    range_remaining -= 8;
                 }
                 break;
+            }
 
             case 30:    /* GLOBAL-ASSOCIATION-SOURCE */
                 proto_tree_add_item(tlv, hf_pcep_association_source_global, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
@@ -2532,7 +2531,7 @@ dissect_subobj_srv6(proto_tree *pcep_subobj_tree, packet_info *pinfo, tvbuff_t *
         j += 16;
     }
 
-    if ( ! (flags & PCEP_SUBOBJ_SR_FLAGS_F) ) { /* F flag is not set, NAI exists */
+    if ( ! (flags & PCEP_SUBOBJ_SRV6_FLAGS_F) ) { /* F flag is not set, NAI exists */
         switch (nt) {
         case 2: /* IPv6 Node ID */
             ti = proto_tree_add_item(subtree, hf_pcep_subobj_srv6_nai, tvb, offset+j+8, 16, ENC_NA);
