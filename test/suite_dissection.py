@@ -118278,3 +118278,112 @@ class TestDissectPktgen:
                 '-Y', 'pktgen && !pktgen.timestamp', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['6', '7']
+
+
+class TestDissectPldm:
+    def test_pldm_clean(self, cmd_tshark, capture_file, test_env):
+        '''115 frames over MCTP, all with PLDM, none malformed or with an
+        error expert info, in one and in two passes, and the same Info
+        column in both.'''
+        cap = capture_file('pldm_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert.severity > 0x600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', 'pldm', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        # frame 30 (SMBIOS) and 31-32 (unknown types) have the PLDM header
+        # only and are dissected as PLDM too
+        assert count_output(outputs[0]) == 115
+        assert 'Corrupt PDR Record data' in outputs[0]
+        assert 'Invalid PLDM Inst ID or Type' in outputs[0]
+
+    def test_pldm_versions(self, cmd_tshark, capture_file, test_env):
+        '''GetPLDMVersion: BCD fields, unused fields, and a non-printable
+        alpha byte shown as "?".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6,7,8,9}',
+                '-Tfields', '-epldm.base.pldmTypeVersion',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1.3.1.-', '12.34.56a', '---.-', '0.99.7?']
+
+    def test_pldm_getcommands_by_request_type(self, cmd_tshark, capture_file, test_env):
+        '''The response to GetPLDMCommands is decoded by the type asked for
+        in the request with the same instance id, with the same result in
+        a second pass over the file (with a tree built in the first pass).'''
+        results = []
+        for opts in ((), ('-2', '-R', 'pldm')):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file('pldm_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {14,16,18,20,112,114}',
+                    '-Tfields', '-eframe.number', '-epldm.baseCommands',
+                    '-epldm.platformCommands', '-epldm.biosCommands', '-epldm.fruCommands',
+                ), encoding='utf-8', env=test_env)
+            results.append(stdout.splitlines())
+        assert results[0] == results[1]
+        assert results[0] == [
+            '14\t0x05,0x00,0x01,0x02,0x03,0x04\t\t\t',
+            '16\t0x05\t0x04,0x0a,0x11,0x3b\t\t',
+            '18\t0x05\t\t0x00,0x01,0x02,0x03,0x0f\t',
+            '20\t0x05\t\t\t0x00,0x01,0x02,0x03,0x3f',
+            '112\t0x05,0x00,0x01,0x02\t\t\t',
+            '114\t0x05,0x00,0x01,0x02\t\t\t']
+
+    def test_pldm_platform_sensor_values(self, cmd_tshark, capture_file, test_env):
+        '''Numeric sensor event values of every size, signed and unsigned.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 40 && frame.number <= 45',
+                '-Tfields', '-eframe.number',
+                '-epldm.platform.event.sensor.data_u8', '-epldm.platform.event.sensor.data_s8',
+                '-epldm.platform.event.sensor.data_u16', '-epldm.platform.event.sensor.data_s16',
+                '-epldm.platform.event.sensor.data_u32', '-epldm.platform.event.sensor.data_s32',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '40\t1\t\t\t\t\t', '41\t\t-1\t\t\t\t', '42\t\t\t513\t\t\t',
+            '43\t\t\t\t-1\t\t', '44\t\t\t\t\t67305985\t', '45\t\t\t\t\t\t-1']
+
+    def test_pldm_fru_encodings(self, cmd_tshark, capture_file, test_env):
+        '''FRU records with the string encodings ISO 8859-1, UTF-8,
+        UTF-16 with a BOM, UTF-16LE and UTF-16BE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number == 93',
+                '-Tfields', '-epldm.fru.record.id', '-epldm.fru.record.encoding',
+                '-epldm.fru.record.field_value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '1,2,3,4,5,6\t1,2,3,4,5,6\tchassis,serial-1,café,bom,le,be'
+
+    def test_pldm_fru_table_over_64k(self, cmd_tshark, capture_file, test_env):
+        '''A FRU table larger than 65535 octets is dissected to its end
+        (the 16-bit offset wrapped before the fix, and the loop ran until
+        the limit on tree items stopped it).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number == 115',
+                '-Tfields', '-epldm.fru.record.id', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        ids, expert = stdout.rstrip('\n').split('\t')
+        assert len(ids.split(',')) == 170
+        assert expert == ''
+
+    def test_pldm_firmware_parameters(self, cmd_tshark, capture_file, test_env):
+        '''GetFirmwareParameters with two components and without any.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number in {106,107}',
+                '-Tfields', '-eframe.number', '-epldm.fwu.comp_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['106\t2', '107\t0']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pldm_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-epldm.base.typeSupported',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x00,0x02,0x03,0x04,0x05,0x3f'
