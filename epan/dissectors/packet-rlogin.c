@@ -209,6 +209,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 	 * pointer setting for this conversation.
 	 */
 	if (tcpinfo && IS_TH_URG(tcpinfo->flags) &&      /* if urgent pointer set */
+	    tcpinfo->urgent_pointer > 0 &&
 	    length >= tcpinfo->urgent_pointer) /* and it's in this frame */
 	{
 		/* Get urgent byte into Temp */
@@ -334,6 +335,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 			/* There's data before the terminal info. */
 			proto_tree_add_item(rlogin_tree, hf_data, tvb,
 			                    offset, ti_offset - offset, ENC_ASCII);
+			offset = ti_offset;
 		}
 
 		/* Create window info tree */
@@ -441,7 +443,8 @@ dissect_rlogin(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 				                   "Startup info received");
 		}
 		else
-		if (tcpinfo && IS_TH_URG(tcpinfo->flags) && length >= tcpinfo->urgent_pointer)
+		if (tcpinfo && IS_TH_URG(tcpinfo->flags) &&
+		    tcpinfo->urgent_pointer > 0 && length >= tcpinfo->urgent_pointer)
 		{
 			/* Urgent pointer inside current data represents a control message */
 			col_append_str(pinfo->cinfo, COL_INFO, "Control Message");
