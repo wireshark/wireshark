@@ -114305,3 +114305,109 @@ class TestDissectOspfCoverage:
             '', '10.1.0.0,10.2.0.0,10.2.0.0,10.2.0.0,10.1.0.0,10.2.0.0,10.1.0.0,10.2.0.0']
         assert lines[2].split('\t')[1:] == ['2001:db8:1::,2001:db8:1::,2001:db8:1::', '']
         assert lines[3].split('\t')[1:] == ['', '10.1.0.0,10.1.0.0,10.1.0.0']
+
+
+class TestDissectOssp:
+    # ossp_coverage.pcapng.gz: Ethernet slow protocols (subtype 0x0a). 1-14
+    # ESMC with every Option I quality level (alternating information and
+    # time-critical events, extended QL TLV for the enhanced codes), 15-16
+    # padding after the TLVs, 17 a QL TLV without room for an extended QL TLV,
+    # 18 another TLV type after the QL TLV, 19-21 other OUIs and an unknown
+    # ITU-T subtype.
+    CAP = 'ossp_coverage.pcapng.gz'
+
+    def test_ossp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol and no malformed packets or expert
+        infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 21
+        assert protocols.count('ESMC') == 18
+        assert protocols.count('OSSP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ossp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column: event flag and the short quality level name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 Event:Information, QL-PRC',
+            '2 Event:Time-critical, QL-SSU-A',
+            '3 Event:Information, QL-SSU-B',
+            '4 Event:Time-critical, QL-EEC1',
+            '5 Event:Information, QL-DNU',
+            '6 Event:Time-critical, QL-PRC',
+            '7 Event:Information, QL-SSU-A',
+            '8 Event:Time-critical, QL-SSU-B',
+            '9 Event:Information, QL-EEC1',
+            '10 Event:Time-critical, QL-DNU',
+            '11 Event:Information, QL-PRTC',
+            '12 Event:Time-critical, QL-ePRTC',
+            '13 Event:Information, QL-eEEC',
+            '14 Event:Time-critical, QL-ePRC',
+            '15 Event:Information, QL-PRC',
+            '16 Event:Time-critical, QL-PRC',
+            '17 Event:Information, QL-SSU-A',
+            '18 Event:Information, QL-SSU-A',
+            '19 OUI: Cisco Systems, Inc',
+            '20 OUI: (Unknown OSSP organization)',
+            '21 OUI: Itu-T',
+        ]
+
+    def test_ossp_extended_ql(self, cmd_tshark, capture_file, test_env):
+        '''An ESMC PDU with the extended quality level TLV.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 12',
+                '-V', '-O', 'ossp',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Organization Specific Slow Protocol')
+        assert lines[start + 1:start + 25] == [
+            '    OUI: 00:19:a7 (Itu-T)',
+            '    ITU-T OSSP Subtype: 0x0001: ESMC, Event:Time-critical',
+            '        0001 .... = Version: 0x1',
+            '        .... 1... = Event Flag: Time-critical Event ESMC PDU',
+            '        .... .000 = Reserved: 0x00',
+            '        Reserved: 0x000000',
+            '        ESMC TLV, Quality Level',
+            '            TLV Type: Quality Level (0x01)',
+            '            TLV Length: 0x0004',
+            '            0000 .... = Unused: 0x0',
+            '            .... 0010 = SSM Code: 0x2',
+            '        ESMC TLV, Extended Quality Level',
+            '            TLV Type: Extended Quality Level (0x02)',
+            '            TLV Length: 0x0014',
+            '            Enhanced SSM Code: 0x21',
+            '            SyncE clockID: 0x001b21fffe123456',
+            '            0000 00.. = Reserved: 0x00',
+            '            .... ..0. = Partial chain: No',
+            '            .... ...0 = Mixed EEC/eEEC clocks: No',
+            '            Cascaded eEECs: 12',
+            '            Cascaded EECs: 84',
+            '            Reserved: 0x0000000000',
+            '        [Quality Level: QL-ePRTC, Enhanced Primary Reference Time Clock]',
+            '        Padding: 000000000000000000000000, 12 octets',
+        ]
+
+    def test_ossp_option_network(self, cmd_tshark, capture_file, test_env):
+        '''Option I is the default network option; with Option II the same
+        codes are unknown (QL-PRC is code 2 in Option I only).'''
+        for opt, expected in (('1', 'QL-PRC'), ('2', 'Unknown Quality Level')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-o', 'ossp.option_network:' + opt,
+                    '-r', capture_file(self.CAP),
+                    '-Y', 'frame.number == 1',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.rstrip().endswith(expected)
