@@ -697,7 +697,7 @@ dissect_rdpdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree _U_, vo
 			DrIoRequest *ioReq = NULL;
 			if (!PINFO_FD_VISITED(pinfo)) {
 				if (device) {
-					ioReq = wmem_alloc(wmem_file_scope(), sizeof(*ioReq));
+					ioReq = wmem_new0(wmem_file_scope(), DrIoRequest);
 
 					ioReq->completionId = completionId;
 					ioReq->majorFn = majorFn;
