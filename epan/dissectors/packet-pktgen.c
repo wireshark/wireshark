@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 void proto_register_pktgen(void);
 void proto_reg_handoff_pktgen(void);
@@ -38,6 +39,8 @@ static int hf_pktgen_timestamp;
 /* Initialize the subtree pointer */
 static int ett_pktgen;
 
+static expert_field ei_pktgen_usec;
+
 /* entry point */
 static bool dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -47,6 +50,7 @@ static bool dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     uint32_t    offset      = 0;
     nstime_t    tstamp;
     uint32_t    magic;
+    uint32_t    usec;
 
     /* check for min size */
     if (tvb_reported_length(tvb) < 16) {  /* Not a PKTGEN packet. */
@@ -88,12 +92,18 @@ static bool dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         proto_item_set_generated(tmp);
         offset += 4;
 
-        tstamp.nsecs = tvb_get_ntohl(tvb, offset) /* microsecond on the wire so... */ * 1000;
+        usec = tvb_get_ntohl(tvb, offset);
+        tstamp.nsecs = 0;
         tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvusec, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_set_generated(tmp);
         offset += 4;
 
-        proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
+        if (usec >= 1000000) {
+            expert_add_info(pinfo, tmp, &ei_pktgen_usec);
+        } else {
+            tstamp.nsecs = usec * 1000; /* microsecond on the wire so... */
+            proto_tree_add_time(pktgen_tree, hf_pktgen_timestamp, tvb, offset - 8, 8, &tstamp);
+        }
 
         if (tvb_reported_length_remaining(tvb, offset)) /* random data */
             call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo,
@@ -152,6 +162,12 @@ void proto_register_pktgen(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_pktgen_usec, { "pktgen.usec_invalid", PI_PROTOCOL, PI_WARN,
+          "Microseconds value is not less than 1000000", EXPFILL }}
+    };
+    expert_module_t *expert_pktgen;
+
     /* Setup protocol subtree array */
 
     static int *ett[] = {
@@ -166,6 +182,8 @@ void proto_register_pktgen(void)
 
     proto_register_field_array(proto_pktgen, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_pktgen = expert_register_protocol(proto_pktgen);
+    expert_register_field_array(expert_pktgen, ei, array_length(ei));
 }
 
 
