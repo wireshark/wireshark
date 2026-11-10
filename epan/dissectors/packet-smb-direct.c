@@ -102,7 +102,6 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 			   proto_tree *tree, uint32_t remaining_length)
 {
 	bool save_fragmented = pinfo->fragmented;
-	int save_visited = pinfo->fd->visited;
 	conversation_t *conversation = NULL;
 	fragment_head *fd_head = NULL;
 	tvbuff_t *payload_tvb = NULL;
@@ -125,12 +124,13 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 	if (fd_head == NULL) {
 		fd_head_not_cached = true;
 
-		pinfo->fd->visited = 0;
-		fd_head = fragment_add_seq_next(&smb_direct_reassembly_table,
-						tvb, 0, pinfo,
-						conversation->conv_index,
-						NULL, tvb_captured_length(tvb),
-						more_frags);
+		if (!PINFO_FD_VISITED(pinfo)) {
+			fd_head = fragment_add_seq_next(&smb_direct_reassembly_table,
+							tvb, 0, pinfo,
+							conversation->conv_index,
+							NULL, tvb_captured_length(tvb),
+							more_frags);
+		}
 	}
 
 	if (fd_head == NULL) {
@@ -179,7 +179,6 @@ dissect_payload:
 	}
 done:
 	pinfo->fragmented = save_fragmented;
-	pinfo->fd->visited = save_visited;
 	return;
 }
 
