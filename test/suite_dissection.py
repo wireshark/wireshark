@@ -115244,3 +115244,58 @@ class TestDissectPackclient:
                 '-epackclient.message_type',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['20\tTCP\t', '21\tPACKCLIENT\t0x00000003']
+
+
+class TestDissectPacketbb:
+    '''PacketBB (RFC 5444) over UDP port 269 from the synthetic capture
+    packetbb_coverage.pcap.gz.'''
+
+    def test_packetbb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 17 frames are packetbb, with no malformed frame and no
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetbb_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('packetbb') == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('packetbb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_packetbb_tlv_index_value(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 is the reproducer of "PacketBB: Fix TLV index,
+        multivalue offsets and IPv4 address": 128 addresses (so the count
+        is negative as a signed octet) and a TLV with a single index.
+        The value is 0x42, not the length octet 1, and the TLV is the
+        one for address 5.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetbb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-epacketbb.msg.addr.num', '-epacketbb.tlv.length',
+                '-epacketbb.tlv.indexstart', '-epacketbb.tlv.indexend',
+                '-epacketbb.tlv.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip('\n') == '128\t1\t5\t5\t42'
+
+    def test_packetbb_addresses(self, cmd_tshark, capture_file, test_env):
+        '''IPv4 addresses are built from the head, tail and middle
+        octets in network order (frame 12), the originator address of
+        frame 6, and the multivalue TLVs of frame 16.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('packetbb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 12, 16}',
+                '-Tfields', '-eframe.number', '-epacketbb.msg.origaddr4',
+                '-epacketbb.msg.seqnum', '-epacketbb.msg.addr.value4',
+                '-epacketbb.tlv.multivalue', '-epacketbb.tlv.linkmetricvalue',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '6\t192.0.2.1\t21845\t\t\t'
+        assert lines[1] == ('12\t\t\t192.0.2.1,192.0.2.2,192.0.2.3,5.6.7.8,9.10.11.12,'
+                            '10.1.2.9,10.3.4.9,10.1.2.0,10.3.4.0,7.0.1.2\t\t')
+        assert lines[2] == ('16\t\t\t1.2.3.4,5.6.7.8,9.10.11.12\t00,01,02,00,01,02\t0xa00f')
