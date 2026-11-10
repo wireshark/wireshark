@@ -132023,3 +132023,60 @@ class TestDissectRua:
         for flt in ('rua.release99_element', 'rua.later_element', 'rua.localPTMSI_element', 'rua.iMEI_element'):
             lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
             assert count_output('\n'.join(lines)) > 0, flt
+
+
+class TestDissectRudp:
+    '''Reliable UDP from the synthetic capture rudp_coverage.pcap.gz.
+    RUDP has no default port (it is only available through Decode As),
+    so the tests use -d udp.port==7000,rudp.'''
+
+    OPTS = ('-d', 'udp.port==7000,rudp')
+
+    def test_rudp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Twelve RUDP frames, five of them with a Cisco SM payload, no
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('rudp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 12
+        assert protocols.count('RUDP') == 7
+        assert protocols.count('SM') == 5
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('rudp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rudp_header(self, cmd_tshark, capture_file, test_env):
+        '''Flags, header length, sequence and acknowledgement numbers;
+        the checksum is present only for a header longer than 4 octets
+        and the octets after it are shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('rudp_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-erudp.flags',
+                '-erudp.hlen', '-erudp.seq', '-erudp.ack', '-erudp.cksum',
+                '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '128', '4', '1', '0', '', '']
+        assert lines[1] == ['2', '192', '6', '2', '1', '0x1234', '']
+        assert lines[3] == ['4', '32', '6', '4', '3', '0xabcd', '']
+        assert lines[8] == ['9', '1', '10', '9', '8', '0x0001', 'deadbeef']
+        assert lines[9][1:6] == ['255', '8', '10', '9', '0xffff']
+        assert lines[11][1:4] == ['0', '0', '0']
+        assert lines[9][6] == '0102'
+
+    def test_rudp_flag_bits(self, cmd_tshark, capture_file, test_env):
+        '''Each flag bit has its own field.'''
+        for name, frame in (('syn', 1), ('ack', 3), ('eak', 4), ('rst', 5),
+                            ('nul', 6), ('chk', 7), ('tcs', 8), ('0', 9)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                    '-r', capture_file('rudp_coverage.pcap.gz'),
+                    '-Y', f'rudp.flags.{name} == 1',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert str(frame) in stdout.split(), name
