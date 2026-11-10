@@ -113289,3 +113289,67 @@ class TestDissectOpsi:
                 '-Tfields', '-eframe.number', '-eopsi.length', '-eopsi.opcode',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.splitlines() == ['14\t\t', '15\t\t', '16\t270\t3', '17\t16,16\t4,6']
+
+
+class TestDissectOptommp:
+    '''OptoMMP from the synthetic capture optommp_coverage.pcapng.gz.
+    OptoMMP is only registered for Decode As: frames 1-78 are Exported
+    PDUs (optommp.udp / optommp.tcp), frames 79-98 are UDP and 99-108 a
+    TCP stream on port 2001, for which OPTO_DA is needed.'''
+
+    OPTO_DA = ('-d', 'udp.port==2001,optommp', '-d', 'tcp.port==2001,optommp')
+
+    def test_optommp_frames(self, cmd_tshark, capture_file, test_env):
+        '''78 Exported PDU frames without Decode As, 103 OptoMMP frames
+        with it, and no malformed packets or error expert infos in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('optommp_coverage.pcapng.gz'),
+                '-Y', 'optommp', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 78
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTO_DA,
+                    '-r', capture_file('optommp_coverage.pcapng.gz'),
+                    '-Y', 'optommp', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 103
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTO_DA,
+                    '-r', capture_file('optommp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_optommp_fields(self, cmd_tshark, capture_file, test_env):
+        '''A Read Quadlet Request with a memory-map area name, a write
+        block request with a boot ID, a block that is not a multiple of
+        four octets and a Read Block Response with an rcode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('optommp_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {3, 65, 68, 69, 71, 72}',
+                '-Tfields', '-eframe.number', '-eoptommp.tcode',
+                '-eoptommp.destination_offset', '-eoptommp.boot_ID',
+                '-eoptommp.data_length', '-eoptommp.rcode',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '3\t0x04\t0xf01c0010\t\t\t',
+            '65\t0x00\t0xf0390000\t0x0003\t\t',
+            '68\t0x01\t0xf0100040\t0x0003\t0x0007\t',
+            '69\t0x01\t0xf0100040\t\t0x0000\t',
+            '71\t0x07\t\t\t0x0020\t0x00',
+            '72\t0x07\t\t\t0x0003\t0x08',
+        ]
+
+    def test_optommp_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A Write Block Request split over three TCP segments is
+        reassembled in frame 106, and frame 107 carries three PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTO_DA,
+                '-r', capture_file('optommp_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 104 && frame.number <= 107 && optommp',
+                '-Tfields', '-eframe.number', '-eoptommp.tcode', '-eoptommp.data_length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '106\t0x01\t0x0040',
+            '107\t0x02,0x07,0x06\t0x0014',
+        ]
