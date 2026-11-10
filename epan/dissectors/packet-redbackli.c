@@ -78,6 +78,14 @@ redbackli_dissect_avp(uint8_t avptype, uint8_t avplen, tvbuff_t *tvb, int offset
 	   dissect_avp() is called from redbackli_dissect_heur().
 	*/
 
+	if ((avptype == RB_AVP_SEQNO || avptype == RB_AVP_LIID ||
+	     avptype == RB_AVP_SESSID) && avplen != 4) {
+		/* These are 32-bit integers; show other lengths as raw bytes */
+		proto_tree_add_item(st, hf_redbackli_unknownavp, tvb,
+				    offset+2, avplen, ENC_NA);
+		return;
+	}
+
 	switch (avptype) {
 		case(RB_AVP_SEQNO):
 			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
