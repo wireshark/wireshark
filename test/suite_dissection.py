@@ -126929,3 +126929,46 @@ class TestDissectRmcp:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.split() == ['0x00000000', '0x00000005', '0x12345678', '0x00000006',
                                   '0x00000000', '0x00000007', '0x00000000', '0x00000008']
+
+
+class TestDissectRmi:
+    '''Java RMI on TCP 1099, from the synthetic capture
+    rmi_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, field, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('rmi_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-e' + field,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rmi_frames(self, cmd_tshark, capture_file, test_env):
+        '''Message types of the 18 RMI frames, no malformed packets or
+        error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            def fr(f, field='frame.number'):
+                return self.fields(cmd_tshark, capture_file, test_env, f, field, *passes)
+            assert len(fr('rmi')) == 18
+            assert fr('rmi.version', 'rmi.version') == ['2', '2', '2', '7', '2']
+            assert fr('rmi.protocol', 'rmi.protocol') == ['0x4b', '0x4c', '0x4d', '0x99', '0x4b']
+            assert fr('rmi.inputstream.message', 'rmi.inputstream.message') == \
+                ['0x4e', '0x51', '0x53', '0x4f', '0x4e', '0x4e']
+            assert fr('rmi.outputstream.message', 'rmi.outputstream.message') == \
+                ['0x50', '0x52', '0x54']
+            assert fr('rmi.ser.magic', 'rmi.ser.version') == ['5', '5', '5']
+            assert fr('rmi.unique_identifier', 'rmi.unique_identifier') == \
+                ['000102030405060708090a0b0c0d']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000') == []
+
+    def test_rmi_endpoint_identifier(self, cmd_tshark, capture_file, test_env):
+        '''The endpoint identifier of the protocol ack: hostname and
+        port, and the placeholder for an empty hostname.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rmi_coverage.pcap.gz'),
+                '-Y', 'rmi.endpoint_id.port', '-Tfields',
+                '-ermi.endpoint_id.length', '-ermi.endpoint_id.hostname',
+                '-ermi.endpoint_id.port',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['10', '192.0.2.20', '40000'], ['0', '[Empty]', '1099'], ['1', 'a', '7']]
