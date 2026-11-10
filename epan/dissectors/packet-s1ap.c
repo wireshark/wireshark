@@ -2092,7 +2092,7 @@ struct s1ap_private_data {
   struct s1ap_supported_ta *supported_ta;
   const char *obj_id;
   struct s1ap_tai *tai;
-  uint16_t enb_ue_s1ap_id;
+  uint32_t enb_ue_s1ap_id;
   bool srvcc_ho_cs_only;
   uint8_t transparent_container_type;
   e212_number_type_t number_type;
@@ -3128,7 +3128,7 @@ dissect_s1ap_M_TMSI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_
 
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_item_set_hidden(ti);
 
   }
@@ -3332,7 +3332,7 @@ dissect_s1ap_TAI(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, p
   if (!PINFO_FD_VISITED(actx->pinfo) && s1ap_data->s1ap_conv &&
       (s1ap_data->message_type == INITIATING_MESSAGE) &&
       (s1ap_data->procedure_code == id_initialUEMessage)) {
-    uint64_t key = (s1ap_data->tai->plmn << 16) | s1ap_data->tai->tac;
+    uint64_t key = (((uint64_t)s1ap_data->tai->plmn) << 16) | s1ap_data->tai->tac;
 
     if (wmem_map_lookup(s1ap_data->s1ap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
@@ -6070,7 +6070,7 @@ dissect_s1ap_ENB_UE_S1AP_ID(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *
     proto_item_set_hidden(item);
   }
 
-  s1ap_data->enb_ue_s1ap_id = (uint16_t)enb_ue_s1ap_id;
+  s1ap_data->enb_ue_s1ap_id = enb_ue_s1ap_id;
 
 
   return offset;
@@ -9968,7 +9968,7 @@ dissect_s1ap_RAT_Type(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _
 
     for (i = 0; i < wmem_array_get_count(s1ap_data->supported_ta->plmn); i++) {
       key = wmem_new(wmem_file_scope(), uint64_t);
-      *key = ((*(uint32_t*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
+      *key = (((uint64_t)*(uint32_t*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
       wmem_map_insert(s1ap_data->s1ap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -21062,7 +21062,7 @@ void proto_register_s1ap(void) {
         NULL, HFILL }},
     { &hf_s1ap_ext_id,
       { "id", "s1ap.ext_id",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &s1ap_ProtocolIE_ID_vals_ext, 0,
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &s1ap_ProtocolIE_ID_vals_ext, 0,
         "ProtocolExtensionID", HFILL }},
     { &hf_s1ap_extensionValue,
       { "extensionValue", "s1ap.extensionValue_element",

@@ -207,7 +207,7 @@ struct s1ap_private_data {
   struct s1ap_supported_ta *supported_ta;
   const char *obj_id;
   struct s1ap_tai *tai;
-  uint16_t enb_ue_s1ap_id;
+  uint32_t enb_ue_s1ap_id;
   bool srvcc_ho_cs_only;
   uint8_t transparent_container_type;
   e212_number_type_t number_type;

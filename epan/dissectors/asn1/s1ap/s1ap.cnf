@@ -949,7 +949,7 @@ if (gcsna_handle) {
   }
 
 #.TYPE_ATTR
-ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
+ProtocolExtensionID TYPE = FT_UINT16 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS = &s1ap_ProtocolIE_ID_vals_ext
 
 #.FN_BODY S1-Message VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
@@ -1435,7 +1435,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
-    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
     proto_item_set_hidden(ti);
 
   }
@@ -1488,7 +1488,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 
     for (i = 0; i < wmem_array_get_count(s1ap_data->supported_ta->plmn); i++) {
       key = wmem_new(wmem_file_scope(), uint64_t);
-      *key = ((*(uint32_t*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
+      *key = (((uint64_t)*(uint32_t*)wmem_array_index(s1ap_data->supported_ta->plmn, i)) << 16) | s1ap_data->supported_ta->tac;
       wmem_map_insert(s1ap_data->s1ap_conv->nbiot_ta, key, GUINT_TO_POINTER(1));
     }
   }
@@ -1503,7 +1503,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
     proto_item_set_hidden(item);
   }
 
-  s1ap_data->enb_ue_s1ap_id = (uint16_t)enb_ue_s1ap_id;
+  s1ap_data->enb_ue_s1ap_id = enb_ue_s1ap_id;
 
 #.FN_BODY MME-UE-S1AP-ID VAL_PTR = &mme_ue_s1ap_id
   uint32_t mme_ue_s1ap_id;
@@ -1522,7 +1522,7 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   if (!PINFO_FD_VISITED(actx->pinfo) && s1ap_data->s1ap_conv &&
       (s1ap_data->message_type == INITIATING_MESSAGE) &&
       (s1ap_data->procedure_code == id_initialUEMessage)) {
-    uint64_t key = (s1ap_data->tai->plmn << 16) | s1ap_data->tai->tac;
+    uint64_t key = (((uint64_t)s1ap_data->tai->plmn) << 16) | s1ap_data->tai->tac;
 
     if (wmem_map_lookup(s1ap_data->s1ap_conv->nbiot_ta, &key)) {
       wmem_tree_key_t tree_key[3];
