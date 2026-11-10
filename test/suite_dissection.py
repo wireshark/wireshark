@@ -121009,3 +121009,55 @@ class TestDissectPwCesopsn:
             '        00.. .... = Fragmentation: Unfragmented (0)',
             '        ..01 0100 = Length: 20',
             '        Sequence number: 6']
+
+
+class TestDissectPwEth:
+    # Frames 1-9 and 18 are reached by default (first nibble 0 and the MPLS
+    # heuristic); frames 10-14 use Decode As on the labels 2001-2003.
+    OPTS = ('-d', 'mpls.label==2001,pwethcw', '-d', 'mpls.label==2002,pwethnocw',
+            '-d', 'mpls.label==2003,pwethheuristic')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_eth_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_eth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The inner Ethernet frames are dissected, and none is malformed
+        or has an error, in one and two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        assert stdout.split('\n')[:-1] == [
+            'UDP', 'ARP', 'UDP', 'UDP', 'ARP', 'UDP', 'ARP', 'STP', 'STP',
+            'UDP', 'UDP', 'UDP', 'UDP', 'UDP', 'UDP', 'UDP', 'PW OAM', 'UDP']
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_eth_default(self, cmd_tshark, capture_file, test_env):
+        '''Without Decode As: the first nibble 0 heuristic (frames 1-5,
+        18) and the MPLS heuristic for plain Ethernet (frames 6-9)
+        find the Ethernet frames.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number <= 9 || frame.number == 18',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '1\tUDP', '2\tARP', '3\tUDP', '4\tUDP', '5\tARP', '6\tUDP',
+            '7\tARP', '8\tSTP', '9\tSTP', '18\tUDP']
+
+    def test_pw_eth_control_word(self, cmd_tshark, capture_file, test_env):
+        '''The control word is used (and its sequence number shown) for
+        frames 1-3, 10, 12 and 18; the others have no control word.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-eframe.number', '-epweth', '-epweth.cw',
+                '-epweth.cw.sequence_number')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        cw = [(l[0], l[3]) for l in lines if l[2] == 'True']
+        assert cw == [('1', '1'), ('2', '2'), ('3', '3'), ('10', '10'),
+                      ('12', '12'), ('18', '18')]
+        nocw = [l[0] for l in lines if l[1] == 'True']
+        assert nocw == ['4', '5', '6', '7', '8', '9', '11', '13', '14']
