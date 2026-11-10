@@ -124686,3 +124686,51 @@ class TestDissectRdpRail:
             ['DRDYNVC', 'CreateChannel Request(Microsoft::Windows::RDS::RAIL)'],
             ['DRDYNVC', 'CreateChannel Request(rail)'], ['RAIL', 'Handshake'], ['RAIL', 'HandshakeEx'],
             ['DRDYNVC', 'Data first'], ['RAIL', 'Handshake']]
+
+
+class TestDissectRdpSnd:
+    '''RDP audio output virtual channel (rdpsnd) from the synthetic capture
+    rdp_snd_coverage.pcapng.gz: an RDP session on TCP 3389 with the static
+    channel "rdpsnd" and the dynamic channel AUDIO_PLAYBACK_DVC.'''
+
+    CAPTURE = 'rdp_snd_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpSnd.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_snd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 50
+        assert protocols.count('RDPSND') == 35
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_snd_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command, in both directions, and unknown commands.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_snd && frame.number <= 41', '-Tfields', '-erdp_snd.msgtype', '-e_ws.col.info')
+        assert stdout.splitlines()[:12] == [
+            '0x07\tFormats', '0x07\tFormats', '0x06\tTraining', '0x06\tTraining',
+            '0x01\tClose', '0x01\tClose', '0x02\tWave', '0x02\tWave',
+            '0x03\tSet volume', '0x03\tSet volume', '0x04\tSet pitch', '0x04\tSet pitch']
+        assert stdout.splitlines()[-4:] == ['0x0e\tUnknown rdpsnd command'] * 2 + ['0x7f\tUnknown rdpsnd command'] * 2
+
+    def test_snd_reassembly_and_dynamic_channel(self, cmd_tshark, capture_file, test_env):
+        '''A wave PDU in several chunks is dissected once, from the last
+        chunk; two PDUs in one channel PDU; the dynamic channel.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 43', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['RDP', 'Virtual Channel PDU rdpsnd'], ['RDP', 'Virtual Channel PDU rdpsnd'],
+            ['RDPSND', 'Wave'], ['RDPSND', 'Training'],
+            ['DRDYNVC', 'CreateChannel Request(AUDIO_PLAYBACK_DVC)'], ['RDPSND', 'Training'],
+            ['DRDYNVC', 'Data first'], ['RDPSND', 'Wave']]
