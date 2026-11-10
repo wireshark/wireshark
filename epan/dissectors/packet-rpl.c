@@ -12,6 +12,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <epan/llcsaps.h>
 #include "packet-llc.h"
@@ -20,6 +22,10 @@ void proto_register_rpl(void);
 void proto_reg_handoff_rpl(void);
 
 static int proto_rpl;
+
+static expert_field ei_rpl_nesting_too_deep;
+
+#define RPL_MAX_NESTING 8
 
 static int hf_rpl_type;
 static int hf_rpl_len;
@@ -91,6 +97,12 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uint16_t offset;
 	int ett_type;
 	int length, reported_length;
+	unsigned nesting = p_get_proto_depth(pinfo, proto_rpl);
+
+	if (nesting >= RPL_MAX_NESTING) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_rpl_nesting_too_deep, tvb, 0);
+		return;
+	}
 
 	len = tvb_get_ntohs(tvb, 0);
 	proto_tree_add_item(tree, hf_rpl_len, tvb, 0, 2, ENC_BIG_ENDIAN);
@@ -135,9 +147,13 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (reported_length > sublen)
 					reported_length = sublen;
 				if ( length > 0) {
+				  p_set_proto_depth(pinfo, proto_rpl, nesting + 1);
+				  increment_dissection_depth(pinfo);
 				  dissect_rpl_container(tvb_new_subset_length_caplen(tvb,
 					offset, length, reported_length),
 					pinfo, rpl_container_tree);
+				  decrement_dissection_depth(pinfo);
+				  p_set_proto_depth(pinfo, proto_rpl, nesting);
 				  offset += reported_length;
 				} else {
 				  /* no more data, exit the loop */
@@ -240,6 +256,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		default:
 			call_data_dissector(tvb_new_subset_remaining(tvb, 4), pinfo,
 				tree);
+			return;
 			break;
 	}
 	if (tvb_reported_length(tvb) > offset)
@@ -366,6 +383,11 @@ proto_register_rpl(void)
 				"RPL EC", HFILL }},
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_rpl_nesting_too_deep, { "rpl.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+			"RPL containers nested too deeply", EXPFILL }},
+	};
+
 	static int *ett[] = {
 		&ett_rpl,
 		&ett_rpl_0004,
@@ -386,6 +408,8 @@ proto_register_rpl(void)
 
 	proto_rpl = proto_register_protocol("Remote Program Load", "RPL", "rpl");
 	proto_register_field_array(proto_rpl, hf, array_length(hf));
+	expert_module_t *expert_rpl = expert_register_protocol(proto_rpl);
+	expert_register_field_array(expert_rpl, ei, array_length(ei));
 	proto_register_subtree_array(ett, array_length(ett));
 	rpl_handle = register_dissector("rpl", dissect_rpl, proto_rpl);
 }
