@@ -127764,3 +127764,130 @@ class TestDissectRos:
         assert stdout.splitlines() == [
             '%d\t%s\t%s' % (n, n + 1 if n % 2 == 0 else '', n - 1 if n % 2 else '')
             for n in range(10, 30)]
+
+
+class TestDissectRoughtime:
+    '''Roughtime (IETF format on UDP/TCP 5319, Google format on UDP 2002
+    and 2003) from the synthetic capture roughtime_coverage.pcap.gz.
+    Signatures, keys and hashes are placeholder bytes. Frames 1-35 are
+    valid; frames 36-48 are the error cases (response larger than the
+    request, the reproducers of "Roughtime: Validate the tag offsets and
+    bound the nesting", nesting deeper than 8, 600 failing PDUs in one TCP
+    segment, a Merkle path of 33 hashes).'''
+
+    ERROR_FRAMES = ['36', '37', '38', '39', '43', '48']
+
+    @staticmethod
+    def run_rt(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('roughtime_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_roughtime_protocols(self, cmd_tshark, capture_file, test_env):
+        '''31 Roughtime frames (10 Google PDUs, the rest IETF), frames 1-35 have
+        no malformed packets or error expert infos in one and two passes,
+        and the error frames are 36, 37, 38, 39, 43 and 48.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'roughtime', '-Tfields', '-e_ws.col.protocol')
+        assert count_output(stdout) == 31
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'roughtime', '-Tfields', '-eroughtime.proto')
+        protos = [p for line in stdout.splitlines() for p in line.split(',')]
+        assert protos.count('Google') == 10
+        assert protos.count('IETF') > 28
+        for passes in ((), ('-2',)):
+            stdout = self.run_rt(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number <= 35 && '
+                          '(_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            stdout = self.run_rt(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert stdout.split() == self.ERROR_FRAMES
+
+    def test_roughtime_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by the conversation (in the
+        second pass for the requests). A response seen before its
+        request is matched as well (7 and 8), a request without
+        response and the non-Roughtime UDP payloads have no link.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'roughtime.response_in || roughtime.response_to',
+                '-Tfields', '-eframe.number', '-eroughtime.response_in',
+                '-eroughtime.response_to')
+        assert stdout.splitlines() == [
+            '1\t2\t', '2\t\t1', '3\t4\t', '4\t\t3', '5\t6\t', '6\t\t5', '7\t\t8', '8\t7\t',
+            '11\t12\t', '12\t\t11', '13\t14\t', '14\t\t13', '15\t16\t', '16\t\t15',
+            '25\t26\t', '26\t\t25', '35\t36\t', '36\t\t35', '47\t48\t', '48\t\t47',
+        ]
+        # One pass: responses know their request, "Request" comes with -2
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 9}', '-Tfields', '-e_ws.col.info')
+        assert [l.split(', Tags')[0] for l in stdout.splitlines()] == [
+            'Proto: IETF', 'Response, Proto: IETF', 'Proto: IETF']
+
+    def test_roughtime_times(self, cmd_tshark, capture_file, test_env):
+        '''Midpoint, radius and the generated lower and upper time of IETF
+        (seconds) and Google (microseconds) responses, and the nested
+        SREP, CERT and DELE values.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {2, 12, 14, 16}', '-Tfields', '-eframe.number',
+                '-eroughtime.radius', '-eroughtime.midp', '-eroughtime.time.low',
+                '-eroughtime.time.up', '-eroughtime.mint', '-eroughtime.maxt',
+                '-eroughtime.index', '-eroughtime.ver', '-eroughtime.proto')
+        assert stdout.splitlines() == [
+            '2\t3\t2023-11-14T22:13:20.000000000Z\t2023-11-14T22:13:17.000000000Z\t'
+                '2023-11-14T22:13:23.000000000Z\t2023-11-13T22:13:20.000000000Z\t'
+                '2023-11-15T22:13:20.000000000Z\t0\t0x8000000c\tIETF',
+            '12\t1000000\t2023-11-14T22:13:20.000000000Z\t2023-11-14T22:13:19.000000000Z\t'
+                '2023-11-14T22:13:21.000000000Z\t2023-11-14T21:56:40.000000000Z\t'
+                '2023-11-14T22:30:00.000000000Z\t0\t\tGoogle',
+            '14\t5\t2023-11-14T22:13:20.000000000Z\t2023-11-14T22:13:19.999995000Z\t'
+                '2023-11-14T22:13:20.000005000Z\t2023-11-14T21:56:40.000000000Z\t'
+                '2023-11-14T22:30:00.000000000Z\t0\t\tGoogle',
+            '16\t0\t2023-11-14T22:13:20.000000000Z\t2023-11-14T22:13:20.000000000Z\t'
+                '2023-11-14T22:13:20.000000000Z\t2023-11-14T21:56:40.000000000Z\t'
+                '2023-11-14T22:30:00.000000000Z\t0\t\tGoogle',
+        ]
+        # The empty PATH and the unknown tag
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-Tfields', '-eroughtime.tag', '-eroughtime.value')
+        assert stdout.strip() == 'VER,NONC,ABCD,PATH,SRV\t756e6b6e6f776e207461672076616c7565000000'
+
+    def test_roughtime_tcp(self, cmd_tshark, capture_file, test_env):
+        '''IETF format over TCP: two PDUs in one segment (27) and a
+        response split over three segments, reassembled in frame 30. Other
+        data on the port (31) is not Roughtime.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {27, 28, 29, 30, 31} && roughtime',
+                '-Tfields', '-eframe.number', '-eroughtime.numtags')
+        assert stdout.splitlines() == ['27\t5,5', '30\t7,4,2,3,7,4,2,3']
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 31', '-Tfields', '-e_ws.col.protocol')
+        assert stdout.strip() == 'TCP'
+
+    def test_roughtime_nesting(self, cmd_tshark, capture_file, test_env):
+        '''SREP messages nested to the limit of 8 are dissected (frame 21);
+        12 levels (frames 38, 39) stop with an expert info.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {21, 38, 39}', '-Tfields', '-eframe.number',
+                '-eroughtime.radius', '-eroughtime.nesting_too_deep')
+        assert stdout.splitlines() == ['21\t1\t', '38\t\t1', '39\t\t1']
+
+    def test_roughtime_self_recursion(self, cmd_tshark, capture_file, test_env):
+        '''Two SREP tags with the offset 0xfffffff0 (frame 37) used to make
+        the message recurse into itself until the dissection depth
+        assertion fired; the offsets are validated now: illegal length.'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 37', '-Tfields', '-eroughtime.offset',
+                '-e_ws.expert.message')
+        assert stdout.strip() == '0,4294967280\tIllegal field length'
+
+    def test_roughtime_depth_leak(self, cmd_tshark, capture_file, test_env):
+        '''600 PDUs with message length 0 in one TCP segment (frame 43):
+        each one throws; the dissection depth is not leaked, so all 600
+        are reported (tshark used to stop after about 500 with a dissector
+        bug).'''
+        stdout = self.run_rt(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 43', '-Tfields', '-e_ws.expert.message')
+        messages = stdout.strip().split(',')
+        assert messages == ['Malformed Packet (Exception occurred)'] * 600
