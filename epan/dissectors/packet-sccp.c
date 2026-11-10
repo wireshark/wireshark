@@ -2455,7 +2455,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, scc
   }
 
 
-  if ((num_sccp_users) && (pinfo->src.type == ss7pc_address_type)) {
+  if ((num_sccp_users) && (pinfo->src.type == ss7pc_address_type) && (pinfo->dst.type == ss7pc_address_type)) {
     unsigned i;
     dissector_handle_t handle = NULL;
     bool uses_tcap = false;
@@ -3472,8 +3472,8 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     if (sccp_source_pc_global == mtp3_addr_p->pc) {
       pinfo->p2p_dir = P2P_DIR_SENT;
-    } else {
-      /* assuming if src was SS7 PC then dst will be too */
+    } else if (pinfo->dst.type == ss7pc_address_type) {
+      /* The carrier may set only the source (e.g. PPCAP) */
       mtp3_addr_p = (const mtp3_addr_pc_t *)pinfo->dst.data;
 
       if (sccp_source_pc_global == mtp3_addr_p->pc)
@@ -3482,6 +3482,8 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       } else {
         pinfo->p2p_dir = P2P_DIR_UNKNOWN;
       }
+    } else {
+      pinfo->p2p_dir = P2P_DIR_UNKNOWN;
     }
   }
 
