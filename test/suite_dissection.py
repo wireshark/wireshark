@@ -125192,3 +125192,66 @@ class TestDissectReload:
         rows = self.fields(cmd_tshark, capture_file, test_env,
                 'reload-framing', 'frame.number')
         assert len(rows) == 3
+
+
+class TestDissectReloadFraming:
+    '''RELOAD Framing (DATA and ACK) over UDP and TCP port 6084 and found by
+    the heuristics on other ports, from the synthetic capture
+    reload-framing_coverage.pcapng.gz. Frame 37 is an ACK before any DATA
+    (the reproducer of the 2-pass fix) and frame 43 has two DATA PDUs of
+    different length in one TCP segment (the PDU length fix).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('reload-framing_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in efields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_reload_framing_frames(self, cmd_tshark, capture_file, test_env):
+        '''43 frames are RELOAD Framing, none is malformed or has an error
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'reload-framing',
+                    'frame.number', passes=passes)
+            assert len(rows) == 43
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    'frame.number', passes=passes)
+            assert not rows
+
+    def test_reload_framing_ack_first(self, cmd_tshark, capture_file, test_env):
+        '''An ACK that is the first frame of its conversation is not
+        accepted, in one and two passes (it used to be accepted on the
+        second pass), while the DATA after it is.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number == 37 || frame.number == 38',
+                    'frame.number', 'reload_framing.type', passes=passes)
+            assert rows == [['37', ''], ['38', '128']]
+
+    def test_reload_framing_two_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Two PDUs of different length in one TCP segment are both
+        dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 43', 'reload_framing.sequence')
+        assert rows == [['1,2']]
+
+    def test_reload_framing_transactions(self, cmd_tshark, capture_file, test_env):
+        '''ACKs are matched to their DATA and retransmissions to the first
+        frame; ACKs over TCP follow reassembly.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 7 || frame.number == 27 || frame.number == 28',
+                'frame.number', 'reload_framing.duplicate')
+        assert rows == [['7', '6'], ['27', '1'], ['28', '4']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 47', 'reload_framing.ack_sequence')
+        assert rows == [['1,2']]
+
+    def test_reload_framing_received_mask(self, cmd_tshark, capture_file, test_env):
+        '''Thirty ACKs with different received bit masks.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload_framing.parsed_received', 'frame.number')
+        assert len(rows) == 30
