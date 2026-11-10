@@ -117839,3 +117839,40 @@ class TestDissectPkix1explicit:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkix1explicit.asnum',
                            '-eframe.number')
         assert out == ['3', '4', '8', '11']
+
+
+class TestDissectPkix1implicit:
+    '''PKIX1 implicit extension values in certificates: authority
+    information access and the extended key usage object identifiers
+    that have a BER callback (RFC 5280 and Microsoft), in Exported PDU
+    "cms" frames.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkix1implicit_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkix1implicit_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 5 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 5
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkix1implicit_aia(self, cmd_tshark, capture_file, test_env):
+        '''The access methods of the authority information access
+        extension (frames 2, 3 and 5).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkix1implicit.accessMethod',
+                           '-eframe.number', '-epkix1implicit.accessMethod')
+        want = '1.3.6.1.5.5.7.48.1,1.3.6.1.5.5.7.48.2,1.3.6.1.5.5.7.48.99'
+        assert out == ['2\t' + want, '3\t' + want, '5\t' + want]
