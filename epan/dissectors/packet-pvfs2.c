@@ -2616,10 +2616,13 @@ dissect_pvfs2_mgmt_dspace_info_list_response(tvbuff_t *tvb, proto_tree *tree,
 	/* dspace_info_count */
 	proto_tree_add_item_ret_uint(tree, hf_pvfs_mgmt_dspace_info_list_response_dspace_info_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &dspace_info_count);
 
+	offset += 4;
+
 	if ((dspace_info_count > 0) && (tree))
 	{
 		arr_tree = proto_tree_add_subtree_format(tree, tvb, offset,
-				dspace_info_count * 40, ett_pvfs_mgmt_dspace_info, NULL, "dspace_info Array (%d items)",
+				(dspace_info_count > (uint32_t)(INT_MAX / 40)) ? -1 : (int)(dspace_info_count * 40),
+				ett_pvfs_mgmt_dspace_info, NULL, "dspace_info Array (%u items)",
 				dspace_info_count);
 	}
 
