@@ -661,7 +661,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, ENC_BIG_ENDIAN);
 					}
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
-							tagstart+2, poe_tag_length, ENC_NA);
+							tagstart+4, poe_tag_length, ENC_NA);
 				}
 		}
 
