@@ -848,8 +848,14 @@ dissect_saprouter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
 			/* Call the dissector in the NI protocol sub-dissectors table
 			 * according to the route destination port number. */
-			if (next_tvb) {
+			if (next_tvb && value_is_in_range(global_saprouter_port_range, session_state->dest_port)) {
+				/* The route destination is SAP Router itself, which would
+				 * dissect the same data again without end. */
+				expert_add_info_format(pinfo, saprouter_tree, &ei_saprouter_route_invalid_length, "Routed message to the SAP Router port %u is not dissected", session_state->dest_port);
+			} else if (next_tvb) {
+				increment_dissection_depth(pinfo);
 				dissect_sap_protocol_payload(next_tvb, offset, pinfo, tree, 0, session_state->dest_port);
+				decrement_dissection_depth(pinfo);
 			}
 
 		} else {
