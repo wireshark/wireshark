@@ -117547,3 +117547,53 @@ class TestDissectPgsqlCoverage:
             ['159', 'pgsql', 'PGSQL'],
             ['160', 'pgsql', 'PGSQL'],
         ]
+
+
+class TestDissectPim:
+    '''PIM v2 over IPv4 and IPv6, PIM v1 in IGMP and Register nesting from
+    the synthetic capture pim_coverage.pcap.gz.'''
+
+    CAPTURE = 'pim_coverage.pcap.gz'
+
+    def test_pim_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pim_message_counts(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pim', '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        protos = [r[0] for r in rows]
+        assert protos.count('PIMv2') == 90 and protos.count('PIMv1') == 20 and protos.count('PIMv3') == 1
+        infos = [r[1] for r in rows]
+        assert infos.count('Hello') == 29
+        assert infos.count('Join/Prune') == 11
+        assert infos.count('DF election') == 10
+        assert infos.count('Bootstrap') == 3
+
+    def test_pim_df_election_subtype(self, cmd_tshark, capture_file, test_env):
+        '''The Backoff and Pass bodies of a DF Election message are dissected
+        (the subtype was taken from the wrong byte and always looked like 10).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pim.df_elect.subtype >= 3 && pim.df_elect.subtype <= 4 && ip',
+                '-Tfields', '-epim.df_elect.subtype', '-epim.bidir_offering_ip4',
+                '-epim.bidir_offering_interval', '-epim.bidir_winner_ip4',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['3\t192.0.2.60\t1500\t', '4\t\t\t192.0.2.70']
+
+    def test_pim_register_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Three Registers inside each other are dissected down to the UDP
+        packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 40', '-Tfields', '-eip.proto', '-eudp.dstport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '103,103,103,103,17\t4321'
