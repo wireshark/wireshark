@@ -130754,3 +130754,64 @@ class TestDissectRtpEd137:
         info = stdout.splitlines()
         assert info[0].endswith(' (request in 42)') and ', MAM=' in info[0]
         assert info[1].endswith(' (request in 44)') and ', NMR, MAM>' in info[1]
+
+
+class TestDissectRtpEvents:
+    def test_rtp_events_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-2 are SIP, frame 3 is RTP voice and the other 280
+        frames are RTP Events; none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_events_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 283
+        assert protocols[:3] == ['SIP/SDP', 'SIP/SDP', 'RTP']
+        assert protocols.count('RTP EVENT') == 280
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtp_events_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rtp_events_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the event and marks the end of an event;
+        unassigned IDs show as Unknown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_events_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4,7,10,11,28,30,267,275,283}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t', 1) for l in stdout.splitlines()] == [
+            ['4', 'Payload type=RTP Event, DTMF Five 5'],
+            ['7', 'Payload type=RTP Event, DTMF Five 5 (end)'],
+            ['10', 'Payload type=RTP Event, DTMF Pound # (end)'],
+            ['11', 'Payload type=RTP Event, DTMF Zero 0 (end)'],
+            ['28', 'Payload type=RTP Event, Unknown (17)'],
+            ['30', 'Payload type=RTP Event, Unknown (19)'],
+            ['267', 'Payload type=RTP Event, DTMF Zero 0 (end)'],
+            ['275', 'Payload type=RTP Event, Cisco NSE: Shift to voiceband data mode'],
+            ['283', 'Payload type=RTP Event, Unknown (204)'],
+        ]
+
+    def test_rtp_events_fields(self, cmd_tshark, capture_file, test_env):
+        '''Event ID, end bit, reserved bit, volume and duration, and the
+        payload types found through the SDP rtpmap and through the default
+        rtp.pt range 100-101.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtp_events_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,10,267,272,275}',
+                '-Tfields', '-eframe.number', '-ertp.p_type',
+                '-ertpevent.event_id', '-ertpevent.end_of_event',
+                '-ertpevent.reserved', '-ertpevent.volume', '-ertpevent.duration',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t101\t5\tFalse\tFalse\t10\t320',
+            '10\t101\t11\tTrue\tTrue\t63\t800',
+            '267\t101\t0\tTrue\tFalse\t0\t80',
+            '272\t102\t1\tFalse\tFalse\t20\t320',
+            '275\t100\t192\tFalse\tFalse\t0\t0',
+        ]
