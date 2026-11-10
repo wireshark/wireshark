@@ -1166,7 +1166,7 @@ dissect_amf0_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
         case AMF0_LONG_STRING:
         case AMF0_XML: /* same representation */
                 iStringLength = tvb_get_ntohl(tvb, iValueOffset);
-                proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 2, iStringLength);
+                proto_tree_add_uint(val_tree, hf_amf_stringlength, tvb, iValueOffset, 4, iStringLength);
                 iValueOffset += 4;
                 iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset, iStringLength, ENC_UTF_8|ENC_NA);
                 if (iStringLength != 0)
@@ -1366,6 +1366,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
                         if (parent_ti != NULL)
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
                 }
                 break;
         case AMF3_DATE:
@@ -1431,23 +1432,21 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                                                 break;
                                         }
                                         iStringValue = (char*)tvb_get_string_enc(pinfo->pool, tvb, iValueOffset+iValueLength, iStringLength, ENC_UTF_8|ENC_NA);
-                                        subval_tree = proto_tree_add_subtree(val_tree, tvb, iValueOffset, iStringLength,
+                                        subval_tree = proto_tree_add_subtree(val_tree, tvb, iValueOffset, iValueLength+iStringLength,
                                                                     ett_amf_array_element, &subval_ti, iStringValue);
                                         proto_tree_add_uint(subval_tree, hf_amf_stringlength, tvb, iValueOffset, iValueLength, iStringLength);
                                         iValueOffset += iValueLength;
                                         proto_tree_add_string(subval_tree, hf_amf_string, tvb, iValueOffset, iStringLength, iStringValue);
+                                        iValueOffset += iStringLength;
                                 } else {
                                         /* the upper 28 bits of the integer value are a string reference index */
                                         subval_tree = proto_tree_add_subtree_format(val_tree, tvb, iValueOffset, iValueLength,
                                                         ett_amf_array_element, &subval_ti, "Reference %u:", iIntegerValue >> 1);
                                         proto_tree_add_uint(subval_tree, hf_amf_string_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
+                                        iValueOffset += iValueLength;
                                 }
 
                                 /* Fetch the value */
-                                iObjType = tvb_get_uint8(tvb, offset);
-                                proto_item_append_text(subval_ti, "%s",
-                                                       val_to_str_const(iObjType, amf3_type_vals, "Unknown"));
-
                                 iValueOffset = dissect_amf3_value_type(tvb, pinfo, iValueOffset, subval_tree, subval_ti);
                         }
 
@@ -1464,6 +1463,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
                         if (parent_ti != NULL)
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
                 }
                 break;
         case AMF3_OBJECT:
@@ -1592,6 +1592,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
                         if (parent_ti != NULL)
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
                 }
                 break;
         case AMF3_XML:
@@ -1606,12 +1607,14 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         proto_tree_add_uint(val_tree, hf_amf_xmllength, tvb, iValueOffset, iValueLength, iStringLength);
                         iValueOffset += iValueLength;
                         proto_tree_add_item(val_tree, hf_amf_xml, tvb, iValueOffset, iStringLength, ENC_UTF_8);
+                        iValueOffset += iStringLength;
                 } else {
                         /* the upper 28 bits of the integer value are a string reference index */
                         proto_tree_add_uint(val_tree, hf_amf_object_reference, tvb, iValueOffset, iValueLength, iIntegerValue >> 1);
                         proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
                         if (parent_ti != NULL)
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
                 }
                 break;
         case AMF3_BYTEARRAY:
@@ -1636,6 +1639,7 @@ dissect_amf3_value_type(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tre
                         proto_item_append_text(ti, " reference %u", iIntegerValue >> 1);
                         if (parent_ti != NULL)
                                 proto_item_append_text(parent_ti, " reference %u", iIntegerValue >> 1);
+                        iValueOffset += iValueLength;
                 }
                 break;
         default:
@@ -1737,7 +1741,7 @@ dissect_rtmpt_body_audio(tvbuff_t *tvb, int offset, proto_tree *rtmpt_tree)
                                         iAudioTrackLength = tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN);
                                         proto_tree_add_uint(at, hf_rtmpt_audio_track_length, tvb, offset, 3, iAudioTrackLength);
                                         offset += 3;
-                                        proto_tree_add_item(at, hf_rtmpt_audio_data, tvb, offset, -1, ENC_NA);
+                                        proto_tree_add_item(at, hf_rtmpt_audio_data, tvb, offset, iAudioTrackLength, ENC_NA);
                                         offset += iAudioTrackLength;
                                 } else {
                                         proto_tree_add_item(at, hf_rtmpt_audio_data, tvb, offset, -1, ENC_NA);
@@ -1832,11 +1836,11 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, int offset, proto_tree *rtmpt_tree)
                         if (isVideoMultitrack) {
                                 vi = proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_track_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 vt = proto_item_add_subtree(vi, ett_rtmpt_video_multitrack_track);
+                                offset += 1;
                                 if (isManyTracksManyCodecs) {
                                         proto_tree_add_item(vt, hf_rtmpt_video_fourcc, tvb, offset, 4, ENC_ASCII);
                                         offset += 4;
                                 }
-                                offset += 1;
                                 if (!isOneTrack) {
                                         iVideoTrackLength = tvb_get_uint24(tvb, offset, ENC_BIG_ENDIAN);
                                         proto_tree_add_item(vt, hf_rtmpt_video_track_length, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -1877,6 +1881,7 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, packet_info *pinfo, int offset, prot
         proto_tree *tag_tree;
 
         proto_tree *data_tree;
+        tvbuff_t   *tag_tvb;
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
                 uint8_t iTagType;
@@ -1895,15 +1900,18 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, packet_info *pinfo, int offset, prot
 
                 data_tree = proto_tree_add_subtree(tag_tree, tvb, offset+11, iDataSize, ett_rtmpt_tag_data, NULL, "Data");
 
+                /* Dissect each tag only within its own iDataSize bytes. */
+                tag_tvb = tvb_new_subset_length(tvb, offset + 11, iDataSize);
+
                 switch (iTagType) {
                 case 8:
-                        dissect_rtmpt_body_audio(tvb, offset + 11, data_tree);
+                        dissect_rtmpt_body_audio(tag_tvb, 0, data_tree);
                         break;
                 case 9:
-                        dissect_rtmpt_body_video(tvb, offset + 11, data_tree);
+                        dissect_rtmpt_body_video(tag_tvb, 0, data_tree);
                         break;
                 case 18:
-                        dissect_rtmpt_body_command(tvb, pinfo, offset + 11, data_tree, false);
+                        dissect_rtmpt_body_command(tag_tvb, pinfo, 0, data_tree, false);
                         break;
                 default:
                         break;
@@ -2048,7 +2056,7 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 /*                proto_item_append_text(ti, " (%s)", val_to_str(pinfo->pool, tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)")); */
 
                 if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_format, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
-                if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, ENC_BIG_ENDIAN);
+                if (tp->fmt <= 3) proto_tree_add_uint(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, tp->id);
                 if (tp->fmt <= 2) {
                         if (tp->fmt > 0) {
                                 proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_timestamp_delta, tvb, offset + tp->bhlen, 3, ENC_BIG_ENDIAN);
@@ -2891,8 +2899,8 @@ proto_register_rtmpt(void)
                     NULL, 0xC0, "RTMPT Basic Header format", HFILL }},
 
                 { &hf_rtmpt_header_csid,
-                  { "Chunk Stream ID", "rtmpt.header.csid", FT_UINT8, BASE_DEC,
-                    NULL, 0x3F, "RTMPT Basic Header chunk stream ID", HFILL }},
+                  { "Chunk Stream ID", "rtmpt.header.csid", FT_UINT32, BASE_DEC,
+                    NULL, 0x0, "RTMPT Basic Header chunk stream ID", HFILL }},
 
                 { &hf_rtmpt_header_timestamp,
                   { "Timestamp", "rtmpt.header.timestamp", FT_UINT24, BASE_DEC,
