@@ -115734,3 +115734,49 @@ class TestDissectUmtsPcap:
                     '-r', capture_file('umts_pcap_coverage.pcap.gz'), '-V', '-Opcap',
                     '-Y', 'pcap'), encoding='utf-8', env=test_env, timeout=240))
         assert outs[0] == outs[1]
+
+
+class TestDissectPcaplog:
+    '''pcaplog (the Vector pcapng custom block, PEN 46254) from the
+    synthetic capture pcaplog_coverage.pcapng.gz: XML data types 1-3, other
+    data types, "do not copy" blocks and an ordinary packet in between.'''
+
+    CAPTURE = 'pcaplog_coverage.pcapng.gz'
+
+    def test_pcaplog_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pcaplog_fields(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pcaplog',
+                '-Tfields', '-eframe.number', '-epcaplog.data_type',
+                '-epcaplog.data_length', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['1', '2', '3', '4', '5', '6', '7', '8', '9', '11']
+        assert [r[1] for r in rows] == ['1', '2', '3', '0', '4', '2147483647', '1', '0', '2', '3']
+        assert rows[0][2] == '59'
+        # The block type 0x40000BAD asks not to be copied
+        assert [('will not be copied' in r[3]) for r in rows] == \
+            [False] * 6 + [True, True, False, False]
+        assert all('Vector Informatik GmbH (46254)' in r[3] for r in rows)
+
+    def test_pcaplog_xml(self, cmd_tshark, capture_file, test_env):
+        '''Data types 1-3 are handed to the XML dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'xml', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '2', '3', '7', '9', '11']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 1', '-Tfields', '-exml.cdata',
+            ), encoding='utf-8', env=test_env)
+        assert 'hello' in stdout
