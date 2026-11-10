@@ -1145,8 +1145,8 @@ dissect_q933_pvc_status_ie(tvbuff_t *tvb, int offset, int len,
 		dlci = (dlci << 6) | ((tvb_get_uint8(tvb, offset+2) & 0x7E) >> 1);
 		dlci_len++;
 	} else if (len == 5) {
-		dlci = (dlci << 13) | (tvb_get_uint8(tvb, offset+3) & 0x7F) |
-			((tvb_get_uint8(tvb, offset+4) & 0x7E) >> 1);
+		dlci = (dlci << 13) | ((tvb_get_uint8(tvb, offset+2) & 0x7F) << 6) |
+			((tvb_get_uint8(tvb, offset+3) & 0x7E) >> 1);
 		dlci_len+=2;
 	}
 
@@ -1197,6 +1197,7 @@ dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 				       proto_tree *tree)
 {
 	uint8_t octet;
+	uint8_t first_octet;
 	int identifier_offset;
 	int identifier_len;
 	uint8_t coding_standard;
@@ -1204,6 +1205,7 @@ dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_uint8(tvb, offset);
+	first_octet = octet;
 	proto_tree_add_item(tree, hf_q933_interface_identified, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_q933_interface_basic, tvb, offset, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_q933_indicated_channel_required, tvb, offset, 1, ENC_NA);
@@ -1237,7 +1239,7 @@ dissect_q933_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		}
 	}
 
-	if (octet & Q933_NOT_BASIC_CHANNEL) {
+	if (first_octet & Q933_NOT_BASIC_CHANNEL) {
 		if (len == 0)
 			return;
 		octet = tvb_get_uint8(tvb, offset);
@@ -1371,6 +1373,7 @@ dissect_q933_uint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 	uint8_t octet;
 	uint16_t value;
 	int value_len;
+	int start_offset = offset;
 
 	value_len = 0;
 
@@ -1418,11 +1421,10 @@ dissect_q933_uint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 		goto bad_length;
 	}
 	value |= (octet & 0x7F);
-	offset += 1;
 	/*len -= 1;*/
 	value_len++;
 
-	proto_tree_add_uint(tree, hf, tvb, offset, value_len, value);
+	proto_tree_add_uint(tree, hf, tvb, start_offset, value_len, value);
 	return value_len;
 
 past_end:
