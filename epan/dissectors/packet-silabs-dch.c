@@ -33,6 +33,7 @@
 #include <epan/show_exception.h>
 #include <epan/expert.h> /* Include only as needed */
 #include <epan/prefs.h>  /* Include only as needed */
+#include <epan/proto_data.h>
 #include "packet-ieee802154.h"
 #include "packet-btle.h"
 
@@ -797,7 +798,20 @@ dissect_silabs_ble_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (access_address != ACCESS_ADDRESS_ADVERTISING)
     {
       memset(&context_storage, 0, sizeof(context_storage));
-      uint8_t device_role = lookup_ble_connection_role(interface_id, access_address);
+      uint8_t device_role;
+      /* Keep the role found on the first pass for this frame, so that
+         later passes do not see roles learned from later frames. */
+      uint8_t *stored_role = (uint8_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_silabs_dch, 0);
+      if (stored_role) {
+        device_role = *stored_role;
+      } else {
+        device_role = lookup_ble_connection_role(interface_id, access_address);
+        if (!PINFO_FD_VISITED(pinfo)) {
+          stored_role = wmem_new(wmem_file_scope(), uint8_t);
+          *stored_role = device_role;
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_silabs_dch, 0, stored_role);
+        }
+      }
       if (device_role != BTLE_DIR_UNKNOWN)
       {
         if (is_tx)
