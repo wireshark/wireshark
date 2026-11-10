@@ -15,6 +15,7 @@
 
 #include "config.h"
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 
 #define PLDM_MIN_LENGTH 4
 #define PLDM_MAX_TYPES 8
@@ -25,7 +26,6 @@ static int ett_pldm;
 static int ett_pldm_fwu_components;
 
 static wmem_map_t* pldmTypeMap;
-static wmem_allocator_t *addr_resolv_scope;
 
 static int hf_pldm_msg_direction;
 static int hf_pldm_instance_id;
@@ -661,7 +661,7 @@ static char* ver2str(tvbuff_t *tvb, int offset)
 	}
 	// Alpha
 	if (alpha != 0x00) {
-		/*c_offset += */snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "%c", alpha);
+		/*c_offset += */snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "%c", g_ascii_isprint(alpha) ? alpha : '?');
 	} else {
 		c_offset += snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, ".");
 		snprintf(buf_ptr+c_offset, VER_BUF_LEN-c_offset, "-");
@@ -740,15 +740,25 @@ int dissect_base(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pl
 					col_append_str(pinfo->cinfo, COL_INFO, "Invalid PLDM Inst ID or Type");
 					break;
 				} else {
-					pldmTypeMap = wmem_map_new(addr_resolv_scope, g_direct_hash, g_direct_equal);
-					wmem_map_insert(pldmTypeMap, GUINT_TO_POINTER(instID), GUINT_TO_POINTER(pldmT));
+					if (!PINFO_FD_VISITED(pinfo))
+						wmem_map_insert(pldmTypeMap, GUINT_TO_POINTER(instID), GUINT_TO_POINTER(pldmT));
 				}
 				proto_tree_add_item(p_tree, hf_pldm_base_PLDMtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				const char *version_string = ver2str(tvb, offset);
 				proto_tree_add_string(p_tree, hf_pldm_base_typeVersion, tvb, offset, 4, version_string);
 			} else if (!request) {
-				int pldmTypeReceived = GPOINTER_TO_UINT(wmem_map_lookup(pldmTypeMap, GUINT_TO_POINTER(instID)));
+				/* Remember the type found on the first pass, the map
+				 * holds only the most recent request per instance ID. */
+				int pldmTypeReceived;
+				void *stored = p_get_proto_data(wmem_file_scope(), pinfo, proto_pldm, 0);
+				if (stored) {
+					pldmTypeReceived = GPOINTER_TO_INT(stored) - 1;
+				} else {
+					pldmTypeReceived = GPOINTER_TO_UINT(wmem_map_lookup(pldmTypeMap, GUINT_TO_POINTER(instID)));
+					if (!PINFO_FD_VISITED(pinfo))
+						p_add_proto_data(wmem_file_scope(), pinfo, proto_pldm, 0, GINT_TO_POINTER(pldmTypeReceived + 1));
+				}
 				switch (pldmTypeReceived) {
 					case 0:
 						{
@@ -1181,8 +1191,8 @@ int dissect_platform(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p_tree, 
 }
 
 static
-uint16_t parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
-	proto_tree *p_tree, uint16_t offset)
+unsigned parse_fru_record_table(tvbuff_t *tvb, const packet_info *pinfo,
+	proto_tree *p_tree, unsigned offset)
 {
 	uint32_t min_size = 8, field_len = 0, num_fields = 0, encoding = 0, record_type;
 	unsigned bytes_left = tvb_reported_length(tvb) - offset;
@@ -1239,9 +1249,9 @@ static
 int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
 	uint8_t request = data->direction;
-	uint16_t offset = 0;
+	unsigned offset = 0;
 	uint32_t pldm_cmd;
-	uint8_t padding = 0;
+	unsigned padding = 0;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_FRU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
 	offset += 1;
 	if (!request) {
@@ -1303,7 +1313,7 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pld
 				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset);//check
-				if (tvb_captured_length(tvb) != offset) {
+				if (tvb_captured_length(tvb) > offset && tvb_captured_length(tvb) - offset >= 4) {
 					padding = tvb_captured_length(tvb) - offset - 4;
 					offset += padding;
 					proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1331,7 +1341,7 @@ int dissect_FRU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pld
 				proto_tree_add_item(p_tree, hf_pldm_base_transferFlag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				offset = parse_fru_record_table(tvb, pinfo, p_tree, offset); // check
-				if (tvb_captured_length(tvb) != offset) {
+				if (tvb_captured_length(tvb) > offset && tvb_captured_length(tvb) - offset >= 4) {
 					padding = tvb_captured_length(tvb) - offset - 4;
 					offset += padding;
 					proto_tree_add_item(p_tree, hf_fru_record_crc, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -1350,7 +1360,7 @@ static
 int dissect_FWU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_tree, const pldm_packet_data *data)
 {
 	uint8_t request = data->direction;
-	uint16_t offset = 0;
+	unsigned offset = 0;
 	uint32_t pldm_cmd;
 	//uint8_t padding = 0;
 	proto_tree_add_item_ret_uint(p_tree, hf_pldm_FWU_commands, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pldm_cmd);
@@ -1505,7 +1515,9 @@ static int dissect_pldm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", val_to_str(pinfo->pool, (uint8_t)pldm_type, pldm_types,  "Unknown Type(0x%x)"),
 		val_to_str(pinfo->pool, (uint8_t)direction, directions,  "Unknown Rq D (0x%x)"));
 
-	if (tree) {
+	/* Dissect even without a tree: the request/response state used by
+	 * later passes is kept on the first pass, which may have no tree. */
+	{
 		/* First byte is the MCTP msg type, it is 01 for PLDM over MCTP */
 		offset = 1;
 		proto_item *ti = proto_tree_add_item(tree, proto_pldm, tvb, offset, -1, ENC_NA);
@@ -1970,6 +1982,7 @@ void proto_register_pldm(void)
 
 	static int *ett[] = {&ett_pldm, &ett_pldm_fwu_components};
 	proto_pldm = proto_register_protocol("PLDM Protocol", "PLDM", "pldm");
+	pldmTypeMap = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
 	proto_register_field_array(proto_pldm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	register_dissector("pldm", dissect_pldm, proto_pldm);
