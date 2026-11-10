@@ -179,9 +179,11 @@ static int dissect_pmproxy_exchange(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         return dissect_proxy_to_host(tvb, pinfo, pmproxy_tree);
     } else {
         /* If its none of these, it is going to be vanilla PCP traffic */
-        mark_pmproxy_exchange_complete(pinfo);
+        if (!PINFO_FD_VISITED(pinfo)) {
+            mark_pmproxy_exchange_complete(pinfo);
+        }
+        return dissect_through_pcp(tvb, pinfo, tree);
     }
-    return tvb_reported_length_remaining(tvb, 0);
 }
 
 static int dissect_pmproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_) {
