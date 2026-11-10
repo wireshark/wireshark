@@ -125840,3 +125840,66 @@ class TestDissectRfidFelica:
                 'felica.status.flag1', 'felica.status.flag2', 'felica.blocks',
                 filt='frame.number in {57, 59}', opts=self.FELICA)
         assert rows == [['57', '0x00', '0x00', '1'], ['59', '0xa5', '0x00', '3']]
+
+
+class TestDissectRfidMifare:
+    '''NXP MiFare (packet-rfid-mifare.c) carried by PN532 InDataExchange
+    requests in PN532 HCI bulk transfers of USB device 04e6:5591 (usbmon),
+    from the synthetic capture rfid_mifare_coverage.pcap.gz. MiFare is only
+    called with the payload type preference of PN532
+    (pn532.prtype532:mifare); at default preferences the frames are
+    dissected as PN532 data.'''
+
+    MIFARE = ('-o', 'pn532.prtype532:mifare')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, opts=(), passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rfid_mifare_coverage.pcap.gz'),
+                '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_mifare_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 44 frames decode without malformed packets or error expert
+        infos, in one and two passes, with and without the preference;
+        21 of them are MiFare commands with the preference and none
+        without it.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 44
+        assert [r[0] for r in rows].count('MiFare') == 0
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', opts=self.MIFARE)
+        assert [r[0] for r in rows].count('MiFare') == 21
+        for passes in ((), ('-2',)):
+            for opts in ((), self.MIFARE):
+                rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                        filt='_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        opts=opts, passes=passes)
+                assert rows == []
+
+    def test_mifare_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every command is named in the Info column.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.cmd', '_ws.col.info',
+                filt='mifare && frame.number <= 20', opts=self.MIFARE)
+        assert rows == [['0x60', 'Authenticate with Key A'], ['0x61', 'Authenticate with Key B'],
+                        ['0x30', 'Read'], ['0xa0', 'Write'], ['0xb0', 'Transfer'],
+                        ['0xc0', 'Decrement'], ['0xc1', 'Increment'], ['0xc2', 'Restore'],
+                        ['0x99', 'Unknown']]
+
+    def test_mifare_fields(self, cmd_tshark, capture_file, test_env):
+        '''Authentication keys and UID, block addresses, the write payload
+        and signed operands.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'mifare.block.addr',
+                'mifare.key.a', 'mifare.key.b', 'mifare.uid',
+                filt='mifare.cmd in {0x60, 0x61} && frame.number <= 7', opts=self.MIFARE)
+        assert rows == [['3', '4', '0x0000a0a1a2a3a4a5', '', '0x01020304'],
+                        ['5', '5', '', '0x0000b0b1b2b3b4b5', '0x01020304']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.payload',
+                filt='frame.number == 9', opts=self.MIFARE)
+        assert rows == [['000102030405060708090a0b0c0d0e0f']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.operand',
+                filt='mifare.operand', opts=self.MIFARE)
+        assert [r[0] for r in rows] == ['5', '-2', '0', '2147483647', '-2147483648', '1']
