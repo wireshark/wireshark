@@ -113726,3 +113726,91 @@ class TestDissectOscore:
             ['25', '01', '04'],
         ]
         assert lines[4].split('\t')[3] == 'aabb'
+
+
+class TestDissectOsi:
+    # OSI network layer dispatcher: the NLPID of each PDU selects CLNP, ES-IS, IS-IS, IP, IPv6
+    # (the NLPID is not part of those PDUs), or data; OSI is reached through LLC, PPP, Cisco
+    # HDLC, the BSD loopback header, GRE, IP protocol 80 and Juniper. Frames 23-25 are OSI over
+    # TPKT, reached only with Decode As on tcp.port.
+    TPKT = ('-d', 'tcp.port==8102,osi', '-o', 'osi.tpkt_reassemble:TRUE',
+            '-o', 'tcp.desegment_tcp_streams:TRUE')
+
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('osi_coverage.pcapng.gz'),
+                *args), encoding='utf-8', env=test_env).splitlines()
+
+    def test_osi_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 25 frames decode without a malformed packet or a warning or
+        error expert info, in one and two passes (and with the TPKT
+        Decode As).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number')
+        assert len(lines) == 25
+        for passes in ((), ('-2',), self.TPKT):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_osi_nlpid(self, cmd_tshark, capture_file, test_env):
+        '''The NLPID selects the protocol; IP and IPv6 follow with the NLPID
+        shown by OSI, the others have no subdissector and are data.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-eframe.number',
+                '-eframe.protocols', '-eosi.nlpid', '-e_ws.col.info')
+        assert [l.split('\t')[:3] for l in lines[:12]] == [
+            ['1', 'eth:llc:osi:clnp:data', ''],
+            ['2', 'eth:llc:osi:esis', ''],
+            ['3', 'eth:llc:osi:isis:isis.hello', ''],
+            ['4', 'eth:llc:osi:isis:isis.hello', ''],
+            ['5', 'eth:llc:osi:isis:isis.csnp', ''],
+            ['6', 'eth:llc:osi:isis:isis.lsp', ''],
+            ['7', 'ppp:osi:isis:isis.lsp', ''],
+            ['8', 'eth:llc:osi:ip:icmp', '0xcc'],
+            ['9', 'eth:llc:osi:ipv6:icmpv6', '0x8e'],
+            ['10', 'eth:llc:osi:data', '0x8a'],
+            ['11', 'eth:llc:osi:data', '0x85'],
+            ['12', 'eth:llc:osi:data', '0x99']]
+        assert lines[11].split('\t')[3] == 'Unknown ISO protocol (99)'
+
+    def test_osi_carriers(self, cmd_tshark, capture_file, test_env):
+        '''PPP, Cisco HDLC, BSD loopback, GRE, IP protocol 80 and Juniper reach
+        OSI; Juniper protocol 201 hands the PDU after the NLPID to IP/IPv6, and
+        a Juniper PDU with an unknown NLPID is not dissected.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 13 && frame.number <= 21',
+                '-Tfields', '-eframe.number', '-eframe.protocols')
+        assert lines == [
+            '13\tppp:osi:clnp:data', '14\tchdlc:osi:clnp:data', '15\tnull:osi:clnp:data',
+            '16\teth:ethertype:ip:gre:osi:clnp:data', '17\teth:ethertype:ip:osi:clnp:data',
+            '18\tjuniper:osi:clnp:data', '19\tjuniper:osi:ip:icmp', '20\tjuniper',
+            '21\tjuniper:osi:ipv6:icmpv6']
+
+    def test_osi_tpkt(self, cmd_tshark, capture_file, test_env):
+        '''OSI over TPKT (Decode As): a TPKT with CLNP, and a TPKT split over
+        two TCP segments that is reassembled when osi.tpkt_reassemble is set.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, *self.TPKT,
+                '-Y', 'frame.number >= 23', '-Tfields', '-eframe.number', '-eframe.protocols')
+        assert lines == [
+            '23\teth:ethertype:ip:tcp:osi:osi:clnp:data',
+            '24\teth:ethertype:ip:tcp',
+            '25\teth:ethertype:ip:tcp:osi:osi:clnp:data']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-d', 'tcp.port==8102,osi',
+                '-Y', 'frame.number == 23', '-Tfields', '-eframe.protocols')
+        assert lines == ['eth:ethertype:ip:tcp:osi:osi:clnp:data']
+
+    def test_osi_isis_checksums(self, cmd_tshark, capture_file, test_env):
+        '''The IS-IS checksums, verified with osi_check_and_get_checksum(), are
+        good for an IIH, a CSNP and two LSPs (the second is 6205 octets, more
+        than 5803, which is checksummed in blocks).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'isis.hello.checksum.status || isis.csnp.checksum.status || isis.lsp.checksum.status',
+                '-Tfields', '-eframe.number', '-eisis.hello.checksum.status',
+                '-eisis.csnp.checksum.status', '-eisis.lsp.checksum.status', '-eframe.len')
+        assert lines == ['3\t1\t\t\t54', '5\t\t1\t\t72', '6\t\t\t1\t50', '7\t\t\t1\t6205']
+
+    def test_osi_large_cotp_checksum(self, cmd_tshark, capture_file, test_env):
+        '''The ISO 8073 checksum of a COTP DT TPDU of 6100 octets (frame 22)
+        is good; it is calculated in blocks of 5803 octets.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 22',
+                '-Tfields', '-ecotp.checksum.status', '-ecotp.li')
+        assert lines == ['1\t8']
