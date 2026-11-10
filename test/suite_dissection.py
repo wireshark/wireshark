@@ -124068,3 +124068,92 @@ class TestDissectRdpConctrl:
             '18\t0x0010\tREALM\tu', '19\t0x0033\t\t', '20\t0x0000\t\t',
             '26\t0x0010\tCHUNKED.EXAMPLE.TEST\tcarol-with-a-long-login-name',
             '27\t0x0010\tCLIENT\tdave']
+
+
+class TestDissectRdpdr:
+    '''RDP device redirection (RDPDR) from the synthetic capture
+    rdp_dr_coverage.pcapng.gz: an RDP session on TCP 3389 with the static
+    channel "rdpdr" (drives, a smart card with every IOCTL, printers), the
+    dynamic channel "rdpdr" and the UDP side of a multitransport connection.'''
+
+    CAPTURE = 'rdp_dr_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpdr.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rdpdr_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 175
+        assert protocols.count('RDPDR') == 156
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdpdr', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_rdpdr_core(self, cmd_tshark, capture_file, test_env):
+        '''Announcements, capabilities, device list and device reply.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpdr && frame.number >= 12 && frame.number <= 24', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '12\tServer announce', '13\tPAKID_CORE_CLIENTID_CONFIRM', '14\tPAKID_CORE_CLIENT_NAME',
+            '15\tPAKID_CORE_SERVER_CAPABILITY', '16\tPAKID_CORE_CLIENT_CAPABILITY',
+            '17\tPAKID_CORE_CLIENTID_CONFIRM', '18\tDevice list announce', '19\tDevice list announce',
+            '20\tC:, status=0x0', '21\t', '22\tPAKID_CORE_USER_LOGGEDON',
+            '23\tPAKID_CORE_DEVICELIST_REMOVE', '24\t<unknown command>']
+
+    def test_rdpdr_io_requests(self, cmd_tshark, capture_file, test_env):
+        '''File system requests and completions are linked (second pass);
+        every major function is named.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'rdpdr.ioresultframe || rdpdr.iorequestframe', '-Tfields', '-eframe.number',
+                '-erdpdr.ioresultframe', '-erdpdr.iorequestframe')
+        lines = stdout.splitlines()
+        assert lines[0] == '25\t54\t'
+        assert lines[1] == '26\t\t25'
+        assert lines[2:6] == ['27\t28\t', '28\t\t27', '29\t30\t', '30\t\t29']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpdr && frame.number >= 25 && frame.number <= 47', '-Tfields', '-e_ws.col.info')
+        infos = [i for i in stdout.splitlines() if i]
+        assert infos == ['FS IRP_MJ_CREATE', 'FS IRP_MJ_CLOSE', 'FS IRP_MJ_READ', 'FS IRP_MJ_WRITE',
+                         'FS IRP_MJ_QUERY_VOLUME_INFORMATION', 'FS IRP_MJ_SET_VOLUME_INFORMATION',
+                         'FS IRP_MJ_QUERY_INFORMATION', 'FS IRP_MJ_SET_INFORMATION',
+                         'FS IRP_MJ_DIRECTORY_CONTROL', 'FS IRP_MJ_DIRECTORY_CONTROL',
+                         'FS IRP_MJ_LOCK_CONTROL', 'FS unhandled']
+
+    def test_rdpdr_smartcard(self, cmd_tshark, capture_file, test_env):
+        '''Every smart card IOCTL is named in the request and the response.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpdr.iocontrolcode', '-Tfields', '-erdpdr.iocontrolcode', '-e_ws.col.info')
+        lines = stdout.splitlines()
+        assert len(lines) == 50                  # the first is a device control on a drive
+        assert lines[0].split('\t')[0] == '0x00090000'
+        assert lines[1].split('\t')[1] == 'SCARD_IOCTL_ESTABLISHCONTEXT req'
+        assert lines[-1].split('\t') == ['0x00090777', '<unknown> req']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdpdr && frame.number >= 53 && frame.number <= 152', '-Tfields', '-e_ws.col.info')
+        infos = stdout.splitlines()
+        assert 'SCARD_IOCTL_TRANSMIT resp' in infos and 'SCARD_IOCTL_ACCESSSTARTEDEVENT resp' in infos
+        assert infos[-1] == '<unknown> resp'
+
+    def test_rdpdr_printers_reassembly_udp(self, cmd_tshark, capture_file, test_env):
+        '''Printer cache events, XPS, a device list reassembled from chunks,
+        the dynamic channel and the UDP side.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 155', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][1:] == ['RDPDR', 'PAKID_PRN_USING_XPS PRN1']
+        assert [r[2] for r in rows[2:6]] == ['RDPDR_ADD_PRINTER_EVENT', 'RDPDR_UPDATE_PRINTER_EVENT',
+                                              'RDPDR_DELETE_PRINTER_EVENT', 'RDPDR_RENAME_PRINTER_EVENT']
+        assert rows[-1][1:] == ['RDPDR', 'C:, status=0x0']
+        assert ['168', 'RDPDR', 'Device list announce'] in rows
