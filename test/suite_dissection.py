@@ -129293,3 +129293,51 @@ class TestDissectRsvp:
         assert rows[0][:3] == ['192.0.2.1', '<->', '198.51.100.1']
         assert rows[0][3:6] == ['0', '0', 'bytes']
         assert rows[0][6] == '300'
+
+
+class TestDissectRsync:
+    '''RSYNC daemon protocol (TCP 873) from the synthetic capture
+    rsync_coverage.pcap.gz: six connections covering the state machine.'''
+
+    def test_rsync_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frame infos of the module list, authentication and data
+        paths, in one and two passes without malformed frames.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rsync_coverage.pcap.gz'),
+                    '-Y', 'rsync', '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            infos = stdout.splitlines()
+            assert len(infos) == 37
+            assert infos.count('Server MOTD') == 3
+            assert infos.count('Client Query') == 5
+            assert infos.count('Module list') == 4
+            assert infos.count('Final module list') == 1
+            assert infos.count('Authentication') == 1
+            assert infos.count('Client Command') == 6
+            assert infos.count('Data') == 5
+            assert infos.count('Server Initialisation (Version 31.0)') == 2
+            assert infos.count('Client Initialisation (Version 31.0)') == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rsync_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_rsync_state_fields(self, cmd_tshark, capture_file, test_env):
+        '''The version string, the module list text and the
+        authentication request are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rsync_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 9, 10, 32, 17}',
+                '-Tfields', '-eframe.number', '-ersync.hdr_version',
+                '-ersync.module_list', '-ersync.response',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '4\t31.0\\n\t\t',
+            '9\t\tpub\\tPublic files\\nbackup\\tBackups\\n\t',
+            '10\t\thome\\tHome directories\\n@RSYNCD: EXIT\\n\t',
+            '17\t30.0\t\t',
+            '32\t\t\t@RSYNCD: AUTHREQD abcdefghijklmnop\\n',
+        ]
