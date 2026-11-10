@@ -126407,3 +126407,52 @@ class TestDissectRip:
         assert self.fields(cmd_tshark, capture_file, test_env, *args) == ['']
         assert self.fields(cmd_tshark, capture_file, test_env,
                 '-orip.display_routing_domain:TRUE', *args) == ['258']
+
+
+class TestDissectRipng:
+    CAP = 'ripng_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRipng.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ripng_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is RIPng; none is malformed or has an expert info,
+        in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['RIPng'] * 6
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_ripng_info_and_entries(self, cmd_tshark, capture_file, test_env):
+        '''Command, version, reserved field and the route table entries.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info', '-eripng.reserved',
+                '-eripng.rte.ipv6_prefix', '-eripng.rte.prefix_length',
+                '-eripng.rte.metric', '-eripng.rte.route_tag')
+        assert [l.replace('  ', ' ') for l in lines[:4]] == [
+            ' Command Request, Version 1\t0000\t::\t0\t16\t0x0000',
+            ' Command Response, Version 1\t0000\t2001:db8::,2001:db8:1::,2001:db8:2:3::,2001:db8:4::5\t32,48,64,128\t1,2,15,16\t0x0000,0x00ff,0xffff,0x0007',
+            ' Command Response, Version 1\t0000\t\t\t\t',
+            ' Command Unknown (3), Version 2\t1234\tfe80::\t10\t1\t0x0000',
+        ]
+        assert lines[4].split("\t")[2].count(",") == 24
+        assert lines[5].split('\t')[2] == '2001:db8:9::'
+
+    def test_ripng_rte_summary(self, cmd_tshark, capture_file, test_env):
+        '''The summary line of each route table entry.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 2', '-V', '-O', 'ripng')
+        rtes = [l.strip() for l in lines if l.strip().startswith('Route Table Entry')]
+        assert rtes == [
+            'Route Table Entry: IPv6 Prefix: 2001:db8::/32 Metric: 1',
+            'Route Table Entry: IPv6 Prefix: 2001:db8:1::/48 Metric: 2',
+            'Route Table Entry: IPv6 Prefix: 2001:db8:2:3::/64 Metric: 15',
+            'Route Table Entry: IPv6 Prefix: 2001:db8:4::5/128 Metric: 16',
+        ]
