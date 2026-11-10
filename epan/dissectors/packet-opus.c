@@ -110,7 +110,7 @@ static value_string_ext opus_codec_toc_c_request_vals_ext
     = VALUE_STRING_EXT_INIT(opus_codec_toc_c_request_vals);
 
 static int
-parse_size_field(const unsigned char *ch, int32_t cn, int16_t *size)
+parse_size_field(const unsigned char *ch, int32_t cn, int *size)
 {
     if (cn < 1) {
         *size = -1;
@@ -164,10 +164,10 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     uint8_t ch = 0, toc = 0, octet[2] = {0, 0};
     int octet_cnt = 0;
     int bytes = 0;
-    int16_t framesize = 0;
+    int framesize = 0;
     struct FRAME_T {
-        int16_t begin;
-        int16_t size;
+        int begin;
+        int size;
     } frames[MAX_FRAMES_COUNT] = {{0}};
     int frame_count = 0;
     static int *toc_fields[]
@@ -297,7 +297,7 @@ dissect_opus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                 octet_cnt = 0;
                 octet[octet_cnt++] = tvb_get_uint8(tvb, offset);
                 if (offset + 1 < pkt_total) {
-                    octet[octet_cnt++] = tvb_get_uint8(tvb, offset);
+                    octet[octet_cnt++] = tvb_get_uint8(tvb, offset + 1);
                 }
                 bytes = parse_size_field(octet, octet_cnt, &frames[idx].size);
                 if (frames[idx].size < 0
