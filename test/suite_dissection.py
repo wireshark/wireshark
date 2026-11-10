@@ -121250,3 +121250,83 @@ class TestDissectPwOam:
             '        TLV Length: 0x0004']
         assert lines[start + 9] == ('        Status code: Local Attachment Circuit(ingress) '
                                     'Receive Fault (0x00000002)')
+
+
+class TestDissectPwSatop:
+    # SAToP is reached with Decode As: MPLS label 1001 and UDP port 9001.
+    OPTS = ('-d', 'mpls.label==1001,pwsatopcw', '-d', 'udp.port==9001,pwsatopcw')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_satop_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_satop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-10 and 14-20 are SAToP, 11 and 12 are the IPv4 and
+        IPv6 packets handed over by the first nibble, 13 is a PW ACH
+        carrying PW OAM. No malformed packets or errors, in one and two
+        passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 20
+        assert protocols.count('SAToP') == 17
+        assert protocols.count('UDP') == 2
+        assert protocols[12] == 'PW OAM'
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_satop_info(self, cmd_tshark, capture_file, test_env):
+        '''Payload sizes (E1, T1, E3/T3 and octet-aligned T1 sized
+        payloads) and padding.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        info = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert info[0:10] == [
+            'TDM octets:256', 'TDM octets:192', 'TDM octets:1024',
+            'TDM octets:50', 'TDM octets:10', 'TDM octets:0',
+            'TDM octets:20', 'TDM octets:14, Padding:6', 'TDM octets:30',
+            'TDM octets:10, Padding:6']
+        assert info[13:20] == [
+            'TDM octets:20', 'TDM octets:24', 'TDM octets:10, Padding:6',
+            'TDM octets:12', 'TDM octets:192', 'TDM octets:32',
+            'TDM octets:32']
+
+    def test_pw_satop_padding_after_rtp(self, cmd_tshark, capture_file, test_env):
+        '''With an RTP header the padding follows the payload (it was
+        taken from 12 octets too early before the fix).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number in {10, 16}', '-Tfields', '-eframe.number',
+                '-ertp.seq', '-epwsatop.payload.len', '-epw.padding.len',
+                '-edata.data')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0:4] for l in lines] == [['10', '10', '10', '6'], ['16', '16', '10', '6']]
+        for l in lines:
+            data = l[4].split(',')
+            assert data[0] == '00010203040506070809'
+            assert data[1] == 'ee' * 6
+
+    def test_pw_satop_rtp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''The RTP header is taken only when the version is 2, the marker
+        is 0 and the sequence number equals the one of the control word.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number in {9, 15, 19, 20}', '-Tfields',
+                '-eframe.number', '-ertp.seq', '-epwsatop.cw.seqno')
+        assert stdout.splitlines() == ['9\t9\t9', '15\t15\t15', '19\t\t19', '20\t\t20']
+
+    def test_pw_satop_control_word(self, cmd_tshark, capture_file, test_env):
+        '''L and R bits, length of a short packet and a packet with only
+        the encapsulation (payload omitted).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number in {4, 6, 7}', '-Tfields', '-eframe.number',
+                '-epwsatop.cw.lbit', '-epwsatop.cw.rbit', '-epwsatop.cw.length',
+                '-e_ws.expert.message')
+        assert stdout.splitlines() == [
+            '4\t0\t0\t54\t',
+            '6\t1\t0\t0\tSAToP payload: omitted to conserve bandwidth',
+            '7\t1\t1\t0\t']
