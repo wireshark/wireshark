@@ -138384,3 +138384,46 @@ class TestDissectSll:
         lines = [l.split() for l in stdout.splitlines()]
         counts = {l[0]: int(l[1]) for l in lines if len(l) > 2 and l[1].isdigit()}
         assert counts == {'02:00:00:00:00:01': 68, 'NONE': 6, '192.0.2.1': 2}
+
+
+class TestDissectSlowprotocols:
+    '''802.3 Slow Protocols (ethertype 0x8809) from the synthetic capture
+    slowprotocols_coverage.pcap.gz: LACP, Marker, OAM and OSSP frames, a
+    frame with Ethernet padding past the PDU, and unknown subtypes.'''
+
+    CAP = 'slowprotocols_coverage.pcap.gz'
+
+    def test_slow_subtypes(self, cmd_tshark, capture_file, test_env):
+        '''Every subtype is dissected; unknown ones stop at the Slow
+        Protocols header and show the subtype in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'slow',
+                '-Tfields', '-eframe.number', '-eslow.subtype', '-e_ws.col.protocol',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert [r[2] for r in rows] == (['LACP'] * 2 + ['Marker'] * 2 + ['OAM'] * 6 +
+                                        ['OSSP'] + ['Slow Protocols'] * 5 + ['Marker'])
+        assert [r[1] for r in rows] == ['0x01'] * 2 + ['0x02'] * 2 + ['0x03'] * 6 + \
+            ['0x0a', '0x00', '0x04', '0x09', '0x0b', '0xff', '0x02']
+        assert rows[11][3] == 'Subtype = 0'
+        assert rows[16][3].startswith('Information')
+
+    def test_slow_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames and no expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_slow_padding(self, cmd_tshark, capture_file, test_env):
+        '''The last frame is a Marker PDU followed by 8 octets of padding;
+        it still decodes as a Marker PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 17',
+                '-Tfields', '-eslow.subtype', '-eframe.len',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '0x02\t132'
