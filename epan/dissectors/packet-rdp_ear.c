@@ -192,6 +192,10 @@ dissect_rdp_ear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void
 
 	pduLength = tvb_get_uint32(tvb, offset + 4, ENC_LITTLE_ENDIAN) + 24;
 	nextOffset = offset + pduLength;
+	if (pduLength < 24) {
+		/* pduLength wrapped around */
+		nextOffset = tvb_captured_length(tvb);
+	}
 
 	item = proto_tree_add_item(parent_tree, proto_rdp_ear, tvb, offset, pduLength, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rdp_ear);
