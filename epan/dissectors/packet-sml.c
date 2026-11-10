@@ -419,12 +419,12 @@ static void get_length(tvbuff_t *tvb, unsigned *offset, unsigned *data, unsigned
 
 		*data = *data + check;
 		*length+=1;
-		*data = *data - *length;
+		*data = (*data >= *length) ? *data - *length : 0;
 	}
 	else{
 		check = check & 0x0F;
 		*length+=1;
-		*data = check - *length;
+		*data = (check >= *length) ? check - *length : 0;
 	}
 }
 
@@ -1797,7 +1797,7 @@ static bool decode_GetProfilePackRes(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 		for (d=0; d< repeat2; d++) {
 			get_length(tvb, offset, &data, &length);
-			value_List_Entry_list = proto_tree_add_subtree_format(valuelist_list, tvb, *offset, -1, ett_sml_value_List_Entry, NULL,
+			value_List_Entry_list = proto_tree_add_subtree_format(valuelist_list, tvb, *offset, -1, ett_sml_value_List_Entry, &value_List_Entry,
 									"value_List_Entry with %d %s", length+data, plurality(length+data, "element", "elements"));
 			*offset+=1;
 
@@ -2317,6 +2317,8 @@ static bool decode_AttentionRes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *m
 	}
 	else {
 		expert_add_info(pinfo, attentionNo_item, &ei_sml_attentionNo);
+		if (data > (unsigned)tvb_reported_length_remaining(tvb, *offset))
+			return true;
 		*offset+=data;
 	}
 
