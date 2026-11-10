@@ -134225,3 +134225,68 @@ class TestDissectSasp:
         assert 'Wt Entry Data Comp-weight: 30' in lines
         assert 'Set LB State Req-LB UID: lb1' in lines
         assert 'Set LB State Req-LB Health: Most Healthy (0x7f)' in lines
+
+
+class TestDissectSbasL1:
+    def test_sbas_l1_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The EMS file has 150 L1 records, every one SBAS L1: the Info
+        columns of the dissected message types name them (SBAS L1 MTn) and
+        the other types are shown as SBAS L1 with data. No record is
+        malformed and none has an error expert info, in one and two
+        passes. Warnings: MT 0 ("Do Not Use") and the invalid IGP band
+        and block identifiers of MT 26.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l1_coverage.ems.gz'),
+                '-Tfields', '-eframe.protocols', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 150
+        assert all(l.startswith('ems:sbas_l1') for l in lines)
+        protocols = [l.split('\t')[1] for l in lines]
+        assert protocols.count('SBAS L1') == 45
+        for mt in (0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 12, 17, 18, 24, 25, 26, 27, 28, 63):
+            assert protocols.count('SBAS L1 MT%d' % mt) > 0
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbas_l1_coverage.ems.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbas_l1_coverage.ems.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            rows = dict(l.split('\t') for l in stdout.splitlines())
+            assert rows['1'] == 'MT is 0'
+            assert rows['90'] == 'Invalid IGP Band Identifier'
+            assert rows['92'] == 'Invalid IGP Block Identifier'
+            assert set(rows) == {'1', '90', '91', '92', '93', '140'}
+
+    def test_sbas_l1_checksums(self, cmd_tshark, capture_file, test_env):
+        '''Every checksum is correct (CRC-24Q over the 226 bit message).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l1_coverage.ems.gz'),
+                '-V', '-O', 'sbas_l1',
+            ), encoding='utf-8', env=test_env)
+        crcs = [l for l in stdout.splitlines() if 'Checksum:' in l]
+        assert len(crcs) == 150
+        assert all(l.endswith('[correct]') for l in crcs)
+
+    def test_sbas_l1_message_types(self, cmd_tshark, capture_file, test_env):
+        '''The message type of the first 64 records is the record number
+        minus one, and the IGP band IDs of the MT 18 records 65-80 count
+        from 0 to 15.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbas_l1_coverage.ems.gz'),
+                '-Tfields', '-eframe.number', '-esbas_l1.mt',
+                '-esbas_l1.mt18.igp_band_id', '-esbas_l1.mt26.igp_band_id',
+                '-esbas_l1.mt26.igp_block_id',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [int(r[1]) for r in rows[:64]] == list(range(64))
+        assert [int(r[2]) for r in rows[64:80]] == list(range(16))
+        assert [r[3:5] for r in rows[86:93]] == [
+            ['0', '0'], ['3', '7'], ['10', '13'], ['11', '5'], ['15', '14'], ['5', '15'], ['12', '15'],
+        ]
