@@ -891,7 +891,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			vec_t cksum_vec[1];
 
 			SET_CKSUM_VEC_TVB(cksum_vec[0], tvb, 0, pgmlen);
-			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum_status, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
+			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
 									pinfo, in_cksum(&cksum_vec[0], 1), ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY|PROTO_CHECKSUM_IN_CKSUM);
 		} else {
 			proto_tree_add_checksum(pgm_tree, tvb, ptvcursor_current_offset(cursor), hf_pgm_main_cksum, hf_pgm_main_cksum_status, &ei_pgm_main_cksum,
