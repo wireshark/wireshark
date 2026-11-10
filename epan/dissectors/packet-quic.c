@@ -204,6 +204,7 @@ static expert_field ei_quic_decryption_failed;
 static expert_field ei_quic_protocol_violation;
 static expert_field ei_quic_bad_retry;
 static expert_field ei_quic_coalesced_padding_data;
+static expert_field ei_quic_bad_length;
 static expert_field ei_quic_retransmission;
 static expert_field ei_quic_overlap;
 static expert_field ei_quic_data_after_forcing_vn;
@@ -899,6 +900,10 @@ quic_decrypt_header(tvbuff_t *tvb, unsigned pn_offset, quic_hp_cipher *hp_cipher
     // Sample is always 16 bytes and starts after PKN (assuming length 4).
     // https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4.2
     uint8_t sample[16];
+    if (!tvb_bytes_exist(tvb, pn_offset + 4, 16)) {
+        /* Not enough data for the sample; fail the same way on every pass. */
+        return false;
+    }
     tvb_memcpy(tvb, sample, pn_offset + 4, 16);
 
     uint8_t mask[5] = { 0 };
@@ -2090,7 +2095,8 @@ desegment_quic_crypto(tvbuff_t *tvb, int offset, int length, packet_info *pinfo,
                 seq = (uint32_t)(*contiguous_offset);
                 offset += (uint32_t)(overlap);
             } else {
-                DISSECTOR_ASSERT_NOT_REACHED();
+                expert_add_info(pinfo, tree, &ei_quic_bad_length);
+                return;
             }
         }
     }
@@ -2445,6 +2451,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             offset += lenvar;
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
             offset += lenvar;
+            if (crypto_length > (uint64_t)MAX(0, tvb_reported_length_remaining(tvb, offset))) {
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
+            }
             proto_tree_add_item(ft_tree, hf_quic_crypto_crypto_data, tvb, offset, (uint32_t)crypto_length, ENC_NA);
             quic_crypto_state *crypto = quic_get_crypto_state(pinfo, quic_info, from_server, quic_packet->packet_type);
             quic_crypto_info crypto_info = {
@@ -2465,6 +2476,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nt_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &lenvar);
             offset += lenvar;
 
+            if (token_length > (uint64_t)MAX(0, tvb_reported_length_remaining(tvb, offset))) {
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
+            }
             proto_tree_add_item(ft_tree, hf_quic_nt_token, tvb, offset, (uint32_t)token_length, ENC_NA);
             offset += (uint32_t)token_length;
         }
@@ -2521,6 +2537,17 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                                    val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_DIRECTION), quic_frame_id_direction, "unknown"),
                                    val64_to_str_const(!!(stream_id & FTFLAGS_STREAM_INITIATOR), quic_frame_id_initiator, "unknown"));
 
+            if (length > (uint64_t)MAX(0, tvb_reported_length_remaining(tvb, offset))) {
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
+            }
+            if (stream_offset > UINT32_MAX - length) {
+                /* Reassembly uses 32-bit sequence numbers. */
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
+            }
             proto_tree_add_item(ft_tree, hf_quic_stream_data, tvb, offset, (int)length, ENC_NA);
             if (have_tap_listener(quic_follow_tap)) {
                 quic_follow_tap_data_t *follow_data = wmem_new0(pinfo->pool, quic_follow_tap_data_t);
@@ -2736,6 +2763,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
             offset += len_reasonphrase;
 
+            if (len_reason > (uint64_t)MAX(0, tvb_reported_length_remaining(tvb, offset))) {
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
+            }
             proto_tree_add_item(ft_tree, hf_quic_cc_reason_phrase, tvb, offset, (uint32_t)len_reason, ENC_ASCII);
             offset += (uint32_t)len_reason;
 
@@ -2764,6 +2796,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                 offset += dg_length;
             } else {
                 length = (uint32_t) tvb_reported_length_remaining(tvb, offset);
+            }
+            if (length > (uint64_t)MAX(0, tvb_reported_length_remaining(tvb, offset))) {
+                expert_add_info(pinfo, ti_ft, &ei_quic_bad_length);
+                offset = tvb_reported_length(tvb);
+                break;
             }
             proto_tree_add_item(ft_tree, hf_quic_dg, tvb, offset, (uint32_t)length, ENC_NA);
             offset += (uint32_t)length;
@@ -4616,9 +4653,12 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else if (!PINFO_FD_VISITED(pinfo)) {
             quic_packet->next = wmem_new0(wmem_file_scope(), quic_packet_info_t);
             quic_packet = quic_packet->next;
-        } else {
+        } else if (quic_packet->next) {
             quic_packet = quic_packet->next;
-            DISSECTOR_ASSERT(quic_packet);
+        } else {
+            /* The first pass stopped before this packet. */
+            expert_add_info(pinfo, quic_tree, &ei_quic_bad_length);
+            break;
         }
 
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset, &first_packet_dcid);
@@ -5672,6 +5712,10 @@ proto_register_quic(void)
         { &ei_quic_bad_retry,
           { "quic.bad_retry", PI_PROTOCOL, PI_WARN,
             "Retry Integrity Tag verification failure", EXPFILL }
+        },
+        { &ei_quic_bad_length,
+          { "quic.bad_length", PI_MALFORMED, PI_ERROR,
+            "Frame length or offset is out of range", EXPFILL }
         },
         { &ei_quic_coalesced_padding_data,
           { "quic.coalesced_padding_data", PI_PROTOCOL, PI_NOTE,
