@@ -134392,3 +134392,74 @@ class TestDissectSbcAp:
         out = subprocess.check_output((cmd_tshark, '-G', 'fields'), encoding='utf-8', env=test_env, timeout=300)
         types = {l.split('\t')[3] for l in out.splitlines() if l.split('\t')[2:3] == ['sbc-ap.ext_id']}
         assert types == {'FT_UINT16'}
+
+
+class TestDissectSbc:
+    def test_sbc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''An AVDTP signaling procedure over HCI H4 configures an SBC
+        stream and the 33 media packets are SBC. No frame is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbc_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 48
+        assert protocols.count('SBC') == 33
+        assert protocols.count('AVDTP') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbc_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sbc_frame_headers(self, cmd_tshark, capture_file, test_env):
+        '''Every sampling frequency, block count, channel mode, allocation
+        method and subband count appears, with one to four frames per
+        packet (frame 42 has four).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbc_coverage.pcapng.gz'),
+                '-Y', 'sbc',
+                '-Tfields', '-eframe.number', '-esbc.number_of_frames',
+                '-esbc.sampling_frequency', '-esbc.blocks',
+                '-esbc.channel_mode', '-esbc.allocation_method',
+                '-esbc.subbands',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert len(rows) == 33
+        assert rows[0][:2] == ['16', '2']
+        assert rows[26][:2] == ['42', '4']
+        for col, values in ((2, {'0x00', '0x01', '0x02', '0x03'}), (3, {'0x00', '0x01', '0x02', '0x03'}),
+                            (4, {'0x00', '0x01', '0x02', '0x03'}), (5, {'0x00', '0x01'}), (6, {'0x00', '0x01'})):
+            seen = set(v for r in rows for v in r[col].split(','))
+            assert seen == values
+
+    def test_sbc_payload_header_bits(self, cmd_tshark, capture_file, test_env):
+        '''The fragmented, starting packet, last packet and RFA bits of the
+        payload header (frames 43-47).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbc_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {43, 44, 45, 46, 47}',
+                '-Tfields', '-eframe.number', '-esbc.fragmented',
+                '-esbc.starting_packet', '-esbc.last_packet', '-esbc.rfa',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '43\tTrue\tFalse\tFalse\tFalse',
+            '44\tTrue\tTrue\tFalse\tFalse',
+            '45\tTrue\tFalse\tTrue\tFalse',
+            '46\tFalse\tFalse\tFalse\tTrue',
+            '47\tTrue\tTrue\tTrue\tTrue',
+        ]
+
+    def test_sbc_timing(self, cmd_tshark, capture_file, test_env):
+        '''The delta time to the previous media packet is computed for every
+        media packet, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbc_coverage.pcapng.gz'),
+                    '-Y', 'sbc.delta_time',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == [str(n) for n in range(16, 49)]
