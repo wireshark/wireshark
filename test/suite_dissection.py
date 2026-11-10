@@ -115810,3 +115810,74 @@ class TestDissectPcapngBlock:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 0
+
+
+class TestDissectPcapPktdata:
+    '''pcap_pktdata (packet data with a LINKTYPE_ value, here called by PPI
+    and PKTAP) from the synthetic capture pcap_pktdata_coverage.pcapng.gz.
+    The capture has no malformed packets or error expert infos; the
+    nesting limit and the short data are only in the malformed capture
+    that is not part of the suite.'''
+
+    CAPTURE = 'pcap_pktdata_coverage.pcapng.gz'
+
+    def test_pcap_pktdata_protocols(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = [p.strip() for p in stdout.splitlines()]
+            assert len(protocols) == 31
+            assert protocols.count('UDP') == 14
+            assert protocols.count('PPI') == 11
+            assert protocols.count('HCI H4') == 3
+            assert protocols.count('SLL') == 1
+            assert protocols.count('PKTAP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pcap_pktdata_undecoded(self, cmd_tshark, capture_file, test_env):
+        '''Link types that are unknown or need a pseudo-header that cannot be
+        generated from the packet data are shown as undecoded data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pcap_pktdata.undecoded_data',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows] == [str(n) for n in range(14, 25)] + ['28']
+        assert rows[0][1] == 'No pseudo-header can be generated for link-layer header type 139'
+        assert rows[8][1] == 'No pseudo-header can be generated for link-layer header type 254'
+        assert rows[9][1] == 'Link-layer header type 9999 is not supported'
+        assert rows[10][1] == 'Link-layer header type 65000 is not supported'
+        assert rows[11][1] == 'Link-layer header type 9999 is not supported'
+
+    def test_pcap_pktdata_bluetooth_direction(self, cmd_tshark, capture_file, test_env):
+        '''The H4 pseudo-header gives the direction (0 sent, 1 received,
+        anything else unknown).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'pcap_pktdata.pseudoheader.bluetooth.direction',
+                '-Tfields', '-eframe.number',
+                '-epcap_pktdata.pseudoheader.bluetooth.direction', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t0x00000000\tSent Unknown HCI packet type 0x7f',
+            '12\t0x00000001\tRcvd Unknown HCI packet type 0x7f',
+            '13\t0x00000002\tUnknownDirection Unknown HCI packet type 0x7f',
+        ]
+
+    def test_pcap_pktdata_nested(self, cmd_tshark, capture_file, test_env):
+        '''PPI in PPI in PPI (frame 25), PKTAP (26, 27), PKTAP in PPI (29)
+        and PKTAP, PPI, Ethernet in PPI (30) reach the inner UDP packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {25, 26, 27, 29, 30} && udp.dstport == 2000',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['25', '26', '27', '29', '30']
