@@ -135954,3 +135954,60 @@ class TestDissectSdp:
         lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 27',
             '-Tfields', '-eh245.adaptationLayerType')
         assert lines == ['1']
+
+
+class TestDissectSebek:
+    def test_sebek_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every datagram to UDP port 1101 is SEBEK, none is malformed or
+        has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sebek_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['SEBEK'] * 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sebek_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sebek_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the process, user, descriptor and command
+        of version 2 and 3 records (also without a tree); an unknown
+        version and short datagrams show only the protocol name.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sebek_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        # version 2 shows the 12 octet command field with its NUL padding
+        assert info['1'] == 'SEBEK -  pid(100) uid(0) fd(1) cmd: bash' + '\\\\000' * 8
+        assert info['2'] == 'SEBEK -  pid(100) uid(33) fd(4) cmd: cat' + '\\\\000' * 9
+        assert info['3'] == 'SEBEK -  pid(100) uid(0) fd(1) cmd: 123456789012'
+        assert info['5'] == 'SEBEK -  pid(200) uid(1000) fd(0) cmd: sshd'
+        assert info['6'] == 'SEBEK -  pid(200) uid(1000) fd(0) cmd: '  # no NUL in 12 octets: empty
+        assert info['13'] == 'SEBEK - '
+        assert info['14'] == 'SEBEK - '
+        assert info['15'] == 'SEBEK - '
+
+    def test_sebek_fields(self, cmd_tshark, capture_file, test_env):
+        '''Version 2 and version 3 headers, the data, and the socket record
+        of version 3 type 2 messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sebek_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esebek.version',
+                '-esebek.type', '-esebek.counter', '-esebek.cmd',
+                '-esebek.data', '-esebek.ppid', '-esebek.inode',
+                '-esebek.socket.dst_ip', '-esebek.socket.dst_port',
+                '-esebek.socket.src_ip', '-esebek.socket.src_port',
+                '-esebek.socket.call', '-esebek.socket.ip_proto',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][:6] == ['1', '2', '1', '1', 'bash', 'ls -l\\n']
+        assert rows[4][:9] == ['5', '3', '0', '5', 'sshd', 'secret\\n', '1', '4242', '']
+        assert rows[7] == ['8', '3', '2', '8', 'nc', '', '1', '4242', '198.51.100.7',
+                           '22', '192.0.2.2', '40022', '1', '6']
+        assert [r[13] for r in rows[7:12]] == ['6', '17', '1', '6', '17']
+        assert [r[12] for r in rows[7:12]] == ['1', '2', '3', '4', '5']
