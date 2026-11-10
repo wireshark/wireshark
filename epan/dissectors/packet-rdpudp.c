@@ -300,7 +300,7 @@ dissect_rdpudp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 
 	if (flags & RDPUDP_SYN) {
 		conv->is_lossy = (flags & RDPUDP_SYNLOSSY);
-		if (!(flags & RDPUDP_ACK)) {
+		if (!(flags & RDPUDP_ACK) && !PINFO_FD_VISITED(pinfo)) {
 			/* set the server address only on the first SYN packet */
 			copy_address_wmem(wmem_file_scope(), &conv->server_addr, &pinfo->dst);
 			conv->server_port = pinfo->destport;
@@ -518,7 +518,7 @@ dissect_rdpudp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rdpudp_co
 	rdpudp_seq_context_t *target_seq_context = is_server_target ? &rdpudp->client_data_seq : &rdpudp->server_data_seq;
 
 	if (flags & RDPUDP2_ACK) {
-		uint8_t nacks = tvb_get_uint8(tvb, offset + 6) & 0xf;
+		uint8_t nacks = tvb_get_uint8(tvb2, offset + 6) & 0xf;
 		subtree = proto_tree_add_subtree(tree, tvb2, offset, 7 + nacks, ett_rdpudp2_ack, NULL, "Ack");
 		uint32_t ackBase;
 		proto_tree_add_item_ret_uint(subtree, hf_rdpudp2_AckSeq, tvb2, offset, 2, ENC_LITTLE_ENDIAN, &ackBase);
