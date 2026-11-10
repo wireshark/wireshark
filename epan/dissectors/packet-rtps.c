@@ -1506,6 +1506,7 @@ static expert_field ei_rtps_sm_octets_to_next_header_not_zero;
 static expert_field ei_rtps_pid_type_csonsistency_invalid_size;
 static expert_field ei_rtps_uncompression_error;
 static expert_field ei_rtps_value_too_large;
+static expert_field ei_rtps_typecode_too_deep;
 static expert_field ei_rtps_invalid_psk;
 
 /***************************************************************************/
@@ -3596,7 +3597,7 @@ static void rtps_util_dissect_parameter_header(tvbuff_t * tvb, int * offset,
   *member_length = tvb_get_uint16(tvb, *offset, encoding);
   *offset += 2;
 
-  if ((*member_id & PID_EXTENDED) == PID_EXTENDED) {
+  if (*member_id == PID_EXTENDED) {
     /* get extended member id and length */
     *member_id = tvb_get_uint32(tvb, *offset, encoding);
     *offset += 4;
@@ -3765,14 +3766,22 @@ static int get_encapsulation_version(int encapsulation_id)
 
 static dissection_info* lookup_dissection_info_in_custom_and_builtin_types(uint64_t type_id) {
   dissection_info* info = NULL;
-  if (dissection_infos != NULL) {
+  /* Builtin types come first so that a TypeObject received from the network
+   * cannot take over the builtin type ids. */
+  if (builtin_dissection_infos != NULL) {
+    info = (dissection_info*)wmem_map_lookup(builtin_dissection_infos, &(type_id));
+  }
+  if (info == NULL && dissection_infos != NULL) {
     info = (dissection_info*)wmem_map_lookup(dissection_infos, &(type_id));
-    if (info == NULL && builtin_dissection_infos != NULL) {
-      info = (dissection_info*)wmem_map_lookup(builtin_dissection_infos, &(type_id));
-    }
   }
   return info;
 }
+
+/* Maximum number of dissect_user_defined() calls for one sample. The members
+ * of a structure beyond rtps_max_data_type_elements are still walked, so a
+ * TypeObject can otherwise make the work grow exponentially with the depth. */
+#define RTPS_MAX_USER_DEFINED_VISITS 50000
+static unsigned user_defined_visits_left;
 
 /* this is a recursive function. _info may or may not be NULL depending on the use iteration */
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -3785,6 +3794,12 @@ static int dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, packet_info *p
     dissection_info * info = NULL;
     uint32_t member_id;
     uint32_t member_length = 0;
+
+    if (user_defined_visits_left == 0) {
+        /* Ends the dissection of this packet as malformed */
+        THROW(ReportedBoundsError);
+    }
+    user_defined_visits_left--;
 
     if (_info)  { /* first call enters here */
         info = _info;
@@ -5715,8 +5730,15 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
      *       4   |    2  | length the struct            |
      */
 
+  /* Every nesting level increments the dissection depth. Stop well before
+   * the limit, where the depth check would raise an assertion. */
+  if ((unsigned)pinfo->dissection_depth + 16 >= prefs.gui_max_tree_depth) {
+    proto_tree_add_expert(tree, pinfo, &ei_rtps_typecode_too_deep, tvb, original_offset, 0);
+    THROW(ReportedBoundsError);
+  }
+
   /* Calc indent string */
-  indent_string = (char *)wmem_alloc(wmem_epan_scope(), (indent_level*2)+1);
+  indent_string = (char *)wmem_alloc(pinfo->pool, (indent_level*2)+1);
   memset(indent_string, ' ', (indent_level*2)+1);
   indent_string[indent_level*2] = '\0';
 
@@ -5800,6 +5822,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         uint16_t    member_length;
         uint8_t    *member_name             = NULL;
         uint32_t    next_offset, field_offset_begin, member_label_count, discriminator_enum_name_length;
+        uint32_t    parsed_end = 0;
         int32_t     member_label;
         unsigned    j;
 
@@ -5881,6 +5904,12 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
 
         for (i = 0; i < num_members; ++i) {
           uint8_t member_is_pointer;
+          /* The members must not overlap: otherwise all members can point
+           * at the same nested typecode and the work grows exponentially. */
+          if (next_offset < parsed_end) {
+            proto_tree_add_expert(tree, pinfo, &ei_rtps_value_too_large, tvb, next_offset, 0);
+            THROW(ReportedBoundsError);
+          }
           /* Safety: this theoretically should be the same already */
           field_offset_begin = offset = next_offset;
 
@@ -5927,6 +5956,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
                     indent_level+2, member_is_pointer, 0, 0, field_offset_begin,
                     member_name, -1, NULL, ndds_40_hack);
           decrement_dissection_depth(pinfo);
+          parsed_end = offset;
         }
         /* Finally prints the name of the struct (if provided) */
         (void) g_strlcpy(type_name, "}", sizeof(type_name));
@@ -5986,6 +6016,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         int8_t *struct_name;
         uint32_t struct_name_len, num_members;
         uint32_t next_offset;
+        uint32_t parsed_end = 0;
         const char *typecode_name;
 
         /* Pad-align */
@@ -6050,6 +6081,12 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
           uint16_t member_length;
           uint32_t field_offset_begin;
 
+          /* The members must not overlap: otherwise all members can point
+           * at the same nested typecode and the work grows exponentially. */
+          if (next_offset < parsed_end) {
+            proto_tree_add_expert(tree, pinfo, &ei_rtps_value_too_large, tvb, next_offset, 0);
+            THROW(ReportedBoundsError);
+          }
           /* Safety: this theoretically should be the same already */
           field_offset_begin = offset = next_offset;
 
@@ -6102,6 +6139,7 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
                           indent_level+1, member_is_pointer, member_bitfield, member_is_key,
                           field_offset_begin, member_name, -1, NULL, ndds_40_hack);
             decrement_dissection_depth(pinfo);
+            parsed_end = offset;
           }
         }
         /* Finally prints the name of the struct (if provided) */
@@ -6143,9 +6181,11 @@ static int rtps_util_add_typecode(proto_tree *tree, tvbuff_t *tvb, packet_info *
         offset += 4;
 
         /* Recursive decode seq typecode */
+        increment_dissection_depth(pinfo);
         /*offset += */rtps_util_add_typecode(tree, tvb, pinfo, offset, encoding, indent_level,
                           is_pointer, bitfield, is_key, offset_begin, name,
                           seq_max_len2, NULL, ndds_40_hack);
+        decrement_dissection_depth(pinfo);
         /* Differently from the other typecodes, the line has been already printed */
         return retVal;
     }
@@ -6800,7 +6840,7 @@ static int rtps_util_add_type_library_element(proto_tree *tree, packet_info * pi
   dissection_info * info;
   bool add_info = true;
 
-  info = wmem_new(wmem_file_scope(), dissection_info);
+  info = wmem_new0(wmem_file_scope(), dissection_info);
   info->elements = NULL;
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
@@ -6858,7 +6898,9 @@ static int rtps_util_add_type_library_element(proto_tree *tree, packet_info * pi
   proto_item_set_len(element_tree, offset - initial_offset);
 
   if (add_info) {
-    wmem_map_insert(dissection_infos, &(info->type_id), (void *) info);
+    if (!PINFO_FD_VISITED(pinfo)) {
+      wmem_map_insert(dissection_infos, &(info->type_id), (void *) info);
+    }
   }
 
   return offset;
@@ -7555,6 +7597,7 @@ static bool rtps_util_try_dissector(proto_tree *tree,
           info = lookup_dissection_info_in_custom_and_builtin_types(type_mapping_object->type_id);
         if (info != NULL) {
           proto_item_append_text(tree, " (TypeId: 0x%016" PRIx64 ")", info->type_id);
+          user_defined_visits_left = RTPS_MAX_USER_DEFINED_VISITS;
           return dissect_user_defined(tree, tvb, pinfo, offset, encoding, encoding_version, info,
               info->type_id, info->member_name, EXTENSIBILITY_INVALID, offset,
               0 /* flags */, 0 /* member_id */, true);
@@ -10115,15 +10158,11 @@ static int dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvbu
   const char * param_name = NULL;
   if (!pinfo->fd->visited) {
     /*
-     * At minimum, type_mapping_object->fields_visited must be
-     * initialized to 0, because we haven't visited any fields
-     * yet.  The routines that visit fields just set individual
-     * bits in type_mapping_object->fields_visited; they don't
-     * initialize it.
+     * Zero the whole mapping: the routines that visit fields only set
+     * bits in fields_visited, and type_id and the names are only set
+     * when discovery carries them.
      */
-    type_mapping_object = wmem_new(wmem_file_scope(), type_mapping);
-    type_mapping_object->fields_visited = 0;
-    type_mapping_object->guid.fields_present = 0;
+    type_mapping_object = wmem_new0(wmem_file_scope(), type_mapping);
   }
 
   rtps_parameter_sequence_tree = proto_tree_add_subtree_format(tree, tvb, offset, size,
@@ -14094,13 +14133,13 @@ static int rtps_util_look_for_secure_tag(
         tvb,
         submessage_offset + 2,
         ENC_LITTLE_ENDIAN);
-    tvb_remaining_len -= submessage_len;
     if (submessage_id == SUBMESSAGE_SRTPS_POSTFIX
         || submessage_id == SUBMESSAGE_SEC_POSTFIX) {
       return submessage_offset + 4;
     }
-    submessage_offset += submessage_len;
-    tvb_remaining_len -= submessage_len;
+    /* Skip the 4 octet submessage header and the submessage body. */
+    submessage_offset += 4 + submessage_len;
+    tvb_remaining_len -= 4 + submessage_len;
   }
   return -1;
 }
@@ -14929,7 +14968,7 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   bool is_domain_id_calculated = false;
   const char* not_accuracy_str = "";
   int length_remaining = 0;
-  rtps_tvb_field rtps_root;
+  rtps_tvb_field *rtps_root;
 
   /* Check 'RTPS' signature:
    * A header is invalid if it has less than 16 octets
@@ -14948,11 +14987,13 @@ static bool dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   if ((majorRev != 1) && (majorRev != 2))
     return false;
 
-  /* Save the beginning of the RTPS message */
-  rtps_root.tvb = tvb;
-  rtps_root.tvb_offset = offset;
-  rtps_root.tvb_len = tvb_reported_length_remaining(tvb, offset);
-  p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_ROOT_MESSAGE_KEY, (void **)&rtps_root);
+  /* Save the beginning of the RTPS message. The data outlives this function
+   * (RTPS-PROC dissects submessages afterwards), so it is not on the stack. */
+  rtps_root = wmem_new(pinfo->pool, rtps_tvb_field);
+  rtps_root->tvb = tvb;
+  rtps_root->tvb_offset = offset;
+  rtps_root->tvb_len = tvb_reported_length_remaining(tvb, offset);
+  p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_ROOT_MESSAGE_KEY, rtps_root);
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -15195,7 +15236,8 @@ void dissect_rtps_submessages(
   unsigned encoding;
   int next_submsg, octets_to_next_header;
   endpoint_guid dst_guid;
-  submessage_col_info current_submessage_col_info = {NULL, NULL, NULL};
+  /* Outlives this function: the data is looked up through the proto data key */
+  submessage_col_info *current_submessage_col_info = wmem_new0(pinfo->pool, submessage_col_info);
 
   /* No fields have been set in GUID yet. */
   dst_guid.fields_present = 0;
@@ -15253,7 +15295,7 @@ void dissect_rtps_submessages(
      * The offset passed to the dissectors points to the start of the
      * submessage (at the ID byte).
      */
-    p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY, (void **)&current_submessage_col_info);
+    p_set_proto_data(pinfo->pool, pinfo, proto_rtps, RTPS_CURRENT_SUBMESSAGE_COL_DATA_KEY, current_submessage_col_info);
     if (!dissect_rtps_submessage_v1(tvb, pinfo, offset, flags, encoding,
                                     submessageId, version, vendor_id,
                                     octets_to_next_header, rtps_submessage_tree,
@@ -15280,11 +15322,11 @@ void dissect_rtps_submessages(
                                 tvb, offset + 2, 2, octets_to_next_header);
       }
     }
-    append_submessage_col_info(pinfo, &current_submessage_col_info);
+    append_submessage_col_info(pinfo, current_submessage_col_info);
     /* Reset the col info for the next submessage */
-    current_submessage_col_info.data_session_kind = NULL;
-    current_submessage_col_info.status_info = NULL;
-    current_submessage_col_info.topic_name = NULL;
+    current_submessage_col_info->data_session_kind = NULL;
+    current_submessage_col_info->status_info = NULL;
+    current_submessage_col_info->topic_name = NULL;
      /* next submessage's offset */
      offset = next_submsg;
   }
@@ -18598,6 +18640,7 @@ void proto_register_rtps(void) {
      { &ei_rtps_more_samples_available, { "rtps.more_samples_available", PI_PROTOCOL, PI_NOTE, "More samples available. Configure this limit from preferences dialog", EXPFILL }},
      { &ei_rtps_pid_type_csonsistency_invalid_size, { "rtps.pid_type_consistency_invalid_size", PI_MALFORMED, PI_ERROR, "PID_TYPE_CONSISTENCY invalid size. Has a size of %d bytes. Expected %d or %d bytes.", EXPFILL }},
      { &ei_rtps_uncompression_error, { "rtps.uncompression_error", PI_PROTOCOL, PI_WARN, "Unable to uncompress the compressed payload.", EXPFILL }},
+     { &ei_rtps_typecode_too_deep, { "rtps.typecode_too_deep", PI_MALFORMED, PI_ERROR, "Typecode nesting too deep", EXPFILL }},
      { &ei_rtps_value_too_large, { "rtps.value_too_large", PI_MALFORMED, PI_ERROR, "Length value goes past the end of the packet", EXPFILL }},
      { &ei_rtps_checksum_check_error, { "rtps.checksum_error", PI_CHECKSUM, PI_ERROR, "Error: Unexpected checksum", EXPFILL }},
      { &ei_rtps_invalid_psk, { "rtps.psk_decryption_error", PI_UNDECODED, PI_ERROR, "Unable to decrypt content using PSK", EXPFILL }}
