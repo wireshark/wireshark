@@ -129545,3 +129545,161 @@ class TestDissectRtcdc:
             '21\tUnknown message type',
             '22\tUnknown message type',
             '23\tUnknown message type']
+
+
+class TestDissectRtcpCoverage:
+    '''RTCP (heuristic on UDP) from the synthetic capture
+    rtcp_coverage.pcap.gz: the packet types, MS-RTP extensions, APP
+    (PoC1, MCPT, MCPC, MCCP), feedback, XR, the SDP-set-up conversation and
+    the round trip calculation. Frame 1 is the SIP/SDP frame that sets up an
+    RTCP conversation, frames 108-115 are MCCP (see test_rtcp_protocols) and
+    frame 189 is the reproducer of "RTCP: Bound transport-cc allocations and
+    fix several decoding bugs" (6540 transport-cc FCIs).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('rtcp_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_rtcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''188 RTCP frames and one SIP/SDP frame. No error expert infos and
+        no malformed packets in one and two passes except frames 108-115
+        (MCCP: the dissector counts every field twice, so a field-exact
+        message ends with a length check warning) and frame 189.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                '_ws.col.protocol')
+        assert len(rows) == 189
+        assert rows.count('RTCP') == 188
+        assert rows.count('SIP/SDP') == 1
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed', 'frame.number', passes=passes) == [
+                '108', '109', '110', '111', '112', '113', '114', '115', '189']
+
+    def test_rtcp_two_pass_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column is the same in one and two passes.'''
+        one = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.info')
+        two = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.info',
+                passes=('-2',))
+        assert one == two
+
+    def test_rtcp_transport_cc_allocation(self, cmd_tshark, capture_file, test_env):
+        '''6540 transport-cc FCIs with a zero run length chunk and a packet
+        status count of 0xffff allocated about 1.3 GB per packet before the
+        fix (peak memory 1.4 GB, not checked here: RLIMIT_AS breaks ASAN builds).
+        The frame decodes with one zero run length warning per FCI.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 189', 'rtcp.rtpfb.transportcc_bad')
+        assert len(rows) == 1
+        assert len(rows[0].split(',')) == 6540
+
+    def test_rtcp_transport_cc(self, cmd_tshark, capture_file, test_env):
+        '''Run length and status vector chunks, receive deltas and padding.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {136, 137}', 'frame.number',
+                'rtcp.rtpfb.transportcc.recv_delta',
+                'rtcp.rtpfb.transportcc.recv_delta.padding')
+        assert rows == [
+            '136\t0x10,0x20,0x30,0x0190,0xfe70\t00',
+            '137\t0x01,0x02,0x03,0x04,0x05,0x06,0x07\t000000']
+
+    def test_rtcp_idms(self, cmd_tshark, capture_file, test_env):
+        '''The XR IDMS block advances past the NTP receive timestamp: the
+        RTP timestamp and the MSCI are read from the right place and the
+        timestamp is NTP (it used to be shown as raw seconds).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtcp.xr.idms.ntp_rcv_ts', 'frame.number',
+                'rtcp.xr.idms.rtp_ts', 'rtcp.xr.idms.source_ssrc',
+                'rtcp.xr.idms.msci', 'rtcp.xr.idms.ntp_rcv_ts')
+        assert rows == ['167\t16909060\t1432778632\t2864434397\t2019-02-02T11:39:44.999999999Z']
+
+    def test_rtcp_remb(self, cmd_tshark, capture_file, test_env):
+        '''Two REMB blocks in one packet (the number of FCI words read was
+        assigned instead of accumulated).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {154, 155}', 'frame.number',
+                'rtcp.psfb.remb.fci.number_ssrcs')
+        assert rows == ['154\t0', '155\t1,2']
+
+    def test_rtcp_ms_dominant_speaker(self, cmd_tshark, capture_file, test_env):
+        '''All three MSI entries of a dominant speaker history are decoded
+        (the length counted two octets per four octet entry).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 158', 'rtcp.psfb.ms.msi')
+        assert rows == ['0x11223344,0x55667788,0xa1b2c3d4']
+
+    def test_rtcp_profile_specific_extension_clamp(self, cmd_tshark, capture_file, test_env):
+        '''A profile specific extension that claims to be longer than the
+        packet does not overrun it (frame 29); a length below 4 is
+        accepted (frame 28).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {28, 29}', 'frame.number', '_ws.col.info')
+        assert rows == [
+            '28\tReceiver Report   (PSE:MS - Padding  PSE:Unknown ) ',
+            '29\tReceiver Report   (PSE:MS - Packet Loss Notification  ) ']
+
+    def test_rtcp_mcptt_floor_revoke(self, cmd_tshark, capture_file, test_env):
+        '''The floor revoke Info text uses the floor revoke cause names.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 75', '_ws.col.info')
+        assert rows == ['(MCPT) Floor Revoke - No permission to send a Media Burst - '
+                        'No permission to send a Media Burst']
+
+    def test_rtcp_app_poc1(self, cmd_tshark, capture_file, test_env):
+        '''PoC1 (TBCP) Info texts.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {37, 53}', 'frame.number', '_ws.col.info')
+        assert rows == [
+            '37\t(PoC1) TBCP Talk Burst Taken (no ack expected) CNAME="sip:a@b.cd" '
+            'DISPLAY-NAME="Alice!" Participants=65535',
+            '53\t(PoC1) TBCP Talk Burst Granted stop-talking-time=65535 participants=65535']
+
+    def test_rtcp_sdes(self, cmd_tshark, capture_file, test_env):
+        '''SDES chunks: a missing terminator is a warning, a PRIV item with
+        a prefix.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {7, 8}', 'frame.number', 'rtcp.sdes.prefix.string',
+                'rtcp.sdes.text')
+        assert rows == ['7\t\tabcdef', '8\tabc\txyz']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 7', '_ws.expert.message')
+        assert len(rows) == 1 and 'MUST be terminated' in rows[0]
+
+    def test_rtcp_setup_by_sdp(self, cmd_tshark, capture_file, test_env):
+        '''RTCP on port 4001 of 192.0.2.3 is in the conversation set up by
+        the SDP in frame 1.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtcp.setup', 'frame.number', 'rtcp.setup-method', 'rtcp.setup-frame')
+        assert rows == ['187\tSDP\t1', '188\tSDP,SDP\t1,1']
+
+    def test_rtcp_roundtrip(self, cmd_tshark, capture_file, test_env):
+        '''Round trip delay from the LSR and DLSR of a receiver report
+        (preference rtcp.show_roundtrip_calculation); delays below the
+        threshold are not reported unless the threshold is 0.'''
+        opts = ('-o', 'rtcp.show_roundtrip_calculation:TRUE')
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtcp.roundtrip-delay', 'frame.number', 'rtcp.roundtrip-delay',
+                opts=opts)
+        assert rows == ['178\t301', '180\t-800', '184\t299']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtcp.roundtrip-delay', 'frame.number', 'rtcp.roundtrip-delay',
+                opts=opts + ('-o', 'rtcp.roundtrip_min_threshhold:0'))
+        assert rows == ['178\t301', '180\t-800', '182\t5', '184\t299']
+        assert self._fields(cmd_tshark, capture_file, test_env, 'rtcp.roundtrip-delay',
+                'frame.number') == []
+
+    def test_rtcp_srtcp_default_protocol(self, cmd_tshark, capture_file, test_env):
+        '''With rtcp.default_protocol set to SRTCP the heuristic hands the
+        frames to the SRTCP dissector, which assumes encrypted payloads
+        and does not decode past the first report header (no keys are
+        used, nothing is decrypted).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {3, 4}', 'frame.number', '_ws.col.protocol',
+                opts=('-o', 'rtcp.default_protocol:SRTCP'))
+        assert [r.split('\t')[:2] for r in rows] == [['3', 'SRTCP'], ['4', 'SRTCP']]
