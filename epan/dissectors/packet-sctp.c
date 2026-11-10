@@ -406,6 +406,7 @@ static expert_field ei_sctp_retransmitted_after_ack;
 static expert_field ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100;
 static expert_field ei_sctp_sack_chunk_gap_block_out_of_order;
 static expert_field ei_sctp_chunk_length_bad;
+static expert_field ei_sctp_too_many_fragments;
 static expert_field ei_sctp_tsn_retransmitted;
 static expert_field ei_sctp_sack_chunk_gap_block_malformed;
 static expert_field ei_sctp_sack_chunk_number_tsns_gap_acked_100;
@@ -2926,6 +2927,17 @@ frag_hash(const void *k)
 }
 
 
+/* Upper bound on the fragments stored for one message; every new fragment
+ * costs a walk over the list of the message. */
+#define SCTP_MAX_FRAGMENTS_PER_MSG 1024
+
+/* sctp_frag_msg with a fragment counter. The base structure must be first so
+ * that the message can be freed through a sctp_frag_msg pointer. */
+typedef struct _sctp_frag_msg_ext {
+  sctp_frag_msg msg;
+  unsigned nfrags;
+} sctp_frag_msg_ext;
+
 static void
 frag_free_msgs(sctp_frag_msg *msg)
 {
@@ -3029,7 +3041,9 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t tsn,
   msg = find_message(stream_id, stream_seq_num, u_bit);
 
   if (!msg) {
-    msg = g_new(sctp_frag_msg, 1);
+    sctp_frag_msg_ext *msg_ext = g_new(sctp_frag_msg_ext, 1);
+    msg_ext->nfrags = 0;
+    msg = &msg_ext->msg;
     msg->begins = NULL;
     msg->ends = NULL;
     msg->fragments = NULL;
@@ -3085,6 +3099,14 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32_t tsn,
   /* There is no point in storing a fragment with no data in it */
   if (tvb_captured_length(tvb) == 0)
     return NULL;
+
+  /* Bound the work done for one message */
+  if (((sctp_frag_msg_ext *)msg)->nfrags >= SCTP_MAX_FRAGMENTS_PER_MSG) {
+    col_append_str(pinfo->cinfo, COL_INFO, "(Too many message fragments) ");
+    expert_add_info(pinfo, tree, &ei_sctp_too_many_fragments);
+    return NULL;
+  }
+  ((sctp_frag_msg_ext *)msg)->nfrags++;
 
   /* create new fragment */
   fragment = g_new(sctp_fragment, 1);
@@ -3997,7 +4019,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   uint16_t number_of_gap_blocks, number_of_dup_tsns;
   uint16_t gap_block_number, dup_tsn_number, start, end;
   int gap_block_offset, dup_tsn_offset;
-  uint32_t cum_tsn_ack;
+  uint32_t cum_tsn_ack, raw_cum_tsn_ack;
   proto_tree *block_tree;
   proto_tree *flags_tree;
   proto_item *ctsa_item;
@@ -4007,7 +4029,8 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   uint32_t a_rwnd;
   uint16_t last_end;
 
-  cum_tsn_ack = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+  raw_cum_tsn_ack = tvb_get_ntohl(chunk_tvb, SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
+  cum_tsn_ack = raw_cum_tsn_ack;
   if((show_relative_tsns) && (ha) && (ha->peer)) {
     cum_tsn_ack -= ha->peer->first_tsn;
   }
@@ -4035,7 +4058,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
   gap_block_offset     = SACK_CHUNK_GAP_BLOCK_OFFSET;
 
   acks_tree = proto_item_add_subtree(ctsa_item,ett_sctp_ack);
-  sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, cum_tsn_ack);
+  sctp_ack_block(pinfo, ha, chunk_tvb, acks_tree, NULL, raw_cum_tsn_ack);
 
   last_end = 0;
   for(gap_block_number = 0; gap_block_number < number_of_gap_blocks; gap_block_number++) {
@@ -4045,7 +4068,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
 
     start = tvb_get_ntohs(chunk_tvb, gap_block_offset);
     end   = tvb_get_ntohs(chunk_tvb, gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH);
-    tsn_start = cum_tsn_ack + start;
+    tsn_start = raw_cum_tsn_ack + start;
 
     block_tree = proto_tree_add_subtree_format(chunk_tree, chunk_tvb, gap_block_offset, SACK_CHUNK_GAP_BLOCK_LENGTH,
                         ett_sctp_sack_chunk_gap_block, NULL, "Gap Acknowledgement for TSN %u to %u", cum_tsn_ack + start, cum_tsn_ack + end);
@@ -4062,7 +4085,7 @@ dissect_sack_chunk(packet_info *pinfo, tvbuff_t *chunk_tvb, proto_tree *chunk_tr
                              gap_block_offset + SACK_CHUNK_GAP_BLOCK_START_LENGTH, SACK_CHUNK_GAP_BLOCK_END_LENGTH, cum_tsn_ack + end);
     proto_item_set_generated(pi);
 
-    sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, cum_tsn_ack + end);
+    sctp_ack_block(pinfo, ha, chunk_tvb, block_tree, &tsn_start, raw_cum_tsn_ack + end);
     gap_block_offset += SACK_CHUNK_GAP_BLOCK_LENGTH;
 
     tsns_gap_acked += (end+1 - start);
@@ -5181,6 +5204,7 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 {
   uint16_t source_port, destination_port;
   unsigned   number_of_ppid;
+  volatile bool dissected = false;
 
   /* Extract the common header */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
@@ -5230,10 +5254,13 @@ dissect_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   TRY {
     dissect_sctp_packet(tvb, pinfo, tree, false);
+    dissected = true;
   }
 
   FINALLY {
-    if (!pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
+    /* The taps read the chunk tvbs outside of any TRY block, so do not
+     * hand them a packet whose chunks threw an exception. */
+    if (dissected && !pinfo->flags.in_error_pkt && sctp_info.number_of_tvbs > 0)
       /* XXX: If a (only present in an expired Internet-Draft)
        * PKTDROP chunk is present, that shouldn't stop us from
        * tapping the information from the outer encapsulation,
@@ -5469,6 +5496,7 @@ proto_register_sctp(void)
       { &ei_sctp_sack_chunk_number_tsns_gap_acked_100, { "sctp.sack_number_of_tsns_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this SACK.", EXPFILL }},
       { &ei_sctp_nr_sack_chunk_number_tsns_gap_acked_100, { "sctp.nr_sack_number_of_tsns_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were gap-acknowledged in this NR-SACK.", EXPFILL }},
       { &ei_sctp_nr_sack_chunk_number_tsns_nr_gap_acked_100, { "sctp.nr_sack_number_of_tsns_nr_gap_acked.100", PI_SEQUENCE, PI_WARN, "More than 100 TSNs were nr-gap-acknowledged in this NR-SACK.", EXPFILL }},
+      { &ei_sctp_too_many_fragments, { "sctp.too_many_fragments", PI_PROTOCOL, PI_WARN, "Too many fragments in one message, not reassembled", EXPFILL }},
       { &ei_sctp_chunk_length_bad, { "sctp.chunk_length.bad", PI_MALFORMED, PI_ERROR, "Chunk length bad", EXPFILL }},
       { &ei_sctp_bad_sctp_checksum, { "sctp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum.", EXPFILL }},
       { &ei_sctp_illegal_parameter_occurrence, { "sctp.illegal_parameter_occurrence.expert", PI_PROTOCOL, PI_ERROR, "Illegal parameter occurrence.", EXPFILL }},
