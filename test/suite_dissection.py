@@ -138164,3 +138164,74 @@ class TestDissectSkinny:
                 '-eskinny.passThroughPartyId',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['2001:db8::a\t4\t74565']
+
+
+class TestDissectSkype:
+    OPTS = ('--enable-heuristic', 'skype_udp', '-d', 'udp.port==40002,skype', '-d', 'tcp.port==40003,skype')
+
+    def test_skype_protocols(self, cmd_tshark, capture_file, test_env):
+        '''28 of the 30 frames are SKYPE (the heuristic, which is disabled
+        by default, takes types 0, 2, 3, 5, 7, 0xd and 0xf on UDP port
+        40001; Decode As takes every type on UDP 40002 and TCP 40003); the
+        two frames the heuristic rejects stay UDP. None is malformed or has
+        a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('skype_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('SKYPE') == 28
+        assert protocols.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('skype_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_skype_heuristic_disabled_by_default(self, cmd_tshark, capture_file, test_env):
+        '''Without --enable-heuristic only the Decode As ports are SKYPE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-d', 'udp.port==40002,skype', '-d', 'tcp.port==40003,skype',
+                '-r', capture_file('skype_coverage.pcap.gz'),
+                '-Y', 'skype and frame.number <= 11',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_skype_info(self, cmd_tshark, capture_file, test_env):
+        '''The message type, with the unknown nibble of the third octet,
+        in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('skype_coverage.pcap.gz'),
+                '-Y', 'skype',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-eskype.som.type',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:9] == [
+            '1\tUnknown_0\t0x00', '2\tPayload\t0x02', '3\tFragment/Forward/Resend\t0x03',
+            '4\tNAT info\t0x05', '5\tNAT repeat\t0x07', '6\tAudio\t0x0d', '7\tUnknown_F\t0x0f',
+            '8\tPayload Unk: 5\t0x02', '9\tNAT info Unk: f\t0x05',
+        ]
+        assert lines[9:12] == ['12\tUnknown_0\t0x00', '13\tType 0x1\t0x01', '14\tPayload\t0x02']
+        assert lines[-2:] == ['29\tType 0xff\t', '30\tType 0xff\t']
+
+    def test_skype_nat_addresses(self, cmd_tshark, capture_file, test_env):
+        '''NAT info and NAT repeat carry the global addresses; the fields of
+        encrypted payloads are shown as raw values.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('skype_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 3, 4, 5, 28}',
+                '-Tfields', '-eframe.number', '-eskype.natinfo.srcip', '-eskype.natinfo.dstip',
+                '-eskype.natrequest.srcip', '-eskype.natrequest.dstip', '-eskype.payload.iv',
+                '-eskype.payload.crc', '-eskype.ffr.num', '-eskype.ffr.iv',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t\t\t\t\t0xdeadbeef\t0x12345678\t\t',
+            '3\t\t\t\t\t\t\t0x02\t0x01020304',
+            '4\t198.51.100.7\t0xcb007109\t\t\t\t\t\t',
+            '5\t\t\t203.0.113.9\t0xc6336407\t\t\t\t',
+            '28\t203.0.113.9\t0xc6336407\t\t\t\t\t\t',
+        ]
