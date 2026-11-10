@@ -137915,3 +137915,71 @@ class TestDissectSip:
             '-Tfields', '-eframe.number', '-e_ws.col.protocol')
         assert lines == ['85\tSIP/sipfrag', '99\tSIP/XML', '103\tSIP/SDP/ISUP(ITU)',
                          '112\tSIP/XML', '114\tSIP/XML', '115\tSIP/XML']
+
+
+class TestDissectSipfrag:
+    '''SIPFRAG (message/sipfrag bodies) from the synthetic capture
+    sipfrag_coverage.pcapng.gz: NOTIFY requests and a response over UDP
+    and TCP, a message/sip body that holds a NOTIFY with a sipfrag, and
+    Exported PDUs that name sipfrag.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('sipfrag_coverage.pcapng.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_sipfrag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Nine frames carry a sipfrag; none is malformed or has an error
+        expert info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', 'sipfrag', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol')
+            assert [l.split('\t')[0] for l in lines] == \
+                ['1', '2', '3', '4', '8', '13', '14', '15', '16']
+            assert [l.split('\t')[1] for l in lines] == \
+                ['SIP/sipfrag'] * 6 + ['/sipfrag'] * 2 + ['SIP/sipfrag']
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_sipfrag_lines(self, cmd_tshark, capture_file, test_env):
+        '''Every line of the body is an item: LF only line ends, an empty
+        line, a last line without line end, and a quoted string that
+        spans a line break (one line, in one and two passes).'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', 'sipfrag', '-Tfields', '-eframe.number',
+                '-esipfrag.line', '-e_ws.col.info')
+            assert lines == [
+                '1\tSIP/2.0 200 OK\tRequest: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 200 OK)',
+                '2\tSIP/2.0 100 Trying,Contact: <sip:b@192.0.2.2>,Content-Length: 0,,last line\t'
+                'Request: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 100 Trying...)',
+                '3\tSIP/2.0 180 Ringing,Call-ID: x,CSeq: 1 INVITE\t'
+                'Request: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 180 Ringing...)',
+                '4\tSIP/2.0 486 Busy Here,Subject: "two\\r\\n lines",To: <sip:a@192.0.2.1>\t'
+                'Request: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 486 Busy Here...)',
+                '8\tSIP/2.0 603 Decline,Warning: 399 x "y"\t'
+                'Request: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 603 Decline...)',
+                '13\tSIP/2.0 202 Accepted\t'
+                'Status: 200 OK (NOTIFY) | , with Sipfrag(SIP/2.0 202 Accepted)',
+                '14\tINVITE sip:c@192.0.2.3 SIP/2.0,Via: SIP/2.0/UDP x,\t'
+                ', with Sipfrag(INVITE sip:c@192.0.2.3 SIP/2.0...)',
+                '15\tSIP/2.0 200 OK\t, with Sipfrag(SIP/2.0 200 OK)',
+                '16\tSIP/2.0 200 OK\tRequest: NOTIFY sip:a@192.0.2.1 | '
+                'Request: NOTIFY sip:a@192.0.2.1 | , with Sipfrag(SIP/2.0 200 OK)',
+            ]
+
+    def test_sipfrag_tcp_and_nesting(self, cmd_tshark, capture_file, test_env):
+        '''The sipfrag of the TCP NOTIFY (frame 8) and the one inside a
+        message/sip body (frame 16) hang below their SIP message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+            '-Y', 'frame.number in {8, 16}', '-Tfields', '-eframe.number',
+            '-etcp.dstport', '-esip.Event', '-esip.Content-Type',
+            '-esipfrag.line')
+        assert lines == [
+            '8\t5060\trefer\tmessage/sipfrag;version=2.0\tSIP/2.0 603 Decline,Warning: 399 x "y"',
+            '16\t\trefer,refer\tmessage/sip,message/sipfrag;version=2.0\tSIP/2.0 200 OK',
+        ]
