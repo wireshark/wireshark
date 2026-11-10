@@ -121330,3 +121330,109 @@ class TestDissectPwSatop:
             '4\t0\t0\t54\t',
             '6\t1\t0\t0\tSAToP payload: omitted to conserve bandwidth',
             '7\t1\t1\t0\t']
+
+
+class TestDissectQ2931:
+    '''Q.2931 (ATM signalling) from the synthetic capture
+    q2931_coverage.pcap.gz (SunATM VPI 0 VCI 5 carrying SSCOP SD PDUs).
+    298 frames: every message type, every information element, the
+    cause IE reproducers of "Q.2931: Bound cause IE recursion and fix
+    IE loops" (frames 192-195) and the three IEs that were decoded
+    wrongly before it (frames 296-298).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('q2931_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_q2931_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 298 frames are SSCOP carrying Q.2931 and decode without
+        malformed packets or error expert infos, in one and two passes.
+        The only warnings are the two cause nesting limits.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-eframe.protocols')
+        assert len(rows) == 298
+        assert all(r[0].endswith(':sscop:q2931') for r in rows)
+        infos = [r[0] for r in self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.info')]
+        assert infos.count('SETUP') == 196
+        assert infos.count('RELEASE') == 41
+        assert infos.count('Unknown message type (0x33)') == 1
+        for name in ('ALERTING', 'CALL PROCEEDING', 'PROGRESS', 'CONNECT', 'SETUP ACKNOWLEDGE',
+                     'CONNECT ACKNOWLEDGE', 'RESTART', 'RESTART ACKNOWLEDGE', 'RELEASE COMPLETE',
+                     'NOTIFY', 'STATUS ENQUIRY', 'INFORMATION', 'STATUS', 'ADD PARTY',
+                     'ADD PARTY ACKNOWLEDGE', 'ADD PARTY REJECT', 'DROP PARTY',
+                     'DROP PARTY ACKNOWLEDGE', 'LEAF SETUP FAILURE', 'LEAF SETUP REQUEST'):
+            assert name in infos
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error', '-eframe.number')
+            assert rows == []
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.expert.severity == warning', '-eframe.number')
+            assert rows == [['194'], ['195']]
+
+    def test_q2931_cause_recursion(self, cmd_tshark, capture_file, test_env):
+        '''A cause 22 (number changed) IE holding another cause IE is
+        followed for 8 levels; past that the "too deep" expert info
+        replaces the rest, in frames 194 and 195 only.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {192, 193, 194, 195}',
+                    '-eframe.number', '-eq2931.information_element', '-eq2931.cause.too_deep')
+            counts = [(r[0], len(r[1].split(',')), r[2] != '') for r in rows]
+            assert counts == [('192', 4, False), ('193', 8, False),
+                              ('194', 9, True), ('195', 9, True)]
+
+    def test_q2931_ie_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Frame 296: a cause with one diagnostic octet is not followed by
+        a second diagnostic made of the next IE. Frame 297: AAL5 with only
+        the mode parameter does not read the next IE as an identifier.
+        Frame 298: the user-defined AAL (0x10) shows its information
+        instead of a parameter list.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 296', '-eframe.number',
+                '-eq2931.cause.information_element', '-eq2931.aal_type',
+                '-eq2931.aal.parameter_identifier', '-eq2931.aal.parameter_identifier.unknown',
+                '-eq2931.user_defined_aal_information', '-eq2931.aal1.mode')
+        assert rows == [
+            ['296', '0x70', '', '', '', '', ''],
+            ['297', '', '0x05', '0x83', '', '', '0x01'],
+            ['298', '', '0x10', '', '', '11223344', ''],
+        ]
+
+    def test_q2931_ie_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of a few information elements.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {66, 69, 148, 149, 150, 180, 185, 250, 251, 290}',
+                '-eframe.number', '-eq2931.aal1.cbr_rate', '-eq2931.aal1.multiplier',
+                '-eq2931.aal1.forward_max_cpcs_sdu_size', '-eq2931.bband_low_layer_info.ethernet_type',
+                '-eq2931.bband_low_layer_info.lane_protocol_id',
+                '-eq2931.bband_low_layer_info.protocol_id', '-eq2931.cause.vpci',
+                '-eq2931.cause.vci', '-eq2931.cause.timer',
+                '-eq2931.e2e_transit_delay.maximum_end_to_end', '-eq2931.conn_id.vci')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['66'][:2] == ['0x10', '2']
+        assert d['69'][2] == '64'
+        assert d['148'][3] == '0x0800'
+        assert d['149'][4] == '0x0001'
+        assert d['150'][5] == '0x0800'
+        assert d['180'][6:8] == ['1', '32']
+        assert d['185'][8] == 'T30'
+        assert d['250'][9] == '50'
+        assert d['251'][9] == '65535'
+        assert d['290'][10] == '32'
+
+    def test_q2931_call_reference(self, cmd_tshark, capture_file, test_env):
+        '''Call reference lengths 0, 1, 3 and 5 and the flag bit.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 28, 29, 30}',
+                '-eframe.number', '-eq2931.call_ref_len', '-eq2931.call_ref',
+                '-eq2931.call_ref_flag')
+        d = {r[0]: r[1:] for r in rows}
+        assert d['1'][0] == '3' and d['1'][2] == 'False'
+        assert d['2'][2] == 'True'
+        assert d['28'][0] == '0' and d['28'][1] == ''
+        assert d['29'][0] == '1' and d['29'][2] == 'True'
+        assert d['30'][:2] == ['5', '123456789a']
