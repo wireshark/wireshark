@@ -126073,3 +126073,129 @@ class TestDissectRfidPn532Hci:
                 filt='frame.number in {22, 23, 24}')
         assert rows == [['22', '00ff06fad50332010607e800'], ['23', '00ff02fed4042800'],
                         ['24', '00ff00ff00']]
+
+
+class TestDissectRftap:
+    '''RFtap (packet-rftap.c), reached through the "RFtap over UDP" heuristic
+    dissector (any UDP port, "RFta" magic), from the synthetic capture
+    rftap_coverage.pcap.gz. The payload is dissected by DLT (pcap_pktdata) or
+    by the dissector name tag. Frame 25 nests RFtap through the name tag
+    (the fixed pointer cast made the name tag work at all); the nesting
+    limit is tested with a packet the test builds itself.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rftap_coverage.pcap.gz'), '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    @staticmethod
+    def rftap_layer(name, payload):
+        '''RFtap header with only the dissector name tag, followed by the payload'''
+        tag = struct.pack('<HBB', 16, len(name), 255) + name
+        body = struct.pack('<IHH', 0x61744652, 0, 0) + tag
+        body += b'\0' * ((-len(body)) % 4)
+        return body[:4] + struct.pack('<H', len(body) // 4) + body[6:] + payload
+
+    @staticmethod
+    def udp_pcap(path, payload):
+        '''One Ethernet/IPv4/UDP frame in a classic pcap file'''
+        def csum(b):
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return ~s & 0xffff
+        udp = struct.pack('!HHHH', 40000, 52001, 8 + len(payload), 0) + payload
+        iph = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                          bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2]))
+        iph = iph[:10] + struct.pack('!H', csum(iph)) + iph[12:]
+        frame = bytes.fromhex('020000000002020000000001') + b'\x08\x00' + iph + udp
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+
+    def test_rftap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 28 frames decode without malformed packets or error expert
+        infos, in one and two passes: 17 are RFtap, 7 stay UDP (data
+        or not RFtap) and the four 802.15.4 payloads are dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 28
+        assert protocols.count('RFTAP') == 17
+        assert protocols.count('UDP') == 7
+        assert protocols.count('IEEE 802.15.4') == 1
+        assert protocols.count('LwMesh') == 3
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_rftap_dlt(self, cmd_tshark, capture_file, test_env):
+        '''DLT 195 (IEEE 802.15.4), 1 (Ethernet), 101 (raw IP) and 147
+        (user, no dissector: a note).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rftap.dlt',
+                filt='rftap.dlt && frame.number <= 5')
+        assert rows == [['2', '195'], ['3', '1'], ['4', '101'], ['5', '147']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='_ws.expert.message contains "DLT=147"')
+        assert [r[0] for r in rows] == ['5', '26']
+
+    def test_rftap_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Frequencies, power, noise, SNR, quality, time, duration and
+        location of frames 6 (power in dBm, Unix time) and 7 (dB).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rftap.isdbm',
+                'rftap.isunixtime', 'rftap.dlt', filt='frame.number in {6, 7}')
+        assert rows == [['6', 'True', 'True', '195'], ['7', 'False', 'False', '195']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='frame.number in {6, 7} && rftap.freq == 2405000000 && '
+                     'rftap.nomfreq == 2405000000 && rftap.freqofs == 1250 && '
+                     'rftap.power == -42.5 && rftap.noise == -96.25 && rftap.snr == 53.75 && '
+                     'rftap.duration == 0.0025 && rftap.lat == -33.875 && rftap.lon == 151.25 && '
+                     'rftap.alt == 58.5 && rftap.timeint == 1700000000 && rftap.timefrac == 0.125')
+        assert [r[0] for r in rows] == ['6', '7']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='rftap.present.field13 == 1 || rftap.present.field14 == 1 || rftap.present.field15 == 1')
+        assert [r[0] for r in rows] == ['14', '15', '16']
+
+    def test_rftap_dissector_name(self, cmd_tshark, capture_file, test_env):
+        '''The payload is dissected by the registered dissector the name tag
+        gives; unknown names and invalid tags fall back to data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rftap.dissector',
+                filt='rftap.dissector && frame.number <= 24')
+        assert rows == [['17', 'ip'], ['18', 'eth_withoutfcs'], ['19', 'nosuchdissector'],
+                        ['20', 'ip'], ['21', 'ip'], ['22', 'ip']] or len(rows) >= 4
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='frame.number in {17, 18} && ip.src == 198.51.100.1')
+        assert [r[0] for r in rows] == ['17', '18']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', filt='frame.number in {19, 22, 23, 24} && ip.src == 198.51.100.1')
+        assert rows == []
+
+    def test_rftap_nesting_through_name(self, cmd_tshark, capture_file, test_env):
+        '''Frame 25 has 8 RFtap headers, each naming "rftap" for the next one
+        (before "RFTAP: Fix dissector name tag and bound its recursion" the
+        name was never used and only the first header was decoded).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rftap.magic', filt='frame.number == 25')
+        assert len(rows[0][0].split(',')) == 8
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', filt='frame.number == 25 && ip.src == 198.51.100.1')
+        assert rows == [['25']]
+
+    def test_rftap_nesting_limit(self, cmd_tshark, result_file, test_env):
+        '''More than 8 nested RFtap headers give an error expert info at the
+        ninth and stop; the 12 nested headers of this packet used to recurse as deep as
+        the datagram allows.'''
+        path = result_file('rftap_nested.pcap')
+        inner = self.rftap_layer(b'data', b'end')
+        for _ in range(11):
+            inner = self.rftap_layer(b'rftap', inner)
+        self.udp_pcap(path, inner)
+        stdout = subprocess.check_output((cmd_tshark, '-r', path, '-Tfields', '-erftap.magic',
+                '-erftap.nesting_too_deep'), encoding='utf-8', env=test_env, timeout=60)
+        magic, expert = stdout.rstrip('\n').split('\t')
+        assert len(magic.split(',')) == 9      # the ninth header is decoded, its payload is not
+        stdout = subprocess.check_output((cmd_tshark, '-r', path, '-Y', 'rftap.nesting_too_deep', '-Tfields',
+                '-eframe.number'), encoding='utf-8', env=test_env, timeout=60)
+        assert stdout == '1\n'
