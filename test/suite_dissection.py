@@ -134537,3 +134537,114 @@ class TestDissectSbus:
                 '177\tResponse\t\t' + stdout.splitlines()[1].split('\t')[3] + '\t176',
             ]
             assert stdout.splitlines()[1].split('\t')[3] != ''
+
+
+class TestDissectSccp:
+    '''SCCP in MTP3 (link type 141) and as bare SCCP (link type 142) from the
+    synthetic capture sccp_coverage.pcapng.gz: every message type, address
+    forms, global titles, XUDT/LUDT/DT1 reassembly, associations.'''
+
+    CAP = 'sccp_coverage.pcapng.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSccp.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sccp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 146
+        assert protocols.count('SCCP (Int. ITU)') == 140
+        assert protocols.count('TCAP') == 6
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_sccp_message_types(self, cmd_tshark, capture_file, test_env):
+        '''All twenty message types of the standard are in the capture.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'sccp.message_type', '-Tfields', '-esccp.message_type')
+        assert sorted({int(r[0], 16) for r in rows}) == list(range(1, 21)) + [0x7f]
+
+    def test_sccp_global_titles(self, cmd_tshark, capture_file, test_env):
+        '''Global title formats 2, 3 and 4: digits (with "spare" and
+        "ST" signals), number plans, nature of address, SSN and PC.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {7, 8, 9, 10, 12, 13}',
+                '-Tfields', '-eframe.number', '-esccp.called.digits', '-esccp.calling.digits',
+                '-esccp.called.gti', '-esccp.called.np', '-esccp.called.nai',
+                '-esccp.called.ssn', '-esccp.called.pc', '-ee212.mcc')
+        assert rows == [
+            ['7', '0123456789(spare)11', '9876', '0x02', '', '', '', '', ''],
+            ['8', '491721234567', '4917212345679', '0x03', '0x01', '', '', '', ''],
+            ['9', '262021234567', '310150123456789', '0x03', '0x07', '', '', '', '310'],
+            ['10', '491721234567', '491721234567', '0x04', '0x01', '0x04', '', '', ''],
+            ['12', '4917212345', '49172', '0x04', '0x01', '0x04', '252', '2748', '491'],
+            ['13', '1ST11', '(spare)', '0x03', '0x0e', '', '', '', ''],
+        ]
+
+    def test_sccp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three segmented XUDT frames, a two segment XUDT, a LUDT and
+        three DT1 frames are reassembled; the TCAP message in the first
+        one is decoded from the reassembled data. The segments point to the
+        frame that completes the message (second pass).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'sccp.msg.reassembled.in || sccp.msg.reassembled.length',
+                '-Tfields', '-eframe.number', '-esccp.msg.reassembled.in',
+                '-esccp.msg.reassembled.length', '-esccp.msg.fragment.count', '-etcap.tid')
+        assert rows == [
+            ['37', '39', '', '', ''], ['38', '39', '', '', ''], ['39', '', '8', '3', '00000001'],
+            ['40', '41', '', '', ''], ['41', '', '20', '2', ''],
+            ['43', '44', '', '', ''], ['44', '', '8', '2', ''],
+            ['48', '49', '', '', ''], ['49', '', '600', '2', ''],
+            ['54', '56', '', '', ''], ['55', '56', '', '', ''], ['56', '', '29', '3', ''],
+        ]
+        # also with one pass the last segment of each message is reassembled
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'sccp.msg.reassembled.length', '-Tfields', '-eframe.number',
+                '-esccp.msg.reassembled.length')
+        assert rows == [['39', '8'], ['41', '20'], ['44', '8'], ['49', '600'], ['56', '29']]
+
+    def test_sccp_optional_parameters_past_64k(self, cmd_tshark, capture_file, test_env):
+        '''An XUDT and a LUDT in frames of 66 KB whose optional parameters
+        (260 unknown parameters of 255 octets) run past 64 KiB decode with
+        all of them. The scan for the segmentation parameter used 16 bit
+        pointers and looped forever before "SCCP: Fix an infinite loop in
+        XUDT/LUDT optional parameter scanning"; the timeout of 120 s fails
+        the test.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {145, 146}', '-Tfields', '-eframe.number', '-eframe.len',
+                '-esccp.optional_pointer', '-esccp.unknown_parameter', '-e_ws.col.info')
+        assert [r[:3] for r in rows] == [['145', '66876', '49'], ['146', '66849', '18']]
+        assert all(len(r[3].split(',')) == 260 for r in rows)
+        assert [r[4] for r in rows] == ['XUDT ', 'LUDT ']
+
+    def test_sccp_externally_reassembled_note(self, cmd_tshark, capture_file, test_env):
+        '''A data parameter with the maximum length (255) followed by more
+        octets is noted as possibly externally reassembled.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'sccp.externally_reassembled', '-Tfields', '-eframe.number')
+        assert rows == [['140'], ['141']]
+
+    def test_sccp_associations(self, cmd_tshark, capture_file, test_env):
+        '''With association tracing the messages of one connection share
+        an association ID and the key parameters are in the Info column.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-o', 'sccp.trace_sccp:TRUE', '-o', 'sccp.show_more_info:TRUE',
+                '-Y', 'frame.number in {50, 51, 58, 60, 61, 134}',
+                '-Tfields', '-eframe.number', '-esccp.assoc.id', '-e_ws.col.info')
+        assert rows == [
+            ['50', '1', 'CR SLR=17 '],
+            ['51', '1', 'CC DLR=17 SLR=34 '],
+            ['58', '1', 'RLSD DLR=17 SLR=34 Cause=0 '],
+            ['60', '2', 'CR SLR=51 '],
+            ['61', '2', 'CC DLR=51 SLR=68 '],
+            ['134', '', 'DT1 DLR=48879 '],
+        ]
