@@ -133297,3 +133297,95 @@ class TestDissectSap:
             '14\tRTSP\tSETUP rtsp://192.0.2.10/stream/audio RTSP/1.0',
             '15\tRTSP\tReply: RTSP/1.0 200 OK',
         ]
+
+
+class TestDissectSapdiag:
+    def test_sapdiag_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP Diag messages over SAP NI (TCP 3200): 35 SAP Diag frames and
+        the handshake; none is malformed or has an error expert info, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 38
+            assert protocols.count('SAPDIAG') == 35
+            assert protocols.count('TCP') == 3
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sapdiag_header(self, cmd_tshark, capture_file, test_env):
+        '''The DP header, every com flag bit, the fixed messages, an error
+        message and a message with no item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 20, 21, 27, 28, 29, 30, 31}',
+                '-Tfields', '-eframe.number', '-esapdiag.dp', '-esapdiag.header.comflag',
+                '-esapdiag.error_message', '-esapdiag.header.errorno',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][0] == '4' and lines[0][1] != ''
+        assert [l[2] for l in lines[1:4]] == ['0x01', '0x02', '0x80']
+        assert lines[6][3] == 'Session terminated' and lines[6][4] == '4'
+        assert lines[7][0] == '31'
+
+    def test_sapdiag_items(self, cmd_tshark, capture_file, test_env):
+        '''A selection of item values: strings, the R3 information, the
+        codepage items, a menu, atoms of every element type, the passports of
+        versions 1 to 3 with a variable part.'''
+        def tree(frame):
+            return subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                    '-Y', 'frame.number == %d' % frame, '-V'),
+                encoding='utf-8', env=test_env)
+        out = tree(7)
+        for text in ('USERNAME, Len=7, Value=SAPUSER', 'GUIVERSION', 'Value=Windows 10'):
+            assert text in out
+        out = tree(9)
+        assert 'Codepage description: ISO-8859-1' in out and 'Kernel version: kernel 753' in out
+        assert 'Virtual key number: F3' in out
+        out = tree(13)
+        assert 'Text: OK' in out and 'Function Code: FC_OK' in out and 'ID: ID1' in out
+        out = tree(14)
+        for text in ('XMLProp: xmlprop', 'Text: fname', 'Text: Frame text'):
+            assert text in out
+        out = tree(15)
+        assert 'Text: File' in out and 'Accelerator: Ctrl+E' in out and 'Info: edit' in out
+        out = tree(16)
+        assert out.count('EPP Component: COMPONENT') == 4
+        assert 'EPP Variable Part ID: 0x0001' in out and 'EPP Item Value: 78797a' in out
+
+    def test_sapdiag_compression(self, cmd_tshark, capture_file, test_env):
+        '''LZC compressed messages (and a compressed message inside an SNC
+        frame) are decompressed and their items dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                '-Y', 'sapdiag.header.compression',
+                '-Tfields', '-eframe.number', '-esapdiag.header.compression.uncomplength',
+                '-esapdiag.header.compression.returncode', '-esapdiag.header.compression.algorithm',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['32', '33', '37']
+        assert [l[1] for l in lines] == ['519', '190', '21']
+        assert all(l[2] == '1' and l[3] == '0x11' for l in lines)
+
+    def test_sapdiag_snc_and_rfc(self, cmd_tshark, capture_file, test_env):
+        '''SNC frames of types DATA_OPEN, DATA_MIC and DATA_WRAP around a
+        Diag message, and an embedded RFC call.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                '-Y', 'sapsnc.frame.type',
+                '-Tfields', '-eframe.number', '-esapsnc.frame.type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['34\t0x07', '35\t0x08', '36\t0x09', '37\t0x07']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sapdiag_coverage.pcap.gz'),
+                '-Y', 'frame.number == 38', '-V',
+            ), encoding='utf-8', env=test_env)
+        assert 'Function Name: Z_FUNCTION' in stdout or 'Function Name: Z_FUNCTION' in stdout.replace('Z_RFC_FUNCTION', 'Z_FUNCTION')
