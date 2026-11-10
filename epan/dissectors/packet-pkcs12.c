@@ -21,8 +21,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
+#include <epan/proto_data.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <wsutil/array.h>
@@ -60,6 +62,32 @@ static unsigned iteration_count;
 static tvbuff_t *salt;
 static const char *password;
 static bool try_null_password;
+
+/* ber.oid handles for the CMS id-data OID, created once in handoff */
+static dissector_handle_t authenticated_safe_handle;
+static dissector_handle_t safe_contents_handle;
+
+#define PKCS12_ID_DATA_OID "1.2.840.113549.1.7.1"
+
+static void
+restore_id_data_dissector(void *arg)
+{
+	dissector_handle_t old_handle = (dissector_handle_t)arg;
+
+	if (old_handle)
+		dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, old_handle);
+	else
+		dissector_reset_string("ber.oid", PKCS12_ID_DATA_OID);
+}
+
+/* The salt tvb lives in the packet pool, so salt and iteration_count are
+ * only valid in the packet where a Pkcs-12PbeParams set them. */
+static void
+mark_pbe_parameters(packet_info *pinfo)
+{
+	if (!p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0))
+		p_add_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0, wmem_new0(pinfo->pool, char));
+}
 
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -315,6 +343,12 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 		return false;
 	}
 
+	if (!p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0)) {
+		/* parameters, if any, are left over from an earlier packet */
+		iteration_count = 0;
+		salt = NULL;
+	}
+
 	if((iteration_count == 0) || (salt == NULL)) {
 		proto_item_append_text(item, " [Insufficient parameters]");
 		return false;
@@ -517,19 +551,20 @@ static const ber_sequence_t PFX_sequence[] = {
 
 static unsigned
 dissect_pkcs12_PFX(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	dissector_handle_t dissector_handle;
+	dissector_handle_t old_handle;
 
 	/* we change the CMS id-data dissector to dissect as AuthenticatedSafe
 	   not sure why PKCS#12 couldn't have used its own content type OID for AuthenticatedSafe */
-	dissector_handle=create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
+	old_handle = dissector_get_string_handle(find_dissector_table("ber.oid"), PKCS12_ID_DATA_OID);
+	dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, authenticated_safe_handle);
+	CLEANUP_PUSH(restore_id_data_dissector, old_handle);
 
 	  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PFX_sequence, hf_index, ett_pkcs12_PFX);
 
 
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", "1.2.840.113549.1.7.1");
+	/* restore the original dissector, also on an exception */
+	CLEANUP_CALL_AND_POP;
 
 
   return offset;
@@ -542,18 +577,19 @@ static const ber_sequence_t AuthenticatedSafe_sequence_of[1] = {
 
 static unsigned
 dissect_pkcs12_AuthenticatedSafe(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-	dissector_handle_t dissector_handle;
+	dissector_handle_t old_handle;
 
 	/* we change the CMS id-data dissector to dissect as SafeContents */
-	dissector_handle=create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
+	old_handle = dissector_get_string_handle(find_dissector_table("ber.oid"), PKCS12_ID_DATA_OID);
+	dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, safe_contents_handle);
+	CLEANUP_PUSH(restore_id_data_dissector, old_handle);
 
 	  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       AuthenticatedSafe_sequence_of, hf_index, ett_pkcs12_AuthenticatedSafe);
 
 
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", "1.2.840.113549.1.7.1");
+	/* restore the previous dissector, also on an exception */
+	CLEANUP_CALL_AND_POP;
 
 
   return offset;
@@ -623,6 +659,8 @@ static const ber_sequence_t PKCS12Attribute_sequence[] = {
 
 static unsigned
 dissect_pkcs12_PKCS12Attribute(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    PKCS12Attribute_sequence, hf_index, ett_pkcs12_PKCS12Attribute);
 
@@ -652,6 +690,8 @@ static const ber_sequence_t SafeBag_sequence[] = {
 
 static unsigned
 dissect_pkcs12_SafeBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SafeBag_sequence, hf_index, ett_pkcs12_SafeBag);
 
@@ -719,6 +759,8 @@ static const ber_sequence_t CertBag_sequence[] = {
 
 static unsigned
 dissect_pkcs12_CertBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CertBag_sequence, hf_index, ett_pkcs12_CertBag);
 
@@ -755,6 +797,8 @@ static const ber_sequence_t CRLBag_sequence[] = {
 
 static unsigned
 dissect_pkcs12_CRLBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    CRLBag_sequence, hf_index, ett_pkcs12_CRLBag);
 
@@ -791,6 +835,8 @@ static const ber_sequence_t SecretBag_sequence[] = {
 
 static unsigned
 dissect_pkcs12_SecretBag(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+	object_identifier_id = NULL;
+
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecretBag_sequence, hf_index, ett_pkcs12_SecretBag);
 
@@ -808,6 +854,7 @@ static unsigned
 dissect_pkcs12_Pkcs_12PbeParams(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 	/* initialise the encryption parameters */
 	PBE_reset_parameters();
+	mark_pbe_parameters(actx->pinfo);
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Pkcs_12PbeParams_sequence, hf_index, ett_pkcs12_Pkcs_12PbeParams);
@@ -1369,6 +1416,9 @@ void proto_reg_handoff_pkcs12(void) {
   register_ber_oid_dissector("1.2.840.113549.1.5.14", dissect_PBMAC1_params_PDU, proto_pkcs12, "id-PBMAC1");
   register_ber_oid_dissector("1.3.6.1.4.1.11591.4.11", dissect_Scrypt_params_PDU, proto_pkcs12, "id-scrypt");
 
+
+	authenticated_safe_handle = create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
+	safe_contents_handle = create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
