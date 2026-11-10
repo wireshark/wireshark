@@ -113814,3 +113814,94 @@ class TestDissectOsi:
         lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 22',
                 '-Tfields', '-ecotp.checksum.status', '-ecotp.li')
         assert lines == ['1\t8']
+
+
+class TestDissectOsiOptions:
+    # The options of CLNP PDUs (packet-osi-options.c) over LLC SAP 0xFE and IPv4 protocol 80.
+    @staticmethod
+    def _tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('osi_options_coverage.pcap.gz'),
+                *args), encoding='utf-8', env=test_env).splitlines()
+
+    def test_osi_options_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 16 frames are CLNP and none is malformed or has a warning or
+        error expert info, in one and two passes.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['CLNP'] * 16
+        for passes in ((), ('-2',)):
+            lines = self._tshark(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 6291456',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_osi_options_qos_priority_misc(self, cmd_tshark, capture_file, test_env):
+        '''Quality of service maintenance, priority (including an invalid
+        one), ES configuration timer, address and SNPA masks and padding.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number <= 2',
+                '-Tfields', '-eframe.number', '-eosi.options.qos.maintenance',
+                '-eosi.options.priority', '-eosi.options.esct', '-eosi.options.address_mask',
+                '-eosi.options.snpa_mask', '-eosi.options.padding')
+        assert lines == [
+            '1\t0,1,2,3,3\t\t\t\t\t',
+            '2\t\t5,14,15\t60\t490001\t0123.4567.89ab\t00000000']
+        # only the globally unique quality of service has the flag bits
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 1',
+                '-Tfields', '-eosi.options.qos.seq_vs_trs')
+        assert lines == ['True,False']
+
+    def test_osi_options_security(self, cmd_tshark, capture_file, test_env):
+        '''Security types reserved, source specific, destination specific and
+        globally unique; the globally unique one without data and the empty
+        option that is followed by a globally unique one (fixed in
+        "OSI options: Fix offsets in route, discard and security options").'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 3',
+                '-Tfields', '-eosi.options.security_type')
+        assert lines == ['0,1,2,3,3,3,3']
+
+    def test_osi_options_route(self, cmd_tshark, capture_file, test_env):
+        '''Record of route: nothing recorded, terminated, with one and two NETs,
+        partial and complete; source routing, partial and complete.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 5',
+                '-Tfields', '-eosi.options.route', '-eosi.options.last_hop',
+                '-eosi.options.route_recording')
+        assert lines == ['49000100.aa0000bb,49000200.11,49000100.aa0000bb\t0x03,0xff\t0,1,0,1']
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-eosi.options.source_routing')
+        assert lines == ['0,1']
+
+    def test_osi_options_reason_for_discard(self, cmd_tshark, capture_file, test_env):
+        '''Every error class and field of the reason for discard of error
+        reports (frames 6-11).'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 6 && frame.number <= 11',
+                '-Tfields', '-eframe.number', '-eosi.options.rfd.error_class',
+                '-eosi.options.rfd.field', '-eosi.options.rtd_general', '-eosi.options.rtd_address',
+                '-eosi.options.rtd_source_routing', '-eosi.options.rtd_lifetime',
+                '-eosi.options.rtd_pdu_discarded', '-eosi.options.rtd_reassembly')
+        assert lines == [
+            '6\t0,0,0,0,0,0,0,0\t0,1,2,3,4,5,6,7\t0,1,2,3,4,5,6,7\t\t\t\t\t',
+            '7\t8,8\t0,1\t\t0,1\t\t\t\t',
+            '8\t9,9,9,9\t0,1,2,3\t\t\t0,1,2,3\t\t\t',
+            '9\t10,10\t0,1\t\t\t\t0,1\t\t',
+            '10\t11,11,11,11,11\t0,1,2,3,4\t\t\t\t\t0,1,2,3,4\t',
+            '11\t12\t0\t\t\t\t\t\t0']
+
+    def test_osi_options_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "OSI options: Fix offsets in route, discard and
+        security options" (frames 13-15): a record of route with nothing
+        recorded has no hops, the field of the reason for discard is shown at
+        its own position, and source routing reads its next hop at the right
+        offset.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 13 && frame.number <= 15',
+                '-Tfields', '-eframe.number', '-eosi.options.route', '-eosi.options.last_hop',
+                '-eosi.options.rfd.field', '-eosi.options.source_routing')
+        assert lines == ['13\t\t0x03\t\t', '14\t\t\t5\t', '15\t\t\t\t0']
+        stdout = '\n'.join(self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 14',
+                '-Tfields', '-eosi.options.rfd.field'))
+        assert stdout == '5'
+
+    def test_osi_options_none(self, cmd_tshark, capture_file, test_env):
+        '''A PDU without options has the note "No Options for this PDU" and
+        nothing else wrong.'''
+        lines = self._tshark(cmd_tshark, capture_file, test_env, '-Y', 'osi.options.none',
+                '-Tfields', '-eframe.number', '-e_ws.expert.severity')
+        assert lines == ['16\t4194304']
