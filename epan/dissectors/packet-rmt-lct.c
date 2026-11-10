@@ -368,6 +368,8 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     {
         data_exchange->codepoint = tvb_get_uint8(tvb, offset+3);
         data_exchange->is_flute = false;
+        if (data_exchange->is_atsc3)
+            data_exchange->is_sp = !!(buffer16 & LCT_PSI_MSB);
     }
 
     if (tree)
@@ -383,8 +385,6 @@ dissect_lct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         ti = proto_tree_add_item(lct_tree, hf_psi, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         if ((data_exchange != NULL) && data_exchange->is_atsc3) {
-            uint16_t psi_msb = tvb_get_uint16(tvb, offset, ENC_BIG_ENDIAN) & LCT_PSI_MSB;
-            data_exchange->is_sp = !!psi_msb;
             proto_tree *lct_psi_tree = proto_item_add_subtree(ti, ett_psi);
             proto_tree_add_item(lct_psi_tree, hf_spi, tvb, offset, 2, ENC_BIG_ENDIAN);
         }
