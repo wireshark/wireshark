@@ -139068,3 +139068,75 @@ class TestDissectSmbLogon:
             ['25', 'Announce Change to UAS or SAM', '', '3', '24'],
             ['31', 'SAM LOGON request from client', 'WKS1', '', '0'],
         ]
+
+
+class TestDissectSmbMailslot:
+    '''SMB Mailslot (\\MAILSLOT\\ transactions) in NetBIOS datagrams on
+    UDP 138 and in SMB on TCP 445, from the synthetic capture
+    smb_mailslot_coverage.pcap.gz. The mailslot name selects the browser
+    or net logon dissector; other names are shown as data.'''
+
+    CAP = 'smb_mailslot_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSmbMailslot.CAP), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_mailslot_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 40
+        assert protocols.count('BROWSER') == 16
+        assert protocols.count('SMB_NETLOGON') == 10
+        assert protocols.count('SMB Mailslot') == 5
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_smb_mailslot_header(self, cmd_tshark, capture_file, test_env):
+        '''Opcode, priority, class, size and name of the mailslot header,
+        in the first datagram of each known name and with other values.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'mailslot && frame.number in {1, 3, 4, 5, 6, 8, 10, 11}',
+                '-Tfields', '-eframe.number', '-emailslot.opcode', '-emailslot.priority',
+                '-emailslot.class', '-emailslot.size', '-emailslot.name', '-e_ws.col.protocol')
+        assert rows == [
+            ['1', '1', '0', '2', '58', '\\\\MAILSLOT\\\\BROWSE', 'BROWSER'],
+            ['3', '1', '0', '2', '43', '\\\\MAILSLOT\\\\LANMAN', 'BROWSER'],
+            ['4', '1', '0', '2', '55', '\\\\MAILSLOT\\\\NET\\\\NETLOGON', 'SMB_NETLOGON'],
+            ['5', '1', '0', '2', '59', '\\\\MAILSLOT\\\\TEMP\\\\NETLOGON', 'SMB_NETLOGON'],
+            ['6', '1', '0', '2', '47', '\\\\MAILSLOT\\\\MSSP', 'SMB_NETLOGON'],
+            ['8', '1', '0', '2', '33', '\\\\MAILSLOT\\\\OTHER', 'SMB Mailslot'],
+            ['10', '2', '9', '1', '58', '\\\\MAILSLOT\\\\BROWSE', 'BROWSER'],
+            ['11', '1', '5', '7', '58', '\\\\MAILSLOT\\\\BROWSE', 'BROWSER'],
+        ]
+
+    def test_smb_mailslot_unknown_and_interim(self, cmd_tshark, capture_file, test_env):
+        '''An unknown mailslot name is dissected as data; a mailslot
+        write without data is an interim reply.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 14}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-edata.len')
+        assert rows == [
+            ['8', 'Write Mail Slot', '14'],
+            ['14', 'Interim reply', ''],
+        ]
+
+    def test_smb_mailslot_response(self, cmd_tshark, capture_file, test_env):
+        '''The response to a mailslot transaction is decoded as the
+        mailslot of its request (the transaction remembers the name),
+        also for a request that is split over two packets.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {19, 23, 39}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [r[:2] for r in rows] == [
+            ['19', 'BROWSER'], ['23', 'SMB_NETLOGON'], ['39', 'BROWSER']]
+        assert rows[0][2].startswith('Local Master Announcement HOST3')
+        assert rows[1][2] == 'LM2.0 Response to LOGON Request'
