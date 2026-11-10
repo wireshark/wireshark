@@ -132965,3 +132965,123 @@ class TestDissectSadmind:
             '6\tV3 NULL Reply (Call In 5)',
             '23\tV1 NULL Reply (Call In 22)',
         ]
+
+
+class TestDissectSametime:
+    '''IBM Sametime (TCP port 1533, registered by default) from the
+    synthetic capture sametime_coverage.pcap.gz.'''
+
+    CAP = 'sametime_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectSametime.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_sametime_protocols(self, cmd_tshark, capture_file, test_env):
+        '''62 SAMETIME frames and five TCP frames (handshake and FIN),
+        none malformed or with an expert info, in one and two passes. A
+        message split over three segments is reassembled.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 67
+        assert protocols.count('SAMETIME') == 62
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {63, 64, 65}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-esametime.field_text')
+        assert lines[2] == '65\tLOGIN \tsplit into three segments'
+        assert '[TCP PDU reassembled in' in lines[1]
+
+    def test_sametime_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, with the text fields of the handshake, login and
+        channel messages.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 6, 7, 8, 9, 10, 11, 15, 53, 54, 55, 56}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-esametime.field_text')
+        assert lines == [
+            '4\tHANDSHAKE \tclient-host,Sametime Connect',
+            '5\tHANDSHAKE_ACK \tserver banner',
+            '6\tHANDSHAKE_SYN \t',
+            '7\tLOGIN \talice@example.com',
+            '8\tLOGIN_REDIRECT \tredirect.example.com',
+            '9\tLOGIN_ACK \talice,Alice Example,token,community,host,desc,end',
+            '10\tLOGIN_CONTINUE \t',
+            '11\tCHANNEL_CREATE \tchannel-name,description',
+            '15\tCHANNEL_DESTROY \t',
+            '53\tSET_PRIVACY_LIST \t',
+            '54\tADMIN \t',
+            '55\tANNOUNCE \t',
+            '56\t0x7777 \t',
+        ]
+
+    def test_sametime_channel_send(self, cmd_tshark, capture_file, test_env):
+        '''Every send type, the awareness values and the location.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sametime.channel.send_type',
+                '-Tfields', '-eframe.number', '-esametime.channel.send_type',
+                '-esametime.channel.awareness')
+        send = {l.split('\t')[0]: l.split('\t')[1:] for l in lines}
+        assert send['16'] == ['0x0068', '0x0002']
+        assert send['17'] == ['0x0068', '0x0003']
+        assert send['18'] == ['0x0068', '0x0008']
+        assert send['24'] == ['0x0259', '0x0002']
+        assert send['27'] == ['0x01f4', '0x0002']
+        assert send['28'] == ['0x01f5', '0x0002']
+        assert {v[0] for v in send.values()} == {
+            '0x0068', '0x0069', '0x00c9', '0x00cb', '0x0259', '0x025d',
+            '0x01f4', '0x01f5', '0x0000', '0x0002', '0x0005', '0x0007',
+            '0x025a', '0x1234'}
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 21', '-Tfields',
+                '-esametime.location.country', '-esametime.location.postalcode',
+                '-esametime.location.province', '-esametime.location.city',
+                '-esametime.location.phone', '-esametime.location.name',
+                '-esametime.location.timezone')
+        assert lines == ['US\t02134\tMA\tBoston\t555-0100\tOffice\t-5']
+
+    def test_sametime_user_status_and_codes(self, cmd_tshark, capture_file, test_env):
+        '''User status values, also in an update; service codes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {38, 39, 40, 41, 42, 43, 44, 48, 51}',
+                '-Tfields', '-eframe.number', '-esametime.user_status_type',
+                '-esametime.code')
+        assert lines == [
+            '38\t0x0020\t', '39\t0x0040\t', '40\t0x0060\t', '41\t0x0080\t',
+            '42\t0x0008\t', '43\t0x1234\t', '44\t\t0x00000011',
+            '48\t\t0x80000011', '51\t\t0x80000022']
+
+    def test_sametime_options_and_show_length(self, cmd_tshark, capture_file, test_env):
+        '''The message options, and the preference that shows the length
+        fields.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {57, 58, 59}',
+                '-Tfields', '-eframe.number', '-esametime.message_options',
+                '-esametime.message_options.encrypted',
+                '-esametime.message_options.attribute')
+        assert lines == ['57\t0x4000\tTrue\tFalse', '58\t0x8000\tFalse\tTrue', '59\t0xc000\tTrue\tTrue']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'sametime.show_length:TRUE',
+                '-Y', 'frame.number in {4, 9}',
+                '-Tfields', '-eframe.number', '-esametime.message_length',
+                '-esametime.field_length')
+        assert lines == ['4\t71\t11,16', '9\t95\t5,13,5,9,4,4,3']
+
+    def test_sametime_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The statistics tree counts message types, send types and user
+        statuses.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-q', '-z', 'sametime,tree'), encoding='utf-8', env=test_env)
+        text = ' '.join(stdout.split())
+        for item in ('Sametime Message Count 61', 'Message Type', 'CHANNEL_SEND 23',
+                     'Send Type', 'AWARE_ADD 4', 'OPT_GOT_SET 2', 'User Status',
+                     'ACTIVE 3', 'MEETING 1', 'AWAY 1'):
+            assert item in text
