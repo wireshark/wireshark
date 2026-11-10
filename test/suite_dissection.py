@@ -117597,3 +117597,55 @@ class TestDissectPim:
                 '-Y', 'frame.number == 40', '-Tfields', '-eip.proto', '-eudp.dstport',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '103,103,103,103,17\t4321'
+
+
+class TestDissectPingPongProtocol:
+    '''Ping Pong Protocol over SCTP (payload protocol identifiers 33 and the
+    legacy 0x29097602) from the synthetic capture
+    pingpongprotocol_coverage.pcap.gz.'''
+
+    CAPTURE = 'pingpongprotocol_coverage.pcap.gz'
+
+    def test_pingpong_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pingpongprotocol', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 25
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pingpong_fields(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 2, 7, 11, 14}',
+                '-Tfields', '-eframe.number', '-epingpongprotocol.message_type',
+                '-epingpongprotocol.message_length', '-epingpongprotocol.ping_messageno',
+                '-epingpongprotocol.pong_replyno', '-epingpongprotocol.ping_data',
+                '-epingpongprotocol.pong_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t17\t1\t\t68656c6c6f\t',
+            '2\t2\t25\t\t1\t\t68656c6c6f',
+            '7\t1\t13\t18446744073709551615\t\t78\t',
+            '11\t0\t16\t\t\t\t',
+            '14\t1,2,1\t13,21,13\t9,11\t9\t61,63\t62',
+        ]
+
+    def test_pingpong_short_length_field(self, cmd_tshark, capture_file, test_env):
+        '''A length field smaller than the fixed part used to wrap to about
+        65530 and throw; now there is no data item (frames 18-23).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number >= 18 && frame.number <= 23',
+                '-Tfields', '-eframe.number', '-epingpongprotocol.message_length',
+                '-epingpongprotocol.ping_data', '-epingpongprotocol.pong_data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '18\t8\t\t', '19\t4\t\t', '20\t0\t\t', '21\t16\t\t', '22\t4\t\t', '23\t0\t\t',
+        ]
