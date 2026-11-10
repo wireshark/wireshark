@@ -1627,6 +1627,7 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 		}
 		case 0x47:{			/* MS_CHECK_ACL */
 			uint32_t string_length = 0;
+			int nul_length;
 			if (flag != 0x03) {
 				if (opcode_version == 0x02) {
 					if (length < 16) {
@@ -1645,26 +1646,26 @@ dissect_sapms_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint32
 			proto_tree_add_item(tree, hf_sapms_check_acl_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 			length-=2;
-			string_length = tvb_strnlen(tvb, offset, length);
-			if (string_length == length) {
+			nul_length = tvb_strnlen(tvb, offset, length);
+			if (nul_length < 0) {
 				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL entry is not null terminated");
 				proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, length, ENC_ASCII);
 				break;
 			}
-			string_length += 1;
+			string_length = (uint32_t)nul_length + 1;
 			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			offset+=string_length;
 			length-=string_length;
 			if (length == 0) {
 				break;
 			}
-			string_length = tvb_strnlen(tvb, offset, length);
-			if (string_length == length) {
+			nul_length = tvb_strnlen(tvb, offset, length);
+			if (nul_length < 0) {
 				expert_add_info_format(pinfo, tree, &ei_sapms_opcode_invalid_length, "Check ACL entry is not null terminated");
 				proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, length, ENC_ASCII);
 				break;
 			}
-			string_length += 1;
+			string_length = (uint32_t)nul_length + 1;
 			proto_tree_add_item(tree, hf_sapms_check_acl_acl, tvb, offset, string_length, ENC_ASCII);
 			break;
 		}
