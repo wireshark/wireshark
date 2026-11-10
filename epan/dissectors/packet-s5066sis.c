@@ -704,7 +704,7 @@ dissect_s5066_18(tvbuff_t *tvb, unsigned offset, proto_tree *tree, unsigned pdu_
 {
 	unsigned body_size = 0;
 	proto_tree_add_item(tree, hf_s5066_18_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
-	body_size = pdu_size - offset;
+	body_size = pdu_size > offset ? pdu_size - offset : 0;
 	proto_tree_add_item(tree, hf_s5066_18_body, tvb, offset, body_size, ENC_NA); offset += body_size;
 	return offset;
 }
@@ -715,7 +715,7 @@ dissect_s5066_19(tvbuff_t *tvb, unsigned offset, proto_tree *tree, unsigned pdu_
 {
 	unsigned body_size = 0;
 	proto_tree_add_item(tree, hf_s5066_19_type, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
-	body_size = pdu_size - offset;
+	body_size = pdu_size > offset ? pdu_size - offset : 0;
 	proto_tree_add_item(tree, hf_s5066_19_body, tvb, offset, body_size, ENC_NA); offset += body_size;
 	return offset;
 }
