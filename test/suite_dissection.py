@@ -128509,3 +128509,96 @@ class TestDissectRpl:
         assert lines[4] == '22\t\t\t\t\t\t\t\t\t756e6b6e6f776e207061796c6f6164\tUnknown Type'
         assert lines[5] == '23\t0x01020304\t0xf8\t\t\t\t\t\t\t01020304\tFIND Command'
         assert lines[6] == '24\t0x00000003\t\t\t\t\t\t\t\t747261696c696e67206f6374657473\tFOUND Frame'
+
+
+class TestDissectRquota:
+    '''Remote Quota (ONC RPC program 100011, versions 1 and 2) from the
+    synthetic capture rquota_coverage.pcapng.gz. The RPC heuristics find
+    the program on UDP port 32800 and TCP port 32801.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file(name),
+            ), encoding='utf-8', env=test_env)
+
+    def test_rquota_protocols(self, cmd_tshark, capture_file, test_env):
+        '''72 frames: 69 RQUOTA and the 3 frames of the TCP handshake; no
+        malformed frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 72
+        assert protocols.count('RQUOTA') == 69
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rquota_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rquota_getquota_v1_v2(self, cmd_tshark, capture_file, test_env):
+        '''Version 1 calls carry a path and a uid, version 2 calls a path,
+        a type and an id; the OK results carry the rquota structure.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {3, 4, 35, 36, 37, 38}',
+                '-Tfields', '-eframe.number', '-erquota.pathp', '-erquota.uid',
+                '-erquota.type', '-erquota.id', '-erquota.status',
+                '-erquota.bhardlimit', '-erquota.active',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\t/export/home\t1000\t\t\t\t\t',
+            '4\t\t\t\t\t1\t1000\tTrue',
+            '35\t/export/home\t\t0\t1000\t\t\t',
+            '36\t\t\t\t\t1\t1000\tTrue',
+            '37\t/export/home\t\t1\t100\t\t\t',
+            '38\t\t\t\t\t1\t2000\tTrue',
+        ]
+
+    def test_rquota_status(self, cmd_tshark, capture_file, test_env):
+        '''OK, NOQUOTA, EPERM and values that are not defined; only OK
+        replies hold the structure (an inactive quota has active False).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6, 10, 12, 14, 16}',
+                '-Tfields', '-eframe.number', '-erquota.status', '-erquota.active',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\t1\tFalse', '10\t2\t', '12\t3\t', '14\t99\t', '16\t0\t']
+
+    def test_rquota_paths(self, cmd_tshark, capture_file, test_env):
+        '''Paths of 0 to 5 bytes (XDR padding) and a long one.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {17, 19, 21, 23, 25, 27}',
+                '-Tfields', '-eframe.number', '-erquota.pathp',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['17\t', '19\ta', '21\tab', '23\tabc', '25\tabcd', '27\tabcde']
+
+    def test_rquota_unimplemented_procedures(self, cmd_tshark, capture_file, test_env):
+        '''SETQUOTA and SETACTIVEQUOTA are named but not dissected; unknown
+        procedures and versions are shown as proc-N.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {43, 45, 47, 49, 51}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '43\tV1 proc-3 Call', '45\tV1 proc-4 Call', '47\tV2 proc-3 Call',
+            '49\tV1 proc-17 Call', '51\tV3 proc-1 Call']
+
+    def test_rquota_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Two RPC records in one TCP segment (frames 70 and 71).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rquota_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {70, 71}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '70\tV1 GETQUOTA Call  ; V2 GETACTIVEQUOTA Call',
+            '71\tV1 GETQUOTA Reply (Call In 70)  ; V2 GETACTIVEQUOTA Reply (Call In 70)']
