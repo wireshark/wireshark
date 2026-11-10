@@ -134854,3 +134854,100 @@ class TestDissectScriptingservice:
                 'Keep-Alive': ('2', '8'), 'Keep-Alive Ack': ('2', '12'),
                 'Status': ('4', '30'), 'Environment': ('3', '72'),
             }
+
+
+class TestDissectScsi:
+    '''The SCSI primary command set (SPC) decoders in packet-scsi.c, from
+    the synthetic capture scsi_coverage.pcap.gz: SCSI over iSCSI (TCP
+    3260). LUN 0 is a disk, 1 a tape, 2 a CD/DVD drive, 3 a medium
+    changer, 4 a processor device, 5 is never inquired and uses the
+    default command set.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scsi_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU with a SCSI command, data or
+        response, without malformed packets or error expert infos, in one
+        and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 732
+        assert all(r[0] == 'iSCSI' for r in rows)
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yscsi', '-eframe.number')
+        assert len(rows) == 727     # all but the five Ready To Transfer PDUs
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_sense_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Descriptor format sense data: the descriptors that follow an OSD
+        attribute identification descriptor (type 8) are decoded, and the
+        attribute entries of a descriptor that ends beyond byte 255 of
+        the sense data are shown. Both were wrong before "SCSI: Fix
+        descriptor sense, EVPD and EXTENDED COPY decoding".'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yscsi.sns.desc.type',
+                '-eframe.number', '-escsi.sns.desc.type', '-escsi.sns.desc.osd_attr.page',
+                '-escsi.sns.desc.osd_attr.number')
+        assert rows[0] == ['64', '0x02,0x06,0x08,0x00,0x01', '0x00000001,0x30000000', '0x00000082,0x00000001']
+        assert rows[1][:2] == ['66', '0x02,0x08']
+        assert rows[2] == ['72', '0x80,0x08', '0x00000001,0x00000001', '0x00000082,0x00000083']
+
+    def test_scsi_evpd_designators(self, cmd_tshark, capture_file, test_env):
+        '''The device identification VPD page: an ASCII vendor specific
+        designator shorter than eight bytes is shown as one identifier
+        string instead of a vendor id that runs into the next designator
+        (frame 34), and the NAA designators are decoded.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number==34',
+                '-escsi.inquiry.evpd.devid.identifier_str', '-escsi.naa.type')
+        assert rows[0][0] == 'SN01,ABCD,T10XYZ'
+        assert rows[0][1] == '2,3,5,6,1'
+
+    def test_scsi_mode_pages(self, cmd_tshark, capture_file, test_env):
+        '''A mode page in sub-page format (control extension) is followed
+        by the next page at the right offset (frame 126).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number==126',
+                '-escsi.mode.spc.pagecode', '-escsi.mode.spc.subpagecode')
+        assert rows == [['0x0a,0x0a,0x02,0x1c,0x1a', '0x01']]
+
+    def test_scsi_extended_copy(self, cmd_tshark, capture_file, test_env):
+        '''EXTENDED COPY parameter lists whose CSCD list length is not a
+        multiple of 32 (frame 663) and with a zero length segment
+        descriptor (frame 665) show no bogus descriptors and end without
+        an exception.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '-Yscsi.extcopy.cscd_list_len == 16 || scsi.extcopy.seg_desc_list_len == 8',
+                '-eframe.number', '-escsi.extcopy.cscd_code_set', '-escsi.extcopy.seg_desc_type')
+        assert rows == [['663', '', ''], ['665', '', '']]
+
+    def test_scsi_report_luns(self, cmd_tshark, capture_file, test_env):
+        '''REPORT LUNS with every LUN addressing method.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yscsi.lun.extended_address_method',
+                '-escsi.lun.extended_address_method')
+        assert rows == [['0x01,0x02,0x02,0x0e,0x0f,0x05,0x0f']]
+
+    def test_scsi_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With scsi.defragment the four Data-Out PDUs of a MODE SELECT(10)
+        are reassembled in the last one; in the second pass the earlier
+        PDUs point at it too.'''
+        expected = {
+            (): [['727', '', '721,723,725,727']],
+            ('-2',): [['721', '727', ''], ['723', '727', ''], ['725', '727', ''],
+                      ['727', '', '721,723,725,727']],
+        }
+        for passes, rows in expected.items():
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_coverage.pcap.gz'),
+                    '-o', 'scsi.defragment:TRUE',
+                    '-Y', 'scsi.reassembled_in || scsi.fragment',
+                    '-Tfields', '-eframe.number', '-escsi.reassembled_in', '-escsi.fragment',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert [line.split('\t') for line in stdout.splitlines()] == rows
