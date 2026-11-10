@@ -332,7 +332,8 @@ dissect_roon_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", roon_service_name,
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                 roon_service_name ? roon_service_name : UNKNOWN_ROON_SERVICE_NAME,
                  is_reply ? "Reply" : "Query");
 
     /* Handle transaction tracking if we have a TID */
@@ -703,8 +704,8 @@ transaction_end(packet_info *pinfo, proto_tree *tree, char *tid)
         roon_key[2].length = 0;
         roon_key[2].key = NULL;
 
-        roon_trans = (roon_transaction_t *)wmem_tree_lookup32_array_le(roon_info->matched_pdus,
-                                                                   roon_key);
+        roon_trans = (roon_transaction_t *)wmem_tree_lookup32_array(roon_info->matched_pdus,
+                                                                roon_key);
         if (roon_trans == NULL) {
             return NULL;
         }
@@ -715,7 +716,8 @@ transaction_end(packet_info *pinfo, proto_tree *tree, char *tid)
     proto_item_set_generated(it);
 
     nstime_delta(&ns, &pinfo->abs_ts, &roon_trans->rqst_time);
-    roon_trans->resp_time = ns;
+    if (!PINFO_FD_VISITED(pinfo))
+        roon_trans->resp_time = ns;
     resp_time = nstime_to_msec(&ns);
     it = proto_tree_add_double_format_value(tree, hf_roon_disco_resptime,
                                             NULL, 0, 0, resp_time,
