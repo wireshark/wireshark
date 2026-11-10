@@ -123483,3 +123483,91 @@ class TestDissectRaknet:
                 '-Y', 'raknet.unknown.id || raknet.ip_version.invalid', '-Tfields',
                 '-eframe.number')
         assert lines == ['21', '24', '29', '49', '50', '51', '53']
+
+
+class TestDissectRanapCoverage:
+    '''Synthetic RANAP capture (MTP3, SCCP SSN 142): every RANAP procedure
+    and outcome with random IE values, two SCCP connections, the SCCP
+    heuristic, and the reproducer of "RANAP: Reset ProcedureCode for each
+    PDU".'''
+    CAPTURE = 'ranap_coverage.pcap.gz'
+    SCCP_OPTS = ('-o', 'sccp.trace_sccp:TRUE')
+    ALL_OPTS = ('-o', 'sccp.trace_sccp:TRUE', '-o', 'ranap.dissect_rrc_container:TRUE')
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('ranap_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_ranap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''543 frames: 536 RANAP, 3 with a BSSGP PDU in a RIM information
+        IE and 4 SCCP connection management frames; no malformed packets
+        or error expert infos in one and two passes, also with SCCP
+        association tracking and RRC container dissection.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 543
+        assert lines.count('RANAP') == 536
+        assert lines.count('BSSGP') == 3
+        assert lines.count('SCCP (Int. ITU)') == 4
+        for passes in ((), ('-2',)):
+            for opts in ((), self.ALL_OPTS):
+                lines = self.lines(cmd_tshark, capture_file, test_env, *passes, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+                assert count_output('\n'.join(lines)) == 0
+
+    def test_ranap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every RANAP procedure code from 0 to 49 but 8 (every generated PDU
+        of that procedure has an error expert info from a nested
+        dissector) is in the capture.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'ranap', '-Tfields', '-eranap.procedureCode')
+        codes = {int(x) for x in lines if x.strip() and ',' not in x}
+        assert codes >= set(range(0, 50)) - {8}
+
+    def test_ranap_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The RANAP tree is the same in one and two passes.'''
+        args = ('-Y', 'ranap', '-V', '-O', 'ranap')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 20000
+        assert one == two
+
+    def test_ranap_stale_procedure_code(self, cmd_tshark, capture_file, test_env):
+        '''Frames 541-543 (SCCP CR with an InitialUE-Message, CC and DT1
+        with a RANAP-PDU extension alternative that has no procedure
+        code): only the first is labelled with its procedure in the SCCP
+        association. ProcedureCode was a stale static and the later
+        frames got the InitialUE-Message label too.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, *self.SCCP_OPTS, '-Y', 'frame.number == 543', '-V')
+        msgs = [l.strip() for l in out if 'Message in frame' in l]
+        assert msgs == ['[Message in frame: 541 RANAP id-InitialUE-Message]',
+                        '[Message in frame: 542 RANAP]',
+                        '[Message in frame: 543 RANAP (current)]']
+
+    def test_ranap_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''RANAP to a called SSN without a dissector (200) is found by the
+        SCCP heuristic: 20 frames.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sccp.called.ssn == 200',
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['RANAP'] * 20
+
+    def test_ranap_transport_layer_address(self, cmd_tshark, capture_file, test_env):
+        '''Transport layer addresses are shown as IPv4 (22 frames), IPv6
+        (12) or NSAP (31); binding IDs with a port are shown with it.'''
+        for flt, n in (('ranap.transportLayerAddress_ipv4', 22), ('ranap.transportLayerAddress_ipv6', 12),
+                       ('ranap.transportLayerAddress_NSAP', 31), ('ranap.bindingID', 29)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == n, flt
+
+    def test_ranap_sccp_association_imsi(self, cmd_tshark, capture_file, test_env):
+        '''With SCCP association tracking the IMSI of a Common ID is shown
+        in the later frames of the connection.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, *self.SCCP_OPTS, '-Y', 'sccp.assoc.id', '-V')
+        assert sum('Association IMSI' in l for l in lines) >= 5
+
+    def test_ranap_rrc_container(self, cmd_tshark, capture_file, test_env):
+        '''With ranap.dissect_rrc_container the RRC containers of the
+        transparent containers are dissected (18 frames, valid RRC from the
+        generator); without it they are not.'''
+        flt = ('-Y', 'rrc', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(self.lines(cmd_tshark, capture_file, test_env, '-o', 'ranap.dissect_rrc_container:TRUE', *flt))) == 18
+        assert count_output('\n'.join(self.lines(cmd_tshark, capture_file, test_env, *flt))) == 0
