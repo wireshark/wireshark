@@ -23,6 +23,7 @@
 
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/expert.h>
 #include <epan/proto_data.h>
 #include <wsutil/array.h>
 
@@ -1268,6 +1269,11 @@ static dissector_handle_t rrc_ul_ccch_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_rnsap;
+
+static expert_field ei_rnsap_too_deep;
+
+/* Open types (IEs, extensions) can nest; bound the nesting per packet. */
+#define RNSAP_MAX_NESTING 32
 
 static int hf_rnsap_transportLayerAddress_ipv4;
 static int hf_rnsap_transportLayerAddress_ipv6;
@@ -49143,16 +49149,34 @@ static int dissect_NULL_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 }
 
 
+static int dissect_rnsap_open_type(dissector_table_t table, uint32_t id, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  unsigned depth = p_get_proto_depth(pinfo, proto_rnsap);
+  int ret;
+
+  if (depth >= RNSAP_MAX_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_rnsap_too_deep, tvb, 0);
+    return tvb_captured_length(tvb);
+  }
+  p_set_proto_depth(pinfo, proto_rnsap, depth + 1);
+  increment_dissection_depth(pinfo);
+  /* Do not add a layer per IE (a PDU may hold hundreds of IEs). */
+  ret = dissector_try_uint_with_data(table, id, tvb, pinfo, tree, false, NULL) ? tvb_captured_length(tvb) : 0;
+  decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_rnsap, depth);
+  return ret;
+}
+
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
-  return (dissector_try_uint(rnsap_ies_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  return dissect_rnsap_open_type(rnsap_ies_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree);
 }
 
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   rnsap_private_data_t *pdata = rnsap_get_private_data(pinfo);
-  return (dissector_try_uint(rnsap_extension_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree)) ? tvb_captured_length(tvb) : 0;
+  return dissect_rnsap_open_type(rnsap_extension_dissector_table, pdata->ProtocolIE_ID, tvb, pinfo, tree);
 }
 
 static int dissect_PrivateIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -63155,6 +63179,12 @@ void proto_register_rnsap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_rnsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  static ei_register_info ei[] = {
+    { &ei_rnsap_too_deep, { "rnsap.too_deep", PI_MALFORMED, PI_ERROR, "Information elements nested too deeply", EXPFILL }},
+  };
+  expert_module_t *expert_rnsap = expert_register_protocol(proto_rnsap);
+  expert_register_field_array(expert_rnsap, ei, array_length(ei));
 
   /* Register dissector */
   rnsap_handle = register_dissector("rnsap", dissect_rnsap, proto_rnsap);
