@@ -136882,3 +136882,77 @@ class TestDissectSgsap:
                 '-V', '-O', 'sgsap',
             ), encoding='utf-8', env=test_env)
         assert stdout.count('Erroneous message - SGsAP-STATUS') == 4
+
+
+class TestDissectShicp:
+    def test_shicp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''20 of the 23 frames are SHICP (UDP destination port 3250, found
+        by the UDP heuristic); the one to port 3251, the one longer than
+        548 octets and the one with a wrong header tag are not. None is
+        malformed or has a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shicp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 23
+        assert protocols.count('SHICP') == 20
+        assert protocols.count('UDP') == 2
+        assert protocols.count('HICP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('shicp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_shicp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message class, type and the Info column; the module MAC address
+        is the source of a response and the destination of a request and is
+        left out for broadcasts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shicp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 6, 11, 13, 15, 16, 17, 20}',
+                '-Tfields', '-eframe.number', '-eshicp.msgtype', '-eshicp.flags',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00\t0x00\tRequest, Type: Discover',
+            '2\t0x00\t0x01\tResponse, Type: Discover, Module MAC address: 02:11:22:33:44:55',
+            '4\t0x01\t0x00\tRequest, Type: Authentication challenge, Module MAC address: 02:11:22:33:44:55',
+            '6\t0x02\t0x00\tRequest, Type: Configuration, Module MAC address: 02:11:22:33:44:55',
+            '11\t0x03\t0x01\tResponse, Type: Wink, Module MAC address: 02:11:22:33:44:55',
+            '13\t0x04\t0x00\tRequest, Type: Restart, Module MAC address: 02:11:22:33:44:55',
+            '15\t0x05\t0x00\tRequest, Type: Mass-restart',
+            '16\t0x09\t0x00\tRequest, Type: 9, Module MAC address: 02:11:22:33:44:55',
+            '17\t0x02\t0x02\tError: Request was rejected, Module MAC address: 02:aa:bb:cc:dd:ee',
+            '20\t0x00\t0x00\tRequest, Type: Discover',
+        ]
+
+    def test_shicp_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The discover response (every parameter), the configuration
+        request and the other messages with a token, challenge, wink type
+        and restart mode.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('shicp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {2, 3, 5, 6, 8, 9, 12, 13}',
+                '-Tfields', '-eframe.number', '-eshicp.authreq', '-eshicp.moduleversion',
+                '-eshicp.supportedmsg', '-eshicp.ip', '-eshicp.sn', '-eshicp.gw', '-eshicp.dns1',
+                '-eshicp.dns2', '-eshicp.dhcp', '-eshicp.hn', '-eshicp.pswd',
+                '-eshicp.challenge', '-eshicp.validityperiod', '-eshicp.winktype',
+                '-eshicp.restartmode',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['2', 'True', '1.2.3',
+                            'Discover, Authentication challenge, Configuration, Wink, Restart, Mass-restart, 9',
+                            '192.0.2.77', '255.255.255.0', '192.0.2.1', '192.0.2.53', '192.0.2.54',
+                            'False', 'module-1', '', '', '', '', '']
+        assert lines[1][:4] == ['3', 'False', '', 'Configuration']
+        assert lines[2][0] == '5' and lines[2][12:14] == ['0x03020100', '30']
+        assert lines[3] == ['6', '', '', '', '192.0.2.88', '255.255.0.0', '192.0.2.2', '192.0.2.3',
+                            '192.0.2.4', 'True', 'newname', 'secret', '', '', '', '']
+        assert lines[4][0] == '8' and lines[4][4] == '192.0.2.99' and lines[4][10] == 'x'
+        assert lines[5][0] == '9' and lines[5][14] == '0x01'
+        assert lines[6][0] == '12' and lines[6][15] == '0x00'
+        assert lines[7][0] == '13' and lines[7][15] == '0x01'
