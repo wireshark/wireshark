@@ -114967,3 +114967,95 @@ class TestDissectP4rpc:
                     '-Tfields', '-e_ws.expert.message',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert stdout.strip() == 'Time string contains non-numeric character'
+
+
+class TestDissectP772:
+    '''P772 (STANAG 4406 Military Message Handling, packet-p772.c) from the
+    synthetic capture p772_coverage.pcapng.gz: P772 as the content of a P3
+    message submission (content type 1.3.26.0.4406.0.4.1, TCP port 102),
+    Exported PDU "p772", and X.509 CRLs in Exported PDU whose extensions
+    carry the OIDs P772 registers.'''
+
+    def test_p772_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p772_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 31
+        assert protocols.count('P772') == 9
+        assert protocols.count('P3') == 5
+        assert protocols.count('PKIX-CRL') == 5
+        assert protocols.count('ACSE') == 4
+        assert protocols.count('COTP') == 2
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p772_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_p772_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol tree is the same in one and in two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p772_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-ep772.PrimaryPrecedence', '-ep772.CopyPrecedence',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_p772_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the military messages and notifications:
+        the subject and the primary and copy precedence of the heading
+        extensions (dissected by P772 inside the P22 heading).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p772_coverage.pcapng.gz'),
+                '-Y', 'p772', '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        msg = 'Military Message (Test subject) (primary=flash) (copy=critic)'
+        assert stdout.splitlines() == [
+            '10\t' + msg + ' Message (Test subject)',
+            '12\t' + msg,
+            '14\tMilitary Notification',
+            '21\t' + msg + ' Message (Test subject)',
+            '22\t' + msg,
+            '23\tMilitary Notification',
+            '24\tMilitary Notification Message (Test subject)',
+            '25\tMilitary Notification',
+            '31\t' + msg,
+        ]
+
+    def test_p772_body_parts(self, cmd_tshark, capture_file, test_env):
+        '''The extended body part types of the MMHS (ADatP-3, corrections,
+        ACP 127 data) and heading extensions in frame 10.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p772_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 10',
+                '-Tfields', '-ep772.ADatP3Data', '-ep772.CorrectionsData',
+                '-ep772.ACP127DataData', '-ep772.OriginatorReference',
+                '-ep772.CodressMessage', '-ep772.PrimaryPrecedence',
+                '-ep772.CopyPrecedence',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0,1,0\tcorrections,corr\tacp127 data,acp127\tORIGINATOR REF\t1234\t4\t17']
+
+    def test_p772_oid_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The CRL frames, and the P3 submissions with the P772 content
+        type, reach P772 through the BER OID table.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p772_coverage.pcapng.gz'),
+                '-Y', 'frame.protocols contains "x509af" && frame.protocols contains "p772"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 6
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p772_coverage.pcapng.gz'),
+                '-Y', 'p3 && p772', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['10', '12', '14']
