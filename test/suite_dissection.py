@@ -135564,3 +135564,110 @@ class TestDissectSctp:
         stdout = self.run_tshark(cmd_tshark, capture_file, test_env,
                 '-Y', 'frame.number == 128', '-Tfields', '-eip.src', '-esctp.data_payload_proto_id')
         assert stdout.rstrip('\n') == '\t0,0'
+
+
+class TestDissectScylla:
+    OPTS = ('-d', 'tcp.port==7000,scylla')
+
+    def test_scylla_protocols(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As (the dissector has no default port) every message
+        on TCP port 7000 is Scylla; the first two segments of the split
+        request and the first segment of the split response are TCP. No
+        frame is malformed or has an error expert info, in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('scylla_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 42
+        assert protocols.count('Scylla') == 39
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('scylla_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_scylla_negotiation(self, cmd_tshark, capture_file, test_env):
+        '''Negotiation features: numbers, connection and stream parent IDs
+        (only with a length of 8) and the isolation cookie.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('scylla_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 3',
+                '-Tfields', '-eframe.number',
+                '-escylla.negotiation.feature.number', '-escylla.connection_id',
+                '-escylla.isolation_cookie', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '0,1,2,3,4,5,77,2,1',
+                            '0x1122334455667788,0x00000000aabbccdd',
+                            b'default-cookie'.hex(), 'Protocol negotiation']
+        assert lines[1][:3] == ['2', '0,2', '0x0000000000000007']
+        assert lines[2][:3] == ['3', '', '']
+
+    def test_scylla_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are linked through the message ID, on the
+        second pass: also two responses in one segment and a response
+        split over two segments; responses to unknown requests are named
+        so.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.OPTS,
+                '-r', capture_file('scylla_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-escylla.request.response', '-escylla.response.request',
+                '-escylla.msg_id',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['4'] == ['Request CLIENT_ID', '30', '', '1']
+        assert rows['5'][0] == 'Request MUTATION'
+        assert rows['5'][1] == ''
+        assert rows['30'] == ['Response for CLIENT_ID', '', '4', '1']
+        assert rows['31'][0] == 'Response for unknown packet'
+        assert rows['32'][0] == 'Response for unknown packet'
+        assert rows['34'] == ['Request READ_DIGEST', '38,39', '', '21,22']
+        assert rows['37'][:2] == ['Request READ_DIGEST', '41']
+        assert rows['38'] == ['Response for GOSSIP_ECHO', '', '33,34', '20,21']
+        assert rows['41'][0] == 'Response for READ_DIGEST'
+        assert rows['41'][2] == '37'
+
+    def test_scylla_mutation(self, cmd_tshark, capture_file, test_env):
+        '''The partition keys of a MUTATION request.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('scylla_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5, 6}',
+                '-Tfields', '-eframe.number', '-escylla.mut.num_pkeys',
+                '-escylla.mut.pkey', '-escylla.verb',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '5\t3\t' + ','.join(k.hex() for k in (b'key1', b'key22', b'k')) + '\t1',
+            '6\t0\t\t1',
+        ]
+
+    @staticmethod
+    def _negotiation_pcap(path):
+        '''One TCP segment to port 7000 with a protocol negotiation whose
+        connection ID feature has the length 0xfffffff8.'''
+        payload = (b'SSTARRPC' + struct.pack('<I', 16)
+                   + struct.pack('<II', 2, 0xfffffff8) + b'\0' * 8)
+        tcp = struct.pack('>HHIIBBHHH', 40000, 7000, 1, 1, 0x50, 0x18, 65535, 0, 0) + payload
+        ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(tcp), 1, 0, 64, 6, 0,
+                         bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2])) + tcp
+        frame = b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01\x08\x00' + ip
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)) + frame)
+
+    def test_scylla_negotiation_feature_length(self, cmd_tshark, result_file, test_env):
+        '''A negotiation feature whose length wraps ends the feature list
+        with an error expert info; it used to loop forever (also in the
+        first pass of -2 without a tree).'''
+        pcap = result_file('scylla-negotiation.pcap')
+        self._negotiation_pcap(pcap)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', pcap, '-Y', '_ws.expert',
+                    '-Tfields', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert 'Feature length exceeds the negotiation data' in stdout
