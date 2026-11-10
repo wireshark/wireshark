@@ -125601,3 +125601,85 @@ class TestDissectRf4ceProfile:
                 'rf4ce-profile.zrc10.cmd_common.rc_command_payload',
                 filt='frame.number in {100, 101, 103}')
         assert rows == [['100', '0x41', '01:02'], ['101', '0x42', ''], ['103', '0x41', '']]
+
+
+class TestDissectRf4ceSecur:
+    '''RF4CE security helpers (packet-rf4ce-secur.c) used by RF4CE NWK and the
+    RF4CE profile dissector, in IEEE 802.15.4 frames (link type 230), from the
+    synthetic capture rf4ce_secur_coverage.pcap.gz: key seed handling, the
+    address table, the NWK key storage, the key exchange state and the
+    decryption attempts for secured frames. No valid MIC is made: the key
+    seeds, random numbers and tags are made-up bytes, no secured frame
+    decrypts and no key exchange tag matches, so the AES-CCM* decryption
+    and the key derivation from a matching tag are not covered.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rf4ce_secur_coverage.pcap.gz'), '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_rf4ce_secur_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 269 frames decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 269
+        assert protocols.count('RF4CE NWK') == 248
+        assert protocols.count('IEEE 802.15.4') == 1
+        assert protocols.count('RF4CE GDP') == 20
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_rf4ce_secur_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The key, address and key exchange state kept across packets does
+        not change what is shown: the full dissection of one pass and of
+        two passes is the same.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes, '-V',
+                    '-r', capture_file('rf4ce_secur_coverage.pcap.gz')),
+                    encoding='utf-8', env=test_env, timeout=300))
+        assert outs[0] == outs[1]
+
+    def test_rf4ce_secur_pairing(self, cmd_tshark, capture_file, test_env):
+        '''Pair requests announce the number of key seeds; key seeds follow
+        in order, as retransmissions and out of order.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.key_seed.seed_seq_num',
+                filt='frame.number >= 3 && frame.number <= 7')
+        assert [r[0] for r in rows] == ['0', '1', '1', '2', '2']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.key_seed.seed_seq_num',
+                filt='frame.number >= 16 && frame.number <= 25')
+        assert [r[0] for r in rows] == ['0', '1', '0', '1', '2', '3', '3', '2', '4', '5']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.cmd_id',
+                filt='frame.number >= 54 && frame.number <= 263')
+        ids = [r[0] for r in rows]
+        assert ids.count('0x03') == 70 and ids.count('0x04') == 70 and ids.count('0x06') == 70
+
+    def test_rf4ce_secur_key_exchange(self, cmd_tshark, capture_file, test_env):
+        '''Key exchange frames with known and unknown addresses; the tag is
+        not checked against a derived key, so nothing is reported.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-profile.cmd.key_exchange.sub_type',
+                filt='frame.number >= 28 && frame.number <= 31')
+        assert [r[0] for r in rows] == ['0x00', '0x01', '0x02', '0x03']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-profile.cmd.key_exchange.sub_type',
+                filt='rf4ce-profile.cmd.key_exchange.sub_type')
+        assert len(rows) == 20
+
+    def test_rf4ce_secur_secured_frames(self, cmd_tshark, capture_file, test_env):
+        '''Secured frames (made-up MIC) show only the NWK header: no
+        command or profile payload is decrypted, whatever the keys stored
+        and the addresses. The 149 octet secured frame 53 is declined by the
+        heuristic.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rf4ce-nwk.cmd_id',
+                filt='rf4ce-nwk.fcf.security_enabled == 1')
+        assert [r[0] for r in rows] == ['44', '45', '46', '47', '48', '49', '50', '51', '52', '264', '265']
+        assert all(r[1] == '' for r in rows)
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame.number == 53')
+        assert rows == [['IEEE 802.15.4']]
