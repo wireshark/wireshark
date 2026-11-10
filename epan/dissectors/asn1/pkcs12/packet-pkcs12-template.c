@@ -16,8 +16,10 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/oids.h>
+#include <epan/proto_data.h>
 #include <epan/asn1.h>
 #include <epan/prefs.h>
 #include <wsutil/array.h>
@@ -59,6 +61,32 @@ static unsigned iteration_count;
 static tvbuff_t *salt;
 static const char *password;
 static bool try_null_password;
+
+/* ber.oid handles for the CMS id-data OID, created once in handoff */
+static dissector_handle_t authenticated_safe_handle;
+static dissector_handle_t safe_contents_handle;
+
+#define PKCS12_ID_DATA_OID "1.2.840.113549.1.7.1"
+
+static void
+restore_id_data_dissector(void *arg)
+{
+	dissector_handle_t old_handle = (dissector_handle_t)arg;
+
+	if (old_handle)
+		dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, old_handle);
+	else
+		dissector_reset_string("ber.oid", PKCS12_ID_DATA_OID);
+}
+
+/* The salt tvb lives in the packet pool, so salt and iteration_count are
+ * only valid in the packet where a Pkcs-12PbeParams set them. */
+static void
+mark_pbe_parameters(packet_info *pinfo)
+{
+	if (!p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0))
+		p_add_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0, wmem_new0(pinfo->pool, char));
+}
 
 static int dissect_AuthenticatedSafe_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
 static int dissect_SafeContents_OCTETSTRING_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -249,6 +277,12 @@ int PBE_decrypt_data(dissector_t dissector, const char *description, tvbuff_t *e
 
 		proto_item_append_text(item, " [Unsupported encryption algorithm]");
 		return false;
+	}
+
+	if (!p_get_proto_data(pinfo->pool, pinfo, proto_pkcs12, 0)) {
+		/* parameters, if any, are left over from an earlier packet */
+		iteration_count = 0;
+		salt = NULL;
 	}
 
 	if((iteration_count == 0) || (salt == NULL)) {
@@ -514,6 +548,9 @@ void proto_register_pkcs12(void) {
 /*--- proto_reg_handoff_pkcs12 -------------------------------------------*/
 void proto_reg_handoff_pkcs12(void) {
 #include "packet-pkcs12-dis-tab.c"
+
+	authenticated_safe_handle = create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
+	safe_contents_handle = create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 
