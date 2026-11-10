@@ -447,40 +447,42 @@ dissect_old_tuple_data(tvbuff_t *tvb, int n, proto_tree *tree)
 
     /* Get the size of the tuple data so we can build our shrub */
     length = get_tuple_data_length(tvb, n);
-    shrub = proto_tree_add_subtree_format(tree, tvb, start_shrub, length - (start_shrub - 1), ett_values, NULL, "%s", tupledatastr);
+    shrub = proto_tree_add_subtree_format(tree, tvb, start_shrub, length + 1, ett_values, NULL, "%s", tupledatastr);
     proto_tree_add_string(shrub, hf_tuple_data_type, tvb, start_shrub, 1, tupledatastr);
 
     /* Now we can dissect tuple data for real */
     return dissect_tuple_data(tvb, n, shrub);
 }
 
-static bool is_streamed_txn(packet_info *pinfo, pgsql_conn_data_t *conv_data)
+static bool is_streamed_txn(tvbuff_t *tvb, packet_info *pinfo, pgsql_conn_data_t *conv_data)
 {
     struct pgsql_per_packet_data_t *pgsql_ppd;
-    pgsql_ppd = (struct pgsql_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pgsql, pinfo->curr_layer_num);
+    pgsql_ppd = (struct pgsql_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pgsql, (uint32_t)tvb_raw_offset(tvb));
     if (!pgsql_ppd) {
         /* First time, allocate the per packet and copy the current
          * streamed_txn from the conversation
          */
         pgsql_ppd = wmem_new0(wmem_file_scope(), struct pgsql_per_packet_data_t);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_pgsql, pinfo->curr_layer_num, pgsql_ppd);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_pgsql, (uint32_t)tvb_raw_offset(tvb), pgsql_ppd);
         pgsql_ppd->streamed_txn = conv_data->streamed_txn;
     }
     return pgsql_ppd->streamed_txn;
 }
 
-static void set_streamed_txn(packet_info *pinfo, pgsql_conn_data_t *conv_data, bool streamed_txn)
+static void set_streamed_txn(tvbuff_t *tvb, packet_info *pinfo, pgsql_conn_data_t *conv_data, bool streamed_txn)
 {
     struct pgsql_per_packet_data_t *pgsql_ppd;
     /* Set both the conversation's and the ppd stream_txn state.
      * Conversation is used to set the stream_txn's value when ppd is
      * created.
      */
-    conv_data->streamed_txn = streamed_txn;
-    pgsql_ppd = (struct pgsql_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pgsql, pinfo->curr_layer_num);
+    if (!PINFO_FD_VISITED(pinfo)) {
+        conv_data->streamed_txn = streamed_txn;
+    }
+    pgsql_ppd = (struct pgsql_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_pgsql, (uint32_t)tvb_raw_offset(tvb));
     if (!pgsql_ppd) {
         pgsql_ppd = wmem_new0(wmem_file_scope(), struct pgsql_per_packet_data_t);
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_pgsql, pinfo->curr_layer_num, pgsql_ppd);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_pgsql, (uint32_t)tvb_raw_offset(tvb), pgsql_ppd);
     }
     pgsql_ppd->streamed_txn = streamed_txn;
 }
@@ -523,7 +525,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Message */
     case 'M':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -560,7 +562,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Relation */
     case 'R':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -593,7 +595,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Type */
     case 'Y':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -606,7 +608,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Insert */
     case 'I':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -617,7 +619,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Update */
     case 'U':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -629,7 +631,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Delete */
     case 'D':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -640,7 +642,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Truncate */
     case 'T':
-        if (is_streamed_txn(pinfo, conv_data)) {
+        if (is_streamed_txn(tvb, pinfo, conv_data)) {
             proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
@@ -657,7 +659,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Stream Start */
     case 'S':
-        set_streamed_txn(pinfo, conv_data, true);
+        set_streamed_txn(tvb, pinfo, conv_data, true);
         proto_tree_add_item(shrub, hf_xid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
         proto_tree_add_item(shrub, hf_logical_stream_first_segment, tvb, n, 1, ENC_BIG_ENDIAN);
@@ -665,7 +667,7 @@ static void dissect_pgsql_logical_be_msg(int32_t length, tvbuff_t *tvb, int n, p
 
     /* Stream Stop */
     case 'E':
-        set_streamed_txn(pinfo, conv_data, false);
+        set_streamed_txn(tvb, pinfo, conv_data, false);
         break;
 
     /* Stream Commit */
@@ -897,7 +899,7 @@ static void dissect_pgsql_fe_msg(unsigned char type, unsigned length, tvbuff_t *
                 n += siz;
                 proto_tree_add_item_ret_int(tree, hf_sasl_auth_data_length, tvb, n, 4, ENC_BIG_ENDIAN, &data_length);
                 n += 4;
-                if (data_length) {
+                if (data_length > 0) {
                     proto_tree_add_item(tree, hf_sasl_auth_data, tvb, n, data_length, ENC_NA);
                 }
                 break;
@@ -982,12 +984,14 @@ static void dissect_pgsql_fe_msg(unsigned char type, unsigned length, tvbuff_t *
         shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Parameter values: %d", i);
         n += 2;
         while (i-- > 0) {
-            siz = tvb_get_ntohl(tvb, n);
-            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, siz);
+            int32_t val_len;
+
+            /* A length of -1 is a NULL value with no data */
+            proto_tree_add_item_ret_int(shrub, hf_val_length, tvb, n, 4, ENC_BIG_ENDIAN, &val_len);
             n += 4;
-            if (siz > 0) {
-                proto_tree_add_item(shrub, hf_val_data, tvb, n, siz, ENC_NA);
-                n += siz;
+            if (val_len > 0) {
+                proto_tree_add_item(shrub, hf_val_data, tvb, n, val_len, ENC_NA);
+                n += val_len;
             }
         }
 
@@ -1233,12 +1237,14 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            siz = tvb_get_ntohl(tvb, n);
-            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, siz);
+            int32_t val_len;
+
+            /* A length of -1 is a NULL value with no data */
+            proto_tree_add_item_ret_int(shrub, hf_val_length, tvb, n, 4, ENC_BIG_ENDIAN, &val_len);
             n += 4;
-            if (siz > 0) {
-                proto_tree_add_item(shrub, hf_val_data, tvb, n, siz, ENC_NA);
-                n += siz;
+            if (val_len > 0) {
+                proto_tree_add_item(shrub, hf_val_data, tvb, n, val_len, ENC_NA);
+                n += val_len;
             }
         }
         break;
@@ -1283,9 +1289,10 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
             case 'L': i = hf_line;              break;
             case 'R': i = hf_routine;           break;
             }
+            n += 1;
             proto_tree_add_item_ret_length(tree, i, tvb, n, -1, ENC_ASCII, &siz);
-            length -= siz+1;
-            n += siz+1;
+            length -= siz;
+            n += siz;
         }
         break;
 
@@ -1310,7 +1317,7 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
         i = tvb_get_ntohs(tvb, n);
         shrub = proto_tree_add_subtree_format(tree, tvb, n, 2, ett_values, NULL, "Columns: %d", i);
         n += 2;
-        while (i-- > 2) {
+        while (i-- > 0) {
             proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
@@ -1323,11 +1330,15 @@ static void dissect_pgsql_be_msg(unsigned char type, unsigned length, tvbuff_t *
 
     /* Function call response */
     case 'V':
-        siz = tvb_get_ntohl(tvb, n);
-        proto_tree_add_int(tree, hf_val_length, tvb, n, 4, siz);
-        if (siz > 0)
-            proto_tree_add_item(tree, hf_val_data, tvb, n+4, siz, ENC_NA);
+    {
+        int32_t val_len;
+
+        /* A length of -1 is a NULL result with no data */
+        proto_tree_add_item_ret_int(tree, hf_val_length, tvb, n, 4, ENC_BIG_ENDIAN, &val_len);
+        if (val_len > 0)
+            proto_tree_add_item(tree, hf_val_data, tvb, n+4, val_len, ENC_NA);
         break;
+    }
 
     /* Negotiate Protocol Version */
     case 'v':
