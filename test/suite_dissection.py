@@ -116657,3 +116657,227 @@ class TestDissectPdcpLte:
         # the table takes per UE)
         assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'dct2000.integrity-key',
                             '-Tfields', '-eframe.number', heur=False)) == 23
+
+
+class TestDissectPdcpNr:
+    '''PDCP-NR from the synthetic capture pdcp_nr_coverage.pcap.gz (UDP
+    framing of the PDCP-NR wiki page, a heuristic that is off by default)
+    and pdcp_nr_dct2000.out.gz (Catapult DCT2000 file whose RRC primitives
+    only reach the key string setters). No keys are configured: after a
+    SecurityModeCommand the payload is just shown as data.'''
+
+    HEUR = ('--enable-heuristic', 'pdcp_nr_udp')
+    PDCP_ONLY = ('-o', 'pdcp-nr.check_sequence_numbers:pdcp-only')
+    ERRORS = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def run(cmd_tshark, test_env, capture, *args, heur=True):
+        '''tshark output lines for the capture with the given options.'''
+        opts = TestDissectPdcpNr.HEUR if heur else ()
+        stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture, *args),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def rows(lines):
+        return {r.split('\t')[0]: r.split('\t') for r in lines}
+
+    def test_pdcp_nr_frames(self, cmd_tshark, capture_file, test_env):
+        '''186 frames, all with a PDCP-NR layer; the signalling PDUs reach
+        the NR RRC dissectors.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'pdcp-nr', '-Tfields',
+                            '-eframe.number')) == 186
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'nr-rrc', '-Tfields',
+                            '-eframe.number')) == 70
+        protocols = self.run(cmd_tshark, test_env, cap, '-Tfields', '-e_ws.col.protocol')
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['NR RRC'] == 70
+        assert counts['PDCP-NR'] == 52
+        assert counts['UDP'] == 45
+        assert counts['PDCP-NR|ROHC(ROHC RTP)'] == 7
+        # No heuristic, no PDCP-NR (the framing is not recognised)
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'pdcp-nr', '-Tfields',
+                            '-eframe.number', heur=False)) == 0
+
+    def test_pdcp_nr_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames and no error expert infos, in one pass and
+        two passes (also with sequence analysis); the info column and the
+        expert infos are the same both ways.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        for extra in ((), self.PDCP_ONLY):
+            for passes in ((), ('-2',)):
+                assert len(self.run(cmd_tshark, test_env, cap, *passes, *extra,
+                                    '-Y', self.ERRORS, '-Tfields', '-eframe.number')) == 0
+        first = self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                         '-e_ws.col.info', '-e_ws.expert.message')
+        second = self.run(cmd_tshark, test_env, cap, '-2', '-Tfields', '-eframe.number',
+                          '-e_ws.col.info', '-e_ws.expert.message')
+        assert len(first) == 186
+        assert first == second
+
+    def test_pdcp_nr_common_channels(self, cmd_tshark, capture_file, test_env):
+        '''Signalling PDUs always have the 12 bit SN header; common
+        channels have no MAC-I. UL-CCCH PDUs of 8 octets after the header
+        are UL-CCCH1 messages.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number <= 14',
+                         '-Tfields', '-eframe.number', '-e_ws.col.info')
+        rows = self.rows(lines)
+        assert [rows[str(n)][1] for n in range(1, 12)] == [
+            'MIB', 'System Information [ ]', 'Paging', 'RRC Setup', 'RRC Reject',
+            'RRC Reestablishment Request', 'RRC Resume Request', 'RRC Setup Request',
+            'RRC System Info Request', 'RRC Resume Request 1', 'RRC Resume Request 1']
+        # a bearer type without RRC dissector shows data
+        assert rows['12'][1].strip() == 'Unknown Signalling:  (SN=1   )'
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {10, 11} && '
+                            'nr-rrc', '-Tfields', '-eframe.number')) == 2
+
+    def test_pdcp_nr_signalling_security(self, cmd_tshark, capture_file, test_env):
+        '''UE 1: SecurityModeCommand with NEA2/NIA2 (frame 17), then
+        SecurityModeComplete (18); the following PDUs show the UE security
+        and their payload as data (ciphered, no key). UE 7 has NEA0/NIA2
+        so its RRC stays readable: a re-establishment request (68), a
+        SecurityModeCommand (70) that a SecurityModeFailure (71) takes back
+        to the previous settings (72), and one that is completed (73, 74).'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number >= 15 && frame.number <= 76',
+                         '-Tfields', '-eframe.number', '-e_ws.col.info',
+                         '-epdcp-nr.security-config.ciphering',
+                         '-epdcp-nr.security-config.integrity',
+                         '-epdcp-nr.signalling-data')
+        rows = self.rows(lines)
+        assert rows['17'][1].startswith('Security Mode Command')
+        assert rows['18'][1].startswith('Security Mode Complete')
+        assert rows['16'][2] == ''
+        for f in range(19, 27):
+            assert rows[str(f)][2:4] == ['2', '2'], f
+            assert rows[str(f)][4] != '', f
+        # the second SecurityModeCommand of UE 1 is ciphered, so it is data
+        assert rows['24'][1].startswith('UEId=  1   SRB-1   Signalling:')
+        # UE 7
+        assert rows['68'][1] == 'RRC Reestablishment Request'
+        assert rows['69'][1].startswith('RRC Reestablishment ')
+        assert rows['70'][1].startswith('Security Mode Command')
+        assert rows['71'][1].startswith('Security Mode Failure')
+        assert rows['72'][1].startswith('DL Information Transfer')
+        assert rows['72'][2:4] == ['0', '2']
+        assert rows['74'][1].startswith('Security Mode Complete')
+        assert rows['74'][2:4] == ['3', '3']
+        assert rows['75'][4] != ''
+        # a ciphered UE: even a UL-CCCH PDU is shown as data
+        assert rows['66'][1].startswith('UEId=  9   CCCH Signalling:')
+
+    def test_pdcp_nr_user_plane(self, cmd_tshark, capture_file, test_env):
+        '''User plane data PDUs with 12 and 18 bit SN, SDAP headers, MAC-I,
+        ciphering disabled for a bearer.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {77..103}',
+                         '-Tfields', '-eframe.number', '-epdcp-nr.seqnum_length',
+                         '-epdcp-nr.seq-num', '-epdcp-nr.sdap', '-epdcp-nr.maci_present',
+                         '-epdcp-nr.ciphering-disabled', '-esdap.qfi', '-eip.version')
+        rows = self.rows(lines)
+        assert rows['77'][1:3] == ['12', '0']
+        assert rows['80'][1:3] == ['12', '3']
+        assert rows['85'][1:3] == ['18', '0']
+        assert rows['77'][7] == '4,4'    # IPv4 in the IPv4 framing
+        assert rows['78'][7] == '4,6'    # IPv6 in the IPv4 framing
+        assert rows['79'][7] == '4'      # plain data
+        assert rows['93'][3] == 'True' and rows['93'][6] == '5'    # UL SDAP, QFI 5
+        assert rows['95'][6] == '9'                                # DL SDAP, QFI 9
+        assert rows['96'][6] == '3' and rows['96'][1] == '18'
+        assert rows['98'][4] == 'True'                             # MAC-I present
+        assert rows['100'][5] == 'True'                            # ciphering disabled
+        assert rows['103'][1] == '5' and rows['103'][2] == ''      # SN length 5: not decoded
+        # NIA0: the MAC-I is zero
+        assert self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number == 98',
+                        '-Tfields', '-epdcp-nr.mac') == ['0x00000000']
+        # ciphering disabled shows in the UE security of UE 1
+        assert self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number == 101',
+                        '-Tfields', '-epdcp-nr.security-config.ciphering') == ['999']
+
+    def test_pdcp_nr_control_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Status reports, ROHC / EHC / UDC feedback, SN gap reports and
+        the reserved control PDU types 5 and 7.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {150..163}',
+                         '-Tfields', '-eframe.number', '-epdcp-nr.control-pdu-type',
+                         '-epdcp-nr.fmc', '-epdcp-nr.fdc', '-e_ws.col.info')
+        rows = self.rows(lines)
+        assert rows['150'][1:3] == ['0x00', '100']
+        assert rows['150'][4].endswith('Status Report (fmc=100) not-received=8')
+        assert rows['151'][2] == '70000'
+        assert rows['152'][4].endswith('Status Report (fmc=4095) not-received=0')
+        assert rows['154'][1] == '0x01' and rows['154'][4].endswith('(mode=O)')
+        assert [rows[str(n)][1] for n in (155, 156, 157, 158)] == ['0x01', '0x02', '0x03', '0x03']
+        assert rows['159'][3] == '500'
+        assert rows['159'][4].endswith('Discard Bitmap (fdc=500) discarded=8')
+        assert rows['160'][4].endswith('Discard Bitmap (fdc=501) discarded=0')
+        assert rows['162'][1] == '0x05' and rows['163'][1] == '0x07'
+        bitmaps = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {150, 151, 159}',
+                           '-Tfields', '-epdcp-nr.bitmap.byte')
+        assert bitmaps == ['0xa5,0x0f,0xff', '0x00,0xff', '0xc3,0x3c']
+
+    def test_pdcp_nr_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Sequence analysis (a preference; the frames carry no RLC):
+        missing, repeated and rolled over sequence numbers, UL and DL.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        flt = ('pdcp-nr.sequence-analysis.sn-missing-ul || pdcp-nr.sequence-analysis.sn-missing-dl || '
+               'pdcp-nr.sequence-analysis.sn-repeated-ul || pdcp-nr.sequence-analysis.sn-repeated-dl')
+        lines = self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY, '-Y', flt,
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert '102\tPDCP SN (4) missing for Uplink on UE 21 (DCCH-3)' in lines
+        assert '108\tPDCP SNs (2 to 4) missing for Downlink on UE 30 (DCCH-3)' in lines
+        assert '109\tPDCP SN (2) repeated for Downlink for UE 30 (DCCH-3)' in lines
+        assert '110\tPDCP SNs (6 to 99) missing for Downlink on UE 30 (DCCH-3)' in lines
+        assert '117\tPDCP SNs (2 to 4) missing for Uplink on UE 30 (DCCH-3)' in lines
+        assert '128\tPDCP SNs (1 to 39) missing for Uplink on UE 31 (DCCH-3)' in lines
+        assert '138\tPDCP SNs (2 to 6) missing for Uplink on UE 32 (DCCH-1)' in lines
+        assert '148\tPDCP SN (2) missing for Downlink on UE 1 (DCCH-3)' in lines
+        assert len(lines) == 30
+        ok = self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY,
+                      '-Y', 'pdcp-nr.sequence-analysis.ok == 1', '-Tfields', '-eframe.number')
+        assert len(ok) == 135
+        # the same with two passes
+        again = self.run(cmd_tshark, test_env, cap, '-2', *self.PDCP_ONLY, '-Y', flt,
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert again == lines
+
+    def test_pdcp_nr_heuristic_errors(self, cmd_tshark, capture_file, test_env):
+        '''Framing errors give an expert info and nothing is dissected.'''
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {183, 184}',
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines == ['183\tMissing UDP framing conditional tag, aborting dissection',
+                         '184\tUnknown UDP framing tag, aborting dissection']
+
+    def test_pdcp_nr_unsupported_sn_length(self, cmd_tshark, capture_file, test_env):
+        '''A signalling PDU on a CCCH bearer whose SN length tag is not 12
+        (here 9 and 31) reached DISSECTOR_ASSERT_NOT_REACHED with
+        check_sequence_numbers set to pdcp-only. It now gets an expert info
+        instead (frames 185, 186).'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        cap = capture_file('pdcp_nr_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, env, cap, *self.PDCP_ONLY,
+                         '-Y', 'pdcp-nr.unsupported-sn-length', '-Tfields', '-eframe.number',
+                         '-e_ws.expert.message', '-e_ws.malformed')
+        assert lines == [
+            '185\tUnsupported PDCP sequence number length 9 for signalling PDU\t',
+            '186\tUnsupported PDCP sequence number length 31 for signalling PDU\t',
+        ]
+
+    def test_pdcp_nr_dct2000(self, cmd_tshark, capture_file, test_env):
+        '''The DCT2000 file reaches PDCP-NR only through the RRC primitive
+        that carries key strings: the setters store them (a leak before
+        "PDCP-NR: Fix sequence analysis assertion and key string leaks")
+        and the frames decode as DCT2000 without errors.'''
+        cap = capture_file('pdcp_nr_dct2000.out.gz')
+        assert len(self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                            heur=False)) == 24
+        for passes in ((), ('-2',)):
+            assert len(self.run(cmd_tshark, test_env, cap, *passes, '-Y', self.ERRORS,
+                                '-Tfields', '-eframe.number', heur=False)) == 0
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'dct2000.integrity-key',
+                            '-Tfields', '-eframe.number', heur=False)) == 24
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'dct2000.ciphering-key',
+                            '-Tfields', '-eframe.number', heur=False)) == 23
