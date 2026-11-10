@@ -127480,3 +127480,28 @@ class TestDissectRohc:
         assert counts['300'] == 98
         assert counts['70000'] == 32
         assert counts['20000000'] == 57
+
+
+class TestDissectRomon:
+    '''Mikrotik RoMON on Ethertype 0x88bf, from the synthetic capture
+    romon_coverage.pcap.gz.'''
+
+    def test_romon_frames(self, cmd_tshark, capture_file, test_env):
+        '''All five frames are RoMON (the dissector only marks the payload)
+        with no malformed packets or error expert infos in one and two
+        passes; the RoMON protocol item covers everything after the
+        Ethernet header.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('romon_coverage.pcap.gz'),
+                    '-Y', 'romon && eth.type == 0x88bf',
+                    '-Tfields', '-eframe.len', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.splitlines() == [
+                '60\tRoMON', '78\tRoMON', '60\tRoMON', '214\tRoMON', '60\tRoMON']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('romon_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.strip() == ''
