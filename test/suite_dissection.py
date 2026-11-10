@@ -127300,3 +127300,63 @@ class TestDissectRmtNorm:
                 encoding='utf-8', env=test_env, timeout=120))
         assert outs[0] == outs[1]
         assert 'FEC Instance ID' in outs[0]
+
+
+class TestDissectRnsapCoverage:
+    '''Synthetic RNSAP capture (MTP3, SCCP SSN 143): every RNSAP procedure
+    (FDD, TDD and common) as initiating message, successful and
+    unsuccessful outcome with random IE values, one SCCP connection and
+    the SCCP heuristic.'''
+    CAPTURE = 'rnsap_coverage.pcap.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rnsap_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_rnsap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''435 frames: 433 RNSAP and 2 SCCP connection management frames; no
+        malformed packets or error expert infos in one and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 435
+        assert lines.count('RNSAP') == 433
+        assert lines.count('SCCP (Int. ITU)') == 2
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_rnsap_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure codes, the three DD modes and the three PDU kinds are
+        all in the capture.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rnsap',
+                '-Tfields', '-ernsap.procedureCode', '-ernsap.ddMode', '-e_ws.col.info')
+        codes = {int(x.split('\t')[0].split(',')[0]) for x in lines if x.split('\t')[0]}
+        assert len(codes) >= 55
+        modes = {x.split('\t')[1].split(',')[0] for x in lines if x.split('\t')[1:2]}
+        assert {'0', '1', '2'} <= modes
+        kinds = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rnsap', '-Tfields', '-ernsap.RNSAP_PDU')
+        assert {'0', '1', '2'} <= set(kinds)
+
+    def test_rnsap_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''The RNSAP tree is the same in one and two passes.'''
+        args = ('-Y', 'rnsap', '-V', '-O', 'rnsap')
+        one = self.lines(cmd_tshark, capture_file, test_env, *args)
+        two = self.lines(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert len(one) > 20000
+        assert one == two
+
+    def test_rnsap_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''RNSAP to a called SSN without a dissector (200) is found by the
+        SCCP heuristic: 18 frames.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'sccp.called.ssn == 200',
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['RNSAP'] * 18
+
+    def test_rnsap_nested_rrc_ranap(self, cmd_tshark, capture_file, test_env):
+        '''Signalling transfers carry an RRC CCCH message in L3-Information
+        and RelocationCommit a RANAP message in RANAP-RelocationInformation.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rnsap && rrc', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) >= 1
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rnsap && ranap', '-Tfields', '-eframe.number')
+        assert count_output('\n'.join(lines)) >= 1
