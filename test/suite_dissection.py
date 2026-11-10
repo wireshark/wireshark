@@ -124366,3 +124366,63 @@ class TestDissectRdpEar:
             '24\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
             '25\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE',
             '29\t0x4eacc3c8\t32\t0x00000001\t0x0000000000001234\tNTLMSSP_NEGOTIATE']
+
+
+class TestDissectRdpEcam:
+    '''RDP camera redirection (RDPECAM) from the synthetic capture
+    rdp_ecam_coverage.pcapng.gz: an RDP session on TCP 3389 with the dynamic
+    channels RDCamera_Device_* and the UDP side of a multitransport
+    connection.'''
+
+    CAPTURE = 'rdp_ecam_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpEcam.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_ecam_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes, and the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 62
+        assert protocols.count('RDPECAM') == 44
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdp_ecam', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_ecam_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message id is named; media descriptors show their format.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_ecam && frame.number >= 15 && frame.number <= 43', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-erdp_ecam.media.format')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['15'] == ['Data,SelectVersion', '']
+        assert rows['21'] == ['Data,DeviceAddedNotification', '']
+        assert rows['29'] == ['Data,MediaTypeListResponse', '0x01,0x02,0x03,0x04,0x05,0x06,0x07,0x77']
+        assert rows['32'] == ['Data,CurrentMediaTypeResponse', '0x02']
+        assert rows['33'] == ['Data,StartStreamsRequest', '0x03']
+        assert rows['42'] == ['Data,SetPropertyValueRequest', '']
+        assert rows['43'] == ['Data,SuccessResponse', '']
+
+    def test_ecam_errors_reassembly_udp(self, cmd_tshark, capture_file, test_env):
+        '''Error codes, an unknown message, a media type list reassembled from
+        DATA_FIRST + DATA, and the UDP side.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_ecam.errorcode', '-Tfields', '-erdp_ecam.errorcode')
+        assert stdout.split() == ['0x00000001', '0x00000002', '0x00000003', '0x00000004', '0x00000005',
+                                  '0x00000006', '0x00000007', '0x00000008', '0x00000009', '0x0000000a', '0x00000077']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 55', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][1:] == ['RDPECAM', 'Data,<unknown message>']
+        assert rows[3][1:] == ['RDPECAM', 'Data,MediaTypeListResponse']
+        assert rows[-1][1:] == ['RDPECAM', 'Data,SelectVersion']
