@@ -135784,3 +135784,173 @@ class TestDissectSdlc:
         assert cols['100'][4:] == ['', '0x01']      # RIM response
         assert any(c[4] != '' and c[5] == '' for c in cols.values())
         assert any(c[5] != '' and c[4] == '' for c in cols.values())
+
+
+class TestDissectSdp:
+    '''SDP from the synthetic capture sdp_coverage.pcapng.gz: SIP offers
+    and answers over UDP 5060 (frames 1-24, 33-36), Exported PDUs that
+    name sdp (25-32), RTSP (37-49), HTTP (50-57), SAP (58), MGCP (59-63)
+    and H.248 (64), with RTP and RTCP on the negotiated ports (frames 7-10,
+    46, 61). The SRTP keys are made up.'''
+
+    PCAP = 'sdp_coverage.pcapng.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, name='sdp_coverage.pcapng.gz'):
+        return subprocess.check_output((cmd_tshark, *args, '-r', capture_file(name)),
+                encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    @staticmethod
+    def pcap(frames):
+        '''A pcap with Ethernet/IPv4/UDP frames (a list of payloads, UDP
+        5060 from 192.0.2.1 to 192.0.2.2), built without any file.'''
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for i, payload in enumerate(frames):
+            udp = struct.pack('>HHHH', 5060, 5060, 8 + len(payload), 0) + payload
+            ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), i + 1, 0, 64, 17, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            words = struct.unpack('>10H', ip)
+            total = sum(words)
+            while total >> 16:
+                total = (total & 0xffff) + (total >> 16)
+            ip = ip[:10] + struct.pack('>H', ~total & 0xffff) + ip[12:]
+            frame = b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01\x08\x00' + ip + udp
+            out += struct.pack('<IIII', 1700000000 + i, 0, len(frame), len(frame)) + frame
+        return out
+
+    def test_sdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame with an SDP, by carrier, and no malformed packets
+        or error expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes, '-Y', 'sdp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+            protocols = [l.split('\t')[1] for l in lines]
+            assert len(protocols) == 38
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts == {'SIP/SDP': 22, '/SDP': 6, '/SDP/MIKEY': 2, 'RTSP/SDP': 1,
+                              'HTTP/SDP': 1, 'SAP/SDP': 1, 'MGCP/SDP': 4,
+                              'MEGACO/SDP/SDP': 1}
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_sdp_control_same_uri(self, cmd_tshark, capture_file, test_env):
+        '''Two media descriptions with the same a=control URI (frames 23,
+        24: SIP INVITE and 200 OK; frame 25: Exported PDU) used to free
+        the payload table of the first one, and the 200 OK freed it
+        again ("SDP: Fix use after free of the RTSP control map payloads").
+        tshark crashed on them.'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes,
+                '-Y', 'frame.number in {23, 24, 25}', '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-esdp.media', '-esdp.media_attribute.value')
+            assert lines == [
+                '23\tSIP/SDP\taudio 5080 RTP/AVP 96,video 5082 RTP/AVP 97\trtsp://192.0.2.1/x,rtsp://192.0.2.1/x',
+                '24\tSIP/SDP\taudio 6080 RTP/AVP 96,video 6082 RTP/AVP 97\t',
+                '25\t/SDP\taudio 5084 RTP/AVP 96,video 5086 RTP/AVP 97\trtsp://192.0.2.1/x,rtsp://192.0.2.1/x',
+            ]
+
+    def test_sdp_setup_exception(self, cmd_tshark, result_file, test_env):
+        '''A malformed a=key-mgmt:mikey line in an INVITE raised an
+        exception inside the transport setup of the first pass, so the
+        SDP was missing without -2 (same commit as the use after free fix).
+        Both passes show SIP/SDP.'''
+        sdp = (b'v=0\r\no=- 1 1 IN IP4 192.0.2.1\r\ns=-\r\nc=IN IP4 192.0.2.1\r\nt=0 0\r\n'
+               b'a=key-mgmt:mikey AQAFgM0XflABAAAAAAAAAAAAAAsAyO5n\r\n'
+               b'm=audio 5004 RTP/AVP 0\r\n')
+        msg = (b'INVITE sip:b@192.0.2.2 SIP/2.0\r\nVia: SIP/2.0/UDP 192.0.2.1:5060;branch=z9hG4bK1\r\n'
+               b'From: <sip:a@192.0.2.1>;tag=1\r\nTo: <sip:b@192.0.2.2>\r\nCall-ID: 1@192.0.2.1\r\n'
+               b'CSeq: 1 INVITE\r\nContent-Type: application/sdp\r\nContent-Length: %d\r\n\r\n'
+               % len(sdp)) + sdp
+        path = result_file('sdp_setup_exception.pcap')
+        with open(path, 'wb') as f:
+            f.write(self.pcap([msg]))
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', path,
+                    '-Tfields', '-e_ws.col.protocol'),
+                encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split()[0].startswith('SIP/SDP')
+
+    def test_sdp_rtp_setup(self, cmd_tshark, capture_file, test_env):
+        '''The answer of the first call (frame 5) sets up the RTP and RTCP
+        conversations: the payload types of the opus and PCMU frames come
+        from the a=rtpmap lines, and the opus frame names its setup
+        frame.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {7, 8, 9, 10}',
+            '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ertp.p_type', '-ertp.setup-frame')
+        assert lines == [
+            '7\tOPUS\t96\t5',
+            '8\tRTP\t0\t1',
+            '9\tRTP EVENT\t101\t5',
+            '10\tRTCP\t\t',
+        ]
+        # the H.264 frame after the RTSP SETUP gets its payload name from
+        # the SDP of the DESCRIBE reply, through a=control
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 46',
+            '-Tfields', '-e_ws.col.protocol', '-ertp.p_type')
+        assert lines == ['H.264\t96']
+
+    def test_sdp_session_and_media(self, cmd_tshark, capture_file, test_env):
+        '''The session level lines, the media attributes and the payload
+        formats of the first INVITE (frame 1).'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 1',
+            '-Tfields', '-esdp.bandwidth.modifier', '-esdp.bandwidth.value', '-esdp.time.start',
+            '-esdp.repeat_time.offset', '-esdp.timezone.offset', '-esdp.connection_info.ttl',
+            '-esdp.connection_info.num_addr', '-esdp.ipbcp.command', '-esdp.media.portcount')
+        assert lines == ['CT,AS,TIAS,RR,AS\t128,64,64000,800,80\t2873397496\t0,25h,0\t-1h,0\t127\t3\tRequest\t2']
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 1',
+            '-Tfields', '-esdp.mime.type', '-esdp.sample_rate', '-esdp.channels',
+            '-esdp.fmtp.h264_packetization_mode', '-esdp.fmtp.h263profile', '-esdp.fmtp.h263level',
+            '-esdp.nal_unit_1_string', '-esdp.nal_unit_2_string')
+        assert lines == ['opus,telephone-event,G722,PCMU,H264,H265,MP4V-ES,H263-2000,H263-1998,H264-SVC\t'
+                         '48000,8000,8000,8000,90000,90000,90000,90000,90000,90000\t2\t1,2\t0,3\t10,45\t'
+                         'Z0IACpZTBYmI\taMljiA==']
+
+    def test_sdp_crypto(self, cmd_tshark, capture_file, test_env):
+        '''The crypto attributes of the SRTP offer (frame 15): tags, suites,
+        lifetimes in both notations, the MKI and its length, a key with
+        an MKI and no lifetime.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 15',
+            '-Tfields', '-esdp.crypto.tag', '-esdp.crypto.crypto_suite', '-esdp.crypto.lifetime',
+            '-esdp.crypto.mki-valu', '-esdp.crypto.mki_length', '-esdp.ice_candidate.type')
+        assert lines == ['1,2,3,4,5,7,8\tAES_CM_128_HMAC_SHA1_80,AES_CM_128_HMAC_SHA1_32,F8_128_HMAC_SHA1_80,'
+                         'UNKNOWN_SUITE,AES_CM_128_HMAC_SHA1_80,AES_CM_128_HMAC_SHA1_80,AES_CM_128_HMAC_SHA1_80\t'
+                         '2^20,2^31,1048576\t1,7,99\t4,12,5\thost,srflx,prflx,relay,other']
+
+    def test_sdp_many_media(self, cmd_tshark, capture_file, test_env):
+        '''Frame 21 has seven media descriptions (the dissector keeps four)
+        and 28 payload types in the first one; the INVITE is dissected
+        without errors in both passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.tshark(cmd_tshark, capture_file, test_env, *passes, '-Y', 'frame.number == 21',
+                '-Tfields', '-esdp.media.media')
+            assert lines == ['audio,video,audio,audio,audio,video,text']
+
+    def test_sdp_ed137(self, cmd_tshark, capture_file, test_env):
+        '''The ED-137 attributes are added to the Info column of the
+        Exported PDU (frame 26).'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 26',
+            '-Tfields', '-e_ws.col.info')
+        assert lines == [', Mikey: Pre-shared123.450 TxRx Radio ']
+
+    def test_sdp_carriers(self, cmd_tshark, capture_file, test_env):
+        '''The a=control lines of the RTSP DESCRIBE reply (relative,
+        absolute, mixed case) and of the HTTP body.'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'sdp.media_attribute.field == "control"',
+            '-Tfields', '-eframe.number', '-esdp.media_attribute.value')
+        assert lines == [
+            '23\trtsp://192.0.2.1/x,rtsp://192.0.2.1/x',
+            '25\trtsp://192.0.2.1/x,rtsp://192.0.2.1/x',
+            '41\ttrackID=1,rtsp://192.0.2.2/stream/trackID=2,TrackID=3',
+            '54\thttp://192.0.2.2/audio',
+        ]
+
+    def test_sdp_h248item(self, cmd_tshark, capture_file, test_env):
+        '''Only a=h248item:h324ext/h223lcparm is decoded as H.223 logical
+        channel parameters; "h324ext/other" shares the first seven
+        characters and was decoded too before the fix in the same commit
+        (frame 27 has both, and "other/item").'''
+        lines = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 27',
+            '-Tfields', '-eh245.adaptationLayerType')
+        assert lines == ['1']
