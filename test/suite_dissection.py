@@ -117694,3 +117694,61 @@ class TestDissectPkcs10:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkcs10.CertificationRequest_element',
                            '-eframe.number')
         assert out == ['1', '3', '5', '7', '9', '11']
+
+
+class TestDissectPkcs12:
+    '''PKCS#12 bags, safe contents, PFX (through the LDAP attribute OID),
+    PBE, PBES2, PBMAC1, scrypt and HMAC parameters, all in Exported PDU
+    "cms" frames. Filler bytes stand in for encrypted contents (no real
+    ciphertext, no keys); the password preferences are not used. Frames
+    35-38 are the reproducers of the fixes for the use-after-free of the
+    bag object identifier (35), the salt and iteration count (36-37,
+    which needs pkcs12.try_null_password and is not run here) and the
+    id-data dissector that stayed registered (38).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkcs12_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkcs12_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 38 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 38
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkcs12_bags(self, cmd_tshark, capture_file, test_env):
+        '''Frame 6 is a SafeContents with every bag type, frame 7 a PFX
+        with a MAC (salt, iterations).'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
+                           '-epkcs12.bagId')
+        assert out[0].split(',')[:7] == [
+            '1.2.840.113549.1.12.10.1.%d' % i for i in (1, 2, 3, 3, 5, 4, 6)]
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkcs12.macSalt',
+                           '-eframe.number', '-epkcs12.macSalt', '-epkcs12.iterations')
+        assert out == ['7\t0909090909090909\t2048,2048']
+
+    def test_pkcs12_oid_reset(self, cmd_tshark, capture_file, test_env):
+        '''Frame 35 has a SafeBag with a long bagId; frame 36 is the SafeBag
+        without a bagId that used the freed string of frame 35.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 35',
+                           '-epkcs12.bagId')
+        assert out[0].startswith('1.3.6.1.4.1.99999.1000.1001')
+
+    def test_pkcs12_id_data_restored(self, cmd_tshark, capture_file, test_env):
+        '''A plain id-data ContentInfo (frame 38) is no longer dissected as
+        PKCS#12 SafeContents after a PFX frame.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 38',
+                           '-e_ws.col.protocol', '-epkcs12.SafeContents')
+        assert out == ['CMS/IMF\t']
