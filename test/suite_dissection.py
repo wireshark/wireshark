@@ -125495,3 +125495,109 @@ class TestDissectRf4ceNwk:
                 filt='rf4ce-nwk.fcf.security_enabled == 1 && frame.number >= 82')
         assert [r[0] for r in rows] == ['82', '83', '84', '85', '86', '87', '88']
         assert all(r[1] == '' for r in rows)
+
+
+class TestDissectRf4ceProfile:
+    '''RF4CE profiles GDP, ZRC 1.0 and ZRC 2.0 (packet-rf4ce-profile.c),
+    reached through RF4CE NWK data frames of profile ids 0, 1 and 3 in IEEE
+    802.15.4 frames (link type 230), from the synthetic capture
+    rf4ce_profile_coverage.pcap.gz. The Key Exchange frames carry made-up
+    random numbers and tags: no key is derived or found.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rf4ce_profile_coverage.pcap.gz'), '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_rf4ce_profile_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 113 frames decode without malformed packets or error expert
+        infos, in one and two passes: the pairing frames (RF4CE NWK) and
+        the GDP, ZRC 2.0 and ZRC 1.0 frames.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 113
+        assert protocols.count('RF4CE NWK') == 3
+        assert protocols.count('RF4CE GDP') == 61
+        assert protocols.count('RF4CE ZRC 2.0') == 35
+        assert protocols.count('RF4CE ZRC 1.0') == 14
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_rf4ce_profile_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command names of the GDP frames, ZRC 2.0 actions and ZRC 1.0.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                filt='frame.number >= 4 && frame.number <= 64')
+        infos = [r[0] for r in rows]
+        for name, count in (('Generic Response', 6), ('Configuration Complete', 3), ('Heartbeat', 8),
+                            ('Unknown Command', 5), ('Get Attributes', 1), ('Get Attributes Response', 7),
+                            ('Push Attributes', 1), ('Set Attributes', 1), ('Pull Attributes', 1),
+                            ('Pull Attributes Response', 1), ('Check Validation', 7),
+                            ('Client Notification', 8), ('Actions', 1), ('Key Exchange', 11)):
+            assert infos.count(name) == count, name
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                filt='frame.number >= 100 && frame.number <= 107')
+        assert [r[0] for r in rows] == ['User Control Pressed', 'User Control Pressed',
+                'User Control Repeated', 'User Control Released', 'Command Discovery Request',
+                'Command Discovery Response', 'Command Discovery Response', 'Reserved']
+
+    def test_rf4ce_profile_gdp_attributes(self, cmd_tshark, capture_file, test_env):
+        '''GDP attribute values: identification capabilities, poll
+        constraints (two records) and poll configuration.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.attr.ident_cap.support_vibrate', filt='frame.number == 26')
+        assert rows == [['26', 'True']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.attr.poll_constraints.methods_num',
+                'rf4ce-profile.attr.poll_constraints.polling_record.max_polling_time_interval',
+                filt='frame.number == 27')
+        assert rows == [['27', '2', '2000,4294967295']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.attr.poll_configuration.polling_time_interval',
+                'rf4ce-profile.attr.poll_configuration.polling_timeout', filt='frame.number == 28')
+        assert rows == [['28', '1000', '5']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-profile.attr.status',
+                filt='frame.number == 29')
+        assert rows == [['0x01,0x02,0x03,0x01']]
+
+    def test_rf4ce_profile_zrc20(self, cmd_tshark, capture_file, test_env):
+        '''ZRC 2.0 attributes (IRDB vendor support, mappable actions) and
+        action records.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.attr.irdb_vendor_support.vendor_id', filt='frame.number == 66')
+        assert rows == [['66', '0x0001,0x0007,0x0001']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.attr.mappable_actions.action_code', filt='frame.number == 67')
+        assert rows == [['67', '0x10,0x11,0x20']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.zrc20.cmd.actions.action_data.action_vendor',
+                filt='rf4ce-profile.zrc20.cmd.actions.action_data.action_vendor')
+        assert rows == [['87', '0x0004']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.zrc20.cmd.actions.action_control.action_type',
+                filt='frame.number in {82, 83, 84}')
+        assert rows == [['82', '0x01'], ['83', '0x02'], ['84', '0x03']]
+
+    def test_rf4ce_profile_key_exchange(self, cmd_tshark, capture_file, test_env):
+        '''Key Exchange sub types: challenge, challenge response, response
+        and confirm (the random numbers and tags are made up).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-profile.cmd.key_exchange.sub_type',
+                filt='frame.number >= 54 && frame.number <= 58')
+        assert [r[0] for r in rows] == ['0x00', '0x00', '0x01', '0x02', '0x03']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-profile.cmd.key_exchange.rand_a',
+                'rf4ce-profile.cmd.key_exchange.tag_b', filt='frame.number in {54, 56}')
+        assert rows == [['10:11:12:13:14:15:16:17', ''], ['', 'de:ad:be:ef']]
+
+    def test_rf4ce_profile_zrc10(self, cmd_tshark, capture_file, test_env):
+        '''ZRC 1.0 command codes and payloads.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-profile.zrc10.cmd_common.rc_command_code',
+                'rf4ce-profile.zrc10.cmd_common.rc_command_payload',
+                filt='frame.number in {100, 101, 103}')
+        assert rows == [['100', '0x41', '01:02'], ['101', '0x42', ''], ['103', '0x41', '']]
