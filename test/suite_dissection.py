@@ -120272,3 +120272,116 @@ class TestDissectPrp:
             '12\t' + '00' * 14,
             '13\t' + '00' * 12,
         ]
+
+
+class TestDissectPsn:
+    '''PosiStageNet over UDP port 56565 (V2 info and data chunks, V1 data
+    and XML packets) from the synthetic capture psn_coverage.pcap.gz.'''
+
+    def test_psn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-15 are PSN (V1 XML ones with the XML dissector), none
+        is malformed or has an expert info, in one and two passes;
+        frames 16 and 17 are not PSN.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('PSN') == 11
+        assert protocols.count('PSN/XML') == 4
+        assert protocols[15:] == ['UDP', 'UDP']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('psn_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_psn_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every PSN frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Y', 'psn',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 PSN V2 Info, Frame 1, 3 Trackers',
+            '2 PSN V2 Info, Frame 2, 1 Trackers',
+            '3 PSN V2 Info, Frame 3, 2 Trackers',
+            '4 PSN V2 Data, Frame 1, 1 Trackers',
+            '5 PSN V2 Data, Frame 2, 3 Trackers',
+            '6 PSN V2 Data, Frame 3, 2 Trackers',
+            '7 PSN V2 Data, Frame 4, 1 Trackers',
+            '8 PSN V2 Data, Frame 5, 0 Trackers',
+            '9 PSN V1 Data, Frame 1, 2 Trackers',
+            '10 PSN V1 Data, Frame 2, 0 Trackers',
+            '11 PSN V1 Data, Frame 3, 1 Trackers',
+            '12 PSN V1 Info',
+            '13 PSN V1 Config',
+            '14 PSN V1 Config Ack',
+            '15 PSN V1 XML',
+        ]
+
+    def test_psn_info_names(self, cmd_tshark, capture_file, test_env):
+        '''System and tracker names and ids of the V2 info packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 3',
+                '-Tfields', '-eframe.number', '-epsn.info.system_name',
+                '-epsn.tracker.id', '-epsn.tracker.info.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tSynthetic System\t0,1,2\tAlpha,Beta,Gamma',
+            '2\t\t5\tSolo tracker',
+            '3\tNames\t7,8\tNamed',
+        ]
+
+    def test_psn_data_chunks(self, cmd_tshark, capture_file, test_env):
+        '''Every tracker data chunk type of the V2 data packets: the
+        position, speed, orientation, status, acceleration, target
+        position and timestamp of frame 4, and the tracker ids.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 6}',
+                '-Tfields', '-eframe.number', '-epsn.tracker.id',
+                '-epsn.tracker.data.chunk_id', '-epsn.tracker.data.validity',
+                '-epsn.version_high', '-epsn.version_low',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t0\t0x0000,0x0001,0x0002,0x0003,0x0004,0x0005,0x0006\t1\t2\t3',
+            '5\t0,1,2\t' + ','.join(['0x0000,0x0001,0x0002,0x0003,0x0004,0x0005,0x0006'] * 3)
+                + '\t1,1,1\t2\t3',
+            '6\t300,301\t0x0000,0x0003\t2\t2\t3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Y', 'frame.number == 4',
+                '-V', '-O', 'psn',
+            ), encoding='utf-8', env=test_env)
+        for text in (
+                'Tracker Data Chunk: Position',
+                'Tracker Data Chunk: Speed',
+                'Tracker Data Chunk: Origin',
+                'Tracker Data Chunk: Status',
+                'Tracker Data Chunk: Acceleration',
+                'Tracker Data Chunk: Target Position',
+                'Tracker Data Chunk: Timestamp',
+                'Validity: 1'):
+            assert text in stdout
+
+    def test_psn_v1_data(self, cmd_tshark, capture_file, test_env):
+        '''V1 data packets: counters, world id and the trackers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('psn_coverage.pcap.gz'),
+                '-Y', 'psn.v1.header',
+                '-Tfields', '-eframe.number', '-epsn.v1.packet_counter',
+                '-epsn.v1.world_id', '-epsn.v1.tracker_count',
+                '-epsn.tracker.id', '-epsn.v1.object_state',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t1\t1\t2\t0,1\t1,0',
+            '10\t2\t1\t0\t\t',
+            '11\t3\t7\t1\t5\t3',
+        ]
