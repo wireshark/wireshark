@@ -139000,3 +139000,71 @@ class TestDissectSmbDirect:
         assert [r.split('\t')[1] for r in rows[:8]] == ['0x03', '0x03', '0x03', '0x04', '0x05', '0x06', '0x03', '0x03']
         assert self.fields(cmd_tshark, capture_file, test_env, 'iwarp_ddp && !smb_direct',
                            'frame.number') == ['66', '67']
+
+
+class TestDissectSmbLogon:
+    '''NETLOGON mailslot protocol (\\MAILSLOT\\NET\\NETLOGON, \\MAILSLOT\\TEMP\\NETLOGON,
+    \\MAILSLOT\\MSSP) in NetBIOS datagrams on UDP 138 and in SMB on TCP 445, from
+    the synthetic capture smb_logon_coverage.pcap.gz.'''
+
+    CAP = 'smb_logon_coverage.pcap.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSmbLogon.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_logon_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 56
+        assert protocols.count('SMB_NETLOGON') == 53
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_smb_logon_commands(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every command from 0x00 to 0x19 and
+        reaches the one past the table (0x1a is unknown).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'smb_netlogon.command', '-Tfields', '-esmb_netlogon.command')
+        commands = sorted({int(r[0], 16) for r in rows})
+        assert commands == list(range(0x1b)) + [0xff]
+
+    def test_smb_logon_active_directory_response(self, cmd_tshark, capture_file, test_env):
+        '''Command 0x19 (Active Directory response to a SAM logon request)
+        is dissected like 0x17 (it used to be shown as unknown data), with
+        the compressed DNS style names.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'smb_netlogon.command == 0x19', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-esmb_netlogon.forest_dns_name',
+                '-esmb_netlogon.server_dns_name', '-esmb_netlogon.domain_name',
+                '-esmb_netlogon.server_site_name', '-esmb_netlogon.server_ip',
+                '-esmb_netlogon.data')
+        assert [r[0] for r in rows] == ['43', '47', '54']
+        for r in rows:
+            assert r[1:] == ['Active Directory Response to SAM LOGON request',
+                             'example.com', 'dc1.example.com', 'EXAMPLE',
+                             'Default.example.com', '198.51.100.7', '']
+
+    def test_smb_logon_strings(self, cmd_tshark, capture_file, test_env):
+        '''Query for the PDC in the Windows 95 and NT styles, an
+        announcement of a change with databases and a SID, and a SAM logon
+        request.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {10, 11, 25, 31}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-esmb_netlogon.unicode_computer_name',
+                '-esmb_netlogon.db_count', '-esmb_netlogon.domain_sid_size')
+        assert rows == [
+            ['10', 'Query for PDC from WKS1', 'WKS1', '', ''],
+            ['11', 'Query for PDC from WIN95', '', '', ''],
+            ['25', 'Announce Change to UAS or SAM', '', '3', '24'],
+            ['31', 'SAM LOGON request from client', 'WKS1', '', '0'],
+        ]
