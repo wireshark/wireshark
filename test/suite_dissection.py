@@ -124939,3 +124939,61 @@ class TestDissectRdt:
                 '-Y', 'frame.number == 43 && (_ws.malformed || _ws.expert)',
                 '-Tfields', '-eframe.number')
         assert stdout == []
+
+
+class TestDissectRealtek:
+    CAP = 'realtek_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRealtek.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_realtek_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight RRCP, two REP, two RLDP and three unknown Realtek frames
+        (ethertype 0x8899); none is malformed or has an expert info, in one
+        and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['RRCP'] * 7 + ['REP'] * 2 + ['RLDP'] * 2 + ['Realtek'] * 3 + ['RRCP']
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_realtek_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: RRCP opcode and direction, REP request (broadcast)
+        and reply, RLDP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            'Hello Request', 'Hello Reply', 'Get Request', 'Get Reply',
+            'Set Request', 'Unknown (5) Request', 'Set Reply',
+            'Echo Request', 'Echo Reply',
+            'Network Loop Detection', 'Network Loop Detection',
+            '', '', '', 'Get Request',
+        ]
+
+    def test_realtek_rrcp_fields(self, cmd_tshark, capture_file, test_env):
+        '''RRCP header, register and hello reply fields.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rrcp', '-Tfields', '-eframe.number', '-errcp.reply',
+                '-errcp.opcode', '-errcp.authkey', '-errcp.regaddr',
+                '-errcp.regdata', '-errcp.hello_reply.downlink_port',
+                '-errcp.hello_reply.uplink_port', '-errcp.hello_reply.uplink_mac',
+                '-errcp.hello_reply.chip_id', '-errcp.hello_reply.vendor_id')
+        assert lines[:4] == [
+            '1\tFalse\t0x00\t0xffff\t\t\t\t\t\t\t',
+            '2\tTrue\t0x00\t0xffff\t\t\t3\t25\t00:e0:4c:12:34:56\t0x8308\t0x00000000',
+            '3\tFalse\t0x01\t0x1234\t0x0300\t0x0000\t\t\t\t\t',
+            '4\tTrue\t0x01\t0x1234\t0x0300\t0xbeef\t\t\t\t\t',
+        ]
+        assert lines[4] == '5\tFalse\t0x02\t0x1234\t0x0301\t0x0001\t\t\t\t\t'
+
+    def test_realtek_rldp_protocol_values(self, cmd_tshark, capture_file, test_env):
+        '''Both RLDP protocol octets (0x03 and 0x23) are accepted.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rldp', '-Tfields', '-erldp.protocol')
+        assert lines == ['0x03', '0x23']
