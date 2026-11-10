@@ -116432,3 +116432,228 @@ class TestDissectPdc:
             '27\t24\tDTMPDU', '30\t24\tDTMPDU', '32\t28\tADMPDU', '35\t17\tSIMPDU',
             '36\t8,8,2\tRSMPDU', '37\t14,24,8\tAKMPDU', '39\t24\tDTMPDU',
         ]
+
+
+class TestDissectPdcpLte:
+    '''PDCP-LTE from the synthetic captures pdcp_lte_coverage.pcap.gz (UDP
+    framing of the PDCP-LTE wiki page, a heuristic that is off by default)
+    and pdcp_lte_dct2000.out.gz (Catapult DCT2000 text file, which attaches
+    the configuration by default). No keys are configured: after a
+    SecurityModeCommand the payload is just shown as data.'''
+
+    HEUR = ('--enable-heuristic', 'pdcp_lte_udp')
+    PDCP_ONLY = ('-o', 'pdcp-lte.check_sequence_numbers:pdcp-only')
+    ERRORS = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def run(cmd_tshark, test_env, capture, *args, heur=True):
+        '''tshark output lines for the capture with the given options.'''
+        opts = TestDissectPdcpLte.HEUR if heur else ()
+        stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture, *args),
+                                         encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pdcp_lte_frames(self, cmd_tshark, capture_file, test_env):
+        '''184 frames: every frame but the plain UDP one has a PDCP-LTE
+        layer; the signalling PDUs reach the LTE RRC dissectors.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        assert len(self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number')) == 184
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'pdcp-lte', '-Tfields',
+                            '-eframe.number')) == 183
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'lte_rrc', '-Tfields',
+                            '-eframe.number')) == 68
+        protocols = self.run(cmd_tshark, test_env, cap, '-Tfields', '-e_ws.col.protocol')
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['LTE RRC UL_DCCH'] == 25
+        assert counts['LTE RRC DL_DCCH'] == 15
+        assert counts['LTE RRC DL_CCCH'] == 5
+        assert counts['LTE RRC UL_CCCH'] == 4
+        assert counts['LTE RRC DL_CCCH_NB'] == 4
+        assert counts['LTE RRC UL_CCCH_NB'] == 3
+        assert counts['LTE RRC UL_DCCH_NB'] == 3
+        assert counts['LTE RRC DL_DCCH_NB'] == 3
+        assert counts['PDCP-LTE|ROHC(ROHC RTP)'] == 7
+        assert counts['UDP'] == 41
+        # No heuristic, no PDCP-LTE (the framing is not recognised)
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'pdcp-lte', '-Tfields',
+                            '-eframe.number', heur=False)) == 0
+
+    def test_pdcp_lte_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames and no error expert infos, in one pass and
+        two passes (also with sequence analysis); the info column and the
+        expert infos are the same both ways.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        for extra in ((), self.PDCP_ONLY):
+            for passes in ((), ('-2',)):
+                assert len(self.run(cmd_tshark, test_env, cap, *passes, *extra,
+                                    '-Y', self.ERRORS, '-Tfields', '-eframe.number')) == 0
+        first = self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                         '-e_ws.col.info', '-e_ws.expert.message')
+        second = self.run(cmd_tshark, test_env, cap, '-2', '-Tfields', '-eframe.number',
+                          '-e_ws.col.info', '-e_ws.expert.message')
+        assert len(first) == 184
+        assert first == second
+
+    def test_pdcp_lte_signalling_security(self, cmd_tshark, capture_file, test_env):
+        '''UE 1: a SecurityModeCommand with EEA2/EIA2 (frame 34), then
+        SecurityModeComplete (35); the following PDUs show the UE security
+        and their payload as data (ciphered, no key), the SecurityModeCommand
+        of frame 41 is itself ciphered, so it is shown as data and the UE
+        keeps EEA2/EIA2; frame 44 starts UE 2.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {32..43}',
+                         '-Tfields', '-eframe.number', '-e_ws.col.info',
+                         '-epdcp-lte.security-config.ciphering',
+                         '-epdcp-lte.security-config.integrity',
+                         '-epdcp-lte.signalling-data')
+        rows = {r.split('\t')[0]: r.split('\t') for r in lines}
+        assert rows['34'][1].startswith('SecurityModeCommand')
+        assert rows['35'][1].startswith('SecurityModeComplete')
+        for f in ('36', '37', '38', '39', '40'):
+            assert rows[f][2:4] == ['2', '2'], f
+            assert rows[f][4] != ''
+        assert rows['33'][2] == ''
+        assert rows['41'][1].startswith(' Signalling:  sn=4')
+        assert rows['41'][2:4] == ['2', '2']
+        assert rows['43'][2:4] == ['2', '2']
+        # NULL algorithms leave the payload dissected as RRC
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {53..55}',
+                         '-Tfields', '-e_ws.col.info')
+        assert lines[0].startswith('SecurityModeCommand')
+        assert lines[1].startswith('SecurityModeComplete')
+        assert lines[2].startswith('DLInformationTransfer')
+
+    def test_pdcp_lte_user_plane(self, cmd_tshark, capture_file, test_env):
+        '''User plane data PDUs with 7, 12, 15 and 18 bit sequence numbers;
+        the payload is IP.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {74..109}',
+                         '-Tfields', '-eframe.number', '-epdcp-lte.seqnum_length',
+                         '-epdcp-lte.seq-num', '-eip.version', '-eipv6.version')
+        rows = {r.split('\t')[0]: r.split('\t') for r in lines}
+        assert rows['74'][1:3] == ['7', '0']
+        assert rows['77'][1:3] == ['7', '3']
+        assert rows['85'][1:3] == ['12', '3']
+        assert rows['94'][1:3] == ['15', '0']
+        assert rows['106'][1:3] == ['18', '4']
+        assert rows['74'][3] == '4,4'    # IPv4 in the IPv4 framing
+        assert rows['75'][3] == '4,6'    # IPv6 in the IPv4 framing
+        assert rows['76'][3] == '4'      # SN 2 is plain data
+        assert rows['108'][1] == '5'     # SN length 5: header is not decoded
+        assert rows['108'][2] == ''
+        # a No-Header PDU (SDU only)
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {109, 110}',
+                         '-Tfields', '-e_ws.col.info')
+        assert [l.strip() for l in lines] == ['User:  No-Header', 'User:  No-Header']
+
+    def test_pdcp_lte_status_reports(self, cmd_tshark, capture_file, test_env):
+        '''PDCP status reports (12, 15, 18 bit), LWA status reports and
+        LWA end markers.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {141..156}',
+                         '-Tfields', '-eframe.number', '-epdcp-lte.fms',
+                         '-epdcp-lte.nmp', '-epdcp-lte.lsn', '-e_ws.col.info')
+        rows = {r.split('\t')[0]: r.split('\t') for r in lines}
+        assert rows['141'][1] == '100'
+        assert rows['141'][4].strip() == 'User:  Status Report (fms=100) not-received=8'
+        assert rows['143'][1] == '20000'
+        assert rows['145'][1] == '200000'
+        assert rows['146'][1] == '262143'
+        assert rows['148'][4].strip() == 'User:  Status Report (fms=7) not-received=0'
+        assert rows['151'][2] == '5'
+        assert rows['154'][3] == '119'
+        assert rows['155'][3] == '4660'
+        assert rows['156'][3] == '291'
+        bitmaps = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {141, 147}',
+                           '-Tfields', '-epdcp-lte.bitmap.byte')
+        assert bitmaps == ['0xa5,0x0f,0xff', '0x80']
+
+    def test_pdcp_lte_sequence_analysis(self, cmd_tshark, capture_file, test_env):
+        '''Sequence analysis (a preference; the frames carry no RLC):
+        missing, repeated and rolled over sequence numbers, and the security
+        input (COUNT, bearer, direction) of the ciphered UE.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY,
+                         '-Y', 'pdcp-lte.sequence-analysis.sn-missing || '
+                               'pdcp-lte.sequence-analysis.sn-repeated',
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines[:5] == [
+            '107\tPDCP SN (4) missing for Uplink on UE 21 (DCCH-3)',
+            '115\tPDCP SNs (2 to 4) missing for Downlink on UE 30 (DCCH-3)',
+            '116\tPDCP SN (2) repeated for Downlink for UE 30 (DCCH-3)',
+            '117\tPDCP SNs (6 to 99) missing for Downlink on UE 30 (DCCH-3)',
+            '119\tPDCP SN (100) repeated for Downlink for UE 30 (DCCH-3)',
+        ]
+        assert '136\tPDCP SNs (2 to 6) missing for Uplink on UE 34 (DCCH-1)' in lines
+        assert '137\tPDCP SN (2) repeated for Uplink for UE 34 (DCCH-1)' in lines
+        assert len(lines) == 15
+        ok = self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY,
+                      '-Y', 'pdcp-lte.sequence-analysis.ok == 1', '-Tfields', '-eframe.number')
+        assert len(ok) == 113
+        # UE 1 is ciphered: the count is HFN * 32 + SN
+        lines = self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY,
+                         '-Y', 'frame.number in {35, 36, 38, 40}', '-Tfields', '-eframe.number',
+                         '-epdcp-lte.security-config.count',
+                         '-epdcp-lte.security-config.bearer',
+                         '-epdcp-lte.security-config.direction')
+        assert lines == ['35\t1\t0\t0', '36\t2\t0\t1', '38\t3\t0\t1', '40\t0\t1\t1']
+        # the same with two passes
+        again = self.run(cmd_tshark, test_env, cap, '-2', *self.PDCP_ONLY,
+                         '-Y', 'pdcp-lte.sequence-analysis.sn-missing || '
+                               'pdcp-lte.sequence-analysis.sn-repeated',
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert again == self.run(cmd_tshark, test_env, cap, *self.PDCP_ONLY,
+                                 '-Y', 'pdcp-lte.sequence-analysis.sn-missing || '
+                                       'pdcp-lte.sequence-analysis.sn-repeated',
+                                 '-Tfields', '-eframe.number', '-e_ws.expert.message')
+
+    def test_pdcp_lte_heuristic_errors(self, cmd_tshark, capture_file, test_env):
+        '''Framing errors give an expert info and nothing is dissected;
+        frame 180 is a plain UDP packet.'''
+        cap = capture_file('pdcp_lte_coverage.pcap.gz')
+        lines = self.run(cmd_tshark, test_env, cap, '-Y', 'frame.number in {180..182}',
+                         '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines == ['180\t', '181\tMissing UDP framing conditional tag, aborting dissection',
+                         '182\tUnknown UDP framing tag, aborting dissection']
+
+    def test_pdcp_lte_unsupported_sn_length(self, cmd_tshark, capture_file, test_env):
+        '''A signalling PDU whose SN length is not one that sequence
+        analysis knows (9, from the framing tag) reached
+        DISSECTOR_ASSERT_NOT_REACHED with check_sequence_numbers set to
+        pdcp-only. It now gets an expert info instead (frames 183, 184 of
+        the UDP capture, frames 21, 22 of the DCT2000 file).'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for cap, frames in ((capture_file('pdcp_lte_coverage.pcap.gz'), ('183', '184')),
+                            (capture_file('pdcp_lte_dct2000.out.gz'), ('21', '22'))):
+            lines = self.run(cmd_tshark, env, cap, *self.PDCP_ONLY,
+                             '-Y', 'pdcp-lte.unsupported-sn-length', '-Tfields', '-eframe.number',
+                             '-e_ws.expert.message', '-e_ws.malformed')
+            assert [l.split('\t')[0] for l in lines] == list(frames)
+            for l in lines:
+                assert l.split('\t')[1:] == ['Unsupported PDCP sequence number length 9', '']
+
+    def test_pdcp_lte_dct2000(self, cmd_tshark, capture_file, test_env):
+        '''The DCT2000 file (default route): SRB and DRB PDUs, common
+        channels, ROHC, the key primitives that only store key strings (a
+        leak before "PDCP-LTE: Fix sequence analysis assertion and key
+        string leaks"), no malformed frames.'''
+        cap = capture_file('pdcp_lte_dct2000.out.gz')
+        assert len(self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                            heur=False)) == 45
+        for passes in ((), ('-2',)):
+            assert len(self.run(cmd_tshark, test_env, cap, *passes, '-Y', self.ERRORS,
+                                '-Tfields', '-eframe.number', heur=False)) == 0
+        lines = self.run(cmd_tshark, test_env, cap, '-Tfields', '-eframe.number',
+                         '-e_ws.col.protocol', '-e_ws.col.info', heur=False)
+        rows = {r.split('\t')[0]: r.split('\t') for r in lines}
+        assert rows['2'][1:] == ['LTE RRC DL_DCCH', 'SecurityModeCommand MAC=0x00000000 (3 bytes data)']
+        assert rows['4'][1] == 'PDCP-LTE'
+        assert rows['4'][2].startswith(' Signalling:  sn=0')
+        assert rows['7'][1] == 'LTE RRC BCCH_BCH'
+        assert rows['10'][1] == 'LTE RRC UL_CCCH'
+        assert rows['19'][2].strip() == 'User:  Status Report (fms=50) not-received=4'
+        assert rows['23'][1:] == ['DCT2000', ' SRB:1']
+        # 3 + 1 + 1 + 18 key primitives (UE 11 sends more than the 32 keys
+        # the table takes per UE)
+        assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'dct2000.integrity-key',
+                            '-Tfields', '-eframe.number', heur=False)) == 23
