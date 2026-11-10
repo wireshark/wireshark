@@ -1923,6 +1923,7 @@ dissect_ospfv3_lls_tlv(tvbuff_t *tvb, int offset, proto_tree *tree)
             relays_added--;
             offset += 4;
         }
+        offset = orig_offset;
         break;
     case LLS_V3_WILLING:
         proto_tree_add_item(ospf_lls_tlv_tree, hf_ospf_v3_lls_willingness,
@@ -2019,7 +2020,7 @@ dissect_ospf_authentication_trailer(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     /* Add Check of Data ? */
     proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_data, tvb, offset, auth_data_len - ( 2 + 2 + 2 + 2 + 8), ENC_NA);
-    offset = auth_data_len;
+    offset += auth_data_len - (2 + 2 + 2 + 2 + 8);
 
     return offset;
 }
@@ -2127,9 +2128,11 @@ dissect_ospf_db_desc(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
     /* skip to the end of DB-Desc header */
     DISSECTOR_ASSERT((version == OSPF_VERSION_2) || (version == OSPF_VERSION_3));
     while (orig_offset + length > offset) {
-        if ( version == OSPF_VERSION_2)
+        if ( version == OSPF_VERSION_2) {
             offset = dissect_ospf_v2_lsa(tvb, pinfo, offset, tree, false);
-        else
+            if (offset < 0)
+                break;
+        } else
             offset = dissect_ospf_v3_lsa(tvb, pinfo, offset, tree, false, address_family);
     }
 
@@ -2198,9 +2201,11 @@ dissect_ospf_ls_upd(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     DISSECTOR_ASSERT((version == OSPF_VERSION_2) || (version == OSPF_VERSION_3));
     lsa_counter = 0;
     while (lsa_counter < lsa_nr) {
-        if (version == OSPF_VERSION_2)
+        if (version == OSPF_VERSION_2) {
             offset = dissect_ospf_v2_lsa(tvb, pinfo, offset, ospf_lsa_upd_tree, true);
-        else
+            if (offset < 0)
+                break;
+        } else
             offset = dissect_ospf_v3_lsa(tvb, pinfo, offset, ospf_lsa_upd_tree, true,
                                          address_family);
         lsa_counter += 1;
@@ -2215,9 +2220,11 @@ dissect_ospf_ls_ack(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
     DISSECTOR_ASSERT((version == OSPF_VERSION_2) || (version == OSPF_VERSION_3));
     /* the body of a LS Ack packet simply contains zero or more LSA Headers */
     while (orig_offset + length > offset) {
-        if (version == OSPF_VERSION_2)
+        if (version == OSPF_VERSION_2) {
             offset = dissect_ospf_v2_lsa(tvb, pinfo, offset, tree, false);
-        else
+            if (offset < 0)
+                break;
+        } else
             offset = dissect_ospf_v3_lsa(tvb, pinfo, offset, tree, false, address_family);
     }
 }
@@ -4436,6 +4443,12 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 
     /* skip past the LSA header to the body */
     offset += OSPF_LSA_HEADER_LENGTH;
+    if (ls_length < OSPF_LSA_HEADER_LENGTH) {
+        expert_add_info_format(pinfo, type_item, &ei_ospf_lsa_bad_length,
+                               "Invalid LSA length (%u), expected >= (%u)",
+                               ls_length, OSPF_LSA_HEADER_LENGTH);
+        return offset;
+    }
     ls_length -= OSPF_LSA_HEADER_LENGTH;
 
     if (!disassemble_body)
