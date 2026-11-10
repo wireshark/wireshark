@@ -125384,3 +125384,114 @@ class TestDissectRetixBpdu:
         assert stdout.strip().split('\t') == ['02:00:00:00:00:01',
                 '02:00:00:00:00:02', '5120', '512', '3840',
                 'Bridge MAC 02:00:00:00:00:02']
+
+
+class TestDissectRf4ceNwk:
+    '''RF4CE network layer (packet-rf4ce-nwk.c) in IEEE 802.15.4 frames
+    (link type 230), reached through the heuristic dissector on the 802.15.4
+    payload, from the synthetic capture rf4ce_nwk_coverage.pcap.gz. The
+    security parts are not covered: frames with the security bit set carry
+    made-up payloads and MICs, so decryption fails and only the NWK header
+    is shown; the key seeds are made-up bytes.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rf4ce_nwk_coverage.pcap.gz'), '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_rf4ce_nwk_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 98 frames decode without malformed packets or error expert
+        infos, in one and two passes. 88 are RF4CE (heuristic), eight are
+        declined by the heuristic and left to IEEE 802.15.4, one to LwMesh;
+        the three profile frames go to the RF4CE profile dissector.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 98
+        assert protocols.count('RF4CE NWK') == 86
+        assert protocols.count('IEEE 802.15.4') == 8
+        assert protocols.count('LwMesh') == 1
+        assert protocols.count('RF4CE GDP') == 1
+        assert protocols.count('RF4CE ZRC 1.0') == 1
+        assert protocols.count('RF4CE ZRC 2.0') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_rf4ce_nwk_commands(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-49 carry every NWK command.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.cmd_id',
+                filt='frame.number <= 49')
+        ids = [r[0] for r in rows]
+        assert ids.count('0x01') == 5      # Discovery Request
+        assert ids.count('0x02') == 18     # Discovery Response
+        assert ids.count('0x03') == 6      # Pair Request
+        assert ids.count('0x04') == 4      # Pair Response
+        assert ids.count('0x05') == 1      # Unpair Request
+        assert ids.count('0x06') == 13     # Key Seed
+        assert ids.count('0x07') == 1      # Ping Request
+        assert ids.count('0x08') == 1      # Ping Response
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                filt='frame.number in {1, 6, 24, 25, 32, 47, 48, 49}')
+        assert [r[0] for r in rows] == ['Discovery Request', 'Discovery Response', 'Pair Request',
+                'Pair Response', 'Key Seed', 'Unpair Request', 'Ping Request', 'Ping Response']
+
+    def test_rf4ce_nwk_discovery(self, cmd_tshark, capture_file, test_env):
+        '''Discovery Response status values, and the extra status
+        information (user string and class descriptors) of frame 22.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.disc_resp.status',
+                filt='frame.number >= 6 && frame.number <= 21')
+        assert [r[0] for r in rows] == ['0x00', '0xb0', '0xb1', '0xb2', '0xb3', '0xb4', '0xb5',
+                '0xb6', '0xb7', '0xb8', '0xb9', '0xba', '0xe8', '0xf4', '0xf9', '0x55']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.usr_str.disc_rsp.app_usr_str',
+                'rf4ce-nwk.usr_str.disc_rsp.class_descriptor.class_number',
+                'rf4ce-nwk.usr_str.disc_rsp.class_descriptor.duplicate_class_num_handling',
+                'rf4ce-nwk.usr_str.disc_rsp.discovery_lqi_threshold',
+                'rf4ce-nwk.disc_resp.lqi', filt='frame.number == 22')
+        assert rows == [['remote', '0x00,0x01,0x0f', '0x00,0x01,0x02', '64', '-1']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.disc_req.vendor_id',
+                'rf4ce-nwk.disc_req.vendor_str', 'rf4ce-nwk.app_cap.dev_type',
+                'rf4ce-nwk.app_cap.profile_id', filt='frame.number in {3, 5}')
+        assert rows == [['0xfff1', 'VENDOR', '0x01,0x02,0x03',
+                         '0x00,0x01,0x02,0x03,0xc0,0xfe,0xff'],
+                        ['0x0007', 'TI', '0x01', '0x00,0x03']]
+
+    def test_rf4ce_nwk_key_seed(self, cmd_tshark, capture_file, test_env):
+        '''The pair request announces the number of key seeds; frames
+        76-81 use short 802.15.4 addresses, where the key pair
+        context is not started (it needs EUI-64 addresses).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.key_seed.seed_seq_num',
+                filt='frame.number >= 32 && frame.number <= 46 && rf4ce-nwk.key_seed.seed_seq_num')
+        assert [r[0] for r in rows] == ['0', '1', '1', '2', '2', '0', '0', '0', '2', '1', '3', '3', '4']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rf4ce-nwk.pair_req.key_exch_num',
+                filt='frame.number >= 76 && frame.number <= 81 && rf4ce-nwk.cmd_id == 3')
+        assert rows == [['76', '0'], ['78', '0'], ['79', '0']]
+
+    def test_rf4ce_nwk_unparsed_payload(self, cmd_tshark, capture_file, test_env):
+        '''A data frame of a profile without a dissector shows its whole
+        payload as unparsed; it used to start at the header length and
+        show only the last four of ten octets.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'rf4ce-nwk.profile_id', 'rf4ce-nwk.unparsed_payload', filt='frame.number in {54, 75}')
+        assert rows == [['54', '0xc0', '30:31:32:33:34:35:36:37:38:39'],
+                        ['75', '0xc0', '30:31:32:33:34:35:36:37:38:39']]
+
+    def test_rf4ce_nwk_frame_types(self, cmd_tshark, capture_file, test_env):
+        '''Channel designators, vendor specific frames and the secured
+        frames (the header only, nothing decrypts).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.fcf.channel_designator',
+                filt='frame.number >= 56 && frame.number <= 59')
+        assert [r[0] for r in rows] == ['0x00', '0x01', '0x02', '0x03']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'rf4ce-nwk.vendor_id',
+                filt='frame.number >= 64 && frame.number <= 74')
+        assert [r[0] for r in rows] == ['0x0001', '0x0002', '0x0003', '0x0004', '0x0005', '0x0006',
+                '0x0007', '0xfff1', '0xfff2', '0xfff3', '0xfff1']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rf4ce-nwk.cmd_id',
+                filt='rf4ce-nwk.fcf.security_enabled == 1 && frame.number >= 82')
+        assert [r[0] for r in rows] == ['82', '83', '84', '85', '86', '87', '88']
+        assert all(r[1] == '' for r in rows)
