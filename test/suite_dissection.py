@@ -135123,3 +135123,47 @@ class TestDissectScsiSbc:
         assert rows[1][:4] == ['262', '0,8,24', '8,16,1', '0,1,2']
         assert rows[2][0] == '271'
         assert rows[2][4:] == ['0,100,4096', '1,16,1024']
+
+
+class TestDissectScsiSmc:
+    '''SCSI medium changer commands (packet-scsi-smc.c) from the synthetic
+    capture scsi_smc_coverage.pcap.gz: SCSI over iSCSI (TCP 3260) to a
+    medium changer (LUN 0).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scsi_smc_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_smc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU, without malformed packets or
+        expert info warnings or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 150
+        assert all(r[0] == 'iSCSI' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_smc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_smc_element_status(self, cmd_tshark, capture_file, test_env):
+        '''READ ELEMENT STATUS with the four element types, volume tags
+        and a device identifier (frame 68), descriptors cut at every
+        length decode without an exception.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 68',
+                '-escsi_smc.first_element_address_reported', '-escsi_smc.number_of_elements_available',
+                '-escsi_smc.byte_count_of_report_available', '-escsi_smc.element_type_code',
+                '-escsi_smc.ea', '-escsi_smc.identifier')
+        assert rows == [['16', '4', '544', '1,2,3,4', '1,2,16,17,18,19,32,33,48,49',
+                         '44524956452d30303031']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 68',
+                '-escsi_smc.primary_vol_tag_id', '-escsi_smc.lun', '-escsi_smc.scsi_bus_address')
+        assert rows[0][0].startswith('TAPE00,TAPE01,TAPE02,TAPE03,EXPORT,EXPORT,TAPE00')
+        assert rows[0][1] == '3'
+        assert rows[0][2] == '5'
