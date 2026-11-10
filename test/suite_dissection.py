@@ -129341,3 +129341,75 @@ class TestDissectRsync:
             '17\t30.0\t\t',
             '32\t\t\t@RSYNCD: AUTHREQD abcdefghijklmnop\\n',
         ]
+
+
+class TestDissectRtacser:
+    '''RTAC Serial (DLT 250) from the synthetic capture
+    rtacser_coverage.pcap.gz. The payload of frames 23-29 is dissected as
+    Modbus RTU through the "rtacser.data" Decode As table (MODBUS_DECODE_AS).'''
+
+    MODBUS_DECODE_AS = ('-d', 'rtacser.data,mbrtu')
+
+    def test_rtacser_frames(self, cmd_tshark, capture_file, test_env):
+        '''32 frames are RTAC Serial; the 5 octet record (frame 33) is too
+        short for the header and is left as "Packet". No malformed packets
+        or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtacser_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = [l.split('\t')[1] for l in stdout.splitlines()]
+        assert len(protocols) == 33
+        assert protocols.count('RTAC Serial') == 32
+        assert protocols[32] == 'Packet'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtacser_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-V',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout, '^Frame ') == 0
+
+    def test_rtacser_events_and_lines(self, cmd_tshark, capture_file, test_env):
+        '''Event names (frames 1-12), each control line alone (13-19), all
+        lines (20, 22), the unused bit 0x80 (21) and the footer.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtacser_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 22',
+                '-Tfields', '-eframe.number', '-ertacser.eventtype', '-ertacser.cts',
+                '-ertacser.dcd', '-ertacser.dsr', '-ertacser.rts', '-ertacser.dtr',
+                '-ertacser.ring', '-ertacser.mbok', '-ertacser.footer',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        names = ['STATUS_CHANGE', 'DATA_TX_START', 'DATA_RX_START', 'DATA_TX_END',
+                 'DATA_RX_END', 'CAPTURE_DATA_LOST', 'CAPTURE_COMPLETE', 'FRAMING_ERROR',
+                 'PARITY_ERROR', 'SERIAL_BREAK_EVENT', 'SERIAL_OVERFLOW_EVENT', 'Unknown Type']
+        for i, name in enumerate(names):
+            f = lines[i].split('\t')
+            assert f[0] == str(i + 1)
+            assert f[1] == '0x%02x' % i
+            assert f[2:9] == ['0'] * 7
+            assert f[10].startswith(name)
+        assert lines[12].split('\t')[2:10] == ['1', '0', '0', '0', '0', '0', '0', '0x0000']
+        assert lines[18].split('\t')[2:10] == ['0', '0', '0', '0', '0', '0', '1', '0x6666']
+        assert lines[19].split('\t')[2:9] == ['1'] * 7
+        assert lines[19].split('\t')[10] == 'STATUS_CHANGE         ( CTS, DCD, DSR, RTS, DTR, RING, MBOK )'
+        assert lines[20].split('\t')[2:9] == ['0'] * 7
+        assert lines[20].split('\t')[10].endswith('( /CTS, /DCD, /DSR, /RTS, /DTR, /RING, /MBOK )')
+
+    def test_rtacser_payload(self, cmd_tshark, capture_file, test_env):
+        '''Without Decode As the payload is data; with mbrtu the Modbus RTU
+        frames 23, 25, 27 and 29 are dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtacser_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23, 27}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-edata.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['23\tRTAC Serial\t8', '27\tRTAC Serial\t8']
+        stdout = subprocess.check_output((cmd_tshark, *self.MODBUS_DECODE_AS,
+                '-r', capture_file('rtacser_coverage.pcap.gz'),
+                '-Y', 'mbrtu', '-Tfields', '-eframe.number', '-embrtu.unit_id',
+                '-emodbus.func_code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['23\t1\t3', '25\t1\t3', '27\t2\t6', '29\t0\t1']
