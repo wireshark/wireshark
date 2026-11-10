@@ -127891,3 +127891,110 @@ class TestDissectRoughtime:
                 '-Y', 'frame.number == 43', '-Tfields', '-e_ws.expert.message')
         messages = stdout.strip().split(',')
         assert messages == ['Malformed Packet (Exception occurred)'] * 600
+
+
+class TestDissectRpcap:
+    '''Remote Packet Capture protocol (RPCAP, rpcapd) from the synthetic
+    capture rpcap_coverage.pcapng.gz: TCP and UDP found by the heuristics
+    (nothing is registered for RPCAP) and one Exported PDU frame.'''
+
+    def test_rpcap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''82 frames; no malformed frame and no error expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 82
+        assert protocols.count('RPCAP') == 64
+        assert protocols.count('R|UDP') == 7
+        assert protocols.count('R|ICMP') == 1
+        assert protocols.count('R|RPCAP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rpcap_ipv6_padding(self, cmd_tshark, capture_file, test_env):
+        '''Fix "RPCAP: Fix the IPv6 address padding length ...": the
+        padding of an AF_INET6 (Winsock 23) address is 100 bytes, not 108;
+        a find all interfaces reply with an IPv6 address (the Exported PDU
+        frame 2 and the reply in frame 17) is no longer malformed.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {2, 17}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-erpcap.if.ipv6',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].startswith('2\tFind all interfaces reply\t2001:db8::1,ffff:ffff:ffff:ffff::\t')
+        assert lines[1].startswith('17\tFind all interfaces reply\t2001:db8::1,ffff:ffff:ffff:ffff::,::,::,fe80::1')
+        assert lines[0].endswith('\t') and lines[1].endswith('\t')
+
+    def test_rpcap_linktype_per_pass(self, cmd_tshark, capture_file, test_env):
+        '''Fix "... keep link type per frame": the PACKET message in frame 1
+        precedes every Open reply, so its link-layer type is unknown and it
+        is shown as data, also in the second pass; later packets are
+        decoded as Ethernet.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {1, 24, 81}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['1\tRPCAP', '24\tR|UDP', '81\tR|UDP']
+
+    def test_rpcap_authentication(self, cmd_tshark, capture_file, test_env):
+        '''Authentication replies: versions only, and with the byte order
+        magic (big-endian, little-endian and an invalid value).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'rpcap.auth_reply',
+                '-Tfields', '-eframe.number', '-erpcap.auth_maxvers',
+                '-erpcap.auth_byte_order_magic',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '9\t1\t', '11\t1\ta1b2c3d4', '13\t1\td4c3b2a1', '15\t1\t01020304', '79\t1\t']
+
+    def test_rpcap_errors_and_sampling(self, cmd_tshark, capture_file, test_env):
+        '''Error messages: the code is in the value field, the text is shown
+        as an expert info; sampling requests with their method and value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'rpcap.error',
+                '-Tfields', '-eframe.number', '-erpcap.error_value', '-erpcap.error',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '41\t3\tAuthentication failed', '43\t16\tbad message',
+            '73\t5\tOpen failed', '74\t0\tno code']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'rpcap.sampling_request',
+                '-Tfields', '-eframe.number', '-erpcap.sampling_method',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['33\t0', '35\t1', '37\t2', '39\t9', '69\t1']
+
+    def test_rpcap_filter(self, cmd_tshark, capture_file, test_env):
+        '''A start capture request with 17 BPF instructions of every class
+        (frame 20); an update filter request with 2 (frame 29).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {20, 29}',
+                '-Tfields', '-eframe.number', '-erpcap.nitems',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['20\t17', '29\t2']
+
+    def test_rpcap_pdus_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''Two PACKET messages in one TCP segment (frame 26) and one split
+        over two segments (frames 27-28): the second part carries the
+        reassembled message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rpcap_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {26, 27, 28}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['26\tR|UDP', '27\tTCP', '28\tR|UDP']
