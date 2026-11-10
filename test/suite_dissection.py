@@ -118155,3 +118155,80 @@ class TestDissectPktap:
                 '-Y', 'pcap_pktdata.nesting_too_deep', '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '1'
+
+
+class TestDissectPktc:
+    def test_pktc_clean(self, cmd_tshark, capture_file, test_env):
+        '''16 frames, all PKTC, none malformed or with an expert info, in
+        one and in two passes, and the same Info column in both.'''
+        cap = capture_file('pktc_coverage.pcap.gz')
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            outputs.append(subprocess.check_output((cmd_tshark, *passes, '-r', cap,
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env))
+        assert outputs[0] == outputs[1]
+        lines = outputs[0].splitlines()
+        assert len(lines) == 16
+        assert [l.split('\t')[1] for l in lines] == ['PKTC'] * 16
+
+    def test_pktc_key_management(self, cmd_tshark, capture_file, test_env):
+        '''Message types and domains of interpretation of the key
+        management messages (UDP 1293), and the ciphersuite lists.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktc_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 11',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-epktc.kmmid', '-epktc.doi',
+                '-epktc.asd.snmp_auth_alg', '-epktc.timestamp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == [
+            'Wake Up (SNMPv3)', 'AP Request (SNMPv3)', 'AP Request (IPsec)',
+            'AP Reply (SNMPv3)', 'AP Reply (IPsec)', 'Security Parameter Recovered (IPsec)',
+            'Rekey (IPsec)', 'Rekey (IPsec)', 'KRB Error: KRB5KRB_AP_ERR_BAD_INTEGRITY',
+            'Unknown KMMID 0x7 (Unknown DOI 0x9)', 'Wake Up (IPsec)']
+        assert [l[2] for l in lines] == ['0x01', '0x02', '0x02', '0x03', '0x03', '0x04',
+                                         '0x05', '0x05', '0x06', '0x07', '0x01']
+        assert lines[1][4] == '0x21,0x22,0x55'
+        assert lines[6][5] == '260115120000Z'
+
+    def test_pktc_rekey_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''The rekey timestamp is shown as a date and time when it parses,
+        and as the raw string when it does not.'''
+        for frame, text in (('7', 'Timestamp: 26-01-15 12:00:00'), ('8', 'Timestamp: not a timesta')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('pktc_coverage.pcap.gz'),
+                    '-Y', f'frame.number == {frame}', '-V', '-O', 'pktc',
+                ), encoding='utf-8', env=test_env)
+            assert text in stdout
+
+    def test_pktc_mtafqdn(self, cmd_tshark, capture_file, test_env):
+        '''MTA FQDN requests and replies (UDP 2246).'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktc_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 12',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-epktc.mtafqdn.msgtype',
+                '-epktc.mtafqdn.fqdn', '-epktc.mtafqdn.ip',
+            ), encoding='utf-8', env=env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1:3] for l in lines] == [
+            ['MTA FQDN Request', '1'], ['MTA FQDN Request', '1'], ['MTA FQDN Reply', '2'],
+            ['MTA FQDN Error Reply', '3'], ['MTA FQDN Request', '1']]
+        assert lines[2][3:] == ['mta1.example.com', '192.0.2.7']
+
+    def test_pktc_revocation_time(self, cmd_tshark, capture_file, test_env):
+        '''The manufacturer certificate revocation time has no nanoseconds
+        (they were uninitialized before the fix).'''
+        env = dict(test_env, TZ='UTC')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pktc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 13 || frame.number == 16',
+                '-Tfields', '-epktc.mtafqdn.manu_cert_revoked',
+            ), encoding='utf-8', env=env)
+        assert stdout.split() == ['2020-07-04T04:05:20.000000000+0000', '2106-02-07T06:28:15.000000000+0000']
