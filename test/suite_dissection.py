@@ -115990,3 +115990,67 @@ class TestDissectPcep:
         assert by['41'][0] == '16001,16001'
         assert by['41'][1] == '51'
         assert by['43'][2] == '100,100,100'
+
+
+class TestDissectPcli:
+    '''PCLI (PacketCable lawful intercept CCC headers) from the synthetic
+    capture pcli_coverage.pcap.gz. PCLI has no port of its own, so the
+    four variants are selected with Decode As on UDP ports 4000 (4 byte
+    CCCID), 4008 (8 byte), 4012 (timestamp) and 4020 (timestamp and case
+    ID); the payload is IPv4 through the pcli.payload table.'''
+
+    CAPTURE = 'pcli_coverage.pcap.gz'
+    DECODE_AS = (
+        '-d', 'udp.port==4000,pcli', '-d', 'udp.port==4008,pcli8',
+        '-d', 'udp.port==4012,pcli12', '-d', 'udp.port==4020,pcli20',
+    )
+
+    def test_pcli_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                    '-d', 'pcli.payload,ip', *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pcli',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 17
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                    '-d', 'pcli.payload,ip', *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pcli_header_fields(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-d', 'pcli.payload,ip',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {2, 5, 10, 14, 17}',
+                '-Tfields', '-eframe.number', '-epcli.cccid', '-epcli.header',
+                '-epcli.timestamp', '-epcli.case_id',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\t305419896\t\t\t',
+            '5\t256\t0xdeadbeef\t\t',
+            '10\t513\t\t2023-08-02T21:20:01.500000000Z\t',
+            '14\t769\t\t2023-08-02T21:20:01.062500000Z\t0x00000000cafe0001',
+            '17\t1024\t\t2023-08-02T21:21:40.000000000Z\t0x0000000000000001',
+        ]
+
+    def test_pcli_payload(self, cmd_tshark, capture_file, test_env):
+        '''With the payload Decode As the call content is IPv4, without it
+        the content is shown as data.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-d', 'pcli.payload,ip',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'ip.dst == 198.51.100.2 && udp.dstport == 6001',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 17
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'data && !ip.dst == 198.51.100.2',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 17
