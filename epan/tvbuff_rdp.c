@@ -506,6 +506,10 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 		uncompressed_size = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
+		/* a segment decompresses to at most sizeof(outputSegment) bytes */
+		if (uncompressed_size == 0 || uncompressed_size > (uint64_t)segment_count * sizeof(zgfx->outputSegment))
+			return NULL;
+
 		output = output_ptr = wmem_alloc(allocator, uncompressed_size);
 		output_consumed = 0;
 		for (i = 0; i < segment_count; i++) {
@@ -526,9 +530,15 @@ rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb
 			offset += segment_size;
 			output_ptr += zgfx->outputCount;
 		}
+		if (output_consumed != uncompressed_size) {
+			/* the segments did not fill the announced size */
+			wmem_free(allocator, output);
+			return NULL;
+		}
 		return tvb_new_real_data(output, uncompressed_size, uncompressed_size);
 	}
 	default:
-		return tvb;
+		/* not a ZGFX descriptor */
+		return NULL;
 	}
 }
