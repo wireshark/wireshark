@@ -24,6 +24,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/ipproto.h>
+#include <epan/proto_data.h>
 #include <epan/sminmpec.h>
 #include <epan/addr_resolv.h> /* Needed for BASE_ENTERPRISES */
 #include <epan/tap.h>
@@ -35,6 +36,8 @@
 #include <wsutil/array.h>
 #include "packet-e164.h"
 #include "packet-e212.h"
+#include "packet-gtp.h"
+#include "packet-gtpv2.h"
 #include "packet-ip.h"
 
 void proto_register_pfcp(void);
@@ -1318,6 +1321,8 @@ static expert_field ei_pfcp_ie_data_not_decoded;
 static expert_field ei_pfcp_ie_not_decoded_null;
 static expert_field ei_pfcp_ie_not_decoded_too_large;
 static expert_field ei_pfcp_ie_encoding_error;
+static expert_field ei_pfcp_ie_nesting_too_deep;
+static expert_field ei_pfcp_too_many_seids;
 
 static int pfcp_tap = -1;
 
@@ -1370,7 +1375,7 @@ typedef struct _pfcp_sub_dis_t {
 static dissector_table_t pfcp_enterprise_ies_dissector_table;
 
 static void
-dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, uint16_t length, uint8_t message_type, pfcp_session_args_t *args);
+dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, int length, uint8_t message_type, pfcp_session_args_t *args);
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -1906,14 +1911,19 @@ static const value_string pfcp_ie_type[] = {
 
 static value_string_ext pfcp_ie_type_ext = VALUE_STRING_EXT_INIT(pfcp_ie_type);
 
+/* Maximum number of SEIDs and of IP addresses collected per message */
+#define PFCP_MAX_TRACKED_PER_MSG 64
+/* Maximum nesting of grouped IEs */
+#define PFCP_MAX_GROUPED_DEPTH 16
+
 /* PFCP Session funcs*/
 static unsigned
 pfcp_info_hash(gconstpointer key)
 {
     const pfcp_info_t *k = (const pfcp_info_t *)key;
 
-    /* The SEID is likely unique, so just use it. */
-    return g_int_hash(&k->seid);
+    /* Hash the address too: many addresses can share one SEID. */
+    return add_address_to_hash(g_int64_hash(&k->seid), &k->addr);
 }
 
 static gboolean
@@ -1968,12 +1978,12 @@ pfcp_add_session(uint32_t frame, uint32_t session) {
 static bool
 pfcp_seid_exists(uint64_t seid, wmem_list_t *seid_list) {
     wmem_list_frame_t *elem;
-    uint32_t *info;
+    uint64_t *info;
     bool found;
     found = false;
     elem = wmem_list_head(seid_list);
     while (!found && elem) {
-        info = (uint32_t*)wmem_list_frame_data(elem);
+        info = (uint64_t*)wmem_list_frame_data(elem);
         found = *info == seid;
         elem = wmem_list_frame_next(elem);
     }
@@ -3774,7 +3784,7 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     uint64_t f_seid_flags;
     address *ipv4 = NULL, *ipv6 = NULL;
     uint64_t seid_cp, *seid;
-    uint32_t *session;
+    uint32_t session;
 
     static int * const pfcp_f_seid_flags[] = {
         &hf_pfcp_spare_b7,
@@ -3817,22 +3827,28 @@ dissect_pfcp_f_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
     }
 
     if (g_pfcp_session) {
-        session = (uint32_t *)g_hash_table_lookup(pfcp_session_table, &pinfo->num);
+        session = GPOINTER_TO_UINT(g_hash_table_lookup(pfcp_session_table, GUINT_TO_POINTER(pinfo->num)));
         if (!session) {
             /* We save the seid so that we could assignate its corresponding session ID later */
             args->last_seid = seid_cp;
-            if (!pfcp_seid_exists(seid_cp, args->seid_list)) {
-                seid = wmem_new(pinfo->pool, uint64_t);
-                *seid = seid_cp;
-                wmem_list_prepend(args->seid_list, seid);
-            }
-            if (ipv4 != NULL && !pfcp_ip_exists(*ipv4, args->ip_list)) {
-                copy_address_wmem(pinfo->pool, &args->last_ip, ipv4);
-                wmem_list_prepend(args->ip_list, ipv4);
-            }
-            if (ipv6 != NULL && !pfcp_ip_exists(*ipv6, args->ip_list)) {
-                copy_address_wmem(pinfo->pool, &args->last_ip, ipv6);
-                wmem_list_prepend(args->ip_list, ipv6);
+            if (wmem_list_count(args->seid_list) >= PFCP_MAX_TRACKED_PER_MSG ||
+                wmem_list_count(args->ip_list) >= PFCP_MAX_TRACKED_PER_MSG) {
+                /* Bound the (IP x SEID) cross product built by pfcp_fill_map() */
+                expert_add_info(pinfo, item, &ei_pfcp_too_many_seids);
+            } else {
+                if (!pfcp_seid_exists(seid_cp, args->seid_list)) {
+                    seid = wmem_new(pinfo->pool, uint64_t);
+                    *seid = seid_cp;
+                    wmem_list_prepend(args->seid_list, seid);
+                }
+                if (ipv4 != NULL && !pfcp_ip_exists(*ipv4, args->ip_list)) {
+                    copy_address_wmem(pinfo->pool, &args->last_ip, ipv4);
+                    wmem_list_prepend(args->ip_list, ipv4);
+                }
+                if (ipv6 != NULL && !pfcp_ip_exists(*ipv6, args->ip_list)) {
+                    copy_address_wmem(pinfo->pool, &args->last_ip, ipv6);
+                    wmem_list_prepend(args->ip_list, ipv6);
+                }
             }
         }
     }
@@ -5318,7 +5334,7 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset += 2;
 
         /* Network Instance */
-        offset += decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
+        offset = decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
     }
     /* RTS (if present)*/
     if (flags & 0x8) {
@@ -7326,7 +7342,7 @@ dissect_pfcp_source_ip_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     /* Mask/Prefix Length (if present) */
     if ((source_ip_address_flags & 0x4)) {
         proto_tree_add_item(tree, hf_pfcp_source_ip_address_mask_prefix_lengt, tvb, offset, 1, ENC_NA);
-        proto_item_append_text(item, ", Mask/Prefix length %s", tvb_ip6_to_str(pinfo->pool, tvb, offset));
+        proto_item_append_text(item, ", Mask/Prefix length %u", tvb_get_uint8(tvb, offset));
         offset += 1;
     }
 
@@ -10176,8 +10192,16 @@ pfcp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int 
 static void
 dissect_pfcp_grouped_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, uint16_t length, uint8_t message_type, pfcp_session_args_t *args)
 {
+    unsigned depth = p_get_proto_depth(pinfo, proto_pfcp);
+
     proto_item_append_text(item, "[Grouped IE]");
+    if (depth >= PFCP_MAX_GROUPED_DEPTH) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_nesting_too_deep, tvb, 0, 0);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_pfcp, depth + 1);
     dissect_pfcp_ies_common(tvb, pinfo, tree, 0, length, message_type, args);
+    p_set_proto_depth(pinfo, proto_pfcp, depth);
 }
 
 // wrapper around dissect_pfcp_grouped_ie with the dissector_t prototype
@@ -10186,6 +10210,9 @@ dissect_pfcp_grouped_ie_wrapper(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
     pfcp_sub_dis_t *pfcp_sub_dis_info = (pfcp_sub_dis_t *)data;
 
+    if (pfcp_sub_dis_info == NULL) {
+        return 0;
+    }
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, proto_tree_get_parent(tree), tvb_reported_length(tvb), pfcp_sub_dis_info->message_type, pfcp_sub_dis_info->args);
 
     return tvb_reported_length(tvb);
@@ -10907,7 +10934,7 @@ static void pfcp_register_generic_ie_dissector(uint16_t enterprise_id, const cha
 }
 
 static void
-dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, uint16_t length, uint8_t message_type, pfcp_session_args_t *args)
+dissect_pfcp_ies_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int offset, int length, uint8_t message_type, pfcp_session_args_t *args)
 {
     proto_tree *ie_tree;
     proto_item *ti;
@@ -11612,7 +11639,7 @@ dissect_pfcp_enterprise_bbf_nat_port_forward(tvbuff_t *tvb, packet_info *pinfo, 
         offset += 1;
 
         proto_item_append_text(li, ": proto=%s: %s:%u -> %u", val_to_str_ext_const(protocol, &ipproto_val_ext, "Unknown"),
-                               tvb_ip_to_str(pinfo->pool, tvb, 0), in, out);
+                               tvb_ip_to_str(pinfo->pool, tvb, offset - 9), in, out);
     }
 
     return offset;
@@ -17872,6 +17899,8 @@ proto_register_pfcp(void)
         { &ei_pfcp_ie_data_not_decoded,{ "pfcp.ie_data_not_decoded", PI_UNDECODED, PI_NOTE, "IE data not decoded by WS yet", EXPFILL } },
         { &ei_pfcp_ie_not_decoded_null,{ "pfcp.ie_not_decoded_null", PI_UNDECODED, PI_NOTE, "IE not decoded yet", EXPFILL } },
         { &ei_pfcp_ie_not_decoded_too_large,{ "pfcp.ie_not_decoded", PI_UNDECODED, PI_NOTE, "IE not decoded yet(WS:IE id too large)", EXPFILL } },
+        { &ei_pfcp_ie_nesting_too_deep,{ "pfcp.ie_nesting_too_deep", PI_MALFORMED, PI_ERROR, "Grouped IE nesting too deep", EXPFILL } },
+        { &ei_pfcp_too_many_seids,{ "pfcp.too_many_seids", PI_PROTOCOL, PI_WARN, "Too many SEIDs or addresses in message, not tracked for session", EXPFILL } },
         { &ei_pfcp_ie_encoding_error,{ "pfcp.ie_encoding_error", PI_PROTOCOL, PI_ERROR, "IE wrongly encoded", EXPFILL } },
     };
 
