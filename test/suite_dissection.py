@@ -114520,3 +114520,124 @@ class TestDissectOtp:
             '12\t\t\t0x00',
             '13\t\t\t0x80',
         ]
+
+
+class TestDissectOuch:
+    # ouch_coverage.pcapng.gz: frames 1-266 are every OUCH message type and
+    # length as Exported PDUs ("ouch"), 267-288 OUCH inside SoupBinTCP (found
+    # by the heuristic), 289-306 SoupBinTCP data that is not OUCH and
+    # 307-309 plain TCP to port 9100 (OUCH with Decode As).
+    CAP = 'ouch_coverage.pcapng.gz'
+    # BIST OUCH also has a SoupBinTCP heuristic and claims most of these.
+    OPTS = ('--disable-heuristic', 'bist_ouch_soupbintcp')
+
+    def test_ouch_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol and no malformed packets or expert
+        infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 309
+        assert protocols.count('OUCH') == 288
+        assert protocols.count('SoupBinTCP') == 18
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_ouch_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Number of messages of each type.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ouch',
+                '-Tfields', '-eouch.packet_type',
+            ), encoding='utf-8', env=test_env)
+        counts = {}
+        for t in stdout.split():
+            counts[t] = counts.get(t, 0) + 1
+        assert counts == {
+            "'A'": 17, "'B'": 5, "'C'": 13, "'D'": 34, "'E'": 34,
+            "'F'": 34, "'G'": 34, "'I'": 2, "'J'": 28, "'K'": 6,
+            "'M'": 10, "'O'": 17, "'P'": 2, "'Q'": 1, "'S'": 3,
+            "'T'": 14, "'U'": 31, "'X'": 2, "'Z'": 1,
+        }
+
+    def test_ouch_enter_order(self, cmd_tshark, capture_file, test_env):
+        '''All fields of an Enter Order (including the customer type added
+        in OUCH 4.1).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'ouch',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('OUCH, Enter Order')
+        assert lines[start + 1:start + 15] == [
+            "    Packet Type: Enter Order ('O')",
+            '    Order Token: TOK1_0        ',
+            "    Buy/Sell Indicator: Buy Order ('B')",
+            '    Shares: 100',
+            '    Stock: AAPL0   ',
+            '    Price: $123.4500',
+            '    Time In Force: Immediate Or Cancel (0)',
+            '    Firm: FRM0',
+            "    Display: Attributable-Price to Display ('A')",
+            "    Capacity: Agency ('A')",
+            "    Intermarket Sweep Eligibility: Eligible ('Y')",
+            '    Minimum Quantity: 100',
+            "    Cross Type: No Cross ('N')",
+            "    Customer Type: Retail designated order ('R')",
+        ]
+
+    def test_ouch_reference_price_type(self, cmd_tshark, capture_file, test_env):
+        '''A reference price type of 0 is shown as "Unknown (0x00)" (the
+        NUL character used to end the label before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 182',
+                '-V', '-O', 'ouch',
+            ), encoding='utf-8', env=test_env)
+        assert '    Reference Price Type: Unknown (0x00)' in stdout.splitlines()
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'ouch.reference_price_type == 0x49',
+                '-V', '-O', 'ouch',
+            ), encoding='utf-8', env=test_env)
+        assert '    Reference Price Type: Intraday Indicative Value (I)' in stdout.splitlines()
+
+    def test_ouch_soupbintcp(self, cmd_tshark, capture_file, test_env):
+        '''OUCH inside SoupBinTCP is found by the heuristic only when the
+        length matches the message type.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'soupbintcp && ouch',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(f) for f in stdout.split()]
+        assert frames == list(range(267, 289))
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file(self.CAP),
+                '-Y', 'soupbintcp && !ouch',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        frames = [int(f) for f in stdout.split()]
+        assert frames == list(range(289, 307))
+
+    def test_ouch_decode_as_without_tree(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As on TCP, OUCH accepts the segment even when no
+        tree is built (it returned 0 and so rejected it before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-d', 'tcp.port==9100,ouch',
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number >= 307',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 3
+        for line in lines:
+            assert ' OUCH ' in line and line.endswith('Enter Order')
