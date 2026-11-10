@@ -59,7 +59,12 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   unsigned char *eap_len_buf;
   uint8_t curr_layer_num = p_get_proto_depth(pinfo, proto_eap);
   /* see packet-eap:dissect_eap():p_proto_data_layer - our TVB is in the previous layer*/
-  uint32_t p_proto_data_layer = (curr_layer_num - 1) << 8;
+  uint32_t p_proto_data_layer;
+
+  if (curr_layer_num == 0) {
+    return 0;
+  }
+  p_proto_data_layer = (curr_layer_num - 1) << 8;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PEAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -89,7 +94,7 @@ dissect_peap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     next_tvb = tvb_new_composite();
     tvb_composite_append(next_tvb, tvb_new_subset_length(eap_tvb, 0, 2));
     tvb_composite_append(next_tvb, eap_len_tvb);
-    tvb_composite_append(next_tvb, tvb_new_subset_length(tvb, offset, 4 + len));
+    tvb_composite_append(next_tvb, tvb_new_subset_length(tvb, offset, len));
     tvb_composite_finalize(next_tvb);
 
     add_new_data_source(pinfo, next_tvb, "Pseudo EAP");
