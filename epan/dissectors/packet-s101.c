@@ -248,9 +248,9 @@ find_s101_packet_header(tvbuff_t *tvb, int* offset, uint8_t *start, uint8_t *slo
         *offset = *offset + 1;
 
         if (app_bytes_len > 1) {
-            *msgLength = tvb_get_bits64 (tvb, *offset, app_bytes_len * 8, ENC_BIG_ENDIAN);
+            *msgLength = tvb_get_bits64 (tvb, *offset * 8, app_bytes_len * 8, ENC_BIG_ENDIAN);
             *msgLength = *msgLength + (((uint64_t)app_bytes_len) << 56);
-            *offset = app_bytes_len;
+            *offset += app_bytes_len;
         }
     }
     else if (*start != S101_BOF) {
