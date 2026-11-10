@@ -13,6 +13,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/conversation.h>
 #include <epan/ipproto.h>
 #include "packet-rpc.h"
@@ -47,6 +49,10 @@ static int hf_portmap_rpcb_addr;
 static int hf_portmap_rpcb_owner;
 static int hf_portmap_uaddr;
 
+
+static expert_field ei_portmap_nesting;
+
+#define PORTMAP_MAX_NESTING 4
 
 static int ett_portmap;
 static int ett_portmap_rpcb;
@@ -255,6 +261,28 @@ dissect_dump_reply(tvbuff_t *tvb, packet_info *pinfo,
 	return dissect_rpc_list(tvb, pinfo, tree, 0, dissect_dump_entry, NULL);
 }
 
+/* Returns false (with an expert info) if the nesting limit is reached */
+static bool
+portmap_enter_nesting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset)
+{
+	unsigned depth = p_get_proto_depth(pinfo, proto_portmap);
+
+	if (depth >= PORTMAP_MAX_NESTING) {
+		proto_tree_add_expert_remaining(tree, pinfo, &ei_portmap_nesting, tvb, offset);
+		return false;
+	}
+	p_set_proto_depth(pinfo, proto_portmap, depth + 1);
+	increment_dissection_depth(pinfo);
+	return true;
+}
+
+static void
+portmap_leave_nesting(packet_info *pinfo)
+{
+	decrement_dissection_depth(pinfo);
+	p_set_proto_depth(pinfo, proto_portmap, p_get_proto_depth(pinfo, proto_portmap) - 1);
+}
+
 /* Dissect a callit call */
 static int
 dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo,
@@ -292,8 +320,11 @@ dissect_callit_call(tvbuff_t *tvb, packet_info *pinfo,
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
 	col_set_writable(pinfo->cinfo, -1, false);
+	if (!portmap_enter_nesting(tvb, pinfo, tree, offset))
+		return tvb_captured_length(tvb);
 	offset = dissect_rpc_indir_call(tvb, pinfo, tree, offset,
 		hf_portmap_args, prog, vers, proc);
+	portmap_leave_nesting(pinfo);
 
 	return offset;
 }
@@ -313,9 +344,12 @@ dissect_callit_reply(tvbuff_t *tvb, packet_info *pinfo,
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
 	col_set_writable(pinfo->cinfo, -1, false);
+	if (!portmap_enter_nesting(tvb, pinfo, tree, offset))
+		return tvb_captured_length(tvb);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);
+	portmap_leave_nesting(pinfo);
 
 	return offset;
 }
@@ -448,9 +482,12 @@ dissect_rpcb_rmtcallres(tvbuff_t *tvb, packet_info *pinfo _U_,
 	   Make the columns non-writable, so the dissector won't change
 	   them out from under us. */
 	col_set_writable(pinfo->cinfo, -1, false);
+	if (!portmap_enter_nesting(tvb, pinfo, tree, offset))
+		return tvb_captured_length(tvb);
 	offset = dissect_rpc_indir_reply(tvb, pinfo, tree, offset,
 		hf_portmap_result, hf_portmap_prog, hf_portmap_version,
 		hf_portmap_proc);
+	portmap_leave_nesting(pinfo);
 
 	return offset;
 }
@@ -619,6 +656,13 @@ proto_register_portmap(void)
 	proto_portmap = proto_register_protocol("Portmap", "Portmap", "portmap");
 	proto_register_field_array(proto_portmap, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	static ei_register_info ei[] = {
+		{ &ei_portmap_nesting, { "portmap.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+			"Too many nested CALLIT/RMTCALL calls", EXPFILL }}
+	};
+	expert_module_t *expert_portmap = expert_register_protocol(proto_portmap);
+	expert_register_field_array(expert_portmap, ei, array_length(ei));
 }
 
 void
