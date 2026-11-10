@@ -54,7 +54,7 @@ static int hf_resp_array_length;
 static int hf_resp_fragment;
 
 static int dissect_resp_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int array_depth, int64_t expected_elements);
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str);
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, int str_len, const uint8_t *bulk_string_as_str);
 void proto_reg_handoff_resp(void);
 void proto_register_resp(void);
 
@@ -87,6 +87,17 @@ static int dissect_resp_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return string_lenth + CRLF_LENGTH;
 }
 
+/* Clamp a declared string length so that adding CRLF_LENGTH cannot overflow */
+static int resp_clamp_length(int64_t length) {
+    if (length > INT_MAX - 2 * CRLF_LENGTH) {
+        return INT_MAX - 2 * CRLF_LENGTH;
+    }
+    if (length < INT_MIN) {
+        return INT_MIN;
+    }
+    return (int)length;
+}
+
 static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int bulk_string_string_length, int array_depth) {
     uint8_t *bulk_string_length_as_str;
     int bulk_string_length;
@@ -97,7 +108,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     bulk_string_length_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset + RESP_TOKEN_PREFIX_LENGTH,
                                                    bulk_string_string_length - RESP_TOKEN_PREFIX_LENGTH, ENC_ASCII);
-    bulk_string_length = (int)g_ascii_strtoll(bulk_string_length_as_str, NULL, 10);
+    bulk_string_length = resp_clamp_length(g_ascii_strtoll(bulk_string_length_as_str, NULL, 10));
     /* Negative string lengths */
     if (bulk_string_length < 0) {
         /* NULL string */
@@ -150,7 +161,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     uint8_t *bulk_string_as_str = tvb_get_string_enc(pinfo->pool, tvb, offset, bulk_string_captured_length, ENC_NA);
     if (g_str_is_ascii(bulk_string_as_str)) {
         proto_item_append_text(resp_string_item, ": %s", bulk_string_as_str);
-        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_as_str);
+        resp_bulk_string_enhance_display(pinfo, tvb, resp_string_tree, array_depth, bulk_string_length, bulk_string_captured_length, bulk_string_as_str);
     } else if(array_depth == 0) {
         /* Otherwise, just append that we captured bulk strings (and only do so if they aren't part of an array */
         col_append_fstr(pinfo->cinfo, COL_INFO, " BulkString(%d)", bulk_string_length);
@@ -159,7 +170,7 @@ static int dissect_resp_bulk_string(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return bulk_string_string_length + CRLF_LENGTH + bulk_string_captured_length_with_crlf;
 }
 
-static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, const uint8_t *bulk_string_as_str) {
+static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, int array_depth, int bulk_string_length, int str_len, const uint8_t *bulk_string_as_str) {
     /* Request commands are arrays */
     if (RESP_REQUEST(pinfo) && array_depth == 1) {
         if (bulk_string_length < BULK_STRING_MAX_DISPLAY) {
@@ -170,13 +181,13 @@ static void resp_bulk_string_enhance_display(packet_info *pinfo, tvbuff_t *tvb, 
 
         /* Is it worth trying the JSON dissector? */
         if (prefs_try_json_on_string &&                 /* preference enabled */
-            bulk_string_length >= 2 &&                  /* at least 2 chars long */
+            str_len >= 2 &&                             /* at least 2 chars long */
             /* and has format {..} or [..] */
-            ((bulk_string_as_str[0] == '{' && bulk_string_as_str[bulk_string_length-1] == '}') ||
-             (bulk_string_as_str[0] == '[' && bulk_string_as_str[bulk_string_length-1] == ']'))) {
+            ((bulk_string_as_str[0] == '{' && bulk_string_as_str[str_len-1] == '}') ||
+             (bulk_string_as_str[0] == '[' && bulk_string_as_str[str_len-1] == ']'))) {
 
             /* Create TVB just with string */
-            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, bulk_string_as_str, bulk_string_length, bulk_string_length);
+            tvbuff_t *json_tvb = tvb_new_child_real_data(tvb, bulk_string_as_str, str_len, str_len);
             add_new_data_source(pinfo, json_tvb, "JSON string");
 
             /* Call JSON dissector on this TVB */
