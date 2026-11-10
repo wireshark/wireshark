@@ -127159,3 +127159,78 @@ class TestDissectRmtFec:
         out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 29',
                           'rmt-fec.encoding_id', 'rmt-fec.sbn', 'rmt-fec.esi')
         assert out == ['0\t7\t0x00000055']
+
+
+class TestDissectRmtLct:
+    '''LCT (carried in ALC, found through the ATSC3 LLS SLT table) from the
+    synthetic capture rmt_lct_coverage.pcapng.gz. Interface 0 is Ethernet,
+    interface 1 is ATSC ALP (ATSC3 mode), interface 2 is Exported PDU
+    ("rmt-lct" without data from a caller). The SLT is zlib compressed, so
+    the tests need zlib.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rmt_lct_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def need_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '--version'), encoding='utf-8', env=test_env)
+        if 'zlib' not in out.lower():
+            pytest.skip('tshark was built without zlib')
+
+    def test_lct_header(self, cmd_tshark, capture_file, test_env):
+        '''Field sizes of the LCT header, timestamps, flags and extensions;
+        no malformed packets or error expert infos in one and two passes.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('rmt-lct', 'frame.number') == [str(n) for n in range(2, 43)]
+            assert fr('frame.number in {2, 3, 4, 5}', 'rmt-lct.fsize.cci') == ['4', '8', '12', '16']
+            assert fr('frame.number >= 6 && frame.number <= 15', 'rmt-lct.fsize.tsi') == \
+                ['0', '2', '4', '0', '4', '6', '4', '6', '4', '6']
+            assert fr('frame.number >= 6 && frame.number <= 15', 'rmt-lct.fsize.toi') == \
+                ['0', '2', '0', '4', '4', '6', '8', '10', '12', '14']
+            assert fr('rmt-lct.toi_extended', 'frame.number') == ['13', '14', '15']
+            assert fr('rmt-lct.sct', 'frame.number') == ['16', '18', '34']
+            assert fr('rmt-lct.ert', 'frame.number') == ['17', '18', '34']
+            assert fr('rmt-lct.flags.close_session == 1 && rmt-lct.flags.close_object == 1',
+                      'frame.number') == ['19']
+            assert fr('frame.number >= 20 && frame.number <= 33', 'rmt-lct.hec.type') == \
+                ['0', '1', '2', '3', '64', '65', '66', '67', '128', '192', '193', '194', '200', '70']
+            assert fr('frame.number == 34', 'rmt-lct.hec.type') == \
+                ['0,1,2,3,64,65,66,67,128,192,193,194,200,70']
+            assert fr('rmt-lct.flute_version', 'frame.number') == ['29', '34', '35']
+            assert fr('rmt-lct.ext_tol_transfer_len', 'frame.number') == ['27', '31', '34']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_lct_without_data_exchange(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames 41 and 42 call LCT without ALC: the
+        extensions are decoded (EXT_FTI with encoding id 0), but FDT and
+        CENC are not decoded as FLUTE.'''
+        self.need_zlib(cmd_tshark, test_env)
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 41',
+                          'rmt-lct.hec.type', 'rmt-fec.fti.transfer_length',
+                          'rmt-lct.flute_version', 'rmt-lct.cenc')
+        assert out == ['64,192,193\t1234\t\t']
+
+    def test_lct_atsc3(self, cmd_tshark, capture_file, test_env):
+        '''ATSC3 packets (ALP interface): source packet indicator, the
+        codepoint, and the Info column without a protocol tree. Frame 36
+        is the reproducer of "RMT-LCT: Set is_sp also when no tree is
+        built": the source packet shows (Source) and no FEC header in the
+        summary, which is built without a tree (Decode As is needed since
+        the SLT table the heuristic uses is only filled with a tree).'''
+        self.need_zlib(cmd_tshark, test_env)
+        assert self.fields(cmd_tshark, capture_file, test_env, 'rmt-lct.spi == 1', 'frame.number') == \
+            ['36', '38', '39']
+        summary = subprocess.check_output((cmd_tshark, '-d', 'udp.port==4001,alc',
+                '-r', capture_file('rmt_lct_coverage.pcapng.gz')),
+            encoding='utf-8', env=test_env, timeout=120).splitlines()
+        assert '(Source)' in summary[35] and 'SBN' not in summary[35]
+        assert '(Repair)' in summary[36] and 'SBN: 3' in summary[36]
