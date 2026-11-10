@@ -126199,3 +126199,45 @@ class TestDissectRftap:
         stdout = subprocess.check_output((cmd_tshark, '-r', path, '-Y', 'rftap.nesting_too_deep', '-Tfields',
                 '-eframe.number'), encoding='utf-8', env=test_env, timeout=60)
         assert stdout == '1\n'
+
+
+class TestDissectRgmp:
+    CAP = 'rgmp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRgmp.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rgmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Five frames are RGMP; no frame is malformed or has an expert
+        info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['RGMP'] * 5 + ['IPv4', 'IGMP']
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_rgmp_types(self, cmd_tshark, capture_file, test_env):
+        '''Message types, reserved octet and group address.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rgmp', '-Tfields', '-e_ws.col.info', '-ergmp.type',
+                '-ergmp.reserved', '-ergmp.maddr', '-ergmp.checksum.status')
+        assert lines == [
+            'Hello\t0xff\t0x00\t0.0.0.0\t1',
+            'Join\t0xfd\t0x00\t224.1.1.1\t1',
+            'Leave\t0xfc\t0x00\t224.1.1.1\t1',
+            'Bye\t0xfe\t0x00\t0.0.0.0\t1',
+            'Join\t0xfd\t0x5a\t239.9.9.9\t1',
+        ]
+
+    def test_rgmp_other_group_is_igmp(self, cmd_tshark, capture_file, test_env):
+        '''An RGMP type sent to another group address is not RGMP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 7', '-Tfields', '-eigmp.type',
+                '-ergmp.type')
+        assert lines == ['0xff\t']
