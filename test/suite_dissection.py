@@ -118028,3 +118028,48 @@ class TestDissectPkixqualified:
         out = self._fields(cmd_tshark, capture_file, test_env, 'pkixqualified.biometricDataHash',
                            '-eframe.number', '-epkixqualified.sourceDataUri')
         assert out == ['2\thttp://example/b1', '5\thttp://example/b1']
+
+
+class TestDissectPkixtsp:
+    '''The PKIX time stamp protocol: requests and responses (Exported PDU
+    "pkixtsp_query" and "pkixtsp_reply"), a time stamp token with a
+    TSTInfo with and without accuracy, TSTInfo as a CMS content type and
+    a time stamp token attribute.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkixtsp_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkixtsp_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 9 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 9
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkixtsp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Request nonce (the field is 32 bits wide, the nonce 64 bits:
+        the low 32 bits are shown), policy and certReq; accuracy and status
+        values.'''
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixtsp.reqPolicy',
+                           '-eframe.number', '-epkixtsp.nonce', '-epkixtsp.reqPolicy',
+                           '-epkixtsp.certReq')
+        assert out == ['1\t1432778632\t1.2.3.4.1\tTrue']
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixtsp.seconds',
+                           '-eframe.number', '-epkixtsp.seconds', '-epkixtsp.millis',
+                           '-epkixtsp.micros')
+        assert out[0] == '3\t1\t500\t999'
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkixtsp.pki_status',
+                           '-eframe.number', '-epkixtsp.pki_status')
+        assert out == ['3\t0', '4\t0', '5\t2', '6\t2', '7\t1']
