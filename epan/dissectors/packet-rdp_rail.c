@@ -307,6 +307,10 @@ dissect_rdp_rail(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *parent_tree 
 	offset += 2;
 
 	nextOffset = offset + (pduLength - 4);
+	if (pduLength < 4) {
+		/* pduLength wrapped around */
+		nextOffset = tvb_captured_length(tvb);
+	}
 
 	/* packets that start with a windowId */
 	switch (cmdId) {
