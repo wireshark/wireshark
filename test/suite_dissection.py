@@ -124426,3 +124426,126 @@ class TestDissectRdpEcam:
         assert rows[0][1:] == ['RDPECAM', 'Data,<unknown message>']
         assert rows[3][1:] == ['RDPECAM', 'Data,MediaTypeListResponse']
         assert rows[-1][1:] == ['RDPECAM', 'Data,SelectVersion']
+
+
+class TestDissectRdpEgfx:
+    '''RDP graphics pipeline (EGFX) and its ZGFX bulk compression from the
+    synthetic captures egfx_coverage.pcapng.gz (an RDP session on TCP 3389
+    with the dynamic channel "Microsoft::Windows::RDS::Graphics", the UDP
+    transport and Exported PDUs) and egfx_coverage_errors.pcapng.gz (the
+    reproducers of the fixes on the branch and PDUs with expert infos).'''
+
+    CAPTURE = 'egfx_coverage.pcapng.gz'
+    ERRORS = 'egfx_coverage_errors.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args, name='egfx_coverage.pcapng.gz'):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_egfx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes; the EGFX frames have the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 176
+        assert protocols.count('EGFX') == 56
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdp_egfx', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_egfx_caps(self, cmd_tshark, capture_file, test_env):
+        '''Caps advertise with every capability version, caps confirm.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {16, 17, 31}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-erdp_egfx.cap.version', '-E', 'separator=;')
+        lines = stdout.splitlines()
+        assert lines[0].split(';')[1:] == ['Caps advertise',
+                '0x00080004,0x00080105,0x000a0002,0x000a0100,0x000a0200,0x000a0301,0x000a0400,'
+                '0x000a0502,0x000a0600,0x000a0601,0x000a0701,0x000b0101,0x000b0200,0x000b0300,0x00090009']
+        assert lines[1].split(';')[1:] == ['Caps advertise', '0x00080004']
+        assert lines[2].split(';')[1:] == ['Caps confirm,Caps confirm,Reset graphics,Create Surface',
+                '0x000a0502,0x000a0100']
+
+    def test_egfx_frame_tracking(self, cmd_tshark, capture_file, test_env):
+        '''Frames are tracked from start to end to acknowledge (links are
+        added to the second pass).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'rdp_egfx && frame.number >= 18 && frame.number <= 30',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-erdp_egfx.ack.framestart', '-erdp_egfx.ack.frameend',
+                '-erdp_egfx.ackqoe.framestart', '-erdp_egfx.ackqoe.frameend',
+                '-erdp_egfx.startframe.ackedin', '-erdp_egfx.endframe.ackedin')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['19'] == ['Start frame', '', '', '', '', '18', '']
+        assert rows['20'] == ['End frame', '', '', '', '', '', '18']
+        assert rows['28'] == ['Frame acknowledge', '26', '27', '', '', '', '']
+        assert rows['29'] == ['Frame acknowledge QoE', '', '', '26', '27', '', '']
+        assert rows['26'][-2:] == ['29', ''] and rows['27'][-2:] == ['', '29']
+
+    def test_egfx_commands(self, cmd_tshark, capture_file, test_env):
+        '''One PDU for every command, in ZGFX segments.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_egfx && frame.number >= 31 && frame.number <= 36',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '31\tCaps confirm,Caps confirm,Reset graphics,Create Surface',
+            '32\tMap Surface To Output,Start frame,Wire To Surface 1,Wire To Surface 2',
+            '33\tDelete Encoding Context,Solid Fill,Surface To Surface,Surface To Cache',
+            '34\tCache To Surface,Evict Cache Entry,End frame,Delete Surface',
+            '35\tCache Import Offer,Cache Import Reply,Map Surface To Window,Map Surface To Scaled Output',
+            '36\tMap Surface To Scaled Window,Protect surface,Watermark surface']
+
+    def test_egfx_zgfx(self, cmd_tshark, capture_file, test_env):
+        '''ZGFX segments with literals (through the table and raw), back
+        references to earlier output (repeating a whole PDU of every size
+        class), unencoded runs and multipart segments decode to the PDUs that
+        were compressed.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_egfx && frame.number >= 38 && frame.number <= 41',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '38\tStart frame,End frame', '39\tStart frame,End frame',
+            '40\tCache Import Offer', '41\tCache Import Offer']
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_egfx && frame.number >= 42', '-Tfields', '-e_ws.col.info')
+        infos = stdout.splitlines()
+        # a PDU and its repetition by a back reference decode alike
+        assert infos.count('Wire To Surface 1') == 19
+        assert infos[-9:] == ['Wire To Surface 1', 'Start frame,End frame', 'Start frame,End frame,Cache Import Offer',
+                              'Start frame,End frame', 'Start frame', 'Wire To Surface 1', 'Start frame',
+                              'Start frame,End frame', 'Start frame']
+
+    def test_egfx_udp(self, cmd_tshark, capture_file, test_env):
+        '''EGFX over the UDP transport and without an RDP session.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 172', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['RDP', 'MultiTransportRequest'], ['', 'TunnelCreateRequest'],
+            ['DRDYNVC', 'CreateChannel Request(Microsoft::Windows::RDS::Graphics)'],
+            ['EGFX', 'Start frame,End frame'], ['EGFX', 'Start frame']]
+
+    def test_egfx_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''The unknown ZGFX descriptor (used after free on the second pass),
+        the pduLength that wrapped the offset (tshark never ended without a
+        tree), the multipart packet with no segment (uninitialized heap) and
+        pduLength values that are too small or too large raise expert infos
+        and do not crash; tshark ends in both passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message', '-e_ws.expert.severity',
+                    '-e_ws.malformed', name=self.ERRORS)
+            assert stdout.splitlines() == [
+                '1\tinvalid compression\t8388608\t',
+                '2\tinvalid compression\t8388608\t',
+                '3\tpduLength is 4294967280, larger than the remaining data\t8388608\t',
+                '4\tinvalid compression\t8388608\t',
+                '5\tpduLength is 4, not < 8\t8388608\t',
+                '6\tpduLength is 4096, larger than the remaining data\t8388608\t']
