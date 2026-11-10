@@ -508,7 +508,6 @@ static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay
     uint16_t         gmd_cnt, i;
     proto_tree      *dereg_req_data;
     uint8_t          reason_flag;
-    static bool      first_flag         = true;
     wmem_strbuf_t   *reasonflags_strbuf = wmem_strbuf_create(pinfo->pool);
     static const char *fstr[] = {"No Reason", "Learned & Purposeful" };
 
@@ -527,10 +526,9 @@ static void dissect_dereg_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pay
     reason_flag = tvb_get_uint8(tvb, offset);
 
     if ((reason_flag & SASP_DEREG_REQ_REASON_LEARNED) == 0)
-        wmem_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[0]);
+        wmem_strbuf_append_printf(reasonflags_strbuf, "%s", fstr[0]);
     else
-        wmem_strbuf_append_printf(reasonflags_strbuf, "%s%s", first_flag ? "" : ", ", fstr[1]);
-    first_flag = false;
+        wmem_strbuf_append_printf(reasonflags_strbuf, "%s", fstr[1]);
 
     /*dereg_req_reason_flag =*/
     proto_tree_add_uint_format(dereg_req_data, hf_dereg_req_reason_flag, tvb,
