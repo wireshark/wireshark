@@ -369,9 +369,9 @@ static void get_new_colinfo_w_submessages(
     const char *pattern = "SEC_PREFIX, SEC_BODY, SEC_POSTFIX";
     const char *frame_str = wmem_strbuf_get_str(frame);
     size_t idx = 0; /* index for iterating frame_str */
-    char *submessages_dup = g_strdup(submessages);
-    /* First decrypted submessage in submessages list */
-    char *submessage_current = strtok(submessages_dup, ", ");
+    /* Decrypted submessages, in order */
+    char **submessage_list = g_strsplit(submessages, ", ", -1);
+    size_t submessage_idx = 0;
     /* First encrypted submessage. Found by searching the RTPS colinfo */
     char *encrypted_current = strstr(&frame_str[idx], pattern);
 
@@ -381,7 +381,10 @@ static void get_new_colinfo_w_submessages(
         wmem_strbuf_append_len(out, &frame_str[idx], length_to_copy);
 
         /* Copy the decrypted contents that replace the encrypted submessage */
-        wmem_strbuf_append(out, submessage_current);
+        if (submessage_list[submessage_idx] != NULL) {
+            wmem_strbuf_append(out, submessage_list[submessage_idx]);
+            submessage_idx++;
+        }
 
         /* Advance the index and continue searching */
         idx += length_to_copy + strlen(pattern);
@@ -389,7 +392,7 @@ static void get_new_colinfo_w_submessages(
     }
     /* Copy the remaining from the RTPS frame */
     wmem_strbuf_append(out, &frame_str[idx]);
-    g_free(submessages_dup);
+    g_strfreev(submessage_list);
 }
 
 /* ========================================================================== */
