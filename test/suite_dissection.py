@@ -129014,3 +129014,76 @@ class TestDissectRsl:
                           'frame.number in {186, 211}', 'frame.number',
                           'rtp.p_type', '_ws.col.protocol')
         assert out == ['186\t\tRSL', '211\t\tUDP']
+
+
+class TestDissectRstat:
+    '''Remote statistics (ONC RPC program 100001, versions 1 to 4) from the
+    synthetic capture rstat_coverage.pcapng.gz. The RPC heuristics find the
+    program on UDP port 32900 and TCP port 32901; the dissector decodes only
+    the procedure numbers, the STATS body is shown as unknown data.'''
+
+    def test_rstat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''48 frames: 45 RSTAT and the 3 frames of the TCP handshake; no
+        malformed frame and no error expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rstat_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 48
+        assert protocols.count('RSTAT') == 45
+        assert protocols.count('TCP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rstat_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_rstat_procedures(self, cmd_tshark, capture_file, test_env):
+        '''NULL, STATS and HAVEDISK in each of the four versions, with the
+        version specific procedure field.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rstat_coverage.pcapng.gz'),
+                '-Y', 'rpc.msgtyp == 0 && frame.number <= 24',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tV1 NULL Call', '3\tV1 STATS Call', '5\tV1 HAVEDISK Call',
+            '7\tV2 NULL Call', '9\tV2 STATS Call', '11\tV2 HAVEDISK Call',
+            '13\tV3 NULL Call', '15\tV3 STATS Call', '17\tV3 HAVEDISK Call',
+            '19\tV4 NULL Call', '21\tV4 STATS Call', '23\tV4 HAVEDISK Call']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rstat_coverage.pcapng.gz'),
+                '-Y', 'rstat.procedure_v3 == 1 || rstat.procedure_v4 == 2',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['15', '16', '23', '24', '33', '38', '39', '40', '41', '47', '48']
+
+    def test_rstat_unknown_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''An unknown procedure and unknown versions are shown as proc-N;
+        PROG_MISMATCH (accept state 2) and PROG_UNAVAIL (1) replies.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rstat_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {25, 27, 29, 32, 34}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-erpc.state_accept',
+                '-erpc.programversion.min', '-erpc.programversion.max',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '25\tV1 proc-9 Call\t\t\t',
+            '27\tV5 proc-0 Call\t\t\t',
+            '29\tV0 proc-1 Call\t\t\t',
+            '32\tV5 proc-0 Reply (Call In 31)\t2\t1\t4',
+            '34\tV3 STATS Reply (Call In 33)\t1\t\t']
+
+    def test_rstat_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Two RPC records in one TCP segment (frames 42 and 43).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rstat_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {42, 43}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '42\tV2 NULL Call  ; V1 STATS Call',
+            '43\tV2 NULL Reply (Call In 42)  ; V1 STATS Reply (Call In 42)']
