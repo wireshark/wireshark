@@ -123305,3 +123305,181 @@ class TestDissectRadiusPacketcable:
         assert self.one(cmd_tshark, capture_file, test_env, 35,
                 'radius.CableLabs_Query_Type', 'radius.CableLabs_SDP_Upstream',
                 'radius.CableLabs_IPv6_Subscriber_ID') == ['1', 'v=0', '1:203:405:607:809:a0b:c0d:e0f']
+
+
+class TestDissectRaknet:
+    CAP = 'raknet_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        '''Run tshark -Tfields on the capture and return the lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('raknet_coverage.pcap.gz'), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_raknet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''RakNet is found by its UDP heuristic (sessions that start with
+        an Unconnected Ping, an Open Connection Request 1 or an Unconnected
+        Pong) and by the MCPE port; no frame is malformed, in one and two
+        passes. The two datagrams that start no session stay UDP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 66
+        assert lines.count('RakNet') == 60
+        assert lines.count('MCPE') == 4
+        assert lines.count('UDP') == 2
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_raknet_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column and the expert infos of every frame are the
+        same in one and two passes (the encryption state of a session
+        depends on the frame number).'''
+        args = ('-Tfields', '-eframe.number', '-e_ws.col.info', '-e_ws.expert.message')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2', *args)
+        assert one == two
+
+    def test_raknet_offline_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every offline message type.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 7 || frame.number in {30, 31, 32, 33} || frame.number >= 41 && frame.number <= 55',
+                '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            'Unconnected Ping', 'Unconnected Pong', 'Unconnected Ping Open Connections',
+            'Open Connection Request 1', 'Open Connection Reply 1',
+            'Open Connection Request 2', 'Open Connection Reply 2',
+            'Open Connection Request 1', 'Open Connection Reply 1',
+            'Open Connection Request 2', 'Open Connection Reply 2',
+            'Unconnected Pong', 'Out Of Band Internal', 'Connection Attempt Failed',
+            'Already Connected', 'No Free Incoming Connections', 'Connection Banned',
+            'IP Recently Connected', 'Incompatible Protocol Version',
+            'Open Connection Request 2', 'Open Connection Reply 2',
+            '#0: Connection Request Accepted', 'Unconnected Ping',
+            'Unknown offline message ID: 0x7f', 'Unconnected Ping', 'Unconnected Pong']
+
+    def test_raknet_offline_fields(self, cmd_tshark, capture_file, test_env):
+        '''Fields of the offline messages.'''
+        def one(frame, *names):
+            args = []
+            for n in names:
+                args += ['-e', n]
+            return self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number == %d' % frame, '-Tfields', *args)[0].split('\t')
+        assert one(1, 'raknet.timestamp', 'raknet.offline_message.data_id', 'raknet.client.guid') == [
+                '1234', '00ffff00fefefefefdfdfdfd12345678', 'c1c1c1c1c1c1c1c1']
+        assert one(2, 'raknet.server_id', 'raknet.server_id_str_len', 'raknet.server_id_str') == [
+                '5e5e5e5e5e5e5e5e', '39', 'MCPE;server;1;1.0;0;10;123;x;Survival;1']
+        assert one(4, 'raknet.proto_ver') == ['10']
+        assert one(5, 'raknet.use_encryption', 'raknet.MTU') == ['False', '1400']
+        assert one(6, 'raknet.ip.v4_address', 'raknet.port', 'raknet.MTU') == ['10.1.0.2', '30001', '1400']
+        # Reply 2 with encryption carries the 128 octet server answer
+        assert one(33, 'raknet.use_encryption') == ['True']
+        assert one(33, 'raknet.server.answer')[0] == bytes(range(128)).hex()
+
+    def test_raknet_system_messages(self, cmd_tshark, capture_file, test_env):
+        '''Connection Request (with and without proof and client key),
+        Connection Request Accepted and New Incoming Connection with their
+        ten internal addresses, IPv4 and IPv6.'''
+        def one(frame, *names):
+            args = []
+            for n in names:
+                args += ['-e', n]
+            return self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number == %d' % frame, '-Tfields', *args)[0].split('\t')
+        assert one(8, 'raknet.use_encryption', 'raknet.password', 'raknet.reliable.number') == ['False', '70617373', '0']
+        values = one(9, 'raknet.client.proof', 'raknet.use_client_key', 'raknet.client.identity')
+        assert values[0] == bytes(range(32)).hex()
+        assert values[1] == 'True'
+        assert values[2] == bytes(range(160)).hex()
+        assert one(10, 'raknet.use_client_key', 'raknet.password') == ['False', '78']
+        assert one(11, 'raknet.system.index', 'raknet.ip.v4_address') == [
+                '0', '10.1.0.1' + ',127.0.0.1' * 10]
+        assert one(12, 'raknet.ip.version') == ['4,6,4,4,6,4,4,6,4,4,6']
+        assert one(12, 'raknet.ip.v6_address') == [','.join(['102:304:506:708:90a:b0c:d0e:f10'] * 4)]
+
+    def test_raknet_reliability(self, cmd_tshark, capture_file, test_env):
+        '''The header fields that depend on the reliability of a message,
+        and a datagram with several messages.'''
+        def one(frame, *names):
+            args = []
+            for n in names:
+                args += ['-e', n]
+            return self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number == %d' % frame, '-Tfields', *args)[0].split('\t')
+        # unreliable sequenced (sequencing and ordering index, no message number)
+        assert one(16, 'raknet.message.reliability', 'raknet.sequencing.index',
+                   'raknet.ordering.index', 'raknet.packet.type') == ['1', '1', '2', '0x8c']
+        # reliable sequenced (all of them, and an ordering channel)
+        assert one(17, 'raknet.message.reliability', 'raknet.reliable.number',
+                   'raknet.sequencing.index', 'raknet.ordering.index',
+                   'raknet.ordering.channel') == ['4', '5', '2', '3', '2']
+        # three messages: reliable, unreliable, reliable ordered
+        assert one(18, 'raknet.message.reliability', 'raknet.payload.length') == ['2,0,3', '72,136,72']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 18',
+                '-Tfields', '-e_ws.col.info') == ['#10: Connected Ping, Connected Pong, Connected Ping']
+
+    def test_raknet_split_messages(self, cmd_tshark, capture_file, test_env):
+        '''A split message is reassembled when its last fragment arrives,
+        also when the fragments come in the wrong order; the reassembled
+        unknown message is reported.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 19 && frame.number <= 24', '-Tfields', '-e_ws.col.info')
+        assert lines == [
+            '#11: {Message fragment 1/3}', '#12: {Message fragment 2/3}',
+            '#13: {Message fragment 3/3; Reassembled} Unknown message ID: 0x86',
+            '#14: {Message fragment 2/2}', '#15: {Message fragment 1/2; Reassembled} Connected Ping',
+            '#16: Unknown message ID: 0x87']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 19 && frame.number <= 23', '-Tfields', '-eframe.number',
+                '-eraknet.split.count', '-eraknet.split.index', '-eraknet.reassembled.in',
+                '-eraknet.reassembled.length')
+        assert lines == ['19\t3\t0\t21\t', '20\t3\t1\t21\t', '21\t3\t2\t\t513',
+                         '22\t2\t1\t23\t', '23\t2\t0\t\t9']
+
+    def test_raknet_ack_nak(self, cmd_tshark, capture_file, test_env):
+        '''ACK and NAK datagrams with ranges, a single number, B and AS and
+        without records.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 25 && frame.number <= 28', '-Tfields', '-e_ws.col.info',
+                '-eraknet.NACK.record_count', '-eraknet.range.packet_number.min',
+                '-eraknet.range.packet_number.max', '-eraknet.packet.has_B_and_AS')
+        assert lines == ['ACK #0..3, #5, #7..9\t3\t0,5,7\t3,9\tFalse',
+                         'ACK #1\t1\t1\t\tTrue',
+                         'NAK #4, #10..12\t2\t4,10\t12\t',
+                         'ACK\t0\t\t\tFalse']
+
+    def test_raknet_encryption_state(self, cmd_tshark, capture_file, test_env):
+        '''Open Connection Reply 2 with encryption makes the later datagrams
+        of the session "encrypted" (no ciphertext is decoded); a datagram
+        before it is decoded the same in one and two passes, as fixed in
+        "RakNet: Decide encryption per frame, not from the final state".'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 37 && frame.number <= 40', '-Tfields',
+                    '-eframe.number', '-e_ws.col.info', '-eraknet.system.message.id')
+            assert lines == ['37\tOpen Connection Request 1\t',
+                             '38\t#1: Connected Ping\t0x00',
+                             '39\tOpen Connection Reply 2\t',
+                             '40\tEncrypted message\t']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number >= 34 && frame.number <= 36', '-Tfields', '-e_ws.col.info',
+                '-e_ws.expert.message')
+        assert lines == ['Encrypted message\tRakNet encrypted message'] * 3
+
+    def test_raknet_sub_protocol(self, cmd_tshark, capture_file, test_env):
+        '''A game message on UDP port 19132 is handed to MCPE; with several
+        messages in the datagram the sub-protocol is inside the message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 60 && frame.number <= 64', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-emcpe.packet.id')
+        assert lines[0] == '60\tMCPE\t0x01'
+        assert lines[1].startswith('61\tMCPE\t0x03')
+        assert lines[3].startswith('63\tRakNet\t')
+
+    def test_raknet_unknown_and_invalid(self, cmd_tshark, capture_file, test_env):
+        '''Unknown message ids and invalid IP versions give warnings.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'raknet.unknown.id || raknet.ip_version.invalid', '-Tfields',
+                '-eframe.number')
+        assert lines == ['21', '24', '29', '49', '50', '51', '53']
