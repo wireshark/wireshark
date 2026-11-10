@@ -134951,3 +134951,58 @@ class TestDissectScsi:
                     '-Tfields', '-eframe.number', '-escsi.reassembled_in', '-escsi.fragment',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert [line.split('\t') for line in stdout.splitlines()] == rows
+
+
+class TestDissectScsiMmc:
+    '''SCSI multimedia commands (packet-scsi-mmc.c) from the synthetic
+    capture scsi_mmc_coverage.pcap.gz: SCSI over iSCSI (TCP 3260) to a
+    CD/DVD drive (LUN 0).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('scsi_mmc_coverage.pcap.gz'),
+                '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_scsi_mmc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is an iSCSI PDU, without malformed packets or
+        expert info warnings or errors, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol')
+        assert len(rows) == 198
+        assert all(r[0] == 'iSCSI' for r in rows)
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('scsi_mmc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity == warning || _ws.expert.severity == error',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_scsi_mmc_get_configuration(self, cmd_tshark, capture_file, test_env):
+        '''GET CONFIGURATION with the profile list and every feature the
+        dissector decodes (frame 130).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 130',
+                '-escsi_mmc.feature', '-escsi_mmc.feature.lun_sn')
+        assert rows == [['0x0000,0x001d,0x001f,0x001e,0x0021,0x002a,0x002b,0x002d,0x002e,0x002f,0x0108',
+                         'ABC123456789']]
+
+    def test_scsi_mmc_disc_information(self, cmd_tshark, capture_file, test_env):
+        '''READ DISC INFORMATION, READ BUFFER CAPACITY (in bytes and in
+        blocks), SET STREAMING and REPORT KEY (RPC state).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 164',
+                '-escsi_mmc.disc_info.disc_type', '-escsi_mmc.disc_info.number_of_sessions',
+                '-escsi_mmc.disc_info.disc_identification')
+        assert rows == [['0x00', '1', '0xbeef0000']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 188 || frame.number == 190',
+                '-eframe.number', '-escsi_mmc.rbc.lob_bytes', '-escsi_mmc.rbc.alob_bytes',
+                '-escsi_mmc.rbc.lob_blocks', '-escsi_mmc.rbc.alob_blocks')
+        assert rows == [['188', '1048576', '524288', '', ''], ['190', '', '', '1048576', '524288']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 191',
+                '-escsi_mmc.setstreaming.start_lbs', '-escsi_mmc.setstreaming.end_lba',
+                '-escsi_mmc.setstreaming.read_size')
+        assert rows == [['0', '2097151', '4096']]
+        rows = self._fields(cmd_tshark, capture_file, test_env, '-Yframe.number == 186',
+                '-escsi_mmc.report_key.region_mask', '-escsi_mmc.report_key.rpc_scheme')
+        assert rows == [['0xfe', '0x01']]
