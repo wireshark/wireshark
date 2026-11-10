@@ -147,6 +147,7 @@ typedef struct
     uint16_t udpc;                  // UDP port on which messages can be sent to the node
     conversation_t *conversation;   // Pointer to the conversation on the IP and UDP port
     uint32_t nums;                  // Number of sources on this node
+    bool in_tree;                   // Whether this entry has been inserted into axia_nodes
 } axia_term_info_t;
 
 //  Source information as received from advertisements
@@ -159,6 +160,7 @@ typedef struct
     axia_term_info_t *term;         // The node where this audio originates
     ws_in4_addr rtp_added;          // Stores the RTP address when added to the RTP conversation table
     uint32_t setup_frame;           // The frame number where this RTP source was originally setup
+    bool in_tree;                   // Whether this entry has been inserted into axia_sources
 } axia_src_info_t;
 
 // Struct to hold Node and Source information as we go through an advertisement
@@ -310,11 +312,17 @@ static void write_src_info(axia_adv_info_t *info)
             existing->rtp_added = info->src_info->rtp_added;
         if (info->src_info->setup_frame)
             existing->setup_frame = info->src_info->setup_frame;
-        wmem_free(wmem_file_scope(), info->src_info);
+        /* Only free the entry we are discarding if it is not itself in the
+           tree (reached here because its PSID was reassigned to one held by
+           a different entry); freeing a tree entry would leave a dangling
+           pointer under its original key. */
+        if (!info->src_info->in_tree)
+            wmem_free(wmem_file_scope(), info->src_info);
         info->src_info = existing;
     }
     else if (!existing)
     {
+        info->src_info->in_tree = true;
         wmem_tree_insert32(axia_sources, info->src_info->psid, (void *)info->src_info);
     }
 }
@@ -538,11 +546,18 @@ static int dissect_axia_adv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                         existing->inip = info->term_info->inip;
                     if (info->term_info->udpc)
                         existing->udpc = info->term_info->udpc;
-                    wmem_free(wmem_file_scope(), info->term_info);
+                    /* Only free the entry we are discarding if it is not
+                       itself in the tree (reached here because its HWID was
+                       reassigned to one held by a different entry); freeing a
+                       tree entry would leave a dangling pointer under its
+                       original key. */
+                    if (!info->term_info->in_tree)
+                        wmem_free(wmem_file_scope(), info->term_info);
                     info->term_info = existing;
                 }
                 else if (!existing)
                 {
+                    info->term_info->in_tree = true;
                     wmem_tree_insert32(axia_nodes, info->term_info->hwid, (void *)info->term_info);
                 }
                 return offset + axia_adv_tree_add_field(tree, tvb, offset, hf_axia_term_hwid);
