@@ -125255,3 +125255,99 @@ class TestDissectReloadFraming:
         rows = self.fields(cmd_tshark, capture_file, test_env,
                 'reload_framing.parsed_received', 'frame.number')
         assert len(rows) == 30
+
+
+class TestDissectResp:
+    '''RESP (REdis Serialization Protocol) on TCP 6379 from the synthetic
+    capture resp_coverage.pcap.gz: RESP2 and RESP3 types, reassembly,
+    the recursion limit and the reproducers of "RESP: Fix an out-of-bounds
+    read in the JSON detection" (frames 127-130).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('resp_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in efields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_resp_frames(self, cmd_tshark, capture_file, test_env):
+        '''118 frames decode as RESP; in one and two passes the only error
+        expert info is the one of JSON for the bulk string "{ not json}"
+        of frame 38, which RESP hands to JSON because it starts with a
+        brace.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'resp', 'frame.number')
+        assert len(rows) == 118
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes)
+            assert rows == [['38']]
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '(_ws.malformed || _ws.expert.severity >= 0x00800000) && !json',
+                    'frame.number', passes=passes)
+            assert not rows
+
+    def test_resp_commands(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses show up in the Info column.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 24', '_ws.col.info')
+        infos = [r[0] for r in rows if r[0].startswith(('Request', 'Response'))]
+        assert 'Request: SET key value' in infos
+        assert 'Response: OK' in infos
+        assert 'Response: 1000' in infos
+        assert 'Response: Array(3) Error: ERR inner' in infos
+        assert 'Request: PING ECHO hi DEL a b' in infos
+        assert 'Response: PONG hi 2' in infos
+
+    def test_resp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A SET with a 300 octet value split over three segments is
+        reassembled in frame 50; arrays and maps split between elements
+        are decoded when complete.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 50', 'resp.bulk_string.length', '_ws.col.info')
+        assert rows == [['300', 'Request: BulkString(300)']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'resp.reassembled_in_next_frame', 'frame.number')
+        assert [r[0] for r in rows] == ['55', '61', '63', '65', '69', '71', '75']
+
+    def test_resp_resp3(self, cmd_tshark, capture_file, test_env):
+        '''RESP3 types: map, set, push, attribute, bulk error, verbatim
+        string, big number, boolean, double and null (counts are frames).'''
+        for field, count in (('resp.map', 16), ('resp.set', 4), ('resp.push', 3),
+                             ('resp.attribute', 2), ('resp.bulk_error', 5),
+                             ('resp.verbatim_string', 15), ('resp.big_number', 2),
+                             ('resp.boolean', 1), ('resp.null', 1), ('resp.double', 2)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, field,
+                    'frame.number')
+            assert len(rows) == count, field
+
+    def test_resp_recursion_limit(self, cmd_tshark, capture_file, test_env):
+        '''Nesting past 30 levels raises the recursion note and stops.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    'resp.array_recursion_too_deep', 'frame.number', passes=passes)
+            assert [r[0] for r in rows] == ['124', '125']
+
+    def test_resp_json_bulk_oob(self, cmd_tshark, capture_file, test_env):
+        '''Frame 127 is a bulk string that declares 1000000000 octets and
+        carries "{abc", cut by the snaplen so TCP does not reassemble it.
+        The JSON detection used to read at the declared length.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    'frame.number == 127', 'resp.bulk_string.length',
+                    'resp.partial', '_ws.col.info', passes=passes)
+            assert rows == [['1000000000', '1', 'Request: [partial] BulkString(1000000000)']]
+
+    def test_resp_verbatim_oob(self, cmd_tshark, capture_file, test_env):
+        '''A verbatim string whose value starts with "{" is read within its
+        bounds and handed to JSON (frame 128); a value of "[1]" likewise.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 128', 'resp.verbatim_string.encoding',
+                'resp.verbatim_string.value', 'json.member_with_value')
+        assert rows[0][0] == 'txt'
+        assert rows[0][1] == '7b2261223a317d'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 129', 'resp.verbatim_string.value', 'json.array')
+        assert rows[0][0] == '5b315d'
