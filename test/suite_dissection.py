@@ -134463,3 +134463,77 @@ class TestDissectSbc:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == [str(n) for n in range(16, 49)]
+
+
+class TestDissectSbus:
+    def test_sbus_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every datagram on UDP port 5050 is S-Bus, none is malformed and
+        every checksum is correct, in one and two passes. The expert infos
+        are notes and warnings only.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbus_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['S-Bus'] * 181
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbus_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || sbus.crc.status != 1 || _ws.expert.severity >= "error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sbus_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the requests, the responses, the ACK/NAK
+        codes, web server and multi media telegrams and file transfers.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('sbus_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t', 1) for l in stdout.splitlines())
+        assert info['1'] == 'Request: Read counter(s)'
+        assert info['2'] == 'Response'
+        assert info['26'] == 'ACK (Acknowledged)'
+        assert info['36'] == 'NAK, no reason specified'
+        assert info['38'] == 'NAK, because of password'
+        assert info['44'] == 'Unknown NAK response code!'
+        assert info['105'] == 'Request:  Multi media telegram (3 sub requests)'
+        assert info['106'] == 'Response: Multi media (3 responses)'
+        assert info['109'] == 'Web Server Request: Partial request (Seq No: 55)'
+        assert info['121'] == 'Request:  WR block start of stream: (File: config.cfg)'
+        assert info['159'] == 'Request:  This RD/WR block telegram is not implemented'
+
+    def test_sbus_retry(self, cmd_tshark, capture_file, test_env):
+        '''A request repeated with the same sequence number is marked as a
+        retry (frames 162 and 163), in the first pass; on the second pass the
+        first request is marked as well (see the README).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sbus_coverage.pcap.gz'),
+                '-Y', 'frame.number in {161, 162, 163}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '161\tRequest: Read register(s)',
+            '162\tRequest: Read register(s) (Retry)',
+            '163\tRequest: Read register(s) (Retry)',
+        ]
+
+    def test_sbus_response_before_request(self, cmd_tshark, capture_file, test_env):
+        '''A response that comes before the request with its sequence number
+        (frame 175) is not matched to the later request (frame 176), on the
+        first pass and on the second: no response time, and a warning
+        that the request was not found. The request is matched to the
+        response after it (frame 177).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sbus_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {175, 177}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-e_ws.expert.message', '-esbus.response_time',
+                    '-esbus.response_to',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '175\tResponse\tNot dissected, could not find request telegram\t\t',
+                '177\tResponse\t\t' + stdout.splitlines()[1].split('\t')[3] + '\t176',
+            ]
+            assert stdout.splitlines()[1].split('\t')[3] != ''
