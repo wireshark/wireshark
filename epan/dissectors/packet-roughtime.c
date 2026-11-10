@@ -117,6 +117,7 @@ typedef enum _roughtime_proto_type_e {
 static expert_field ei_roughtime_illegal_length;
 static expert_field ei_roughtime_response_too_large;
 static expert_field ei_roughtime_path_too_large;
+static expert_field ei_roughtime_nesting_too_deep;
 
 /* Trees */
 static int ett_roughtime;
@@ -149,11 +150,13 @@ static proto_item* add_generated_time_item(tvbuff_t *tvb, proto_tree *tree, int 
     return pi;
 }
 
+#define ROUGHTIME_MAX_NESTING 8
+
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, roughtime_proto_type_e proto_type) {
+dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, roughtime_proto_type_e proto_type, unsigned depth) {
 
-    uint32_t num_tags, tag, tag_offset = 0, type, radius_i = 0;
+    uint32_t num_tags, tag, tag_offset = 0, type, radius_i = 0, prev_offset = 0, value_block_len;
     nstime_t time_midp, time_radius, time_lower, time_upper;
     proto_item *pi;
     proto_tree *msg_tree;
@@ -162,8 +165,12 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
     conversation_t *conv;
     roughtime_req_resp_t *conv_data;
 
-    /* This function will get called recursively, guard it */
-    increment_dissection_depth(pinfo);
+    /* This function will get called recursively, guard it with an explicit
+     * counter (an exception would leak pinfo->dissection_depth). */
+    if (depth > ROUGHTIME_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_roughtime_nesting_too_deep, tvb, 0);
+        return tvb_reported_length(tvb);
+    }
 
     /* Presence of fields of interest for req/resp tracking */
     bool fa_srep = false, fa_nonc = false;
@@ -174,6 +181,15 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
 
     proto_tree_add_item_ret_uint(tree, hf_roughtime_num_tags, tvb, 0, 4, ENC_LITTLE_ENDIAN, &num_tags);
     offset += 4;
+
+    /* The value block starts after the num_tags field, the num_tags - 1
+     * offsets and the num_tags tags: 8 * num_tags octets (4 with no tags). */
+    uint64_t header_len = num_tags ? 8 * (uint64_t)num_tags : 4;
+    if (header_len > tvb_reported_length(tvb)) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_roughtime_illegal_length, tvb, 0);
+        return tvb_reported_length(tvb);
+    }
+    value_block_len = tvb_reported_length(tvb) - (uint32_t)header_len;
 
     conv = find_or_create_conversation(pinfo);
     conv_data = (roughtime_req_resp_t *)conversation_get_proto_data(conv, proto_roughtime);
@@ -191,6 +207,11 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
         } else {
             proto_tree_add_item_ret_uint(tree, hf_roughtime_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &tag_offset);
             offset += 4;
+            if (tag_offset < prev_offset || (tag_offset & 3) || tag_offset > value_block_len) {
+                proto_tree_add_expert_remaining(tree, pinfo, &ei_roughtime_illegal_length, tvb, offset - 4);
+                return tvb_reported_length(tvb);
+            }
+            prev_offset = tag_offset;
         }
         map_init.value_offset = tag_offset;
         wmem_array_append_one(map_arr, map_init);
@@ -255,7 +276,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
                 fa_srep = true;
                 pi = proto_tree_add_item(tree, hf_roughtime_srep, tvb, offset, map->length, ENC_NA);
                 msg_tree = proto_item_add_subtree(pi, ett_roughtime_srep);
-                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type);
+                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type, depth + 1);
                 break;
 
             case TAG_TYPE_NONC:
@@ -299,7 +320,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
             case TAG_TYPE_CERT:
                 pi = proto_tree_add_item(tree, hf_roughtime_cert, tvb, offset, map->length, ENC_NA);
                 msg_tree = proto_item_add_subtree(pi, ett_roughtime_cert);
-                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type);
+                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type, depth + 1);
                 break;
 
             case TAG_TYPE_INDX:
@@ -418,7 +439,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
             case TAG_TYPE_DELE:
                 pi = proto_tree_add_item(tree, hf_roughtime_dele, tvb, offset, map->length, ENC_NA);
                 msg_tree = proto_item_add_subtree(pi, ett_roughtime_dele);
-                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type);
+                dissect_roughtime_msg(tvb_new_subset_length(tvb, offset, map->length), pinfo, msg_tree, proto_type, depth + 1);
                 break;
 
             case TAG_TYPE_TYPE:
@@ -451,7 +472,7 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
      *
      * Checks must only succeed on top-level message (non-recursive)
      */
-    if(conv_data && pinfo->dissection_depth == 1) {
+    if(conv_data && depth == 0) {
 
         if(fa_srep && conv_data->resp_frame == 0) {
             conv_data->resp_frame = pinfo->num;
@@ -462,8 +483,6 @@ dissect_roughtime_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rough
             conv_data->req_length = tvb_reported_length(tvb);
         }
     }
-
-    decrement_dissection_depth(pinfo);
 
     return offset;
 }
@@ -548,7 +567,7 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         offset += dissect_roughtime_msg(
             tvb_new_subset_length(tvb, offset, msg_len),
-            pinfo, roughtime_tree, proto_type);
+            pinfo, roughtime_tree, proto_type, 0);
         break;
     case PROTO_TYPE_GOOGLE:
         pi = proto_tree_add_string(roughtime_tree, hf_roughtime_proto, tvb, 0, 0, PROTO_TEXT_GOOGLE);
@@ -559,7 +578,7 @@ dissect_roughtime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         offset += dissect_roughtime_msg(
             tvb_new_subset_remaining(tvb, offset),
-            pinfo, roughtime_tree, proto_type);
+            pinfo, roughtime_tree, proto_type, 0);
         break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
@@ -810,6 +829,9 @@ proto_register_roughtime(void)
             { "roughtime.response.too_large", PI_MALFORMED, PI_ERROR,
                 "Response is larger than request", EXPFILL }
         },
+        { &ei_roughtime_nesting_too_deep,
+          { "roughtime.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+            "Roughtime messages nested too deeply", EXPFILL }},
         { &ei_roughtime_path_too_large,
             { "roughtime.path.too_large", PI_MALFORMED, PI_ERROR,
                 "Merkle tree height exceeded", EXPFILL }
