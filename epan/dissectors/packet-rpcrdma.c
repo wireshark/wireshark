@@ -626,7 +626,7 @@ static void add_iwarp_padding(tvbuff_t *tvb, int offset,
         pbuf = (char *)wmem_alloc(pinfo->pool, padding);
         memset(pbuf, 0, padding);
         /* Create tvb buffer */
-        pad_tvb = tvb_new_real_data(pbuf, padding, padding);
+        pad_tvb = tvb_new_child_real_data(tvb, pbuf, padding, padding);
         /* Add padding fragment to the reassembly table */
         fragment_add_seq_check(&rpcordma_reassembly_table, pad_tvb, 0,
                 pinfo, msgid, NULL, msgno, padding, true);
@@ -1750,7 +1750,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 }
 
 static bool
-dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
+dissect_rpcrdma_ib_heur_inner(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     tvbuff_t *new_tvb = NULL;
@@ -1836,7 +1836,7 @@ dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 static bool
-dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
+dissect_rpcrdma_iwarp_heur_inner(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     tvbuff_t *new_tvb;
@@ -1891,6 +1891,44 @@ dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 
     dissect_rpcrdma(tvb, pinfo, tree, NULL);
     return true;
+}
+
+static bool
+dissect_rpcrdma_ib_heur(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
+{
+    bool ret = dissect_rpcrdma_ib_heur_inner(tvb, pinfo, tree, data);
+
+    /* Do not leave pointers to the caller's stack behind */
+    gp_infiniband_info = NULL;
+    gp_rdmap_info = NULL;
+    return ret;
+}
+
+static bool
+dissect_rpcrdma_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
+        proto_tree *tree, void *data)
+{
+    bool ret = dissect_rpcrdma_iwarp_heur_inner(tvb, pinfo, tree, data);
+
+    gp_infiniband_info = NULL;
+    gp_rdmap_info = NULL;
+    return ret;
+}
+
+/*
+ * Entry point for the registered "rpcordma" handle (Decode As, Exported PDU):
+ * the InfiniBand and iWARP info structures are not available here, and the
+ * global pointers must not refer to a previous packet's stack.
+ */
+static int
+dissect_rpcrdma_handle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    gp_infiniband_info = NULL;
+    gp_rdmap_info = NULL;
+    g_needs_reassembly = true;
+    g_rpcrdma_reduced = false;
+    return dissect_rpcrdma(tvb, pinfo, tree, data);
 }
 
 void
@@ -2054,7 +2092,7 @@ proto_register_rpcordma(void)
     reassembly_table_register(&rpcordma_reassembly_table, &addresses_ports_reassembly_table_functions);
 
     /* Register dissector handle */
-    rpcordma_handle = register_dissector("rpcordma", dissect_rpcrdma, proto_rpcordma);
+    rpcordma_handle = register_dissector("rpcordma", dissect_rpcrdma_handle, proto_rpcordma);
 
     /* Register preferences */
     rpcordma_module = prefs_register_protocol_obsolete(proto_rpcordma);
