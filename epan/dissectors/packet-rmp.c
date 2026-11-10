@@ -178,7 +178,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			proto_tree_add_item(rmp_tree,
 				hf_rmp_sessionid, tvb, 6, 2, ENC_BIG_ENDIAN);
 			if(tvb_offset_exists(tvb, 8))
-				call_data_dissector(tvb_new_subset_remaining(tvb, 6),
+				call_data_dissector(tvb_new_subset_remaining(tvb, 8),
 					pinfo, tree);
 			break;
 		default:
