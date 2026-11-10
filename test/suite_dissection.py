@@ -127360,3 +127360,123 @@ class TestDissectRnsapCoverage:
         assert count_output('\n'.join(lines)) >= 1
         lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rnsap && ranap', '-Tfields', '-eframe.number')
         assert count_output('\n'.join(lines)) >= 1
+
+
+class TestDissectRohc:
+    '''ROHC from the synthetic capture rohc_coverage.pcap.gz: Ethernet frames
+    with ethertype 0x22F1 (ROHC with its defaults) and PDCP-LTE frames over
+    UDP, which carry the profile, mode, CID size, RND and UDP checksum flags
+    of the compressor. The PDCP-LTE UDP heuristic is disabled by default and
+    pdcp-lte.dissect_rohc is off by default, so both are set in OPTS.'''
+
+    OPTS = ('--enable-heuristic', 'pdcp_lte_udp', '-o', 'pdcp-lte.dissect_rohc:TRUE')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, opts, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, *opts, '-r', capture_file('rohc_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', *fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_rohc_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''All 890 frames reach ROHC (64 plain Ethernet frames and 826 over
+        PDCP-LTE) without malformed packets or error expert infos, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS, 'rohc',
+                             '-eframe.number', passes=passes)
+            assert len(out) == 890
+            out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS, self.BAD,
+                             '-eframe.number', passes=passes)
+            assert out == []
+        out = self.lines(cmd_tshark, capture_file, test_env, (), 'rohc', '-eframe.number')
+        assert len(out) == 64
+
+    def test_rohc_large_cid_uncompressed(self, cmd_tshark, capture_file, test_env):
+        '''Uncompressed profile with a large CID (frames 1 and 2): the IP
+        packet behind the CID decodes. Before "ROHC: Fix large CID
+        uncompressed profile and field widths" the payload copy was one
+        octet too long and every such packet raised an exception.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {1, 2}',
+                         '-eframe.number', '-erohc.large_cid', '-eip.src', '-e_ws.malformed')
+        assert out == ['1\t5\t192.0.2.1,10.0.0.1\t', '2\t1285\t192.0.2.1,10.0.0.1\t']
+
+    def test_rohc_ext3_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''UOR-2 with extension 3 whose R-TS is a four octet value of 29 bits
+        (frame 4): the timestamp field is 32 bits wide, so 536870911 decodes
+        without an exception.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number == 4', '-eframe.number', '-erohc.tp',
+                         '-e_ws.col.info', '-e_ws.malformed')
+        assert out == ['4\t0,536870911\tUOR-2-TS (sn=0)\t']
+
+    def test_rohc_ir_context_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The context learned from the IR packet of frame 3 is shown on the
+        UOR-2 packet of frame 4 when the frame is dissected again (-2), and
+        the IR packet of frame 5 shows the one it replaces (frame 3).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number == 4', '-eframe.number', '-erohc.ir.frame_num',
+                         '-erohc.ir_profile', '-erohc.ir_ip_version', '-erohc.ir_mode',
+                         passes=('-2',))
+        assert out == ['4\t3\t1\t4\t3']
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number == 5', '-eframe.number', '-erohc.ir.frame_num',
+                         '-erohc.ir.prev.frame_num', passes=('-2',))
+        assert out == ['5\t5\t3']
+
+    def test_rohc_ir_chains(self, cmd_tshark, capture_file, test_env):
+        '''IR packets carry the static and dynamic chains: RTP SSRC, IPv4
+        and UDP static parts, the RTP dynamic part with TS_STRIDE and
+        TIME_STRIDE (frame 5).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number == 5', '-erohc.profile', '-erohc.rtp.ssrc',
+                         '-erohc.ipv4_src', '-erohc.udp_dst_port', '-erohc.rtp.ts_stride',
+                         '-erohc.rtp.time_stride', '-erohc.rtp.mode', '-erohc.rtp.cc')
+        assert out == ['1\t0x11223344\t192.0.2.1\t5006\t160\t20\t2\t0']
+
+    def test_rohc_feedback(self, cmd_tshark, capture_file, test_env):
+        '''Feedback type 2 with the CRC, REJECT, SN-NOT-VALID, SN, CLOCK,
+        JITTER and LOSS options of RTP and UDP contexts (frames 39-50).'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {39, 41, 43, 49}', '-eframe.number', '-e_ws.col.info')
+        assert out == [
+            '39\tFeedback CRC=42 Reject SN-Not-Valid Clock=5 Jitter=6 Loss=7  (sn=284289)',
+            '41\tFeedback Clock=5 Jitter=6 Loss=7  (sn=524161)',
+            '43\tFeedback CRC=1 Reject SN-Not-Valid Loss=4  (sn=3)',
+            '49\tFeedback CRC=42 Loss=7  (sn=1110)',
+        ]
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'frame.number in {41, 50}', '-eframe.number', '-erohc.mode',
+                         '-erohc.opt.sn_add_bits')
+        assert out == ['41\t1\t0x81', '50\t1\t0x80']
+
+    def test_rohc_extension_3(self, cmd_tshark, capture_file, test_env):
+        '''582 packets use extension 3 with the S, R-TS, I, ip, ip2 and rtp
+        flags, compressed lists of all four encoding types and the TS_STRIDE
+        and TIME_STRIDE fields.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'rohc.ext3_flags', '-eframe.number')
+        assert len(out) == 582
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'rohc.compressed-list.et == 3', '-eframe.number')
+        assert len(out) == 53
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'rohc.rtp.ts_stride', '-eframe.number')
+        assert len(out) == 81
+
+    def test_rohc_large_cid_sizes(self, cmd_tshark, capture_file, test_env):
+        '''Large CIDs of one to four octets; the compressed packets keep their
+        layout behind the self-describing CID.'''
+        out = self.lines(cmd_tshark, capture_file, test_env, self.OPTS,
+                         'rohc.large_cid', '-erohc.large_cid')
+        counts = {}
+        for line in out:
+            counts[line] = counts.get(line, 0) + 1
+        assert counts['5'] == 131
+        assert counts['300'] == 98
+        assert counts['70000'] == 32
+        assert counts['20000000'] == 57
