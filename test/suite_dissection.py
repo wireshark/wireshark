@@ -114051,3 +114051,99 @@ class TestDissectOsiTp:
             '77\teth:ethertype:ip:data', '78\teth:ethertype:ip:data',
             '79\teth:ethertype:ip:data', '80\teth:ethertype:ip:data',
             '81\teth:ethertype:ip:cotp:data', '82\teth:ethertype:ip:cotp:data']
+
+
+class TestDissectOsmoTrx:
+    # osmo_trx_coverage.pcapng.gz: Exported PDU frames naming osmo_trxd (1-159)
+    # and osmo_trxc (160-185), with UDP port numbers (the direction of a PDU is
+    # the port difference of 100). The dissector has no UDP port of its own
+    # (only Decode As). 1-8 TRXD v0/v1 Tx, 9-11 v0 Rx, 12-159 v1 and v2 Rx and
+    # v2 Tx for every modulation, batched and shadow PDUs, NOPE, and bursts
+    # from a random source port (injected). 160-185 TRXC.
+    CAP = 'osmo_trx_coverage.pcapng.gz'
+
+    def test_osmo_trx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol; no malformed packets or warnings in one
+        and two passes; the 14 injected messages (random source port) have
+        an expert comment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 185
+        assert protocols.count('OsmoTRXD') == 159
+        assert protocols.count('OsmoTRXC') == 26
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 14
+
+    def test_osmo_trx_batched(self, cmd_tshark, capture_file, test_env):
+        '''A batched v2 Rx PDU: the first PDU has the frame number, the second
+        is a shadow PDU of another TRX.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 13',
+                '-V', '-O', 'osmo_trxd',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('OsmoTRX Data Protocol Version 2')
+        assert lines[start + 1:start + 12] == [
+            '    [Burst Direction: TRX -> L1 (2)]',
+            '    0010 .... = PDU Version: 2',
+            '    TRXD Rx PDU: TRXN 00, TDMA FN 0000009 TN 5, Modulation GMSK, TSC 0',
+            '        .... 0... = Reserved: 0',
+            '        .... .101 = TDMA Timeslot Number: 5',
+            '        1... .... = BATCH Indication: Another PDU follows',
+            '        .0.. .... = PDU class: This is a primary PDU',
+            '        ..00 0000 = TRX (RF Channel) Number: 0',
+            '        0... .... = NOPE Indication: Burst is present',
+            '        .00. .... = Modulation: GMSK (0)',
+            '        ...0 0... = TSC Set: 1',
+        ]
+        assert '    TRXD Rx PDU: TRXN 02, TDMA FN 0000009 TN 1, Modulation GMSK, TSC 0' in lines
+        assert '        .1.. .... = PDU class: This is a shadow PDU' in lines
+
+    def test_osmo_trx_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of a few frames: v0 Tx GMSK, Tx NOPE (100 octets, no
+        known modulation), v0 Rx, batched PDUs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1 || frame.number == 8 || frame.number == 9 || frame.number == 12 || frame.number == 13 || frame.number == 15',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 Tx burst (L1 -> TRX): TDMA FN 0001148 TN 1, Modulation GMSK',
+            '8 Tx burst (L1 -> TRX): TDMA FN 0001100 TN 1',
+            '9 Rx burst (TRX -> L1): TDMA FN 0002000 TN 0',
+            '12 Rx burst (TRX -> L1): TDMA FN 0000007 TN 0, Modulation GMSK',
+            '13 Rx burst (TRX -> L1): TDMA FN 0000009, 2 batched PDUs',
+            '15 Tx burst (L1 -> TRX): TDMA FN 0000009, 2 batched PDUs',
+        ]
+
+    def test_osmo_trx_control(self, cmd_tshark, capture_file, test_env):
+        '''Commands, responses and indications of the control interface.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'osmo_trxc && frame.number <= 177',
+                '-Tfields', '-eframe.number', '-eosmo_trx.direction',
+                '-eosmo_trxc.type', '-eosmo_trxc.verb', '-eosmo_trxc.status',
+                '-eosmo_trxc.params',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 18
+        assert lines[0] == '160\t1\tCMD\tPOWERON\t\t'
+        assert lines[2] == '162\t1\tCMD\tSETFORMAT\t\t2'
+        assert lines[10] == '170\t2\tRSP\tSETFORMAT\t0\t2'
+        assert lines[13] == '173\t2\tRSP\tSETSLOT\t1\t2 1'
+        assert lines[14] == '174\t2\tIND\tCLOCK\t\t123456'
