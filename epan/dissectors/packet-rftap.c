@@ -26,6 +26,8 @@
 
 #include <epan/packet.h>
 #include <epan/unit_strings.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/array.h>
 
@@ -80,6 +82,10 @@ static int hf_rftap_altitude;
 
 /* rftap tag IDs >= 16 */
 static int hf_rftap_subdissector_name;
+
+static expert_field ei_rftap_nesting;
+
+#define RFTAP_MAX_NESTING 8
 
 /* subtree pointers */
 static int ett_rftap;
@@ -264,7 +270,7 @@ dissect_rftap_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32
         return;  /* we've hit a tagged parameter we can't decode, abort */
 
     proto_tree_add_item_ret_string(tree, hf_rftap_subdissector_name, tvb,
-        offset+4, tag_len, ENC_ASCII, pinfo->pool, (const uint8_t**)&subdissector_name);
+        offset+4, tag_len, ENC_ASCII, pinfo->pool, (const uint8_t**)subdissector_name);
 }
 
 /* Main entry point to dissect the packets.
@@ -328,7 +334,16 @@ dissect_rftap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (subdissector_name) {
         subdissector_handle = find_dissector(subdissector_name);
         if (subdissector_handle) {
+            unsigned depth = p_get_proto_depth(pinfo, proto_rftap);
+            if (depth >= RFTAP_MAX_NESTING) {
+                proto_tree_add_expert(rftap_tree, pinfo, &ei_rftap_nesting, subdissector_tvb, 0, 0);
+                return tvb_captured_length(tvb);
+            }
+            p_set_proto_depth(pinfo, proto_rftap, depth + 1);
+            increment_dissection_depth(pinfo);
             call_dissector_with_data(subdissector_handle, subdissector_tvb, pinfo, tree, NULL);
+            decrement_dissection_depth(pinfo);
+            p_set_proto_depth(pinfo, proto_rftap, depth);
             return tvb_captured_length(tvb);
         }
     }
@@ -552,12 +567,20 @@ proto_register_rftap(void)
             "Name of sub-dissector used for packet data (alternative to DLT field)", HFILL }}
     };
 
+    static ei_register_info ei[] = {
+        { &ei_rftap_nesting, { "rftap.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+            "Too many nested RFtap headers", EXPFILL }},
+    };
+
     /* Register the protocol name and description */
     proto_rftap = proto_register_protocol("RFtap Protocol", "RFtap", "rftap");
 
     /* Register the header fields and subtrees */
     proto_register_field_array(proto_rftap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_module_t *expert_rftap = expert_register_protocol(proto_rftap);
+    expert_register_field_array(expert_rftap, ei, array_length(ei));
 
     register_dissector("rftap", dissect_rftap, proto_rftap);
 }
