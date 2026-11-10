@@ -132760,3 +132760,80 @@ class TestDissectS7comm:
         lines = self.tshark_fields(cmd_tshark, capture_file, test_env, (),
                 'frame.number in {378, 380, 383}', '_ws.col.info')
         assert [l.split(' -> ')[-1] for l in lines] == ['[STOP]', '[RUN]', '[Unknown mode: 0x05]']
+
+
+class TestDissectS7commSzl:
+    '''The SZL (system status list) decoders of S7COMM (Read SZL, function
+    group 4 subfunction 1) over TPKT/COTP on TCP port 102, from the
+    synthetic capture s7comm_szl_ids_coverage.pcap.gz.'''
+
+    @staticmethod
+    def tshark_out(cmd_tshark, capture_file, test_env, passes, filt, *args):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('s7comm_szl_ids_coverage.pcap.gz'),
+                '-Y', filt, *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_s7comm_szl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''359 frames: 354 S7COMM, 2 COTP and 3 TCP, with no malformed
+        packets or error expert infos in one and two passes.'''
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame',
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in lines]
+        assert {p: protocols.count(p) for p in set(protocols)} == {'S7COMM': 354, 'COTP': 2, 'TCP': 3}
+        for passes in ((), ('-2',)):
+            lines = self.tshark_out(cmd_tshark, capture_file, test_env, passes,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_s7comm_szl_requests(self, cmd_tshark, capture_file, test_env):
+        '''A request names the SZL ID and index; known indexes get a
+        description, other ones none.'''
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 6',
+                '-V', '-O', 's7comm')
+        assert '        SZL-Index: 0x0001 [Identification of the module]' in lines
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 265',
+                '-V', '-O', 's7comm')
+        assert '        SZL-Index: 0x0006 [No description available]' in lines
+
+    def test_s7comm_szl_records(self, cmd_tshark, capture_file, test_env):
+        '''Records: DNN relations (0x0077), a DNN node (0x0078) with a
+        channel diagnostic entry and its text, and the station status
+        bit list (0x0094).'''
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 299',
+                '-V', '-O', 's7comm')
+        assert '            Number of parent objects: 2' in lines
+        assert '            Child object: 34 (0x0022)' in lines
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number in {301, 302, 303, 304}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [l.split('\t')[0] + ' ' + l.split('Index=0x1000')[1] for l in lines] == [
+            '301 ', '302  [1 CHET entry]', '303  [1 CHET entry]', '304  [2 CHET entry]']
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 302',
+                '-V', '-O', 's7comm')
+        assert '                        [Text: Short-circuit (1)]' in lines
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 333',
+                '-V', '-O', 's7comm')
+        assert '                Rack/Station configured: 2047' in lines
+
+    def test_s7comm_szl_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SZL responses in two (frames 355-356) and three fragments
+        (357-359) are reassembled in the last one; the links in the
+        earlier fragments show in the second pass.'''
+        args = ('-Tfields', '-eframe.number', '-es7comm.reassembled.in', '-es7comm.reassembled.length')
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number >= 355 && frame.number <= 359', *args)
+        assert lines == ['355\t\t', '356\t\t92', '357\t\t', '358\t\t', '359\t\t128']
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, ('-2',), 'frame.number >= 355 && frame.number <= 359', *args)
+        assert lines == ['355\t356\t', '356\t\t92', '357\t359\t', '358\t359\t', '359\t\t128']
+
+    def test_s7comm_szl_list_header(self, cmd_tshark, capture_file, test_env):
+        '''A list count larger than the data is limited to the records
+        present (frame 347, count 0xffff, three records), and a zero list
+        length or count decodes without records.'''
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number == 347',
+                '-V', '-O', 's7comm')
+        assert '        SZL partial list count: 65535' in lines
+        assert len([l for l in lines if l.startswith('        SZL data tree (list count no. ')]) == 3
+        lines = self.tshark_out(cmd_tshark, capture_file, test_env, (), 'frame.number in {349, 350}',
+                '-V', '-O', 's7comm')
+        assert not [l for l in lines if l.startswith('        SZL data tree')]
