@@ -964,7 +964,7 @@ dissect_saprfc_payload(tvbuff_t *tvb, packet_info *info, proto_tree *tree, proto
 
 		/* Also send the tables items for reassembling */
 		if (global_saprfc_table_reassembly && item_id1==0x02 && item_id2==0x13){
-			dissect_saprfc_tables(item_value_tvb, info, parent_tree, 0, item_value_length);
+			dissect_saprfc_tables(tvb, info, parent_tree, offset, item_value_length);
 		}
 
 		offset+= item_value_length;
