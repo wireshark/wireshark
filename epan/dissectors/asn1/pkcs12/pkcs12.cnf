@@ -55,29 +55,31 @@ PBKDF2Params/salt		saltChoice
 PrivateKeyInfo
 
 #.FN_BODY PFX
-	dissector_handle_t dissector_handle;
+	dissector_handle_t old_handle;
 
 	/* we change the CMS id-data dissector to dissect as AuthenticatedSafe
 	   not sure why PKCS#12 couldn't have used its own content type OID for AuthenticatedSafe */
-	dissector_handle=create_dissector_handle(dissect_AuthenticatedSafe_OCTETSTRING_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
+	old_handle = dissector_get_string_handle(find_dissector_table("ber.oid"), PKCS12_ID_DATA_OID);
+	dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, authenticated_safe_handle);
+	CLEANUP_PUSH(restore_id_data_dissector, old_handle);
 
 	%(DEFAULT_BODY)s
 
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", "1.2.840.113549.1.7.1");
+	/* restore the original dissector, also on an exception */
+	CLEANUP_CALL_AND_POP;
 
 #.FN_BODY AuthenticatedSafe
-	dissector_handle_t dissector_handle;
+	dissector_handle_t old_handle;
 
 	/* we change the CMS id-data dissector to dissect as SafeContents */
-	dissector_handle=create_dissector_handle(dissect_SafeContents_OCTETSTRING_PDU, proto_pkcs12);
-	dissector_change_string("ber.oid", "1.2.840.113549.1.7.1", dissector_handle);
+	old_handle = dissector_get_string_handle(find_dissector_table("ber.oid"), PKCS12_ID_DATA_OID);
+	dissector_change_string("ber.oid", PKCS12_ID_DATA_OID, safe_contents_handle);
+	CLEANUP_PUSH(restore_id_data_dissector, old_handle);
 
 	%(DEFAULT_BODY)s
 
-	/* restore the original dissector */
-	dissector_reset_string("ber.oid", "1.2.840.113549.1.7.1");
+	/* restore the previous dissector, also on an exception */
+	CLEANUP_CALL_AND_POP;
 
 #.FN_PARS SafeBag/bagId 	FN_VARIANT = _str VAL_PTR = &object_identifier_id
 #.FN_FTR SafeBag/bagId
@@ -104,6 +106,21 @@ PrivateKeyInfo
   append_oid(actx->pinfo->pool, tree, object_identifier_id);
 #.END
 
+#.FN_HDR SafeBag
+	object_identifier_id = NULL;
+
+#.FN_HDR CertBag
+	object_identifier_id = NULL;
+
+#.FN_HDR CRLBag
+	object_identifier_id = NULL;
+
+#.FN_HDR SecretBag
+	object_identifier_id = NULL;
+
+#.FN_HDR PKCS12Attribute
+	object_identifier_id = NULL;
+
 #.FN_BODY SafeBag/bagValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
@@ -127,6 +144,7 @@ PrivateKeyInfo
 #.FN_HDR PBEParameter
 	/* initialise the encryption parameters */
 	PBE_reset_parameters();
+	mark_pbe_parameters(actx->pinfo);
 
 #.END
 
