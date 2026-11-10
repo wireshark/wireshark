@@ -124734,3 +124734,76 @@ class TestDissectRdpSnd:
             ['RDPSND', 'Wave'], ['RDPSND', 'Training'],
             ['DRDYNVC', 'CreateChannel Request(AUDIO_PLAYBACK_DVC)'], ['RDPSND', 'Training'],
             ['DRDYNVC', 'Data first'], ['RDPSND', 'Wave']]
+
+
+class TestDissectRdpudp:
+    '''RDPUDP (MS-RDPEUDP versions 1 and 2) on UDP 3389 from the synthetic
+    capture rdp_udp_coverage.pcapng.gz: connections with SYN, SynEx, acks, FEC,
+    data carrying a TLS or DTLS ClientHello (nothing is encrypted), the
+    switch to version 2 and its packets, and Exported PDUs for the helpers.'''
+
+    CAPTURE = 'rdp_udp_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpudp.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_rdpudp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes; the RDPUDP frames have the same columns in both.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 77
+        assert protocols.count('RDPUDP') == 21
+        assert protocols.count('RDPUDP2') == 8
+        out = []
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+            out.append(self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'rdpudp', '-Tfields', '-eframe.number', '-e_ws.col.info'))
+        assert out[0] == out[1]
+
+    def test_rdpudp_v1(self, cmd_tshark, capture_file, test_env):
+        '''Version 1: SYN, SYN+ACK, ACK, FEC, ack of acks, FIN, SynEx versions and
+        the data PDUs that carry TLS (reliable) and DTLS (lossy) handshakes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 22', '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                '-erdpudp.synex.version')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['1'][:2] == ['RDPUDP', 'SYN'] and rows['2'][:2] == ['RDPUDP', 'SYN']
+        assert rows['5'][:2] == ['TLSv1', 'Client Hello']
+        assert rows['6'][:2] == ['TLSv1.2', 'Server Hello']
+        assert rows['7'][:2] == ['RDPUDP', 'ACK,FEC'] and rows['8'][:2] == ['RDPUDP', 'AOA']
+        assert rows['12'] == ['RDPUDP', 'SYN,CORRELATIONID,SYNEX', '0x0001']
+        assert rows['15'] == ['RDPUDP', 'SYN,SYNEX', '0x0002']
+        assert rows['19'][:2] == ['DTLS', 'Client Hello']
+
+    def test_rdpudp_v2(self, cmd_tshark, capture_file, test_env):
+        '''After the SYN+ACK that selects version 2 (frames 21-22) the packets
+        are RDPUDP2: ack, overhead, delay ack, ack of acks, data (a TLS record
+        split over two packets is reassembled), ack vectors and dummy data.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 23 && frame.number <= 34', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-e_ws.col.info')
+        assert [l.split('\t')[1:] for l in stdout.splitlines()] == [
+            ['RDPUDP2', 'ACK'], ['RDPUDP2', 'ACK'], ['RDPUDP2', 'OVERHEAD'], ['RDPUDP2', 'DELAYACK'],
+            ['RDPUDP2', 'AOA'], ['SSL', ''], ['TLSv1', 'Client Hello'], ['TLSv1.2', 'Server Hello'],
+            ['RDPUDP2', 'ACKVEC'], ['RDPUDP2', 'ACKVEC'], ['RDPUDP2', 'DUMMY'], ['TLSv1.2', '']]
+
+    def test_rdpudp_v2_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''The 16-bit sequence numbers are extended to 32 bits (second pass):
+        they wrap at 0xffff and numbers of the previous base are recognised.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'rdpudp.data.fullseqnum && frame.number >= 35 && frame.number <= 49',
+                '-Tfields', '-eframe.number', '-erdpudp.data.seqnum', '-erdpudp.data.fullseqnum')
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['43'] == ['0xf618', '0x0000f618']
+        assert rows['44'] == ['0x0064', '0x00010064']              # wrapped: next base
+        assert rows['46'] == ['0xc350', '0x0000c350']              # from the previous base
+        assert rows['47'] == ['0x0005', '0x00010005']
+        assert rows['49'] == ['0x0064', '0x00010064']
