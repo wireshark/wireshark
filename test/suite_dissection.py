@@ -123793,3 +123793,44 @@ class TestDissectRdm:
                 'rdm.pd.ftc.response_status')
         assert {'0x00', '0x01', '0x03', '0x06', '0x07', '0x08', '0x0b', '0x0c',
                 '0x14', '0x15', '0x16', '0x1a'} <= {l.split('\t')[1] for l in out}
+
+
+class TestDissectRdmEtc:
+    '''ETC manufacturer specific RDM PIDs (rdm_etc, manufacturer 0x6574),
+    carried in RDM messages in Art-Net ArtRdm packets, from the synthetic
+    capture rdm-etc_coverage.pcap.gz. Frame 1 is the reproducer of "RDM:
+    Fix offsets after manufacturer PIDs and the intron length".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rdm-etc_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_rdm_etc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 695 frames are RDM from ETC (UID manufacturer 0x6574)
+        without malformed packets or error expert infos, in one and two
+        passes.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'rdm.src.manf == 0x6574 && rdm.dst.manf == 0x6574')
+        assert len(out) == 695
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_rdm_etc_offset_after_pid(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1, the ETC LED_CURVE response with three octets of data:
+        no "Parameter Data Length Mismatch" and a good checksum.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                'rdm.pid', 'rdm.checksum.status', '_ws.expert.message')
+        assert out == ['1\t0x8101\t1\t']
+
+    def test_rdm_etc_pids(self, cmd_tshark, capture_file, test_env):
+        '''ETC PIDs are decoded by name (the ETC parameter ID field) in
+        responses, including inside packed PID messages.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 2 && frame.number <= 8 && rdm.pid', 'rdm.pid')
+        assert len(out) >= 6
