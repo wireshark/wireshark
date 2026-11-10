@@ -133085,3 +133085,124 @@ class TestDissectSametime:
                      'Send Type', 'AWARE_ADD 4', 'OPT_GOT_SET 2', 'User Status',
                      'ACTIVE 3', 'MEETING 1', 'AWAY 1'):
             assert item in text
+
+
+class TestDissectSane:
+    '''SANE network protocol (control connection, TCP port 6566,
+    registered by default) from the synthetic capture sane_coverage.pcap.gz.
+    Responses carry no opcode: the dissector reads them according to the
+    request that preceded them.'''
+
+    CAP = 'sane_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectSane.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_sane_protocols(self, cmd_tshark, capture_file, test_env):
+        '''73 SANE frames, a few segments of a PDU that is reassembled, none
+        malformed or with an expert info, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert protocols.count('SANE') == 73
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_sane_opcodes_and_responses(self, cmd_tshark, capture_file, test_env):
+        '''Requests and the matching responses, including the response
+        after SANE_NET_AUTHORIZE that is read as the earlier open.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 12, 13, 14, 15, 16, 71, 72}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '4\tSANE_NET_INIT request',
+            '5\tSANE_NET_INIT response (SANE_STATUS_GOOD)',
+            '12\tSANE_NET_OPEN request',
+            '13\tSANE_NET_OPEN response (SANE_STATUS_GOOD)',
+            '14\tSANE_NET_AUTHORIZE request',
+            '15\tSANE_NET_AUTHORIZE response',
+            '16\tSANE_NET_OPEN response (SANE_STATUS_GOOD)',
+            '71\tSANE_NET_EXIT request',
+            '72\tUnknown opcode (99) request',
+        ]
+
+    def test_sane_status_values(self, cmd_tshark, capture_file, test_env):
+        '''All status values are named.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sane.status', '-Tfields', '-e_ws.col.info')
+        names = ' '.join(lines)
+        for n in ('SANE_STATUS_GOOD', 'SANE_STATUS_UNSUPPORTED',
+                  'SANE_STATUS_CANCELLED', 'SANE_STATUS_DEVICE_BUSY',
+                  'SANE_STATUS_INVAL', 'SANE_STATUS_EOF', 'SANE_STATUS_JAMMED',
+                  'SANE_STATUS_NO_DOCS', 'SANE_STATUS_COVER_OPEN',
+                  'SANE_STATUS_IO_ERROR', 'SANE_STATUS_NO_MEM',
+                  'SANE_STATUS_ACCESS_DENIED', 'Unknown status (77)'):
+            assert n in names, n
+
+    def test_sane_devices_and_options(self, cmd_tshark, capture_file, test_env):
+        '''The device list and the option descriptors with every
+        constraint type, value type and unit.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {7, 18}',
+                '-Tfields', '-eframe.number', '-esane.device.name',
+                '-esane.device.vendor', '-esane.device.model',
+                '-esane.device.type', '-esane.option_count',
+                '-esane.option.constraint_type', '-esane.option.unit',
+                '-esane.option.type', '-esane.option.name')
+        assert lines[0] == ('7\tnet:scanner0,net:scanner1\tAcme,Acme\t'
+                'ScanMaster 3000,ScanMaster 3100\tflatbed scanner,sheetfed scanner\t\t\t\t\t')
+        f = lines[1].split('\t')
+        assert f[5] == '18'
+        assert f[6] == '0,3,2,1,1,2,2,1,0,0,0,2,2,2,0,2,2,2'
+        assert f[7] == '0,0,4,3,5,6,2,1,0,0,0,9,4,0,0,0,0,0'
+        assert f[8] == '1,3,1,2,1,1,1,1,0,4,5,2,2,0,1,1,2,3'
+        assert f[9] == ',mode,resolution,tl-x,brightness,exposure,depth,pixels,preview,scan,,gamma,xfixed,flag,,count,fx,strw'
+
+    def test_sane_control_option(self, cmd_tshark, capture_file, test_env):
+        '''Control option requests and responses (integer, fixed, bool
+        values) and the info bit fields of the responses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {19, 20, 24, 26}',
+                '-Tfields', '-eframe.number', '-esane.option.type',
+                '-esane.option.action', '-esane.control_option.info',
+                '-esane.control_option.info.inexact',
+                '-esane.control_option.info.reload_options',
+                '-esane.control_option.info.reload_params')
+        assert [l.split('\t')[0] for l in lines] == ['19', '20', '24', '26']
+        assert lines[1].split('\t')[3] == '0x00000000'
+        assert lines[2].split('\t')[3] == '0x00000002'
+        assert lines[2].split('\t')[4:7] == ['False', 'True', 'False']
+
+    def test_sane_scan_parameters_and_start(self, cmd_tshark, capture_file, test_env):
+        '''Scan parameters, frame formats, the data port of START.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {28, 30, 40, 42}',
+                '-Tfields', '-eframe.number', '-esane.scan.frame_format',
+                '-esane.scan.last_frame', '-esane.scan.bytes_per_line',
+                '-esane.scan.pixels_per_line', '-esane.scan.line_count',
+                '-esane.scan.pixel_depth', '-esane.data_port', '-esane.byte_order')
+        assert lines == [
+            '28\t1\tTrue\t2550\t850\t1100\t8\t\t',
+            '30\t0\tFalse\t100\t100\t100\t1\t\t',
+            '40\t\t\t\t\t\t\t40001\t0x00001234',
+            '42\t\t\t\t\t\t\t0\t0x00000000',
+        ]
+
+    def test_sane_reassembly_and_two_requests(self, cmd_tshark, capture_file, test_env):
+        '''A response in three segments is reassembled; two requests in a
+        segment are both dissected and the response is the last one's.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 73 && frame.number <= 78',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-esane.opcode')
+        assert lines[0] == '73\tSANE\t6,1'
+        assert lines[1].startswith('74\tSANE')
+        assert lines[-1].split('\t')[1] == 'SANE'
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 78', '-Tfields', '-esane.device.name')
+        assert lines == ['net:scanner0,net:s1']
