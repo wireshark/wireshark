@@ -954,7 +954,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         *As we are storing the info in a hash table we need to update the info
         *also in case this is no retry*/
        sbus_attribut = tvb_get_uint8(tvb,8);
-       if (request_val && sbus_attribut == SBUS_REQUEST) {
+       if (request_val && sbus_attribut == SBUS_REQUEST && !PINFO_FD_VISITED(pinfo)) {
               if (request_val->req_frame < pinfo->num){ /*a retry; req_frame smaller this frame*/
                      request_val->retry_count +=1;
               }
@@ -966,7 +966,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        }
        if (request_val && (sbus_attribut == SBUS_RESPONSE ||
                                       sbus_attribut == SBUS_ACKNAK)) { /*a response*/
-            request_val->resp_frame = pinfo->num; /*so store this frame nr.*/
+            if (request_val->req_frame >= pinfo->num) {
+                   /* The request is not before this response; on a later
+                    * pass the table holds requests from later frames. */
+                   request_val = NULL;
+            } else if (!PINFO_FD_VISITED(pinfo)) {
+                   request_val->resp_frame = pinfo->num; /*so store this frame nr.*/
+            }
        }
        /* Only allocate a new hash element when it's a request*/
        sbus_attribut = tvb_get_uint8(tvb,8);
