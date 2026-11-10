@@ -262,6 +262,7 @@ static int ett_pkt_ccc;
 static expert_field ei_rtp_fragment_unfinished;
 static expert_field ei_rtp_padding_missing;
 static expert_field ei_rtp_padding_bogus;
+static expert_field ei_rtp_rfc2198_nested;
 
 /* RFC 5285 Header extensions */
 static int hf_rtp_ext_rfc5285_id;
@@ -1812,12 +1813,18 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     rfc2198_hdr *hdr_last;
     rfc2198_hdr *hdr_chain = NULL;
     struct _rtp_packet_info *p_packet_data;
-    struct _rtp_info* rtp_info = NULL;
-    struct _rtp_info rfc2198_rtp_info;
+    struct _rtp_info* const rtp_info = (struct _rtp_info*)data;
+    struct _rtp_info rfc2198_rtp_info = {0};
     volatile unsigned rtp_info_offset = 0;
 
-    if (data) {
-        rtp_info = (struct _rtp_info*)data;
+    if (p_get_proto_depth(pinfo, proto_rtp_rfc2198) > 0) {
+        /* A block of RFC 2198 data cannot itself be RFC 2198 data */
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_rtp_rfc2198_nested, tvb, 0);
+        return tvb_captured_length(tvb);
+    }
+    p_set_proto_depth(pinfo, proto_rtp_rfc2198, 1);
+
+    if (rtp_info) {
         rfc2198_rtp_info = *rtp_info;
         rtp_info_offset = rtp_info->info_payload_offset;
     }
@@ -1917,7 +1924,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         }
         const char *saved_proto = pinfo->current_proto;
         TRY {
-            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->pt, &rfc2198_rtp_info);
+            dissect_rtp_data(tvb, pinfo, tree, rfc2198_tree, hdr_last->offset, hdr_last->len, hdr_last->pt, rtp_info ? &rfc2198_rtp_info : NULL);
         }
         CATCH_NONFATAL_ERRORS {
             show_exception(tvb, pinfo, rfc2198_tree, EXCEPT_CODE, GET_MESSAGE);
@@ -1957,6 +1964,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         offset += hdr_last->len;
         hdr_last = hdr_last->next;
     }
+    p_set_proto_depth(pinfo, proto_rtp_rfc2198, 0);
     return tvb_captured_length(tvb);
 }
 
@@ -2655,25 +2663,22 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * No padding.
          */
         rtp_info->info_payload_offset = offset;
-        rtp_info->info_payload_len = tvb_captured_length_remaining(tvb, offset);
 
         if (p_packet_data && p_packet_data->bta2dp_info) {
             if (p_packet_data->bta2dp_info->codec_dissector == sbc_handle) {
                 rtp_info->info_payload_offset += 1;
-                rtp_info->info_payload_len -= 1;
             }
 
             if (p_packet_data->bta2dp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
                 rtp_info->info_payload_offset += 1;
-                rtp_info->info_payload_len -= 1;
             }
         }
 
         if (p_packet_data && p_packet_data->btvdp_info &&
                 p_packet_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             rtp_info->info_payload_offset += 1;
-            rtp_info->info_payload_len -= 1;
         }
+        rtp_info->info_payload_len = tvb_captured_length_remaining(tvb, rtp_info->info_payload_offset);
 
         if (tvb_reported_length_remaining(tvb, offset) > 0) {
             struct _rtp_pkt_info *rtp_pkt_info = wmem_new(pinfo->pool, struct _rtp_pkt_info);
@@ -3077,7 +3082,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                     ENC_TIME_NTP|ENC_BIG_ENDIAN);
     }
 
-    return dissect_rtp(tvb, pinfo, tree, data);
+    return dissect_rtp(tvb_new_subset_remaining(tvb, 12), pinfo, tree, data);
 }
 
 
@@ -3622,6 +3627,7 @@ proto_register_rtp(void)
     static ei_register_info ei[] = {
         { &ei_rtp_fragment_unfinished, { "rtp.fragment_unfinished", PI_REASSEMBLE, PI_CHAT, "RTP fragment, unfinished", EXPFILL }},
         { &ei_rtp_padding_missing, { "rtp.padding_missing", PI_UNDECODED, PI_WARN, "Frame has padding, but not all the frame data was captured", EXPFILL }},
+        { &ei_rtp_rfc2198_nested, { "rtp.rfc2198_nested", PI_PROTOCOL, PI_WARN, "RFC 2198 data nested inside RFC 2198 data", EXPFILL }},
         { &ei_rtp_padding_bogus, { "rtp.padding_bogus", PI_PROTOCOL, PI_WARN, "Frame has padding length value greater than payload length", EXPFILL }},
     };
 
