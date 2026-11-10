@@ -56,7 +56,7 @@ static expert_field ei_fec_encoding_id;
 
 typedef struct fec_packet_data
 {
-    uint8_t instance_id;
+    uint16_t instance_id;
 
 } fec_packet_data_t;
 
@@ -87,7 +87,7 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 {
     uint64_t           transfer_length;
     fec_packet_data_t *fec_data;
-    uint8_t            instance_id = 0;
+    uint16_t           instance_id = 0;
     proto_item        *ti;
 
     if (encoding_id == 6){
@@ -101,13 +101,13 @@ void fec_decode_ext_fti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
     if (encoding_id >= 128)
     {
-        instance_id = (uint8_t) tvb_get_ntohs(tvb, offset+8);
+        instance_id = tvb_get_ntohs(tvb, offset+8);
 
         /* Decode FEC Instance ID */
-        fec_data = wmem_new0(wmem_file_scope(), fec_packet_data_t);
+        fec_data = wmem_new0(pinfo->pool, fec_packet_data_t);
         fec_data->instance_id = instance_id;
 
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_rmt_fec, 0, fec_data);
+        p_set_proto_data(pinfo->pool, pinfo, proto_rmt_fec, 0, fec_data);
     }
 
     if (encoding_id == 6){
@@ -178,7 +178,7 @@ dissect_fec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     unsigned             offset      = 0;
     fec_data_exchange_t *fec         = (fec_data_exchange_t*)data;
     uint8_t              encoding_id = 0;
-    fec_packet_data_t   *packet_data = (fec_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rmt_fec, 0);
+    fec_packet_data_t   *packet_data = (fec_packet_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_rmt_fec, 0);
 
     if (fec != NULL)
     {
