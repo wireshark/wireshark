@@ -115780,3 +115780,33 @@ class TestDissectPcaplog:
                 '-Y', 'frame.number == 1', '-Tfields', '-exml.cdata',
             ), encoding='utf-8', env=test_env)
         assert 'hello' in stdout
+
+
+class TestDissectPcapngBlock:
+    '''The "pcapng" block dissector, from the synthetic capture
+    pcapng_block_coverage.pcapng.gz of Exported PDU frames that name it.
+    The block type it displays is the reported length of the frame, because
+    nothing in a pcapng file reaches it with a real block type today.'''
+
+    CAPTURE = 'pcapng_block_coverage.pcapng.gz'
+
+    def test_pcapng_block_info(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pcapng',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            rows = [line.split('\t') for line in stdout.splitlines()]
+            assert len(rows) == 14
+            assert all(r[1] == 'PCAPNG' for r in rows)
+            assert rows[0][2] == 'Pcapng block, type 16'
+            assert rows[-1][2] == 'Pcapng block, type 1000'
+
+    def test_pcapng_block_no_errors(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
