@@ -125991,3 +125991,85 @@ class TestDissectRfidPn532:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'mifare.cmd', 'mifare.block.addr',
                 filt='mifare.cmd == 0x60', opts=('-o', 'pn532.prtype532:mifare'))
         assert rows[0] == ['0x60', '4']
+
+
+class TestDissectRfidPn532Hci:
+    '''PN532 HCI framing (packet-rfid-pn532-hci.c) in bulk transfers of USB
+    device 04e6:5591 (usbmon), from the synthetic capture
+    rfid_pn532_hci_coverage.pcap.gz. Frames 25 and 26 are extended
+    frames as the dissector reads them (it takes the FF FF packet code
+    as the length), frames 29 and 30 are the reproducers of the infinite
+    loop on payloads of more than 65537 octets without a 00 FF start code.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rfid_pn532_hci_coverage.pcap.gz'),
+                '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        # tshark looped forever on frames 29 and 30 before "PN532 HCI: Fix
+        # infinite loop on long payloads", hence the timeout
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_pn532_hci_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 30 frames decode without malformed packets or error expert
+        infos, in one and two passes; the transfers shorter than six
+        octets (frames 27 and 28) are left to USB.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 30
+        assert protocols.count('USB') == 4
+        assert protocols.count('PN532_HCI') == 9
+        assert protocols.count('PN532') == 17
+        assert protocols[26:28] == ['USB', 'USB']
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_pn532_hci_long_payloads(self, cmd_tshark, capture_file, test_env):
+        '''A transfer of more than 65537 octets without 00 FF is scanned to
+        the end: 65541 octets of preamble before the start code (frame 29),
+        65539 octets of postamble plus one ignored octet (frame 30).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', '_ws.col.info',
+                filt='len(pn532_hci.preamble) == 65541 || '
+                     '(len(pn532_hci.postamble) == 65539 && len(pn532_hci.ignored) == 1)')
+        assert [r[0] for r in rows] == ['29', '30']
+        assert rows[0][1] == 'ACK Frame'
+        assert rows[1][1] == 'GetFirmwareVersion'
+
+    def test_pn532_hci_checksums(self, cmd_tshark, capture_file, test_env):
+        '''Bad length and data checksums are warnings; the data checksum of
+        the extended frames (frames 25 and 26) is verified (it used to be
+        compared with 0).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                'pn532_hci.length_checksum.status', 'pn532_hci.data_checksum.status',
+                filt='frame.number in {9, 16, 17, 18, 25, 26}')
+        assert rows == [['9', '1', ''], ['16', '0', ''], ['17', '1', ''],
+                        ['18', '0', ''], ['25', '1', '1'], ['26', '1', '0']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='pn532_hci.expert.invalid_data_checksum')
+        assert [r[0] for r in rows] == ['17', '18', '26']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number',
+                filt='pn532_hci.expert.invalid_length_checksum')
+        assert [r[0] for r in rows] == ['16', '18']
+
+    def test_pn532_hci_framing(self, cmd_tshark, capture_file, test_env):
+        '''ACK, NACK and error frames, the preamble and postamble, and
+        several frames in one transfer (the second one is "ignored").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', '_ws.col.info',
+                filt='frame.number <= 8')
+        assert [r[1] for r in rows[2:]] == ['ACK Frame', 'ACK Frame', 'NACK Frame',
+                                            'Error Frame', 'Error Frame', 'Error Frame']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'pn532_hci.preamble',
+                'pn532_hci.postamble', 'pn532_hci.ignored',
+                filt='frame.number in {10, 11, 12, 13, 14, 15}')
+        assert rows == [['10', '', '00', ''], ['11', '000000', '00', ''], ['12', '41424344', '00', ''],
+                        ['13', '00', '', ''], ['14', '00', '00', '41'], ['15', '00', '004142', '43']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'pn532_hci.ignored',
+                filt='frame.number in {22, 23, 24}')
+        assert rows == [['22', '00ff06fad50332010607e800'], ['23', '00ff02fed4042800'],
+                        ['24', '00ff00ff00']]
