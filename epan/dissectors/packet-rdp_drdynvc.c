@@ -111,8 +111,18 @@ typedef struct {
 	uint32_t packetLen;
 	uint32_t startReassemblyFrame;
 	uint32_t endReassemblyFrame;
-	tvbuff_t* tvb;
+	/* reassembled or decompressed payload (file scope), NULL to use the packet data */
+	const uint8_t *data;
+	unsigned data_len;
 } drdynvc_pdu_info_t;
+
+/* Remember the payload of a reassembled or decompressed tvb for later passes. */
+static void
+drdynvc_pdu_info_set_data(drdynvc_pdu_info_t *pduInfo, tvbuff_t *payload)
+{
+	pduInfo->data_len = tvb_captured_length(payload);
+	pduInfo->data = pduInfo->data_len ? tvb_get_ptr(payload, 0, pduInfo->data_len) : NULL;
+}
 
 typedef struct {
 	wmem_tree_t *pdus;
@@ -428,7 +438,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 #endif
 				}
 
-				if (channel->createConfirmFrameId) {
+				if (channel && channel->createConfirmFrameId) {
 					proto_item_set_generated(
 							proto_tree_add_uint(tree, hf_rdp_drdynvc_createresp_frameid, tvb, 0, 0, channel->createConfirmFrameId)
 					);
@@ -494,7 +504,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 				drdynvc_pdu_info_t *pduInfo = NULL;
 				drdynvc_pending_packet_t *pendingPacket = isServerTarget ? &channel->pending_cs : &channel->pending_sc;
 				int payloadLen = tvb_reported_length_remaining(tvb, offset);
-				bool isSinglePacket = (fullPduLen == (uint32_t)payloadLen);
+				bool isSinglePacket = (fullPduLen <= (uint32_t)payloadLen);
 				drdynvc_pinfo_t *drdynvcPinfo = getDrDynPacketInfo(pinfo);
 				uint32_t key = crc32_ccitt_tvb_offset(tvb, offset, payloadLen);
 
@@ -513,8 +523,15 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					if (cmdId == DRDYNVC_DATA_FIRST_COMPRESSED_PDU) {
 						zgfx_context_t *compressor = isServerTarget ? channel->zgfx_cs : channel->zgfx_sc;
 						input = rdp8_decompress(compressor, wmem_file_scope(), tvb, offset);
-						offset2 = 0;
-						add_new_data_source(pinfo, input, "decompressed dynvc");
+						if (input) {
+							/* free the tvb with this packet; the data is file scope */
+							tvb_set_child_real_data_tvbuff(tvb, input);
+							offset2 = 0;
+							add_new_data_source(pinfo, input, "decompressed dynvc");
+						} else {
+							/* decompression failed, keep the raw data */
+							input = tvb;
+						}
 					}
 
 					if (!isSinglePacket) {
@@ -522,12 +539,13 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 							wmem_destroy_array(pendingPacket->chunks);
 						pendingPacket->chunks = wmem_array_new(wmem_file_scope(), sizeof(drdynvc_pdu_info_t*));
 
-						pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
+						pduInfo = wmem_new0(wmem_file_scope(), drdynvc_pdu_info_t);
 						pduInfo->reassembled = true;
 						pduInfo->startReassemblyFrame = pinfo->num;
 						pduInfo->progressStart = 0;
 						pduInfo->progressEnd = fullPduLen;
-						pduInfo->tvb = (cmdId == DRDYNVC_DATA_FIRST_COMPRESSED_PDU) ? input : NULL;
+						if (input != tvb)
+							drdynvc_pdu_info_set_data(pduInfo, input);
 
 						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 						wmem_array_append(pendingPacket->chunks, &pduInfo, 1);
@@ -535,7 +553,7 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						pendingPacket->packetLen = fullPduLen;
 						pendingPacket->pendingLen = fullPduLen - payloadLen;
 						pendingPacket->startFrame = pinfo->num;
-						pendingPacket->currentPacket = wmem_array_sized_new(wmem_file_scope(), 1, fullPduLen);
+						pendingPacket->currentPacket = wmem_array_new(wmem_file_scope(), 1);
 						wmem_array_append(pendingPacket->currentPacket, tvb_get_ptr(input, offset2, payloadLen), payloadLen);
 					} else {
 #if 0
@@ -612,12 +630,18 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					if (cmdId == DRDYNVC_DATA_COMPRESSED_PDU) {
 						zgfx_context_t *compressor = isServerTarget ? channel->zgfx_cs : channel->zgfx_sc;
 						input = rdp8_decompress(compressor, wmem_file_scope(), tvb, offset);
-						offset2 = 0;
-						add_new_data_source(pinfo, input, "decompressed dynvc");
+						if (input) {
+							/* free the tvb with this packet; the data is file scope */
+							tvb_set_child_real_data_tvbuff(tvb, input);
+							offset2 = 0;
+							add_new_data_source(pinfo, input, "decompressed dynvc");
+						} else {
+							/* decompression failed, keep the raw data */
+							input = tvb;
+						}
 					}
 
-					pduInfo = wmem_alloc(wmem_file_scope(), sizeof(*pduInfo));
-					wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
+					pduInfo = wmem_new0(wmem_file_scope(), drdynvc_pdu_info_t);
 
 					if (pendingPacket->pendingLen) {
 						/* we have a fragmented packet in progress */
@@ -643,7 +667,8 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 						if (!pendingPacket->pendingLen) {
 							/* last packet of the reassembly */
 							int reassembled_len = wmem_array_get_count(pendingPacket->currentPacket);
-							pduInfo->tvb = tvb_new_real_data(wmem_array_get_raw(pendingPacket->currentPacket), reassembled_len, reassembled_len);
+							pduInfo->data = reassembled_len ? (const uint8_t *)wmem_array_get_raw(pendingPacket->currentPacket) : NULL;
+							pduInfo->data_len = reassembled_len;
 							pduInfo->decodePayload = true;
 							pendingPacket->currentPacket = NULL;
 
@@ -654,14 +679,17 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 							wmem_destroy_array(pendingPacket->chunks);
 							pendingPacket->chunks = NULL;
 						}
+						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 					} else {
 						/* single data packet */
+						wmem_tree_insert32(drdynvcPinfo->pdus, key, pduInfo);
 						pduInfo->reassembled = false;
 						pduInfo->decodePayload = true;
 						pduInfo->progressStart = 0;
 						pduInfo->progressEnd = payloadLen;
 						pduInfo->packetLen = payloadLen;
-						pduInfo->tvb = (input == tvb) ? NULL : input;
+						if (input != tvb)
+							drdynvc_pdu_info_set_data(pduInfo, input);
 						pduInfo->startReassemblyFrame = pduInfo->endReassemblyFrame = pinfo->num;
 					}
 				} else {
@@ -674,8 +702,8 @@ dissect_rdp_drdynvc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 							pduInfo->progressStart, pduInfo->progressEnd, pduInfo->packetLen)
 					);
 
-					if (pduInfo->tvb) {
-						targetTvb = pduInfo->tvb;
+					if (pduInfo->data) {
+						targetTvb = tvb_new_child_real_data(tvb, pduInfo->data, pduInfo->data_len, pduInfo->data_len);
 						add_new_data_source(pinfo, targetTvb, "Reassembled/decompressed DRDYNVC");
 					} else {
 						targetTvb = tvb_new_subset_remaining(tvb, offset);
