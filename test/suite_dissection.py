@@ -129462,3 +129462,86 @@ class TestDissectRtag:
             '12\t11\t0x0000\t0x0800\tdeadbeef01020304\tUDP',
             '13\t12\t0x0000\t0x0800\t\tICMP',
         ]
+
+
+class TestDissectRtcdc:
+    '''WebRTC data channel establishment protocol (RTCDC, SCTP payload
+    protocol identifier 50) from the synthetic capture
+    rtcdc_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rtcdc_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rtcdc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-25 are RTCDC with no malformed packets and no error
+        expert infos, in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                '_ws.col.protocol')
+        assert rows == ['RTCDC'] * 25
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+
+    def test_rtcdc_open_request(self, cmd_tshark, capture_file, test_env):
+        '''The older DATA_CHANNEL_OPEN_REQUEST (message type 0): channel
+        type, flags, reliability, priority, label.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 4', 'frame.number', 'rtcdc.message_type',
+                'rtcdc.channel_type', 'rtcdc.flags',
+                'rtcdc.flags_unordered_allowed', 'rtcdc.reliability_parameter',
+                'rtcdc.priority', 'rtcdc.label')
+        assert rows == [
+            '1\t0\t0\t0x0000\tFalse\t0\t256\tchat',
+            '2\t0\t1\t0x0001\tTrue\t3\t0\tunreliable-rexmit',
+            '3\t0\t2\t0x0001\tTrue\t500\t512\ttimed',
+            '4\t0\t0\t0xfffe\tFalse\t0\t1\ta']
+
+    def test_rtcdc_response_ack(self, cmd_tshark, capture_file, test_env):
+        '''DATA_CHANNEL_OPEN_RESPONSE and DATA_CHANNEL_ACK.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {6, 7, 8, 24, 25}', 'frame.number',
+                '_ws.col.info', 'rtcdc.error', 'rtcdc.reverse_stream_id')
+        assert rows == [
+            '6\tDATA_CHANNEL_OPEN_RESPONSE \t0\t4',
+            '7\tDATA_CHANNEL_OPEN_RESPONSE \t1\t65535',
+            '8\tDATA_CHANNEL_ACK \t\t',
+            '24\tDATA_CHANNEL_ACK \t\t',
+            '25\tDATA_CHANNEL_OPEN_RESPONSE \t0\t10']
+
+    def test_rtcdc_new_open_request(self, cmd_tshark, capture_file, test_env):
+        '''DATA_CHANNEL_OPEN (message type 3, RFC 8832): the six channel
+        types, protocol and label lengths.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {9, 10, 11, 12, 13, 14}', 'frame.number',
+                'rtcdc.channel_type', 'rtcdc.priority',
+                'rtcdc.reliability_parameter', 'rtcdc.label_length',
+                'rtcdc.protocol_length', 'rtcdc.label', 'rtcdc.protocol')
+        assert rows == [
+            '9\t0\t0\t0\t8\t0\treliable\t',
+            '10\t1\t100\t5\t6\t4\trexmit\tjson',
+            '11\t2\t200\t1000\t5\t3\ttimed\tbin',
+            '12\t128\t300\t0\t9\t7\tunordered\tproto-x',
+            '13\t129\t400\t3\t16\t0\trexmit-unordered\t',
+            '14\t130\t500\t2000\t15\t1\ttimed-unordered\tp']
+
+    def test_rtcdc_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Warnings (not errors) for unknown channel and message types and
+        a reliability parameter on a reliable channel.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                '_ws.expert.severity == 0x00600000', 'frame.number',
+                '_ws.expert.message')
+        assert rows == [
+            '16\tReliability parameter non zero for reliable channel',
+            '17\tUnknown channel type',
+            '18\tUnknown channel type',
+            '19\tReliability parameter non zero for reliable channel',
+            '20\tReliability parameter non zero for reliable channel',
+            '21\tUnknown message type',
+            '22\tUnknown message type',
+            '23\tUnknown message type']
