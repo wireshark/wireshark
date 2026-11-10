@@ -136564,3 +136564,116 @@ class TestDissectSftp:
         assert rows['32'][4] == '2'
         assert rows['32'][5] == 'file.txt,dir'
         assert rows['32'][6].startswith('-rw-r--r--   1 user group 1234 Nov 14 file.txt,drwxr-xr-x')
+
+
+class TestDissectSgp22:
+    '''SGP.22 (GSMA Remote SIM Provisioning) from the synthetic capture
+    sgp22_coverage.pcapng.gz: the ES9+/ES11 PDUs in HTTP (media type
+    application/x-gsma-rsp-asn1) and CoAP (URI path /gsma/rsp2/asn1), the
+    request PDUs of the "sgp22.request" table inside the segments of a
+    BoundProfilePackage, nested BoundProfilePackages, and the SGP.22
+    certificate extensions in a CRL (Exported PDU x509af). The PDUs are
+    built from the ASN.1 modules with made-up values (no real keys,
+    certificates or C-MACs).'''
+
+    ALTS = ('initiateAuthenticationRequest', 'initiateAuthenticationResponse',
+            'authenticateClientRequest', 'authenticateClientResponseEs9',
+            'getBoundProfilePackageRequest', 'getBoundProfilePackageResponse',
+            'cancelSessionRequestEs9', 'cancelSessionResponseEs9',
+            'handleNotification', 'authenticateClientResponseEs11')
+
+    def test_sgp22_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; one and two passes show no
+        malformed packets and no warnings, and the only error is the
+        BoundProfilePackage nested 600 levels (frame 171, the reproducer of
+        "SGP.22: Bound nested BoundProfilePackage dissection", which failed
+        an assertion of the layer limit before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 186
+        assert protocols.count('SGP.22') == 170
+        assert protocols.count('PKIX-CRL') == 2
+        assert protocols.count('TCP') == 14
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['171\tNested BoundProfilePackage is too deep']
+
+    def test_sgp22_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''The nesting of 600 BoundProfilePackages stops at the fifth level
+        with an error expert info and there is no "Dissector bug".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 171',
+                '-Tfields', '-esgp22.bsp.nesting_too_deep', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tNested BoundProfilePackage is too deep']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 171',
+                '-O', 'sgp22',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('BoundProfilePackage') >= 5
+        assert 'Dissector bug' not in stdout
+
+    def test_sgp22_es9_alternatives(self, cmd_tshark, capture_file, test_env):
+        '''Every alternative of the RemoteProfileProvisioningRequest and
+        Response over HTTP (frames 4-13) and CoAP (frames 175-184).'''
+        for first, last in ((4, 13), (175, 184)):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                    '-Y', 'frame.number >= %d && frame.number <= %d' % (first, last),
+                    '-Tfields', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert tuple(stdout.splitlines()) == self.ALTS
+
+    def test_sgp22_bpp_segments(self, cmd_tshark, capture_file, test_env):
+        '''The segments of a BoundProfilePackage are reassembled (the
+        request PDU split over two '88' segments, several '87' and '86'
+        segments) and the PDU is handed to the sgp22.request table.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Y', 'sgp22.bsp.reassembled',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 32
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 39',
+                '-Tfields', '-esgp22.hashCc', '-esgp22.bsp.payload',
+            ), encoding='utf-8', env=test_env)
+        hashcc, payloads = stdout.rstrip('\n').split('\t')
+        assert hashcc == 'e573c95ffc6ad046d74175e359cf6cfa40d647d1b6209a0caf3983158412f761'
+        assert len(payloads.split(',')) == 3     # first '87', the reassembled '88', '86'
+
+    def test_sgp22_certificate_extensions(self, cmd_tshark, capture_file, test_env):
+        '''The SGP.22 object identifiers of the BER table in the crlExtensions
+        of two CRLs: the partial CRL numbers and the activation code
+        retrieval info of both kinds.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                '-Y', 'x509af.crlExtensions && frame.number >= 185',
+                '-Tfields', '-eframe.number', '-esgp22.TotalPartialCrlNumber',
+                '-esgp22.PartialCrlNumber', '-esgp22.activationCodeForProfileRedownload',
+                '-esgp22.activationCodeRetrievalAvailable',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '185\t77\t11\tdjfbwo\t',
+            '186\t78\t12\t\tTrue',
+        ]
+
+    def test_sgp22_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The SGP.22 trees are the same in one and in two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sgp22_coverage.pcapng.gz'),
+                    '-Y', 'sgp22', '-O', 'sgp22',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
