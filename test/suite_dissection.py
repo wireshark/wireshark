@@ -127088,3 +127088,74 @@ class TestDissectRmtAlc:
                     '-r', capture_file('rmt_alc_coverage.pcapng.gz'), '-Y', flt,
                     '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env, timeout=120)
             assert out.split() == expect
+
+
+class TestDissectRmtFec:
+    '''The FEC building block (payload ID and EXT_FTI), carried in ALC found
+    through the ATSC3 LLS SLT table, from the synthetic capture
+    rmt_fec_coverage.pcapng.gz. Interface 0 is Ethernet, 1 is ATSC ALP,
+    2 is Exported PDU ("rmt-fec" without data from a caller). The SLT is
+    zlib compressed, so the tests need zlib.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [a for f in fields for a in ('-e', f)]
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rmt_fec_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def need_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '--version'), encoding='utf-8', env=test_env)
+        if 'zlib' not in out.lower():
+            pytest.skip('tshark was built without zlib')
+
+    def test_fec_encodings(self, cmd_tshark, capture_file, test_env):
+        '''Every FEC encoding id has its payload ID layout (frames 2-13), its
+        EXT_FTI layout (frames 14-25) and the warning for ids below 128
+        other than 0 and 6; no malformed packets or error expert infos in one
+        and two passes.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for passes in ((), ('-2',)):
+            def fr(f, *fields):
+                return self.fields(cmd_tshark, capture_file, test_env, f, *fields, passes=passes)
+            assert fr('rmt-fec && frame.number <= 13', 'rmt-fec.encoding_id') == \
+                ['0', '1', '2', '3', '4', '5', '6', '128', '129', '130', '131', '132']
+            assert fr('rmt-fec.sbn && frame.number <= 13', 'rmt-fec.sbn') == \
+                ['256', '257', '258', '259', '260', '6', '384', '385', '386', '388']
+            assert fr('rmt-fec.sbl', 'frame.number', 'rmt-fec.sbl') == ['10\t77', '22\t77']
+            assert fr('rmt-fec.fti.transfer_length', 'frame.number') == \
+                [str(n) for n in range(14, 29)]
+            assert fr('rmt-fec.fti.transfer_length == 4886718345', 'frame.number') == ['20', '28']
+            assert fr('rmt-fec.encoding_id.not0', 'frame.number') == ['15', '16', '17', '18', '19']
+            assert fr('_ws.malformed || _ws.expert.severity >= 0x00800000', 'frame.number') == []
+
+    def test_fec_instance_id(self, cmd_tshark, capture_file, test_env):
+        '''The FEC instance id of an EXT_FTI is 16 bits wide ("RMT-FEC: Keep
+        the instance ID per packet and use 16 bits": it was cut to 8) and
+        for encoding ids >= 128 it is shown again in the FEC header of the
+        same packet, in one and two passes alike.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, 'rmt-fec.instance_id',
+                              'frame.number', 'rmt-fec.instance_id', passes=passes)
+            assert out == ['14\t4660', '15\t4660', '16\t4660', '17\t4660', '18\t4660', '19\t4660',
+                           '21\t4660,4660', '22\t4660,4660', '23\t4660,4660', '24\t4660,4660',
+                           '25\t4660,4660', '26\t4660', '27\t4660,4660']
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rmt_fec_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {21, 22, 25, 27}', '-V', '-O', 'rmt-fec,rmt-lct'),
+                encoding='utf-8', env=test_env, timeout=120))
+        assert outs[0] == outs[1]
+
+    def test_fec_without_data_exchange(self, cmd_tshark, capture_file, test_env):
+        '''Frame 29 calls the FEC dissector from Exported PDU without
+        the structure ALC passes: encoding id 0.'''
+        self.need_zlib(cmd_tshark, test_env)
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 29',
+                          'rmt-fec.encoding_id', 'rmt-fec.sbn', 'rmt-fec.esi')
+        assert out == ['0\t7\t0x00000055']
