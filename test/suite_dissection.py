@@ -122399,3 +122399,94 @@ class TestDissectQuake:
                 'quake_coverage.pcap.gz', 'quake.control.command==0x99||quake.control.command==0x55',
                 'quake.control.command', 'data.len')
         assert out == ['15\t0x99\t3', '16\t0x55\t3']
+
+
+class TestDissectQuake2:
+    '''Quake II over UDP 27910 from the synthetic capture
+    quake2_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('quake2_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_quake2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 49 frames decode as QUAKE2 without malformed packets or
+        error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('quake2_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['QUAKE2'] * 49
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_quake2_connectionless(self, cmd_tshark, capture_file, test_env):
+        '''Connectionless frames: marker and text, both directions.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 7', '_ws.col.info', 'quake2.connectionless.marker',
+                'quake2.connectionless.text')
+        assert out[0] == '1\tClient to Server Connectionless\t0xffffffff\tgetchallenge\\n'
+        assert out[1] == '2\tServer to Client Connectionless\t0xffffffff\tchallenge 123456789'
+        assert out[6] == '7\tServer to Client Connectionless\t0xffffffff\t'
+
+    def test_quake2_game_headers(self, cmd_tshark, capture_file, test_env):
+        '''Sequence numbers with the reliable bit, the qport (only from
+        the client) and the direction.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {8, 10, 11, 24, 49}', '_ws.col.info',
+                'quake2.game.seq1', 'quake2.game.rel1', 'quake2.game.seq2',
+                'quake2.game.rel2', 'quake2.game.qport')
+        assert out == [
+            '8\tClient to Server Game\t1\tFalse\t0\tFalse\t4660',
+            '10\tClient to Server Game\t3\tTrue\t2\tFalse\t4660',
+            '11\tClient to Server Game\t4\tFalse\t2\tTrue\t4660',
+            '24\tServer to Client Game\t2\tTrue\t1\tFalse\t',
+            '49\tServer to Client Game\t7\tTrue\t6\tTrue\t',
+        ]
+
+    def test_quake2_client_commands(self, cmd_tshark, capture_file, test_env):
+        '''clc_nop, clc_bad, userinfo, stringcmd, several commands in one
+        packet (also after a move) and an unknown command.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {9, 10, 11, 12, 13, 15, 21}',
+                'quake2.game.client.command', 'quake2.userinfo', 'quake2.command')
+        assert out == [
+            '9\t1\t\t',
+            '10\t0,1\t\t',
+            '11\t3\t\\\\name\\\\Player\\\\rate\\\\25000\t',
+            '12\t4\t\tbegin 1',
+            '13\t4,1,4\t\tsay hello,cmd 2',
+            '15\t9,1,1\t\t',
+            '21\t2,4\t\tafter move',
+        ]
+
+    def test_quake2_moves(self, cmd_tshark, capture_file, test_env):
+        '''Move commands: three moves each, every bit of the bitfield.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {16, 17, 18, 19, 20}',
+                'quake2.game.client.command.move.chksum',
+                'quake2.game.client.command.move.lframe',
+                'quake2.game.client.command.move',
+                'quake2.game.client.command.move.msec',
+                'quake2.game.client.command.move.lightlevel',
+                'quake2.game.client.command.move.buttons',
+                'quake2.game.client.command.move.impulse')
+        assert out[0].startswith('16\t0x5a\t7\t0x00,0x00,0x00\t16,16,16\t128,128,128')
+        assert out[1].startswith('17\t0x5a\t7\t0x01,0x02,0x04')
+        assert out[2].startswith('18\t0x5a\t7\t0x08,0x10,0x20')
+        assert out[3].startswith('19\t0x5a\t7\t0x40,0x40,0x40')
+        assert out[4].startswith('20\t0x5a\t7\t0x80,0xff,0x7f\t16,1,255\t128,2,0')
+
+    def test_quake2_server_commands(self, cmd_tshark, capture_file, test_env):
+        '''Every server command from svc_bad to svc_frame and one unknown
+        value; commands without data after them.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 25 && frame.number <= 48',
+                'quake2.game.server.command')
+        assert [l.split('\t')[1] for l in out] == [str(i) for i in range(22)] + ['6', '20']
