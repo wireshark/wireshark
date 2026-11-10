@@ -119127,3 +119127,125 @@ class TestDissectPpiGeolocation:
         lines = [l.split('\t') for l in stdout.splitlines()]
         assert lines == [['34', '12', '0x0004'], ['35', '12', '0x0004'], ['36', '12', '0x0004'],
                          ['37', '3', '0x0001'], ['38', '2', '']]
+
+
+class TestDissectPppCoverage:
+    '''PPP from the synthetic capture ppp_coverage.pcapng.gz: LCP, IPCP,
+    IPv6CP, BCP, OSI-NLCP, CCP, CBCP, BACP, BAP, PAP, CHAP, PPPMuxCP,
+    PPPMux, VSNCP/VSNP, MPLSCP, CDPCP, Multilink, compressed RTP, the
+    link-layer types PPP, PPP with direction and Linux cooked captures,
+    enhanced GRE and the CDMA2000 A10 byte stream. The PAP and CHAP
+    fields hold placeholder octets.'''
+
+    @staticmethod
+    def ppp_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('ppp_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', '-Eseparator=|']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('|') for line in stdout.splitlines()]
+
+    def test_ppp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''246 frames. None is malformed or has an error expert info, in
+        one and two passes.'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, '', '_ws.col.protocol')
+        assert len(frames) == 246
+        protocols = [f[0] for f in frames]
+        assert protocols.count('PPP LCP') == 66
+        assert protocols.count('PPP BAP') == 18
+        assert protocols.count('PPP IPCP') == 15
+        assert protocols.count('PPP CCP') == 14
+        assert protocols.count('PPP CHAP') == 12
+        assert protocols.count('CRTP') == 10
+        assert protocols.count('VSNCP') == 9
+        assert protocols.count('PPP BCP') == 8
+        assert protocols.count('PPP MP') == 7
+        assert protocols.count('PPP PPPMux') == 2
+        assert protocols.count('PPP PAP') == 4
+        for passes in ((), ('-2',)):
+            frames = self.ppp_fields(cmd_tshark, capture_file, test_env,
+                                     '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                     'frame.number', passes=passes)
+            assert frames == []
+
+    def test_ppp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''Apart from the Multilink fragments (whose Info column names
+        the frame that completes the packet only in the second pass), one
+        and two passes give the same Info column. The PPPMux "last PID"
+        and the VSNP OUI no longer depend on the packets before.'''
+        one = self.ppp_fields(cmd_tshark, capture_file, test_env, '!mp', 'frame.number', '_ws.col.info',
+                              'frame.protocols')
+        two = self.ppp_fields(cmd_tshark, capture_file, test_env, '!mp', 'frame.number', '_ws.col.info',
+                              'frame.protocols', passes=('-2',))
+        assert len(one) > 200
+        assert one == two
+
+    def test_ppp_nesting_limit(self, cmd_tshark, capture_file, test_env):
+        '''A Protocol-Reject, PPPMux sub-frame and Multilink fragment
+        nested ten deep stop at the nesting limit of 8 with a warning
+        (frames 51, 166 and 192). Before "PPP: Bound nesting of PPP
+        payloads and fix small decoding errors" each of them ran into
+        the generic layer limit (a dissector bug).'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'ppp.nesting_too_deep',
+                                 'frame.number', 'frame.protocols', '_ws.expert.message')
+        assert [f[0] for f in frames] == ['51', '166', '192']
+        for f in frames:
+            assert f[2] == 'Too many nested PPP payloads (limit 8)'
+            assert not f[1].endswith(':_ws.malformed')
+
+    def test_ppp_small_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Quality-Protocol option data, the Prefix-Elision classes and
+        prefixes, and the L and M bits of the BCP MAC address option.'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 56}',
+                                 'frame.number', 'lcp.opt.quality_protocol', 'lcp.opt.data')
+        assert frames[1][1:] == ['0xc025', '00000010']
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'lcp.opt.prefix',
+                                 'lcp.opt.class', 'lcp.opt.prefix')
+        assert frames == [['1,2', 'aabb,cc']]
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'bcp_ncp.lcp.mac_address',
+                                 'bcp_ncp.lcp.mac_address', 'bcp_ncp.lcp.mac_l', 'bcp_ncp.lcp.mac_m')
+        assert frames[0] == ['02:00:00:00:00:07,03:00:00:00:00:07',
+                             '0x0000000000000001,0x0000000000000001',
+                             '0x0000000000000000,0x0000000000000001']
+
+    def test_ppp_pppmux(self, cmd_tshark, capture_file, test_env):
+        '''PPPMux sub-frames take the PID from the sub-frame, from the
+        previous sub-frame of the packet or from the default PID of
+        PPPMuxCP (frame 155, 0x0021).'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'frame.number in {155, 159, 162, 165, 167}',
+                                 'frame.number', 'pppmuxcp.def_prot_id', 'pppmux.protocol')
+        assert frames == [
+            ['155', '0x0021', ''],
+            ['159', '', '0x0021'],
+            ['162', '', '0x0021,0x0021,0x0057,0x0057'],
+            ['165', '', '0x0057'],
+            ['167', '', '0x0021,0x0021,0x0021'],
+        ]
+
+    def test_ppp_multilink(self, cmd_tshark, capture_file, test_env):
+        '''Three Multilink fragments (frames 183-185) and two with a
+        class (186-187) reassemble to an IPv4 UDP packet; a fragment
+        that never completes is reported as unreassembled.'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'mp.reassembled.length && frame.number in {185, 187}',
+                                 'frame.number', 'mp.reassembled.length', 'udp.srcport')
+        assert [f[0] for f in frames] == ['185', '187']
+        assert frames[0][1] == frames[1][1] == '47'
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'frame.number in {183, 188}',
+                                 '_ws.col.info')
+        assert frames == [['PPP Multilink (PPP MP Unreassembled fragment 10)'],
+                          ['PPP Multilink (PPP MP Unreassembled fragment 30)']]
+
+    def test_ppp_vsnp_and_direction(self, cmd_tshark, capture_file, test_env):
+        '''VSNP data (3GPP2 OUI of the VSNCP frames before it) decodes
+        as IPv4 behind the PDN id; the DLT 204 frames carry the
+        direction.'''
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'vsnp.3gpp.pdnid',
+                                 'frame.number', 'vsnp.3gpp.pdnid', 'frame.protocols')
+        assert frames == [['181', '0x05', 'ppp:vsnp:ip:udp:data']]
+        frames = self.ppp_fields(cmd_tshark, capture_file, test_env, 'ppp.direction',
+                                 'ppp.direction')
+        assert [f[0] for f in frames] == ['1', '1', '0', '0', '0', '1', '0'] or \
+            sorted(f[0] for f in frames) == ['0', '0', '0', '0', '1', '1', '1']
