@@ -1546,6 +1546,39 @@ profile_register_persconffile(const char *filename)
  * XXX - what about stuff that shouldn't be shared between machines,
  * such as plugins in the form of shared loadable images?
  */
+#ifdef _WIN32
+/*
+ * If the program is in a PortableApps.com package, return the package's
+ * Data directory, which is where the PortableApps.com Launcher points
+ * WIRESHARK_APPDATA; otherwise return NULL. The programs are in
+ * App\<name>, next to App\AppInfo\appinfo.ini, which the PortableApps.com
+ * Format requires. The Data directory might not exist yet, if the launcher
+ * hasn't been run; it's created when something is saved there, like any
+ * other personal configuration directory.
+ */
+static char *
+get_portableapps_data_dir(void)
+{
+    const char *progfile = get_progfile_dir();
+    char *app_dir, *appinfo, *package_dir;
+    char *data_dir = NULL;
+
+    if (progfile == NULL)
+        return NULL;
+
+    app_dir = g_path_get_dirname(progfile);
+    appinfo = g_build_filename(app_dir, "AppInfo", "appinfo.ini", (char *)NULL);
+    if (g_ascii_strcasecmp(get_basename(app_dir), "App") == 0 && file_exists(appinfo)) {
+        package_dir = g_path_get_dirname(app_dir);
+        data_dir = g_build_filename(package_dir, "Data", (char *)NULL);
+        g_free(package_dir);
+    }
+    g_free(appinfo);
+    g_free(app_dir);
+    return data_dir;
+}
+#endif
+
 static const char *
 get_persconffile_dir_no_profile(const char* app_env_var_prefix)
 {
@@ -1568,11 +1601,8 @@ get_persconffile_dir_no_profile(const char* app_env_var_prefix)
 #ifdef _WIN32
     if (env == NULL) {
         /*
-         * The PortableApps launcher sets this environment variable.
-         * XXX - That's only for the GUI. We don't have launchers/batch
-         * scripts for the command line tools, and just package the same
-         * binaries as built for NSIS and WiX, so if the user is running
-         * tshark from the PortableApps directory, how do we tell? (#20095)
+         * The PortableApps.com Launcher sets this environment variable
+         * when it starts Wireshark.
          */
         env = g_getenv("WIRESHARK_APPDATA");
     }
@@ -1583,6 +1613,16 @@ get_persconffile_dir_no_profile(const char* app_env_var_prefix)
     }
 
 #if defined(_WIN32)
+    /*
+     * The launcher only starts Wireshark, but the command line tools
+     * in the package, such as TShark, should use the same directory
+     * when they're run directly. (#20095)
+     */
+    persconffile_dir = get_portableapps_data_dir();
+    if (persconffile_dir != NULL) {
+        goto return_dir;
+    }
+
     /*
      * Use %APPDATA% or %USERPROFILE%, so that configuration
      * files are stored in the user profile, rather than in
