@@ -139140,3 +139140,101 @@ class TestDissectSmbMailslot:
             ['19', 'BROWSER'], ['23', 'SMB_NETLOGON'], ['39', 'BROWSER']]
         assert rows[0][2].startswith('Local Master Announcement HOST3')
         assert rows[1][2] == 'LM2.0 Response to LOGON Request'
+
+
+class TestDissectSmbPipe:
+    '''SMB Transaction on named pipes (SMB Pipe, DCE/RPC over named pipes
+    and LANMAN, the Remote Administration Protocol) over TCP 445, from the
+    synthetic capture smb_pipe_coverage.pcap.gz.'''
+
+    CAP = 'smb_pipe_coverage.pcap.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSmbPipe.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_pipe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 155
+        assert protocols.count('LANMAN') == 89
+        assert protocols.count('SMB Pipe') == 38
+        assert protocols.count('DCERPC') == 11
+        assert protocols.count('SMB') == 11
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_smb_pipe_function_state(self, cmd_tshark, capture_file, test_env):
+        '''A transaction whose request has no setup words and whose
+        response carries some (PeekNamedPipe) is decoded the same way in
+        one and two passes. The second pass used to decode the request
+        with the function and FID of the response ("SMB Pipe PeekNamedPipe
+        Request, FID: 0x4000").'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number in {154, 155}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+            assert rows == [
+                ['154', 'LANMAN', 'NetShareEnum Request'],
+                ['155', 'SMB Pipe', 'PeekNamedPipe Response, FID: 0x4000'],
+            ]
+
+    def test_smb_pipe_lanman_lists(self, cmd_tshark, capture_file, test_env):
+        '''Share and server enumerations: entry counts, names, and the
+        server types shown in the Info column of the request.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 10, 12, 32, 34, 36}',
+                '-Tfields', '-eframe.number', '-elanman.entry_count', '-elanman.available_count',
+                '-elanman.share.name', '-elanman.share.comment', '-elanman.server.name')
+        assert rows == [
+            ['8', '3', '3', 'IPC$,Share,Print', 'Remote IPC,a share,<String goes past end of frame>', ''],
+            ['10', '2', '2', '', '', ''],
+            ['12', '0', '0', '', '', ''],
+            ['32', '3', '3', '', '', 'HOST0,HOST1,HOST2'],
+            ['34', '2', '2', '', '', 'A,B'],
+            ['36', '3', '5', '', '', 'HOST0,HOST1,HOST2'],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 33', '-Tfields', '-e_ws.col.info')
+        assert rows == [['NetServerEnum2 Request, Domain Enum']]
+
+    def test_smb_pipe_named_pipe_functions(self, cmd_tshark, capture_file, test_env):
+        '''The named pipe functions in the setup words and their
+        parameters: PeekNamedPipe, QNmPipeInfo level 1, RawWriteNmPipe.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {123, 137, 147}',
+                '-Tfields', '-eframe.number', '-esmb_pipe.peek.available_bytes',
+                '-esmb_pipe.peek.remaining_bytes', '-esmb_pipe.peek.status',
+                '-esmb_pipe.getinfo.output_buffer_size', '-esmb_pipe.getinfo.maximum_instances',
+                '-esmb_pipe.getinfo.pipe_name', '-esmb_pipe.write_raw.bytes_written')
+        assert rows == [
+            ['123', '10', '4', '3', '', '', '', ''],
+            ['137', '', '', '', '4096', '255', '\\\\test', ''],
+            ['147', '', '', '', '', '', '', '14'],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {120, 150}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert rows == [['120', 'WaitNamedPipe Request'], ['150', 'Unknown function (0x0099) Request']]
+
+    def test_smb_pipe_dcerpc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A DCE/RPC request in two transactions and a response in three
+        are reassembled: the PDU is decoded in the last frame, the earlier
+        ones point to it on the second pass.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {102, 109} && dcerpc',
+                '-Tfields', '-eframe.number', '-edcerpc.cn_call_id', '-edcerpc.pkt_type',
+                '-esmb_pipe.reassembled.length')
+        assert rows == [['102', '3', '0', '216'], ['109', '4', '2', '224']]
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {100, 105, 107}',
+                '-Tfields', '-eframe.number', '-esmb_pipe.reassembled_in')
+        assert rows == [['100', '102'], ['105', '109'], ['107', '109']]
