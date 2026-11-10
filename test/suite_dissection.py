@@ -113130,3 +113130,108 @@ class TestDissectOpenvpn:
         assert [len(r[2]) for r in rows[:5]] == [40] * 5
         assert [len(r[2]) for r in rows[5:]] == [64] * 4
         assert [r[3] for r in rows[5:]] == ['120', '2', '64', '']
+
+
+class TestDissectOpenwire:
+    '''OpenWire (ActiveMQ) from the synthetic capture
+    openwire_coverage.pcap.gz. OpenWire has no default port: the TCP
+    heuristic finds each stream from its first PDU. Stream 1 (frames
+    1-68) uses loose encoding, stream 2 (frames 69-127) caching, streams
+    3 and 4 (frames 128-139) tight encoding, which is not decoded, and
+    stream 5 (frames 140-146) is not OpenWire. In stream 2 the
+    OpenWire caching flag (openwire.cached.enabled) is shown on the
+    frames before the first cached object only in the second pass, so
+    that field is not compared between the passes.'''
+
+    def test_openwire_frames(self, cmd_tshark, capture_file, test_env):
+        '''125 OpenWire frames; no malformed packets and no warning or
+        error expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openwire_coverage.pcap.gz'),
+                    '-Y', 'openwire', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 125
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('openwire_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_openwire_commands(self, cmd_tshark, capture_file, test_env):
+        '''The commands of stream 1: ConnectionInfo with and without
+        strings, all seven TransactionInfo types, the Response, and two
+        commands in one segment (frame 62).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 8, 22, 28, 29, 62}',
+                '-Tfields', '-eframe.number', '-eopenwire.command',
+                '-eopenwire.connectioninfo.clientid', '-eopenwire.transactioninfo.type',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '7\t3\tclient-1\t',
+            '8\t3\t\t',
+            '22\t7\t\t0',
+            '28\t7\t\t6',
+            '29\t7\t\t',
+            '62\t10,30\t\t',
+        ]
+
+    def test_openwire_message_types_and_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The seven message command types in frames 49-55, with the body
+        types that are only noted; a text message of 3000 octets over
+        three TCP segments is reassembled in frame 65.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 49 && frame.number <= 65 && frame.number != 62 && openwire.command >= 23 && openwire.command <= 29',
+                '-Tfields', '-eframe.number', '-eopenwire.command',
+                '-eopenwire.body_type_not_supported',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1]) for r in rows] == [
+            ('49', '23'), ('50', '24'), ('51', '25'), ('52', '26'), ('53', '27'), ('54', '28'),
+            ('55', '29'), ('56', '28'), ('57', '25'), ('58', '27'), ('59', '23'), ('60', '25'),
+            ('65', '28'),
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'frame.number == 65', '-Tfields', '-eopenwire.length',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '3356'
+
+    def test_openwire_caching(self, cmd_tshark, capture_file, test_env):
+        '''In stream 2 cached objects are sent inline with their cache
+        ID (frame 73: SessionInfo) and by reference only (frame 126).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'frame.number in {71, 73, 74, 126}',
+                '-Tfields', '-eframe.number', '-eopenwire.cached.id',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['71\t121', '73\t122', '74\t1', '126\t5']
+
+    def test_openwire_tight_encoding(self, cmd_tshark, capture_file, test_env):
+        '''A stream that starts with an 11 octet KeepAlive, and one whose
+        first command has an id above 2**24, are tight: noted, not
+        decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'openwire.tight_encoding_not_supported',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['131', '132', '133', '138', '139']
+
+    def test_openwire_exceptions(self, cmd_tshark, capture_file, test_env):
+        '''ExceptionResponse with a stack trace of two elements and a
+        nested cause.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('openwire_coverage.pcap.gz'),
+                '-Y', 'frame.number in {41, 42, 43}',
+                '-Tfields', '-eframe.number', '-eopenwire.throwable.class',
+                '-eopenwire.throwable.linenumber',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '41\tjava.lang.Exception,java.lang.Exception\t10,11',
+            '42\tjava.lang.Exception\t',
+            '43\t\t',
+        ]
