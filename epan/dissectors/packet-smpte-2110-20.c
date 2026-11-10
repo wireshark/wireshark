@@ -146,7 +146,7 @@ proto_register_st2110_20(void)
         },
         { &hf_st2110_seqno,
           { "Sequence Number", "st2110_20.seq",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_st2110_rtp_time,
