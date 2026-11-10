@@ -133479,3 +133479,116 @@ class TestDissectSapenqueue:
         assert [l.split('\t')[:2] for l in stdout.splitlines()] == [
             ['23', '1'], ['24', '2'], ['25', '4'], ['26', '6'], ['27', '6'], ['28', '6'],
             ['29', '6'], ['30', '6'], ['31', '6'], ['32', '6']]
+
+
+class TestDissectSaphdb:
+    def test_saphdb_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP HANA SQL command network protocol on TCP 30015 and 30013:
+        84 SAPHDB frames, the handshakes and the segments of two reassembled
+        messages; none is malformed or has an error expert info, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saphdb_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 92
+            assert protocols.count('SAPHDB') == 84
+            assert protocols.count('TCP') == 8
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saphdb_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_saphdb_initialization(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'saphdb.init_request || saphdb.init_reply',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-esaphdb.init_reply.protocol_version.major',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['4\tInitialization Request\t',
+                                       '5\tInitialization Reply\t4']
+
+    def test_saphdb_segments(self, cmd_tshark, capture_file, test_env):
+        '''Request message types, reply function codes and error segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 8, 14, 15, 78, 81, 82, 83}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esaphdb.segment.kind',
+                '-esaphdb.segment.noofparts', '-esaphdb.noofsegm',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['6', 'Segment Request (AUTHENTICATE)', '1', '1', '1']
+        assert lines[1][1] == 'Segment Reply (CONNECT)'
+        assert lines[2][1] == 'Segment Request (COMMIT)Segment Request (FETCHNEXT)'
+        assert lines[2][4] == '2'
+        assert lines[3][1] == 'Segment Reply (COMMIT)'
+        assert lines[4][1] == 'Segment Error ()' and lines[4][2] == '5'
+        assert lines[5][1] == 'Segment Unknown ()'
+        assert lines[7][4] == '3'
+
+    def test_saphdb_options(self, cmd_tshark, capture_file, test_env):
+        '''Option parts: connect options with their typed values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 12',
+                '-Tfields', '-esaphdb.segment.part.option.value.int',
+                '-esaphdb.segment.part.option.value.string',
+                '-esaphdb.segment.part.option.value.bool',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['100,12', 'en_US,2.00.059', 'True,False\n']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'frame.number == 17',
+                '-Tfields', '-esaphdb.segment.part.option.argcount',
+                '-esaphdb.segment.part.option.value.string',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t') == ['4,2', 'hana1,hana2\n']
+
+    def test_saphdb_authentication_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Authentication fields (short and 0xff extended lengths, GSS
+        tokens) and the error part with every level.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'saphdb.segment.part.authentication.fieldcount',
+                '-Tfields', '-eframe.number', '-esaphdb.segment.part.authentication.fieldcount',
+                '-esaphdb.segment.part.authentication.fieldlength',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['6', '7', '8', '9', '10', '11']
+        assert lines[0][1:] == ['3', '6,7,64']
+        assert lines[1][2].split(',')[2] == '300'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'saphdb.segment.part.error.level',
+                '-Tfields', '-eframe.number', '-esaphdb.segment.part.error.level',
+                '-esaphdb.segment.part.error.sqlstate', '-esaphdb.segment.part.error.text',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '78\t0\t42S02\twarning text', '79\t1\t42S02\tinvalid table name: TAB1', '80\t2\t42S02\t']
+
+    def test_saphdb_reassembly_and_compression(self, cmd_tshark, capture_file, test_env):
+        '''A message from three TCP segments, and compressed messages: the
+        compressed buffer is the rest of the variable part after the first
+        segment header (it ran past the end of the packet before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('saphdb_coverage.pcap.gz'),
+                '-Y', 'frame.number in {84, 85}',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['84\t86', '85\t86']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saphdb_coverage.pcap.gz'),
+                    '-Y', 'saphdb.compressedbuffer',
+                    '-Tfields', '-eframe.number', '-esaphdb.compressedbuffer',
+                    '-esaphdb.packetoptions', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert [l[0] for l in lines] == ['87', '88']
+            assert all(l[1] == '1' and l[2] == '2' for l in lines)
+            assert all(l[3] == 'Packet is compressed and decompression is not supported' for l in lines)
