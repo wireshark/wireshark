@@ -2566,28 +2566,6 @@ if(USE_REPOSITORY)
 		ws_add_runtime_dlls(${_falco_plugin_dlls} ONLY_FOR stratoshark)
 	endif()
 
-	if (SMI_FOUND)
-		# Wireshark.nsi wants SMI_DIR which is the base SMI directory
-		get_filename_component(SMI_DIR ${SMI_DLL_DIR} DIRECTORY)
-
-		# Copy and install the directories of SMI modules (MIBs, PIBs and YANG
-		# modules) that we use, including their subdirectories, such as
-		# mibs/iana and mibs/ietf. This is the same layout as in the NSIS
-		# installer. We search the snmp directory recursively for modules.
-		cmake_path(SET _snmp_install_dir NORMALIZE "${CMAKE_INSTALL_BINDIR}/snmp")
-		foreach(_mib_dir mibs pibs yang)
-			add_custom_command(TARGET copy_cli_dlls PRE_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_directory
-					"${SMI_SHARE_DIR}/${_mib_dir}"
-					"${_dll_output_dir}/snmp/${_mib_dir}"
-			)
-			install(DIRECTORY "${SMI_SHARE_DIR}/${_mib_dir}"
-				DESTINATION "${_snmp_install_dir}"
-			)
-		endforeach()
-
-	endif(SMI_FOUND)
-
 	# Third party DLLs, registered by our Find modules using
 	# ws_add_runtime_dlls(), and their PDBs.
 	get_property(_runtime_dll_targets GLOBAL PROPERTY WS_RUNTIME_DLL_TARGETS)
@@ -2636,6 +2614,45 @@ if(USE_REPOSITORY)
 			WORKING_DIRECTORY "${_dll_output_dir}"
 		)
 	endif()
+endif()
+
+if(WIN32 AND SMI_FOUND)
+	# The NSIS installer wants SMI_DIR, which is the base SMI directory.
+	get_filename_component(SMI_DIR "${SMI_SHARE_DIR}" DIRECTORY)
+
+	# Copy and install the directories of SMI modules (MIBs, PIBs and YANG
+	# modules) that we use, including their subdirectories, such as
+	# mibs/iana and mibs/ietf. This is the same layout as in the NSIS
+	# installer. We search the snmp directory recursively for modules.
+	# Do this for MSYS2 as well: someone installing from an NSIS package
+	# probably won't have the libraries in the same paths as the builder,
+	# and its libsmi was built with a default path that a native Windows
+	# program can't use even if installed into the MSYS2 runtime.
+	# XXX - For the same reason, we might want to install the modules on
+	# macOS if ENABLE_APPLICATION_BUNDLE is true.
+	add_custom_target(copy_smi_modules)
+	set_target_properties(copy_smi_modules PROPERTIES FOLDER "Copy Tasks")
+	# Install them in the data file directory, which is the program
+	# directory on Windows and <prefix>/share/wireshark in the MSYS2
+	# runtime.
+	if (ENABLE_SEPARATE_PROJECT_NAME)
+		cmake_path(SET _snmp_install_dir NORMALIZE "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/snmp")
+	else()
+		cmake_path(SET _snmp_install_dir NORMALIZE "${CMAKE_INSTALL_DATADIR}/snmp")
+	endif()
+	foreach(_mib_dir mibs pibs yang)
+		if(IS_DIRECTORY "${SMI_SHARE_DIR}/${_mib_dir}")
+			add_custom_command(TARGET copy_smi_modules PRE_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_directory
+					"${SMI_SHARE_DIR}/${_mib_dir}"
+					"$<TARGET_FILE_DIR:wsutil>/snmp/${_mib_dir}"
+			)
+			install(DIRECTORY "${SMI_SHARE_DIR}/${_mib_dir}"
+				DESTINATION "${_snmp_install_dir}"
+			)
+		endif()
+	endforeach()
+	add_dependencies(epan copy_smi_modules)
 endif()
 
 # List of extra dependencies for the "copy_data_files" target

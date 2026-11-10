@@ -36,7 +36,19 @@ IF(SMI_FOUND)
   SET( SMI_LIBRARIES ${SMI_LIBRARY} )
   SET( SMI_INCLUDE_DIRS ${SMI_INCLUDE_DIR} )
   if (WIN32)
-    set ( SMI_SHARE_DIR "${SMI_HINTS}/share"
+    if (SMI_HINTS)
+      set ( _smi_share_dir "${SMI_HINTS}/share" )
+    else()
+      # MSYS2 and MinGW have no SMI_HINTS, but libsmi installs the
+      # modules in share next to include.
+      get_filename_component( _smi_prefix "${SMI_INCLUDE_DIR}" DIRECTORY )
+      set ( _smi_share_dir "${_smi_prefix}/share" )
+    endif()
+    # Without SMI_HINTS, earlier versions cached "/share".
+    if (DEFINED CACHE{SMI_SHARE_DIR} AND NOT IS_DIRECTORY "${SMI_SHARE_DIR}")
+      unset ( SMI_SHARE_DIR CACHE )
+    endif()
+    set ( SMI_SHARE_DIR "${_smi_share_dir}"
       CACHE PATH "Path to the SMI MIBs"
     )
     mark_as_advanced( SMI_SHARE_DIR )
