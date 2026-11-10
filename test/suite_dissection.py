@@ -133839,3 +133839,118 @@ class TestDissectSapni:
             ), encoding='utf-8', env=test_env)
         assert stdout.split() == ['21', 'SAPDIAG', '27', 'SAPENQUEUE', '28', 'SAPENQUEUE',
                 '29', 'SAPROUTER', '30', 'SAPROUTER', '31', 'SAPIGS']
+
+
+class TestDissectSaprfc:
+    def test_saprfc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP RFC gateway messages on TCP 3300 (84 frames) and two SAP Diag
+        messages with an embedded RFC call; none is malformed or has an
+        error expert info, in one and two passes, with the same Info column
+        in both.'''
+        infos = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saprfc_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            infos.append(stdout)
+            protocols = [l.split('\t')[0] for l in stdout.splitlines()]
+            assert len(protocols) == 92
+            assert protocols.count('SAPRFC') == 84
+            assert protocols.count('SAPDIAG') == 2
+            assert protocols.count('TCP') == 6
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saprfc_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        assert infos[0].replace('TCP segment of a reassembled PDU', '') == infos[1].replace(
+            'TCP segment of a reassembled PDU', '')
+
+    def test_saprfc_gateway(self, cmd_tshark, capture_file, test_env):
+        '''GW_NORMAL_CLIENT and GW_REGISTER_TP in versions 1 to 3, monitor
+        commands and the other request types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprfc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 6, 7, 8, 9, 57, 58, 59, 73}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esaprfc.address',
+                '-esaprfc.service', '-esaprfc.lu', '-esaprfc.address6',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['4', 'Version=1, Request Type=GW_NORMAL_CLIENT', '192.0.2.9', 'sapgw00', 'LU01', '']
+        assert lines[1][0] == '5' and lines[1][5] == '2001:db8::9'
+        assert lines[2][1] == 'Version=3, Request Type=GW_REGISTER_TP'
+        assert lines[4][1] == 'Version=2, Request Type=GW_SEND_CMD, Command=NOOP'
+        assert lines[5][1] == 'Version=2, Request Type=GW_SEND_CMD, Command=DELETE_CONN'
+        assert lines[6][1] == 'Version=2, Request Type=GW_SEND_CMD, Command=Unknown'
+        assert lines[7][1] == 'Version=1, Request Type=GW_UNDEF_TYPE'
+        assert lines[8][1] == 'Version=1, Request Type=GW_CHECK_GATEWAY'
+        assert lines[9][1] == 'Version=1, Request Type=Unknown'
+
+    def test_saprfc_appc(self, cmd_tshark, capture_file, test_env):
+        '''APPC headers: conversation initialisation, partner LU name
+        (long names too), security type, and the flag bitmasks.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprfc_coverage.pcap.gz'),
+                '-Y', 'frame.number in {74, 75, 76, 77, 79, 80}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esaprfc.appcheader.ncpic_parameters.sdest',
+                '-esaprfc.appcheader.ncpic_parameters.client_info', '-esaprfc.appcheader.ncpic_parameters.lu_name',
+                '-esaprfc.partner_long_lu', '-esaprfc.appcheader.ncpic_parameters.security_password',
+                '-esaprfc.appcheader.appc_rc', '-esaprfc.info2.GW_STATELESS',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:4] == ['74', 'APPC Version=6, Request Type=F_INITIALIZE_CONVERSATION', 'SDEST', '0x02']
+        assert int(lines[0][7], 0) == 10001 and lines[0][8] == 'True'
+        assert lines[1][3] == '0x01'
+        assert lines[2][1] == 'APPC Version=6, Request Type=F_SET_PARTNER_LU_NAME'
+        assert lines[2][4:6] == ['PARTLU', 'LONGLUNAME_01234']
+        assert lines[3][5] == 'L' * 128
+        assert lines[4][6] == 'PASSWORD'
+        assert lines[5][1] == 'APPC Version=6, Request Type=F_SEND_DATA'
+
+    def test_saprfc_items(self, cmd_tshark, capture_file, test_env):
+        '''RFC items: function and parameter names, the connection ID
+        item, extended passports (with padding after the passport), the
+        session header and trailer, and the unknown item.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprfc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 80', '-V',
+            ), encoding='utf-8', env=test_env)
+        for text in ('Function Name: Z_RFC_FUNCTION', 'Import Parameter Name: IV_PARAMETER',
+                     'Export Parameter Name: EV_RESULT', 'Extended Passport',
+                     'EPP Component: COMPONENT'):
+            assert text in stdout
+        assert stdout.count('EPP Component: COMPONENT') == 2
+        assert 'End of RFC message' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprfc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 80', '-Tfields', '-esaprfc.epp.padding',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '000000'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprfc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 81',
+                '-Tfields', '-esaprfc.session_header', '-esaprfc.rfc_packet_size',
+                '-esaprfc.cpic_state', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        fields = stdout.rstrip('\n').split('\t')
+        assert fields[0] != '' and int(fields[1], 0) == 4096 and int(fields[2], 0) == 3
+        assert fields[3] == 'The RFC item has a unknown type that is not dissected (7 7)'
+
+    def test_saprfc_tables(self, cmd_tshark, capture_file, test_env):
+        '''Table items reassembled from one, two and three content items,
+        uncompressed and LZC compressed, in one and two passes (the table
+        reassembly was passed the wrong tvb and always said "The table
+        length is invalid").'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saprfc_coverage.pcap.gz'),
+                    '-Y', 'saprfc.table',
+                    '-Tfields', '-eframe.number', '-esaprfc.table.compression.uncomplength',
+                    '-esaprfc.table.compression.returncode', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert [l[0] for l in lines] == ['84', '85', '86', '87', '92']
+            assert [l[1] for l in lines] == ['', '1160', '1740', '2320', '870']
+            assert all(l[-1] == '' for l in lines)
