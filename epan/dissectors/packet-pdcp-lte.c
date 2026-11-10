@@ -153,6 +153,7 @@ static expert_field ei_pdcp_lte_sequence_analysis_sn_missing;
 static expert_field ei_pdcp_lte_digest_wrong;
 static expert_field ei_pdcp_lte_unknown_udp_framing_tag;
 static expert_field ei_pdcp_lte_missing_udp_framing_tag;
+static expert_field ei_pdcp_lte_unsupported_sn_length;
 
 
 /*-------------------------------------
@@ -361,7 +362,7 @@ void set_pdcp_lte_rrc_ciphering_key(uint16_t ueid, const char *key, uint32_t fra
 
     key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
     new_key_entry->key_type = rrc_cipher;
-    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->keyString = wmem_strdup(wmem_file_scope(), key);
     new_key_entry->setup_frame = frame_num;
     update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
@@ -390,7 +391,7 @@ void set_pdcp_lte_rrc_integrity_key(uint16_t ueid, const char *key, uint32_t fra
 
     key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
     new_key_entry->key_type = rrc_integrity;
-    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->keyString = wmem_strdup(wmem_file_scope(), key);
     new_key_entry->setup_frame = frame_num;
     update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
@@ -419,7 +420,7 @@ void set_pdcp_lte_up_ciphering_key(uint16_t ueid, const char *key, uint32_t fram
 
     key_entry_t *new_key_entry = &key_entries->entries[key_entries->num_entries_set++];
     new_key_entry->key_type = up_cipher;
-    new_key_entry->keyString = g_strdup(key);
+    new_key_entry->keyString = wmem_strdup(wmem_file_scope(), key);
     new_key_entry->setup_frame = frame_num;
     update_key_from_string(new_key_entry->keyString, new_key_entry->binaryKey, &new_key_entry->keyOK, &err);
     if (err) {
@@ -691,7 +692,7 @@ typedef struct pdu_security_settings_t
 } pdu_security_settings_t;
 
 
-static uat_ue_keys_record_t* look_up_keys_record(uint16_t ueid, uint32_t frame_num,
+static uat_ue_keys_record_t* look_up_keys_record(packet_info *pinfo, uint16_t ueid, uint32_t frame_num,
                                                  uint32_t *config_frame_rrc_cipher,
                                                  uint32_t *config_frame_rrc_integrity,
                                                  uint32_t *config_frame_up_cipher)
@@ -703,7 +704,7 @@ static uat_ue_keys_record_t* look_up_keys_record(uint16_t ueid, uint32_t frame_n
                                                                       GUINT_TO_POINTER((unsigned)ueid));
     if (key_record != NULL) {
         /* Will build up and return usual type */
-        uat_ue_keys_record_t *keys = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
+        uat_ue_keys_record_t *keys = wmem_new0(pinfo->pool, uat_ue_keys_record_t);
 
         /* Fill in details */
         keys->ueid = ueid;
@@ -757,6 +758,21 @@ static uat_ue_keys_record_t* look_up_keys_record(uint16_t ueid, uint32_t frame_n
     return NULL;
 }
 
+/* Is this a sequence number length that sequence analysis can handle? */
+static bool valid_sn_length(uint8_t seqnum_length)
+{
+    switch (seqnum_length) {
+        case PDCP_SN_LENGTH_5_BITS:
+        case PDCP_SN_LENGTH_7_BITS:
+        case PDCP_SN_LENGTH_12_BITS:
+        case PDCP_SN_LENGTH_15_BITS:
+        case PDCP_SN_LENGTH_18_BITS:
+            return true;
+        default:
+            return false;
+    }
+}
+
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    pdcp_lte_info *p_pdcp_lte_info,
@@ -793,16 +809,9 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
     proto_item_set_generated(ti_expected_sn);
 
     /* Make sure we have recognised SN length */
-    switch (p_pdcp_lte_info->seqnum_length) {
-        case PDCP_SN_LENGTH_5_BITS:
-        case PDCP_SN_LENGTH_7_BITS:
-        case PDCP_SN_LENGTH_12_BITS:
-        case PDCP_SN_LENGTH_15_BITS:
-        case PDCP_SN_LENGTH_18_BITS:
-            break;
-        default:
-            DISSECTOR_ASSERT_NOT_REACHED();
-            break;
+    if (!valid_sn_length(p_pdcp_lte_info->seqnum_length)) {
+        expert_add_info(pinfo, seqnum_ti, &ei_pdcp_lte_unsupported_sn_length);
+        return;
     }
 
     switch (p->state) {
@@ -858,7 +867,8 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         hfn_multiplier = 262144;
                         break;
                     default:
-                        DISSECTOR_ASSERT_NOT_REACHED();
+                        /* Not reached: SN length checked on entry */
+                        hfn_multiplier = 1;
                         break;
                 }
                 count = (p->hfn * hfn_multiplier) + sequenceNumber;
@@ -870,7 +880,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 /* KEY.  Look this UE up among UEs that have keys configured */
                 uint32_t config_frame_rrc_cipher=0, config_frame_rrc_integrity=0,
                         config_frame_up_cipher=0;
-                keys_record = look_up_keys_record(p_pdcp_lte_info->ueid, pinfo->num,
+                keys_record = look_up_keys_record(pinfo, p_pdcp_lte_info->ueid, pinfo->num,
                                                   &config_frame_rrc_cipher, &config_frame_rrc_integrity,
                                                   &config_frame_up_cipher);
                 if (keys_record != NULL) {
@@ -992,6 +1002,11 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     uint32_t                       expectedSequenceNumber = 0;
     uint32_t                       snLimit                = 0;
 
+    /* Only sequence number lengths that are understood can be analysed */
+    if (!valid_sn_length(p_pdcp_lte_info->seqnum_length)) {
+        return;
+    }
+
     /* If find stat_report_in_frame already, use that and get out */
     if (PINFO_FD_VISITED(pinfo)) {
         p_report_in_frame =
@@ -1057,7 +1072,8 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             snLimit = 262144;
             break;
         default:
-            DISSECTOR_ASSERT_NOT_REACHED();
+            /* Not reached: SN length checked on entry */
+            snLimit = 1;
             break;
     }
 
@@ -2153,7 +2169,14 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             /* 5-bit sequence number */
             proto_tree_add_item_ret_uint(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, ENC_BIG_ENDIAN, &seqnum);
-            seqnum_set = true;
+            if (valid_sn_length(p_pdcp_info->seqnum_length)) {
+                seqnum_set = true;
+            }
+            else {
+                expert_add_info_format(pinfo, ti, &ei_pdcp_lte_unsupported_sn_length,
+                                       "Unsupported PDCP sequence number length %u",
+                                       p_pdcp_info->seqnum_length);
+            }
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
 
@@ -3132,7 +3155,8 @@ void proto_register_pdcp_lte(void)
         { &ei_pdcp_lte_reserved_bits_not_zero, { "pdcp-lte.reserved-bits-not-zero", PI_MALFORMED, PI_ERROR, "Reserved bits not zero", EXPFILL }},
         { &ei_pdcp_lte_digest_wrong, { "pdcp-lte.maci-wrong", PI_SEQUENCE, PI_ERROR, "MAC-I doesn't match expected value", EXPFILL }},
         { &ei_pdcp_lte_unknown_udp_framing_tag, { "pdcp-lte.unknown-udp-framing-tag", PI_UNDECODED, PI_WARN, "Unknown UDP framing tag, aborting dissection", EXPFILL }},
-        { &ei_pdcp_lte_missing_udp_framing_tag, { "pdcp-lte.missing-udp-framing-tag", PI_UNDECODED, PI_WARN, "Missing UDP framing conditional tag, aborting dissection", EXPFILL }}
+        { &ei_pdcp_lte_missing_udp_framing_tag, { "pdcp-lte.missing-udp-framing-tag", PI_UNDECODED, PI_WARN, "Missing UDP framing conditional tag, aborting dissection", EXPFILL }},
+        { &ei_pdcp_lte_unsupported_sn_length, { "pdcp-lte.unsupported-sn-length", PI_UNDECODED, PI_WARN, "Unsupported PDCP sequence number length, skipping sequence analysis", EXPFILL }}
     };
 
     static const enum_val_t sequence_analysis_vals[] = {
