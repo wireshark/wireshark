@@ -3125,7 +3125,7 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_ext_id,
       { "id", "sbc-ap.ext_id",
-        FT_UINT8, BASE_DEC, VALS(sbc_ap_ProtocolIE_ID_vals), 0,
+        FT_UINT16, BASE_DEC, VALS(sbc_ap_ProtocolIE_ID_vals), 0,
         "ProtocolExtensionID", HFILL }},
     { &hf_sbc_ap_extensionValue,
       { "extensionValue", "sbc-ap.extensionValue_element",

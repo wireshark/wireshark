@@ -113,7 +113,7 @@ Global-GNB-ID/gNB-ID gnb-id-choice
 #.END
 
 #.TYPE_ATTR
-ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(sbc_ap_ProtocolIE_ID_vals)
+ProtocolExtensionID TYPE = FT_UINT16 DISPLAY = BASE_DEC STRINGS = VALS(sbc_ap_ProtocolIE_ID_vals)
 
 #.FN_BODY EUTRAN-CGI
   struct sbc_ap_private_data *sbc_ap_data = sbc_ap_get_private_data(actx->pinfo);
