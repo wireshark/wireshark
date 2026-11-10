@@ -2909,7 +2909,7 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         break;
                     }
                     if (codeset == CODESET_ASCII) {
-                        if (identifier_type == DEVID_TYPE_VEND_ID_VEND_SPEC_ID) {
+                        if (identifier_type == DEVID_TYPE_VEND_ID_VEND_SPEC_ID && idlen >= 8) {
                             proto_tree_add_item(des_tree, hf_scsi_inq_vendor_id, tvb, offset, 8, ENC_ASCII);
                             proto_tree_add_item(des_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset + 8, idlen - 8, ENC_ASCII);
                         } else {
@@ -3539,7 +3539,7 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 cscds_tree = proto_tree_add_subtree_format(tree, tvb, offset, cscd_desc_list_len, ett_scsi_xcopy_cscds, NULL,
                                                         "CSCD (Copy Source and Copy Destination) descriptors (%u bytes)", cscd_desc_list_len);
                                 i = 1;
-                                while(cscd_desc_list_len > 0) {
+                                while(cscd_desc_list_len >= 32) {
                                         cscd_desc_type = tvb_get_uint8(tvb, offset);
                                         if (cscd_desc_type == 0xEA || cscd_desc_type == 0xEB) { /* both types occupy 64 bytes overall, everything else is 32 bytes */
                                                 cscd_tree = proto_tree_add_subtree_format(cscds_tree, tvb, offset, 64, ett_scsi_xcopy_cscd, NULL, "CSCD descriptor #%u", i);
@@ -3581,6 +3581,8 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         cscd_desc_list_len -= 32;
                                         if (cscd_desc_type == 0xEA || cscd_desc_type == 0xEB) { /* both types occupy 64 bytes overall, everything else is 32 bytes */
                                                 offset += 32;
+                                                if (cscd_desc_list_len < 32)
+                                                        break;
                                                 cscd_desc_list_len -= 32;
                                         }
                                 }
@@ -3589,8 +3591,10 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                 segs_tree = proto_tree_add_subtree_format(tree, tvb, offset, seg_desc_list_len,
                                         ett_scsi_xcopy_segs, NULL, "Segment descriptor list (%u bytes)", seg_desc_list_len);
                                 i = 1;
-                                while(seg_desc_list_len > 0) {
+                                while(seg_desc_list_len >= 4) {
                                         seg_desc_len = tvb_get_ntohs(tvb, offset + 2);
+                                        if (seg_desc_len < 4 || (unsigned)seg_desc_len + 4 > seg_desc_list_len)
+                                                break;
                                         seg_tree = proto_tree_add_subtree_format(segs_tree, tvb, offset, seg_desc_len + 4,
                                                             ett_scsi_xcopy_seg, NULL, "Segment descriptor #%u", i);
                                         i++;
@@ -4528,7 +4532,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
 
     if (!tvb_bytes_exist(tvb, offset, plen)) {
         /* XXX - why not just drive on and throw an exception? */
-        return (plen + 2);
+        return (plen + (spf ? 4 : 2));
     }
 
     /* XXX: We should pass plen into these, to stop the dissection
@@ -4538,7 +4542,7 @@ dissect_scsi_modepage(tvbuff_t *tvb, packet_info *pinfo,
                              pcode, spf, subpcode)) {
         proto_tree_add_expert(tree, pinfo, &ei_scsi_unknown_page, tvb, offset+2, plen);
     }
-    return (plen+2);
+    return (plen + (spf ? 4 : 2));
 }
 
 void
@@ -5528,7 +5532,8 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, packet_info* pinfo, proto_tree *s
     end = offset+7+additional_length;
     offset+=8;
     while (offset<end-2) {
-       uint8_t     desc_type, desc_length, desc_end;
+       uint8_t     desc_type, desc_length;
+       unsigned    desc_end, aoff;
        proto_item *item;
        proto_tree *desc_tree;
 
@@ -5568,23 +5573,24 @@ dissect_scsi_descriptor_snsinfo(tvbuff_t *tvb, packet_info* pinfo, proto_tree *s
              break;
           case 8:
             /*OSD attribute identification*/
-            offset+=4;
-            while (offset+8<=desc_end) {
+            aoff=offset+4;
+            while (aoff+8<=desc_end) {
                 const attribute_page_numbers_t *apn;
                 uint32_t page,number;
-                page=tvb_get_ntohl(tvb, offset);
-                proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_page,   tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset+=4;
-                number=tvb_get_ntohl(tvb, offset);
-                item=proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_number, tvb, offset, 4, ENC_BIG_ENDIAN);
+                page=tvb_get_ntohl(tvb, aoff);
+                proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_page,   tvb, aoff, 4, ENC_BIG_ENDIAN);
+                aoff+=4;
+                number=tvb_get_ntohl(tvb, aoff);
+                item=proto_tree_add_item(desc_tree, hf_scsi_sns_osd_attr_number, tvb, aoff, 4, ENC_BIG_ENDIAN);
                 apn=osd_lookup_attribute(page,number);
-                offset+=4;
+                aoff+=4;
                 if (apn) {
                     proto_item_append_text(item, " (%s)", apn->name);
                 } else {
                     proto_item_append_text(item, " (Unknown)");
                 }
             }
+            break;
           default:
              break;
        }
