@@ -139238,3 +139238,73 @@ class TestDissectSmbPipe:
                 '-Y', 'frame.number in {100, 105, 107}',
                 '-Tfields', '-eframe.number', '-esmb_pipe.reassembled_in')
         assert rows == [['100', '102'], ['105', '109'], ['107', '109']]
+
+
+class TestDissectSmc:
+    '''SMC (Shared Memory Communications) from the synthetic capture
+    smc_coverage.pcapng.gz: CLC proposal, accept, confirm and decline
+    messages of SMC-R and SMC-D, versions 1 and 2, over TCP port 5000
+    (found by the "smc_tcp" heuristic, over IPv4 and IPv6), and the SMC-R
+    LLC messages over RoCEv2 (found by the InfiniBand payload heuristic).'''
+
+    CAP = 'smc_coverage.pcapng.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_smc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames by protocol column; no malformed frames and no warnings
+        or errors, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'frame',
+                    ['_ws.col.protocol'], *passes)
+            counts = {p: rows.count(p) for p in set(rows)}
+            assert counts == {'SMC': 19, 'SMCv2': 27, 'SMC-R': 22, 'SMC-Rv2': 12,
+                              'RRoCE': 3, 'TCP': 8}
+            assert self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    ['frame.number'], *passes) == []
+
+    def test_smc_clc(self, cmd_tshark, capture_file, test_env):
+        '''CLC messages by type (proposal, accept, confirm, decline) and
+        the Info text of SMC-R, SMC-D, version 2 and IPv6 proposals.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'smc.clc_msg', ['smc.clc_msg'])
+        counts = {p: rows.count(p) for p in set(rows)}
+        assert counts == {'0': 1, '1': 15, '2': 12, '3': 11, '4': 5, '4,4': 1, '5': 1}
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {4, 7, 8, 10, 11, 17, 21, 54}',
+                ['frame.number', '_ws.col.info'])
+        info = {r.split('\t')[0]: r.split('\t')[1] for r in rows}
+        assert info['4'].startswith('[SMC-R-Proposal],')
+        assert info['7'].startswith('[SMC-D-Proposal],')
+        assert info['8'].startswith('[SMC-D/SMC-R-Proposal],')
+        assert info['10'].startswith('[SMC-Rv2-Proposal],')
+        assert info['11'].startswith('[SMC-Dv2/SMC-Rv2-Proposal],')
+        assert info['17'].startswith('[SMC-R-Accept],') and info['17'].endswith('QP=0x000102')
+        assert info['21'].startswith('[SMC-Rv2-Accept],')
+        assert info['54'].startswith('[SMC-Dv2/SMC-Rv2-Proposal],')
+
+    def test_smc_llc(self, cmd_tshark, capture_file, test_env):
+        '''LLC messages of version 1 (44 octets) and version 2 (length in
+        two octets), including responses and RMBE control (CDC) messages.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'smc.llc_msg', ['smc.llc_msg'])
+        counts = {p: rows.count(p) for p in set(rows)}
+        assert counts == {
+            '0x01': 2, '0x02': 3, '0x03': 3, '0x04': 2, '0x05': 1, '0x06': 3,
+            '0x07': 2, '0x08': 2, '0x09': 2, '0x21': 2, '0x22': 2, '0x24': 1,
+            '0x25': 2, '0x26': 1, '0x27': 1, '0x29': 3, '0xfe': 2}
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {55, 56, 74, 76, 78, 81}', ['frame.number', '_ws.col.info'])
+        info = {r.split('\t')[0]: r.split('\t')[1] for r in rows}
+        assert info['55'].endswith('[SMC-R] Confirm Link')
+        assert info['56'].endswith('[SMC-R] Confirm Link(Resp)')
+        assert info['74'].endswith('[SMC-R] CDC Message')
+        assert info['76'].endswith('[SMC-Rv2] Confirm Link (v2)')
+        assert info['78'].endswith('[SMC-Rv2] Add Link (v2)')
+        assert info['81'].endswith('[SMC-Rv2] Request Add Link (v2)')
