@@ -120385,3 +120385,177 @@ class TestDissectPsn:
             '10\t2\t1\t0\t\t',
             '11\t3\t7\t1\t5\t3',
         ]
+
+
+class TestDissectPtpCoverage:
+    '''PTP, IEEE 1588 PTPv1 and PTPv2 over UDP and over Ethernet (IEEE
+    802.1AS), from the synthetic capture ptp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('ptp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ptp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''222 frames: 37 PTPv1, 181 PTPv2, three NTP messages in PTP
+        TLVs and one PTP packet with version 3 (left as UDP); no malformed
+        packets and no expert info of error severity, in one and two
+        passes.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 222
+        assert protocols.count('PTPv1') == 37
+        assert protocols.count('PTPv2') == 181
+        assert protocols.count('NTP') == 3
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 8388608',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert rows == []
+
+    def test_ptp_info_both_passes(self, cmd_tshark, capture_file, test_env):
+        '''The Info column does not depend on the pass (only the analysis
+        fields in the tree do).'''
+        one = self._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        two = self._rows(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-eframe.number', '-e_ws.col.info', passes=('-2',))
+        assert one == two
+        info = {r[0]: r[1] for r in one}
+        assert info['1'] == 'Sync Message'
+        assert info['3'] == 'Delay_Request Message'
+        assert info['37'] == 'Management Message (Current Data Set)'
+        assert info['34'] == 'Management Message (Unknown message key 99)'
+        assert info['36'] == 'Unknown Message'
+        assert info['78'] == 'Announce Message'
+        assert info['87'] == 'Signaling Message WR CALIBRATE'
+        assert info['91'] == 'Signaling Message WR Unknown PTP WR Message (17185)'
+        assert info['126'] == 'Management (Fault log) RESPONSE'
+        assert info['180'] == 'Management (Unknown management Id 30583) ACKNOWLEDGE'
+        assert info['182'] == 'Management (Port dataset) Unknown Action 5'
+        assert info['187'] == 'Management Error Message (NO_SUCH_ID)'
+        assert info['189'] == 'Management Error Message (Unknown Error Id 66)'
+        assert info['217'] == 'Unknown PTP Message (4)'
+
+    def test_ptp_v1(self, cmd_tshark, capture_file, test_env):
+        '''PTPv1 messages: the control field selects the message and, for
+        a management message, the management message key.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 3, 4, 5, 6, 13, 34, 36, 37}',
+                '-Tfields', '-eframe.number', '-eptp.versionptp',
+                '-eptp.controlfield', '-eptp.mm.managementmessagekey')
+        assert rows == [
+            ['1', '1', '0', ''], ['3', '1', '1', ''], ['4', '1', '2', ''],
+            ['5', '1', '3', ''], ['6', '1', '4', '0'], ['13', '1', '4', '7'],
+            ['34', '1', '4', '99'], ['36', '1', '5', ''], ['37', '1', '4', '11'],
+        ]
+
+    def test_ptp_path_trace_tlv(self, cmd_tshark, capture_file, test_env):
+        '''A Path Trace TLV whose length is not a multiple of 8 ends where
+        its length says: one PathSequence entry, then the next TLV (a pad
+        TLV, shown as unparsed payload) starts in the right place.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {78, 79, 80}', '-Tfields',
+                '-eframe.number', '-eptp.v2.tlv.tlvType',
+                '-eptp.v2.an.pathsequence', '-eptp.v2.tlv.unparsed_payload')
+        assert rows == [
+            ['78', '0x0008', '0x001b19fffe000001,0x0011223344556677,0x080030fffe00cafe', ''],
+            ['79', '0x0008,0x8008', '0x001b19fffe000001', 'aabbccdd'],
+            ['80', '0x0008', '', ''],
+        ]
+
+    def test_ptp_oe_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Organisation extension TLVs: the organisation id, propagated and
+        not propagated TLVs, an unknown organisation (unparsed) and NTP
+        carried in a TLV (dissected as NTP).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {108, 113, 116, 117, 118, 120, 122}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-eptp.v2.tlv.tlvType', '-eptp.v2.tlv.oe.organizationId')
+        assert rows == [
+            ['108', 'PTPv2', '0x0003', '1839773'],
+            ['113', 'PTPv2', '0x0003', '1193046'],
+            ['116', 'NTP', '0x0003', '94'],
+            ['117', 'NTP', '0x8000', '94'],
+            ['118', 'NTP', '0x0003,0x8008', '94'],
+            ['120', 'PTPv2', '0x8000', ''],
+            ['122', 'PTPv2', '0x0077', ''],
+        ]
+
+    def test_ptp_management(self, cmd_tshark, capture_file, test_env):
+        '''Management TLVs with tables and lists.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {123, 124, 125, 126, 127, 128, 186, 190}',
+                '-Tfields', '-eframe.number', '-eptp.v2.mm.managementId',
+                '-eptp.v2.mm.actualTableSize', '-eptp.v2.mm.numberOfFaultRecords',
+                '-eptp.v2.mm.clockType')
+        assert rows == [
+            ['123', '1', '', '', '0xf800'], ['124', '2', '', '', ''],
+            ['125', '5', '', '', ''], ['126', '6', '', '2', ''],
+            ['127', '8192', '', '', ''], ['128', '8193', '', '', ''],
+            ['186', '8216', '1', '', ''], ['190', '', '', '', ''],
+        ]
+
+    def test_ptp_analysis(self, cmd_tshark, capture_file, test_env):
+        '''The analysis (second pass only): a two step Sync and its Follow
+        Up refer to each other, a one step Sync carries its timestamp, a
+        peer delay exchange links request, response and follow up and
+        shows the mean propagation delay (the abbreviations of the two
+        response/follow up links are swapped in the dissector).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {38, 39, 46, 58, 59, 60}',
+                '-Tfields', '-eframe.number',
+                '-eptp.v2.analysis.synctofollowup',
+                '-eptp.v2.analysis.followuptosync',
+                '-eptp.v2.analysis.sync.timestamp_seconds',
+                '-eptp.v2.analysis.pdelayreqtores',
+                '-eptp.v2.analysis.pdelayrestoreq',
+                '-eptp.v2.analysis.pdelayrestofup',
+                '-eptp.v2.analysis.pdelayfuptores',
+                '-eptp.v2.analysis.pdelay.meanpropdelay_unscaled_nanoseconds',
+                passes=('-2',))
+        assert rows == [
+            ['38', '39', '', '', '', '', '', '', ''],
+            ['39', '', '38', '1000', '', '', '', '', ''],
+            ['46', '', '', '1020', '', '', '', '', ''],
+            ['58', '', '', '', '59', '', '', '', ''],
+            ['59', '', '', '', '', '58', '', '60', ''],
+            ['60', '', '', '', '', '', '59', '', '50000'],
+        ]
+        # The first pass has no analysis fields
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'ptp.v2.analysis.synctofollowup', '-Tfields',
+                '-eframe.number')
+        assert rows == []
+
+    def test_ptp_analysis_expert(self, cmd_tshark, capture_file, test_env):
+        '''Warnings of the analysis: Sync without Follow Up and the other
+        way round, peer delay messages without their partners, and the
+        802.1AS rules for the Follow Up information TLV.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {52, 53, 70, 71, 76, 199, 200, 201}',
+                '-Tfields', '-eframe.number', '-e_ws.expert', passes=('-2',))
+        assert rows == [
+            ['52', 'Expert Info (Warning/Protocol): No Follow Up for this Two Step Sync'],
+            ['53', 'Expert Info (Warning/Protocol): No Sync for this Follow Up'],
+            ['70', 'Expert Info (Warning/Protocol): No Response for this Peer Delay Request'],
+            ['71', 'Expert Info (Warning/Protocol): No Request for this Peer Delay Response,Expert Info (Warning/Protocol): No Follow Up for this Peer Delay Response'],
+            ['76', 'Expert Info (Warning/Protocol): Peer Delay Response with Two Step Flag set to false but Follow Up received'],
+            ['199', 'Expert Info (Warning/Protocol): No Follow Up Information TLV for this gPTP One Step Sync'],
+            ['200', 'Expert Info (Warning/Protocol): Two Step Sync should not have Follow Up Information TLV'],
+            ['201', 'Expert Info (Warning/Protocol): Follow Up without Follow Up TLV'],
+        ]
+
+    def test_ptp_analysis_preference(self, cmd_tshark, capture_file, test_env):
+        '''With the analysis turned off there are no analysis fields and no
+        analysis warnings on the second pass.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env,
+                '-o', 'ptp.analyze_ptp_messages:FALSE',
+                '-Y', 'ptp.v2.analysis.synctofollowup || '
+                      'ptp.v2.analysis.pdelayreqtores || frame.number in {52, 70}',
+                '-Tfields', '-eframe.number', '-e_ws.expert', passes=('-2',))
+        assert rows == [['52', ''], ['70', '']]
