@@ -119348,3 +119348,85 @@ class TestDissectPppoe:
         assert by_number['72'][3] == by_number['73'][3] == ''
         for n in ('80', '81', '82'):
             assert by_number[n][0].startswith('pppoes:ppp')
+
+
+class TestDissectPptp:
+    '''PPTP control connections on TCP 1723, from the synthetic capture
+    pptp_coverage.pcap.gz: every control message type, every result,
+    error, reason, framing and bearer value, 64 octet strings, a wrong
+    magic cookie, unknown message and control types and length fields
+    that are not the message length.'''
+
+    @staticmethod
+    def pptp_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('pptp_coverage.pcap.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields', '-Eseparator=|']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('|') for line in stdout.splitlines()]
+
+    def test_pptp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''116 frames: 107 PPTP messages and 9 TCP frames without data.
+        None is malformed or has an error expert info, in one and two
+        passes.'''
+        frames = self.pptp_fields(cmd_tshark, capture_file, test_env, '', '_ws.col.protocol')
+        assert len(frames) == 116
+        protocols = [f[0] for f in frames]
+        assert protocols.count('PPTP') == 107
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            frames = self.pptp_fields(cmd_tshark, capture_file, test_env,
+                                      '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                      'frame.number', passes=passes)
+            assert frames == []
+
+    def test_pptp_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''PPTP keeps no state: one and two passes give the same fields.'''
+        fields = ('frame.number', '_ws.col.info', 'pptp.length', 'pptp.type',
+                  'pptp.control_message_type', 'pptp.call_id', 'pptp.peer_call_id')
+        one = self.pptp_fields(cmd_tshark, capture_file, test_env, 'pptp', *fields)
+        two = self.pptp_fields(cmd_tshark, capture_file, test_env, 'pptp', *fields, passes=('-2',))
+        assert len(one) == 107
+        assert one == two
+
+    def test_pptp_messages(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every control message type; the unknown
+        types are named by number.'''
+        frames = self.pptp_fields(cmd_tshark, capture_file, test_env, 'pptp', '_ws.col.info')
+        infos = [f[0] for f in frames]
+        for name in ('Start-Control-Connection-Request', 'Start-Control-Connection-Reply',
+                     'Stop-Control-Connection-Request', 'Stop-Control-Connection-Reply',
+                     'Echo-Request', 'Echo-Reply', 'Outgoing-Call-Request',
+                     'Outgoing-Call-Reply', 'Incoming-Call-Request', 'Incoming-Call-Reply',
+                     'Incoming-Call-Connected', 'Call-Clear-Request', 'Call-Disconnect-Notify',
+                     'WAN-Error-Notify', 'Set-Link-Info'):
+            assert name in infos, name
+        assert infos.count('Unknown control type (0)') == 1
+        assert infos.count('Unknown control type (16)') == 1
+        assert infos.count('Unknown control type (200)') == 1
+
+    def test_pptp_magic_cookie(self, cmd_tshark, capture_file, test_env):
+        '''Frames 106 and 107 have a wrong magic cookie and get the
+        "Incorrect Magic Cookie" warning; the others are correct.'''
+        frames = self.pptp_fields(cmd_tshark, capture_file, test_env,
+                                  'pptp.magic_cookie != 0x1a2b3c4d',
+                                  'frame.number', '_ws.expert.message')
+        assert frames == [['106', 'Incorrect Magic Cookie'], ['107', 'Incorrect Magic Cookie']]
+
+    def test_pptp_fields(self, cmd_tshark, capture_file, test_env):
+        '''The Start-Control-Connection-Reply of frame 5, the echo pair
+        and the Outgoing-Call-Request of frame 8.'''
+        frames = self.pptp_fields(cmd_tshark, capture_file, test_env, 'frame.number in {5, 6, 7, 8}',
+                                  'frame.number', 'pptp.protocol_version', 'pptp.host_name',
+                                  'pptp.vendor_name', 'pptp.identifier', 'pptp.phone_number',
+                                  'pptp.phone_number_length', 'pptp.maximum_bps',
+                                  'pptp.control_result')
+        assert frames == [
+            ['5', '256', 'pac.example', 'Example Vendor', '', '', '', '', '1'],
+            ['6', '', '', '', '16909060', '', '', '', ''],
+            ['7', '', '', '', '16909060', '', '', '', ''],
+            ['8', '', '', '', '', '5551234567', '11', '100000000', ''],
+        ]
