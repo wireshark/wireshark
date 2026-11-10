@@ -554,7 +554,7 @@ static unsigned dissect_s5066dts_ack_only(tvbuff_t *tvb, unsigned offset, proto_
         unsigned header_size)
 {
     unsigned ack_size;
-    ack_size = header_size - 7;
+    ack_size = header_size > 7 ? header_size - 7 : 0;
 
     proto_tree_add_item(tree, hf_s5066dts_ack_only_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     if (ack_size > 0){
@@ -569,7 +569,7 @@ static unsigned dissect_s5066dts_data_ack(tvbuff_t *tvb, unsigned offset, proto_
         unsigned header_size)
 {
     unsigned ack_size;
-    ack_size = header_size - 10;
+    ack_size = header_size > 10 ? header_size - 10 : 0;
 
     proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_start, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_s5066dts_data_ack_cpdu_end, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -618,7 +618,7 @@ static unsigned dissect_s5066dts_exp_ack_only(tvbuff_t *tvb, unsigned offset, pr
         unsigned header_size)
 {
     unsigned ack_size;
-    ack_size = header_size - 7;
+    ack_size = header_size > 7 ? header_size - 7 : 0;
 
     proto_tree_add_item(tree, hf_s5066dts_exp_ack_only_rx_lwe, tvb, offset, 1, ENC_BIG_ENDIAN); offset++;
     if (ack_size > 0)
@@ -638,7 +638,7 @@ static unsigned dissect_s5066dts_management(tvbuff_t *tvb, unsigned offset, prot
 
     eow_type = tvb_get_uint8(tvb, offset) & 0x0F;
     eow_content = tvb_get_uint8(tvb, S5066_DPDU_EOW_CONTENT_INDEX);
-    extended_message_size = header_size - 8;
+    extended_message_size = header_size > 8 ? header_size - 8 : 0;
 
     proto_tree_add_item(tree, hf_s5066dts_management_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_s5066dts_management_extended_message_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
