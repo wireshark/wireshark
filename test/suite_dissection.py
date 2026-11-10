@@ -123716,3 +123716,80 @@ class TestDissectRcV3:
             out = self.fields(cmd_tshark, capture_file, test_env,
                     'frame.number <= 11 && ' + flt)
             assert out == frames, flt
+
+
+class TestDissectRdm:
+    '''RDM (ANSI E1.20) and the ETC manufacturer PIDs (rdm_etc), carried in
+    Art-Net ArtRdm packets (UDP 6454, heuristic), from the synthetic
+    capture rdm_coverage.pcap.gz. Frames 1-3 are the reproducers of "RDM:
+    Fix offsets after manufacturer PIDs and the intron length".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, flt, *efields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rdm_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', '-eframe.number', *('-e' + f for f in efields),
+            ), encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_rdm_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 2530 frames are RDM (in Art-Net) without malformed packets
+        or error expert infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rdm_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        assert stdout.split() == ['RDM'] * 2530
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    passes=passes) == []
+
+    def test_rdm_manufacturer_pid_offset(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1: an ETC LED_CURVE response with three octets of data.
+        The offset after the manufacturer specific PID was wrong, which
+        raised a "Parameter Data Length Mismatch" expert info.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 1',
+                'rdm.pid', 'rdm.checksum.status', '_ws.expert.message')
+        assert out == ['1\t0x8101\t1\t']
+
+    def test_rdm_intron(self, cmd_tshark, capture_file, test_env):
+        '''Frames 2, 3 and 8: the intron (message length counts it) is
+        shown, with a good checksum; without an intron there is none.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {2, 3, 7, 8}', 'rdm.intron', 'rdm.checksum.status',
+                'rdm.trailer')
+        assert out == [
+            '2\t0000\t1\t',
+            '3\t\t1\t',
+            '7\t\t1\t000102',
+            '8\t010203\t1\t',
+        ]
+
+    def test_rdm_command_classes(self, cmd_tshark, capture_file, test_env):
+        '''Command classes and response types of the first frames.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 4 && frame.number <= 18', 'rdm.cc', 'rdm.rt')
+        assert [l.split('\t')[1] for l in out] == [
+            '0x20', '0x30', '0x21', '0x21', '0x21', '0x30', '0x20', '0x20', '0x20',
+            '0x21', '0x21', '0x21', '0x21', '0x21', '0x21',
+        ]
+
+    def test_rdm_dynamic_uid(self, cmd_tshark, capture_file, test_env):
+        '''Frame 10 has dynamic UIDs.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 10', 'rdm.dst.dyn', 'rdm.dst.manf', 'rdm.src.manf')
+        assert out == ['10\tTrue\t0x0001\t0x0002']
+
+    def test_rdm_ftc_crc(self, cmd_tshark, capture_file, test_env):
+        '''The FTC packets with their packet CRC (frames 19-21: initiate,
+        upload and download) and the response statuses of frames 23-34.'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number >= 19 && frame.number <= 21', 'rdm.pd.ftc.packet_crc.status',
+                'rdm.pd.ftc.session_id')
+        assert [l.split('\t')[1] for l in out] == ['1', '1', '1']
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                'rdm.pd.ftc.response_status && frame.number <= 40',
+                'rdm.pd.ftc.response_status')
+        assert {'0x00', '0x01', '0x03', '0x06', '0x07', '0x08', '0x0b', '0x0c',
+                '0x14', '0x15', '0x16', '0x1a'} <= {l.split('\t')[1] for l in out}
