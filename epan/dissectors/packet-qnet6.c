@@ -16,6 +16,8 @@
 
 #include <epan/etypes.h>
 #include <epan/crc32-tvb.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <wsutil/crc32.h>
 #include <epan/ipproto.h>
 
@@ -29,6 +31,10 @@ static int proto_qnet6_qos;
 static int proto_qnet6_lr;
 static int proto_qnet6_kif;
 static int proto_qnet6_nr;
+
+static expert_field ei_qnet6_kif_combine_too_deep;
+
+#define QNET6_MAX_COMBINE_NESTING 16
 
 static int hf_qnet6_l4_padding;
 static int hf_qnet6_l4_ver;
@@ -1956,10 +1962,11 @@ dissect_qnet6_kif_msgsend_msg_msginfo(tvbuff_t * tvb, packet_info * pinfo _U_, p
 
 }
 
-// Most of the functions below recurse via dissect_qnet6_kif_msgsend_msg.
-// We're guaranteed to run out of packet before we run out of stack, so
-// just skip over them.
+// Most of the functions below recurse via dissect_qnet6_kif_msgsend_msg,
+// which bounds the nesting of combined messages.
 // NOLINTBEGIN(misc-no-recursion)
+static int
+dissect_qnet6_kif_msgsend_msg_body(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * poffset, unsigned encoding);
 
 /*
  * in dissect_qnet6_kif_msgsend_msg already passed the first 2 bytes
@@ -2984,7 +2991,7 @@ dissect_qnet6_kif_msgsend_msg_dup(tvbuff_t * tvb, packet_info * pinfo _U_, proto
 }
 
 static int
-dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * poffset, unsigned encoding)
+dissect_qnet6_kif_msgsend_msg_body(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * poffset, unsigned encoding)
 {
   proto_item  *ti;
   proto_tree  *stree;
@@ -3155,7 +3162,7 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
               switch (extra_type)
                 {
                 case QNX_IO_CONNECT_EXTRA_LINK: /* 1 */
-                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_link_ocb, tvb, *poffset, extra_len, encoding);
+                  proto_tree_add_item(stree, hf_qnet6_kif_msg_connect_extra_link_ocb, tvb, *poffset, MIN(extra_len, 4), encoding);
                   break;
                 case QNX_IO_CONNECT_EXTRA_SYMLINK: /* 2 */
                   /*
@@ -3255,6 +3262,25 @@ dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
       break;
     }
 
+  return ret;
+}
+
+/* Bound the nesting of combined messages. */
+static int
+dissect_qnet6_kif_msgsend_msg(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, int * poffset, unsigned encoding)
+{
+  unsigned depth = p_get_proto_depth(pinfo, proto_qnet6_kif);
+  int ret;
+
+  if (depth >= QNET6_MAX_COMBINE_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_qnet6_kif_combine_too_deep, tvb, *poffset);
+    return -1;
+  }
+  p_set_proto_depth(pinfo, proto_qnet6_kif, depth + 1);
+  increment_dissection_depth(pinfo);
+  ret = dissect_qnet6_kif_msgsend_msg_body(tvb, pinfo, tree, poffset, encoding);
+  decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_qnet6_kif, depth);
   return ret;
 }
 
@@ -5948,6 +5974,11 @@ proto_register_qnet6(void)
     &ett_qnet6_qos
   };
   module_t *qnet6_module;
+  expert_module_t *expert_qnet6;
+  static ei_register_info ei[] = {
+    { &ei_qnet6_kif_combine_too_deep, { "qnet6.kif.combine_too_deep", PI_PROTOCOL, PI_WARN,
+        "Combined messages nested too deeply", EXPFILL }},
+  };
 
   /* Register the protocol name and description */
   proto_qnet6_l4 = proto_register_protocol("QNX6 QNET LWL4 protocol", "LWL4", "lwl4");
@@ -5975,6 +6006,8 @@ proto_register_qnet6(void)
 
   proto_register_field_array(proto_qnet6_kif, hf_kif, array_length(hf_kif));
   proto_register_subtree_array(ett_kif, array_length(ett_kif));
+  expert_qnet6 = expert_register_protocol(proto_qnet6_kif);
+  expert_register_field_array(expert_qnet6, ei, array_length(ei));
 
   proto_register_field_array(proto_qnet6_nr, hf_nr, array_length(hf_nr));
   proto_register_subtree_array(ett_nr, array_length(ett_nr));
