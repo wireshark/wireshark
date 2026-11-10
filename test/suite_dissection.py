@@ -120930,3 +120930,82 @@ class TestDissectPwAtm:
                 '-Y', 'frame.number >= 28', '-Tfields', '-eframe.number',
                 '-e_ws.col.protocol')
         assert stdout.splitlines() == ['28\tUDP', '29\tUDP', '30\tPW OAM']
+
+
+class TestDissectPwCesopsn:
+    # CESoPSN is reached with Decode As: MPLS label 1002 and UDP port 9002.
+    OPTS = ('-d', 'mpls.label==1002,pwcesopsn', '-d', 'udp.port==9002,pwcesopsn')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, opts, *args):
+        return subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('pw_cesopsn_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    def test_pw_cesopsn_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-11 and 15-17 are CESoPSN, 12 and 13 are the IPv4 and
+        IPv6 packets handed over by the first nibble, 14 is a PW ACH
+        carrying PW OAM. No malformed packets or errors, in one and two
+        passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 17
+        assert protocols.count('CESoPSN basic (no RTP)') == 14
+        assert protocols.count('UDP') == 2
+        assert protocols[13] == 'PW OAM'
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    (*passes, *self.OPTS),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pw_cesopsn_fields(self, cmd_tshark, capture_file, test_env):
+        '''L+M bits, R bit, length, sequence number, payload and padding
+        sizes, and the expert infos (warning and note only).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'pwcesopsn', '-Tfields', '-eframe.number',
+                '-epwcesopsn.cw.lm', '-epwcesopsn.cw.rbit',
+                '-epwcesopsn.cw.length', '-epwcesopsn.cw.seqno',
+                '-epwcesopsn.payload.len', '-epw.padding.len',
+                '-e_ws.expert.message')
+        assert stdout.splitlines() == [
+            '1\t0x00\t0\t0\t1\t32\t\t',
+            '2\t0x00\t0\t12\t2\t8\t\t',
+            '3\t0x02\t0\t0\t3\t64\t\t',
+            '4\t0x08\t0\t0\t4\t16\t\t',
+            '5\t0x08\t0\t0\t5\t\t\tCESoPSN payload: omitted to conserve bandwidth',
+            '6\t0x00\t0\t20\t6\t16\t6\t',
+            '7\t0x00\t1\t0\t7\t24\t\t',
+            '8\t0x01\t0\t0\t8\t5\t\tReserved combination of L and Modifier bits',
+            '9\t0x03\t0\t0\t9\t7\t\t',
+            '10\t0x0a\t0\t0\t10\t9\t\tReserved combination of L and Modifier bits',
+            '11\t0x00\t0\t0\t11\t256\t\t',
+            '15\t0x00\t0\t0\t15\t48\t\t',
+            '16\t0x08\t0\t0\t16\t\t\tCESoPSN payload: omitted to conserve bandwidth',
+            '17\t0x00\t0\t12\t17\t8\t4\t']
+
+    def test_pw_cesopsn_info(self, cmd_tshark, capture_file, test_env):
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'pwcesopsn', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            'TDM octets:32', 'TDM octets:8', 'TDM octets:64', 'TDM octets:16',
+            'TDM octets:0', 'TDM octets:16, Padding:6', 'TDM octets:24',
+            'CW:Suspect, TDM octets:5', 'TDM octets:7',
+            'CW:Suspect, TDM octets:9', 'TDM octets:256', 'TDM octets:48',
+            'TDM octets:0', 'TDM octets:8, Padding:4']
+
+    def test_pw_cesopsn_control_word_tree(self, cmd_tshark, capture_file, test_env):
+        '''The control word fields are inside the Control Word item (they
+        were added to the protocol item before the fix).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, self.OPTS,
+                '-Y', 'frame.number == 6', '-V', '-O', 'pwcesopsn')
+        lines = stdout.splitlines()
+        start = lines.index('    Control Word: 0x00140006')
+        assert lines[start + 1:start + 6] == [
+            '        .... 0.00 = L+M bits: Normal situation - no AC faults (0x0)',
+            '        .... .0.. = R bit: Local CE-bound IWF: Ok (0)',
+            '        00.. .... = Fragmentation: Unfragmented (0)',
+            '        ..01 0100 = Length: 20',
+            '        Sequence number: 6']
