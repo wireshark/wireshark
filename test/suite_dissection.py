@@ -124028,3 +124028,43 @@ class TestDissectRdpCliprdr:
         lines = stdout.splitlines()
         assert '55\tFormat list' in lines
         assert '60\tMonitor ready' in lines and '61\tFormat list' in lines
+
+
+class TestDissectRdpConctrl:
+    '''RDP connection control virtual channel ("conctrl") from the synthetic
+    capture rdp_conctrl_coverage.pcapng.gz: an RDP session on TCP 3389 with
+    the static channel "conctrl".'''
+
+    CAPTURE = 'rdp_conctrl_coverage.pcapng.gz'
+
+    @staticmethod
+    def run_fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectRdpConctrl.CAPTURE), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_conctrl_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets, warnings or errors in one and
+        two passes.'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 28
+        assert protocols.count('CONCTRL') == 11
+        for passes in ((), ('-2',)):
+            stdout = self.run_fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_conctrl_orders(self, cmd_tshark, capture_file, test_env):
+        '''Every order type; the session info shows realm and login, also
+        when the PDU was reassembled from chunks (frame 26).'''
+        stdout = self.run_fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rdp_conctrl', '-Tfields', '-eframe.number', '-erdp_conctrl.ordertype',
+                '-erdp_conctrl.realm', '-erdp_conctrl.login')
+        assert stdout.splitlines() == [
+            '12\t0x0001\t\t', '13\t0x0002\t\t', '14\t0x0008\t\t',
+            '15\t0x0010\tEXAMPLE.TEST\talice', '16\t0x0010\t\tbob', '17\t0x0010\tR\t',
+            '18\t0x0010\tREALM\tu', '19\t0x0033\t\t', '20\t0x0000\t\t',
+            '26\t0x0010\tCHUNKED.EXAMPLE.TEST\tcarol-with-a-long-login-name',
+            '27\t0x0010\tCLIENT\tdave']
