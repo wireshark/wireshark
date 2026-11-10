@@ -123208,3 +123208,100 @@ class TestDissectRadius:
         assert '9\tAVP too short; no room for vendor ID' in lines
         assert '12\tAVP too short for tag' in lines
         assert '15\tTLV too short: length 1 < 2' in lines
+
+
+class TestDissectRadiusPacketcable:
+    CAP = 'radius_packetcable_coverage.pcap.gz'
+
+    @staticmethod
+    def one(cmd_tshark, capture_file, test_env, frame, *names):
+        '''The values of the fields in one frame, tab separated.'''
+        args = []
+        for n in names:
+            args += ['-e', n]
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('radius_packetcable_coverage.pcap.gz'),
+                '-Y', 'frame.number == %d' % frame, '-Tfields', *args),
+                encoding='utf-8', env=test_env).rstrip('\n').split('\t')
+
+    def test_radius_packetcable_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The CableLabs attributes of Accounting-Request messages: every
+        frame is RADIUS, none is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 35
+        assert protocols.count('RADIUS') == 35
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_radius_packetcable_event_message_header(self, cmd_tshark, capture_file, test_env):
+        '''The Event Message header with its BCID and status bits.'''
+        assert self.one(cmd_tshark, capture_file, test_env, 1,
+                'packetcable_avps.emh.vid', 'packetcable_avps.bcid.ts', 'packetcable_avps.bcid.ec',
+                'packetcable_avps.emh.emt', 'packetcable_avps.emh.et', 'packetcable_avps.emh.sn',
+                'packetcable_avps.emh.st', 'packetcable_avps.emh.priority',
+                'packetcable_avps.emh.ac', 'packetcable_avps.emh.eo') == [
+                '1', '1294895632', '77', '1', '1', '9', '0x00000000', '5', '3', '0']
+        assert self.one(cmd_tshark, capture_file, test_env, 25,
+                'packetcable_avps.emh.emt', 'packetcable_avps.emh.et', 'packetcable_avps.emh.st',
+                'packetcable_avps.emh.st.ei', 'packetcable_avps.emh.st.eo',
+                'packetcable_avps.emh.st.emp') == [
+                '99', '9', '0xfffffff3', '0x00000003', '0x00000000', '0x00000000']
+        # Status 0x0b: Reserved error indicator, trusted origin, proxied
+        assert self.one(cmd_tshark, capture_file, test_env, 17,
+                'packetcable_avps.emh.st', 'packetcable_avps.emh.st.ei',
+                'packetcable_avps.emh.st.eo', 'packetcable_avps.emh.st.emp') == [
+                '0x0000000b', '0x00000003', '0x00000000', '0x00000001']
+
+    def test_radius_packetcable_cause_bcid_trunk(self, cmd_tshark, capture_file, test_env):
+        '''Call Termination Cause, Related Call Billing Correlation ID and
+        Trunk Group ID.'''
+        assert self.one(cmd_tshark, capture_file, test_env, 27,
+                'packetcable_avps.ctc.sd', 'packetcable_avps.ctc.cc') == [
+                '0x0001,0x0002,0x0000', '16,4660,0']
+        assert self.one(cmd_tshark, capture_file, test_env, 27,
+                'packetcable_avps.bcid.ts') == ['1294895632,1294895632,4294967295']
+        assert self.one(cmd_tshark, capture_file, test_env, 27,
+                'packetcable_avps.tgid.tt', 'packetcable_avps.tgid.tn') == [
+                '0x0003,0x0009,0x0004,0x0007', '42,7,4294967295,1']
+
+    def test_radius_packetcable_qos_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''The QoS descriptor has one 4 octet field per flag that is set.'''
+        assert self.one(cmd_tshark, capture_file, test_env, 28,
+                'packetcable_avps.qs.si', 'packetcable_avps.qs.sfst') == [
+                '0,0,1,2,3,0,1,2,3', '1000']
+        assert self.one(cmd_tshark, capture_file, test_env, 29,
+                'packetcable_avps.qs.gi', 'packetcable_avps.qs.mdl') == [
+                '1001', '1015,1015,1015']
+        # The descriptor with every flag has all 16 fields
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP), '-Y', 'frame.number == 29',
+                '-Tfields', '-epacketcable_avps.qs.sfst', '-epacketcable_avps.qs.tp',
+                '-epacketcable_avps.qs.msr', '-epacketcable_avps.qs.npi'),
+                encoding='utf-8', env=test_env)
+        assert stdout.rstrip('\n').split('\t') == ['1000,1000', '1005', '1006', '1012,1012']
+
+    def test_radius_packetcable_other_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Time adjustment, redirected-from info, electronic surveillance
+        and terminal display info (the bitmask decides which strings follow).'''
+        assert self.one(cmd_tshark, capture_file, test_env, 30,
+                'packetcable_avps.ti') == ['1700000000,18446744073709551615']
+        assert self.one(cmd_tshark, capture_file, test_env, 31,
+                'packetcable_avps.rfi.nr') == ['2,0']
+        assert self.one(cmd_tshark, capture_file, test_env, 32,
+                'packetcable_avps.esi.dfcdca', 'packetcable_avps.esi.cdcp',
+                'packetcable_avps.esi.cccp') == ['10.9.9.1,10.9.9.3', '5000,1', '5001,2']
+        values = self.one(cmd_tshark, capture_file, test_env, 33,
+                'packetcable_avps.tdi.cnum', 'packetcable_avps.tdi.cname')
+        assert values[0] == ',' + 'D' * 40 + ','
+        assert values[1] == ',' + 'F' * 40 + ',' + 'G' * 40
+        assert self.one(cmd_tshark, capture_file, test_env, 35,
+                'radius.CableLabs_Query_Type', 'radius.CableLabs_SDP_Upstream',
+                'radius.CableLabs_IPv6_Subscriber_ID') == ['1', 'v=0', '1:203:405:607:809:a0b:c0d:e0f']
