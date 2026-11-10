@@ -125683,3 +125683,81 @@ class TestDissectRf4ceSecur:
         assert all(r[1] == '' for r in rows)
         rows = self.fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', filt='frame.number == 53')
         assert rows == [['IEEE 802.15.4']]
+
+
+class TestDissectRfc2190:
+    '''H.263 RTP payload header, RFC 2190 (packet-rfc2190.c), reached through
+    RTP payload type 34 (a SIP/SDP frame opens the stream), IAX2 video frames
+    and Exported PDU, from the synthetic capture rfc2190_coverage.pcapng.gz.
+    Frames 29-31 are Exported PDU frames that name the dissector "rfc2190"; they
+    are the reproducers of the header length that depended on whether a tree
+    was built.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, filt=None, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('rfc2190_coverage.pcapng.gz'), '-Tfields']
+        if filt:
+            args += ['-Y', filt]
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in out.splitlines()]
+
+    def test_rfc2190_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 31 frames decode without malformed packets or error expert
+        infos, in one and two passes. 30 of them are H.263 with an RFC 2190
+        header: RTP, IAX2 video and Exported PDU.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rfc2190.ftype')
+        assert len(rows) == 31
+        assert sum(1 for r in rows if len(r) > 1 and r[1] != '') == 30
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', passes=passes,
+                    filt='_ws.malformed || _ws.expert.severity >= 0x00800000')
+            assert rows == []
+
+    def test_rfc2190_modes(self, cmd_tshark, capture_file, test_env):
+        '''F=0 gives mode A (also with P=1), F=1 and P=0 mode B and F=1 and
+        P=1 mode C; the mode shows in the Info column.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', '_ws.col.info')
+        modes = {}
+        for r in rows[1:]:
+            for m in ('MODE A', 'MODE B', 'MODE C'):
+                if m in r[1]:
+                    modes.setdefault(m, []).append(int(r[0]))
+        assert len(modes['MODE A']) == 18
+        assert len(modes['MODE B']) == 7
+        assert len(modes['MODE C']) == 5
+        assert 12 in modes['MODE A'] and 13 in modes['MODE A']      # F=0, P=1
+        assert 16 in modes['MODE B'] and 20 in modes['MODE C']
+
+    def test_rfc2190_header_length(self, cmd_tshark, capture_file, test_env):
+        '''The H.263 data starts after the header whether or not a tree is
+        built: the picture start code behind a mode A (F=0, P=1), B and C
+        header is found in the summary line without a tree and with one
+        (the length was 0 or 8 or 12 without a tree and depended on the
+        version, so the mode C picture was not recognised).'''
+        import re
+        for args in ((), ('-V', '-P')):
+            out = subprocess.check_output((cmd_tshark, *args, '-r', capture_file('rfc2190_coverage.pcapng.gz')),
+                    encoding='utf-8', env=test_env, timeout=120)
+            lines = [line for line in out.splitlines() if re.match(r'^\s*\d+ +\d+\.\d+ ', line)]
+            assert len(lines) == 31
+            for n in (12, 14, 19, 22, 29, 30, 31):
+                assert '(PSC)' in lines[n - 1], (args, n, lines[n - 1])
+            assert '(PSC)' not in lines[1]        # frame 2 has no picture start code
+
+    def test_rfc2190_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields of a mode A, a mode B and a mode C header with large
+        values.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rfc2190.sbit',
+                'rfc2190.ebit', 'rfc2190.srcformat', 'rfc2190.r', 'rfc2190.dbq', 'rfc2190.trb',
+                'rfc2190.tr', filt='frame.number == 10')
+        assert rows == [['10', '7', '7', '2', '15', '3', '7', '255']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rfc2190.sbit',
+                'rfc2190.ebit', 'rfc2190.srcformat', 'rfc2190.quant', 'rfc2190.gobn', 'rfc2190.mba',
+                'rfc2190.hmv1', 'rfc2190.vmv1', 'rfc2190.hmv2', 'rfc2190.vmv2', 'rfc2190.r',
+                filt='frame.number == 17')
+        assert rows == [['17', '1', '2', '3', '31', '31', '511', '127', '127', '127', '127', '3']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number', 'rfc2190.pbframes',
+                'rfc2190.rr', 'rfc2190.dbq', 'rfc2190.trb', 'rfc2190.tr', filt='frame.number == 21')
+        assert rows == [['21', 'True', '524287', '3', '7', '250']]
