@@ -131971,3 +131971,55 @@ class TestDissectRttrp:
                 '-Y', 'frame.number == 38',
                 '-Tfields', '-erttrp.lighting.universe.spot.id')
         assert lines == ['']
+
+
+class TestDissectRua:
+    '''Synthetic RUA capture (SCTP PPI 19 and SCTP port 29169, 401 frames):
+    every RUA procedure with random IE values (the RANAP-Message IE carries
+    a RANAP PDU of every RANAP procedure), the intra domain NAS node
+    selector variants, private IEs with local and global identifiers and
+    the outcome alternatives that RUA has no procedure for.'''
+    CAPTURE = 'rua_coverage.pcapng.gz'
+
+    @staticmethod
+    def lines(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('rua_coverage.pcapng.gz'), *args),
+                encoding='utf-8', env=test_env, timeout=300).splitlines()
+
+    def test_rua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''401 frames: 151 RUA frames without a RANAP message and 250 with
+        one (RANAP is called by the RANAP-Message IE); no malformed packets
+        or error expert infos in one and two passes.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 401
+        assert lines.count('RUA') == 151
+        assert lines.count('RANAP') == 250
+        for passes in ((), ('-2',)):
+            lines = self.lines(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000', '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_rua_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Every procedure code (1 to 6) is in the capture; successful and
+        unsuccessful outcome PDUs (RUA has none) are dissected as far as
+        the procedure code.'''
+        lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rua', '-Tfields', '-erua.procedureCode')
+        codes = {int(x) for l in lines for x in l.split(',') if x.strip()}
+        assert codes >= set(range(1, 7))
+        for alt in ('1', '2'):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', 'rua.RUA_PDU == ' + alt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) >= 12
+
+    def test_rua_private_ids(self, cmd_tshark, capture_file, test_env):
+        '''Private messages have private IEs with local and global
+        identifiers.'''
+        for flt in ('rua.local', 'rua.global'):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) > 0, flt
+
+    def test_rua_nas_node_selector(self, cmd_tshark, capture_file, test_env):
+        '''The intra domain NAS node selector is dissected in its
+        release 99, later and ANSI-41 forms.'''
+        for flt in ('rua.release99_element', 'rua.later_element', 'rua.localPTMSI_element', 'rua.iMEI_element'):
+            lines = self.lines(cmd_tshark, capture_file, test_env, '-Y', flt, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) > 0, flt
