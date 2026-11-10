@@ -124997,3 +124997,62 @@ class TestDissectRealtek:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'rldp', '-Tfields', '-erldp.protocol')
         assert lines == ['0x03', '0x23']
+
+
+class TestDissectRedback:
+    CAP = 'redback_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRedback.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_redback_protocols(self, cmd_tshark, capture_file, test_env):
+        '''19 frames (link type 32): the payload protocols follow the
+        Redback header; only the unknown protocol 0x55 has an expert info
+        (a warning), none is malformed, in one and two passes.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 19
+        for name, count in (('UDP', 8), ('PPPoED', 3), ('PPP LCP', 2),
+                            ('IPv6', 2), ('RBN', 2), ('ARP', 1),
+                            ('ISIS HELLO', 1)):
+            assert protocols.count(name) == count
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields',
+                    '-eframe.number', '-e_ws.expert.message')
+            assert stdout == ['19\tUnknown Protocol Data']
+
+    def test_redback_header(self, cmd_tshark, capture_file, test_env):
+        '''Header fields, data offset, layer 3 offset, padding and the
+        4 octets that precede a PPP message without the flag.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 10 || frame.number == 17 || frame.number == 18',
+                '-Tfields', '-eframe.number', '-eredback.context',
+                '-eredback.flags', '-eredback.circuit', '-eredback.length',
+                '-eredback.protocol', '-eredback.dataoffset',
+                '-eredback.l3offset', '-eredback.padding', '-eredback.unknown')
+        assert lines == [
+            '1\t0x00000010\t0x00000000\t0x0102030405060708\t28\t1\t24\t24\t\t',
+            '10\t0x00000010\t0x00000000\t0x0102030405060708\t16\t6\t24\t24\t\t00010203',
+            '17\t0x00000010\t0x00000000\t0x0102030405060708\t28\t1\t32\t32\t0001020304050607\t',
+            '18\t0xdeadbeef\t0x80000001\t0xffffffffffffffff\t28\t1\t24\t24\t\t',
+        ]
+
+    def test_redback_payloads(self, cmd_tshark, capture_file, test_env):
+        '''The payload is IPv4, PPP, PPP in HDLC, Ethernet, IS-IS, IPv6 or
+        data, chosen by the protocol and the offsets.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert lines[4].startswith('ISIS HELLO\tP2P HELLO')
+        assert lines[8].startswith('PPP LCP\tConfiguration Request')
+        assert lines[10] == 'PPPoED\tActive Discovery Initiation (PADI)'
+        assert lines[11] == 'PPPoED\tActive Discovery Offer (PADO)'
+        assert lines[12] == 'ARP\tWho has 10.0.0.2? Tell 10.0.0.1'
+        assert lines[14].startswith('IPv6\t')
+        assert lines[15].startswith('IPv6\t')
+        stdout = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6', '-Tfields', '-eip.proto')
+        assert stdout == ['17']
