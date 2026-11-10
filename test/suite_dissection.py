@@ -131531,3 +131531,184 @@ class TestDissectRtpsVirtualTransport:
                 'frame.number == 45', 'frame.number', 'rtpsvt.direction',
                 'rtpsvt.port', 'rtpsvt.rtps_port', '_ws.col.info')
         assert rows == ['45\tOUTBOUND\t7411\t7411\tINFO_TS, HEARTBEAT']
+
+
+class TestDissectRtse:
+    '''RTSE (X.228 Reliable Transfer) from the synthetic capture
+    rtse_coverage.pcapng.gz: RTORQ, RTOAC, RTORJ, RTTP, RTTR and RTAB on
+    the OSI upper layers (TCP port 102) with the MTA transfer abstract
+    syntax, the X.410 mode of the presentation layer, data transfer
+    segments reassembled at the major synchronisation point, and an
+    Exported PDU without session data.'''
+
+    def test_rtse_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of error severity in one and two passes. The only
+        warning is the EXTERNAL with an OID no dissector registered for
+        RTSE (frame 19).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 224
+        assert protocols.count('RTSE') == 28
+        assert protocols.count('P1') == 28
+        assert protocols.count('P22') == 6
+        assert protocols.count('ACSE') == 14
+        assert protocols.count('SES') == 2
+        assert protocols.count('PRES') == 1
+        assert protocols.count('COTP') == 36
+        assert protocols.count('TCP') == 108
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtse_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtse_coverage.pcapng.gz'),
+                    '-Y', '_ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '19\tRTSE: Dissector for OID 1.3.6.1.4.1.32473.9 not implemented']
+
+    def test_rtse_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol and Info columns and the RTSE fields are the same
+        in one and in two passes (the reassembled-in link is the only
+        field that differs, so it is left out). The static application
+        protocol of the dissector must not leak from one pass into the
+        next.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('rtse_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-ertse.fragment.count', '-ertse.applicationProtocol',
+                    '-ertse.refuseReason', '-ertse.abortReason', '-ertse.checkpointSize',
+                    '-ertse.windowSize', '-ertse.dialogueMode',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_rtse_connect(self, cmd_tshark, capture_file, test_env):
+        '''The RTORQ fields of the first association and the recover form
+        with a t61String and an octetString reference.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'rtse.checkpointSize || rtse.recover_element',
+                '-Tfields', '-eframe.number', '-ertse.checkpointSize', '-ertse.windowSize',
+                '-ertse.dialogueMode', '-ertse.applicationProtocol',
+                '-ertse.t61String', '-ertse.octetString', '-ertse.additionalReferenceInformation',
+                '-ertse.commonReference',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            # checkpoint, window, dialogue mode, application protocol,
+            # t61String, octetString, additional information, common reference
+            '6\t3\t5\t1\t12\t\t\t\t',
+            '7\t3\t5\t\t\t\t\t\t',
+            '34\t\t\t\t\tref-1\t\tmore\t26-11-01 12:00:00Z',
+            '35\t0\t\t\t\t\t7265662d32\t\t26-11-01 12:00:00Z',
+            '46\t\t1\t\t\t\t010203\t\t26-11-01 12:00:00Z',
+            '47\t\t\t\t\tr\t\tx\t26-11-01 12:00:00Z',
+            '188\t1\t2\t0\t0\t\t\t\t',
+            '199\t1\t2\t1\t1\t\t\t\t',
+            '209\t1\t2\t0\t2\t\t\t\t',
+        ]
+
+    def test_rtse_refuse_and_abort(self, cmd_tshark, capture_file, test_env):
+        '''RTORJ refuse reasons (with and without a bind error as user
+        data) and the RTAB abort reasons of typed and expedited data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'rtse.refuseReason',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ertse.refuseReason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '83\tBind-Error (authentication-error)\t0',
+            '93\tRefuse (cannotRecover)\t1',
+            '103\tBind-Error (authentication-error)\t2',
+            '113\tRefuse (unacceptableDialogueMode)\t3',
+            '133\tRefuse (reason(4))\t4',
+            '143\tBind-Error (authentication-error)\t1',
+            '200\tBind-Error (authentication-error)\t2',
+            '210\tBind-Error (authentication-error)\t1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'rtse.abortReason',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ertse.abortReason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '169\tAbort (localSystemProblem)\t0',
+            '170\tAbort (invalidParameter)\t1',
+            '171\tAbort (unrecognizedActivity)\t2',
+            '172\tAbort (temporaryProblem)\t3',
+            '173\tAbort (protocolError)\t4',
+            '174\tAbort (permanentProblem)\t5',
+            '175\tAbort (userError)\t6',
+            '176\tAbort (reason(99))\t99',
+            '190\tABORT (AB) SPDUAbort (transferCompleted)\t7',
+        ]
+
+    def test_rtse_turn_please(self, cmd_tshark, capture_file, test_env):
+        '''RTTP APDUs in typed and expedited data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'rtse.rttp_apdu',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ertse.rttp_apdu',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\tTurn-Please (1)\t1',
+            '21\tTurn-Please (0)\t0',
+        ]
+
+    def test_rtse_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segments are reassembled at the major synchronisation point:
+        the number of fragments and the reassembled length; with -2 the
+        segments name the frame they are reassembled in.'''
+        stdout = subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'rtse.fragments || rtse.reassembled.in',
+                '-Tfields', '-eframe.number', '-ertse.fragment.count',
+                '-ertse.reassembled.in', '-ertse.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t\t11\t',
+            '9\t\t11\t',
+            '10\t\t11\t',
+            '11\t3\t\t977',
+            '12\t\t13\t',
+            '13\t1\t\t1363',
+            '15\t\t17\t',
+            '16\t\t17\t',
+            '17\t2\t\t980',
+            '18\t\t19\t',
+            '19\t1\t\t77',
+            '154\t\t156\t',
+            '155\t\t156\t',
+            '156\t2\t\t970',
+        ]
+
+    def test_rtse_unknown_oid(self, cmd_tshark, capture_file, test_env):
+        '''An EXTERNAL with a direct reference to an unregistered OID is
+        shown as unknown BER from its first octet: all 20 integers of the
+        content are decoded (frame 19; "RTSE: Pass offset 0 to
+        dissect_unknown_ber for an unknown OID").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 19',
+                '-Tfields', '-eber.unknown.INTEGER',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split(',') == [str(i) for i in range(1, 21)]
+
+    def test_rtse_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU naming "rtse" has no session data from ACSE and
+        is not dissected as RTSE.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtse_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 224',
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'exported_pdu:data'
