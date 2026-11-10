@@ -114783,3 +114783,105 @@ class TestDissectP1:
                 '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['248\t0\t\t']
+
+
+class TestDissectP22:
+    '''P22 (X.420 Interpersonal Messaging, packet-p22.c) from the
+    synthetic capture p22_coverage.pcapng.gz: Exported PDU "p22"
+    (interpersonal messages and notifications) and "x509af" (a CRL whose
+    extensions carry the OIDs P22 registers).'''
+
+    def test_p22_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The frame counts per protocol; no malformed packets and no
+        expert infos of warning or error severity in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p22_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('P22') == 11
+        assert protocols.count('PKIX-CRL') == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p22_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_p22_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol tree is the same in one and in two passes.'''
+        out = []
+        for passes in ((), ('-2',)):
+            out.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('p22_coverage.pcapng.gz'), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert out[0] == out[1]
+
+    def test_p22_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the interpersonal messages and
+        notifications: the subject, forwarded messages (a message body
+        part holds an IPM) and the notification kinds. Frame 11 has an
+        empty constructed subject, for which the BER string code returns
+        no tvb: no subject is shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p22_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 11',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\tInterPersonal Message (Test subject)'
+        assert lines[1] == '2\tInterPersonal Message'
+        assert lines[2] == '3\tInterPersonal Message (Test subject) Message (Test subject)'
+        assert lines[5] == '6\tInterPersonal Notification'
+        assert lines[9].startswith('10\tInterPersonal Message')
+        assert lines[10].startswith('11\t')
+
+    def test_p22_heading_extensions_and_body_parts(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1: the heading extensions (recipient and heading ones, by
+        OID) and every basic body part type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p22_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1',
+                '-Tfields', '-ep22.type', '-ep22.basic',
+                '-ep22.importance', '-ep22.sensitivity', '-ep22.auto_forwarded',
+            ), encoding='utf-8', env=test_env)
+        types, basic, importance, sensitivity, auto = stdout.rstrip('\n').split('\t')
+        assert types.split(',') == [
+            '2.6.1.20.1', '2.6.1.20.0', '2.6.1.18.0', '2.6.1.5.0', '2.6.1.5.1',
+            '2.6.1.5.2', '2.6.1.5.5', '2.6.1.5.6', '2.6.1.5.7', '2.6.1.5.8',
+            '2.6.1.5.9', '2.6.1.5.10', '2.6.1.5.11', '2.6.1.5.12']
+        # ia5-text x2, g3-facsimile x2, g4-class1, teletex, videotex,
+        # encrypted, bilaterally-defined, nationally-defined, mixed-mode
+        assert basic.split(',') == ['0', '0', '3', '3', '4', '5', '6', '8', '14', '7', '11']
+        assert (importance, sensitivity, auto) == ('2', '3', 'True')
+
+    def test_p22_notifications(self, cmd_tshark, capture_file, test_env):
+        '''The notification choices: non-receipt (reason, discard reason,
+        auto-forward comment), receipt (acknowledgment mode).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p22_coverage.pcapng.gz'),
+                '-Y', 'p22.non_receipt_reason || p22.receipt_time',
+                '-Tfields', '-eframe.number', '-ep22.non_receipt_reason',
+                '-ep22.discard_reason', '-ep22.auto_forward_comment',
+                '-ep22.acknowledgment_mode',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[:5] == [
+            '5\t1\t2\tx\t',
+            '6\t0\t\t\t',
+            '7\t\t\t\t1',
+            '8\t\t\t\t0',
+            '17\t0\t0\tauto forwarded\t1',
+        ]
+
+    def test_p22_oid_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Every CRL frame (frames 11 to 28) reaches the OID dissectors of
+        P22 (x509af calls p22 through the BER OID table).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('p22_coverage.pcapng.gz'),
+                '-Y', 'frame.protocols contains "x509af" && frame.protocols contains "p22"',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 18
