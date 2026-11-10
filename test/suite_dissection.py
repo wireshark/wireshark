@@ -133954,3 +133954,107 @@ class TestDissectSaprfc:
             assert [l[0] for l in lines] == ['84', '85', '86', '87', '92']
             assert [l[1] for l in lines] == ['', '1160', '1740', '2320', '870']
             assert all(l[-1] == '' for l in lines)
+
+
+class TestDissectSaprouter:
+    def test_saprouter_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SAP Router messages over SAP NI, 85 frames; the only frame
+        with a malformed expert info is the routed message to the SAP
+        Router port itself (frame 85), in one and two passes. This is the
+        reproducer of the unbounded recursion that ended in a dissector
+        bug.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saprouter_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 85
+            assert protocols.count('SAPROUTER') == 82
+            assert protocols.count('SAPIGS') == 3
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('saprouter_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '85\tRouted message to the SAP Router port 3299 is not dissected']
+
+    def test_saprouter_recursion(self, cmd_tshark, capture_file, test_env):
+        '''A route to the SAP Router port is not dissected again: no
+        dissector bug, even when the process aborts on dissector bugs.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 84', '-V',
+            ), encoding='utf-8', env=env)
+        assert 'Dissector bug' not in stdout
+        assert 'Routed message to the SAP Router port 3299 is not dissected' in stdout
+
+    def test_saprouter_route(self, cmd_tshark, capture_file, test_env):
+        '''Route strings with host names, service names (numeric, sapdp,
+        sapgw, sapms) and passwords, and the route state across frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'saprouter.routestring.service',
+                '-Tfields', '-eframe.number', '-esaprouter.routestring.service',
+                '-esaprouter.routestring.password', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][:3] == ['1', '3299,40000', ',secret']
+        assert lines[0][3] == ('Route message, Source: Hostname=router.example Service Port=3299, '
+                'Destination: Hostname=igs.example Service Port=40000 Password=secret')
+        # service names, as the destination port in the Info column
+        assert [l[3].rsplit('Service Port=', 1)[1] for l in lines[1:8]] == [
+            '3200', '3301', '3602', '3200', '0', '0', '0']
+
+    def test_saprouter_accepted(self, cmd_tshark, capture_file, test_env):
+        '''The route accepted frame and the routed messages that follow it
+        point back to the route request; the destination dissects them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 4',
+                '-Tfields', '-eframe.number', '-esaprouter.requested_in',
+                '-esaprouter.accepted_in', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '', '', 'SAPROUTER'], ['2', '1', '', 'SAPROUTER'],
+            ['3', '1', '2', 'SAPIGS'], ['4', '1', '2', 'SAPIGS']]
+
+    def test_saprouter_admin_and_errors(self, cmd_tshark, capture_file, test_env):
+        '''Admin commands, error information return codes and control
+        message opcodes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'saprouter.command',
+                '-Tfields', '-esaprouter.command',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['2', '2', '3', '4', '5', '7', '8', '9', '14', '99',
+                '10', '11', '6', '12', '13']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'saprouter.returncode == -94 || saprouter.opcode > 0',
+                '-Tfields', '-eframe.number', '-esaprouter.opcode', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[0] for l in lines] == ['54', '66', '67', '68', '69', '70', '71', '72', '73',
+                '74', '75', '76', '81', '82']
+        assert lines[4][2] == 'Control message, opcode=Version Request'
+        assert lines[12][2] == 'Control message, opcode=SNC request'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'frame.number == 66',
+                '-Tfields', '-esaprouter.errortext.eyecatcher', '-esaprouter.errortext.location',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split('\t')[0].startswith('LOCATION')
+
+    def test_saprouter_credentials(self, cmd_tshark, capture_file, test_env):
+        '''Route and admin passwords are reported with an expert info.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('saprouter_coverage.pcap.gz'),
+                '-Y', 'saprouter.routestring.password.found || saprouter.password.found',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tRoute password found', '12\tRoute password found',
+                '16\tInfo password found']
