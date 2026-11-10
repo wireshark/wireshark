@@ -117752,3 +117752,44 @@ class TestDissectPkcs12:
         out = self._fields(cmd_tshark, capture_file, test_env, 'frame.number == 38',
                            '-e_ws.col.protocol', '-epkcs12.SafeContents')
         assert out == ['CMS/IMF\t']
+
+
+class TestDissectPkinit:
+    '''PKINIT AuthPack and KDCDHKeyInfo as CMS content types
+    (1.3.6.1.5.2.3.1 and 1.3.6.1.5.2.3.2) and the KRB5PrincipalName
+    subject alternative name (1.3.6.1.5.2.2), in Exported PDU "cms"
+    frames. The Kerberos PA-PK-AS-REQ/REP and the key derivation code
+    are not covered (keys).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pkinit_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_pkinit_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 6 frames decode without malformed packets or error
+        expert infos, in one and in two passes, with the same columns.'''
+        cols = {}
+        for passes in ((), ('-2',)):
+            cols[passes] = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                        '-e_ws.col.protocol', '-e_ws.col.info', passes=passes)
+            bad = self._fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               '-eframe.number', passes=passes)
+            assert count_output('\n'.join(bad)) == 0
+        assert len(cols[()]) == 6
+        assert cols[()] == cols[('-2',)]
+
+    def test_pkinit_structures(self, cmd_tshark, capture_file, test_env):
+        '''AuthPack in frames 1-2, KDCDHKeyInfo in 3-4, KRB5PrincipalName
+        in 5-6.'''
+        for fld, frames in (('pkinit.pkAuthenticator_element', ['1', '2']),
+                            ('pkinit.KRB5PrincipalName_element', ['5', '6'])):
+            out = self._fields(cmd_tshark, capture_file, test_env, fld, '-eframe.number')
+            assert out == frames
+        out = self._fields(cmd_tshark, capture_file, test_env, 'pkinit.KDCDHKeyInfo_element',
+                           '-eframe.number')
+        assert out == ['3', '4']
