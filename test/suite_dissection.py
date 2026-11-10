@@ -116881,3 +116881,94 @@ class TestDissectPdcpNr:
                             '-Tfields', '-eframe.number', heur=False)) == 24
         assert len(self.run(cmd_tshark, test_env, cap, '-Y', 'dct2000.ciphering-key',
                             '-Tfields', '-eframe.number', heur=False)) == 23
+
+
+class TestDissectPduTransport:
+    '''PDU Transport (AUTOSAR Socket Adaptor PDU header option: ID and
+    length) over UDP and TCP from the synthetic capture
+    pdu_transport_coverage.pcap.gz. The port preferences are empty by
+    default, so the tests give the ports (30500-30505 for UDP, 30500 for
+    TCP) and, through the UATs, the PDU names and the header layouts of
+    the extended ports: 30501 has an 8 bit ID and a 16 bit length, 30502
+    from source port 40002 has no ID (default ID 0x77) and an 8 bit
+    length, 30503 a 16 bit ID and no length, 30504 from 40004 neither.'''
+
+    CAPTURE = 'pdu_transport_coverage.pcap.gz'
+    PORTS = (
+        '-o', 'pdu_transport.udp.port:30500-30505',
+        '-o', 'pdu_transport.tcp.port:30500',
+    )
+    NAMES = (
+        '-o', 'uat:PDU Transport PDUs:"100","Alpha"',
+        '-o', 'uat:PDU Transport PDUs:"200","Beta"',
+        '-o', 'uat:PDU Transport PDUs:"300","Gamma"',
+        '-o', 'uat:PDU Transport PDUs:"400","Nm"',
+    )
+    LAYOUTS = (
+        '-o', 'uat:PDU Transport Extended Config:"FALSE","65536","30501","8","16","0"',
+        '-o', 'uat:PDU Transport Extended Config:"FALSE","40002","65536","0","8","77"',
+        '-o', 'uat:PDU Transport Extended Config:"FALSE","65536","30503","16","0","0"',
+        '-o', 'uat:PDU Transport Extended Config:"FALSE","40004","30504","0","0","abc"',
+        '-o', 'uat:PDU Transport Extended Config:"FALSE","65536","65536","32","32","0"',
+        '-o', 'uat:PDU Transport Extended Config:"TRUE","65536","30500","32","32","0"',
+    )
+
+    def test_pdu_transport_no_errors(self, cmd_tshark, capture_file, test_env):
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    *self.PORTS, *self.NAMES, *self.LAYOUTS,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', 'pdu_transport',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert len(stdout.split()) == 20
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    *self.PORTS, *self.NAMES, *self.LAYOUTS,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pdu_transport_default_layout(self, cmd_tshark, capture_file, test_env):
+        '''The default layout is a 32 bit ID and length; several PDUs in a
+        datagram or a segment each get their own tree.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.PORTS, *self.NAMES,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 4, 5, 18, 24}',
+                '-Tfields', '-eframe.number', '-epdu_transport.id',
+                '-epdu_transport.name', '-epdu_transport.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000100\tAlpha\t4',
+            '4\t0xdeadbeef\t\t20',
+            '5\t0x00000100,0x00000200,0x00000300\tAlpha,Beta,Gamma\t2,4,1',
+            '18\t0x00000100\tAlpha\t4',
+            '24\t0x00000100,0x00000200,0x00000300\tAlpha,Beta,Gamma\t1,2,3',
+        ]
+
+    def test_pdu_transport_extended_config(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark, *self.PORTS, *self.NAMES, *self.LAYOUTS,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {8, 9, 10, 12, 13, 14}',
+                '-Tfields', '-eframe.number', '-epdu_transport.id',
+                '-epdu_transport.implicit_id', '-epdu_transport.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t0x00000010\t\t5',
+            '9\t0x00000020\t\t9',
+            '10\t\t0x00000077\t7',
+            '12\t0x00001234\t\t',
+            '13\t\t0x00000abc\t',
+            '14\t0x00000200\t\t7',
+        ]
+
+    def test_pdu_transport_autosar_nm(self, cmd_tshark, capture_file, test_env):
+        '''The payload of an ID goes to the dissector that registered for
+        it in the pdu_transport.id table.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.PORTS, *self.NAMES,
+                '-o', 'autosar-nm.pdu_transport.ids:0x400',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'autosar-nm', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['7']
