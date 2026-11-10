@@ -486,8 +486,8 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
           if (extflags & EXT_FLAGS_GI) {
             /* Half GI     : 0.4uS
                Full GI     : 0.8uS */
-            phdr.phy_info.info_11ac.has_short_gi = true;
-            phdr.phy_info.info_11ac.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
+            phdr.phy_info.info_11n.has_short_gi = true;
+            phdr.phy_info.info_11n.short_gi = ((extflags & EXT_FLAG_HALF_GI) != 0);
           }
           phdr.phy_info.info_11n.has_bandwidth = true;
           if (extflags & EXT_FLAG_40_MHZ) {
@@ -657,7 +657,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   phdr.has_signal_percent = true;
   phdr.signal_percent = tvb_get_uint8(tvb, 18);
   phdr.has_noise_percent = true;
-  phdr.noise_percent = tvb_get_uint8(tvb, 18);
+  phdr.noise_percent = tvb_get_uint8(tvb, 19);
   phdr.has_signal_dbm = true;
   phdr.signal_dbm = tvb_get_uint8(tvb, 0);
   phdr.has_noise_dbm = true;
