@@ -24,6 +24,7 @@
 #include <epan/etypes.h>
 #include <epan/oui.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include "packet-chdlc.h"
 #include "packet-ip.h"
 #include <epan/crc16-tvb.h>
@@ -107,6 +108,35 @@ static int ett_ppp_unknown_opt;
 
 static expert_field ei_ppp_opt_len_invalid;
 static expert_field ei_ppp_fcs;
+static expert_field ei_ppp_nesting;
+
+/* Maximum nesting of PPP payloads inside PPP payloads in one packet
+ * (Protocol-Reject, PPPMux sub-frames, Multilink reassembly). */
+#define PPP_MAX_NESTING 8
+
+/* Returns false (and adds an expert info) if the nesting limit is reached.
+ * On true, the caller must call ppp_nesting_leave() afterwards. */
+static bool
+ppp_nesting_enter(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
+{
+    unsigned depth = p_get_proto_depth(pinfo, proto_ppp);
+
+    if (depth >= PPP_MAX_NESTING) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_ppp_nesting, tvb, offset, 0,
+            "Too many nested PPP payloads (limit %u)", PPP_MAX_NESTING);
+        return false;
+    }
+    p_set_proto_depth(pinfo, proto_ppp, depth + 1);
+    increment_dissection_depth(pinfo);
+    return true;
+}
+
+static void
+ppp_nesting_leave(packet_info *pinfo)
+{
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_ppp, p_get_proto_depth(pinfo, proto_ppp) - 1);
+}
 
 static int proto_ppp_hdlc;
 
@@ -1379,8 +1409,8 @@ dissect_lcp_var_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Bogus - option length isn't what it's supposed to be for this option. */
         proto_tree_add_expert_format(tree, pinfo, &ei_ppp_opt_len_invalid, tvb, 0, len,
                             "%s (with option length = %u byte%s; should be at least %u)",
-                            proto_get_protocol_short_name(find_protocol_by_id(proto_lcp_option_vendor)),
-                            len, plurality(len, "", "s"), 6);
+                            proto_get_protocol_short_name(find_protocol_by_id(proto)),
+                            len, plurality(len, "", "s"), expected_length);
         return false;
     }
 
@@ -1839,7 +1869,7 @@ capture_ppp_hdlc(const unsigned char *pd, int offset, int len, capture_packet_in
     if (!BYTES_ARE_IN_FRAME(offset, len, 2))
         return false;
 
-    if (pd[0] == CHDLC_ADDR_UNICAST || pd[0] == CHDLC_ADDR_MULTICAST)
+    if (pd[offset] == CHDLC_ADDR_UNICAST || pd[offset] == CHDLC_ADDR_MULTICAST)
         return call_capture_dissector(chdlc_cap_handle, pd, offset, len, cpinfo, pseudo_header);
 
     if (!BYTES_ARE_IN_FRAME(offset, len, 4))
@@ -2020,7 +2050,7 @@ dissect_lcp_qualprot_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     if (length > 4) {
         proto_tree_add_item(field_tree, hf_lcp_opt_data, tvb, offset + 4,
-            length + 4, ENC_NA);
+            length - 4, ENC_NA);
     }
 
     return tvb_captured_length(tvb);
@@ -2476,8 +2506,9 @@ dissect_lcp_prefix_elision_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
             pre_len = tvb_get_uint8(tvb, offset + 1);
             if (pre_len + 2 <= length) {
                 proto_tree_add_item(field_tree, hf_lcp_opt_prefix, tvb,
-                    offset + 2, 1, ENC_NA);
+                    offset + 1, 1, ENC_NA);
                 length -= (2 + pre_len);
+                offset += (2 + pre_len);
             } else {
                 /* Prefix length doesn't make sense, so bail out */
                 length = 0;
@@ -4727,8 +4758,13 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
 
             /* Decode the rejected packet. */
             next_tvb = tvb_new_subset_length(tvb, offset, length);
-            if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
-                pinfo, fh_tree)) {
+            if (ppp_nesting_enter(pinfo, fh_tree, tvb, offset)) {
+                if (!dissector_try_uint(ppp_subdissector_table, protocol, next_tvb,
+                    pinfo, fh_tree)) {
+                    call_data_dissector(next_tvb, pinfo, fh_tree);
+                }
+                ppp_nesting_leave(pinfo);
+            } else {
                 call_data_dissector(next_tvb, pinfo, fh_tree);
             }
 
@@ -5222,7 +5258,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     proto_item     *ti           = NULL;
     uint8_t         flags, byte;
     uint16_t        length;
-    static uint16_t pid;
+    uint16_t        pid          = 0;
     tvbuff_t       *next_tvb;
     int             offset       = 0, length_remaining;
     int             length_field, pid_field, hdr_length;
@@ -5275,7 +5311,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         hdr_tree = proto_tree_add_subtree(sub_tree, tvb, offset, hdr_length,
             ett_pppmux_subframe_hdr, NULL, "Header field");
 
-        proto_tree_add_bitmask(tree, tvb, offset, hf_pppmux_flags, ett_pppmux_subframe_flags, subframe_flags, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(hdr_tree, tvb, offset, hf_pppmux_flags, ett_pppmux_subframe_flags, subframe_flags, ENC_BIG_ENDIAN);
         proto_tree_add_uint(hdr_tree, hf_pppmux_sub_frame_length, tvb,offset, length_field, length);
 
         ti = proto_tree_add_uint(hdr_tree, hf_pppmux_protocol, tvb,
@@ -5296,8 +5332,13 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
             ett_pppmux_subframe_info, NULL, "Information Field");
         next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-        if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo,
-            info_tree)) {
+        if (ppp_nesting_enter(pinfo, info_tree, tvb, offset)) {
+            if (!dissector_try_uint(ppp_subdissector_table, pid, next_tvb, pinfo,
+                info_tree)) {
+                call_data_dissector(next_tvb, pinfo, info_tree);
+            }
+            ppp_nesting_leave(pinfo);
+        } else {
             call_data_dissector(next_tvb, pinfo, info_tree);
         }
         offset += length;
@@ -5791,7 +5832,12 @@ dissect_mp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
         if (frag_mp) {
             if (next_tvb) {
-                dissect_ppp(next_tvb, pinfo, tree, NULL);
+                if (ppp_nesting_enter(pinfo, mp_tree, tvb, hdrlen)) {
+                    dissect_ppp(next_tvb, pinfo, tree, NULL);
+                    ppp_nesting_leave(pinfo);
+                } else {
+                    call_data_dissector(next_tvb, pinfo, tree);
+                }
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO,
                     " (PPP MP reassembled in packet %u)",
@@ -6497,6 +6543,7 @@ proto_register_ppp(void)
     };
     static ei_register_info ei[] = {
         { &ei_ppp_opt_len_invalid, { "ppp.opt.len.invalid", PI_PROTOCOL, PI_WARN, "Invalid length for option", EXPFILL }},
+        { &ei_ppp_nesting, { "ppp.nesting_too_deep", PI_PROTOCOL, PI_WARN, "Too many nested PPP payloads", EXPFILL }},
         { &ei_ppp_fcs, { "ppp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     };
 
@@ -7384,10 +7431,10 @@ proto_register_bcp_ncp(void)
                 NULL, 0x0, NULL, HFILL } },
        { &hf_bcp_ncp_mac_l,
             { "L bit", "bcp_ncp.lcp.mac_l", FT_UINT48, BASE_HEX,
-                NULL, UINT64_C(0x0200000000), NULL, HFILL } },
+                NULL, UINT64_C(0x020000000000), NULL, HFILL } },
        { &hf_bcp_ncp_mac_m,
            { "M bit", "bcp_ncp.lcp.mac_m", FT_UINT48, BASE_HEX,
-                NULL, UINT64_C(0x0100000000), NULL, HFILL } },
+                NULL, UINT64_C(0x010000000000), NULL, HFILL } },
        { &hf_bcp_ncp_stp_prot,
            { "Protocol", "bcp_ncp.lcp.stp_protocol", FT_UINT8, BASE_DEC,
                 VALS(bcp_ncp_stp_prot_vals), 0x0, NULL, HFILL } },
