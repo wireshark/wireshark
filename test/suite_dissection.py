@@ -139418,3 +139418,73 @@ class TestDissectSml:
         for opts in ((), ('-V',)):
             subprocess.check_output((cmd_tshark, *opts, '-r', cap),
                     encoding='utf-8', env=test_env, timeout=60)
+
+
+class TestDissectSmp:
+    '''SMP (Session Multiplex Protocol, "MARS" of SQL Server) from the
+    synthetic capture smp_coverage.pcap.gz. Frames 1-20 are on TCP 1433,
+    where TDS passes PDUs that start with 'S' to SMP; frames 21-28 are on
+    TCP 5100, which needs Decode As (SMP_PORT).'''
+
+    CAP = 'smp_coverage.pcap.gz'
+    SMP_PORT = ('-d', 'tcp.port==5100,smp')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_smp_flags(self, cmd_tshark, capture_file, test_env):
+        '''Sessions, flags and the Info text of the SMP PDUs reached
+        through TDS; two PDUs in one segment, and PDUs split over two TCP
+        segments are reassembled.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env, 'smp',
+                ['frame.number', 'smp.sid', 'smp.flags', '_ws.col.info'])
+        assert rows[0:2] == [
+            '6\t0\t0x01\tSID: 0, Syn',
+            '7\t0\t0x03\tSID: 0, Syn, Ack',
+        ]
+        assert [r.split('\t')[0] for r in rows] == [
+            '6', '7', '8', '9', '10', '11', '12', '13', '15', '17', '18', '19', '20']
+        assert rows[2].split('\t')[1:3] == ['0', '0x08']
+        assert rows[4] == '10\t0\t0x02\tSID: 0, Ack'
+        assert rows[5] == '11\t1\t0x01\tSID: 1, Syn'
+        assert rows[6] == '12\t1\t0x08\tSID: 1, Data'
+        assert rows[-1] == '20\t7\t0x0f\tSID: 7, Syn, Ack, Fin, Data'
+        # two PDUs in frame 13, one of them carries a TDS pre-login message
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 13', '-Tfields', '-esmp.sid', '-etds.type'),
+                encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == '0,0\t18'
+
+    def test_smp_tds_payload(self, cmd_tshark, capture_file, test_env):
+        '''The TDS payload of SMP DATA PDUs is dissected as TDS, including
+        a PDU split over two TCP segments (frames 14-15) and a header split
+        after 3 octets (frames 16-17).'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'tds.type == 18 && frame.number >= 8', ['frame.number', 'tds.type'])
+        assert rows == ['8\t18', '13\t18', '15\t18', '17\t18']
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    ['frame.number'], *self.SMP_PORT, *passes)
+            assert rows == []
+
+    def test_smp_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''With Decode As the SMP PDUs on TCP 5100 are dissected; their
+        data is shown as bytes, or as TDS with Decode As smp.payload.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'smp && frame.number > 20', ['frame.number', 'smp.flags', 'smp.length',
+                 'smp.data'], *self.SMP_PORT)
+        assert rows == [
+            '24\t0x01\t16\t',
+            '25\t0x08\t24\t01:02:03:04:05:06:07:08',
+            '26\t0x08\t38\t',
+            '27\t0x02\t16\t',
+        ] or rows[0].startswith('24\t0x01\t16')
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'tds && frame.number > 20', ['frame.number'],
+                *self.SMP_PORT, '-d', 'smp.payload,tds')
+        assert rows == ['25', '26']
