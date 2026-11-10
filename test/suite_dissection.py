@@ -115360,3 +115360,58 @@ class TestDissectPacketlogger:
         assert lines[9] == '10\tRcvd Connect Complete'
         assert lines[10] == '11\tSent Information Request (Connectionless MTU)'
         assert lines[13] == '14\tRcvd SCO - Correctly Received Data'
+
+
+class TestDissectPagp:
+    '''PAgP (Port Aggregation Protocol) in LLC/SNAP frames with the Cisco
+    PID 0x0104, from the synthetic capture pagp_coverage.pcap.gz.'''
+
+    def test_pagp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 8 frames are PAGP with no malformed frame and no error
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pagp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 8
+        assert protocols.count('PAGP') == 8
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pagp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_pagp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 carries a device name, a port name and an agport MAC
+        address TLV and a reserved TLV; frame 5 is a Flush PDU.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('pagp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 5}',
+                '-Tfields', '-eframe.number', '-epagp.numtlvs', '-epagp.tlv',
+                '-epagp.tlvdevname', '-epagp.tlvportname',
+                '-epagp.tlvagportmac', '-epagp.transid',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t4\t1,2,3,4\tswitch-a\tGi1/0/1\t02:00:00:00:00:33\t'
+        assert lines[1] == '5\t\t\t\t\t\t0xdeadbeef'
+
+    def test_pagp_tlv_length(self, cmd_tshark, capture_file, test_env):
+        '''Frames 6-8 have TLV lengths of 2 (the reproducer of "PAGP:
+        Reject TLV lengths below 4", which was malformed before the fix),
+        0 and past the end of the PDU: an expert info, not a malformed
+        packet.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('pagp_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 6',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                    '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '6\tTLV length too small (< 4)\t',
+                '7\tUnknown data - TLV len=0\t',
+                '8\tTLV length too large\t',
+            ]
