@@ -360,12 +360,15 @@ format_reference_price_type(
     char *buf,
     uint32_t value)
 {
-    snprintf(buf, ITEM_LABEL_LENGTH,
-               "%s (%c)",
-               val_to_str_const(value,
-                                ouch_reference_price_type_val,
-                                "Unknown"),
-               value);
+    const char *name = val_to_str_const(value,
+                                        ouch_reference_price_type_val,
+                                        "Unknown");
+
+    if (value >= 0x20 && value < 0x7f) {
+        snprintf(buf, ITEM_LABEL_LENGTH, "%s (%c)", name, (char)value);
+    } else {
+        snprintf(buf, ITEM_LABEL_LENGTH, "%s (0x%02x)", name, value);
+    }
 }
 
 /** BASE_CUSTOM formatter for the Time In Force (TIF) code
@@ -416,7 +419,7 @@ dissect_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_item *ti;
     proto_tree *ouch_tree = NULL;
     const char *pkt_name;
-    uint16_t reported_len;
+    unsigned reported_len;
     uint8_t pkt_type;
     unsigned offset = 0;
 
@@ -1215,6 +1218,10 @@ dissect_ouch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         }
     }
 
+    if (!tree) {
+        /* offset only advances while building the tree */
+        return tvb_captured_length(tvb);
+    }
     return offset;
 }
 
