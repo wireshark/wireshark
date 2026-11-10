@@ -114411,3 +114411,112 @@ class TestDissectOssp:
                     '-Y', 'frame.number == 1',
                 ), encoding='utf-8', env=test_env)
             assert stdout.rstrip().endswith(expected)
+
+
+class TestDissectOtp:
+    # otp_coverage.pcapng.gz: 1-4 transform messages (all ESTA modules, several
+    # points, no points, a point without modules), 5-6 Chamsys and unknown
+    # manufacturer modules, 7-9 module advertisements, 10-11 name
+    # advertisements, 12-13 system advertisements, 14-15 other UDP ports (the
+    # heuristic finds them, the second one through the conversation).
+    CAP = 'otp_coverage.pcapng.gz'
+
+    def test_otp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is OTP and none is malformed or has a warning or
+        error expert info (frames 5 and 6 have notes about the module
+        manufacturer), in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 15
+        assert protocols.count('OTP') == 15
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['5', '6']
+
+    def test_otp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 Console, Folio: 1, Point Transform, System 1, 3 points',
+            '2 Tracker, Folio: 2, Point Transform, System 255, 1 points',
+            '3 Console, Folio: 3, Point Transform, System 2, 0 points',
+            '4 Console, Folio: 4, Point Transform, System 3, 1 points',
+            '5 ChamSys MagicQ, Folio: 5, Point Transform, System 1, 1 points',
+            '6 Console, Folio: 6, Point Transform, System 1, 1 points',
+            '7 Console, Folio: 7, Module Advertisement, 6 modules',
+            '8 Console, Folio: 8, Module Advertisement, 4 modules',
+            '9 Console, Folio: 9, Module Advertisement, 0 modules',
+            '10 Console, Folio: 10, Name Advertisement Request',
+            '11 Console, Folio: 11, Name Advertisement Response, 3 points',
+            '12 Console, Folio: 12, System Advertisement Request',
+            '13 Console, Folio: 13, System Advertisement Response, 4 systems',
+            '14 Console, Folio: 14, Point Transform, System 1, 1 points',
+            '15 Console, Folio: 15, Point Transform, System 1, 1 points',
+        ]
+
+    def test_otp_modules(self, cmd_tshark, capture_file, test_env):
+        '''The first point of frame 1 holds the position module in um and
+        in mm, and the other ESTA modules follow.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'otp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Point, 1.1, Priority: 100, Module count: 7' in lines
+        assert 'Point, 1.2, Priority: 0, Module count: 1' in lines
+        assert 'Point, 2.70000, Priority: 200, Module count: 2' in lines
+        for name in ('Position', 'Position Velocity/Acceleration', 'Rotation',
+                     'Rotation Velocity/Acceleration', 'Scale', 'Reference Frame'):
+            assert 'Module, ESTA: ' + name in lines
+        assert 'X: 1000 µm' in lines
+        assert 'Y: -2000 mm' in lines
+        assert 'Options: 0x80, Scaling: mm' in lines
+
+    def test_otp_unknown_module_names(self, cmd_tshark, capture_file, test_env):
+        '''An unknown ESTA module number in a module list is named
+        "ESTA: Unknown (153)" (the prefix was repeated before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 8',
+                '-V', '-O', 'otp',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert [l for l in lines if l.startswith('Module Identifier')] == [
+            'Module Identifier, ESTA: Position',
+            'Module Identifier, Unknown Manufacturer',
+            'Module Identifier, ESTA: Unknown (153)',
+            'Module Identifier, ESTA: Unknown (9)',
+        ]
+
+    def test_otp_advertisements(self, cmd_tshark, capture_file, test_env):
+        '''Name and system advertisements, requests and responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'otp.advertisement.name || otp.advertisement.system',
+                '-Tfields', '-eframe.number', '-eotp.transform.point.name',
+                '-eotp.advertisement.name.options',
+                '-eotp.advertisement.system.options',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t\t0x00\t',
+            '11\tCamera 1,Camera 2,Light \u00e9\u00e8\t0x80\t',
+            '12\t\t\t0x00',
+            '13\t\t\t0x80',
+        ]
