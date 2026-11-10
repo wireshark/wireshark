@@ -131350,3 +131350,88 @@ class TestDissectRtps:
         out = self._repro(cmd_tshark, result_file, test_env, 'rtps_work.pcap',
                           [discovery, sample], flt='rtps.user_data_dissection_error')
         assert out.split() == ['2']
+
+
+class TestDissectRtpsProcessed:
+    '''RTPS processed (RTPS-PROC, the frame0 and frame1 of the RTI Network
+    Capture Utility records) from the synthetic capture
+    rtps_processed_coverage.pcap.gz. The records are Exported PDUs (link
+    type 252) that name the rtpsvt dissector. The protected submessages
+    of the main frames hold made-up bytes: only the SEC_PREFIX, SEC_BODY
+    and SEC_POSTFIX framing is dissected, nothing is encrypted and no key
+    is involved. Frames 4 and 5 show the Info column of
+    "RTPS-PROC: Replace each encrypted group with its own submessage".'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('rtps_processed_coverage.pcap.gz'), '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f)),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_rtpsproc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 13 records decode as RTPS, with and without frame0 and
+        frame1, with no malformed packets or error expert infos in one and
+        two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                'frame.number', '_ws.col.protocol')
+        assert rows == ['%d\tRTPS' % n for n in range(1, 14)]
+        for passes in ((), ('-2',)):
+            assert self._fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    'frame.number', passes=passes) == []
+
+    def test_rtpsproc_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The identifiers (0xc1 = frame0, 0xc2 = frame1) and lengths of
+        the optional frames, and the direction of the record.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'rtpsproc.param.id',
+                'frame.number', 'rtpsvt.direction', 'rtpsproc.param.id',
+                'rtpsproc.param.length')
+        assert rows == [
+            '3\tINBOUND\t193,194\t56,56',
+            '4\tINBOUND\t193,194\t108,88',
+            '5\tINBOUND\t194\t24',
+            '6\tINBOUND\t194\t88',
+            '7\tINBOUND\t193\t44',
+            '8\tINBOUND\t194\t32',
+            '9\tOUTBOUND\t194\t76',
+            '10\tOUTBOUND\t193,194\t44,76',
+            '11\tOUTBOUND\t193\t64',
+            '12\tINBOUND\t194\t24',
+            '13\tINBOUND\t194\t32',
+        ]
+
+    def test_rtpsproc_info_column(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of an inbound record shows the decoded
+        submessages in place of SEC_PREFIX, SEC_BODY, SEC_POSTFIX, one name
+        for every protected submessage (and nothing for a protected
+        submessage without a decoded one).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 2, 3, 4, 5, 6, 12, 13}',
+                'frame.number', '_ws.col.info')
+        assert rows == [
+            '1\tINFO_TS, HEARTBEAT',
+            '2\tINFO_TS, HEARTBEAT',
+            '3\tINFO_TS, DATA',
+            '4\tDATA, HEARTBEAT, GAP',
+            '5\tDATA, ',
+            '6\tINFO_TS',
+            '12\tDATA',
+            '13\tHEARTBEAT',
+        ]
+
+    def test_rtpsproc_submessages(self, cmd_tshark, capture_file, test_env):
+        '''The submessages seen by the RTPS dissector: the protected ones
+        in the main frame and frame0, the decoded ones of frame1 of an
+        inbound record, and the whole message of an outbound frame1.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {1, 3, 9, 11}',
+                'frame.number', 'rtps.sm.id')
+        assert rows == [
+            '1\t0x09,0x07',
+            '3\t0x09,0x31,0x30,0x32,0x09,0x15,0x15,0x07',
+            '9\t0x31,0x30,0x32,0x15,0x07',
+            '11\t0x09,0x07,0x09,0x07',
+        ]
