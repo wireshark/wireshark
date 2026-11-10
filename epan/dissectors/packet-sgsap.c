@@ -212,7 +212,7 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, uint32_t o
  * (see 3GPP TS 23.003).
  */
 static uint16_t
-de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len _U_)
+de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_t offset, unsigned len _U_, char *add_string _U_, int string_len)
 {
     char       *imeisv_str;
     uint32_t    curr_offset;
@@ -221,8 +221,7 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, uint32_
 
     proto_tree_add_item_ret_display_string(tree, hf_sgsap_imeisv, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9|ENC_LITTLE_ENDIAN, pinfo->pool, &imeisv_str);
     if (add_string) {
-        /* (len<<2)+4 = the maximum number of bytes to produce (including the terminating nul character). */
-        snprintf(add_string, (len<<2)+4, " - %s", imeisv_str);
+        snprintf(add_string, string_len, " - %s", imeisv_str);
     }
 
     return len;
