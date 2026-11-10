@@ -115498,3 +115498,104 @@ class TestDissectPaltalk:
             '8\t0x1001\t138\t20',
             '9\t0x1002\t138\t3',
         ]
+
+
+class TestDissectPana:
+    # PANA is reached by default through the UDP heuristic (pana_udp).
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, passes, *args):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('pana_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def pana_pdu(mtype, flags, seq, avps=b''):
+        return struct.pack('>HHHHII', 0, 16 + len(avps), flags, mtype, 1, seq) + avps
+
+    def test_pana_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 18 frames are PANA (frame 3 ends in the EAP dissector) and
+        none is malformed or has an error, in one and two passes.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'pana', '-Tfields', '-eframe.number')
+        assert stdout.split() == [str(n) for n in range(1, 19)]
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_pana_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message types, sequence numbers and AVP codes of every frame.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Tfields', '-eframe.number', '-epana.type', '-epana.seq',
+                '-epana.avp.code')
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[1] for l in lines] == [
+            '1', '2', '2', '2', '2', '2', '3', '3', '4', '4', '5,2',
+            '5,5,5,5,2', '2', '2', '2', '2', '2', '1']
+        assert [l[2] for l in lines][0:4] == [
+            '0x00000064', '0x00000065', '0x00000065', '0x00000066']
+        assert lines[1][3] == '5,3,6'
+        assert lines[2][3] == '2,7,0,4'
+        assert lines[3][3] == '1,8,5'
+        assert lines[14][3] == '5,99'
+
+    def test_pana_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Answers point to their request (and the request to its answer
+        in the second pass); an answer without a request has neither.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'pana.response_to', '-Tfields', '-eframe.number',
+                '-epana.response_to')
+        assert stdout.splitlines() == ['3\t2', '6\t4', '8\t7', '10\t9']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, ('-2',),
+                '-Y', 'pana.response_in', '-Tfields', '-eframe.number',
+                '-epana.response_in')
+        assert stdout.splitlines() == ['2\t3', '4\t6', '7\t8', '9\t10']
+        # the two passes differ only by the Response In lines
+        one = self.tshark(cmd_tshark, capture_file, test_env, (), '-V')
+        two = self.tshark(cmd_tshark, capture_file, test_env, ('-2',), '-V')
+        assert [l for l in two.splitlines() if not l.startswith('    [Response In: ')] == one.splitlines()
+
+    def test_pana_relayed_message(self, cmd_tshark, capture_file, test_env):
+        '''Relayed-Message AVPs hold PANA messages: one level in frame 11
+        and four levels (the maximum) in frame 12.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number in {11, 12}', '-V', '-O', 'pana')
+        assert stdout.count('AVP Value (PANA packet)') == 5
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number == 12', '-Tfields', '-epana.type')
+        assert stdout.strip() == '5,5,5,5,2'
+
+    def test_pana_vendor_avp(self, cmd_tshark, capture_file, test_env):
+        '''The Vendor-Id of a vendor specific AVP is read at the AVP, not
+        at the start of the PDU's first AVP (the second AVP of frame 13
+        has code 7 and Vendor-Id 0x1234, so it is not a Result-Code).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number in {13, 14}', '-V', '-O', 'pana')
+        assert 'Result-Code (OctetString) length: 16 bytes (16 padded bytes)' in stdout
+        assert 'Result-Code (Unsigned32)' not in stdout
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, (),
+                '-Y', 'frame.number in {13, 14}', '-Tfields', '-eframe.number',
+                '-epana.avp.vendorid')
+        assert stdout.splitlines() == ['13\t0x00001234', '14\t0x00005678']
+
+    def test_pana_nesting_limit(self, cmd_tshark, result_file, test_env):
+        '''More than four nested Relayed-Messages stop with an expert
+        error instead of recursing (a PDU can nest about 2700 levels).'''
+        inner = self.pana_pdu(2, 0x8000, 1, struct.pack('>HHHH', 5, 0, 8, 0) + bytes(8))
+        for i in range(8):
+            inner = self.pana_pdu(5, 0x8000, i + 2, struct.pack('>HHHH', 11, 0, len(inner), 0) + inner)
+        udp = struct.pack('>HHHH', 40000, 716, 8 + len(inner), 0) + inner
+        ip = struct.pack('>BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                         bytes([192, 0, 2, 1]), bytes([192, 0, 2, 2])) + udp
+        frame = bytes(6) + bytes(6) + b'\x08\x00' + ip
+        pcap = result_file('pana-nesting.pcap')
+        with open(pcap, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            f.write(struct.pack('<IIII', 0, 0, len(frame), len(frame)))
+            f.write(frame)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-V',
+                '-Y', 'pana'), encoding='utf-8', env=test_env)
+        # four levels are dissected, the fifth holds the error
+        assert stdout.count('AVP Value (PANA packet)') == 5
+        assert 'Too many nested PANA messages' in stdout
