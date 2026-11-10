@@ -514,6 +514,7 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                                       packet_info *pinfo, proto_tree *tree)
 {
   uint8_t         code, length;
+  int             next_offset, next_vp_length;
   uint8_t         c1;
   uint16_t        s;
   uint32_t        offset_iso8073_checksum = 0;
@@ -523,16 +524,21 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
   uint32_t        pref_max_tpdu_size;
   proto_item     *hidden_item;
 
-  while (vp_length != 0) {
+  while (vp_length > 0) {
     proto_tree_add_item_ret_uint8(tree, hf_cotp_parameter_code, tvb, offset, 1, ENC_NA, &code);
     offset += 1;
     vp_length -= 1;
 
-    if (vp_length == 0)
+    if (vp_length <= 0)
       break;
     proto_tree_add_item_ret_uint8(tree, hf_cotp_parameter_length, tvb, offset, 1, ENC_NA, &length);
     offset += 1;
     vp_length -= 1;
+
+    /* Each parameter occupies exactly its length octet's worth of bytes,
+     * whatever the code-specific decoding below consumed. */
+    next_offset = offset + length;
+    next_vp_length = vp_length - length;
 
     switch (code) {
 
@@ -544,7 +550,7 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
          * this may be the case for backward compatible CR TPDU */
         if (!offset_iso8073_checksum) {
           /* search following parameters in VP part for ISO checksum */
-          for (i = offset + length; i < vp_length;) {
+          for (i = offset + length; i < offset + vp_length;) {
             tmp_code = tvb_get_uint8(tvb, i++);
             tmp_len = tvb_get_uint8(tvb, i++);
             if (tmp_code == VP_CHECKSUM) {
@@ -563,8 +569,6 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_ATN_EC_32 : /* ATN */
@@ -575,7 +579,7 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
          * this may be the case for backward compatible CR TPDU */
         if (!offset_iso8073_checksum) {
           /* search following parameters in VP part for ISO checksum */
-          for (i = offset + length; i < vp_length;) {
+          for (i = offset + length; i < offset + vp_length;) {
             tmp_code = tvb_get_uint8(tvb, i++);
             tmp_len = tvb_get_uint8(tvb, i++);
             if (tmp_code == VP_CHECKSUM) {
@@ -594,129 +598,85 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       } else {
         proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
       }
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_ACK_TIME:
       proto_tree_add_item(tree, hf_cotp_ack_time, tvb, offset, length, ENC_BIG_ENDIAN);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_RES_ERROR:
       s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_target_value, tvb, offset, 1, s, "10^%u", s);
-      offset += 1;
-      vp_length -= 1;
 
       s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_min_accept, tvb, offset, 1, s, "10^%u", s);
-      offset += 1;
-      vp_length -= 1;
 
       s = tvb_get_uint8(tvb, offset);
       proto_tree_add_uint_format_value(tree, hf_cotp_res_error_rate_tdsu, tvb, offset, 1, s, "2^%u", s);
-      offset += 1;
-      vp_length -= 1;
       break;
 
     case VP_PRIORITY:
       proto_tree_add_item(tree, hf_cotp_vp_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_TRANSIT_DEL:
       proto_tree_add_item(tree, hf_cotp_transit_delay_targ_calling_called, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
 
       proto_tree_add_item(tree, hf_cotp_transit_delay_max_accept_calling_called, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
 
       proto_tree_add_item(tree, hf_cotp_transit_delay_targ_called_calling, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
 
       proto_tree_add_item(tree, hf_cotp_transit_delay_max_accept_called_calling, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
       break;
 
     case VP_THROUGHPUT:
       proto_tree_add_item(tree, hf_cotp_max_throughput_targ_calling_called, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       length -= 3;
-      vp_length -= 3;
 
       proto_tree_add_item(tree, hf_cotp_max_throughput_min_accept_calling_called, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       length -= 3;
-      vp_length -= 3;
 
       proto_tree_add_item(tree, hf_cotp_max_throughput_targ_called_calling, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       length -= 3;
-      vp_length -= 3;
 
       proto_tree_add_item(tree, hf_cotp_max_throughput_min_accept_called_calling, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       length -= 3;
-      vp_length -= 3;
 
       if (length != 0) {    /* XXX - should be 0 or 12 */
         proto_tree_add_item(tree, hf_cotp_avg_throughput_targ_calling_called, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-        vp_length -= 3;
 
         proto_tree_add_item(tree, hf_cotp_avg_throughput_min_accept_calling_called, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-        vp_length -= 3;
 
         proto_tree_add_item(tree, hf_cotp_avg_throughput_targ_called_calling, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-        vp_length -= 3;
 
         proto_tree_add_item(tree, hf_cotp_avg_throughput_min_accept_called_calling, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 3;
-        vp_length -= 3;
       }
       break;
 
     case VP_SEQ_NR:
       proto_tree_add_item(tree, hf_cotp_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_REASSIGNMENT:
       proto_tree_add_item(tree, hf_cotp_reassignment_time, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_FLOW_CNTL:
       proto_tree_add_item(tree, hf_cotp_lower_window_edge, tvb, offset, 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      vp_length -= 4;
 
       proto_tree_add_item(tree, hf_cotp_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
 
       proto_tree_add_item(tree, hf_cotp_credit, tvb, offset, 2, ENC_BIG_ENDIAN);
-      offset += 2;
-      vp_length -= 2;
 
       break;
 
     case VP_TPDU_SIZE:
       c1 = tvb_get_uint8(tvb, offset) & 0x0F;
       proto_tree_add_uint(tree, hf_cotp_tpdu_size, tvb, offset, 1, 1 << c1);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_SRC_TSAP:
@@ -738,8 +698,6 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_DST_TSAP:
@@ -761,8 +719,6 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_CHECKSUM:
@@ -782,14 +738,10 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         }
       }
 
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_VERSION_NR:
       proto_tree_add_item(tree, hf_cotp_vp_version_nr, tvb, offset, 1, ENC_NA);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_OPT_SEL:
@@ -807,8 +759,6 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
       }
 
       proto_tree_add_item(tree, hf_cotp_transport_expedited_data_transfer, tvb, offset, 1, ENC_NA);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_PREF_MAX_TPDU_SIZE:
@@ -836,14 +786,10 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
         return false;
       }
       proto_tree_add_uint(tree, hf_cotp_preferred_maximum_tpdu_size, tvb, offset, length, pref_max_tpdu_size*128);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_INACTIVITY_TIMER:
       proto_tree_add_item(tree, hf_cotp_inactivity_timer, tvb, offset, length, ENC_BIG_ENDIAN);
-      offset += length;
-      vp_length -= length;
       break;
 
     case VP_PROTECTION:             /* user-defined */
@@ -851,10 +797,10 @@ static bool ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
     case VP_CLEARING_INFO:          /* user-defined */
     default:                        /* unknown, no decoding */
       proto_tree_add_bytes_format_value(tree, hf_cotp_parameter_value, tvb, offset, length, NULL, "<not shown>");
-      offset += length;
-      vp_length -= length;
       break;
     }
+    offset = next_offset;
+    vp_length = next_vp_length;
   } /* while */
 
   return true;
@@ -1603,6 +1549,10 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpd
   if (((class_option & 0xF0) >> 4) > 4) /* class 0..4 allowed */
     return -1;
 
+  /* type, dst-ref, src-ref and class/options */
+  if (li < 6)
+    return -1;
+
   /* CR and CC TPDUs can have user data, so they run to the end of the
    * containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -1638,11 +1588,13 @@ static int ositp_decode_CR_CC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpd
     expert_add_info_format(pinfo, item, &ei_cotp_connection, "Connection %s: 0x%x -> 0x%x", tpdu == CR_TPDU ? "Request(CR)" : "Confirm(CC)", src_ref, dst_ref);
   } else {
     cotp_conv_info_t *conv_info = get_cotp_conv_info(pinfo);
-    conv_info->rev->ref = src_ref;
-    conv_info->rev->ref_set = true;
-    if (tpdu == CR_TPDU) {
-      conv_info->fwd->ref = dst_ref;
-      conv_info->fwd->ref_set = true;
+    if (!PINFO_FD_VISITED(pinfo)) {
+      conv_info->rev->ref = src_ref;
+      conv_info->rev->ref_set = true;
+      if (tpdu == CR_TPDU) {
+        conv_info->fwd->ref = dst_ref;
+        conv_info->fwd->ref_set = true;
+      }
     }
   }
 
@@ -1717,6 +1669,10 @@ static int ositp_decode_DC(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
       return -1;
   }
 
+  /* type, dst-ref and src-ref */
+  if (li < 5)
+    return -1;
+
   /* DC TPDUs have no user data, so the length indicator determines the
    * length */
   tpdu_len = li + 1;
@@ -1779,6 +1735,11 @@ static int ositp_decode_AK(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
     if (li > LI_ATN_MAX_AK)
       return -1;
   }
+
+  /* normal format: type, dst-ref, tpdu-nr; extended: type, dst-ref,
+   * tpdu-nr (4), credit (2) */
+  if (li < (is_LI_NORMAL_AK(li) ? 4U : 9U))
+    return -1;
 
   /* AK TPDUs have no user data, so the length indicator determines the
    * length */
@@ -1999,7 +1960,7 @@ static int ositp_decode_EA(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
           return -1;
 
         /* check checksum parameter (in VP) length octet */
-        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT + 1) != 2)
+        if (tvb_get_uint8(tvb, offset + P_VAR_PART_EDT + 1) != 4)
           return -1;
 
         tpdu_nr = tvb_get_ntohl(tvb, offset + P_TPDU_NR_234);
@@ -2087,6 +2048,10 @@ static int ositp_decode_ER(tvbuff_t *tvb, int offset, uint8_t li, uint8_t tpdu,
     if (li > LI_ATN_MAX_ER)
       return -1;
   }
+
+  /* type, dst-ref and reject cause */
+  if (li < 4)
+    return -1;
 
   /* ER TPDUs have no user data, so the length indicator determines the
    * length */
