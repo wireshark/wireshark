@@ -358,7 +358,7 @@ static proto_item* dissect_pbb_tlvvalue(tvbuff_t *tvb, proto_tree *tlvTree, unsi
   return tlv_decoded_value_item;
 }
 
-static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned maxoffset, int8_t addrCount, unsigned tlvCat) {
+static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, unsigned maxoffset, unsigned addrCount, unsigned tlvCat) {
   uint16_t tlvblockLength;
   unsigned tlvblockEnd;
 
@@ -471,18 +471,25 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     if (addrCount > 0) {
       /* add index values */
       if ((tlvFlags & TLV_HAS_SINGLEINDEX) != 0) {
-        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexstart, tvb, offset++, 1, indexStart);
+        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexstart, tvb, offset, 1, indexStart);
 
         proto_tree_add_uint_format_value(tlv_tree, hf_packetbb_tlv_indexend, tvb, offset, 0, indexEnd, "%d (implicit)", indexEnd);
       }
       else if ((tlvFlags & TLV_HAS_MULTIINDEX) != 0) {
-        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexstart, tvb, offset++, 1, indexStart);
-        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexend, tvb, offset++, 1, indexEnd);
+        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexstart, tvb, offset, 1, indexStart);
+        proto_tree_add_uint(tlv_tree, hf_packetbb_tlv_indexend, tvb, offset + 1, 1, indexEnd);
       }
       else {
         proto_tree_add_uint_format_value(tlv_tree, hf_packetbb_tlv_indexstart, tvb, offset, 0, indexStart, "%d (implicit)", indexStart);
         proto_tree_add_uint_format_value(tlv_tree, hf_packetbb_tlv_indexend, tvb, offset, 0, indexEnd, "%d (implicit)", indexEnd);
       }
+    }
+    /* The index bytes are present whatever the address count */
+    if ((tlvFlags & TLV_HAS_SINGLEINDEX) != 0) {
+      offset++;
+    }
+    else if ((tlvFlags & TLV_HAS_MULTIINDEX) != 0) {
+      offset += 2;
     }
 
     /* add length */
@@ -510,6 +517,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       else {
         /* multiple values */
         int i;
+        unsigned valueStart = offset;
         unsigned c = indexEnd - indexStart + 1;
         if (c > 0) {
           tlvValue_tree = proto_item_add_subtree(tlvValue_item, ett_packetbb_tlv_value);
@@ -519,6 +527,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             offset += (length/c);
           }
         }
+        offset = valueStart + length;
       }
     }
 
@@ -695,7 +704,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     uint8_t prefix = addressSize * 8;
 
     tvb_memcpy(tvb, &addr[head_length], mid_index + midSize*i, midSize);
-    ipv4 = (addr[3] << 24) + (addr[2] << 16) + (addr[1] << 8) + addr[0];
+    memcpy(&ipv4, addr, 4);
 
     switch (addressType) {
       case 0:
