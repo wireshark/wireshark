@@ -113497,3 +113497,138 @@ class TestDissectOranCoverage:
         stdout = self.run_tshark(cmd_tshark, str(capture), test_env, '-V', '-O', 'oran_fh_cus')
         assert 'section reMask' not in stdout
         assert 'should not appear in ST 6' in stdout
+
+
+class TestDissectOsc:
+    # Frame numbers of osc_coverage.pcapng.gz: 1-7 argument types,
+    # 8-21 MIDI, 22 controller names, 23-27 bundles, 28-29 OSC 1.0
+    # framing, 30-34 SLIP framing, 35-36 immediate timetag, 37 depth leak.
+    CAP = 'osc_coverage.pcapng.gz'
+
+    def test_osc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is OSC (frame 33 is an empty SLIP frame, which has no
+        OSC item) and none is malformed or has an expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 37
+        assert [l.split('\t')[0] for l in lines if not l.endswith('OSC')] == ['33']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_osc_arguments(self, cmd_tshark, capture_file, test_env):
+        '''All argument types of one message, and the MIDI variants.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 1',
+                '-V', '-O', 'osc',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        start = lines.index('Open Sound Control Encoding')
+        got = lines[start + 1:start + 22]
+        # The Float and Double values use the locale's decimal separator.
+        got[5] = got[5].replace(',', '.')
+        got[12] = got[12].replace(',', '.')
+        assert got == [
+            '    Message: /all ,ifsbTFNIhdtScrm',
+            '        Header',
+            '            Path: /all',
+            '            Format: ,ifsbTFNIhdtScrm',
+            '        Int32: -5',
+            '        Float: 1.5',
+            '        String: hello',
+            '        Blob: 5 bytes',
+            '            Size: 5 bytes',
+            '            Data: 6162636465000000',
+            '        True',
+            '        False',
+            '        Nil',
+            '        Bang',
+            '        Int64: -1234567890123',
+            '        Double: 2.25',
+            '        Timetag: Feb  2, 2019 11:39:44.000000000 UTC',
+            '        Symbol: sym',
+            '        Char: A',
+            '        RGBA: 0x01020304',
+            '            Red: 1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', '8 <= frame.number && frame.number <= 20',
+                '-Tfields', '-eframe.number', '-eosc.message.midi.status',
+                '-eosc.message.midi.note', '-eosc.message.midi.controller',
+                '-eosc.message.midi.bender', '-eosc.message.midi.system',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t0x08\t60\t\t\t',
+            '9\t0x09\t61\t\t\t',
+            '10\t0x0a\t62\t\t\t',
+            '11\t0x0b\t\t7\t\t',
+            '12\t0x0b\t\t72\t\t',
+            '13\t0x0c\t\t\t\t',
+            '14\t0x0d\t\t\t\t',
+            '15\t0x0e\t\t\t16\t',
+            '16\t0x00\t\t\t\t',
+            '17\t\t\t\t\t0xf0',
+            '18\t\t\t\t\t0xf2',
+            '19\t\t\t\t\t0xf8',
+            '20\t\t\t\t\t0xff',
+        ]
+
+    def test_osc_framing(self, cmd_tshark, capture_file, test_env):
+        '''Bundles (nested, empty), several PDUs per frame in OSC 1.0
+        framing and SLIP decoding (escaped 0xC0 and 0xDB).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', '23 <= frame.number && frame.number <= 34',
+                '-Tfields', '-eframe.number', '-eosc.message.header.path',
+                '-eosc.message.int32',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '23\t/a\t1',
+            '24\t/a,/b\t1',
+            '25\t\t',
+            '26\t\t',
+            '27\t/n,/m\t',
+            '28\t/t\t1',
+            '29\t/t,/t,/t\t2',
+            '30\t/slip\t192',
+            '31\t/slip\t219',
+            '32\t/s\t',
+            '33\t\t',
+            '34\t/a,/b\t',
+        ]
+
+    def test_osc_immediate_timetag(self, cmd_tshark, capture_file, test_env):
+        '''The "Immediate" timetag of a bundle and of a message argument
+        has the value 0 (it was an uninitialised stack value before the
+        fix), so the output is the same every time.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 35 || frame.number == 36',
+                '-Tfields', '-eframe.number', '-eosc.bundle.timetag',
+                '-eosc.message.timetag',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '35\t1970-01-01T00:00:00.000000000Z\t1970-01-01T00:00:00.000000000Z',
+            '36\t\t1970-01-01T00:00:00.000000000Z',
+        ]
+
+    def test_osc_depth_leak(self, cmd_tshark, capture_file, test_env):
+        '''Six PDUs that are failing 100 level nests of bundles do not leave
+        the dissection depth raised: the valid PDU after them is still
+        decoded (before the fix: "Dissector bug", depth assertion).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 37',
+                '-Tfields', '-eosc.message.header.path',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '/a'
