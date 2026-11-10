@@ -137983,3 +137983,52 @@ class TestDissectSipfrag:
             '8\t5060\trefer\tmessage/sipfrag;version=2.0\tSIP/2.0 603 Decline,Warning: 399 x "y"',
             '16\t\trefer,refer\tmessage/sip,message/sipfrag;version=2.0\tSIP/2.0 200 OK',
         ]
+
+
+class TestDissectSita:
+    def test_sita_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The SITA pseudo header (link-layer type 196) is decoded in every
+        frame; the payloads go to LAPB, X.25, Frame Relay (IPv4 and UDP), UTS and
+        IPARS, the other protocol numbers are UNKNOWN. None is malformed or
+        has a warning or error, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sita_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 24
+        assert protocols.count('LAPB') == 9
+        assert protocols.count('X.25') == 2
+        assert protocols.count('UNKNOWN') == 10
+        assert protocols.count('UDP') == 1       # Frame Relay with an IPv4 packet
+        assert protocols.count('UTS') == 1
+        assert protocols.count('IPARS') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sita_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sita_pseudo_header(self, cmd_tshark, capture_file, test_env):
+        '''Protocol, direction (source column), signals, receive and
+        transmit errors, and the no buffers flag.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sita_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 5, 9, 10, 13, 14, 24}',
+                '-Tfields', '-eframe.number', '-e_ws.col.def_src', '-esita.errors.protocol',
+                '-esita.signals', '-esita.flags.droppedframe', '-esita.errors.crc',
+                '-esita.errors.framing', '-esita.errors.underrun', '-esita.errors.rtxlimit',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tN/A\t0x01\t0x00\tFalse\t\t\tFalse\tFalse',
+            '2\tN/A\t0x01\t0x1f\tFalse\tFalse\tFalse\t\t',
+            '4\tN/A\t0x01\t0x10\tTrue\tFalse\tFalse\t\t',
+            '5\tN/A\t0x01\t0x01\tFalse\tTrue\tTrue\t\t',
+            '9\tN/A\t0x01\t0x00\tFalse\t\t\tTrue\tTrue',
+            '10\tN/A\t0x01\t0x02\tTrue\t\t\tTrue\tFalse',
+            '13\tRemote\t0x06\t0x1f\tFalse\tFalse\tFalse\t\t',
+            '14\tLocal\t0x05\t0x1f\tFalse\t\t\tFalse\tFalse',
+            '24\tRemote\t0x55\t0x03\tFalse\tFalse\tFalse\t\t',
+        ]
