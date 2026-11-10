@@ -138920,3 +138920,83 @@ class TestDissectSmbCommon:
             for r in rows:
                 assert r[1:] == ['example.com', 'ad.example.com', 'dc1.ad.example.com',
                                  'Default-First-Site-Name', 'Site2']
+
+
+class TestDissectSmbDirect:
+    '''SMB Direct (MS-SMBD) over RoCEv2 and over iWARP (MPA/DDP/RDMAP),
+    carrying SMB2, from the synthetic capture smb_direct_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('smb_direct_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_smb_direct_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frames or error expert infos in one and two
+        passes; frame counts of the protocols.'''
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes) == []
+        assert len(self.fields(cmd_tshark, capture_file, test_env, 'smb_direct', 'frame.number')) == 51
+        assert len(self.fields(cmd_tshark, capture_file, test_env, 'smb2', 'frame.number')) == 31
+        assert len(self.fields(cmd_tshark, capture_file, test_env, 'iwarp_ddp', 'frame.number')) == 18
+
+    def test_smb_direct_negotiate(self, cmd_tshark, capture_file, test_env):
+        '''Negotiate request and response, with an error status: the
+        known NT status is named in the Info column, an unknown one is
+        shown in hex.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, 'smb_direct.negotiate_request',
+                           'frame.number') == ['1', '48', '50', '54', '70']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb_direct.negotiate_response',
+                           'frame.number', 'smb_direct.status', '_ws.col.info')
+        assert rows[1] == '49\t0xc00000bb\tNegotiateResponse, Error: STATUS_NOT_SUPPORTED'
+        assert rows[2] == '51\t0xdeadbeef\tNegotiateResponse, Error: Unknown (0xDEADBEEF)'
+
+    def test_smb_direct_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Data messages with a remaining length are reassembled, over
+        RoCEv2 (also when each message is itself split into RC Send
+        First/Last) and over iWARP. With -2 every fragment points to the
+        frame that holds the SMB2 message, and the reassembly lists the
+        same fragments as in the single pass.'''
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env, 'smb_direct.reassembled.length',
+                               'frame.number', 'smb_direct.reassembled.length',
+                               passes=passes) == ['14\t6080', '19\t3112', '35\t4080', '65\t3080']
+            assert self.fields(cmd_tshark, capture_file, test_env, 'smb_direct.fragments',
+                               'frame.number', 'smb_direct.fragment', passes=passes) == [
+                '14\t12,13,14', '19\t15,16,18,19', '35\t33,35', '65\t63,64,65']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smb_direct.reassembled_in',
+                           'frame.number', 'smb_direct.reassembled_in', passes=('-2',))
+        assert rows == ['12\t14', '13\t14', '15\t19', '16\t19', '18\t19', '33\t35',
+                        '63\t65', '64\t65']
+        # The SMB2 message in the last fragment is dissected in both passes
+        for passes in ((), ('-2',)):
+            assert self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 14',
+                               '_ws.col.info', passes=passes) == ['Read Response']
+            assert self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 19',
+                               '_ws.col.info', passes=passes) == ['Write Request Len:3000 Off:0, File: [unknown]']
+
+    def test_smb_direct_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With the reassembly preference off nothing is reassembled and
+        each fragment is handed to SMB2 on its own.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('smb_direct_coverage.pcap.gz'),
+                '-o', 'smb_direct.reassemble_smb_direct:FALSE',
+                '-Y', 'smb_direct.reassembled.length || smb_direct.fragments',
+                '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == []
+
+    def test_smb_direct_iwarp(self, cmd_tshark, capture_file, test_env):
+        '''iWARP: MPA request and reply, then SMB Direct in RDMAP Send,
+        Send with Invalidate, Send with SE and Send with SE and
+        Invalidate; an RDMA Write and a Send that are not SMB Direct are
+        not claimed.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'iwarp_ddp && smb_direct',
+                           'frame.number', 'iwarp_rdma.opcode')
+        assert [r.split('\t')[1] for r in rows[:8]] == ['0x03', '0x03', '0x03', '0x04', '0x05', '0x06', '0x03', '0x03']
+        assert self.fields(cmd_tshark, capture_file, test_env, 'iwarp_ddp && !smb_direct',
+                           'frame.number') == ['66', '67']
