@@ -125106,3 +125106,89 @@ class TestDissectRedbackli:
                 '-Y', 'frame.number == 6', '-Tfields', '-eredbackli.avplen',
                 '-eredbackli.unknownavp')
         assert lines == ['0,0,0,1\t']
+
+
+class TestDissectReload:
+    '''RELOAD (RFC 6940) from the synthetic capture reload_coverage.pcap.gz:
+    raw messages found by the UDP/TCP heuristics, messages in RELOAD Framing
+    on UDP 6084, every method, data kind and error code, fragments and the
+    reproducers of "RELOAD: Fix an infinite loop and CPU blow-ups on
+    malformed messages" (frames 91-93; the infinite loop one needs a
+    malformed extension and is not part of this capture).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *efields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('reload_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in efields:
+            args.append('-e' + f)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_reload_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 93 frames decode as RELOAD, without malformed packets or
+        error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'reload', 'frame.number')
+        assert len(rows) == 93
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    'frame.number', passes=passes)
+            assert not rows
+
+    def test_reload_forwarding_header(self, cmd_tshark, capture_file, test_env):
+        '''TTL, overlay, version and maximum response length of frame 3.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 3',
+                'reload.forwarding.ttl', 'reload.forwarding.overlay',
+                'reload.forwarding.version', 'reload.forwarding.max_response_length')
+        assert rows == [['3', '0xdeadbeef', '0x02', '1400']]
+
+    def test_reload_transactions(self, cmd_tshark, capture_file, test_env):
+        '''A retransmitted request, a duplicate answer and a repeated message point to the
+        first frame of their transaction.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'reload.duplicate',
+                'frame.number', 'reload.duplicate')
+        assert rows == [['5', '4'], ['7', '6'], ['82', '81']]
+
+    def test_reload_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Fragments are reassembled, also when the last one arrives first.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload.reassembled.length', 'frame.number', 'reload.reassembled.length')
+        assert rows == [['79', '235'], ['81', '135']]
+
+    def test_reload_diagnostics(self, cmd_tshark, capture_file, test_env):
+        '''The diagnostic ping extension carries every DiagnosticInfo kind.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'frame.number == 13', 'frame.number',
+                'reload.diagnostic.info.software_version',
+                'reload.diagnosticresponse.hopcounter')
+        assert rows == [['13', 'libreload 1.0', '3']]
+
+    def test_reload_errors(self, cmd_tshark, capture_file, test_env):
+        '''Error responses, with the extra data of codes 5, 12 and 101.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload.error_response.code', 'reload.error_response.code')
+        codes = sorted(int(r[0]) for r in rows)
+        assert codes == [2, 2, 3, 3, 4, 5, 8, 12, 13, 19, 20, 101, 104, 999]
+
+    def test_reload_certificates(self, cmd_tshark, capture_file, test_env):
+        '''The hand made X.509 certificates in the security block and in the
+        CertificateByNode data kind are decoded by the X.509 dissector.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'x509sat.uTF8String == "node"', 'frame.number')
+        assert [r[0] for r in rows] == ['10', '30', '41']
+
+    def test_reload_data_kinds(self, cmd_tshark, capture_file, test_env):
+        '''TURN-SERVICE and SIP-REGISTRATION data values.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload.turnserver', 'frame.number')
+        assert [r[0] for r in rows] == ['29', '34', '35', '41']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload.sipregistration.data.uri', 'reload.sipregistration.data.uri')
+        assert rows
+
+    def test_reload_framing(self, cmd_tshark, capture_file, test_env):
+        '''The last frames carry RELOAD in TCP and in RELOAD Framing.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                'reload-framing', 'frame.number')
+        assert len(rows) == 3
