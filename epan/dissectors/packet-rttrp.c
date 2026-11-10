@@ -507,13 +507,13 @@ static int dissect_rttrp_module_trackable(tvbuff_t *tvb, packet_info *pinfo, pro
     proto_item_append_text(track_item, ", Name: %s, %u sub-modules", name, module_count);
 
     /* Number of modules is small (about 5 max), so no extra tree */
-    for (unsigned int i = 0; i < module_count; i++) {
+    for (unsigned int i = 0; i < module_count && offset < module_end; i++) {
         offset = dissect_rttrp_module_position(tvb, pinfo, track_tree, offset, endianness_int, endianness_float);
     }
 
     if (offset != module_end)
         expert_add_info(pinfo, track_tree, &ei_rttrp_module_size);
-    return module_end;
+    return offset > module_end ? offset : module_end;
 }
 
 
@@ -542,7 +542,7 @@ static int dissect_rttrp_module_spot(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item_append_text(spot_item, ", ID: %u, %u channels", spot_id, channel_count);
 
     /* Number of channels is small, so we don't add an extra container */
-    for (unsigned int i = 0; i < channel_count; i++) {
+    for (unsigned int i = 0; i < channel_count && offset < module_end; i++) {
         proto_item *chan_item = proto_tree_add_item(spot_tree, hf_rttrp_channel, tvb, offset, 5, ENC_NA);
         proto_tree *chan_tree = proto_item_add_subtree(chan_item, ett_rttrp_lighting_chan);
 
@@ -561,7 +561,7 @@ static int dissect_rttrp_module_spot(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     if (offset != module_end)
         expert_add_info(pinfo, spot_tree, &ei_rttrp_module_size);
-    return module_end;
+    return offset > module_end ? offset : module_end;
 }
 
 static int dissect_rttrp_module_universe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const unsigned endianness_int) {
@@ -587,17 +587,17 @@ static int dissect_rttrp_module_universe(tvbuff_t *tvb, packet_info *pinfo, prot
     proto_item_append_text(univ_item, ", ID: %u, %u spots", universe_id, spot_count);
 
     if (spot_count > 0) {
-        proto_item *spot_holder = proto_tree_add_item(univ_tree, hf_rttrp_universe_spots, tvb, offset, module_size-4-3, ENC_NA);
+        proto_item *spot_holder = proto_tree_add_item(univ_tree, hf_rttrp_universe_spots, tvb, offset, module_size > 7 ? module_size-4-3 : 0, ENC_NA);
         proto_tree *spot_tree = proto_item_add_subtree(spot_holder, ett_rttrp_lighting_spots);
 
-        for (unsigned int i = 0; i < spot_count; i++) {
+        for (unsigned int i = 0; i < spot_count && offset < module_end; i++) {
             offset = dissect_rttrp_module_spot(tvb, pinfo, spot_tree, offset, endianness_int);
         }
     }
 
     if (offset != module_end)
         expert_add_info(pinfo, univ_tree, &ei_rttrp_module_size);
-    return module_end;
+    return offset > module_end ? offset : module_end;
 }
 
 static int dissect_rttrp_module_lighting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, const unsigned endianness_int) {
@@ -645,13 +645,13 @@ static int dissect_rttrp_module_lighting(tvbuff_t *tvb, packet_info *pinfo, prot
     proto_item_append_text(light_item, ": Output, Sequence: %u, %u universes", lighting_sequence, universe_count);
 
     /* Number of universes is usually small (1-10), so we don't add an extra container */
-    for (unsigned int i = 0; i < universe_count; i++) {
+    for (unsigned int i = 0; i < universe_count && offset < module_end; i++) {
         offset = dissect_rttrp_module_universe(tvb, pinfo, light_tree, offset, endianness_int);
     }
 
     if (offset != module_end)
         expert_add_info(pinfo, light_tree, &ei_rttrp_module_size);
-    return module_end;
+    return offset > module_end ? offset : module_end;
 }
 
 
