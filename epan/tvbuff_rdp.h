@@ -31,6 +31,8 @@ WS_DLL_PUBLIC zgfx_context_t *zgfx_context_new(wmem_allocator_t *allocator);
  * @param allocator Memory allocator to use for allocating the decompressed data.
  * @param tvb Pointer to the input tvbuff containing the compressed data.
  * @param offset The offset within the tvbuff where the compressed data starts.
- * @return Pointer to the decompressed tvbuff, or NULL on failure.
+ * @return Pointer to the decompressed tvbuff, or NULL on failure (including
+ *         an unknown descriptor). The tvbuff is not chained to tvb: chain it
+ *         (e.g. with tvb_set_child_real_data_tvbuff()) or free it.
  */
 WS_DLL_PUBLIC tvbuff_t *rdp8_decompress(zgfx_context_t *zgfx, wmem_allocator_t *allocator, tvbuff_t *tvb, unsigned offset);
