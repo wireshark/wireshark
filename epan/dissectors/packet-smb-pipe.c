@@ -3532,7 +3532,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			    val_to_str(pinfo->pool, function, functions, "Unknown function (0x%04x)"),
 			    smb_info->request ? "Request" : "Response");
 
-		if (tri != NULL)
+		if (tri != NULL && smb_info->request && !pinfo->fd->visited)
 			tri->function = function;
 
 		/*
@@ -3561,7 +3561,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 */
 			fid = tvb_get_letohs(s_tvb, 2);
 			dissect_smb_fid(s_tvb, pinfo, pipe_tree, offset, 2, (uint16_t) fid, false, false, false, true, smb_info);
-			if (tri != NULL)
+			if (tri != NULL && smb_info->request && !pinfo->fd->visited)
 				tri->fid = fid;
 			break;
 
