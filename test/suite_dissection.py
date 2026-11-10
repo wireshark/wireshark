@@ -131712,3 +131712,167 @@ class TestDissectRtse:
                 '-Tfields', '-eframe.protocols',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == 'exported_pdu:data'
+
+
+class TestDissectRtsp:
+    '''RTSP from the synthetic capture rtsp_coverage.pcap.gz: sessions on
+    TCP ports 554, 8554 and 7236 (registered by default) with UDP and TCP
+    interleaved transports, SDP, reassembly and pipelining.'''
+
+    CAP = 'rtsp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r',
+                capture_file(TestDissectRtsp.CAP), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_rtsp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No frame is malformed and none has an error expert info, in one
+        and two passes; RTP, RTCP and H.264 frames come from the
+        conversations that the SETUP replies create.'''
+        protocols = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 200
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['RTSP'] == 145
+        assert counts['RTSP/SDP'] == 6
+        assert counts['H.264'] == 3
+        assert counts['RTP'] == 8
+        assert counts['RTCP'] == 4
+        for passes in ((), ('-2',)):
+            stdout = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert stdout == []
+
+    def test_rtsp_requests_and_replies(self, cmd_tshark, capture_file, test_env):
+        '''Requests are matched to replies by CSeq (in the second pass
+        too), with the URL copied to the reply.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {6, 7, 120, 121, 122}',
+                '-Tfields', '-eframe.number', '-ertsp.cseq',
+                '-ertsp.response_in', '-ertsp.response_to', '-ertsp.url')
+        assert lines == [
+            '6\t2\t7\t\trtsp://10.0.0.2/stream',
+            '7\t2\t\t6\trtsp://10.0.0.2/stream',
+            '120\t5,6\t121,121\t\trtsp://10.0.0.2/a,rtsp://10.0.0.2/b',
+            '121\t5,6\t\t120,120\trtsp://10.0.0.2/a,rtsp://10.0.0.2/b',
+            '122\t5\t121\t\trtsp://10.0.0.2/a',
+        ]
+
+    def test_rtsp_setup_creates_rtp_conversations(self, cmd_tshark, capture_file, test_env):
+        '''RTP and RTCP follow the ports of the Transport header. With
+        both dest_addr and src_addr the RTP stream goes to the dest_addr
+        address (src_addr used to overwrite it).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {14, 17, 18, 19, 49, 50}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ertp.setup-frame', '-ertcp.setup-frame', '-ertp.ssrc')
+        assert [l.split('\t')[:3] for l in lines] == [
+            ['14', 'H.264', '9'], ['17', 'RTCP', ''], ['18', 'RTP', '11'],
+            ['19', 'RTCP', ''], ['49', 'RTP', '44'], ['50', 'RTP', '48']]
+        assert lines[3].split('\t')[3] == '11'
+
+    def test_rtsp_interleaved(self, cmd_tshark, capture_file, test_env):
+        '''Interleaved frames go to RTP and RTCP by channel; channels
+        without a dissector go to the RTP heuristic or are shown as data;
+        a frame split over four segments is reassembled; a reply may be
+        followed by an interleaved frame in the same segment.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {86, 87, 88, 89, 90, 91, 95, 100}',
+                '-Tfields', '-eframe.number', '-ertsp.channel',
+                '-ertsp.length', '-e_ws.col.protocol')
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['86', '0x00'], ['87', '0x01'], ['88', '0x02'], ['89', '0x09'],
+            ['90', '0x07'], ['91', '0x00,0x01,0x02'], ['95', '0x00'], ['100', '0x00']]
+        assert lines[3].split('\t')[3] == 'TCP'
+        data = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 89', '-Tfields', '-ertsp.data')
+        assert data == ['756e6d617070656420636861' '6e6e656c2077697468206461' '7461']
+
+    def test_rtsp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A reply body split over three TCP segments and a request whose
+        header or body is split are reassembled; the SDP is dissected.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {110, 111, 113, 114, 115, 116, 117, 118}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-etcp.reassembled_in', '-esdp.media')
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['110', 'TCP'], ['111', 'RTSP'], ['113', 'RTSP'], ['114', 'TCP'],
+            ['115', 'TCP'], ['116', 'RTSP/SDP'], ['117', 'TCP'], ['118', 'RTSP']]
+        assert lines[5].split('\t')[3].count('video') == 2
+
+    def test_rtsp_content_type_without_media_type(self, cmd_tshark, capture_file, test_env):
+        '''"Content-Type: ;x" (no media type) is accepted; before
+        "RTSP: Fix abort on dest_addr without closing quote" (the fix on the branch) the
+        frame was malformed.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 183',
+                '-Tfields', '-ertsp.content-type', '-ertsp.data', '-e_ws.malformed')
+        assert lines == [';x\t746578742062' '6f6479206f6620756e6b6e6f776e2074797065\t']
+
+    def test_rtsp_expert_warnings(self, cmd_tshark, capture_file, test_env):
+        '''Transport headers that cannot be used give warnings, not errors.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtsp.unknown_transport_type || rtsp.bad_server_port || '
+                      'rtsp.bad_client_port || rtsp.bad_interleaved_channel',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert lines == [
+            '52\tUnknown transport type', '54\tBad server_port',
+            '56\tBad client port', '58\tBad interleaved_channel']
+        # The CSeq warning
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtsp.cseq.invalid', '-Tfields', '-eframe.number')
+        assert lines == ['190']
+
+    def test_rtsp_headers(self, cmd_tshark, capture_file, test_env):
+        '''X-Vig-Msisdn goes through the E.164 dissector, Content-Base and
+        Content-Location are shown, the Session header value is kept.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtsp.X_Vig_Msisdn',
+                '-Tfields', '-eframe.number', '-ertsp.X_Vig_Msisdn',
+                '-ee164.calling_party_number.digits')
+        assert lines == ['178\t46701234567\t46701234567',
+                         '179\t15551234567\t15551234567']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'rtsp.content-base || rtsp.content-location',
+                '-Tfields', '-eframe.number', '-ertsp.content-base',
+                '-ertsp.content-location')
+        assert lines[0] == '7\trtsp://10.0.0.2/stream/\t'
+        assert '179\t\trtsp://10.0.0.2/stream/loc/' in lines
+        assert '181\trtsp://10.0.0.2/stream/b/\trtsp://10.0.0.2/stream/loc2/' in lines
+
+    def test_rtsp_stats_tree(self, cmd_tshark, capture_file, test_env):
+        '''The packet counter statistics: requests per method and replies
+        per status group.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-q', '-z', 'rtsp,tree'), encoding='utf-8', env=test_env)
+        text = ' '.join(stdout.split())
+        for item in ('Total RTSP Packets', 'RTSP Request Packets',
+                     'DESCRIBE', 'GET_PARAMETER', 'SETUP', 'TEARDOWN',
+                     'RTSP Response Packets', '1xx: Informational',
+                     '2xx: Success', '3xx: Redirection', '4xx: Client Error',
+                     '5xx: Server Error', '???: broken', '404 Not Found',
+                     'Other RTSP Packets'):
+            assert item in text
+
+    def test_rtsp_dest_addr_without_closing_quote(self, cmd_tshark, cmd_text2pcap, result_file, base_env, test_env):
+        '''dest_addr="198.51.100.7 without the closing quote: tshark used
+        to abort in g_strndup (the reproducer of "RTSP: Fix abort on
+        dest_addr without closing quote"); now the reply has an
+        expert info.'''
+        reply = (b'RTSP/1.0 200 OK\r\nCSeq: 1\r\nSession: 1234\r\n'
+                 b'Transport: RTP/AVP;unicast;dest_addr="198.51.100.7;'
+                 b'client_port=5000-5001\r\n\r\n')
+        testin_file = result_file('rtsp-destaddr-noquote.txt')
+        testout_file = result_file('rtsp-destaddr-noquote.pcap')
+        with open(testin_file, 'w') as f:
+            for i in range(0, len(reply), 16):
+                f.write('%08x  ' % i + ' '.join('%02x' % b for b in reply[i:i + 16]) + '\n')
+        subprocess.check_call((cmd_text2pcap, '-T', '554,40000', testin_file, testout_file), env=base_env)
+        stdout = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-Y', 'rtsp.bad_server_ip_address',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'),
+                encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tBad server IP address']
