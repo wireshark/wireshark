@@ -138686,3 +138686,99 @@ class TestDissectSmb2:
         two = self.fields(cmd_tshark, capture_file, test_env, 'smb2', 'frame.number', 'smb2.cmd', 'smb2.nt_status',
                           passes=('-2',))
         assert one == two
+
+
+class TestDissectSmbBrowse:
+    '''Browser protocol (\\MAILSLOT\\BROWSE and \\MAILSLOT\\LANMAN in NetBIOS
+    datagrams on UDP 138 and in SMB on TCP 445) from the synthetic capture
+    smb_browse_coverage.pcap.gz.'''
+
+    CAP = 'smb_browse_coverage.pcap.gz'
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(TestDissectSmbBrowse.CAP), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_smb_browse_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 102
+        assert protocols.count('BROWSER') == 90
+        assert protocols.count('TCP') == 6
+        assert protocols.count('SRVSVC') == 4
+        assert protocols.count('DCERPC') == 2
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(r[0] for r in rows)) == 0
+
+    def test_smb_browse_announcements(self, cmd_tshark, capture_file, test_env):
+        '''Windows version strings, the "comment pointer" of a domain
+        announcement without the signature, and the same announcement in
+        \\MAILSLOT\\LANMAN.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 4, 6, 45, 46, 47, 73}',
+                '-Tfields', '-eframe.number', '-ebrowser.windows_version', '-ebrowser.server',
+                '-ebrowser.mysterious_field', '-ebrowser.sig', '-ebrowser.mb_server',
+                '-ebrowser.comment', '-ebrowser.period')
+        assert rows == [
+            ['1', 'Windows 7 or Windows Server 2008 R2', 'HOST0', '', '0xaa55', '', 'a comment', '720000'],
+            ['2', 'Windows Vista or Windows Server 2008', 'HOST1', '', '0xaa55', '', 'a comment', '720000'],
+            ['4', 'Windows XP', 'HOST3', '', '0xaa55', '', 'a comment', '720000'],
+            ['6', '', 'HOST5', '', '0xaa55', '', 'a comment', '720000'],
+            ['45', 'Windows XP', 'MASTER1', '', '0xaa55', '', 'a comment', '720000'],
+            ['46', 'Windows XP', 'WORKGROUP', '', '0xaa55', 'MASTER1', '', '720000'],
+            ['47', 'Windows XP', 'OTHERDOM', '0x12345678', '', 'MASTER2', '', '720000'],
+            ['73', 'Windows Vista or Windows Server 2008', 'LMHOST1', '', '', '', 'lm comment', '720000'],
+        ]
+
+    def test_smb_browse_commands(self, cmd_tshark, capture_file, test_env):
+        '''Election criteria, backup lists, reset browser state flags and an
+        unknown command.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {50, 55, 58, 61, 65, 69, 70}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-ebrowser.election.desire',
+                '-ebrowser.election.os', '-ebrowser.uptime', '-ebrowser.backup.server',
+                '-ebrowser.reset_cmd')
+        assert rows == [
+            ['50', 'Browser Election Request', '0x01', '0x01', '100000', '', ''],
+            ['55', 'Browser Election Request', '0x80', '0xff', '600000', '', ''],
+            ['58', 'Get Backup List Request', '', '', '', '', ''],
+            ['61', 'Get Backup List Response', '', '', '', 'BACKUP1,BACKUP2,BACKUP3', ''],
+            ['65', 'Reset Browser State Announcement', '', '', '', '', '0x01'],
+            ['69', 'Reset Browser State Announcement', '', '', '', '', '0x18'],
+            ['70', 'Unknown command:0x63', '', '', '', '', ''],
+        ]
+
+    def test_smb_browse_server_types(self, cmd_tshark, capture_file, test_env):
+        '''Every bit of the server type mask is shown in the Info column
+        once, and the all-bits mask (in \\MAILSLOT\\BROWSE and in
+        \\MAILSLOT\\LANMAN) lists them all.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'browser.server == "BITS"', '-Tfields', '-e_ws.col.info')
+        assert len(rows) == 32
+        assert rows[0][0] == 'Host Announcement BITS, Workstation'
+        assert rows[1][0] == 'Host Announcement BITS, Server'
+        assert rows[31][0] == 'Host Announcement BITS, Domain Enum'
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'browser.server == "ALL"', '-Tfields', '-e_ws.col.info')
+        assert len(rows) == 2
+        assert [r[0].count(',') for r in rows] == [32, 32]
+
+    def test_smb_browse_srvsvc_server_type(self, cmd_tshark, capture_file, test_env):
+        '''The server type of srvsvc NetrServerGetInfo (levels 101 and
+        102) is decoded with the NDR form of the same flags.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {100, 102}', '-Tfields', '-eframe.number',
+                '-ebrowser.server_type', '-ebrowser.server_type.server',
+                '-ebrowser.server_type.domainenum')
+        assert rows == [
+            ['100', '0x00008003', 'True', 'False'],
+            ['102', '0xffffffff', 'True', 'True'],
+        ]
