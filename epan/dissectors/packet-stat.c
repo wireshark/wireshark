@@ -72,15 +72,13 @@ static int ett_stat_stat_chge;
 static int
 my_id_len(tvbuff_t *tvb, int offset)
 {
-	int len;
+	uint64_t len;
 
 	len = tvb_get_ntohl(tvb, offset);
-	if(len&0x03)
-		len = (len&0xfc)+4;
-
+	len = (len + 3) & ~(uint64_t)3;
 	len += 16;
 
-	return len;
+	return (len > INT32_MAX) ? INT32_MAX : (int)len;
 }
 
 /* Calculate length (including padding) of my_id structure.
@@ -90,16 +88,17 @@ my_id_len(tvbuff_t *tvb, int offset)
 static int
 mon_id_len(tvbuff_t *tvb, int offset)
 {
-	int len;
+	uint64_t len;
 
 	len = tvb_get_ntohl(tvb, offset);
-	if(len&0x03){
-		len = (len&0xfc)+4;
+	len = (len + 3) & ~(uint64_t)3;
+	len += 4;
+	if (len > INT32_MAX) {
+		return INT32_MAX;
 	}
 
-	len += 4;
-
-	return len+my_id_len(tvb,offset+len);
+	len += my_id_len(tvb, offset + (int)len);
+	return (len > INT32_MAX) ? INT32_MAX : (int)len;
 }
 
 static int
