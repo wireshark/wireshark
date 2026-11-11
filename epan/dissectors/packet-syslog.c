@@ -456,7 +456,11 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
   framing_pdu_len = get_framed_syslog_pdu_len(pinfo, tvb, msg_off, data);
   if(framing_pdu_len > 0) {
-    framing_leading_str_len = snprintf(NULL, 0, "%u", framing_pdu_len) + 1;
+    /* Count the MSG-LEN digits; framing_pdu_len is the whole PDU. */
+    unsigned digits = 0;
+    while (digits < MAX_FRAMING_DIGITS && g_ascii_isdigit(tvb_get_uint8(tvb, msg_off + digits)))
+      digits++;
+    framing_leading_str_len = digits + 1;
     msg_off += framing_leading_str_len;
   }
 
