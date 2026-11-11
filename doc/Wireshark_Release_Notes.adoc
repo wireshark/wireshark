@@ -23,9 +23,9 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
-// The following changes have been made since version 5.0.0rc2:
+The following changes have been made since version 5.0.0rc2:
 
-// * Nothing of note.
+* Nothing of note.
 
 The following changes have been made since version 5.0.0rc1:
 

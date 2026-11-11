@@ -27,9 +27,9 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
-// The following changes have been made since version 1.0.0rc2:
+The following changes have been made since version 1.0.0rc2:
 
-// * Nothing of note.
+* Nothing of note.
 
 The following changes have been made since version 1.0.0rc1:
 
