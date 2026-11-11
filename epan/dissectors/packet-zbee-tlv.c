@@ -544,7 +544,9 @@ dissect_aps_relay_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
   proto_tree_add_item(tree, hf_zbee_tlv_relay_msg_joiner_ieee, tvb, offset, 8, ENC_LITTLE_ENDIAN);
   nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
-  nwk_hints->joiner_addr64 = tvb_get_letoh64(tvb, offset);
+  if (nwk_hints) {
+    nwk_hints->joiner_addr64 = tvb_get_letoh64(tvb, offset);
+  }
   offset += 8;
 
   /* The remainder is a relayed APS frame. */
@@ -602,7 +604,9 @@ dissect_aps_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
         case ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM:
         {
             zbee_nwk_hints_t *nwk_hints  = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk, 0);
-            nwk_hints->relay_type = (cmd_id == ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM ? ZBEE_APS_RELAY_DOWNSTREAM : ZBEE_APS_RELAY_UPSTREAM);
+            if (nwk_hints) {
+                nwk_hints->relay_type = (cmd_id == ZBEE_APS_CMD_RELAY_MSG_DOWNSTREAM ? ZBEE_APS_RELAY_DOWNSTREAM : ZBEE_APS_RELAY_UPSTREAM);
+            }
             offset = dissect_aps_relay_local_tlv(tvb, pinfo, tree, offset, data);
             break;
         }
@@ -1355,8 +1359,8 @@ dissect_zdp_rsp_security_get_auth_level_local_tlv (tvbuff_t *tvb, packet_info *p
 static unsigned
 dissect_zdp_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, unsigned offset, unsigned cmd_id)
 {
-    uint8_t total_tlv_length = 2 /*type + len fields*/ + tvb_get_uint8(tvb, offset + 1) + 1;
-    uint8_t tmp_offset = offset;
+    unsigned total_tlv_length = 2 /*type + len fields*/ + tvb_get_uint8(tvb, offset + 1) + 1;
+    unsigned tmp_offset = offset;
 
     switch (cmd_id) {
         case ZBEE_ZDP_REQ_CLEAR_ALL_BINDINGS:
@@ -1419,7 +1423,7 @@ dissect_zdp_local_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     /* check extra bytes */
     if ((offset - tmp_offset) < total_tlv_length)
     {
-      proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, total_tlv_length - 2, ENC_NA);
+      proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, total_tlv_length - (offset - tmp_offset), ENC_NA);
       offset = tmp_offset + total_tlv_length;
     }
 
@@ -1462,7 +1466,7 @@ dissect_zbee_tlv_chanmask(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int 
     /* Display the first channel #. */
     for (i = 0; i < 32; i++)
     {
-        if ((1 << i) & mask)
+        if ((1U << i) & mask)
         {
             proto_item_append_text(ti, "%d", i++);
             break;
@@ -1472,7 +1476,7 @@ dissect_zbee_tlv_chanmask(proto_tree *tree, tvbuff_t *tvb, unsigned offset, int 
     /* Display the rest of the channels. */
     for (; i < 32; i++)
     {
-        if (!((1 << i) & mask))
+        if (!((1U << i) & mask))
         {
             /* This channel isn't selected. */
             continue;
@@ -1841,13 +1845,13 @@ dissect_zbee_tlv_nwk_status_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         col_append_fstr(pinfo->cinfo,
                         COL_INFO,
                         " (%s, %s, %s)",
-                        zbee_tlv_local_types_joined_status_str[joined].strptr,
+                        val_to_str_const(joined, zbee_tlv_local_types_joined_status_str, "Reserved"),
                         opened ? "Opened" : "Closed",
                         centralized ? "Centralized" : "Distributed");
     }
     else
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", zbee_tlv_local_types_joined_status_str[joined].strptr);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(joined, zbee_tlv_local_types_joined_status_str, "Reserved"));
     }
 
     return offset;
@@ -2379,8 +2383,8 @@ dissect_zbd_msg_secur_local_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 static unsigned
 dissect_zbd_local_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, void* data _U_, unsigned cmd_id)
 {
-    uint8_t total_tlv_length = 2 /*type + len fields*/ + tvb_get_uint8(tvb, offset + 1) + 1;
-    uint8_t tmp_offset = offset;
+    unsigned total_tlv_length = 2 /*type + len fields*/ + tvb_get_uint8(tvb, offset + 1) + 1;
+    unsigned tmp_offset = offset;
 
     switch (cmd_id)
     {
@@ -2418,7 +2422,7 @@ dissect_zbd_local_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsig
     /* check extra bytes */
     if ((offset - tmp_offset) < total_tlv_length)
     {
-        proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, total_tlv_length - 2, ENC_NA);
+        proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, total_tlv_length - (offset - tmp_offset), ENC_NA);
         offset = tmp_offset + total_tlv_length;
     }
 
@@ -2930,7 +2934,7 @@ dissect_global_tlv (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, uns
     /* check extra bytes */
     if ((offset - tmp_offset) < length)
     {
-      proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length, ENC_NA);
+      proto_tree_add_item(tree, hf_zbee_tlv_value, tvb, offset, length - (offset - tmp_offset), ENC_NA);
       offset = tmp_offset + length;
     }
 
