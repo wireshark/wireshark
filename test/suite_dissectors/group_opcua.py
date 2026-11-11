@@ -225,3 +225,164 @@ class TestDissectOpcua:
                 '-eopcua.transport.error',
             ), encoding='utf-8', env=test_env)
         assert stdout == '3510954351\t0x80b90000\n3510954352\t0x80b90000\n'
+
+
+class TestOpcuaEnhancedSecurity:
+    '''Tests for OPC UA ECC / AEAD Enhanced Security Profiles and unencrypted
+    OpenSecureChannel (OPN) dissection.'''
+
+    @pytest.mark.parametrize('pcap_name', (
+        'opcua_none.pcapng',
+        'opcua_brainp384_aesgcm.pcapng',
+        'opcua_brainp384_chachapoly.pcapng',
+        'opcua_nistp384_aesgcm.pcapng',
+        'opcua_nistp384_chachapoly.pcapng',
+        'opcua_rsa_dh_aesgcm.pcapng',
+        'opcua_rsa_dh_chachapoly.pcapng',
+        'opcua_rsa_legacy.pcapng',
+    ))
+    def test_opcua_opn_security_mode_none_unencrypted(self, cmd_tshark, capture_file, test_env, features, pcap_name):
+        '''Verify that OpenSecureChannel (OPN) messages with SecurityPolicy#None
+        are parsed as unencrypted and report MessageSecurityMode None (0x00000001).'''
+        if not features.have_plugins:
+            pytest.skip('Test requires binary plugin support.')
+        pcap_path = capture_file(pcap_name)
+
+        stdout = subprocess.check_output((
+            cmd_tshark,
+            '-o', 'opcua.tcp.port:48030',
+            '-r', pcap_path,
+            '-Y', 'opcua.transport.type == "OPN" && opcua.security.spu == "http://opcfoundation.org/UA/SecurityPolicy#None"',
+            '-Tfields',
+            '-e', 'opcua.transport.type',
+            '-e', 'opcua.servicenodeid.numeric',
+            '-e', 'opcua.MessageSecurityMode',
+            '-e', '_ws.col.Info',
+        ), encoding='utf-8', env=test_env)
+
+        rows = [line.split('\t') for line in stdout.splitlines() if line.strip()]
+        assert len(rows) >= 2
+        # OpenSecureChannelRequest (NodeId 446) has MessageSecurityMode == None (0x00000001)
+        req_rows = [r for r in rows if r[1] == '446']
+        resp_rows = [r for r in rows if r[1] == '449']
+        assert len(req_rows) >= 1
+        assert len(resp_rows) >= 1
+        for r in req_rows:
+            assert r[0] == 'OPN'
+            assert int(r[2], 16) == 1  # MessageSecurityMode: None (1)
+            assert '(encrypted)' not in r[3]
+        for r in resp_rows:
+            assert r[0] == 'OPN'
+            assert '(encrypted)' not in r[3]
+
+    @pytest.mark.parametrize('pcap_name,policy_fragment,scid', (
+        ('opcua_brainp384_aesgcm.pcapng', 'ECC_brainpoolP384r1_AesGcm', '2910720'),
+        ('opcua_brainp384_chachapoly.pcapng', 'ECC_brainpoolP384r1_ChaChaPoly', '2910723'),
+        ('opcua_nistp384_aesgcm.pcapng', 'ECC_nistP384_AesGcm', '2910707'),
+        ('opcua_nistp384_chachapoly.pcapng', 'ECC_nistP384_ChaChaPoly', '2910714'),
+        ('opcua_rsa_dh_aesgcm.pcapng', 'RSA_DH_AesGcm', '2910701'),
+        ('opcua_rsa_dh_chachapoly.pcapng', 'RSA_DH_ChaChaPoly', '2910704'),
+    ))
+    def test_opcua_ecc_aead_opn_unencrypted_and_msg_decryption(
+            self, cmd_tshark, capture_file, key_file, test_env, features, pcap_name, policy_fragment, scid):
+        '''Verify that for ECC / AEAD Enhanced Security Profiles:
+        1. OpenSecureChannel (OPN) messages are dissected as unencrypted (ServiceIds 446, 449).
+        2. Subsequent symmetric OPC UA messages (MSG, CLO) are decrypted using opcuakeys.log
+           and expose generic OPC UA service NodeIds without checking user-specific payloads.'''
+        if not features.have_plugins:
+            pytest.skip('Test requires binary plugin support.')
+        pcap_path = capture_file(pcap_name)
+        keylog_path = key_file('opcua_keys.log')
+
+        # 1. Verify OPN messages for the ECC/AEAD policy are parsed unencrypted
+        opn_stdout = subprocess.check_output((
+            cmd_tshark,
+            '-o', 'opcua.tcp.port:48030',
+            '-r', pcap_path,
+            '-Y', f'opcua.transport.type == "OPN" && opcua.security.spu contains "{policy_fragment}"',
+            '-Tfields',
+            '-e', 'opcua.transport.type',
+            '-e', 'opcua.servicenodeid.numeric',
+            '-e', 'opcua.MessageSecurityMode',
+            '-e', '_ws.col.Info',
+        ), encoding='utf-8', env=test_env)
+
+        opn_rows = [line.split('\t') for line in opn_stdout.splitlines() if line.strip()]
+        assert len(opn_rows) == 2
+        # Request (446) and Response (449) must be decoded in plaintext
+        assert opn_rows[0][0] == 'OPN' and opn_rows[0][1] == '446'
+        assert int(opn_rows[0][2], 16) == 3  # MessageSecurityMode: SignAndEncrypt (3)
+        assert '(encrypted)' not in opn_rows[0][3]
+        assert opn_rows[1][0] == 'OPN' and opn_rows[1][1] == '449'
+        assert '(encrypted)' not in opn_rows[1][3]
+
+        # 2. Verify that without the keylog file, subsequent MSG packets remain encrypted
+        enc_stdout = subprocess.check_output((
+            cmd_tshark,
+            '-o', 'opcua.tcp.port:48030',
+            '-r', pcap_path,
+            '-Y', f'opcua.transport.type == "MSG" && opcua.transport.scid == {scid}',
+            '-Tfields',
+            '-e', 'opcua.servicenodeid.numeric',
+            '-e', '_ws.col.Info',
+        ), encoding='utf-8', env=test_env)
+        enc_rows = [line.split('\t') for line in enc_stdout.splitlines() if line.strip()]
+        assert len(enc_rows) > 0
+        assert all(r[0] == '' and '(encrypted)' in r[1] for r in enc_rows)
+
+        # 3. Verify that with opcuakeys.log configured via opcua.debug_file, subsequent
+        # MSG and CLO packets are decrypted and expose generic service TypeIds.
+        dec_stdout = subprocess.check_output((
+            cmd_tshark,
+            '-o', 'opcua.tcp.port:48030',
+            '-o', f'opcua.debug_file:{keylog_path}',
+            '-r', pcap_path,
+            '-Y', f'(opcua.transport.type == "MSG" || opcua.transport.type == "CLO") && opcua.transport.scid == {scid}',
+            '-Tfields',
+            '-e', 'opcua.transport.type',
+            '-e', 'opcua.servicenodeid.numeric',
+            '-e', '_ws.col.Info',
+        ), encoding='utf-8', env=test_env)
+
+        dec_rows = [line.split('\t') for line in dec_stdout.splitlines() if line.strip()]
+        assert len(dec_rows) > 0
+        service_ids = {r[1] for r in dec_rows if r[1]}
+        # Generic OPC UA Service NodeIds:
+        # 461=CreateSessionRequest, 464=CreateSessionResponse,
+        # 467=ActivateSessionRequest, 470=ActivateSessionResponse,
+        # 631=ReadRequest, 634=ReadResponse,
+        # 473=CloseSessionRequest, 476=CloseSessionResponse,
+        # 452=CloseSecureChannelRequest
+        expected_generic_ids = {'461', '464', '467', '470', '631', '634', '473', '476', '452'}
+        assert expected_generic_ids.issubset(service_ids)
+        assert all('(decrypted)' in r[2] for r in dec_rows)
+
+    def test_opcua_ecc_aead_chunked_reassembly_decryption(self, cmd_tshark, capture_file, key_file, test_env, features):
+        '''Verify decryption and reassembly of multi-chunk AEAD messages using
+        opcuakeys_BigMessage.log.'''
+        if not features.have_plugins:
+            pytest.skip('Test requires binary plugin support.')
+        pcap_path = capture_file('opcua_big_message.pcapng')
+        keylog_path = key_file('opcua_keys_big_message.log')
+
+        stdout = subprocess.check_output((
+            cmd_tshark,
+            '-o', 'opcua.tcp.port:48030',
+            '-o', f'opcua.debug_file:{keylog_path}',
+            '-r', pcap_path,
+            '-Y', 'opcua.transport.scid == 2910695 && opcua.servicenodeid.numeric == 829 && opcua.reassembled.length',
+            '-Tfields',
+            '-e', 'opcua.transport.type',
+            '-e', 'opcua.transport.chunk',
+            '-e', 'opcua.servicenodeid.numeric',
+            '-e', '_ws.col.Info',
+        ), encoding='utf-8', env=test_env)
+
+        rows = [line.split('\t') for line in stdout.splitlines() if line.strip()]
+        assert len(rows) == 1
+        assert rows[0][0] == 'MSG'
+        assert rows[0][1] == 'F'
+        assert rows[0][2] == '829'  # PublishResponse
+        assert '(Message Reassembled)' in rows[0][3]
+        assert '(decrypted)' in rows[0][3]
+

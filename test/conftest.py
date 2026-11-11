@@ -319,6 +319,13 @@ def capture_file(dirs):
         return os.path.join(dirs.capture_dir, filename)
     return resolver
 
+@pytest.fixture(scope='session')
+def key_file(dirs):
+    '''Returns the path to a key file.'''
+    def resolver(filename):
+        return os.path.join(dirs.key_dir, filename)
+    return resolver
+
 @pytest.fixture
 def result_file(tmp_path):
     '''Returns the path to a temporary file.'''
