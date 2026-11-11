@@ -145586,3 +145586,72 @@ class TestDissectT124:
         assert rows[3][2:4] == ['1003', '1005']
         assert rows[5][2] == '0'
         assert rows[9][2] == '65535'
+
+
+class TestDissectT125:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('t125_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_t125_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The MCS PDUs are T.125 (through TPKT, COTP and the COTP
+        heuristic) and none is malformed or has a warning or an error
+        expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.len > 0', '-e_ws.col.protocol')
+        assert len(rows) == 22
+        assert [r[1] for r in rows].count('T.125') == 17
+        assert [r[1] for r in rows].count('COTP') == 5
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_t125_connect_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Connect-Initial, Connect-Response, Connect-Additional and
+        Connect-Result, with the domain parameters and the user data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't125.ConnectMCSPDU',
+                '-et125.ConnectMCSPDU', '-et125.result', '-et125.calledConnectId',
+                '-et125.dataPriority', '-et125.maxMCSPDUsize', '-et125.upwardFlag',
+                '-et125.userData')
+        assert rows[0] == ['7', '101', '', '', '', '65535,1056,65535', 'True', '00010203']
+        assert rows[1] == ['8', '102', '0', '0', '', '65528', '', 'fffefd']
+        assert rows[2][:5] == ['9', '102', '1', '300', '']
+        assert rows[2][5] == '1056'
+        assert rows[3] == ['10', '103', '', '5', '3', '', '', '']
+        assert rows[4] == ['11', '104', '8', '', '', '', '', '']
+        # Connect-Initial reassembled from two COTP data TPDUs
+        assert rows[5][:2] == ['25', '101']
+        assert rows[5][7].startswith('000102030405')
+        assert len(rows[5][7]) == 600
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {24, 25}',
+                '-et125.ConnectMCSPDU', '-ecotp.segment')
+        assert rows[0][1] == ''
+        assert rows[1][1] == '101'
+
+    def test_t125_domain_pdus(self, cmd_tshark, capture_file, test_env):
+        '''The domain PDUs accepted by the heuristic, and one that is not
+        (plumbDomainIndication stays COTP data).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.DomainMCSPDU',
+                '-et124.DomainMCSPDU', '-et124.initiator', '-et124.channelId',
+                '-et124.requested', '-et124.userData', '-e_ws.col.info')
+        assert [(r[0], r[1]) for r in rows] == [
+            ('12', '1'), ('13', '10'), ('14', '11'), ('15', '11'), ('16', '14'),
+            ('17', '15'), ('18', '15'), ('19', '25'), ('20', '26'), ('21', '25'),
+            ('22', '8')]
+        assert rows[0][2:4] == ['', '']
+        assert rows[2][2] == '1002'
+        assert rows[3][2] == ''
+        assert rows[4][2:4] == ['1002', '1003']
+        assert rows[5][2:5] == ['1002', '1003', '1003']
+        assert rows[6][2:5] == ['1002', '', '1004']
+        assert rows[7][2:5] == ['1002', '1003', '']
+        assert rows[7][5] == '01020304'
+        assert rows[8][5] == '05' * 200
+        assert rows[10][6].startswith('disconnectProviderUltimatum')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 23',
+                '-e_ws.col.protocol', '-et124.DomainMCSPDU')
+        assert rows == [['23', 'COTP', '']]
