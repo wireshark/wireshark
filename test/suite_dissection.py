@@ -149797,3 +149797,149 @@ class TestDissectTlsUtils:
         assert rows[0].split('\t')[:2] == ['239', ','.join(['54'] * 40)]
         assert [r.split('\t')[0] for r in rows[1:]] == ['246', '247']
         assert [r.split('\t')[2] for r in rows[1:]] == ['01020304', '0506']
+
+
+class TestDissectTn3270:
+    '''TN3270 and TN3270E over Telnet, from the synthetic capture
+    tn3270_coverage.pcap.gz. TN3270 only decodes with a tree, hence the
+    display filters. Client port 50001 is a 3278-2 with every order,
+    AID and structured field, ports 50010 to 50019 negotiate the other
+    terminal types, 50030 the TN3270-REGIME option and 50040 and 50041
+    TN3270E.'''
+
+    def test_tn3270_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes; the frames with unknown command
+        codes, order codes and AIDs only get warnings.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert protocols.count('TN3270') == 930
+        assert protocols.count('TELNET') == 78
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn3270_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_tn3270_bogus_values(self, cmd_tshark, capture_file, test_env):
+        '''Unknown command codes, order codes and AIDs get a warning.'''
+        for name, frames in (('command_code', '115 116 117 118 979 1002'),
+                             ('order_code', '99 100'),
+                             ('aid', '161 162 163 164 165 823')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('tn3270_coverage.pcap.gz'),
+                    '-Y', 'tn3270.%s.bogus' % name,
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == frames.split()
+
+    def test_tn3270_dia_offsets(self, cmd_tshark, capture_file, test_env):
+        '''The Query Reply (Document Interchange Architecture) of frame
+        826 reads the file server count, the 2 octet function set
+        number and the DAID at the right offsets. The fields were
+        misaligned before "TN3270: Fix Query Reply and structured field
+        offsets".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'frame.number == 826',
+                '-Tfields', '-etn3270.dia_nfs', '-etn3270.dia_diafs',
+                '-etn3270.dia_diafn', '-etn3270.oem_sdp_daid_doid',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split('\t') == ['0x01', '0x11', '8755', '17493\n']
+
+    def test_tn3270_query_reply_parameters(self, cmd_tshark, capture_file, test_env):
+        '''The DDM and IBM auxiliary device parameters (frames 827 and
+        828) show all 6 octets as unknown data, and the RPQ name of
+        frame 829 has a length of 0 and no name, that of frame 830 is
+        RPQ1. The unknown data of a
+        parameter used to start at the structured field header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'frame.number in {827, 828}',
+                '-Tfields', '-eframe.number', '-etn3270.unknown_data',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['827\t060241424344', '828\t060241424344']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'frame.number in {829, 830}',
+                '-Tfields', '-eframe.number', '-etn3270.rpq_rpql', '-etn3270.rpq_name',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == ['829\t0\t', '830\t5\tRPQ1']
+
+    def test_tn3270_buffer_addresses(self, cmd_tshark, capture_file, test_env):
+        '''14 bit, both 12 bit coded and reserved buffer address formats,
+        and the screen size set by the terminal type, Erase Write Alternate
+        and Erase/Reset.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'tn3270.buffer_address in {0x00a0, 0x4c6a, 0xcd7b, 0x8000}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert '14-bit address, 160 = row 3, column 1 [assuming a 24x80 display] (0x00a0)' in stdout
+        assert '12-bit address, 810 = row 11, column 11 [assuming a 24x80 display] (0x4c6a)' in stdout
+        assert '12-bit address, 891 = row 12, column 12 [assuming a 24x80 display] (0xcd7b)' in stdout
+        assert 'Buffer Address: Reserved (0x8000)' in stdout
+        for port, size in ((50011, '32x80'), (50012, '43x80'), (50013, '27x132')):
+            stdout = subprocess.check_output((cmd_tshark,
+                    '-r', capture_file('tn3270_coverage.pcap.gz'),
+                    '-Y', 'tn3270 && tcp.port == %d' % port, '-V',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert 'assuming a %s display' % size in stdout
+            assert 'assuming a 24x80 display' in stdout
+
+    def test_tn3270e_header(self, cmd_tshark, capture_file, test_env):
+        '''The TN3270E header of every data type, with the request and
+        response flags and the sequence number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'tn3270.tn3270e_data_type && tcp.port == 50040',
+                '-Tfields', '-etn3270.tn3270e_data_type', '-etn3270.tn3270e_request_flag',
+                '-etn3270.tn3270e_response_flag', '-etn3270.tn3270e_seq_number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [tuple(line.split('\t')) for line in stdout.splitlines()]
+        assert rows == [
+            ('0x00', '0x00', '0x00', '1'), ('0x00', '0x00', '0x01', '1'), ('0x00', '0x01', '0x02', '2'),
+            ('0x00', '0x02', '0x00', '3'), ('0x00', '0x00', '0x00', '4'), ('0x01', '0x00', '0x00', '5'),
+            ('0x01', '0x00', '0x01', '5'), ('0x02', '0x00', '0x00', '5'), ('0x02', '0x00', '0x01', '6'),
+            ('0x03', '0x00', '0x00', '7'), ('0x04', '0x00', '0x00', '8'), ('0x05', '0x00', '0x00', '9'),
+            ('0x06', '0x00', '0x00', '10'), ('0x07', '0x00', '0x00', '11'), ('0x20', '0x00', '0x00', '12'),
+            ('0x00', '0x00', '0x00', '13'),
+        ]
+
+    def test_tn3270_records_over_segments(self, cmd_tshark, capture_file, test_env):
+        '''Records split over several TCP segments without any IAC are
+        reassembled by Telnet; only the last segment has the TN3270
+        layer, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn3270_coverage.pcap.gz'),
+                    '-Y', 'tn3270.command_code == 0xf5 && frame.len > 150',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == ['832', '836']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn3270_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {831, 833, 834, 835} && tn3270',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_tn3270_structured_fields(self, cmd_tshark, capture_file, test_env):
+        '''NUL octets between structured fields and unknown structured
+        field ids are skipped by their length.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'tn3270.null',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['813', '814', '815']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn3270_coverage.pcap.gz'),
+                '-Y', 'tn3270 && tcp.port == 50001 && frame.number in {816..822}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        for unknown in ('Unknown [50]', 'Unknown [0f99]', 'Unknown [1077]', 'Unknown [8170]'):
+            assert 'Structured Field: ' + unknown in stdout
