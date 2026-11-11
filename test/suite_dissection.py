@@ -147532,3 +147532,102 @@ class TestDissectTeamspeak2:
             '53\tClass: ACK',
             '54\tType: Ping, Class: Unknown (0xbeef)',
         ]
+
+
+class TestDissectTeap:
+    '''TEAP (RFC 7170) outer TLVs in EAP-TEAP packets (EAPOL, EAP type 55)
+    and Exported PDU frames naming "teap", from the synthetic capture
+    teap_coverage.pcapng.gz. No TLS tunnel and no keys are involved.'''
+
+    @staticmethod
+    def deep_pac_info(depth):
+        '''A pcap with one EAPOL frame whose PAC TLV holds PAC-Info
+        attributes nested depth levels deep (4 octets per level).'''
+        inner = struct.pack('!HHI', 3, 4, 0)
+        for _ in range(depth):
+            inner = struct.pack('!HH', 9, len(inner)) + inner
+        teap = struct.pack('!HH', 11, len(inner)) + inner
+        eapdata = bytes([0x11]) + struct.pack('!I', len(teap)) + teap
+        eap = struct.pack('!BBHB', 1, 1, 5 + len(eapdata), 55) + eapdata
+        eapol = struct.pack('!BBH', 2, 0, len(eap)) + eap
+        frame = (b'\x02\x00\x00\x00\x00\x02\x02\x00\x00\x00\x00\x01\x88\x8e' + eapol)
+        return (struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 262144, 1)
+                + struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame)
+
+    def test_teap_protocols(self, cmd_tshark, capture_file, test_env):
+        '''45 frames: 42 are TEAP and three carry an inner EAP packet in an
+        EAP-Payload TLV; none is malformed or has an error or warning
+        expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teap_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 45
+        assert protocols.count('TEAP') == 42
+        assert protocols.count('EAP') == 3
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('teap_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_teap_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''TLV types, results, error codes, the password response and the
+        Crypto-Binding flags (frames 4-12, 23, 36, 43 and 32).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teap_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {4, 5, 8, 10, 12, 23, 32, 36, 43}',
+                '-Tfields', '-eframe.number', '-eteap.tlv.type', '-eteap.status',
+                '-eteap.error-code', '-eteap.username', '-eteap.password',
+                '-eteap.crypto.flags', '-eteap.crypto.subtype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\t3\t1\t\t\t\t\t',
+            '5\t3\t2\t\t\t\t\t',
+            '8\t4,3\t2\t\t\t\t\t',
+            '10\t5\t\t1001\t\t\t\t',
+            '12\t5\t\t4242\t\t\t\t',
+            '23\t10,5,12\t2\t1003\t\t\t1\t0',
+            '32\t12\t\t\t\t\t3\t0',
+            '36\t14\t\t\tuser\tsecret\t\t',
+            '43\t1,2,3,12,13\t1\t\t\t\t3\t1',
+        ]
+
+    def test_teap_pac(self, cmd_tshark, capture_file, test_env):
+        '''The PAC TLV holds every attribute type, a nested PAC-Info and
+        an unknown attribute (frame 24); PAC-Info nested 14 levels deep is
+        accepted (frame 25); Exported PDU frame 45 decodes as well.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teap_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {24, 25, 45}',
+                '-Tfields', '-eframe.number', '-eteap.pac.type',
+                '-eteap.pac.a-id', '-eteap.pac.lifetime',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '24\t1,2,3,4,5,6,7,8,10,9,4,5,10,99\ta-id.example,inner a-id\t3600',
+            '25\t9,9,9,9,9,9,9,9,9,9,9,9,9,9,3\t\t86400',
+            '45\t3,9,4\tx\t5',
+        ]
+
+    def test_teap_nesting_limit(self, cmd_tshark, test_env, tmp_path):
+        '''PAC-Info nested 600 deep, 4 octets per level, used to reach the
+        dissection depth assertion (and abort tshark with
+        WIRESHARK_ABORT_ON_DISSECTOR_BUG, which test_env sets). It now ends
+        in an expert info after 16 levels; the bounded nesting is shown.'''
+        pcap = tmp_path / 'teap_deep.pcap'
+        pcap.write_bytes(self.deep_pac_info(600))
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', str(pcap),
+                '-Y', '_ws.expert.message contains "nested too deeply"',
+                '-Tfields', '-eframe.number', '-eteap.pac.type',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 1
+        number, types, message = lines[0].split('\t')
+        assert number == '1'
+        assert types.split(',') == ['9'] * 15
+        assert message == 'TEAP TLVs nested too deeply'
