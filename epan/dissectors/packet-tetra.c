@@ -3449,10 +3449,6 @@ dissect_tetra_U_RELEASE(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx
                                    ett_tetra_U_RELEASE, U_RELEASE_sequence);
 
 	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_U_RELEASE, U_RELEASE_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
 
   return offset;
 }
@@ -6366,7 +6362,7 @@ dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY(tvbuff_t *tvb _U_, uint32_t offset 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY, D_ATTACH_DETACH_GROUP_IDENTITY_sequence);
 
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY");
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-ATTACH-DETACH-GROUP-IDENTITY");
 
   return offset;
 }
@@ -6459,7 +6455,7 @@ dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK(tvbuff_t *tvb _U_, uint32_t off
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK, D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence);
 
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY-ACK");
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-ATTACH-DETACH-GROUP-IDENTITY-ACK");
 
   return offset;
 }
@@ -6475,7 +6471,7 @@ dissect_tetra_D_MM_STATUS(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *ac
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_MM_STATUS, D_MM_STATUS_sequence);
 
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-MM-STATUS");
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-MM-STATUS");
 
   return offset;
 }
@@ -8161,10 +8157,6 @@ static const per_sequence_t D_TX_WAIT_sequence[] = {
 
 static unsigned
 dissect_tetra_D_TX_WAIT(tvbuff_t *tvb _U_, uint32_t offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
-
-	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
 
