@@ -147925,3 +147925,61 @@ class TestDissectTecmp:
                 fields = line.split('\t')
                 assert fields[:3] == [str(n), '47', '47']
                 assert 'Frame length is less than captured length' not in line
+
+
+class TestDissectTeiManagement:
+    '''TEI management procedure (LAPD SAPI 63) from the synthetic capture
+    teimanagement_coverage.pcap.gz (LAPD link type).'''
+
+    def test_teimanagement_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Twelve TEI frames and one Q.931 frame, no malformed packets or
+        error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teimanagement_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols.count('TEI') == 12
+        assert protocols.count('Q.931') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('teimanagement_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_teimanagement_messages(self, cmd_tshark, capture_file, test_env):
+        '''The message types, reference numbers and action indicators.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teimanagement_coverage.pcap.gz'),
+                '-Y', 'tei_management',
+                '-Tfields', '-eframe.number', '-etei_management.msg',
+                '-etei_management.reference', '-etei_management.action',
+                '-etei_management.extend', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[1] for r in rows] == \
+            ['1', '2', '3', '4', '5', '6', '7', '0', '255', '1', '1', '2']
+        assert rows[0][2:5] == ['4660', '127', '1']
+        assert rows[1][2:5] == ['4660', '64', '1']
+        assert rows[8][2:5] == ['32769', '126', '0']
+        assert rows[0][5].endswith('Identity Request')
+        assert rows[6][5].endswith('Identity Verify')
+        assert rows[7][5].endswith('Unknown message type (0x0000)')
+        assert rows[8][5].endswith('Unknown message type (0x00ff)')
+
+    def test_teimanagement_i_frame(self, cmd_tshark, capture_file, test_env):
+        '''A TEI message in an I frame (frame 11) is dissected like one in
+        a UI frame; the entity ID is shown for another entity (frame 10).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teimanagement_coverage.pcap.gz'),
+                '-Y', 'frame.number in {10, 11}',
+                '-Tfields', '-eframe.number', '-elapd.control.ftype',
+                '-etei_management.entity', '-etei_management.msg',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '10\t0x03\t0x00\t1',
+            '11\t0x0000\t0x0f\t1',
+        ]
