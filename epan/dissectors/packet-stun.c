@@ -1209,7 +1209,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
      * the first attribute in all MS-TURN messages.
      */
     unsigned int first_attr_off = tcp_framing_offset + STUN_HDR_LEN;
-    if (tvb_get_ntohs(tvb, first_attr_off) == MAGIC_COOKIE &&
+    if (tvb_bytes_exist(tvb, first_attr_off, ATTR_HDR_LEN + 4) &&
+        tvb_get_ntohs(tvb, first_attr_off) == MAGIC_COOKIE &&
         tvb_get_ntohl(tvb, first_attr_off + ATTR_HDR_LEN) == TURN_MAGIC_COOKIE) {
         switch (msg_type) {
         case MS_TURN_SEND:
