@@ -2455,7 +2455,7 @@ st291_process_wst_packet(tvbuff_t *tvb, proto_tree *tree, const st291_wst_fields
 
     ti = proto_tree_add_string(tree, *fields->data_string, tvb, 0, 0, data_string);
     proto_item_set_generated(ti);
-    ti = proto_tree_add_bytes(tree, *fields->textdata_array, tvb, 0, 0, text_data);
+    ti = proto_tree_add_bytes_with_length(tree, *fields->textdata_array, tvb, 0, 0, text_data, number_of_data_bytes);
     proto_item_set_generated(ti);
 }
 
