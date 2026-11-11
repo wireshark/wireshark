@@ -149387,3 +149387,210 @@ class TestDissectTivoconnect:
         layer = json.loads(stdout)[0]['_source']['layers']['tivoconnect']
         assert bytes.fromhex(layer['tivoconnect.method_raw'][0]) == b'broadcast'
         assert bytes.fromhex(layer['tivoconnect.machine_raw'][0]) == b'TEST'
+
+
+class TestDissectTlsRecords:
+    '''The TLS dissector (packet-tls.c) on a synthetic capture of plain
+    (never encrypted) TLS: the record layer, handshake reassembly, SSLv2,
+    alerts, heartbeats, the heuristics, STARTTLS and Exported PDU frames.
+    Frames 1-185 are Ethernet (also FTP and SMTP with STARTTLS), 186-189 are
+    Exported PDU frames, 190-195 are the reproducers of the fixes and 196-197
+    plain text on port 443.'''
+
+    CAPTURE = 'tls_coverage.pcapng.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectTlsRecords.CAPTURE), *args),
+                encoding='utf-8', env=test_env)
+
+    def test_tls_records_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no expert infos of Error severity in one
+        and two passes; protocol column counts.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 197
+        assert protocols.count('TLSv1.2') == 89
+        assert protocols.count('TLSv1.3') == 18
+        assert protocols.count('TLSv1.1') == 6
+        assert protocols.count('TLSv1') == 11
+        assert protocols.count('SSLv3') == 12
+        assert protocols.count('SSLv2') == 25
+        assert protocols.count('SSL') == 5
+        assert protocols.count('FTP') == 3
+        assert protocols.count('SMTP') == 5
+        assert protocols.count('HTTP') == 2
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+
+    def test_tls_records_handshake_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Handshake messages split over several records in both directions
+        at the same time: a Certificate over three records (the last with the
+        ServerKeyExchange and ServerHelloDone), a ClientKeyExchange over
+        three, a NewSessionTicket whose header is split over records. One
+        pass and two passes show the same messages.'''
+        expected = [
+            '17\tClient Hello\t1',
+            '18\tServer Hello\t2',
+            '19\t[Client Key Exchange Fragment]\t',
+            '20\t[Certificate Fragment]\t',
+            '21\t[Client Key Exchange Fragment]\t',
+            '22\tCertificate, Server Key Exchange, Server Hello Done\t11,12,14',
+            '23\tClient Key Exchange, Change Cipher Spec, Encrypted Handshake Message\t16',
+            '24\t[New Session Ticket Fragment]\t',
+            '25\t[New Session Ticket Fragment]\t',
+            '26\t[New Session Ticket Fragment]\t',
+            '27\tNew Session Ticket\t4',
+            '28\tHello Request\t0',
+            '29\tNew Session Ticket\t4',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number >= 17 && frame.number <= 29',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', '-etls.handshake.type',
+                    passes=passes)
+            assert stdout.splitlines() == expected
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number in {18, 20, 22}',
+                '-Tfields', '-eframe.number', '-etls.handshake.reassembled_in', '-etls.reassembled.length',
+                passes=('-2',))
+        assert stdout.splitlines()[0].startswith('18\t22')
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 8',
+                '-Tfields', '-etls.handshake.type', '-etls.handshake.certificates_length')
+        assert stdout.strip().startswith('11,12,14\t')
+
+    def test_tls_records_tcp_desegmentation(self, cmd_tshark, capture_file, test_env):
+        '''A record delivered in four TCP segments (a three octet header, the
+        rest of the header with part of the body, ...) is dissected after
+        the last segment (frames 5-7).'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 5 && frame.number <= 9',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-etls.handshake.type')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['5', '6', '7', '8', '9']
+        assert rows[2][1:] == ['Server Hello', '2']
+        assert rows[3][1:] == ['Certificate, Server Key Exchange, Server Hello Done', '11,12,14']
+
+    def test_tls_records_alerts(self, cmd_tshark, capture_file, test_env):
+        '''Alerts of 38 levels and descriptions, two alerts in one record, an
+        encrypted alert (length is not 2).'''
+        alerts = [(1, 0), (1, 90), (2, 10), (2, 20), (2, 21), (2, 22), (2, 30), (2, 40), (2, 42), (2, 43),
+                  (2, 44), (2, 45), (2, 46), (2, 47), (2, 48), (2, 49), (2, 50), (2, 51), (2, 60), (2, 70),
+                  (2, 71), (2, 80), (2, 86), (2, 90), (1, 100), (2, 109), (2, 110), (2, 111), (2, 112),
+                  (2, 113), (2, 114), (2, 115), (2, 116), (2, 120), (2, 121), (2, 255), (3, 0), (0, 200)]
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 73 && frame.number <= 110',
+                '-Tfields', '-etls.alert_message.level', '-etls.alert_message.desc')
+        got = [tuple(int(x) for x in l.split('\t')) for l in stdout.splitlines()]
+        assert got == alerts
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {111, 112}', '-Tfields', '-e_ws.col.info')
+        assert stdout.splitlines() == ['Alert (Level: Warning, Description: Close Notify)', 'Encrypted Alert']
+
+    def test_tls_records_heartbeat(self, cmd_tshark, capture_file, test_env):
+        '''Plain heartbeat requests and responses; a 400 octet heartbeat is
+        shown as encrypted.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 115 && frame.number <= 119',
+                '-Tfields', '-eframe.number', '-etls.heartbeat_message.type',
+                '-etls.heartbeat_message.payload_length', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '115\t1\t10\tHeartbeat Request', '116\t2\t10\tHeartbeat Response',
+            '117\t\t\tEncrypted Heartbeat', '118\t1\t1\tHeartbeat Request',
+            '119\t1\t3\tHeartbeat Request']
+
+    def test_tls_records_handshake_types(self, cmd_tshark, capture_file, test_env):
+        '''Handshake message types that need no key: HelloRequest,
+        HelloVerifyRequest, EndOfEarlyData, CertificateRequest,
+        CertificateVerify, Finished, CertificateURL, CertificateStatus,
+        SupplementalData, NPN EncryptedExtensions, KeyUpdate, an unknown
+        type, a compressed Certificate (decompressed with zlib) and the
+        two kinds of HelloRetryRequest.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 61 && frame.number <= 70',
+                '-Tfields', '-eframe.number', '-etls.handshake.type', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[1] for r in rows] == ['0,3,5,13,15,20', '21', '22', '23,67', '24', '', '25', '1', '2', '6']
+        assert rows[0][2] == ('Hello Request, Hello Verify Request, End of Early Data, '
+                              'Certificate Request, Certificate Verify, Finished')
+        assert rows[8][2] == 'Hello Retry Request' and rows[9][2] == 'Hello Retry Request'
+
+    def test_tls_records_sslv2(self, cmd_tshark, capture_file, test_env):
+        '''SSLv2 Client Hello, Server Hello and Client Master Key messages
+        with two and three octet record headers; other SSLv2 messages and
+        invalid ones are shown as encrypted data.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 126 && frame.number <= 153',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        info = {int(r[0]): (r[1], r[2]) for r in rows}
+        assert info[126] == ('SSLv2', 'Client Hello')
+        assert info[127] == ('TLSv1', 'Server Hello, Certificate, Server Hello Done')
+        assert info[130] == ('SSLv2', 'Client Hello')
+        assert info[131] == ('SSLv2', 'Server Hello')
+        assert info[132] == ('SSLv2', 'Client Master Key')
+        assert info[133] == ('SSLv2', 'Client Master Key')
+        assert [info[n][1] for n in range(136, 146)] == ['Encrypted Data'] * 10
+        assert info[151] == ('SSLv2', 'Client Hello, Client Master Key')
+
+    def test_tls_records_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''TLS on TCP ports without a registration: a SSLv3/TLS handshake
+        record, a SSLv2 ClientHello and application data are recognized; short
+        or implausible records are not. The same in two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', 'tcp.dstport >= 8443 && tcp.dstport <= 8456 && tcp.len > 0',
+                    '-Tfields', '-etcp.dstport', '-e_ws.col.protocol', passes=passes)
+            got = dict(l.split('\t') for l in stdout.splitlines())
+            assert got['8443'] in ('TLSv1', 'TLSv1.2')
+            assert got['8444'] == 'SSLv2'
+            assert got['8445'] == 'TLSv1.2'
+            assert got['8446'] == 'TCP' and got['8447'] == 'TCP' and got['8449'] == 'TCP'
+            assert got['8455'] == 'SSLv2' and got['8456'] == 'TCP'
+
+    def test_tls_records_starttls(self, cmd_tshark, capture_file, test_env):
+        '''TLS starts after the "234" response to FTP AUTH TLS and after the
+        "220" response to SMTP STARTTLS, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number >= 172 && frame.number <= 185',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', passes=passes)
+            protocols = [l.split('\t')[1] for l in stdout.splitlines()]
+            assert protocols == ['FTP', 'FTP', 'FTP', 'TLSv1.2', 'TLSv1.2', 'TLSv1.2',
+                                 'SMTP', 'SMTP', 'SMTP', 'SMTP', 'SMTP', 'TLSv1.2', 'TLSv1.2', 'TLSv1.2']
+
+    def test_tls_records_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The tls13-handshake dissector (QUIC style handshake data) and the
+        tls-echconfig dissector (an ECHConfigList) through Exported PDU.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 186 && frame.number <= 189',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-etls.handshake.type')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][1:] == ['Client Hello', '1']
+        assert rows[1][1:] == ['Server Hello, Encrypted Extensions', '2,8']
+        assert rows[2][1] == '[Certificate Fragment]'
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 189',
+                '-Tfields', '-etls.ech.echconfig.version')
+        assert stdout.strip() == '0xfe0d,0xfe0d'
+
+    def test_tls_records_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 190-195 are the reproducers of "TLS: Fix handshake
+        reassembly asserts and CPU blow-ups": a fragment that continues in
+        the other direction after a ClientHello changed the server address
+        (assertion at first sight) and a ChangeCipherSpec state that differs
+        between the passes (assertion in the second pass).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, env,
+                    '-Y', 'frame.number >= 190 && frame.number <= 195', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    passes=passes)
+            rows = stdout.splitlines()
+            assert len(rows) == 6
+            assert rows[0] == '190\tClient Hello'
+            assert rows[1] == '191\t[Certificate Fragment]'
+            assert rows[2] == '192\tChange Cipher Spec'
+            assert rows[4] == '194\tClient Hello'
