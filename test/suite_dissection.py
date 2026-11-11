@@ -145023,3 +145023,67 @@ class TestDissectSymantec:
         assert info['6'] == ['17', '', '', '41002']
         assert info['7'] == ['', '192.0.2.12', '', '']
         assert info['8'] == ['', '', '17', '41102']
+
+
+class TestDissectSync:
+    '''SYNC, the MBMS synchronisation protocol, from the synthetic capture
+    sync_coverage.pcap.gz. SYNC has no port of its own; the frames are
+    Exported PDU naming the "sync" dissector.'''
+
+    def test_sync_types(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-24: 21 SYNC frames, three type 1 frames shown as the
+        UDP they carry; expert infos only on the type 2 and the reserved
+        PDU types; no malformed packets, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sync_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-esync.type',
+                    '-e_ws.malformed', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert len(lines) == 24
+            assert [l[1] for l in lines].count('SYNC') == 21
+            assert [l[1] for l in lines].count('UDP') == 3
+            assert [l[2] for l in lines] == (['0'] * 3 + ['1'] * 3 + ['2'] * 3 + ['3'] * 10
+                                             + ['4', '9', '15'] + ['3'] * 2)
+            expert = {l[0]: l[4] for l in lines if len(l) > 4 and l[4]}
+            assert expert == {
+                '7': 'SYNC PDU type 2 unsupported', '8': 'SYNC PDU type 2 unsupported',
+                '9': 'SYNC PDU type 2 unsupported', '20': 'Unknown SYNC PDU type',
+                '21': 'Unknown SYNC PDU type', '22': 'Unknown SYNC PDU type',
+            }
+            assert not any(l[3] for l in lines)
+
+    def test_sync_fields(self, cmd_tshark, capture_file, test_env):
+        '''Counters of type 0, CRCs and the IP payload of type 1, and the
+        lengths of packets of type 3 (even and odd number of packets).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sync_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esync.timestamp', '-esync.packet_nr',
+                '-esync.elapsed_octet_ctr', '-esync.total_nr_of_packet',
+                '-esync.total_nr_of_octet', '-esync.header_crc', '-esync.payload_crc',
+                '-esync.length_of_packet', '-eudp.dstport',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'] == ['1000', '1', '0', '5000', '123456789', '0x2a', '', '', '']
+        assert info['2'] == ['0', '65535', '4294967295', '16777215', '1099511627775',
+                             '0x3f', '', '', '']
+        assert info['5'] == ['2000', '7', '4096', '', '', '0x3f', '0x03ff', '', '5000']
+        assert info['12'][7] == '100,107,114,121,128,135,142,149'
+        assert info['16'][7] == '100,107,114,121,128,135,142'
+        assert info['18'][7] == '100,107,114,121,128,135,1792'
+        assert info['19'][7] == ''
+
+    def test_sync_type3_length(self, cmd_tshark, capture_file, test_env):
+        '''The SYNC item of a type 3 PDU with 30000 (even) and 21847 (odd)
+        packets is 45019 and 32790 octets long. The length was computed
+        in floating point and cast to int16_t, which is undefined for
+        packet numbers of 21846 and above, before "SYNC: Avoid an out of
+        range float to int16 conversion".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sync_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 23', '-Tpdml',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        sizes = [p.split(' size="')[1].split('"')[0]
+                 for p in stdout.split('<proto name="sync"')[1:]]
+        assert sizes == ['45019', '32790']
