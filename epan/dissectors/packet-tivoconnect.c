@@ -88,10 +88,12 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool is
         /* process the packet */
         for ( field = strtok(string, "\n");
               field;
-              offset += length, field = strtok(NULL, "\n") ) {
+              field = strtok(NULL, "\n") ) {
             char * value;
             int fieldlen;
 
+            /* strtok() skips empty lines: take the offset from the pointer */
+            offset = (unsigned)(field - string);
             length = (int)strlen(field) + 1;
 
             if ( !(value = strchr(field, '=')) ) {
