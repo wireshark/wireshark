@@ -482,6 +482,7 @@ typedef struct _SslSession {
     int8_t server_cert_type;
     uint32_t client_ccs_frame;
     uint32_t server_ccs_frame;
+    bool cid_listed;
     uint32_t first_ch_ech_frame;
     StringInfo client_random;
     bool ech;
@@ -1318,8 +1319,8 @@ typedef struct {
     int            num_cipher_suites;
     int            num_extensions;
     wmem_strbuf_t *alpn;
-    wmem_list_t   *cipher_list;
-    wmem_list_t   *extension_list;
+    wmem_array_t  *cipher_array;
+    wmem_array_t  *extension_array;
     wmem_list_t   *sighash_list;
 } ja4_data_t;
 

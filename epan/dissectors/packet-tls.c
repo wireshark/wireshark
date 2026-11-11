@@ -306,9 +306,10 @@ tls_hs_fragment_equal(const void *k1, const void *k2)
         const tls_hs_fragment_key* key1 = (const tls_hs_fragment_key*) k1;
         const tls_hs_fragment_key* key2 = (const tls_hs_fragment_key*) k2;
 
-        return (key1->id == key2->id &&
-                key1->session == key2->session &&
-                key1->from_server == key2->from_server);
+        /* The ids are unique across the capture. The direction can change
+         * within a frame (ssl_set_server() on a ClientHello), so it must not
+         * take part in the comparison. */
+        return key1->id == key2->id;
 }
 
 static void *
@@ -2787,7 +2788,8 @@ is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, uint32_t offse
                      * ClientHello or ServerHello. This is a new handshake;
                      * it's a buggy renegotiation or possibly retransmissions.
                      */
-                    *ccs_frame = 0;
+                    if (!PINFO_FD_VISITED(pinfo))
+                        *ccs_frame = 0;
                     /* XXX: Resetting the CCS frame state will allow us to
                      * detect the new handshake, but can mean false positives
                      * on earlier frames on later passes (reporting as
@@ -3074,7 +3076,12 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                         tvb, offset, subset_len, 0, msg_type, false, session);
             } else {
                 // The first pass must have created a new fragment.
-                DISSECTOR_ASSERT(frag_info && frag_info->offset == 0);
+                if (!frag_info || frag_info->offset != 0) {
+                    /* The first pass took another path, just show the data. */
+                    tls_show_handshake_details(pinfo, tree, version, tvb_get_uint8(tvb, offset),
+                            false, is_first_msg, false, tvb, offset, subset_len);
+                    break;
+                }
             }
 
             tls_show_handshake_details(pinfo, tree, version, frag_info->type, false, is_first_msg, false,
