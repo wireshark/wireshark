@@ -1500,16 +1500,16 @@ dissect_sprt_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         return false;
 
     octet = tvb_get_uint8(tvb, offset + 1);
-    reserved_bit = octet & 80;
+    reserved_bit = octet & 0x80;
     payload_type = octet & 0x7F;
     if (reserved_bit != 0) /* must be 0 */
         return false;
-    if (payload_type < 96 || payload_type > 128) /* value within RTP dynamic payload type range */
+    if (payload_type < 96 || payload_type > 127) /* value within RTP dynamic payload type range */
         return false;
 
     word = tvb_get_ntohs(tvb, offset + 2);
     tc = word >> 14;
-    seqnum = word & 0x3F;
+    seqnum = word & 0x3FFF;
     if ((tc == 0 || tc == 3) && (seqnum != 0)) /* seqnum only applies if tc is 1 or 2 */
         return false;
 
