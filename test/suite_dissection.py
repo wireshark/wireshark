@@ -140898,3 +140898,226 @@ alert tcp any any -> any any (no closing parenthesis
             ['19', '1:2005:1 - Chain', '12', '1', '10', '10', '2'],
             ['31', '2:2008:4 - generator 2', '12', '1', '18', '18', '2'],
         ]
+
+
+class TestDissectSnortConfig:
+    '''The Snort configuration parser (packet-snort-config.c), run when the
+    Snort post-dissector starts with snort.alerts_source from-user-comments
+    and snort.config naming a configuration file. The test writes a synthetic
+    configuration (variables, reference prefixes, nested includes, every rule
+    option, malformed lines) into a temporary directory and decodes
+    snort_config_coverage.pcapng.gz, whose packet comments name the rules by
+    SID. No snort binary is run.'''
+
+    SNORT_CONF = r'''# top level configuration
+
+var RULE_PATH rules
+
+var EMPTY_VALUE x
+ipvar HOME_NET [192.0.2.0/24,198.51.100.0/24]
+ipvar EXTERNAL_NET !$HOME_NET
+ipvar DNS_SERVERS $HOME_NET
+portvar HTTP_PORTS [80,8080]
+portvar ORACLE_PORTS 1024:
+var onlyname
+var
+ipvar NOVALUE
+portvar
+unknownvar something value
+config reference: url http://example.invalid/ref/
+config reference: CVE http://cve.example.invalid/?id=
+config reference: bugtraq http://bugs.example.invalid/id/
+config reference: noreplacement
+include $RULE_PATH/a.rules
+include $RULE_PATH/b.rules
+include more/inner.conf
+include more/missing.conf
+include
+include recurse.conf
+'''
+
+    INNER_CONF = r'''# a nested include with its own variables and a rule
+var NESTED yes
+ipvar NESTED_NET 203.0.113.0/24
+alert udp any any -> $NESTED_NET any (msg:"Nested include rule"; sid:3001; rev:1;)
+'''
+
+    RECURSE_CONF = r'''# includes itself: stops after 8 levels
+include recurse.conf
+alert udp any any -> any 3002 (msg:"Recursion rule"; sid:3002; rev:1;)
+'''
+
+    A_RULES = r'''# rules with every option
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"All content options"; content:"GET "; nocase; offset:0; depth:8; fast_pattern; content:"HTTP|2f|1."; distance:1; within:20; rawbytes; content:"|0d 0a|Host"; http_method; content:"cookie"; http_cookie; content:"body"; http_client_body; content:"agent"; http_user_agent; uricontent:"/idx"; uricontent:"/idx2"; http_uri; classtype:web-application-activity; reference:url,example.invalid/one; reference:cve,2021-0001; reference:bugtraq,77; reference:other,thing; reference:missing-comma; sid:4001; rev:2;)
+alert udp $DNS_SERVERS 53 -> any $ORACLE_PORTS (msg:"Several variables"; content:"dns"; sid:4002; rev:1;)
+alert icmp any any -> any any (msg:"ICMP rule"; itype:8; content:"ping"; sid:4003; rev:1;)
+alert udp any any -> any 4004 (msg:"Signed numbers"; content:"abc"; offset:-3; distance:-2; depth:65535; within:65535; sid:4004; rev:1;)
+alert udp any any -> any 4005 (msg:"Bad numbers"; content:"abc"; offset:abc; depth:70000; within:-1; distance:xyz; sid:4005x; rev:z;)
+alert udp any any -> any 4006 (msg:"Negations and short values"; content:!"no"; content:!"x"; content:"y"; uricontent:"z"; uricontent:!"abc"; pcre:"ab"; sid:4006; rev:1;)
+alert udp any any -> any 4007 (msg:"PCRE forms"; pcre:"/^abc/i"; pcre:"/a.b/s"; pcre:"/x\d+/m"; pcre:"/raw/B"; pcre:"/mod/iRU"; pcre:"/noend"; pcre:"abc/"; pcre:"/ab"; sid:4007; rev:1;)
+alert udp any any -> any 4008 (msg:"Escapes in content"; content:"a\;b\\d"; content:"|41 42 43|DEF|20|"; content:"|4A4b 4c|"; content:"|4|"; sid:4008; rev:1;)
+alert udp any any -> any 4009 (msg:"Unknown options"; flow:to_server; threshold:type limit,track by_src,count 1,seconds 60; metadata:service http; sid:4009; rev:1;)
+alert udp any any -> any 4010 (msg:"Option without value"; nocase; fast_pattern; rawbytes; http_uri; http_method; sid:4010; rev:1;)
+alert udp any any -> any 4011 (msg:"Spaces after colon"; content: "spaced"; offset: 1; sid: 4011; rev: 1;)
+alert udp any any -> any 4012 (msg:"Semi;colon"; content:"semi;colon in quotes"; sid:4012; rev:1;)
+alert udp 1 1 -> ! ! (msg:"Short address and port fields"; sid:4013; rev:1;)
+alert udp any any -> any 4014 (msg:"Bad sid and rev"; sid:abc; rev:abc;)
+alert udp any any -> any 4015 (msg:"Empty values"; content:""; content:!""; uricontent:""; uricontent:!"";  pcre:""; reference:,nothing; sid:4015; rev:1;)
+'''
+
+    B_RULES = r'''# second rule file
+alert tcp any any -> any 80 (msg:"Second file"; content:"second"; sid:5001; rev:1;)
+alert tcp any any -> any 80 (msg:"Duplicate sid replaces"; sid:5001; rev:9;)
+alert udp any any -> any any (msg:"No options end"; content:"x"; sid:5002; rev:1;
+alert udp any any -> any any msg:"No parenthesis"; sid:5003;
+alert  udp any any -> any any (msg:"Double space"; sid:5004; rev:1;)
+alert  (msg:"No addresses"; sid:5005; rev:1;)
+log udp any any -> any any (msg:"Not an alert"; sid:5006;)
+alert udp any any -> any any (msg:"Many contents"; CONTENTS; sid:5007; rev:1;)
+alert udp any any -> any any (msg:"Many references"; REFERENCES; sid:5008; rev:1;)
+alert udp any any -> any any (msg:"Full content table"; CONTENTS30; uricontent:"u"; pcre:"/p/"; sid:5009; rev:1;)
+'''
+
+    @staticmethod
+    def norm_path(path):
+        '''A path from -T fields with "/" separators (Windows uses "\\", escaped as "\\\\").'''
+        return path.replace('\\\\', '\\').replace('\\', '/')
+
+    @staticmethod
+    def write_conf(tmp_path, conf, a_rules, b_rules, inner, recurse):
+        d = tmp_path / 'conf'
+        (d / 'rules').mkdir(parents=True)
+        (d / 'more').mkdir()
+        (d / 'snort.conf').write_text(conf)
+        (d / 'rules' / 'a.rules').write_text(a_rules)
+        (d / 'rules' / 'b.rules').write_text(b_rules)
+        (d / 'more' / 'inner.conf').write_text(inner)
+        (d / 'recurse.conf').write_text(recurse)
+        return str(d / 'snort.conf')
+
+    def b_rules(self):
+        many_contents = ' '.join('content:"c%d";' % i for i in range(35))
+        many_refs = ' '.join('reference:url,example.invalid/%d;' % i for i in range(25))
+        full_table = ' '.join('content:"c%d";' % i for i in range(30))
+        return (self.B_RULES.replace('CONTENTS;', many_contents).replace('REFERENCES;', many_refs)
+                .replace('CONTENTS30;', full_table))
+
+    def run_conf(self, cmd_tshark, capture_file, test_env, config, extra, fields, frames=None):
+        '''Rows (lists of fields) of the frames with an alert. A display filter on the
+        frame number would hide the comment from the post-dissector, so the filter is
+        "snort" and the frames are selected here.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'snort.alerts_source:from-user-comments',
+                '-o', 'snort.config:' + config, *extra,
+                '-r', capture_file('snort_config_coverage.pcapng.gz'),
+                '-Y', 'snort', '-Tfields', '-eframe.number', '-eframe.comment',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, stderr=subprocess.PIPE)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        if frames is not None:
+            rows = [r for r in rows if int(r[0]) in frames]
+        return rows
+
+    def test_snort_config_rules(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Rules from the top level file, $RULE_PATH includes and the nested
+        include: the rule set statistics (30 rules from two rule files) and the
+        options of the first rule (all content options, references).'''
+        conf = self.write_conf(tmp_path, self.SNORT_CONF, self.A_RULES, self.b_rules(),
+                               self.INNER_CONF, self.RECURSE_CONF)
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, conf,
+                             ('-o', 'snort.show_rule_set_stats:TRUE'),
+                             ('snort.global-stats.rule-count', 'snort.global-stats.rule-file-count'),
+                             (1,))
+        assert rows == [['1', '1:4001:1 - rule 4001', '30', '2']]
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, conf, (),
+                             ('snort.content', 'snort.uricontent', 'snort.reference'), (1,))
+        assert rows == [[
+            '1', '1:4001:1 - rule 4001', 'GET ,HTTP|2f|1.,|0d 0a|Host,cookie,body,agent', '/idx,/idx2',
+            'http://example.invalid/ref/example.invalid/one,http://cve.example.invalid/?id=2021-0001,'
+            'http://bugs.example.invalid/id/77,other,thing,missing-comma']]
+
+    def test_snort_config_options(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Rule options: pcre forms, negations, escapes and the limits on the
+        number of contents (30) and references (20) of a rule.'''
+        conf = self.write_conf(tmp_path, self.SNORT_CONF, self.A_RULES, self.b_rules(),
+                               self.INNER_CONF, self.RECURSE_CONF)
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, conf, (),
+                             ('snort.content', 'snort.uricontent', 'snort.pcre', 'snort.reference'),
+                             (6, 7, 8, 18, 19, 25))
+        by_frame = {r[0]: r for r in rows}
+        assert by_frame['6'][2:5] == ['no,x,y', 'z,abc', 'ab']
+        assert by_frame['7'][4] == '/^abc/i,/a.b/s,/x\\\\d+/m,/raw/B,/mod/iRU,/noend,abc/,/ab'
+        assert by_frame['8'][2].startswith('a\\\\;b\\\\\\\\d,|41 42 43|DEF|20|')
+        assert len(by_frame['18'][2].split(',')) == 30
+        assert len(by_frame['19'][5].split(',')) == 20
+        # a full content table drops the uricontent and the pcre of rule 5009
+        assert len(by_frame['25'][2].split(',')) == 30 and by_frame['25'][3] == '' and by_frame['25'][4] == ''
+
+    def test_snort_config_includes(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A nested include with its own rule (3001) and a file that includes
+        itself (3002): the recursion stops after 8 levels. A missing include
+        is reported on stderr and the rest of the configuration is still read.'''
+        conf = self.write_conf(tmp_path, self.SNORT_CONF, self.A_RULES, self.b_rules(),
+                               self.INNER_CONF, self.RECURSE_CONF)
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, conf, (),
+                             ('snort.sid', 'snort.rule-filename'), (13, 14, 15))
+        assert [r[0] for r in rows] == ['13', '14', '15']
+        assert self.norm_path(rows[0][3]).endswith('more/inner.conf')
+        assert self.norm_path(rows[1][3]).endswith('recurse.conf')
+        assert self.norm_path(rows[2][3]).endswith('rules/b.rules')
+        result = subprocess.run((cmd_tshark,
+                '-o', 'snort.alerts_source:from-user-comments', '-o', 'snort.config:' + conf,
+                '-r', capture_file('snort_config_coverage.pcapng.gz'), '-c', '1'),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, encoding='utf-8', env=test_env)
+        assert 'Failed to open config file' in result.stderr
+        assert 'missing.conf' in result.stderr
+
+    def test_snort_config_long_values(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A content, uricontent or pcre option longer than 1023 octets
+        overflowed a static 1024 byte buffer while the configuration was read; a
+        reference without a comma read one octet past its end. Frames 30-32
+        name SIDs 1-3 of these configurations.'''
+        d = tmp_path / 'long'
+        d.mkdir()
+        (d / 'snort.conf').write_text(
+            'config reference: foo http://example.invalid/\n'
+            'alert udp any any -> any any (msg:"long"; content:"' + 'A' * 1040 + '"; sid:1; rev:1;)\n'
+            'alert udp any any -> any any (msg:"long uricontent"; uricontent:"' + 'B' * 1100 + '"; sid:2; rev:1;)\n'
+            'alert udp any any -> any any (msg:"long pcre"; pcre:"/' + 'C' * 1100 + '/"; sid:3; rev:1;)\n')
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, str(d / 'snort.conf'), (),
+                             ('snort.content', 'snort.uricontent', 'snort.pcre'), (30, 31, 32))
+        assert len(rows) == 3
+        assert rows[0][2] == 'A' * 1021
+        assert rows[1][3] == 'B' * 1021
+        assert rows[2][4] == '/' + 'C' * 1020
+        d = tmp_path / 'ref'
+        d.mkdir()
+        (d / 'snort.conf').write_text(
+            'config reference: foo http://example.invalid/\n'
+            'alert udp any any -> any any (msg:"ref"; reference:foo; sid:2; rev:1;)\n'
+            'alert udp any any -> any any (msg:"ref2"; reference:foo,x; sid:3; rev:1;)\n')
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, str(d / 'snort.conf'), (),
+                             ('snort.reference',), (31, 32))
+        assert [r[2] for r in rows] == ['http://example.invalid/', 'http://example.invalid/x']
+
+    def test_snort_config_absolute_paths(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''An absolute RULE_PATH and an include with an absolute path.'''
+        d = tmp_path / 'abs'
+        (d / 'rules').mkdir(parents=True)
+        (d / 'snort.conf').write_text(
+            'var RULE_PATH %s/rules\ninclude $RULE_PATH/abs.rules\ninclude %s/other.rules\n' % (d, d))
+        (d / 'rules' / 'abs.rules').write_text(
+            'alert udp any any -> any 6001 (msg:"Absolute RULE_PATH"; sid:6001; rev:1;)\n')
+        (d / 'other.rules').write_text(
+            'alert udp any any -> any 6002 (msg:"Absolute include"; sid:6002; rev:1;)\n')
+        rows = self.run_conf(cmd_tshark, capture_file, test_env, str(d / 'snort.conf'),
+                             ('-o', 'snort.show_rule_set_stats:TRUE'),
+                             ('snort.rule-filename', 'snort.global-stats.rule-count',
+                              'snort.global-stats.rule-file-count'), (28, 29))
+        for r in rows:
+            r[2] = self.norm_path(r[2])
+        d = self.norm_path(str(d))
+        assert rows == [
+            ['28', '1:6001:1 - absolute 6001', '%s/rules/abs.rules' % d, '2', '1'],
+            ['29', '1:6002:1 - absolute 6002', '%s/other.rules' % d, '2', '1'],
+        ]
