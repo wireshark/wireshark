@@ -237,10 +237,13 @@ get_zmtp_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *da
         case 2:           /* data long (last) */
         case 3:           /* data long (and more) */
         case 6:           /* command (long) */
-            if (tvb_captured_length(tvb) < 9) {
+            if (tvb_captured_length_remaining(tvb, offset) < 9) {
                 return 0;
             }
             length = tvb_get_ntoh64(tvb, offset+1);
+            if (length > UINT32_MAX - 9) {
+                return UINT32_MAX;
+            }
             return (unsigned)length + 9;
     }
 
@@ -263,7 +266,7 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     /* Is data all text? */
     bool all_text = true;
     for (uint64_t n=offset; n < tvb_captured_length(tvb); n++) {
-        if (!g_ascii_isprint(tvb_get_uint8(tvb, offset))) {
+        if (!g_ascii_isprint(tvb_get_uint8(tvb, (int)n))) {
             all_text = false;
             break;
         }
@@ -298,6 +301,7 @@ static void dissect_zmtp_data(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
                 col_set_writable(pinfo->cinfo, COL_INFO, true);
             }
             CATCH_ALL {
+                col_set_writable(pinfo->cinfo, COL_INFO, true);
             }
             ENDTRY
 
@@ -701,10 +705,6 @@ dissect_zmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 static int
 dissect_zmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    /* Frame starts off with no PDUs seen */
-    static bool false_value = false;
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_zmtp, 0, &false_value);
-
     /* Find whole PDUs and send them to dissect_zmtp_message() */
     tcp_dissect_pdus(tvb, pinfo, tree, true, /* desegment */
                      2,                      /* need flags bytes + long-size */
