@@ -109,8 +109,8 @@ dissect_sync(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 break;
             case 3:
                 ti = proto_tree_add_item(tree, proto_sync, tvb, 0,
-                                         TYPE_3_LEN + (int16_t)(packet_nr % 2 == 0 ?
-                                                               1.5*packet_nr : 1.5*(packet_nr-1)+2),
+                                         TYPE_3_LEN + (int)(packet_nr % 2 == 0 ?
+                                                          (packet_nr * 3) / 2 : ((packet_nr - 1) * 3) / 2 + 2),
                                          ENC_NA);
                 break;
             default:
