@@ -146260,3 +146260,99 @@ class TestDissectTapa:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol',
             ), encoding='utf-8', env=test_env)
         assert [l.split('\t')[1] for l in stdout.splitlines()].count('TAPA') == 13
+
+
+class TestDissectTcapGaps:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('tcap_gaps_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def mtp3_pcap(path, tcaps, step=1.0):
+        '''Write a pcap (link type 141, MTP3) with SCCP UDT messages to SSN 6.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 141))
+            for i, tcap in enumerate(tcaps):
+                ssn = bytes([0x42, 6])
+                sccp = (bytes([0x09, 0, 3, 5, 7, 2]) + ssn + bytes([2]) + ssn
+                        + bytes([len(tcap)]) + tcap)
+                pkt = bytes([0x83]) + struct.pack('<I', 100 | (200 << 14)) + sccp
+                f.write(struct.pack('<IIII', 1750000000 + int(i * step), 0, len(pkt), len(pkt)) + pkt)
+
+    @staticmethod
+    def ber(tag, v):
+        n = len(v)
+        ln = bytes([n]) if n < 128 else (bytes([0x81, n]) if n < 256 else bytes([0x82, n >> 8, n & 255]))
+        return bytes([tag]) + ln + v
+
+    def test_tcap_gaps_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is TCAP (SCCP UDT to SSN 6 over MTP3), or GSM MAP for
+        the Ends of the first transactions; nothing is malformed or has a
+        warning or an error expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '-e_ws.col.protocol')
+        assert len(rows) == 19
+        assert [r[1] for r in rows].count('TCAP') == 14
+        assert [r[1] for r in rows].count('GSM MAP') == 5
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_tcap_gaps_transaction_ids(self, cmd_tshark, capture_file, test_env):
+        '''Transaction IDs of one to four octets, and Continue and Abort
+        with IDs of three and four octets.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcap.otid || tcap.dtid',
+                '-etcap.otid', '-etcap.dtid')
+        assert [(r[1], r[2]) for r in rows][:13] == [
+            ('01', ''), ('', '01'), ('0102', ''), ('', '0102'), ('010203', ''), ('', '010203'),
+            ('01020304', ''), ('', '01020304'), ('aabbccdd', ''), ('112233', 'aabbccdd'),
+            ('aabbccdd', '112233'), ('', '112233'), ('', '01020304')]
+
+    def test_tcap_gaps_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameters nested up to 15 levels and a parameter with many
+        types of elements are dissected by TCAP itself without an expert
+        info (the limit is 16 levels).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {14, 15, 16, 17}',
+                '-etcap.invokeID', '-etcap.localValue', '-etcap.param_too_deep')
+        assert [r[1:] for r in rows] == [['1', '46', ''], ['1', '46', ''], ['1', '46', ''], ['1', '46', '']]
+
+    def test_tcap_nesting_limit(self, cmd_tshark, result_file, test_env):
+        '''A parameter nested 40 levels deep ends with the "nested too
+        deeply" expert info (it used to fail the dissection depth
+        assertion).'''
+        ber = self.ber
+        oid = ber(0x06, bytes.fromhex('00118605010101'))
+        param = b'\x05\x00'
+        for _ in range(40):
+            param = ber(0x30, param)
+        aarq = ber(0x60, ber(0xa1, oid))
+        dlg = ber(0x6b, ber(0x28, oid + ber(0xa0, aarq)))
+        inv = ber(0xa1, ber(0x02, b'\x01') + ber(0x02, b'\x2e') + param)
+        msg = ber(0x62, ber(0x48, b'\x01\x02\x03\x04') + dlg + ber(0x6c, inv))
+        pcap = result_file('tcap-depth.pcap')
+        self.mtp3_pcap(pcap, [msg])
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'tcap.param_too_deep',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tParameters nested too deeply, not dissected']
+
+    def test_tcap_srt_chain_limit(self, cmd_tshark, result_file, test_env):
+        '''Begins with the same transaction ID more than 30 seconds apart
+        used to make the SRT matching quadratic; the chain is capped at
+        1000 transactions and the rest get an expert info.'''
+        ber = self.ber
+        oid = ber(0x06, bytes.fromhex('00118605010101'))
+        aarq = ber(0x60, ber(0xa1, oid))
+        dlg = ber(0x6b, ber(0x28, oid + ber(0xa0, aarq)))
+        inv = ber(0xa1, ber(0x02, b'\x01') + ber(0x02, b'\x2e') + b'\x05\x00')
+        msg = ber(0x62, ber(0x48, b'\x77\x77\x77\x77') + dlg + ber(0x6c, inv))
+        pcap = result_file('tcap-chain.pcap')
+        self.mtp3_pcap(pcap, [msg] * 1100, step=31.0)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'tcap.srt_chain_too_long',
+                '-Tfields', '-eframe.number'), encoding='utf-8', env=test_env)
+        numbers = [int(n) for n in stdout.split()]
+        assert len(numbers) == 100
+        assert numbers[0] == 1001 and numbers[-1] == 1100
