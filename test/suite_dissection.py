@@ -145154,3 +145154,99 @@ class TestDissectSynergy:
                 ), encoding='utf-8', env=test_env)
             assert stdout.splitlines() == ['39\tDCLP\t\t309', '40\tDMMV,DMMV\t1,3\t8,8',
                                            '41\tDMMV\t5\t8']
+
+
+class TestDissectSynphasor:
+    '''IEEE C37.118.2 synchrophasor frames (packet-synphasor.c) from the
+    synthetic capture synphasor_coverage.pcapng.gz: header, configuration
+    1, 2 and 3, data and command frames over UDP 4713 (frames 1-69) and TCP
+    4712 (frames 70-79) and an Exported PDU frame (80).'''
+
+    CAP = 'synphasor_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_synphasor_clean(self, cmd_tshark, capture_file, test_env):
+        '''76 of the 80 frames (not the TCP handshake and the first part of a split frame) are dissected, with a good
+        checksum, and none is malformed or has an expert info, in one and
+        two passes.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, cap, test_env, 'synphasor',
+                    ['synphasor.frtype'], *passes)
+            assert len(rows) == 76
+            counts = {t: rows.count(t) for t in set(rows)}
+            assert counts['0x0000'] == 36               # data frames
+            assert counts['0x0001'] == 3 and counts['0x0002'] == 5
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    ['frame.number'], *passes) == []
+            assert self._fields(cmd_tshark, cap, test_env,
+                    'synphasor.checksum.status != 1', ['frame.number'], *passes) == []
+
+    def test_synphasor_data_follows_configuration(self, cmd_tshark, capture_file, test_env):
+        '''A data frame is decoded with the last configuration frame of the
+        same source, destination and station id: the data frames name it,
+        a CFG-2 frame replaces the one before for the same id.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {21, 22, 23, 25, 26}',
+                ['frame.number', 'synphasor.data.conf_frame', 'synphasor.conf.numpmu',
+                 'synphasor.num_phasors', 'synphasor.digital_status_word'])
+        assert rows == [
+            '21\t\t1\t2\t', '22\t21\t\t\t0x0f00', '23\t21\t\t\t0x0f01',
+            '25\t\t1\t2\t', '26\t25\t\t\t0x0f00,0x0f00',
+        ]
+
+    def test_synphasor_config3(self, cmd_tshark, capture_file, test_env):
+        '''CFG-3 frames: station names, service class, window and the
+        unspecified (infinite) latitude.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {54, 58, 60, 62}',
+                ['frame.number', 'synphasor.station_name', 'synphasor.conf.svc_class',
+                 'synphasor.conf.window'])
+        assert rows == [
+            '54\tPMU ONE,PMU TWO\tMonitoring,Monitoring\t4,4',
+            '58\tLONG NAMESLONG NAMESLONG NAMES\tProtection\t4',
+            '60\tSVC CLASS\tMonitoring\t4',
+            '62\tNO CHANNELS\tUnknown\t4',
+        ]
+
+    def test_synphasor_names_sanitized(self, cmd_tshark, capture_file, test_env):
+        '''Names with octets that are not printable ASCII (0xff, 0xfe, 0xc3,
+        0x01, 0x7f) are shown with a "?" instead in the data frames; before
+        "Synphasor: Replace non-printable bytes in channel names" the raw
+        octets ended up in the field values.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {67, 69}', ['frame.number', 'synphasor.phasor'])
+        assert rows == ['67\tV???(1          ,I??A            ', '69\tV???(1,I??A']
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {67, 69}', '-Tfields', '-esynphasor.phasor',
+                '-esynphasor.analog_value'), env=test_env, timeout=120)
+        out.decode('utf-8')           # valid UTF-8
+
+    def test_synphasor_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command frames: the named commands and the extended frame.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'synphasor.command', ['frame.number', 'synphasor.command'])
+        assert [r.split('\t')[1] for r in rows[:6]] == [
+            '0x0001', '0x0002', '0x0003', '0x0004', '0x0005', '0x0006']
+        assert '0x0008' in [r.split('\t')[1] for r in rows]
+
+    def test_synphasor_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Frames in a TCP stream: a header frame, two frames in one
+        segment, a data frame split over two segments (the second segment
+        completes it), a command split over two.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'synphasor && tcp', ['frame.number', 'synphasor.frtype'], '-2')
+        assert [r.split('\t')[0] for r in rows] == ['73', '74', '76', '77', '78', '79']
+
+    def test_synphasor_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU frame naming the dissector.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env, 'exported_pdu',
+                ['frame.number', 'exported_pdu.prot_name', 'synphasor.command'])
+        assert rows == ['80\tsynphasor\t0x0003']
