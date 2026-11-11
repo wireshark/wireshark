@@ -148314,3 +148314,96 @@ class TestDissectTeredo:
                 '-Tfields', '-e_ws.expert.message',
             ), encoding='utf-8', env=test_env, timeout=120)
         assert stdout.strip() == 'Too many nested Teredo headers'
+
+
+class TestDissectTetra:
+    '''TETRA over UDP 7074 (UNITDATA-REQ, UNITDATA-IND and the Done
+    variants, MAC-Timer, unknown commands) and over GSMTAP (UDP 4729),
+    from the synthetic capture tetra_coverage.pcap.gz: 463 TETRA and 185
+    GSMTAP frames with pseudo random PER encoded PDUs on every logical
+    channel type, in one to three channel combinations.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file('tetra_coverage.pcap.gz'),
+                '-Y', flt, '-Tfields', *fields,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tetra_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts, and no malformed packets or error or warning
+        expert infos in one and in two passes.'''
+        protocols = self._fields(cmd_tshark, capture_file, test_env, 'frame',
+                                 '-e_ws.col.protocol')
+        assert len(protocols) == 648
+        assert protocols.count('TETRA') == 463
+        assert protocols.count('GSMTAP') == 185
+        for passes in ((), ('-2',)):
+            frames = self._fields(cmd_tshark, capture_file, test_env,
+                                  '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                                  '-eframe.number', passes=passes)
+            assert count_output('\n'.join(frames)) == 0
+
+    def test_tetra_downlink_info_labels(self, cmd_tshark, capture_file, test_env):
+        '''The downlink D-MM-STATUS and D-ATTACH-DETACH-GROUP-IDENTITY(-ACK)
+        PDUs have the right label in the Info column; before "TETRA: Fix
+        Info column labels of three downlink PDUs" they were labelled as
+        uplink PDUs.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {409, 471, 481}',
+                           '-eframe.number', '-e_ws.col.info')
+        assert out == [
+            '409\tTetra-UNITDATA-IND Done, Carrier: 16, D-ATTACH-DETACH-GROUP-IDENTITY',
+            '471\tTetra-UNITDATA-REQ Done, Carrier: 166, BNCH, '
+            'D-ATTACH-DETACH-GROUP-IDENTITY-ACK',
+            '481\tTetra-UNITDATA-REQ, Carrier: 66, D-MM-STATUS',
+        ]
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'tetra && _ws.col.info contains "U-MM-STATUS"',
+                           '-eframe.number', '-e_ws.col.info')
+        for line in out:
+            assert 'D-MM-STATUS' not in line
+
+    def test_tetra_header(self, cmd_tshark, capture_file, test_env):
+        '''Registers: the channel count and the channel types of
+        UNITDATA-REQ (frames 3 and 4, with three channels) and
+        UNITDATA-IND (frames 6 and 7), the CRC flag and the length word.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {3, 4, 6, 7}', '-eframe.number',
+                           '-etetra.carrier', '-etetra.channels',
+                           '-etetra.txchannel1', '-etetra.txchannel2',
+                           '-etetra.rxchannel1', '-etetra.len0', '-etetra.crc')
+        assert out[0].split('\t')[:4] == ['3', '250', '1', '6']
+        assert out[1].split('\t')[:5] == ['4', '19', '3', '9', '6']
+        assert out[2].split('\t')[:3] == ['6', '154', '1']
+        assert out[2].split('\t')[5:8] == ['5', '8', 'False']
+
+    def test_tetra_commands(self, cmd_tshark, capture_file, test_env):
+        '''MAC-Timer and unknown command types have only the header.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {644, 645, 646, 647}',
+                           '-eframe.number', '-e_ws.col.info')
+        assert out == ['644\tMAC-Timer, Carrier: 7',
+                       '645\tMAC-Timer, Carrier: 7',
+                       '646\tUnknown command: 9',
+                       '647\tUnknown command: 200']
+
+    def test_tetra_no_carrier_number(self, cmd_tshark, capture_file, test_env):
+        '''Without the carrier number preference the Info column has no
+        carrier and the carrier field is absent.'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 644', '-e_ws.col.info', '-etetra.carrier',
+                           opts=('-o', 'tetra.include_carrier_number:FALSE'))
+        assert out == ['MAC-Timer\t']
+
+    def test_tetra_gsmtap(self, cmd_tshark, capture_file, test_env):
+        '''GSMTAP frames reach the TETRA PDU dissector for each sub type
+        with a logical channel (BSCH, AACH, SCH/HU, SCH/HD, SCH/F, BNCH,
+        STCH, TCH/F).'''
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'gsmtap && tetra.pdu', '-eframe.number')
+        assert len(out) > 100
+        out = self._fields(cmd_tshark, capture_file, test_env,
+                           'frame.number == 9', '-e_ws.col.info')
+        assert out == ['BNCH']
