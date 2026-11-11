@@ -2617,7 +2617,8 @@ if(USE_REPOSITORY)
 endif()
 
 if(WIN32 AND SMI_FOUND)
-	# The NSIS installer wants SMI_DIR, which is the base SMI directory.
+	# The NSIS and WiX installers package the SMI modules copied below
+	# if SMI_DIR, the base SMI directory, is set.
 	get_filename_component(SMI_DIR "${SMI_SHARE_DIR}" DIRECTORY)
 
 	# Copy and install the directories of SMI modules (MIBs, PIBs and YANG
@@ -2641,7 +2642,13 @@ if(WIN32 AND SMI_FOUND)
 		cmake_path(SET _snmp_install_dir NORMALIZE "${CMAKE_INSTALL_DATADIR}/snmp")
 	endif()
 	foreach(_mib_dir mibs pibs yang)
-		if(IS_DIRECTORY "${SMI_SHARE_DIR}/${_mib_dir}")
+		# Skip directories without modules: MSYS2's libsmi has only
+		# empty subdirectories in pibs. The installers package what is
+		# copied here.
+		file(GLOB_RECURSE _smi_module_files LIST_DIRECTORIES false
+			"${SMI_SHARE_DIR}/${_mib_dir}/*"
+		)
+		if(_smi_module_files)
 			add_custom_command(TARGET copy_smi_modules PRE_BUILD
 				COMMAND ${CMAKE_COMMAND} -E copy_directory
 					"${SMI_SHARE_DIR}/${_mib_dir}"

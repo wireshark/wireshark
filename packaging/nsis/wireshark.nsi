@@ -1096,9 +1096,8 @@ File "${STAGING_DIR}\plugins\wireshark\${MAJOR_VERSION}.${MINOR_VERSION}\epan\ma
 
 !ifdef SMI_DIR
 SetOutPath '$INSTDIR\snmp'
-File /r "${SMI_DIR}\share\mibs"
-File /r "${SMI_DIR}\share\pibs"
-File /r "${SMI_DIR}\share\yang"
+; The build copies the module directories that have modules here.
+File /r "${STAGING_DIR}\snmp\*.*"
 !include "custom_mibs.txt"
 !endif
 
