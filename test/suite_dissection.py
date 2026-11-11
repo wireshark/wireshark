@@ -149594,3 +149594,206 @@ class TestDissectTlsRecords:
             assert rows[1] == '191\t[Certificate Fragment]'
             assert rows[2] == '192\tChange Cipher Spec'
             assert rows[4] == '194\tClient Hello'
+
+
+class TestDissectTlsUtils:
+    '''Handshake messages and extensions of packet-tls-utils.c: a synthetic
+    capture of plain (never encrypted) TLS handshakes over TCP port 443 and
+    of DTLS over UDP 5684. Frames 1-240 are TLS (three of them plain TCP), 241-247 DTLS.'''
+
+    CAPTURE = 'tls_utils_coverage.pcap.gz'
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args, passes=()):
+        return subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(TestDissectTlsUtils.CAPTURE), *args),
+                encoding='utf-8', env=test_env)
+
+    @staticmethod
+    def have_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
+        return '+zlib' in out
+
+    def test_tls_utils_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no expert infos of Error severity in one
+        and two passes; protocol column counts.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.splitlines()
+        assert len(protocols) == 247
+        assert protocols.count('TLSv1.2') == 162
+        assert protocols.count('TLSv1.3') == 14
+        assert protocols.count('TLSv1.1') == 5
+        assert protocols.count('TLSv1') == 33
+        assert protocols.count('SSLv3') == 11
+        assert protocols.count('TLCP') == 10
+        assert protocols.count('TLS') == 2
+        assert protocols.count('TCP') == 3
+        assert protocols.count('DTLSv1.2') == 5
+        assert protocols.count('DTLS') == 2
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= "Error"',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert count_output(stdout) == 0
+
+    def test_tls_utils_ja3_ja4(self, cmd_tshark, capture_file, test_env):
+        '''JA3, JA4 and JA4_r of a ClientHello with GREASE values, ALPN, an
+        old ALPS extension and a long signature algorithm list (JA4 sorts
+        the cipher suites and extensions); JA3S of the ServerHello.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-etls.handshake.ja3', '-etls.handshake.ja4', '-etls.handshake.ja4_r')
+        assert stdout.splitlines() == [
+            '16798bd597e1f1748dbb9ee170d73223\tt13d1517h2_8daaf6152771_3a857e620055\t'
+            't13d1517h2_002f,0035,009c,009d,1301,1302,1303,c013,c014,c02b,c02c,c02f,c030,cca8,cca9_'
+            '0005,000a,000b,000d,0012,0015,0017,001b,0023,002b,002d,0033,4469,fe0d,ff01_'
+            '0403,0804,0401,0503,0805,0501,0806,0601,0201,0203,0807,0808,0809,0904,0301,0202,0000,0f0f,0105,fe00']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 5',
+                '-Tfields', '-etls.handshake.ja3s')
+        assert len(stdout.strip()) == 32
+
+    def test_tls_utils_ja4_sorted_lists(self, cmd_tshark, capture_file, test_env):
+        '''The ClientHello of frame 240 has 1200 ascending cipher suites and
+        120 extensions in several records; JA4 sorts both lists once
+        before hashing ("TLS: Fix JA4 quadratic sorted insert"). Both counts
+        are capped at 99.'''
+        import hashlib
+        ciphers = [v for v in range(0x0100, 0x0100 + 1500) if (v & 0x0f0f) != 0x0a0a][:1200]
+        cs = ','.join('%04x' % c for c in sorted(ciphers))
+        es = ','.join('%04x' % e for e in range(0x4000, 0x4000 + 120))
+        ja4_b = hashlib.sha256(cs.encode()).hexdigest()[:12]
+        ja4_c = hashlib.sha256(es.encode()).hexdigest()[:12]
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 240',
+                    '-Tfields', '-etls.handshake.ja4', '-etls.handshake.ja4_r', passes=passes)
+            ja4, ja4_r = stdout.strip().split('\t')
+            assert ja4 == 't12i9999' + '00_' + ja4_b + '_' + ja4_c
+            assert ja4_r == 't12i999900_' + cs + '_' + es
+
+    def test_tls_utils_key_exchange(self, cmd_tshark, capture_file, test_env):
+        '''ServerKeyExchange and ClientKeyExchange of every key exchange
+        algorithm: the chosen cipher suite, the curve, the lengths of the
+        DH and RSA values and the expert infos of the algorithms that are
+        not decoded.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'tls.handshake.type == 12 && frame.number <= 180',
+                '-Tfields', '-eframe.number', '-etls.handshake.ciphersuite',
+                '-etls.handshake.server_named_curve', '-etls.handshake.p_len',
+                '-etls.handshake.ys_len', '-etls.handshake.modulus_len',
+                '-etls.handshake.server_point_len')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        got = {int(r[0]): r[1:] for r in rows}
+        assert got[11] == ['0x002f', '', '', '', '64', '']
+        assert got[17] == ['0x0033', '', '64', '64', '', '']
+        assert got[23] == ['0x0032', '', '128', '128', '', '']
+        assert got[29] == ['0x0034', '', '64', '64', '', '']
+        assert got[35] == ['0xc030', '0x0017', '', '', '', '65']
+        assert got[41] == ['0xc02b', '0x0018', '', '', '', '97']
+        assert got[83] == ['0x0090', '', '64', '64', '', '']
+        assert got[89] == ['0xc035', '0x001d', '', '', '', '32']
+        assert got[137][0] == '0xe011'
+        assert got[143][0] == '0x1234'
+        assert got[173] == ['0x0035', '', '', '', '64', '']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'tls.handshake.type == 16 && frame.number <= 190',
+                '-Tfields', '-eframe.number', '-etls.handshake.client_point_len',
+                '-etls.handshake.yc_len', '-etls.handshake.epms_len')
+        got = {int(l.split('\t')[0]): l.split('\t')[1:] for l in stdout.splitlines()}
+        assert got[6] == ['32', '', '']
+        assert got[12] == ['', '', '128']
+        assert got[18] == ['', '64', '']
+        assert got[36] == ['65', '', '']
+        assert got[42] == ['97', '', '']
+        assert got[132] == ['', '', '100']
+        expert = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {114,120,126,138,144,150} && tls.handshake.type == 16',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        msgs = [l.split('\t')[1] for l in expert.splitlines()]
+        assert msgs[:3] == ['SRP_SHA ciphersuites (RFC 5054) are not implemented, contact Wireshark '
+                            'developers if you want them to be supported'] * 3
+        assert 'Cipher Suite 0xe011 is not implemented' in msgs[3]
+        assert 'Cipher Suite 0x1234 is not implemented' in msgs[4]
+        assert msgs[5] == 'Cipher Suite not found'
+
+    def test_tls_utils_handshake_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the TLS 1.3 handshake messages after a
+        HelloRetryRequest and of the message types of frames 192-199.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {193,194,195,197,203,204,205,206,208,209,210}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '193\tHello Request, Server Hello, Certificate, Certificate Status, Server Hello Done',
+            '194\tCertificate Status', '195\tClient Certificate URL',
+            '197\tKey Update, Supplemental Data',
+            '203\tHello Retry Request', '204\tChange Cipher Spec, Client Hello (SNI=www.example.com)',
+            '205\tServer Hello, Change Cipher Spec',
+            '206\tEncrypted Extensions, Certificate, Certificate Request, Certificate Verify, Finished',
+            '208\tNew Session Ticket', '209\tKey Update',
+            '210\tEnd of Early Data, Key Update, Finished']
+
+    def test_tls_utils_quic_transport_parameters(self, cmd_tshark, capture_file, test_env):
+        '''QUIC transport parameters (both extension types, the draft 26
+        and the varint encoding) in an EncryptedExtensions message.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {206,207,230}',
+                '-Tfields', '-eframe.number', '-etls.quic.parameter.max_idle_timeout',
+                '-etls.quic.parameter.initial_max_data', '-etls.quic.parameter.max_udp_payload_size',
+                '-etls.quic.parameter.google.quic_version', '-etls.quic.parameter.vi.chosen_version')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert rows[0][:4] == ['206', '30000,30000', '1048576,1048576', '1472,1472']
+        assert rows[2][:3] == ['230', '30000,0', '1048576,0']
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 207',
+                '-Tfields', '-etls.quic.len', '-etls.quic.parameter.type')
+        assert stdout.strip() == '26\t0,1,4'
+        stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 206',
+                '-Tfields', '-etls.quic.parameter.type')
+        types = stdout.strip().split(',')
+        assert len(types) == 102
+        assert types[:5] == ['0', '1', '2', '3', '4']
+        assert '1113404765106498820' in types and '62' in types
+
+    def test_tls_utils_compressed_certificate(self, cmd_tshark, capture_file, test_env):
+        '''A zlib compressed Certificate is decompressed and dissected; the
+        brotli, zstd and unknown algorithm messages show the algorithm.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'tls.compress_certificate.algorithm',
+                '-Tfields', '-eframe.number', '-etls.compress_certificate.algorithm',
+                '-etls.compress_certificate.uncompressed_length')
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[:2] for r in rows if int(r[0]) >= 213] == [
+            ['213', '1'], ['214', '2'], ['215', '3'], ['216', '9']]
+        if self.have_zlib(cmd_tshark, test_env):
+            stdout = self.tshark(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 213',
+                    '-Tfields', '-etls.handshake.certificate_length')
+            assert stdout.strip() == '293'
+
+    def test_tls_utils_reproducers(self, cmd_tshark, capture_file, test_env):
+        '''Frames 233-238 are the reproducers of "TLS: Fix handshake reassembly
+        asserts and CPU blow-ups": a handshake fragment after a ClientHello
+        that changes the server address, and a ChangeCipherSpec state that
+        differs between passes. They used to abort with a failed assertion
+        (the second one only in the second pass).'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            stdout = self.tshark(cmd_tshark, capture_file, env,
+                    '-Y', 'frame.number >= 233 && frame.number <= 238',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info', passes=passes)
+            rows = stdout.splitlines()
+            assert len(rows) == 6
+            assert rows[0] == '233\tClient Hello'
+            assert rows[1] == '234\t[Certificate Fragment]'
+            assert rows[2] == '235\tChange Cipher Spec'
+            assert rows[4] == '237\tClient Hello'
+
+    def test_tls_utils_connection_id(self, cmd_tshark, capture_file, test_env):
+        '''Many connection_id extensions in one ClientHello (frame 239) and
+        the DTLS Connection ID records of frames 246 and 247 whose CIDs come
+        from the hellos.'''
+        stdout = self.tshark(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 239 || dtls.record.connection_id',
+                '-Tfields', '-eframe.number', '-etls.handshake.extension.type',
+                '-edtls.record.connection_id')
+        rows = stdout.splitlines()
+        assert rows[0].split('\t')[:2] == ['239', ','.join(['54'] * 40)]
+        assert [r.split('\t')[0] for r in rows[1:]] == ['246', '247']
+        assert [r.split('\t')[2] for r in rows[1:]] == ['01020304', '0506']
