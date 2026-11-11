@@ -149162,3 +149162,64 @@ class TestDissectTibia:
                 ['frame.number', '_ws.col.protocol'], *self.OPTS,
                 '-o', 'tibia.reassemble_tcp_segments:FALSE')
         assert len(rows) == 5
+
+
+class TestDissectTime:
+    def test_time_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses on UDP and TCP port 37; the empty UDP
+        request is not dissected. No malformed packets or expert infos in
+        one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('time_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 9
+        assert protocols.count('TIME') == 8
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('time_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_time_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Type and seconds since 1900 of every request and response.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('time_coverage.pcap.gz'),
+                '-Y', 'time',
+                '-Tfields', '-eframe.number', '-etime.response',
+                '-etime.time', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '2\tTrue\t2208988800\tTIME Response',
+            '3\tFalse\t\tTIME Request',
+            '4\tTrue\t3914303400\tTIME Response',
+            '5\tTrue\t0\tTIME Response',
+            '6\tTrue\t4294967295\tTIME Response',
+            '7\tFalse\t\tTIME Request',
+            '8\tTrue\t3914303400\tTIME Response',
+            '9\tTrue\t2209075200\tTIME Response',
+        ]
+
+    def test_time_display_utc(self, cmd_tshark, capture_file, test_env):
+        '''The time display preference set to UTC shows the converted
+        time (independent of the local time zone).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'time.display_time_type:UTC',
+                '-r', capture_file('time_coverage.pcap.gz'),
+                '-Y', 'time.time',
+                '-V', '-O', 'time',
+            ), encoding='utf-8', env=test_env)
+        times = [l.strip() for l in stdout.splitlines()
+                 if l.strip().endswith(' UTC') and 'Arrival' not in l]
+        assert times == [
+            'Jan  1, 1970 00:00:00 UTC',
+            'Jan 15, 2024 10:30:00 UTC',
+            'Feb  7, 2036 06:28:16 UTC',
+            'Feb  7, 2036 06:28:15 UTC',
+            'Jan 15, 2024 10:30:00 UTC',
+            'Jan  2, 1970 00:00:00 UTC',
+        ]
