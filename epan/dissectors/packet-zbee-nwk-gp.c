@@ -16,6 +16,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/proto_data.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
@@ -104,7 +105,7 @@ typedef struct {
     uint32_t mic;
 
     /* Application Payload. */
-    uint8_t payload_len;
+    unsigned payload_len;
 
     /* Source IEEE address from parent */
     uint64_t ieee_packet_src64;
@@ -382,6 +383,7 @@ static int hf_zbee_nwk_gp_cmd_step_up_down_transition_time;
 static expert_field ei_zbee_nwk_gp_no_payload;
 static expert_field ei_zbee_nwk_gp_inval_residual_data;
 static expert_field ei_zbee_nwk_gp_com_rep_no_out_cnt;
+static expert_field ei_zbee_nwk_gp_keyring_full;
 
 /* Proto tree elements. */
 static int ett_zbee_nwk;
@@ -820,6 +822,46 @@ zbee_gp_decrypt_payload(zbee_nwk_green_power_packet *packet, const uint8_t *enc_
     return false;
 }
 
+#define ZBEE_GP_KEYRING_MAX_KEYS 256
+/* proto_data key that marks a frame whose key was refused */
+#define ZBEE_GP_PROTO_DATA_KEYRING_FULL 0
+
+/**
+ *Add a key learned from a commissioning frame to the keyring. Keys are
+ *added only on the first pass, a key already in the keyring is not
+ *added again, and the keyring is capped.
+ *
+ *@param pinfo pointer to packet information fields
+ *@param key the key, ZBEE_SEC_CONST_KEYSIZE bytes.
+*/
+static void
+zbee_gp_keyring_add(packet_info *pinfo, const uint8_t *key)
+{
+    key_record_t key_record;
+    unsigned count = 0;
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        /* Report a key refused on the first pass again */
+        if (p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk_gp, ZBEE_GP_PROTO_DATA_KEYRING_FULL))
+            expert_add_info(pinfo, NULL, &ei_zbee_nwk_gp_keyring_full);
+        return;
+    }
+    for (GSList *l = zbee_gp_keyring; l; l = g_slist_next(l)) {
+        if (memcmp(((key_record_t *)l->data)->key, key, ZBEE_SEC_CONST_KEYSIZE) == 0)
+            return;
+        count++;
+    }
+    if (count >= ZBEE_GP_KEYRING_MAX_KEYS) {
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_nwk_gp, ZBEE_GP_PROTO_DATA_KEYRING_FULL, GUINT_TO_POINTER(1));
+        expert_add_info(pinfo, NULL, &ei_zbee_nwk_gp_keyring_full);
+        return;
+    }
+    key_record.frame_num = 0;
+    key_record.label = NULL;
+    memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
+    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+}
+
 /**
  *Dissector for ZigBee Green Power commissioning.
  *
@@ -941,12 +983,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
                     }
 
                     if (gp_decrypted) {
-                        key_record_t key_record;
-
-                        key_record.frame_num = 0;
-                        key_record.label = NULL;
-                        memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+                        zbee_gp_keyring_add(pinfo, dec_buffer);
 
                         payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                         add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
@@ -955,14 +992,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
             }
             else
             {
-                key_record_t key_record;
-                void *key;
-
-                key_record.frame_num = 0;
-                key_record.label = NULL;
-                key = tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
-                memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
-                zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+                zbee_gp_keyring_add(pinfo, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE));
             }
         }
 
@@ -1484,14 +1514,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
 
         /* Key is present clear, add to the key ring */
         if (!(cr_options & ZBEE_NWK_GP_CMD_COMMISSIONING_REP_OPT_KEY_ENCR)) {
-            key_record_t key_record;
-            void *key;
-
-            key_record.frame_num = 0;
-            key_record.label = NULL;
-            key = tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
-            memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
-            zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+            zbee_gp_keyring_add(pinfo, (const uint8_t *)tvb_memdup(pinfo->pool, tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE));
         }
     }
     /* Parse and display security MIC. */
@@ -1527,12 +1550,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
                 }
 
                 if (gp_decrypted) {
-                    key_record_t key_record;
-
-                    key_record.frame_num = 0;
-                    key_record.label = NULL;
-                    memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+                    zbee_gp_keyring_add(pinfo, dec_buffer);
 
                     payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                     add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
@@ -1567,7 +1585,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, p
     uint16_t mfr_code = ZBEE_MFG_CODE_NONE;
     uint8_t record_list_len;
     unsigned tvb_len;
-    uint8_t i;
+    unsigned i;
 
     static int * const options[] = {
         &hf_zbee_nwk_gp_cmd_read_att_opt_multi_rec,
@@ -1599,7 +1617,7 @@ dissect_zbee_nwk_gp_cmd_read_attributes(tvbuff_t *tvb, packet_info *pinfo _U_, p
         proto_tree_add_item_ret_uint8(subtree, hf_zbee_nwk_gp_cmd_read_att_record_len, tvb, offset, 1, ENC_LITTLE_ENDIAN, &record_list_len);
         offset += 1;
 
-        for(i=0 ; i<record_list_len ; i+=2)
+        for (i = 0; i + 2 <= record_list_len; i += 2)
         {
             /* Dissect the attribute identifier */
             dissect_zcl_attr_id(tvb, subtree, &offset, cluster_id, mfr_code, ZBEE_ZCL_FCF_TO_CLIENT);
@@ -2296,12 +2314,12 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
      * SCOP over TCP, presumably with errors. It's bogus either way; perhaps
      * we should warn.
      */
-    packet.payload_len = tvb_reported_length(tvb) - offset - packet.mic_size;
     /* Ensure that the payload exists. */
-    if (packet.payload_len <= 0) {
+    if (tvb_reported_length(tvb) <= offset + packet.mic_size) {
         proto_tree_add_expert_remaining(nwk_tree, pinfo, &ei_zbee_nwk_gp_no_payload, tvb, 0);
         return offset;
     }
+    packet.payload_len = tvb_reported_length(tvb) - offset - packet.mic_size;
     /* OK, payload exists. Parse MIC field if needed. */
     if (packet.mic_size == 2) {
         packet.mic = tvb_get_letohs(tvb, offset + packet.payload_len);
@@ -2367,6 +2385,7 @@ dissect_zbee_nwk_heur_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (packet == NULL) return false;
 
     /* If the frame type and version are not sane, then it's probably not ZGP. */
+    if (tvb_captured_length(tvb) < 1) return false;
     fcf = tvb_get_uint8(tvb, 0);
     if (zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_VERSION) != ZBEE_VERSION_GREEN_POWER) return false;
     if (!try_val_to_str(zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE), zbee_nwk_gp_frame_types)) return false;
@@ -2910,7 +2929,10 @@ proto_register_zbee_nwk_gp(void)
                 "Invalid residual data", EXPFILL }},
         { &ei_zbee_nwk_gp_com_rep_no_out_cnt,
             { "zbee_nwk_gp.com_rep_no_out_cnt", PI_DEBUG, PI_WARN,
-                "Missing outgoing frame counter", EXPFILL }}
+                "Missing outgoing frame counter", EXPFILL }},
+        { &ei_zbee_nwk_gp_keyring_full,
+            { "zbee_nwk_gp.keyring_full", PI_PROTOCOL, PI_WARN,
+                "Too many keys, not adding more to the keyring", EXPFILL }}
     };
 
     static int *ett[] = {
