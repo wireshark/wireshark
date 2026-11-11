@@ -43,6 +43,12 @@ void proto_register_tcap(void);
 static int proto_tcap;
 
 static expert_field ei_tcap_too_many_components;
+static expert_field ei_tcap_param_too_deep;
+static expert_field ei_tcap_srt_chain_too_long;
+
+#define TCAP_MAX_SRT_CHAIN 1000
+
+#define TCAP_MAX_PARAM_NESTING 16
 static int hf_tcap_tag;
 static int hf_tcap_length;
 static int hf_tcap_data;
@@ -208,7 +214,7 @@ static proto_tree * tcap_stat_tree;
 static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
 
-static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
+static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned depth);
 static bool dissect_tcap_ITU_ComponentPDU(bool implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 static dissector_table_t ansi_sub_dissectors;
@@ -359,7 +365,7 @@ dissect_tcap_OPERATION(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 static unsigned
 dissect_tcap_Parameter(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
-  offset = dissect_tcap_param(actx,tree,tvb,offset);
+  offset = dissect_tcap_param(actx,tree,tvb,offset,0);
 
 
   return offset;
@@ -718,7 +724,7 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(bool implicit_tag _U_, tvbuff_t *tvb _U_, uns
 static unsigned
 dissect_tcap_OrigTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
-  uint8_t len, i;
+  unsigned len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -801,7 +807,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 static unsigned
 dissect_tcap_DestTransactionID(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   tvbuff_t *parameter_tvb;
-  uint8_t len , i;
+  unsigned len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -2081,6 +2087,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *pi;
   proto_item *stat_item=NULL;
   proto_tree *stat_tree=NULL;
+  unsigned chain_len = 0;
 
 #ifdef DEBUG_TCAPSRT
   dbg(51,"src %s srcTid %lx dst %s ", address_to_str(pinfo->pool, &pinfo->src), p_tcapsrt_info->src_tid, address_to_str(pinfo->pool, &pinfo->dst));
@@ -2121,8 +2128,16 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         p_tcaphash_context=p_tcaphash_begincall->context;
         break;
       }
+      chain_len++;
       /* If the last record for Tcap transaction with identifier has not been reached */
       if (!p_tcaphash_begincall->next_begincall) {
+        if (chain_len >= TCAP_MAX_SRT_CHAIN) {
+          /* Bound the work spent walking this chain: no more
+             transactions are tracked for this transaction identifier. */
+          proto_tree_add_expert(tree, pinfo, &ei_tcap_srt_chain_too_long, tvb, 0, 0);
+          p_tcaphash_context = NULL;
+          break;
+        }
         /* check if we have to create a new record or not */
         /* if last request has been responded (response number is known)
            and this request appears after last response (has bigger frame number)
@@ -3459,6 +3474,8 @@ proto_register_tcap(void)
   };
 
   static ei_register_info ei[] = {
+    { &ei_tcap_param_too_deep, { "tcap.param_too_deep", PI_MALFORMED, PI_ERROR, "Parameters nested too deeply, not dissected", EXPFILL }},
+    { &ei_tcap_srt_chain_too_long, { "tcap.srt_chain_too_long", PI_PROTOCOL, PI_WARN, "Too many transactions with the same transaction ID, SRT matching skipped", EXPFILL }},
     { &ei_tcap_too_many_components, { "tcap.too_many_components", PI_UNDECODED, PI_WARN, "Too many components in one message, not dissected", EXPFILL }},
   };
 
@@ -3552,7 +3569,7 @@ static void cleanup_tcap(void)
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, unsigned depth)
 {
   int tag_offset, saved_offset, len_offset;
   tvbuff_t *next_tvb;
@@ -3594,9 +3611,13 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
       if (len - (ind_field ? 2 : 0)) /*should always be positive unless we get an empty constructor pointless? */
       {
         next_tvb = tvb_new_subset_length(tvb, offset, len - (ind_field ? 2 : 0));
-        increment_dissection_depth(actx->pinfo);
-        dissect_tcap_param(actx, subtree,next_tvb,0);
-        decrement_dissection_depth(actx->pinfo);
+        if (depth >= TCAP_MAX_PARAM_NESTING) {
+          proto_tree_add_expert_remaining(subtree, actx->pinfo, &ei_tcap_param_too_deep, next_tvb, 0);
+        } else {
+          increment_dissection_depth(actx->pinfo);
+          dissect_tcap_param(actx, subtree, next_tvb, 0, depth + 1);
+          decrement_dissection_depth(actx->pinfo);
+        }
       }
 
       if (ind_field)
