@@ -2395,7 +2395,8 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		subtree = proto_item_add_subtree(pi, ett_sna_gds);
 		proto_tree_add_item(subtree, hf_sna_gds_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, hf_sna_gds_cont, tvb, offset, 2, ENC_BIG_ENDIAN);
-		if (length < 2 ) /* escape sequence */
+		/* escape sequence; the first LL also covers the 2-byte GDS type */
+		if (length < (first_ll ? 4 : 2))
 			return;
 		offset += 2;
 		length -= 2;
