@@ -143462,3 +143462,70 @@ class TestDissectSrvloc:
                            'srvloc.url.url', 'srvloc.attrrply.attrlist')
         assert rows == ['2\t(x=y)\t\t', '5\t\tservice:x://u2\t',
                         '15\t\t\t(a=1),(b=\u00e9)']
+
+
+class TestDissectSscfNni:
+    '''SSCF-NNI from the synthetic capture sscf_nni_coverage.pcap.gz: SunATM
+    frames of the signalling AAL with SSCOP Sequenced Data PDUs whose payload
+    is SSCF-NNI (OPTS selects it as the SSCOP payload protocol): status PDUs
+    of four octets and MTP3-b messages.'''
+
+    OPTS = ('-o', 'sscop.payload:SSCF-NNI')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sscf_nni_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sscf_nni_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Thirteen SSCF-NNI status PDUs and four MSUs (MTP3 management and
+        SCCP); no malformed packets or error expert infos in one and two
+        passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 17
+        assert protocols.count('SSCF-NNI') == 13
+        assert protocols.count('MTP3MG (Int. ITU)') == 3
+        assert protocols.count('SCCP (Int. ITU)') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sscf_nni_status(self, cmd_tshark, capture_file, test_env):
+        '''Every defined status value, undefined values, and a spare field
+        that is not zero.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'sscf-nni.status', '-Tfields', '-eframe.number',
+                '-esscf-nni.status', '-esscf-nni.spare', '-e_ws.col.info')
+        assert [r[1] for r in rows] == [
+            '0x01', '0x02', '0x03', '0x04', '0x05', '0x06', '0x07', '0x08',
+            '0x09', '0x0a', '0x0b', '0xff', '0x04']
+        assert [r[3].strip() for r in rows] == [
+            'STATUS (Out of Service)', 'STATUS (Processor Outage)',
+            'STATUS (In Service)', 'STATUS (Normal)', 'STATUS (Emergency)',
+            'STATUS (Unknown)', 'STATUS (Alignment Not Successful)',
+            'STATUS (Management Initiated)', 'STATUS (Protocol Error)',
+            'STATUS (Proving Not Successful)', 'STATUS (Unknown)',
+            'STATUS (Unknown)', 'STATUS (Normal)']
+        assert rows[12][2] == '0x001234'
+        assert rows[0][2] == '0x000000'
+
+    def test_sscf_nni_msu(self, cmd_tshark, capture_file, test_env):
+        '''PDUs longer than four octets go to MTP3.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'mtp3', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [(r[0], r[1].strip()) for r in rows] == [
+            ('14', 'SLTM'), ('15', 'SLTA'), ('16', 'SLTM'), ('17', 'UDT'),
+        ]
+
+    def test_sscf_nni_default_preference(self, cmd_tshark, capture_file, test_env):
+        '''Without the preference the payload is dissected as Q.2931 and
+        nothing is SSCF-NNI.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sscf-nni', '-Tfields', '-eframe.number')
+        assert len(rows) == 0
