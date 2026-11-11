@@ -18,6 +18,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/address_types.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
@@ -347,6 +349,11 @@ static int hf_sua_assoc_id;
 
 /* Initialize the subtree pointers */
 static int ett_sua;
+
+static expert_field ei_sua_nesting_too_deep;
+static expert_field ei_sua_parameter_length;
+
+#define SUA_MAX_PARAMETER_NESTING 8
 static int ett_sua_parameter;
 static int ett_sua_source_address_indicator;
 static int ett_sua_destination_address_indicator;
@@ -2114,10 +2121,21 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
 {
   int offset, length, total_length, remaining_length;
   tvbuff_t *parameter_tvb;
+  unsigned nesting = p_get_proto_depth(pinfo, proto_sua);
+
+  if (nesting >= SUA_MAX_PARAMETER_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_sua_nesting_too_deep, parameters_tvb, 0);
+    return;
+  }
+  p_set_proto_depth(pinfo, proto_sua, nesting + 1);
 
   offset = 0;
   while((remaining_length = tvb_reported_length_remaining(parameters_tvb, offset))) {
     length       = tvb_get_ntohs(parameters_tvb, offset + PARAMETER_LENGTH_OFFSET);
+    if (length < PARAMETER_HEADER_LENGTH) {
+      proto_tree_add_expert_remaining(tree, pinfo, &ei_sua_parameter_length, parameters_tvb, offset);
+      break;
+    }
     total_length = WS_ROUNDUP_4(length);
     if (remaining_length >= length)
       total_length = MIN(total_length, remaining_length);
@@ -2134,6 +2152,7 @@ dissect_parameters(tvbuff_t *parameters_tvb, packet_info *pinfo, proto_tree *tre
     /* get rid of the handled parameter */
     offset += total_length;
   }
+  p_set_proto_depth(pinfo, proto_sua, nesting);
 }
 
 static void
@@ -2154,6 +2173,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
 
   message_class = 0;
   message_type = 0;
+  sua_ri = 0;
   drn = 0;
   srn = 0;
 
@@ -2449,6 +2469,11 @@ proto_register_sua(void)
 
   };
 
+  static ei_register_info ei[] = {
+    { &ei_sua_nesting_too_deep, { "sua.nesting_too_deep", PI_PROTOCOL, PI_WARN, "Parameters nested too deeply", EXPFILL }},
+    { &ei_sua_parameter_length, { "sua.parameter_length_invalid", PI_MALFORMED, PI_ERROR, "Parameter length is less than the parameter header", EXPFILL }},
+  };
+  expert_module_t *expert_sua;
   module_t *sua_module;
 
   static const enum_val_t options[] = {
@@ -2464,6 +2489,8 @@ proto_register_sua(void)
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_sua, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sua = expert_register_protocol(proto_sua);
+  expert_register_field_array(expert_sua, ei, array_length(ei));
 
   sua_module = prefs_register_protocol(proto_sua, NULL);
   prefs_register_obsolete_preference(sua_module, "sua_version");
