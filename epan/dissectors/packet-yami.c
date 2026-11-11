@@ -14,7 +14,9 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
@@ -81,6 +83,12 @@ static int ett_yami;
 static int ett_yami_msg_hdr;
 static int ett_yami_msg_data;
 static int ett_yami_param;
+
+static expert_field ei_yami_nesting_too_deep;
+static expert_field ei_yami_header_size;
+
+/* Nested parameters can nest without limit; stop well before the tree depth limit. */
+#define YAMI_MAX_NESTING 32
 
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
@@ -183,7 +191,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			proto_item_append_text(ti, ", Type: binary, Value: %s", repr);
 			offset += WS_ROUNDUP_4(val_len);
-			proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
+			proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset + 4, val_len, val, "%s", repr);
 			break;
 		}
 
@@ -315,7 +323,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 				val = tvb_get_string_enc(pinfo->pool, tvb, offset, val_len, ENC_ASCII | ENC_NA);
 
 				proto_item_append_text(ti, "\"%s\", ", val);
-				proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, offset - val_offset, val);
+				proto_tree_add_string(yami_param, hf_yami_param_value_str, tvb, val_offset, 4 + val_len, val);
 				offset += WS_ROUNDUP_4(val_len);
 			}
 			proto_item_append_text(ti, "}");
@@ -347,7 +355,7 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 				proto_item_append_text(ti, "%s, ", repr);
 				offset += WS_ROUNDUP_4(val_len);
-				proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset, offset - val_offset, val, "%s", repr);
+				proto_tree_add_bytes_format_value(yami_param, hf_yami_param_value_bin, tvb, val_offset + 4, val_len, val, "%s", repr);
 			}
 			proto_item_append_text(ti, "}");
 			break;
@@ -364,14 +372,23 @@ dissect_yami_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 			proto_item_append_text(ti, ", Type: nested, %u parameters: ", count);
 
+			unsigned depth = p_get_proto_depth(pinfo, proto_yami);
+			if (depth >= YAMI_MAX_NESTING) {
+				expert_add_info(pinfo, ti, &ei_yami_nesting_too_deep);
+				return -1;
+			}
+			p_set_proto_depth(pinfo, proto_yami, depth + 1);
 			for (i = 0; i < count; i++) {
 				increment_dissection_depth(pinfo);
 				offset = dissect_yami_parameter(tvb, pinfo, yami_param, offset, ti);
 				decrement_dissection_depth(pinfo);
 				/* smth went wrong */
 				if (offset == -1)
-					return -1;
+					break;
 			}
+			p_set_proto_depth(pinfo, proto_yami, depth);
+			if (offset == -1)
+				return -1;
 			break;
 		}
 
@@ -425,7 +442,7 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	int frame_number;
 	int message_header_size;
 	int frame_payload_size;
-	int frame_size;
+	int64_t frame_size;
 	int offset;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "YAMI");
@@ -445,21 +462,19 @@ dissect_yami_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		proto_item_append_text(ti, "%s", " (last frame)");
 	offset += 4;
 
-	message_header_size = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(yami_tree, hf_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	ti = proto_tree_add_item_ret_int(yami_tree, hf_yami_message_header_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &message_header_size);
 	if (message_header_size < 4) {
-		/* XXX, expert info */
+		expert_add_info(pinfo, ti, &ei_yami_header_size);
 	}
 	offset += 4;
 
-	frame_payload_size = tvb_get_letohl(tvb, offset);
-	ti = proto_tree_add_item(yami_tree, hf_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	frame_size = frame_payload_size + 16;
-	proto_item_append_text(ti, ", (YAMI Frame Size: %d)", frame_size);
+	ti = proto_tree_add_item_ret_int(yami_tree, hf_yami_frame_payload_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &frame_payload_size);
+	frame_size = (int64_t)frame_payload_size + 16;
+	proto_item_append_text(ti, ", (YAMI Frame Size: %" PRId64 ")", frame_size);
 	offset += 4;
 
 	if (frame_number == 1 || frame_number == -1) {
-		if (message_header_size <= frame_payload_size) {
+		if (message_header_size >= 4 && message_header_size <= frame_payload_size) {
 			const int orig_offset = offset;
 
 			offset = dissect_yami_data(tvb, pinfo, false, yami_tree, offset);
@@ -595,8 +610,16 @@ proto_register_yami(void)
 
 	proto_yami = proto_register_protocol("YAMI Protocol", "YAMI", "yami");
 
+	static ei_register_info ei[] = {
+		{ &ei_yami_nesting_too_deep, { "yami.nesting_too_deep", PI_MALFORMED, PI_ERROR, "Nested parameters nested too deeply", EXPFILL }},
+		{ &ei_yami_header_size, { "yami.message_header_size.invalid", PI_MALFORMED, PI_ERROR, "Message header size is smaller than 4", EXPFILL }},
+	};
+	expert_module_t *expert_yami;
+
 	proto_register_field_array(proto_yami, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_yami = expert_register_protocol(proto_yami);
+	expert_register_field_array(expert_yami, ei, array_length(ei));
 
 	yami_module = prefs_register_protocol(proto_yami, NULL);
 	prefs_register_bool_preference(yami_module, "desegment",
