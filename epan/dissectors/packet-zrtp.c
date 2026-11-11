@@ -435,24 +435,26 @@ static void
 dissect_Conf2ACK(packet_info *pinfo) {
 
   /* Signals start of SRT(C)P streams */
-  struct srtp_info *dummy_srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
+  if (!PINFO_FD_VISITED(pinfo)) {
+    struct srtp_info *dummy_srtp_info = wmem_new0(wmem_file_scope(), struct srtp_info);
 
-  dummy_srtp_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
-  dummy_srtp_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;
-  dummy_srtp_info->mki_len = 0;
-  dummy_srtp_info->auth_tag_len = 4;
+    dummy_srtp_info->encryption_algorithm = SRTP_ENC_ALG_AES_CM;
+    dummy_srtp_info->auth_algorithm = SRTP_AUTH_ALG_HMAC_SHA1;
+    dummy_srtp_info->mki_len = 0;
+    dummy_srtp_info->auth_tag_len = 4;
 
-  srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport,
-                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
+    srtp_add_address(pinfo, PT_UDP, &pinfo->net_src, pinfo->srcport, pinfo->destport,
+                     "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
 
-  srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
-                   "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
+    srtp_add_address(pinfo, PT_UDP, &pinfo->net_dst, pinfo->destport, pinfo->srcport,
+                     "ZRTP", pinfo->num, RTP_MEDIA_AUDIO, NULL, dummy_srtp_info, NULL);
 
-  srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,
-                    "ZRTP", pinfo->num, dummy_srtp_info);
+    srtcp_add_address(pinfo, &pinfo->net_src, pinfo->srcport+1, pinfo->destport+1,
+                      "ZRTP", pinfo->num, dummy_srtp_info);
 
-  srtcp_add_address(pinfo, &pinfo->net_dst, pinfo->destport+1, pinfo->srcport+1,
-                    "ZRTP", pinfo->num, dummy_srtp_info);
+    srtcp_add_address(pinfo, &pinfo->net_dst, pinfo->destport+1, pinfo->srcport+1,
+                      "ZRTP", pinfo->num, dummy_srtp_info);
+  }
 
   col_set_str(pinfo->cinfo, COL_INFO, "Conf2ACK Packet");
 }
