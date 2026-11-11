@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/proto_data.h>
 
 #include <wiretap/wtap.h>
@@ -23,6 +24,8 @@ void proto_register_sscop(void);
 void proto_reg_handoff_sscop(void);
 
 static int proto_sscop;
+
+static expert_field ei_sscop_pad_length;
 
 static int hf_sscop_type;
 static int hf_sscop_sq;
@@ -302,6 +305,14 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
      * Compute length of data in PDU - subtract the trailer length
      * and the pad length from the reported length.
      */
+    if (reported_length < (unsigned)(pdu_len + pad_len)) {
+      /* The PDU is shorter than its trailer and pad. Only an SD PDU
+       * hands its payload on, so only report it there. */
+      if (sscop_info.type == SSCOP_SD) {
+        expert_add_info(pinfo, sscop_tree, &ei_sscop_pad_length);
+      }
+      break;
+    }
     reported_length -= (pdu_len + pad_len);
 
     if (reported_length != 0) {
@@ -413,11 +424,17 @@ proto_register_sscop(void)
     &ett_stat
   };
 
+  static ei_register_info ei[] = {
+    { &ei_sscop_pad_length, { "sscop.pad_length_invalid", PI_MALFORMED, PI_ERROR, "PDU is shorter than the trailer and pad length", EXPFILL }},
+  };
+  expert_module_t *expert_sscop;
   module_t *sscop_module;
 
   proto_sscop = proto_register_protocol("SSCOP", "SSCOP", "sscop");
   proto_register_field_array(proto_sscop, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  expert_sscop = expert_register_protocol(proto_sscop);
+  expert_register_field_array(expert_sscop, ei, array_length(ei));
 
   sscop_handle = register_dissector("sscop", dissect_sscop, proto_sscop);
 
