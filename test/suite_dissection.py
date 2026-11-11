@@ -145868,3 +145868,102 @@ class TestDissectT38:
                 '_ws.malformed || _ws.expert.severity >= warning',
                 opts=('-d', 'tcp.port==6000,t38'))
         assert rows == []
+
+
+class TestDissectTacacs:
+    '''TACACS / XTACACS over UDP 49 and TACACS+ over TCP 49 from the
+    synthetic capture tacacs_coverage.pcap.gz. The TACACS+ bodies carry
+    the "unencrypted" flag (an expert warning by design) so that they
+    decode without a key; no key is used and no payload is obfuscated.'''
+
+    def test_tacacs_protocols(self, cmd_tshark, capture_file, test_env):
+        '''82 frames: 15 TACACS, 4 XTACACS, 46 TACACS+ and the TCP
+        handshake and teardown; no malformed packets and no error expert
+        infos, in one and two passes. The only warnings are the
+        "unencrypted payload" of the TACACS+ frames and one "Bogus data".'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tacacs_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 82
+        assert protocols.count('TACACS') == 15
+        assert protocols.count('XTACACS') == 4
+        assert protocols.count('TACACS+') == 46
+        assert protocols.count('TCP') == 17
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tacacs_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tacacs_coverage.pcap.gz'),
+                '-Y', 'tacplus.bogus_data',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['77']
+
+    def test_tacacs_legacy(self, cmd_tshark, capture_file, test_env):
+        '''TACACS login, response and the other types, and XTACACS.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tacacs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 2, 4, 5, 11, 14, 16, 17, 19}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.col.info', '-etacacs.username', '-etacacs.password',
+                '-etacacs.response', '-etacacs.reason',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tTACACS\tLogin\talice\tsecretpw\t\t',
+            '2\tTACACS\tResponse\t\t\t1\t0',
+            '4\tTACACS\tResponse\t\t\t2\t3',
+            '5\tTACACS\tResponse\t\t\t1\t7',
+            '11\tTACACS\tReload\talice\tsecretpw\t\t',
+            '14\tTACACS\tSLIP Addr\talice\tsecretpw\t\t',
+            '16\tXTACACS\tLogin\tbob\tpw123\t0\t0',
+            '17\tXTACACS\tResponse\t\t\t1\t0',
+            '19\tXTACACS\tUnknown (0x42)\tbob\tx\t0\t0',
+        ]
+
+    def test_tacacs_plus_authentication(self, cmd_tshark, capture_file, test_env):
+        '''Authentication START for every authentication type (ASCII, PAP,
+        CHAP, MS-CHAP, ARAP and an unknown one), the replies and the
+        CONTINUE messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tacacs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {23, 24, 25, 26, 29, 30, 34, 42, 43, 44, 45, 49}',
+                '-Tfields', '-eframe.number', '-etacplus.authentication_type',
+                '-etacplus.user', '-etacplus.port', '-etacplus.remote_address',
+                '-etacplus.body_authen_rep.status', '-etacplus.body_authen_rep.server_msg',
+                '-etacplus.body_authen_req_cont.user',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '23\t1\talice\ttty0\t192.0.2.9\t\t\t',
+            '24\t\t\t\t\t0x04\tUsername:\t',
+            '25\t\t\t\t\t\t\talice',
+            '26\t\t\t\t\t0x05\tPassword:\t',
+            '29\t\t\t\t\t\t\t',
+            '30\t\t\t\t\t0x02\tDenied\t',
+            '34\t2\tbob\ttty1\t192.0.2.10\t\t\t',
+            '42\t3\tcarol\tasync1\t\t\t\t',
+            '43\t5\tdave\tasync2\t\t\t\t',
+            '44\t4\terin\tasync3\t\t\t\t',
+            '45\t9\tfrank\t\t\t\t\t',
+            '49\t2\t\t\t\t\t\t',
+        ]
+
+    def test_tacacs_plus_chap_data(self, cmd_tshark, capture_file, test_env):
+        '''CHAP, MS-CHAP and ARAP data of the START packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tacacs_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 43, 44}',
+                '-Tfields', '-eframe.number', '-etacplus.chap.id',
+                '-etacplus.chap.challenge', '-etacplus.mschap.id',
+                '-etacplus.mschap.challenge', '-etacplus.arap.nas_challenge',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '42\t7\tchallenge-bytes\t\t\t',
+            '43\t\t\t9\tmschap-challenge\t',
+            '44\t\t\t\t\tNASCHAL1',
+        ]
