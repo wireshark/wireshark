@@ -347,7 +347,7 @@ dissect_soupbintcp_common(
 
         default:
             /* Unknown */
-            proto_tree_add_item(tree,
+            proto_tree_add_item(soupbintcp_tree,
                                 hf_soupbintcp_message,
                                 tvb, offset, -1, ENC_NA);
             break;
@@ -510,9 +510,9 @@ proto_register_soupbintcp(void)
 
     static ei_register_info ei[] = {
         { &ei_soupbintcp_req_seq_num_invalid, { "soupbintcp.req_seq_num.invalid", PI_MALFORMED, PI_ERROR,
-            "Sequence number of next Sequenced Data message to be delivered is an invalid string", EXPFILL }},
+            "Request to begin (re)transmission is an invalid string", EXPFILL }},
         { &ei_soupbintcp_next_seq_num_invalid, { "soupbintcp.next_seq_num.invalid", PI_MALFORMED, PI_ERROR,
-            "Request to begin (re)transmission is an invalid string", EXPFILL }}
+            "Sequence number of next Sequenced Data message to be delivered is an invalid string", EXPFILL }}
         };
 
     module_t *soupbintcp_module;
