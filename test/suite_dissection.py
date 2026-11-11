@@ -142539,3 +142539,146 @@ class TestDissectSparkplug:
             '3\tSparkplugB\tMissing Edge Node ID',
             '4\tSparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)\t',
         ]
+
+
+class TestDissectSpdy:
+    '''SPDY/3 over TCP 6121, HTTP Upgrade and the (disabled by default)
+    spdy_tcp heuristic, from the synthetic capture spdy_coverage.pcap.gz.
+    Frames 1-116 are the main connection (SETTINGS, header frames of all
+    kinds, DATA bodies with reassembly and content encodings, the control
+    frames), 117-122 a second connection, 123-131 TCP 9999 that only the
+    heuristic decodes, and 132-139 a connection that switches to SPDY with
+    an HTTP Upgrade.'''
+
+    @staticmethod
+    def spdy(cmd_tshark, capture_file, test_env, display_filter, *fields,
+             passes=(), extra=()):
+        args = [cmd_tshark, *passes, *extra, '-r', capture_file('spdy_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    @staticmethod
+    def need_zlib(cmd_tshark, test_env):
+        out = subprocess.check_output((cmd_tshark, '-v'), encoding='utf-8', env=test_env)
+        if 'zlib' not in out.lower():
+            pytest.skip('tshark is built without zlib')
+
+    def test_spdy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame type decodes without malformed packets or error
+        expert infos, in one and two passes.'''
+        self.need_zlib(cmd_tshark, test_env)
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(rows) == 139
+        assert rows.count('SPDY') == 116
+        assert rows.count('HTTP') == 2
+        for passes in ((), ('-2',)):
+            rows = self.spdy(cmd_tshark, capture_file, test_env,
+                             '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                             'frame.number', passes=passes)
+            assert count_output('\n'.join(rows)) == 0
+        types = self.spdy(cmd_tshark, capture_file, test_env, 'spdy', 'spdy.type')
+        for t in ('1', '2', '3', '4', '6', '7', '8', '9', '10'):
+            assert t in ' '.join(types).replace(',', ' ').split()
+
+    def test_spdy_headers_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The decompressed header blocks are found again when a frame is
+        dissected a second time. The first header frame used to fail with
+        "Header decompression failed" with -2.'''
+        self.need_zlib(cmd_tshark, test_env)
+        expected = [
+            '7\t6\t:method,:path,:version,:host,:scheme,accept\t'
+            'GET,/,HTTP/1.1,example.com,https,text/html',
+            '8\t4\t:status,:version,content-type,content-length\t'
+            '200 OK,HTTP/1.1,text/html; charset=utf-8,36',
+            '67\t0\t\t',
+        ]
+        for passes in ((), ('-2',)):
+            rows = self.spdy(cmd_tshark, capture_file, test_env,
+                             'frame.number in {7, 8, 67}', 'frame.number', 'spdy.numheaders',
+                             'spdy.header.name', 'spdy.header.value', passes=passes)
+            assert rows == expected
+            rows = self.spdy(cmd_tshark, capture_file, test_env,
+                             'spdy.inflation_failed', 'frame.number', passes=passes)
+            assert rows == []
+
+    def test_spdy_header_frames_in_one_segment(self, cmd_tshark, capture_file, test_env):
+        '''A SYN_STREAM and a HEADERS frame for the same stream in one TCP
+        segment each keep their own header block.'''
+        self.need_zlib(cmd_tshark, test_env)
+        for passes in ((), ('-2',)):
+            rows = self.spdy(cmd_tshark, capture_file, test_env, 'frame.number == 48',
+                             'frame.number', 'spdy.type', 'spdy.header.name',
+                             'spdy.header.value', passes=passes)
+            assert rows == ['48\t1,8\t:path,x-two\t/p2,in one segment']
+
+    def test_spdy_many_streams(self, cmd_tshark, capture_file, test_env):
+        '''Forty SYN_STREAM and ten SYN_REPLY frames with empty header
+        blocks on different streams decode; every frame is looked up in
+        its own list of header blocks.'''
+        self.need_zlib(cmd_tshark, test_env)
+        rows = self.spdy(cmd_tshark, capture_file, test_env,
+                         'frame.number >= 67 && frame.number <= 116',
+                         'spdy.streamid', 'spdy.numheaders')
+        assert len(rows) == 50
+        assert rows[0] == '101\t0'
+        assert rows[39] == '179\t0'
+        assert rows[40] == '101\t0'
+
+    def test_spdy_goaway_status(self, cmd_tshark, capture_file, test_env):
+        '''The GOAWAY status uses the GOAWAY names, without a stray ")".'''
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('spdy_coverage.pcap.gz'),
+                '-Y', 'spdy.type == 7', '-V', '-O', 'spdy'),
+                encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in out.splitlines() if l.strip().startswith('SPDY: GOAWAY')]
+        assert lines == ['SPDY: GOAWAY Status=OK', 'SPDY: GOAWAY Status=PROTOCOL_ERROR',
+                         'SPDY: GOAWAY Status=INTERNAL_ERROR']
+
+    def test_spdy_settings(self, cmd_tshark, capture_file, test_env):
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'spdy.type == 4',
+                         'spdy.setting.id', 'spdy.setting.value')
+        assert rows == ['1,4,9\t100000,100,7', '7,3\t65536,50']
+
+    def test_spdy_body_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three DATA frames of a request body are reassembled; a deflate
+        body in three frames that ends with an empty FIN frame is
+        reassembled too (it is shown as data: only a body in a single
+        frame is inflated).'''
+        self.need_zlib(cmd_tshark, test_env)
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'spdy.body.reassembled.length',
+                         'frame.number', 'spdy.streamid', 'spdy.body.fragment.count',
+                         'spdy.body.reassembled.length')
+        assert rows == ['13\t3\t3\t24', '23\t7\t3\t139']
+
+    def test_spdy_content_encoding(self, cmd_tshark, capture_file, test_env):
+        '''A gzip body in one DATA frame is inflated; bodies that cannot be
+        (bad gzip, "compress") are shown as data.'''
+        self.need_zlib(cmd_tshark, test_env)
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file('spdy_coverage.pcap.gz'),
+                '-Y', 'spdy.data', '-V', '-O', 'spdy'),
+                encoding='utf-8', env=test_env, timeout=120)
+        assert 'Content-encoded entity body (gzip): 46 bytes -> 420 bytes' in out
+        assert 'Content-encoded entity body (gzip): 28 bytes [Error: Decompression failed]' in out
+        assert 'Content-encoded entity body (compress): 9 bytes [Error: Decompression failed]' in out
+
+    def test_spdy_http_upgrade(self, cmd_tshark, capture_file, test_env):
+        '''After "101 Switching Protocols" with "Upgrade: spdy" the
+        connection carries SPDY.'''
+        self.need_zlib(cmd_tshark, test_env)
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'tcp.stream == 3 && tcp.len > 0',
+                         'frame.number', '_ws.col.protocol', 'spdy.header.value')
+        assert [r.split('\t')[:2] for r in rows] == [
+            ['135', 'HTTP'], ['136', 'HTTP'], ['137', 'SPDY'], ['138', 'SPDY'], ['139', 'SPDY']]
+        assert rows[2].endswith('GET,/upgraded,HTTP/1.1,example.com,https')
+
+    def test_spdy_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''TCP 9999 is plain TCP until the spdy_tcp heuristic is enabled.'''
+        self.need_zlib(cmd_tshark, test_env)
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'tcp.port == 9999 && tcp.len > 0',
+                         '_ws.col.protocol')
+        assert rows == ['TCP'] * 6
+        rows = self.spdy(cmd_tshark, capture_file, test_env, 'tcp.port == 9999 && tcp.len > 0',
+                         '_ws.col.protocol', 'spdy.type', extra=('--enable-heuristic', 'spdy_tcp'))
+        assert [r.split('\t')[0] for r in rows] == ['SPDY'] * 6
