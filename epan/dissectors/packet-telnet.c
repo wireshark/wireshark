@@ -455,7 +455,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
     proto_tree_add_item( tree, hf_tn3270_subopt, tvb, offset, 1, ENC_BIG_ENDIAN );
     switch (cmd) {
       case TN3270_CONNECT:
-            proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len, ENC_ASCII );
+            proto_tree_add_item( tree, hf_tn3270_connect, tvb, offset + 1, len - 1, ENC_ASCII );
             offset += (len - 1);
             len -= (len - 1);
             break;
@@ -463,7 +463,7 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             device_type = tvb_get_uint8(tvb, offset-1);
             if (device_type == TN3270_DEVICE_TYPE) {
                 /* If there is a terminal type to display, then it will be followed by CONNECT */
-                connect_offset = tvb_find_uint8(tvb, offset + 1, len, TN3270_CONNECT);
+                connect_offset = tvb_find_uint8(tvb, offset + 1, len - 1, TN3270_CONNECT);
                 if (connect_offset != -1) {
                   datalen = connect_offset - (offset + 1);
                   if (datalen > 0) {
@@ -476,9 +476,11 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             }
             break;
       case TN3270_REASON:
-            offset++;
-            len--;
-            proto_tree_add_item( tree, hf_tn3270_reason, tvb, offset, 1, ENC_BIG_ENDIAN );
+            if (len > 1) {
+              offset++;
+              len--;
+              proto_tree_add_item( tree, hf_tn3270_reason, tvb, offset, 1, ENC_BIG_ENDIAN );
+            }
             break;
       case TN3270_REQUEST:
             add_tn3270_conversation(pinfo, 1, 0);
@@ -488,9 +490,9 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
               offset += (len - 1);
               len -= (len - 1);
             }else if (device_type == TN3270_FUNCTIONS) {
-              while (len > 0) {
-                rsn = tvb_get_uint8(tvb, offset);
-                proto_tree_add_item( tree, hf_tn3270_request, tvb, offset, 1, ENC_BIG_ENDIAN );
+              while (len > 1) {
+                rsn = tvb_get_uint8(tvb, offset + 1);
+                proto_tree_add_item( tree, hf_tn3270_request, tvb, offset + 1, 1, ENC_BIG_ENDIAN );
                 if (try_val_to_str(rsn, tn3270_request_vals) == NULL)
                     break;
 
@@ -501,7 +503,8 @@ dissect_tn3270e_subopt(packet_info *pinfo _U_, const char *optname _U_, tvbuff_t
             break;
     }
     offset++;
-    len--;
+    if (len > 0)
+      len--;
   }
 
 }
@@ -1191,7 +1194,7 @@ dissect_authentication_data(packet_info *pinfo, tvbuff_t *tvb, int offset, int l
   dissect_authentication_type_pair(pinfo, tvb, offset, tree);
   auth_type = tvb_get_uint8(tvb, offset);
   offset += 2;
-  len -= 2;
+  len = (len >= 2) ? len - 2 : 0;
 
   switch (auth_type) {
   case TN_AT_NULL:
@@ -1230,7 +1233,7 @@ dissect_authentication_subopt(packet_info *pinfo, const char *optname _U_, tvbuf
     break;
 
   case TN_AC_SEND:
-    while(len>0){
+    while(len>=2){
       dissect_authentication_type_pair(pinfo, tvb, offset, tree);
       offset+=2;
       len-=2;
@@ -2069,6 +2072,10 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
       if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
+        if (unescaped_tvb == NULL) {
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption too long (%u bytes)", subneg_len);
+          return offset;
+        }
         (*opt->dissect)(pinfo, opt->name, unescaped_tvb, 0, subneg_len - iac_data, option_tree, option_item);
       } else {
         (*opt->dissect)(pinfo, opt->name, tvb, start_offset, subneg_len, option_tree, option_item);
@@ -2078,6 +2085,10 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
       if (iac_data > 0) {
         /* Data is escaped, we have to unescape it. */
         unescaped_tvb = unescape_and_tvbuffify_telnet_option(pinfo, tvb, start_offset, subneg_len);
+        if (unescaped_tvb == NULL) {
+          expert_add_info_format(pinfo, option_item, &ei_telnet_suboption_length, "Suboption too long (%u bytes)", subneg_len);
+          return offset;
+        }
         proto_tree_add_item(option_tree, hf_telnet_option_data, unescaped_tvb, 0, subneg_len - iac_data, ENC_NA);
       } else {
         proto_tree_add_item(option_tree, hf_telnet_option_data, tvb, start_offset, subneg_len, ENC_NA);
@@ -2227,13 +2238,17 @@ static int find_unescaped_iac(tvbuff_t *tvb, int offset, int len)
 
   /* If we find an IAC (0XFF), make sure it is not followed by another 0XFF.
      Such cases indicate that it is not an IAC at all */
-  while ((iac_offset = tvb_find_uint8(tvb, iac_offset, len, TN_IAC)) != -1 &&
-         (tvb_get_uint8(tvb, iac_offset + 1) == TN_IAC))
-  {
-    iac_offset+=2;
+  while ((iac_offset = tvb_find_uint8(tvb, iac_offset, len, TN_IAC)) != -1) {
+    if (tvb_reported_length_remaining(tvb, iac_offset + 1) <= 0 ||
+        tvb_get_uint8(tvb, iac_offset + 1) != TN_IAC) {
+      return iac_offset;
+    }
+    iac_offset += 2;
     len = tvb_reported_length_remaining(tvb, iac_offset);
+    if (len <= 0)
+      break;
   }
-  return iac_offset;
+  return -1;
 }
 
 static int
