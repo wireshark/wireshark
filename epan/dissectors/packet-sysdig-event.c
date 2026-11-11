@@ -2832,36 +2832,38 @@ static int
 dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, unsigned encoding)
 {
     uint32_t param_count;
+    uint32_t nparams = MIN(syscall_header->nparams, tvb_reported_length(tvb) / SYSDIG_PARAM_SIZE_V2);
     proto_item *ti;
     proto_tree *len_tree;
 
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, nparams * SYSDIG_PARAM_SIZE_V2, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
-    for (param_count = 0; param_count < syscall_header->nparams; param_count++) {
+    for (param_count = 0; param_count < nparams; param_count++) {
         proto_tree_add_item(len_tree, hf_se_param_len, tvb, param_count * SYSDIG_PARAM_SIZE_V2, SYSDIG_PARAM_SIZE_V2, encoding);
     }
 
-    proto_item_set_len(ti, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2);
-    return syscall_header->nparams * SYSDIG_PARAM_SIZE_V2;
+    proto_item_set_len(ti, nparams * SYSDIG_PARAM_SIZE_V2);
+    return nparams * SYSDIG_PARAM_SIZE_V2;
 }
 
 static int
 dissect_header_lens_v2_large(tvbuff_t *tvb, wtap_syscall_header* syscall_header, proto_tree *tree, unsigned encoding)
 {
     uint32_t param_count;
+    uint32_t nparams = MIN(syscall_header->nparams, tvb_reported_length(tvb) / SYSDIG_PARAM_SIZE_V2_LARGE);
     proto_item *ti;
     proto_tree *len_tree;
 
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, 0, nparams * SYSDIG_PARAM_SIZE_V2_LARGE, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
-    for (param_count = 0; param_count < syscall_header->nparams; param_count++) {
+    for (param_count = 0; param_count < nparams; param_count++) {
         proto_tree_add_item(len_tree, hf_se_param_len, tvb, param_count * SYSDIG_PARAM_SIZE_V2_LARGE, SYSDIG_PARAM_SIZE_V2_LARGE, encoding);
     }
 
-    proto_item_set_len(ti, syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE);
-    return syscall_header->nparams * SYSDIG_PARAM_SIZE_V2_LARGE;
+    proto_item_set_len(ti, nparams * SYSDIG_PARAM_SIZE_V2_LARGE);
+    return nparams * SYSDIG_PARAM_SIZE_V2_LARGE;
 }
 
 /* Dissect events */
@@ -2970,14 +2972,21 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     for (cur_col_info = event_col_info; cur_col_info->params; cur_col_info++) {
         if (cur_col_info->event_type == event_type) {
             const struct _event_col_info_param *cur_param = cur_col_info->params;
-            int param_offset = cur_col_info->num_len_fields * 2;
+            unsigned col_len_size = SYSDIG_PARAM_SIZE;
+            if (pinfo->rec->rec_header.syscall_header.record_type == BLOCK_TYPE_SYSDIG_EVENT_V2_LARGE)
+                col_len_size = SYSDIG_PARAM_SIZE_V2_LARGE;
+            else if (pinfo->rec->rec_header.syscall_header.record_type == BLOCK_TYPE_SYSDIG_EVENT_V2)
+                col_len_size = SYSDIG_PARAM_SIZE_V2;
+            unsigned param_offset = cur_col_info->num_len_fields * col_len_size;
 
             /* Find the data offset */
             int cur_len_field;
             for (cur_len_field = 0;
                     cur_len_field < cur_col_info->num_len_fields && cur_param->param_name;
                     cur_len_field++) {
-                unsigned param_len = tvb_get_uint16(tvb, cur_len_field * 2, encoding);
+                unsigned param_len = (col_len_size == SYSDIG_PARAM_SIZE_V2_LARGE) ?
+                    tvb_get_uint32(tvb, cur_len_field * col_len_size, encoding) :
+                    tvb_get_uint16(tvb, cur_len_field * col_len_size, encoding);
                 if (cur_param->param_num == cur_len_field) {
                     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s=", cur_param->param_name);
                     switch (cur_param->param_ftype) {
@@ -2986,6 +2995,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         break;
                     case FT_UINT64:
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%" PRIu64, tvb_get_uint64(tvb, param_offset, encoding));
+                        break;
                     default:
                         break;
                     }
