@@ -1954,10 +1954,12 @@ section_details_set_beam_id(section_details_t *details, unsigned prb, uint16_t b
         return;
     }
     if (!details->beamIds) {
-        details->beamIds = wmem_alloc(wmem_file_scope(), ORAN_MAX_PRBS * sizeof(uint16_t));
+        uint16_t *beam_ids = wmem_alloc_array(wmem_file_scope(), uint16_t, ORAN_MAX_PRBS);
+        /* Keep the scalar fallback active until every entry is initialized. */
         for (unsigned n = 0; n < ORAN_MAX_PRBS; n++) {
-            details->beamIds[n] = section_details_get_beam_id(details, n);
+            beam_ids[n] = section_details_get_beam_id(details, n);
         }
+        details->beamIds = beam_ids;
     }
     details->beamIds[prb] = beam_id;
 }

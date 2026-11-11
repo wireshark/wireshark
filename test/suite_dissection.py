@@ -27756,6 +27756,25 @@ class TestDissectCitp:
             '119\t\t\t\t',
         ]
 
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_citp_multiple_encryption(self, cmd_tshark, cmd_text2pcap, test_env, tmp_path, passes):
+        """Channel blocks use the encryption identifier in effect at their PDU."""
+        def citp(kind, data):
+            body = kind + data
+            return b'CITP\x01\0\0\0' + struct.pack('<IHH', 20 + len(body), 1, 0) + b'SDMX' + body
+
+        channels = citp(b'ChBk', bytes([0, 0]) + struct.pack('<HH', 0, 4) + bytes([1, 2, 3, 4]))
+        payloads = [citp(b'EnId', b'KeyA\0'), channels + citp(b'EnId', b'KeyB\0') + channels]
+
+        hexdump = tmp_path / 'citp_multiple_encryption.txt'
+        hexdump.write_text('\n\n'.join('000000 ' + payload.hex(' ') for payload in payloads) + '\n')
+        capture = tmp_path / 'citp_multiple_encryption.pcapng'
+        subprocess.check_call((cmd_text2pcap, '-T', '40000,4809',
+                str(hexdump), str(capture)), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-o', 'tcp.try_heuristic_first:TRUE', '-r', str(capture),
+                '-Tfields', '-eframe.number', '-ecitp.sdmx.encryption_identifier'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tKeyA', '2\tKeyA,KeyB,KeyB']
+
 
 class TestDissectCl3:
     def test_cl3_protocols(self, cmd_tshark, capture_file, test_env):
@@ -45848,6 +45867,35 @@ class TestDissectDnp3:
                      if l.split() and l.split()[0].isdigit()}
         assert endpoints == {'1': '109', '1024': '102', '1025': '3', '1026': '3',
                              '2': '1', '10': '1', '20': '1'}
+
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_dnp3_colliding_links(self, cmd_tshark, cmd_text2pcap, test_env, tmp_path, passes):
+        """Link addresses that collided when packed retain separate reassemblies."""
+        def dnp_crc(data):
+            crc = 0
+            for octet in data:
+                crc ^= octet
+                for _ in range(8):
+                    crc = (crc >> 1) ^ (0xa6bc if crc & 1 else 0)
+            return struct.pack('<H', crc ^ 65535)
+
+        def dnp(source, transport, payload):
+            data = bytes([transport]) + payload
+            header = b'\x05\x64' + bytes([len(data) + 5, 0xc4]) + struct.pack('<HH', 2, source)
+            blocks = [data[i:i + 16] for i in range(0, len(data), 16)]
+            return header + dnp_crc(header) + b''.join(block + dnp_crc(block) for block in blocks)
+
+        payloads = [dnp(1, 0x40, b'\xc0') + dnp(1025, 0x40, b'\xc0'),
+                    dnp(1, 0x81, b'\x01') + dnp(1025, 0x81, b'\x02')]
+
+        hexdump = tmp_path / 'dnp3_colliding_links.txt'
+        hexdump.write_text('\n\n'.join('000000 ' + payload.hex(' ') for payload in payloads) + '\n')
+        capture = tmp_path / 'dnp3_colliding_links.pcapng'
+        subprocess.check_call((cmd_text2pcap, '-T', '40000,20000',
+                str(hexdump), str(capture)), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(capture),
+                '-Tfields', '-eframe.number', '-ednp3.src', '-ednp3.al.func'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t1,1025\t', '2\t1,1025\t1,2']
 
 
 class TestDissectDnsCoverage:
@@ -72034,10 +72082,8 @@ class TestDissectHciUsb:
     def test_hci_usb_multiframe(self, cmd_tshark, capture_file, test_env):
         '''Several complete HCI packets in one FreeBSD record end their
         reassembly in the same frame number at different layers. On the
-        second pass the lookup by frame number finds a reassembly of
-        another layer: that must not pass a NULL reassembled tvb on to
-        the ACL and event dissectors (the parts are shown as fragments
-        instead).'''
+        second pass each transfer must find its own reassembly and retain
+        the ACL and event decodes.'''
         name = 'hci_usb_coverage_multiframe.pcapng.gz'
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number >= 4',
                             'frame.number', 'frame.protocols', '_ws.col.info',
@@ -72055,8 +72101,9 @@ class TestDissectHciUsb:
                             'frame.number', 'frame.protocols', '_ws.col.info',
                             passes=('-2',), name=name)
         assert rows == [
-            ['4', 'usb:bluetooth:hci_usb:bluetooth:hci_usb:bluetooth:hci_usb', 'Sent Fragment'],
-            ['5', 'usb:bluetooth:hci_usb:bluetooth:hci_usb', 'Rcvd Fragment'],
+            ['4', acl + ':bluetooth:hci_usb:bthci_acl:btl2cap:bluetooth:hci_usb:bthci_acl:btl2cap',
+             'Sent Connection oriented channel'],
+            ['5', evt + ':bluetooth:hci_usb:bthci_evt', 'Rcvd Number of Completed Packets'],
             ['6', 'usb:bluetooth:hci_usb:bluetooth:hci_usb:bthci_acl:btl2cap',
              'Sent Connection oriented channel'],
         ]
@@ -90015,6 +90062,26 @@ class TestDissectLbmc:
         assert '1:10.1.1.1:5000 <-> 2:10.2.2.2:6000 [24592]' in text
         assert '4:10.1.1.1:5000 <-> 4:10.2.2.2:5000 [32784]' in text
 
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_lbmc_overlapping_property(self, cmd_tshark, cmd_editcap, capture_file,
+                                       test_env, tmp_path, passes):
+        # A small, ordinary property list: make the second key point into
+        # the first key ("flag" -> "lag"). No large strings or counts.
+        capture = tmp_path / 'lbmc_overlap.pcap'
+        subprocess.check_call((cmd_editcap, '-T', 'ether', '-F', 'pcap', '-r',
+            capture_file('lbmc_coverage.pcapng.gz'), str(capture), '6'), env=test_env)
+        packet = bytearray(capture.read_bytes())
+        # PCAP global/record headers are 24/16 bytes; the property table
+        # starts at packet offset 104 and the second key offset is at 120.
+        struct.pack_into('<I', packet, 24 + 16 + 120, 137)
+        packet[24 + 16 + 40:24 + 16 + 42] = b'\0\0'  # UDP checksum omitted
+        capture.write_bytes(packet)
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(capture),
+            '-Tfields', '-elbmc.lbm_msg_properties.hdr.key', '-e_ws.expert.message'),
+            encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'flag\tInvalid LBMC Message Properties key/value offset']
+
 
 class TestDissectLbmpdm:
     '''LBMPDM (29West/Informatica Ultra Messaging Pre-Defined Messages) in
@@ -100957,6 +101024,26 @@ class TestDissectMqtt:
         out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 6',
                           ['mqtt.msg_text'], '-o', 'mqtt.show_msg_as_text:TRUE')
         assert out == ['21.5']
+
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_mqtt_multiple_aliases(self, cmd_tshark, cmd_text2pcap, test_env, tmp_path, passes):
+        """Topic aliases in the same TCP frame resolve independently on both passes."""
+        def publish(topic, alias):
+            body = struct.pack('!H', len(topic)) + topic + b'\x03\x23' + struct.pack('!H', alias) + b'x'
+            return bytes([0x30, len(body)]) + body
+
+        connect = b'\x10\x0e\x00\x04MQTT\x05\x02\x00\x3c\x00\x00\x01c'
+        payloads = [connect, publish(b'alpha', 1) + publish(b'beta', 2),
+                    publish(b'', 1) + publish(b'', 2)]
+
+        hexdump = tmp_path / 'mqtt_multiple_aliases.txt'
+        hexdump.write_text('\n\n'.join('000000 ' + payload.hex(' ') for payload in payloads) + '\n')
+        capture = tmp_path / 'mqtt_multiple_aliases.pcapng'
+        subprocess.check_call((cmd_text2pcap, '-T', '40000,1883',
+                str(hexdump), str(capture)), env=test_env)
+        stdout = subprocess.check_output((cmd_tshark, *passes, '-r', str(capture),
+                '-Tfields', '-eframe.number', '-emqtt.topic'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t', '2\talpha,beta', '3\talpha,beta']
 
 
 class TestDissectMqttsn:
@@ -113501,6 +113588,28 @@ class TestDissectOranCoverage:
         stdout = self.run_tshark(cmd_tshark, str(capture), test_env, '-V', '-O', 'oran_fh_cus')
         assert 'section reMask' not in stdout
         assert 'should not appear in ST 6' in stdout
+
+    @pytest.mark.parametrize('passes', [(), ('-2',)])
+    def test_oran_sparse_beam_ids(self, cmd_tshark, cmd_editcap, capture_file, test_env, tmp_path, passes):
+        # SE 6 selects only the first two PRBs for SE 11. The other two
+        # retain the section's scalar beam ID when the array is allocated.
+        capture = tmp_path / 'oran_sparse_beams.pcap'
+        subprocess.check_call((cmd_editcap, '-F', 'pcap', '-r',
+                capture_file('oran_fixes_coverage.pcap.gz'), str(capture), '5', '7'), env=test_env)
+        data = capture.read_bytes()
+        length = struct.unpack_from('<I', data, 24 + 8)[0]
+        control = bytearray(data[40:40 + 38] + bytes.fromhex('86022000000100010b00028002008200'))
+        control[16:18] = struct.pack('!H', len(control) - 18)
+        user = bytearray(data[40 + length + 16:])
+        user[25] = 0  # Match the control section's slot.
+        packets = data[:24]
+        for index, packet in enumerate((control, user)):
+            packets += struct.pack('<IIII', index + 1, 0, len(packet), len(packet)) + packet
+        capture.write_bytes(packets)
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+            '-r', str(capture), '-Y', 'frame.number == 2',
+            '-Tfields', '-eoran_fh_cus.beamId'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['130,130,9,9']
 
 
 class TestDissectOsc:

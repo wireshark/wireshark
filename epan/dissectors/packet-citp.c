@@ -921,6 +921,8 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     uint32_t count;
     uint32_t univ_num; const uint8_t *name;
     unsigned offset = 0;
+    unsigned pdu_idx = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_citp_sdmx, 0));
+    p_set_proto_data(pinfo->pool, pinfo, proto_citp_sdmx, 0, GUINT_TO_POINTER(pdu_idx + 1));
     col_append_str(pinfo->cinfo, COL_PROTOCOL, "/SDMX");
     /* Clear the info column */
     col_clear(pinfo->cinfo, COL_INFO);
@@ -985,15 +987,15 @@ dissect_sdmx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
             col_add_fstr(pinfo->cinfo, COL_INFO, "ChBk, %s, Universe %d, Channels %d-%d", tfs_get_string(blind, &tfs_live_blind), univ_num, start_chan+1, start_chan+count);
 
-            /* Use the encryption that applied when the frame was first seen */
+            /* Use the encryption that applied to this PDU on the first pass. */
             char* enc_info;
             if (!PINFO_FD_VISITED(pinfo)) {
                 enc_info = get_conversation_encryption(pinfo);
                 if (enc_info != NULL) {
-                    p_add_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, 0, enc_info);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, pdu_idx, enc_info);
                 }
             } else {
-                enc_info = (char*)p_get_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, 0);
+                enc_info = (char*)p_get_proto_data(wmem_file_scope(), pinfo, proto_citp_sdmx, pdu_idx);
             }
             if (enc_info != NULL) {
                 proto_tree_add_item(sdmx_tree, hf_citp_sdmx_encrypted_channel_data, tvb, offset, count, ENC_NA);

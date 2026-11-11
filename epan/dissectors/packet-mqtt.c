@@ -511,8 +511,10 @@ static dissector_handle_t mqtt_handle;
 static heur_dissector_list_t mqtt_topic_subdissector;
 
 /* Initialize the protocol and registered fields */
-#define MQTT_PROTO_DATA_TOPIC   0
-#define MQTT_PROTO_DATA_VERSION 1
+typedef struct {
+  uint8_t version;
+  char *topic;
+} mqtt_pdu_data_t;
 
 static int proto_mqtt;
 
@@ -937,6 +939,9 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   uint32_t    mqtt_msgid;
   conversation_t *conv;
   mqtt_conv_t *mqtt;
+  mqtt_conv_t saved_mqtt;
+  mqtt_pdu_data_t *pdu_data;
+  unsigned pdu_idx = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mqtt, 0));
   mqtt_properties_t mqtt_properties = { 0 };
   mqtt_properties_t mqtt_will_properties = { 0 };
   unsigned    offset = 0;
@@ -991,6 +996,9 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   };
 
   /* Extract the message ID */
+  /* A TCP frame may contain several PDUs, including reassembled PDUs. */
+  p_set_proto_data(pinfo->pool, pinfo, proto_mqtt, 0, GUINT_TO_POINTER(pdu_idx + 1));
+
   mqtt_fixed_hdr = tvb_get_uint8(tvb, offset);
   mqtt_msg_type = mqtt_fixed_hdr >> 4;
 
@@ -1019,18 +1027,20 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   /* Add the type to the MQTT tree item */
   proto_item_append_text(mqtt_tree, ", %s", val_to_str_ext(pinfo->pool, mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
 
-  /* The protocol version is conversation state that later frames change;
-   * remember the value seen at this frame and restore it on later passes. */
+  /* Save each PDU's initial state, including an unresolved topic alias. */
   if (!PINFO_FD_VISITED(pinfo))
   {
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_VERSION,
-                     GUINT_TO_POINTER((unsigned)mqtt->runtime_proto_version + 1));
+    pdu_data = wmem_new0(wmem_file_scope(), mqtt_pdu_data_t);
+    pdu_data->version = mqtt->runtime_proto_version;
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_mqtt, pdu_idx, pdu_data);
   }
   else
   {
-    unsigned saved_ver = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_VERSION));
-    if (saved_ver != 0)
-      mqtt->runtime_proto_version = (uint8_t)(saved_ver - 1);
+    pdu_data = (mqtt_pdu_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mqtt, pdu_idx);
+    saved_mqtt = *mqtt;
+    mqtt = &saved_mqtt;
+    if (pdu_data != NULL)
+      mqtt->runtime_proto_version = pdu_data->version;
   }
 
   if ((mqtt_msg_type != MQTT_CONNECT) && (mqtt->runtime_proto_version == 0))
@@ -1214,14 +1224,11 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             {
               topic = (char *)wmem_map_lookup(mqtt->topic_alias_map, GUINT_TO_POINTER(mqtt_properties.topic_alias));
             }
-            /* Remember what this frame resolved to, later passes
-             * must not see aliases redefined by later frames. */
-            if (topic != NULL)
-              p_add_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_TOPIC, topic);
+            pdu_data->topic = topic;
           }
-          else
+          else if (pdu_data != NULL)
           {
-            topic = (char *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mqtt, MQTT_PROTO_DATA_TOPIC);
+            topic = pdu_data->topic;
           }
 
           if (mqtt_str_len == 0)

@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
+#include <epan/proto_data.h>
 
 #include "packet-bluetooth.h"
 #include "packet-usb.h"
@@ -47,6 +48,7 @@ static int hf_msg_reassembled_length;
 static wmem_tree_t *fragment_info_table;
 
 static reassembly_table hci_usb_reassembly_table;
+static uint32_t next_reassembly_id;
 
 static dissector_handle_t hci_usb_handle;
 static dissector_handle_t bthci_cmd_handle;
@@ -57,6 +59,7 @@ static dissector_handle_t bthci_sco_handle;
 typedef struct _fragment_info_t {
     int remaining_length;
     int fragment_id;
+    uint32_t reassembly_id;
 } fragment_info_t;
 
 static const fragment_items hci_usb_msg_frag_items = {
@@ -106,6 +109,8 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bluetooth_data_t  *bluetooth_data;
     int                p2p_dir_save;
     uint32_t           session_id;
+    uint32_t           reassembly_id = 0;
+    unsigned           pdu_idx;
     fragment_head     *reassembled;
 
     bluetooth_data = (bluetooth_data_t *) data;
@@ -116,6 +121,9 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     DISSECTOR_ASSERT(bluetooth_data->previous_protocol_data_type == BT_PD_URB_INFO);
     urb = bluetooth_data->previous_protocol_data.urb;
+
+    pdu_idx = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_hci_usb, 0));
+    p_set_proto_data(pinfo->pool, pinfo, proto_hci_usb, 0, GUINT_TO_POINTER(pdu_idx + 1));
 
     titem = proto_tree_add_item(tree, proto_hci_usb, tvb, offset, -1, ENC_NA);
     ttree = proto_item_add_subtree(titem, ett_hci_usb);
@@ -175,6 +183,9 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         if (fragment_info->fragment_id == 0) {
+            /* Each HCI packet needs its own completed-reassembly key, even
+             * when several transfers share one USB capture record. */
+            fragment_info->reassembly_id = ++next_reassembly_id;
             switch(urb->transfer_type)
             {
             case URB_CONTROL:
@@ -189,10 +200,12 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
+        reassembly_id = fragment_info->reassembly_id;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_hci_usb, pdu_idx, GUINT_TO_POINTER(reassembly_id));
         fragment_info->remaining_length -= tvb_reported_length_remaining(tvb, offset);
 
         fragment_add_seq_check(&hci_usb_reassembly_table,
-                               tvb, offset, pinfo, session_id, NULL,
+                               tvb, offset, pinfo, reassembly_id, NULL,
                                fragment_info->fragment_id, tvb_reported_length_remaining(tvb, offset), (fragment_info->remaining_length == 0) ? false : true);
         if (fragment_info->remaining_length > 0)
             fragment_info->fragment_id += 1;
@@ -200,7 +213,10 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             fragment_info->fragment_id = 0;
     }
 
-    reassembled = fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, session_id);
+    if (PINFO_FD_VISITED(pinfo)) {
+        reassembly_id = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_hci_usb, pdu_idx));
+    }
+    reassembled = reassembly_id ? fragment_get_reassembled_id(&hci_usb_reassembly_table, pinfo, reassembly_id) : NULL;
     if (reassembled && (pinfo->num < reassembled->reassembled_in ||
             (pinfo->num == reassembled->reassembled_in &&
              pinfo->curr_layer_num != reassembled->reas_in_layer_num))) {
@@ -249,6 +265,12 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pinfo->p2p_dir = p2p_dir_save;
 
     return offset;
+}
+
+static void
+hci_usb_init(void)
+{
+    next_reassembly_id = 0;
 }
 
 void
@@ -356,6 +378,7 @@ proto_register_hci_usb(void)
 
     reassembly_table_register(&hci_usb_reassembly_table,
                           &addresses_reassembly_table_functions);
+    register_init_routine(hci_usb_init);
     fragment_info_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_hci_usb = proto_register_protocol("Bluetooth HCI USB Transport", "HCI_USB", "hci_usb");
