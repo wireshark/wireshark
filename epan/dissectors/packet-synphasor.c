@@ -504,6 +504,16 @@ static const range_string command_names[] = {
  * functions
  ******************************************************************************/
 
+/* Names are raw bytes from the packet and end up as FT_STRING values and in
+   labels, so replace anything that is not printable ASCII. */
+static void sanitize_name(char *name)
+{
+	for (; *name != '\0'; name++) {
+		if ((unsigned char)*name < 0x20 || (unsigned char)*name > 0x7e)
+			*name = '?';
+	}
+}
+
 /* read in the size length for names found in config 3 frames
    0 - no name
    1-255 - length of name
@@ -580,6 +590,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 		/* copy the station name from the tvb to block, and add NULL byte */
 		tvb_memcpy(tvb, block.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 		block.name[CHNAM_LEN] = '\0';
+		sanitize_name(block.name);
 		block.cfg_frame_type = 2;
 		block.id = tvb_get_ntohs(tvb, offset); offset += 2;
 
@@ -607,6 +618,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 			/* copy the phasor name from the tvb, and add NULL byte */
 			tvb_memcpy(tvb, pi.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 			pi.name[CHNAM_LEN] = '\0';
+			sanitize_name(pi.name);
 
 			conv = tvb_get_ntohl(tvb, phunit + 4 * i);
 			pi.unit = conv & 0xFF000000 ? A : V;
@@ -625,6 +637,7 @@ static config_frame *config_frame_fast(tvbuff_t *tvb)
 			/* copy the phasor name from the tvb, and add NULL byte */
 			tvb_memcpy(tvb, ai.name, offset, CHNAM_LEN); offset += CHNAM_LEN;
 			ai.name[CHNAM_LEN] = '\0';
+			sanitize_name(ai.name);
 
 			conv = tvb_get_ntohl(tvb, anunit + 4 * i);
 			ai.conv = conv;
@@ -709,6 +722,7 @@ static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 		offset += name_length;
 
 		block.name[name_length] = '\0';
+		sanitize_name(block.name);
 		block.cfg_frame_type = 3;
 
 		/* Block ID and Global PMU ID */
@@ -752,6 +766,7 @@ static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 				offset += name_length;
 
 				pi[i].name[name_length] = '\0';
+				sanitize_name(pi[i].name);
 			}
 		}
 
@@ -771,6 +786,7 @@ static config_frame * config_3_frame_fast(packet_info *pinfo, tvbuff_t *tvb)
 				offset += name_length;
 
 				ai[i].name[name_length] = '\0';
+				sanitize_name(ai[i].name);
 			}
 		}
 
