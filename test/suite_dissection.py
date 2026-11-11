@@ -144239,3 +144239,70 @@ class TestDissectStarteam:
             '55\tStarTeam', '56\tStarTeam', '57\tStarTeam',
             '64\tTCP', '65\tTCP', '66\tTCP',
         ]
+
+
+class TestDissectStat:
+    '''STAT, the Network Status Monitor protocol (ONC RPC program 100024,
+    found by the RPC over UDP heuristic), from the synthetic capture
+    stat_coverage.pcap.gz.'''
+
+    def test_stat_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 44 frames are STAT, no malformed packets or expert infos,
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('stat_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 44
+            assert protocols.count('STAT') == 44
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('stat_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_stat_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedure names and the fields of MON, UNMON, UNMON_ALL, NOTIFY
+        and the results.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('stat_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 36',
+                '-Tfields', '-eframe.number', '-estat.procedure_v1', '-estat.name',
+                '-estat.mon_id.name', '-estat.my_id.hostname', '-estat.my_id.prog',
+                '-estat.my_id.vers', '-estat.my_id.proc', '-estat.priv',
+                '-estat.stat_res.res', '-estat.stat_res.state', '-estat.state',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['3'][:2] == ['1', 'h']
+        assert info['4'][8:10] == ['0', '1']
+        assert info['16'][8:10] == ['1', '']
+        assert info['17'] == ['2', '', 'client1.example.net',
+                              'server.example.net', '100021', '4', '16',
+                              '000102030405060708090a0b0c0d0e0f', '', '', '']
+        assert info['18'][8:10] == ['0', '3']
+        assert info['28'][10] == '8'
+        assert info['29'][2:7] == ['', 'x', '7', '9', '11']
+        assert info['34'][0] == '6'
+        assert info['33'] == ['6', '', 'client1.example.net', '', '', '', '', '', '', '', '12']
+
+    def test_stat_id_length(self, cmd_tshark, capture_file, test_env):
+        '''The Monitor and My ID items of structures with names of 257 and
+        300 octets have the right size. The length rounding dropped the
+        bits above 0xff before "STAT: Fix the length of the name and ID
+        items" (the sizes were 124 and 24), which also made the
+        second structure start at the wrong offset.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('stat_coverage.pcap.gz'),
+                '-Y', 'frame.number in {37, 39, 41}',
+                '-Tpdml',
+            ), encoding='utf-8', env=test_env)
+        sizes = []
+        for field in stdout.split('<field name="stat.')[1:]:
+            name = field.split('"')[0]
+            if name in ('mon', 'my_id'):
+                sizes.append((name, field.split(' size="')[1].split('"')[0]))
+        assert sizes == [('mon', '540'), ('my_id', '276'), ('my_id', '276'),
+                         ('mon', '328'), ('my_id', '24')]
