@@ -148407,3 +148407,100 @@ class TestDissectTetra:
         out = self._fields(cmd_tshark, capture_file, test_env,
                            'frame.number == 9', '-e_ws.col.info')
         assert out == ['BNCH']
+
+
+class TestDissectTextMedia:
+    @staticmethod
+    def _lines(cmd_tshark, capture_file, test_env):
+        '''Frame number and title of the line-based text item of each frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('text_media_coverage.pcapng.gz'),
+                '-Y', 'data-text-lines',
+                '-V', '-O', 'data-text-lines',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        result = {}
+        frame = None
+        for line in stdout.splitlines():
+            if line.startswith('Frame '):
+                frame = int(line.split(':')[0].split()[1])
+            elif line.startswith('Line-based text data'):
+                result.setdefault(frame, line)
+        return result
+
+    def test_text_media_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The HTTP and SIP frames, the Exported PDUs and the XML frames;
+        no malformed packets or error expert infos in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('text_media_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 69   # 66 on Ethernet, 3 Exported PDUs
+        assert protocols.count('HTTP') == 59
+        assert protocols.count('HTTP/XML') == 3
+        assert protocols.count('TCP') == 3
+        assert protocols.count('SIP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('text_media_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_text_media_types(self, cmd_tshark, capture_file, test_env):
+        '''Every registered media type is dissected as lines and named in
+        the item and the Info column.'''
+        lines = self._lines(cmd_tshark, capture_file, test_env)
+        types = ['text/plain', 'text/richtext', 'text/enriched', 'text/parameters',
+                 'text/html', 'text/xml-external-parsed-entity', 'text/css',
+                 'application/xml-external-parsed-entity', 'text/javascript',
+                 'application/x-javascript', 'application/x-tia-p25-issi',
+                 'application/x-tia-p25-sndcp', 'application/x-ns-proxy-autoconfig',
+                 'text/vnd.sun.j2me.app-descriptor', 'application/vnd.poc.refer-to',
+                 'application/vnd.drm.message', 'application/x-rtsp-udp-packetpair']
+        for t in types:
+            assert any(l == 'Line-based text data: %s (5 lines)' % t for l in lines.values()), t
+        # application/x-wms-logplaystats is handed to the XML dissector
+        assert 34 not in lines
+
+    def test_text_media_line_counts(self, cmd_tshark, capture_file, test_env):
+        '''LF, CR, CRLF and mixed terminators, an empty body line, an
+        unterminated last line, and bodies reassembled from several TCP
+        segments.'''
+        lines = self._lines(cmd_tshark, capture_file, test_env)
+        counts = {f: l.rsplit('(', 1)[1] for f, l in lines.items()}
+        assert counts[38] == '4 lines)'    # LF
+        assert counts[40] == '4 lines)'    # CR
+        assert counts[42] == '6 lines)'    # mixed
+        assert counts[44] == '1 lines)'    # a lone LF
+        assert counts[46] == '1 lines)'    # no terminator
+        assert counts[60] == '300 lines)'
+        assert counts[65] == '200 lines)'  # reassembled body
+
+    def test_text_media_xml(self, cmd_tshark, capture_file, test_env):
+        '''A body longer than 38 octets that starts with "<?xml" (any
+        case) goes to the XML dissector, a shorter one stays line based.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('text_media_coverage.pcapng.gz'),
+                '-Y', 'xml && http',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['34', '50', '52']
+        lines = self._lines(cmd_tshark, capture_file, test_env)
+        assert lines[54] == 'Line-based text data: text/html (2 lines)'
+        assert lines[56] == 'Line-based text data: text/html (1 lines)'
+
+    def test_text_media_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDUs naming data-text-lines have neither a match string
+        nor content info: no media type in the item.'''
+        lines = self._lines(cmd_tshark, capture_file, test_env)
+        assert 67 in lines and 68 in lines
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('text_media_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 67 || frame.number == 68',
+                '-V', '-O', 'data-text-lines',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Line-based text data (4 lines)' in stdout
+        assert 'Line-based text data (1 lines)' in stdout
