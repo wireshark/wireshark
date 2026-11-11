@@ -3064,7 +3064,7 @@ dissect_thrift_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         offset += TBP_THRIFT_LENGTH_LEN;
         method_str = tvb_get_string_enc(pinfo->pool, tvb, offset, str_len, ENC_UTF_8);
         offset += str_len;
-        mtype = tvb_get_uint8(tvb, offset + TBP_THRIFT_LENGTH_LEN + str_len) & THRIFT_BINARY_MESSAGE_MASK;
+        mtype = tvb_get_uint8(tvb, offset) & THRIFT_BINARY_MESSAGE_MASK;
         offset += TBP_THRIFT_TYPE_LEN;
 
         seq_id = tvb_get_ntohil(tvb, offset);
