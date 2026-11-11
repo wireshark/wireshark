@@ -144136,3 +144136,106 @@ class TestDissectStanag4607:
                     *passes)
             assert rows[0] == '77\t' + ','.join(['65535'] * 30)
             assert rows[1] == '78\t65535'
+
+
+class TestDissectStarteam:
+    '''StarTeam over TCP (found by the heuristic, no port) from the
+    synthetic capture starteam_coverage.pcap.gz: requests (every opcode
+    of the table), replies, PDUs split over segments, several PDUs in
+    one segment and traffic that is not StarTeam.'''
+
+    def test_starteam_protocols(self, cmd_tshark, capture_file, test_env):
+        '''69 frames: 44 StarTeam, the rest TCP (handshakes, teardown,
+        the segments of reassembled PDUs and a connection that is not
+        StarTeam); no malformed packets and no error or warning expert
+        infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 69
+        assert protocols.count('StarTeam') == 44
+        assert protocols.count('TCP') == 25
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('starteam_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_starteam_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Opcode names, replies and the odd PDUs: an unknown opcode, a
+        request too short to hold the ID, replies with and without data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 5, 6, 7, 32, 33, 34, 39, 44, 45, 46, 48}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-estarteam.id.command', '-estarteam.ph.psize',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '4\tSRVR_CMD_GET_SESSION_TAG\t1\t38',
+            '5\tReply: 36 bytes\t\t20',
+            '6\tSRVR_CMD_GET_SERVER_PARAMS\t3\t48',
+            '7\tReply: 16 bytes\t\t0',
+            '32\tUnknown (0x7a69)\t31337\t52',
+            '33\tUnknown (0x00)\t0\t38',
+            '34\tReply: 27 bytes | Reply: 33 bytes\t\t11,17',
+            '39\tReply: 2516 bytes\t\t2500',
+            '44\tUnknown (0x00)\t\t0',
+            '45\tUnknown (0x00)\t\t10',
+            '46\tSRVR_CMD_KEY_EXCHANGE_PHASE0\t11\t50',
+            '48\tReply: 24 bytes\t\t8',
+        ]
+
+    def test_starteam_every_opcode(self, cmd_tshark, capture_file, test_env):
+        '''Eight requests per segment, one for every opcode in the table
+        (frames 8-31): 189 distinct opcode names and no unknown ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 8 && frame.number <= 31',
+                '-Tfields', '-estarteam.id.command',
+            ), encoding='utf-8', env=test_env)
+        commands = [c for line in stdout.splitlines() for c in line.split(',')]
+        assert len(commands) == 189
+        assert len(set(commands)) == 189
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 8 && frame.number <= 31',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert 'Unknown' not in stdout
+
+    def test_starteam_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A request over three segments (frames 35-37), a reply over two
+        (38-39), a PDU that starts in the same segment as another and ends
+        in the next (40-41), and a header split after five octets
+        (42-43) are dissected in the frame that completes them.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Y', 'frame.number in {35, 36, 37, 38, 39, 40, 41, 42, 43} && starteam',
+                '-Tfields', '-eframe.number', '-estarteam.id.command',
+                '-estarteam.ph.psize', '-etcp.reassembled.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '37\t2001\t3038\t3074',
+            '39\t\t2500\t2516',
+            '40\t10001\t41\t',
+            '41\t10005\t47\t83',
+            '43\t10011\t50\t86',
+        ]
+
+    def test_starteam_first_response(self, cmd_tshark, capture_file, test_env):
+        '''A connection whose first packet is a reply is found by the
+        heuristic as well (frame 55), and a request whose packet size is
+        not its data size is not StarTeam (frames 64-66).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('starteam_coverage.pcap.gz'),
+                '-Y', 'frame.number in {55, 56, 57, 64, 65, 66}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '55\tStarTeam', '56\tStarTeam', '57\tStarTeam',
+            '64\tTCP', '65\tTCP', '66\tTCP',
+        ]
