@@ -142060,3 +142060,180 @@ class TestDissectSomeip:
         assert stdout.splitlines() == [
             '1\t', '2\tNumber of items (1) outside limit 2-3',
             '3\tNumber of items (5) outside limit 2-3']
+
+
+class TestDissectSomeipSd:
+    '''SOME/IP-SD from the synthetic capture someip_sd_coverage.pcap.gz.
+    SOME/IP has no default port: the SD messages (UDP 30490, frames 1-15
+    and 30) are decoded with Decode As; the SOME/IP messages of frames
+    16-20 and 24-29 (UDP and TCP) are on the ports of the endpoint options
+    of the Offer entries, which SOME/IP-SD registers by itself. Frames
+    21-23 and 26 are TCP.'''
+
+    DECODE_AS = ('-d', 'udp.port==30490,someip')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args, env=None):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('someip_sd_coverage.pcap.gz'),
+                *TestDissectSomeipSd.DECODE_AS,
+            ), encoding='utf-8', env=env or test_env, timeout=120)
+
+    def test_someip_sd_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets and no warnings or errors in
+        one and two passes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 30
+        assert protocols.count('SOME/IP-SD') == 16
+        assert protocols.count('SOME/IP') == 10
+        assert protocols.count('TCP') == 4
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                              '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_someip_sd_info(self, cmd_tshark, capture_file, test_env):
+        '''The entry flags appended to the Info column.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'someipsd',
+                          '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert stdout.splitlines() == [
+            '1\tSOME/IP-SD [Find]',
+            '2\tSOME/IP-SD [Offer]',
+            '3\tSOME/IP-SD [Offer]',
+            '4\tSOME/IP-SD [Offer]',
+            '5\tSOME/IP-SD [Offer]',
+            '6\tSOME/IP-SD [Subscribe]',
+            '7\tSOME/IP-SD [SubscribeNack][SubscribeAck]',
+            '8\tSOME/IP-SD [StopOffer]',
+            '9\tSOME/IP-SD [StopSubscribe]',
+            '10\tSOME/IP-SD ',
+            '11\tSOME/IP-SD [Offer]',
+            '12\tSOME/IP-SD [Offer]',
+            '13\tSOME/IP-SD [Offer]',
+            '14\tSOME/IP-SD [Offer]',
+            '15\tSOME/IP-SD [Offer]',
+            '30\tSOME/IP-SD [Offer]',
+        ]
+
+    def test_someip_sd_entries_and_options(self, cmd_tshark, capture_file, test_env):
+        '''Entry types, option references (one or both ranges, or none),
+        every option type and the endpoints.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'someipsd',
+                          '-Tfields', '-eframe.number', '-esomeipsd.entry.type',
+                          '-esomeipsd.entry.serviceid',
+                          '-esomeipsd.entry.optionsreferenced',
+                          '-esomeipsd.option.type', '-esomeipsd.option.port')
+        lines = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert lines['1'] == ['0x00,0x00,0x00', '0x1234,0xffff,0x1234', 'None,None,None', '', '']
+        assert lines['2'] == ['0x01,0x01', '0x1234,0x4321', '0-2,3-3', '4,4,1,2', '30501,30502']
+        assert lines['3'] == ['0x01', '0x5678', '0-0,2-3', '4,20,36', '30503,30490,30490']
+        assert lines['4'] == ['0x01,0x01', '0x6000,0x6001', '0-1,2-4', '6,6,22,38',
+                              '30601,30602,30603,30490']
+        assert lines['7'] == ['0x07,0x07', '0x1234,0x1234', '0-0,None', '20', '30511']
+        assert lines['10'][0] == '0x02,0x03,0x04,0x05'
+        assert lines['15'] == ['0x01,0x01', '0x4321,0x4321', '0-0,0-0', '4', '30504']
+
+    def test_someip_sd_eventgroup_entry(self, cmd_tshark, capture_file, test_env):
+        '''Subscribe with the initial event request flag and a counter.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 6',
+                          '-Tfields', '-esomeipsd.entry.initialevents',
+                          '-esomeipsd.entry.counter', '-esomeipsd.entry.eventgroupid',
+                          '-esomeipsd.flags.reboot')
+        assert stdout.splitlines() == ['True,False\t0x02,0x00\t0x0010,0xffff\tTrue']
+
+    def test_someip_sd_config_string_long(self, cmd_tshark, capture_file, test_env):
+        '''A configuration string of 300 octets (frame 12, the reproducer
+        of the endless loop fixed by "SOMEIP-SD: Fix endless loop in the
+        configuration option parser") has 150 elements of one octet;
+        another has more than 255 octets of valid elements and an element
+        with non ASCII octets, whose bytes are not shifted by the
+        replacement characters.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'frame.number == 12',
+                              '-Tfields', '-esomeipsd.option.config_string_element')
+            assert len(stdout.strip('\n').split(',')) == 150
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'frame.number == 13',
+                              '-Tfields', '-esomeipsd.option.config_string_element')
+            elements = stdout.strip('\n').split(',')
+            assert len(elements) == 42
+            assert elements[0] == 'k000=vvvvv' and elements[39] == 'k039=vvvvv'
+            assert elements[40] == 'caf��=��'
+            assert elements[41] == 'second=ok'
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'frame.number == 14',
+                              '-Tfields', '-esomeipsd.option.config_string_element')
+            assert stdout == 'a=b,a=b\n'
+
+    def test_someip_sd_registers_ports(self, cmd_tshark, capture_file, test_env):
+        '''The endpoint ports of the Offers are SOME/IP afterwards, in one
+        and two passes: UDP 30501, TCP 30502 (with a message split over
+        two segments and two messages in one segment) and UDP 30601 from an
+        IPv6 option; the "other service" 0xfffe registers nothing.'''
+        expected = [
+            '16\t0x1234\t0x0001\t0x00', '17\t0x1234\t0x0001\t0x80',
+            '18\t0x1234\t0x0002\t0x01', '19\t0x1234\t0x8001\t0x02',
+            '20\t0x1234\t0x0001\t0x81',
+            '24\t0x1234\t0x0003\t0x00', '25\t0x1234\t0x0003\t0x80',
+            '27\t0x1234\t0x0004\t0x00',
+            '28\t0x1234,0x1234\t0x0005,0x8002\t0x80,0x02',
+            '29\t0x6000\t0x0001\t0x00',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'someip && !someipsd', '-Tfields', '-eframe.number',
+                              '-esomeip.serviceid', '-esomeip.methodid',
+                              '-esomeip.messagetype')
+            assert stdout.splitlines() == expected
+        # Ports that are ignored by the preferences are not registered
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-o', 'someipsd.ports.udp.ignore:30501,30601',
+                          '-o', 'someipsd.ports.tcp.ignore:30502',
+                          '-Y', 'someip && !someipsd', '-Tfields', '-eframe.number')
+        assert stdout.split() == []
+
+    def test_someip_sd_stats(self, cmd_tshark, capture_file, test_env):
+        '''The SOME/IP-SD entries statistics tree.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-q', '-z', 'someipsd_entries,tree')
+        rows = [l.split() for l in stdout.splitlines()]
+        def count(prefix):
+            return [int(r[len(prefix.split())]) for r in rows
+                    if ' '.join(r[:len(prefix.split())]) == prefix]
+        assert count('Source Addresses') == [27]
+        assert count('Destination Addresses') == [27]
+        assert count('Offer Service')[0] == 13
+        assert count('Find Service')[0] == 3
+        assert count('Subscribe Eventgroup Nack') == [1, 1]
+        assert count('Stop Subscribe Eventgroup')[0] == 2
+
+    def test_someip_sd_names(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Names from the SOME/IP service, method, eventgroup and client
+        tables are shown in the entries and the header.'''
+        cfg = tmp_path / 'cfg'
+        cfg.mkdir()
+        (cfg / 'SOMEIP_service_identifiers').write_text('"1234","Door Lock"\n"4321","Window"\n')
+        (cfg / 'SOMEIP_method_event_identifiers').write_text('"1234","0001","lock"\n"1234","8001","state"\n')
+        (cfg / 'SOMEIP_eventgroup_identifiers').write_text('"1234","0010","DoorEvents"\n')
+        (cfg / 'SOMEIP_client_identifiers').write_text('"1234","0100","Phone"\n')
+        env = test_env.copy()
+        env['WIRESHARK_CONFIG_DIR'] = str(cfg)
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number in {2, 6, 16, 19}', '-Tfields',
+                          '-eframe.number', '-esomeipsd.entry.servicename',
+                          '-esomeipsd.entry.eventgroupname', '-esomeip.servicename',
+                          '-esomeip.methodname', '-esomeip.clientname', env=env)
+        assert stdout.splitlines() == [
+            '2\tDoor Lock,Window\t\t\t\t',
+            '6\tDoor Lock,Door Lock\tDoorEvents\t\t\t',
+            '16\t\t\tDoor Lock\tlock\tPhone',
+            '19\t\t\tDoor Lock\tstate\t',
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-q', '-z', 'someipsd_entries,tree', env=env)
+        assert 'Service 0x1234 (Door Lock) Version 1.10 Instance 0x0001' in stdout
+        assert 'Eventgroup 0x0010 (DoorEvents)' in stdout
+        assert 'Service 0x1234 (Door Lock) Version 1 Instance 0x0001 Eventgroup 0x0010' in stdout
