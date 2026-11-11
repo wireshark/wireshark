@@ -144407,3 +144407,109 @@ class TestDissectStcsig:
         raw = {int(l.split('\t')[0]): l.split('\t')[2] for l in stdout.splitlines()}
         assert raw[1] == '1149fa0b890f9bc2cc16107dd150e6aadeadbeef'
         assert raw[4] == '2102906272977447c14da9a87379f9abdeadbeef'
+
+
+class TestDissectSteamIhsDiscovery:
+    '''Steam In-Home Streaming discovery (UDP port 27036) from the
+    synthetic capture steam_ihs_discovery_coverage.pcap.gz.'''
+
+    def test_steam_ihs_discovery_frames(self, cmd_tshark, capture_file, test_env):
+        '''52 frames are Steam discovery messages and four, whose
+        signature or length does not match, are shown as UDP. The only
+        expert infos are the warnings for protobuf fields that are not
+        known (frames 6-17 and 50-52) and no frame is malformed, in one
+        and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 56
+            assert protocols.count('STEAMDISCOVER') == 52
+            assert protocols.count('UDP') == 4
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == [str(n) for n in (*range(6, 18), 50, 51, 52)]
+
+    def test_steam_ihs_discovery_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of every message type and result.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                '-Y', 'steam_ihs_discovery',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['1'] == 'Client Discovery Seq=4660'
+        assert info['3'] == 'Client Status from synthetic-host'
+        assert info['18'] == 'Client Offline'
+        assert info['19'] == 'Device Authorization Cancel Request'
+        assert info['20'] == 'Device Authorization Request from Synthetic Phone'
+        assert info['22'] == 'Device Authorization Response Result=0(Success)'
+        assert info['31'] == 'Device Authorization Response Result=99(Unknown)'
+        assert info['32'] == 'Device Streaming Request ID=01020304'
+        assert info['34'] == 'Device Streaming Cancel Request, ID=01020304'
+        assert info['35'] == 'Device Streaming Response ID=01020304 Result=0(Success) Port=27031'
+        assert info['46'] == 'Device Streaming Response ID=01020304 Result=11(PIN Required)'
+        assert info['48'] == 'Device Proof Request'
+        assert info['49'] == 'Device Proof Response'
+        assert info['50'] == 'Unknown Message'
+        assert info['51'] == 'Unknown Message'
+
+    def test_steam_ihs_discovery_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header, discovery, status (users, services, addresses) and
+        streaming fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 32, 35}',
+                '-Tfields', '-eframe.number', '-esteam_ihs_discovery.header_client_id',
+                '-esteam_ihs_discovery.header_msg_type',
+                '-esteam_ihs_discovery.header_instance_id',
+                '-esteam_ihs_discovery.body_discovery_clientids',
+                '-esteam_ihs_discovery.body_status_version',
+                '-esteam_ihs_discovery.body_status_connectport',
+                '-esteam_ihs_discovery.body_status_hostname',
+                '-esteam_ihs_discovery.body_status_enabledservices',
+                '-esteam_ihs_discovery.body_status_user_steamid',
+                '-esteam_ihs_discovery.body_status_user_authkeyid',
+                '-esteam_ihs_discovery.body_status_macaddresses',
+                '-esteam_ihs_discovery.body_status_address.ipv4.local',
+                '-esteam_ihs_discovery.body_status_steam_version',
+                '-esteam_ihs_discovery.body_streamingrequest_maximumresolutionx',
+                '-esteam_ihs_discovery.body_streamingrequest_deviceversion',
+                '-esteam_ihs_discovery.body_streamingresponse_port',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'][:4] == ['1234605616436508552', '0', '659994430685',
+                                 '0x0000000000000001,0xfedcba9876543210,0x0000000000000003']
+        assert info['3'][1] == '1'
+        assert info['3'][4:] == ['5', '27036', 'synthetic-host', '0x0000003f',
+                                 '76561197960287930,76561197960265729', '7,99',
+                                 '02:00:00:00:00:01,02:00:00:00:00:02',
+                                 '192.0.2.5,2001:db8::5', '1698000000', '', '', '']
+        assert info['32'][1] == '5'
+        assert info['32'][-3:-1] == ['1920', '1.2.3']
+        assert info['35'][-1] == '27031'
+
+    def test_steam_ihs_discovery_unknown_fields(self, cmd_tshark, capture_file, test_env):
+        '''A Status body with 100 fields that are not known (frame 6)
+        gives one expert info per field and, since "Steam IHS Discovery:
+        Remove a leftover debug message", nothing on stderr (a ws_message() call
+        printed one line for each of them).'''
+        proc = subprocess.run((cmd_tshark,
+                '-r', capture_file('steam_ihs_discovery_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        assert proc.returncode == 0
+        assert proc.stdout.count('Unknown numeric protobuf field') == 100
+        assert proc.stderr == ''
