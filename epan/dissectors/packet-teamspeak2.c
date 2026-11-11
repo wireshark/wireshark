@@ -686,6 +686,7 @@ static ts2_conversation* ts2_get_conversation(packet_info *pinfo)
         conversation_data = wmem_new(wmem_file_scope(), ts2_conversation);
         conversation_data->last_inorder_server_frame=0; /* sequence number should never be zero so we can use this as an initial number */
         conversation_data->last_inorder_client_frame=0;
+        clear_address(&conversation_data->server_addr);
         conversation_data->server_port=pinfo->srcport;
         conversation_data->server_frag_size=0;
         conversation_data->server_frag_num=0;
@@ -724,7 +725,8 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                 switch(type) {
                     case TS2T_LOGINREQUEST:
                         conversation_data->server_port=pinfo->destport;
-                        copy_address_shallow(&conversation_data->server_addr, &pinfo->dst);
+                        if (!PINFO_FD_VISITED(pinfo))
+                            copy_address_wmem(wmem_file_scope(), &conversation_data->server_addr, &pinfo->dst);
                         break;
                 }
                 break;
@@ -772,7 +774,8 @@ static int dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         proto_tree_add_item(ts2_tree, hf_ts2_nick, tvb, 150, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 
                         conversation_data->server_port=pinfo->destport;
-                        copy_address_shallow(&conversation_data->server_addr, &pinfo->dst);
+                        if (!PINFO_FD_VISITED(pinfo))
+                            copy_address_wmem(wmem_file_scope(), &conversation_data->server_addr, &pinfo->dst);
 
                         break;
                     case TS2T_LOGINREPLY:
