@@ -640,7 +640,7 @@ dissect_smtp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             }
           }
         }
-        else if ((linelen > 5) && (session_state->user_pass_cmd_frame == pinfo->num) ) {
+        else if ((linelen >= 11) && (session_state->user_pass_cmd_frame == pinfo->num) ) {
           proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
                             offset + 5, linelen - 5, ENC_ASCII);
           col_append_str(pinfo->cinfo, COL_INFO,
