@@ -144817,3 +144817,98 @@ class TestDissectSua:
                 '-Y', 'frame.number in {59, 60, 61, 62}', '-Tfields',
                 '-eframe.number', '-esua.parameter_tag')
         assert [len(r[1].split(',')) for r in rows][2:] == [8, 8]
+
+
+class TestDissectSv:
+    # Ethernet frame with a gmIdentity of 3 octets (fails an assertion on
+    # the FT_BYTES gmidData field without "SV: Do not add a string value
+    # to the FT_BYTES gmidData field")
+    GMID_FRAME = bytes.fromhex(
+        '010ccd04000102000000000188ba4000003300000000602980020001a22330'
+        '21800373763182020001830400000001850101870800000000000000008903'
+        '010203')
+
+    @staticmethod
+    def hexdump(data):
+        return ''.join('%06x ' % off + ' '.join('%02x' % b for b in data[off:off + 16]) + '\n'
+                       for off in range(0, len(data), 16))
+
+    def test_sv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is SV and none is malformed or has an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sv_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.splitlines()
+        assert len(protocols) == 10
+        assert protocols.count('IEC61850 Sampled Values') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sv_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sv_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields and ASDU fields, including several ASDUs in one
+        savPdu and several savPdus in one frame.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sv_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esv.appid', '-esv.reserve1.s_bit',
+                '-esv.svID', '-esv.smpCnt', '-esv.confRev', '-esv.smpSynch',
+                '-esv.smpMod', '-esv.gmidentity', '-esv.noASDU', '-esv.smpRate',
+                '-esv.datSet', '-evlan.id',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['1', '0x4000', 'False', 'MU01', '100', '7', '2', '0',
+                            '0x000c29fffe123456', '1', '4000', 'MU01/LLN0$dsSV', '']
+        assert lines[1] == ['2', '0x4001', 'True', 'MU01,MU01,MU01,MU01', '101,102,103,104',
+                            '7,7,7,7', '0,1,2,3', '1,2,0,3', '', '4', '', '', '']
+        assert lines[2][3:6] == ['MU02', '5', '1']
+        assert lines[2][12] == '4'
+        assert lines[6][3:5] == ['MU05,MU06', '1,2']
+        assert lines[6][8] == '0x0011223344556677'
+        assert lines[9][1:2] == ['0xffff']
+        assert lines[9][5] == '4294967295'
+
+    def test_sv_gmidentity_vendor(self, cmd_tshark, capture_file, test_env):
+        '''An EUI-64 gmIdentity with the 0xfffe marker has the vendor OUI.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sv_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esv.gmidentity_manuf',
+                '-Y', 'sv.gmidentity_manuf',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t000c29', '10\t000c29']
+
+    def test_sv_phsmeas(self, cmd_tshark, capture_file, test_env):
+        '''With the PhsMeas preference seqData is decoded as value and
+        quality pairs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sv_coverage.pcap.gz'),
+                '-o', 'sv.decode_data_as_phsmeas:TRUE',
+                '-Tfields', '-eframe.number', '-esv.meas_value',
+                '-esv.meas_quality.validity', '-esv.meas_quality.derived',
+                '-Y', 'frame.number in {1, 4}',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0][1] == '1000,1100,1200,1300,1400,1500,1600,1700'
+        assert lines[0][2] == '0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000,0x00000000'
+        assert lines[1][1] == '0,1000,2000,3000,4000,5000,6000,7000'
+        assert lines[1][3] == 'False,False,False,False,False,False,False,True'
+
+    def test_sv_gmid_length_no_assert(self, cmd_tshark, cmd_text2pcap, result_file, base_env, test_env):
+        '''A gmIdentity that is not 8 octets long is an expert info and
+        must not abort (it asserted on the FT_BYTES field).'''
+        txt = result_file('sv-gmid.txt')
+        pcap = result_file('sv-gmid.pcap')
+        with open(txt, 'w') as f:
+            f.write(self.hexdump(self.GMID_FRAME))
+        subprocess.check_call((cmd_text2pcap, '-l', '1', txt, pcap),
+                env=base_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', pcap, '-Y', 'sv.malformed.gmidentity',
+                '-Tfields', '-eframe.number', '-esv.gmidData',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t010203']
