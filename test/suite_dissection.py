@@ -145087,3 +145087,70 @@ class TestDissectSync:
         sizes = [p.split(' size="')[1].split('"')[0]
                  for p in stdout.split('<proto name="sync"')[1:]]
         assert sizes == ['45019', '32790']
+
+
+class TestDissectSynergy:
+    '''Synergy (TCP port 24800) from the synthetic capture
+    synergy_coverage.pcap.gz.'''
+
+    def test_synergy_protocols(self, cmd_tshark, capture_file, test_env):
+        '''42 synergy frames and the two TCP segments that carry the first
+        two thirds of a split message; no malformed packets or expert
+        infos, in one and two passes. The messages that have no
+        payload carry one padding octet: the dissector adds items of
+        length -1 behind the type, which are malformed at the end of the
+        data.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('synergy_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 44
+            assert protocols.count('synergy') == 42
+            assert protocols.count('TCP') == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('synergy_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_synergy_messages(self, cmd_tshark, capture_file, test_env):
+        '''Handshake versions and client name, packet types, the enter
+        screen message and the clipboard.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('synergy_coverage.pcap.gz'),
+                '-Y', 'synergy',
+                '-Tfields', '-eframe.number', '-esynergy.packet_type',
+                '-esynergy.handshake.majorversion', '-esynergy.handshake.minorversion',
+                '-esynergy.handshake.client', '-esynergy.cinn.x', '-esynergy.cinn.y',
+                '-esynergy.cinn.sequence', '-esynergy.cinn.mask',
+                '-esynergy.clipboarddata.sequence', '-esynergy.clipboarddata.data',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['2'][1:4] == ['1', '6', 'laptop']
+        assert info['4'][1:4] == ['1', '3', 'tablet']
+        assert info['5'][1:4] == ['2', '0', '']
+        assert info['14'][0] == 'CINN'
+        assert info['14'][4:8] == ['100', '200', '77', '3']
+        assert info['17'][8:] == ['79', 'clipboard text from the synthetic client']
+        assert [info[str(n)][0] for n in (6, 7, 9, 10, 11, 12, 13, 15, 16)] == [
+            'CNOP', 'CALV', 'QINF', 'DINF', 'CIAK', 'CROP', 'DSOP', 'COUT', 'CCLP']
+        assert [info[str(n)][0] for n in range(19, 37)] == [
+            'DKDN', 'DKDN', 'DKRP', 'DKRP', 'DKUP', 'DKUP', 'DMDN', 'DMUP', 'DMMV',
+            'DMRM', 'DMWM', 'CSEC', 'EICV', 'EBSY', 'EUNK', 'EBAD', 'XXXX', 'CBYE']
+
+    def test_synergy_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A clipboard message in three segments is reassembled in frame
+        39; two messages and a third that starts in the same segment are
+        all dissected, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('synergy_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {39, 40, 41}',
+                    '-Tfields', '-eframe.number', '-esynergy.packet_type',
+                    '-esynergy.mousemoved.x', '-esynergy.packet_len',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == ['39\tDCLP\t\t309', '40\tDMMV,DMMV\t1,3\t8,8',
+                                           '41\tDMMV\t5\t8']
