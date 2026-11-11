@@ -3452,13 +3452,16 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
             uint8_t group_num;
-            group_num = tvb_get_int8(tvb, offset);
+            group_num = tvb_get_uint8(tvb, offset);
             proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_aps_group_num, tvb, offset++, 1, ENC_NA);
 
             if (group_num)
             {
-                proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_aps_group, tvb, offset, group_num * 2, ENC_LITTLE_ENDIAN);
-                offset += group_num * 2;
+                for (uint8_t g = 0; g < group_num; g++)
+                {
+                    proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_aps_group, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset += 2;
+                }
             }
         }
         break;
@@ -5465,7 +5468,7 @@ void proto_register_zbncp(void)
          {"APS group number", "zbncp.data.aps_group_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_aps_group,
-         {"APS group", "zbncp.data.aps_group", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+         {"APS group", "zbncp.data.aps_group", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_src_endpoint,
          {"Source Endpoint", "zbncp.data.src_endpoint", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -5957,7 +5960,7 @@ void proto_register_zbncp(void)
          {"Packet length", "zbncp.data.pkt_len", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_pkt,
-         {"Packet", "zbncp.data.pkt", FT_UINT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+         {"Packet", "zbncp.data.pkt", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         {&hf_zbncp_data_scan_dur,
          {"Scan Duration", "zbncp.data.scan_dur", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
