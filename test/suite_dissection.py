@@ -139860,3 +139860,123 @@ class TestDissectSmpte211040:
             '18\t12:34:56:07\t',
             '19\t12:34:56:07\t',
         ]
+
+
+class TestDissectSmpte291Vanc:
+    '''The SMPTE ST 291 ancillary data payload dissectors (ST 12-2 time
+    code, ST 2010 SCTE-104 fragments, ST 2016-3 AFD and bar data, ST 334-2
+    caption distribution packets, ST 2031 and OP-47 teletext) from the
+    synthetic capture smpte_291_vanc_coverage.pcapng.gz. A SIP INVITE
+    whose SDP rtpmap is "smpte291" announces two RTP streams (frames
+    2-124); frames 125-132 are Exported PDU frames naming the payload
+    dissectors.'''
+
+    CAP = 'smpte_291_vanc_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_smpte_291_vanc_clean(self, cmd_tshark, capture_file, test_env):
+        '''Per-protocol frame counts; no malformed frame and no warning or
+        error expert info in one and two passes.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            for proto, n in (('st12_2', 18), ('st2010', 13), ('st2016_3', 36),
+                             ('st334_2', 25), ('st2031', 11), ('op47', 10)):
+                assert len(self._fields(cmd_tshark, cap, test_env, proto,
+                        ['frame.number'], *passes)) == n, proto
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    ['frame.number'], *passes) == []
+
+    def test_smpte_291_vanc_st2010_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''ST 2010 messages of one to four fragments are reassembled in
+        the last packet, in one and two passes: a message of 20 + 20 + 5 +
+        10 octets, two of 7 + 7 (on the second stream) and 4 + 4, and the
+        Exported PDU triple (3 + 3).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    'st2010.reassembled.length',
+                    ['frame.number', 'st2010.reassembled.length', 'st2010.fragment.count'],
+                    *passes)
+            assert rows == ['80\t55\t4', '82\t14\t2', '84\t8\t2', '128\t6\t2']
+
+    def test_smpte_291_vanc_time_code(self, cmd_tshark, capture_file, test_env):
+        '''ST 12-2 time codes, with the drop frame separator, and the
+        payload type and VITC flags that are assembled from the data
+        block bytes.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st12_2.timecode && frame.number in {2, 3, 5, 6, 8, 125}',
+                ['frame.number', 'st12_2.timecode', 'st12_2.payload_type',
+                 'st12_2.vitc.line_sel', 'st12_2.vitc.validity'])
+        assert rows == [
+            '2\t12:34:56:07\t0x00\t\t',
+            '3\t23:59:58;29\t0x00\t\t',
+            '5\t01:02:02:01\t0x01\t5\t0',
+            '6\t01:02:02:02\t0x02\t26\t1',
+            '8\t02:03:04:05\t0x03\t\t',
+            '125\t09:08:07:06\t0x00\t\t',
+        ]
+
+    def test_smpte_291_vanc_afd(self, cmd_tshark, capture_file, test_env):
+        '''ST 2016-3: the AFD code and the meaning of the two bar data
+        values for top/bottom and left/right bars.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st2016_3.bar.value1.meaning && frame.number in {18, 20, 50, 51, 129}',
+                ['frame.number', 'st2016_3.afd.code', 'st2016_3.bar.value1.meaning',
+                 'st2016_3.bar.value2.meaning'])
+        assert rows == [
+            '18\t0\tLine number: end of top bar\tLine number: start of bottom bar',
+            '20\t1\tNo valid Bar Data value\tNo valid Bar Data value',
+            '50\t10\tPixel number: end of left bar\tPixel number: start of right bar',
+            '51\t10\tLine number: end of top bar\tLine number: start of bottom bar',
+            '129\t4\tLine number: end of top bar\tLine number: start of bottom bar',
+        ]
+
+    def test_smpte_291_vanc_cdp(self, cmd_tshark, capture_file, test_env):
+        '''ST 334-2: frame rate, cc_count and the DTVCC bytes collected from
+        the valid cc_type 2 and 3 constructs.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st334_2.ccdata.dtvcc && frame.number in {52, 57}',
+                ['frame.number', 'st334_2.cdp.frame_rate', 'st334_2.ccdata.count',
+                 'st334_2.timecode', 'st334_2.cdp.header_sequence',
+                 'st334_2.cdp.footer_sequence', 'st334_2.ccdata.dtvcc'])
+        assert len(rows) == 2
+        assert rows[0].startswith('52\t0x01\t25\t12:34:56:07\t257\t257\t80808181')
+
+    def test_smpte_291_vanc_teletext(self, cmd_tshark, capture_file, test_env):
+        '''ST 2031 and OP-47 teletext: magazine, packet number, page, the
+        text data string and the text data bytes (the bytes were always
+        empty before "SMPTE-291: Show the WST text data bytes").'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {85, 87, 95, 100}',
+                ['frame.number', 'st2031.teletext.magazine', 'st2031.teletext.packet_number',
+                 'st2031.teletext.page_tens', 'st2031.teletext.page_units',
+                 'st2031.teletext.data_string', 'st2031.teletext.text_data',
+                 'op47.wst.data_string', 'op47.wst.text_data'])
+        hdr = 'HEADER 0123456789 TELETEXT PAGE '
+        txt = 'Packet text line of forty characters.   '
+        assert rows == [
+            '85\t1\t0\t0x04\t0x02\t%s\t%s\t\t' % (hdr, hdr.encode().hex()),
+            '87\t1\t1\t\t\t%s\t%s\t\t' % (txt, txt.encode().hex()),
+            '95\t\t\t\t\t\t\t%s\t%s' % (hdr, hdr.encode().hex()),
+            '100\t\t\t\t\t\t\t%s\t%s' % (txt, txt.encode().hex()),
+        ]
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'st2031 && frame.number in {89, 91, 93}',
+                ['frame.number', 'st2031.data_unit_id', 'st2031.teletext.text_data'])
+        assert rows == ['89\t0x02\t', '91\t0xc3\t', '93\t0x02\t']
+
+    def test_smpte_291_vanc_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The Exported PDU frames 125-132 reach the six payload
+        dissectors directly.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env, 'exported_pdu',
+                ['frame.number', 'exported_pdu.prot_name'])
+        assert rows == [
+            '125\tst12_2', '126\tst2010', '127\tst2010', '128\tst2010',
+            '129\tst2016_3', '130\tst334_2', '131\tst2031', '132\top47',
+        ]
