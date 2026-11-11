@@ -152,6 +152,7 @@ static int ett_zbee_aps_t2;
 
 static expert_field ei_zbee_aps_invalid_delivery_mode;
 static expert_field ei_zbee_aps_missing_payload;
+static expert_field ei_zbee_aps_tunnel_depth;
 
 /* Dissector Handles. */
 static dissector_handle_t   zbee_aps_handle;
@@ -1729,11 +1730,14 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
  *@param data raw packet private data.
  *@return offset after command dissection.
 */
+#define ZBEE_APS_MAX_TUNNEL_DEPTH 4
+
 static unsigned
 dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned offset, void *data)
 {
     proto_tree  *root;
     tvbuff_t    *tunnel_tvb;
+    unsigned     depth = p_get_proto_depth(pinfo, proto_zbee_aps);
 
     /* Get and display the destination address. */
     proto_tree_add_item(tree, hf_zbee_aps_cmd_dst, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1742,7 +1746,13 @@ dissect_zbee_aps_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uns
     /* The remainder is a tunneled APS frame. */
     tunnel_tvb = tvb_new_subset_remaining(tvb, offset);
     root = proto_tree_get_root(tree);
+    if (depth >= ZBEE_APS_MAX_TUNNEL_DEPTH) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_zbee_aps_tunnel_depth, tvb, offset);
+        return tvb_captured_length(tvb);
+    }
+    p_set_proto_depth(pinfo, proto_zbee_aps, depth + 1);
     call_dissector_with_data(zbee_aps_handle, tunnel_tvb, pinfo, root, data);
+    p_set_proto_depth(pinfo, proto_zbee_aps, depth);
     offset = tvb_captured_length(tvb);
 
     /* Done */
@@ -2241,6 +2251,7 @@ void proto_register_zbee_aps(void)
     static ei_register_info ei[] = {
         { &ei_zbee_aps_invalid_delivery_mode, { "zbee_aps.invalid_delivery_mode", PI_PROTOCOL, PI_WARN, "Invalid Delivery Mode", EXPFILL }},
         { &ei_zbee_aps_missing_payload, { "zbee_aps.missing_payload", PI_MALFORMED, PI_ERROR, "Missing Payload", EXPFILL }},
+        { &ei_zbee_aps_tunnel_depth, { "zbee_aps.tunnel_depth", PI_PROTOCOL, PI_WARN, "Too many nested APS tunnel commands", EXPFILL }},
     };
 
     register_init_routine(proto_init_zbee_aps);
