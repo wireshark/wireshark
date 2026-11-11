@@ -143529,3 +143529,81 @@ class TestDissectSscfNni:
         rows = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'sscf-nni', '-Tfields', '-eframe.number')
         assert len(rows) == 0
+
+
+class TestDissectSscop:
+    '''SSCOP from the synthetic capture sscop_coverage.pcap.gz: SunATM
+    frames of the signalling AAL (type 0x06), which the ATM dissector hands
+    to SSCOP; the Sequenced Data payloads are Q.2931 messages.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sscop_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sscop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''35 frames: SSCOP PDUs and eight Sequenced Data PDUs with a Q.2931
+        message; no malformed packets or error expert infos in one and two
+        passes. Frames 30-33 are non-SD PDUs shorter than their trailer and
+        pad ("SSCOP: Do not pass a wrapped payload length to the SD
+        payload") and must not get the pad length expert info.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 35
+        assert protocols.count('SSCOP') == 27
+        assert protocols.count('Q.2931') == 8
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000 '
+                          '|| sscop.pad_length_invalid',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sscop_pdu_types(self, cmd_tshark, capture_file, test_env):
+        '''The PDU type of every frame, its sequence numbers and pad length.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sscop', '-Tfields', '-eframe.number', '-esscop.type',
+                '-esscop.sq', '-esscop.mr', '-esscop.s', '-esscop.ps',
+                '-esscop.r', '-esscop.stat.s', '-esscop.pad_length',
+                '-esscop.source')
+        by_frame = {int(r[0]): r[1:] + [''] * (9 - len(r[1:])) for r in rows}
+        types = [by_frame[n][0] for n in range(1, 36)]
+        assert types == [
+            '0x01', '0x01', '0x02', '0x07', '0x03', '0x03', '0x04', '0x05',
+            '0x06', '0x09', '0x0f', '0x08', '0x08', '0x08', '0x08', '0x08',
+            '0x08', '0x08', '0x0a', '0x0a', '0x0b', '0x0b', '0x0c', '0x0c',
+            '0x0d', '0x0d', '0x00', '0x00', '0x00', '0x0d', '0x0d', '0x01',
+            '0x03', '0x08', '0x08',
+        ]
+        assert by_frame[1][1:3] == ['1', '32']                 # BGN N(SQ), N(MR)
+        assert by_frame[3][2] == '16'                          # BGAK N(MR)
+        assert by_frame[5][8] == 'User' and by_frame[6][8] == 'SSCOP'
+        assert [by_frame[n][3] for n in range(12, 19)] == \
+            ['0', '1', '2', '3', '4', '5', '16777215']          # SD N(S)
+        assert [by_frame[n][7] for n in range(12, 18)] == ['0', '3', '1', '1', '1', '2']
+        assert by_frame[19][3:5] == ['8', '7']                 # POLL N(S), N(PS)
+        assert by_frame[21][2:7] == ['256', '', '9', '6', '1,3,5']  # STAT
+        assert by_frame[22][6] == ''                           # STAT without a list
+        assert by_frame[23][2:7] == ['512', '', '', '10', '2']  # USTAT
+        assert by_frame[24][6] == ''
+
+    def test_sscop_q2931(self, cmd_tshark, capture_file, test_env):
+        '''The Sequenced Data payloads are Q.2931 messages.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'q2931', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert rows == [
+            ['12', 'SETUP'], ['13', 'CALL PROCEEDING'], ['14', 'CONNECT'],
+            ['15', 'RELEASE'], ['16', 'RELEASE COMPLETE'], ['17', 'STATUS'],
+            ['34', 'SETUP'], ['35', 'CALL PROCEEDING'],
+        ]
+
+    def test_sscop_payload_pref(self, cmd_tshark, capture_file, test_env):
+        '''With sscop.payload set to "data" the Sequenced Data payload is not
+        dissected as Q.2931.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'sscop.payload:data', '-Y', 'q2931', '-Tfields',
+                '-eframe.number')
+        assert len(rows) == 0
