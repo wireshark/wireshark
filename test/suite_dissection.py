@@ -141611,3 +141611,452 @@ class TestDissectSolaredge:
         assert lines[0].split('\t')[1] == '0x00000000'
         assert lines[1].split('\t')[1].count(',') == 6
         assert lines[2].split('\t')[1] == '0x00000000,0x00000000'
+
+
+class TestDissectSomeip:
+    '''SOME/IP from the synthetic capture someip_coverage.pcap.gz. SOME/IP
+    has no default port: the capture is on UDP 30501 and TCP 30502 (Decode
+    As). Frames 1-47 and 60 are UDP, 48-59 TCP. The payload frames 38-47 need the
+    SOME/IP payload dissector tables (UAT files), which the tests write to
+    a temporary configuration directory (the UAT class attribute).'''
+
+    DECODE_AS = ('-d', 'udp.port==30501,someip', '-d', 'tcp.port==30502,someip')
+
+    UAT = {
+        'SOMEIP_client_identifiers': (
+            '"2000","0100","Tester"\n'
+        ),
+        'SOMEIP_eventgroup_identifiers': (
+            '"2000","0001","Events"\n'
+        ),
+        'SOMEIP_method_event_identifiers': (
+            '"2000","0001","method1"\n'
+            '"2000","0002","method2"\n'
+            '"2000","0003","method3"\n'
+            '"2000","8001","method32769"\n'
+        ),
+        'SOMEIP_parameter_arrays': (
+            '"1","dynu8","1","1","1","arr_dynu8","0","0","20","16","0"\n'
+            '"2","static3u16","1","2","1","arr_static3","0","3","3","0","0"\n'
+            '"3","dyn2d","1","1","2","arr_dyn2d","0","0","10","8","0"\n'
+            '"3","dyn2d","1","1","2","arr_dyn2d","1","0","10","8","0"\n'
+            '"4","static2d","1","1","2","arr_static2d","0","2","2","0","0"\n'
+            '"4","static2d","1","1","2","arr_static2d","1","2","2","0","0"\n'
+            '"5","badstatic","1","1","1","arr_badstatic","0","1","3","0","0"\n'
+            '"6","arrstruct","4","1","1","arr_struct","0","0","5","32","0"\n'
+            '"7","dynlimited","1","1","1","arr_limited","0","2","3","8","0"\n'
+            '"9","arrstr","2","2","1","arr_str","0","0","5","16","0"\n'
+            '"a","mixed2d","1","1","2","arr_mixed","0","2","2","0","0"\n'
+            '"a","mixed2d","1","1","2","arr_mixed","1","0","5","8","0"\n'
+            '"b","arr24","1","1","1","arr_24","0","0","5","24","0"\n'
+        ),
+        'SOMEIP_parameter_base_types': (
+            '"1","uint8","uint8","TRUE","8","8"\n'
+            '"2","uint16","uint16","TRUE","16","16"\n'
+            '"3","uint32","uint32","TRUE","32","32"\n'
+            '"4","uint64","uint64","TRUE","64","64"\n'
+            '"5","int8","int8","TRUE","8","8"\n'
+            '"6","int16le","int16","FALSE","16","16"\n'
+            '"7","int32","int32","TRUE","32","32"\n'
+            '"8","int64","int64","TRUE","64","64"\n'
+            '"9","float32","float32","TRUE","32","32"\n'
+            '"a","float64","float64","TRUE","64","64"\n'
+            '"b","uint16le","uint16","FALSE","16","16"\n'
+        ),
+        'SOMEIP_parameter_bitfields': (
+            '"1","BF8","8","3","0","b0","bf8_b0"\n'
+            '"1","BF8","8","3","3","b3","bf8_b3"\n'
+            '"1","BF8","8","3","7","b7","bf8_b7"\n'
+            '"2","BF16","16","2","0","lo","bf16_lo"\n'
+            '"2","BF16","16","2","15","hi","bf16_hi"\n'
+            '"3","BF32","32","2","31","top","bf32_top"\n'
+            '"3","BF32","32","2","4","mid","bf32_mid"\n'
+            '"4","BF64","64","2","63","top","bf64_top"\n'
+            '"4","BF64","64","2","0","bot","bf64_bot"\n'
+        ),
+        'SOMEIP_parameter_enums': (
+            '"1","E1","1","1","3","0","ZERO"\n'
+            '"1","E1","1","1","3","1","ONE"\n'
+            '"1","E1","1","1","3","ff","ALL"\n'
+            '"2","E2","1","2","1","100","BIG"\n'
+        ),
+        'SOMEIP_parameter_list': (
+            '"2000","1","1","0","FALSE","18","0","p_u8","1","1","m1_u8"\n'
+            '"2000","1","1","0","FALSE","18","1","p_u16","1","2","m1_u16"\n'
+            '"2000","1","1","0","FALSE","18","2","p_u32","1","3","m1_u32"\n'
+            '"2000","1","1","0","FALSE","18","3","p_u64","1","4","m1_u64"\n'
+            '"2000","1","1","0","FALSE","18","4","p_i8","1","5","m1_i8"\n'
+            '"2000","1","1","0","FALSE","18","5","p_i16","1","6","m1_i16"\n'
+            '"2000","1","1","0","FALSE","18","6","p_i32","1","7","m1_i32"\n'
+            '"2000","1","1","0","FALSE","18","7","p_i64","1","8","m1_i64"\n'
+            '"2000","1","1","0","FALSE","18","8","p_f32","1","9","m1_f32"\n'
+            '"2000","1","1","0","FALSE","18","9","p_f64","1","a","m1_f64"\n'
+            '"2000","1","1","0","FALSE","18","10","p_u16le","1","b","m1_u16le"\n'
+            '"2000","1","1","0","FALSE","18","11","p_fixed4","2","1","m1_fixed4"\n'
+            '"2000","1","1","0","FALSE","18","12","p_enum","7","1","m1_enum"\n'
+            '"2000","1","1","0","FALSE","18","13","p_bf8","8","1","m1_bf8"\n'
+            '"2000","1","1","0","FALSE","18","14","p_bf16","8","2","m1_bf16"\n'
+            '"2000","1","1","0","FALSE","18","15","p_bf32","8","3","m1_bf32"\n'
+            '"2000","1","1","0","FALSE","18","16","p_bf64","8","4","m1_bf64"\n'
+            '"2000","1","1","0","FALSE","18","17","p_enum2","7","2","m1_enum2"\n'
+            '"2000","2","1","0","FALSE","4","0","p_dyn16","2","2","m2_dyn16"\n'
+            '"2000","2","1","0","FALSE","4","1","p_u16be","2","3","m2_u16be"\n'
+            '"2000","2","1","0","FALSE","4","2","p_u16le","2","4","m2_u16le"\n'
+            '"2000","2","1","0","FALSE","4","3","p_dyn8","2","5","m2_dyn8"\n'
+            '"2000","3","1","0","FALSE","6","0","p_dynu8","3","1","m3_dynu8"\n'
+            '"2000","3","1","0","FALSE","6","1","p_static3","3","2","m3_static3"\n'
+            '"2000","3","1","0","FALSE","6","2","p_dyn2d","3","3","m3_dyn2d"\n'
+            '"2000","3","1","0","FALSE","6","3","p_static2d","3","4","m3_static2d"\n'
+            '"2000","3","1","0","FALSE","6","4","p_arrstruct","3","6","m3_arrstruct"\n'
+            '"2000","3","1","0","FALSE","6","5","p_arrstr","3","9","m3_arrstr"\n'
+            '"2000","4","1","0","FALSE","2","0","p_s1","4","1","m4_s1"\n'
+            '"2000","4","1","0","FALSE","2","1","p_s2","4","2","m4_s2"\n'
+            '"2000","5","1","0","FALSE","4","0","p_u1a","5","1","m5_u1a"\n'
+            '"2000","5","1","0","FALSE","4","1","p_u1b","5","1","m5_u1b"\n'
+            '"2000","5","1","0","FALSE","4","2","p_u1c","5","1","m5_u1c"\n'
+            '"2000","5","1","0","FALSE","4","3","p_u2","5","2","m5_u2"\n'
+            '"2000","6","1","0","FALSE","8","0","p_td_u32","6","1","m6_u32"\n'
+            '"2000","6","1","0","FALSE","8","1","p_td_struct","6","2","m6_struct"\n'
+            '"2000","6","1","0","FALSE","8","2","p_td_str","6","3","m6_str"\n'
+            '"2000","6","1","0","FALSE","8","3","p_td_arr","6","4","m6_arr"\n'
+            '"2000","6","1","0","FALSE","8","4","p_td_nested","6","5","m6_nested"\n'
+            '"2000","6","1","0","FALSE","8","5","p_td_union","6","6","m6_union"\n'
+            '"2000","6","1","0","FALSE","8","6","p_td_enum","6","7","m6_enum"\n'
+            '"2000","6","1","0","FALSE","8","7","p_td_bf","6","8","m6_bf"\n'
+            '"2000","7","1","0","TRUE","15","0","w_u8","1","1","m7_u8"\n'
+            '"2000","7","1","0","TRUE","15","1","w_u16","1","2","m7_u16"\n'
+            '"2000","7","1","0","TRUE","15","2","w_u32","1","3","m7_u32"\n'
+            '"2000","7","1","0","TRUE","15","3","w_u64","1","4","m7_u64"\n'
+            '"2000","7","1","0","TRUE","15","4","w_str","2","2","m7_str"\n'
+            '"2000","7","1","0","TRUE","15","5","w_struct","4","3","m7_struct"\n'
+            '"2000","7","1","0","TRUE","15","6","w_arr","3","1","m7_arr"\n'
+            '"2000","7","1","0","TRUE","15","7","w_union","5","1","m7_union"\n'
+            '"2000","7","1","0","TRUE","15","8","w_bf","8","1","m7_bf"\n'
+            '"2000","7","1","0","TRUE","15","9","w_enum","7","1","m7_enum"\n'
+            '"2000","7","1","0","TRUE","15","10","w_td_str","6","3","m7_tdstr"\n'
+            '"2000","7","1","0","TRUE","15","11","w_str4","2","2","m7_str4"\n'
+            '"2000","7","1","0","TRUE","15","12","w_struct4","4","2","m7_struct4"\n'
+            '"2000","7","1","0","TRUE","15","13","w_arr4","3","1","m7_arr4"\n'
+            '"2000","7","1","0","TRUE","15","14","w_str8","2","5","m7_str8"\n'
+            '"2000","8","1","80","FALSE","2","0","r_u8","1","1","m8_u8"\n'
+            '"2000","8","1","80","FALSE","2","1","r_u32","1","3","m8_u32"\n'
+            '"2000","9","1","0","FALSE","1","0","c_nostr","2","6","m9_nostr"\n'
+            '"2000","a","1","0","FALSE","1","0","c_badunion","5","3","m10_badunion"\n'
+            '"2000","b","1","0","FALSE","1","0","c_badarr","3","5","m11_badarr"\n'
+            '"2000","c","1","0","FALSE","1","0","c_badstruct","4","5","m12_badstruct"\n'
+            '"2000","d","1","0","FALSE","1","0","c_limited","3","7","m13_limited"\n'
+            '"2000","e","1","0","TRUE","1","0","c_nulltypedef","6","99","m14_nulltd"\n'
+            '"2000","f","1","0","FALSE","8","0","c_unknown_type_ref","1","77","m15_unk"\n'
+            '"2000","f","1","0","FALSE","8","1","c_str_missing","2","77","m15_str"\n'
+            '"2000","f","1","0","FALSE","8","2","c_arr_missing","3","77","m15_arr"\n'
+            '"2000","f","1","0","FALSE","8","3","c_struct_missing","4","77","m15_struct"\n'
+            '"2000","f","1","0","FALSE","8","4","c_union_missing","5","77","m15_union"\n'
+            '"2000","f","1","0","FALSE","8","5","c_td_missing","6","77","m15_td"\n'
+            '"2000","f","1","0","FALSE","8","6","c_enum_missing","7","77","m15_enum"\n'
+            '"2000","f","1","0","FALSE","8","7","c_bf_missing","8","77","m15_bf"\n'
+            '"2000","10","1","0","TRUE","2","0","w_s","2","2","m16_str"\n'
+            '"2000","10","1","0","TRUE","2","1","w_t","6","1","m16_td"\n'
+            '"2000","11","1","0","FALSE","1","0","c_arr24","3","b","m17_arr24"\n'
+            '"2000","12","1","0","FALSE","1","0","c_union_lot32","5","4","m18_union"\n'
+            '"2000","13","1","0","FALSE","1","0","c_union_lot24","5","5","m19_union"\n'
+            '"2000","14","1","0","TRUE","1","0","w_miss_str","2","77","m20_str"\n'
+            '"2000","15","1","0","TRUE","1","0","w_miss_arr","3","77","m21_arr"\n'
+            '"2000","16","1","0","TRUE","1","0","w_miss_struct","4","77","m22_struct"\n'
+            '"2000","17","1","0","TRUE","1","0","w_miss_union","5","77","m23_union"\n'
+        ),
+        'SOMEIP_parameter_strings': (
+            '"1","fixed4","ascii","FALSE","4","0","TRUE","0"\n'
+            '"2","dyn16","utf-8","TRUE","100","16","TRUE","0"\n'
+            '"3","u16be32","utf-16","TRUE","100","32","TRUE","0"\n'
+            '"4","u16le8","utf-16","TRUE","100","8","FALSE","0"\n'
+            '"5","dyn8","ascii","TRUE","100","8","TRUE","0"\n'
+        ),
+        'SOMEIP_parameter_structs': (
+            '"1","S1","0","0","FALSE","3","0","a","1","1","s1_a"\n'
+            '"1","S1","0","0","FALSE","3","1","b","1","2","s1_b"\n'
+            '"1","S1","0","0","FALSE","3","2","c","2","1","s1_c"\n'
+            '"2","S2","32","0","FALSE","3","0","x","1","1","s2_x"\n'
+            '"2","S2","32","0","FALSE","3","1","inner","4","1","s2_inner"\n'
+            '"2","S2","32","0","FALSE","3","2","arr","3","1","s2_arr"\n'
+            '"3","S3w","0","0","TRUE","2","0","s_u8","1","1","s3_u8"\n'
+            '"3","S3w","0","0","TRUE","2","1","s_u16","1","2","s3_u16"\n'
+            '"5","S5badlol","24","0","FALSE","1","0","z","1","1","s5_z"\n'
+        ),
+        'SOMEIP_parameter_typedefs': (
+            '"1","td_u32","1","3"\n'
+            '"2","td_struct","4","1"\n'
+            '"3","td_str","2","2"\n'
+            '"4","td_arr","3","1"\n'
+            '"5","td_nested","6","1"\n'
+            '"6","td_union","5","2"\n'
+            '"7","td_enum","7","1"\n'
+            '"8","td_bf","8","1"\n'
+        ),
+        'SOMEIP_parameter_unions': (
+            '"1","U1","32","8","0","3","1","asU8","1","1","u1_u8"\n'
+            '"1","U1","32","8","0","3","2","asStr","2","2","u1_str"\n'
+            '"1","U1","32","8","0","3","3","asStruct","4","1","u1_struct"\n'
+            '"2","U2","16","16","0","1","1","asU16","1","2","u2_u16"\n'
+            '"3","U3bad","24","8","0","1","1","x","1","1","u3_x"\n'
+            '"4","U4","8","32","0","1","1","asU8","1","1","u4_u8"\n'
+            '"5","U5badtype","16","24","0","1","1","x","1","1","u5_x"\n'
+        ),
+        'SOMEIP_service_identifiers': (
+            '"2000","TestService"\n'
+        ),
+    }
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args, env=None):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('someip_coverage.pcap.gz'),
+                *TestDissectSomeip.DECODE_AS,
+            ), encoding='utf-8', env=env or test_env, timeout=120)
+
+    @staticmethod
+    def uat_env(test_env, tmp_path, files=None):
+        '''An environment with a configuration directory that holds the SOME/IP
+        tables (the UAT class attribute, or the given files).'''
+        cfg = tmp_path / 'cfg'
+        cfg.mkdir()
+        for name, text in (files or TestDissectSomeip.UAT).items():
+            (cfg / name).write_text(text)
+        env = test_env.copy()
+        env['WIRESHARK_CONFIG_DIR'] = str(cfg)
+        return env
+
+    def fields(self, cmd_tshark, capture_file, env, flt, fields, *opts):
+        stdout = self.run(cmd_tshark, capture_file, env, *opts, '-Y', flt, '-Tfields',
+                          '-eframe.number', *[f'-e{f}' for f in fields])
+        return stdout.splitlines()
+
+    def test_someip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets and no warnings or errors in
+        one and two passes (also with the payload tables, see below).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 60
+        assert protocols.count('SOME/IP') == 55
+        assert protocols.count('TCP') == 5
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                              '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_someip_message_types(self, cmd_tshark, capture_file, test_env):
+        '''Every message type with the ack and TP flags, and the return
+        codes of an error message.'''
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number <= 25',
+                          ['someip.messagetype', 'someip.returncode'])
+        assert out == [
+            '1\t0x00\t0x00', '2\t0x01\t0x00', '3\t0x02\t0x00', '4\t0x80\t0x00', '5\t0x81\t0x00',
+            '6\t0x40\t0x00', '7\t0x41\t0x00', '8\t0x42\t0x00', '9\t0xc0\t0x00', '10\t0xc1\t0x00',
+            '11\t0x81\t0x00', '12\t0x81\t0x01', '13\t0x81\t0x02', '14\t0x81\t0x03', '15\t0x81\t0x04',
+            '16\t0x81\t0x05', '17\t0x81\t0x06', '18\t0x81\t0x07', '19\t0x81\t0x08', '20\t0x81\t0x09',
+            '21\t0x81\t0x0a', '22\t0x81\t0x20', '23\t0x1f\t0x00', '24\t0x00\t0x00', '25\t0x02\t0x00']
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 23', '-V', '-O', 'someip')
+        assert 'Message Type: 0x1f (Unknown Message Type)' in stdout
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 22', '-V', '-O', 'someip')
+        assert 'Return Code: 0x20 (Unknown Return Code)' in stdout
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 10', '-V', '-O', 'someip')
+        assert 'Message Type: 0xc1 (Error Ack)' in stdout
+
+    def test_someip_several_messages(self, cmd_tshark, capture_file, test_env):
+        '''Three messages in one datagram (frame 26) and in one TCP segment
+        (frame 56), and a message split over segments (frames 53-55).'''
+        out = self.fields(cmd_tshark, capture_file, test_env,
+                          'frame.number in {26, 53, 54, 55, 56, 57, 58}',
+                          ['_ws.col.protocol', 'someip.methodid'])
+        assert out == [
+            '26\tSOME/IP\t0x0010,0x0011,0x0012',
+            '53\tTCP\t', '54\tTCP\t', '55\tSOME/IP\t0x0004',
+            '56\tSOME/IP\t0x0005,0x8002,0x8003',
+            '57\tSOME/IP\t0x0006', '58\tSOME/IP\t0x0007']
+
+    def test_someip_tp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SOME/IP-TP segments are reassembled when the last one arrives
+        (in order, out of order, interleaved sessions, in one segment) in
+        one and two passes; without the preference nothing is reassembled.'''
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, test_env, 'someip.tp.reassembled.length',
+                              ['someip.tp.reassembled.length'], *passes)
+            got = [l.split('\t') for l in out]
+            assert [g[0] for g in got] == ['29', '31', '32', '33', '36', '37']
+            assert [g[1] for g in got] == ['40', '24', '6', '0', '20', '24']
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 29', '-V', '-O', 'someip')
+        assert '[3 SOME/IP-TP segments (40 bytes): #27(16), #28(16), #29(8)]' in stdout
+        assert '[Reassembled data: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f2021222324252627]' in stdout
+        out = self.fields(cmd_tshark, capture_file, test_env, 'someip.tp.reassembled.in', ['frame.number'],
+                          '-o', 'someip.reassemble_tp:FALSE')
+        assert out == []
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {30, 31}',
+                          ['someip.tp.offset', 'someip.tp.flags.more_segments'])
+        assert out == ['30\t16\tFalse', '31\t0\tTrue']
+
+    def test_someip_names(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Service, method and client names come from the tables.'''
+        env = self.uat_env(test_env, tmp_path)
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number in {25, 38, 45}',
+                          ['someip.servicename', 'someip.methodname', 'someip.clientname'])
+        assert out == ['25\tTestService\tmethod32769\t',
+                       '38\tTestService\tmethod1\tTester',
+                       '45\tTestService\t\tTester']
+        stdout = self.run(cmd_tshark, capture_file, env, '-q', '-z', 'someip_messages,tree')
+        assert 'Service 0x2000 (TestService)' in stdout
+        assert 'Method 0x0001 (method1) Request' in stdout
+        assert 'Method 0x0010 Request' in stdout
+
+    def test_someip_payload_base_types(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Base types, enum and bitfields of the payload dissector (frame
+        38), also with bits above 31 in bitfields (they shifted a 32 bit one
+        before the fix) and the unparsed rest.'''
+        env = self.uat_env(test_env, tmp_path)
+        flds = [f'someip.payload.data.m1_{f}' for f in
+                ('u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64', 'u16le', 'fixed4', 'enum',
+                 'bf8', 'bf16', 'bf32', 'bf64', 'enum2')]
+        flds += [f'someip.payload.data.{f}' for f in
+                 ('bf8_b0', 'bf8_b3', 'bf8_b7', 'bf16_lo', 'bf16_hi', 'bf32_top', 'bf32_mid',
+                  'bf64_top', 'bf64_bot')]
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 38',
+                              flds + ['someip.payload.unparsed'], *passes)
+            assert out == ['38\t18\t13398\t2023406814\t72623859790382856\t-2\t-3\t-4\t-5\t258\tp_fixed4\t1\t'
+                           '137\t32769\t2147483664\t9223372036854775809\t256\t'
+                           + '\t'.join(['True'] * 9) + '\taabb']
+        # Floats, locale independent
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 38',
+                          ['someip.payload.data.m1_f32', 'someip.payload.data.m1_f64'])
+        assert len(out) == 1 and out[0].split('\t')[1:] in (['1.5', '2.25'], ['1,5', '2,25'])
+
+    def test_someip_payload_strings(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Strings: UTF-8 with a 16 bit length (control characters become
+        blanks), UTF-16 with 32 and 8 bit lengths, ASCII with an 8 bit
+        length.'''
+        env = self.uat_env(test_env, tmp_path)
+        stdout = self.run(cmd_tshark, capture_file, env, '-Y', 'frame.number == 39', '-V', '-O', 'someip')
+        lines = [l.strip() for l in stdout.splitlines()]
+        for want in ('p_dyn16 [dyn16]: hello world', 'p_u16be [u16be32]: Hi!',
+                     'p_u16le [u16le8]: Hi', 'p_dyn8 [dyn8]: abc'):
+            assert want in lines
+
+    def test_someip_payload_arrays(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Dynamic, static and two dimensional arrays, arrays of structs and
+        of strings (frame 40).'''
+        env = self.uat_env(test_env, tmp_path)
+        stdout = self.run(cmd_tshark, capture_file, env, '-Y', 'frame.number == 40', '-V', '-O', 'someip')
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('dynu8 [uint8]: 3') == 1
+        assert 'static3u16 [uint16]: 3' in lines
+        assert 'subarray (dim: 1, limit 0-0)' in lines
+        assert lines.count('static2d [uint8]: 4') == 1
+        assert lines.count('c [fixed4]: WXYZ') == 2
+        assert 'arrstr [dyn16]: ab' in lines and 'arrstr [dyn16]: c' in lines
+
+    def test_someip_payload_structs_unions_typedefs(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Structs (also nested in a struct without a length field, which
+        returned bits instead of bytes before the fix), unions and typedefs.'''
+        env = self.uat_env(test_env, tmp_path)
+        stdout = self.run(cmd_tshark, capture_file, env, '-Y', 'frame.number == 41', '-V', '-O', 'someip')
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert lines.count('c [fixed4]: WXYZ') == 2
+        assert 'x [uint8]: 9' in lines
+        assert 'dynu8 [uint8]: 10' in lines and 'dynu8 [uint8]: 11' in lines
+        stdout = self.run(cmd_tshark, capture_file, env, '-Y', 'frame.number == 42', '-V', '-O', 'someip')
+        lines = [l.strip() for l in stdout.splitlines()]
+        for want in ('p_u1a (union U1)', 'asU8 [uint8]: 85', 'asStr [dyn16]: abcd', 'asStruct',
+                     'p_u2 (union U2)', 'asU16 [uint16]: 4660'):
+            assert want in lines
+        stdout = self.run(cmd_tshark, capture_file, env, '-Y', 'frame.number == 43', '-V', '-O', 'someip')
+        lines = [l.strip() for l in stdout.splitlines()]
+        for want in ('p_td_u32 [uint32]: 3735928559', 'td_str [dyn16]: typedef string',
+                     'p_td_nested [uint32]: 7', 'p_td_enum [uint8]: 255 (ALL)', 'p_td_bf [BF8]: 5'):
+            assert want in lines
+
+    def test_someip_payload_union_type_field(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A union with a 8 bit length and a 32 bit type field (frame 60).'''
+        env = self.uat_env(test_env, tmp_path)
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 60', ['someip.payload.data.u4_u8'])
+        assert out == ['60\t85']
+
+    def test_someip_payload_wtlv(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Wiretag-Length-Value payload (frame 44): every wire type, a
+        struct, array and string, wire type 4 with the configured length
+        field, and an unknown ID shown as unparsed. The same payload is
+        not decoded without a parameter list (frame 47) unless the WTLV
+        default preference is set.'''
+        env = self.uat_env(test_env, tmp_path)
+        for passes in ((), ('-2',)):
+            out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 44',
+                              [f'someip.payload.data.m7_{f}' for f in ('u8', 'u16', 'u32', 'u64')]
+                              + ['someip.payload.data.s3_u8', 'someip.payload.data.s3_u16',
+                                 'someip.payload.unparsed'], *passes)
+            assert out == ['44\t17\t8755\t1146447479\t9843086184167632639\t119\t34969\tdead']
+            stdout = self.run(cmd_tshark, capture_file, env, *passes, '-Y', 'frame.number == 44',
+                              '-V', '-O', 'someip')
+            lines = [l.strip() for l in stdout.splitlines()]
+            for want in ('w_str [dyn16]: abc', 'td_str [dyn16]: td', 'w_str4 [dyn16]: wt4',
+                         'w_str8 [dyn8]: abc', 'dynu8 [uint8]: 170', 'w_enum [uint8]: 1 (ONE)'):
+                assert want in lines
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 47', ['someip.payload.data.m7_u8'])
+        assert out == ['47\t']
+        out = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 47',
+                          ['someip.payload.unparsed'], '-o', 'someip.payload_dissector_wtlv_default:TRUE')
+        assert out[0].startswith('47\t11,2233,44556677,8899aabbccddeeff,0003616263,000700007710018899,')
+
+    def test_someip_payload_other_selections(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''The parameter list is chosen by message type and version
+        (frame 45 is a response), and the payload dissector can be
+        switched off.'''
+        env = self.uat_env(test_env, tmp_path)
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number in {45, 46}',
+                          ['someip.payload.data.m8_u8', 'someip.payload.data.m8_u32', 'someip.payload.data.m1_u8'])
+        assert out == ['45\t7\t1\t', '46\t\t\t']
+        out = self.fields(cmd_tshark, capture_file, env, 'frame.number == 38',
+                          ['someip.payload.data.m1_u8', '_ws.expert.message'],
+                          '-o', 'someip.payload_dissector_activated:FALSE')
+        assert out == ['38\t\tDissection of payload is disabled. It can be enabled via protocol preferences.']
+
+    @staticmethod
+    def pcap(messages, port=30501):
+        '''A tiny pcap with one UDP datagram per SOME/IP message.'''
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        for msg in messages:
+            udp = struct.pack('!HHHH', 40000, port, 8 + len(msg), 0) + msg
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), 1, 0, 64, 17, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            frame = bytes(12) + b'\x08\x00' + ip + udp
+            out += struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame
+        return out
+
+    @staticmethod
+    def message(method, payload, mtype=0, length=None):
+        return struct.pack('>HHIHHBBBB', 0x2000, method, 8 + len(payload) if length is None else length,
+                           0x0100, 1, 1, 1, mtype, 0) + payload
+
+    def test_someip_payload_typedef_null(self, cmd_tshark, test_env, tmp_path):
+        '''A WTLV tag of wire type 4 for a typedef parameter whose
+        reference does not exist: a config error, not a crash (NULL
+        dereference before "SOMEIP: Fix NULL dereference for a missing
+        typedef reference").'''
+        env = self.uat_env(test_env, tmp_path, {
+            'SOMEIP_parameter_list': '"2000","000e","1","0","TRUE","1","0","c_nulltypedef","6","99","m14_nulltd"\n'})
+        cap = tmp_path / 'someip.pcap'
+        cap.write_bytes(self.pcap([self.message(14, struct.pack('>H', 0x4000) + b'\x02AB')]))
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(cap), '-d', 'udp.port==30501,someip',
+                '-Tfields', '-e_ws.expert.message'), encoding='utf-8', env=env, timeout=120)
+        assert 'WTLV type 4 but datatype has not an appropriate length field configured' in stdout
+
+    def test_someip_payload_array_limits(self, cmd_tshark, test_env, tmp_path):
+        '''A dynamic array outside its limits is reported (the check could
+        never fire before "SOMEIP: Fix ..." changed && to ||).'''
+        env = self.uat_env(test_env, tmp_path)
+        cap = tmp_path / 'someip.pcap'
+        cap.write_bytes(self.pcap([self.message(13, b'\x03\xaa\xbb\xcc'),
+                                   self.message(13, b'\x01\xaa'),
+                                   self.message(13, b'\x05\xaa\xbb\xcc\xdd\xee')]))
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(cap), '-d', 'udp.port==30501,someip',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'), encoding='utf-8', env=env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\t', '2\tNumber of items (1) outside limit 2-3',
+            '3\tNumber of items (5) outside limit 2-3']
