@@ -145745,3 +145745,126 @@ class TestDissectT30:
         # (the first octet has none) and ends with a clear one
         assert lines[0].split('\t')[2] == 'False'
         assert lines[1].split('\t')[2] == ','.join(['True'] * 12 + ['False'])
+
+
+class TestDissectT38:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, dfilter, *fields, passes=(), opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file(name),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_t38_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The SIP INVITE and 200 OK with SDP (m=image udptl t38) set up the
+        UDP streams, every UDPTL packet is T.38, nothing is malformed or
+        has a warning or an error expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame', '-e_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 76
+        assert protocols[:3] == ['SIP/SDP', 'SIP/SDP', 'SIP']
+        assert protocols[3:] == ['T.38'] * 73
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_t38_setup(self, cmd_tshark, capture_file, test_env):
+        '''The stream setup information names SDP and the frame of the
+        200 OK that completed the setup.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number in {4, 5, 76}', '-et38.setup-method', '-et38.setup-frame')
+        assert rows == [['4', 'SDP', '2'], ['5', 'SDP', '2'], ['76', 'SDP', '2']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number == 4', '-et38.setup-method',
+                opts=('-o', 't38.show_setup_info:FALSE'))
+        assert rows == [['4', '']]
+
+    def test_t38_indicators_and_data(self, cmd_tshark, capture_file, test_env):
+        '''All 23 T.30 indicator and 15 T.30 data values (the later ones
+        use the extension), and the sequence numbers.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                't38.t30_indicator', '-et38.t30_indicator', '-et38.seq_number')
+        assert [r[1] for r in rows][:23] == [str(i) for i in range(23)]
+        assert [r[2] for r in rows][:4] == ['0', '0', '1', '1']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number >= 27 && frame.number <= 41', '-et38.t30_data')
+        assert [r[1] for r in rows] == [str(i) for i in range(15)]
+
+    def test_t38_hdlc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''HDLC data over several UDPTL packets is reassembled and passed to
+        T.30, also with -2 (the fragment text of the first pass differs).'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                    'frame.number in {45, 49, 57, 62}', '-e_ws.col.info', passes=passes)
+            assert 'HDLC Reassembled: DIS - Digital Identification Signal' in rows[0][1]
+            assert 'HDLC Reassembled: CFR - Confirmation To Receive' in rows[1][1]
+            assert 'HDLC Reassembled: DCS - Digital Command Signal' in rows[2][1]
+            assert 'HDLC Reassembled: DCN - Disconnect' in rows[3][1]
+            rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                    't38.reassembled.length', '-et38.reassembled.length', passes=passes)
+            assert [r[1].split(',')[0] for r in rows] == ['9', '3', '8', '3', '240', '120']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number in {43, 44}', '-e_ws.col.info', '-et38.reassembled.in',
+                passes=('-2',))
+        assert [r[2] for r in rows] == ['45', '45']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number in {43, 44}', '-e_ws.col.info')
+        assert 'HDLC fragment 0' in rows[0][1] and 'HDLC fragment 1' in rows[1][1]
+
+    def test_t38_t4_data(self, cmd_tshark, capture_file, test_env):
+        '''t4-non-ecm data fragments are reassembled at the sig-end (240
+        octets), including several fields in one packet and data in the
+        sig-end field.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number in {64, 68, 70}', '-e_ws.col.info')
+        assert '(t4-data fragment 0)' in rows[0][1]
+        assert 't4-non-ecm-sig-end (t4-data Reassembled: No packet lost)' in rows[1][1]
+        assert 't4-non-ecm-sig-end (t4-data Reassembled: No packet lost)' in rows[2][1]
+
+    def test_t38_error_recovery(self, cmd_tshark, capture_file, test_env):
+        '''Redundancy (secondary IFP packets) and FEC.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                't38.fec_npackets', '-et38.fec_npackets', '-et38.fec_data_item')
+        assert [r[1] for r in rows] == ['2', '1', '300']
+        assert rows[1][2] == 'deadbeef'
+        assert len(rows[2][2].split(',')) == 2
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage.pcap.gz',
+                'frame.number == 71', '-et38.error_recovery', '-et38.secondary_ifp_packets')
+        assert rows == [['71', '0', '4']]
+
+    def test_t38_2002_field_types(self, cmd_tshark, capture_file, test_env):
+        '''With the Pre-Corrigendum preference off the field types of the
+        2002 ASN.1 (cm, jm, ci messages and v34rate) are decoded.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage_2002.pcap.gz',
+                't38.field_type', '-et38.field_type',
+                opts=('-o', 't38.use_pre_corrigendum_asn1_specification:FALSE'))
+        assert [r[1] for r in rows] == ['8', '9', '10', '11', '0', '0,2', '0', '2', '0', '4', '1', '3', '5', '6', '7']
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage_2002.pcap.gz',
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes,
+                    opts=('-o', 't38.use_pre_corrigendum_asn1_specification:FALSE'))
+            assert rows == []
+
+    def test_t38_tcp(self, cmd_tshark, capture_file, test_env):
+        '''T.38 over TCP (Decode As): IFPPackets with and without TPKT,
+        several IFPPackets or TPKT PDUs in one segment, and a TPKT PDU over
+        two TCP segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage_tcp.pcap.gz',
+                'tcp.len > 0', '-e_ws.col.info', opts=('-d', 'tcp.port==6000,t38'))
+        infos = [r[1] for r in rows]
+        assert infos[0] == 'TCP: IFPPacket t30ind: cng'
+        assert infos[1] == 'TCP: IFPPacket t30ind: ced'
+        assert 'HDLC Reassembled: DIS - Digital Identification Signal' in infos[2]
+        assert infos[3] == 'TCP: IFPPacket t30ind: v21-preamble'
+        assert 'IFPPacket#2' in infos[4] and 'HDLC Reassembled: CFR' in infos[4]
+        assert 't4-data Reassembled: No packet lost' in infos[5]
+        assert infos[6] == ''
+        assert 'HDLC Reassembled: DCN - Disconnect' in infos[7]
+        assert 'HDLC Reassembled: MCF - Message Confirmation' in infos[8]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't38_coverage_tcp.pcap.gz',
+                '_ws.malformed || _ws.expert.severity >= warning',
+                opts=('-d', 'tcp.port==6000,t38'))
+        assert rows == []
