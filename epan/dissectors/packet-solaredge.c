@@ -1019,42 +1019,45 @@ solaredge_set_key(tvbuff_t *tvb, unsigned current_offset, conversation_t *conv)
 	uint8_t session_key_message_part2[SOLAREDGE_ENCRYPTION_KEY_LENGTH];
 
 	conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
-	if (conv_data && conv_data->session_key_found == false) {
+	if (!conv_data || conv_data->session_key_found) {
+		return;
+	}
+
+	/* Load the system key to generate session key */
+	system_key = g_byte_array_new();
+	system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, false);
+	if ((system_key_valid == true) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+		/* Read both parts of the message before opening the cipher, so that
+		 * an exception cannot leak the cipher handle */
+		if (!tvb_bytes_exist(tvb, current_offset, 2 * SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+			g_byte_array_unref(system_key);
+			return;
+		}
+		tvb_memcpy(tvb, session_key_message_part1, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
+		tvb_memcpy(tvb, session_key_message_part2, current_offset + SOLAREDGE_ENCRYPTION_KEY_LENGTH, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
 		if (!gcry_cipher_open(&cipher_hd_system, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-			/* Load the system key to generate session key */
-			system_key = g_byte_array_new();
-			system_key_valid = hex_str_to_bytes(global_system_encryption_key, system_key, false);
-			if ((system_key_valid == true) && (system_key->len == SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-				if (!gcry_cipher_setkey(cipher_hd_system, system_key->data, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-					/* Read first part of message */
-					tvb_memcpy(tvb, session_key_message_part1, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-					current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH;
-					/* Read second part of message */
-					tvb_memcpy(tvb, session_key_message_part2, current_offset, SOLAREDGE_ENCRYPTION_KEY_LENGTH);
-					/* current_offset += SOLAREDGE_ENCRYPTION_KEY_LENGTH; */
-					/* Encrypt first part with system key */
-					if (!gcry_cipher_encrypt(cipher_hd_system, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, NULL, 0)) {
-						/* XOR result with second part to obtain session key */
-						for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
-							session_key_message_part2[i] ^= session_key_message_part1[i];
-						}
-						conv_data = (t_solaredge_conversion_data *)conversation_get_proto_data(conv, proto_solaredge);
-						if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
-							/* Load the session key */
-							if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
-								conv_data->session_key_found = true;
-								wmem_register_callback(wmem_file_scope(),  gcry_cipher_close_cb, conv_data->cipher_hd_session);
-							} else {
-								gcry_cipher_close(conv_data->cipher_hd_session);
-							}
+			if (!gcry_cipher_setkey(cipher_hd_system, system_key->data, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+				/* Encrypt first part with system key */
+				if (!gcry_cipher_encrypt(cipher_hd_system, session_key_message_part1, SOLAREDGE_ENCRYPTION_KEY_LENGTH, NULL, 0)) {
+					/* XOR result with second part to obtain session key */
+					for (i = 0; i < SOLAREDGE_ENCRYPTION_KEY_LENGTH; i++) {
+						session_key_message_part2[i] ^= session_key_message_part1[i];
+					}
+					if (!gcry_cipher_open(&conv_data->cipher_hd_session, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0)) {
+						/* Load the session key */
+						if (!gcry_cipher_setkey(conv_data->cipher_hd_session, session_key_message_part2, SOLAREDGE_ENCRYPTION_KEY_LENGTH)) {
+							conv_data->session_key_found = true;
+							wmem_register_callback(wmem_file_scope(),  gcry_cipher_close_cb, conv_data->cipher_hd_session);
+						} else {
+							gcry_cipher_close(conv_data->cipher_hd_session);
 						}
 					}
 				}
-				gcry_cipher_close(cipher_hd_system);
 			}
-			g_byte_array_unref(system_key);
+			gcry_cipher_close(cipher_hd_system);
 		}
 	}
+	g_byte_array_unref(system_key);
 }
 
 static
@@ -1102,8 +1105,7 @@ bool solaredge_decrypt(wmem_allocator_t *scratch, const uint8_t *in, int length,
 }
 
 static int
-// NOLINTNEXTLINE(misc-no-recursion)
-dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int length)
+dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
 	int current_offset;
 	t_solaredge_device_header device_header;
@@ -1245,7 +1247,7 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 			current_offset += 4;
 			proto_tree_add_item(post_tree, hf_solaredge_post_optimizer_uptime_short_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 			current_offset += 2;
-			optimizer_data = tvb_get_ptr(tvb, current_offset, 6);
+			optimizer_data = tvb_get_ptr(tvb, current_offset, 7);
 			dc_voltage_panel = (float)(0.125 * (float)(optimizer_data[0] | (optimizer_data[1] << 8 & 0x300)));
 			proto_tree_add_float_format_value(post_tree, hf_solaredge_post_optimizer_dc_voltage_panel_type, tvb, current_offset, 6, dc_voltage_panel, "%.2f", dc_voltage_panel);
 			dc_voltage_optimizer = (float)(0.125 * (float)(optimizer_data[1] >> 2 | (optimizer_data[2] << 6 & 0x3c0)));
@@ -1295,10 +1297,6 @@ dissect_solaredge_devicedata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 	decrement_dissection_depth(pinfo);
 
-	if (current_offset < length) {
-		col_append_str(pinfo->cinfo, COL_INFO, ", ");
-		dissect_solaredge_devicedata(tvb, pinfo, tree, current_offset, length);
-	}
 	return current_offset;
 }
 
@@ -1329,7 +1327,7 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 	current_offset += 2;
 	header.length_inverse = tvb_get_uint16(tvb, current_offset, ENC_LITTLE_ENDIAN);
 	if (header.length_inverse != (UINT16_MAX - header.length)) {
-		proto_tree_add_expert_format(solaredge_header_tree, pinfo, &ei_solaredge_invalid_length, tvb, current_offset - 2, current_offset + 2, "Invalid length: inverse length %d not matching length %d", header.length_inverse, header.length);
+		proto_tree_add_expert_format(solaredge_header_tree, pinfo, &ei_solaredge_invalid_length, tvb, current_offset - 2, 4, "Invalid length: inverse length %d not matching length %d", header.length_inverse, header.length);
 	}
 	proto_tree_add_item(solaredge_header_tree, hf_solaredge_length_inverse_type, tvb, current_offset, 2, ENC_LITTLE_ENDIAN);
 	current_offset += 2;
@@ -1368,7 +1366,23 @@ dissect_solaredge_recursive(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 		case SOLAREDGE_COMMAND_SERVER_POST_DATA:
 			solaredge_payload_item = proto_tree_add_item(solaredge_header_tree, hf_solaredge_post_type, tvb, current_offset, header.length, ENC_NA);
 			solaredge_payload_tree = proto_item_add_subtree(solaredge_payload_item, ett_solaredge_packet_post);
-			dissect_solaredge_devicedata(tvb, pinfo, solaredge_payload_tree, current_offset, header.length);
+			{
+				/* Iterate over the device records instead of recursing */
+				int post_offset = current_offset;
+				int post_end = current_offset + header.length;
+				while (post_offset < post_end) {
+					int next_offset;
+					if (post_offset != current_offset) {
+						col_append_str(pinfo->cinfo, COL_INFO, ", ");
+					}
+					next_offset = dissect_solaredge_devicedata(tvb, pinfo, solaredge_payload_tree, post_offset);
+					if (next_offset <= post_offset) {
+						break;
+					}
+					post_offset = next_offset;
+				}
+			}
+			current_offset += header.length;
 		break;
 		case SOLAREDGE_COMMAND_SERVER_SET_KEY:
 			proto_tree_add_item(solaredge_header_tree, hf_solaredge_session_key_type, tvb, current_offset, header.length, ENC_NA);
