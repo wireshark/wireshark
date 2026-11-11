@@ -279,7 +279,7 @@ To change the build type, set the CMake variable `CMAKE_BUILD_TYPE`, e.g.:
 $ cmake .. -DCMAKE_BUILD_TYPE=Debug
 ----
 
-or on Windows,
+or on Windows with the Visual Studio generator,
 
 [source,cmd]
 ----
