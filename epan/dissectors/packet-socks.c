@@ -324,6 +324,12 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     conversation_t     *conversation;
     proto_tree         *socks_tree;
     proto_item         *ti;
+    uint32_t            remote_port;
+
+    /* The destination port of the datagram can name this conversation
+     * again; do not re-enter ourselves for the payload. */
+    if (p_get_proto_depth(pinfo, proto_socks) > 0)
+        return 0;
 
     conversation = find_conversation_pinfo( pinfo, 0);
 
@@ -349,16 +355,18 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         offset += 1;
 
         offset = display_address(pinfo, tvb, offset, socks_tree);
-        hash_info->udp_remote_port = tvb_get_ntohs(tvb, offset);
+        remote_port = tvb_get_ntohs(tvb, offset);
 
         proto_tree_add_uint( socks_tree, hf_socks_dstport, tvb,
-            offset, 2, hash_info->udp_remote_port);
+            offset, 2, remote_port);
 
         offset += 2;
     }
     else {      /* no tree, skip past the socks header */
         offset += 3;
-        offset = get_address_v5( tvb, offset, 0) + 2;
+        offset = get_address_v5( tvb, offset, 0);
+        remote_port = tvb_get_ntohs(tvb, offset);
+        offset += 2;
     }
 
     /* set pi src/dst port and call the udp sub-dissector lookup */
@@ -368,9 +376,11 @@ socks_udp_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     else
         ptr = &pinfo->srcport;
 
-    *ptr = hash_info->udp_remote_port;
+    *ptr = remote_port;
 
+    p_set_proto_depth(pinfo, proto_socks, 1);
     decode_udp_ports( tvb, offset, pinfo, tree, pinfo->srcport, pinfo->destport, -1);
+    p_set_proto_depth(pinfo, proto_socks, 0);
 
     *ptr = hash_info->udp_port;
     return tvb_captured_length(tvb);
@@ -750,7 +760,7 @@ state_machine_v4( socks_hash_entry_t *hash_info, tvbuff_t *tvb,
             hash_info->port =  tvb_get_ntohs(tvb, offset + 2);
 
         /* get remote address */
-        set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
+        set_address_tvb(&addr, AT_IPv4, 4, tvb, offset + 4);
         copy_address_wmem(wmem_file_scope(), &hash_info->dst_addr, &addr);
 
         hash_info->clientState = clientDone;
