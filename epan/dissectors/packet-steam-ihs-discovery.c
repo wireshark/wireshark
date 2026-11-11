@@ -727,7 +727,6 @@ steamdiscover_dissect_body_status(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                         pb.offset, len, (uint32_t)value);
                 break;
             default:
-                ws_message("%u: unknown tag: %" PRIu64, pinfo->num, tag.field_number);
                 len = protobuf_dissect_unknown_field(&pb, &tag, pinfo, tree, NULL);
                 break;
         }
