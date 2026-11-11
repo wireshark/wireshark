@@ -143607,3 +143607,266 @@ class TestDissectSscop:
                 '-o', 'sscop.payload:data', '-Y', 'q2931', '-Tfields',
                 '-eframe.number')
         assert len(rows) == 0
+
+
+class TestDissectSsh:
+    '''SSH from the synthetic capture ssh_coverage.pcap.gz. No keys are
+    used: the first connection negotiates cipher and MAC "none", so its
+    packets are readable without decryption; the other connections only
+    show the key exchange and opaque "encrypted" filler.'''
+
+    # (frame, message) of the "none" connection (TCP stream 0), without the
+    # frames that carry only a part of a TCP-reassembled SSH packet
+    NONE_MESSAGES = [
+        (4, 'Protocol (SSH-2.0-OpenSSH_9.9)'),
+        (5, 'Protocol (SSH-2.0-OpenSSH_9.9 Debian-1)'), (6, 'Key Exchange Init'),
+        (7, 'Key Exchange Init'),
+        (8, 'Elliptic Curve Diffie-Hellman Key Exchange Init'),
+        (9, 'Elliptic Curve Diffie-Hellman Key Exchange Reply, New Keys'),
+        (10, 'New Keys'), (11, 'Service Request'),
+        (12, 'Extension Information, Service Accept'),
+        (13, 'User Authentication Request'), (14, 'User Authentication Failure'),
+        (15, 'User Authentication Request'), (16, 'Public Key algorithm accepted'),
+        (17, 'User Authentication Request'), (18, 'User Authentication Request'),
+        (19, 'User Authentication Request'), (20, 'User Authentication Request'),
+        (21, 'User Authentication Request'), (22, 'User Authentication Request'),
+        (23, 'User Authentication Request'), (24, 'User Authentication Request'),
+        (25, 'User Authentication Success'), (26, 'Global Request'),
+        (27, 'Global Request'), (28, 'Request Success'), (29, 'Global Request'),
+        (30, 'Request Failure'), (31, 'Ignore'), (32, 'Debug'), (33, 'Ping'),
+        (34, 'Pong'), (35, 'Unknown (200)'), (36, 'Channel Open'),
+        (37, 'Channel Open Confirmation'), (38, 'Channel Request'),
+        (39, 'Channel Request'), (40, 'Channel Success'), (41, 'Channel Request'),
+        (42, 'Channel Success'), (43, 'Channel Data, SSH_FXP_INIT'),
+        (44, 'Channel Data, SSH_FXP_VERSION'), (45, 'Channel Data, SSH_FXP_OPEN'),
+        (46, 'Channel Data, SSH_FXP_HANDLE'),
+        (47, 'Channel Data [SSH segment of a reassembled PDU]'),
+        (48, 'SSH_FXP_WRITE'), (49, 'SSH_FXP_CLOSE'), (50, 'SSH_FXP_READ'),
+        (51, 'Channel Data, SSH_FXP_STATUS'),
+        (52, 'Channel Data, SSH_FXP_STATUS, Channel Data, SSH_FXP_STATUS'),
+        (55, 'Channel Data, SSH_FXP_LSTAT'), (56, 'Window Adjust'),
+        (57, 'Channel Data [SSH segment of a reassembled PDU]'),
+        (58, 'SSH_FXP_OPENDIR'),
+        (59, 'Channel Data [SSH segment of a reassembled PDU]'),
+        (60, 'Channel Data [SSH segment of a reassembled PDU]'),
+        (61, 'Channel Data [SSH segment of a reassembled PDU]'),
+        (62, 'SSH_FXP_READ'), (63, 'Channel Data, SSH_FXP_STATUS'),
+        (64, 'Channel Open'), (65, 'Channel Open Confirmation'),
+        (66, 'Channel Request'), (67, 'Channel Success'), (68, 'Channel Data'),
+        (69, 'Channel Data'), (70, 'Channel Extended Data'), (71, 'Channel Open'),
+        (72, 'Channel Open Confirmation'), (73, 'Channel Request'),
+        (74, 'Channel Data'), (75, 'Channel Request'), (76, 'Channel Open'),
+        (77, 'Channel Open Confirmation'), (78, 'Channel Data'),
+        (79, 'Channel Request'), (80, 'Channel EOF'), (81, 'Channel Close'),
+        (82, 'Channel Close'), (83, 'Channel EOF'), (84, 'Channel Close'),
+        (85, 'Channel Close'), (86, 'Channel EOF'), (87, 'Channel Close'),
+        (88, 'Channel Close'), (89, 'Channel EOF'), (90, 'Channel Close'),
+        (91, 'Channel Close'), (92, 'Key Exchange Init'), (93, 'Key Exchange Init'),
+        (94, 'Elliptic Curve Diffie-Hellman Key Exchange Init'),
+        (95, 'Elliptic Curve Diffie-Hellman Key Exchange Reply'), (96, 'New Keys'),
+        (97, 'New Keys'), (98, 'Ignore'), (99, 'Disconnect'),
+    ]
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, fields, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('ssh_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ssh_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts (second pass), no malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ('_ws.col.protocol',), '-2')
+        counts = {}
+        for r in rows:
+            counts[r[0]] = counts.get(r[0], 0) + 1
+        assert len(rows) == 464
+        assert counts == {'TCP': 163, 'SSH': 2, 'SSHv1': 5, 'SSHv2': 294}
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, ('frame.number',),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000', *passes)
+            assert rows == []
+
+    def test_ssh_none_cipher_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every transport, user authentication and connection message of
+        the "none" connection, with the key exchange, the rekey (frames
+        92-97) and the SFTP requests in the channel data.'''
+        import re
+        rows = self.rows(cmd_tshark, capture_file, test_env, ('frame.number', '_ws.col.info'),
+                '-Y', 'tcp.stream == 0 && ssh', '-2')
+        got = []
+        for number, info in rows:
+            info = re.sub(r'^(Client|Server): ', '', info)
+            info = re.sub(r'Encrypted packet \(plaintext_len=\d+\), ?', '', info)
+            info = re.sub(r', ?Encrypted packet \(plaintext_len=\d+\)', '', info)
+            got.append((int(number), info))
+        assert got == self.NONE_MESSAGES
+
+    def test_ssh_key_exchange(self, cmd_tshark, capture_file, test_env):
+        '''KEXINIT algorithms and HASSH, host key and signature types of
+        every key exchange method, the group exchange numbers and the
+        post-quantum hybrid blobs.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.kex.hassh', 'ssh.kex.hasshserver', 'ssh.kex_algorithms'),
+                '-Y', 'frame.number in {6, 7}')
+        assert rows == [
+            ['6', '095ff2b62d33be23e2e85812baf16e0a', '', 'curve25519-sha256,kex-strict-c-v00@openssh.com'],
+            ['7', '', 'fe8127930d1e9d2cc7eb1717ef2267a6', 'curve25519-sha256,kex-strict-s-v00@openssh.com'],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.host_key.type', 'ssh.host_sig.type'),
+                '-Y', 'ssh.host_key.type && frame.number in {9, 26, 111, 129, 149, 165}')
+        assert rows == [
+            ['9', 'ssh-ed25519', 'ssh-ed25519'],
+            ['26', 'ssh-ed25519,ssh-rsa', ''],
+            ['111', 'ecdsa-sha2-nistp256', 'ssh-ed25519'],
+            ['129', 'ssh-rsa', 'ssh-rsa'],
+            ['149', 'ssh-dss', 'ssh-dss'],
+            ['165', 'ssh-unknown-type', 'ssh-ed25519'],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.dh_gex.min', 'ssh.dh_gex.nbits', 'ssh.dh_gex.max'),
+                '-Y', 'ssh.dh_gex.nbits')
+        assert rows == [['145', '', '2048', ''], ['146', '1024', '2048', '8192']]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.kex_hybrid_blob_client_len', 'ssh.kex_hybrid_blob_server_len'),
+                '-Y', 'ssh.kex_hybrid_blob_client_len || ssh.kex_hybrid_blob_server_len')
+        assert rows == [
+            ['212', '1190', ''], ['213', '', '1071'], ['227', '1216', ''], ['228', '', '1120'],
+            ['242', '1249', ''], ['243', '', '1153'], ['257', '1665', ''], ['258', '', '1665'],
+        ]
+
+    def test_ssh_strict_kex_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''The "none" connection uses OpenSSH strict key exchange: the packet
+        sequence numbers restart at 0 after NEWKEYS, in both directions.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.seq_num'),
+                '-Y', 'tcp.stream == 0 && frame.number in {6, 7, 8, 9, 10, 11, 12, 13, 25, 52}', '-2')
+        assert rows == [
+            ['6', '0'], ['7', '0'], ['8', '1'], ['9', '1,2'], ['10', '2'], ['11', '0'],
+            ['12', '0,1'], ['13', '1'], ['25', '4'], ['52', '16,17'],
+        ]
+
+    def test_ssh_userauth(self, cmd_tshark, capture_file, test_env):
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.userauth_method_name', 'ssh.userauth_pka_name',
+                 'ssh.userauth.have_signature', 'ssh.userauth_password',
+                 'ssh.userauth_new_password', 'ssh.pk_sig_blob_name'),
+                '-Y', 'tcp.stream == 0 && ssh.userauth_user_name', '-2')
+        assert rows == [
+            ['13', 'none', '', '', '', '', ''],
+            ['15', 'publickey', 'ssh-ed25519', 'False', '', '', ''],
+            ['17', 'publickey', 'ssh-ed25519', 'True', '', '', 'ssh-ed25519'],
+            ['18', 'publickey', 'ssh-rsa', 'False', '', '', ''],
+            ['19', 'publickey', 'ssh-dss', 'False', '', '', ''],
+            ['20', 'publickey', 'ecdsa-sha2-nistp256', 'False', '', '', ''],
+            ['21', 'publickey', 'ssh-unknown-type', 'False', '', '', ''],
+            ['22', 'publickey-hostbound-v00@openssh.com', 'ssh-ed25519', 'True', '', '', 'ssh-ed25519'],
+            ['23', 'password', '', '', 'secret-password', '', ''],
+            ['24', 'password', '', '', 'old-password', 'new-password', ''],
+        ]
+
+    def test_ssh_ext_info_and_session(self, cmd_tshark, capture_file, test_env):
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('ssh.extension.name', 'ssh.extension.server_sig_algs.algorithms',
+                 'ssh.extension.no_flow_control.value', 'ssh.extension.elevation.value',
+                 'ssh.extension.count'),
+                '-Y', 'frame.number == 12', '-2')
+        assert rows == [[
+            'server-sig-algs,delay-compression,no-flow-control,elevation,'
+            'publickey-algorithms@roumenpetrov.info,ping@openssh.com,global-requests-ok,'
+            'other-extension', 'ssh-ed25519,rsa-sha2-256,rsa-sha2-512', 'p', 'y', '8']]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.channel_request_name', 'ssh.subsystem_name',
+                 'ssh.exec_command', 'ssh.env_name', 'ssh.env_value', 'ssh.pty_term',
+                 'ssh.pty_term_width_char'),
+                '-Y', 'tcp.stream == 0 && ssh.channel_request_name', '-2')
+        assert rows == [
+            ['38', 'env', '', '', 'LANG', 'C.UTF-8', '', ''],
+            ['39', 'pty-req', '', '', '', '', 'xterm', '80'],
+            ['41', 'subsystem', 'sftp', '', '', '', '', ''],
+            ['66', 'shell', '', '', '', '', '', ''],
+            ['73', 'exec', '', 'uname -a', '', '', '', ''],
+            ['75', 'exit-status', '', '', '', '', '', ''],
+            ['79', 'keepalive@openssh.com', '', '', '', '', '', ''],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('ssh.pty_term_mode.opcode',), '-Y', 'frame.number == 39', '-2')
+        opcodes = rows[0][0].split(',')
+        assert len(opcodes) == 65 and opcodes[0] == '1' and opcodes[-1] == '0'
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.ping_data', 'ssh.pong_data', 'ssh.disconnect_reason',
+                 'ssh.disconnect_description'),
+                '-Y', 'frame.number in {33, 34, 99}', '-2')
+        assert rows == [['33', '70696e672064617461', '', '', ''],
+                        ['34', '', '70696e672064617461', '', ''],
+                        ['99', '', '', '0x0000000b', 'by application']]
+
+    def test_ssh_sftp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SFTP requests spread over several CHANNEL_DATA packets are
+        reassembled by the SSH dissector, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                    ('frame.number', 'sftp.packet_type', 'sftp.length'),
+                    '-Y', 'frame.number in {48, 49, 50, 58, 62}', *passes)
+            assert rows == [
+                ['48', '6', ''], ['49', '4', ''], ['50', '5', '32768'],
+                ['58', '11', ''], ['62', '5', '4096'],
+            ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.reassembled_in'),
+                '-Y', 'frame.number in {47, 57, 59, 60, 61}', '-2')
+        assert rows == [['47', '48'], ['57', '58'], ['59', '62'], ['60', '62'], ['61', '62']]
+
+    def test_ssh_banners(self, cmd_tshark, capture_file, test_env):
+        '''Several banner lines in one segment are all dissected (the offset
+        after a banner line was wrong; fixed in "SSH: Fix aborts and
+        over-reads in key exchange and key setup"), banners split over
+        segments, and SSH-1.99 as version 2.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.protocol'),
+                '-Y', 'frame.number in {124, 270, 271, 290}', '-2')
+        assert rows == [
+            ['124', 'SSH-1.99-Cisco-1.25'],
+            ['270', 'SSH-2.0-split_banner_1'],
+            ['271', 'SSH-2.0-first_line,SSH-2.0-second_line,SSH-2.0-third_line'],
+            ['290', 'SSH-1.5-OpenSSH_1.2.27'],
+        ]
+
+    def test_ssh_encrypted_packets(self, cmd_tshark, capture_file, test_env):
+        '''Connections with a negotiated cipher but no keys: the packets
+        stay encrypted. The length is in the clear for AES-GCM and for the
+        -etm MAC names.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.packet_length_encrypted', 'ssh.packet_length'),
+                '-Y', 'frame.number in {113, 183, 311}', '-2')
+        assert rows == [
+            ['113', '6c737a81', ''],
+            ['183', '', '48'],
+            ['311', '', '20'],
+        ]
+
+    def test_ssh_mac_length_limit(self, cmd_tshark, capture_file, test_env):
+        '''A MAC named hmac-x-1024 (128 octets) is refused; before the fix it
+        was accepted and the 128 octets were added as a checksum read from
+        a buffer of 48 octets (heap over-read) when the MAC check is
+        ignored. Frame 326 must have no MAC field.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                    ('frame.number', 'ssh.mac', 'ssh.mac.status'),
+                    '-o', 'ssh.ignore_ssh_mac_failed:TRUE', '-Y', 'frame.number == 326', *passes)
+            assert rows == [['326', '', '']]
+
+    def test_ssh_mac_check_ignored(self, cmd_tshark, capture_file, test_env):
+        '''cipher none with a 20 octet MAC cannot be verified: the packets
+        stay opaque by default and are decoded, with a bad MAC error,
+        when the MAC check is ignored.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', '_ws.col.info'), '-Y', 'frame.number in {311, 312}', '-2')
+        assert all('Encrypted packet (len=' in r[1] for r in rows) and len(rows) == 2
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssh.mac.status'), '-o', 'ssh.ignore_ssh_mac_failed:TRUE',
+                '-Y', 'frame.number in {311, 312}', '-2')
+        assert rows == [['311', '0'], ['312', '0']]        # 0 = bad checksum
