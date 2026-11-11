@@ -213,10 +213,13 @@ static int tftp_eo_tap;
 static bool tftp_defragment;
 
 /* Used for TFTP Export Object feature */
+/* Points to dissector memory; the tap callback makes its own copies,
+ * so nothing leaks when the queued tap data is not delivered (for
+ * example in the first pass of tshark -2). */
 typedef struct _tftp_eo_t {
-  char     *filename;
-  uint32_t payload_len;
-  uint8_t  *payload_data;
+  const char    *filename;
+  uint32_t       payload_len;
+  const uint8_t *payload_data;
 } tftp_eo_t;
 
 /* Tap function */
@@ -236,12 +239,9 @@ tftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const
   /* Copy filename */
   entry->filename = g_path_get_basename(eo_info->filename);
 
-  /* Free up unnecessary memory */
-  g_free(eo_info->filename);
-
-  /* Pass out the contiguous data and length already accumulated. */
+  /* Pass out a copy of the contiguous data and length already accumulated. */
   entry->payload_len = eo_info->payload_len;
-  entry->payload_data = eo_info->payload_data;
+  entry->payload_data = (uint8_t *)g_memdup2(eo_info->payload_data, eo_info->payload_len);
 
   /* These 2 fields not used */
   entry->hostname = NULL;
@@ -600,25 +600,9 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
            * block is present in the file yet. */
     ) {
 
-      if (PINFO_FD_VISITED(pinfo)) {
-        if (blocknum == 1 && !tftp_info->payload_data) {
-          /* XXX - This can allocate data which is leaked if the frame is being
-           * dissected for other reasons, e.g. if the file is long and the
-           * Export Objects dialog was opened before idle dissection for the
-           * columns completed. It might be easier just to always (re-)allocate in
-           * file scope as in the other branch, at the cost of a single copy.
-           * Also note that if tftp_defragment is true, then we are already
-           * collecting data in the reassembly head and could just use that.
-           */
-          tftp_info->payload_data = (uint8_t *)g_try_malloc((size_t)tftp_info->file_length);
-        }
-      } else {
-        /* We allocate this in file scope so that it doesn't leak if it
-         * turns out we don't have all the blocks so we never send this
-         * to the tap. That means we have to copy it when we actually send
-         * it to the tap, since the tap frees it. (Alternatively we could
-         * add a wmem callback to be called if tftp_info->payload_data were
-         * non-NULL, to avoid the copy.) */
+      /* Always use a file-scope buffer; the tap gets a copy, since it
+       * frees what it is given. */
+      if (!PINFO_FD_VISITED(pinfo) || blocknum == 1) {
         tftp_info->payload_data = (uint8_t *)wmem_realloc(wmem_file_scope(), tftp_info->payload_data, (size_t)tftp_info->file_length);
       }
 
@@ -630,7 +614,12 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
       payload_data_offset =
           (tftp_info->next_tap_block_num - 1) * tftp_info->blocksize;
 
-      DISSECTOR_ASSERT_CMPINT(payload_data_offset + bytes, <=, tftp_info->file_length);
+      if (payload_data_offset > tftp_info->file_length ||
+          bytes > tftp_info->file_length - payload_data_offset) {
+        /* Inconsistent transfer, drop this object */
+        tftp_info->next_tap_block_num = 1;
+        break;
+      }
 
       /* Copy data to its place in the payload_data */
       tvb_memcpy(tvb, tftp_info->payload_data + payload_data_offset, offset,
@@ -645,15 +634,11 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
         eo_info = wmem_new(pinfo->pool, tftp_eo_t);
 
         /* Set filename */
-        eo_info->filename = g_strdup(filename);
+        eo_info->filename = filename;
 
         /* Set payload */
         eo_info->payload_len = tftp_info->file_length;
-        if (PINFO_FD_VISITED(pinfo)) {
-          eo_info->payload_data = tftp_info->payload_data;
-        } else {
-          eo_info->payload_data = g_memdup2(tftp_info->payload_data, tftp_info->file_length);
-        }
+        eo_info->payload_data = tftp_info->payload_data;
 
         /* Send to tap */
         tap_queue_packet(tftp_eo_tap, pinfo, eo_info);
@@ -872,6 +857,8 @@ dissect_tftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 {
   if (is_valid_request_body(tvb, pinfo)) {
     conversation_t* conversation = create_tftp_conversation(pinfo);
+    if (!conversation)
+      conversation = find_or_create_conversation(pinfo);
     dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
     return true;
   }
