@@ -17,6 +17,8 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 
 #include <epan/tap.h>
 
@@ -26,6 +28,9 @@ void proto_reg_handoff_teredo(void);
 void proto_register_teredo(void);
 
 static int teredo_tap;
+
+#define TEREDO_MAX_NESTING 8
+static expert_field ei_teredo_nested;
 
 static int proto_teredo;
 
@@ -197,6 +202,7 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree *teredo_tree;
 	proto_item *ti;
 	int        offset = 0;
+	unsigned   depth;
 	static e_teredohdr teredohstruct[4], *teredoh;
 	static int teredoh_count = 0;
 
@@ -229,7 +235,14 @@ dissect_teredo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	teredoh->th_ip_v_hl = tvb_get_uint8(tvb, offset);
 
+	depth = p_get_proto_depth(pinfo, proto_teredo);
+	if (depth >= TEREDO_MAX_NESTING) {
+		expert_add_info(pinfo, ti, &ei_teredo_nested);
+		return tvb_captured_length(tvb);
+	}
+	p_set_proto_depth(pinfo, proto_teredo, depth + 1);
 	decode_teredo_ports(tvb, offset, pinfo, tree, teredoh->th_header /* , teredoh->th_orgport*/);
+	p_set_proto_depth(pinfo, proto_teredo, depth);
 	tap_queue_packet(teredo_tap, pinfo, teredoh);
 	return tvb_captured_length(tvb);
 }
@@ -366,11 +379,19 @@ proto_register_teredo(void)
 		&ett_teredo, &ett_teredo_auth, &ett_teredo_orig
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_teredo_nested, { "teredo.nested", PI_UNDECODED, PI_WARN,
+			"Too many nested Teredo headers", EXPFILL }},
+	};
+
 	module_t *teredo_module;
+	expert_module_t *expert_teredo;
 
 	proto_teredo = proto_register_protocol("Teredo IPv6 over UDP tunneling", "Teredo", "teredo");
 	proto_register_field_array(proto_teredo, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_teredo = expert_register_protocol(proto_teredo);
+	expert_register_field_array(expert_teredo, ei, array_length(ei));
 	teredo_handle = register_dissector("teredo", dissect_teredo, proto_teredo);
 
 /* subdissector code */
