@@ -1415,6 +1415,22 @@ tcpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
     return TAP_PACKET_REDRAW;
 }
 
+static tap_packet_status
+mptcpip_endpoint_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip, tap_flags_t flags)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    hash->flags = flags;
+
+    /* The MPTCP tap passes the TCP analysis, not the TCP header */
+    const struct tcp_analysis *tcpd=(const struct tcp_analysis *)vip;
+    const mptcp_meta_flow_t *meta=(const mptcp_meta_flow_t *)tcpd->fwd->mptcp_subflow->meta;
+
+    add_endpoint_table_data(hash, &meta->ip_src, meta->sport, true, 1, pinfo->fd->pkt_len, &tcp_endpoint_dissector_info, ENDPOINT_TCP);
+    add_endpoint_table_data(hash, &meta->ip_dst, meta->dport, false, 1, pinfo->fd->pkt_len, &tcp_endpoint_dissector_info, ENDPOINT_TCP);
+
+    return TAP_PACKET_REDRAW;
+}
+
 static bool
 tcp_filter_valid(packet_info *pinfo, void *user_data _U_)
 {
@@ -12054,7 +12070,7 @@ proto_register_tcp(void)
         "Ports for which the dissector will to be chosen based on the client port instead of the server port",
         &tcp_clientport_dissectors_range, 65535);
 
-    register_conversation_table(proto_mptcp, false, mptcpip_conversation_packet, tcpip_endpoint_packet);
+    register_conversation_table(proto_mptcp, false, mptcpip_conversation_packet, mptcpip_endpoint_packet);
     register_follow_stream(proto_tcp, "tcp_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
                             tcp_port_to_display, follow_tcp_tap_listener, get_tcp_stream_count, NULL);
 
