@@ -148885,3 +148885,149 @@ class TestDissectThread:
         assert rows[3][6] == '0001'
         assert rows[4][7] == '010203'
         assert len(rows) == 6
+
+
+class TestDissectThrift:
+    '''Apache Thrift (TBinaryProtocol strict and old header, TCompactProtocol,
+    each with and without TFramedTransport) from the synthetic capture
+    thrift_coverage.pcap.gz: TCP 19090-19094 and UDP 19190 found by the
+    thrift_tcp and thrift_udp heuristics, HTTP with the Thrift media types,
+    old binary headers on TCP 19290/19291 and UDP 19290 (Decode As, see
+    OLD). Frames 157 and 158 are the reproducer of "Thrift: Stop at the
+    nesting limit in the binary protocol" and carry the nesting error.'''
+
+    OLD = ('-d', 'tcp.port==19290,thrift', '-d', 'tcp.port==19291,thrift',
+           '-d', 'udp.port==19290,thrift')
+    # Frames of the same struct with every type, in each encoding: strict
+    # binary, framed strict, compact, framed compact, UDP strict, UDP compact, HTTP
+    ALL_TYPES = (4, 33, 55, 85, 100, 102, 108)
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=(), timeout=120):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('thrift_coverage.pcap.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=timeout)
+        return stdout.splitlines()
+
+    def test_thrift_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-156 have no malformed packets and no error expert infos
+        in one and two passes; the number of Thrift frames with and without
+        Decode As for the old binary header.'''
+        for passes in ((), ('-2',)):
+            bad = self.fields(cmd_tshark, capture_file, test_env,
+                    '-Y', 'frame.number <= 156 && (_ws.malformed || _ws.expert.severity >= 0x00800000)',
+                    '-Tfields', '-eframe.number', passes=passes)
+            assert bad == []
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 158
+        assert rows.count('THRIFT') == 76
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OLD,
+                '-Tfields', '-e_ws.col.protocol')
+        assert rows.count('THRIFT') == 93
+
+    def test_thrift_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes give the same messages (the Info column of
+        the segments of a reassembled message differs by design).'''
+        args = ('-Y', 'thrift', *self.OLD, '-Tfields', '-ethrift.method', '-ethrift.seq_id', '-ethrift.mtype')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert sorted(set(one)) == sorted(set(two))
+        assert len(set(one)) > 30
+
+    def test_thrift_all_types(self, cmd_tshark, capture_file, test_env):
+        '''The same struct with every type is decoded alike by every
+        encoding: values of the integer, double, uuid, string and binary
+        fields are identical in the strict, framed, compact and old
+        protocols, over TCP, UDP and HTTP.'''
+        args = ['-ethrift.' + f for f in ('i8', 'i16', 'i32', 'i64', 'double', 'uuid', 'string', 'binary')]
+        seen = set()
+        for n in self.ALL_TYPES:
+            rows = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == %d' % n,
+                               '-Tfields', *args)
+            assert len(rows) == 1
+            seen.add(rows[0])
+        assert len(seen) == 1
+        cols = seen.pop().split('\t')
+        assert cols[0] != ''
+        assert cols[2].startswith('-70000,1,-2,3,7,7,7,1,2')
+        assert 'héllo wörld' in cols[6]
+        # the old binary header carries the same values (frame 125 is the first one on port 19290)
+        old = self.fields(cmd_tshark, capture_file, test_env, *self.OLD, '-Y', 'thrift.method == "everything" && frame.number > 120',
+                          '-Tfields', *args)
+        assert len(old) >= 2 and all(r == '\t'.join(cols) for r in old)
+
+    def test_thrift_binary_display(self, cmd_tshark, capture_file, test_env):
+        '''Binary fields are shown as strings when they are valid UTF-8
+        and as bytes otherwise; thrift.decode_binary changes that.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-ethrift.binary')
+        assert rows[0].startswith('00')
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-ethrift.string', '-ethrift.binary',
+                '-o', 'thrift.decode_binary:hexadecimal')
+        assert rows[0].startswith('\t68c3a96c6c6f')
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-ethrift.string', '-o', 'thrift.decode_binary:ascii')
+        assert 'a,bb,ccc,k1,k2' in rows[0]
+
+    def test_thrift_exceptions(self, cmd_tshark, capture_file, test_env):
+        '''Protocol exceptions (message type 3) are decoded with message
+        and type, over TCP strict, framed and compact, and UDP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'thrift.mtype == 3', '-Tfields', '-eframe.number',
+                '-ethrift.exception.message', '-ethrift.exception.type')
+        assert rows == ['%d\tInvalid method name: foo\t1' % n for n in (16, 37, 68, 87, 103)]
+
+    def test_thrift_framed_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Framed messages that span several TCP segments (frames 38-47
+        and 78-85 and the others) are reassembled in the last segment, and
+        without the desegment_framed preference they are not.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'thrift.method == "big"', '-Tfields', '-eframe.number')
+        assert rows == ['20', '47', '65', '66', '96']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'thrift.method == "big" && frame.number == 47', '-Tfields', '-eframe.number',
+                '-o', 'thrift.desegment_framed:FALSE')
+        assert rows == []
+
+    def test_thrift_http(self, cmd_tshark, capture_file, test_env):
+        '''HTTP bodies with the media types application/x-thrift and
+        application/vnd.apache.thrift.binary are dissected as Thrift.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'http && thrift', '-Tfields', '-eframe.number', '-ethrift.method')
+        assert rows == ['108\teverything', '109\teverything', '110\tadd', '111\tadd', '112\tcompact']
+
+    def test_thrift_old_header(self, cmd_tshark, capture_file, test_env):
+        '''The old (non-strict) binary header is not recognised by the
+        heuristics; with Decode As it is, framed or not, also mixed with
+        strict messages.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 120 && frame.number <= 156 && thrift', '-Tfields', '-eframe.number')
+        assert rows == ['129', '139']       # only the strict messages mixed into the streams
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OLD,
+                '-Y', 'frame.number >= 120 && frame.number <= 156 && thrift.method',
+                '-Tfields', '-ethrift.method')
+        assert {'everything', 'add', 'split', 'first_call,second_call', 'strict'} <= set(rows)
+        assert rows.count('strict') == 2
+
+    def test_thrift_depth_loop(self, cmd_tshark, capture_file, test_env):
+        '''25 nested lists whose innermost list claims 0x7fffffff lists
+        (frame 157), and the same with 28 levels (frame 158): the nesting
+        error is reported once and the message ends. Before "Thrift: Stop
+        at the nesting limit in the binary protocol" tshark looped 2^31 times
+        and ran out of memory, hence the timeout.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 157', '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                timeout=60)
+        assert rows == ['157\tToo many level of sub-types nesting.', '158\tToo many level of sub-types nesting.']
+
+    def test_thrift_old_mtype(self, cmd_tshark, capture_file, test_env):
+        '''The message type of an old header comes from the byte after the
+        method name (frame 156 is a CALL); it was read 4 + len(name) bytes
+        too far, as EXCEPTION, before "Thrift: Fix the message type of old
+        binary headers".'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OLD,
+                '-Y', 'frame.number == 156', '-Tfields', '-ethrift.mtype', '-ethrift.method',
+                '-e_ws.expert.message')
+        assert rows == ['0x01\tadd\t']
