@@ -148694,3 +148694,194 @@ class TestDissectTftp:
                           'tftp.reassembled_in', opts=('-2', '-o', 'tftp.defragment:TRUE'))
         assert [r[0] for r in rows][-3:] == ['127', '128', '129']
         assert {r[1] for r in rows[-3:]} == {'130'}
+
+
+class TestDissectThread:
+    CAPTURE = 'thread_coverage.pcapng.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, env, dfilter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('thread_coverage.pcapng.gz'),
+                '-Y', dfilter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+                '-E', 'aggregator=,',
+            ), encoding='utf-8', env=env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_thread_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The Thread dissectors are reached by Exported PDU names, CoAP for
+        TMF (Exported PDU) and the 802.15.4 beacon heuristic. No malformed
+        packets and no expert infos at all (the nesting limit needs Decode
+        As) in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        chains = [line.split(' ')[0] if False else line for line in stdout.splitlines()]
+        assert len(chains) == 196
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_address')) == 27
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_nm')) == 28
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_bl')) == 27
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_diagnostic')) == 13
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_nwd')) == 16
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_coap')) == 11
+        assert sum(1 for c in chains if c.startswith('exported_pdu:thread_meshcop')) == 63
+        assert sum(1 for c in chains if c.endswith('wpan:thread_bcn')) == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_thread_address_nm_bl(self, cmd_tshark, capture_file, test_env):
+        '''Frame 26, 81 are all TLVs of Thread Address / Backbone Link in one
+        message: the IPv6 address list (two addresses, and nothing is
+        skipped after it, which the fix for the double offset advance
+        made right) and the unknown TLV types at the end.'''
+        for fr, tp in ((26, 'thread_address'), (81, 'thread_bl')):
+            rows = self._rows(cmd_tshark, capture_file, test_env, f'frame.number == {fr}',
+                              f'{tp}.tlv.type', 'thread_meshcop.tlv.ipv6_addr', 'thread_address.tlv.rloc16',
+                              f'{tp}.tlv.status', f'{tp}.tlv.unknown')
+            assert rows[0][1] == '0,1,2,3,4,4,4,4,4,4,4,6,7,8,9,11,11,11,12,12,14,14,5,13,99'
+            assert rows[0][2] == 'fd00::ee01,fe80::211:22ff:fe33:4455'
+            assert rows[0][3] == '0x0400'     # the Backbone Link dissector uses the address field
+            assert rows[0][4] == '0,1,2,3,4,5,9'
+            assert rows[0][5] == '0102,ff,756e6b6e6f776e'
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_nm.tlv.type == 15',
+                          'thread_meshcop.tlv.commissioner_sess_id')
+        assert [r[1] for r in rows][:2] == ['1234', '1234']
+        # The network data TLV is handed to the Thread Network Data dissector
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_address && thread_nwd',
+                          'thread_nwd.tlv.prefix')
+        assert rows[0][1] == 'fd00:0:0:1::'
+
+    def test_thread_meshcop_skipped_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Domain Prefix, Commissioner Token, TRI Hostname and the PEN
+        signature and token TLVs are skipped, and the TLV after each is
+        decoded (their values were parsed as TLVs before the fix).'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_meshcop.tlv.net_name contains "after"',
+                          'thread_meshcop.tlv.net_name')
+        assert rows == [['149', 'after-60,after-63,after-67,after-70,after-71']]
+
+    def test_thread_meshcop_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Security policy (both lengths), the Thread 1.2 flags, the
+        vendor stack version, discovery TLVs, channel masks and the energy
+        list that is split by the number of channels of the mask.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number in {109, 110}',
+                          'thread_meshcop.tlv.sec_policy_rot', 'thread_meshcop.tlv.sec_policy_ccm',
+                          'thread_meshcop.tlv.sec_policy_vr')
+        assert rows == [['109', '600', '', ''], ['110', '600', 'True', '0']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 126',
+                          'thread_meshcop.tlv.vendor_stack_ver_oui',
+                          'thread_meshcop.tlv.vendor_stack_ver_build',
+                          'thread_meshcop.tlv.vendor_stack_ver_rev',
+                          'thread_meshcop.tlv.vendor_stack_ver_min',
+                          'thread_meshcop.tlv.vendor_stack_ver_maj')
+        assert rows == [['126', '16772829', '291', '4', '5', '10']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 142',
+                          'thread_meshcop.tlv.discovery_req_ver', 'thread_meshcop.tlv.discovery_req_j')
+        assert rows == [['142', '1', 'False']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 151',
+                          'thread_meshcop.tlv.chan_mask_page', 'thread_meshcop.tlv.chan_mask_mask',
+                          'thread_meshcop.tlv.energy_list')
+        assert rows == [['151', '0,1', '07fff800,ffff',
+                         '000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f,'
+                         '202122232425262728292a2b2c2d2e2f303132333435363738393a3b3c3d3e3f']]
+        # Frame 152: 33 octets cannot be split by 16 channels, shown as one string
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 152',
+                          'thread_meshcop.tlv.el_count', 'thread_meshcop.tlv.energy_list')
+        assert rows[0][1] == ''
+        assert len(rows[0][2]) == 66
+
+    def test_thread_nwd(self, cmd_tshark, capture_file, test_env):
+        '''Network data: prefixes with their sub-TLVs and the service TLVs
+        with the Server sub-TLV decoded by the service data: BBR, SRP
+        anycast and unicast (short and with address and port), unknown.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 161 && frame.number <= 164',
+                          'thread_nwd.tlv.prefix.domain_id', 'thread_nwd.tlv.prefix.length',
+                          'thread_nwd.tlv.prefix')
+        assert rows == [['161', '0', '64', 'fd00:0:0:1::'], ['162', '1', '0', '::'],
+                        ['163', '0', '128', 'fd00:0:0:1::1'], ['164', '0', '7', 'fc00::']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_nwd.tlv.service.s_id',
+                          'thread_nwd.tlv.service.s_ent_num', 'thread_nwd.tlv.service.s_data',
+                          'thread_nwd.tlv.server.16', 'thread_nwd.tlv.server.data',
+                          'thread_nwd.tlv.service.s_data.seqno', 'thread_nwd.tlv.service.s_data.rrdelay',
+                          'thread_nwd.tlv.service.s_data.mlrtimeout',
+                          'thread_nwd.tlv.service.unicast_port_no', 'thread_nwd.tlv.service.anycast_seqno')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        # The columns: enterprise number, service data, server 16, server
+        # data, BBR sequence number, delay, timeout, unicast port, anycast sequence number
+        assert by_frame[166][:2] == ['44970', '0102']
+        assert by_frame[166][3] == '65787472612064617461'        # server data "extra data"
+        assert by_frame[167][2:4] == ['0x0400', '']
+        assert by_frame[167][4:7] == ['7', '5', '3600']          # BBR server fields
+        assert by_frame[168][8] == '9'                           # SRP anycast sequence number
+        assert by_frame[169][7] == '8080'                        # SRP unicast: port after the server
+        assert by_frame[170][7] == '8080'                        # and in the service data
+
+    def test_thread_udp_encapsulation(self, cmd_tshark, capture_file, test_env):
+        '''The UDP Encapsulation TLV: ports, the pseudo UDP datagram handed
+        to UDP (the child tvb has the length of the TLV), a CoAP message
+        inside it, a datagram without payload.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_meshcop.tlv.udp_encap_src_port',
+                          'thread_meshcop.tlv.udp_encap_src_port', 'thread_meshcop.tlv.udp_encap_dst_port',
+                          'frame.protocols', 'udp.length')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[155][:2] == ['61631', '61632']
+        assert by_frame[155][2] == 'exported_pdu:thread_meshcop:udp:data'
+        assert by_frame[156][2] == 'exported_pdu:thread_meshcop:udp'
+        assert by_frame[157][2] == 'exported_pdu:thread_meshcop:udp:coap:data'
+
+    def test_thread_udp_encapsulation_nesting(self, cmd_tshark, capture_file, conf_path, test_env):
+        '''With CoAP-TMF on UDP port 5683 (Decode As) the UDP Encapsulation
+        TLV recurses into MeshCoP. After 8 levels there is an expert info
+        (the generic layer assertion ended it before the fix); 2 levels
+        are fine.'''
+        with open(os.path.join(conf_path, 'decode_as_entries'), 'w') as f:
+            f.write('decode_as_entry: udp.port,5683,(none),CoAP-TMF\n')
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_meshcop.nested',
+                              '_ws.expert.message', opts=passes)
+            assert rows == [['159', 'Too many nested UDP Encapsulation TLVs']]
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 158 || frame.number == 159',
+                              'frame.protocols', opts=passes)
+            assert rows[0][1].count('thread_meshcop') == 4
+            assert rows[1][1].count('thread_meshcop') == 9
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_thread_coap_namespaces(self, cmd_tshark, capture_file, test_env):
+        '''CoAP for TMF hands the payload to the dissector of the URI
+        namespace; an unknown namespace or a path with one segment goes
+        nowhere.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number >= 177 && frame.number <= 188',
+                          'frame.protocols')
+        chains = {int(r[0]): r[1] for r in rows}
+        assert chains[177] == chains[178] == chains[179] == 'exported_pdu:thread_coap:thread_address'
+        assert chains[180] == 'exported_pdu:thread_coap:thread_nm'
+        assert chains[181] == 'exported_pdu:thread_coap:thread_bl'
+        assert chains[182] == 'exported_pdu:thread_coap:thread_diagnostic'
+        assert chains[183] == chains[184] == 'exported_pdu:thread_coap:thread_meshcop'
+        assert chains[185] == chains[186] == chains[187] == 'exported_pdu'
+
+    def test_thread_beacons(self, cmd_tshark, capture_file, test_env):
+        '''Thread beacons by the heuristic: the network name only, with the
+        extended PAN ID, with steering data (16 or 8 octets of other
+        values) and an unknown TLV, with a short and an extended source.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'thread_bcn',
+                          'thread_bcn.joining', 'thread_bcn.native', 'thread_bcn.version',
+                          'thread_bcn.network_name', 'thread_bcn.epid',
+                          'thread_bcn.tlv.steering_data', 'thread_bcn.tlv.unknown')
+        assert rows[0] == ['191', 'True', 'False', '9', 'ThreadNet', '', '', '']
+        assert rows[1][5] == 'de:ad:00:be:ef:00:ca:fe'
+        assert rows[2][2] == 'True' and rows[2][6] == 'ff' * 16
+        assert rows[3][6] == '0001'
+        assert rows[4][7] == '010203'
+        assert len(rows) == 6
