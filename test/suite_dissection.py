@@ -140426,3 +140426,89 @@ class TestDissectSnaeth:
         assert [r[1] for r in rows] == ['0x04', '0x04', '0x08', '0x0c', '0x04', '0x20', '0x04', '0x04']
         assert rows[3][2] == '0x0402'
         assert rows[0][3] == '0x02' and rows[4][4] == '0'
+
+
+class TestDissectSndcp:
+    '''SNDCP of GPRS from the synthetic capture sndcp_coverage.pcap.gz: GSMTAP
+    (UDP 4729) with type 9 (SNDCP) and type 8 (LLC UI frames on SAPI 3, 5, 9
+    and 11); N-PDUs in acknowledged and unacknowledged mode, compressed
+    N-PDUs, every NSAPI, and reassembly of segmented N-PDUs.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sndcp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sndcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''37 frames: 17 SNDCP frames that are not completed N-PDUs and 20
+        carrying the UDP datagram of an N-PDU; no malformed packets or error
+        expert infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 37
+        assert protocols.count('SNDCP') == 17
+        assert protocols.count('UDP') == 20
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sndcp_header(self, cmd_tshark, capture_file, test_env):
+        '''The F, T and M bits, compression, segment and N-PDU numbers.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 4, 5, 9, 19, 26, 27, 28, 29}',
+                '-Tfields', '-eframe.number', '-esndcp.nsapib', '-esndcp.f',
+                '-esndcp.t', '-esndcp.m', '-esndcp.dcomp', '-esndcp.pcomp',
+                '-esndcp.segment', '-esndcp.npdu', '-esndcp.x')
+        assert rows[0] == ['1', '5', 'True', 'False', 'False', '0', '0', '', '3', 'False']
+        assert rows[1] == ['2', '6', 'True', 'True', 'False', '0', '0', '0', '1', 'False']
+        assert rows[2][5:7] == ['1', '0']        # data compression
+        assert rows[3][5:7] == ['0', '1']        # protocol compression
+        assert rows[4][5:7] == ['2', '3']
+        assert rows[5][1] == '3' and rows[5][9] == 'True'    # NSAPI 3, spare bit set
+        assert rows[6][:5] == ['19', '5', 'False', 'True', 'True']      # not first, more segments
+        assert rows[7][:5] == ['26', '5', 'True', 'False', 'True']      # acknowledged, segmented
+        assert rows[8][2:5] == ['False', 'False', 'False']
+        assert rows[9][2:5] == ['False', 'False', 'True']
+        assert rows[10][0] == '29' and rows[10][7:9] == ['1', '30']
+
+    def test_sndcp_every_nsapi(self, cmd_tshark, capture_file, test_env):
+        '''Frames 6-17 carry NSAPI 0-4 and 9-15 as unacknowledged N-PDUs.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 6 && frame.number <= 17', '-Tfields',
+                '-esndcp.nsapib')
+        assert [r[0] for r in rows] == ['0', '1', '2', '3', '4', '9', '10', '11', '12', '13', '14', '15']
+
+    def test_sndcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Unacknowledged N-PDUs in three segments (frames 18-20), two (21-22)
+        and out of order (23-25), and the same N-PDU number in another flow
+        (30-31) are reassembled in their last frame; acknowledged mode
+        segments (26-28) are not.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sndcp.npdu.reassembled.length', '-Tfields',
+                '-eframe.number', '-esndcp.npdu.reassembled.length',
+                '-eudp.length')
+        assert [(r[0], r[1]) for r in rows] == [
+            ('20', '92'), ('22', '92'), ('25', '92'), ('31', '92'), ('37', '56')]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-2', '-Y', 'sndcp.npdu.reassembled.in', '-Tfields',
+                '-eframe.number', '-esndcp.npdu.reassembled.in')
+        assert [tuple(r) for r in rows[:6]] == [
+            ('18', '20'), ('19', '20'), ('21', '22'), ('23', '25'), ('24', '25'), ('30', '31')]
+
+    def test_sndcp_nested_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frames 36-37: an N-PDU whose reassembled IP packet holds UDP,
+        GSMTAP and another SNDCP segment with the same N-PDU number. On the
+        second pass the inner SNDCP layer got the outer reassembly, no
+        tvb, and called IP with it ("SNDCP: Do not pass a NULL tvb to IP
+        after reassembly"); WIRESHARK_ABORT_ON_DISSECTOR_BUG is set by the
+        test suite.'''
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', 'frame.number >= 36', '-Tfields', '-eframe.number',
+                    '-esndcp.npdu.reassembled.length')
+            assert rows == [['36', ''], ['37', '56']]
