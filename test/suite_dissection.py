@@ -148066,3 +148066,42 @@ class TestDissectTeklink:
                 '-Tfields', '-eframe.number', '-erpc.procedure',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['81\t4660', '82\t4660']
+
+
+class TestDissectTelkonet:
+    def test_telkonet_frames(self, cmd_tshark, capture_file, test_env):
+        '''Tunnel frames are passed to Ethernet, unknown types are only
+        shown as Telkonet. No malformed packets or expert infos in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('telkonet_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-etelkonet.type',
+                '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t7800000000000000\tUDP\t1234 → 5678 Len=15',
+            '2\t7801020304050607\tARP\tWho has 192.0.2.2? Tell 192.0.2.1',
+            '3\t7800000000000000\t0x88b5\tLocal Experimental Ethertype 1',
+            '4\t0100000000000000\tTELKONET\tTelkonet type: Unknown (0x01)',
+            '5\t0000000000000000\tTELKONET\tTelkonet type: Unknown (0x00)',
+            '6\tff00000000000000\tTELKONET\tTelkonet type: Unknown (0xff)',
+        ]
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('telkonet_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_telkonet_tunnel_contents(self, cmd_tshark, capture_file, test_env):
+        '''The inner Ethernet frame of a tunnel frame is dissected after
+        the 8 octet Telkonet header.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('telkonet_coverage.pcap.gz'),
+                '-Y', 'telkonet && udp',
+                '-Tfields', '-eframe.number', '-eeth.type', '-eip.src',
+                '-eudp.dstport', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == (
+            '1\t0x88a1,0x0800\t192.0.2.1\t5678\teth:ethertype:telkonet:eth:ethertype:ip:udp:data')
