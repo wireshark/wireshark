@@ -27,6 +27,7 @@
 
 #include <config.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
@@ -2074,12 +2075,11 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
                     proto_tree_add_uint_format(tecmp_tree, hf_tecmp_payload_ctrl_msg_can_replay_fill_level_queue_length, tvb, offset, 1, queue_level, "Queue %d Fill Level: %d", i, queue_level);
                     offset += 1;
                 }
-                offset += 1;
 
                 break;
 
             case TECMP_CTRL_MSG_FR_POC_STATE:
-                ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_flexray_poc_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &interface_id);
                 add_interface_id_text_and_name(ti, interface_id, tvb, offset);
                 offset += 4;
 
@@ -2089,7 +2089,7 @@ dissect_tecmp_control_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, u
                 break;
 
             case TECMP_CTRL_MSG_10BASE_T1S:
-                ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_ctrl_msg_10baset1s_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_ctrl_msg_10baset1s_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN, &interface_id);
                 add_interface_id_text_and_name(ti, interface_id, tvb, offset);
                 offset += 4;
 
@@ -2263,7 +2263,7 @@ dissect_tecmp_status_device(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t device_id, uint8_t msg_type, uint16_t data_type, uint32_t interface_id) {
-    tecmp_info_t tecmp_info;
+    tecmp_info_t tecmp_info = {0};
     int          dissected_bytes;
 
     tecmp_info.interface_id = interface_id;
@@ -2295,13 +2295,18 @@ dissect_ethernet_payload(tvbuff_t *sub_tvb, uint32_t offset, uint32_t length, pa
     int32_t len_saved = pinfo->fd->pkt_len;
     pinfo->fd->pkt_len = length;
 
-    if (show_ethernet_in_tecmp_tree) {
-        call_dissector(eth_handle, payload_tvb, pinfo, tecmp_tree);
-    } else {
-        call_dissector(eth_handle, payload_tvb, pinfo, tree);
+    TRY {
+        if (show_ethernet_in_tecmp_tree) {
+            call_dissector(eth_handle, payload_tvb, pinfo, tecmp_tree);
+        } else {
+            call_dissector(eth_handle, payload_tvb, pinfo, tree);
+        }
     }
-
-    pinfo->fd->pkt_len = len_saved;
+    FINALLY {
+        /* restore the persistent frame length even on an exception */
+        pinfo->fd->pkt_len = len_saved;
+    }
+    ENDTRY;
 }
 
 static int
