@@ -148105,3 +148105,126 @@ class TestDissectTelkonet:
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == (
             '1\t0x88a1,0x0800\t192.0.2.1\t5678\teth:ethertype:telkonet:eth:ethertype:ip:udp:data')
+
+
+class TestDissectTelnet:
+    '''Telnet on TCP port 23 from the synthetic capture
+    telnet_coverage.pcap.gz (433 frames): text lines and escaped IAC, every
+    command, WILL/WONT/DO/DONT for options 0-49, suboptions (terminal type,
+    NAWS, tab stops, output marking, 3270 regime, remote flow control,
+    START_TLS, authentication, encryption, COM port control, VMware serial
+    port proxy and vMotion, TN3270E), TN3270 and TN5250 conversations and
+    the reproducers of the fixes (frames 425-430).'''
+
+    CAP = 'telnet_coverage.pcap.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_telnet_clean(self, cmd_tshark, capture_file, test_env):
+        '''433 frames: 424 Telnet, 6 TN3270 and 3 TN5250 (the data of
+        their conversations). No malformed packets and no error expert
+        infos in one and two passes; 43 frames have a warning (a bad
+        suboption length, an invalid subcommand, ...).'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, cap, test_env, 'frame',
+                    ['frame.number', '_ws.col.protocol'], *opts)
+            protos = [r.split('\t')[1] for r in rows]
+            assert len(protos) == 433
+            if not opts:
+                # in the second pass frame 399 is shown as the first TCP segment of a
+                # reassembled PDU, and the conversation that frame 430 sets up already
+                # exists, so its trailing text goes to TN3270 (the pass dependent state
+                # of the TN3270 conversation)
+                assert protos.count('TELNET') == 424
+                assert protos.count('TN3270') == 6
+                assert protos.count('TN5250') == 3
+            assert self._rows(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    ['frame.number'], *opts) == []
+            assert len(self._rows(cmd_tshark, cap, test_env, '_ws.expert',
+                    ['frame.number'], *opts)) == 43
+
+    def test_telnet_text_without_iac(self, cmd_tshark, capture_file, test_env):
+        '''Reproducer of "Telnet: Fix several length handling errors": a
+        packet of text without any IAC was a Malformed Packet after
+        find_unescaped_iac() stopped returning "not found" (frame 425). An
+        IAC in the last octet of the data is still a command.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {2,16,425}',
+                ['frame.number', '_ws.col.info', 'telnet.data'])
+        assert rows == [
+            '2\t6 bytes data\troot\\r\\n',
+            '16\t6 bytes data\t\\r\\n,\\r\\n,\\r\\n',
+            '425\t13 bytes data\thello world\\r\\n',
+        ]
+
+    def test_telnet_suboption_too_long(self, cmd_tshark, capture_file, test_env):
+        '''Suboptions of more than 10240 octets with an escaped IAC (frames
+        427 and 428, with and without a suboption dissector) used to pass
+        a NULL tvb to the dissector (a dissector assertion). They now get
+        an expert info.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), env,
+                'frame.number in {427,428}', ['frame.number', '_ws.col.info', '_ws.expert.message'])
+        assert rows == [
+            '427\tSuboption Terminal Type\tSuboption too long (10303 bytes)',
+            '428\tSuboption <unknown option>\tSuboption too long (10302 bytes)',
+        ]
+
+    def test_telnet_length_wraps(self, cmd_tshark, capture_file, test_env):
+        '''An AUTHENTICATION SEND with an odd length (frame 429) and a
+        TN3270E FUNCTIONS list that ends the suboption (frame 430) are
+        followed by IAC SE and a line of text, which is shown as data and
+        no longer taken for more suboption data. One pass only: in the
+        second pass the TN3270E conversation of frame 430 already exists
+        and the text is not shown as Telnet data.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {429,430}', ['frame.number', '_ws.col.info', 'telnet.data'])
+        assert rows == [
+            '429\tSuboption Authentication Option, 15 bytes data\ttrailing text\\r\\n',
+            '430\tSuboption TN3270E, 15 bytes data\ttrailing text\\r\\n',
+        ]
+
+    def test_telnet_suboption_fields(self, cmd_tshark, capture_file, test_env):
+        '''A selection of decoded suboption values.'''
+        cap = capture_file(self.CAP)
+        assert self._rows(cmd_tshark, cap, test_env, 'frame.number in {148,152,154}',
+                ['frame.number', 'telnet.string_subopt.value', 'telnet.naws_subopt.width',
+                 'telnet.naws_subopt.height']) == [
+            '148\txterm-256color\t\t',
+            '152\tworkstation:0.0\t\t',
+            '154\t\t80\t24',
+        ]
+        assert self._rows(cmd_tshark, cap, test_env, 'frame.number in {238,240,353}',
+                ['frame.number', 'telnet.comport_subopt.baud_rate', 'telnet.vmware.vm.name']) == [
+            '238\t9600\t',
+            '240\t0\t',
+            '353\t\tmy virtual machine',
+        ]
+
+    def test_telnet_tn3270_conversations(self, cmd_tshark, capture_file, test_env):
+        '''The terminal types of the IBM 3278/3279 models start a TN3270
+        conversation and the data after it goes to the TN3270 dissector;
+        IBM-5555-C01 and the other 5250 types start TN5250 ones; an
+        unknown model does not.'''
+        cap = capture_file(self.CAP)
+        assert self._rows(cmd_tshark, cap, test_env, 'tn3270',
+                ['frame.number', '_ws.col.info']) == [
+            '396\tTN3270 Data to Mainframe, End of Record',
+            '397\tTN3270 Data from Mainframe, End of Record',
+            '400\tTN3270 Data from Mainframe, End of Record',
+            '402\tTN3270 Data from Mainframe, End of Record',
+            '404\tTN3270 Data from Mainframe, End of Record',
+            '409\tTN3270 Data from Mainframe, End of Record',
+        ]
+        assert self._rows(cmd_tshark, cap, test_env, 'tn5250',
+                ['frame.number']) == ['411', '413', '415']
+        assert self._rows(cmd_tshark, cap, test_env, 'frame.number == 407',
+                ['_ws.col.protocol']) == ['TELNET']
