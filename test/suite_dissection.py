@@ -145967,3 +145967,71 @@ class TestDissectTacacs:
             '43\t\t\t9\tmschap-challenge\t',
             '44\t\t\t\t\tNASCHAL1',
         ]
+
+
+class TestDissectTali:
+    '''TALI (RFC 3094) over TCP, found by the TCP heuristic dissector, from
+    the synthetic capture tali_coverage.pcap.gz: every opcode, SCCP, MTP3
+    and ISUP payloads, several PDUs in a segment and PDUs spread over
+    several segments.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tali_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_tali_protocols(self, cmd_tshark, capture_file, test_env):
+        '''27 frames: 14 TALI, the SCCP, MTP3 and ISUP payloads and the TCP
+        frames that are part of a reassembled PDU or carry no data; no
+        malformed packets or error expert infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 27
+        assert protocols.count('TALI') == 14
+        assert protocols.count('TCP') == 9
+        assert protocols.count('SCCP (Int. ITU)') == 1
+        assert protocols.count('MTP3MG (Int. ITU)') == 2
+        assert protocols.count('ISUP(ITU)') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_tali_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Opcode and length of every PDU (frame 14 and 21 hold two PDUs,
+        frame 23 two, the second one with a payload).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tali', '-Tfields', '-eframe.number', '-etali.opcode',
+                '-etali.msu_length')
+        assert rows == [
+            ['4', 'test', '8'], ['5', 'allo', '0'], ['6', 'proh', '2'],
+            ['7', 'proa', '0'], ['8', 'moni', '1'], ['9', 'mona', '2'],
+            ['10', 'sccp', '15'], ['11', 'mtp3', '11'], ['12', 'isot', '8'],
+            ['13', 'saal', '4'], ['14', 'test,test', '3,3'],
+            ['16', 'test', '24'], ['18', 'mtp3', '11'],
+            ['21', 'test,allo', '40,0'], ['22', 'test', '255'],
+            ['23', 'proa,test', '0,1'], ['26', 'test', '9'], ['27', 'allo', '0'],
+        ]
+
+    def test_tali_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU in two segments (15-16), with the payload in the second
+        segment (17-18) and in three segments (19-21).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tcp.segment', '-Tfields', '-eframe.number',
+                '-etcp.reassembled.length', '-etcp.segment')
+        assert rows == [
+            ['16', '34', '15,16'], ['18', '21', '17,18'],
+            ['21', '50', '19,20,21'],
+        ]
+
+    def test_tali_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With tali.reassemble off, the first segment of a split PDU is
+        dissected on its own (the payload is cut short).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'tali.reassemble:FALSE', '-Y', 'tcp.segment',
+                '-Tfields', '-eframe.number')
+        assert rows == []
