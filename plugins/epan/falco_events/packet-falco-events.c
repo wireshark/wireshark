@@ -168,8 +168,16 @@ static int ett_json;
 static int ett_geoip_info;
 
 static expert_field ei_sinsp_capture_unreadable;
+static expert_field ei_sinsp_extract_failed;
 
 static int container_io_tap;
+
+static const char *
+sinsp_last_error_str(sinsp_source_info_t *ssi)
+{
+    const char *err = get_sinsp_source_last_error(ssi);
+    return err ? err : "unknown error";
+}
 
 static bool pref_show_internal;
 
@@ -1335,7 +1343,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count, &sinsp_evt_info);
 
     if (!rc) {
-        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+        // libsinsp rejects malformed events (e.g. a parameter length that does
+        // not match the event type); that is bad packet data, not a dissector bug.
+        proto_tree_add_expert_format(tree, pinfo, &ei_sinsp_extract_failed, tvb, 0, 0,
+                                     "Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), sinsp_last_error_str(bi->ssi));
+        return tvb_captured_length(tvb);
     }
 
     if (sinsp_fields_count == 0) {
@@ -1668,7 +1680,9 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     bool rc = extract_plugin_source_fields(bi->ssi, pinfo->num, payload, payload_len, pinfo->pool, sinsp_fields, bi->visible_fields);
 
     if (!rc) {
-        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+        proto_tree_add_expert_format(fb_tree, pinfo, &ei_sinsp_extract_failed, tvb, 0, 0,
+                                     "Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), sinsp_last_error_str(bi->ssi));
+        return payload_len;
     }
 
     for (uint32_t idx = 0; idx < bi->num_conversation_filters; idx++) {
@@ -2036,6 +2050,9 @@ proto_register_falcoplugin(void)
         { &ei_sinsp_capture_unreadable,
           { "falcoevents.capture_unreadable", PI_UNDECODED, PI_WARN,
             "libsinsp couldn't open this capture file, so Falco event fields aren't available", EXPFILL }},
+        { &ei_sinsp_extract_failed,
+          { "falcoevents.extract_failed", PI_MALFORMED, PI_ERROR,
+            "Falco plugin field extraction failed", EXPFILL }},
     };
     expert_module_t *expert_falco_events = expert_register_protocol(proto_falco_events);
     expert_register_field_array(expert_falco_events, ei, array_length(ei));
