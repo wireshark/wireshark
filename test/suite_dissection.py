@@ -140512,3 +140512,101 @@ class TestDissectSndcp:
                     '-Y', 'frame.number >= 36', '-Tfields', '-eframe.number',
                     '-esndcp.npdu.reassembled.length')
             assert rows == [['36', ''], ['37', '56']]
+
+
+class TestDissectSndcpXid:
+    '''SNDCP XID parameters (layer 3 XID parameters of GPRS LLC XID, SABM and
+    UA frames) from the synthetic capture sndcp_xid_coverage.pcapng.gz:
+    GSMTAP (UDP 4729, Gb LLC) frames 1-19 and an Exported PDU "sndcpxid"
+    frame (20).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sndcp_xid_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sndcp_xid_protocols(self, cmd_tshark, capture_file, test_env):
+        '''20 frames: 18 GPRS-LLC XID, SABM and UA frames, an SNDCP UI frame
+        and the Exported PDU; no malformed packets or error expert infos in
+        one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 20
+        assert protocols.count('GPRS-LLC') == 18
+        assert protocols.count('SNDCP') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sndcp_xid_parameters(self, cmd_tshark, capture_file, test_env):
+        '''Parameter types, lengths and compression entities: protocol
+        compression with RFC 1144, RFC 2507 and ROHC (frames 3-5), V.44
+        (6), all of them in a SABM and a UA (7-8).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                '-ellcgprs.l3xidpartype', '-ellcgprs.l3xidentity',
+                '-ellcgprs.l3xidalgoid', '-ellcgprs.l3xidcomplen')
+        assert rows[0] == ['1', '0', '', '', '']
+        assert rows[2] == ['3', '0,1,2', '1,1', '0,0', '7,4']
+        assert rows[3] == ['4', '0,2', '2', '1', '12']
+        assert rows[4] == ['5', '0,2', '3', '2', '39']
+        assert rows[5] == ['6', '0,1', '2', '1', '13']
+        assert rows[6] == ['7', '0,1,2', '1,2,1,2,3', '0,1,0,1,2', '7,13,4,12,39']
+        assert rows[7][1:] == rows[6][1:]
+
+    def test_sndcp_xid_elements(self, cmd_tshark, capture_file, test_env):
+        '''The elements of RFC 2507 (4), ROHC with 16 profiles (5), V.42bis
+        and V.44 (7).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 5, 7}', '-Tfields', '-eframe.number',
+                '-esndcpxid.rfc2507_f_max_period_msb', '-esndcpxid.rfc2507_max_tcp_space',
+                '-esndcpxid.rohc_max_cid_lsb', '-esndcpxid.rohc_profile_lsb',
+                '-esndcpxid.V42bis_p1_msb', '-esndcpxid.V44_p3r_lsb')
+        assert rows[0][:3] == ['4', '0x01', '32']
+        assert rows[1][4].split(',') == ['0x%02x' % n for n in range(1, 17)]
+        assert rows[1][3] == '0xff'
+        assert rows[2][5] == '0x04' and rows[2][6] == '0x01'
+
+    def test_sndcp_xid_without_pbit(self, cmd_tshark, capture_file, test_env):
+        '''Entities without the P bit are decoded with the algorithm they had
+        before (frames 9-11); the length is the octet after the entity
+        ("SNDCP-XID: Fix offset wrap infinite loop and two small bugs").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {9, 10, 11}', '-Tfields', '-eframe.number',
+                '-ellcgprs.l3xidentity', '-ellcgprs.l3xidcomplen',
+                '-ellcgprs.l3xiddcomppbit')
+        assert rows == [
+            ['9', '2', '9', '0'],
+            ['10', '2,1', '12,6', '0,0'],
+            ['11', '9,3', '3,8', '0,0'],
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sndcp_xid_coverage.pcapng.gz'), '-V',
+                '-Y', 'frame.number == 9',
+            ), encoding='utf-8', env=test_env)
+        assert 'Entity 2 decoded as Algorithm RFC 2507' in stdout
+
+    def test_sndcp_xid_version_length(self, cmd_tshark, capture_file, test_env):
+        '''A version parameter with extra octets (frame 12) is skipped by its
+        length, so the data compression parameter after it is found.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 12', '-Tfields', '-ellcgprs.l3xidpartype',
+                '-ellcgprs.l3xidparlen')
+        assert rows == [['0,1', '3,6']]
+
+    def test_sndcp_xid_offset_wrap(self, cmd_tshark, capture_file, test_env):
+        '''The Exported PDU of 131071 octets (frame 20) held a parameter at
+        offset 65533 whose size wrapped the 16 bit offset to 0, and tshark
+        looped forever ("SNDCP-XID: Fix offset wrap infinite loop and two
+        small bugs"). It now ends: one short compression parameter and
+        65533 version parameters.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 20', '-Tfields', '-ellcgprs.l3xidpartype')
+        types = rows[0][0].split(',')
+        assert len(types) == 65534
+        assert types[:3] == ['1', '0', '0']
