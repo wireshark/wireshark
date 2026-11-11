@@ -146456,3 +146456,118 @@ class TestDissectTcgCpOids:
             'https://example.invalid/migrate-reg',
             'True',
             'https://example.invalid/backup,https://example.invalid/backup2']
+
+
+class TestDissectTcgStorage:
+    '''TCG Storage (packet-tcg-storage.c) from the synthetic capture
+    tcg_storage_coverage.pcapng.gz: NVMe-MI admin Security Send and
+    Security Receive commands (SECP 01h and 02h) over MCTP and a Linux
+    cooked capture. Frames 1-20 are Level 0 Discovery, 21-94 ComPackets
+    with every token class, 95-118 SECP 02h (ComID management, TPer Reset,
+    GET COMID).'''
+
+    CAP = 'tcg_storage_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_tcg_storage_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 118 frames are NVMe-MI, 58 of them carry TCG Storage; no
+        malformed frame and no expert info in one and two passes.'''
+        for passes in ((), ('-2',)):
+            cap = capture_file(self.CAP)
+            assert len(self._fields(cmd_tshark, cap, test_env, 'nvme-mi',
+                    ['frame.number'], *passes)) == 118
+            assert len(self._fields(cmd_tshark, cap, test_env, 'tcg-storage',
+                    ['frame.number'], *passes)) == 58
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+
+    def test_tcg_storage_level0(self, cmd_tshark, capture_file, test_env):
+        '''Feature descriptors of every kind (including a vendor specific
+        one and unknown codes), the geometry, Opal SSC 2.02 and data
+        removal values and the SSC names appended to the Info column.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {2, 4, 6}', ['frame.number', 'tcg-storage.l0.feat.code'])
+        assert rows == [
+            '2\t0x0001,0x0002,0x0003,0x0005,0x0100,0x0200',
+            '4\t0x0201,0x0202,0x0203,0x0301,0x0302,0x0303',
+            '6\t0x0304,0x0402,0x0403,0x0404,0xc001,0x0999,0x0405,0xffff',
+        ]
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {2, 4, 6}',
+                ['frame.number', 'tcg-storage.l0.feat.geometry.lbs',
+                 'tcg-storage.l0.feat.geometry.granularity',
+                 'tcg-storage.l0.feat.opal2.num_admins',
+                 'tcg-storage.l0.feat.opal2.num_users',
+                 'tcg-storage.l0.feat.ssc_minor',
+                 'tcg-storage.l0.feat.data_removal.mechanism'])
+        assert rows == ['2\t512\t8\t\t\t\t', '4\t\t\t4\t8\t0x02\t', '6\t\t\t4\t8\t\t0x27']
+        info = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {2, 4, 6, 8}', ['_ws.col.info'])
+        assert [i.split('(Level 0 Discovery): ', 1)[1] for i in info] == [
+            'Enterprise, Opal 1.00', 'Opal 2.x, Opalite, Pyrite 1.0, Pyrite 2.0', 'Ruby',
+            'Enterprise, Opal 1.00, Opal 2.x']
+
+    def test_tcg_storage_methods(self, cmd_tshark, capture_file, test_env):
+        '''Method calls name the invoking and method UIDs and the Method
+        Status; unknown UIDs are shown in hex; a status list that closes
+        without an integer shows no status.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {24, 28, 30, 40, 43, 45, 57, 64, 68}', ['frame.number', '_ws.col.info'])
+        tails = [r.split('ComID 0x1000, ', 1)[1] for r in rows]
+        assert tails == [
+            'Session Manager (SMUID).0x000000000000ff77(), Status: SUCCESS',
+            'Session Manager (SMUID).SyncSession(), Status: SUCCESS',
+            'This SP.Get(), Status: NOT_AUTHORIZED',
+            'This SP.Get(), Status: Unknown',
+            'Locking_Range1.Set(), Status: SUCCESS',
+            'C_PIN_MSID.Authenticate(), Status: SUCCESS',
+            '0x1234567890abcdef.0x0123456789abcdef(), Status: SUCCESS',
+            'This SP.Get(), Status: SP_DISABLED',
+            'This SP.Get()',
+        ]
+
+    def test_tcg_storage_atoms(self, cmd_tshark, capture_file, test_env):
+        '''Frame 60 holds tiny, short, medium and long atoms: the signed
+        and unsigned values are decoded (a 12 and a 16 octet integer and
+        the 9 and 15 octet ones are shown as bytes).'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number == 60', ['tcg-storage.tok.int', 'tcg-storage.tok.uint'])
+        assert rows == ['-5,7,-2,-300,5,-1,-7,-129\t'
+                        '63,18446744073709551615,0,1234,73588229205,0,0']
+
+    def test_tcg_storage_packets(self, cmd_tshark, capture_file, test_env):
+        '''Frame 87: a ComPacket with three Packets and Subpackets of the
+        kinds Data, Credit Control and an unknown one; frame 90 is an empty
+        ComPacket.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {87, 90}',
+                ['frame.number', 'tcg-storage.packet.tsn', 'tcg-storage.subpacket.kind',
+                 'tcg-storage.compacket.comid_ext', 'tcg-storage.subpacket.credit'])
+        assert rows == [
+            '87\t0x00001001,0x00001002,0x00000000\t0x0000,0x8001,0x8001,0x0005,0x0000,0x0000,0x0000'
+            '\t0x0003\t4660,4660',
+            '90\t\t\t0x0001\t',
+        ]
+
+    def test_tcg_storage_comid_management(self, cmd_tshark, capture_file, test_env):
+        '''ComID management requests and responses, TPer Reset and GET COMID.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {104, 108, 114, 116}',
+                ['frame.number', 'tcg-storage.comid_mgmt.request_code',
+                 'tcg-storage.comid_mgmt.available_data_length',
+                 'tcg-storage.comid_mgmt.data', 'tcg-storage.get_comid.ext_comid'])
+        assert rows == [
+            '104\t0x00000002\t4\t00000000\t',
+            '108\t0x00000009\t8\taaaaaaaaaaaaaaaa\t',
+            '114\t\t\t\t0x10000001',
+            '116\t\t\t\t0x00000000',
+        ]
+        info = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number == 109', ['_ws.col.info'])
+        assert len(info) == 1 and info[0].endswith('TCG Security Send (TPer Reset)')
