@@ -469,6 +469,9 @@ snmp_lookup_specific_trap (unsigned specific_trap)
 {
 	unsigned i;
 
+	if (!enterprise_oid)
+		return NULL;
+
 	for (i = 0; i < num_specific_traps; i++) {
 		snmp_st_assoc_t *u = &(specific_traps[i]);
 
@@ -893,7 +896,7 @@ show_oid_index:
 								proto_tree_add_oid(pt_name,k->hfid,tvb,name_offset, suboid_buf_len, suboid_buf);
 
 								key_start += suboid_len;
-								key_len -= suboid_len + 1;
+								key_len -= suboid_len;
 								continue; /* k->next */
 							}
 							default: {
@@ -2102,7 +2105,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
 	/*Get the total octet length of the SNMP data*/
 	offset = get_ber_length(tvb, offset, &len, &ind);
-	message_length = len + offset;
+	message_length = len + (offset - start_offset);
 
 	/*Get the SNMP version data*/
 	/*offset =*/ dissect_ber_integer(false, &asn1_ctx, 0, tvb, offset, -1, &version);
@@ -2168,14 +2171,14 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/* There may be appended data after the SNMP data, so treat as raw
 	 * data which needs to be dissected in case of UDP as UDP is PDU oriented.
  	 */
-	if((!is_tcp) && (length_remaining > (unsigned)offset)) {
+	if((!is_tcp) && (length_remaining > (unsigned)(offset - start_offset))) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 	} else {
 		next_tvb_call(var_list, pinfo, tree, NULL, data_handle);
 	}
 
-	return offset;
+	return offset - start_offset;
 }
 
 static int
@@ -2335,6 +2338,7 @@ snmp_usm_password_to_key(const snmp_usm_auth_model_t model, const uint8_t *passw
 	/**********************************************/
 	while (count < 1048576) {
 		cp = password_buf;
+		memset(password_buf, 0, sizeof(password_buf));
 		if (passwordlen != 0) {
 			for (i = 0; i < 64; i++) {
 				/*************************************************/

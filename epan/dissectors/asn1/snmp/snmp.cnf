@@ -194,7 +194,8 @@ Messagev2u/datav2u/plaintext v2u_plaintext
 			offset = get_ber_identifier(tvb, offset, NULL, NULL, NULL);
 			offset = get_ber_length(tvb, offset, NULL, NULL);
 			offset = dissect_snmp_UsmSecurityParameters(false, tvb, offset, actx, tree, -1);
-			usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb, actx->pinfo);
+			if (usm_p.authenticated || usm_p.encrypted)
+				usm_p.user_assoc = get_user_assoc(usm_p.engine_tvb, usm_p.user_tvb, actx->pinfo);
 			break;
 		case SNMP_SEC_ANY:	/* 0 */
 		case SNMP_SEC_V1:	/* 1 */
