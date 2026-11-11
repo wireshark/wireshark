@@ -317,13 +317,17 @@ dissect_someip_sd_pdu_option_configuration(tvbuff_t *tvb, packet_info *pinfo, pr
     offset += 1;
 
     int config_string_length = length - offset + offset_orig;
+    if (config_string_length <= 0) {
+        expert_add_info(pinfo, tree, &ei_someipsd_config_string_malformed);
+        return;
+    }
     ti = proto_tree_add_item_ret_string(tree, hf_someip_sd_option_config_string, tvb, offset, config_string_length, ENC_ASCII | ENC_NA, pinfo->pool, &config_string);
     subtree = proto_item_add_subtree(ti, ett_someip_sd_config_string);
 
-    uint8_t pos = 0;
-    uint8_t element_length;
-    while (config_string != NULL && config_string_length - pos > 0) {
-        element_length = config_string[pos];
+    int pos = 0;
+    int element_length;
+    while (config_string_length - pos > 0) {
+        element_length = tvb_get_uint8(tvb, offset + pos);
         pos++;
 
         if (element_length == 0) {
@@ -907,11 +911,6 @@ dissect_someip_sd_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     /* add length of entries */
     proto_tree_add_item_ret_uint(tree, hf_someip_sd_length_entriesarray, tvb, offset, 4, ENC_BIG_ENDIAN, &length_entriesarray);
     offset += 4;
-
-    if (!tvb_bytes_exist(tvb, offset, length_entriesarray)) {
-        expert_add_info(pinfo, ti   , &ei_someipsd_message_truncated);
-        return tvb_reported_length(tvb);
-    }
 
     if (!tvb_bytes_exist(tvb, offset, length_entriesarray)) {
         /* truncated SD message - need to shorten buffer */
