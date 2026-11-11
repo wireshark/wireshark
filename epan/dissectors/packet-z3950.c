@@ -1139,7 +1139,7 @@ static int hf_z3950_repeatable;                   /* BOOLEAN */
 static int hf_z3950_Path_item;                    /* Path_item */
 static int hf_z3950_tagValue;                     /* StringOrNumeric */
 static int hf_z3950_primitive;                    /* PrimitiveDataType */
-static int hf_z3950_structured;                   /* SEQUENCE_OF_ElementInfo */
+static int hf_z3950_structured;                   /* T_structured */
 static int hf_z3950_structured_item;              /* ElementInfo */
 static int hf_z3950_tagSetInfo_elements;          /* T_tagSetInfo_elements */
 static int hf_z3950_tagSetInfo_elements_item;     /* T_tagSetInfo_elements_item */
@@ -1388,7 +1388,7 @@ static int hf_z3950_elementNotThere;              /* NULL */
 static int hf_z3950_elementEmpty;                 /* NULL */
 static int hf_z3950_noDataRequested;              /* NULL */
 static int hf_z3950_elementData_diagnostic;       /* EXTERNAL */
-static int hf_z3950_subtree;                      /* SEQUENCE_OF_TaggedElement */
+static int hf_z3950_subtree;                      /* T_subtree */
 static int hf_z3950_subtree_item;                 /* TaggedElement */
 static int hf_z3950_seriesOrder;                  /* Order */
 static int hf_z3950_usageRight;                   /* Usage */
@@ -1656,6 +1656,7 @@ static int ett_z3950_ElementInfo;
 static int ett_z3950_Path;
 static int ett_z3950_Path_item;
 static int ett_z3950_ElementDataType;
+static int ett_z3950_T_structured;
 static int ett_z3950_TagSetInfo;
 static int ett_z3950_T_tagSetInfo_elements;
 static int ett_z3950_T_tagSetInfo_elements_item;
@@ -1762,7 +1763,7 @@ static int ett_z3950_FormatSpec;
 static int ett_z3950_GenericRecord;
 static int ett_z3950_TaggedElement;
 static int ett_z3950_ElementData;
-static int ett_z3950_SEQUENCE_OF_TaggedElement;
+static int ett_z3950_T_subtree;
 static int ett_z3950_ElementMetaData;
 static int ett_z3950_SEQUENCE_OF_HitVector;
 static int ett_z3950_SEQUENCE_OF_Variant;
@@ -1850,6 +1851,7 @@ static int ett_marc_field;
 static expert_field ei_marc_invalid_length;
 static expert_field ei_marc_invalid_value;
 static expert_field ei_marc_invalid_record_length;
+static expert_field ei_z3950_nesting_too_deep;
 
 /* MARC value strings */
 
@@ -2053,6 +2055,34 @@ dissect_z3950_printable_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, u
     }
 
     return offset;
+}
+
+/* RPN queries, structured element data types and GRS-1 subtrees can nest
+ * without limit. asn2wrs bounds the cycles with increment_dissection_depth_by_n(),
+ * which asserts at the tree depth limit, so stop well before that. */
+#define Z3950_MAX_NESTING 32
+
+static bool
+z3950_enter_nesting(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
+{
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_z3950);
+
+    if (depth >= Z3950_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_z3950_nesting_too_deep, tvb, offset);
+        return false;
+    }
+    p_set_proto_depth(actx->pinfo, proto_z3950, depth + 1);
+    return true;
+}
+
+static void
+z3950_leave_nesting(asn1_ctx_t *actx)
+{
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_z3950);
+
+    if (depth > 0) {
+        p_set_proto_depth(actx->pinfo, proto_z3950, depth - 1);
+    }
 }
 
 /*--- Cyclic dependencies ---*/
@@ -3008,8 +3038,14 @@ static const ber_sequence_t T_rpnRpnOp_sequence[] = {
 
 static unsigned
 dissect_z3950_T_rpnRpnOp(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    T_rpnRpnOp_sequence, hf_index, ett_z3950_T_rpnRpnOp);
+
+  z3950_leave_nesting(actx);
+
 
   return offset;
 }
@@ -6490,14 +6526,20 @@ dissect_z3950_PrimitiveDataType(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsign
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_ElementInfo_sequence_of[1] = {
-  { &hf_z3950_recordStructure_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_z3950_ElementInfo },
+static const ber_sequence_t T_structured_sequence_of[1] = {
+  { &hf_z3950_structured_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_z3950_ElementInfo },
 };
 
 static unsigned
-dissect_z3950_SEQUENCE_OF_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_z3950_T_structured(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_ElementInfo_sequence_of, hf_index, ett_z3950_SEQUENCE_OF_ElementInfo);
+                                      T_structured_sequence_of, hf_index, ett_z3950_T_structured);
+
+  z3950_leave_nesting(actx);
+
 
   return offset;
 }
@@ -6511,7 +6553,7 @@ static const value_string z3950_ElementDataType_vals[] = {
 
 static const ber_choice_t ElementDataType_choice[] = {
   {   0, &hf_z3950_primitive     , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_z3950_PrimitiveDataType },
-  {   1, &hf_z3950_structured    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_z3950_SEQUENCE_OF_ElementInfo },
+  {   1, &hf_z3950_structured    , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_z3950_T_structured },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -6543,6 +6585,19 @@ dissect_z3950_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned off
                                    ElementInfo_sequence, hf_index, ett_z3950_ElementInfo);
 
   decrement_dissection_depth_by_n(actx->pinfo, 3);
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_ElementInfo_sequence_of[1] = {
+  { &hf_z3950_recordStructure_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_z3950_ElementInfo },
+};
+
+static unsigned
+dissect_z3950_SEQUENCE_OF_ElementInfo(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_ElementInfo_sequence_of, hf_index, ett_z3950_SEQUENCE_OF_ElementInfo);
+
   return offset;
 }
 
@@ -7724,14 +7779,20 @@ dissect_z3950_BriefBib(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset
 }
 
 
-static const ber_sequence_t SEQUENCE_OF_TaggedElement_sequence_of[1] = {
+static const ber_sequence_t T_subtree_sequence_of[1] = {
   { &hf_z3950_subtree_item  , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_z3950_TaggedElement },
 };
 
 static unsigned
-dissect_z3950_SEQUENCE_OF_TaggedElement(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_z3950_T_subtree(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
-                                      SEQUENCE_OF_TaggedElement_sequence_of, hf_index, ett_z3950_SEQUENCE_OF_TaggedElement);
+                                      T_subtree_sequence_of, hf_index, ett_z3950_T_subtree);
+
+  z3950_leave_nesting(actx);
+
 
   return offset;
 }
@@ -7767,7 +7828,7 @@ static const ber_choice_t ElementData_choice[] = {
   {   9, &hf_z3950_elementEmpty  , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_z3950_NULL },
   {  10, &hf_z3950_noDataRequested, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_z3950_NULL },
   {  11, &hf_z3950_elementData_diagnostic, BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_z3950_EXTERNAL },
-  {  12, &hf_z3950_subtree       , BER_CLASS_CON, 6, 0, dissect_z3950_SEQUENCE_OF_TaggedElement },
+  {  12, &hf_z3950_subtree       , BER_CLASS_CON, 6, 0, dissect_z3950_T_subtree },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -10605,7 +10666,7 @@ void proto_register_z3950(void) {
     { &hf_z3950_structured,
       { "structured", "z3950.structured",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_ElementInfo", HFILL }},
+        NULL, HFILL }},
     { &hf_z3950_structured_item,
       { "ElementInfo", "z3950.ElementInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -11601,7 +11662,7 @@ void proto_register_z3950(void) {
     { &hf_z3950_subtree,
       { "subtree", "z3950.subtree",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_OF_TaggedElement", HFILL }},
+        NULL, HFILL }},
     { &hf_z3950_subtree_item,
       { "TaggedElement", "z3950.TaggedElement_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -12347,6 +12408,7 @@ void proto_register_z3950(void) {
     &ett_z3950_Path,
     &ett_z3950_Path_item,
     &ett_z3950_ElementDataType,
+    &ett_z3950_T_structured,
     &ett_z3950_TagSetInfo,
     &ett_z3950_T_tagSetInfo_elements,
     &ett_z3950_T_tagSetInfo_elements_item,
@@ -12453,7 +12515,7 @@ void proto_register_z3950(void) {
     &ett_z3950_GenericRecord,
     &ett_z3950_TaggedElement,
     &ett_z3950_ElementData,
-    &ett_z3950_SEQUENCE_OF_TaggedElement,
+    &ett_z3950_T_subtree,
     &ett_z3950_ElementMetaData,
     &ett_z3950_SEQUENCE_OF_HitVector,
     &ett_z3950_SEQUENCE_OF_Variant,
@@ -12504,6 +12566,8 @@ void proto_register_z3950(void) {
                                      "MARC field has invalid value", EXPFILL }},
         { &ei_marc_invalid_record_length, { "marc.invalid_record_length", PI_MALFORMED, PI_ERROR,
                                      "MARC length field has invalid value", EXPFILL }},
+        { &ei_z3950_nesting_too_deep, { "z3950.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+                                     "Z39.50 structure nested too deeply", EXPFILL }},
     };
 
     expert_module_t* expert_z3950;
@@ -12705,7 +12769,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Indicator count '%c' is invalid", marc_value_char);
+                "Indicator count 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 2) {
@@ -12723,7 +12787,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Subfield count '%c' is invalid", marc_value_char);
+                "Subfield count 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 2) {
@@ -12770,7 +12834,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Length-of field-length '%c' is invalid", marc_value_char);
+                "Length-of field-length 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 4) {
@@ -12789,7 +12853,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Starting-character-position length '%c' is invalid", marc_value_char);
+                "Starting-character-position length 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 5) {

@@ -710,6 +710,7 @@ static int ett_marc_field;
 static expert_field ei_marc_invalid_length;
 static expert_field ei_marc_invalid_value;
 static expert_field ei_marc_invalid_record_length;
+static expert_field ei_z3950_nesting_too_deep;
 
 /* MARC value strings */
 
@@ -913,6 +914,34 @@ dissect_z3950_printable_OCTET_STRING(bool implicit_tag _U_, tvbuff_t *tvb _U_, u
     }
 
     return offset;
+}
+
+/* RPN queries, structured element data types and GRS-1 subtrees can nest
+ * without limit. asn2wrs bounds the cycles with increment_dissection_depth_by_n(),
+ * which asserts at the tree depth limit, so stop well before that. */
+#define Z3950_MAX_NESTING 32
+
+static bool
+z3950_enter_nesting(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, unsigned offset)
+{
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_z3950);
+
+    if (depth >= Z3950_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, actx->pinfo, &ei_z3950_nesting_too_deep, tvb, offset);
+        return false;
+    }
+    p_set_proto_depth(actx->pinfo, proto_z3950, depth + 1);
+    return true;
+}
+
+static void
+z3950_leave_nesting(asn1_ctx_t *actx)
+{
+    unsigned depth = p_get_proto_depth(actx->pinfo, proto_z3950);
+
+    if (depth > 0) {
+        p_set_proto_depth(actx->pinfo, proto_z3950, depth - 1);
+    }
 }
 
 #include "packet-z3950-fn.c"
@@ -1144,6 +1173,8 @@ void proto_register_z3950(void) {
                                      "MARC field has invalid value", EXPFILL }},
         { &ei_marc_invalid_record_length, { "marc.invalid_record_length", PI_MALFORMED, PI_ERROR,
                                      "MARC length field has invalid value", EXPFILL }},
+        { &ei_z3950_nesting_too_deep, { "z3950.nesting_too_deep", PI_MALFORMED, PI_ERROR,
+                                     "Z39.50 structure nested too deeply", EXPFILL }},
     };
 
     expert_module_t* expert_z3950;
@@ -1333,7 +1364,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Indicator count '%c' is invalid", marc_value_char);
+                "Indicator count 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 2) {
@@ -1351,7 +1382,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Subfield count '%c' is invalid", marc_value_char);
+                "Subfield count 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 2) {
@@ -1398,7 +1429,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Length-of field-length '%c' is invalid", marc_value_char);
+                "Length-of field-length 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 4) {
@@ -1417,7 +1448,7 @@ dissect_marc_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
     if (marc_value_char != MARC_CHAR_UNINITIALIZED) {
         if (!marc_isdigit(marc_value_char)) {
             expert_add_info_format(pinfo, item, &ei_marc_invalid_value,
-                "Starting-character-position length '%c' is invalid", marc_value_char);
+                "Starting-character-position length 0x%02x is invalid", marc_value_char);
         }
         else {
             if (marc_char_to_int(marc_value_char) != 5) {

@@ -135,6 +135,27 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
       val_to_str_const(tag, z3950_PDU_vals, "Unknown Z39.50 PDU"));
   }
 
+#.FN_BODY RPNStructure/rpnRpnOp
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
+%(DEFAULT_BODY)s
+  z3950_leave_nesting(actx);
+
+#.FN_BODY ElementDataType/structured
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
+%(DEFAULT_BODY)s
+  z3950_leave_nesting(actx);
+
+#.FN_BODY ElementData/subtree
+  if (!z3950_enter_nesting(actx, tree, tvb, offset)) {
+    return tvb_reported_length(tvb);
+  }
+%(DEFAULT_BODY)s
+  z3950_leave_nesting(actx);
+
 #.FN_BODY Query/type-0
 /*XXX Not implemented yet */
 
