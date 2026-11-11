@@ -141332,3 +141332,193 @@ class TestDissectSocketcan:
             '77\tCANXL\tPriority: 345 (0x159), VCID: 5 (0x05), Length: 10',
             '78\tCANXL\tPriority: 346 (0x15a), VCID: 6 (0x06), Length: 11',
         ]
+
+
+class TestDissectSocks:
+    '''SOCKS 4, 4a and 5 over TCP 1080 from the synthetic capture
+    socks_coverage.pcapng.gz: no authentication, user name and password,
+    GSSAPI, CONNECT, BIND, UDP ASSOCIATE with datagrams, the PING and
+    TRACEROUTE extensions and the traffic that follows the handshake
+    (HTTP and DNS). The user names and passwords are made up.'''
+
+    def test_socks_protocols(self, cmd_tshark, capture_file, test_env):
+        '''234 frames: 98 Socks, 4 HTTP and 5 DNS through the tunnels and
+        an Exported PDU that is rejected; no malformed packets and no
+        error expert infos in one and two passes, with and without a tree
+        (the second pass warns that three DNS queries have no response).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(stdout.splitlines()) == 234
+        assert protocols.count('Socks') == 98
+        assert protocols.count('TCP') == 126
+        assert protocols.count('HTTP') == 4
+        assert protocols.count('DNS') == 5
+        for passes in ((), ('-2',)):
+            for tree in ((), ('-V',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *tree,
+                        '-r', capture_file('socks_coverage.pcapng.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_socks_udp_recursion(self, cmd_tshark, capture_file, test_env):
+        '''A datagram whose SOCKS header names the relay's own port
+        (frames 121 and 122, the second with 600 headers in a row) made
+        the dissector call itself once per header until the layer limit
+        assertion; it now shows one SOCKS header and leaves the rest as
+        payload. With a tree (-V), where the port was recorded for later
+        packets, and without.'''
+        for tree in ((), ('-V',)):
+            stdout = subprocess.check_output((cmd_tshark, *tree,
+                    '-r', capture_file('socks_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {121, 122}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '121\tSocks\tVersion: 5, UDP Associated packet',
+                '122\tSocks\tVersion: 5, UDP Associated packet',
+            ]
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 122',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.count('\nSocks\n') == 1
+
+    def test_socks_udp_associate(self, cmd_tshark, capture_file, test_env):
+        '''Datagrams to and from the relay carry DNS with IPv4, IPv6 and
+        domain name addresses and a fragment number.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {116, 117, 118, 119, 120}',
+                '-Tfields', '-eframe.number', '-edns.qry.name', '-esocks.fragment_number',
+                '-esocks.remote_name', '-esocks.dstport',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '116\texample.invalid\t0\t\t53',
+            '117\texample.invalid\t0\t\t53',
+            '118\tname.example.invalid\t0\tns.example.invalid\t53',
+            '119\tv6.example.invalid\t0\t\t53',
+            '120\tf.example.invalid\t1\t\t53',
+        ]
+
+    def test_socks5_handshakes(self, cmd_tshark, capture_file, test_env):
+        '''The SOCKS5 greeting, user name/password and GSSAPI sub-negotiations,
+        command requests and replies for CONNECT (IPv4, IPv6, domain name),
+        BIND and UDP ASSOCIATE.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {6, 7, 16, 27, 28, 51, 52, 92, 93, 102, 103, 104, 114, 115}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esocks.command',
+                '-esocks.username', '-esocks.password', '-esocks.remote_name',
+                '-esocks.dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tVersion: 5 Command Request - Connect\t1\t\t\t\t198.51.100.7',
+            '7\tVersion: 5 Command Response - Connect\t\t\t\t\t192.0.2.2',
+            '16\tVersion: 5 Connect to server request Command Request - Connect\t1\t\t\twww.example.invalid\t',
+            '27\tVersion: 5 User authentication request\t\talice\tpassword\t\t',
+            '28\tVersion: 5 User authentication reply\t\t\t\t\t',
+            '51\tVersion: 5 GSSAPI authentication request\t\t\t\t\t',
+            '52\tVersion: 5 GSSAPI authentication reply\t\t\t\t\t',
+            '92\tVersion: 5 Command Request - Connect\t1\t\t\thost.example.invalid\t',
+            '93\tVersion: 5 Command Response - Connect\t\t\t\t\t0.0.0.0',
+            '102\tVersion: 5 Command Request - Bind\t2\t\t\t\t198.51.100.20',
+            '103\tVersion: 5 Command Response - Bind\t\t\t\t\t192.0.2.2',
+            '104\tVersion: 5 Command Response: Bind remote host info\t\t\t\t\t198.51.100.20',
+            '114\tVersion: 5 Command Request - UdpAssociate\t3\t\t\t\t192.0.2.1',
+            '115\tVersion: 5 Command Response - UdpAssociate\t\t\t\t\t192.0.2.2',
+        ]
+
+    def test_socks_tunnelled_traffic(self, cmd_tshark, capture_file, test_env):
+        '''After CONNECT the traffic goes to the dissector of the remote port
+        (HTTP on 80).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'http',
+                '-Tfields', '-eframe.number', '-ehttp.request.uri', '-ehttp.response.code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t/index.html\t', '9\t/index.html\t200', '155\t/index.html\t', '156\t/index.html\t200',
+        ]
+
+    def test_socks4(self, cmd_tshark, capture_file, test_env):
+        '''SOCKS4 and 4a requests and replies. The destination address of
+        the request comes from the address field (offset 4), not from the
+        version octet.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {153, 154, 163, 164, 173, 174}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esocks.dstport',
+                '-esocks.username', '-esocks.dst', '-esocks.v4a_dns_name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '153\tVersion: 4 Connect to server request\t80\talice\t198.51.100.7\t',
+            '154\tVersion: 4 Connect Response\t80\t\t198.51.100.7\t',
+            '163\tVersion: 4 Connect to server request\t80\tbob\t0.0.0.5\twww.example.invalid',
+            '164\tVersion: 4 Connect Response\t80\t\t0.0.0.0\t',
+            '173\tVersion: 4 Connect Response\t50001\t\t192.0.2.2\t',
+            '174\tVersion: 4\t0\t\t198.51.100.20\t',
+        ]
+
+    def test_socks_ping_traceroute(self, cmd_tshark, capture_file, test_env):
+        '''The PING and TRACEROUTE extensions: request, reply, results text
+        and terminate request.'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {131, 132, 133, 134, 143, 144, 145, 146}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '131\tVersion: 5 Command Request - Ping',
+            '132\tVersion: 5, Ping Req Command Response - Ping',
+            '133\tVersion: 5, Ping Req, Results',
+            '134\tVersion: 5, Ping Req, Terminate Request',
+            '143\tVersion: 5 Command Request - Traceroute',
+            '144\tVersion: 5, Traceroute Req Command Response - Traceroute',
+            '145\tVersion: 5, Traceroute Req, Results',
+            '146\tVersion: 5, Traceroute Req, Terminate Request',
+        ]
+
+    def test_socks_state_before_replies(self, cmd_tshark, capture_file, test_env):
+        '''Client data that arrives before the server's reply (SOCKS4: frame 189,
+        SOCKS5: frame 200 with the remote port), a second reply (191, 203), a
+        GSSAPI reply with a token followed by an empty one (213-214) and a
+        CONNECT to a SOCKS server whose bytes reach the dissector again (226).'''
+        stdout = subprocess.check_output((cmd_tshark, '-V',
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {189, 190, 191, 200, 202, 203, 213, 214, 226}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '189\tVersion: 4',
+            '190\tVersion: 4 Connect Response',
+            '191\tVersion: 4',
+            '200\tVersion: 5, Remote Port: 80',
+            '202\tVersion: 5 Command Response - Connect',
+            '203\tVersion: 5, Remote Port: 80',
+            '213\tVersion: 5 GSSAPI authentication reply',
+            '214\tVersion: 5 GSSAPI authentication reply',
+            '226\tVersion: 5',
+        ]
+
+    def test_socks_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDUs naming socks_tcp and socks_tls have no TCP
+        conversation: the first one with a version other than 4 or 5 is
+        rejected (frame 231), the next ones start a conversation of their own
+        (the TLS entry builds the TCP information it needs).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socks_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 231',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '231\t\t',
+            '232\tSocks\tVersion: 5 Connect to server request',
+            '233\tSocks\tVersion: 5 Command Request - Connect',
+            '234\tSocks\tVersion: 5, Remote Port: 80',
+        ]
