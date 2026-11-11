@@ -143075,3 +143075,105 @@ class TestDissectSpray:
             assert info['12'][0].startswith('V1 GET Reply')
             assert info['12'][2:] == ['1000000', '1700000000', '123456']
             assert info['13'][0].startswith('V1 CLEAR Call')
+
+
+class TestDissectSprt:
+    '''SPRT (Simple Packet Relay Transport, V.150.1) from the synthetic
+    capture sprt_coverage.pcap.gz: frame 1 is a SIP INVITE whose SDP
+    announces "udpsprt" on 192.0.2.10:30100 (frames 2-97 use that
+    conversation); frames 98-111 use UDP port 30300, which only the
+    heuristic dissector reaches.'''
+
+    CAP = 'sprt_coverage.pcap.gz'
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_sprt_clean(self, cmd_tshark, capture_file, test_env):
+        '''102 SPRT frames (2-103) decode without malformed packets or
+        expert infos, in one and two passes; the rest is the SIP frame,
+        UDP and one RTP frame.'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, cap, test_env, 'frame',
+                    ['frame.number', '_ws.col.protocol'], *opts)
+            protos = [r.split('\t')[1] for r in rows]
+            assert len(protos) == 111
+            assert protos.count('SPRT') == 102
+            assert protos.count('RTP') == 1
+            assert protos.count('UDP') == 7
+            assert self._rows(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *opts) == []
+
+    def test_sprt_messages(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of a header without payload, with ACK fields
+        and of some of the messages.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {2,3,5,6,9,10,29,87,98}',
+                ['frame.number', '_ws.col.info'])
+        assert rows == [
+            '2\tTC=0, No Payload',
+            '3\tTC=1, Seq=5, NULL reserved for ITU-T(0)',
+            '5\tTC=3, Seq=0, BREAK_ACK(7)',
+            '6\tTC=1, Seq=8, INIT(1) (ACK fields present)',
+            '9\tTC=0, No Payload (ACK fields present)',
+            '10\tTC=1, Seq=10, INIT(1)',
+            '29\tTC=1, Seq=15, CONNECT(5)',
+            '87\tTC=1, Seq=46, I_RAW-OCTET(16)',
+            '98\tTC=0, INIT(1)',
+        ]
+
+    def test_sprt_dlci(self, cmd_tshark, capture_file, test_env):
+        '''I_OCTET messages: the DLCI is present (one or two octets) after
+        the CONNECT of frame 29 enabled it, absent after the CONNECT of
+        frame 93 and unknown in the conversation without a CONNECT.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {88,89,94,96}',
+                ['frame.number', 'sprt.payload.i_octet_dlci1', 'sprt.payload.i_octet_dlci2',
+                 'sprt.payload.i_octet_dlci_setup_by_connect_frame',
+                 'sprt.payload.i_octet_no_dlci', 'sprt.payload.i_octet_dlci_presence_unknown',
+                 'sprt.setup-method'])
+        assert rows == [
+            '88\t11\t\t29\t\t\tSDP',
+            '89\t62\t10\t29\t\t\tSDP',
+            '94\t\t\t93\t1\t\tSPRT stream',
+            '96\t\t\t\t\t1\tSPRT stream',
+        ]
+        # without the preference there is no DLCI information at all
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {88,94,96}',
+                ['frame.number', 'sprt.payload.i_octet_dlci1', 'sprt.payload.i_octet_no_dlci'],
+                '-o', 'sprt.show_dlci_info:FALSE')
+        assert rows == ['88\t\t', '94\t\t', '96\t\t']
+
+    def test_sprt_heuristic_masks(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "SPRT: Fix masks in the heuristic dissector":
+        payload types 96-127 have the bit 0x40, which the old mask of
+        decimal 80 (0x50) refused, so no frame reached SPRT through the
+        heuristic. Frame 103 (payload type 0x70) is SPRT now; the reserved
+        bit (0x80) and the sequence number of TC 0 and 3 (0x3fff) are
+        still checked. Each frame comes from a new source so that no
+        conversation exists yet.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number >= 103 && frame.number <= 110',
+                ['frame.number', '_ws.col.protocol'])
+        assert rows == [
+            '103\tSPRT',
+            '104\tUDP',    # reserved bit set
+            '105\tUDP',    # TC 0 with sequence number 0x100
+            '106\tUDP',    # TC 3 with sequence number 0x100
+            '107\tUDP',    # shorter than the header
+            '108\tUDP',    # SSID 1
+            '109\tUDP',    # payload type 95
+            '110\tUDP',    # TC 0 with a sequence number
+        ]
+
+    def test_sprt_rtp(self, cmd_tshark, capture_file, test_env):
+        '''A header with the RTP version 2 in the heuristic is handed to RTP.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'rtp', ['frame.number', 'rtp.ssrc'])
+        assert rows == ['111\t0x11223344']
