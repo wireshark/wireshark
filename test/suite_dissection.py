@@ -141121,3 +141121,214 @@ alert udp any any -> any any (msg:"Full content table"; CONTENTS30; uricontent:"
             ['28', '1:6001:1 - absolute 6001', '%s/rules/abs.rules' % d, '2', '1'],
             ['29', '1:6002:1 - absolute 6002', '%s/other.rules' % d, '2', '1'],
         ]
+
+
+class TestDissectSocketcan:
+    '''Classic CAN, CAN FD and CAN XL frames in LINKTYPE_CAN_SOCKETCAN
+    (big endian ID and flags) and in Linux cooked captures (host endian,
+    little endian on the machines the capture was generated for).'''
+
+    def test_socketcan_protocols(self, cmd_tshark, capture_file, test_env):
+        '''CAN, CANFD and CANXL frames; frames of sizes that no CAN type has
+        are not dissected. No malformed packets or expert infos in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 78
+        assert protocols.count('CAN') == 33
+        assert protocols.count('CANFD') == 19
+        assert protocols.count('CANXL') == 20
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_socketcan_classic(self, cmd_tshark, capture_file, test_env):
+        '''Standard and extended IDs, the extended and RTR flags, the
+        length and the padding of classic CAN frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'frame.number <= 10 || frame.number == 55',
+                '-Tfields', '-eframe.number', '-ecan.id', '-ecan.flags.xtd',
+                '-ecan.flags.rtr', '-ecan.len', '-ecan.padding', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t291\tFalse\tFalse\t8\t\tID: 291 (0x123), Length: 8',
+            '2\t2047\tFalse\tFalse\t1\t00000000000000\tID: 2047 (0x7ff), Length: 1',
+            '3\t1\tFalse\tFalse\t0\t0000000000000000\tID: 1 (0x001), Length: 0',
+            '4\t417001744\tTrue\tFalse\t8\t\tExt. ID: 417001744 (0x18daf110), Length: 8',
+            '5\t536870911\tTrue\tFalse\t3\t0000000000\tExt. ID: 536870911 (0x1fffffff), Length: 3',
+            '6\t801\tFalse\tTrue\t4\t00000000\tID: 801 (0x321), Length: 4 (Remote Transmission Request)',
+            '7\t11259375\tTrue\tTrue\t0\t0000000000000000\tExt. ID: 11259375 (0x00abcdef), Length: 0 (Remote Transmission Request)',
+            '8\t1280\tFalse\tFalse\t8\t\tID: 1280 (0x500), Length: 8',
+            '9\t2016\tFalse\tFalse\t8\t\tID: 2016 (0x7e0), Length: 8',
+            '10\t2015\tFalse\tFalse\t8\t\tID: 2015 (0x7df), Length: 8',
+            '55\t291\tFalse\tFalse\t8\t\tID: 291 (0x123), Length: 8',
+        ]
+
+    def test_socketcan_error_frames(self, cmd_tshark, capture_file, test_env):
+        '''The class of every error frame in the Info column and the
+        decoded data of the lost arbitration, controller, protocol and
+        transceiver classes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'can.flags.err == 1',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 15
+        assert lines[0] == '11\tERR: Transmit timeout'
+        assert lines[1] == '12\tERR: Lost arbitration'
+        assert lines[2] == '13\tERR: Controller problems'
+        assert lines[3] == '14\tERR: Protocol violation'
+        assert lines[5] == '16\tERR: Transceiver status'
+        assert lines[7] == '18\tERR: No acknowledgment'
+        assert lines[8] == '19\tERR: Bus off'
+        assert lines[9] == '20\tERR: Bus error'
+        assert lines[10] == '21\tERR: Controller restarted'
+        assert lines[11] == '22\tERR: Reserved'
+        assert lines[12].startswith('23\tERR: Transmit timeout, Lost arbitration, '
+                                    'Controller problems, Protocol violation, Transceiver status')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 12 && frame.number <= 17',
+                '-Tfields', '-eframe.number', '-ecan.err.lostarb.bitnum',
+                '-ecan.err.ctrl.rx_overflow', '-ecan.err.ctrl.active',
+                '-ecan.err.prot.type.bit', '-ecan.err.prot.type.tx',
+                '-ecan.err.prot.location', '-ecan.err.trx.canh', '-ecan.err.trx.canl',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '12\t17\t\t\t\t\t\t\t',
+            '13\t\tTrue\tTrue\t\t\t\t\t',
+            '14\t\t\t\tTrue\tTrue\t3\t\t',
+            '15\t\t\t\tFalse\tFalse\t10\t\t',
+            '16\t\t\t\t\t\t\t7\t5',
+            '17\t\t\t\t\t\t\t10\t2',
+        ]
+
+    def test_socketcan_fd(self, cmd_tshark, capture_file, test_env):
+        '''CAN FD flags, lengths up to 64 octets, extended IDs and the
+        padding after the data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'canfd',
+                '-Tfields', '-eframe.number', '-ecanfd.flags.brs',
+                '-ecanfd.flags.esi', '-ecanfd.flags.fdf', '-ecan.len',
+                '-ecan.flags.xtd', '-ecan.padding',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 19
+        assert lines[0] == '25\tFalse\tFalse\tTrue\t8\tFalse\t'
+        assert lines[1] == '26\tTrue\tFalse\tTrue\t12\tFalse\t'
+        assert lines[2] == '27\tFalse\tTrue\tTrue\t16\tFalse\t'
+        assert lines[3] == '28\tTrue\tTrue\tTrue\t20\tTrue\t'
+        assert lines[7] == '32\tFalse\tFalse\tFalse\t64\tFalse\t'
+        assert lines[10] == '35\tFalse\tFalse\tTrue\t5\tFalse\t0000000000'
+
+    def test_socketcan_xl(self, cmd_tshark, capture_file, test_env):
+        '''CAN XL priority, VCID, flags, SDU types, lengths up to 2048
+        octets and padding.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'canxl',
+                '-Tfields', '-eframe.number', '-ecanxl.priority', '-ecanxl.vcid',
+                '-ecanxl.flags.sec', '-ecanxl.flags.rrs', '-ecanxl.flags.xl',
+                '-ecanxl.sdu_type', '-ecanxl.len', '-ecanxl.acceptance_field',
+                '-ecan.padding',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 20
+        assert lines[0] == '36\t291\t1\tTrue\tFalse\tTrue\t0x03\t16\t287454020\t'
+        assert lines[1] == '37\t2047\t255\tFalse\tTrue\tTrue\t0x01\t1\t287454020\t'
+        assert lines[11] == '47\t24\t10\tFalse\tFalse\tTrue\t0x03\t2048\t287454020\t'
+        assert lines[12].startswith('48\t25\t11\tFalse\tFalse\tTrue\t0x03\t12\t287454020\t')
+        assert lines[12].endswith('70616464696e67')
+
+    def test_socketcan_linux_cooked(self, cmd_tshark, capture_file, test_env):
+        '''Frames in Linux cooked captures (SLL and SLL2) with the ID and
+        flags field in host (little endian) order.'''
+        if sys.byteorder != 'little':
+            pytest.skip('the host endian frames were written on a little endian machine')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 58 && frame.number <= 67',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '58\tCAN\tID: 291 (0x123), Length: 8',
+            '59\tCAN\tExt. ID: 74565 (0x00012345), Length: 2',
+            '60\tCAN\tERR: Bus off',
+            '61\tCAN\tID: 1110 (0x456), Length: 2 (Remote Transmission Request)',
+            '62\tCANFD\tID: 801 (0x321), Length: 32',
+            '63\tCANFD\tExt. ID: 801 (0x00000321), Length: 12',
+            '64\tCANXL\tPriority: 512 (0x200), VCID: 16 (0x10), Length: 20',
+            '65\tCAN\tID: 292 (0x124), Length: 2',
+            '66\tCANFD\tID: 802 (0x322), Length: 24',
+            '67\tCANXL\tPriority: 513 (0x201), VCID: 17 (0x11), Length: 9',
+        ]
+
+    def test_socketcan_sub_dissector(self, cmd_tshark, capture_file, test_env):
+        '''CAN IDs given to a sub-dissector (ISO 15765 through its
+        preference) are dissected by it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'iso15765.can.ids:0x123',
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'iso15765',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '55', '58']
+
+    def test_socketcan_uat(self, cmd_tshark, capture_file, test_env):
+        '''The interface mapping UAT gives the bus ID of an interface and
+        the sender/receiver UAT the source and destination columns; an
+        interface without a name in the UAT is matched by its ID (frame 65).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'uat:CAN_interface_mapping:"ffffffff","can0","1"',
+                '-o', 'uat:CAN_interface_mapping:"ffffffff","can1","2"',
+                '-o', 'uat:CAN_interface_mapping:"2","","7"',
+                '-o', 'uat:CAN_senders_receivers:"1","123","ECU A","ECU B, ECU C"',
+                '-o', 'uat:CAN_senders_receivers:"0","7ff","Gateway","All"',
+                '-o', 'uat:CAN_senders_receivers:"2","123","ECU D","ECU E"',
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 2 || frame.number == 3 || frame.number == 55 || frame.number == 65',
+                '-Tfields', '-eframe.number', '-ecan.bus_id',
+                '-e_ws.col.def_src', '-e_ws.col.def_dst',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000001\tECU A\tECU B, ECU C',
+            '2\t0x00000001\tGateway\tAll',
+            '3\t0x00000001\t\t',
+            '55\t0x00000002\tECU D\tECU E',
+            '65\t0x00000007\t\t',
+        ]
+
+    def test_socketcan_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU frames select the dissector by name: host, little
+        and big endian classic CAN, CAN FD and CAN XL (the CAN XL length
+        and acceptance field are big endian for "canxl-bigendian").'''
+        if sys.byteorder != 'little':
+            pytest.skip('the host endian frames were written on a little endian machine')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('socketcan_coverage.pcapng.gz'),
+                '-Y', 'exported_pdu',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '68\tCAN\tID: 336 (0x150), Length: 3',
+            '69\tCAN\tID: 337 (0x151), Length: 3',
+            '70\tCAN\tExt. ID: 338 (0x00000152), Length: 2',
+            '71\tCANFD\tID: 339 (0x153), Length: 12',
+            '72\tCANXL\tPriority: 340 (0x154), VCID: 3 (0x03), Length: 7',
+            '73\tCANFD\tID: 341 (0x155), Length: 16',
+            '74\tCANFD\tID: 342 (0x156), Length: 20',
+            '75\tCANFD\tExt. ID: 343 (0x00000157), Length: 24',
+            '76\tCANXL\tPriority: 344 (0x158), VCID: 4 (0x04), Length: 9',
+            '77\tCANXL\tPriority: 345 (0x159), VCID: 5 (0x05), Length: 10',
+            '78\tCANXL\tPriority: 346 (0x15a), VCID: 6 (0x06), Length: 11',
+        ]
