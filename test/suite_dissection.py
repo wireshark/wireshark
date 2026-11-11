@@ -142855,3 +142855,116 @@ class TestDissectSpice:
                     '-Y', 'spice.invalid_length', '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env, timeout=60)
             assert stdout.split() == ['5']
+
+
+class TestDissectSpnego:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=(), name='spnego_coverage.pcap.gz'):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file(name),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_spnego_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The SPNEGO tokens travel in HTTP "Negotiate" headers and LDAP
+        SASL buffers; nothing is malformed or has a warning or an error
+        expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.len > 0', '-e_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 57
+        assert protocols.count('HTTP') == 44
+        assert protocols.count('LDAP') == 13
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_spnego_ntlm_negotiation(self, cmd_tshark, capture_file, test_env):
+        '''negTokenInit with a mechToken, negTokenTarg with the challenge,
+        the response with a mechListMIC, and the final accept-completed.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 6 && frame.number <= 9',
+                '-espnego.MechType', '-espnego.negResult', '-espnego.supportedMech', '-e_ws.col.info')
+        assert rows[0][1:4] == ['1.3.6.1.4.1.311.2.2.10,1.2.840.113554.1.2.2', '', '']
+        assert 'NTLMSSP_NEGOTIATE' in rows[0][4]
+        assert rows[1][1:4] == ['', '1', '1.3.6.1.4.1.311.2.2.10']
+        assert 'NTLMSSP_CHALLENGE' in rows[1][4]
+        assert 'NTLMSSP_AUTH' in rows[2][4]
+        assert rows[3][2] == '0'
+
+    def test_spnego_init2_and_results(self, cmd_tshark, capture_file, test_env):
+        '''A negTokenInit sent by the server (srcport below 1024) is a
+        negTokenInit2 with negHints; negResult values and mechTypes in
+        negTokenTarg.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'spnego.hintName',
+                '-espnego.MechType', '-espnego.hintName', '-espnego.hintAddress')
+        assert len(rows) == 1
+        assert rows[0][2] == 'not_defined_in_RFC4178@please_ignore'
+        assert rows[0][3] == '686f7374'
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {23, 24, 25}',
+                '-espnego.negResult', '-espnego.supportedMech')
+        assert [r[1] for r in rows] == ['3', '1', '2']
+
+    def test_spnego_kerberos_tokens(self, cmd_tshark, capture_file, test_env):
+        '''Every token id of the Kerberos handler: AP-REQ, AP-REP, KRB-ERROR,
+        TGT request and reply, delete context, an unknown id, IAKERB with
+        its header, MIC and wrap tokens (RFC 1964 and CFX).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 40 && frame.number <= 59',
+                '-espnego.krb5.tok_id')
+        assert [r[1] for r in rows] == [
+            '0x0001', '0x0002', '0x0001', '0x0003', '0x0004', '0x0104', '0x0201', '0x0999',
+            '0x0105', '0x0105', '0x0101', '0x0101', '0x0102', '0x0102', '0x0404', '0x0404',
+            '0x0404', '0x0405', '0x0405', '0x0405']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {48, 49}',
+                '-espnego.target_realm', '-espnego.cookie')
+        assert rows == [['48', 'EXAMPLE.COM', '636f6f6b6965'], ['49', 'EXAMPLE.COM', '']]
+
+    def test_spnego_cfx_header(self, cmd_tshark, capture_file, test_env):
+        '''CFX wrap and MIC tokens: flags, extra count, rotation count and
+        sequence number (header parsing only).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 54 && frame.number <= 59',
+                '-espnego.krb5.cfx_flags', '-espnego.krb5.cfx_ec', '-espnego.krb5.cfx_rrc',
+                '-espnego.krb5.cfx_seq')
+        assert [r[1:] for r in rows] == [
+            ['0x04', '', '', '1'], ['0x01', '', '', '2'], ['0x04', '', '', '1'],
+            ['0x00', '12', '0', '7'], ['0x02', '12', '0', '5'], ['0x05', '12', '12', '6']]
+
+    def test_spnego_ldap_sasl(self, cmd_tshark, capture_file, test_env):
+        '''GSS-API wrap tokens in LDAP SASL buffers after a SPNEGO bind:
+        integrity (the LDAP message follows the token) and privacy (the
+        payload stays opaque).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 67 && frame.number <= 75',
+                '-e_ws.col.info')
+        infos = [r[1] for r in rows]
+        assert [i.startswith('SASL GSS-API Privacy: payload') for i in infos] == [
+            True, False, True, False, False, False, False, False, True]
+        assert all(i.startswith('SASL GSS-API Integrity: searchRequest(3)') for i in infos if 'Integrity' in i)
+
+    def test_spnego_recursion_bound(self, cmd_tshark, cmd_text2pcap, result_file, base_env, test_env):
+        '''A negTokenInit that names SPNEGO as the mechanism and carries
+        another negTokenInit as mechToken, nested far beyond the limit of
+        8, ends with the "nested too deeply" expert info (it used to hit
+        the tree depth assertion).'''
+        def ber(tag, v):
+            n = len(v)
+            ln = bytes([n]) if n < 128 else (bytes([0x81, n]) if n < 256 else bytes([0x82, n >> 8, n & 255]))
+            return bytes([tag]) + ln + v
+        oid = ber(0x06, bytes.fromhex('2b0601050502'))
+        mech = ber(0xa0, ber(0x30, oid))
+        inner = b'\x05\x00'
+        for _ in range(12):
+            inner = ber(0xa0, ber(0x30, mech + ber(0xa2, ber(0x04, inner))))
+        gss = ber(0x60, oid + inner)
+        import base64
+        req = (b'GET / HTTP/1.1\r\nHost: www.example.com\r\nAuthorization: Negotiate '
+               + base64.b64encode(gss) + b'\r\n\r\n')
+        txt = result_file('spnego-recursion.txt')
+        with open(txt, 'w') as f:
+            f.write(''.join('%06x ' % off + ' '.join('%02x' % b for b in req[off:off + 16]) + '\n'
+                            for off in range(0, len(req), 16)))
+        pcap = result_file('spnego-recursion.pcap')
+        subprocess.check_call((cmd_text2pcap, '-T', '40000,80', txt, pcap),
+                env=base_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'spnego.too_deep',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\tSPNEGO nested too deeply']
