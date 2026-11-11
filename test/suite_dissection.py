@@ -141522,3 +141522,92 @@ class TestDissectSocks:
             '233\tSocks\tVersion: 5 Command Request - Connect',
             '234\tSocks\tVersion: 5, Remote Port: 80',
         ]
+
+
+class TestDissectSolaredge:
+    '''SolarEdge monitoring protocol from the synthetic capture
+    solaredge_coverage.pcap.gz. The dissector has no port of its own (it
+    is a Decode As target for TCP), so the frames are Exported PDU naming
+    the "solaredge" dissector. The encrypted packets and the session key
+    message carry filler bytes and no key is configured, so they stay
+    undecoded.'''
+
+    def test_solaredge_frames(self, cmd_tshark, capture_file, test_env):
+        '''All 59 frames are SolarEdge with a valid CRC, without
+        malformed packets or expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('solaredge_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol', '-esolaredge.crc.status',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert len(lines) == 59
+            assert all(l == ['SolarEdge', '1'] for l in lines)
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('solaredge_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_solaredge_commands(self, cmd_tshark, capture_file, test_env):
+        '''Command names, addresses, sequence numbers and the lengths of
+        the packets.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('solaredge_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-esolaredge.command', '-e_ws.col.info',
+                '-esolaredge.length', '-esolaredge.length_inverse',
+                '-esolaredge.sequence_number', '-esolaredge.source_address',
+                '-esolaredge.destination_address',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'] == ['0x0010', 'PARAMS_RESET', '0', '65535', '1', '0x11111111', '0x00000000']
+        assert info['2'][1:6] == ['PARAMS_SET_SINGLE', '1', '65534', '2', '0x22222222']
+        assert info['41'][:2] == ['0x7777', 'Unknown command']
+        assert info['54'][1] == 'MISC_ENCRYPTED' and info['54'][2] == '40'
+        assert info['57'][1] == 'SERVER_SET_KEY' and info['57'][2] == '32'
+
+    def test_solaredge_post_data(self, cmd_tshark, capture_file, test_env):
+        '''Device records of every type, several records in one packet
+        (the whole list is followed) and 50 records of 8 octets (the
+        reproducer of the device data recursion, which called itself once
+        per record).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('solaredge_coverage.pcap.gz'),
+                '-Y', 'solaredge.post',
+                '-Tfields', '-eframe.number', '-esolaredge.post.device.type',
+                '-esolaredge.post.device.id', '-esolaredge.post.device.event.type',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['42'][0] == '0x0000' and info['43'][0] == '0x0010'
+        assert info['44'][0] == '0x0011' and info['45'][0] == '0x0080'
+        assert info['46'] == ['0x0300', '0x70000003', '0x00000001']
+        assert info['47'][2] == '0x00000000'
+        assert info['48'][0] == '0x1234'
+        assert info['50'][0] == '0x0000,0x0080,0x0300'
+        assert info['51'][0] == '0x0010,0x0010,0x0000,0x1234,0x0080,0x0300,0x0300'
+        assert info['51'][2] == '0x00000000,0x00000001'
+        assert info['52'][0].split(',') == ['0x%04x' % (0x2000 + i) for i in range(50)]
+        assert info['53'][0] == ''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('solaredge_coverage.pcap.gz'),
+                '-Y', 'frame.number in {50, 52}',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == 'SERVER_POST_DATA Optimizer,  Optimizer,  Wake/sleep event'
+        assert lines[1].count('Unknown device') == 50
+
+    def test_solaredge_show_unknown(self, cmd_tshark, capture_file, test_env):
+        '''With the "unknown" preference the padding fields of the
+        records are shown.'''
+        stdout = subprocess.check_output((cmd_tshark, '-o', 'solaredge.unknown:TRUE',
+                '-r', capture_file('solaredge_coverage.pcap.gz'),
+                '-Y', 'frame.number in {42, 43, 46}',
+                '-Tfields', '-eframe.number', '-esolaredge.post.device.padding_uint32',
+                '-esolaredge.post.device.padding_float',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0].split('\t')[1] == '0x00000000'
+        assert lines[1].split('\t')[1].count(',') == 6
+        assert lines[2].split('\t')[1] == '0x00000000,0x00000000'
