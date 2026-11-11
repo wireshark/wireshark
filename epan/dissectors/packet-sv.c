@@ -369,7 +369,7 @@ dissect_sv_GmidData(bool implicit_tag _U_, tvbuff_t *tvb _U_, unsigned offset _U
 				"BER Error: malformed gmIdentity encoding, length must be 8 bytes");
 		if(hf_index > 0)
 		{
-			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+			proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_NA);
 		}
 		return offset;
 	}
