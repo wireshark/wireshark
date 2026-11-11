@@ -144912,3 +144912,65 @@ class TestDissectSv:
                 '-Tfields', '-eframe.number', '-esv.gmidData',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\t010203']
+
+
+class TestDissectSwipe:
+    '''swIPe (IP protocol 53) from the synthetic capture
+    swipe_coverage.pcap.gz.'''
+
+    def test_swipe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-7 decode as swIPe carrying IPv6 and UDP without
+        malformed packets or expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('swipe_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-e_ws.malformed', '-e_ws.expert.severity',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert len(lines) == 9
+            for l in lines[:7]:
+                assert l[1] == 'UDP'
+                assert l[2:] == ['', '']
+            for l in lines[7:]:
+                assert l[1] == 'swIPe'
+                assert l[3] == '6291456'
+
+    def test_swipe_fields(self, cmd_tshark, capture_file, test_env):
+        '''Packet type, header length, policy, sequence number and
+        authenticator of the first frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('swipe_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 6',
+                '-Tfields', '-eframe.number', '-eswipe.packet_type', '-eswipe.len',
+                '-eswipe.policy_id', '-eswipe.packet_seq', '-eswipe.authenticator',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0\t8\t100\t1000\t',
+            '2\t1\t16\t101\t1001\taaaaaaaaaaaaaaaa',
+            '3\t2\t24\t102\t1002\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            '4\t3\t32\t103\t1003\taaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+            '5\t7\t24\t9\t5\t000102030405060708090a0b0c0d0e0f',
+            '6\t2\t12\t1\t77\t11111111',
+        ]
+
+    def test_swipe_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Nested swIPe/IPv6 headers are followed to four levels; the
+        next one gets an expert warning. Frame 9, with 300 levels
+        (about 15 KB), reached the layer limit assertion in
+        call_dissector_work() before "swIPe: Bound nesting of swIPe and
+        IPv6 headers". Also checked with the assertion made fatal.'''
+        env = test_env.copy()
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('swipe_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {7, 8, 9}',
+                    '-Tfields', '-eframe.number', '-eswipe.packet_seq',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=env, timeout=120)
+            lines = stdout.splitlines()
+            assert lines[0] == '7\t1,2,1,0\t'
+            assert lines[1] == '8\t1,4,3,2,1\tswIPe nested too deeply'
+            assert lines[2].startswith('9\t1,298,297,296,295\t')
+            assert lines[2].endswith('\tswIPe nested too deeply')
