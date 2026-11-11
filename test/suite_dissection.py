@@ -140372,3 +140372,57 @@ class TestDissectSna:
                 '-Y', 'ppp.protocol == 0x004d', '-Tfields',
                 '-eframe.number', '-esna.th.fid')
         assert rows == [['69', '0x02'], ['70', '0x04'], ['71', '0x05']]
+
+
+class TestDissectSnaeth:
+    '''SNA over Ethernet (ethertype 0x80d5) from the synthetic capture
+    snaeth_coverage.pcap.gz: the three octet header and the LLC frame that
+    follows it.'''
+
+    def test_snaeth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Eight frames, six with SNA, one SNA XID and one LLC to another
+        SAP; no malformed packets or error expert infos in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('snaeth_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['SNA', 'SNA', 'SNA', 'SNA', 'SNA', 'ISO', 'SNA', 'SNA']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('snaeth_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_snaeth_length(self, cmd_tshark, capture_file, test_env):
+        '''The length field cuts off the Ethernet padding (frame 2, a 60 octet
+        frame with 12 octets of LLC) and is ignored when it is larger than the frame (frame 7);
+        the padding octet is shown as it is (frame 3).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('snaeth_coverage.pcap.gz'),
+                '-Y', 'snaeth', '-Tfields', '-eframe.number', '-esnaeth.len',
+                '-esnaeth.padding', '-eframe.len',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[:3] for r in rows] == [
+            ['1', '29', '0x00'], ['2', '12', '0x00'], ['3', '29', '0x5a'],
+            ['4', '30', '0x00'], ['5', '9', '0x00'], ['6', '7', '0x00'],
+            ['7', '1024', '0x00'], ['8', '692', '0x00'],
+        ]
+        assert [r[3] for r in rows] == ['60'] * 6 + ['46', '709']
+
+    def test_snaeth_llc(self, cmd_tshark, capture_file, test_env):
+        '''LLC UI, I and XID frames carry SNA FID2 BIUs, an SNA XID and
+        data for another SAP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('snaeth_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ellc.dsap', '-ellc.control',
+                '-esna.th.fid', '-esna.xid.format',
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert [r[1] for r in rows] == ['0x04', '0x04', '0x08', '0x0c', '0x04', '0x20', '0x04', '0x04']
+        assert rows[3][2] == '0x0402'
+        assert rows[0][3] == '0x02' and rows[4][4] == '0'
