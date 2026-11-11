@@ -144306,3 +144306,42 @@ class TestDissectStat:
                 sizes.append((name, field.split(' size="')[1].split('"')[0]))
         assert sizes == [('mon', '540'), ('my_id', '276'), ('my_id', '276'),
                          ('mon', '328'), ('my_id', '24')]
+
+
+class TestDissectStatNotify:
+    '''STAT-CB, the Network Status Monitor callback protocol (ONC RPC
+    program 200048, found by the RPC over UDP heuristic), from the
+    synthetic capture stat_notify_coverage.pcap.gz.'''
+
+    def test_statnotify_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 18 frames are STAT-CB, no malformed packets or expert
+        infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('stat_notify_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 18
+            assert protocols.count('STAT-CB') == 18
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('stat_notify_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_statnotify_callback(self, cmd_tshark, capture_file, test_env):
+        '''Name, state and private data of the MON-CALLBACK calls.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('stat_notify_coverage.pcap.gz'),
+                '-Y', 'statnotify.name || statnotify.state',
+                '-Tfields', '-eframe.number', '-estatnotify.procedure_v1',
+                '-estatnotify.name', '-estatnotify.state', '-estatnotify.priv',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert len(info) == 8
+        assert info['3'] == ['1', '', '100', '000102030405060708090a0b0c0d0e0f']
+        assert info['5'] == ['1', 'h', '101', '101112131415161718191a1b1c1d1e1f']
+        assert info['15'] == ['1', 'hhhhhhhhh', '109', '909192939495969798999a9b9c9d9e9f']
+        assert info['17'] == ['1', 'client1.example.net', '7', 'ffffffffffffffffffffffffffffffff']
