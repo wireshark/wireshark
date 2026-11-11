@@ -145477,3 +145477,112 @@ class TestDissectSystemdJournal:
                     '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env)
             assert stdout.split() == ['1']
+
+
+class TestDissectT124:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('t124_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_t124_protocols(self, cmd_tshark, capture_file, test_env):
+        '''GCC PDUs (T.124) travel in the user data of the T.125 connect
+        PDUs; the RDP and channel dissectors get the H.221 user data and
+        the channel data. Nothing is malformed or has a warning or an
+        error expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.len > 0', '-e_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 63
+        assert protocols.count('T.124') == 45
+        assert protocols.count('T.125') == 12
+        assert protocols.count('RDP') == 2
+        assert protocols.count('CLIPRDR') == 1
+        assert protocols.count('RDPDR') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_t124_gcc_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Every ConnectGCCPDU alternative: create, query, join and invite
+        requests and responses.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU', '-et124.connectGCCPDU')
+        assert [r[1] for r in rows] == (
+            ['0', '1'] + ['0'] * 9 + ['1'] * 6 + ['2'] * 6 + ['3'] * 3 + ['4'] * 7 + ['5'] * 9
+            + ['6'] * 3 + ['7'] * 2)
+
+    def test_t124_create(self, cmd_tshark, capture_file, test_env):
+        '''Conference create request with every optional field, and the
+        responses (node id, tag, result).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 9',
+                '-et124.numeric', '-et124.text', '-et124.unicodeText',
+                '-et124.lockedConference', '-et124.listedConference',
+                '-et124.conductibleConference', '-et124.terminationMethod',
+                '-et124.conferenceDescription', '-et124.callerIdentifier',
+                '-et124.priority')
+        assert rows == [['9', '12345,9,8', 'name,conv', 'unicode name,u', 'True', 'False',
+                         'True', '1', 'A conference', 'caller', '7']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU == 1',
+                '-et124.nodeID', '-et124.tag', '-et124.result')
+        # (nodeID, tag, result) of each create response
+        assert [r[1:] for r in rows] == [
+            ['1002', '1', '0'], ['1002', '1', '0'], ['1003', '100', '0'], ['1004', '101', '1'],
+            ['1005', '102', '2'], ['1006', '103', '3'], ['1007', '104', '4']]
+
+    def test_t124_query(self, cmd_tshark, capture_file, test_env):
+        '''Query request (node type, asymmetry indicator) and response with
+        conference descriptors and every kind of network address.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 30',
+                '-et124.nsapAddress', '-et124.transportSelector', '-et124.internationalNumber',
+                '-et124.subAddress', '-et124.conferenceNameModifier', '-et124.conferenceDescription',
+                '-et124.waitForInvitationFlag', '-et124.nodeType')
+        assert rows == [['30', '01020304,05', 'aabb', '1234567890,1', '123', '7', 'descr', 'True', '2']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU == 2',
+                '-et124.nodeType', '-et124.asymmetryIndicator', '-et124.unknown')
+        assert [r[1] for r in rows] == ['0', '1', '2', '0', '1', '2']
+        assert rows[5][3] == '70000'
+
+    def test_t124_join_invite(self, cmd_tshark, capture_file, test_env):
+        '''Join requests with the three name selectors and the challenge
+        and response forms, join responses with every result, invites.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU == 4',
+                '-et124.numeric', '-et124.text', '-et124.unicodeText', '-et124.tag')
+        assert [r[4] for r in rows] == ['', '5', '6', '', '7', '8', '9']
+        assert rows[1][1:5] == ['77,55', 'cp', '', '5']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU == 5',
+                '-et124.joinResponseResult')
+        assert [r[1] for r in rows] == ['0', '0', '0', '1', '2', '3', '4', '5', '6']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.connectGCCPDU == 7',
+                '-et124.inviteResponseResult')
+        assert [r[1] for r in rows] == ['0', '1']
+
+    def test_t124_rdp_and_channels(self, cmd_tshark, capture_file, test_env):
+        '''The H.221 keys Duca and McDn reach the RDP dissector, whose
+        server data registers the send data channels; data on them
+        reaches the channel dissectors.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {6, 7, 63, 64}',
+                '-e_ws.col.protocol', '-e_ws.col.info', '-et124.h221NonStandard')
+        assert rows[0][1:3] == ['RDP', 'ClientData']
+        assert rows[0][3] == '44756361'
+        assert rows[1][1] == 'RDP' and rows[1][2].startswith('ServerData')
+        assert rows[1][3] == '4d63446e'
+        assert rows[2][1:3] == ['CLIPRDR', 'Monitor ready']
+        assert rows[3][1] == 'RDPDR'
+
+    def test_t124_heuristic_and_domain(self, cmd_tshark, capture_file, test_env):
+        '''ConnectData with another object identifier is not T.124; the
+        domain PDUs the T.125 heuristic accepts, with their channels.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 66',
+                '-e_ws.col.protocol', '-et124.connectGCCPDU')
+        assert rows == [['66', 'T.125', '']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 't124.DomainMCSPDU',
+                '-et124.DomainMCSPDU', '-et124.channelId', '-et124.initiator',
+                '-et124.subHeight', '-et124.subInterval', '-et124.segmentation')
+        assert [r[1] for r in rows] == ['1', '10', '11', '14', '15', '14', '15', '25', '26', '26', '25', '26', '8']
+        assert rows[0][4:6] == ['3', '200']
+        assert rows[3][2:4] == ['1003', '1005']
+        assert rows[5][2] == '0'
+        assert rows[9][2] == '65535'
