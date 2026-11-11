@@ -56,6 +56,7 @@
 #include <epan/to_str.h>
 #include <epan/crc32-tvb.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
 #include <wsutil/ws_roundup.h>
 #include "packet-tcp.h"
@@ -251,6 +252,7 @@ static expert_field ei_stun_wrong_msglen;
 static expert_field ei_stun_long_attribute;
 static expert_field ei_stun_unknown_attribute;
 static expert_field ei_stun_fingerprint_bad;
+static expert_field ei_stun_nesting;
 
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
@@ -895,6 +897,32 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
     }
 }
 
+/* Maximum depth of STUN carried in STUN (DATA attribute, ChannelData) */
+#define STUN_MAX_NESTING 4
+
+/*
+ * Pass the payload of a DATA attribute or ChannelData message to the
+ * heuristic dissectors, which may include STUN itself. Bound the nesting.
+ */
+static void
+stun_dissect_data_payload(tvbuff_t *next_tvb, packet_info *pinfo, proto_tree *tree)
+{
+    heur_dtbl_entry_t *hdtbl_entry;
+    unsigned depth = p_get_proto_depth(pinfo, proto_stun);
+
+    if (depth >= STUN_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_stun_nesting, next_tvb, 0);
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_stun, depth + 1);
+    increment_dissection_depth(pinfo);
+    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+        call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
+    }
+    decrement_dissection_depth(pinfo);
+    p_set_proto_depth(pinfo, proto_stun, depth);
+}
+
 /*
  * XXX: why is this done in this file by the STUN dissector? Why don't we
  * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
@@ -903,7 +931,6 @@ static int
 dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, uint16_t msg_type, unsigned msg_length)
 {
     tvbuff_t *next_tvb;
-    heur_dtbl_entry_t *hdtbl_entry;
     int offset = CHANNEL_DATA_HDR_LEN;
 
     /* XXX: a TURN ChannelData message is not actually a STUN message. */
@@ -933,9 +960,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     next_tvb = tvb_new_subset_length(tvb, offset, msg_length);
 
-    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-        call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
-    }
+    stun_dissect_data_payload(next_tvb, pinfo, tree);
 
     return tvb_reported_length(tvb);
 }
@@ -958,7 +983,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
     const char *msg_class_str;
     const char *msg_method_str;
     uint16_t    att_type, att_type_display;
-    uint16_t    att_length, att_length_pad, clear_port;
+    uint16_t    att_length, clear_port;
+    unsigned    att_length_pad;
     uint32_t    clear_ip[4];
     address     addr;
     unsigned    i;
@@ -970,7 +996,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
     stun_transaction_t *stun_trans;
     wmem_tree_key_t     transaction_id_key[2];
     uint32_t            transaction_id[3];
-    heur_dtbl_entry_t  *hdtbl_entry;
     unsigned            reported_length;
     bool                is_turn = false;
     bool                found_turn_attributes = false;
@@ -1552,7 +1577,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                    proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg, tvb, loopoffset, 2, ENC_BIG_ENDIAN, &alg);
                    proto_tree_add_item_ret_uint(att_tree, hf_stun_att_pw_alg_param_len, tvb, loopoffset+2, 2, ENC_BIG_ENDIAN, &alg_param_len);
                    if (alg_param_len > 0) {
-                       if (alg_param_len+4 >= remaining)
+                       if (alg_param_len + 4 <= remaining)
                            proto_tree_add_item(att_tree, hf_stun_att_pw_alg_param_data, tvb, loopoffset+4, alg_param_len, ENC_NA);
                        else {
                            proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_short_packet, tvb,
@@ -1563,9 +1588,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
                    /* Hopefully, in case MS-TURN ever gets PASSWORD-ALGORITHM(S) support they will add it with padding */
                    alg_param_len_pad = WS_ROUNDUP_4(alg_param_len);
 
-                   if (alg_param_len < alg_param_len_pad)
-                       proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, loopoffset+alg_param_len, alg_param_len_pad-alg_param_len, alg_param_len_pad-alg_param_len);
-                   remaining -= (alg_param_len_pad + 4);
+                   if (alg_param_len < alg_param_len_pad && alg_param_len_pad + 4 <= remaining)
+                       proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, loopoffset+4+alg_param_len, alg_param_len_pad-alg_param_len, alg_param_len_pad-alg_param_len);
+                   if (alg_param_len_pad + 4 >= remaining)
+                       remaining = 0;
+                   else
+                       remaining -= (alg_param_len_pad + 4);
                    if ((att_type_display == PASSWORD_ALGORITHM) && (remaining > 0)) {
                        proto_tree_add_expert_format(att_tree, pinfo, &ei_stun_long_attribute, tvb,
                            loopoffset, remaining, " (PASSWORD-ALGORITHM)");
@@ -1726,9 +1754,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bool i
 
                     next_tvb = tvb_new_subset_length(tvb, offset, att_length);
 
-                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
-                        call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);
-                    }
+                    stun_dissect_data_payload(next_tvb, pinfo, att_tree);
 
                 }
                 found_turn_attributes = true;
@@ -2400,6 +2426,9 @@ proto_register_stun(void)
 
         { &ei_stun_fingerprint_bad,
         { "stun.att.crc32.bad", PI_CHECKSUM, PI_WARN, "Bad Fingerprint", EXPFILL }},
+
+        { &ei_stun_nesting,
+        { "stun.nesting", PI_PROTOCOL, PI_WARN, "STUN nested too deeply, not dissected", EXPFILL }},
     };
 
     module_t *stun_module;
