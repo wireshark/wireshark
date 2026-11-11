@@ -443,6 +443,7 @@ dissect_zbee_nwk_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     if (packet == NULL) return false;
 
     /* If the frame type and version are not sane, then it's probably not ZigBee. */
+    if (tvb_captured_length(tvb) < 2) return false;
     fcf = tvb_get_letohs(tvb, 0);
     ver = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_VERSION);
     type = zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE);
@@ -745,7 +746,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             offset += 1;
 
             /* Correct the length of the source route fields. */
-            proto_item_set_len(ti, 1 + relay_count*2);
+            proto_item_set_len(ti, 2 + relay_count*2);
 
             /* Get and display the relay index. */
             proto_tree_add_item(field_tree, hf_zbee_nwk_relay_index, tvb, offset, 1, ENC_NA);
@@ -1393,7 +1394,7 @@ dissect_zbee_nwk_link_pwr_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_item_append_text(tree, ": %s, Count %u", val_to_str_const(type, zbee_nwk_link_power_delta_types, "Unknown"), count);
 
     for (i=0; i<count; i++) {
-        subtree = proto_tree_add_subtree(tree, tvb, count, 3, ett_zbee_nwk_cmd_link_pwr_struct, NULL, "Power Delta Structure");
+        subtree = proto_tree_add_subtree(tree, tvb, offset, 3, ett_zbee_nwk_cmd_link_pwr_struct, NULL, "Power Delta Structure");
         proto_tree_add_item_ret_uint16(subtree, hf_zbee_nwk_cmd_link_pwr_device_address, tvb, offset, 2, ENC_LITTLE_ENDIAN, &addr);
         offset += 2;
         delta = (char)tvb_get_uint8(tvb, offset);
@@ -1842,7 +1843,7 @@ dissect_zbee_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             default:
                 if (length > 0) { /* just use the data dissector */
-                    call_data_dissector(tvb, pinfo, tree);
+                    call_data_dissector(tvb_new_subset_length(tvb, offset, length), pinfo, subtree);
                     offset += length;
                 }
                 break;
