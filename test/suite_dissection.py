@@ -144513,3 +144513,96 @@ class TestDissectSteamIhsDiscovery:
         assert proc.returncode == 0
         assert proc.stdout.count('Unknown numeric protobuf field') == 100
         assert proc.stderr == ''
+
+
+class TestDissectStt:
+    '''STT (Stateless Transport Tunneling) from the synthetic capture
+    stt_coverage.pcap.gz. STT is a heuristic dissector on the IP table,
+    but TCP owns IP protocol 6, so every run needs the two
+    try_heuristic_first preferences in STT_OPTS.'''
+
+    STT_OPTS = ('-o', 'ip.try_heuristic_first:TRUE', '-o', 'ipv6.try_heuristic_first:TRUE')
+
+    def test_stt_frames(self, cmd_tshark, capture_file, test_env):
+        '''10 frames are STT segments that wait for reassembly, 15 show
+        the UDP of the Ethernet frame inside, one an Ethernet type
+        that no dissector handles and one is TCP to another port; no malformed packets or expert infos
+        in one and two passes. Without the preferences the capture is
+        plain TCP.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.STT_OPTS,
+                    '-r', capture_file('stt_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 27
+            assert protocols.count('STT') == 10
+            assert protocols.count('UDP') == 15
+            assert protocols.count('0x88b5') == 1
+            assert protocols.count('TCP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.STT_OPTS,
+                    '-r', capture_file('stt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('stt_coverage.pcap.gz'),
+                '-Y', 'stt',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_stt_header(self, cmd_tshark, capture_file, test_env):
+        '''Fake TCP header, STT flags, layer 4 offset, MSS, VLAN
+        and context ID.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.STT_OPTS,
+                '-r', capture_file('stt_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 10',
+                '-Tfields', '-eframe.number', '-estt.stream_id', '-estt.pkt_id',
+                '-estt.pkt_len', '-estt.flags', '-estt.l4offset', '-estt.mss',
+                '-estt.vlan.pcp', '-estt.vlan.v', '-estt.vlan.id', '-estt.context_id',
+                '-estt.tcp.window', '-estt.tcp.urg_ptr', '-estt.tcp.flags',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'][:9] == ['0x1234', '0x00000001', '120', '0x00', '0', '0', '0', '0', '0']
+        assert info['2'][6:10] == ['5', '1', '100', '0xdeadbeef00000001']
+        assert info['3'][3] == '0x0c' and info['3'][9] == '0x0000000000000000'
+        assert info['4'][6:9] == ['7', '0', '4095']
+        assert info['6'][3:6] == ['0x0a', '34', '1448']
+        assert info['7'][3:6] == ['0xfe', '14', '536']
+        assert info['8'][0] == '0xffff' and info['8'][10:] == ['0', '43981', '0x0fff']
+        assert info['10'][8] == '9'
+
+    def test_stt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Segments are reassembled in order, out of order and over
+        IPv6; the Ethernet frame inside is dissected in the frame of the
+        last segment, in one and two passes. With two passes the first
+        segments point to it.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.STT_OPTS,
+                    '-r', capture_file('stt_coverage.pcap.gz'),
+                    '-Y', 'frame.number >= 11 && frame.number <= 25',
+                    '-Tfields', '-eframe.number', '-eudp.length', '-estt.reassembled_in',
+                    '-estt.segment',
+                ), encoding='utf-8', env=test_env)
+            info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+            assert [info[str(n)][0] for n in (12, 14, 17, 19, 22)] == ['408', '908', '1208', '708', '1008']
+            if passes:
+                assert info['11'][1] == '12' and info['13'][1] == '14'
+                assert info['15'][1] == '17' and info['16'][1] == '17'
+                assert info['18'][1] == '19'
+                assert info['20'][1] == '22' and info['21'][1] == '22'
+                assert info['24'][1] == '' and info['25'][1] == ''
+            assert info['17'][2] == '15,16,17'
+            assert info['22'][2] == '21,20,22'
+
+    def test_stt_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With reassembly off the first segment is dissected as if it
+        were the whole frame; no malformed output, no crash.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.STT_OPTS, '-o', 'stt.reassemble:FALSE',
+                '-r', capture_file('stt_coverage.pcap.gz'),
+                '-Y', 'stt',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 26
