@@ -139980,3 +139980,88 @@ class TestDissectSmpte291Vanc:
             '125\tst12_2', '126\tst2010', '127\tst2010', '128\tst2010',
             '129\tst2016_3', '130\tst334_2', '131\tst2031', '132\top47',
         ]
+
+
+class TestDissectSmrse:
+    # Fields of the SMRSE address, in the order they appear
+    ADDR = ('-esmrse.address_type', '-esmrse.numbering_plan', '-esmrse.octet_Format')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('smrse_coverage.pcap.gz'),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_smrse_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every PDU is SMRSE and none is malformed or has a warning or
+        an error expert info, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.len > 0', '-e_ws.col.protocol')
+        assert len(rows) == 44
+        assert [r[1] for r in rows].count('SMRSE') == 44
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_smrse_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every tag, and the header fields give the
+        reserved byte, the length and the tag.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse', '-esmrse.reserved',
+                '-esmrse.length', '-esmrse.tag', '-e_ws.col.info')
+        assert [r[4] for r in rows] == (
+            ['AliveTest', 'AliveTestRsp', 'Bind', 'BindRsp', 'Bind'] + ['BindFail'] * 6
+            + ['MT'] * 4 + ['MO'] * 3 + ['Ack'] + ['Error'] * 20
+            + ['Alert', 'Unbind', 'AliveTest', 'AliveTestRsp', 'AliveTestRsp'])
+        assert rows[0][1:4] == ['126', '4', '1']
+        assert rows[2][1:4] == ['126', '30', '3']
+        assert rows[-1][1:4] == ['126', '65535', '2']
+
+    def test_smrse_bind(self, cmd_tshark, capture_file, test_env):
+        '''Bind: the SC address in semi-octet format (the last digit is the
+        filler F) and the password, and the failure reasons.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 3',
+                '-esmrse.address_type', '-esmrse.numbering_plan', '-esmrse.octet_Format',
+                '-esmrse.password')
+        assert rows == [['6', '1', '1', '46701234567F', 'secret'],
+                        ['8', '2', '8', '01234567890123456789', 'x']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 5',
+                '-esmrse.connect_fail_reason')
+        assert [r[1] for r in rows] == ['0', '1', '2', '3', '4', '5']
+
+    def test_smrse_mt_mo(self, cmd_tshark, capture_file, test_env):
+        '''MT and MO PDUs with and without the optional fields, and the IMSI
+        of a MO PDU decoded as E.212.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 7',
+                '-esmrse.mt_priority_request', '-esmrse.mt_mms',
+                '-esmrse.mt_message_reference', '-esmrse.octet_Format',
+                '-esmrse.mt_tariffClass')
+        assert rows[0] == ['15', 'False', 'True', '1', '46701111111F,0701234567', '']
+        assert rows[1] == ['16', 'True', 'False', '5', '123F,1F,46700000000F', '65535']
+        assert rows[2] == ['17', 'False', 'True', '6', '4670,4670', '0']
+        assert rows[3][4:] == ['467012345678901234,1F,4670123F', '']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 8',
+                '-esmrse.mo_message_reference', '-esmrse.moimsi', '-e_ws.col.info')
+        assert [r[1] for r in rows] == ['2', '8', '9']
+        assert rows[1][2] == '42000121436587f9'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smrse_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20', '-Tfields', '-ee212.imsi',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split()[0] == '240010123456789'
+
+    def test_smrse_error(self, cmd_tshark, capture_file, test_env):
+        '''RP-Error with every error reason value, the optional alerting
+        address and diagnostic, and RP-Alert-SC.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 10',
+                '-esmrse.error_reason', '-esmrse.msg_waiting_set',
+                '-esmrse.message_reference', '-esmrse.sm_diag_info')
+        assert [r[1] for r in rows] == [
+            '1', '9', '11', '13', '15', '19', '20', '21', '22', '29', '30', '36',
+            '44', '60', '61', '70', '101', '103', '104', '29']
+        assert rows[8][2:4] == ['True', '22']
+        assert rows[-1][2:5] == ['False', '9', '010203']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 11',
+                '-esmrse.octet_Format', '-esmrse.message_reference')
+        assert rows == [['43', '46701111111F', '77']]
