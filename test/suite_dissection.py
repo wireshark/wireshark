@@ -140610,3 +140610,148 @@ class TestDissectSndcpXid:
         types = rows[0][0].split(',')
         assert len(types) == 65534
         assert types[:3] == ['1', '0', '0']
+
+
+class TestDissectSnmp:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, dfilter, *fields, passes=(), opts=(), name='snmp_coverage.pcap.gz'):
+        stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                '-r', capture_file(name),
+                '-Y', dfilter, '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    @staticmethod
+    def ber(tag, v):
+        n = len(v)
+        ln = bytes([n]) if n < 128 else (bytes([0x81, n]) if n < 256 else bytes([0x82, n >> 8, n & 255]))
+        return bytes([tag]) + ln + v
+
+    def udp_pcap(self, path, payloads, dport=162, linktype=1):
+        '''Write a pcap with one UDP/IPv4 datagram per payload.'''
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            while s >> 16:
+                s = (s & 0xffff) + (s >> 16)
+            return (~s) & 0xffff
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, linktype))
+            for i, p in enumerate(payloads):
+                udp = struct.pack('!HHHH', 40000, dport, 8 + len(p), 0) + p
+                ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 20 + len(udp), i, 0, 64, 17, 0,
+                                 bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+                ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:] + udp
+                pkt = bytes.fromhex('020000000002020000000001') + b'\x08\x00' + ip
+                f.write(struct.pack('<IIII', 1750000000 + i, 0, len(pkt), len(pkt)) + pkt)
+
+    def test_snmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SNMP over UDP and TCP, SMUX and SNMP over Ethernet are dissected;
+        nothing is malformed or has a warning or an error expert info, in
+        one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame', '-e_ws.col.protocol')
+        protocols = [r[1] for r in rows]
+        assert len(protocols) == 107
+        assert protocols.count('SNMP') == 83
+        assert protocols.count('SMUX') == 7
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                    '_ws.malformed || _ws.expert.severity >= warning', passes=passes)
+            assert rows == []
+
+    def test_snmp_v1_v2c(self, cmd_tshark, capture_file, test_env):
+        '''Every v1 and v2c PDU type with the request/response matching,
+        every error status and every generic trap.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'snmp.version < 2 && snmp.data',
+                '-esnmp.version', '-esnmp.data', '-esnmp.request_id', '-esnmp.error_status',
+                '-esnmp.response_to', '-esnmp.generic_trap')
+        by_frame = {r[0]: r[1:] for r in rows}
+        assert by_frame['1'][:3] == ['0', '0', '1']                  # get-request
+        assert by_frame['2'] == ['0', '2', '1', '0', '1', '']        # get-response to frame 1
+        assert by_frame['3'][1] == '1' and by_frame['5'][1] == '3'   # get-next-request, set-request
+        assert [by_frame[str(n)][3] for n in range(6, 12)] == ['0', '1', '2', '3', '4', '5']
+        assert [by_frame[str(n)][5] for n in range(20, 27)] == ['0', '1', '2', '3', '4', '5', '6']
+        assert [by_frame[str(n)][1] for n in range(28, 48) if str(n) in by_frame
+                and by_frame[str(n)][0] == '1'][:1] == ['0']
+        for n, data in ((32, '5'), (44, '7'), (45, '6'), (47, '8')):
+            assert by_frame[str(n)][:2] == ['1', data], n
+        assert [by_frame[str(n)][3] for n in range(35, 42)] == ['0', '6', '7', '10', '12', '17', '18']
+
+    def test_snmp_values(self, cmd_tshark, capture_file, test_env):
+        '''Every value type of the variable bindings and the exceptions.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 14',
+                '-esnmp.value.int', '-esnmp.value.octets', '-esnmp.value.null',
+                '-esnmp.value.oid', '-esnmp.value.ipv4', '-esnmp.value.counter',
+                '-esnmp.value.g32', '-esnmp.value.timeticks', '-esnmp.value.opaque')
+        assert rows[0][1] == '-5,2147483647,-2147483648'
+        assert rows[0][2].startswith('00ff2062696e6172792001')
+        assert rows[0][4] == '1.3.6.1.4.1.99999.9.8.7'
+        assert rows[0][5] == '198.51.100.7'
+        assert rows[0][6] == '4000000000,18446744073709551615,1,0'
+        assert rows[0][7] == '4294967295'
+        assert rows[0][8] == '1'
+        assert rows[0][9] == '9f78043f800000'
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file('snmp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 43', '-V', '-O', 'snmp'), encoding='utf-8', env=test_env)
+        for text in ('99999.3.1: noSuchObject', '99999.3.2: noSuchInstance', '99999.3.3: endOfMibView'):
+            assert text in stdout
+
+    def test_snmp_v3(self, cmd_tshark, capture_file, test_env):
+        '''SNMPv3: discovery and report, flags, USM user names and
+        parameters, encrypted PDUs that stay opaque, other security
+        models. The engine ids of every format.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'snmp.msgFlags',
+                '-esnmp.msgFlags', '-esnmp.msgSecurityModel', '-esnmp.msgUserName')
+        flags = {r[0]: r[1:] for r in rows}
+        assert flags['52'] == ['04', '3', 'discover']
+        assert flags['56'] == ['05', '3', 'authuser']
+        assert flags['58'] == ['07', '3', 'privuser']
+        assert flags['60'] == ['03', '3', 'privuser']
+        assert [flags[str(n)][1] for n in (72, 73, 74)] == ['1', '2', '99']
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {58, 59, 60}', '-e_ws.col.info')
+        assert [r[1] for r in rows] == ['encryptedPDU: privKey Unknown'] * 3
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number >= 61 && frame.number <= 71',
+                '-esnmp.engineid.format', '-esnmp.engineid.enterprise', '-esnmp.engineid.ipv4',
+                '-esnmp.engineid.mac', '-esnmp.engineid.text', '-esnmp.engineid.cisco.type',
+                '-esnmp.agentid_trailer')
+        assert rows[0][1:4] == ['1,128', '9,8072', '192.0.2.1']
+        assert rows[2][4] == '02:00:00:00:00:01'
+        assert rows[3][6] == '0x01'
+        assert rows[4][5] == 'engine-text'
+        assert rows[6][1] == '129,128'
+        assert rows[10][7] == '0102030405060708'
+
+    def test_snmp_tcp_multiple_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several SNMP messages in one TCP segment are all dissected (only
+        the first one was before the fix), also a message over several
+        segments.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'snmp.request_id in {300, 301, 302, 303, 304}',
+                '-esnmp.request_id', '-esnmp.data')
+        assert [(r[1], r[2]) for r in rows] == [
+            ('300', '0'), ('300', '2'), ('301,302,303', '0,0,0'), ('301,302', '2,2'), ('303', '2'),
+            ('304', '0'), ('304', '2')]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'tcp.reassembled.length',
+                '-etcp.reassembled.length')
+        assert rows == [['89', '495']]
+
+    def test_snmp_trap_enterprise_uat(self, cmd_tshark, result_file, test_env):
+        '''A v1 trap whose enterprise is not an OID must not crash with an
+        entry in the "SNMP Enterprise Specific Trap Types" table (NULL
+        enterprise OID), and a trap of a known enterprise shows its
+        description.'''
+        ber = self.ber
+        ip = bytes((192, 0, 2, 1))
+        vb = ber(0x30, b'')
+        def trap(enterprise, specific):
+            body = enterprise + ber(0x40, ip) + ber(0x02, b'\x06') + ber(0x02, bytes([specific])) + ber(0x43, b'\x01') + vb
+            return ber(0x30, ber(0x02, b'\x00') + ber(0x04, b'public') + ber(0xa4, body))
+        pcap = result_file('snmp-trap.pcap')
+        self.udp_pcap(pcap, [trap(ber(0x02, b'\x05'), 1), trap(ber(0x06, bytes.fromhex('2b060104018 68d1f'.replace(' ', ''))), 5)])
+        uat = 'uat:snmp_specific_traps:"1.3.6.1.4.1.99999","5","synthetic enterprise trap"'
+        stdout = subprocess.check_output((cmd_tshark, '-o', uat, '-r', pcap, '-Y', 'snmp.specific_trap',
+                '-Tfields', '-eframe.number', '-esnmp.specific_trap'), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\t1', '2\t5']
+        stdout = subprocess.check_output((cmd_tshark, '-o', uat, '-r', pcap, '-Y', 'frame.number == 2',
+                '-V', '-O', 'snmp'), encoding='utf-8', env=test_env)
+        assert 'specific-trap: 5 (synthetic enterprise trap)' in stdout
