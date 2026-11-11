@@ -10325,8 +10325,8 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
         num_fields = tvb_get_ntohs(tvb, offset + O_LBM_MSG_PROPERTIES_DATA_T_NUM_FIELDS);
     }
     field_offset = offset + L_LBM_MSG_PROPERTIES_DATA_T;
-    /* Keys and values must lie after the field table and not go backwards;
-       otherwise every field can point at the same long string. */
+    /* Keys and values must lie after the field table and must not overlap
+       earlier keys/values, including suffixes of previously decoded strings. */
     prev_key_offset = (uint64_t)L_LBM_MSG_PROPERTIES_DATA_T + ((uint64_t)num_fields * L_LBM_MSG_PROPERTIES_HDR_T);
     prev_value_offset = prev_key_offset;
     for (idx = 0; idx < num_fields; ++idx)
@@ -10363,9 +10363,6 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
             expert_add_info_format(pinfo, field_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC Message Properties key/value offset");
             break;
         }
-        /* Keys and values are at least one byte, so the next must start later. */
-        prev_key_offset = (uint64_t)key_offset + 1;
-        prev_value_offset = (uint64_t)value_offset + 1;
         switch (type)
         {
             case LBM_MSG_PROPERTY_BOOLEAN:
@@ -10392,6 +10389,8 @@ static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinf
                 break;
         }
         key_len = (int)tvb_strsize(tvb, offset + key_offset);
+        prev_key_offset = (uint64_t)key_offset + key_len;
+        prev_value_offset = (uint64_t)value_offset + value_len;
         proto_tree_add_item(field_tree, hf_lbm_msg_properties_hdr_key, tvb, offset + key_offset, key_len, encoding);
         switch (type)
         {
