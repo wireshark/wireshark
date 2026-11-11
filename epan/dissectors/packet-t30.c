@@ -648,7 +648,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, unsigned offset, packet_info *pi
         }
         ++offset;
     }
-    proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
+    proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, start_offset, 32, frame_count);
     if (buf_top > buf+1) {
         buf_top[-2] = '\0';
         proto_tree_add_string(tree, hf_t30_partial_page_request_frames, tvb, start_offset, offset - start_offset, buf);
@@ -1367,7 +1367,7 @@ proto_register_t30(void)
               NULL, 0, NULL, HFILL }},
 
         {  &hf_t30_partial_page_request_frame_count,
-            { "Frame counter", "t30.ppr.frame_count", FT_UINT8, BASE_DEC,
+            { "Frame counter", "t30.ppr.frame_count", FT_UINT16, BASE_DEC,
               NULL, 0, NULL, HFILL }},
         {  &hf_t30_partial_page_request_frames,
             { "Frames", "t30.ppr.frames", FT_STRING, BASE_NONE,
