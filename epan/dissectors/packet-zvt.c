@@ -34,6 +34,7 @@
 #include <wsutil/array.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include "packet-tcp.h"
 
@@ -307,6 +308,9 @@ static int * const receipt_info_fields[] = {
 };
 
 static expert_field ei_invalid_apdu_len;
+static expert_field ei_zvt_tlv_too_deep;
+
+#define ZVT_MAX_SUBSEQ_DEPTH 8
 
 static const value_string serial_char[] = {
     { STX, "Start of text (STX)" },
@@ -514,17 +518,29 @@ static inline int dissect_zvt_tlv_text_lines(
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static inline int dissect_zvt_tlv_subseq(
         tvbuff_t *tvb, int offset, int len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info)
 {
     proto_tree *subseq_tree;
+    unsigned    depth;
+    int         ret;
 
     subseq_tree = proto_tree_add_subtree(tree,
             tvb, offset, len, ett_zvt_tlv_subseq, NULL,
             "Subsequence");
 
-    return dissect_zvt_tlv_seq(tvb, offset, len, pinfo, subseq_tree, seq_info);
+    depth = p_get_proto_depth(pinfo, proto_zvt);
+    if (depth >= ZVT_MAX_SUBSEQ_DEPTH) {
+        proto_tree_add_expert(subseq_tree, pinfo, &ei_zvt_tlv_too_deep,
+                tvb, offset, len);
+        return len;
+    }
+    p_set_proto_depth(pinfo, proto_zvt, depth + 1);
+    ret = dissect_zvt_tlv_seq(tvb, offset, len, pinfo, subseq_tree, seq_info);
+    p_set_proto_depth(pinfo, proto_zvt, depth);
+    return ret;
 }
 
 
@@ -653,6 +669,7 @@ dissect_zvt_tlv_len(tvbuff_t *tvb, int offset,
 }
 
 
+// NOLINTNEXTLINE(misc-no-recursion)
 static int
 dissect_zvt_tlv_seq(tvbuff_t *tvb, int offset, uint16_t seq_max_len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info)
@@ -690,8 +707,9 @@ dissect_zvt_tlv_seq(tvbuff_t *tvb, int offset, uint16_t seq_max_len,
 
         data_len_bytes = dissect_zvt_tlv_len(tvb, offset, pinfo,
                 dat_obj_tree,hf_zvt_tlv_len, &data_len);
-        if (data_len_bytes > 0)
-            offset += data_len_bytes;
+        if (data_len_bytes <= 0)
+            break;
+        offset += data_len_bytes;
 
         /* set the sequence length now that we know it
            this way, we don't have to put the whole switch statement
@@ -788,6 +806,10 @@ static inline int dissect_zvt_time(
 {
     const char *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 3, NULL, false);
     char   *fstr = (char *)wmem_alloc(pinfo->pool, 9);
+    if (strlen(str) < 6) {
+        proto_tree_add_string(tree, hf_zvt_time, tvb, offset, 3, str);
+        return 3;
+    }
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = ':';
@@ -807,6 +829,10 @@ static inline int dissect_zvt_date(
 {
     const char *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 2, NULL, false);
     char   *fstr = (char *)wmem_alloc(pinfo->pool, 6);
+    if (strlen(str) < 4) {
+        proto_tree_add_string(tree, hf_zvt_date, tvb, offset, 2, str);
+        return 2;
+    }
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = '/';
@@ -823,6 +849,10 @@ static inline int dissect_zvt_expiry_date(
 {
     const char *str = tvb_bcd_dig_to_str_be(pinfo->pool, tvb, offset, 2, NULL, false);
     char   *fstr = (char *)wmem_alloc(pinfo->pool, 6);
+    if (strlen(str) < 4) {
+        proto_tree_add_string(tree, hf_zvt_expiry_date, tvb, offset, 2, str);
+        return 2;
+    }
     fstr[0] = str[0];
     fstr[1] = str[1];
     fstr[2] = '/';
@@ -1474,7 +1504,10 @@ proto_register_zvt(void)
         { &ei_invalid_apdu_len,
             { "zvt.apdu_len.invalid", PI_PROTOCOL, PI_WARN,
                 "The APDU length is too short",
-                EXPFILL }}
+                EXPFILL }},
+        { &ei_zvt_tlv_too_deep,
+            { "zvt.tlv.too_deep", PI_MALFORMED, PI_ERROR,
+                "TLV subsequences nested too deeply", EXPFILL }}
     };
 
     apdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
