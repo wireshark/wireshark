@@ -142968,3 +142968,62 @@ class TestDissectSpnego:
         stdout = subprocess.check_output((cmd_tshark, '-r', pcap, '-Y', 'spnego.too_deep',
                 '-Tfields', '-eframe.number', '-e_ws.expert.message'), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\tSPNEGO nested too deeply']
+
+
+class TestDissectSpp:
+    '''SPP (Sequenced Packet Protocol, XNS) over IDP (Ethernet type 0x0600)
+    from the synthetic capture spp_coverage.pcap.gz.'''
+
+    def test_spp_frames(self, cmd_tshark, capture_file, test_env):
+        '''16 SPP frames, three SMB frames (the payload of the SMB socket)
+        and five IDP frames of other packet types; no malformed packets
+        or expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('spp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 24
+            assert protocols.count('SPP') == 16
+            assert protocols.count('SMB') == 3
+            assert protocols.count('IDP') == 5
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('spp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_spp_fields(self, cmd_tshark, capture_file, test_env):
+        '''Connection control texts in the Info column, the datastream
+        types and the numbers of the data frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('spp_coverage.pcap.gz'),
+                '-Y', 'spp',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-espp.ctl', '-espp.type',
+                '-espp.src', '-espp.dst', '-espp.seq', '-espp.ack', '-espp.alloc',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert [info[str(n)][0] for n in range(1, 8)] == [
+            'SPP Data, No Ack Required', 'SPP End-of-Message', 'SPP Attention',
+            'SPP Acknowledgment Required', 'SPP Send Ack: End Message',
+            'SPP System Packet', 'SPP System Packet: Send Ack']
+        assert info['8'][0] == 'SPP Unknown'
+        assert info['11'][0] == 'SPP Data, No Ack Required (End-of-Connection)'
+        assert info['12'][0] == 'SPP System Packet (End-of-Connection Acknowledgment)'
+        assert info['14'][1:] == ['0x10', '0x00', '4369', '8738', '10', '20', '30']
+        assert info['15'][1:] == ['0x10', '0x00', '4369', '8738', '11', '21', '31']
+
+    def test_spp_socket_table(self, cmd_tshark, capture_file, test_env):
+        '''The SMB socket 0x0bbc, as the destination socket, as the source
+        socket and as the higher of the two sockets, hands the payload to SMB through the spp.socket table;
+        other payloads stay data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('spp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {14, 15, 16, 17, 18, 19}',
+                '-Tfields', '-eframe.number', '-edata.len', '-esmb.cmd',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['14\t11\t', '15\t11\t', '16\t400\t',
+                                       '17\t\t0x2b', '18\t\t0x2b',
+                                       '19\t\t0x2b']
