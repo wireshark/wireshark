@@ -23,12 +23,7 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
-The following changes have been made since version 4.7.4:
-
-// https://developer.apple.com/news/?id=w4atic4c
-// https://developer.apple.com/help/account/certificates/replace-developer-id-certificates
-* macOS disk images and applications are now signed using certificates issued by Apple's Developer ID Certification Authority (G2).
-  The previous certificate was issued by Apple's Developer ID Certification Authority, which expires in early 2027.
+The following changes have been made since version 5.0.0:
 
 * EAPOL-MKA (MACsec Key Agreement) gained a Connectivity Associations
   analysis view, available from menu:Statistics[EAPOL-MKA > Connectivity
@@ -38,100 +33,10 @@ The following changes have been made since version 4.7.4:
   key server change) with per-peer installation, formation, and retirement
   times.
 
-The following changes have been made since version 4.7.3:
-
-* You can now https://www.wireshark.org/docs/wsug_html/#ChCustTaggingSection[tag packets] with emojis, text, or URLs similar to coloring rules.
-* The user interface icons have been refreshed, and now scale with the menu:View[] zoom settings.
-* The packet bytes pane can show text as UTF-8. Multi-byte characters are
-  drawn over the column of their first byte with a “]” over their last byte,
-  and hovering over any of those bytes highlights the whole character.
-* Holding down kbd:[↓] and kbd:[↑] will move rapidly through the packet list.
-* Coloring rules are now saved as a https://jsonc.org/[JSONC] (JSON with comments) file.
-  The legacy `colorfilters` file is only read, and converted, when no personal `coloring_rules.jsonc` exists;
-  otherwise only the JSONC file is used, so deleted rules no longer reappear from an old legacy file.
-  A personal `coloring_rules.jsonc` that cannot be parsed is now reported instead of silently treated as empty.
-  Support for the legacy file format will be removed in a future release.
-* Support for automatic update notification and updates on Linux distributions supporting PackageKit over D-Bus.
-
-The following changes have been made since version 4.7.2:
-
-* The minimum supported Windows version is Windows 10 21H2 (build 19044) or
-  Windows Server 2022.
-* Display filter operators' English forms like "and" and "or" are case-insensitive.
-* Display filter string literals can be surrounded by appropriate pairs of
-  directional ("smart" or "curly") double quotes instead of straight double
-  quotes.
-* The Export Packet Dissections CSV output is UTF-8 CSV (with optional BOM) by
-  default; the previous format which escapes non-ASCII characters is still
-  available.
-* The Export Packet Dissections C Arrays output gained an option to add an index
-  array for the arrays of data sources. Also, there is an option to omit secondary
-  data sources like reassembled data or decrypted data. wsbuglink:19616[].
-* Extcap interfaces now support "bookmarks," which let you have multiple configurations
-  for the same interfaces. Extcap configurations are now shared across profiles, and
-  existing per-profile configurations will be migrated to bookmarks. wsbuglink:14224[].
-* Extcap interfaces support graceful shutdown on Windows (already supported on
-  other platforms) via using the control pipe. Third-party extcap interfaces should
-  be updated to take advantage of this capability; see below under Plugin Development
-  Changes. wsbuglink:17131[].
-* MSI packages no longer include Visual C++ Redistributable assets.
-  You must now install them separately.
-
-The following changes have been made since version 4.7.1:
-
-* The Follow Stream window is more responsive and has more filtering options.
-
-* HTTP/3 improvements:
-  Reassembly is implemented.
-  Decompression is implemented for gzip/deflate, brotli, and zstd.
-  Media type dissectors are called for the Content-Type.
-  Follow Stream is implemented. wsbuglink:20610[].
-  Export Objects is implemented.
-  Request/response tracking is implemented.
-
-The following changes have been made since version 4.7.0:
-
-* Wireshark appears in German where Systemlanguage is Dutch. wsbuglink:20347[].
-* If you double-click an interface in the welcome screen interface list, and have typed nothing in the capture filter box, the system reports an invalid capture filter. wsbuglink:21303[].
-* Qt: Appearance mode is stored per-profile while theme name is global — theme flips on profile switch. wsbuglink:21311[].
-* Qt: 'Recent filters' arrow button gives no hover/pressed feedback. wsbuglink:21322[].
-* Qt: Hidden interfaces (Welcome page right-click) not persisted across profile switch or restart. wsbuglink:21325[].
-* Qt: Preferences dialog left category tree cannot be resized (labels truncated, only horizontal scrollbar) wsbuglink:21327[].
-* Qt: Make theme preview resemble a real Wireshark window (mini packet-list mockup) wsbuglink:21329[].
-* stratoshark -D lists a bunch of *network* capture devices. wsbuglink:21332[].
-
-The following changes have been made since version 4.6.0:
-
-* Welcome Page Overhaul
-  The welcome page has been redesigned to be more informative and easier to navigate. It now highlights the learning sections better and includes a new sidebar with tips and tricks for using Wireshark effectively. The welcome page is now also more accessible, with improved keyboard navigation and screen reader support.
-
-* The welcome page has a new preference to show the Open and Capture sections side-by-side. It falls back to stacked when the window is too narrow.
-
-* Lua Debugger
-  A built-in Lua script debugger has been added. It supports breakpoints, single-stepping, variable inspection, expression evaluation, and stack traces. The debugger can be opened from the menu:Tools[Lua Debugger] menu.
-
-* Themes
-  The colors used throughout the GUI, including graphs, now come from a theme instead of individual color preferences; packet coloring rules are unchanged. The menu:Appearance[Theme] preferences page lets you pick a theme, choose Light, Dark, or System appearance, and preview the result before applying it. See https://www.wireshark.org/docs/wsug_html/#ChCustPrefsThemeSection[Theme preferences] in the User's Guide for details.
-  Besides the default _Wireshark Default_ theme, a _High Contrast_ theme, two color-blind friendly themes, _Protanopia & Deuteranopia_ and _Tritanopia_, and the themes _Solarized_, _Catppuccin Frappé_, _Catppuccin Macchiato_, _Catppuccin Mocha_, _Tokyo Night_ and _Tokyo Night Storm_ are included. A new _Contrast_ setting (_System_, _Standard_, or _High_) raises the contrast of any theme; _System_ follows the contrast preference of the operating system. The expert information severity icons now differ by shape as well as by color.
-  You can add your own themes as `.jsonc` files in the personal themes folder, which is shown in the About dialog's _Folders_ tab and opens from menu:Help[Personal Themes Folder]. See https://www.wireshark.org/docs/wsug_html/#ChCustPersonalThemes[Personal themes] for details.
-  If you had customized the packet selection, marked, ignored, or Follow Stream colors in the Default profile, Wireshark converts them once into a personal theme named _Personal (Migrated)_ and selects it, so those colors are kept.
-
-* Theme Designer
-  The new menu:View[Internals,Theme Designer...] tool, also reachable from the _Theme Designer..._ button on the menu:Appearance[Theme] preferences page, lets you create your own themes. Copy any theme or start from the default, then edit every color a theme file can set (including the graph colors) and the theme fonts. Colors that are derived from others are shown read-only. Edited colors and fonts are highlighted and can be reverted one by one, and a code view shows the generated JSONC with a diff against the base theme. A mock welcome page and packet list, shown on two tabs, let you try the result in light and dark before you use it. Clicking a part of a sample selects the color that draws it in the Colors tab, and the context menu of a sample lists all colors of that part and saves the sample as an image. Derived colors have a context menu entry that jumps to the color they are computed from. Themes that ship with Wireshark are read-only and can only be copied. Your own themes are stored with the other personal themes and can be renamed and deleted. Themes can be exported to a `.jsonc` file and imported from one to exchange them with colleagues; imported files are validated and problems are reported.
-
-* The Default profile now has additional column "Delta", showing the delta time from the previous displayed packet.
-
-* Wireshark ships a “Processes” configuration profile, which adds the new "PID" and "Proc Name" columns, showing the process on the capturing host that sent or received each packet when that was recorded.
-
-* Name Resolution
-  SMI paths are now searched recursively. This makes it easier to use MIBs provided by libsmi.
-
 Many other improvements have been made.
 See the “New and Updated Features” section below for more details.
 
 //=== Bug Fixes
-
-* wsbuglink:21115[Wireshark Profile Import RCE via Zip-Slip Vulnerability ] - A critical issue that caused Wireshark to crash when importing malformed zip files has been fixed. This bug was reported by Joohyun Park, Hyuk Kwon, Yonghwa Lee, Taisic Yun, Sangjun Song (Theori), with Xint and has been resolved in this release.
 
 //The following bugs have been fixed:
 //* wsbuglink:5000[]
@@ -141,27 +46,7 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
-The following features are either new or have been significantly updated since version 4.6.0:
-
-* Capture files can be saved with Zstandard compression. The Save Capture File As
-  and Export Specified Packets dialogs offer a Zstandard option, and command-line
-  tools accept `--compress zstd` when built with Zstandard support.
-  The Advanced preference `capture.zstd_compression_level` sets the level for
-  Wireshark saves and exports and for TShark capture-file rewrites.
-  Negative levels select fast compression when built with Zstandard 1.4.0 or newer.
-  Output uses independent frames with up to 4 MiB of uncompressed data to support
-  fast seeking when the capture is reopened.
-
-* Dumpcap, TShark and Wireshark can record which processes on the capturing host sent or received each packet, with the new `--process-info[=basic|full]` capture option: the process IDs go in the pcapng epb_processid_threadid packet option and the processes are described in process information blocks, shown as the `frame.process` fields. By default (`basic`) a process is described by its ID, name and start time; with `full` its path, command line, parent and user are recorded as well, which can be sensitive. In Wireshark it is set in the “Output” tab of the “Capture Options” dialog and in the capture preferences (`capture.process_info`), and IDs and names are recorded by default. A packet that several processes could have sent or received, such as a multicast datagram and its sender and receivers, is attributed to all of them. Supported on Windows, Linux and macOS. `editcap --discard-process-info` removes the process information from a capture file, e.g. before sharing it.
-
-* New IMSI List dialog (menu:Telephony[IMSI List]) scans all packets in a capture and lists
-  every unique IMSI with packet count, first/last frame, and protocols.
-  Double-click an IMSI to apply a display filter for that subscriber.
-  Multi-select and "Prepare Filter" combines multiple IMSIs.
-
-* New `tshark -z imsi` statistics lists all unique IMSIs found in a capture
-  with packet counts, first/last frame numbers, and protocols.
-  A new "imsi" tap is registered by the E.212 dissector.
+The following features are either new or have been significantly updated since version 5.0.0:
 
 * UDX conversations and endpoints are now listed per stream, in
   menu:Statistics[Conversations] and menu:Statistics[Endpoints] as well as
@@ -170,44 +55,11 @@ The following features are either new or have been significantly updated since v
   as a single conversation.
   A new "udx" tap is registered by the UDX dissector.
 
-* New compact JSON output option omits indentation and whitespace,
-  significantly reducing output size and improving performance.
-  Available as `tshark --json-compact` (with `-T json` or `-T jsonraw`)
-  and as a "Compact (no indentation)" checkbox in the GUI JSON export dialog.
-
-* Process information stored in pcapng captures, in Wireshark custom blocks
-  or in Apple's Darwin process information blocks, is now shown under
-  "Process information" in the Frame tree as the `frame.process` fields
-  (process and thread ID, name, executable path, command line, parent
-  process ID, user ID and name, executable UUID and start time), fills the
-  "User name" column, and can be used through the "Process" conversation
-  filter.
-
-* On Linux, Wireshark can check whether the distribution offers a newer version
-  of the package it was installed from. The check uses PackageKit and never
-  contacts wireshark.org; the update itself is installed through the desktop's
-  software center (e.g. GNOME Software or KDE Discover). Self-compiled builds
-  and Flatpak, Snap or AppImage installations are not checked.
-  PackageKit is queried over D-Bus, so building with this support only
-  requires the Qt DBus module.
-
-* Disabled coloring rules can now be shown in the packet details.
-  With the new preference `gui.coloring_rules_include_disabled` (menu:Edit[Preferences > Appearance > Layout],
-  "Show disabled coloring rules", off by default) a disabled rule that matches a packet is listed
-  under the Frame tree, dimmed and in italics, and can be found with the `frame.coloring_rule.*` fields.
-  Disabled rules never color packets. When several rules match, they are listed as a
-  "Coloring Rules" subtree with one entry per rule (name, filter string and a Disabled flag);
-  the new `frame.coloring_rule.count` field holds the number of listed rules.
-  In the Frame tree, the context menu of a coloring rule now offers Disable and Enable,
-  which change the rule itself, are saved with the coloring rules and re-dissect the capture.
-
 * The Windows installers now ship with Npcap 1.89.
   They previously shipped with Npcap 1.83.
 
 * The Windows and macOS installers now ship with Qt 6.11.1.
   They previously shipped with Qt 6.9.3.
-
-* The Help menu has a new menu:Help[Discord] entry, which opens the invitation to the Wireshark Discord server.
 
 // XXX This should just describe what changed.
 // * The capture and display filter fields have a refreshed, consistent look and
@@ -221,49 +73,6 @@ The following features are either new or have been significantly updated since v
 //   rather than from a combo box. The colors follow the active theme and adapt to
 //   the Light and Dark appearances. (When a capture filter names a host, the field
 //   may pause briefly while the name is resolved.)
-
-* Zooming (menu:View[Zoom In] / menu:View[Zoom Out]) now scales the whole window, including the capture and display filter fields and other window elements.
-  Previously only the text size in the three main window panes (packet list, details, and bytes) changed.
-  The new behavior should be much more useful for demos and presentations.
-
-* The keyboard shortcuts dialog (menu:About Wireshark[Keyboard Shortcuts]) has been moved out of of the About dialog to the menu:View[Internals,Keyboard Shortcuts] menu and now has a button to print the list of keyboard shortcuts to an HTML file.
-
-* The application icons have been updated and refreshed.
-  The macOS icon now supports Liquid Glass and is sized according to Apple's specifications on older macOS versions.
-  wsbuglink:18131[]
-
-* The RTP Player now supports AMR-WB and 24-bit linear encoded audio.
-
-* The protocol dissection API has been updated to more safely handle packet data offsets and lengths.
-  See the <<Major API Changes>> section below for details.
-
-* The welcome screen's interface activity sparklines now keep their history for the whole session.
-  Previously the sparklines, and the activity-first ordering of the interface list, were reset whenever you
-  started or stopped a capture or returned to the welcome screen, so the list re-shuffled each time.
-  Now the history persists, the ordering stays stable, and a break in a sparkline marks the interval during
-  which a capture was running (interface statistics are not sampled while capturing).
-  When an interface is dropping packets, the drops are shown as a separate line.
-  The Capture Options dialog's interface list now shares the same statistics, so its sparklines match the
-  welcome screen exactly, including the capture-interval gap and the dropped-packet line.
-  wsbuglink:21318[]
-
-* Interfaces hidden from the welcome screen's right-click menu are now remembered
-  across profile switches and application restarts. wsbuglink:21325[]
-
-* Editcap has a new `--sctp-split` option that splits SCTP packets containing
-  multiple bundled DATA chunks into individual packets, one per DATA chunk.
-  Each split packet includes a comment indicating its original frame number.
-
-* Sharkd supports Unix domain sockets where supported on Windows, which includes
-  all Windows versions supported by Wireshark 4.6 and later. (Windows 10 versions
-  1803 and later, including Windows Server 2019 and later, all support Unix domain
-  sockets.)
-
-* The OPC UA dissector can decode ExtensionObjects of custom datatypes described
-  in an information model, a UANodeSet XML file set in the new
-  `opcua.information_model` preference, in client/server and PubSub messages.
-  The new `opcua.ns_offset` preference maps the namespace indexes of the file
-  to those in the packets.
 
 * The AJP13 dissector reassembles request and response bodies spanning
   multiple AJP13 packets, controlled by the new `ajp13.reassemble_body`
@@ -304,30 +113,6 @@ The following features are either new or have been significantly updated since v
   I field of retransmitted and out-of-order I frames isn't handed to the
   dissector of its PID, as with `tcp.no_subdissector_on_error`.
 
-* The Help menu entries Website and Wiki now show the Wireshark application icon on
-  Linux and Windows, and Ask (Q&A) no longer has an icon.
-
-* The monospace font used in the packet list, packet details, packet bytes and other text views
-  is now chosen on the new menu:Edit[Preferences > Appearance > Fonts] page, below Theme,
-  instead of in the Theme page and the system font dialog.
-  The page lists the font families, each drawn in its own typeface, with a filter field,
-  a "Show only monospaced fonts" option (on by default), the styles of the family,
-  the size (steps of 0.5 points, can be typed) and a sample.
-  Strikeout and Underline can be set, and bold or oblique styles are now applied
-  (they were stored but ignored before). An italic or underlined font hides the italic and underline markers
-  in the packet details, so only their colors mark disabled coloring rules and links then.
-  The inline page also fixes the font selection on macOS, where the native font panel
-  ignored the monospaced filter and offered no usable size control.
-  wsbuglink:21688[]
-
-* A new Distribution dialog (menu:Statistics[Distribution], or the "Distribution" entry in the packet details context menu) counts how often the values of up to four fields occur.
-  The fields are entered in a separate _Fields_ line (comma separated, with completion and validation),
-  and the _Display filter_ line limits the packets that are counted.
-  Values sort by their type (numbers, addresses), the new _Resolve values_ option shows value strings,
-  a _Show chart_ option draws a bar chart of the most frequent values, and the table updates in place during a live capture.
-  Rows can be used as filters from their context menu (including _Copy as Filter_) or sent to the I/O Graph with _Show in I/O Graph_.
-  The copied and saved text includes the Count column, `-z distribution,<fields>` opens the dialog, and the dialog has a Help button.
-
 * Kerberos long-term keys can be embedded in a pcapng Decryption Secrets Block.
   `editcap --inject-secrets krb5,<file>` inserts a key log. Each line is an
   encryption type and a hex key, for example `18` or `aes256-cts-hmac-sha1-96`
@@ -336,34 +121,17 @@ The following features are either new or have been significantly updated since v
 
 === Removed Features and Support
 
-Dumpcap's TCP@host:port interface has been removed. Tools like `socat`, `ncat`,
-`netcat`, `nc`, and others can be used to redirect network interfaces to
-FIFOs and named pipes on UN*X and Windows to achieve the same interface. Many
-of those tools have additional security features like enabling TLS encryption.
-
-Sharkd only supports binding to a loopback IPv4 or IPv6 address when listening
-on a TCP socket. (TCP sockets are only available by default on Windows systems,
-and are deprecated, since UNIX domain sockets are now supported. IPv6 support
-is new.) Sharkd now rejects connecting to a Linux abstract domain socket from
-peer processes with effective UID other than that of the sharkd process.
-
-The individual color preferences under menu:Appearance[] (marked and ignored packets, "Follow Stream" client and server text, display filter validity, and the selected packet) have been removed. These colors are now provided by the selected theme; see the "What's New" section above.
-
-Building with Qt 5 is no longer supported.
-
 The AX.25 `ax25.extended` preference has been removed: the modulo is now
 determined per link.
 
 // === Removed Dissectors
 
 
-=== New File Format Decoding Support
+// === New File Format Decoding Support
 
-[commaize]
---
-Bachmann M-Module
-Xiph.org Ogg Stream
---
+// [commaize]
+// --
+// --
 
 === New Protocol Support
 
@@ -372,47 +140,9 @@ Xiph.org Ogg Stream
 // git log --oneline --diff-filter=A --stat v4.7.4rc0.. epan/dissectors plugins
 [commaize]
 --
-Apple Darwin Metadata
 Authentication Service Based on EAP for Use with CoAP (CoAP-EAP)
-Axia Livewire
-Controller Interface Transport Protocol (CITP)
-DCERPC SCARD_PACK
-DECT NR+
-ESUN
 ETSI TS 102 232-1 LI-PS-PDU (LI-PS-PDU)
-Generic UDP Encapsulation (GUE)
-HyperDHT / DHT-RPC
-JSON Dictionary
-Linux mac80211_hwsim Netlink
-Linux Open vSwitch Netlink (OVS)
-MCData
-MCTP over SMBus/I2C
-Media over QUIC Lite (moq-lite)
-MIDI System Exclusive DigiTech
-Mikrotik RoMON
-Multicast Router Discovery (MRD)
-MySQL X Protocol (MySQLX)
-NATS
 Network MIDI 2.0
-NMEA 2000
-Object Transform Protocol (OTP)
-OPC UA PubSub UADP
-PackClient
-Perforce P4RPC
-PosiStageNet (PSN)
-PROFINET SXP (PN-SXP)
-Qualcomm Diagnostic (QCDIAG)
-RDP Conctrl virtual channel Protocol (CONCTRL)
-RDP Video Capture Virtual Channel Extension (RDPECAM)
-Real-Time Tracking Protocol (RTTrP)
-RTP over QUIC (RoQ)
-SMPTE ST2110-40 (ST291-1 Ancillary Data)
-TCG Storage Interface
-TrueConf Protocol (TrueConf)
-UDX
-Ultra Ethernet Transport (UET)
-XGT
-ZigBee ZCL Generic Tunnel
 --
 
 === Updated Protocol Support
