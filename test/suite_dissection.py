@@ -147152,3 +147152,262 @@ class TestDissectTdmop:
                 '-o', 'tdmop.ts_mask:0', '-Y', 'tdmop.mask_empty',
                 '-Tfields', '-eframe.number')
         assert rows == [['16'], ['17'], ['20']]
+
+
+class TestDissectTds:
+    '''TDS (Tabular Data Stream) from the synthetic capture
+    tds_coverage.pcap.gz: TDS 7.0 to 7.4 (Microsoft SQL Server), Sybase TDS
+    4.2 and 5.0, the heuristic on other ports, Netlib buffer reassembly,
+    SMP, and TLS records carried in TDS. Nothing in it is real traffic.'''
+
+    # A SQL batch whose ALL_HEADERS stream has a header length of 0xfffffff8:
+    # the offset wrapped back to an earlier header and the dissector looped
+    # for ever without a protocol tree ("TDS: Fix an endless loop in
+    # ALL_HEADERS and several decoding errors").
+    ALLHEADERS_LOOP = '''\
+000000  01 01 00 34 00 00 01 00 1c 00 00 00 f8 ff ff ff
+000010  02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+000020  00 00 00 00 73 00 65 00 6c 00 65 00 63 00 74 00
+000030  20 00 31 00
+'''
+
+    @staticmethod
+    def tds_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        '''Runs tshark on the capture and returns the lines of the
+        requested fields (the first column is the frame number).'''
+        args = [cmd_tshark, *passes, '-r', capture_file('tds_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number']
+        for field in fields:
+            args.append('-e' + field)
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=300)
+        return stdout.splitlines()
+
+    def test_tds_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is TDS, SMP, TLS or an undissected TCP segment (the
+        first packets the heuristic rejects), with no malformed packet or
+        error expert info in one and two passes. The only warning is the
+        cursor name that does not match the declared cursor (frame 111).'''
+        for passes in ((), ('-2',)):
+            lines = self.tds_fields(cmd_tshark, capture_file, test_env, 'frame',
+                                    '_ws.col.protocol', passes=passes)
+            assert len(lines) == 200
+            # the TLS version of a Client Hello is known on the second pass
+            protocols = [line.split('\t')[1].replace('TLSv1.2', 'TLSv1') for line in lines]
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts == {'TDS': 165, 'TCP': 26, 'SMP': 3, 'TLSv1': 6}
+            assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                                   '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                                   passes=passes) == []
+            assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                                   '_ws.expert.severity >= 0x00600000',
+                                   '_ws.expert.message', passes=passes) == [
+                '111\tCursor name other1 does not match current cursor name cur1',
+            ]
+
+    def test_tds_in_order_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''A single buffer query before the first in-order fragment is
+        still decoded on the second pass; it was shown as Data before "TDS:
+        Fix an endless loop in ALL_HEADERS and several decoding errors".
+        The two in-order fragments are reassembled.'''
+        for passes in ((), ('-2',)):
+            assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                                   'frame.number >= 187 && frame.number <= 190',
+                                   'tds.query', '_ws.col.info', passes=passes) == [
+                '187\tselect 1\tSQL batch',
+                '188\t\tSQL batch (Not last buffer)',
+                '189\tselect 1select 1\tSQL batch',
+                '190\tselect 1\tSQL batch',
+            ]
+
+    def test_tds_allheaders_endless_loop(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        '''A header length that wraps the offset ends the ALL_HEADERS
+        loop with an error instead of looping for ever, with and without
+        a protocol tree.'''
+        testin_file = result_file('tds-allheaders.txt')
+        testout_file = result_file('tds-allheaders.pcap')
+        with open(testin_file, 'w') as f:
+            f.write(self.ALLHEADERS_LOOP)
+        subprocess.check_call((cmd_text2pcap, '-T', '49001,1433', testin_file, testout_file),
+                              env=base_env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        stdout = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-Tfields', '-e_ws.col.info'),
+            encoding='utf-8', env=test_env, timeout=60)
+        assert stdout.strip() == 'SQL batch'
+        stdout = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-Y', 'tds.invalid_length',
+                '-Tfields', '-e_ws.expert.message'),
+            encoding='utf-8', env=test_env, timeout=60)
+        assert 'Header length exceeds ALL_HEADERS length' in stdout
+
+    def test_tds_buffer_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Messages in several Netlib buffers (the packet numbers count up)
+        and PDUs split over TCP segments are reassembled.'''
+        for passes in ((), ('-2',)):
+            lines = self.tds_fields(cmd_tshark, capture_file, test_env,
+                                    'frame.number in {44, 46, 50, 51}',
+                                    'tds.query', '_ws.col.info', passes=passes)
+            assert lines[0] == '44\tselect 1 -- ' + 'x' * 40 + '\tSQL batch'
+            assert lines[1] == '46\t\tResponse'
+            assert lines[2] == '50\tselect ' + 'y' * 300 + '\tSQL batch'
+            assert lines[3] == '51\tselect 11,select 12\tSQL batch,SQL batch'
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {42, 43, 45}',
+                               'tds.reassembled_in', passes=('-2',)) == [
+            '42\t44', '43\t44', '45\t46',
+        ]
+
+    def test_tds_tls_in_prelogin(self, cmd_tshark, capture_file, test_env):
+        '''A TLS handshake record in a prelogin message goes to TLS, also
+        when it spans two Netlib buffers, and TLS application data records
+        are TDS 8 style PDUs. The JA3 and JA4 values are those of the
+        made-up Client Hellos.'''
+        for passes in ((), ('-2',)):
+            lines = self.tds_fields(cmd_tshark, capture_file, test_env,
+                                    'tls.handshake.type == 1',
+                                    'tls.handshake.ja3_full', 'tls.handshake.ja3',
+                                    'tls.handshake.ja4', passes=passes)
+            assert lines == [
+                '3\t771,49199-156,,,\t1d5b2c24c9fb46b333b668810869e7fb\tt12i020000_08dfa304a768_000000000000',
+                '5\t771,4865-49199-156,13,,\t2b64eb8b4e0b22f5c2a4043a0386ec71\tt12i030100_159d175d8039_032c60bb0d32',
+                '198\t771,49199-156,,,\t1d5b2c24c9fb46b333b668810869e7fb\tt12i020000_08dfa304a768_000000000000',
+            ]
+            assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                                   'tls.record.content_type == 23',
+                                   passes=passes) == ['6', '7', '200']
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number == 4', 'tds.reassembled_in',
+                               passes=('-2',)) == ['4\t5']
+
+    def test_tds7_login(self, cmd_tshark, capture_file, test_env):
+        '''The prelogin options, the TDS 7 login (the password is the
+        obfuscated UTF-16 string, a character beyond 0x7f is replaced), the
+        NTLM and SPNEGO tokens and the version in the LOGINACK of each
+        conversation.'''
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {1, 2}', 'tds.prelogin.option.version') == [
+            '1\t251658240', '2\t268435456',
+        ]
+        lines = self.tds_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number == 9', 'tds.7login.username',
+                                'tds.7login.password', 'tds.7login.servername',
+                                'tds.7login.libraryname', 'tds.7login.databasename',
+                                'ntlmssp.messagetype')
+        assert lines == ['9\tsa\tcaf�\tsqlhost\ttdslib\tmaster\t0x00000001']
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {10, 11}', '_ws.col.info') == [
+            '10\tResponse, NTLMSSP_CHALLENGE',
+            '11\tSSPI message, NTLMSSP_AUTH, User: anonymous',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'tds.loginack.tdsversion', 'tds.loginack.tdsversion') == [
+            '16\t0x74000004', '62\t0x71000001', '68\t0x72090002', '74\t0x730a0003',
+            '80\t0x730b0003', '86\t0x07000000', '90\t0x70000000', '92\t0x07010000',
+            '98\t0x00001234',
+            '100\t0x05000000', '123\t0x05000000', '131\t0x05000000', '143\t0x05000000',
+            '146\t0x05000000', '149\t0x05000000', '154\t0x04020000', '159\t0x04060000',
+        ]
+
+    def test_tds7_messages(self, cmd_tshark, capture_file, test_env):
+        '''ALL_HEADERS, the info and error tokens, the done tokens, the
+        attention and transaction manager packets.'''
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {17, 33}', 'tds.type',
+                               'tds.all_headers.header.type',
+                               'tds.all_headers.header.request_cnt', 'tds.query') == [
+            '17\t1\t0x0002\t1\tselect @@version',
+            '33\t14\t0x0002\t1\t',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {16, 30, 64}', 'tds.info.msgtext',
+                               'tds.error.msgtext') == [
+            "16\tChanged database context to 'master'.,Changed language setting.\t",
+            '30\t\tInvalid object name',
+            '64\tinfo\tIncorrect syntax',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {31, 32}', 'tds.type', 'tds.status') == [
+            '31\t6\t0x01', '32\t4\t0x03',
+        ]
+
+    def test_tds7_result_values(self, cmd_tshark, capture_file, test_env):
+        '''Values of the TDS 7.4 result sets: integers, strings, partially
+        length-prefixed values with a length that differs from the chunks
+        (an expert note), text and XML.'''
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {18, 22}', 'tds.type_varbyte.data.int64') == [
+            '18\t-9876543210,-9876543210', '22\t1099511627776',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {26, 27, 29}', 'tds.type_varbyte.data.string') == [
+            '26\thello,padded          ,wide text,nchar,,,,',
+            '27\tabc,wide,abc,wide,,,,,abc,wide,,',
+            '29\ttext value,ntext value',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number == 27 && tds.invalid_plp_length',
+                               'tds.type_varbyte.plp_len') != []
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number == 28', 'tds.type_varbyte.data.bytes') == [
+            '28\t3c782f3e,3c792f3e,01',
+        ]
+
+    def test_tds7_rpc(self, cmd_tshark, capture_file, test_env):
+        '''RPC by name and by procedure id, the parameter names of every
+        data type and the batch flag between two requests.'''
+        lines = self.tds_fields(cmd_tshark, capture_file, test_env,
+                                'frame.number in {37, 38, 40}', 'tds.rpc.name',
+                                'tds.rpc.proc_id', 'tds.rpc.parameter.name')
+        assert lines[0] == '37\tsp_executesql\t10,11\t@stmt,@p'
+        assert lines[1].startswith('38\tallparams\t\t@i1,@bit,@i2,@i4,@i8,@r,@f,')
+        assert lines[1].endswith(',@vbin,@txt,@ntx,@img,@imgnull,@ssv')
+        assert len(lines[1].split('\t')[3].split(',')) == 44
+        assert lines[2] == '40\tnoheaders\t\t@x'
+
+    def test_tds5(self, cmd_tshark, capture_file, test_env):
+        '''TDS 4.2 and 5.0 logins, the capability token, cursors named
+        in the tokens (one cursor per conversation), row formats with the
+        names of the columns, EBCDIC, and the heuristic on other ports.'''
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {99, 148}', 'tds.login.username',
+                               'tds.login.rempw_servername', 'tds.capability.captype',
+                               'tds.capability.caplen') == [
+            '99\tsa\tSRV\t1,2,3,1\t11,9,1,12',
+            '148\tsa\t\t1,2\t11,9',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {111, 112, 124, 125}',
+                               'tds.curdeclare.cursor.name_len', 'tds.curinfo.cursorid',
+                               'tds.curinfo.cursor.name_len') == [
+            '111\tcur1\t0\tcur1', '112\t\t0\tcur1', '124\tcur2\t\t', '125\t\t0\tcur2',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {112, 113, 117}',
+                               'tds.rowfmt2.colname', 'tds.rowfmt.colname',
+                               'tds.type_varbyte.column.name') == [
+            '112\ta,b\t\t',
+            '113\t\t\t',
+            '117\t\t\ttab.a,b AS lbl,tab.a,b AS lbl',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {132, 133, 136}', 'tds.eed.msgtext',
+                               'tds.error.msgtext', 'tds.info.msgtext',
+                               'tds.type_varbyte.data.int64') == [
+            '132\tMsg text,another message\t\t\t99,-1',
+            '133\t\tDuplicate key\tChanged db\t',
+            '136\t\te\t\t',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'frame.number in {157, 161}', 'tds.info.msgtext') == [
+            '157\tinfo 4.2', '161\tebcdic info',
+        ]
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'tds && frame.number >= 163 && frame.number <= 186',
+                               'tds.type') == ['163\t16', '165\t2', '167\t15', '171\t1']
+
+    def test_tds_smp(self, cmd_tshark, capture_file, test_env):
+        '''TDS PDUs carried in the Session Multiplex Protocol.'''
+        assert self.tds_fields(cmd_tshark, capture_file, test_env,
+                               'smp', 'smp.sid', 'smp.flags', 'tds.query') == [
+            '191\t0\t0x01\t', '192\t0\t0x02\t', '193\t0\t0x08\tselect smp',
+            '194\t0\t0x08\t', '195\t0\t0x04\t',
+        ]
