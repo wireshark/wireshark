@@ -173,7 +173,7 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
   unsigned message_size;
   bool stream_is_big_endian;
 
-  if ( tvb_memeql(tvb, 0, (const uint8_t *)ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, offset, (const uint8_t *)ZIOP_MAGIC, 4) != 0)
     return 0;
 
   flags = tvb_get_uint8(tvb, offset + 6);
@@ -184,6 +184,9 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
     message_size = tvb_get_ntohl(tvb, offset + 8);
   else
     message_size = tvb_get_letohl(tvb, offset + 8);
+
+  if (message_size > UINT32_MAX - ZIOP_HEADER_SIZE)
+    return ZIOP_HEADER_SIZE - 1; /* force a bounds error */
 
   return message_size + ZIOP_HEADER_SIZE;
 }
