@@ -245,9 +245,9 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			return offset;
 		}
 
-		is_ascii = check_ascii(tvb, offset + 4, item_length);
+		is_ascii = check_ascii(tvb, offset, item_length);
 		if (is_ascii)
-			item_text = tvb_format_text(pinfo->pool, tvb, offset + 4, item_length);
+			item_text = tvb_format_text(pinfo->pool, tvb, offset, item_length);
 		else
 			item_text = "BINARY-DATA";
 
@@ -326,7 +326,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
-	return offset;
+	return tree ? (int)offset : (int)tvb_captured_length(tvb);
 }
 
 static int
@@ -405,7 +405,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = remaining;
 
 	}
-	return offset;
+	return tree ? (int)offset : (int)tvb_captured_length(tvb);
 }
 
 static bool
@@ -414,7 +414,7 @@ test_tapa_discover(tvbuff_t *tvb)
 	uint8_t type, req_type;
 	uint16_t length;
 
-	if (tvb_captured_length(tvb) < 4)
+	if (tvb_captured_length(tvb) < 5)
 		return false;
 
 	/* Type(1 byte) <= 5, unknown(1 byte), length(2 bytes) */
@@ -464,6 +464,8 @@ static bool
 dissect_tapa_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *iph)
 {
 	/* The TAPA protocol also uses IP protocol number 4 but it isn't really IPIP */
+	if (tvb_captured_length(tvb) < 4)
+		return false;
 	if ((ws_ip_protocol(iph) == IP_PROTO_IPV4) && ((tvb_get_uint8(tvb, 0) & 0xF0) != 0x40) &&
 	    (tvb_get_ntohs(tvb, 2)) < 20) {
 		dissect_tapa_static(tvb, pinfo, tree, iph);
