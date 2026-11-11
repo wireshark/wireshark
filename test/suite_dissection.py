@@ -143870,3 +143870,118 @@ class TestDissectSsh:
                 ('frame.number', 'ssh.mac.status'), '-o', 'ssh.ignore_ssh_mac_failed:TRUE',
                 '-Y', 'frame.number in {311, 312}', '-2')
         assert rows == [['311', '0'], ['312', '0']]        # 0 = bad checksum
+
+
+class TestDissectSstp:
+    '''SSTP (MS-SSTP) reached through HTTP SSTP_DUPLEX_POST, from the
+    synthetic capture sstp_coverage.pcap.gz.'''
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, fields, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('sstp_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_sstp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol counts; no malformed packets or error expert infos in
+        one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ('_ws.col.protocol',))
+        counts = {}
+        for r in rows:
+            counts[r[0]] = counts.get(r[0], 0) + 1
+        assert len(rows) == 35
+        assert counts == {'TCP': 8, 'HTTP': 2, 'SSTP': 21, 'PPP LCP': 4}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('sstp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_sstp_messages(self, cmd_tshark, capture_file, test_env):
+        '''Every message type and the attributes of the control messages.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'sstp.messagetype', 'sstp.numattrib',
+                 'sstp.attribid', 'sstp.attriblength', 'sstp.hash'),
+                '-Y', 'sstp.messagetype && frame.number < 18')
+        assert rows == [
+            ['6', '0x0001', '1', '1', '6', ''],
+            ['7', '0x0002', '1', '4', '40', '0x03'],
+            ['8', '0x0003', '1', '2,1', '12', ''],
+            ['9', '0x0001,0x0008', '1,0', '1', '6', ''],
+            ['10', '0x0009', '0', '', '', ''],
+            ['11', '0x0004', '1', '3', '104', '0x01'],
+            ['12', '0x0004', '1', '3', '104', '0x02'],
+            ['13', '0x0004', '1', '3', '48', '0x09'],
+            ['14', '0x0005', '1', '2,3', '16', ''],
+            ['15', '0x0006', '1', '2,0', '12', ''],
+            ['16', '0x0007', '0', '', '', ''],
+            ['17', '0x00ff', '0', '', '', ''],
+        ]
+
+    def test_sstp_status(self, cmd_tshark, capture_file, test_env):
+        '''STATUS_INFO attributes: status values and attribute values.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'sstp.status'), '-Y', 'sstp.status')
+        assert rows == [
+            ['8', '0x00000004'],
+            ['14', '0x00000007'],
+            ['15', '0x00000000'],
+            ['29', '0x0000000b,0x0000000a'],
+            ['30', '0x00000000,0x00000001,0x00000002,0x00000003,'
+                   '0x00000005,0x00000006,0x00000008,0x00000009'],
+        ]
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'sstp.attribvalue'),
+                '-Y', 'frame.number in {14, 29}')
+        assert rows[0] == ['14', 'deadbeef']
+        assert rows[1][0] == '29'
+        assert rows[1][1].endswith('787878787878787878')
+
+    def test_sstp_data(self, cmd_tshark, capture_file, test_env):
+        '''Data PDUs hand the PPP frame to the PPP dissector; PDUs split
+        over segments are reassembled, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                    ('frame.number', '_ws.col.info', 'lcp.magic_number', 'sstp.iscontrol'),
+                    '-Y', 'lcp', *passes)
+            assert [r[0] for r in rows] == ['10', '18', '20', '24']
+            assert [r[1] for r in rows] == ['Echo Request', 'Echo Reply'] * 2
+            assert [r[2] for r in rows] == ['0x12345678'] * 4
+            assert [r[3] for r in rows] == ['True,False', 'False', 'False', 'False']
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                    ('frame.number', 'tcp.reassembled.data'),
+                    '-Y', 'frame.number in {20, 22}', *passes)
+            assert [r[0] for r in rows] == ['20', '22']
+            assert all(r[1] for r in rows)
+
+    def test_sstp_length_reserved_bits(self, cmd_tshark, capture_file, test_env):
+        '''The 4 reserved bits above the 12 bit PDU length do not make
+        the PDU longer (fixed in "SSTP: Mask the length field and skip
+        unknown attributes"; without the fix the PDUs of frames 23-25
+        are not dissected as SSTP).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', '_ws.col.protocol', 'sstp.length'),
+                '-Y', 'frame.number in {23, 24, 25}')
+        assert rows == [
+            ['23', 'SSTP', '14'],
+            ['24', 'PPP LCP', '16'],
+            ['25', 'SSTP', '8,8'],
+        ]
+
+    def test_sstp_unknown_attributes(self, cmd_tshark, capture_file, test_env):
+        '''Unknown attributes and extra bytes of known ones are skipped
+        by their declared length (same fix; before it the attributes
+        after the unknown one were misparsed).'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'sstp.numattrib', 'sstp.attribid',
+                 'sstp.attriblength', 'sstp.encapsulatedprotocol', 'sstp.hash'),
+                '-Y', 'frame.number in {26, 27, 28}')
+        assert rows == [
+            ['26', '4', '9,1,0,7', '8,6,12,4', '0x0001', ''],
+            ['27', '2', '1,4', '10,40', '0x0001', '0x01'],
+            ['28', '1', '1', '6', '0x0001', ''],
+        ]
