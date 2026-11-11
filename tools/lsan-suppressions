@@ -1,0 +1,16 @@
+# LeakSanitizer suppressions for leaks in libraries we don't control.
+# Use with LSAN_OPTIONS=suppressions=/path/to/tools/lsan-suppressions
+#
+# Be careful adding to this file, since overly-broad suppressions may hide
+# real leaks in Wireshark! Comment each entry with the reason for it.
+#
+# Each line is "leak:<pattern>"; a leak is suppressed if the pattern matches
+# a function name, source file name, or module name in any frame of the
+# allocation stack.
+
+# libsmi leaks memory internally while reading its configuration and
+# parsing MIB modules, even when smiExit() is called. A standalone program
+# that does only smiInit() + smiExit() leaks. One example is
+# smiGuessModuleLanguage() (lib/common.c) never freeing the string returned
+# by smiGetModulePath().
+leak:libsmi.so

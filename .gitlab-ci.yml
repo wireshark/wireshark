@@ -1236,7 +1236,7 @@ Clang ASAN Build:
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - !reference [.changed-since, script]
-    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark $CHANGED_SINCE" su user -c "pytest --junitxml=../clang_asan_tests.xml"
+    - WIRESHARK_DEBUG_WMEM_OVERRIDE=simple LSAN_OPTIONS="suppressions=$CI_PROJECT_DIR/tools/lsan-suppressions" PYTEST_ADDOPTS="--skip-missing-programs=dumpcap,rawshark --enable-stratoshark $CHANGED_SINCE" su user -c "pytest --junitxml=../clang_asan_tests.xml"
   artifacts:
     when: always
     reports:
