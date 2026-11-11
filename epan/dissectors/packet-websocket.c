@@ -682,7 +682,9 @@ dissect_websocket_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     websocket_conv->frag_id = ++frag_id_counter;
 
     if (http_info) {
-      websocket_conv->subprotocol = http_info->get_header_value(pinfo, "sec-websocket-protocol", !http_info->from_server);
+      /* The header value may be packet scope (HTTP/2, HTTP/3). */
+      websocket_conv->subprotocol = wmem_strdup(wmem_file_scope(),
+          http_info->get_header_value(pinfo, "sec-websocket-protocol", !http_info->from_server));
       websocket_conv->server_port = http_info->server_port;
       const char *websocket_extensions = http_info->get_header_value(pinfo, "sec-websocket-extensions", !http_info->from_server);
       if (websocket_extensions) {
