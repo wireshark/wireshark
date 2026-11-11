@@ -62,6 +62,31 @@ static int ett_zbee_sec_control;
 static expert_field ei_zbee_sec_encrypted_payload;
 static expert_field ei_zbee_sec_encrypted_payload_sliced;
 static expert_field ei_zbee_sec_extended_source_unknown;
+static expert_field ei_zbee_sec_keyring_full;
+
+/* Maximum number of keys kept in the keyring of one PAN */
+#define ZBEE_SEC_MAX_NWK_KEYS 64
+
+/* proto_data key (under the NWK protocol) that marks a frame whose key was refused */
+#define ZBEE_SEC_PROTO_DATA_KEYRING_FULL 1
+
+/* Report a key refused because the ring was full, on every pass. */
+static bool
+zbee_sec_keyring_full_seen(packet_info *pinfo)
+{
+    if (p_get_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), ZBEE_SEC_PROTO_DATA_KEYRING_FULL)) {
+        expert_add_info(pinfo, NULL, &ei_zbee_sec_keyring_full);
+        return true;
+    }
+    return false;
+}
+
+static void
+zbee_sec_keyring_full(packet_info *pinfo)
+{
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), ZBEE_SEC_PROTO_DATA_KEYRING_FULL, GUINT_TO_POINTER(1));
+    expert_add_info(pinfo, NULL, &ei_zbee_sec_keyring_full);
+}
 
 static const value_string zbee_sec_key_names[] = {
     { ZBEE_SEC_KEY_LINK,        "Link Key" },
@@ -280,6 +305,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
         { &ei_zbee_sec_encrypted_payload, { "zbee_sec.encrypted_payload", PI_UNDECODED, PI_WARN, "Encrypted Payload", EXPFILL }},
         { &ei_zbee_sec_encrypted_payload_sliced, { "zbee_sec.encrypted_payload_sliced", PI_UNDECODED, PI_WARN, "Encrypted payload, cut short when capturing - can't decrypt", EXPFILL }},
         { &ei_zbee_sec_extended_source_unknown, { "zbee_sec.extended_source_unknown", PI_PROTOCOL, PI_NOTE, "Extended Source: Unknown", EXPFILL }},
+        { &ei_zbee_sec_keyring_full, { "zbee_sec.keyring_full", PI_PROTOCOL, PI_WARN, "Key ring is full, key not added", EXPFILL }},
     };
 
     expert_module_t* expert_zbee_sec;
@@ -568,7 +594,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
                     {
                         case ZBEE_APS_RELAY_DOWNSTREAM:
                         {
-                            ieee802154_short_addr   addr16;
+                            ieee802154_short_addr   addr16 = {0};
                             /* In case of downstream Relay must use long address
                              * of ZC. Seek for it in the address translation
                              * table. */
@@ -578,6 +604,10 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, unsigne
                             if (ieee_hints)
                             {
                                 addr16.pan = ieee_hints->src_pan;
+                            }
+                            else
+                            {
+                                addr16.pan = nwk_hints->src_pan;
                             }
                             map_rec = (ieee802154_map_rec *) g_hash_table_lookup(zbee_nwk_map.short_table, &addr16);
                             if (map_rec)
@@ -1273,6 +1303,11 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const uint8_t *key)
     key_record_t        key_record;
     zbee_nwk_hints_t   *nwk_hints;
 
+    if ( pinfo->fd->visited ) {
+        zbee_sec_keyring_full_seen(pinfo);
+        return;
+    }
+
     /* Update the key ring for this pan */
     if ( !pinfo->fd->visited && (nwk_hints = (zbee_nwk_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                     proto_get_id_by_filter_name(ZBEE_PROTOABBREV_NWK), 0))) {
@@ -1284,14 +1319,25 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const uint8_t *key)
         }
 
         if ( nwk_keyring ) {
-            if ( !*nwk_keyring ||
-                    memcmp( ((key_record_t *)((GSList *)(*nwk_keyring))->data)->key, key,
-                        ZBEE_APS_CMD_KEY_LENGTH) ) {
-                /* Store a new or different key in the key ring */
-                key_record.frame_num = pinfo->num;
-                key_record.label = NULL;
-                memcpy(&key_record.key, key, ZBEE_APS_CMD_KEY_LENGTH);
-                *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+            unsigned n_keys = 0;
+            bool     found = false;
+            for (GSList *it = *nwk_keyring; it; it = it->next) {
+                if (!memcmp(((key_record_t *)it->data)->key, key, ZBEE_APS_CMD_KEY_LENGTH)) {
+                    found = true;
+                    break;
+                }
+                n_keys++;
+            }
+            if ( !found ) {
+                if ( n_keys >= ZBEE_SEC_MAX_NWK_KEYS ) {
+                    zbee_sec_keyring_full(pinfo);
+                } else {
+                    /* Store a new key in the key ring */
+                    key_record.frame_num = pinfo->num;
+                    key_record.label = NULL;
+                    memcpy(&key_record.key, key, ZBEE_APS_CMD_KEY_LENGTH);
+                    *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
+                }
             }
         }
     }
