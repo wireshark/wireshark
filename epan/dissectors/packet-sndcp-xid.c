@@ -455,7 +455,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     */
     proto_item *ti, *dcomp_item;
     proto_tree *sndcp_tree, *version_tree, *dcomp_tree, *pcomp_tree;
-    uint16_t offset = 0, l3_param_len;
+    unsigned offset = 0, l3_param_len;
     uint8_t parameter_type, parameter_len;
 
     /* create display subtree for the protocol
@@ -464,7 +464,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     sndcp_tree = proto_item_add_subtree(ti, ett_sndcp_xid);
     l3_param_len = tvb_reported_length(tvb);
 
-    while (offset < l3_param_len-1)
+    while (offset + 1 < l3_param_len)
     {
         parameter_type = tvb_get_uint8(tvb, offset);
         parameter_len = tvb_get_uint8(tvb, offset+1);
@@ -481,7 +481,7 @@ dissect_sndcp_xid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
             1, parameter_len);
             proto_tree_add_uint(version_tree, hf_sndcp_xid_value, tvb, offset+2,
             1, value);
-            offset += 3;
+            offset += 2 + parameter_len;
         }
 
         else if (parameter_type == DATA_COMPRESSION_PAR_TYPE)
@@ -652,7 +652,7 @@ static void parse_compression_parameters(tvbuff_t *tvb, proto_tree *tree, bool d
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_pbit, tvb, offset, 1, p_bit_set << 7);
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_spare_byte1, tvb, offset, 1, entity);
             proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_entity, tvb, offset, 1, entity);
-            proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_len, tvb, offset+2, 1, len);
+            proto_tree_add_uint(comp_entity_tree, hf_sndcp_xid_comp_len, tvb, offset+1, 1, len);
 
             offset += 2;
             entity_offset = 0;
