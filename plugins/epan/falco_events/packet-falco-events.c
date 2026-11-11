@@ -43,6 +43,7 @@
 #include <epan/dfilter/sttype-field.h>
 #include <epan/dfilter/sttype-op.h>
 #include <epan/exceptions.h>
+#include <epan/expert.h>
 #include <epan/follow.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -147,6 +148,15 @@ static int ett_sinsp_enriched;
 static int ett_sinsp_span;
 static int ett_address;
 static int ett_json;
+
+static expert_field ei_sinsp_extract_failed;
+
+static const char *
+sinsp_last_error_str(sinsp_source_info_t *ssi)
+{
+    const char *err = get_sinsp_source_last_error(ssi);
+    return err ? err : "unknown error";
+}
 
 static int container_io_tap;
 
@@ -1102,7 +1112,11 @@ dissect_sinsp_enriched(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void
     bool rc = extract_syscall_source_fields(sinsp_span, bi->ssi, pinfo->fd->num, &sinsp_fields, &sinsp_fields_count, &sinsp_evt_info);
 
     if (!rc) {
-        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+        // libsinsp rejects malformed events (e.g. a parameter length that does
+        // not match the event type); that is bad packet data, not a dissector bug.
+        proto_tree_add_expert_format(tree, pinfo, &ei_sinsp_extract_failed, tvb, 0, 0,
+                                     "Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), sinsp_last_error_str(bi->ssi));
+        return tvb_captured_length(tvb);
     }
 
     if (sinsp_fields_count == 0) {
@@ -1423,7 +1437,9 @@ dissect_sinsp_plugin(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* 
     bool rc = extract_plugin_source_fields(bi->ssi, pinfo->num, payload, payload_len, pinfo->pool, sinsp_fields, bi->visible_fields);
 
     if (!rc) {
-        REPORT_DISSECTOR_BUG("Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), get_sinsp_source_last_error(bi->ssi));
+        proto_tree_add_expert_format(fb_tree, pinfo, &ei_sinsp_extract_failed, tvb, 0, 0,
+                                     "Falco plugin %s extract error: %s", get_sinsp_source_name(bi->ssi), sinsp_last_error_str(bi->ssi));
+        return payload_len;
     }
 
     for (uint32_t idx = 0; idx < bi->num_conversation_filters; idx++) {
@@ -1768,6 +1784,14 @@ proto_register_falcoplugin(void)
     proto_register_field_array(proto_falco_events, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     proto_register_subtree_array(ett_lin, array_length(ett_lin));
+
+    static ei_register_info ei[] = {
+        { &ei_sinsp_extract_failed,
+          { "falcoevents.extract_failed", PI_MALFORMED, PI_ERROR,
+            "Falco plugin field extraction failed", EXPFILL }},
+    };
+    expert_module_t *expert_falco_events = expert_register_protocol(proto_falco_events);
+    expert_register_field_array(expert_falco_events, ei, array_length(ei));
 
     register_dfilter_translator("Falco rule", dfilter_to_falco_rule);
 
