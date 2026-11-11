@@ -13,6 +13,7 @@
 #define WS_LOG_DOMAIN "MACsec"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <epan/uat.h>
 #include <epan/tfs.h>
@@ -388,6 +389,22 @@ attempt_packet_decode_with_saks(bool encrypted, unsigned an, const uint8_t *payl
 }
 
 /* Code to actually dissect the packets */
+/* Call the ethertype dissector and restore pinfo->fd->pkt_len afterwards,
+ * also when it throws an exception. (A helper function, so that the
+ * locals of dissect_macsec() are not clobbered by the TRY block.) */
+static void
+call_ethertype_restoring_pkt_len(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                 ethertype_data_t *ethertype_data, uint32_t pkt_len_saved)
+{
+    TRY {
+        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, ethertype_data);
+    }
+    FINALLY {
+        pinfo->fd->pkt_len = pkt_len_saved;
+    }
+    ENDTRY;
+}
+
 static int
 dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
 
@@ -707,11 +724,7 @@ dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         ethertype_data.trailer_id = hf_macsec_eth_padding;
         ethertype_data.fcs_len = 0;
 
-        // XXX - Do we need TRY...EXCEPT to restore pinfo->fd->pkt_len ?
-        call_dissector_with_data(ethertype_handle, next_tvb, pinfo, tree, &ethertype_data);
-
-        /* restore original value */
-        pinfo->fd->pkt_len = pkt_len_saved;
+        call_ethertype_restoring_pkt_len(next_tvb, pinfo, tree, &ethertype_data, pkt_len_saved);
     } else {
         /* Show the encrypted, undissected data as data. */
         call_data_dissector(next_tvb, pinfo, tree);
