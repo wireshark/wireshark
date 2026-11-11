@@ -181,7 +181,7 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
         proto_tree_add_item(zep_tree, hf_zep_device_id, tvb, 4, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item_ret_boolean(zep_tree, hf_zep_lqi_mode, tvb, 6, 1, ENC_NA, &lqi_mode);
-        if (lqi_mode != 0) {
+        if (!lqi_mode) {
             proto_tree_add_item(zep_tree, hf_zep_lqi, tvb, 7, 1, ENC_NA);
             proto_tree_add_item(zep_tree, hf_zep_reserved_field, tvb, 8, 8, ENC_NA);
         } else {
