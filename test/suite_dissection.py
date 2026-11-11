@@ -144728,3 +144728,92 @@ class TestDissectStun:
                 '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info', '-e_ws.malformed',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['STUN\tBinding Request\t']
+
+
+class TestDissectSua:
+    '''SUA (RFC 3868) over SCTP port 14001 from the synthetic capture
+    sua_coverage.pcap.gz: management, SS7 network management, ASP state and
+    traffic maintenance, connectionless and connection oriented messages,
+    routing key management, every address form, SCCP associations, and
+    the nested parameters of "SUA: Bound parameter nesting and reject
+    short parameters".'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sua_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sua_protocols(self, cmd_tshark, capture_file, test_env):
+        '''62 frames: SUA, and the SCCP management and TCAP payloads handed
+        on by SSN; no malformed packets or error expert infos in one and
+        two passes (the only expert infos are two warnings, see
+        test_sua_nesting).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 62
+        assert protocols.count('SUA (RFC 3868)') == 51
+        assert protocols.count('TCAP') == 9
+        assert protocols.count('SCCPMG (Int. ITU)') == 2
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sua_messages(self, cmd_tshark, capture_file, test_env):
+        '''Message class and type of every frame.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-esua.message_class', '-esua.message_type')
+        pairs = [tuple(r) for r in rows]
+        assert pairs[:22] == [
+            ('0', '0'), ('0', '0'), ('0', '1'), ('0', '1'), ('0', '1'),
+            ('2', '1'), ('2', '2'), ('2', '3'), ('2', '4'), ('2', '5'), ('2', '6'),
+            ('3', '1'), ('3', '4'), ('3', '3'), ('3', '6'), ('3', '2'), ('3', '5'),
+            ('4', '1'), ('4', '3'), ('4', '1'), ('4', '2'), ('4', '4'),
+        ]
+        assert [p[1] for p in pairs[22:31]] == ['1'] * 8 + ['2']          # CLDT x8, CLDR
+        assert [p[1] for p in pairs[31:41]] == ['1', '2', '8', '9', '11', '10', '7', '6', '4', '5']
+        assert pairs[51:55] == [('9', '1'), ('9', '2'), ('9', '3'), ('9', '4')]
+
+    def test_sua_associations(self, cmd_tshark, capture_file, test_env):
+        '''CORE starts an association: frames 32-41 are association 1, the
+        COAK without a CORE (42) is association 2, the refused connection
+        (43-51) association 3.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sua.assoc.id', '-Tfields', '-eframe.number', '-esua.assoc.id')
+        assert [r[1] for r in rows] == ['1'] * 9 + ['2'] + ['3'] * 9
+        assert rows[0][0] == '32'
+
+    def test_sua_addresses(self, cmd_tshark, capture_file, test_env):
+        '''With sua.set_addresses the point code, global title or SSN
+        address of routing indicators 2 and 1 become the packet addresses.
+        Frame 58 has a global title outside an address: the routing
+        indicator of an earlier frame is not used ("SUA: Bound parameter
+        nesting and reject short parameters").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'sua.set_addresses:TRUE',
+                '-Y', 'frame.number in {23, 24, 25, 58}', '-Tfields',
+                '-eframe.number', '-e_ws.col.Source', '-e_ws.col.Destination')
+        assert rows == [
+            ['23', '257', '514'],
+            ['24', '491721234567', '4915112345'],
+            ['25', '192.0.2.1', '192.0.2.2'],
+            ['58', '192.0.2.1', '192.0.2.2'],
+        ]
+
+    def test_sua_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Frames 59-60 nest Routing Key and Source Address parameters 5 deep,
+        frames 61-62 600 deep. They used to run into the dissection depth
+        assertion (tree depth 500; aborts with WIRESHARK_ABORT_ON_DISSECTOR_BUG,
+        set by the test suite); now the parameters are only dissected 8 deep
+        and the frame gets the sua.nesting_too_deep warning.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sua.nesting_too_deep', '-Tfields', '-eframe.number')
+        assert rows == [['61'], ['62']]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {59, 60, 61, 62}', '-Tfields',
+                '-eframe.number', '-esua.parameter_tag')
+        assert [len(r[1].split(',')) for r in rows][2:] == [8, 8]
