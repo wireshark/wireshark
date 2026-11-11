@@ -15,6 +15,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/iana-info.h>
 
 void proto_register_swipe(void);
@@ -41,6 +43,10 @@ static int hf_swipe_authenticator;
 /* Initialize the subtree pointers */
 static int ett_swipe;
 
+static expert_field ei_swipe_nested_too_deeply;
+
+#define SWIPE_MAX_NESTING 4
+
 static dissector_handle_t swipe_handle;
 static dissector_handle_t ipv6_handle;
 
@@ -51,6 +57,7 @@ dissect_swipe(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
     proto_tree      *swipe_tree;
     proto_item      *ti;
     tvbuff_t        *next_tvb;
+    unsigned        nesting;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "swIPe");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -78,7 +85,14 @@ dissect_swipe(tvbuff_t *tvb, packet_info * pinfo, proto_tree *tree, void* data _
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, header_len);
+    nesting = p_get_proto_depth(pinfo, proto_swipe);
+    if (nesting >= SWIPE_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_swipe_nested_too_deeply, tvb, header_len);
+        return tvb_captured_length(tvb);
+    }
+    p_set_proto_depth(pinfo, proto_swipe, nesting + 1);
     call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+    p_set_proto_depth(pinfo, proto_swipe, nesting);
 
     return tvb_captured_length(tvb);
 }
@@ -102,6 +116,11 @@ proto_register_swipe(void)
         &ett_swipe
     };
 
+    static ei_register_info ei[] = {
+        { &ei_swipe_nested_too_deeply, { "swipe.nested_too_deeply", PI_PROTOCOL, PI_WARN, "swIPe nested too deeply", EXPFILL }},
+    };
+    expert_module_t *expert_swipe;
+
     /* Register the protocol name and description */
     proto_swipe = proto_register_protocol("swIPe IP Security Protocol", "swIPe", "swipe");
 
@@ -111,6 +130,8 @@ proto_register_swipe(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_swipe, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_swipe = expert_register_protocol(proto_swipe);
+    expert_register_field_array(expert_swipe, ei, array_length(ei));
 }
 
 void
