@@ -78,6 +78,9 @@ static int ett_spnego_krb5_cfx_flags;
 
 static expert_field ei_spnego_decrypted_keytype;
 static expert_field ei_spnego_unknown_header;
+static expert_field ei_spnego_too_deep;
+
+#define SPNEGO_MAX_NESTING 8
 
 static dissector_handle_t spnego_handle;
 static dissector_handle_t spnego_krb5_handle;
@@ -1246,6 +1249,12 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   proto_tree *subtree;
   int offset = 0;
   asn1_ctx_t asn1_ctx;
+  unsigned depth = p_get_proto_depth(pinfo, proto_spnego);
+
+  if (depth >= SPNEGO_MAX_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_spnego_too_deep, tvb, 0);
+    return tvb_captured_length(tvb);
+  }
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
   MechType_oid = NULL;
@@ -1268,7 +1277,9 @@ dissect_spnego_wrap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
    * ASN1 code added to spnego.asn to handle this.
    */
 
+  p_set_proto_depth(pinfo, proto_spnego, depth + 1);
   offset = dissect_spnego_InitialContextToken(false, tvb, offset, &asn1_ctx , subtree, -1);
+  p_set_proto_depth(pinfo, proto_spnego, depth);
 
   return offset;
 }
@@ -1282,6 +1293,12 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
   int offset = 0;
   conversation_t *conversation;
   asn1_ctx_t asn1_ctx;
+  unsigned depth = p_get_proto_depth(pinfo, proto_spnego);
+
+  if (depth >= SPNEGO_MAX_NESTING) {
+    proto_tree_add_expert_remaining(parent_tree, pinfo, &ei_spnego_too_deep, tvb, 0);
+    return tvb_captured_length(tvb);
+  }
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, true, pinfo);
 
   /*
@@ -1337,7 +1354,9 @@ dissect_spnego(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void*
    * as well. Naughty, naughty.
    *
    */
+  p_set_proto_depth(pinfo, proto_spnego, depth + 1);
   dissect_spnego_NegotiationToken(false, tvb, offset, &asn1_ctx, subtree, -1);
+  p_set_proto_depth(pinfo, proto_spnego, depth);
   return tvb_captured_length(tvb);
 }
 
@@ -1415,6 +1434,7 @@ void proto_register_spnego(void) {
   static ei_register_info ei[] = {
     { &ei_spnego_decrypted_keytype, { "spnego.decrypted_keytype", PI_SECURITY, PI_CHAT, "Decrypted keytype", EXPFILL }},
     { &ei_spnego_unknown_header, { "spnego.unknown_header", PI_PROTOCOL, PI_WARN, "Unknown header", EXPFILL }},
+    { &ei_spnego_too_deep, { "spnego.too_deep", PI_PROTOCOL, PI_WARN, "SPNEGO nested too deeply", EXPFILL }},
   };
 
   expert_module_t* expert_spnego;
