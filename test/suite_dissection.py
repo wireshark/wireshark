@@ -148550,3 +148550,147 @@ class TestDissectTfp:
             '11\tZH2a\t11259375\t12\t1\t07000000\tUID: ZH2a, Len: 12, FID: 1, Seq: 1',
             '12\tZH2a\t11259375\t17\t5\t313233343536373839\tUID: ZH2a, Len: 17, FID: 5, Seq: 2',
         ]
+
+
+class TestDissectTftp:
+    @staticmethod
+    def _pat(tag, n):
+        '''The payload pattern of the generator (mktftp.py).'''
+        return bytes((i * 13 + tag) & 0xff for i in range(n))
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, dfilter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('tftp_coverage.pcap.gz'),
+                '-Y', dfilter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    @staticmethod
+    def _export(cmd_tshark, capture_file, test_env, tmp_path, name, opts=()):
+        export_dir = tmp_path / name
+        export_dir.mkdir()
+        subprocess.check_call((cmd_tshark, *opts,
+                '-r', capture_file('tftp_coverage.pcap.gz'),
+                '-q', '--export-objects', f'tftp,{export_dir}',
+            ), env=test_env, timeout=120)
+        return {p.name: p.read_bytes() for p in export_dir.iterdir()}
+
+    def test_tftp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''TFTP on port 69, by the heuristic on other ports, over TURN
+        ChannelData and by the conversation; the client's own packets to
+        the server port stay UDP. No malformed packets or error expert
+        infos in one and two passes, also with reassembly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tftp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 144
+        assert protocols.count('TFTP') == 114
+        assert protocols.count('STUN') == 4
+        assert protocols.count('A615a') == 1
+        assert protocols.count('UDP') == 25
+        for passes in ((), ('-2',), ('-o', 'tftp.defragment:TRUE'), ('-2', '-o', 'tftp.defragment:TRUE')):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tftp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_tftp_heuristics(self, cmd_tshark, capture_file, test_env):
+        '''The heuristic accepts requests on a port that is not 69, and
+        only with a known transfer mode; over TURN only valid messages are
+        taken; another dissector can claim the file by its name.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'tftp && udp.dstport == 4000',
+                          'tftp.source_file', 'tftp.destination_file')
+        assert [r[1:] for r in rows] == [['heur.txt', ''], ['', 'heur-up.txt']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'udp.dstport == 4000 && !tftp')
+        assert len(rows) == 4
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'udp.port == 3478 && tftp', 'tftp.opcode')
+        assert [r[1] for r in rows] == ['1', '6', '4', '3', '4', '2', '4', '255', '5', '5']
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'udp.port == 3478 && !tftp')
+        assert len(rows) == 4
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'a615a', '_ws.col.info')
+        assert rows == [['36', 'FMC_L.LUI, Status: Accepted, not yet started']]
+
+    def test_tftp_export_objects(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Export Objects in one and two passes: the right contents; a
+        transfer with missing blocks and the writes (the client's packets
+        are UDP) give no object. Block 1 repeated after the last block
+        used to free a wmem buffer in the second pass, and a larger second
+        block 1 used to hit an assertion.'''
+        p = self._pat
+        expected = {
+            'boot.img': p(1, 250),
+            'wds.wim': p(3, 87),
+            'range.bin': p(5, 512) + p(5, 3),
+            'same69.txt': p(7, 512) + p(7, 100),
+            'single.txt': b'one block file\n',
+            'badfree.bin': p(11, 512) + p(11, 100),
+            'assert.bin': p(12, 100),
+            'frag.bin': p(13, 512) * 3 + p(13, 77),
+            'heur.txt': b'hello heuristic',
+            'misc.txt': b'misc',
+            'turn.txt': b'over turn!!!!',
+        }
+        # multi.bin is one pattern of 1636 octets cut into blocks
+        expected['multi.bin'] = p(8, 1636)
+        for name, opts in (('one', ()), ('two', ('-2',))):
+            files = self._export(cmd_tshark, capture_file, test_env, tmp_path, name, opts)
+            assert files == expected
+        # Allocator without guard pages, as the CI runs with ASAN does
+        env = test_env.copy()
+        env['WIRESHARK_DEBUG_WMEM_OVERRIDE'] = 'simple'
+        files = self._export(cmd_tshark, capture_file, env, tmp_path, 'simple', ('-2',))
+        assert files == expected
+
+    def test_tftp_expert_infos(self, cmd_tshark, capture_file, test_env):
+        '''Errors, transfer size probes (not an error), option ranges,
+        late option acknowledgements and the block number wrap; one and
+        two passes agree.'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, '_ws.expert',
+                              '_ws.expert.message', opts=passes)
+            msgs = {int(r[0]): r[1] for r in rows}
+            assert msgs[39] == msgs[42] == 'Likely transfer size (tsize) probe'
+            assert msgs[45] == 'TFTP ERROR packet'          # not a probe
+            assert [msgs[i] for i in range(47, 57)] == ['TFTP ERROR packet'] * 10
+            assert msgs[57] == ('TFTP windowsize out of range,Unrecognized msftwindow option,'
+                                'TFTP windowsize out of range')
+            assert msgs[58] == msgs[59] == 'TFTP blocksize out of range'
+            assert msgs[60] == msgs[61] == 'TFTP windowsize out of range'
+            assert msgs[62] == 'Unrecognized msftwindow option'
+            assert msgs[66] == 'Option negotiation after transfer start ignored'
+            assert msgs[73] == 'TFTP block number is about to wrap'
+            assert msgs[30] == msgs[32] == 'TFTP window size is changing'
+
+    def test_tftp_blocks_and_windows(self, cmd_tshark, capture_file, test_env):
+        '''Full block numbers past 65535, and the dynamic window size of
+        the Microsoft windowing option (the last ACK is ignored).'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'tftp.block.full > 60000',
+                              'tftp.block', 'tftp.block.full', opts=passes)
+            assert rows == [['72', '65534', '65534'], ['73', '65535', '65535'],
+                            ['74', '0', '65536'], ['75', '1', '65537'], ['76', '2', '65538']]
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'tftp.nextwindowsize',
+                              'tftp.nextwindowsize', opts=passes)
+            assert rows == [['30', '4'], ['31', '4'], ['32', '8'], ['34', '2']]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 4',
+                          'tftp.request_frame', 'tftp.destination_file')
+        assert rows == [['4', '1', 'boot.img']]
+
+    def test_tftp_defragment(self, cmd_tshark, capture_file, test_env):
+        '''With tftp.defragment a file is reassembled from its blocks, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'tftp.reassembled.length',
+                              'tftp.reassembled.length', opts=(*passes, '-o', 'tftp.defragment:TRUE'))
+            assert [r[1] for r in rows] == ['250', '87', '515', '612', '1636', '612', '1613']
+        # Only the second pass can show the earlier blocks the frame of the last one
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'tftp.reassembled_in',
+                          'tftp.reassembled_in', opts=('-2', '-o', 'tftp.defragment:TRUE'))
+        assert [r[0] for r in rows][-3:] == ['127', '128', '129']
+        assert {r[1] for r in rows[-3:]} == {'130'}
