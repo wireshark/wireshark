@@ -815,6 +815,7 @@ static expert_field ei_spice_Mask_flag;
 static expert_field ei_spice_Mask_point;
 static expert_field ei_spice_common_cap_unknown;
 static expert_field ei_spice_unknown_channel;
+static expert_field ei_spice_invalid_length;
 
 
 static dissector_handle_t jpeg_handle;
@@ -3113,7 +3114,7 @@ dissect_spice_link_server_pdu(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
 
     common_caps_len  = tvb_get_letohl(tvb, offset + 4 + SPICE_TICKET_PUBKEY_BYTES);
     channel_caps_len = tvb_get_letohl(tvb, offset + 8 + SPICE_TICKET_PUBKEY_BYTES);
-    offset += (int)sizeof_SpiceLinkHeader + SPICE_TICKET_PUBKEY_BYTES;
+    offset += 4 + SPICE_TICKET_PUBKEY_BYTES + 12;
 
     if (common_caps_len > 0) {
         caps_tree = proto_tree_add_subtree_format(tree, tvb, offset, common_caps_len * 4,
@@ -3140,6 +3141,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     uint32_t              avail;
     uint32_t              pdu_len          = 0;
     uint32_t              offset;
+    uint32_t              old_offset;
     proto_item           *ti, *auth_item;
     proto_tree           *spice_tree;
     bool                  client_sasl_list = false;
@@ -3236,6 +3238,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             pdu_len = 4;
             GET_PDU_FROM_OFFSET(offset)
             pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
+            if (pdu_len > UINT32_MAX - 4) {
+                expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                return tvb_captured_length(tvb);
+            }
             proto_item_set_len(ti, 4);
             proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             pdu_len += 4;
@@ -3254,6 +3260,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
+                if (pdu_len > UINT32_MAX - 4) {
+                    expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                    return tvb_captured_length(tvb);
+                }
                 proto_item_set_len(ti, 4);
                 proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 if (pdu_len == 0) {
@@ -3291,6 +3301,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
+                if (pdu_len > UINT32_MAX - 4) {
+                    expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                    return tvb_captured_length(tvb);
+                }
                 proto_item_set_len(ti, 4 + pdu_len);
                 proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 if (pdu_len == 0) { /* meaning, empty PDU */
@@ -3337,6 +3351,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_letohl(tvb, offset); /* the length of the following messages */
+                if (pdu_len > UINT32_MAX - 4) {
+                    expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                    return tvb_captured_length(tvb);
+                }
                 proto_item_set_len(ti, 4);
                 proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 if (pdu_len == 0) {
@@ -3365,8 +3383,12 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                 pdu_len = 4;
                 GET_PDU_FROM_OFFSET(offset)
                 pdu_len = tvb_get_ntohl(tvb, offset); /* the length of the following messages */
+                if (pdu_len > UINT32_MAX - 4) {
+                    expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                    return tvb_captured_length(tvb);
+                }
                 proto_item_set_len(ti, pdu_len);
-                proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(spice_tree, hf_spice_sasl_message_length, tvb, offset, 4, ENC_BIG_ENDIAN);
                 if (pdu_len == 0) { /* meaning, empty PDU */
                     return 4; /* only the size field.*/
                 } else {
@@ -3390,6 +3412,10 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     pdu_len = sizeof_SpiceMiniDataHeader;
                     GET_PDU_FROM_OFFSET(offset)
                     pdu_len = tvb_get_letohl(tvb, offset + 2);
+                    if (pdu_len > UINT32_MAX - sizeof_SpiceMiniDataHeader) {
+                        expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                        return tvb_captured_length(tvb);
+                    }
                     pdu_len += sizeof_SpiceMiniDataHeader;
                 } else {
                     pdu_len = sizeof_SpiceDataHeader;
@@ -3398,16 +3424,26 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     /* Note that we do not dissect properly yet sub-messages - but they */
                     /* are not used in the protocol either */
                     pdu_len = tvb_get_letohl(tvb, offset + 10);
+                    if (pdu_len > UINT32_MAX - sizeof_SpiceDataHeader) {
+                        expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                        return tvb_captured_length(tvb);
+                    }
                     pdu_len += sizeof_SpiceDataHeader; /* +sizeof_SpiceDataHeader since you need to exclude the SPICE   */
                                                    /* data header, which is sizeof_SpiceDataHeader (18) bytes long) */
                 }
                 GET_PDU_FROM_OFFSET(offset)
                 proto_item_set_len(ti, pdu_len);
 
+                old_offset = offset;
                 if (spice_info->destport == pinfo->destport) { /* client to server traffic */
                      offset = dissect_spice_data_client_pdu(tvb, spice_tree, pinfo, spice_info, offset);
                  } else { /* server to client traffic */
                      offset = dissect_spice_data_server_pdu(tvb, spice_tree, pinfo, spice_info, offset, pdu_len);
+                 }
+                 if (offset <= old_offset) {
+                     /* no progress, avoid an endless loop */
+                     expert_add_info(pinfo, ti, &ei_spice_invalid_length);
+                     return tvb_captured_length(tvb);
                  }
              }
              return offset;
@@ -4716,6 +4752,7 @@ proto_register_spice(void)
         { &ei_spice_brush_type, { "spice.brush_type.invalid", PI_PROTOCOL, PI_WARN, "Invalid Brush type", EXPFILL }},
         { &ei_spice_Mask_flag, { "spice.mask_flag.irrelevant", PI_PROTOCOL, PI_NOTE, "value irrelevant as bitmap address is 0", EXPFILL }},
         { &ei_spice_Mask_point, { "spice.mask_point.irrelevant", PI_PROTOCOL, PI_NOTE, "value irrelevant as bitmap address is 0", EXPFILL }},
+        { &ei_spice_invalid_length, { "spice.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid message length", EXPFILL }},
         { &ei_spice_unknown_channel, { "spice.unknown_channel", PI_UNDECODED, PI_WARN, "Unknown channel - cannot dissect", EXPFILL }},
         { &ei_spice_common_cap_unknown, { "spice.common_cap.unknown", PI_PROTOCOL, PI_WARN, "Unknown common capability", EXPFILL }},
     };
