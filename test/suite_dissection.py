@@ -144606,3 +144606,125 @@ class TestDissectStt:
                 '-Tfields', '-eframe.number',
             ), encoding='utf-8', env=test_env)
         assert count_output(stdout) == 26
+
+
+class TestDissectStun:
+    '''STUN and TURN (packet-stun.c) from the synthetic capture
+    stun_coverage.pcapng.gz: UDP and TCP on port 3478, STUN on other ports
+    through the UDP and TCP heuristics, every attribute, TURN ChannelData
+    and DATA payloads, RFC 4571 framing, transaction tracking, MS-TURN
+    messages (frames 1-75 UDP, 76-110 TCP, 111 Exported PDU).'''
+
+    CAP = 'stun_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_stun_clean(self, cmd_tshark, capture_file, test_env):
+        '''81 frames are STUN; no malformed frame and no warning or error
+        expert info in one and two passes.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            assert len(self._fields(cmd_tshark, cap, test_env, 'stun',
+                    ['frame.number'], *passes)) == 81
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    ['frame.number'], *passes) == []
+
+    def test_stun_transactions(self, cmd_tshark, capture_file, test_env):
+        '''Requests and responses are matched by the transaction id: the
+        request names its response, the response its request, and a repeated
+        request or response points to the first one (second pass).'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {1, 2, 3, 4, 10, 26}',
+                ['frame.number', 'stun.response-in', 'stun.response-to'], '-2')
+        assert rows == ['1\t3\t', '2\t3\t', '3\t\t1', '4\t\t1', '10\t\t9', '26\t\t25']
+
+    def test_stun_addresses(self, cmd_tshark, capture_file, test_env):
+        '''XOR-ed addresses are shown in the clear, IPv4 and IPv6 (the IPv6
+        mask uses the transaction id); the Info column lists them.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {3, 6, 37}',
+                ['frame.number', 'stun.att.ipv4', 'stun.att.ipv6', 'stun.att.port'])
+        assert rows == [
+            '3\t192.0.2.10,192.0.2.10,192.0.2.20,198.51.100.7,198.51.100.7\t\t40000,40000,3478,3479,3478',
+            '6\t\t2001:db8::1,2001:db8::1,2001:db8::2\t40000,40000,3478',
+            '37\t203.0.113.50,203.0.113.51\t2001:db8::99,2001:db8::51\t7000,7001,7002,7003',
+        ]
+        info = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {10, 12, 14}', ['_ws.col.info'])
+        assert [i.split('error-code: ')[1].split(' ')[0] for i in info] == ['401', '420', '438']
+
+    def test_stun_fingerprint(self, cmd_tshark, capture_file, test_env):
+        '''The FINGERPRINT of frames 1 and 2 is correct (checksum status
+        Good).'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {1, 2}', ['frame.number', 'stun.att.crc32.status'])
+        assert rows == ['1\t1', '2\t1']
+
+    def test_stun_password_algorithms(self, cmd_tshark, capture_file, test_env):
+        '''PASSWORD-ALGORITHMS with parameters: each algorithm and its
+        parameter length (the length check was inverted before "STUN:
+        Bound nesting through DATA and ChannelData, fix password algs").'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number == 56', ['stun.att.pw_alg', 'stun.att.pw_alg_len'])
+        assert rows == ['1,2,1,1,2\t4,0,0,5,3']
+
+    def test_stun_framing_and_turn(self, cmd_tshark, capture_file, test_env):
+        '''RFC 4571 framing over TCP (frame 82), ChannelData (frame 86) and
+        the payloads of Send and Data indications handed to RTCP and TFTP
+        (frames 39-41, 45).'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {82, 86}',
+                ['frame.number', 'stun.tcp_frame_length', 'stun.channel'])
+        assert rows == ['82\t32\t', '86\t\t0x4000']
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {39, 41, 45}', ['frame.number', '_ws.col.protocol'])
+        assert rows == ['39\tRTCP', '41\tTFTP', '45\tRTCP']
+
+    def test_stun_connection_bind(self, cmd_tshark, capture_file, test_env):
+        '''After a ConnectionBind success response (RFC 6062) the TCP
+        connection carries unframed data: frames 94 and 95 are not STUN.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {92, 93, 94, 95} && stun', ['frame.number'])
+        assert rows == ['92', '93']
+
+    def test_stun_nesting(self, cmd_tshark, capture_file, test_env):
+        '''STUN in the DATA attribute of STUN is dissected only with the
+        "stun_turn" heuristic; the nesting is limited to four levels (the
+        frame nests eight Data indications; before "STUN: Bound nesting
+        through DATA and ChannelData, fix password algs" tshark hit the
+        dissector layer limit).'''
+        cap = capture_file(self.CAP)
+        assert self._fields(cmd_tshark, cap, test_env, 'frame.number == 44',
+                ['stun.nesting']) == ['']
+        rows = self._fields(cmd_tshark, cap, test_env,
+                'stun.nesting', ['frame.number', '_ws.expert.message'],
+                '--enable-heuristic', 'stun_turn', '-2')
+        assert len(rows) == 1 and rows[0].split('\t')[0] == '44'
+        assert self._fields(cmd_tshark, cap, test_env, '_ws.malformed',
+                ['frame.number'], '--enable-heuristic', 'stun_turn') == []
+
+    def test_stun_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''An Exported PDU frame names the STUN UDP dissector.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'exported_pdu', ['frame.number', 'exported_pdu.prot_name', 'stun.type'])
+        assert rows == ['111\tstun-udp\t0x0001']
+
+    def test_stun_no_attributes(self, cmd_text2pcap, cmd_tshark, result_file, base_env, test_env):
+        """A Binding request without attributes (as ICE sends them) is not
+        malformed: the MS-TURN magic cookie check needs a first attribute."""
+        testin_file = result_file('stun-no-attributes.txt')
+        testout_file = result_file('stun-no-attributes.pcap')
+        with open(testin_file, 'w') as f:
+            f.write('0000  00 01 00 00 21 12 a4 42 01 02 03 04 05 06 07 08\n'
+                    '0010  09 0a 0b 0c\n')
+        subprocess.check_call((cmd_text2pcap, '-u', '50000,3478', testin_file, testout_file), env=base_env)
+        stdout = subprocess.check_output((cmd_tshark, '-r', testout_file,
+                '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['STUN\tBinding Request\t']
