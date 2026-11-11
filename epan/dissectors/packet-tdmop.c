@@ -15,6 +15,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 /*Using of ethertype 0x0808(assigned to Frame Relay ARP) was implemented in hardware, when ethertype was not assigned*/
 #define ETHERTYPE_TDMOP       0
@@ -28,6 +29,8 @@ static dissector_handle_t tdmop_handle;
 
 static int proto_tdmop;
 static int ett_tdmop;
+
+static expert_field ei_tdmop_mask_empty;
 static int ett_tdmop_channel;
 
 static int hf_tdmop_TransferID;
@@ -149,6 +152,12 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 proto_tree_add_uint(currentblock, hf_tdmop_Compression_mask, tvb, offset, 4, mask);
                 offset+=4;
             }
+            if (mask == 0)
+            {
+                /* No channel in this block: offset would never advance */
+                expert_add_info(pinfo, currentblock, &ei_tdmop_mask_empty);
+                break;
+            }
             for (unsigned i=0; i<32; i++)
             {
                 if (mask & (1UL<<i))
@@ -189,6 +198,10 @@ static int dissect_tdmop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 void proto_register_tdmop(void)
 {
     module_t *tdmop_module;
+    expert_module_t *expert_tdmop;
+    static ei_register_info ei[] = {
+        { &ei_tdmop_mask_empty, { "tdmop.mask_empty", PI_MALFORMED, PI_ERROR, "Channel mask selects no timeslots", EXPFILL }},
+    };
     static hf_register_info hf[] =
     {
         {
@@ -304,6 +317,8 @@ void proto_register_tdmop(void)
     proto_tdmop = proto_register_protocol ("TDMoP protocol", "TDMoP", "tdmop");
     proto_register_field_array(proto_tdmop, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_tdmop = expert_register_protocol(proto_tdmop);
+    expert_register_field_array(expert_tdmop, ei, array_length(ei));
     tdmop_handle = register_dissector("tdmop", dissect_tdmop, proto_tdmop);
     tdmop_module = prefs_register_protocol(proto_tdmop, proto_reg_handoff_tdmop);
     prefs_register_uint_preference(tdmop_module, "d_channel",
