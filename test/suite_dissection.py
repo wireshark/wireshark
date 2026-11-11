@@ -117314,7 +117314,6 @@ class TestDissectPflog:
         '''Header lengths 45, 61, 100 and one in between; the packet
         behind the header starts at the padded length.'''
         stdout = subprocess.check_output((cmd_tshark,
-                '-o', 'pflog.id_endian:big',
                 '-r', capture_file(self.CAPTURE),
                 '-Y', 'frame.number in {1, 2, 3, 4, 5, 8}',
                 '-Tfields', '-eframe.number', '-epflog.length', '-epflog.af',
