@@ -149943,3 +149943,122 @@ class TestDissectTn3270:
             ), encoding='utf-8', env=test_env, timeout=120)
         for unknown in ('Unknown [50]', 'Unknown [0f99]', 'Unknown [1077]', 'Unknown [8170]'):
             assert 'Structured Field: ' + unknown in stdout
+
+
+class TestDissectTn5250:
+    '''TN5250 over Telnet, from the synthetic capture
+    tn5250_coverage.pcap.gz. TN5250 only decodes with a tree, hence the
+    display filters. Client port 50001 is a 3179-2 with every command,
+    order, structured field and AID, ports 50010 to 50019 negotiate the
+    other terminal types.'''
+
+    def test_tn5250_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes; only the three frames with unknown
+        command codes get a warning.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert protocols.count('TN5250') == 604
+        assert protocols.count('TELNET') == 53
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn5250_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'tn5250.command_code.bogus',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['54', '55', '56']
+
+    def test_tn5250_restore_screen_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Restore Screen commands nested up to 4 levels decode with the
+        command that follows them (frames 43-46: one to four Restore
+        Screens, then Clear Unit). More levels used to recurse once per
+        two octets until the tree depth limit made a dissector bug; the
+        fix stops with an expert info, see the malformed capture of the
+        generator.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'frame.number in {43..47}',
+                '-Tfields', '-eframe.number', '-etn5250.command_code',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '43\t0x12,0x40', '44\t0x12,0x12,0x40', '45\t0x12,0x12,0x12,0x40',
+            '46\t0x12,0x12,0x12,0x12,0x40', '47\t0x12,0x40,0x50',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'tn5250.restore_screen.nested',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout) == 0
+
+    def test_tn5250_offsets(self, cmd_tshark, capture_file, test_env):
+        '''The Pass-Through and True Transparency Write of frames 48 and
+        49 show their data (the remaining length was computed as
+        length - (start + offset)), and Erase to Address steps over its
+        row and column and reads the attribute count from the right
+        octet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'frame.number in {48, 49}',
+                '-Tfields', '-eframe.number', '-etn5250.field_data',
+                '-etn5250.wssf_ttw_data',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '48\tHELLO WORL\t',
+            '49\t\t0000c8c5d3d3d640e6d6d9d3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'tn5250.order_code == 0x03',
+                '-Tfields', '-etn5250.length', '-etn5250.attribute',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        assert len(rows) == 12
+        single = [(int(length), attributes) for length, attributes in rows
+                  if length.isdigit() and ',' not in attributes]
+        assert len(single) >= 5
+        for length, attributes in single:
+            assert len(attributes.split(',')) == length - 1 if attributes else length <= 1
+
+    def test_tn5250_header_and_inbound(self, cmd_tshark, capture_file, test_env):
+        '''The header error flag, an inbound error code and the negative
+        responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'tn5250.error_code',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.split() == ['27', '28', '98']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tn5250_coverage.pcap.gz'),
+                '-Y', 'tn5250.negative_response',
+                '-Tfields', '-eframe.number', '-etn5250.negative_response',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert [line.split('\t')[0] for line in stdout.splitlines()] == ['99', '100', '101', '102', '103']
+
+    def test_tn5250_records_over_segments(self, cmd_tshark, capture_file, test_env):
+        '''Records split over several TCP segments without any IAC are
+        reassembled by Telnet; only the last segment has the TN5250
+        layer, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn5250_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {579, 581, 582, 583, 585} && tn5250',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tn5250_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {580, 584, 586} && tn5250',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert stdout.split() == ['580', '584', '586']
