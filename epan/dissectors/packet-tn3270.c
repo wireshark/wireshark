@@ -2004,7 +2004,7 @@ dissect_outbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, int offset,
                              int sf_body_length)
 {
   int    start = offset;
-  int16_t hdr_length;
+  uint16_t hdr_length;
 
   static const hf_items outbound_text_header_fields1[] = {
     { &hf_tn3270_partition_id,                        NULL, 1, NULL, ENC_BIG_ENDIAN },
@@ -3406,7 +3406,7 @@ dissect_query_reply_distributed_data_management(proto_tree *tn3270_tree, tvbuff_
     switch (sdp) {
       case 0x02: /*DDM*/
         /*TODO: DDM */
-        offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, tvb_get_uint8(tvb,offset));
+        offset += dissect_unknown_data(tn3270_tree, tvb, offset, offset, tvb_get_uint8(tvb,offset));
         break;
       case 0x01: /*DAID*/
         offset += dissect_daid_sd_parm(tn3270_tree, tvb, offset);
@@ -3446,6 +3446,7 @@ dissect_query_reply_document_interchange_architecture(proto_tree *tn3270_tree, t
 
   ln = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tn3270_tree, hf_tn3270_dia_nfs, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
 
   for (i=0; i < ln; i++) {
     proto_tree_add_item(tn3270_tree, hf_tn3270_dia_diafs, tvb, offset, 1,
@@ -3453,7 +3454,7 @@ dissect_query_reply_document_interchange_architecture(proto_tree *tn3270_tree, t
     offset += 1;
     proto_tree_add_item(tn3270_tree, hf_tn3270_dia_diafn, tvb, offset, 2,
                         ENC_BIG_ENDIAN);
-    offset += 1;
+    offset += 2;
   }
 
   sdp = tvb_get_uint8(tvb, offset+1);
@@ -3613,7 +3614,7 @@ dissect_query_reply_ibm_aux_device(proto_tree *tn3270_tree, tvbuff_t *tvb, int o
     switch (sdp) {
       case 0x02: /*Printer Name*/
         /*TODO: Printer Name */
-        offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, tvb_get_uint8(tvb,offset));
+        offset += dissect_unknown_data(tn3270_tree, tvb, offset, offset, tvb_get_uint8(tvb,offset));
         break;
       case 0x01: /*DAID*/
         offset += dissect_daid_sd_parm(tn3270_tree, tvb, offset);
@@ -3951,12 +3952,14 @@ dissect_query_reply_rpq_names(proto_tree *tn3270_tree, tvbuff_t *tvb, int offset
                       ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item(tn3270_tree,
-                      hf_tn3270_rpq_name,
-                      tvb, offset,
-                      (rpql - 1),
-                      ENC_EBCDIC);
-  offset += (rpql-1);
+  if (rpql >= 1) {
+    proto_tree_add_item(tn3270_tree,
+                        hf_tn3270_rpq_name,
+                        tvb, offset,
+                        (rpql - 1),
+                        ENC_EBCDIC);
+    offset += (rpql-1);
+  }
 
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_body_length);
 
