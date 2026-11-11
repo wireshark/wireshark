@@ -143027,3 +143027,51 @@ class TestDissectSpp:
         assert stdout.splitlines() == ['14\t11\t', '15\t11\t', '16\t400\t',
                                        '17\t\t0x2b', '18\t\t0x2b',
                                        '19\t\t0x2b']
+
+
+class TestDissectSpray:
+    '''SPRAY (ONC RPC program 100012, found by the RPC over UDP heuristic)
+    from the synthetic capture spray_coverage.pcap.gz.'''
+
+    def test_spray_protocols(self, cmd_tshark, capture_file, test_env):
+        '''15 SPRAY frames and one UDP frame (a reply whose xid has no
+        call), no malformed packets or expert infos, in one and two
+        passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('spray_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 16
+            assert protocols.count('SPRAY') == 15
+            assert protocols.count('UDP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('spray_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_spray_procedures(self, cmd_tshark, capture_file, test_env):
+        '''Procedures, the spray data and the GET reply (counter,
+        seconds and microseconds of the clock).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('spray_coverage.pcap.gz'),
+                    '-Y', 'spray',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-espray.sprayarr', '-espray.counter', '-espray.sec', '-espray.usec',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            info = {l[0]: l[1:] for l in lines}
+            assert info['1'][0].startswith('V1 NULL Call')
+            assert info['3'][0].startswith('V1 SPRAY Call')
+            assert info['3'][1] == '<MISSING>'
+            assert info['5'][1] == '00'
+            assert len(info['7'][1]) == 14
+            assert len(info['9'][1]) == 2800
+            assert info['11'][0].startswith('V1 GET Call')
+            assert info['12'][0].startswith('V1 GET Reply')
+            assert info['12'][2:] == ['1000000', '1700000000', '123456']
+            assert info['13'][0].startswith('V1 CLEAR Call')
