@@ -143985,3 +143985,73 @@ class TestDissectSstp:
             ['27', '2', '1,4', '10,40', '0x0001', '0x01'],
             ['28', '1', '1', '6', '0x0001', ''],
         ]
+
+
+class TestDissectSsyncp:
+    '''SSyncP (mosh) on UDP port 60001 from the synthetic capture
+    ssyncp_coverage.pcap.gz. The payload is made-up filler: there is no
+    key, so only the framing and the sequence numbers are decoded.'''
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, fields, *extra):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('ssyncp_coverage.pcap.gz'),
+                '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return [l.split('\t') for l in stdout.splitlines()]
+
+    def test_ssyncp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames that are not SSyncP (too short, sequence number too high)
+        stay UDP; no malformed packets or error expert infos in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, ('_ws.col.protocol',), *passes)
+            assert [r[0] for r in rows] == (
+                ['ssyncp'] * 9 + ['UDP'] + ['ssyncp'] + ['UDP'] + ['ssyncp'] * 3 + ['ssyncp'] * 3 + ['UDP'])
+            rows = self.rows(cmd_tshark, capture_file, test_env, ('frame.number',),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000', *passes)
+            assert rows == []
+
+    def test_ssyncp_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''Direction, sequence number and the delta to the previous one of the
+        same direction (none for the first datagram of a direction), the same
+        in one and two passes.'''
+        expected = [
+            ['1', 'False', '0x0000000000000000', ''],
+            ['2', 'True', '0x0000000000000000', ''],
+            ['3', 'False', '0x0000000000000001', '1'],
+            ['4', 'True', '0x0000000000000001', '1'],
+            ['5', 'False', '0x0000000000000003', '2'],
+            ['6', 'False', '0x0000000000000002', '-1'],
+            ['7', 'False', '0x0000000000000002', '0'],
+            ['8', 'True', '0x0000000000000002', '1'],
+            ['9', 'False', '0x0000000000000009', '7'],
+            ['11', 'False', '0x0000000800000000', '34359738359'],
+            ['13', 'True', '0x0000000000000005', '3'],
+            ['14', 'False', '0x0000000000000000', ''],
+            ['15', 'True', '0x0000000000000000', ''],
+            ['16', 'False', '0x0000000000000014', ''],
+            ['17', 'False', '0x0000000000000015', '1'],
+            ['18', 'False', '0x0000000000000016', '1'],
+        ]
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env,
+                    ('frame.number', 'ssyncp.direction', 'ssyncp.seq', 'ssyncp.seq_delta'),
+                    '-Y', 'ssyncp && frame.number <= 18', *passes)
+            assert rows == expected
+
+    def test_ssyncp_truncated_datagrams(self, cmd_tshark, capture_file, test_env):
+        '''Datagrams captured with only 20 octets (reported 60) are shown
+        with their encrypted data, also with the key preference set; they
+        used to leak the cipher handle (fixed in "SSYNCP: Do not leak the
+        cipher handle on truncated frames", visible only with a leak
+        checker). With a key set, the decryption is skipped for them, so
+        no bad key expert info.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number', 'ssyncp.enc_data'), '-Y', 'frame.number in {16, 17, 18}')
+        assert [r[0] for r in rows] == ['16', '17', '18']
+        assert all(len(r[1]) == 24 for r in rows)
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                ('frame.number',), '-o', 'ssyncp.key:AAAAAAAAAAAAAAAAAAAAAA',
+                '-Y', 'ssyncp.badkey && frame.number >= 16')
+        assert rows == []
