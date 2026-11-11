@@ -148504,3 +148504,49 @@ class TestDissectTextMedia:
             ), encoding='utf-8', env=test_env, timeout=120)
         assert 'Line-based text data (4 lines)' in stdout
         assert 'Line-based text data (1 lines)' in stdout
+
+
+class TestDissectTfp:
+    def test_tfp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Tinkerforge messages over TCP port 4223 and over USB bulk
+        transfers of a Tinkerforge device (the heuristic needs the
+        device descriptor); bulk transfers of other devices stay USB. No
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tfp_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')
+        assert len(protocols) == 20
+        assert protocols.count('TFP over TCP') == 7
+        assert protocols.count('TFP over USB') == 3
+        assert protocols.count('USB') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tfp_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tfp_header(self, cmd_tshark, capture_file, test_env):
+        '''UID (base58 string and number), length, function ID and the
+        payload of every TFP message.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tfp_coverage.pcapng.gz'),
+                '-Y', 'tfp',
+                '-Tfields', '-eframe.number', '-etfp.uid', '-etfp.uid_numeric',
+                '-etfp.len', '-etfp.fid', '-etfp.payload', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t1\t0\t8\t1\t\tUID: 1, Len: 8, FID: 1, Seq: 1',
+            '2\tZ\t57\t12\t2\t01020304\tUID: Z, Len: 12, FID: 2, Seq: 2',
+            '3\t21\t58\t13\t3\tffffffffff\tUID: 21, Len: 13, FID: 3, Seq: 15',
+            '4\tsZmGh\t305419896\t9\t4\t00\tUID: sZmGh, Len: 9, FID: 4, Seq: 0',
+            '5\t7xwQ9g\t4294967295\t39\t255\t7061796c6f6164206f66206765745f636869705f74656d7065726174757265\tUID: 7xwQ9g, Len: 39, FID: 255, Seq: 7',
+            '6\t4111Zc\t1969073621\t16\t9\t0001020304050607\tUID: 4111Zc, Len: 16, FID: 9, Seq: 3',
+            '7\t7jZD\t1234567\t20\t10\t\tUID: 7jZD, Len: 20, FID: 10, Seq: 1',
+            '10\tZH2a\t11259375\t8\t1\t\tUID: ZH2a, Len: 8, FID: 1, Seq: 1',
+            '11\tZH2a\t11259375\t12\t1\t07000000\tUID: ZH2a, Len: 12, FID: 1, Seq: 1',
+            '12\tZH2a\t11259375\t17\t5\t313233343536373839\tUID: ZH2a, Len: 17, FID: 5, Seq: 2',
+        ]
