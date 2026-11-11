@@ -144055,3 +144055,84 @@ class TestDissectSsyncp:
                 ('frame.number',), '-o', 'ssyncp.key:AAAAAAAAAAAAAAAAAAAAAA',
                 '-Y', 'ssyncp.badkey && frame.number >= 16')
         assert rows == []
+
+
+class TestDissectStanag4607:
+    '''STANAG 4607 (GMTI format, packet-stanag4607.c) from the synthetic
+    file stanag4607_coverage.4607.gz, which the stanag4607 file reader opens
+    by its version field: mission, job definition, platform location and
+    dwell segments with every optional field and target reports, other
+    segment types and several segments per packet (79 packets).'''
+
+    CAP = 'stanag4607_coverage.4607.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_stanag4607_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 79 packets are dissected as STANAG 4607; none is malformed
+        or has an expert info, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            assert len(self._fields(cmd_tshark, cap, test_env, 's4607',
+                    ['frame.number'], *passes)) == 79
+            assert self._fields(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'], *passes) == []
+
+    def test_stanag4607_header_and_segments(self, cmd_tshark, capture_file, test_env):
+        '''Header fields of the first packets, the segment types of a packet
+        with several segments (frame 62) and the mission plan name.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {1, 5}',
+                ['frame.number', 's4607.version', 's4607.nationality', 's4607.sec.class',
+                 's4607.platform', 's4607.mission', 's4607.job', 's4607.exind',
+                 's4607.mission.plan', 's4607.mission.year'])
+        assert rows == [
+            '1\t30\tUS\t5\tPLATFORM01\t16909060\t168496141\t0\tPLAN-ALPHA  \t2026',
+            '5\t21\tUS\t1\tPLATFORM01\t16909060\t168496141\t1\t\t',
+        ]
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number == 62', ['s4607.seg.type'])
+        assert rows == ['1,5,13,2,2,13']
+
+    def test_stanag4607_dwell(self, cmd_tshark, capture_file, test_env):
+        '''Dwell segments: target report counts and report indexes (the five
+        reports of frame 61 carry the index field, frame 62 holds two
+        dwells with two and three reports).'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {17, 61, 62}',
+                ['frame.number', 's4607.dwell.count', 's4607.dwell.rpt.idx'])
+        assert rows == [
+            '17\t0\t',
+            '61\t5\t17220,17221,17222,17223,17224',
+            '62\t2,3\t17220,17221',
+        ]
+
+    def test_stanag4607_no_statement(self, cmd_tshark, capture_file, test_env):
+        '''A 16-bit "no statement" value of 0xffff is labelled, other
+        values are not (the test was always true before "STANAG4607: Stop
+        dwell target loop that consumes no bytes").'''
+        out = subprocess.check_output((cmd_tshark, '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {2, 4}', '-V', '-O', 's4607'),
+                encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in out.splitlines() if 'Cross Range Standard Deviation' in l]
+        assert len(lines) == 2
+        assert lines[0].endswith('degrees') and 'No Statement' not in lines[0]
+        assert lines[1].endswith('No Statement')
+
+    def test_stanag4607_dwell_count_loop(self, cmd_tshark, capture_file, test_env):
+        '''Dwell segments that announce 65535 target reports but carry no
+        target report field are dissected without looping 65535 times for
+        each segment (frame 77 holds 30 of them, frame 78 one with fields
+        of other kinds; before the fix a large packet of them took tens of
+        seconds).'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    'frame.number in {77, 78}', ['frame.number', 's4607.dwell.count'],
+                    *passes)
+            assert rows[0] == '77\t' + ','.join(['65535'] * 30)
+            assert rows[1] == '78\t65535'
