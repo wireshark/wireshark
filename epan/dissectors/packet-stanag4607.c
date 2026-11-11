@@ -487,7 +487,7 @@ prt_ba16_none(char *buff, uint32_t val)
 	double x = (double) val;
 	x /= (double) (1<<14);
 	x *= 90.0;
-	if (val <= 65536)
+	if (val == 0xffff)
 		snprintf(buff, ITEM_LABEL_LENGTH, "No Statement");
 	else
 		snprintf(buff, ITEM_LABEL_LENGTH, "%.3f degrees", x);
@@ -926,7 +926,12 @@ dissect_dwell(tvbuff_t *tvb, proto_tree *seg_tree, int offset)
 	}
 
 	while (count--) {
+		int prev_offset = offset;
 		offset = dissect_target(tvb, seg_tree, offset, mask);
+		if (offset == prev_offset) {
+			/* No target report fields present, nothing to consume */
+			break;
+		}
 	}
 
 	return offset;
