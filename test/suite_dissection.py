@@ -143252,3 +143252,132 @@ class TestDissectSrp:
                 assert info['12'][1] == '13' and info['14'][1] == '16' and info['15'][1] == '16'
             assert info['19'][2] == '0xc19070'
             assert info['20'][3] == '1'
+
+
+class TestDissectSrt:
+    '''SRT (Secure Reliable Transport) from the synthetic capture
+    srt_coverage.pcap.gz. SRT is found by the UDP heuristic: a version 5
+    (or version 4 datagram) handshake starts a conversation. The UDT
+    heuristic is registered first and claims conversations that start
+    with a version 4 handshake, so frames 1-4 are UDT.'''
+
+    def test_srt_frames(self, cmd_tshark, capture_file, test_env):
+        '''73 SRT frames, four UDT frames and three UDP frames; the only expert infos are
+        the handshake extension length warnings (frame 9) and the loss
+        and drop sequence notes (50-55 except 54); no malformed packets,
+        in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srt_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 80
+            assert protocols.count('SRT') == 73
+            assert protocols.count('UDT') == 4
+            assert protocols.count('UDP') == 3
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srt_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['9', '51', '52', '53', '54', '56']
+
+    def test_srt_handshake(self, cmd_tshark, capture_file, test_env):
+        '''Handshake versions, request types, rejection codes, peer
+        addresses and the extension blocks (SID, congestion control,
+        filter, group, HSREQ latencies, key material).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srt_coverage.pcap.gz'),
+                '-Y', 'srt.hs.version',
+                '-Tfields', '-eframe.number', '-esrt.hs.version', '-esrt.hs.reqtype',
+                '-esrt.hs.failtype', '-esrt.hs.peerip', '-esrt.hs.blocktype',
+                '-esrt.hs.sid', '-esrt.hs.congestctrl', '-esrt.hs.filter',
+                '-esrt.hs.peer_latency', '-esrt.hs.agent_latency', '-esrt.km.slen',
+                '-esrt.km.kk', '-esrt.hs_ext_group.id',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['5'][:4] == ['5', '1', '', '192.0.2.10']
+        assert info['6'][0] == '4'
+        assert info['7'][0] == '5,0x00010501'
+        assert info['7'][4:8] == ['0x0001,0x0003,0x0005,0x0006,0x0007,0x0008',
+                                  '#!::u=synthetic,r=stream1', 'live', 'fec,cols:10,rows:5']
+        assert info['7'][8:] == ['120', '130', '4', '3', '4660']
+        assert info['11'][1:4] == ['0', '', '2001:db8::1']
+        assert info['12'][3] == '2001:db8:1:2::9'
+        assert info['13'][1:4] == ['-2', '', '10.0.0.1']
+        assert info['14'][3] == '0.0.0.0'
+        assert info['15'][2] == '1000'
+        assert info['38'][2] == '6000'
+        assert info['40'][3] == '192.0.2.10'
+
+    def test_srt_control(self, cmd_tshark, capture_file, test_env):
+        '''ACK variants (full, with rate, light, short), loss report
+        ranges and drop request ranges, and the extended control types.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 42 && frame.number <= 66',
+                '-Tfields', '-eframe.number', '-e_ws.col.info', '-esrt.ackno',
+                '-esrt.ack_seqno', '-esrt.rtt', '-esrt.rate', '-esrt.bw', '-esrt.rcvrate',
+                '-esrt.nak_seqno',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['43'][0] == 'Control: ACK 15 seqno: 777 socket: 8194'
+        assert info['43'][2:] == ['777', '40000', '1000', '1000000', '500', '']
+        assert info['44'][4:7] == ['1000', '1000000', '']
+        assert info['45'][3:5] == ['40000', '']
+        assert info['46'][3] == ''
+        assert info['47'][0] == 'Control: ACKACK 15 socket: 4097'
+        assert [info[str(n)][0] for n in (42, 48, 49, 50)] == [
+            'Control: KEEPALIVE socket: 8194', 'Control: CGWARNING socket: 8194',
+            'Control: PEERERROR socket: 8194', 'Control: SHUTDOWN socket: 8194']
+        assert [info[str(n)][0] for n in (58, 59, 60, 61, 62, 64, 65, 66)] == [
+            'Control/ext: HSREQ socket: 8194', 'Control/ext: HSRSP socket: 4097',
+            'Control/ext: KMREQ socket: 8194', 'Control/ext: KMRSP socket: 4097',
+            'Control/ext: KMRSP socket: 4097', 'Control/ext: Unknown EXT Control Type (77) socket: 8194',
+            'Control/ext: SID socket: 8194', 'Control: Unknown Control Type (12) socket: 8194']
+
+    def test_srt_loss_report(self, cmd_tshark, capture_file, test_env):
+        '''Loss reports: single numbers, ranges, and a range that begins
+        but does not end; drop request range.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 51 && frame.number <= 57',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        info = dict((l.split('\t') + [''])[:2] for l in stdout.splitlines())
+        assert info['51'] == 'Loss sequence: 100'
+        assert info['52'] == 'Loss sequence range: 200-210'
+        assert info['53'] == ('Loss sequence: 5,Loss sequence range: 20-30,Loss sequence: 40,'
+                              'Loss sequence range: 50-60')
+        assert info['54'] == 'Loss sequence: 7,ERROR: loss sequence range begin only: 9 (80000009)'
+        assert info['55'] == ''
+        assert info['56'] == 'Drop sequence range: 1000-1010'
+
+    def test_srt_data(self, cmd_tshark, capture_file, test_env):
+        '''Data packets: packet boundary, encryption key flag,
+        retransmission flag and message number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srt_coverage.pcap.gz'),
+                '-Y', 'srt.seqno',
+                '-Tfields', '-eframe.number', '-esrt.seqno', '-esrt.pb', '-esrt.msg.order',
+                '-esrt.msg.enc', '-esrt.msg.rexmit', '-esrt.msgno',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['67'] == ['1000', '0', '0', '0', 'False', '1']
+        assert info['68'] == ['1001', '1', '0', '0', 'False', '2']
+        assert info['69'][1] == '2'
+        assert info['70'] == ['1003', '3', '0', '0', 'False', '4']
+        assert info['71'][1:4] == ['3', '1', '0']
+        assert info['72'][3] == '1'
+        assert info['73'][3] == '2'
+        assert info['74'][4] == 'True'
+        assert info['75'][3:5] == ['3', 'True']
+        assert info['76'] == ['1009', '0', '0', '1', 'True', '67108863']
+        assert info['41'] == ['1', '3', '0', '0', 'False', '1']
