@@ -61,6 +61,7 @@ void proto_reg_handoff_thread_bl(void);
 
 static int proto_thread_address;
 static int proto_thread_dg;
+#define THREAD_MC_MAX_NESTING 8
 static int proto_thread_mc;
 static int proto_thread_nwd;
 static int proto_thread_coap;
@@ -455,6 +456,7 @@ static expert_field ei_thread_address_len_size_mismatch;
 static expert_field ei_thread_mc_tlv_length_failed;
 static expert_field ei_thread_mc_len_size_mismatch;
 static expert_field ei_thread_mc_len_too_long;
+static expert_field ei_thread_mc_nested;
 /* static expert_field ei_thread_nwd_tlv_length_failed; */
 static expert_field ei_thread_nwd_len_size_mismatch;
 static expert_field ei_thread_nm_len_size_mismatch;
@@ -1478,7 +1480,6 @@ dissect_thread_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
                         offset += 16;
                     }
                 }
-                offset += tlv_len;
                 break;
             default:
                 proto_tree_add_item(tlv_tree, hf_thread_address_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
@@ -1927,14 +1928,12 @@ dissect_thread_bl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     offset += tlv_len;
                 }
                 else {
-                    proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_ipv6_addr, tvb, offset, tlv_len, ENC_NA);
-                     for(int i = 0; i < (tlv_len/16) ; i ++)
+                    for(int i = 0; i < (tlv_len/16) ; i ++)
                     {
                         proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_ipv6_addr, tvb, offset, 16, ENC_NA);
                         offset += 16;
                     }
                 }
-                offset += tlv_len;
                 break;
 
             default:
@@ -2541,14 +2540,24 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 {
                     tvbuff_t *sub_tvb;
                     uint16_t src_port, dst_port;
+                    unsigned depth;
+
+                    if (tlv_len < 4) {
+                        expert_add_info(pinfo, proto_root, &ei_thread_mc_len_size_mismatch);
+                        proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_unknown, tvb, offset, tlv_len, ENC_NA);
+                        offset += tlv_len;
+                        break;
+                    }
 
                     proto_tree_add_item_ret_uint16(tlv_tree, hf_thread_mc_tlv_udp_encap_src_port, tvb, offset, 2, ENC_BIG_ENDIAN, &src_port);
                     offset += 2;
                     proto_tree_add_item_ret_uint16(tlv_tree, hf_thread_mc_tlv_udp_encap_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN, &dst_port);
                     offset += 2;
 
-                    if (tlv_len >= 4)
-                    {
+                    depth = p_get_proto_depth(pinfo, proto_thread_mc);
+                    if (depth >= THREAD_MC_MAX_NESTING) {
+                        expert_add_info(pinfo, proto_root, &ei_thread_mc_nested);
+                    } else {
                         /* Allocate a buffer for the fake UDP datagram and create the fake header. */
                         udp_hdr_t* udp_hdr = (udp_hdr_t *)wmem_alloc(pinfo->pool, sizeof(udp_hdr_t) + (tlv_len - 4));
 
@@ -2560,8 +2569,10 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                         /* Copy UDP payload in */
                         tvb_memcpy(tvb, udp_hdr + 1, offset, tlv_len - 4);
                         /* Create child tvb */
-                        sub_tvb = tvb_new_child_real_data(tvb, (uint8_t *)udp_hdr, tlv_len + 4, tvb_reported_length(tvb) + 4);
+                        sub_tvb = tvb_new_child_real_data(tvb, (uint8_t *)udp_hdr, tlv_len + 4, tlv_len + 4);
+                        p_set_proto_depth(pinfo, proto_thread_mc, depth + 1);
                         call_dissector(thread_udp_handle, sub_tvb, pinfo, tree);
+                        p_set_proto_depth(pinfo, proto_thread_mc, depth);
                     }
                     offset += (tlv_len-4);
                 }
@@ -2678,13 +2689,14 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     int i;
 
                     if ((chancount != THREAD_MC_INVALID_CHAN_COUNT) && (chancount != 0) && ((tlv_len % chancount) == 0)) {
+                        unsigned el_offset = offset;
                         /* Go through the number of el_counts of scan */
                         for (i = 0; i < (int)(tlv_len / (uint16_t)chancount); i++) {
-                            pi = proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_el_count, tvb, offset, 1, ENC_NA);
+                            pi = proto_tree_add_item(tlv_tree, hf_thread_mc_tlv_el_count, tvb, el_offset, 1, ENC_NA);
                             proto_item_append_text(pi, " %d", i + 1);
                             it_tree = proto_item_add_subtree(pi, ett_thread_mc_el_count);
-                            proto_tree_add_item(it_tree, hf_thread_mc_tlv_energy_list, tvb, offset, chancount, ENC_NA);
-                            offset += chancount;
+                            proto_tree_add_item(it_tree, hf_thread_mc_tlv_energy_list, tvb, el_offset, chancount, ENC_NA);
+                            el_offset += chancount;
                         }
                     } else {
                         /* This might not work but try and display as string */
@@ -2710,6 +2722,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             case THREAD_MC_TLV_DOMAIN_PREFIX:
                 //To be defined in future in draft
+                offset += tlv_len;
                 break;
 
             case THREAD_MC_TLV_AE_STEERING_DATA:
@@ -2739,6 +2752,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             case THREAD_MC_TLV_COMMISSIONER_TOKEN:
+                offset += tlv_len;
                 break;
 
             case THREAD_MC_TLV_COMMISSIONER_SIGNATURE:
@@ -2773,6 +2787,7 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             case THREAD_MC_TLV_TRI_HOSTNAME:
+                offset += tlv_len;
                 break;
 
             case THREAD_MC_TLV_REGISTRAR_IPV6_ADDRESS:
@@ -2794,9 +2809,11 @@ dissect_thread_mc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 break;
 
             case THREAD_MC_TLV_COMMISSIONER_PEN_SIGNATURE:
+                offset += tlv_len;
                 break;
 
             case THREAD_MC_TLV_COMMISSIONER_PEN_TOKEN:
+                offset += tlv_len;
                 break;
 
             case THREAD_MC_TLV_DISCOVERY_REQUEST:
@@ -4539,7 +4556,8 @@ proto_register_thread_mc(void)
     static ei_register_info ei[] = {
         { &ei_thread_mc_tlv_length_failed, { "thread_meshcop.tlv_length_failed", PI_UNDECODED, PI_WARN, "TLV Length inconsistent", EXPFILL }},
         { &ei_thread_mc_len_size_mismatch, { "thread_meshcop.len_size_mismatch", PI_UNDECODED, PI_WARN, "TLV Length & Size field disagree", EXPFILL }},
-        { &ei_thread_mc_len_too_long, { "thread_meshcop.len_too_long", PI_UNDECODED, PI_WARN, "TLV Length too long", EXPFILL }}
+        { &ei_thread_mc_len_too_long, { "thread_meshcop.len_too_long", PI_UNDECODED, PI_WARN, "TLV Length too long", EXPFILL }},
+        { &ei_thread_mc_nested, { "thread_meshcop.nested", PI_UNDECODED, PI_WARN, "Too many nested UDP Encapsulation TLVs", EXPFILL }}
     };
 
     expert_module_t* expert_thread_mc;
