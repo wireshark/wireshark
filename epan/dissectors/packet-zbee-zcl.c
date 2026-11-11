@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 
@@ -155,6 +156,10 @@ static int ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
 
 static expert_field ei_cfg_rpt_rsp_short_non_success;
 static expert_field ei_zbee_zero_length_element;
+static expert_field ei_zbee_zcl_too_deep;
+
+/* Maximum nesting of ARRAY/SET/BAG attribute values */
+#define ZBEE_ZCL_MAX_NESTING 16
 
 /* Dissector List. */
 static dissector_table_t    zbee_zcl_dissector_table;
@@ -1511,11 +1516,11 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
                         &hf_zbee_zcl_attr_data_type);
 
                 /* Dissect minimum reporting interval */
-                proto_tree_add_item(tree, hf_zbee_zcl_attr_minint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_minint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
                 (*offset) += 2;
 
                 /* Dissect maximum reporting interval */
-                proto_tree_add_item(tree, hf_zbee_zcl_attr_maxint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_maxint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
                 (*offset) += 2;
 
                 if ( IS_ANALOG_SUBTYPE(data_type) ) {
@@ -1526,7 +1531,7 @@ static void dissect_zcl_read_report_config_resp(tvbuff_t *tvb, packet_info *pinf
             }
             else if ( attr_dir == ZBEE_ZCL_DIR_RECEIVED ) {
                     /* Dissect timeout period */
-                    proto_tree_add_item(tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
                     (*offset) += 2;
             }
         }
@@ -1573,11 +1578,11 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo, proto_t
             data_type = dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_attr_data_type);
 
             /* Dissect minimum reporting interval */
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_minint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_minint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             (*offset) += 2;
 
             /* Dissect maximum reporting interval */
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_maxint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_maxint, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             (*offset) += 2;
 
             if ( IS_ANALOG_SUBTYPE(data_type) ) {
@@ -1590,7 +1595,7 @@ static void dissect_zcl_config_report(tvbuff_t *tvb, packet_info *pinfo, proto_t
             dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code, direction == ZBEE_ZCL_FCF_TO_SERVER);
 
             /* Dissect timeout period */
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_attr_timeout, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             (*offset) += 2;
         }
     }
@@ -1812,12 +1817,12 @@ static void dissect_zcl_write_attr_struct(tvbuff_t* tvb, packet_info* pinfo, pro
         attr_id = tvb_get_letohs(tvb, *offset);
         dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code, client_attr);
         if(sub_tree_1){
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_indicator, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_indicator, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
             indicator = tvb_get_uint8(tvb, *offset);
             (* offset) += 1;
             j=0;
             while (j < indicator) {
-                proto_tree_add_item(sub_tree, hf_zbee_zcl_index, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_zbee_zcl_index, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
                 j++;
                 (* offset) += 2;
             }
@@ -1848,12 +1853,12 @@ static void dissect_zcl_write_attr_struct_resp(tvbuff_t* tvb, packet_info* pinfo
             /* Dissect the failed attribute identifier */
             dissect_zcl_attr_id(tvb, sub_tree, offset, cluster_id, mfr_code, client_attr);
             if (sub_tree_1) {
-                proto_tree_add_item(sub_tree, hf_zbee_zcl_indicator, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_zbee_zcl_indicator, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
                 indicator = tvb_get_uint8(tvb, *offset);
                 *offset += 1;
                 j = 0;
                 while (j < indicator) {
-                    proto_tree_add_item(sub_tree, hf_zbee_zcl_index, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(sub_tree, hf_zbee_zcl_index, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
                     //index = tvb_get_letohs(tvb, offset);
                     /*index = dissect_zcl_array_type();*/
                     j++;
@@ -1884,8 +1889,8 @@ static void dissect_zcl_discover_cmd_rec_resp(tvbuff_t *tvb, packet_info *pinfo 
 
     tvb_len = tvb_captured_length(tvb);
     if ( *offset < tvb_len ) {
-        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, *offset - tvb_len, ett_zbee_zcl_attr[i], NULL, "Command Identifiers");
-        while ( *offset < tvb_len && i < (tvb_len-1) ) {
+        sub_tree = proto_tree_add_subtree(tree, tvb, *offset, tvb_len - *offset, ett_zbee_zcl_attr[i], NULL, "Command Identifiers");
+        while ( *offset < tvb_len ) {
             /* Dissect the command identifiers */
             dissect_zcl_attr_uint8(tvb, sub_tree, offset, &hf_zbee_zcl_cs_cmd_id);
             i++;
@@ -2030,7 +2035,6 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, 
     proto_item *attr_utc_item = NULL;
 
     /* Dissect attribute data type and data */
-    // We can recurse here, but we should run out of packet before we run out of stack.
     switch ( data_type ) {
         case ZBEE_ZCL_NO_DATA:
             break;
@@ -2451,8 +2455,15 @@ dissect_zcl_array_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsi
 
     unsigned tvb_len;
     unsigned i = 1;   /* First element has a 1-index value */
+    unsigned depth = p_get_proto_depth(pinfo, proto_zbee_zcl);
 
     tvb_len = tvb_captured_length(tvb);
+    if (depth >= ZBEE_ZCL_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_zbee_zcl_too_deep, tvb, *offset);
+        *offset = tvb_len;
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_zbee_zcl, depth + 1);
     while ( (*offset < tvb_len) && (elements_num != 0) ) {
 
         /* Have "common" use case give individual tree control to all elements,
@@ -2473,6 +2484,7 @@ dissect_zcl_array_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsi
         elements_num--;
         i++;
     }
+    p_set_proto_depth(pinfo, proto_zbee_zcl, depth);
 } /* dissect_zcl_array_type */
 
 /**
@@ -2493,8 +2505,15 @@ dissect_zcl_set_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsign
 
     unsigned tvb_len;
     unsigned i = 1;   /* First element has a 1-index value */
+    unsigned depth = p_get_proto_depth(pinfo, proto_zbee_zcl);
 
     tvb_len = tvb_captured_length(tvb);
+    if (depth >= ZBEE_ZCL_MAX_NESTING) {
+        proto_tree_add_expert_remaining(tree, pinfo, &ei_zbee_zcl_too_deep, tvb, *offset);
+        *offset = tvb_len;
+        return;
+    }
+    p_set_proto_depth(pinfo, proto_zbee_zcl, depth + 1);
     while ( (*offset < tvb_len) && (elements_num != 0) ) {
         /* Piggyback on array ett_ variables */
         /* Have "common" use case give individual tree control to all elements,
@@ -2515,6 +2534,7 @@ dissect_zcl_set_type(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, unsign
         elements_num--;
         i++;
     }
+    p_set_proto_depth(pinfo, proto_zbee_zcl, depth);
 } /* dissect_zcl_set_type */
 
 /**
@@ -2885,6 +2905,9 @@ void proto_register_zbee_zcl(void)
         { &ei_zbee_zero_length_element,
           { "zbee_zcl.zero_length_element", PI_PROTOCOL, PI_ERROR,
             "Element has zero length", EXPFILL }},
+        { &ei_zbee_zcl_too_deep,
+          { "zbee_zcl.too_deep", PI_PROTOCOL, PI_ERROR,
+            "Array, set or bag nested too deeply", EXPFILL }},
     };
 
     expert_module_t *expert_zbee_zcl;
