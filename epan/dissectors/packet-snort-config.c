@@ -466,7 +466,7 @@ char *expand_reference(SnortConfig_t *snort_config, char *reference)
 
         /* Append prefix and remainder, and return!!!! */
         if (prefix_replacement) {
-            snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+1);
+            snprintf(expanded_reference, 512, "%s%s", prefix_replacement, reference+length+(reference[length] == ',' ? 1 : 0));
             return expanded_reference;
         }
         else {
@@ -657,7 +657,15 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
             }
         }
 
-        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
+        {
+            /* The value was truncated to STR_BUF_SIZE-1 bytes; do not
+               index past what was copied. */
+            size_t end_idx = (size_t)(options_end_offset-colon_offset-spaces_after_colon-2);
+            if (end_idx >= value_length) {
+                end_idx = value_length - 1;
+            }
+            value[end_idx] = '\0';
+        }
         rule_add_content(rule, value+value_start+1, value_start == 1);
     }
     else if (strcmp(name, "uricontent") == 0) {
@@ -675,7 +683,15 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
             }
         }
 
-        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
+        {
+            /* The value was truncated to STR_BUF_SIZE-1 bytes; do not
+               index past what was copied. */
+            size_t end_idx = (size_t)(options_end_offset-colon_offset-spaces_after_colon-2);
+            if (end_idx >= value_length) {
+                end_idx = value_length - 1;
+            }
+            value[end_idx] = '\0';
+        }
         rule_add_uricontent(rule, value+value_start+1, value_start == 1);
     }
     else if (strcmp(name, "http_uri") == 0) {
@@ -691,7 +707,15 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
 
         /* Not expecting negation (!)... */
 
-        value[options_end_offset-colon_offset-spaces_after_colon-2] = '\0';
+        {
+            /* The value was truncated to STR_BUF_SIZE-1 bytes; do not
+               index past what was copied. */
+            size_t end_idx = (size_t)(options_end_offset-colon_offset-spaces_after_colon-2);
+            if (end_idx >= value_length) {
+                end_idx = value_length - 1;
+            }
+            value[end_idx] = '\0';
+        }
         rule_add_pcre(rule, value+value_start+1);
     }
     else if (strcmp(name, "nocase") == 0) {
@@ -759,6 +783,8 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
 }
 
 /* Parse a Snort alert, return true if successful */
+static gboolean delete_rule(void *key, void *value, void *user_data);
+
 static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *filename, int line_number, int line_length)
 {
     const char* options_start;
@@ -793,6 +819,7 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
         ws_debug("start of options not found");
         g_free(rule->rule_string);
         g_free(rule->file);
+        g_free(rule->protocol);
         g_free(rule);
         return false;
     }
@@ -802,6 +829,7 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
     if (line[line_length-1] != ')') {
         g_free(rule->rule_string);
         g_free(rule->file);
+        g_free(rule->protocol);
         g_free(rule);
         return false;
     }
@@ -847,7 +875,11 @@ static bool parse_rule(SnortConfig_t *snort_config, char *line, const char *file
         }
     }
 
-    /* Add rule to map of rules. */
+    /* Add rule to map of rules, replacing (and freeing) a rule with the same SID. */
+    Rule_t *old_rule = (Rule_t*)g_hash_table_lookup(snort_config->rules, GUINT_TO_POINTER((unsigned)rule->sid));
+    if (old_rule) {
+        delete_rule(NULL, old_rule, NULL);
+    }
     g_hash_table_insert(snort_config->rules, GUINT_TO_POINTER((unsigned)rule->sid), rule);
     ws_debug("Snort rule with SID=%u added to table", rule->sid);
 

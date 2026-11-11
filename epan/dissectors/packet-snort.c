@@ -208,7 +208,7 @@ static void add_alert_to_session_tree(unsigned frame_number, Alert_t *alert)
     Alerts_t *alerts = (Alerts_t*)wmem_tree_lookup32(current_session.alerts_tree, frame_number);
     if (alerts == NULL) {
         /* Create a new entry for the table */
-        alerts = g_new(Alerts_t, 1);
+        alerts = wmem_new(wmem_file_scope(), Alerts_t);
         /* Deep copy of alert */
         alerts->alerts[0] = *alert;
         alerts->num_alerts = 1;
@@ -236,8 +236,8 @@ static void fill_alert_config(SnortConfig_t *snort_config, Alert_t *alert)
 
     /* Classtype usually filled in from alert rather than rule, but missing for supsported
        comment format. */
-    if (pref_snort_alerts_source == FromUserComments) {
-        alert->classification = g_strdup(alert->matched_rule->classtype);
+    if (pref_snort_alerts_source == FromUserComments && alert->matched_rule) {
+        alert->classification = wmem_strdup(wmem_file_scope(), alert->matched_rule->classtype);
     }
 
     /* Inform the config/rule about the alert */
@@ -479,7 +479,7 @@ static bool snort_parse_fast_line(const char *line, Alert_t *alert)
     }
 
     /* msg */
-    alert->msg = g_strndup(tmp_msg, line - tmp_msg);
+    alert->msg = wmem_strndup(wmem_file_scope(), tmp_msg, line - tmp_msg);
     line += (sizeof(stars)-1);
 
     /* [Classification: Attempted Administrator Privilege Gain] [Priority: 10] */
@@ -494,7 +494,7 @@ static bool snort_parse_fast_line(const char *line, Alert_t *alert)
         }
 
         /* assume "] [Priority: " is not inside classification text :) */
-        alert->classification = g_strndup(line, tmp - line);
+        alert->classification = wmem_strndup(wmem_file_scope(), line, tmp - line);
 
         line = tmp+2;
     } else
@@ -538,7 +538,7 @@ static bool snort_parse_user_comment(const char *line, Alert_t *alert)
     }
 
     /* Copy to be consistent with other use of Alert_t */
-    alert->msg = g_strdup(line);
+    alert->msg = wmem_strdup(wmem_file_scope(), line);
 
     /* No need to set other fields as assume zero'd out before this call.. */
     return true;
@@ -602,7 +602,7 @@ static gboolean snort_fast_output(GIOChannel *source, GIOCondition condition, vo
 #endif
 
                 /* Copy the raw alert string itself */
-                alert.raw_alert = g_strdup(buf);
+                alert.raw_alert = wmem_strdup(wmem_file_scope(), buf);
 
                 /* See if we can get more info from the parsed config details */
                 fill_alert_config(g_snort_config, &alert);
@@ -765,7 +765,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
     /* Show the 'raw' alert string. */
     if (rule) {
         /* Fix up alert->raw_alert if not already done so first. */
-        if (!alert->raw_alert_ts_fixed) {
+        if (!alert->raw_alert_ts_fixed && pref_snort_alerts_source == FromRunningSnort) {
             /* Write 6 figures to position after decimal place in timestamp. Must have managed to
                parse out fields already, so will definitely be long enough for memcpy() to succeed. */
             char digits[8];
@@ -780,7 +780,9 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
              * including the terminating '\0')
              */
             bytes_written = format_fractional_part_nsecs(digits, sizeof(digits), (uint32_t)(pinfo->abs_ts.nsecs), ".", WS_TSPREC_USEC);
-            memcpy(alert->raw_alert+17, digits, bytes_written);
+            if (bytes_written > 0 && strlen(alert->raw_alert) >= 17 + (size_t)bytes_written) {
+                memcpy(alert->raw_alert+17, digits, bytes_written);
+            }
             alert->raw_alert_ts_fixed = true;
         }
         ti = proto_tree_add_string(snort_tree, hf_snort_raw_alert, tvb, 0, 0, alert->raw_alert);
@@ -1108,7 +1110,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 memset(&alert, 0, sizeof(alert));
                 if (snort_parse_user_comment(alert_string, &alert)) {
                     /* Copy the raw alert itself */
-                    alert.raw_alert = g_strdup(alert_string);
+                    alert.raw_alert = wmem_strdup(wmem_file_scope(), alert_string);
 
                     /* See if we can get more info from the parsed config details */
                     fill_alert_config(g_snort_config, &alert);
