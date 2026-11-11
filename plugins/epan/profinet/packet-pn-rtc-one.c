@@ -558,9 +558,9 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, unsigned offset,
             }
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+        station_info = pn_find_station_info(conversation, current_aruuid);
         if (station_info == NULL) {
-            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_fake_aruuid);
+            station_info = pn_find_station_info(conversation, current_fake_aruuid);
         }
 
         if (station_info != NULL) {

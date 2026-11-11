@@ -27,6 +27,7 @@
 extern int       proto_pn_dcp;
 extern int proto_pn_io_apdu_status;
 extern int proto_pn_io_time_aware_status;
+extern int proto_pn_io_station_info;
 
 extern bool pnio_ps_selection;  /* given by pnio preferences */
 
@@ -568,6 +569,33 @@ extern ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo);
  * @param conversation Pointer to the conversation_t structure containing DCP station info.
  */
 extern void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation);
+
+/**
+ * @brief Looks up the stationInfo associated with an AR UUID on a conversation.
+ *
+ * The AR UUID is carried in the packet and is therefore attacker controlled, so
+ * it must not be used directly as a conversation proto_data key (that keyspace
+ * belongs to registered protocol ids; sharing it would let unrelated dissectors
+ * retrieve this stationInfo as their own type, and vice versa). The per-AR
+ * stationInfo is instead kept in a per-conversation map keyed by AR UUID.
+ *
+ * @param conversation Pointer to the conversation_t structure.
+ * @param aruuid The first 32 bits (data1) of the AR UUID identifying the station.
+ * @return stationInfo* Pointer to the stored stationInfo, or NULL if none.
+ */
+extern stationInfo* pn_find_station_info(conversation_t* conversation, uint32_t aruuid);
+
+/**
+ * @brief Stores the stationInfo for an AR UUID on a conversation.
+ *
+ * See pn_find_station_info() for why the AR UUID is not used as a conversation
+ * proto_data key directly.
+ *
+ * @param conversation Pointer to the conversation_t structure.
+ * @param aruuid The first 32 bits (data1) of the AR UUID identifying the station.
+ * @param station_info Pointer to the stationInfo structure to store.
+ */
+extern void pn_add_station_info(conversation_t* conversation, uint32_t aruuid, stationInfo* station_info);
 
 /**
  * @brief Heuristic dissector for CSF SDU packets.
