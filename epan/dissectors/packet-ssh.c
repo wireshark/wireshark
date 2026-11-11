@@ -2362,7 +2362,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree_add_item(tree, hf_ssh_protocol,
                     tvb, offset, protolen, ENC_ASCII);
-    offset += next_offset;
+    offset = next_offset;
     return offset;
 }
 
@@ -2392,7 +2392,7 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
     }
 
     size_str = g_strrstr(mac_name, "-");
-    if (size_str && ws_strtou32(size_str + 1, NULL, &size) && size > 0 && size % 8 == 0) {
+    if (size_str && ws_strtou32(size_str + 1, NULL, &size) && size > 0 && size % 8 == 0 && size / 8 <= DIGEST_MAX_SIZE) {
         peer_data->mac_length = size / 8;
     }
     else if (strcmp(mac_name, "hmac-sha1") == 0) {
@@ -2959,7 +2959,7 @@ ssh_read_e_pq(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
     // Sanity check
     if (length == 0 || length > 65535) {
         ws_debug("ssh_read_e_pq: Invalid PQ key length: %u", length);
-        return false;
+        return -1;
     }
 
     // Free any existing data (if dissecting multiple sessions)
@@ -2984,7 +2984,7 @@ ssh_read_f_pq(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
     // Sanity check
     if (length == 0 || length > 65535) {
         ws_debug("ssh_read_f_pq: Invalid PQ key length: %u", length);
-        return false;
+        return -1;
     }
 
     // Free any existing data
@@ -3190,8 +3190,10 @@ ssh_keylog_hash_write_secret(struct ssh_flow_data *global_data, wmem_allocator_t
 static ssh_bignum *
 ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignum *modulo)
 {
-    DISSECTOR_ASSERT(pub != NULL);
-    DISSECTOR_ASSERT(priv != NULL);
+    if (pub == NULL || priv == NULL) {
+        ws_debug("missing public or private key");
+        return NULL;
+    }
 
     ssh_bignum *secret = ssh_kex_make_bignum(NULL, pub->length);
     if (!secret) {
@@ -3211,6 +3213,14 @@ ssh_kex_shared_secret(int kex_type, ssh_bignum *pub, ssh_bignum *priv, ssh_bignu
         d = gcry_mpi_new(pub->length*8);
         gcry_mpi_scan(&e, GCRYMPI_FMT_USG, priv->data, priv->length, NULL);
         gcry_mpi_scan(&m, GCRYMPI_FMT_USG, modulo->data, modulo->length, NULL);
+        if (m == NULL || gcry_mpi_cmp_ui(m, 1) <= 0) {
+            ws_debug("invalid group modulo");
+            gcry_mpi_release(d);
+            gcry_mpi_release(b);
+            gcry_mpi_release(e);
+            gcry_mpi_release(m);
+            return NULL;
+        }
         gcry_mpi_powm(d, b, e, m);                 // gcry_mpi_powm(d, b, e, m)    => d = b^e % m
         gcry_mpi_print(GCRYMPI_FMT_USG, secret->data, secret->length, &result_len, d);
         secret->length = (unsigned)result_len;        // Should not be larger than what fits in a 32-bit unsigned integer...
@@ -3450,7 +3460,9 @@ static void ssh_derive_symmetric_keys(ssh_bignum *secret, uint8_t *exchange_hash
             ssh_debug_flush();
         }
         if(peer_data->mac_id == CIPHER_MAC_SHA2_256){
-            need = 32;
+            if (need < 32) {
+                need = 32;
+            }
         }else{
             ssh_debug_printf("ssh: MAC (%d) is unknown or not set\n", peer_data->mac_id);
             ssh_debug_flush();
@@ -3643,7 +3655,7 @@ ssh_decryption_setup_cipher(struct ssh_peer_data *peer_data,
 
         uint8_t k1[32];
         uint8_t k2[32];
-        if(key->data){
+        if(key->data && key->length >= 64){
             memcpy(k1, key->data, 32);
             memcpy(k2, key->data + 32, 32);
         }else{
