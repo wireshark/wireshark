@@ -2582,6 +2582,12 @@ typedef struct {
 static bool
 files_identical_key(const void* fname, file_hash_key *key)
 {
+    /*
+     * The key is hashed and compared as bytes, so zero the padding, such
+     * as between a 32-bit dev_t and a 64-bit ino_t on macOS.
+     */
+    memset(key, 0, sizeof(*key));
+
     /* Two different implementations, because st_ino isn't filled in with
      * a meaningful value on Windows. Use the Windows API and FILE_ID_INFO
      * instead.
