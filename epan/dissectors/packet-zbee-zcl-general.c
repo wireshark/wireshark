@@ -18,6 +18,7 @@
 #include <wireshark.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/proto_data.h>
 #include <epan/to_str.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
@@ -2801,7 +2802,7 @@ static void dissect_zcl_scenes_extension_fields(tvbuff_t *tvb, proto_tree *tree,
         uint8_t length  = tvb_get_uint8 (tvb, *offset+2);
 
         // Create a subtree
-        subtree = proto_tree_add_subtree_format(tree, tvb, *offset, length, ett_zbee_zcl_scenes_extension_field_set, NULL, "Extension field set %d", set++);
+        subtree = proto_tree_add_subtree_format(tree, tvb, *offset, (int)length + 3, ett_zbee_zcl_scenes_extension_field_set, NULL, "Extension field set %d", set++);
         proto_tree_add_item(subtree, hf_zbee_zcl_scenes_extension_set_cluster, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 3;
 
@@ -14019,7 +14020,7 @@ dissect_zbee_zcl_gp_proxy_table_entry(tvbuff_t *tvb, proto_tree *tree, unsigned 
 
     /* Extended Options: 2 bytes */
     if (options & ZBEE_ZCL_GP_PROXY_TBL_OPT_OPTIONS_EXTENTIONS) {
-      ext_options = tvb_get_uint16(tvb, *offset, ENC_LITTLE_ENDIAN);
+      ext_options = tvb_get_uint8(tvb, *offset);
       proto_tree_add_bitmask(subtree, tvb, *offset, hf_zbee_gp_proxy_tbl_entry_ext_options,
                              ett_zbee_gp_proxy_tbl_entry_ext_options, n_ext_options, ENC_LITTLE_ENDIAN);
       *offset += 1;
@@ -16054,6 +16055,17 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
     const uint8_t *encrypted_network_key = tvb_get_ptr(tvb, *offset, 16);
     *offset += 16;
 
+    /* The key is derived from the Response ID of the Scan Response that came
+     * before this request. Remember the one seen on the first pass, as a later
+     * Scan Response with the same transaction ID overwrites it. */
+    unsigned *saved_response_id = (unsigned *)p_get_proto_data(wmem_file_scope(), pinfo, proto_zbee_zcl_touchlink, 0);
+    if (!saved_response_id) {
+        saved_response_id = wmem_new(wmem_file_scope(), unsigned);
+        *saved_response_id = commissioning_data->response_id;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_zbee_zcl_touchlink, 0, saved_response_id);
+    }
+    const unsigned response_id = *saved_response_id;
+
     static const uint8_t Touchlink_Certification_Key[16] = {0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7, 0xc8, 0xc9, 0xca, 0xcb, 0xcc, 0xcd, 0xce, 0xcf};
     uint8_t Touchlink_Master_Key[16];
     uint8_t network_key[16] = {0};
@@ -16079,14 +16091,14 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
             expanded_input[0x5] = (commissioning_data->transaction_id >> 16) & 0xFF;
             expanded_input[0x6] = (commissioning_data->transaction_id >>  8) & 0xFF;
             expanded_input[0x7] = (commissioning_data->transaction_id >>  0) & 0xFF;
-            expanded_input[0x8] = (commissioning_data->response_id >> 24) & 0xFF;
-            expanded_input[0x9] = (commissioning_data->response_id >> 16) & 0xFF;
-            expanded_input[0xA] = (commissioning_data->response_id >>  8) & 0xFF;
-            expanded_input[0xB] = (commissioning_data->response_id >>  0) & 0xFF;
-            expanded_input[0xC] = (commissioning_data->response_id >> 24) & 0xFF;
-            expanded_input[0xD] = (commissioning_data->response_id >> 16) & 0xFF;
-            expanded_input[0xE] = (commissioning_data->response_id >>  8) & 0xFF;
-            expanded_input[0xF] = (commissioning_data->response_id >>  0) & 0xFF;
+            expanded_input[0x8] = (response_id >> 24) & 0xFF;
+            expanded_input[0x9] = (response_id >> 16) & 0xFF;
+            expanded_input[0xA] = (response_id >>  8) & 0xFF;
+            expanded_input[0xB] = (response_id >>  0) & 0xFF;
+            expanded_input[0xC] = (response_id >> 24) & 0xFF;
+            expanded_input[0xD] = (response_id >> 16) & 0xFF;
+            expanded_input[0xE] = (response_id >>  8) & 0xFF;
+            expanded_input[0xF] = (response_id >>  0) & 0xFF;
             ws_debug("expanded_input: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", expanded_input[0x0], expanded_input[0x1], expanded_input[0x2], expanded_input[0x3], expanded_input[0x4], expanded_input[0x5], expanded_input[0x6], expanded_input[0x7], expanded_input[0x8], expanded_input[0x9], expanded_input[0xA], expanded_input[0xB], expanded_input[0xC], expanded_input[0xD], expanded_input[0xE], expanded_input[0xF]);
             ws_debug("key: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", key[0x0], key[0x1], key[0x2], key[0x3], key[0x4], key[0x5], key[0x6], key[0x7], key[0x8], key[0x9], key[0xA], key[0xB], key[0xC], key[0xD], key[0xE], key[0xF]);
 
@@ -16107,6 +16119,7 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
             uint8_t transport_key[16] = {0};
             if (gcry_cipher_encrypt(hd1, transport_key, 16, expanded_input, 16)) {
                 ws_debug("can\'t decrypt aes128");
+                gcry_cipher_close(hd1);
                 return;
             }
 
@@ -16131,6 +16144,7 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
 
             if (gcry_cipher_decrypt(hd2, network_key, 16, encrypted_network_key, 16)) {
                 ws_debug("can\'t decrypt aes128");
+                gcry_cipher_close(hd2);
                 return;
             }
 
@@ -16155,10 +16169,10 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
         expanded_input[0x9] = 'L';
         expanded_input[0xA] = 'S';
         expanded_input[0xB] = 'N';
-        expanded_input[0xC] = (commissioning_data->response_id >> 24) & 0xFF;
-        expanded_input[0xD] = (commissioning_data->response_id >> 16) & 0xFF;
-        expanded_input[0xE] = (commissioning_data->response_id >>  8) & 0xFF;
-        expanded_input[0xF] = (commissioning_data->response_id >>  0) & 0xFF;
+        expanded_input[0xC] = (response_id >> 24) & 0xFF;
+        expanded_input[0xD] = (response_id >> 16) & 0xFF;
+        expanded_input[0xE] = (response_id >>  8) & 0xFF;
+        expanded_input[0xF] = (response_id >>  0) & 0xFF;
         ws_debug("expanded_input: %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X %02X\n", expanded_input[0x0], expanded_input[0x1], expanded_input[0x2], expanded_input[0x3], expanded_input[0x4], expanded_input[0x5], expanded_input[0x6], expanded_input[0x7], expanded_input[0x8], expanded_input[0x9], expanded_input[0xA], expanded_input[0xB], expanded_input[0xC], expanded_input[0xD], expanded_input[0xE], expanded_input[0xF]);
 
         gcry_cipher_hd_t hd;
@@ -16179,6 +16193,7 @@ dissect_zcl_touchlink_network_join_request(tvbuff_t *tvb, packet_info *pinfo, pr
 
         if (gcry_cipher_decrypt(hd, network_key, 16, encrypted_network_key, 16)) {
             ws_debug("can\'t decrypt aes128");
+            gcry_cipher_close(hd);
             return;
         }
 
@@ -16263,7 +16278,7 @@ dissect_zcl_touchlink_device_info_request(tvbuff_t *tvb, proto_tree *tree, guint
  *@param  offset offset of data in tvb
 */
 static void
-dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *offset, struct zcl_touchlink_commissioning_data * commissioning_data)
+dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned *offset, struct zcl_touchlink_commissioning_data * commissioning_data)
 {
     static int * const zbee_info_flags[] = {
         &hf_zbee_zcl_touchlink_zbee_type,
@@ -16295,7 +16310,10 @@ dissect_zcl_touchlink_scan_response(tvbuff_t *tvb, proto_tree *tree, unsigned *o
     *offset += 1;
     proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_touchlink_key_bitmask, ett_zbee_zcl_touchlink_keybits, zll_keybit_flags, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_response_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &commissioning_data->response_id);
+    uint32_t scan_response_id;
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zcl_touchlink_response_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &scan_response_id);
+    if (!PINFO_FD_VISITED(pinfo))
+        commissioning_data->response_id = scan_response_id;
     *offset += 4;
     proto_tree_add_item(tree, hf_zbee_zcl_touchlink_ext_panid, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
@@ -16500,9 +16518,9 @@ dissect_zcl_touchlink_endpoint_list_response(tvbuff_t *tvb, proto_tree *tree, un
         *offset += 2;
         proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_endpoint, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
         *offset += 1;
-        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_profile_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
-        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_device_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
         proto_tree_add_item(record_tree, hf_zbee_zcl_touchlink_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
         *offset += 1;
@@ -16615,7 +16633,7 @@ dissect_zbee_zcl_touchlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* Call the appropriate command dissector */
         switch (cmd_id) {
             case ZBEE_ZCL_CMD_ID_SCAN_RESPONSE:
-                dissect_zcl_touchlink_scan_response(tvb, tree, &offset, commissioning_data);
+                dissect_zcl_touchlink_scan_response(tvb, pinfo, tree, &offset, commissioning_data);
                 break;
 
             case ZBEE_ZCL_CMD_ID_NETWORK_START_RESPONSE:
