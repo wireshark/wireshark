@@ -148228,3 +148228,89 @@ class TestDissectTelnet:
                 ['frame.number']) == ['411', '413', '415']
         assert self._rows(cmd_tshark, cap, test_env, 'frame.number == 407',
                 ['_ws.col.protocol']) == ['TELNET']
+
+
+class TestDissectTeredo:
+    HEUR = ('--enable-heuristic', 'teredo_udp')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture_file, test_env, dfilter, *fields, opts=()):
+        stdout = subprocess.check_output((cmd_tshark, *opts,
+                '-r', capture_file('teredo_coverage.pcap.gz'),
+                '-Y', dfilter,
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_teredo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The Teredo frames (UDP port 3544) and, with the disabled-by-default
+        heuristic enabled, the ones on another port; no malformed packets
+        or error expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teredo_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert len(protocols) == 21
+        assert protocols.count('Teredo') == 6
+        assert protocols.count('UDP') == 9
+        stdout = subprocess.check_output((cmd_tshark, *self.HEUR,
+                '-r', capture_file('teredo_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = stdout.split()
+        assert protocols.count('Teredo') == 6
+        assert protocols.count('UDP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.HEUR,
+                    '-r', capture_file('teredo_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_teredo_headers(self, cmd_tshark, capture_file, test_env):
+        '''The authentication header (lengths, client identifier, value,
+        nonce, confirmation) and the origin indication (the port and
+        address are stored inverted); the heuristic finds them too.'''
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'teredo.auth',
+                          'teredo.auth.idlen', 'teredo.auth.aulen', 'teredo.auth.id',
+                          'teredo.auth.value', 'teredo.auth.nonce', 'teredo.auth.conf',
+                          opts=self.HEUR)
+        assert rows == [
+            ['3', '0', '0', '', '', '0102030405060708', '00'],
+            ['4', '4', '8', '40414243', '8081828384858687', '0102030405060708', '01'],
+            ['6', '2', '0', '4041', '', '0102030405060708', '00'],
+            ['12', '1', '1', '40', '80', '0102030405060708', '00'],
+        ]
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'teredo.orig',
+                          'teredo.orig.port', 'teredo.orig.addr', opts=self.HEUR)
+        assert rows == [
+            ['5', '40000', '198.51.100.7'],
+            ['6', '1234', '203.0.113.9'],
+            ['12', '40000', '198.51.100.7'],
+            ['13', '40000', '198.51.100.7'],
+        ]
+        # Without the heuristic the frames on port 4000 are plain UDP
+        rows = self._rows(cmd_tshark, capture_file, test_env, 'teredo.auth || teredo.orig',
+                          'teredo.orig.port')
+        assert [r[0] for r in rows] == ['3', '4', '5', '6']
+
+    def test_teredo_nesting(self, cmd_tshark, capture_file, test_env):
+        '''Teredo nested inside Teredo is stopped after 8 levels with an
+        expert info (it was limited only by the generic layer assertion
+        before the fix). 8 levels in frame 21 are fine.'''
+        for passes in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'teredo.nested',
+                              'teredo.nested', opts=passes)
+            assert rows == [['20', '1']]
+            rows = self._rows(cmd_tshark, capture_file, test_env, 'frame.number == 20 || frame.number == 21',
+                              '_ws.col.info', opts=passes)
+            assert rows[0][1] == ''
+            assert rows[1][1].startswith('Direct IPv6 Connectivity Test')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teredo_coverage.pcap.gz'),
+                '-Y', 'frame.number == 20',
+                '-Tfields', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.strip() == 'Too many nested Teredo headers'
