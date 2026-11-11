@@ -60,6 +60,7 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/addr_resolv.h>
+#include <wsutil/pint.h>
 
 #include "packet-infiniband.h"
 #include "packet-nvme.h"
@@ -74,6 +75,17 @@ http://www.iana.org/assignments/service-names-port-numbers/service-names-port-nu
 
 #define SID_MASK (SID_ULP_MASK | SID_PROTO_MASK)
 #define SID_ULP_TCP ((SID_ULP << 3 * 8) | (SID_PROTO_TCP << 2 * 8))
+
+/*
+ * The InfiniBand dissector saves the 232 bytes of CM REQ MAD data, of
+ * which the REQ private data is the last 92 bytes. NVMe-oF RDMA uses an
+ * RDMA IP CM Service ID, so the private data starts with the 36 byte IP
+ * CM header, followed by the NVMe-oF RDMA connect private data: a 2 byte
+ * record format and then the little-endian QID.
+ */
+#define CM_REQ_PRIVATE_DATA_OFFSET (MAD_DATA_SIZE - 92)
+#define IP_CM_REQ_HEADER_LEN 36
+#define CM_REQ_NVME_QID_OFFSET (CM_REQ_PRIVATE_DATA_OFFSET + IP_CM_REQ_HEADER_LEN + 2)
 
 #define NVME_FABRIC_CMD_SIZE NVME_CMD_SIZE
 #define NVME_FABRIC_CQE_SIZE NVME_CQE_SIZE
@@ -198,7 +210,6 @@ static uint16_t find_nvme_qid(packet_info *pinfo)
 {
     conversation_t *conv;
     conversation_infiniband_data *conv_data;
-    uint16_t qid;
 
     conv = find_conversation(pinfo->num, &pinfo->dst, &pinfo->dst,
                              CONVERSATION_IBQP, pinfo->destport, pinfo->destport,
@@ -211,8 +222,7 @@ static uint16_t find_nvme_qid(packet_info *pinfo)
         return 0;
 
     if (conv_data->client_to_server == false) {
-        memcpy(&qid, &conv_data->mad_private_data[178], 2);
-        return qid;
+        return pletohu16(&conv_data->mad_private_data[CM_REQ_NVME_QID_OFFSET]);
     }
     conv = find_conversation(pinfo->num, &pinfo->src, &pinfo->src,
                              CONVERSATION_IBQP, conv_data->src_qp, conv_data->src_qp,
@@ -222,8 +232,7 @@ static uint16_t find_nvme_qid(packet_info *pinfo)
     conv_data = get_conversion_data(conv);
     if (!conv_data)
         return 0;
-    memcpy(&qid, &conv_data->mad_private_data[178], 2);
-    return qid;
+    return pletohu16(&conv_data->mad_private_data[CM_REQ_NVME_QID_OFFSET]);
 }
 
 static struct nvme_rdma_q_ctx*
