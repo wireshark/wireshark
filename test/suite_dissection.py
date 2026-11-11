@@ -144345,3 +144345,65 @@ class TestDissectStatNotify:
         assert info['5'] == ['1', 'h', '101', '101112131415161718191a1b1c1d1e1f']
         assert info['15'] == ['1', 'hhhhhhhhh', '109', '909192939495969798999a9b9c9d9e9f']
         assert info['17'] == ['1', 'client1.example.net', '7', 'ffffffffffffffffffffffffffffffff']
+
+
+class TestDissectStcsig:
+    STCSIG = ('--enable-protocol', 'stcsig')
+
+    def test_stcsig_frames(self, cmd_tshark, capture_file, test_env):
+        '''The post-dissector (disabled by default) finds the signature at
+        the end of ten frames and not in the two others. No malformed
+        packets or expert infos in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.STCSIG,
+                    '-r', capture_file('stcsig_coverage.pcap.gz'),
+                    '-Y', 'stcsig', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == [str(n) for n in range(1, 11)]
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.STCSIG,
+                    '-r', capture_file('stcsig_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('stcsig_coverage.pcap.gz'),
+                '-Y', 'stcsig', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert count_output(stdout) == 0
+
+    def test_stcsig_fields(self, cmd_tshark, capture_file, test_env):
+        '''Decoded IV, stream id, EDM and SM sequence numbers, the
+        timestamp and the flag bits of the signatures.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.STCSIG,
+                '-r', capture_file('stcsig_coverage.pcap.gz'),
+                '-Y', 'stcsig', '-Tfields', '-eframe.number', '-estcsig.iv',
+                '-estcsig.csp', '-estcsig.streamtype', '-estcsig.streamindex',
+                '-estcsig.complement', '-estcsig.seqnum', '-estcsig.seqnum.sm',
+                '-estcsig.prbseq', '-estcsig.tslr', '-estcsig.unknown',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x11\t258\tFalse\t7\t65277\t16909294\t\tFalse\tFalse\tdeadbeef'
+        assert lines[1] == '2\t0x40\t48879\tTrue\t65535\t65277\t16909247\t\tTrue\tTrue\tdeadbeef'
+        assert lines[2] == '3\t0x80\t258\tFalse\t7\t\t\t18838586676607\tFalse\tFalse\tdeadbeef'
+        assert lines[4] == '5\t0x22\t258\tTrue\t32775\t32768\t2147483613\t\tFalse\tFalse\tdeadbeef'
+        assert lines[7] == '8\t0x55\t258\tFalse\t7\t\t\t170\tFalse\tFalse\tdeadbeef'
+        assert lines[9] == '10\t0xff\t258\tFalse\t7\t0\t4294967040\t\tFalse\tFalse\tdeadbeef'
+
+    def test_stcsig_timestamp(self, cmd_tshark, capture_file, test_env):
+        '''The timestamp counts 2.5 ns ticks, with 6 more bits in the
+        PRBS/TSLR octet (frame 3); the raw (obfuscated) signature of frames 1
+        and 4 (4 octet FCS after it).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.STCSIG,
+                '-r', capture_file('stcsig_coverage.pcap.gz'),
+                '-Y', 'stcsig.timestamp > 600', '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['3']
+        stdout = subprocess.check_output((cmd_tshark, *self.STCSIG,
+                '-r', capture_file('stcsig_coverage.pcap.gz'),
+                '-Y', 'stcsig', '-Tfields', '-eframe.number', '-eframe.len',
+                '-estcsig.rawdata',
+            ), encoding='utf-8', env=test_env)
+        raw = {int(l.split('\t')[0]): l.split('\t')[2] for l in stdout.splitlines()}
+        assert raw[1] == '1149fa0b890f9bc2cc16107dd150e6aadeadbeef'
+        assert raw[4] == '2102906272977447c14da9a87379f9abdeadbeef'
