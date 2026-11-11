@@ -147631,3 +147631,297 @@ class TestDissectTeap:
         assert number == '1'
         assert types.split(',') == ['9'] * 15
         assert message == 'TEAP TLVs nested too deeply'
+
+
+class TestDissectTecmp:
+    CAPTURE = 'tecmp_coverage.pcap.gz'
+
+    @staticmethod
+    def write_pcap(path, frames):
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, fr in enumerate(frames):
+                f.write(struct.pack('<IIII', 1700000000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_tecmp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''TECMP messages of every type; the Ethernet frames carried by
+        Ethernet data are dissected as Ethernet/IP/UDP. No malformed
+        packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 134
+        assert protocols.count('TECMP') == 128
+        assert protocols.count('UDP') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tecmp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the log streams, control messages and
+        status messages.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {2, 13, 16, 36, 39, 40, 43, 44, 62, 66, 86, 88, 90, 99, 101, 102, 111, 126, 130, 131, 134}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.rstrip() for l in stdout.splitlines()] == [
+            '2\tTECMP Payload: CAN Data, CAN Data, CAN Data',
+            '13\tTECMP Payload: GPIO 0xa5',
+            '16\tTECMP Payload: GPIO 0xa5 0x5a 0xff 0x01',
+            '36\tTECMP Payload: Ethernet Raw, Ethernet Raw, Ethernet Raw, Ethernet Raw',
+            '39\tTECMP Payload: I2C: Write at 0x50 (7 Bit): 0x11 0x22 0x33',
+            '40\tTECMP Payload: I2C: Read at 0x50 (7 Bit): 0x44',
+            '43\tTECMP Payload: I2C: Write at 0x134 (10 Bit): 0x66 0x77',
+            '44\tTECMP Payload: I2C: Read at 0x134 (10 Bit): 0x88 0x99',
+            '62\tTECMP Payload: R',
+            '66\tTECMP Payload: Unknown (4660)',
+            '86\tTECMP Control Message, Logger Ready (0x0002)',
+            '88\tTECMP Control Message, CAN Replay Fill Level (0x00e0)',
+            '90\tTECMP Control Message, FlexRay POC State (0x00e1)',
+            '99\tTECMP Control Message, 10BASE-T1S (0x00e2)',
+            '101\tTECMP Control Message, Unknown (0xbeef):',
+            '102\tTECMP Status Device',
+            '111\tTECMP Status Bus',
+            '126\tTECMP Status Configuration',
+            '130\tTECMP Counter Event',
+            '131\tTECMP TimeSync Event',
+            '134',
+        ]
+
+    def test_tecmp_can(self, cmd_tshark, capture_file, test_env):
+        '''CAN and CAN FD data: 11 and 29 bit IDs, CRC15, CRC17 and CRC21.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 2, 5, 6, 7}',
+                '-Tfields', '-eframe.number', '-etecmp.payload.data.can_id_11',
+                '-etecmp.payload.data.can_id_29', '-etecmp.payload.data.payload_length',
+                '-etecmp.payload.data.crc15', '-etecmp.payload.data.crc17',
+                '-etecmp.payload.data.crc21', '-edata.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000123\t\t8\t0x1234\t\t\t0001020304050607',
+            '2\t0x000007ff,0x00000001\t0x01abcdef\t2,0,8\t0xaabb,0x1234\t\t\t0102,ffffffffffffffff',
+            '5\t0x00000234\t\t12\t\t0x010203\t\t000102030405060708090a0b',
+            '6\t\t0x00000234\t32\t\t\t0x040506\t000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f',
+            '7\t0x00000235\t\t8\t\t\t\t0001020304050607',
+        ]
+
+    def test_tecmp_lin_flexray(self, cmd_tshark, capture_file, test_env):
+        '''LIN id and checksum, FlexRay cycle, frame ID, header CRC, frame
+        CRC and the cycle repetition of replay data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {8, 10, 11, 12, 74, 75, 76, 77, 78, 79, 80, 81}',
+                '-Tfields', '-eframe.number', '-etecmp.payload.data.lin_id',
+                '-etecmp.payload.data.checksum', '-etecmp.payload.data.cycle',
+                '-etecmp.payload.data.frame_id', '-etecmp.payload.data.header_crc',
+                '-etecmp.payload.data.frame_crc', '-etecmp.payload.data.cycle_repetition',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '8\t0x2a\t0xab\t\t\t\t\t',
+            '10\t\t\t0x05\t0x0012\t0x0123\t0x040506\t',
+            '11\t\t\t0x3f\t0x07ff\t0x07ff\t0xffffff\t',
+            '12\t\t\t0x01\t0x0001\t\t\t',
+            '74\t\t\t0x05\t0x0012\t0x0123\t\t4',
+            '75\t\t\t0x01\t0x0010\t0x0010\t\t1',
+            '76\t\t\t0x02\t0x0010\t0x0010\t\t2',
+            '77\t\t\t0x04\t0x0010\t0x0010\t\t4',
+            '78\t\t\t0x08\t0x0010\t0x0010\t\t8',
+            '79\t\t\t0x10\t0x0010\t0x0010\t\t16',
+            '80\t\t\t0x20\t0x0010\t0x0010\t\t32',
+            '81\t\t\t0x40\t0x0010\t0x0010\t\t64',
+        ]
+
+    def test_tecmp_ethernet(self, cmd_tshark, capture_file, test_env):
+        '''Ethernet data, raw Ethernet (preamble, SFD) and 10BASE-T1S
+        with the beacon timestamp.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'udp',
+                '-Tfields', '-eframe.number', '-eudp.length', '-eframe.len',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\t28\t108', '34\t11\t99', '37\t11\t99', '38\t11\t99',
+            '84\t14\t94', '85\t18\t106']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'tecmp.payload.ethernet_raw.data',
+                '-Tfields', '-eframe.number', '-etecmp.payload.ethernet_raw.preamble',
+                '-etecmp.payload.ethernet_raw.sfd', '-etecmp.payload.ethernet_raw.ethernet_frame',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 4
+        assert lines[0].startswith('34\t55555555555555\t0xd5\t020000000002020000000001')
+        assert lines[1].startswith('35\t55555555555555\t0x07\tdeaddeaddead')
+        assert lines[2].startswith('36\t55555555555555,55555555555555,55555555555555\t0xd5')
+        assert lines[3].startswith('85\t55555555555555\t0xd5\t020000000002020000000001')
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'tecmp.payload.beacon_timestamp',
+                '-Tfields', '-eframe.number', '-etecmp.payload.beacon_to_timestamp_ns',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['37\t1000', '38\t-5000']
+
+    def test_tecmp_control_messages(self, cmd_tshark, capture_file, test_env):
+        '''Fill levels of the CAN replay queues, FlexRay POC states and
+        the 10BASE-T1S flags and events.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'tecmp.payload.ctrl_msg.id',
+                '-Tfields', '-eframe.number', '-etecmp.payload.ctrl_msg.id',
+                '-etecmp.payload.ctrl_msg.can_replay_fill_level.queue_size',
+                '-etecmp.payload.ctrl_msg.can_replay_fill_level.queue_fill_level',
+                '-etecmp.payload.ctrl_msg.flexray_poc.interface_id',
+                '-etecmp.payload.ctrl_msg.flexray_poc.state',
+                '-etecmp.payload.ctrl_msg.10baset1s.flags.plca_enabled',
+                '-etecmp.payload.ctrl_msg.10baset1s.events.5b_decode_error',
+                '-etecmp.payload.ctrl_msg.unparsed',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 16
+        assert lines[0] == '86\t0x0002\t\t\t\t\t\t\t'
+        assert lines[1] == '87\t0x0002\t\t\t\t\t\t\t0102'
+        assert lines[2] == '88\t0x00e0\t4\t10,20,30,40\t\t\t\t\t'
+        assert lines[3] == '89\t0x00e0\t0\t\t\t\t\t\t'
+        assert lines[4] == '90\t0x00e1\t\t\t64\t0\t\t\t'
+        assert lines[12] == '98\t0x00e1\t\t\t64\t99\t\t\t'
+        assert lines[13] == '99\t0x00e2\t\t\t\t\tTrue\tTrue\t'
+        assert lines[14] == '100\t0x00e2\t\t\t\t\tFalse\tFalse\taa'
+        assert lines[15] == '101\t0xbeef\t\t\t\t\t\t\t010203'
+
+    def test_tecmp_control_message_length(self, cmd_tshark, capture_file, test_env):
+        '''The TECMP item ends with the control message (it was one octet
+        too long after the CAN replay fill level queues; fixed with "TECMP:
+        Restore pkt_len when the Ethernet dissector throws").'''
+        import json
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 88', '-Tjson', '-x',
+            ), encoding='utf-8', env=test_env)
+        layers = json.loads(stdout)[0]['_source']['layers']
+        raw = layers['tecmp_raw']
+        assert raw[1] == 14
+        assert raw[2] == 39      # up to the end of the 53 octet frame
+
+    def test_tecmp_control_message_interface_name(self, cmd_tshark, capture_file, test_env):
+        '''The interface ID of FlexRay POC state and 10BASE-T1S control
+        messages is read (it was 0 when the name was looked up; same commit).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-o', 'uat:TECMP_interface_identifiers:"40","FlexRay A","6"',
+                '-o', 'uat:TECMP_interface_identifiers:"41","10BASE-T1S A","7"',
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'tecmp.payload.interface_name && tecmp.payload.ctrl_msg.id',
+                '-Tfields', '-eframe.number', '-etecmp.payload.interface_name',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '90\tFlexRay A'
+        assert lines[-1] == '100\t10BASE-T1S A'
+        assert len(lines) == 11
+
+    def test_tecmp_status(self, cmd_tshark, capture_file, test_env):
+        '''Versions, buffer and lifecycle of the device status messages of
+        the Technica vendor data; bus status entries named by device
+        type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {102, 105, 107, 108, 109, 110}',
+                '-Tfields', '-eframe.number', '-etecmp.payload.status.vendor_id',
+                '-etecmp.payload.status.device_type', '-etecmp.payload.status.sn',
+                '-etecmp.payload.status_dev.vendor_technica.buffer_fill_level',
+                '-etecmp.payload.status_dev.vendor_technica.buffer_size',
+                '-etecmp.payload.status_dev.vendor_technica.temperature_chassis',
+                '-etecmp.payload.status_dev.vendor_technica.temperature_silicon',
+                '-etecmp.payload.status_dev.vendor_technica.sfpa_tx_frames',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '102\t0x0c\t0x02\t16909060\t50\t512\t\t\t',
+            '105\t0x0c\t0x07\t16909060\t100\t512\t-10\t-20\t',
+            '107\t0x0c\t0x40\t16909060\t50\t512\t32\t48\t1',
+            '108\t0x0c\t0x48\t16909060\t50\t512\t32\t48\t5',
+            '109\t0x01\t0x0a\t16909060\t\t\t\t\t',
+            '110\t0x0c\t0x0a\t16909060\t\t\t\t\t',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number == 102', '-V', '-O', 'tecmp.payload',
+            ), encoding='utf-8', env=test_env)
+        assert 'Software Version: v1.2.3' in stdout
+        assert 'Hardware Version: v2.a' in stdout
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {111, 118, 120, 121}', '-V', '-O', 'tecmp.payload',
+            ), encoding='utf-8', env=test_env)
+        for name in ('(LIN-A)', '(LIN-B)', '(LIN-C)', '(10BASE-T1S-1)', '(ILaS-1)',
+                     '(10BASE-T1S)', '(ADC1)', '(SerDes-Port-1-I2C-1)', '(SerDes-Port-2-GPIO)'):
+            assert name in stdout, name
+
+    def test_tecmp_config_counter_timesync(self, cmd_tshark, capture_file, test_env):
+        '''Configuration segments (also a segment shorter than its length),
+        counter events and time synchronisation events.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {126, 127, 130, 131, 132}',
+                '-Tfields', '-eframe.number',
+                '-etecmp.payload.status.config.vendor_technica.segment_number',
+                '-etecmp.payload.status.config.vendor_technica.segment_length',
+                '-etecmp.payload.status.config.vendor_technica.segment_data',
+                '-etecmp.payload.counter_event.counter_last',
+                '-etecmp.payload.counter_event.counter_current',
+                '-etecmp.payload.timesync_event.async',
+                '-etecmp.payload.timesync_event.time_delta',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '126\t2\t6\t636f6e666967\t\t\t\t',
+            '127\t3\t100\t73686f7274207365676d656e74\t\t\t\t',
+            '130\t\t\t\t100\t105\t\t',
+            '131\t\t\t\t\t\t0x01\t0x07',
+            '132\t\t\t\t\t\t0x00\t0xff',
+        ]
+
+    def test_tecmp_header(self, cmd_tshark, capture_file, test_env):
+        '''Device ID names (specific, prefix and user-defined ranges),
+        counter, version, message type and flags.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-Y', 'frame.number in {1, 5, 8, 16, 70, 71, 133}',
+                '-Tfields', '-eframe.number', '-etecmp.device_id', '-etecmp.counter',
+                '-etecmp.message_type', '-etecmp.data_type',
+                '-etecmp.dev_flags.eos', '-etecmp.dev_flags.device_overflow',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x0041\t1\t0x03\t0x0002\tFalse\tFalse'
+        assert lines[1] == '5\t0x0042\t1\t0x03\t0x0003\tFalse\tFalse'
+        assert lines[4] == '70\t0xff10\t1\t0x03\t0x0002\tFalse\tFalse'
+        assert lines[5] == '71\t0x0041\t1\t0x0a\t0x0002\tFalse\tFalse'
+        assert lines[6] == '133\t0x0041\t65535\t0x03\t0x0002\tTrue\tTrue'
+
+    def test_tecmp_frame_length_after_exception(self, cmd_tshark, result_file, test_env):
+        '''An Ethernet entry too short for an Ethernet header throws; the
+        frame length stays the same in the first and the second pass
+        (it changed to the entry length before the fix "TECMP: Restore pkt_len
+        when the Ethernet dissector throws").'''
+        mac = bytes.fromhex('020000000002020000000001')
+        entry = struct.pack('>IQHH', 1, 1, 5, 0) + b'\x02\x00\x00\x00\x00'
+        hdr = struct.pack('>HHBBHHH', 0x0030, 1, 3, 3, 0x0080, 0, 0)
+        frame = mac + struct.pack('>H', 0x99fe) + hdr + entry
+        path = result_file('tecmp_pktlen.pcap')
+        self.write_pcap(path, [frame, frame])
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', path, '-Tfields', '-eframe.number', '-eframe.len',
+                    '-eframe.cap_len', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            lines = stdout.splitlines()
+            assert len(lines) == 2
+            for n, line in enumerate(lines, 1):
+                fields = line.split('\t')
+                assert fields[:3] == [str(n), '47', '47']
+                assert 'Frame length is less than captured length' not in line
