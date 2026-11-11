@@ -147983,3 +147983,86 @@ class TestDissectTeiManagement:
             '10\t0x03\t0x00\t1',
             '11\t0x0000\t0x0f\t1',
         ]
+
+
+class TestDissectTeklink:
+    def test_teklink_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ONC RPC calls and replies of the TEKLINK program (found by the
+        RPC heuristics); a reply without its call stays UDP. No malformed
+        packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teklink_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 86
+        assert protocols.count('TEKLINK') == 85
+        assert protocols.count('UDP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('teklink_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_teklink_info(self, cmd_tshark, capture_file, test_env):
+        '''Procedure names and the signal, clock and mode names added to
+        the Info column of the VTC calls, including unknown values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teklink_coverage.pcap.gz'),
+                '-Y', 'frame.number == 1 || frame.number == 11 || frame.number == 13'
+                      ' || frame.number == 17 || frame.number == 19 || frame.number == 21'
+                      ' || frame.number == 27 || frame.number == 31 || frame.number == 33'
+                      ' || frame.number == 39 || frame.number == 51 || frame.number == 81'
+                      ' || frame.number == 2',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert lines == [
+            '1 V1 TLAFrameOpen Call',
+            '2 V1 TLAFrameOpen Reply (Call In 1)',
+            '11 V1 VtcOutEn Call VTC_DST_TTLTRIG0, VTC_OUT_FORCE_ON',
+            '13 V1 VtcOutEn Call Unknown destination 99, VTC_OUT_FORCE_OFF',
+            '17 V1 VtcMap Call VTC_SRC_VCC, VTC_DST_ALL',
+            '19 V1 VtcMap Call Unknown source 200, Unknown destination 200',
+            '21 V1 VtcOutSetup Call VTC_DST_APPSIG3, VTC_OUT_POL_INVERT, VTC_OUT_FORCE_ON, VTC_MODE_FEEDBK_ON',
+            '27 V1 VtcClk Call VTC_DST_APPSIG5, VTC_CLK_SRC_CPUCLK, VTC_CLK_EDGE_SENS_RISE, VTC_CLK_MODE_SYNCH',
+            '31 V1 VtcClk Call Unknown destination 77, Unknown clocksource 8, Unknown edge setting 9, Unknown mode setting 10',
+            '33 V1 VtcMode Call VTC_DST_APPSIG2, VTC_MODE_EDGE_RISE, VTC_MODE_EVENT_CNT_LAT',
+            '39 V1 VtcRes Call VTC_DST_APPSIG9',
+            '51 V1 Unknown (65) Call',
+            '81 V1 proc-4660 Call',
+        ]
+
+    def test_teklink_fields(self, cmd_tshark, capture_file, test_env):
+        '''Strings, the TLA type and the owner of GetInfo and the version
+        strings of GetSoftwareVersion.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teklink_coverage.pcap.gz'),
+                '-Y', 'frame.number == 6 || frame.number == 8',
+                '-Tfields', '-eframe.number', '-eteklink.string',
+                '-eteklink.tla_type', '-eteklink.locked', '-eteklink.user',
+                '-eteklink.host', '-eteklink.location',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tTLA 5.3.1,Windows 2000\t\t\t\t\t',
+            '8\tserial,last\t20\t0x00000001\talice\thost-b\tlab 3',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teklink_coverage.pcap.gz'),
+                '-Y', 'teklink.command',
+                '-Tfields', '-eframe.number', '-eteklink.command',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1] for l in stdout.splitlines()] == [
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '10', '9']
+
+    def test_teklink_procedure_not_8_bit(self, cmd_tshark, capture_file, test_env):
+        '''A procedure number above 255 does not assert or truncate the
+        procedure shown by RPC.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teklink_coverage.pcap.gz'),
+                '-Y', 'rpc.procedure == 4660',
+                '-Tfields', '-eframe.number', '-erpc.procedure',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['81\t4660', '82\t4660']
