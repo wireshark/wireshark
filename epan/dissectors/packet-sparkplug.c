@@ -98,6 +98,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     else {
         expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_groupid);
+        g_strfreev(topic_elements);
         return 0;
     }
 
@@ -112,6 +113,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     else {
         expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_messagetype);
+        g_strfreev(topic_elements);
         return 0;
     }
 
@@ -122,6 +124,7 @@ dissect_sparkplugb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     }
     else {
         expert_add_info(pinfo, namespace_tree, &ei_sparkplugb_missing_edgenodeid);
+        g_strfreev(topic_elements);
         return 0;
     }
 
