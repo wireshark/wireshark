@@ -149031,3 +149031,134 @@ class TestDissectThrift:
                 '-Y', 'frame.number == 156', '-Tfields', '-ethrift.mtype', '-ethrift.method',
                 '-e_ws.expert.message')
         assert rows == ['0x01\tadd\t']
+
+
+class TestDissectTibia:
+    '''Tibia from the synthetic capture tibia_coverage.pcap.gz (TCP ports
+    7171 and 7172). Frames 1-75 are the legacy 7.60 protocol, which is
+    plain text; the modern login frames (76-97) carry filler where the
+    dissector would need an RSA or XTEA key (there are no keys in the
+    capture), and the login replies with a world list (89-97) are built
+    so that the dissector reads them as plain text. The game commands
+    need dissect_game_commands, and the RSA errors of the filler are
+    avoided with try_otserv_key off (OPTS).'''
+
+    CAP = 'tibia_coverage.pcap.gz'
+    OPTS = ('-o', 'tibia.dissect_game_commands:TRUE', '-o', 'tibia.try_otserv_key:FALSE')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_tibia_clean(self, cmd_tshark, capture_file, test_env):
+        '''106 frames: 103 Tibia, two TCP segments that wait for the rest of
+        a packet and one HTTP-like frame that is not Tibia. No malformed
+        packets and no expert infos in one and two passes.'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, cap, test_env, 'frame',
+                    ['frame.number', '_ws.col.protocol'], *self.OPTS, *opts)
+            protos = [r.split('\t')[1] for r in rows]
+            assert len(protos) == 106
+            assert protos.count('Tibia') == 103
+            assert protos.count('TCP') == 3
+            assert self._rows(cmd_tshark, cap, test_env,
+                    '_ws.malformed || _ws.expert', ['frame.number'],
+                    *self.OPTS, *opts) == []
+
+    def test_tibia_rsa_errors(self, cmd_tshark, capture_file, test_env):
+        '''With the built-in OTServ key (the default) the filler of the
+        protocol 10 and 11 login requests fails to decrypt: one request is
+        shorter than the RSA block, the others give a decryption error.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                '_ws.expert.severity >= 0x00800000', ['frame.number', '_ws.expert.message'])
+        assert rows == [
+            '76\tRSA-encrypted data is at least 128 byte long',
+            '78\tDecrypting RSA block failed: unknown error',
+            '80\tDecrypting RSA block failed: unknown error',
+            '84\tDecrypting RSA block failed: unknown error',
+            '88\tDecrypting RSA block failed: unknown error',
+            '95\tDecrypting RSA block failed: unknown error',
+        ]
+
+    def test_tibia_legacy_login(self, cmd_tshark, capture_file, test_env):
+        '''The 7.60 login server: character list with two characters (and
+        the premium days), the account number and password of the
+        requests, and the game server login with the character name.'''
+        cap = capture_file(self.CAP)
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {2,9}',
+                ['frame.number', 'tibia.motd', 'tibia.charlist.name', 'tibia.charlist.world',
+                 'tibia.charlist.ip', 'tibia.charlist.port', 'tibia.pacc'], *self.OPTS)
+        assert rows == [
+            '2\t1\\nWelcome to the test server\tAlice,Bob\tWorld1,World2\t192.0.2.10,192.0.2.12\t7172,7173\t30',
+            '9\tmotd\tCarol\tW\t192.0.2.10\t7172\t65535',
+        ]
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {1,10,74}',
+                ['frame.number', 'tibia.version', 'tibia.acc', 'tibia.char', 'tibia.pass', '_ws.col.info'],
+                *self.OPTS)
+        assert rows == [
+            '1\t760\t123456\t\tsecret\tLogin',
+            '10\t760\t123456\tAlice\tsecret\tLogin',
+            '74\t760\t5\tBob the builder\thunter2 hunter2\tLogin',
+        ]
+
+    def test_tibia_game_commands(self, cmd_tshark, capture_file, test_env):
+        '''Server commands decode only with dissect_game_commands: the
+        Info column lists them, coordinates and the condition bits are
+        decoded.'''
+        cap = capture_file(self.CAP)
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {11,65,67,73}',
+                ['frame.number', '_ws.col.info'])
+        assert rows == ['11\tServer', '65\tServer', '67\tClient', '73\tClient']
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {11,65,67,73}',
+                ['frame.number', '_ws.col.info'], *self.OPTS)
+        assert rows == [
+            '11\tServer commands: Initialize map (0xa)',
+            '65\tServer commands: Light level (0x82), Close container (0x6f), Cancel walk (0xb5), Ping (0x1e)',
+            '67\tClient commands: Speech (0x96)',
+            '73\tClient commands: Pong (0x1e), Speech (0x96), Pong (0x1e)',
+        ]
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {13,16,18,38}',
+                ['frame.number', 'tibia.coord.x', 'tibia.coords.y', 'tibia.coords.z',
+                 'tibia.coords.stackpos', 'tibia.cond.poisoned', 'tibia.cond.burning'], *self.OPTS)
+        assert rows == [
+            '13\t32000\t32100\t7\t\t\t',
+            '16\t32002\t32101\t7\t2\t\t',
+            '18\t32002,32003\t32102,32102\t7,7\t1\t\t',
+            '38\t\t\t\t\tTrue\tTrue',
+        ]
+
+    def test_tibia_world_list(self, cmd_tshark, capture_file, test_env):
+        '''Protocol 11.11 charlists. Frame 96 is the reproducer of
+        "Tibia: Fix heap overread in world list address parsing": the
+        address of the world is an empty string (an address shorter than
+        four octets made ipv4tonl step past the end of the string; run
+        under ASAN to see the old failure). Addresses that are not IPv4
+        addresses are shown as sent.'''
+        cap = capture_file(self.CAP)
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {89,90,96,97}',
+                ['frame.number', 'tibia.worldlist.name', 'tibia.worldlist.ip',
+                 'tibia.worldlist.port', 'tibia.charlist.name'], *self.OPTS)
+        assert rows == [
+            '89\tAntica,Belobra\t10.1.2.3,192.0.2.77\t7172,7173\tKnight,Druid,Mage',
+            '90\tShort,Big,Dots,Text\t1.2,999.1.1.1,1.2.3,abc\t7174,7175,7176,7177\t',
+            '96\tW\t\t7172\t',
+            '97\tW,X\t1.2,\t7172,7173\t',
+        ]
+
+    def test_tibia_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A packet over two segments (99, 100) and a packet that ends in
+        the next segment (102, 103) are reassembled; with the preference
+        off they stay TCP segments.'''
+        cap = capture_file(self.CAP)
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number >= 99 && frame.number <= 103',
+                ['frame.number', '_ws.col.protocol', 'tibia.len'], *self.OPTS)
+        assert rows == ['99\tTCP\t', '100\tTibia\t52', '101\tTibia\t9,10', '102\tTCP\t',
+                        '103\tTibia\t9,10,5']
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number >= 99 && frame.number <= 103',
+                ['frame.number', '_ws.col.protocol'], *self.OPTS,
+                '-o', 'tibia.reassemble_tcp_segments:FALSE')
+        assert len(rows) == 5
