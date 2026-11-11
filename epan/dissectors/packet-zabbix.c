@@ -580,8 +580,8 @@ dissect_zabbix_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
             if (proxy_name && !PINFO_FD_VISITED(pinfo)) {
                 zabbix_info->host_name = wmem_strdup(wmem_file_scope(), proxy_name);
             }
-            proto_item_set_text(ti, "Zabbix Proxy heartbeat from \"%s\"", proxy_name);
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy heartbeat from \"%s\"", proxy_name);
+            proto_item_set_text(ti, "Zabbix Proxy heartbeat from \"%s\"", ZABBIX_NAME_OR_UNKNOWN(proxy_name));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Zabbix Proxy heartbeat from \"%s\"", ZABBIX_NAME_OR_UNKNOWN(proxy_name));
         }
         /* UI/API-specific requests */
         else if (strcmp(request_type, "status.get") == 0) {
