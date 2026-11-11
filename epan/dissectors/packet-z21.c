@@ -1414,7 +1414,7 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                 proto_tree_add_item(z21_tree, hf_z21_zlink_mac, tvb, offset, 18, ENC_ASCII);
                 offset += 18;
                 proto_tree_add_item(z21_tree, hf_z21_zlink_name, tvb, offset, 33, ENC_ISO_8859_1);
-                offset += 18;
+                offset += 33;
                 proto_tree_add_item(z21_tree, hf_z21_zlink_reserved, tvb, offset, 1, ENC_NA);
                 offset += 1;
             }
@@ -1423,13 +1423,12 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_BOOSTER_SET_DESCRIPTION:
             if (datalen > 4) {
                 /* SET_DESCRIPTION or reply to GET_DESCRIPTION */
-                uint8_t *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
-                if (buf[0] == 0xff) {
+                if (tvb_get_uint8(tvb, offset) == 0xff) {
                     /* Interpreted as an empty name */
                     proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, "");
                 }
                 else {
-                    proto_tree_add_string(z21_tree, hf_z21_booster_name, tvb, offset, 32, (char*)buf);
+                    proto_tree_add_item(z21_tree, hf_z21_booster_name, tvb, offset, 32, ENC_ISO_8859_1);
                 }
                 offset += 32;
             }
@@ -1441,13 +1440,12 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_DECODER_SET_DESCRIPTION:
             if (datalen > 4) {
                 /* SET_DESCRIPTION or reply to GET_DESCRIPTION */
-                uint8_t *buf = tvb_get_stringz_enc(pinfo->pool, tvb, offset, NULL, ENC_ISO_8859_1);
-                if (buf[0] == 0xff) {
+                if (tvb_get_uint8(tvb, offset) == 0xff) {
                     /* Interpreted as an empty name */
                     proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, "");
                 }
                 else {
-                    proto_tree_add_string(z21_tree, hf_z21_decoder_name, tvb, offset, 32, (char*)buf);
+                    proto_tree_add_item(z21_tree, hf_z21_decoder_name, tvb, offset, 32, ENC_ISO_8859_1);
                 }
                 offset += 32;
             }
@@ -1502,13 +1500,13 @@ dissect_z21_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         case Z21_LAN_GET_HWINFO:
             if (datalen == 12) {
                 unsigned hwtype = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
-                proto_tree_add_uint(z21_tree, hf_z21_hw_type, tvb, offset, 1, hwtype);
+                proto_tree_add_uint(z21_tree, hf_z21_hw_type, tvb, offset, 4, hwtype);
                 offset += 4;
                 version = tvb_get_uint32(tvb, offset, ENC_LITTLE_ENDIAN);
                 buffer = wmem_strdup_printf(pinfo->pool, "%x.%02x",
                     version >> 8, version & 0xff);
                 proto_tree_add_string(z21_tree, hf_z21_firmware_version,
-                    tvb, offset, 2, buffer);
+                    tvb, offset, 4, buffer);
                 offset += 4;
             }
             break;
