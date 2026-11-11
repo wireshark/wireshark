@@ -1587,6 +1587,14 @@ class wireshark_gen_C:
         if self.DEBUG:
             print("//XXX get_CDR_sequence")
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
+        elem_kind = type.unalias().seqType().unalias().kind()
+        if elem_kind in (idltype.ot_structforward, idltype.ot_unionforward):
+            # The element type cannot be decoded (forward declaration), so
+            # do not emit a loop with an empty body that would spin for
+            # up to 2^32 iterations.
+            self.addvar(self.c_i_lim + pn + ";")
+            self.genWARNING("Unknown typecode = " + '%i ' % elem_kind)
+            return
         self.st.out(self.template_get_CDR_sequence_loop_start, seqname=pn)
         self.addvar(self.c_i_lim + pn + ";")
         self.addvar(self.c_i + pn + ";")

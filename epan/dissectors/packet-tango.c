@@ -4018,7 +4018,6 @@ decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_Tango_DevPipeBlob_blob_data;
-    uint32_t  i_Tango_DevPipeBlob_blob_data;
     /* Operation specific Variable declarations End */
 
     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeBlob_name);
@@ -4026,16 +4025,7 @@ decode_Tango_DevPipeBlob_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
     u_octet4_loop_Tango_DevPipeBlob_blob_data = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_DevPipeBlob_blob_data_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeBlob_blob_data);
 
-    {
-        wmem_stack_push(tree_stack, tree);
-        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevPipeBlob_blob_data");
-        for (i_Tango_DevPipeBlob_blob_data=0; i_Tango_DevPipeBlob_blob_data < u_octet4_loop_Tango_DevPipeBlob_blob_data; i_Tango_DevPipeBlob_blob_data++) {
-
-            /* WARNING - Unknown typecode = 100  */
-
-        }
-        tree = (proto_tree*)wmem_stack_pop(tree_stack);
-    }
+    /* WARNING - Unknown typecode = 100  */
 
 }
 
@@ -4048,7 +4038,6 @@ decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
     _U_ wmem_stack_t *tree_stack = wmem_stack_new(pinfo->pool);
     _U_ int old_offset;
     uint32_t  u_octet4_loop_Tango_DevPipeDataElt_inner_blob;
-    uint32_t  i_Tango_DevPipeDataElt_inner_blob;
     /* Operation specific Variable declarations End */
 
     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_name);
@@ -4062,16 +4051,7 @@ decode_Tango_DevPipeDataElt_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
     u_octet4_loop_Tango_DevPipeDataElt_inner_blob = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     proto_tree_add_uint(tree, hf_Tango_DevPipeDataElt_inner_blob_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevPipeDataElt_inner_blob);
 
-    {
-        wmem_stack_push(tree_stack, tree);
-        tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_giop_sequence, NULL, "sequence Tango_DevPipeDataElt_inner_blob");
-        for (i_Tango_DevPipeDataElt_inner_blob=0; i_Tango_DevPipeDataElt_inner_blob < u_octet4_loop_Tango_DevPipeDataElt_inner_blob; i_Tango_DevPipeDataElt_inner_blob++) {
-
-            /* WARNING - Unknown typecode = 100  */
-
-        }
-        tree = (proto_tree*)wmem_stack_pop(tree_stack);
-    }
+    /* WARNING - Unknown typecode = 100  */
 
     giop_add_CDR_string(pinfo->pool, tree, tvb, offset, stream_is_big_endian, boundary, hf_Tango_DevPipeDataElt_inner_blob_name);
 
