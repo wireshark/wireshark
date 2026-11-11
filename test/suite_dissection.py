@@ -144974,3 +144974,52 @@ class TestDissectSwipe:
             assert lines[1] == '8\t1,4,3,2,1\tswIPe nested too deeply'
             assert lines[2].startswith('9\t1,298,297,296,295\t')
             assert lines[2].endswith('\tswIPe nested too deeply')
+
+
+class TestDissectSymantec:
+    '''Symantec firewall records (pcap link-layer type 99) from the
+    synthetic capture symantec_coverage.pcap.gz.'''
+
+    def test_symantec_frames(self, cmd_tshark, capture_file, test_env):
+        '''Both header variants carry IPv4, ARP and IPv6 or an unknown
+        Ethernet type; the two frames that are neither variant are left
+        undissected. No malformed packets or expert infos, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('symantec_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+                    '-esymantec.if', '-esymantec.type',
+                ), encoding='utf-8', env=test_env)
+            info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+            assert len(info) == 12
+            assert info['1'][0] == 'UDP'
+            assert info['1'][2:] == ['192.0.2.254', '0x0800']
+            assert info['2'][0] == 'ARP'
+            assert info['2'][2:] == ['192.0.2.253', '0x0806']
+            assert info['4'] == ['Symantec', 'Symantec Enterprise Firewall', '10.0.0.1', '0x88b5']
+            assert info['9'] == ['Symantec', 'Symantec SGS v3', '10.0.0.3', '0x88b5']
+            assert info['11'][0] == 'Packet' and info['11'][2:] == ['', '']
+            assert info['12'][0] == 'Packet' and info['12'][2:] == ['', '']
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('symantec_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_symantec_payload(self, cmd_tshark, capture_file, test_env):
+        '''The payload behind the 44 and 56 octet headers is dissected by
+        the Ethernet type: IPv4, ARP and IPv6.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('symantec_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eip.proto', '-earp.dst.proto_ipv4',
+                '-eipv6.nxt', '-eudp.srcport',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert info['1'] == ['17', '', '', '41001']
+        assert info['2'] == ['', '192.0.2.11', '', '']
+        assert info['3'] == ['', '', '17', '41101']
+        assert info['6'] == ['17', '', '', '41002']
+        assert info['7'] == ['', '192.0.2.12', '', '']
+        assert info['8'] == ['', '', '17', '41102']
