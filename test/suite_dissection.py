@@ -149223,3 +149223,99 @@ class TestDissectTime:
             'Jan 15, 2024 10:30:00 UTC',
             'Jan  2, 1970 00:00:00 UTC',
         ]
+
+
+class TestDissectTipc:
+    '''TIPC (Transparent Inter Process Communication) from the synthetic
+    capture tipc_coverage.pcap.gz: version 1 and 2 messages over Ethernet
+    (ethertype 0x88ca, frames 1-106 and 116-119), UDP port 6118 (107-109)
+    and TIPC over TCP (110-115), which needs Decode As (TCP_PORT).'''
+
+    CAP = 'tipc_coverage.pcap.gz'
+    TCP_PORT = ('-d', 'tcp.port==6119,tipc')
+
+    @staticmethod
+    def _rows(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_tipc_clean(self, cmd_tshark, capture_file, test_env):
+        '''119 frames: 115 TIPC, two IPv4 packets carried over TIPC (the IP
+        heuristic dissector) and a TCP segment that waits for the rest of
+        a PDU. No malformed frames with any handle_v2_as setting, and no
+        expert infos in one and two passes at the default setting,
+        except the warning of frame 116 (a name table item size below
+        7).'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',), ('-o', 'tipc.handle_v2_as:1.5_1.6'),
+                     ('-o', 'tipc.handle_v2_as:1.7', '-2')):
+            rows = self._rows(cmd_tshark, cap, test_env, 'frame',
+                    ['frame.number', '_ws.col.protocol'], *self.TCP_PORT, *opts)
+            protos = [r.split('\t')[1] for r in rows]
+            assert len(protos) == 119
+            assert protos.count('TIPC') == 116
+            assert protos.count('IPv4') == 2
+            assert protos.count('TCP') == 1
+            assert self._rows(cmd_tshark, cap, test_env, '_ws.malformed',
+                    ['frame.number'], *self.TCP_PORT, *opts) == []
+            if '-o' not in opts:
+                expert = self._rows(cmd_tshark, cap, test_env, '_ws.expert',
+                        ['frame.number'], *self.TCP_PORT, *opts)
+                assert expert == ['116']
+
+    def test_tipc_name_dist_item_size(self, cmd_tshark, capture_file, test_env):
+        '''The reproducers of "TIPC: Fix several length handling errors":
+        a NAME_DISTRIBUTOR message whose item size is below 7 words gets
+        an expert info instead of walking backwards (frame 116 with item
+        size 1; frame 117 with item size 0, which a TIPC 1.7 reading
+        looped on). Both carry 140 octets of items, so they are well
+        formed whatever the preference.'''
+        cap = capture_file(self.CAP)
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {116,117}',
+                ['frame.number', 'tipcv2.item_size', '_ws.col.info', '_ws.expert.message'])
+        assert rows == [
+            '116\t1\tName Dist    Publication type:1000 seq:1-2\tInvalid item size 1',
+            '117\t0\tName Dist    Publication type:1000 seq:1-2\t',
+        ]
+        rows = self._rows(cmd_tshark, cap, test_env, 'frame.number in {116,117}',
+                ['frame.number', '_ws.expert.message', '_ws.malformed'],
+                '-o', 'tipc.handle_v2_as:1.7')
+        assert rows == ['116\tInvalid item size 1\t', '117\tInvalid item size 0\t']
+
+    def test_tipc_options_longer_than_header(self, cmd_tshark, capture_file, test_env):
+        '''Frames 118 and 119 carry options (7 and 3 words) with a header
+        of 6 words; the header size no longer underflows.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {118,119}',
+                ['frame.number', 'tipc.hdr_size', 'tipcv2.opt_p', '_ws.col.info'])
+        assert rows == ['118\t6\t7\tPayld:Normal NamedMsg', '119\t6\t3\tPayld:Normal NamedMsg']
+
+    def test_tipc_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Frames 58-60 (version 2 fragmenter, 130 octets) and 96-98
+        (version 1 segmentation manager, 100 octets) reassemble, with
+        one and two passes; without the preference nothing does.'''
+        cap = capture_file(self.CAP)
+        for opts in ((), ('-2',)):
+            rows = self._rows(cmd_tshark, cap, test_env,
+                    'tipc.msg.reassembled.length',
+                    ['frame.number', 'tipc.msg.reassembled.length'], *opts)
+            assert rows == ['60\t130', '62\t54', '98\t100']
+        rows = self._rows(cmd_tshark, cap, test_env,
+                'tipc.msg.reassembled.length', ['frame.number'],
+                '-o', 'tipc.defragment:FALSE')
+        assert rows == []
+
+    def test_tipc_bundle_and_tcp(self, cmd_tshark, capture_file, test_env):
+        '''Bundles carry several messages; over TCP two PDUs in one
+        segment and a PDU split over two segments are dissected.'''
+        rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {64,110,111,113}',
+                ['frame.number', '_ws.col.info'], *self.TCP_PORT)
+        assert rows == [
+            '64\tBundler      | Payld:Normal ConnMsg | Payld:Normal NamedMsg type:4096 inst:7 | Link State   State',
+            '110\tPayld:Normal NamedMsg type:4096 inst:7',
+            '111\t DATA_PRIO_1(1) CONN_MSG(0) ',
+            '113\tPayld:Normal NamedMsg type:4096 inst:7',
+        ]
