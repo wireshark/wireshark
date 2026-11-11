@@ -143177,3 +143177,78 @@ class TestDissectSprt:
         rows = self._rows(cmd_tshark, capture_file(self.CAP), test_env,
                 'rtp', ['frame.number', 'rtp.ssrc'])
         assert rows == ['111\t0x11223344']
+
+
+class TestDissectSrp:
+    '''SRP (H.324 Simple Retransmission Protocol) and CCSRL, carried on
+    logical channel 0 of H.223, from the synthetic capture
+    srp_coverage.pcap.gz. An SIP INVITE and 200 OK with the SDP
+    "a=rtpmap:96 CLEARMODE/8000" make Wireshark dissect the RTP payload
+    type 96 as bit-swapped H.223. The H.245 message is an end session
+    command.'''
+
+    def test_srp_frames(self, cmd_tshark, capture_file, test_env):
+        '''Frames 3-21 are H.223 streams (eleven show the H.245 message of
+        the SRP frame they carry, the others a response, a frame without
+        payload or a fragment); no malformed packets or expert infos, in
+        one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 22
+            assert protocols.count('SIP/SDP') == 2
+            assert protocols.count('H.245') == 11
+            assert protocols.count('H.223') == 8
+            assert protocols.count('RTP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_srp_fields(self, cmd_tshark, capture_file, test_env):
+        '''SRP header types, sequence numbers, CRC status, the CCSRL last
+        segment indicator, and the H.223 multiplex headers.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srp_coverage.pcap.gz'),
+                '-Y', 'srp',
+                '-Tfields', '-eframe.number', '-esrp.header', '-esrp.seqno',
+                '-esrp.crc.status', '-eccsrl.ls', '-eh223.mux.mc', '-eh223.mux.mpl',
+            ), encoding='utf-8', env=test_env)
+        info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert len(info) == 15
+        assert info['3'] == ['249', '0', '1', '0xff', '0', '7']
+        assert info['5'][:2] == ['249', '255']
+        assert info['6'] == ['251', '', '1', '', '0', '3']
+        assert info['7'] == ['247', '1', '1', '', '0', '4']
+        assert info['8'][:2] == ['241', '7'] and info['9'][:2] == ['243', '7']
+        assert info['10'][0] == '0'
+        assert info['11'][3] == '0x00'
+        assert info['17'][:2] == ['249,251', '6']
+        assert info['17'][5] == '7,3'
+        assert info['18'][5] == '0,7'
+        assert info['19'][:2] == ['249', '9']
+
+    def test_srp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''SRP frames split over two and three MUX-PDUs are reassembled
+        (frames 12-16), a header bit error is corrected (frame 19) and a
+        multiplex code that is not defined is shown as such (frame 20).
+        The second pass links the fragments to the frame with the
+        complete AL-PDU.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('srp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-esrp.seqno', '-eh223.al.reassembled_in',
+                    '-eh223.mux.correctedhdr', '-eh223.mux.deactivated',
+                ), encoding='utf-8', env=test_env)
+            info = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+            assert info['13'][0] == '4' and info['16'][0] == '5'
+            assert info['12'][0] == '' and info['14'][0] == '' and info['15'][0] == ''
+            if passes:
+                assert info['12'][1] == '13' and info['14'][1] == '16' and info['15'][1] == '16'
+            assert info['19'][2] == '0xc19070'
+            assert info['20'][3] == '1'
