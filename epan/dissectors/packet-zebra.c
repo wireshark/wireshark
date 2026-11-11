@@ -1596,6 +1596,8 @@ zebra_interface(proto_tree *tree, tvbuff_t *tvb, int offset,
 			proto_tree_add_item(tree, hf_zebra_maclen, tvb,
 					    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
+			if (maclen < 0)
+				return offset;
 			if (maclen > 0)
 				proto_tree_add_item(tree, hf_zebra_mac, tvb,
 						    offset, maclen, ENC_NA);
@@ -2441,7 +2443,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 			if (header.version < 4) {
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(pinfo->pool, header.command, messages,
-							   "Command Type 0x%02d"));
+							   "Command Type 0x%02x"));
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command,
 							 tvb, offset, header.len,
 							 header.command);
@@ -2451,21 +2453,21 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(pinfo->pool, header.command, frr_zapi4_messages,
-							   "Command Type 0x%02d"));
+							   "Command Type 0x%02x"));
 			} else if (header.version == 5) {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v5,
 							 tvb, offset, header.len,
 							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(pinfo->pool, header.command, frr_zapi5_messages,
-							   "Command Type 0x%02d"));
+							   "Command Type 0x%02x"));
 			} else {
 				ti = proto_tree_add_uint(zebra_tree, hf_zebra_command_v6,
 							 tvb, offset, header.len,
 							 header.command);
 				col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 						val_to_str(pinfo->pool, header.command, frr_zapi6_messages,
-							   "Command Type 0x%02d"));
+							   "Command Type 0x%02x"));
 			}
 			zebra_request_tree = proto_item_add_subtree(ti,
 							ett_zebra_request);
