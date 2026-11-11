@@ -142237,3 +142237,173 @@ class TestDissectSomeipSd:
         assert 'Service 0x1234 (Door Lock) Version 1.10 Instance 0x0001' in stdout
         assert 'Eventgroup 0x0010 (DoorEvents)' in stdout
         assert 'Service 0x1234 (Door Lock) Version 1 Instance 0x0001 Eventgroup 0x0010' in stdout
+
+
+class TestDissectSoupbintcp:
+    '''SoupBinTCP 3.0 from the synthetic capture
+    soupbintcp_coverage.pcap.gz. SoupBinTCP has no default port: the
+    capture is on TCP 20000 (Decode As). Frames 1-3, 26-28, 34-36 and
+    39-41 are TCP handshakes, 14, 15 and 18 TCP segments of a PDU.'''
+
+    DECODE_AS = ('-d', 'tcp.port==20000,soupbintcp')
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('soupbintcp_coverage.pcap.gz'),
+                *TestDissectSoupbintcp.DECODE_AS,
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_soupbintcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets and no warnings or errors in
+        one and two passes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 45
+        assert protocols.count('SoupBinTCP') == 29
+        assert protocols.count('OUCH') == 1
+        assert protocols.count('TCP') == 15
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                              '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_soupbintcp_packet_types(self, cmd_tshark, capture_file, test_env):
+        '''Every packet type and the Info column; the calculated
+        sequence numbers are the same in the second pass.'''
+        expected = [
+            "4\t'L'\tLogin Request",
+            "5\t'A'\tLogin Accepted",
+            "6\t'S'\tSequenced Data, SeqNum = 100",
+            "7\t'S'\tSequenced Data, SeqNum = 101",
+            "8\t'H'\tServer Heartbeat",
+            "9\t'R'\tClient Heartbeat",
+            "10\t'U'\tUnsequenced Data",
+            "11\t'U'\tUnsequenced Data",
+            "12\t'+'\tDebug Packet",
+            "13\t'+'\tDebug Packet",
+            "16\t'S'\tSequenced Data, SeqNum = 102",
+            "17\t'S','S','H'\tServer Heartbeat",
+            "19\t'S'\tSequenced Data, SeqNum = 105",
+            "20\t'X'\tUnknown (88)",
+            "21\t'A'\tLogin Accepted",
+            "22\t'S'\tSequenced Data, SeqNum = 5000",
+            "23\t'S'\tSystem Event",
+            "24\t'O'\tLogout Request",
+            "25\t'Z'\tEnd of Session",
+            "29\t'L'\tLogin Request",
+            "30\t'J'\tLogin Rejected",
+            "31\t'L'\tLogin Request",
+            "32\t'J'\tLogin Rejected",
+            "33\t'J'\tLogin Rejected",
+            "37\t'S'\tSequenced Data, SeqNum = 0",
+            "38\t'S'\tSequenced Data, SeqNum = 0",
+            "42\t'A'\tLogin Accepted",
+            "43\t'S'\tSequenced Data, SeqNum = 2147483647",
+            "44\t'A'\tLogin Accepted",
+            "45\t'S'\tSequenced Data, SeqNum = 0",
+        ]
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'soupbintcp', '-Tfields', '-eframe.number',
+                              '-esoupbintcp.packet_type', '-e_ws.col.info')
+            assert stdout.splitlines() == expected
+
+    def test_soupbintcp_login_fields(self, cmd_tshark, capture_file, test_env):
+        '''Login Request, Accepted and Rejected fields.'''
+        want = {
+            '4': ['User Name: alice ', 'Password: secret    ', 'Session:           ',
+                  'Requested sequence number: 0'],
+            '5': ['Session: SESS000001', 'Next sequence number: 100'],
+            '29': ['User Name: bob   ', 'Password: pw        ', 'Session: SESS000009',
+                   'Requested sequence number: 12345'],
+            '30': ["Login Reject Code: Not authorized ('A')"],
+            '31': ['User Name: bob   ', 'Password: pw2       ', 'Session: SESS000009',
+                   'Requested sequence number: 1'],
+            '32': ["Login Reject Code: Session not available ('S')"],
+            '33': ["Login Reject Code: Unknown ('Q')"],
+        }
+        for num, lines in want.items():
+            stdout = self.run(cmd_tshark, capture_file, test_env,
+                              '-Y', f'frame.number == {num}', '-V', '-O', 'soupbintcp')
+            got = stdout.splitlines()
+            start = got.index(next(l for l in got if l.startswith('SoupBinTCP, ')))
+            body = [l.strip() for l in got[start + 3:start + 3 + len(lines)]]
+            assert body == [l.strip() for l in lines], num
+
+    def test_soupbintcp_sequence_numbers(self, cmd_tshark, capture_file, test_env):
+        '''The sequence number counts Sequenced Data from the next number of
+        the Login Accepted, also for three PDUs in one segment (103 and
+        104, shown for frame 17) and after a second Login Accepted.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'frame.number == 17', '-V', '-O', 'soupbintcp')
+            seqs = [l.strip() for l in stdout.splitlines() if 'Sequence number:' in l]
+            assert seqs == ['Sequence number: 103 (Calculated)',
+                            'Sequence number: 104 (Calculated)']
+
+    def test_soupbintcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU of 515 octets over three segments and a length field split
+        over two segments.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number in {14, 15, 16, 18, 19}',
+                          '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                          '-esoupbintcp.packet_length')
+        assert stdout.splitlines() == [
+            '14\tTCP\t', '15\tTCP\t', '16\tSoupBinTCP\t513',
+            '18\tTCP\t', '19\tSoupBinTCP\t13']
+
+    def test_soupbintcp_unknown_type_in_tree(self, cmd_tshark, capture_file, test_env):
+        '''The message of an unknown packet type is in the SoupBinTCP tree
+        (it was added to the parent tree before the fix).'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number == 20', '-V', '-O', 'soupbintcp')
+        lines = stdout.splitlines()
+        start = lines.index('SoupBinTCP, Unknown (88)')
+        assert lines[start + 1:start + 4] == [
+            '    Packet Length: 17',
+            "    Packet Type: Unknown ('X')",
+            '    Message: 11223320756e6b6e6f776e2074797065',
+        ]
+
+    def test_soupbintcp_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''A 10 octet system event is claimed by the OUCH heuristic.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'ouch', '-Tfields', '-eframe.number',
+                          '-eouch.event_code')
+        assert stdout.split() == ['23', "'S'"]
+
+    @staticmethod
+    def pcap(pdus):
+        '''A tiny pcap with one TCP segment (port 20000) per PDU.'''
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        seq = 1
+        for pdu in pdus:
+            tcp = struct.pack('!HHIIBBHHH', 20000, 40000, seq, 1, 5 << 4, 0x18, 65535, 0, 0)
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 40 + len(pdu), 1, 0, 64, 6, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            frame = (bytes(6) + bytes(6) + b'\x08\x00' + ip + tcp + pdu)
+            out += struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame
+            seq += len(pdu)
+        return out
+
+    def test_soupbintcp_invalid_sequence_strings(self, cmd_tshark, test_env, tmp_path):
+        '''A non-numeric next sequence number in Login Accepted and
+        requested sequence number in Login Request each get an expert
+        info with the matching text (the two texts were swapped before the
+        fix).'''
+        accepted = struct.pack('!HB', 31, ord('A')) + b'SESS000001' + b'xyz'.ljust(20)
+        request = (struct.pack('!HB', 47, ord('L')) + b'alice '.ljust(6) + b'pw'.ljust(10)
+                   + bytes(10).replace(b'\0', b' ') + b'bad'.ljust(20))
+        cap = tmp_path / 'soup.pcap'
+        cap.write_bytes(self.pcap([request, accepted]))
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(cap),
+                *self.DECODE_AS, '-Tfields', '-eframe.number',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '1\tRequest to begin (re)transmission is an invalid string',
+            '2\tSequence number of next Sequenced Data message to be delivered is an invalid string',
+        ]
