@@ -25,6 +25,9 @@ static int ett_teap_tlv;
 static int ett_pac_attr_tlv;
 
 static expert_field ei_teap_bad_length;
+static expert_field ei_teap_too_deep;
+
+#define TEAP_MAX_NESTING 16
 
 static dissector_handle_t teap_handle;
 
@@ -335,12 +338,19 @@ static int
 dissect_teap_tlv_pac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, uint16_t len)
 {
   int start_offset = offset;
+  unsigned nesting = p_get_proto_depth(pinfo, proto_teap);
 
+  if (nesting >= TEAP_MAX_NESTING) {
+    proto_tree_add_expert_remaining(tree, pinfo, &ei_teap_too_deep, tvb, offset);
+    return len;
+  }
+  p_set_proto_depth(pinfo, proto_teap, nesting + 1);
   increment_dissection_depth(pinfo);
   while (offset - start_offset < len) {
     offset += dissect_pac_attr(tvb, pinfo, tree, offset);
   }
   decrement_dissection_depth(pinfo);
+  p_set_proto_depth(pinfo, proto_teap, nesting);
   return offset - start_offset;
 }
 
@@ -535,6 +545,7 @@ dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   proto_tree *ti;
   proto_tree *teap_tree;
   int offset = 0;
+  unsigned nesting = p_get_proto_depth(pinfo, proto_teap);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TEAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -542,9 +553,15 @@ dissect_teap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
   ti = proto_tree_add_item(tree, proto_teap, tvb, 0, tvb_captured_length(tvb), ENC_NA);
   teap_tree = proto_item_add_subtree(ti, ett_teap);
 
+  if (nesting >= TEAP_MAX_NESTING) {
+    proto_tree_add_expert_remaining(teap_tree, pinfo, &ei_teap_too_deep, tvb, 0);
+    return tvb_captured_length(tvb);
+  }
+  p_set_proto_depth(pinfo, proto_teap, nesting + 1);
   while (offset < (int)tvb_captured_length(tvb)) {
     offset += dissect_teap_tlv(tvb, pinfo, teap_tree, offset, offset == 0);
   }
+  p_set_proto_depth(pinfo, proto_teap, nesting);
 
   return tvb_captured_length(tvb);
 }
@@ -746,6 +763,7 @@ proto_register_teap(void)
   };
   static ei_register_info ei[] = {
      { &ei_teap_bad_length, { "teap.bad_length", PI_PROTOCOL, PI_WARN, "Bad length (too large)", EXPFILL }},
+     { &ei_teap_too_deep, { "teap.too_deep", PI_MALFORMED, PI_ERROR, "TEAP TLVs nested too deeply", EXPFILL }},
   };
 
   expert_module_t* expert_teap;
