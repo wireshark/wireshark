@@ -145430,3 +145430,50 @@ class TestDissectSyslog:
             '87\t\thost\t1',
             '88\t49\thost\t3',
         ]
+
+
+class TestDissectSystemdJournal:
+    '''systemd journal entries (pcapng Systemd Journal Export Blocks) from
+    the synthetic capture systemd_journal_coverage.pcapng.gz.
+    packet-systemd-journal.c registers its dissector only in Stratoshark,
+    so tshark reads the records but does not dissect them; the record test
+    checks what tshark can see (the records, their lengths and their time
+    stamps, which come from the __REALTIME_TIMESTAMP field) and the
+    dissection test uses strato.'''
+
+    def test_systemd_journal_records(self, cmd_tshark, capture_file, test_env):
+        '''Eight records with the time stamps of their entries.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('systemd_journal_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number', '-eframe.len', '-eframe.time_epoch',
+                '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 8
+        assert [l[0] for l in lines] == [str(n) for n in range(1, 9)]
+        assert lines[0][2] == '1700000000.123456000'
+        assert [l[2].split('.')[0] for l in lines] == [str(1700000000 + n) for n in range(8)]
+        assert all(int(l[1]) > 200 for l in lines)
+        assert not any(len(l) > 3 and l[3] for l in lines)
+
+    def test_systemd_journal_dissection(self, cmd_strato, capture_file, test_env):
+        '''strato dissects every entry without malformed packets, in one and
+        two passes; only entry 8 (unknown fields, an empty value, a short
+        line and a line without a value) has expert infos.'''
+        for opts in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_strato, *opts,
+                    '-r', capture_file('systemd_journal_coverage.pcapng.gz'),
+                    '-Tfields', '-eframe.number', '-eframe.protocols',
+                    '-e_ws.malformed', '-e_ws.expert',
+                ), encoding='utf-8', env=test_env)
+            lines = [l.split('\t') for l in stdout.splitlines()]
+            assert len(lines) == 8
+            assert all(l[1] == 'systemd_journal' for l in lines)
+            assert not any(l[2] for l in lines)
+            assert [l[0] for l in lines if l[3]] == ['8']
+            stdout = subprocess.check_output((cmd_strato, *opts,
+                    '-r', capture_file('systemd_journal_coverage.pcapng.gz'),
+                    '-Y', 'systemd_journal.message == "Started synthetic service."',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['1']
