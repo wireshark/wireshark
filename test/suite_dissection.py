@@ -146154,3 +146154,109 @@ class TestDissectTango:
                 '-egiop-tango.DevPipeBlob.blob_data.size', '-egiop-tango.Tango.ClntIdent.cpp_clnt',
                 '-e_ws.col.protocol'), encoding='utf-8', env=test_env, timeout=60).splitlines()
         assert rows == ['355\t4294967295\t1234\tTANGO', '356\t0\t1234\tTANGO']
+
+
+class TestDissectTapa:
+    def test_tapa_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Discovery and tunnel packets on UDP port 5000; payloads that
+        fail the discovery and tunnel tests stay UDP. No malformed
+        packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 17
+        assert protocols.count('TAPA') == 13
+        assert protocols.count('UDP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tapa_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tapa_discover(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests, replies, "new" TLV forms and the
+        unknown type, which does not need a protocol tree to be
+        dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Y', 'tapa',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tDiscover - Request, SerialNo: SN12345678',
+            '2\tDiscover - Request, SerialNo: SN12345678, Model: MP-241',
+            '3\tDiscover - Request, Model: AP-9, 9: abcd',
+            '4\tDiscover - Reply, Switch: 192.0.2.77',
+            '5\tDiscover - Reply, Switch: 198.51.100.1',
+            '6\tDiscover - NewRequest, T=1 L=6, T=2 L=8',
+            '7\tDiscover - NewRequest, T=3 L=5, T=7 L=2',
+            '8\tDiscover - NewReply, T=1 L=9, T=5 L=20, T=6 L=2',
+            '9\tDiscover - NewRequest, T=1 L=5, T=3 L=4',
+            '10\tDiscover - Unknown (3)',
+            '11\tTunnel - V=2, T=Type 0',
+            '12\tTunnel - V=3, T=Type 1',
+            '13\tTunnel - V=0, T=Type 1',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Y', 'tapa.discover.type',
+                '-Tfields', '-eframe.number', '-etapa.discover.req.value',
+                '-etapa.discover.reply.switchip', '-etapa.discover.reply.bias',
+                '-etapa.discover.unknown',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t534e3132333435363738\t\t\t'
+        assert lines[3] == '4\t\t192.0.2.77\t3\t'
+        assert lines[9] == '10\t\t\t\t0102030405060708'
+
+    def test_tapa_tlv_text(self, cmd_tshark, capture_file, test_env):
+        '''A text TLV value is shown as text, not as BINARY-DATA because
+        of the octets of the next TLV header ("TAPA: Fix new TLV value
+        offset and add length checks"); binary values stay binary.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 7 || frame.number == 9',
+                '-Tfields', '-eframe.number',
+                '-etapa.discover.newtlv.valuetext',
+                '-etapa.discover.newtlv.valuehex',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tok\t000102feff',
+            '9\tHELLO\t01020304',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Y', 'frame.number == 9', '-V', '-O', 'tapa',
+            ), encoding='utf-8', env=test_env)
+        assert '    Type 1, length 5, value HELLO' in stdout
+        assert '    Type 3, length 4, value BINARY-DATA' in stdout
+
+    def test_tapa_tunnel(self, cmd_tshark, capture_file, test_env):
+        '''Tunnel types 0 and 1, the version and the sequence number and
+        length of type 1.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Y', 'tapa.tunnel.type',
+                '-Tfields', '-eframe.number', '-etapa.tunnel.version',
+                '-etapa.tunnel.type', '-etapa.tunnel.dmac', '-etapa.tunnel.0804',
+                '-etapa.tunnel.seqno', '-etapa.tunnel.length',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t0x02\t0x00\t02:00:00:00:00:02\t0x0804\t\t',
+            '12\t0x03\t0x01\t02:00:00:00:00:02\t\t77\t20',
+            '13\t0x00\t0x01\t02:00:00:00:00:02\t\t1\t0',
+        ]
+
+    def test_tapa_tree_independent(self, cmd_tshark, capture_file, test_env):
+        '''Without a protocol tree (no -V, no display filter, columns only)
+        the same 13 frames are TAPA; the dissectors returned 0 ("not
+        mine") without a tree before the fix.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tapa_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t')[1] for l in stdout.splitlines()].count('TAPA') == 13
