@@ -142407,3 +142407,135 @@ class TestDissectSoupbintcp:
             '1\tRequest to begin (re)transmission is an invalid string',
             '2\tSequence number of next Sequenced Data message to be delivered is an invalid string',
         ]
+
+
+class TestDissectSparkplug:
+    '''SparkplugB over MQTT from the synthetic capture
+    sparkplug_coverage.pcap.gz: two MQTT connections on TCP 1883 (v3.1.1
+    and v5.0), Sparkplug topics of every message type, with and without a
+    device ID, and topics that are not Sparkplug. Frames 1-3 and 21-23
+    are TCP handshakes.'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('sparkplug_coverage.pcap.gz'),
+            ), encoding='utf-8', env=test_env, timeout=120)
+
+    def test_sparkplug_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts; no malformed packets and no warnings or errors in
+        one and two passes.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.protocol')
+        protocols = stdout.split()
+        assert len(protocols) == 28
+        assert protocols.count('SparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)') == 12
+        assert protocols.count('MQTT') == 10
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', '_ws.malformed || _ws.expert.severity >= "Warning"',
+                              '-Tfields', '-eframe.number')
+            assert count_output(stdout) == 0
+
+    def test_sparkplug_topic_fields(self, cmd_tshark, capture_file, test_env):
+        '''The topic elements (namespace, group, message type, edge node
+        and optional device); a sixth element stays in the device ID.'''
+        for passes in ((), ('-2',)):
+            stdout = self.run(cmd_tshark, capture_file, test_env, *passes,
+                              '-Y', 'sparkplugb', '-Tfields', '-eframe.number',
+                              '-esparkplugb.namespace', '-esparkplugb.groupid',
+                              '-esparkplugb.messagetype', '-esparkplugb.edgenodeid',
+                              '-esparkplugb.deviceid')
+            assert stdout.splitlines() == [
+                '6\tspBv1.0\tgrp1\tNBIRTH\tnode1\t',
+                '8\tspBv1.0\tgrp1\tNDATA\tnode1\t',
+                '9\tspBv1.0\tgrp1\tDBIRTH\tnode1\tdev1',
+                '10\tspBv1.0\tgrp1\tDDATA\tnode1\tdev1',
+                '11\tspBv1.0\tgrp1\tDDEATH\tnode1\tdev1',
+                '12\tspBv1.0\tgrp1\tNDEATH\tnode1\t',
+                '13\tspBv1.0\tgrp1\tNCMD\tnode1\t',
+                '14\tspBv1.0\tgrp1\tDCMD\tnode1\tdev1',
+                '15\tspBv1.0\tgrp1\tDDATA\tnode1\tdev1/extra/more',
+                '16\tspBv1.0\tgrp1\tNDATA\tnode2\t',
+                '26\tspBv1.0\tgrp5\tNDATA\tnode5\t',
+                '27\tspBv1.0\tgrp5\tDDATA\tnode5\tdevA',
+            ]
+
+    def test_sparkplug_info_and_tree(self, cmd_tshark, capture_file, test_env):
+        '''The Info column starts with the message type and the payload is
+        handed to the protobuf dissector inside the SparkplugB tree.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number == 8', '-Tfields', '-e_ws.col.info')
+        assert stdout.startswith('SparkplugB, NDATA (PROTOBUF) com.cirruslink.sparkplug.protobuf.Payload')
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number == 8', '-V', '-O', 'sparkplugb')
+        lines = stdout.splitlines()
+        start = lines.index('SparkplugB')
+        assert lines[start + 1:start + 8] == [
+            '    [Topic Namespace]',
+            '        [Namespace: spBv1.0]',
+            '        [Group ID: grp1]',
+            '        [Message Type: NDATA]',
+            '        [Edge Node ID: node1]',
+            '    Protocol Buffers: com.cirruslink.sparkplug.protobuf.Payload',
+            '        Message: com.cirruslink.sparkplug.protobuf.Payload',
+        ]
+        stdout = self.run(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 6',
+                          '-Tfields', '-eprotobuf.field.value.string')
+        assert stdout.split(',')[:3] == ['bdSeq', 'Node Control/Rebirth', 'Properties/Hardware']
+
+    def test_sparkplug_not_sparkplug_topics(self, cmd_tshark, capture_file, test_env):
+        '''Topics that merely look like the namespace stay plain MQTT.'''
+        stdout = self.run(cmd_tshark, capture_file, test_env,
+                          '-Y', 'mqtt.msgtype == 3 && !sparkplugb',
+                          '-Tfields', '-eframe.number', '-emqtt.topic',
+                          '-e_ws.col.protocol')
+        assert stdout.splitlines() == [
+            '17\tfactory/line1/temp\tMQTT',
+            '18\tspBv1.00/grp1/NDATA/node1\tMQTT',
+            '19\tSpBv1.0/grp1/NDATA/node1\tMQTT',
+            '20\tSTATE/host1\tMQTT',
+            '28\tother/v5\tMQTT',
+        ]
+
+    @staticmethod
+    def pcap(topics):
+        '''A tiny pcap with one MQTT PUBLISH per topic on TCP 1883.'''
+        out = struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1)
+        seq = 1
+        for topic in topics:
+            t = topic.encode()
+            var = struct.pack('!H', len(t)) + t + b'\x08\x01'
+            pdu = bytes((0x30, len(var))) + var
+            tcp = struct.pack('!HHIIBBHHH', 40000, 1883, seq, 1, 5 << 4, 0x18, 65535, 0, 0)
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 40 + len(pdu), 1, 0, 64, 6, 0,
+                             bytes((192, 0, 2, 1)), bytes((192, 0, 2, 2)))
+            frame = bytes(12) + b'\x08\x00' + ip + tcp + pdu
+            out += struct.pack('<IIII', 1, 0, len(frame), len(frame)) + frame
+            seq += len(pdu)
+        return out
+
+    def test_sparkplug_short_topics(self, cmd_tshark, test_env, tmp_path):
+        '''Topics with too few elements get the Missing expert infos
+        (these paths leaked the split topic before the fix, which only
+        shows under a leak checker) and stay MQTT.'''
+        cap = tmp_path / 'sparkplug.pcap'
+        cap.write_bytes(self.pcap(['spBv1.0', 'spBv1.0/grp', 'spBv1.0/grp/NDATA',
+                                   'spBv1.0/grp/NDATA/node']))
+        stdout = subprocess.check_output((cmd_tshark, '-r', str(cap),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        # (MQTT also warns about the missing CONNECT; keep the Sparkplug ones)
+        got = []
+        for line in stdout.splitlines():
+            num, proto, msgs = (line.split('\t') + [''])[:3]
+            got.append('\t'.join((num, proto, ','.join(
+                m for m in msgs.split(',') if m.startswith('Missing')))))
+        assert got == [
+            '1\tSparkplugB\tMissing Group ID',
+            '2\tSparkplugB\tMissing Message Type',
+            '3\tSparkplugB\tMissing Edge Node ID',
+            '4\tSparkplugB/PB(com.cirruslink.sparkplug.protobuf.Payload)\t',
+        ]
