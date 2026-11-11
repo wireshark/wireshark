@@ -147411,3 +147411,124 @@ class TestDissectTds:
             '191\t0\t0x01\t', '192\t0\t0x02\t', '193\t0\t0x08\tselect smp',
             '194\t0\t0x08\t', '195\t0\t0x04\t',
         ]
+
+
+class TestDissectTeamspeak2:
+    '''TeamSpeak 2 over UDP 8767 from the synthetic capture
+    teamspeak2_coverage.pcap.gz: the connection setup, reliable (standard)
+    packets with fragmentation and out of order detection, ACKs and voice
+    packets. The CRC32 of every packet is correct. Names are made up;
+    there is no encryption in the protocol.'''
+
+    def test_ts2_protocols(self, cmd_tshark, capture_file, test_env):
+        '''60 TS2 frames, no malformed packets and no error expert infos
+        (the CRC32 checks are errors) in one and two passes, and with the
+        tree built only for the frames that need it.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 60
+        assert protocols.count('TS2') == 60
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'ts2.crc32.status == 1',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 39
+
+    def test_ts2_login(self, cmd_tshark, capture_file, test_env):
+        '''The login request and reply (Pascal strings in fixed fields).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3, 4, 5, 60}',
+                '-Tfields', '-eframe.number', '-ets2.protocolstring',
+                '-ets2.platformstring', '-ets2.name', '-ets2.nick', '-ets2.password',
+                '-ets2.servername', '-ets2.serverwelcomemessage', '-ets2.channel',
+                '-ets2.subchannel', '-ets2.channelpassword',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '3\tTeamSpeak\tLinux\talice\tAlice the nick\tsecret\t\t\t\t\t',
+            '4\t\tLinux\t\t\t\tExample TS2 Server\tWelcome to the example server\t\t\t',
+            '5\t\t\t\t\t\t\t\tDefault Channel\tSub Channel\tchanpass',
+            '60\tTeamSpeak\tWin32\t\tanon\t\t\t\t\t\t',
+        ]
+
+    def test_ts2_lists(self, cmd_tshark, capture_file, test_env):
+        '''Player and channel lists, player events and status changes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11, 13, 14, 15, 16, 17, 28, 29}',
+                '-Tfields', '-eframe.number', '-ets2.playerid', '-ets2.channelid',
+                '-ets2.playerstatusflags', '-ets2.nick',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '11\t1,2,3\t1,2,1\t0,3,28\talice,bob,carol',
+            '13\t4\t1\t\tdave',
+            '14\t4\t\t31\t',
+            '15\t4\t1,2\t\t',
+            '16\t3\t\t\t',
+            '17\t2\t\t\t',
+            '28\t\t2\t\t',
+            '29\t\t\t5\t',
+        ]
+
+    def test_ts2_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''The channel list over three fragments (frames 7, 9, 10) and in
+        a second conversation whose first packet is fragmented (55-56),
+        and a text message over two fragments (31-32).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'frame.number in {7, 9, 10, 31, 32, 55, 56}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-ets2.reassembled.length', '-ets2.fragment.count',
+                '-ets2.channelname',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '7\tType: Channel List, Class: Standard (reliable) (Message fragment 0)\t\t\t',
+            '9\tType: Channel List, Class: Standard (reliable) (Message fragment 1)\t\t\t',
+            '10\tType: Channel List, Class: Standard (reliable) (Message Reassembled)\t170\t3\tLobby,Moderated,Sub,All flags',
+            '31\tType: Text Message, Class: Standard (reliable) (Message fragment 0)\t\t\t',
+            '32\tType: Text Message, Class: Standard (reliable) (Message Reassembled)\t40\t2\t',
+            '55\tType: Channel List, Class: Standard (reliable) (Message fragment 0)\t\t\t',
+            '56\tType: Channel List, Class: Standard (reliable) (Message Reassembled)\t170\t2\tLobby,Moderated,Sub,All flags',
+        ]
+
+    def test_ts2_out_of_order(self, cmd_tshark, capture_file, test_env):
+        '''A repeated and a skipped sequence number are ignored; the next
+        in-order packet is accepted again.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 33 && frame.number <= 35',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '33\tType: Change Status, Class: Standard (reliable) (Out Of Order, ignored)',
+            '34\tType: Change Status, Class: Standard (reliable) (Out Of Order, ignored)',
+            '35\tType: Change Status, Class: Standard (reliable)',
+        ]
+
+    def test_ts2_voice_and_ack(self, cmd_tshark, capture_file, test_env):
+        '''ACKs, client and server voice packets and an unknown class.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('teamspeak2_coverage.pcap.gz'),
+                '-Y', 'frame.number in {6, 36, 41, 49, 50, 53, 54}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '6\tClass: ACK',
+            '36\tType: TS2T_VOICE_DATA_CELP_5_1, Class: Voice',
+            '41\tType: TS2T_VOICE_DATA_SPEEX_3_4, Class: Voice',
+            '49\tType: Unknown (0xd00), Class: Voice',
+            '50\tType: TS2T_VOICE_DATA_CELP_5_1, Class: Voice',
+            '53\tClass: ACK',
+            '54\tType: Ping, Class: Unknown (0xbeef)',
+        ]
