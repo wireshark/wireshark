@@ -142682,3 +142682,176 @@ class TestDissectSpdy:
         rows = self.spdy(cmd_tshark, capture_file, test_env, 'tcp.port == 9999 && tcp.len > 0',
                          '_ws.col.protocol', 'spdy.type', extra=('--enable-heuristic', 'spdy_tcp'))
         assert [r.split('\t')[0] for r in rows] == ['SPDY'] * 6
+
+
+class TestDissectSpice:
+    '''SPICE (remote desktop) over TCP, found by the TCP heuristic, from
+    the synthetic capture spice_coverage.pcap.gz. Each channel type has its
+    own connection: link, authentication selection, ticket, then data PDUs
+    with 18 octet or mini (6 octet) headers; the last two connections use
+    SASL framing. The "ticket" and the key in the link reply are filler
+    bytes, not real key material.'''
+
+    @staticmethod
+    def spice(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('spice_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    @staticmethod
+    def values(rows, column):
+        '''All comma separated values of one tab separated column.'''
+        out = []
+        for r in rows:
+            v = r.split('\t')[column]
+            if v:
+                out.extend(v.split(','))
+        return out
+
+    def test_spice_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All channels decode without malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        protocols = [r for r in rows]
+        assert len(protocols) == 252
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts == {
+            'Spice MAIN': 68, 'Spice DISPLAY': 81, 'Spice INPUTS': 14, 'Spice CURSOR': 16,
+            'Spice PLAYBACK': 13, 'Spice RECORD': 8, 'Spice PORT': 9, 'Spice USBREDIR': 6,
+            'Spice MAIN (SASL wrapped)': 3, 'TCP': 34,
+        }
+        for passes in ((), ('-2',)):
+            rows = self.spice(cmd_tshark, capture_file, test_env,
+                              '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                              'frame.number', passes=passes)
+            assert count_output('\n'.join(rows)) == 0
+
+    def test_spice_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The message types and the message summary of the frames that
+        carry a complete SPICE message are the same in two passes. (The
+        first segments of reassembled PDUs are labelled differently by
+        TCP in the second pass, which is not SPICE.)'''
+        args = ('spice.message_type', 'frame.number', 'spice.message_type',
+                'spice.serial', '_ws.col.info')
+        one = self.spice(cmd_tshark, capture_file, test_env, *args)
+        two = self.spice(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert len(one) == 150
+        assert one == two
+
+    def test_spice_link(self, cmd_tshark, capture_file, test_env):
+        '''The link messages of every channel type, and the server caps
+        that follow the 162 octet key.'''
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.link_client',
+                          'spice.channel_type', 'spice.num_common_caps', 'spice.num_channel_caps')
+        assert [r.split('\t')[0] for r in rows] == ['1', '2', '2', '3', '4', '5', '6', '9', '10', '1', '1']
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.link_server',
+                          'spice.num_common_caps', 'spice.num_channel_caps', 'spice.caps_offset')
+        assert len(rows) == 11
+        assert set(rows) <= {'1\t1\t178', '1\t0\t178'}
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.common_cap_auth_sasl == 1',
+                          'frame.number', 'spice.common_cap_mini_header')
+        assert rows
+
+    def test_spice_auth_selection(self, cmd_tshark, capture_file, test_env):
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.auth_select_client',
+                          'frame.number', 'spice.auth_select_client')
+        assert [r.split('\t')[1] for r in rows] == ['1', '1', '2', '2']
+
+    def test_spice_mini_headers(self, cmd_tshark, capture_file, test_env):
+        '''When both sides announce the mini header the data PDUs have a
+        6 octet header (no serial number); with only the client announcing
+        it, the full header is used.'''
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'tcp.port == 40003 && spice.message_type',
+                          'spice.serial', 'spice.message_type')
+        assert rows and all(r.startswith('\t') for r in rows)
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'tcp.port == 40002 && spice.message_type',
+                          'spice.serial')
+        assert rows and all(r for r in rows)
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'tcp.port == 40009 && spice.message_type',
+                          'spice.serial')
+        assert rows and all(r for r in rows)
+
+    def test_spice_images(self, cmd_tshark, capture_file, test_env):
+        '''Every image type of the display channel decodes, including the
+        embedded JPEG and the zlib-compressed GLZ stream.'''
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.image_type', 'spice.image_type')
+        types = set(self.values(rows, 0))
+        assert types == {'0', '1', '100', '101', '102', '103', '104', '105', '106', '107', '108'}
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'image-jfif', 'frame.number')
+        assert len(rows) >= 4
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.zlib_uncompress_size',
+                          'spice.zlib_uncompress_size')
+        assert rows == ['48', '48']
+
+    def test_spice_agent_messages(self, cmd_tshark, capture_file, test_env):
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.agent_message_type',
+                          'spice.agent_message_type')
+        assert set(self.values(rows, 0)) == {'1', '2', '3', '4', '5', '6', '7', '8', '9'}
+
+    def test_spice_sasl(self, cmd_tshark, capture_file, test_env):
+        '''The SASL message lengths of the wrapped data are big endian
+        and show the length that is used (they were shown byte swapped).'''
+        rows = self.spice(cmd_tshark, capture_file, test_env,
+                          '_ws.col.protocol == "Spice MAIN (SASL wrapped)"',
+                          'spice.sasl_message_length')
+        assert rows == ['40', '20,12', '40']
+        rows = self.spice(cmd_tshark, capture_file, test_env, 'spice.sasl_auth_result',
+                          'spice.sasl_auth_result')
+        assert self.values(rows, 0) == ['0', '0', '0', '0']
+
+    @staticmethod
+    def wrapped_length_pcap(path):
+        '''A SPICE conversation whose server data PDU has a message size
+        of 0xFFFFFFEE: 0xFFFFFFEE + 18 wraps to 0, and the message type has no
+        handler, so the dissector did not advance and looped forever.'''
+        def csum(b):
+            if len(b) % 2:
+                b += b'\0'
+            s = sum(struct.unpack('!%dH' % (len(b) // 2), b))
+            s = (s >> 16) + (s & 0xffff)
+            s += s >> 16
+            return (~s) & 0xffff
+        seq = {0: 1000, 1: 5000}
+        frames = []
+        def send(from_client, payload):
+            d = 0 if from_client else 1
+            src, dst = (b'\x0a\0\0\x01', b'\x0a\0\0\x02') if from_client else (b'\x0a\0\0\x02', b'\x0a\0\0\x01')
+            sp, dp = (40001, 5930) if from_client else (5930, 40001)
+            t = struct.pack('!HHIIBBHHH', sp, dp, seq[d], seq[1 - d], 0x50, 0x18, 65535, 0, 0)
+            ip = struct.pack('!BBHHHBBH4s4s', 0x45, 0, 40 + len(payload), 1, 0, 64, 6, 0, src, dst)
+            ip = ip[:10] + struct.pack('!H', csum(ip)) + ip[12:]
+            eth = (b'\x02\0\0\0\0\x01\x02\0\0\0\0\x02' if not from_client else
+                   b'\x02\0\0\0\0\x02\x02\0\0\0\0\x01') + b'\x08\x00'
+            frames.append(eth + ip + t + payload)
+            seq[d] += len(payload)
+        caps = struct.pack('<I', 2)
+        link = struct.pack('<IBBIII', 1, 0x7f, 0, 1, 0, 18) + caps
+        send(True, b'REDQ' + struct.pack('<III', 2, 2, len(link)) + link)
+        reply = struct.pack('<I', 0) + bytes(162) + struct.pack('<III', 1, 0, 178) + caps
+        send(False, b'REDQ' + struct.pack('<III', 2, 2, len(reply)) + reply)
+        send(True, bytes(128))
+        send(False, struct.pack('<I', 0))
+        send(False, struct.pack('<QHII', 1, 101, 0xFFFFFFEE, 0))
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1))
+            for i, fr in enumerate(frames):
+                f.write(struct.pack('<IIII', i + 1, 0, len(fr), len(fr)) + fr)
+
+    def test_spice_wrapped_message_size(self, cmd_tshark, result_file, test_env):
+        '''A server message size that wraps is reported with an expert
+        info and tshark finishes (it used to loop forever without -V).'''
+        path = result_file('spice_wrapped.pcap')
+        self.wrapped_length_pcap(path)
+        for passes in ((), ('-2',)):
+            # only the summary lines: no protocol tree is built, which is
+            # where the endless loop was
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', path),
+                    encoding='utf-8', env=test_env, timeout=60)
+            assert len(stdout.splitlines()) == 5
+            stdout = subprocess.check_output((cmd_tshark, *passes, '-r', path,
+                    '-Y', 'spice.invalid_length', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=60)
+            assert stdout.split() == ['5']
