@@ -146356,3 +146356,103 @@ class TestDissectTcapGaps:
         numbers = [int(n) for n in stdout.split()]
         assert len(numbers) == 100
         assert numbers[0] == 1001 and numbers[-1] == 1100
+
+
+class TestDissectTcgCpOids:
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('tcg_cp_oids_coverage.pcap.gz'),
+                '-Y', 'tls.handshake.certificate', '-Tfields', '-eframe.number', *fields,
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_tcg_cp_oids_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Three TLS connections carry the certificates; nothing is
+        malformed or has a warning or an error expert info, in one and
+        two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tcg_cp_oids_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 20
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tcg_cp_oids_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tcg_cp_oids_tls_split(self, cmd_tshark, capture_file, test_env):
+        '''Handshake messages split over several records and TCP segments
+        in both directions (second connection) are reassembled, also with
+        -2, and the Certificate message is dissected at the same frame.
+        The JA3 and JA4 of the split ClientHello equal those of the
+        unsplit ones.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tcg_cp_oids_coverage.pcap.gz'),
+                    '-Y', 'tls.handshake.type in {1, 2, 11}',
+                    '-Tfields', '-eframe.number', '-etls.handshake.type',
+                    '-etls.handshake.ja3', '-etls.handshake.ja4',
+                ), encoding='utf-8', env=test_env)
+            rows = [l.split('\t') for l in stdout.splitlines()]
+            assert [r[0] for r in rows] == ['4', '5', '10', '12', '13', '18', '19']
+            assert [r[1] for r in rows] == ['1', '2,11,14', '1', '2', '11,14', '1', '2,11,14']
+            ja = {tuple(r[2:]) for r in rows if r[1] == '1'}
+            assert ja == {('5a6f5ba859dd395751805f3064d612b9', 't12i010000_f06271c2b022_000000000000')}
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tcg_cp_oids_coverage.pcap.gz'),
+                    '-Y', 'tcg-cp-oids.family', '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['5', '13']
+
+    def test_tcg_cp_oids_specifications(self, cmd_tshark, capture_file, test_env):
+        '''TPM and TCG platform specification attributes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-etcg-cp-oids.family', '-etcg-cp-oids.tpm_specification_level',
+                '-etcg-cp-oids.revision', '-etcg-cp-oids.majorVersion',
+                '-etcg-cp-oids.platformClass', '-etcg-cp-oids.major', '-etcg-cp-oids.minor')
+        assert rows['5'] == ['2.0', '0', '164,43', '1', '00000001', '1', '2']
+        assert rows['13'] == ['1.2', '2', '116,1', '2', 'deadbeef', '', '']
+        assert rows['19'] == ['', '', '', '', '', '', '']
+
+    def test_tcg_cp_oids_assertions(self, cmd_tshark, capture_file, test_env):
+        '''TPM and TBB security assertions: every field, the defaults and
+        every enumeration value.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-etcg-cp-oids.fieldUpgradable', '-etcg-cp-oids.ekGenerationType',
+                '-etcg-cp-oids.assurancelevel', '-etcg-cp-oids.evaluationStatus',
+                '-etcg-cp-oids.strengthOfFunction', '-etcg-cp-oids.rtmType',
+                '-etcg-cp-oids.iso9000Uri', '-etcg-cp-oids.profileOid')
+        assert rows['5'] == ['True', '3', '7,1', '2,0', '2', '5',
+                             'http://example.invalid/iso,http://example.invalid/iso2',
+                             '1.3.6.1.4.1.99999.1']
+        assert rows['19'][1] == '0,1,2,3'
+        assert rows['19'][2] == '1,2,3,4,5,6'
+        assert rows['19'][5] == '0,1,2,3,4,5'
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-etcg-cp-oids.fips_level_version_string', '-etcg-cp-oids.fips_security_level',
+                '-etcg-cp-oids.ProtectionProfile', '-etcg-cp-oids.SecurityTarget')
+        assert rows['5'] == ['140-2,140-1', '3,1', '1.3.6.1.4.1.99999.3,1.3.6.1.4.1.99999.5',
+                             '1.3.6.1.4.1.99999.4,1.3.6.1.4.1.99999.6']
+
+    def test_tcg_cp_oids_extensions(self, cmd_tshark, capture_file, test_env):
+        '''The TCG certificate extensions: relevant credentials and
+        manifests, the service URIs and the backup service.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-etcg-cp-oids.documentURI',
+                '-etcg-cp-oids.VirtualPlatformAttestationServiceURI',
+                '-etcg-cp-oids.MigrationControllerAttestationServiceURI',
+                '-etcg-cp-oids.MigrationControllerRegistrationServiceURI',
+                '-etcg-cp-oids.restoreAllowed', '-etcg-cp-oids.backupServiceURI')
+        assert rows['19'] == [
+            'http://example.invalid/ek.crt,http://example.invalid/cred2.crt,'
+            'http://example.invalid/cred3.crt,http://example.invalid/manifest',
+            'https://example.invalid/attest',
+            'https://example.invalid/migrate-attest',
+            'https://example.invalid/migrate-reg',
+            'True',
+            'https://example.invalid/backup,https://example.invalid/backup2']
