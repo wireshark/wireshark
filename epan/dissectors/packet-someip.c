@@ -3460,7 +3460,7 @@ dissect_someip_payload_array_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         count++;
     }
 
-    if (count<lower_limit && count>upper_limit) {
+    if (count<lower_limit || count>upper_limit) {
         proto_tree_add_expert_format(tree, pinfo, &ei_someip_payload_dyn_array_not_within_limit, tvb, offset_orig, length,
                                      "Number of items (%d) outside limit %d-%d", count, lower_limit, upper_limit);
         col_append_str(pinfo->cinfo, COL_INFO, " [SOME/IP Payload: Dynamic array does not stay between Min and Max values]");
@@ -3753,7 +3753,7 @@ dissect_someip_payload_bitfield(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if (item->hf_id != NULL) {
             proto_tree_add_item(subtree, *(item->hf_id), tvb, offset_orig, number_of_bytes, ENC_BIG_ENDIAN);
         } else {
-            uint32_t mask = (uint32_t)(1 << (item->bit_number));
+            uint64_t mask = (item->bit_number < 64) ? (UINT64_C(1) << item->bit_number) : 0;
             proto_tree_add_boolean_format(subtree, hf_payload_bitfield_item, tvb, offset, number_of_bytes, value, "%s (bit %d): %d", item->bit_name, item->bit_number, (value & mask) != 0);
         }
     }
@@ -3818,6 +3818,9 @@ static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet
     int loop_limit = 255;
     while (data_type == SOMEIP_PARAMETER_DATA_TYPE_TYPEDEF && loop_limit > 0) {
         someip_parameter_typedef_t *tmp = get_typedef_config(id_ref);
+        if (tmp == NULL) {
+            return -1;
+        }
         data_type = tmp->data_type;
         id_ref = tmp->id_ref;
         loop_limit--;
@@ -3927,7 +3930,7 @@ dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                     break;
                 default:
                     expert_someip_payload_config_error(tree, pinfo, tvb, offset - 2, 2, "WTLV type 4 but datatype has not an appropriate length field configured");
-                    return 8 * (offset - offset_orig);
+                    return offset - offset_orig;
                 }
                 break;
 
@@ -4145,7 +4148,7 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     offset += 1;
 
     /* lets figure out what we have for the rest */
-    if (((uint32_t)tvb_length >= (someip_length + 8)) ) {
+    if (someip_length <= (uint32_t)tvb_length - 8) {
         someip_payload_length = someip_length - SOMEIP_HDR_PART1_LEN;
     } else {
         someip_payload_length = tvb_length - SOMEIP_HDR_LEN;
