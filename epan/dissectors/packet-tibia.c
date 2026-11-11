@@ -527,8 +527,13 @@ ipv4tonl(const char *str)
 {
         uint32_t ipaddr = 0;
         for (int octet = 0; octet < 4; octet++) {
-            ws_strtou8(str, &str, &((uint8_t*)&ipaddr)[octet]);
-            str++;
+            if (!ws_strtou8(str, &str, &((uint8_t*)&ipaddr)[octet]))
+                return 0;
+            if (octet < 3) {
+                if (*str != '.')
+                    return 0;
+                str++;
+            }
         }
         return ipaddr;
 }
@@ -1443,7 +1448,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         char *err = NULL;
         size_t payload_len;
         if (!(payload_len = rsa_decrypt_inplace(128, payload, privkey, false, &err))) {
-            expert_add_info_format(pinfo, ti, &ei_rsa_decrypt_failed, "Decrypting RSA block failed: %s", err);
+            expert_add_info_format(pinfo, ti, &ei_rsa_decrypt_failed, "Decrypting RSA block failed: %s", err ? err : "unknown error");
             g_free(err);
             return offset;
         }
