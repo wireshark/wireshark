@@ -145655,3 +145655,93 @@ class TestDissectT125:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number == 23',
                 '-e_ws.col.protocol', '-et124.DomainMCSPDU')
         assert rows == [['23', 'COTP', '']]
+
+
+class TestDissectT30:
+    '''ITU-T T.30 facsimile control frames (HDLC) from the synthetic capture
+    t30_coverage.pcap.gz. T.30 has no port; real captures reach it through
+    T.38 (UDPTL or TCP, only with Decode As or SDP). The frames here are
+    Exported PDUs (linktype 252) that name "t30.hdlc", the registered
+    dissector T.38 calls, so no T.38 packet information is present.'''
+
+    def test_t30_frames(self, cmd_tshark, capture_file, test_env):
+        '''94 frames, all T.30; no malformed packets and no error expert
+        infos in one and two passes. The two warnings are the frames with
+        an address other than 0xff and a control field other than 0xc0 or
+        0xc8.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', 't30',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert len(stdout.split()) == 94
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('t30_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', '_ws.expert.severity >= 0x00600000',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '92\tT30 Address must be 0xFF',
+            '93\tT30 Control Field must be 0xC0 or 0xC8',
+        ]
+
+    def test_t30_ppr_frame_count(self, cmd_tshark, capture_file, test_env):
+        '''The PPR frame count is a 16 bit field (256 with every bit
+        set; it used to be an 8 bit field holding 0) and covers the 32
+        octet bitmap.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', 'frame.number in {53, 54, 55, 56}',
+                '-Tfields', '-eframe.number', '-et30.ppr.frame_count',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['53\t0', '54\t11', '55\t256', '56\t255']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', 'frame.number == 55',
+                '-V', '-O', 't30',
+            ), encoding='utf-8', env=test_env)
+        assert any(line.strip() == 'Frame counter: 256' for line in stdout.splitlines())
+
+    def test_t30_numbers_and_data(self, cmd_tshark, capture_file, test_env):
+        '''Subscriber identification numbers (20 reversed octets), non-standard
+        facilities, FCD frame numbers and the PPS counters.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', 'frame.number in {35, 39, 44, 48, 49, 50, 51, 52}',
+                '-Tfields', '-eframe.number', '-et30.FacsimileControl',
+                '-et30.fif.number', '-et30.t4.frame_num', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '35\t2\t+61 2 5550 0002\t\t (HDLC Reassembled: CSI - Called Subscriber Identification - Number:+61 2 5550 0002)',
+            '39\t2\t+61 2 5550 0130\t\t (HDLC Reassembled: CSI - Called Subscriber Identification - Number:+61 2 5550 0130)',
+            '44\t66\t\t\t (HDLC Reassembled: TSI - Transmitting Subscriber Identification - Number:)',
+            '48\t96\t\t5\t (HDLC Reassembled: FCD - Facsimile coded data - Frame num:5)',
+            '49\t96\t\t255\t (HDLC Reassembled: FCD - Facsimile coded data - Frame num:255)',
+            '50\t96\t\t0\t (HDLC Reassembled: FCD - Facsimile coded data - Frame num:0)',
+            '51\t125\t\t\t (HDLC Reassembled: PPS - Partial Page Signal - PC:3 BC:9 FC:17)',
+            '52\t125\t\t\t (HDLC Reassembled: PPS - Partial Page Signal - PC:0 BC:255 FC:1)',
+        ]
+
+    def test_t30_dis_chain(self, cmd_tshark, capture_file, test_env):
+        '''DIS and DCS frames with 3 to 15 information octets: the extension
+        bit of each octet decides whether the next one is dissected.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('t30_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 13, 14, 21, 33}',
+                '-Tfields', '-eframe.number', '-et30.FacsimileControl',
+                '-et30.fif.ext',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert [l.split('\t')[:2] for l in lines] == [
+            ['1', '1'], ['13', '1'], ['14', '1'], ['21', '65'], ['33', '65']]
+        # the 3 octet DIS has one extension indicator; the 15 octet one has 13
+        # (the first octet has none) and ends with a clear one
+        assert lines[0].split('\t')[2] == 'False'
+        assert lines[1].split('\t')[2] == ','.join(['True'] * 12 + ['False'])
