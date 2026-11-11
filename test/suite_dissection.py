@@ -140755,3 +140755,146 @@ class TestDissectSnmp:
         stdout = subprocess.check_output((cmd_tshark, '-o', uat, '-r', pcap, '-Y', 'frame.number == 2',
                 '-V', '-O', 'snmp'), encoding='utf-8', env=test_env)
         assert 'specific-trap: 5 (synthetic enterprise trap)' in stdout
+
+
+class TestDissectSnort:
+    '''The Snort post-dissector reading alerts from packet comments
+    (snort.alerts_source: from-user-comments, the TraceWrangler format
+    "<gen>:<sid>:<rev> - <msg>") from the synthetic capture
+    snort_coverage.pcapng.gz. The rules come from a Snort configuration that
+    the test writes into a temporary directory (CONF, EXTRA and RULES). No
+    snort binary is run. The comment is only seen when a tree is built, so
+    the tests ask for frame.comment or use -V.'''
+
+    CONF = r'''# Synthetic Snort configuration for the coverage capture
+var RULE_PATH rules
+ipvar HOME_NET 192.0.2.0/24
+ipvar EXTERNAL_NET !$HOME_NET
+portvar HTTP_PORTS [80,8080]
+var SHELLCODE_PORTS !80
+config reference: url http://example.invalid/ref/
+config reference: cve http://cve.example.invalid/?id=
+include $RULE_PATH/local.rules
+include extra.conf
+'''
+
+    EXTRA = r'''# included file with no rules
+config checksum_mode: none
+'''
+
+    RULES = r'''# local rules
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"HTTP GET index"; flow:to_server,established; content:"GET"; http_method; content:"/index"; offset:4; depth:10; nocase; fast_pattern; content:"Host|3a| www"; distance:0; within:30; rawbytes; uricontent:"index.html"; http_uri; classtype:web-application-attack; reference:url,example.invalid/doc; reference:cve,2020-1234; reference:nodef,xyz; sid:2001; rev:3;)
+alert udp any any -> any 5354 (msg:"UDP offset depth"; content:"MAGIC"; offset:2; depth:8; classtype:misc-activity; sid:2002; rev:1;)
+alert icmp any any -> any any (msg:"ICMP payload"; content:"PINGDATA"; sid:2003; rev:2;)
+alert udp any any -> any 9999 (msg:"Binary and negated"; content:"|de ad be ef|"; content:!"forbidden"; content:"tail|20 7a|"; sid:2004; rev:1;)
+alert udp any any -> any 9998 (msg:"Chain"; content:"first"; content:"second"; distance:3; within:12; content:"third"; distance:-8; sid:2005; rev:1;)
+alert tcp any any -> any 80 (msg:"PCRE flags"; pcre:"/user-agent\x3a\s+CURL/i"; pcre:"/^get.*host/smB"; pcre:"/a(b|c)+d/U"; pcre:"x"; pcre:"no-delimiters/"; sid:2006; rev:1;)
+alert tcp any any -> any 80 (msg:"HTTP buffers"; content:"id="; http_client_body; content:"sess"; http_cookie; content:"curl"; http_user_agent; sid:2007; rev:1;)
+alert udp any any -> any any (msg:"No contents"; classtype:attempted-recon; sid:2008; rev:1;)
+alert tcp any any -> any 80 (msg:"Uricontent only"; uricontent:"/missing"; sid:2009; rev:1;)
+alert udp any any -> any 9997 (msg:"Content not in packet"; content:"NOTTHERE"; sid:2010; rev:1;)
+alert udp any any -> any 7777 (msg:"Ports and vars"; sid:2011; rev:1; priority:3;)
+alert udp any any -> any any (msg:"s16 test"; sid:1; rev:1;)
+not a rule line
+alert tcp any any -> any any (no closing parenthesis
+'''
+
+    @staticmethod
+    def snort_opts(tmp_path, CONF, EXTRA, RULES):
+        d = tmp_path / 'snortconf'
+        (d / 'rules').mkdir(parents=True)
+        (d / 'snort.conf').write_text(CONF)
+        (d / 'extra.conf').write_text(EXTRA)
+        (d / 'rules' / 'local.rules').write_text(RULES)
+        return ('-o', 'snort.alerts_source:from-user-comments',
+                '-o', 'snort.config:' + str(d / 'snort.conf'))
+
+    def run_snort(self, cmd_tshark, capture_file, test_env, tmp_path, extra, fields, frames=None):
+        '''Returns the rows (lists of fields) of the frames with an alert. A display
+        filter on the frame number would hide the comment from the post-dissector, so
+        "snort" is the filter and the frames are selected here.'''
+        opts = self.snort_opts(tmp_path, self.CONF, self.EXTRA, self.RULES)
+        stdout = subprocess.check_output((cmd_tshark, *opts, *extra,
+                '-r', capture_file('snort_coverage.pcapng.gz'),
+                '-Y', 'snort', '-Tfields', '-eframe.number', '-eframe.comment',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        rows = [line.split('\t') for line in stdout.splitlines()]
+        if frames is not None:
+            rows = [r for r in rows if int(r[0]) in frames]
+        return rows
+
+    def test_snort_alerts(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Alerts from packet comments: the rule is found by its SID (message,
+        classification, contents, uricontents, pcre and references with the
+        reference prefixes of the configuration). 20 frames have an alert; the
+        frames with no comment, a plain comment or malformed numbers have none.'''
+        rows = self.run_snort(cmd_tshark, capture_file, test_env, tmp_path, (),
+                              ('snort.sid', 'snort.class', 'snort.content', 'snort.reference'))
+        assert len(rows) == 20
+        by_frame = {r[0]: r for r in rows}
+        assert by_frame['4'][1:] == [
+            '1:2001:3 - HTTP GET index', '2001', 'web-application-attack',
+            'GET,/index,Host|3a| www',
+            'http://example.invalid/ref/example.invalid/doc,http://cve.example.invalid/?id=2020-1234,nodef,xyz']
+        assert by_frame['16'][2:] == ['2002', 'misc-activity', 'MAGIC', '']
+        assert by_frame['20'][2:5] == ['2008', 'attempted-recon', '']
+        assert by_frame['12'][2:5] == ['424242', '', '']     # no such rule
+        for frame in ('27', '28', '29', '30'):
+            assert frame not in by_frame
+
+    def test_snort_comment_without_rule(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''An alert whose SID is not in the configuration (frames 12 and 24) used to
+        crash the dissector (NULL rule dereferenced for the classification);
+        a SID that is in it with a comment shorter than 23 octets (frame 23,
+        "1:1:1 - x") used to write past the end of a copy of the comment.'''
+        rows = self.run_snort(cmd_tshark, capture_file, test_env, tmp_path, (),
+                              ('snort.sid', 'snort.msg', 'snort.class'), (12, 23, 24))
+        assert rows == [
+            ['12', '1:424242:7 - no rule for this sid', '424242', ' - no rule for this sid', ''],
+            ['23', '1:1:1 - x', '1', ' - x', '<NULL>'],
+            ['24', '1:4242:1 - not in config', '4242', ' - not in config', ''],
+        ]
+
+    def test_snort_content_matching(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''Contents that are not in the frame get an expert note.'''
+        rows = self.run_snort(cmd_tshark, capture_file, test_env, tmp_path, (),
+                              ('_ws.expert.message',))
+        notes = {r[0]: r[2] for r in rows}
+        assert notes['19'].endswith('Content   "second"   not found in frame,Content   "third"   not found in frame')
+        assert notes['21'].endswith('Content   "NOTTHERE"   not found in frame')
+        assert notes['11'].endswith('Content   "/missing"   not found in frame')
+        assert 'PCRE   "/user-agent\\\\x3a\\\\s+CURL/i"   not found in frame' in notes['10']
+        for frame in ('4', '16', '17', '18'):
+            assert 'not found' not in notes[frame]
+
+    def test_snort_reassembled_frame(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''With show_alert_in_reassembled_frame (needs two passes) the alert of the first
+        segment of a split request moves to the frame where the request is reassembled
+        (frames 6-7).'''
+        rows = self.run_snort(cmd_tshark, capture_file, test_env, tmp_path,
+                              ('-2', '-o', 'snort.show_alert_in_reassembled_frame:TRUE'),
+                              ('snort.reassembled_in', 'snort.reassembled_from', 'snort.sid'),
+                              (4, 6, 7))
+        assert rows == [
+            ['4', '1:2001:3 - HTTP GET index', '', '', '2001'],
+            ['6', '1:2001:3 - HTTP GET index', '7', '', ''],
+            ['7', '', '', '6', '2001'],
+        ]
+
+    def test_snort_rule_stats(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''The rule set statistics: 12 rules from one rule file (the invalid
+        lines are skipped) and the running alert counts.'''
+        rows = self.run_snort(cmd_tshark, capture_file, test_env, tmp_path,
+                              ('-o', 'snort.show_rule_set_stats:TRUE'),
+                              ('snort.global-stats.rule-count', 'snort.global-stats.rule-file-count',
+                               'snort.global-stats.total-alerts', 'snort.global-stats.match-number',
+                               'snort.global-stats.rule.match-number'),
+                              (4, 12, 18, 19, 31))
+        assert rows == [
+            ['4', '1:2001:3 - HTTP GET index', '12', '1', '1', '1', '1'],
+            ['12', '1:424242:7 - no rule for this sid', '12', '1', '6', '6', ''],
+            ['18', '1:2005:1 - Chain', '12', '1', '9', '9', '1'],
+            ['19', '1:2005:1 - Chain', '12', '1', '10', '10', '2'],
+            ['31', '2:2008:4 - generator 2', '12', '1', '18', '18', '2'],
+        ]
