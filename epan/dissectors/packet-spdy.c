@@ -27,6 +27,7 @@
 #include <epan/expert.h>
 #include <epan/tap.h>
 #include <epan/tfs.h>
+#include <epan/proto_data.h>
 #include <wsutil/array.h>
 #include <wsutil/zlib_compat.h>
 #include "packet-tcp.h"
@@ -153,8 +154,6 @@ typedef struct _spdy_header_info_t {
   unsigned   header_block_len;
   uint16_t frame_type;
 } spdy_header_info_t;
-
-static wmem_list_t *header_info_list;
 
 typedef struct _spdy_stream_info_t {
   media_container_type_t container_type;
@@ -430,15 +429,6 @@ static bool inflate_end_cb (wmem_allocator_t *allocator _U_,
   return false;
 }
 #endif /* USE_ZLIB_OR_ZLIBNG */
-
-/*
- * Protocol initialization
- */
-static void
-spdy_init_protocol(void)
-{
-   header_info_list = NULL;
-}
 
 /*
  * Returns conversation data for a given packet. If conversation data can't be
@@ -875,39 +865,48 @@ DIAG_ON(cast-qual)
 
 
 /*
- * Saves state on header data for a given stream.
+ * Saves state on header data for a given stream. The decompressed header
+ * blocks are kept per frame, so that they are found again when the frame
+ * is dissected again, and so that the lookup only walks the (few) header
+ * blocks of this frame.
  */
-static spdy_header_info_t* spdy_save_header_block(packet_info *pinfo _U_,
+static spdy_header_info_t* spdy_save_header_block(packet_info *pinfo,
                                                   uint32_t stream_id,
                                                   uint16_t frame_type,
                                                   uint8_t *header,
                                                   unsigned length) {
   spdy_header_info_t *header_info;
+  wmem_list_t *list;
 
-  if (header_info_list == NULL)
-    header_info_list = wmem_list_new(wmem_file_scope());
+  list = (wmem_list_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0);
+  if (list == NULL) {
+    list = wmem_list_new(wmem_file_scope());
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0, list);
+  }
 
   header_info = wmem_new(wmem_file_scope(), spdy_header_info_t);
   header_info->stream_id = stream_id;
   header_info->header_block = header;
   header_info->header_block_len = length;
   header_info->frame_type = frame_type;
-  wmem_list_append(header_info_list, header_info);
+  wmem_list_append(list, header_info);
   return header_info;
 }
 
 /*
- * Retrieves saved state for a given stream.
+ * Retrieves saved state for a given stream in this frame.
  */
-static spdy_header_info_t* spdy_find_saved_header_block(packet_info *pinfo _U_,
+static spdy_header_info_t* spdy_find_saved_header_block(packet_info *pinfo,
                                                         uint32_t stream_id,
                                                         uint16_t frame_type) {
+  wmem_list_t *list;
   wmem_list_frame_t *frame;
 
-  if ((header_info_list == NULL) || (wmem_list_head(header_info_list) == NULL))
-      return NULL;
+  list = (wmem_list_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0);
+  if (list == NULL)
+    return NULL;
 
-  frame = wmem_list_frame_next(wmem_list_head(header_info_list));
+  frame = wmem_list_head(list);
   while (frame != NULL) {
       spdy_header_info_t *hi = (spdy_header_info_t *)wmem_list_frame_data(frame);
       if (hi->stream_id == stream_id && hi->frame_type == frame_type)
@@ -1346,8 +1345,8 @@ static int dissect_spdy_goaway_payload(tvbuff_t *tvb,
   }
 
   /* Add status to info column. */
-  proto_item_append_text(frame_tree, " Status=%s)",
-                  val_to_str(pinfo->pool, goaway_status, rst_stream_status_names, "Unknown (%d)"));
+  proto_item_append_text(frame_tree, " Status=%s",
+                  val_to_str(pinfo->pool, goaway_status, goaway_status_names, "Unknown (%d)"));
 
   return frame->length;
 }
@@ -1807,7 +1806,6 @@ void proto_register_spdy(void)
                                  "using \"Content-Encoding: \"",
                                  &spdy_decompress_body);
 
-  register_init_routine(&spdy_init_protocol);
 
   /*
    * Register for tapping
