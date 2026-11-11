@@ -192,7 +192,8 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* avoid build failure on ancient libgcrypt without OCB support */
 #ifdef GCRY_OCB_BLOCK_LEN
-    if (have_ssyncp_key) {
+    if (have_ssyncp_key &&
+            tvb_captured_length(tvb) >= SSYNCP_DATAGRAM_HEADER_LEN + SSYNCP_TRANSPORT_HEADER_LEN + SSYNCP_AUTHTAG_LEN) {
         gcry_error_t gcry_err;
 
         /* try to decrypt the rest of the packet */
