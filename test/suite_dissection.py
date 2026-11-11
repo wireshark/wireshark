@@ -146981,3 +146981,83 @@ class TestDissectTcpros:
                 '-Y', 'tcpros.message.header.seq && frame.number >= 26 && frame.number <= 33',
                 '-Tfields', '-eframe.number')
         assert rows == []
+
+
+class TestDissectTdmoe:
+    '''Digium TDMoE (ethertype 0xd00d) from the synthetic capture
+    tdmoe_coverage.pcap.gz. The D channel (channel 24) carries a bit
+    stream of LAPD frames (Q.931 SETUP, RR, RELEASE COMPLETE, SABME, UA)
+    that is split over the 8 octets per packet and decoded by
+    lapd-bitstream.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tdmoe_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_tdmoe_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Thirteen frames: TDMoE, the LAPD and Q.931 frames decoded from the
+        D channel, and a short frame that is not TDMoE; no malformed packets
+        or error expert infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 13
+        assert protocols.count('TDMoE') == 7
+        assert protocols.count('LAPD') == 3
+        assert protocols.count('Q.931') == 2
+        assert protocols.count('0xd00d') == 1
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_tdmoe_header(self, cmd_tshark, capture_file, test_env):
+        '''Subaddress, samples, flags (yellow alarm and signalling bits),
+        packet counter, channel count and the signalling bits.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tdmoe', '-Tfields', '-eframe.number',
+                '-etdmoe.subaddress', '-etdmoe.samples', '-etdmoe.flags',
+                '-etdmoe.yellowalarm', '-etdmoe.sig_bits_present',
+                '-etdmoe.counter', '-etdmoe.channels', '-etdmoe.sig_bits')
+        assert len(rows) == 12
+        assert rows[0] == ['1', '0', '8', '0x00', 'False', 'False', '1', '24', '']
+        assert rows[1] == ['2', '0', '8', '0x01', 'True', 'False', '2', '24', '']
+        assert rows[2][3:6] == ['0x02', 'False', 'True']
+        assert rows[2][8] == '0f' * 12
+        assert rows[3][3:6] == ['0x03', 'True', 'True']
+        assert rows[8][7:] == ['25', '0f' * 13]
+        assert rows[10][1] == '3' and rows[10][7] == '1'
+        assert rows[11][7] == '0'
+
+    def test_tdmoe_yellow_alarm_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column shows the channels and the yellow alarm.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tdmoe.yellowalarm && frame.number in {2, 11}',
+                '-Tfields', '-e_ws.col.info')
+        assert rows == [['Subaddress: 0 Channels: 24 [YELLOW ALARM]'],
+                        ['Subaddress: 3 Channels: 1 [YELLOW ALARM]']]
+
+    def test_tdmoe_dchannel(self, cmd_tshark, capture_file, test_env):
+        '''LAPD frames spanning several TDMoE packets are decoded in the
+        packet that completes them (frames 3, 4, 6, 7 and 8).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'lapd', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [(r[0], r[1].split(' | ')[0:2]) for r in rows] == [
+            ('3', ['TEI:64 I, N(R)=0, N(S)=0', 'SETUP']),
+            ('4', ['TEI:64 S, func=RR, N(R)=1', '']),
+            ('6', ['TEI:64 I, N(R)=2, N(S)=1', 'RELEASE COMPLETE']),
+            ('7', ['TEI:64 U P, func=SABME', '']),
+            ('8', ['TEI:64 U P, func=UA', '']),
+        ]
+
+    def test_tdmoe_d_channel_pref(self, cmd_tshark, capture_file, test_env):
+        '''With tdmoe.d_channel set to channel 2 the D channel octets are
+        not decoded as LAPD any more.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'tdmoe.d_channel:2', '-Y', 'lapd',
+                '-Tfields', '-eframe.number')
+        assert len(rows) == 0
