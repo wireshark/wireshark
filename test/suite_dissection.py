@@ -149319,3 +149319,71 @@ class TestDissectTipc:
             '111\t DATA_PRIO_1(1) CONN_MSG(0) ',
             '113\tPayld:Normal NamedMsg type:4096 inst:7',
         ]
+
+
+class TestDissectTivoconnect:
+    def test_tivoconnect_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Beacons (UDP) and connections (TCP) on port 2190; payloads
+        that do not start with "tivoconnect" are not TiVoConnect. No
+        malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tivoconnect_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 13
+        assert protocols.count('TiVoConnect') == 11
+        assert protocols.count('UDP') == 1
+        assert protocols.count('TCP') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tivoconnect_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tivoconnect_fields(self, cmd_tshark, capture_file, test_env):
+        '''Every field, in upper and mixed case, with missing and empty
+        values; the machine name and identity go in the Info column.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tivoconnect_coverage.pcap.gz'),
+                '-Y', 'tivoconnect.flavor',
+                '-Tfields', '-eframe.number',
+                '-etivoconnect.method', '-etivoconnect.platform',
+                '-etivoconnect.machine', '-etivoconnect.identity',
+                '-etivoconnect.services', '-etivoconnect.version',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines()[:8] == [
+            '1\tbroadcast\ttcd/Series3\tLiving Room\t6520001800A1234\tTiVoMediaServer:80/http\t20.4.4.RC2\tDiscovery Beacon Living Room (6520001800A1234)',
+            '2\tconnected\tpc/linux\tStudy\t{1234-5678}\tTiVoMediaServer:80/http\t1.0\tDiscovery Connection Study ({1234-5678})',
+            '3\t\t\tKitchen\t\t\t\tDiscovery Beacon Kitchen',
+            '4\t\t\t\tABC123\t\t\tDiscovery Beacon ID:ABC123',
+            '5\tbroadcast\t\t\t\t\t\tDiscovery Beacon',
+            '6\tbroadcast\tpc\tDen\tZZ9\tnone\t2\tDiscovery Beacon Den (ZZ9)',
+            '7\t\t\tOdd\t\t\t\tDiscovery Beacon Odd',
+            '8\tbroadcast\tpc\tTEST\t\t\t\tDiscovery Beacon TEST',
+        ]
+
+    def test_tivoconnect_blank_lines(self, cmd_tshark, capture_file, test_env):
+        '''Blank lines between the fields must not shift the offsets of
+        the following fields (frame 8 showed "od=broadc" for the method
+        before the fix "TiVoConnect: Fix field offsets after empty
+        lines").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tivoconnect_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8',
+                '-Tfields', '-etivoconnect.method', '-etivoconnect.machine',
+                '-etivoconnect.platform',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == 'broadcast\tTEST\tpc'
+        # the bytes shown for the Method and Machine fields
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tivoconnect_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8', '-Tjson', '-x',
+            ), encoding='utf-8', env=test_env)
+        import json
+        layer = json.loads(stdout)[0]['_source']['layers']['tivoconnect']
+        assert bytes.fromhex(layer['tivoconnect.method_raw'][0]) == b'broadcast'
+        assert bytes.fromhex(layer['tivoconnect.machine_raw'][0]) == b'TEST'
