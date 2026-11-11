@@ -1,6 +1,6 @@
 tools/dissector_generators/idl2wrs usr/bin
 tools/idl2deb usr/bin
-tools/asn2deb usr/bin
+tools/asn2deb.py usr/bin/asn2deb
 tools/make-plugin-reg.py usr/share/pyshared
 tools/dissector_generators/idl2wrs_be.py usr/share/pyshared
 tools/dissector_generators/idl2wrs_gen.py usr/share/pyshared
