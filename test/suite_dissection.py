@@ -147061,3 +147061,94 @@ class TestDissectTdmoe:
                 '-o', 'tdmoe.d_channel:2', '-Y', 'lapd',
                 '-Tfields', '-eframe.number')
         assert len(rows) == 0
+
+
+class TestDissectTdmop:
+    '''TDMoP from the synthetic capture tdmop_coverage.pcap.gz. TDMoP is not
+    claimed by default: frames 1-18 are Ethernet frames with ethertype 0x0808
+    (OPTS), frames 19-21 are UDP datagrams to port 5555 (Decode As). The D
+    channel (timeslot 16) carries an HDLC bit stream (Q.931 SETUP, RR,
+    RELEASE COMPLETE, SABME, UA) split over the frames.'''
+
+    OPTS = ('-o', 'tdmop.ethertype:0x808', '-d', 'udp.port==5555,tdmop')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tdmop_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_tdmop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Twenty-one frames: TDMoP, and the LAPD and Q.931 frames decoded
+        from the D channel; no malformed packets or error expert infos in
+        one and two passes. Without the preference and Decode As none of
+        them is TDMoP.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                           '-Tfields', '-e_ws.col.protocol')
+        protocols = [r[0] for r in rows]
+        assert len(protocols) == 21
+        assert protocols.count('TDMoP') == 16
+        assert protocols.count('LAPD') == 3
+        assert protocols.count('Q.931') == 2
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Y', 'tdmop', '-Tfields', '-eframe.number')
+        assert len(rows) == 0
+
+    def test_tdmop_header(self, cmd_tshark, capture_file, test_env):
+        '''Transfer ID with the channels, the flag bits and the sequence
+        number; the Info column shows Lost Request.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number <= 6 || frame.number == 21', '-Tfields',
+                '-eframe.number', '-etdmop.transferid', '-etdmop.dstch',
+                '-etdmop.srcch', '-etdmop.flags', '-etdmop.flags.nodata',
+                '-etdmop.flags.remotenodata', '-etdmop.flags.compressed',
+                '-etdmop.seqnum', '-e_ws.col.info')
+        assert rows == [
+            ['1', '0x02030001', '3', '2', '8', 'True', 'False', 'False', '1', 'Lost Request'],
+            ['2', '0x02030001', '3', '2', '12', 'True', 'True', 'False', '2', 'Lost Request'],
+            ['3', '0x02030001', '3', '2', '10', 'True', 'False', 'False', '3', 'Lost Request'],
+            ['4', '0x02030001', '3', '2', '30', 'True', 'True', 'True', '4', 'Lost Request'],
+            ['5', '0x02030001', '3', '2', '16', 'False', 'False', 'True', '5', ''],
+            ['6', '0x02030001', '3', '2', '20', 'False', 'True', 'True', '6', ''],
+            ['21', '0x02030001', '3', '2', '8', 'True', 'False', 'False', '21', 'Lost Request'],
+        ]
+
+    def test_tdmop_compression_masks(self, cmd_tshark, capture_file, test_env):
+        '''The masks of compressed blocks (halves swapped on the wire); the
+        frame that overflows the D channel buffer has 34 blocks.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {5, 6, 9, 18, 19}', '-Tfields',
+                '-eframe.number', '-etdmop.cmask')
+        assert rows[0] == ['5', '0x80000003']
+        assert rows[1] == ['6', '0x00000020,0x000000c0']
+        assert rows[2] == ['9', '0x00010010,0x00010000,0x00010010']
+        assert rows[3][1].split(',') == ['0x00010000'] * 34
+        assert rows[4] == ['19', '0x0001000c']
+
+    def test_tdmop_dchannel(self, cmd_tshark, capture_file, test_env):
+        '''The LAPD frames carried in the D channel are decoded in the frame
+        that completes them (also over UDP: none, the frames are flags).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'lapd', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [(r[0], r[1].split(' | ')[0:2]) for r in rows] == [
+            ('9', ['TEI:64 I, N(R)=0, N(S)=0', 'SETUP']),
+            ('11', ['TEI:64 S, func=RR, N(R)=1', '']),
+            ('12', ['TEI:64 I, N(R)=2, N(S)=1', 'RELEASE COMPLETE']),
+            ('14', ['TEI:64 U P, func=SABME', '']),
+            ('15', ['TEI:64 U P, func=UA', '']),
+        ]
+
+    def test_tdmop_empty_mask(self, cmd_tshark, capture_file, test_env):
+        '''With tdmop.ts_mask 0 an uncompressed frame has no timeslot: the
+        block loop used to run forever ("TDMoP: Stop on an empty channel
+        mask"), now each such frame gets the tdmop.mask_empty expert info.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-o', 'tdmop.ts_mask:0', '-Y', 'tdmop.mask_empty',
+                '-Tfields', '-eframe.number')
+        assert rows == [['16'], ['17'], ['20']]
