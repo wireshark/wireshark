@@ -27,9 +27,23 @@ If you or your organization would like to contribute or become a sponsor, please
 // Many other improvements have been made.
 // See the “New and Updated Features” section below for more details.
 
+// The following changes have been made since version 1.0.0rc2:
+
+// * Nothing of note.
+
 The following changes have been made since version 1.0.0rc1:
 
-* Nothing of note.
+* The Preferences dialog works much better on small screens.
+
+* A theme designer (menu:View[Internals,Theme Designer]) has been added.
+
+* Several more themes have been added, including color blind-friendly themes.
+
+* All dialogs now have btn:[Help] buttons and associated documentation.
+
+* The Lua debugger has been improved.
+
+* Many other UI, style, and theme improvements.
 
 The following changes have been made since version 0.10.4:
 

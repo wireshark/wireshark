@@ -23,9 +23,25 @@ If you or your organization would like to contribute or become a sponsor, please
 // Add a summary of **major** changes here.
 // Add other changes to "New and Updated Features" below.
 
+// The following changes have been made since version 5.0.0rc2:
+
+// * Nothing of note.
+
 The following changes have been made since version 5.0.0rc1:
 
-* Nothing of note.
+* The Preferences dialog works much better on small screens.
+
+* A theme designer (menu:View[Internals,Theme Designer]) has been added.
+
+* Several more themes have been added, including color blind-friendly themes.
+
+* All dialogs now have btn:[Help] buttons and associated documentation.
+
+* The Distribution dialog has been improved.
+
+* The Lua debugger has been improved.
+
+* Many other UI, style, and theme improvements.
 
 The following changes have been made since version 4.7.4:
 
@@ -322,7 +338,7 @@ Xiph.org Ogg Stream
 
 // Add one protocol per line between the -- delimiters in the format
 // “Full protocol name (Abbreviation)”
-// git log --oneline --diff-filter=A --stat v4.7.4rc0.. epan/dissectors plugins
+// git log --oneline --diff-filter=A --stat v5.0.0rc2.. epan/dissectors plugins
 [commaize]
 --
 Apple Darwin Metadata
