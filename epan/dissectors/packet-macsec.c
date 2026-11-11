@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/etypes.h>
 #include <wsutil/wsgcrypt.h>
 
@@ -118,6 +119,22 @@ pref_key_string_to_bin(const char *key_string, unsigned char **key_bin)
 }
 
 /* Code to actually dissect the packets */
+/* Call the ethertype dissector and restore pinfo->fd->pkt_len afterwards,
+ * also when it throws an exception. (A helper function, so that the
+ * locals of dissect_macsec() are not clobbered by the TRY block.) */
+static void
+call_ethertype_restoring_pkt_len(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                                 ethertype_data_t *ethertype_data, int pkt_len_saved)
+{
+    TRY {
+        call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, ethertype_data);
+    }
+    FINALLY {
+        pinfo->fd->pkt_len = pkt_len_saved;
+    }
+    ENDTRY;
+}
+
 static int dissect_macsec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
     unsigned    sectag_length, data_length, short_length, icv_length;
     unsigned    fcs_length = 0;
@@ -401,10 +418,7 @@ out:
         ethertype_data.trailer_id = hf_macsec_eth_padding;
         ethertype_data.fcs_len = 0;
 
-        call_dissector_with_data(ethertype_handle, next_tvb, pinfo, tree, &ethertype_data);
-
-        /* restore original value */
-        pinfo->fd->pkt_len = pkt_len_saved;
+        call_ethertype_restoring_pkt_len(next_tvb, pinfo, tree, &ethertype_data, pkt_len_saved);
     }
 
     /* Set icv_check_success to the correct status */
