@@ -146797,3 +146797,92 @@ class TestDissectTcpCoverage:
             out = self.run(cmd_tshark, capture_file, test_env, ['-q', '-z', table])
             assert '192.0.2.10' in out
             assert '198.51.100.20' in out
+
+
+class TestDissectTcpcl:
+    '''TCPCL (DTN TCP Convergence Layer, versions 3 and 4) from the synthetic
+    capture tcpcl_coverage.pcapng.gz: sessions on TCP port 4556 and on other
+    ports through the "dtn!" heuristic, transfers in several segments with
+    acks, STARTTLS, shutdowns, sessions without a contact header, and a
+    transfer with more segments than the dissector tracks (frames 105-110).'''
+
+    CAP = 'tcpcl_coverage.pcapng.gz'
+
+    @staticmethod
+    def _fields(cmd_tshark, capture, env, flt, fields, *opts):
+        out = subprocess.check_output((cmd_tshark, *opts, '-r', capture, '-Y', flt,
+                '-Tfields', '-Eoccurrence=a', *(a for f in fields for a in ('-e', f))),
+                encoding='utf-8', env=env, timeout=120)
+        return out.splitlines()
+
+    def test_tcpcl_clean(self, cmd_tshark, capture_file, test_env):
+        '''75 frames are TCPCL and none is malformed in one and two passes.
+        The sequence analysis warns about segments of a transfer whose END
+        segment or ACK comes later only in the first pass; in the second
+        pass only the segment limit of the long transfer is reported.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            assert len(self._fields(cmd_tshark, cap, test_env, 'tcpcl',
+                    ['frame.number'], *passes)) == 75
+            assert self._fields(cmd_tshark, cap, test_env, '_ws.malformed',
+                    ['frame.number'], *passes) == []
+        assert self._fields(cmd_tshark, cap, test_env,
+                '_ws.expert.severity >= 0x00600000', ['frame.number'], '-2') == ['109', '110']
+
+    def test_tcpcl_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A TCPCLv4 transfer of three segments (the END segment in frame
+        14), a transfer of two segments sent in one TCP segment and the
+        next (frame 20) and a TCPCLv3 transfer of three segments (frame 52)
+        are reassembled, in one and two passes; the total length comes from
+        the Transfer Length extension.'''
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                    'tcpcl.xfer.reassembled.length',
+                    ['frame.number', 'tcpcl.xfer.reassembled.length'], *passes)
+            assert rows == ['14\t137', '20\t97', '52\t103']
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'tcpcl.v4.xfer_segment.seen_len && frame.number in {10, 12, 14}',
+                ['frame.number', 'tcpcl.v4.xfer_segment.seen_len', 'tcpcl.v4.xfer.total_len'], '-2')
+        assert rows == ['10\t40\t137', '12\t80\t137', '14\t137\t137']
+
+    def test_tcpcl_session(self, cmd_tshark, capture_file, test_env):
+        '''SESS_INIT node ids and the negotiated keepalive (the smaller
+        one), the TLS negotiation of the contact headers (both sides can
+        TLS in frames 33 and 34, one cannot in 39 and 40) and the v3
+        contact header EIDs.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {6, 7}',
+                ['frame.number', 'tcpcl.v4.sess_init.nodeid_data', 'tcpcl.v4.negotiated.keepalive'], '-2')
+        assert rows == ['6\tipn:1.0\t30', '7\tdtn://node-b/\t30']
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'tcpcl.v4.negotiated.use_tls && frame.number in {33, 34, 39, 40}',
+                ['frame.number', 'tcpcl.v4.negotiated.use_tls'], '-2')
+        assert rows == ['33\tTrue', '34\tTrue', '39\tFalse', '40\tFalse']
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'tcpcl.contact_hdr.local_eid', ['frame.number', 'tcpcl.contact_hdr.local_eid'])
+        assert rows[:2] == ['46\tdtn://node-a', '47\tdtn://node-b.example/']
+
+    def test_tcpcl_v3_shutdown(self, cmd_tshark, capture_file, test_env):
+        '''TCPCLv3 SHUTDOWN with no option, a reason, a delay and both.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'frame.number in {60, 61, 62, 63}',
+                ['frame.number', 'tcpcl.shutdown.reason', 'tcpcl.shutdown.delay'])
+        assert rows == ['60\t\t', '61\t1\t', '62\t\t300', '63\t2\t4660']
+
+    def test_tcpcl_segment_limit(self, cmd_tshark, capture_file, test_env):
+        '''A transfer of 5100 segments: the dissector tracks 5000 per
+        transfer and reports the rest (and the acks of the rest) with an
+        expert info instead of the quadratic analysis it did before
+        "TCPCL: Bound segments per transfer, fix session extension table".'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'tcpcl.xfer_seg_limit', ['frame.number'])
+        assert rows == ['109', '110']
+
+    def test_tcpcl_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''Contact headers on ports 50020 and 50021 are found by the
+        heuristic; the v3 transfer on 50021 is acknowledged.'''
+        rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
+                'tcpcl && (tcp.port == 50020 || tcp.port == 50021)',
+                ['frame.number', 'tcp.dstport'], '-2')
+        assert len(rows) == 10
+        assert {r.split('\t')[1] for r in rows} == {'50020', '50021', '40020', '40021'}
