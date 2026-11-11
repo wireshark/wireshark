@@ -54,6 +54,9 @@
 void proto_register_tcpcl(void);
 void proto_reg_handoff_tcpcl(void);
 
+/// Maximum number of segments (and of acks) tracked per transfer
+#define TCPCL_MAX_TRANSFER_SEGMENTS 5000
+
 /// Contact header magic bytes
 static const char magic[] = {'d', 't', 'n', '!'};
 /// Minimum size of contact header for any version
@@ -552,6 +555,7 @@ static expert_field ei_invalid_version;
 static expert_field ei_mismatch_version;
 static expert_field ei_chdr_duplicate;
 static expert_field ei_length_clamped;
+static expert_field ei_tcpcl_xfer_seg_limit;
 static expert_field ei_chdr_missing;
 
 static expert_field ei_tcpclv3_eid_length;
@@ -587,6 +591,7 @@ static ei_register_info ei_tcpcl[] = {
     {&ei_mismatch_version, { "tcpcl.mismatch_contact_version", PI_PROTOCOL, PI_ERROR, "Protocol version mismatch", EXPFILL}},
     {&ei_chdr_duplicate, { "tcpcl.contact_duplicate", PI_SEQUENCE, PI_ERROR, "Duplicate Contact Header", EXPFILL}},
     {&ei_length_clamped, { "tcpcl.length_clamped", PI_UNDECODED, PI_ERROR, "Length too large for Wireshark to handle", EXPFILL}},
+    {&ei_tcpcl_xfer_seg_limit, { "tcpcl.xfer_seg_limit", PI_PROTOCOL, PI_WARN, "Too many segments in one transfer, not analyzed or reassembled", EXPFILL}},
     {&ei_chdr_missing, { "tcpcl.contact_missing", PI_ASSUMPTION, PI_NOTE, "Contact Header is missing, TCPCL version is implied", EXPFILL}},
 
     {&ei_tcpclv3_eid_length, { "tcpcl.eid_length_invalid", PI_PROTOCOL, PI_ERROR, "Invalid EID Length", EXPFILL }},
@@ -988,7 +993,7 @@ static reassembly_table_functions xfer_reassembly_table_functions = {
 
 /** Record metadata about one segment in a transfer.
  */
-static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t flags,
+static bool transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t flags,
                                  uint64_t data_len,
                                  packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree_msg,
                                  proto_item *item_msg, proto_item *item_flags) {
@@ -1010,6 +1015,12 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uin
     if (frm) {
         tcpcl_seg_meta_free(seg_meta);
         seg_meta = wmem_list_frame_data(frm);
+    }
+    else if (wmem_list_count(xfer->seg_list) >= TCPCL_MAX_TRANSFER_SEGMENTS) {
+        /* Bound the list searches and the reassembly cost of one transfer */
+        tcpcl_seg_meta_free(seg_meta);
+        expert_add_info(pinfo, item_msg, &ei_tcpcl_xfer_seg_limit);
+        return false;
     }
     else {
         wmem_list_insert_sorted(xfer->seg_list, seg_meta, tcpcl_seg_meta_compare_loc);
@@ -1056,6 +1067,10 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uin
     }
     seg_meta->seen_len = prev_seen_len + data_len;
 
+    if (!tcpcl_analyze_sequence) {
+        return true;
+    }
+
     proto_item *item_seen = proto_tree_add_uint64(tree_msg, hf_tcpclv4_xfer_segment_seen_len, tvb, 0, 0, seg_meta->seen_len);
     proto_item_set_generated(item_seen);
     if (seg_meta->seen_len > ctx->rx_peer->transfer_mru) {
@@ -1095,6 +1110,7 @@ static void transfer_add_segment(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uin
         proto_item *item_td = proto_tree_add_time(tree_msg, hf_tcpclv4_xfer_segment_time_start, tvb, 0, 0, &td);
         proto_item_set_generated(item_td);
     }
+    return true;
 }
 
 static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t flags,
@@ -1109,6 +1125,11 @@ static void transfer_add_ack(tcpcl_dissect_ctx_t *ctx, uint64_t xfer_id, uint8_t
     if (frm) {
         tcpcl_ack_meta_free(ack_meta);
         ack_meta = wmem_list_frame_data(frm);
+    }
+    else if (wmem_list_count(xfer->ack_list) >= TCPCL_MAX_TRANSFER_SEGMENTS) {
+        tcpcl_ack_meta_free(ack_meta);
+        expert_add_info(pinfo, item_msg, &ei_tcpcl_xfer_seg_limit);
+        return;
     }
     else {
         wmem_list_insert_sorted(xfer->ack_list, ack_meta, tcpcl_ack_meta_compare_loc);
@@ -1332,11 +1353,9 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         proto_tree_add_item(conv_tree, hf_tcpclv3_data_segment_data, tvb, offset, data_len_clamp, ENC_NA);
 
-        if (tcpcl_analyze_sequence) {
-            transfer_add_segment(ctx, *xfer_id, (conv_hdr & TCPCLV3_DATA_FLAGS), segment_length, pinfo, tvb, conv_tree, conv_item, item_flags);
-        }
+        bool seg_accepted = transfer_add_segment(ctx, *xfer_id, (conv_hdr & TCPCLV3_DATA_FLAGS), segment_length, pinfo, tvb, conv_tree, conv_item, item_flags);
 
-        if (tcpcl_desegment_transfer) {
+        if (tcpcl_desegment_transfer && seg_accepted) {
             // Reassemble the segments
             fragment_head *frag_msg;
             frag_msg = fragment_add_seq_next(
@@ -1414,7 +1433,7 @@ dissect_v3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             proto_tree_add_item(conv_tree,
                                 hf_tcpclv3_shutdown_delay, tvb,
                                 offset, 2, ENC_BIG_ENDIAN);
-            offset += 1;
+            offset += 2;
         }
         break;
     case TCPCLV3_REFUSE_BUNDLE:
@@ -1590,7 +1609,7 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 proto_item *item_type = proto_tree_add_uint(tree_ext, hf_tcpclv4_sessext_type, tvb, offset + extlist_offset + extitem_offset, 2, extitem_type);
                 extitem_offset += 2;
 
-                dissector_handle_t subdis = dissector_get_uint_handle(xfer_ext_dissectors, extitem_type);
+                dissector_handle_t subdis = dissector_get_uint_handle(sess_ext_dissectors, extitem_type);
                 const char *subname = dissector_handle_get_description(subdis);
                 if (subdis) {
                     proto_item_set_text(item_type, "Item Type: %s (0x%04" PRIx16 ")", subname, extitem_type);
@@ -1789,11 +1808,9 @@ dissect_v4_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
             }
 
-            if (tcpcl_analyze_sequence) {
-                transfer_add_segment(ctx, xfer_id, flags, data_len, pinfo, tvb, tree_msg, item_msg, item_flags);
-            }
+            bool seg_accepted = transfer_add_segment(ctx, xfer_id, flags, data_len, pinfo, tvb, tree_msg, item_msg, item_flags);
 
-            if (tcpcl_desegment_transfer) {
+            if (tcpcl_desegment_transfer && seg_accepted) {
                 // Reassemble the segments
                 fragment_head *xferload_frag_msg = fragment_add_seq_next(
                     &xfer_reassembly_table,
