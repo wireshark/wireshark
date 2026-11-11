@@ -159,8 +159,9 @@ static const fragment_items frag_items = {
 
 static tvbuff_t *
 handle_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-               uint32_t pkt_id, uint16_t pkt_len, uint16_t seg_off)
+               uint32_t pkt_id, uint16_t pkt_len, uint16_t seg_off_in)
 {
+    uint32_t seg_off = seg_off_in;
     fragment_head *frags;
     int offset;
     uint32_t frag_data_len;
