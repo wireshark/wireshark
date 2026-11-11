@@ -1581,8 +1581,25 @@ static expert_field ei_dnp3_file_obj_size;
 static expert_field ei_dnp3_buffering_user_data_until_final_frame_is_received;
 #endif
 
-/* Tables for reassembly of fragments. */
-static reassembly_table al_reassembly_table;
+/* Completed reassemblies are keyed only by frame and sequence number.
+ * Keep separate tables for each unidirectional link conversation. */
+typedef struct {
+  reassembly_table reassembly;
+  uint32_t sequence;
+} dnp3_conv_data;
+
+typedef struct {
+  dnp3_conv_data *conversation;
+  uint32_t sequence;
+} dnp3_pdu_data;
+
+static bool
+dnp3_reassembly_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *data)
+{
+  dnp3_conv_data *conv_data = (dnp3_conv_data *)data;
+  reassembly_table_destroy(&conv_data->reassembly);
+  return false;
+}
 
 /* ************************************************************************* */
 /*                   Header values for reassembly                            */
@@ -4295,6 +4312,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     tvbuff_t   *next_tvb = NULL;
     unsigned    i;
     uint32_t    ext_seq;
+    dnp3_pdu_data *pdu_data;
     unsigned    pdu_idx;
     dnp3_frag_link_addrs frag_link = { dl_src, dl_dst };
     static int * const transport_flags[] = {
@@ -4330,24 +4348,30 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       conv_key[4].type = CE_CONVERSATION_TYPE;
       conv_key[4].conversation_type_val = CONVERSATION_DNP3;
       conversation_t* conv = find_conversation_full(pinfo->num, conv_key);
-      uint32_t prev;
-      if (conv) {
-        prev = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dnp3));
-      } else {
-        prev = tr_seq;
+      dnp3_conv_data *conv_data;
+      if (conv == NULL) {
         conv = conversation_new_full(pinfo->num, conv_key);
       }
-      ext_seq = calculate_extended_seqno(prev, tr_seq, tr_fir);
-      /* The only thing we store right now is the 32 bit extended sequence
-       * number, so we don't need a conversation_data type. */
-      conversation_add_proto_data(conv, proto_dnp3, GUINT_TO_POINTER(ext_seq));
-      /* The reassembled table is keyed by frame number and id only, so
-       * offset the id by the link addresses (keeping the low 6 bits) to
-       * separate messages of different links in the same frame. */
-      ext_seq += (((uint32_t)dl_src << 16) | dl_dst) << 6;
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx, GUINT_TO_POINTER(ext_seq));
+      conv_data = (dnp3_conv_data *)conversation_get_proto_data(conv, proto_dnp3);
+      if (conv_data == NULL) {
+        conv_data = wmem_new0(wmem_file_scope(), dnp3_conv_data);
+        conv_data->sequence = tr_seq;
+        reassembly_table_init(&conv_data->reassembly, &dnp3_reassembly_table_functions);
+        wmem_register_callback(wmem_file_scope(), dnp3_reassembly_destroy, conv_data);
+        conversation_add_proto_data(conv, proto_dnp3, conv_data);
+      }
+      ext_seq = calculate_extended_seqno(conv_data->sequence, tr_seq, tr_fir);
+      conv_data->sequence = ext_seq;
+      pdu_data = wmem_new(wmem_file_scope(), dnp3_pdu_data);
+      pdu_data->conversation = conv_data;
+      pdu_data->sequence = ext_seq;
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx, pdu_data);
     } else {
-      ext_seq = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx));
+      pdu_data = (dnp3_pdu_data *)p_get_proto_data(wmem_file_scope(), pinfo, proto_dnp3, pdu_idx);
+      if (pdu_data == NULL) {
+        return tvb_captured_length(tvb);
+      }
+      ext_seq = pdu_data->sequence;
     }
 
     /* Add Transport Layer Tree */
@@ -4421,7 +4445,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       pinfo->fragmented = true;
       if (!pinfo->fd->visited)
       {
-        frag_al = fragment_add_seq_single(&al_reassembly_table,
+        frag_al = fragment_add_seq_single(&pdu_data->conversation->reassembly,
             al_tvb, 0, pinfo, ext_seq, &frag_link,
             tvb_reported_length(al_tvb), /* As this is a constructed tvb, all of it is ok */
             tr_fir, tr_fin,
@@ -4429,7 +4453,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       }
       else
       {
-        frag_al = fragment_get_reassembled_id(&al_reassembly_table, pinfo, ext_seq);
+        frag_al = fragment_get_reassembled_id(&pdu_data->conversation->reassembly, pinfo, ext_seq);
       }
 
       if (frag_al)
@@ -5867,9 +5891,6 @@ proto_register_dnp3(void)
 
   module_t *dnp3_module;
   expert_module_t* expert_dnp3;
-
-  reassembly_table_register(&al_reassembly_table,
-                        &dnp3_reassembly_table_functions);
 
 /* Register the protocol name and description */
   proto_dnp3 = proto_register_protocol("Distributed Network Protocol 3.0", "DNP 3.0", "dnp3");

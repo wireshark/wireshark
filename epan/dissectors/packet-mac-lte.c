@@ -3850,10 +3850,12 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, unsigne
 
         /* Store this frame's details in table */
         thisData = &(ueData->harqid[transport_block][harq_id]);
-        thisData->inUse = true;
-        thisData->length = length;
+        /* Finish the throwing read before changing the saved HARQ state. */
+        uint8_t *new_data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, 0, MIN(length, MAX_EXPECTED_PDU_LENGTH));
         wmem_free(wmem_file_scope(), thisData->data);
-        thisData->data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, 0, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+        thisData->data = new_data;
+        thisData->length = length;
+        thisData->inUse = true;
         thisData->ndi = p_mac_lte_info->detailed_phy_info.dl_info.ndi;
         thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
@@ -4002,10 +4004,13 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, int off
 
         /* Store this frame's details in table */
         thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
-        thisData->inUse = true;
-        thisData->length = tvb_reported_length_remaining(tvb, offset);
+        /* Finish the throwing read before changing the saved HARQ state. */
+        unsigned length = tvb_reported_length_remaining(tvb, offset);
+        uint8_t *new_data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, offset, MIN(length, MAX_EXPECTED_PDU_LENGTH));
         wmem_free(wmem_file_scope(), thisData->data);
-        thisData->data = (uint8_t *)tvb_memdup(wmem_file_scope(), tvb, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
+        thisData->data = new_data;
+        thisData->length = length;
+        thisData->inUse = true;
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->num;
         thisData->received_time = pinfo->abs_ts;
