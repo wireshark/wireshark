@@ -146571,3 +146571,229 @@ class TestDissectTcgStorage:
         info = self._fields(cmd_tshark, capture_file(self.CAP), test_env,
                 'frame.number == 109', ['_ws.col.info'])
         assert len(info) == 1 and info[0].endswith('TCG Security Send (TPer Reset)')
+
+
+class TestDissectTcpCoverage:
+    '''TCP from the synthetic capture tcp_coverage.pcapng.gz: handshakes,
+    sequence analysis, options, reassembly (HTTP and DNS), MPTCP, Exported
+    PDU frames that name the "tcp.option" table and the reproducers of
+    "TCP: Fix NULL dereferences and asserts in option and analysis code".
+    Frames 1-583 are plain TCP/IP traffic; 584-602 are Exported PDU records
+    (a second interface); 603-678 are the reproducers.'''
+
+    CAP = 'tcp_coverage.pcapng.gz'
+    # Malformed packets and error severity expert infos
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+    ABORT = {'WIRESHARK_ABORT_ON_DISSECTOR_BUG': '1'}
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, args, env=None, timeout=180):
+        e = dict(test_env)
+        if env:
+            e.update(env)
+        return subprocess.check_output(
+            [cmd_tshark, '-r', capture_file('tcp_coverage.pcapng.gz')] + list(args),
+            encoding='utf-8', env=e, timeout=timeout)
+
+    @staticmethod
+    def lines(out):
+        return [l for l in out.splitlines() if l != '']
+
+    def test_tcp_coverage_clean(self, cmd_tshark, capture_file, test_env):
+        '''All frames decode without malformed packets or error expert
+        infos, in one and two passes, and the protocol counts are stable.'''
+        for passes in ((), ('-2',)):
+            out = self.run(cmd_tshark, capture_file, test_env,
+                           list(passes) + ['-Y', self.BAD, '-Tfields', '-eframe.number'])
+            assert self.lines(out) == []
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Tfields', '-e_ws.col.protocol'])
+        protos = out.splitlines()
+        assert len(protos) == 678
+        counts = {p: protos.count(p) for p in set(protos)}
+        assert counts['TCP'] == 558
+        assert counts['MPTCP'] == 59
+        assert counts['HTTP'] == 20
+        assert counts['DNS'] == 15
+        assert counts['TELNET'] == 7
+        assert counts['ICMP'] == 4
+
+    def test_tcp_coverage_analysis_flags(self, cmd_tshark, capture_file, test_env):
+        '''Sequence analysis flags: counts of flagged frames, identical in
+        one and two passes.'''
+        expected = {
+            'tcp.analysis.retransmission': 28,
+            'tcp.analysis.fast_retransmission': 10,
+            'tcp.analysis.spurious_retransmission': 6,
+            'tcp.analysis.out_of_order': 3,
+            'tcp.analysis.lost_segment': 14,
+            'tcp.analysis.zero_window': 2,
+            'tcp.analysis.zero_window_probe': 1,
+            'tcp.analysis.window_full': 1,
+            'tcp.analysis.window_update': 1,
+            'tcp.analysis.reused_ports': 3,
+            'tcp.analysis.keep_alive': 71,
+            'tcp.analysis.duplicate_ack': 47,
+        }
+        for passes in ((), ('-2',)):
+            for flt, n in expected.items():
+                out = self.run(cmd_tshark, capture_file, test_env,
+                               list(passes) + ['-Y', flt, '-Tfields', '-eframe.number'])
+                assert len(self.lines(out)) == n, (flt, passes)
+
+    def test_tcp_coverage_options(self, cmd_tshark, capture_file, test_env):
+        '''Option values: MSS, window scale and timestamps of the first
+        handshake and SACK blocks of the SACK conversation.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'frame.number <= 3', '-Tfields', '-eframe.number',
+                        '-etcp.options.mss_val', '-etcp.options.wscale.shift',
+                        '-etcp.options.timestamp.tsval', '-etcp.window_size_scalefactor'])
+        rows = [l.split('\t') for l in self.lines(out)]
+        assert rows[0][:4] == ['1', '1460', '7', '1000']
+        assert rows[1][:4] == ['2', '1380', '8', '5000']
+        assert rows[2][0] == '3' and rows[2][3] == '1001' and rows[2][4] == '128'
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'frame.number == 117', '-Tfields',
+                        '-etcp.options.sack_le', '-etcp.options.sack_re'])
+        assert out.strip() == '201\t301'
+
+    def test_tcp_coverage_snack_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''A well-formed SCPS SNACK option used to throw ("ack" was read
+        from offset 8 of the option); the packet was Malformed and the Timestamp
+        option and payload were lost. Frame 603 now decodes to the payload.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'frame.number == 603', '-Tfields', '-e_ws.col.protocol',
+                        '-etcp.options.snack.offset', '-etcp.options.snack.size',
+                        '-etcp.options.timestamp.tsval', '-e_ws.malformed'])
+        assert out.strip() == 'TELNET\t1\t2\t0'
+        # SNACK sequence numbers use the TCP header ACK (relative)
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'tcp.options.snack', '-Tfields', '-eframe.number',
+                        '-e_ws.expert'])
+        assert 'SNACK Sequence 1 - 2 (relative)' in out
+        assert 'SNACK Sequence 2 - 4 (relative)' in out
+
+    def test_tcp_coverage_option_table_null_data(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU records that name the "tcp.option" table call the
+        option dissectors with data == NULL (frames 584-599). They used to
+        crash or abort; the same with MSS after a TCP packet of the same
+        conversation and the SCPS option of 302 octets that never ended.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'frame.number >= 584 && frame.number <= 602', '-Tfields',
+                        '-eframe.number'], env=self.ABORT, timeout=60)
+        assert len(self.lines(out)) == 19
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'frame.number >= 584 && frame.number <= 602 && _ws.malformed',
+                        '-Tfields', '-eframe.number'], env=self.ABORT, timeout=60)
+        assert self.lines(out) == []
+
+    def test_tcp_coverage_mptcp_mapping_assert(self, cmd_tshark, capture_file, test_env):
+        '''A DSS mapping that starts inside the segment (frames 604-605):
+        mptcp.analyze_mappings used to assert; now an expert info.'''
+        for passes in ((), ('-2',)):
+            out = self.run(cmd_tshark, capture_file, test_env,
+                           list(passes) + ['-o', 'mptcp.analyze_mappings:TRUE',
+                                           '-Y', 'frame.number == 605', '-Tfields',
+                                           '-e_ws.expert'],
+                           env=self.ABORT, timeout=60)
+            assert 'No mapping available' in out
+
+    def test_tcp_coverage_checksum_address_type(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU TCP without IP addresses (frames 600-602): the
+        checksum check used to assert on the address type.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-o', 'tcp.check_checksum:TRUE', '-Y',
+                        'frame.number >= 600 && frame.number <= 602', '-Tfields',
+                        '-eframe.number'], env=self.ABORT, timeout=60)
+        assert self.lines(out) == ['600', '601', '602']
+
+    def test_tcp_coverage_duplicate_list_capped(self, cmd_tshark, capture_file, test_env):
+        '''70 identical segments: the duplication count shows 70 but only
+        the first 64 frames are listed (the listing was quadratic).'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-o', 'tcp.detect_duplicate_packets:TRUE', '-Y', 'frame.number == 678',
+                        '-Tfields', '-etcp.analysis.duplication_count',
+                        '-etcp.analysis.duplication_frame'], timeout=60)
+        count, frames = out.strip().split('\t')
+        assert count == '70'
+        listed = frames.split(',')
+        assert len(listed) == 64
+        assert listed[0] == '609' and listed[-1] == '672'
+
+    def test_tcp_coverage_scps_extended_capabilities(self, cmd_tshark, capture_file, test_env):
+        '''Frame 599: SCPS extended capabilities of 302 octets handed to the
+        option dissector through the "tcp.option" table (a loop with an 8 bit
+        counter that never ended without a tree); with and without a tree.'''
+        for args in ([], ['-V']):
+            out = self.run(cmd_tshark, capture_file, test_env,
+                           args + ['-Y', 'frame.number == 599', '-Tfields', '-eframe.number'],
+                           env=self.ABORT, timeout=60)
+            assert out.strip() == '599'
+
+    def test_tcp_coverage_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''HTTP over TCP port 80 and DNS over TCP port 53: PDUs split over
+        segments and sharing segments, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            out = self.run(cmd_tshark, capture_file, test_env,
+                           list(passes) + ['-Y', 'http.response', '-Tfields', '-ehttp.content_length'])
+            assert out.splitlines() == ['3000', '2,2', '', '2500', '3000', '1500', '600', '', '1500', '600']
+            out = self.run(cmd_tshark, capture_file, test_env,
+                           list(passes) + ['-Y', 'dns', '-Tfields', '-edns.id'])
+            ids = [i for l in self.lines(out) for i in l.split(',')]
+            assert ids == ['0x0001', '0x0002', '0x0003', '0x0004', '0x0005', '0x0006',
+                           '0x0007', '0x0008', '0x0009', '0x000a', '0x000b', '0x000c',
+                           '0x0015', '0x0016', '0x0017', '0x0015', '0x0016']
+
+    def test_tcp_coverage_rst_diagnostic(self, cmd_tshark, capture_file, test_env):
+        '''RST payloads: IANA reason code, vendor code with PEN, text.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'tcp.rst_diagnostic.magic || tcp.reset_cause', '-Tfields',
+                        '-etcp.rst_diagnostic.reason_code',
+                        '-etcp.rst_diagnostic.vendor_reason_code', '-etcp.rst_diagnostic.pen',
+                        '-etcp.reset_cause'])
+        rows = [l.split('\t') for l in out.splitlines()]
+        assert rows[0][:3] == ['9', '', '0']
+        assert rows[1][:3] == ['', '3', '32473']
+        assert rows[2][3] == 'Connection refused'
+
+    def test_tcp_coverage_fingerprint(self, cmd_tshark, capture_file, test_env):
+        '''TCP fingerprint hints of four SYN packets.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'tcp.fingerprint.hint', '-Tfields', '-etcp.fingerprint.hint'])
+        assert self.lines(out) == ['Linux', 'Windows 10', 'macOS/iPadOS', 'Linux with MPTCP']
+
+    def test_tcp_coverage_mptcp(self, cmd_tshark, capture_file, test_env):
+        '''MPTCP: the MP_JOIN subflows are linked to the connection by the
+        token, in version 0 and 1; the ADD_ADDR forms decode.'''
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'tcp.flags.syn == 1 && (tcp.port == 45001 || tcp.port == 45002)',
+                        '-Tfields', '-emptcp.stream', '-etcp.srcport'])
+        assert self.lines(out) == ['2\t45001', '2\t31007', '2\t45002', '2\t31007']
+        # version 1: the first SYN carries no key, so only later frames have a stream
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'mptcp.stream && (tcp.port == 45010 || tcp.port == 45011)',
+                        '-Tfields', '-emptcp.stream', '-etcp.srcport', '-etcp.dstport'])
+        rows = [l.split('\t') for l in self.lines(out)]
+        assert {r[0] for r in rows} == {'3'}
+        assert {r[1] for r in rows} | {r[2] for r in rows} == {'45010', '45011', '31007'}
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-Y', 'tcp.options.mptcp.ipv4 || tcp.options.mptcp.ipv6', '-Tfields',
+                        '-etcp.options.mptcp.ipv4', '-etcp.options.mptcp.ipv6'])
+        assert self.lines(out) == ['203.0.113.5\t', '203.0.113.6\t', '\t2001:db8::5',
+                                   '\t2001:db8::6', '203.0.113.7\t', '203.0.113.8\t',
+                                   '\t2001:db8::7', '\t2001:db8::8']
+        # data mapped on two subflows (needs the DSS mapping analysis)
+        out = self.run(cmd_tshark, capture_file, test_env,
+                       ['-2', '-o', 'mptcp.analyze_mappings:TRUE',
+                        '-o', 'mptcp.intersubflows_retransmission:TRUE',
+                        '-Y', 'mptcp.reinjection_of', '-Tfields', '-eframe.number',
+                        '-emptcp.reinjection_of'])
+        assert self.lines(out) == ['550\t529', '552\t529']
+
+    def test_tcp_coverage_mptcp_endpoints(self, cmd_tshark, capture_file, test_env):
+        '''The MPTCP endpoint table reads the MPTCP tap data (it read it as
+        a TCP header and crashed).'''
+        for table in ('endpoints,mptcp', 'conv,mptcp', 'endpoints,tcp'):
+            out = self.run(cmd_tshark, capture_file, test_env, ['-q', '-z', table])
+            assert '192.0.2.10' in out
+            assert '198.51.100.20' in out
