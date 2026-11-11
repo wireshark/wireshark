@@ -260,8 +260,8 @@ def features(cmd_tshark, make_env):
     except subprocess.CalledProcessError as ex:
         print('Failed to detect tshark features: %s' % (ex,))
         tshark_v = ''
-    #gcry_m = re.search(r'\+Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
-    #gcry_ver = (int(gcry_m.group(1)),int(gcry_m.group(2)))
+    gcry_m = re.search(r'\+Gcrypt +([0-9]+)\.([0-9]+)', tshark_v)
+    gcry_ver = (int(gcry_m.group(1)),int(gcry_m.group(2)))
     tshark_v_parts = re.split(r'(?:Compile-|Run)time info:', tshark_v)
     try:
         tshark_runtime = tshark_v_parts[2]
@@ -281,6 +281,7 @@ def features(cmd_tshark, make_env):
         have_nghttp2='+nghttp2' in tshark_v,
         have_nghttp3='+nghttp3' in tshark_v,
         have_kerberos='+Kerberos' in tshark_v,
+        have_gcrypt_1_10=gcry_m and gcry_ver >= (1, 10),
         have_gnutls='+GnuTLS' in tshark_v,
         have_pkcs11='PKCS#11' in tshark_v,
         have_brotli='+brotli' in tshark_v,

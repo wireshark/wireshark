@@ -109823,12 +109823,14 @@ class TestDissectNtp:
                 '-Y', 'frame.number == 35', '-Tfields', '-entp.keyid', '-entp.mac')
         assert rows == [['00000000', '']]
 
-    def test_ntp_nts_cookies(self, cmd_tshark, capture_file, test_env):
+    def test_ntp_nts_cookies(self, cmd_tshark, features, capture_file, test_env):
         '''A cookie from an NTS-KE record is found again in the client
         request that uses it (frame 42); the cookie the server hands out
         (frame 43) is the one the next request uses (frame 44) and is
         listed with the frames that used it. Nothing is decrypted, so
         there is no crypto_success field.'''
+        if not features.have_gcrypt_1_10:
+            pytest.skip('Requires libgcrypt 1.10 for CIPHER_MODE_SIV.')
         rows = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'ntp.nts.cookie.receive_frame || ntp.nts.cookie.use_frame || '
                       'nts-ke.cookie.use_frame || ntp.nts.crypto_success',
@@ -109979,10 +109981,12 @@ class TestDissectNtsKe:
             ['12', '1 Cookie'],
         ]
 
-    def test_nts_ke_cookies_used(self, cmd_tshark, capture_file, test_env):
+    def test_nts_ke_cookies_used(self, cmd_tshark, features, capture_file, test_env):
         '''The cookies of frame 5 are listed with the NTP frames that used
         them (a later frame, so only with -2), and the NTP request shows
         the frame that handed out its cookie.'''
+        if not features.have_gcrypt_1_10:
+            pytest.skip('Requires libgcrypt 1.10 for CIPHER_MODE_SIV.')
         rows = self._fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'nts-ke.cookie.use_frame || ntp.nts.cookie.receive_frame',
                 '-Tfields', '-eframe.number', '-ents-ke.cookie.use_frame',
