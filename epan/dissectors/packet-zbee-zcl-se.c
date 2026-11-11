@@ -4065,7 +4065,7 @@ dissect_zcl_drlc_get_scheduled_events(tvbuff_t *tvb, proto_tree *tree, unsigned 
     if (rem_len > 3) {
         /* Issuer Event ID */
         proto_tree_add_item(tree, hf_zbee_zcl_drlc_get_scheduled_events_issuer_event_id, tvb,
-                            *offset, rem_len, ENC_LITTLE_ENDIAN);
+                            *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
     }
 } /*dissect_zcl_drlc_report_event_status*/
@@ -4372,7 +4372,7 @@ proto_register_zbee_zcl_drlc(void)
 
         { &hf_zbee_zcl_drlc_get_scheduled_events_issuer_event_id,
             { "Minimum Issuer Event ID", "zbee_zcl_se.drlc.get_scheduled_events.issuer_event_id",
-            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     };
 
     /* ZCL DRLC subtrees */
@@ -9484,14 +9484,14 @@ dissect_zcl_pp_select_available_emergency_credit(tvbuff_t *tvb, proto_tree *tree
 static void
 dissect_zcl_pp_change_debt(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
-    uint8_t label_length;
+    unsigned label_length;
 
     /* Issuer Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
     /* Debt Label */
-    label_length = tvb_get_uint8(tvb, *offset) + 1;
+    label_length = (unsigned)tvb_get_uint8(tvb, *offset) + 1;
     proto_tree_add_item(tree, hf_zbee_zcl_pp_change_debt_label, tvb, *offset, label_length, ENC_NA);
     *offset += label_length;
 
@@ -13206,7 +13206,7 @@ dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff
 
     /* Proposed Tenancy Change Control */
     proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control,
-                               ett_zbee_zcl_device_management_proposed_tenancy_change_control, hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_flags, ENC_NA);
+                               ett_zbee_zcl_device_management_proposed_tenancy_change_control, hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_flags, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
 } /*dissect_zcl_device_management_publish_change_of_tenancy*/
@@ -13279,7 +13279,7 @@ dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tv
     *offset += 4;
 
     /* Duration in minutes */
-    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
     /* Password Type */
@@ -15007,7 +15007,7 @@ static void
 dissect_zcl_ke_suite2_certificate(tvbuff_t *tvb, proto_tree *tree, unsigned *offset)
 {
     nstime_t      valid_from_time;
-    nstime_t      valid_to_time;
+    nstime_t      valid_to_time = NSTIME_INIT_ZERO;
     uint32_t      valid_to;
     uint8_t       key_usage;
     proto_tree   *usage_tree;
