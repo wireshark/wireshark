@@ -140231,3 +140231,144 @@ class TestDissectSmtp:
             '53\tSMTP',
             '54\tTCP',
         ]
+
+
+class TestDissectSna:
+    '''SNA over 802.2 LLC (SAPs 0x04, 0x08, 0x0c, 0x40), SNA XID in LLC XID
+    frames and SNA over PPP, from the synthetic capture
+    sna_coverage.pcapng.gz: FID types 0-5 and f, the HPR network layer
+    packets with every optional segment, route setup GDS variables, XID
+    formats 0-4 and the reassembly of segmented FID2 BIUs.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sna_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_sna_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 74 frames are SNA, with no malformed packets or error expert
+        infos in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Tfields', '-e_ws.col.protocol')
+        assert len(rows) == 74
+        assert all(r == ['SNA'] for r in rows)
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert len(rows) == 0
+
+    def test_sna_fid_types(self, cmd_tshark, capture_file, test_env):
+        '''The number of frames per transmission header format.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           '-Y', 'sna.th.fid', '-Tfields', '-esna.th.fid')
+        fids = [r[0] for r in rows]
+        counts = {f: fids.count(f) for f in set(fids)}
+        assert counts == {'0x00': 1, '0x01': 4, '0x02': 10, '0x03': 2,
+                          '0x04': 3, '0x05': 26, '0x0f': 1}
+
+    def test_sna_fid_addresses(self, cmd_tshark, capture_file, test_env):
+        '''The FID1, FID2 and FID4 addresses (FID4 as subarea.element) are
+        the packet's network addresses.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 6, 18}', '-Tfields',
+                '-eframe.number', '-e_ws.col.Source', '-e_ws.col.Destination')
+        assert rows == [
+            ['1', '0304', '0102'],
+            ['6', '0034', '0012'],
+            ['18', '55667788.0304', '11223344.0102'],
+        ]
+
+    def test_sna_fid2_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A FID2 BIU in three segments (frames 10-12) and in two (13-14)
+        is reassembled in its last frame: RH and 75 bytes of data.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {10, 11, 12, 13, 14}', '-Tfields',
+                '-eframe.number', '-esna.th.mpf', '-edata.len')
+        assert rows == [
+            ['10', '2', '27'], ['11', '0', '27'], ['12', '1', '78'],
+            ['13', '2', '37'], ['14', '1', '78'],
+        ]
+
+    def test_sna_fid2_no_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''With sna.defragment off the segments are shown as BIU segment data
+        and no frame holds the whole BIU.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'sna.defragment:FALSE',
+                '-Y', 'frame.number in {10, 11, 12}', '-Tfields',
+                '-eframe.number', '-edata.len', '-esna.biu_segment_data')
+        assert [r[0] for r in rows] == ['10', '11', '12']
+        assert all(r[1] == '' for r in rows)
+        assert rows[0][2].startswith('c1c2c3c4')
+        assert len(rows[1][2]) == 60
+        assert len(rows[2][2]) == 42
+
+    def test_sna_xid(self, cmd_tshark, capture_file, test_env):
+        '''XID formats 0-4 (frames 58-68): ID block and number, the length
+        octet, and the CP, PU and generic names of the control vectors.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sna_xid', '-Tfields', '-eframe.number',
+                '-esna.xid.format', '-esna.xid.type', '-esna.xid.len',
+                '-esna.control.0e.type', '-esna.control.0e.value')
+        assert [r[:4] for r in rows] == [
+            ['58', '0', '2', '6'], ['59', '0', '1', '6'],
+            ['60', '1', '1', '8'], ['61', '1', '4', '8'],
+            ['62', '2', '2', '27'], ['63', '2', '2', '8'],
+            ['64', '3', '2', '41'], ['65', '3', '4', '19'],
+            ['66', '3', '1', '29'], ['67', '4', '2', '10'],
+            ['68', '3', '2', '19'],
+        ]
+        assert rows[4][4:] == ['0xf4', 'CPNAME']
+        assert rows[6][4:] == ['0xf1', 'PUNAME']
+        assert rows[8][4:] == ['0xfa,0xfa', 'GEN']
+
+    def test_sna_gds_escape(self, cmd_tshark, capture_file, test_env):
+        '''Route setup GDS variables behind an HPR header. Frames 55 and 56
+        start with a length of 2 and 3, which is an escape sequence and
+        used to be dissected as a 64 KiB item ("SNA: Treat a first GDS LL
+        of 2 or 3 as an escape sequence").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'sna.gds', '-Tfields', '-eframe.number',
+                '-esna.gds.len', '-esna.gds.type', '-esna.gds.cont')
+        assert rows == [
+            ['51', '15', '0x12ce', 'False'],
+            ['52', '8,5,4', '0x12ce', 'True,True,False'],
+            ['53', '4', '0x12ce', 'False'],
+            ['55', '2', '', 'False'],
+            ['56', '3', '', 'False'],
+            ['57', '4,2', '0x12ce', 'True,False'],
+        ]
+
+    def test_sna_hpr(self, cmd_tshark, capture_file, test_env):
+        '''HPR network layer packets: fragments (frames 45-46), the optional
+        segment types, FID5 payloads and route setup.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {44, 45, 46, 51}', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert [r[1] for r in rows] == [
+            'HPR NLP Packet', 'HPR Fragment', 'HPR Fragment', 'HPR Route Setup']
+        rows = self.fields(cmd_tshark, capture_file, test_env, '-V',
+                '-Y', 'sna.nlp.thdr', '-Tfields', '-esna.nlp.thdr.dlf')
+        assert len(rows) == 34
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('sna_coverage.pcapng.gz'), '-V',
+                '-Y', 'frame.number in {26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43}',
+            ), encoding='utf-8', env=test_env)
+        for segment in ('Connection Setup Segment', 'Status Segment',
+                        'Client Out Of Band Bits Segment',
+                        'Connection Identifier Exchange Segment',
+                        'Connection Fault Segment',
+                        'Switching Information Segment',
+                        'Return Route TG Descriptor Control Vector',
+                        'Adaptive Rate-Based Segment',
+                        'Unknown Segment Type'):
+            assert segment in stdout
+
+    def test_sna_ppp(self, cmd_tshark, capture_file, test_env):
+        '''Frames 69-71 are SNA in PPP frames (protocol 0x004d).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ppp.protocol == 0x004d', '-Tfields',
+                '-eframe.number', '-esna.th.fid')
+        assert rows == [['69', '0x02'], ['70', '0x04'], ['71', '0x05']]
