@@ -54,7 +54,7 @@ zdp_parse_nwk_desc(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, uint8_t ve
     proto_tree_add_item(network_tree, hf_zbee_zdp_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
-    proto_tree_add_item(network_tree, hf_zbee_zdp_profile, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(network_tree, hf_zbee_zdp_nwk_desc_profile, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(network_tree, hf_zbee_zdp_profile_version, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
@@ -209,11 +209,11 @@ dissect_zbee_zdp_req_mgmt_nwk_disc(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         ti = proto_tree_add_uint_format(tree, hf_channel, tvb, offset, 4, channels, "Scan Channels: ");
 
         for (i=0; i<27; i++) {
-            if (channels & (1<<i)) {
+            if (channels & (1u<<i)) {
                 if (first) proto_item_append_text(ti, "%d", i);
                 else       proto_item_append_text(ti, ", %d", i);
-                if (channels & (2<<i)) {
-                    while ((channels&(2<<i)) && (i<26)) i++;
+                if (channels & (2u<<i)) {
+                    while ((channels&(2u<<i)) && (i<26)) i++;
                     proto_item_append_text(ti, "-%d", i);
                 }
                 first = 0;
@@ -976,7 +976,7 @@ dissect_zbee_zdp_not_mgmt_nwkupdate(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     for (i=0, j=0; i<(8*4); i++) {
         uint8_t energy;
 
-        if ( ! ((1<<i) & channels) ) {
+        if ( ! ((1u<<i) & channels) ) {
             /* Channel not scanned. */
             continue;
         }

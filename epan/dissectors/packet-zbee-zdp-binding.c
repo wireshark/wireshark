@@ -119,7 +119,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item(tree, hf_zbee_zdp_profile, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &in_count);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &in_count);
     offset += 1;
     if ((tree) && (in_count)) {
         field_tree = proto_tree_add_subtree(tree, tvb, offset, (int)(in_count*sizeof_cluster),
@@ -129,7 +129,7 @@ dissect_zbee_zdp_req_end_device_bind(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         proto_tree_add_item(field_tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN);
         offset += sizeof_cluster;
     }
-    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &out_count);
+    proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_count, tvb, offset, 1, ENC_LITTLE_ENDIAN, &out_count);
     offset += 1;
     if ((tree) && (out_count)) {
         field_tree = proto_tree_add_subtree(tree, tvb, offset, (int)(out_count*sizeof_cluster),

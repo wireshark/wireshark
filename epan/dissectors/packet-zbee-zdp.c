@@ -665,29 +665,29 @@ zdp_parse_chanmask(proto_tree *tree, tvbuff_t *tvb, unsigned *offset, int hf_pag
     }
     /* Display the first channel #. */
     for (i=0; i<32; i++) {
-        if ((1<<i) & mask) {
+        if ((1u<<i) & mask) {
             proto_item_append_text(ti, "%d", i++);
             break;
         }
     } /* for */
     /* Display the rest of the channels. */
     for (;i<32; i++) {
-        if (!((1<<i) & mask)) {
+        if (!((1u<<i) & mask)) {
             /* This channel isn't selected. */
             continue;
         }
         /* If the previous channel wasn't selected, then display the
          * channel number.
          */
-        if ( ! ((1<<(i-1)) & mask) ) {
+        if ( ! ((1u<<(i-1)) & mask) ) {
             proto_item_append_text(ti, ", %d", i);
         }
         /*
          * If the next channel is selected too, skip past it and display
          * a range of values instead.
          */
-        if ((2<<i) & mask) {
-            while ((2<<i) & mask) i++;
+        if ((2u<<i) & mask) {
+            while ((2u<<i) & mask) i++;
             proto_item_append_text(ti, "-%d", i);
         }
     } /* for */
@@ -843,7 +843,7 @@ zdp_parse_node_desc(proto_tree *tree, packet_info *pinfo, bool show_ver_flags, i
 
     /* Correct the length of the subtree. */
     if (tree && (ettindex != -1)) {
-        proto_item_set_len(field_root, *offset);
+        proto_item_set_end(field_root, tvb, *offset);
     }
 
 } /* zdp_parse_node_desc */
@@ -960,7 +960,7 @@ zdp_parse_simple_desc(proto_tree *tree, int ettindex, tvbuff_t *tvb, unsigned *o
     }
 
     if (tree && (ettindex != -1)) {
-        proto_item_set_len(field_root, *offset);
+        proto_item_set_end(field_root, tvb, *offset);
     }
 } /* zdp_parse_simple_desc */
 
@@ -1910,7 +1910,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_nwk_desc_profile,
-        { "Profile",         "zbee_zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0F,
+        { "Stack Profile",   "zbee_zdp.stack_profile", FT_UINT8, BASE_DEC, NULL, 0x0F,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_profile_version,
