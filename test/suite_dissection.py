@@ -140065,3 +140065,169 @@ class TestDissectSmrse:
         rows = self.fields(cmd_tshark, capture_file, test_env, 'smrse.tag == 11',
                 '-esmrse.octet_Format', '-esmrse.message_reference')
         assert rows == [['43', '46701111111F', '77']]
+
+
+class TestDissectSmtp:
+    '''SMTP over TCP 25 and 587 from the synthetic capture
+    smtp_coverage.pcap.gz: a DATA transaction with reassembly into IMF,
+    BDAT chunks, STARTTLS (accepted and refused), AUTH LOGIN, PLAIN and
+    NTLM, a capture that starts in the middle of a session. The AUTH
+    parameters are only decoded with -o smtp.decryption:TRUE (base64
+    decoding; the user names and passwords are made up).'''
+
+    DECODE = ('-o', 'smtp.decryption:TRUE')
+
+    def test_smtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''209 frames; no malformed packets and no error expert infos in
+        one and two passes, with and without the AUTH decoding. The
+        warnings are the multiline responses with a changed code and the
+        AUTH parameters when they are not decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 209
+        assert protocols.count('SMTP') == 113
+        assert protocols.count('SMTP/IMF') == 3
+        assert protocols.count('TLSv1.2') == 1
+        for opts in ((), self.DECODE):
+            for passes in ((), ('-2',)):
+                stdout = subprocess.check_output((cmd_tshark, *passes, *opts,
+                        '-r', capture_file('smtp_coverage.pcap.gz'),
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0
+
+    def test_smtp_two_passes_equal(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the SMTP frames is the same in one and two
+        passes (the AUTH state machine and the DATA/BDAT state are kept
+        per frame).'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DECODE,
+                    '-r', capture_file('smtp_coverage.pcap.gz'),
+                    '-Y', 'smtp',
+                    '-Tfields', '-eframe.number', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout)
+        assert outputs[0] == outputs[1]
+        assert len(outputs[0].splitlines()) == 116
+
+    def test_smtp_auth_plain_short_line(self, cmd_tshark, capture_file, test_env):
+        '''"AUTH PLAIN <credentials>" followed by "NOOP12" and "QUIT" in
+        the same frame (frame 121): the short second line used to throw an
+        exception in the tree pass (frame truncated, QUIT lost).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 121',
+                '-Tfields', '-esmtp.auth.username', '-esmtp.auth.password',
+                '-esmtp.req.command', '-e_ws.col.info', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'user\tpass\tAUTH,NOOP,QUIT\tC: AUTH PLAIN User: user  Pass: pass | NOOP12 | QUIT\t']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number == 121',
+                '-Tfields', '-esmtp.req.command', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            'AUTH,NOOP,QUIT\tbase64 decode failed or is not enabled (check SMTP preferences)']
+
+    def test_smtp_auth(self, cmd_tshark, capture_file, test_env):
+        '''AUTH LOGIN (separate frames, user name inline, one character
+        parameters), AUTH PLAIN (separate frame, inline, short) and the
+        NTLM exchange.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {72, 74, 85, 87, 99, 110, 130, 141, 165, 167, 178, 189, 191, 200, 202}',
+                '-Tfields', '-eframe.number', '-esmtp.auth.username',
+                '-esmtp.auth.password', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '72\talice\t\tC: User: alice',
+            '74\t\tsecret1\tC: Pass: secret1',
+            '85\tbob\t\tC: AUTH LOGIN User: bob',
+            '87\t\twrong\tC: Pass: wrong',
+            '99\tcarol\tsecret3\tC: User: carol  Pass: secret3',
+            '110\tdave\tsecret4\tC: AUTH PLAIN User: dave  Pass: secret4',
+            '130\tonlyuser\t\tC: AUTH PLAIN User: onlyuser',
+            '141\t\t\tC: , NTLMSSP_AUTH, User: EXAMPLE\\\\alice',
+            '165\ta\t\tC: User: a',
+            '167\t\tp\tC: Pass: p',
+            '178\t\t!\tC: Pass: !',
+            '189\t\t\tC: ',
+            '191\t\t\tC: AUTH PLAIN ',
+            '200\t\t\tC: AUTH NTLM x',
+            '202\t\t\tC: z',
+        ]
+
+    def test_smtp_ntlm(self, cmd_tshark, capture_file, test_env):
+        '''The NTLMSSP messages of AUTH NTLM reach the NTLMSSP dissector.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'ntlmssp',
+                '-Tfields', '-eframe.number', '-entlmssp.messagetype',
+                '-entlmssp.auth.username', '-entlmssp.auth.domain',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '139\t0x00000001\t\t',
+            '140\t0x00000002\t\t',
+            '141\t0x00000003\talice\tEXAMPLE',
+        ]
+
+    def test_smtp_data_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A DATA message over three frames is reassembled and handed to
+        IMF (frame 15); the BDAT chunks of frames 31-36 as well (frame 36);
+        the EOM that starts the frame after a CRLF (frame 61).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {15, 36, 61}',
+                '-Tfields', '-eframe.number', '-esmtp.data.reassembled.length',
+                '-esmtp.data.fragment.count', '-eimf.subject',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '15\t202\t3\tcoverage test',
+            '36\t223\t5\tcoverage test',
+            '61\t28\t2\tsplit eom',
+        ]
+
+    def test_smtp_responses(self, cmd_tshark, capture_file, test_env):
+        '''Multiline responses, unexpected codes in them (warning) and
+        the capture that starts in the middle of a message body.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'smtp.response.code.unexpected',
+                '-Tfields', '-eframe.number', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '28\tUnexpected response code 551 in multiline response. Expected 550,'
+            'Unexpected response code 551 in multiline response. Expected 550',
+            '29\tUnexpected response code 251 in multiline response. Expected 250',
+        ]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {207, 208, 209}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '207\tC: This is the middle of a message body | with more text',
+            '208\tS: 250 ok',
+            '209\tC: QUIT',
+        ]
+
+    def test_smtp_starttls(self, cmd_tshark, capture_file, test_env):
+        '''After "220" to STARTTLS the traffic is TLS (frame 44); after
+        "454" it stays SMTP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('smtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {43, 44, 53, 54}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '43\tSMTP',
+            '44\tTLSv1.2',
+            '53\tSMTP',
+            '54\tTCP',
+        ]
