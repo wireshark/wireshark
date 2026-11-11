@@ -145250,3 +145250,53 @@ class TestDissectSynphasor:
         rows = self._fields(cmd_tshark, capture_file(self.CAP), test_env, 'exported_pdu',
                 ['frame.number', 'exported_pdu.prot_name', 'synphasor.command'])
         assert rows == ['80\tsynphasor\t0x0003']
+
+
+class TestDissectSysdigEvent:
+    '''Sysdig event blocks from the synthetic capture
+    sysdig_event_coverage.pcapng.gz: 540 events (every event type that
+    packet-sysdig-event.c has a parameter tree for, as pcapng blocks 0x216
+    and 0x221, some with flags (0x217, 0x222), some version 1 blocks (0x204,
+    0x208), edge cases and a big endian section). tshark reads the blocks
+    but only Stratoshark registers the Sysdig Event dissector, so the
+    dissection tests need `strato` (--enable-stratoshark).'''
+
+    CAP = 'sysdig_event_coverage.pcapng.gz'
+
+    def test_sysdig_event_blocks(self, cmd_tshark, capture_file, test_env):
+        '''tshark reads all 540 event blocks in one and two passes and shows
+        them as "Event" records without an error.'''
+        for opts in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *opts,
+                    '-r', capture_file(self.CAP),
+                    '-Tfields', '-eframe.number', '-eframe.len',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            rows = stdout.splitlines()
+            assert len(rows) == 540
+            assert rows[0].split('\t')[0] == '1'
+            assert rows[-1].split('\t')[0] == '540'
+
+    def test_sysdig_event_dissection(self, cmd_strato, capture_file, test_env):
+        '''Every event is a "Sysdig Event" without malformed packets, in one
+        and two passes. The events with more parameters than the dissector
+        knows (the CLOSE events with five parameters) and with a number of
+        parameters larger than the data (the fix of "Sysdig Event: Clamp the
+        number of parameters") decode without an error.
+        The synthetic parameters do not match libsinsp's event table, so the
+        Falco events plugin (libsinsp) is disabled when it is present: this
+        tests the sysdig-event dissector only.'''
+        protocols = subprocess.check_output((cmd_strato, '-G', 'protocols'),
+                encoding='utf-8', env=test_env)
+        no_falco = ()
+        if any(line.split('\t')[2:3] == ['falcoevents'] for line in protocols.splitlines()):
+            no_falco = ('--disable-protocol', 'falcoevents')
+        for opts in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_strato, *opts, *no_falco,
+                    '-r', capture_file(self.CAP),
+                    '-Tfields', '-eframe.protocols', '-e_ws.malformed',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            rows = stdout.splitlines()
+            assert len(rows) == 540
+            # A disabled Falco events plugin hands the event on to the data dissector.
+            assert all(r.split('\t')[0] == '' or r.split('\t')[0].startswith('sysdig') for r in rows)
+            assert all(r.split('\t')[1] == '' for r in rows)
