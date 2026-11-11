@@ -168,6 +168,9 @@ UAT_CSTRING_CB_DEF(uat_key_records, zvd_ieee, uat_key_record_t)
 UAT_CSTRING_CB_DEF(uat_key_records, key, uat_key_record_t)
 UAT_CSTRING_CB_DEF(uat_key_records, label, uat_key_record_t)
 
+/* Maximum number of session keys kept from Dump Info packets */
+#define ZBD_MAX_OTA_KEYS 32
+
 static GSList           *zbee_pc_keyring;
 static uat_key_record_t *uat_key_records;
 static unsigned          num_uat_key_records;
@@ -490,8 +493,8 @@ static void uat_key_record_post_update(void)
     for (unsigned i = 0U; uat_key_records && i < num_uat_key_records; i++)
     {
         bool success = (int)zbd_parse_uat_hexline(uat_key_records[i].zdd_ieee, zdd_ieee, sizeof(zdd_ieee))
-            | (int)zbd_parse_uat_hexline(uat_key_records[i].zvd_ieee, zvd_ieee, sizeof(zvd_ieee))
-            | (int)zbd_parse_uat_hexline(uat_key_records[i].key, key, sizeof(key));
+            && (int)zbd_parse_uat_hexline(uat_key_records[i].zvd_ieee, zvd_ieee, sizeof(zvd_ieee))
+            && (int)zbd_parse_uat_hexline(uat_key_records[i].key, key, sizeof(key));
 
         if (success)
         {
@@ -793,7 +796,7 @@ static int zb_direct_decrypt(tvbuff_t    **tvb,
                 /* Iterate over keys in the keyring */
                 for (i = *pan_keyring; !success && i; i = g_slist_next(i))
                 {
-                    if (!ignore_late_keys || ((key_record_t*)i->data)->frame_num > pinfo->num)
+                    if (!ignore_late_keys || ((key_record_t*)i->data)->frame_num <= pinfo->num)
                     {
                         success = decrypt_data(serv_uuid, char_uuid, false,
                                                tvb_get_ptr(*tvb, offset, size),
@@ -1038,15 +1041,42 @@ static int dissect_zb_direct_dump_info(tvbuff_t    *tvb,
             offset += 8;
 
             proto_tree_add_item(tree, hf_zb_direct_info_zvd_ieee, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            tvb_memcpy(tvb, key_record.zvd_ieee, offset, sizeof(key_record.zdd_ieee));
+            tvb_memcpy(tvb, key_record.zvd_ieee, offset, sizeof(key_record.zvd_ieee));
             offset += 8;
-
-            key_record.frame_num = pinfo->num;
-            key_record.label = g_strdup_printf("Key reported over air in packet #%d", pinfo->num);
 
             /* Check if this key was already added */
             if (zbee_pc_keyring == NULL || keyrec(zbee_pc_keyring)->frame_num < pinfo->num)
             {
+                /* Skip a key already reported over the air, and keep at most
+                 * ZBD_MAX_OTA_KEYS of them (the UAT keys follow them in the list). */
+                unsigned n_ota_keys = 0;
+                bool     known = false;
+
+                for (GSList *k = zbee_pc_keyring; k && keyrec(k)->frame_num > 0; k = g_slist_next(k))
+                {
+                    if (!memcmp(keyrec(k)->key, key_record.key, sizeof(key_record.key)) &&
+                        !memcmp(keyrec(k)->zdd_ieee, key_record.zdd_ieee, sizeof(key_record.zdd_ieee)) &&
+                        !memcmp(keyrec(k)->zvd_ieee, key_record.zvd_ieee, sizeof(key_record.zvd_ieee)))
+                    {
+                        known = true;
+                        break;
+                    }
+                    n_ota_keys++;
+                }
+                if (known)
+                {
+                    break;
+                }
+                if (n_ota_keys >= ZBD_MAX_OTA_KEYS)
+                {
+                    expert_add_info_format(pinfo, tree, &ei_zb_direct_crypt_error,
+                                           "Too many keys reported over the air (maximum %u), key ignored", ZBD_MAX_OTA_KEYS);
+                    break;
+                }
+
+                key_record.frame_num = pinfo->num;
+                key_record.label = g_strdup_printf("Key reported over air in packet #%u", pinfo->num);
+
                 /* store the keys in order: latest <- ... <- first <- (UAT: top <- ... <- bottom) */
                 zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring,
                                                   g_memdup2(&key_record, sizeof(zb_direct_key_record_t)));
