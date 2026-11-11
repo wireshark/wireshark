@@ -23,6 +23,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/proto_data.h>
 #include <epan/tfs.h>
 #include <wsutil/array.h>
 #include "packet-tn5250.h"
@@ -2887,6 +2888,7 @@ static int ett_tn5250_wea_prim_attr;
 static int ett_cc;
 
 static expert_field ei_tn5250_command_code;
+static expert_field ei_tn5250_restore_depth;
 
 static uint32_t dissect_tn5250_orders_and_data(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset);
 
@@ -3015,9 +3017,7 @@ dissect_wcc(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
     { NULL, 0, 0, 0, 0 }
   };
 
-  tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
-
-  return 2;
+  return tn5250_add_hf_items(tn5250_tree, tvb, offset, wcc_fields);
 
 }
 
@@ -3045,7 +3045,7 @@ dissect_erase_to_address(proto_tree *tn5250_tree, tvbuff_t *tvb, int offset)
   int start = offset;
   int i, length = 0;
 
-  dissect_row_column(tn5250_tree, tvb, offset);
+  offset += dissect_row_column(tn5250_tree, tvb, offset);
 
   length = tvb_get_uint8(tvb, offset);
   proto_tree_add_item(tn5250_tree, hf_tn5250_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4213,10 +4213,11 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
       case IMAGE_FAX_CONTROL:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
                                       wsc_image_control_fields);
-        proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifc_imagefax_name, tvb, offset,
-                            (length - (start + offset)), ENC_EBCDIC);
-        if (length > (start + offset))
-          offset += (uint32_t)(length - (start + offset));
+        if (length > (offset - start)) {
+          proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifc_imagefax_name, tvb, offset,
+                              (length - (offset - start)), ENC_EBCDIC);
+          offset += (uint32_t)(length - (offset - start));
+        }
         break;
       case IMAGE_FAX_DOWNLOAD:
         namelength = tvb_get_ntohs(tvb,offset+6);
@@ -4225,10 +4226,11 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_name, tvb, offset,
                             namelength, ENC_EBCDIC);
         offset += namelength;
-        proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_data, tvb, offset,
-                            (length - (start + offset)), ENC_NA);
-        if (length > (start + offset))
-          offset += (uint32_t)(length - (start + offset));
+        if (length > (offset - start)) {
+          proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ifd_imagefax_data, tvb, offset,
+                              (length - (offset - start)), ENC_NA);
+          offset += (uint32_t)(length - (offset - start));
+        }
         break;
       case VIDEO_AUDIO_CONTROLS:
         proto_tree_add_item(tn5250_tree, hf_tn5250_vac_prefix, tvb, offset,
@@ -4236,16 +4238,17 @@ dissect_write_single_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb,
         offset += 2;
         proto_tree_add_item(tn5250_tree, hf_tn5250_vac_data, tvb, offset,
                             4, ENC_BIG_ENDIAN);
-        offset += 2;
+        offset += 4;
         break;
       case TRUE_TRANSPARENCY_WRITE:
         proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ttw_flag, tvb, offset,
                             1, ENC_BIG_ENDIAN);
         offset ++;
-        proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ttw_data, tvb, offset,
-                            (length - (start + offset)), ENC_NA);
-        if (length > (start + offset))
-          offset += (uint32_t)(length - (start + offset));
+        if (length > (offset - start)) {
+          proto_tree_add_item(tn5250_tree, hf_tn5250_wssf_ttw_data, tvb, offset,
+                              (length - (offset - start)), ENC_NA);
+          offset += (uint32_t)(length - (offset - start));
+        }
         break;
       default:
         done = 1;
@@ -4586,9 +4589,11 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, int offse
 
     switch (type) {
       case PASS_THROUGH:
-        proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
-                            (sf_length - (start + offset)), ENC_EBCDIC);
-        offset += (uint32_t)(sf_length - (start + offset));
+        if (sf_length > (offset - start)) {
+          proto_tree_add_item(tn5250_tree, hf_tn5250_field_data, tvb, offset,
+                              (sf_length - (offset - start)), ENC_EBCDIC);
+          offset += (uint32_t)(sf_length - (offset - start));
+        }
         break;
       case TN5250_QUERY:
         proto_tree_add_item(tn5250_tree, hf_tn5250_reserved, tvb, offset,
@@ -4661,6 +4666,7 @@ dissect_write_structured_field(proto_tree *tn5250_tree, tvbuff_t *tvb, int offse
         }
         proto_tree_add_item(tn5250_tree, hf_tn5250_wts_cld_li, tvb, offset,
                             (length - used), ENC_EBCDIC);
+        offset += (length - used);
         break;
       case DEFINE_SPECIAL_CHARACTERS:
         offset += tn5250_add_hf_items(tn5250_tree, tvb, offset,
@@ -4918,12 +4924,16 @@ dissect_tn5250_data_until_next_command(proto_tree *tn5250_tree, tvbuff_t *tvb, i
 }
 #endif
 
+#define TN5250_RESTORE_DEPTH_KEY    0
+#define TN5250_MAX_RESTORE_DEPTH    4
+
 static uint32_t
 // NOLINTNEXTLINE(misc-no-recursion)
 dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
   int command_code;
   int start = offset, length = 0;
+  unsigned restore_depth;
   proto_tree   *cc_tree;
   proto_item   *ti, *item;
 
@@ -4966,11 +4976,19 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       offset++;
       break;
     case RESTORE_SCREEN:
+      restore_depth = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_tn5250, TN5250_RESTORE_DEPTH_KEY));
+      if (restore_depth >= TN5250_MAX_RESTORE_DEPTH) {
+        expert_add_info(pinfo, item, &ei_tn5250_restore_depth);
+        offset += tvb_reported_length_remaining(tvb, offset);
+        break;
+      }
+      p_set_proto_data(pinfo->pool, pinfo, proto_tn5250, TN5250_RESTORE_DEPTH_KEY, GUINT_TO_POINTER(restore_depth + 1));
       while (tvb_reported_length_remaining(tvb, offset) > 0) {
         increment_dissection_depth(pinfo);
         offset += dissect_outbound_stream(cc_tree, pinfo, tvb, offset);
         decrement_dissection_depth(pinfo);
       }
+      p_set_proto_data(pinfo->pool, pinfo, proto_tn5250, TN5250_RESTORE_DEPTH_KEY, GUINT_TO_POINTER(restore_depth));
       break;
     case WRITE_ERROR_CODE_TO_WINDOW:
       proto_tree_add_item(cc_tree, hf_tn5250_wectw_start_column, tvb, offset,
@@ -5002,11 +5020,13 @@ dissect_outbound_stream(proto_tree *tn5250_tree, packet_info *pinfo, tvbuff_t *t
       length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(cc_tree, hf_tn5250_length_twobyte, tvb, offset, 2,
                           ENC_BIG_ENDIAN);
-      offset++;
+      offset += 2;
       offset += dissect_tn5250_orders_and_data(cc_tree, tvb, offset);
-      proto_tree_add_item(cc_tree, hf_tn5250_field_data, tvb, offset,
-                          (length - 2), ENC_EBCDIC);
-      offset++;
+      if (length > 2) {
+        proto_tree_add_item(cc_tree, hf_tn5250_field_data, tvb, offset,
+                            (length - 2), ENC_EBCDIC);
+        offset += (length - 2);
+      }
       break;
     case ROLL:
       offset += dissect_roll(cc_tree, tvb, offset);
@@ -7523,6 +7543,7 @@ proto_register_tn5250(void)
 
   static ei_register_info ei[] = {
     { &ei_tn5250_command_code, { "tn5250.command_code.bogus", PI_PROTOCOL, PI_WARN, "Bogus value", EXPFILL }},
+    { &ei_tn5250_restore_depth, { "tn5250.restore_screen.nested", PI_MALFORMED, PI_ERROR, "Restore Screen nested too deeply", EXPFILL }},
   };
 
   expert_module_t* expert_tn5250;
