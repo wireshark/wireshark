@@ -669,6 +669,10 @@ dissect_tipc_name_dist_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(tree, hf_tipcv2_dist_scope, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
 			if (item_size == 7) continue;
+			if (item_size < 7) {
+				proto_tree_add_expert_format_remaining(tree, pinfo, &ei_tipc_field_not_specified, tvb, offset, "Invalid item size %u", item_size);
+				break;
+			}
 			/* if item_size is >7, the following fields are ignored
 			 * so far */
 			proto_tree_add_expert(tree, pinfo, &ei_tipc_field_not_specified, tvb, offset, ((item_size-7)*4));
@@ -1793,7 +1797,10 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 		opt_p = tvb_get_uint8(tipc_tvb, offset+1) & 0x7;
 		proto_tree_add_item(tipc_tree, hf_tipcv2_opt_p, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 		if (opt_p != 0) {
-			hdr_size = hdr_size - (opt_p << 2);
+			if ((unsigned)(opt_p << 2) > hdr_size)
+				hdr_size = 0;
+			else
+				hdr_size = hdr_size - (opt_p << 2);
 		}
 	}
 	/* Broadcast Acknowledge Number: 16 bits */
@@ -1863,7 +1870,7 @@ dissect_tipc_v2(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_info *pinfo, i
 	/* Options */
 	if (handle_v2_as & (V2_AS_ALL + V2_AS_1_6)) {
 		if (opt_p != 0) {
-			proto_tree_add_bytes_format(tipc_tree, hf_tipcv2_options, tipc_tvb, offset, (opt_p >> 2), NULL, "Options");
+			proto_tree_add_bytes_format(tipc_tree, hf_tipcv2_options, tipc_tvb, offset, (opt_p << 2), NULL, "Options");
 			offset = offset + (opt_p << 2);
 		}
 	}
