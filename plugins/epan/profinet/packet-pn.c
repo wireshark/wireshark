@@ -1189,6 +1189,36 @@ void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* convers
     }
 }
 
+/* The per-AR stationInfo structures are kept in a map keyed by AR UUID that
+ * hangs off the conversation. The AR UUID comes from the packet, so it must
+ * not be used as a conversation proto_data key directly: that keyspace is
+ * indexed by registered protocol id, and a collision would let an unrelated
+ * dissector read this stationInfo as its own type (and this dissector read
+ * theirs as a stationInfo). The map itself is stored under a real protocol id.
+ */
+stationInfo* pn_find_station_info(conversation_t* conversation, uint32_t aruuid)
+{
+    wmem_map_t* station_info_map;
+
+    station_info_map = (wmem_map_t*)conversation_get_proto_data(conversation, proto_pn_io_station_info);
+    if (station_info_map == NULL) {
+        return NULL;
+    }
+    return (stationInfo*)wmem_map_lookup(station_info_map, GUINT_TO_POINTER(aruuid));
+}
+
+void pn_add_station_info(conversation_t* conversation, uint32_t aruuid, stationInfo* station_info)
+{
+    wmem_map_t* station_info_map;
+
+    station_info_map = (wmem_map_t*)conversation_get_proto_data(conversation, proto_pn_io_station_info);
+    if (station_info_map == NULL) {
+        station_info_map = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+        conversation_add_proto_data(conversation, proto_pn_io_station_info, station_info_map);
+    }
+    wmem_map_insert(station_info_map, GUINT_TO_POINTER(aruuid), station_info);
+}
+
 
 void
 init_pn (int proto)

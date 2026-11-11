@@ -522,7 +522,7 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
             }
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+        station_info = pn_find_station_info(conversation, current_aruuid);
 
         if (station_info != NULL) {
             pn_find_dcp_station_info(station_info, conversation);
