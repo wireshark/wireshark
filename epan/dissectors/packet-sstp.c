@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "packet-tcp.h"
 
 void proto_register_sstp(void);
@@ -106,6 +107,8 @@ static dissector_handle_t ppp_hdlc_handle;
 static int ett_sstp;
 static int ett_sstp_attribute;
 static int ett_sstp_version;
+
+static expert_field ei_sstp_attrib_short;
 static int hf_sstp_attrib_id;
 static int hf_sstp_attrib_length;
 static int hf_sstp_attrib_length_reserved;
@@ -224,10 +227,12 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
       uint16_t attrib_length = 0;
       uint8_t attrib_id = 0;
       uint8_t hashproto = 0;
+      uint32_t attrib_start, attrib_end;
       offset = SSTP_OFFSET_ATTRIBUTES;
 
       for(;sstp_numattrib > 0; sstp_numattrib--) {
         /* read attribute id and create subtree for attribute */
+        attrib_start = offset;
         attrib_id = tvb_get_uint8(tvb, offset+1);
         sstp_tree_attribute = proto_tree_add_subtree_format(sstp_tree, tvb, offset, SSTP_FSIZE_ATTRIB_RESERVED, ett_sstp_attribute,
             NULL, "Attribute %s", val_to_str_const(attrib_id, sstp_attributes, "Unknown Attribute"));
@@ -244,6 +249,8 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           /* length field also contains the previously processed 4 bytes */
           attrib_length -= 4;
         }
+        /* total attribute length, including the 4 byte header */
+        attrib_end = attrib_start + attrib_length + 4;
         offset += 2;
 
         /* attributes that need special treatment... */
@@ -255,6 +262,10 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
           break;
 
           case SSTP_ATTRIB_STATUS_INFO:
+            if (attrib_length < SSTP_FSIZE_RESERVED2 + SSTP_FSIZE_ATTRIB_ID + SSTP_FSIZE_STATUS) {
+              proto_tree_add_expert(sstp_tree_attribute, pinfo, &ei_sstp_attrib_short, tvb, offset, attrib_length);
+              break;
+            }
             proto_tree_add_item(sstp_tree_attribute, hf_sstp_reserved, tvb, offset, SSTP_FSIZE_RESERVED2, ENC_NA);
             offset += SSTP_FSIZE_RESERVED2;
             attrib_length -= SSTP_FSIZE_RESERVED2;
@@ -303,6 +314,10 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             offset += SSTP_FSIZE_NONCE;
           break;
         }
+        /* skip unknown attributes and any extra bytes of known ones */
+        if (attrib_end > offset) {
+          offset = attrib_end;
+        }
       }
     }
 
@@ -325,7 +340,7 @@ dissect_sstp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 static unsigned
 get_sstp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
 {
-  return tvb_get_ntohs(tvb, offset+SSTP_OFFSET_LENGTH);
+  return tvb_get_ntohs(tvb, offset+SSTP_OFFSET_LENGTH) & SSTP_BITMASK_LENGTH_LENGTH;
 }
 
 static int
@@ -372,7 +387,7 @@ proto_register_sstp(void)
     { &hf_sstp_length,
       { "Length-Packet", "sstp.length",
       FT_UINT16, BASE_DEC,
-      NULL, 0x0,
+      NULL, SSTP_BITMASK_LENGTH_LENGTH,
       NULL, HFILL }
     },
     /* Message Type (16 Bit) */
@@ -500,6 +515,13 @@ proto_register_sstp(void)
   register_dissector("sstp", dissect_sstp, proto_sstp);
   proto_register_field_array(proto_sstp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  static ei_register_info ei[] = {
+    { &ei_sstp_attrib_short, { "sstp.attrib_short", PI_MALFORMED, PI_ERROR,
+      "Attribute too short", EXPFILL }}
+  };
+  expert_module_t *expert_sstp = expert_register_protocol(proto_sstp);
+  expert_register_field_array(expert_sstp, ei, array_length(ei));
 }
 
 void
