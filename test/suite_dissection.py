@@ -143381,3 +143381,84 @@ class TestDissectSrt:
         assert info['75'][3:5] == ['3', 'True']
         assert info['76'] == ['1009', '0', '0', '1', 'True', '67108863']
         assert info['41'] == ['1', '3', '0', '0', 'False', '1']
+
+
+class TestDissectSrvloc:
+    '''SRVLOC (Service Location Protocol) v1 and v2 over UDP and TCP 427,
+    from the synthetic capture srvloc_coverage.pcap.gz. Frames 1-20 are
+    SLPv1 over UDP, 21-43 SLPv2 over UDP, 44-57 TCP (reassembly).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('srvloc_coverage.pcap.gz'),
+                '-Y', display_filter, '-Tfields']
+        for f in fields:
+            args.append('-e' + f)
+        out = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return out.splitlines()
+
+    def test_srvloc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every function of SLPv1 and SLPv2 decodes without malformed
+        packets or error expert infos, in one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame',
+                           'frame.number', '_ws.col.protocol')
+        protocols = [r.split('\t')[1] for r in rows]
+        assert len(protocols) == 57
+        assert protocols.count('SRVLOC') == 51
+        assert protocols.count('TCP') == 6
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                               'frame.number', passes=passes)
+            assert count_output('\n'.join(rows)) == 0
+
+    def test_srvloc_versions_and_functions(self, cmd_tshark, capture_file, test_env):
+        '''The version and function fields of the UDP frames.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'udp',
+                           'srvloc.version', 'srvloc.function')
+        versions = [r.split('\t')[0] for r in rows]
+        assert versions.count('1') == 20
+        assert versions.count('2') == 23
+        functions = {r.split('\t')[1] for r in rows}
+        assert functions == {'1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'}
+
+    def test_srvloc_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split over three TCP segments (frame 51), two PDUs in one
+        segment (52) and a PDU whose first segment is shorter than the
+        five octets needed for the length (54) are all dissected.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'srvloc && tcp',
+                           'frame.number', 'srvloc.xid', 'srvloc.transaction_id')
+        assert rows == [
+            '47\t100\t', '48\t102\t', '51\t106\t', '52\t110,101\t',
+            '54\t\t12', '55\t\t14', '56\t\t21', '57\t124\t',
+        ]
+
+    def test_srvloc_saadvert_authcount(self, cmd_tshark, capture_file, test_env):
+        '''The SA Advertisement authentication block count shows the
+        count, not the length of the preceding attribute list.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'udp && srvloc.saadvert.authcount',
+                           'frame.number', 'srvloc.saadvert.authcount',
+                           'srvloc.authblkv2.slpspi')
+        assert rows == ['40\t2\tk1,k2', '41\t0\t']
+
+    def test_srvloc_v1_dereg_tree(self, cmd_tshark, capture_file, test_env):
+        '''The SLPv1 Service Deregister URL length and URL belong to the
+        SRVLOC tree, not the top level of the packet tree.'''
+        out = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('srvloc_coverage.pcap.gz'),
+                '-Y', 'frame.number == 8', '-Tjson',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        import json
+        layers = json.loads(out)[0]['_source']['layers']
+        assert layers['srvloc']['srvloc.url.urllen'] == '23'
+        assert layers['srvloc']['srvloc.url.url'] == 'service:printer:lpr://c'
+        assert 'srvloc.url.urllen' not in layers
+
+    def test_srvloc_v1_ucs2(self, cmd_tshark, capture_file, test_env):
+        '''UCS-2 encoded strings and attribute lists (character set 1000)
+        are decoded.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'udp && srvloc.encoding == 1000',
+                           'frame.number', 'srvloc.srvreq.predicate',
+                           'srvloc.url.url', 'srvloc.attrrply.attrlist')
+        assert rows == ['2\t(x=y)\t\t', '5\t\tservice:x://u2\t',
+                        '15\t\t\t(a=1),(b=\u00e9)']
