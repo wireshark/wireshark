@@ -75,7 +75,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY Parameter
 
-  offset = dissect_tcap_param(actx,tree,tvb,offset);
+  offset = dissect_tcap_param(actx,tree,tvb,offset,0);
 
 #----------------------------------------------------------------------------------------
 #.FN_BODY Component
@@ -139,7 +139,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID
   tvbuff_t *parameter_tvb;
-  uint8_t len, i;
+  unsigned len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
@@ -188,7 +188,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 #----------------------------------------------------------------------------------------
 #.FN_BODY DestTransactionID
   tvbuff_t *parameter_tvb;
-  uint8_t len , i;
+  unsigned len, i;
   proto_tree *subtree;
   int saved_offset;
   struct tcap_private_t *p_tcap_private = (struct tcap_private_t*)actx->value_ptr;
