@@ -1777,6 +1777,14 @@ copy_spdu_dlt_mapping_cb(void *n, const void *o, size_t size _U_) {
     return new_rec;
 }
 
+static void
+free_spdu_dlt_mapping_cb(void *r) {
+    spdu_dlt_mapping_uat_t *rec = (spdu_dlt_mapping_uat_t *)r;
+
+    g_free(rec->ecu_id);
+    rec->ecu_id = NULL;
+}
+
 static bool
 update_spdu_dlt_mapping(void *r, char **err) {
     spdu_dlt_mapping_uat_t *rec = (spdu_dlt_mapping_uat_t *)r;
@@ -3042,7 +3050,7 @@ proto_register_signal_pdu(void) {
         NULL,                                              /* help                  */
         copy_spdu_dlt_mapping_cb,                          /* copy callback         */
         update_spdu_dlt_mapping,                           /* update callback       */
-        NULL,                                              /* free callback         */
+        free_spdu_dlt_mapping_cb,                          /* free callback         */
         post_update_spdu_dlt_mapping_cb,                   /* post update callback  */
         reset_spdu_dlt_mapping_cb,                         /* reset callback        */
         spdu_dlt_mapping_uat_fields                        /* UAT field definitions */
