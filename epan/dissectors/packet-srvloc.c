@@ -644,9 +644,9 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         case SRVDEREG:
             length = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2, length);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_url_urllen, tvb, offset, 2, length);
             offset += 2;
-            add_v1_string(tree, hf_srvloc_url_url, tvb, offset, length, encoding);
+            add_v1_string(srvloc_tree, hf_srvloc_url_url, tvb, offset, length, encoding);
             offset += length;
             if ( (flags & FLAG_U) == FLAG_U )
                 offset = dissect_authblk(tvb, offset, srvloc_tree);
@@ -1095,7 +1095,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 offset += length;
             }
             count = tvb_get_uint8(tvb, offset);
-            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_authcount, tvb, offset, 1, length);
+            proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_authcount, tvb, offset, 1, count);
             offset += 1;
             while (count > 0) {
                 offset = dissect_authblk_v2(tvb, offset, srvloc_tree);
