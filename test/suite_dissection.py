@@ -145300,3 +145300,133 @@ class TestDissectSysdigEvent:
             # A disabled Falco events plugin hands the event on to the data dissector.
             assert all(r.split('\t')[0] == '' or r.split('\t')[0].startswith('sysdig') for r in rows)
             assert all(r.split('\t')[1] == '' for r in rows)
+
+
+class TestDissectSyslog:
+    '''Syslog (RFC 5424, RFC 3164, RFC 6587 octet counting) over UDP 514
+    and, with Decode As, over TCP, from the synthetic capture
+    syslog_coverage.pcap.gz. Frames 1-74 are UDP, 75-91 are one TCP
+    connection to port 10514 (Decode As tcp.port 10514 -> syslog).'''
+
+    DECODE_AS = ('-d', 'tcp.port==10514,syslog')
+
+    def test_syslog_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frame counts per protocol; no malformed packets and no error or
+        warning expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 91
+        assert protocols.count('Syslog') == 79
+        assert protocols.count('ISUP(ITU)') == 2
+        assert protocols.count('TCP') == 10
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS, *passes,
+                    '-r', capture_file('syslog_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_syslog_framing_offset(self, cmd_tshark, capture_file, test_env):
+        '''"98 <13>1 ..." (98+1+2 has more digits than 98) is dissected
+        from the PRI on, over UDP (frame 69) and TCP (frame 82); the
+        message used to be shifted by one octet and ended up as
+        "(unknown): 13>1 ..." with a nonconformant expert info.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Y', 'frame.number in {69, 82}',
+                '-Tfields', '-eframe.number', '-esyslog.msglen',
+                '-esyslog.facility', '-esyslog.level', '-esyslog.hostname',
+                '-esyslog.appname', '-e_ws.expert.message',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '69\t98\t1\t5\thost\tapp\t',
+            '82\t98\t1\t5\thost\tapp\t',
+        ]
+
+    def test_syslog_rfc5424(self, cmd_tshark, capture_file, test_env):
+        '''Structured data elements and parameters, the BOM, the NIL value
+        and a message that ends in the structured data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1, 3, 4, 5, 6, 15}',
+                '-Tfields', '-eframe.number', '-esyslog.msgid.bom',
+                '-esyslog.hostname', '-esyslog.msgid',
+                '-esyslog.sd.element.name', '-esyslog.sd.param.name',
+                '-esyslog.sd.param.value',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0xefbbbf\tmymachine.example.com\tID47\t\t\t',
+            '3\t0xefbbbf\tmymachine.example.com\tID47\texampleSDID@32473\tiut,eventSource,eventID\t3,Application,1011',
+            '4\t\tmymachine.example.com\tID47\texampleSDID@32473,examplePriority@32473\tiut,eventSource,eventID,class\t3,Application,1011,high',
+            '5\t\thost\tID1\ta@1,b@1\tk,x,z\tv,y,w',
+            '6\t\thost\tID2\tempty@1\t\t',
+            '15\t\t-\t-\t\t\t',
+        ]
+
+    def test_syslog_rfc3164_and_priority(self, cmd_tshark, capture_file, test_env):
+        '''RFC 3164 timestamp, host and tag; facility and level names
+        including the unknown facilities, and the odd PRI forms.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Y', 'frame.number in {22, 29, 36, 44, 47, 55, 56, 59, 60, 61, 62}',
+                '-Tfields', '-eframe.number', '-esyslog.timestamp_rfc3164',
+                '-esyslog.procid', '-esyslog.facility', '-esyslog.level',
+                '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            "22\tOct 11 22:14:15\tsu\t4\t2\tAUTH.CRIT: Oct 11 22:14:15 mymachine su: 'su root' failed for lonvick on /dev/pts/8",
+            '29\tOct 11 22:14:15\tapp\t0\t0\tKERN.EMERG: Oct 11 22:14:15 host app: priority 0',
+            '36\tOct 11 22:14:15\tapp\t3\t0\tDAEMON.EMERG: Oct 11 22:14:15 host app: priority 24',
+            '44\tOct 11 22:14:15\tapp\t15\t0\tCRON.EMERG: Oct 11 22:14:15 host app: priority 120',
+            '47\tOct 11 22:14:15\tapp\t16\t7\tLOCAL0.DEBUG: Oct 11 22:14:15 host app: priority 135',
+            '55\tOct 11 22:14:15\tapp\t23\t7\tLOCAL7.DEBUG: Oct 11 22:14:15 host app: priority 191',
+            '56\tOct 11 22:14:15\tapp\t24\t0\tUNKNOWN.EMERG: Oct 11 22:14:15 host app: priority 192',
+            '59\tOct 11 22:14:15\tapp\t124\t7\tUNKNOWN.DEBUG: Oct 11 22:14:15 host app: priority 999',
+            '60\tOct 11 22:14:15\tapp\t26\t2\tUNKNOWN.CRIT: Oct 11 22:14:15 host app: four digit priority',
+            '61\tOct 11 22:14:15\tapp\t1\t5\tUSER.NOTICE: Oct 11 22:14:15 host app: missing close',
+            '62\tOct 11 22:14:15\tapp\t0\t0\tKERN.EMERG: Oct 11 22:14:15 host app: empty priority',
+        ]
+
+    def test_syslog_ss7_msu(self, cmd_tshark, capture_file, test_env):
+        '''A LOCAL0.DEBUG message with "msu=<hex>" carries an SS7 MSU that is
+        passed to MTP3 (frames 63-64, the second with a trailing nibble);
+        bad or empty hex, another level or no marker stay plain syslog.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Y', 'frame.number in {63, 64, 65, 66, 67, 68}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-esyslog.msu_present', '-eisup.cic', '-eisup.message_type',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '63\tISUP(ITU)\tTrue\t5\t16',
+            '64\tISUP(ITU)\tTrue\t5\t16',
+            '65\tSyslog\t\t\t',
+            '66\tSyslog\t\t\t',
+            '67\tSyslog\t\t\t',
+            '68\tSyslog\t\t\t',
+        ]
+
+    def test_syslog_tcp_framing(self, cmd_tshark, capture_file, test_env):
+        '''Octet counting over TCP: two messages in one segment (frame 78),
+        a 3 KB message over three segments (79-81), a 10 KB message with a
+        5 digit length over three segments (83-85), unframed lines
+        (86-87) and a message from the server (88).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DECODE_AS,
+                '-r', capture_file('syslog_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 78 && syslog',
+                '-Tfields', '-eframe.number', '-esyslog.msglen',
+                '-esyslog.hostname', '-esyslog.facility',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '78\t69,65\tmymachine,host\t4,20',
+            '81\t3044\thost\t1',
+            '82\t98\thost\t1',
+            '85\t10050\thost\t1',
+            '86\t\thost\t1',
+            '87\t\thost\t1',
+            '88\t49\thost\t3',
+        ]
