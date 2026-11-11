@@ -146886,3 +146886,98 @@ class TestDissectTcpcl:
                 ['frame.number', 'tcp.dstport'], '-2')
         assert len(rows) == 10
         assert {r.split('\t')[1] for r in rows} == {'50020', '50021', '40020', '40021'}
+
+
+class TestDissectTcpros:
+    '''TCPROS (the ROS connection header, ROS messages with a Header and
+    the ROS Clock) from the synthetic capture tcpros_coverage.pcapng.gz.
+    TCPROS has no port and its TCP heuristic is disabled by default, so
+    frames 1-17 are Exported PDU frames naming "tcpros"; the TCP streams
+    on port 11311 (frames 18 on) need --enable-heuristic tcpros_tcp. Frame
+    13 is the reproducer of "TCPROS: Do not split a connection header field
+    without separator".'''
+
+    CAP = 'tcpros_coverage.pcapng.gz'
+    HEUR = ('--enable-heuristic', 'tcpros_tcp')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('tcpros_coverage.pcapng.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tcpros_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one and two
+        passes; the number of TCPROS frames without and with the heuristic.'''
+        for opts in ((), self.HEUR):
+            for passes in ((), ('-2',)):
+                bad = self.fields(cmd_tshark, capture_file, test_env, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number', passes=passes)
+                assert bad == []
+            rows = self.fields(cmd_tshark, capture_file, test_env, *opts,
+                    '-Tfields', '-e_ws.col.protocol')
+            assert len(rows) == 100
+            assert rows.count('TCPROS') == (17 if not opts else 29)
+
+    def test_tcpros_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''One and two passes decode the same PDUs.'''
+        args = (*self.HEUR, '-Y', 'tcpros', '-Tfields', '-eframe.number', '-e_ws.col.info')
+        one = self.fields(cmd_tshark, capture_file, test_env, *args)
+        two = self.fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',))
+        assert one == two
+        assert len(one) == 29
+
+    def test_tcpros_connection_header(self, cmd_tshark, capture_file, test_env):
+        '''A connection header (frame 1) shows its fields, and the field
+        forms of frame 11: empty value, no name, a second "=" in the value.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 1 || frame.number == 11', '-Tfields', '-eframe.number',
+                '-etcpros.header_field_name', '-etcpros.header_field_value')
+        assert rows == [
+            '1\tcallerid,topic,type,md5sum,message_definition,latching,tcp_nodelay\t'
+            '/talker,/chatter,std_msgs/String,992ce8a1687cec8c8bd883ec73ca41d1,string data\\n,0,1',
+            '11\tcallerid,empty,a,topic\t/x,,b=c,/t']
+
+    def test_tcpros_messages(self, cmd_tshark, capture_file, test_env):
+        '''A ROS message with a Header (frame 6), a ROS Clock (frame 4) and
+        several PDUs in one frame (frame 10).'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 6', '-Tfields', '-etcpros.message.header.seq',
+                '-etcpros.message.header.stamp.sec', '-etcpros.message.header.stamp.nsec',
+                '-etcpros.message.header.frame.value', '-etcpros.message.payload')
+        assert rows == ['1\t1700000000\t5\tbase_link\t0d00000068656c6c6f2c20776f726c6421']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 4', '-Tfields', '-etcpros.clock.length',
+                '-e_ws.col.info')
+        assert rows == ['8\t[ROS Clock] Timestamp: 1700000000.123456789 ']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 10', '-Tfields', '-etcpros.header_field_name',
+                '-etcpros.clock.length', '-etcpros.message.header.seq')
+        assert rows == ['callerid,topic,type,md5sum,tcp_nodelay\t8\t5,6']
+
+    def test_tcpros_no_separator(self, cmd_tshark, capture_file, test_env):
+        '''The field "abcde" (frame 13) has no "=": it is shown as a field
+        without name and value and the frame is not malformed. Its control
+        "abcde=1" (frame 14) is split.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 13 || frame.number == 14', '-Tfields', '-eframe.number',
+                '-e_ws.malformed', '-etcpros.header_field_data', '-etcpros.header_field_name',
+                '-etcpros.header_field_value')
+        assert rows == ['13\t\tabcde\t\t', '14\t\tabcde=1\tabcde\t1']
+
+    def test_tcpros_tcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message spread over four TCP segments (frames 26-29) and a
+        length split from its message (frames 32-33) are reassembled; two
+        messages in one segment (frame 25) are both decoded.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.HEUR,
+                '-Y', 'tcpros.message.header.seq && frame.number > 17', '-Tfields', '-eframe.number',
+                '-etcpros.message.header.seq')
+        assert [r.split('\t')[:2] for r in rows] == [
+            ['24', '1'], ['25', '2,3'], ['29', '4'], ['33', '5'], ['47', '1']]
+        rows = self.fields(cmd_tshark, capture_file, test_env, *self.HEUR,
+                '-o', 'tcpros.desegment_tcpros_messages:FALSE',
+                '-Y', 'tcpros.message.header.seq && frame.number >= 26 && frame.number <= 33',
+                '-Tfields', '-eframe.number')
+        assert rows == []
