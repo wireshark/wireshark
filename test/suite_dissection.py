@@ -154970,3 +154970,94 @@ class TestDissectTrdp:
         assert 'differs between' in proc.stderr
         assert 'GError set over the top' not in proc.stderr
         assert 'TRDP' in proc.stdout
+
+
+class TestDissectTrel:
+    '''TREL (Thread Radio Encapsulation Link) from the synthetic capture
+    trel_coverage.pcapng.gz: Exported PDU naming the "trel" dissector
+    (frames 1-8), and UDP frames to port 38196 that only the disabled
+    "trel_udp" heuristic dissects (frames 9-14).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('trel_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    HEUR = ('--enable-heuristic', 'trel_udp')
+
+    def test_trel_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, with and without the heuristic.'''
+        for opts in ((), self.HEUR):
+            for passes in ((), ('-2',)):
+                lines = self.fields(cmd_tshark, capture_file, test_env,
+                        *passes, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                        '-Tfields', '-eframe.number')
+                assert lines == []
+
+    def test_trel_default(self, cmd_tshark, capture_file, test_env):
+        '''By default only the Exported PDU frames 1-8 are TREL; the UDP
+        frames are plain UDP (the heuristic is disabled).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'trel', '-Tfields', '-eframe.number')
+        assert lines == [str(n) for n in range(1, 9)]
+
+    def test_trel_header(self, cmd_tshark, capture_file, test_env):
+        '''Advertisement (no destination address), unicast, ack and
+        unknown types (destination address present), version, reserved
+        and ack bits, channel, PAN ID, packet number and the beacon
+        payload.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number <= 8', '-Tfields', '-eframe.number',
+                '-etrel.ver', '-etrel.rsv', '-etrel.ack', '-etrel.type',
+                '-etrel.channel', '-etrel.panID', '-etrel.packetno',
+                '-etrel.source_addr', '-etrel.destination_addr')
+        src = '11:22:33:44:55:66:77:88'
+        dst = '88:77:66:55:44:33:22:11'
+        assert lines == [
+            f'1\t0\t0\t0\t0\t15\t64206\t1\t{src}\t',
+            f'2\t0\t0\t0\t1\t15\t64206\t2\t{src}\t{dst}',
+            f'3\t0\t0\t1\t2\t15\t64206\t3\t{src}\t{dst}',
+            f'4\t0\t0\t1\t2\t15\t64206\t4\t{src}\t{dst}',
+            f'5\t0\t0\t0\t3\t15\t64206\t5\t{src}\t{dst}',
+            '6\t1\t3\t1\t0\t26\t65535\t4294967295\t00:00:00:00:00:00:00:00\t',
+            f'7\t7\t0\t0\t0\t15\t64206\t6\t{src}\t',
+            f'8\t0\t0\t0\t0\t15\t64206\t8\t{src}\t',
+        ]
+
+    def test_trel_info(self, cmd_tshark, capture_file, test_env):
+        '''An ack without a payload shows the TREL type in the Info
+        column; with a payload the 802.15.4 frame follows.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 3, 7}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info')
+        assert lines == ['1\tIEEE 802.15.4\tData, Src: 0x0002, Dst: 0x0001',
+                         '3\tTREL\tTREL Acknowledgement',
+                         '7\tIEEE 802.15.4\tBeacon, Src: 0x0002']
+
+    def test_trel_heuristic(self, cmd_tshark, capture_file, test_env):
+        '''With trel_udp enabled the UDP frames 9 and 10 (unicast) and 14
+        (ack) are TREL; the same ports (11), a short payload (12) and a
+        first octet with version bits set (13) are declined.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.HEUR,
+                '-Y', 'trel && frame.number >= 9', '-Tfields',
+                '-eframe.number', '-etrel.packetno')
+        assert lines == ['9\t9', '10\t10', '14\t12']
+
+    def test_trel_header_length(self, cmd_tshark, capture_file, test_env):
+        '''The Header item spans 16 octets of an advertisement and 24 of
+        a unicast (it used to span 4).'''
+        import xml.etree.ElementTree as ET
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('trel_coverage.pcapng.gz'), '-Tpdml',
+                '-Y', 'frame.number in {1, 2}',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        sizes = []
+        for packet in ET.fromstring(stdout).iter('packet'):
+            for field in packet.iter('field'):
+                if field.get('show') == 'Header':
+                    sizes.append(field.get('size'))
+        assert sizes == ['16', '24']
