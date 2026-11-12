@@ -158095,3 +158095,145 @@ class TestDissectUds:
         sizes = [int(l.split('size="')[1].split('"')[0]) for l in lines
                  if 'show="DTC and Severity Record' in l]
         assert sizes == [6, 6, 6, 5, 5]
+
+
+class TestDissectUdt:
+    '''UDT (UDP-based Data Transfer) over UDP, from the synthetic capture
+    udt_coverage.pcap.gz. The UDP heuristic finds the handshakes; the
+    conversation on UDP port 9100 has none and is reached with
+    -d udp.port==9100,udt. The DTLS heuristic needs decrypted DTLS and is
+    covered by test_dtls_udt in suite_decryption.py.'''
+
+    DA = ('-d', 'udp.port==9100,udt')
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark, *args,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [r.split('\t') for r in stdout.splitlines()]
+
+    def test_udt_protocols(self, cmd_tshark, capture_file, test_env):
+        '''43 frames; the heuristic takes every conversation that starts
+        with a version 4 stream or datagram handshake, 5 datagrams that it
+        refuses stay UDP. There are no malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.DA)
+        assert len(rows) == 43
+        protos = [r[1] for r in rows]
+        assert protos.count('UDT') == 38
+        assert protos.count('UDP') == 5
+        assert [r[0] for r in rows if r[1] == 'UDP'] == ['35', '36', '37', '38', '39']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.DA,
+                    '-r', capture_file('udt_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_udt_decode_as(self, cmd_tshark, capture_file, test_env):
+        '''A conversation without a handshake is only UDT with Decode As,
+        and then its sequence numbers are not relative.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env)
+        assert [r[1] for r in rows[39:42]] == ['UDP', 'UDP', 'UDP']
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.DA)
+        assert [r[2] for r in rows[39:42]] == [
+            'UDT type: data seqno: 77 msgno: 1',
+            'UDT type: ack  seqno: 78',
+            'UDT type: nak missing:77']
+
+    def test_udt_relative_numbers(self, cmd_tshark, capture_file, test_env):
+        '''Sequence numbers are shown relative to the initial sequence
+        number of the handshake, in the Info column and in the tree.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.DA)
+        assert rows[3][2] == 'UDT type: data seqno: 0 msgno: 1'
+        assert rows[8][2] == 'UDT type: data seqno: 5 msgno: 6'
+        assert rows[10][2] == 'UDT type: ack  seqno: 3'
+        assert rows[28][2] == 'UDT type: nak missing:2-4'
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {4, 11}', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert grep_output(stdout, r'Sequence Number: 0 \(relative\) \[1000\]')
+        assert grep_output(stdout, r'Ack Sequence Number: 3 \(relative\) \[1003\]')
+        # ISN 0: numbers are not shown as relative
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 27', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert grep_output(stdout, r'Sequence Number: 5$')
+        assert not grep_output(stdout, 'relative')
+
+    def test_udt_handshake(self, cmd_tshark, capture_file, test_env):
+        '''Handshake fields, including the peer address.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'udt.hs.version', '-Tfields', '-eframe.number',
+                '-eudt.hs.type', '-eudt.hs.isn', '-eudt.hs.reqtype',
+                '-eudt.hs.cookie', '-eudt.hs.peerip',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t1\t1000\t1\t0x1234abcd\tc0000201000000000000000000000000'
+        assert lines[1] == '2\t1\t1000\t-1\t0xfeedf00d\tc0000201000000000000000000000000'
+        assert lines[3].split('\t')[:3] == ['26', '2', '0']
+        assert lines[3].endswith('20010db8000000000000000000000001')
+
+    def test_udt_ack_lengths(self, cmd_tshark, capture_file, test_env):
+        '''A light ACK carries only the sequence number, a 32 byte one adds
+        the RTT, variance and buffer, a 40 byte one the rate and link
+        capacity.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'frame.number in {11, 12, 13}', '-Tfields',
+                '-eframe.number', '-eudt.rtt', '-eudt.buf', '-eudt.rate',
+                '-eudt.linkcap', '-E', 'occurrence=f',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '11\t\t\t\t',
+            '12\t5000\t8192\t\t',
+            '13\t5000\t8192\t100\t1000',
+        ]
+
+    def test_udt_nak(self, cmd_tshark, capture_file, test_env):
+        '''NAK lists: single numbers, ranges, a range cut off at the end
+        of the packet and lists longer than the 8 entries shown in the
+        Info column.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.DA)
+        assert rows[14][2] == 'UDT type: nak missing:2'
+        assert rows[15][2] == 'UDT type: nak missing:1-3'
+        assert rows[16][2] == 'UDT type: nak missing:5,1-2,9'
+        assert rows[17][2] == 'UDT type: nak missing:4'
+        assert rows[18][2] == 'UDT type: nak missing:10,11,12,13,14,15,16,17...'
+        assert rows[19][2] == 'UDT type: nak missing:20-22,24-26,28-30,32-34...'
+        assert rows[20][2] == 'UDT type: nak missing:'
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'frame.number == 19', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len([l for l in stdout.splitlines()
+                    if l.startswith('    Missing Sequence Number :')]) == 12
+
+    def test_udt_control_types(self, cmd_tshark, capture_file, test_env):
+        '''Keepalive, ACK2, shutdown and control types that are not
+        defined.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, *self.DA)
+        assert rows[9][2] == 'UDT type: keepalive'
+        assert rows[13][2] == 'UDT type: ack2'
+        assert rows[21][2] == 'UDT type: Unknown Control Type (4)'
+        assert rows[22][2] == 'UDT type: Unknown Control Type (7ff)'
+        assert rows[23][2] == 'UDT type: shutdown'
+        assert rows[24][2] == 'UDT type: data seqno: 6 msgno: 536870911'
+
+    def test_udt_message_indicators(self, cmd_tshark, capture_file, test_env):
+        '''The first, last and in-order bits of the message number.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.DA,
+                '-r', capture_file('udt_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 4 && frame.number <= 9',
+                '-Tfields', '-eudt.msg.first', '-eudt.msg.last', '-eudt.msg.order',
+                '-eudt.msgno',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '0\t0\t0\t1', '1\t0\t0\t2', '0\t1\t0\t3',
+            '1\t1\t0\t4', '0\t0\t1\t5', '1\t0\t1\t6']
