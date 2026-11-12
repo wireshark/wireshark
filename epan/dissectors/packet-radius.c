@@ -1227,6 +1227,7 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 	while (len > 0) {
 		radius_attr_info_t *dictionary_entry = NULL;
 		uint32_t tlv_type;
+		radius_attr_type_t tlv_code;
 		uint32_t tlv_length;
 
 		proto_item *tlv_item;
@@ -1255,8 +1256,12 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 
 		len -= tlv_length;
 
-		if (a->tlvs_by_id)
-			dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(tlv_type));
+		if (a->tlvs_by_id) {
+			/* The TLVs are keyed by the code as add_tlv() in radius_dict.l builds it */
+			memset(&tlv_code, 0, sizeof(tlv_code));
+			tlv_code.u8_code[0] = tlv_type;
+			dictionary_entry = (radius_attr_info_t *)g_hash_table_lookup(a->tlvs_by_id, GUINT_TO_POINTER(tlv_code.value));
+		}
 
 		if (!dictionary_entry) {
 			dictionary_entry = &no_dictionary_entry;
@@ -2590,7 +2595,7 @@ radius_register_avp_dissector(uint32_t vendor_id, uint32_t _attribute_id, radius
 	if (!dictionary_entry) {
 		dictionary_entry = g_new(radius_attr_info_t, 1);
 
-		dictionary_entry->name = ws_strdup_printf("Unknown-Attribute-%u", attribute_id.value);
+		dictionary_entry->name = ws_strdup_printf("Unknown-Attribute-%u", _attribute_id);
 		dictionary_entry->code = attribute_id;
 		dictionary_entry->encrypt = 0;
 		dictionary_entry->type = NULL;
