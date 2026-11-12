@@ -153567,3 +153567,168 @@ class TestDissectZiop:
                 '-Tfields', '-eframe.number', '-etcp.reassembled_in',
             ), encoding='utf-8', env=test_env)
         assert [l.split('\t') for l in stdout.splitlines()] == [['4', '5'], ['6', '7']]
+
+
+class TestDissectZmtp:
+    # ZMTP has no registered port: the TCP ports and the data payload
+    # dissectors by port (UAT) are set on the command line.
+    OPTS = ('-o', 'zmtp.tcp.port:5555-5562',
+            '-o', 'uat:zmtp_tcp_protocols:"5558","json"',
+            '-o', 'uat:zmtp_tcp_protocols:"5559","dns"',
+            '-o', 'uat:zmtp_tcp_protocols:"5560","nosuchproto"',
+            '-o', 'uat:zmtp_tcp_protocols:"5561",""')
+
+    def test_zmtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame but the first part of a split message is ZMTP; none
+        is malformed and the only expert info is the unsupported CURVE
+        version, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('zmtp_coverage.pcap.gz'),
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = [l.split('\t')[1] for l in stdout.splitlines()]
+            assert len(protocols) == 49
+            assert protocols.count('zmtp') == 46
+            assert protocols.count('TCP') == 1
+            assert protocols.count('zmtp/JSON') == 1
+            assert protocols.count('DNS') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('zmtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['36']
+
+    def test_zmtp_greeting_and_commands(self, cmd_tshark, capture_file, test_env):
+        '''Greetings (NULL, PLAIN and CURVE, client and server), commands in
+        short and long form, and the unexpected commands of the NULL
+        mechanism.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {1,2,3,4,11,12,13,14,15,16,17,24,26,27,28,29,30,31,33,35,36,37,38,39}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [' '.join(l.split()) for l in stdout.splitlines()] == [
+            '1 Greeting (version=3.1 mechanism=NULL Client)',
+            '2 Greeting (version=3.1 mechanism=NULL Server)',
+            '3 Command (READY) Socket-Type=DEALER Identity=client-1',
+            '4 Command (READY) Socket-Type=ROUTER Identity',
+            '11 Command (PING)',
+            '12 Command (PONG)',
+            '13 Command (PING)',
+            '14 Command (ERROR) reason=Invalid state',
+            '15 Command (FOO)',
+            '16 Command (READY) Socket-Type=PUB',
+            '17 Command (HELLO) Command (WELCOME) Command (INITIATE)',
+            '24 Greeting (version=3.1 mechanism=PLAIN Client)',
+            '26 Command (HELLO) (username=admin, password=secret)',
+            '27 Command (HELLO) (username=, password=)',
+            '28 Command (WELCOME)',
+            '29 Command (INITIATE) Socket-Type=REQ Identity=id',
+            '30 Command (READY) Socket-Type=REP',
+            '31 Command (ERROR) reason=Denied',
+            '33 Greeting (version=3.1 mechanism=CURVE Client)',
+            '35 Command (HELLO)',
+            '36 Command (HELLO)',
+            '37 Command (WELCOME)',
+            '38 Command (INITIATE)',
+            '39 Command (READY)',
+        ]
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'zmtp.command-name',
+                '-Tfields', '-eframe.number', '-ezmtp.flags', '-ezmtp.length',
+                '-ezmtp.mechanism', '-ezmtp.ping.ttl', '-ezmtp.ping.context',
+                '-ezmtp.metadata.key', '-ezmtp.metadata.value',
+                '-ezmtp.curvezmq.version.major', '-ezmtp.curvezmq.version.minor',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['11'][1:6] == ['0x04', '10', 'NULL', '10', 'ctx']
+        assert rows['13'][1:6] == ['0x04', '7', 'NULL', '256', '']
+        assert rows['16'][1:3] == ['0x06', '25']
+        assert rows['16'][6:8] == ['Socket-Type', 'PUB']
+        assert rows['4'][6:8] == ['Socket-Type,Identity', 'ROUTER']
+        assert rows['17'][1] == '0x04,0x04,0x04'
+        assert rows['29'][3] == 'PLAIN'
+        assert rows['35'][3] == 'CURVE' and rows['35'][8:10] == ['1', '0']
+        assert rows['36'][8:10] == ['2', '0']
+
+    def test_zmtp_data(self, cmd_tshark, capture_file, test_env):
+        '''Data messages: the four flag values, an empty message, text and
+        binary payloads (a payload that starts with a printable octet but
+        is binary is not shown as text), several messages in a segment, and
+        data of CURVE connections (not interpreted).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {5,6,7,8,9,10,18,23,32,40,41}',
+                '-Tfields', '-eframe.number', '-ezmtp.flags', '-ezmtp.length',
+                '-ezmtp.mechanism', '-ezmtp.data.text', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['5'][1:5] == ['0x00', '5', 'NULL', 'hello']
+        assert rows['6'][1:5] == ['0x01', '24', 'NULL', 'first part, more follows']
+        assert rows['7'][1:5] == ['0x02', '300', 'NULL', '']
+        assert rows['8'][1:3] == ['0x03', '260']
+        assert rows['8'][4] == 'text ' * 52
+        assert rows['9'][1:3] == ['0x00', '0']
+        # printable first octet, binary rest: no text field (the loop tested
+        # the first octet only before the fix)
+        assert rows['10'][1:5] == ['0x00', '4', 'NULL', '']
+        assert rows['18'][1:5] == ['0x00,0x01,0x00', '3,3,5', 'NULL,NULL,NULL', 'one,two,three']
+        # tshark -Tfields doubles the backslash
+        assert rows['23'][4].replace('\\\\', '\\') == bytes(range(32, 127)).decode()
+        assert rows['32'][3] == 'PLAIN' and rows['32'][4] == 'plain payload'
+        assert rows['40'][3] == 'CURVE' and rows['40'][4] == ''
+        assert rows['41'][3] == 'CURVE' and rows['41'][2] == '300'
+        assert ' '.join(rows['18'][5].split()) == 'Data (3 bytes) Data(+) (3 bytes) Data (5 bytes)'
+
+    def test_zmtp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A message split across segments, and a long-form header split
+        inside a segment after another message (this threw an exception
+        before the header length check was made at the message offset).'''
+        stdout = subprocess.check_output((cmd_tshark, '-2', *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 19 && frame.number <= 22',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-ezmtp.length', '-etcp.reassembled_in', '-e_ws.malformed',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['19', 'TCP', '', '20', ''],
+            ['20', 'zmtp', '76', '', ''],
+            ['21', 'zmtp', '8', '22', ''],
+            ['22', 'zmtp', '27', '', ''],
+        ]
+
+    def test_zmtp_plain_credentials(self, cmd_tshark, capture_file, test_env):
+        '''PLAIN HELLO: user name and password (also empty ones) and the
+        credentials tap.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'zmtp.username || zmtp.password',
+                '-Tfields', '-eframe.number', '-ezmtp.username', '-ezmtp.password',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [['26', 'admin', 'secret'], ['27', '', '']]
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-q', '-z', 'credentials',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines() if l.startswith(('26', '27'))]
+        assert lines == ['26 ZMTP admin PLAIN: username/password', '27 ZMTP PLAIN: username/password']
+
+    def test_zmtp_data_dissectors(self, cmd_tshark, capture_file, test_env):
+        '''The UAT hands the data of chosen ports to JSON and DNS (an
+        exception in the subdissector does not stop ZMTP), unknown or empty
+        protocol names are ignored.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('zmtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {43,45,47,49}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ezmtp.mechanism',
+                '-ejson.member', '-edns.id', '-ezmtp.data.text',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['43', 'zmtp/JSON', 'NULL', 'zmtp,ok', '', '{"zmtp": [1, 2, 3], "ok": true}'],
+            ['45', 'DNS', 'NULL', '', '', ''],
+            ['47', 'zmtp', 'NULL', '', '', 'payload for a missing dissector'],
+            ['49', 'zmtp', 'NULL', '', '', ''],
+        ]
