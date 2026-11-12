@@ -1283,7 +1283,7 @@ dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
         if (interval != 0) {
             /* Cast on credits is safe, since we know it won't exceed 10^11 */
             rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
-                                          (uint16_t)credits * max_pdu_length * (1000 / (interval*10)));
+                                          (uint32_t)MIN((uint64_t)credits * max_pdu_length * 100 / interval, UINT32_MAX));
             proto_item_set_generated(rate_ti);
         }
     }
@@ -1359,7 +1359,7 @@ dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
     else {
         if (interval != 0) {
             rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
-                                          credits * max_pdu_length * (1000 / (interval*10)));
+                                          (uint32_t)MIN((uint64_t)credits * max_pdu_length * 100 / interval, UINT32_MAX));
             proto_item_set_generated(rate_ti);
         }
     }
@@ -1584,13 +1584,13 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             switch (p_fp_info->division) {
                                 case Division_FDD:
                                     /* Ext propagation delay */
-                                    ext_propagation_delay_present = true;
+                                    ext_propagation_delay_present = (flags >> (7-n)) & 0x01;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_propagation_delay_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_128:
                                     /* Ext Rx Sync UL Timing */
-                                    ext_rx_sync_ul_timing_deviation_present = true;
+                                    ext_rx_sync_ul_timing_deviation_present = (flags >> (7-n)) & 0x01;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -1606,20 +1606,20 @@ dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             switch (p_fp_info->division) {
                                 case Division_FDD:
                                     /* Cell Portion ID */
-                                    cell_portion_id_present = true;
+                                    cell_portion_id_present = (flags >> (7-n)) & 0x01;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_cell_portion_id_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_128:
                                     /* AOA */
-                                    angle_of_arrival_present = true;
+                                    angle_of_arrival_present = (flags >> (7-n)) & 0x01;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_angle_of_arrival_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_384:
                                 case Division_TDD_768:
                                     /* Extended Rx Timing Deviation */
-                                    ext_rx_timing_deviation_present = true;
+                                    ext_rx_timing_deviation_present = (flags >> (7-n)) & 0x01;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_timing_deviation_present,
                                                         tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
@@ -2014,28 +2014,29 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 current_pi_info = wmem_new0(wmem_file_scope(), paging_indications_info_t);
                 current_pi_info->frame_number = pinfo->num;
                 current_pi_info->paging_indications_bitmap = (uint8_t*)tvb_memdup(wmem_file_scope(), tvb, offset, (p_fp_info->paging_indications+7) / 8);
+                current_pi_info->bitmap_len = (p_fp_info->paging_indications+7) / 8;
                 p_fp_info->current_paging_indications = current_pi_info;
             }
 
             offset += ((p_fp_info->paging_indications+7) / 8);
         }
         if(preferences_track_paging_indications) {
-            if(p_fp_info->relevant_paging_indications) {
+            if(p_fp_info->relevant_paging_indications &&
+               p_fp_info->relevant_paging_indications->paging_indications_bitmap &&
+               p_fp_info->relevant_paging_indications->bitmap_len > 0) {
                 /*If tracking PI is enabled and PI info (from the last packet) is attached, show on tree*/
                 proto_item *ti;
                 proto_tree *relevant_pi_tree;
 
                 tvbuff_t *pi_tvb;
+                unsigned pi_len = p_fp_info->relevant_paging_indications->bitmap_len;
                 pi_tvb = tvb_new_child_real_data(tvb,
                                                  p_fp_info->relevant_paging_indications->paging_indications_bitmap,
-                                                 (p_fp_info->paging_indications+7) / 8,
-                                                 (p_fp_info->paging_indications+7) / 8);
+                                                 pi_len, pi_len);
                 add_new_data_source(pinfo, pi_tvb, "Relevant Paging Indication");
                 ti = proto_tree_add_item(tree, hf_fp_relevant_paging_indication_bitmap, pi_tvb,
-                                         0,
-                                         (p_fp_info->paging_indications+7) / 8,
-                                         ENC_NA);
-                proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
+                                         0, pi_len, ENC_NA);
+                proto_item_append_text(ti, " (%u bits)", pi_len * 8);
                 proto_item_set_generated(ti);
                 relevant_pi_tree = proto_item_add_subtree(ti, ett_fp_pch_relevant_pi);
                 ti = proto_tree_add_uint(relevant_pi_tree, hf_fp_relevant_pi_frame,
@@ -5612,6 +5613,10 @@ fp_set_per_packet_inf_from_conv(conversation_t *p_conv,
                         /* TODO: This stuff has to be reworked! */
                         /* Generates a fake logical channel id for non multiplexed channel */
                         fake_lchid = make_fake_lchid(pinfo, p_conv_data->dch_ids_in_flow_list[chan]);
+                        if (fake_lchid >= 16) {
+                            /* The NBAP lchId tables have 16 entries */
+                            fake_lchid = 0;
+                        }
                         macinf->content[j+chan] = lchId_type_table[fake_lchid];
                         rlcinf->mode[j+chan] = lchId_rlc_map[fake_lchid];
 
@@ -5748,7 +5753,10 @@ update_pch_conversation_info(umts_fp_conversation_info_t *p_conv_data, packet_in
         return;
     }
     /* The channel type MUST be set to PCH */
-    DISSECTOR_ASSERT(p_conv_data->channel == CHANNEL_PCH);
+    /* fp_info may come from FP Hint, DCT2000 or K12 and not match the conversation */
+    if (p_conv_data->channel != CHANNEL_PCH || p_conv_data->channel_specific_info == NULL) {
+        return;
+    }
 
     fp_pch_channel_info = (fp_pch_channel_info_t*)p_conv_data->channel_specific_info;
     if(p_fp_info->current_paging_indications && !PINFO_FD_VISITED(pinfo))
@@ -6595,7 +6603,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_hsdsch_interval,
               { "HS-DSCH Interval in milliseconds",
-                "fp.hsdsch-interval", FT_UINT8, BASE_DEC, 0, 0x0,
+                "fp.hsdsch-interval", FT_UINT16, BASE_DEC, 0, 0x0,
                 NULL, HFILL
               }
             },
@@ -6763,7 +6771,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_duration,
               { "Duration (ms)",
-                "fp.pusch-duration", FT_UINT8, BASE_DEC, NULL, 0x0,
+                "fp.pusch-duration", FT_UINT16, BASE_DEC, NULL, 0x0,
                 "Duration of the activation period of the PUSCH Set", HFILL
               }
             },
