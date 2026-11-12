@@ -160396,3 +160396,136 @@ class TestDissectUsbHub:
                             'frame.number >= 141 && frame.number <= 150 && _ws.col.protocol == "USBHUB"',
                             'frame.number')
         assert len(rows) == 10
+
+
+class TestDissectI1d3:
+    '''X-Rite i1 Display Pro (i1d3) over USB interrupt transfers on endpoint
+    1 of a device with the product 0765:5020 (from its device descriptor),
+    and Exported PDU, from the synthetic capture i1d3_coverage.pcapng.gz.
+    The commands and responses are in the same usbmon endpoint (a real
+    device answers on endpoint 0x81, which the dissector does not match
+    to the commands on 0x01, see the README). Frames with decimal numbers
+    print the decimal separator of the locale, which decimal() undoes.'''
+
+    @staticmethod
+    def decimal(text):
+        '''Make the decimal numbers of the Info column locale independent'''
+        import re
+        return re.sub(r'(\d),(\d{6})', r'\1.\2', text)
+
+    def test_i1d3_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 62 frames decode: 56 as i1d3 and the control transfers as USB,
+        without malformed packets or expert infos in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 62
+        assert protocols.count('i1d3') == 56
+        assert protocols.count('USB') == 6
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= Warning',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_i1d3_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of the commands and responses.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                '-Y', 'i1d3',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in self.decimal(stdout).splitlines())
+        assert info['8'] == 'Get information'
+        assert info['9'] == 'Information: Model=i1Display3;Rev=1'
+        assert info['11'] == 'Status: 0x000700 (OK)'
+        assert info['13'] == 'Status: 0x000300 (OK)'
+        assert info['17'] == 'Product name: i1Display3'
+        assert info['19'] == 'Product type: 0x0001'
+        assert info['21'] == 'Firmware version: 1.23'
+        assert info['23'] == 'Firmware date: Sep 12 2012'
+        assert info['25'] == 'Locked status: 0x0001 (Locked)'
+        assert info['27'] == 'Locked status: 0x0000 (Unlocked)'
+        assert info['29'] == 'Locked status: 0x0100 (Unlocked)'
+        assert info['35'] == 'Successfully unlocked'
+        assert info['37'] == 'Failed to unlock'
+        assert info['40'] == 'Measure for 0.100000s'
+        assert info['41'] == 'Measured R12 G34 B56 edges'
+        assert info['42'] == 'Measure R3 G4 B5 edges'
+        assert info['43'] == 'Measured R0.500000s G0.250000s B0.125000s'
+        assert info['46'] == 'Read internal EEPROM (offset: 16, length: 8)'
+        assert info['47'] == 'Internal EEPROM data (offset: 16, length: 8)'
+        assert info['48'] == 'Read external EEPROM (offset: 288, length: 16)'
+        assert info['49'] == 'External EEPROM data (offset: 288, length: 16)'
+        assert info['50'] == 'Pulse LED off (5.592405s) and on (1.398101s) 3 times'
+        assert info['52'] == 'Pulse LED off (0.699051s) and on (22.369621s fading) indefinitely'
+        assert info['55'] == 'Diffuser position: Display'
+        assert info['57'] == 'Diffuser position: Ambient'
+        assert info['59'] == 'Error code 1 (Get product name)'
+        assert info['61'] == 'Information: again'
+
+    def test_i1d3_matching(self, cmd_tshark, capture_file, test_env):
+        '''A response is matched to its command (in one and two passes) and
+        gets its command code; the echoed command code is the first byte
+        of the command code.'''
+        outputs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {8,9,30,31,46,47,54,55}',
+                    '-Tfields', '-eframe.number', '-ei1d3.request_in',
+                    '-ei1d3.response_in', '-ei1d3.command.code',
+                    '-ei1d3.echoed_command.code',
+                ), encoding='utf-8', env=test_env)
+            outputs.append(stdout.splitlines())
+        # the forward reference (response_in) is only known in the second pass
+        assert outputs[1] == [
+            '8\t\t9\t0x0000\t',
+            '9\t8\t\t0x0000\t0x00',
+            '30\t\t31\t0x9900\t',
+            '31\t30\t\t0x9900\t0x99',
+            '46\t\t47\t0x0800\t',
+            '47\t46\t\t0x0800\t0x08',
+            '54\t\t55\t0x9400\t',
+            '55\t54\t\t0x9400\t',
+        ]
+        assert [l.split('\t')[:2] + l.split('\t')[3:] for l in outputs[0]] == [
+            [l.split('\t')[0], l.split('\t')[1]] + l.split('\t')[3:] for l in outputs[1]]
+
+    def test_i1d3_fields(self, cmd_tshark, capture_file, test_env):
+        '''Values of the command and response fields.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {33,34,41,42,43,46,47,48,49,50,52}',
+                '-Tfields', '-eframe.number',
+                '-ei1d3.challenge_encode_key', '-ei1d3.challenge_decode_key',
+                '-ei1d3.challenge_data', '-ei1d3.challenge_response',
+                '-ei1d3.measured_edge_count.red', '-ei1d3.measured_duration.blue',
+                '-ei1d3.requested_edge_count.green',
+                '-ei1d3.readintee_data', '-ei1d3.readextee_data',
+                '-ei1d3.led_mode', '-ei1d3.led_pulse_count',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+        assert rows['33'][:3] == ['0xa5', '0x5a', '0102030405060708']
+        assert rows['34'][3] == '000102030405060708090a0b0c0d0e0f'
+        assert rows['41'][4] == '12'
+        assert rows['42'][6] == '4'
+        assert rows['43'][5] == '1500000'
+        assert rows['47'][7] == '0001020304050607'
+        assert rows['49'][8] == '000102030405060708090a0b0c0d0e0f'
+        assert rows['50'][9:] == ['1', '3']
+        assert rows['52'][9:] == ['3', '128']
+
+    def test_i1d3_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU records naming i1d3 have no direction, so nothing
+        of them is decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('i1d3_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {1,62}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ei1d3.command.code',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['1\ti1d3\t', '62\ti1d3\t']
