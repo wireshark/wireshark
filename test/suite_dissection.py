@@ -155501,3 +155501,65 @@ class TestDissectTte:
             assert cf == '0xaabb0001'
             assert protocols == 'eth:tte:ethertype:arp'
             assert malformed == ''
+
+
+class TestDissectTtePcf:
+    def test_tte_pcf_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Protocol Control Frames (ethertype 0x891d) are TTE/PCF, and PCF
+        behind a VLAN tag is PCF; nothing is malformed and there are no
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tte_pcf_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 10
+            assert protocols.count('TTE/PCF') == 9
+            assert protocols.count('PCF') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tte_pcf_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tte_pcf_fields(self, cmd_tshark, capture_file, test_env):
+        '''Integration cycle, membership, priority and domain, the type (the
+        low nibble) and the transparent clock, and the Info column built
+        from the sync domain and priority.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tte_pcf_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ette_pcf.ic', '-ette_pcf.mn',
+                '-ette_pcf.sp', '-ette_pcf.sd', '-ette_pcf.type',
+                '-ette_pcf.tc', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\t0x00000001\t0x000000ff\t0x02\t0x01\t0x02\t0x1122334455667788\tSync Domain: 0x01  Sync Priority: 0x02',
+            '2\t0x00000002\t0x0000f0f0\t0x07\t0x03\t0x04\t0x0000000000000005\tSync Domain: 0x03  Sync Priority: 0x07',
+            '3\t0x00000003\t0x00000001\t0x00\t0x00\t0x08\t0x0000000000000000\tSync Domain: 0x00  Sync Priority: 0x00',
+            '4\t0x00000004\t0xffffffff\t0xff\t0xff\t0x0f\t0xffffffffffffffff\tSync Domain: 0xFF  Sync Priority: 0xFF',
+            '5\t0x00000005\t0x00000000\t0x10\t0x20\t0x02\t0x0000000000000007\tSync Domain: 0x20  Sync Priority: 0x10',
+            '6\t0x00000006\t0x00000009\t0x01\t0x02\t0x02\t0x0000000000000001\tSync Domain: 0x02  Sync Priority: 0x01',
+            '7\t0x00000007\t0x00000001\t0x01\t0x01\t0x02\t0x0000000000000001\tSync Domain: 0x01  Sync Priority: 0x01',
+            '8\t0x00000008\t0x00000001\t0x01\t0x01\t0x08\t0x0000000000000001\tSync Domain: 0x01  Sync Priority: 0x01',
+            '9\t0x00000000\t0x00000000\t0x00\t0x00\t0x00\t0x0000000000000000\tSync Domain: 0x00  Sync Priority: 0x00',
+            '10\t0x00000009\t0x00000003\t0x04\t0x05\t0x04\t0x0000000000000006\tSync Domain: 0x05  Sync Priority: 0x04',
+        ]
+
+    def test_tte_pcf_type_names(self, cmd_tshark, capture_file, test_env):
+        '''The type is named for 2, 4 and 8; the high nibble of the octet is
+        masked off.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tte_pcf_coverage.pcap.gz'),
+                '-Y', 'tte_pcf.type == 2 || tte_pcf.type == 8',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['1', '3', '5', '6', '7', '8']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tte_pcf_coverage.pcap.gz'),
+                '-Y', 'frame.number == 3 || frame.number == 2',
+                '-V', '-O', 'tte_pcf',
+            ), encoding='utf-8', env=test_env)
+        assert 'Type: coldstart ack frame (0x8)' in stdout
+        assert 'Type: coldstart frame (0x4)' in stdout
