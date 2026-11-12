@@ -153480,3 +153480,90 @@ class TestDissectZep:
             ['7', '', ''], ['8', '', ''], ['9', '0x0001', '7'],
             ['10', '0x0001', '8'], ['11', '0x0001', '9'],
         ]
+
+
+class TestDissectZiop:
+    def test_ziop_protocols(self, cmd_tshark, capture_file, test_env):
+        '''ZIOP is reached over TCP by its heuristic; every other frame is
+        a segment of a PDU in reassembly or not ZIOP. Nothing is malformed
+        and only the two unsupported-version frames have an expert info,
+        in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ziop_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 15
+        assert protocols.count('ZIOP') == 11
+        assert protocols.count('TCP') == 4
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ziop_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('ziop_coverage.pcap.gz'),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.split() == ['9', '10']
+
+    def test_ziop_info(self, cmd_tshark, capture_file, test_env):
+        '''Message types of the PDUs (the Info column shows the last PDU
+        of a segment), unknown types, old versions and PDUs split across
+        segments.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ziop_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert [l[:3] for l in lines if l[1] == 'ZIOP'] == [
+            ['1', 'ZIOP', 'ZIOP 1.2 Request'],
+            ['2', 'ZIOP', 'ZIOP 1.2 Reply'],
+            ['3', 'ZIOP', 'ZIOP 1.2 Fragment'],
+            ['5', 'ZIOP', 'ZIOP 1.2 LocateRequest'],
+            ['7', 'ZIOP', 'ZIOP 1.2 LocateReply'],
+            ['8', 'ZIOP', 'ZIOP 1.2 Unknown message type (0x42)'],
+            ['9', 'ZIOP', 'Version 1.1'],
+            ['10', 'ZIOP', 'Version 0.9'],
+            ['12', 'ZIOP', 'ZIOP 1.2 Request'],
+            ['13', 'ZIOP', 'ZIOP 1.2 Request'],
+            ['14', 'ZIOP', 'ZIOP 1.2 Reply'],
+        ]
+        # Segments 4 and 6 are the first part of a PDU, 11 and 15 are not ZIOP
+        assert [l[0] for l in lines if l[1] == 'TCP'] == ['4', '6', '11', '15']
+
+    def test_ziop_header_fields(self, cmd_tshark, capture_file, test_env):
+        '''Header fields of big-endian and little-endian PDUs, several PDUs
+        in one segment (each is checked at its own offset) and unknown
+        compressor ids.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ziop_coverage.pcap.gz'),
+                '-Y', 'ziop.message_size',
+                '-Tfields', '-eframe.number', '-eziop.giop_version_minor',
+                '-eziop.flags', '-eziop.message_type', '-eziop.message_size',
+                '-eziop.compressor_id', '-eziop.original_length',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '2', '0', '0', '40', '1', '100'],
+            ['2', '2', '1', '1', '40', '3', '2000'],
+            ['3', '2,2', '0,0', '0,7', '40,40', '4,5', '300,400'],
+            ['5', '2', '0', '3', '48', '0', '10'],
+            ['7', '2', '1', '4', '38', '9', '77'],
+            ['8', '2', '0', '66', '40', '99', '5'],
+            ['12', '2,2,2', '0,0,0', '2,5,0', '40,40,40', '6,7,8', '1,3,8'],
+            ['13', '2', '1', '0', '40', '1', '100'],
+            ['14', '2', '0', '1', '40', '2', '100'],
+        ]
+
+    def test_ziop_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split across two segments, also inside the 12 octet
+        header, is reassembled in the second segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('ziop_coverage.pcap.gz'),
+                '-2', '-Y', 'tcp.reassembled_in',
+                '-Tfields', '-eframe.number', '-etcp.reassembled_in',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [['4', '5'], ['6', '7']]
