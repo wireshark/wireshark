@@ -160529,3 +160529,143 @@ class TestDissectI1d3:
                 '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-ei1d3.command.code',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines() == ['1\ti1d3\t', '62\ti1d3\t']
+
+
+class TestDissectUsbip:
+    '''USB/IP over TCP port 3240 (mapped with -d, as Decode As would, since
+    USBIP has no default port) and over Exported PDU, from the synthetic
+    capture usbip_coverage.pcapng.gz. Frames 1-52 and 60-62 are TCP, 53-59 are
+    Exported PDU records naming "usbip".'''
+
+    OPTS = ('-d', 'tcp.port==3240,usbip')
+
+    def test_usbip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame decodes without malformed packets or error expert
+        infos, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split()
+        assert len(protocols) == 62
+        assert protocols.count('USBIP') == 25
+        assert protocols.count('USB') == 28
+        assert protocols.count('TCP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file('usbip_coverage.pcapng.gz'),
+                    '-Y', 'usbip && (_ws.malformed || _ws.expert.severity >= Error)',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_usbip_operations(self, cmd_tshark, capture_file, test_env):
+        '''Device list and import operations, with the device list
+        responses reassembled from several TCP segments.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Y', 'usbip.operation',
+                '-Tfields', '-eframe.number', '-eusbip.operation',
+                '-eusbip.number_of_devices', '-eusbip.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [(r[0], r[1], r[2], r[4]) for r in rows[:12]] == [
+            ('4', '0x8005', '', 'Device List Request'),
+            ('5', '0x0005', '3', 'Device List Response'),
+            ('6', '0x8005', '', 'Device List Request'),
+            ('8', '0x0005', '1', 'Device List Response'),
+            ('9', '0x8005', '', 'Device List Request'),
+            ('10', '0x0005', '0', 'Device List Response'),
+            ('11', '0x8005', '', 'Device List Request'),
+            ('14', '0x0005', '2', 'Device List Response'),
+            ('15', '0x8003', '', 'Import Request'),
+            ('16', '0x0003', '', 'Import Response'),
+            ('17', '0x8003', '', 'Import Request'),
+            ('18', '0x0003', '', 'Import Response'),
+        ]
+        assert rows[11][3] == '1'      # import of an unknown bus id fails
+        # two PDUs in one TCP segment, neither of them reaching the USB dissector
+        assert rows[12][:3] == ['35', '0x8005,0x8005', '']
+        assert rows[13][:3] == ['36', '0x0005,0x0005', '0,1']
+        assert len(rows) == 16
+
+    def test_usbip_device_list(self, cmd_tshark, capture_file, test_env):
+        '''The devices and interfaces of the device list response.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 5',
+                '-Tfields', '-eusbip.busid', '-eusbip.idVendor', '-eusbip.idProduct',
+                '-eusbip.speed', '-eusbip.bNumInterfaces',
+                '-eusbip.bInterfaceClass', '-eusbip.bInterfaceProtocol',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip().split('\t') == [
+            '1-2,1-3,1-4', '0x1234,0x0781,0x046d', '0x5678,0x5567,0xc077',
+            '3,5,1', '2,1,0', '0xff,0x03,0x08', '0x00,0x02,0x50']
+
+    def test_usbip_urb_matching(self, cmd_tshark, capture_file, test_env):
+        '''Commands and responses are matched by sequence number; the
+        response gets the device of its command and an unlink points to
+        the unlinked URB.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {19,20,45,46,47,48,49,50}',
+                '-Tfields', '-eframe.number', '-eusbip.cmd_frame',
+                '-eusbip.sequence_no', '-eusbip.devid', '-eusbip.vic_frame',
+                '-eusbip.status', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['19', '19', '1', '0x00010002,0x00010002', '', '', 'GET DESCRIPTOR Request DEVICE'],
+            ['20', '19', '1', '0x00010002,0x00000000', '', '0', 'GET DESCRIPTOR Response DEVICE'],
+            ['45', '45', '13', '0x00010002,0x00010002', '', '', 'URB Submit'],
+            ['46', '46', '14,13', '0x00010002,0x00010002', '45', '', 'URB Unlink'],
+            ['47', '46', '14', '0x00010002,0x00000000', '45', '-104', 'URB Unlink Response'],
+            ['48', '45', '13', '0x00010002,0x00000000', '', '-104', 'URB Response'],
+            ['49', '49', '15,99', '0x00010002,0x00010002', '', '', 'URB Unlink'],
+            ['50', '49', '15', '0x00010002,0x00000000', '', '0', 'URB Unlink Response'],
+        ]
+
+    def test_usbip_iso(self, cmd_tshark, capture_file, test_env):
+        '''Isochronous URBs, with the descriptors behind the data.'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {41,42,43,44}',
+                '-Tfields', '-eframe.number', '-eusbip.iso.num_of_packets',
+                '-eusb.iso.iso_actual_len', '-eusb.iso.iso_status', '-eusbip.iso.error_count',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['41', '2', '16,16', '-18,-18', ''],
+            ['42', '2', '16,16', '0,0', '0'],
+            ['43', '2', '0,0', '0,0', ''],
+            ['44', '2', '16,8', '0,-71', '1'],
+        ]
+
+    def test_usbip_unmatched_response(self, cmd_tshark, capture_file, test_env):
+        '''A response without a command used to leave the endpoint and
+        direction of its fallback transaction uninitialised (reproducer of
+        "USBIP: Initialize the fallback transaction"); it decodes as device
+        0, endpoint 0, in the TCP stream and in an Exported PDU record.'''
+        for frame in ('51', '52', '59'):
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                    '-r', capture_file('usbip_coverage.pcapng.gz'),
+                    '-Y', f'frame.number == {frame}',
+                    '-Tfields', '-eusbip.cmd_frame', '-eusbip.devid',
+                    '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.rstrip('\n').split('\t') == ['0', '0x00000000,0x00000000', '']
+
+    def test_usbip_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''Exported PDU records naming usbip reach the dissector without TCP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usbip_coverage.pcapng.gz'),
+                '-Y', 'frame.number >= 53 && frame.number <= 59',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['53', 'USBIP', 'Device List Request'],
+            ['54', 'USBIP', 'Device List Response'],
+            ['55', 'USB', 'URB Submit'],
+            ['56', 'USB', 'URB Response'],
+            ['57', 'USBIP', 'URB Unlink'],
+            ['58', 'USBIP', 'URB Unlink Response'],
+            ['59', 'USB', 'URB Response'],
+        ]
