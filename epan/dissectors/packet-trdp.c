@@ -21,6 +21,7 @@
 
 #include <epan/packet.h>
 #include <epan/packet_info.h>
+#include <epan/proto_data.h>
 #include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/addr_resolv.h>
@@ -1209,7 +1210,12 @@ static void Element_delete(Element* self)
 
 static int32_t TrdpDict_element_size(const Element* self, uint32_t array_size /* = 1*/)
 {
-    return self ? (self->width * FALLBACK(self->array_size,(int32_t)array_size)) : -1;
+    if (!self) return -1;
+    /* the array size can come from the packet: multiply in 64 bits and saturate */
+    int64_t size = (int64_t)self->width * FALLBACK(self->array_size,(int32_t)array_size);
+    if (size > INT32_MAX) return INT32_MAX;
+    if (size < INT32_MIN) return INT32_MIN;
+    return (int32_t)size;
 }
 
 
@@ -1625,11 +1631,18 @@ static bool ComId_make_SID(ComId* self, const packet_info* pinfo, uint32_t stc, 
     return TRUE;
 }
 
+static int proto_trdp;
+
 static bool ComId_assert_SSC(ComId* self, const packet_info* pinfo, uint32_t ssc, int* result) {
     if (!self || !result) return FALSE;
 
-    if (pinfo->fd->visited) return FALSE;
-    pinfo->fd->visited = TRUE;
+    /* The result is computed on the first pass only and kept for later passes. */
+    int* saved = (int*)p_get_proto_data(wmem_file_scope(), (packet_info*)pinfo, proto_trdp, 0);
+    if (PINFO_FD_VISITED(pinfo)) {
+        if (!saved) return FALSE;
+        *result = *saved;
+        return TRUE;
+    }
 
     Connection* con = ComId_connection_lookup(self, pinfo);
     if (!con) return FALSE;
@@ -1637,6 +1650,10 @@ static bool ComId_assert_SSC(ComId* self, const packet_info* pinfo, uint32_t ssc
     *result = (con->sequence < ssc) ? 1 : 0;
     if (con->sequence > 0xfffffff7 && ssc < 8) *result = 1; /* silently tolerate an overflow */
     con->sequence = ssc;
+
+    saved = wmem_new(wmem_file_scope(), int);
+    *saved = *result;
+    p_add_proto_data(wmem_file_scope(), (packet_info*)pinfo, proto_trdp, 0, saved);
 
     return TRUE;
 }
@@ -1703,7 +1720,6 @@ static const char *trdp_types[] = {
 };
 
 /* Initialize the protocol and registered fields */
-static int proto_trdp = -1;
 static dissector_handle_t trdp_handle;
 static dissector_handle_t trdp_TCP_handle;
 
@@ -1969,6 +1985,7 @@ static int dissect_trdp_dataset(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
 
             case TRDP_UINT8:
                 valu = tvb_get_uint8(tvb, offset);
+                valuOrig = (uint32_t)valu;
                 break;
 
             case TRDP_UINT16:
@@ -2011,14 +2028,14 @@ static int dissect_trdp_dataset(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
                 vals = tvb_get_ntohil(tvb, offset);
                 nstime.secs = (time_t)vals;
                 valu = tvb_get_ntohs(tvb, offset + 4);
-                nstime.nsecs = (int)(valu * (1000000000ULL / 256ULL)) / 256;
+                nstime.nsecs = (int)((valu * 1000000000ULL) >> 16);
                 break;
 
             case TRDP_TIMEDATE64:
                 vals = tvb_get_ntohil(tvb, offset);
                 nstime.secs = (time_t)vals;
                 vals = tvb_get_ntohil(tvb, offset + 4);
-                nstime.nsecs = (int)vals * 1000;
+                nstime.nsecs = (int)((uint32_t)vals % 1000000) * 1000;
                 break;
 
             case TRDP_UUID:
@@ -2068,7 +2085,7 @@ static int dissect_trdp_dataset(tvbuff_t* tvb, packet_info *pinfo, proto_tree* t
                             uint64_t v = valu;
                             for (int i = sizeof(bits) - 1; i--; v >>= 1) bits[i] = v & 1 ? '1' : '.';
                             proto_tree_add_uint_format_value(userdata_element, el->hf_id, tvb, offset, el->width, (uint32_t)valu,
-                                                             "0x%#02x ( %s )", (uint32_t)valu, bits);
+                                                             "%#04x ( %s )", (uint32_t)valu, bits);
                         } else {
                             proto_tree_add_bitmask(userdata_element, tvb, offset, el->hf_id, el->bits_ett_id, el->bitfields, ENC_BIG_ENDIAN);
                         }
