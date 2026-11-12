@@ -386,13 +386,16 @@ static void dissect_usb_i1d3_response(
         transaction = (usb_i1d3_transaction_t *)wmem_map_lookup(
                 conversation->request_to_transaction,
                 GUINT_TO_POINTER(conversation->previous_packet));
-        if (transaction) {
-            DISSECTOR_ASSERT(transaction->response == 0);
+        if (transaction && transaction->response == 0) {
             transaction->response = pinfo->num;
             wmem_map_insert(
                     conversation->response_to_transaction,
                     GUINT_TO_POINTER(transaction->response),
                     (void *)transaction);
+        } else {
+            /* Already answered (e.g. the earlier response threw an
+             * exception before previous_packet was updated). */
+            transaction = NULL;
         }
     } else {
         // After the first pass, we can't use previous_packet anymore since
