@@ -1222,7 +1222,10 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
                 // New fragment header, check if we have a reassembly in progress
                 if (fh && !(fh->flags & FD_DEFRAGMENTED)) {
                     // If we're here, we were missing fragments
-                    tvb_free(fragment_delete(&ttl_reassembly_table, pinfo, reasm_key, NULL));
+                    tvbuff_t *old_tvb = fragment_delete(&ttl_reassembly_table, pinfo, reasm_key, NULL);
+                    if (old_tvb) {
+                        tvb_free(old_tvb);
+                    }
                     fh = NULL;
                     g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(reasm_key));
                 }
