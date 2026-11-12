@@ -516,8 +516,8 @@ WS_DLL_PUBLIC void dissector_add_guid(const char *name, guid_key* guid_val,
 
 /**
  * @brief Look for a given value in a given guid dissector table and, if found,
- * call the dissector with the arguments supplied, and return true,
- * otherwise return false.
+ * call the dissector with the arguments supplied, and return tne number
+ * of bytes consumed, otherwise return 0.
  *
  * @param sub_dissectors The dissector table to search.
  * @param guid_val The GUID value to look for.
