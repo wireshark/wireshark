@@ -158406,3 +158406,126 @@ class TestDissectUdxCoverage:
                           '-eframe.number', '-e_ws.col.protocol')
         rows = [r.split('\t') for r in out.splitlines()]
         assert [r[1] for r in rows] == ['UDX', 'UDX'] + ['UDP'] * 9 + ['UDX'] * 3
+
+
+class TestDissectUetCoverage:
+    '''UET (Ultra Ethernet Transport) from the synthetic capture
+    uet_coverage.pcap.gz: UDP port 4793 (default), IPv6, and 17 frames
+    directly over IP protocol 253 with the entropy header, which are
+    reached with -d ip.proto==253,uet (frames 244-250 and the entropy
+    frames of the CRC section). Every frame ends with a 4 byte CRC.'''
+
+    DA = ('-d', 'ip.proto==253,uet')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, fields, *args, passes=('-2',)):
+        cmd = [cmd_tshark, *passes, '-r', capture_file('uet_coverage.pcap.gz'),
+               '-d', 'ip.proto==253,uet', '-Tfields']
+        for f in fields:
+            cmd += ['-e', f]
+        stdout = subprocess.check_output((*cmd, *args), encoding='utf-8',
+                                         env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_uet_protocols(self, cmd_tshark, capture_file, test_env):
+        '''265 frames; the 13 entropy frames are IPv4 without the Decode
+        As. No malformed packets or error expert infos in one and two
+        passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uet_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protos = stdout.split()
+        assert len(protos) == 265
+        assert protos.count('UET') == 252 and protos.count('IPv4') == 13
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    passes=passes)
+            assert rows == []
+        rows = self.fields(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        assert {r[0] for r in rows} == {'UET'} and len(rows) == 265
+
+    def test_uet_pds_types(self, cmd_tshark, capture_file, test_env):
+        '''Every PDS type, including the reserved and the undefined ones.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, ['uet.pds.type'])
+        counts = {}
+        for r in rows:
+            counts[r[0]] = counts.get(r[0], 0) + 1
+        assert counts == {
+            '0': 1, '2': 82, '3': 46, '4': 4, '5': 3, '6': 3, '7': 29, '8': 9,
+            '9': 4, '10': 14, '11': 19, '12': 1, '13': 41, '14': 5,
+            '15': 1, '16': 1, '17': 1, '31': 1,
+        }
+
+    def test_uet_ses(self, cmd_tshark, capture_file, test_env):
+        '''All 16 SES opcodes of the standard request header and the
+        extension headers: atomic, dual operand atomic (compare and
+        swap), rendezvous.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.ses.std.opcode'], '-Y', 'uet.ses.std.opcode')
+        assert sorted({int(r[0]) for r in rows}) == list(range(16))
+        for field, count in (('uet.ses.comp_swap_ext_hdr', 72),
+                             ('uet.ses.atomic_op_ext_hdr', 40),
+                             ('uet.ses.rendv_ext_hdr', 2)):
+            rows = self.fields(cmd_tshark, capture_file, test_env, ['frame.number'],
+                               '-Y', field)
+            assert len(rows) == count, field
+
+    def test_uet_ack_nack_ctl(self, cmd_tshark, capture_file, test_env):
+        '''ACK congestion control states of every kind, NACK codes, and
+        all control types including an undefined one.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.pds.ack.cc_type'], '-Y', 'uet.pds.ack.cc_type')
+        assert sorted({r[0] for r in rows}) == ['0', '1', '15', '2', '3']
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.pds.ack.cc_state.credit'],
+                           '-Y', 'uet.pds.ack.cc_state.credit')
+        assert len(rows) == 1
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.pds.nack.code'], '-Y', 'uet.pds.nack.code')
+        assert sorted({int(r[0]) for r in rows}) == [
+            0, 1, 2, 3, 4, 11, 13, 16, 26, 64, 253, 254, 255]
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.pds.ctl_type'], '-Y', 'uet.pds.ctl_type')
+        assert sorted({int(r[0]) for r in rows}) == list(range(10))
+
+    def test_uet_responses(self, cmd_tshark, capture_file, test_env):
+        '''SES responses: plain, with data, with small data, and the
+        return codes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.ses.rsp.opcode', 'uet.ses.rsp.return_code'],
+                           '-Y', 'uet.ses.rsp.opcode')
+        assert {r[0] for r in rows} == {'0', '1', '2', '3'}
+        assert {'0', '1', '5', '31', '36', '48'} <= {r[1] for r in rows}
+
+    def test_uet_tss_length(self, cmd_tshark, capture_file, test_env):
+        '''The TSS header is 12 bytes, 16 with the SSI, also behind the
+        entropy header ("UET: Use the consumed length in dissect_tss").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['frame.number', 'uet.tss.sp', 'uet.tss'], '-Y', 'uet.tss')
+        assert len(rows) == 8
+        for num, sp, raw in rows:
+            assert len(raw) == (32 if sp == 'True' else 24), num
+        assert [int(r[0]) for r in rows if int(r[0]) > 243] == [249, 250]
+
+    def test_uet_crc(self, cmd_tshark, capture_file, test_env):
+        '''Frames 251-265 carry good and bad CRC32C values: by default
+        the CRC is not checked; with uet.validate_crc the good ones verify
+        (IPv4 and IPv6 over UDP, and over IP with the entropy header) and
+        the bad ones do not.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.crc.status'], '-Y', 'frame.number >= 251')
+        assert [r[0] for r in rows] == ['2'] * 15
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['uet.crc.status'], '-Y', 'frame.number >= 251',
+                           '-o', 'uet.validate_crc:TRUE')
+        assert [r[0] for r in rows] == ['1', '0', '1', '1', '0'] * 3
+
+    def test_uet_no_crc(self, cmd_tshark, capture_file, test_env):
+        '''With uet.has_crc off the last four bytes are not a CRC: no
+        checksum field, and the data after the PDS is what is left.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           ['frame.number'], '-Y', 'uet.crc',
+                           '-o', 'uet.has_crc:FALSE')
+        assert rows == []
