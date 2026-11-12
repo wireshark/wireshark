@@ -156732,3 +156732,125 @@ class TestDissectUaudp:
         assert directions(()) == [s2t, t2s, t2s, t2s, t2s, t2s, t2s]
         assert directions(('-o', 'uaudp.system_ip:192.0.2.10')) == [s2t, t2s, s2t, t2s, t2s, t2s, t2s]
         assert directions(('-o', 'uaudp.system_ip:2001:db8::10')) == [s2t, t2s, t2s, t2s, t2s, s2t, t2s]
+
+
+class TestDissectUavcanCan:
+    CAP = 'uavcan_can_coverage.pcap.gz'
+    # UAVCAN/CAN is only reached through Decode As
+    OPTS = ('-d', 'can.subdissector,uavcan_can')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args, passes=('-2',)):
+        return subprocess.check_output((cmd_tshark, *TestDissectUavcanCan.OPTS, *passes,
+                '-r', capture_file(TestDissectUavcanCan.CAP), '-Tfields', *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    @staticmethod
+    def write_pcap(path, frames):
+        '''SocketCAN capture of the given (CAN ID, data) pairs, extended IDs.'''
+        with open(path, 'wb') as f:
+            f.write(struct.pack('<IHHiIII', 0xa1b2c3d4, 2, 4, 0, 0, 65535, 227))
+            for i, (cid, data) in enumerate(frames):
+                fr = struct.pack('>IBBBB', cid | 0x80000000, len(data), 0, 0, 0) + data.ljust(8, b'\0')
+                f.write(struct.pack('<IIII', 1000 + i, 0, len(fr), len(fr)))
+                f.write(fr)
+
+    def test_uavcan_can_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Frames 1-46 and 52 are UAVCAN/CAN and 47-51 (a version 0 frame,
+        a standard ID, an error frame and two frames of unknown transfers)
+        stay CAN; nothing is malformed or has an expert info, in one pass
+        and in two.'''
+        for passes in ((), ('-2',)):
+            protos = self.fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol', passes=passes)
+            assert protos == ['UAVCAN/CAN'] * 46 + ['CAN'] * 5 + ['UAVCAN/CAN']
+            stdout = subprocess.check_output((cmd_tshark, *self.OPTS, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_uavcan_can_ids(self, cmd_tshark, capture_file, test_env):
+        '''Source and destination node, subject or service ID and the
+        anonymous bit of messages and services.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number <= 12 || frame.number == 52',
+                '-eframe.number', '-euavcan_can.src_addr', '-euavcan_can.dst_addr',
+                '-euavcan_can.subject_id', '-euavcan_can.service_id', '-euavcan_can.anonymous')
+        assert lines == [
+            '1\t5\t\t7509\t\t0', '2\t6\t\t7509\t\t0', '3\t0\t\t8166\t\t1', '4\t9\t\t100\t\t0',
+            '5\t10\t\t0\t\t0', '6\t11\t\t8191\t\t0', '7\t0\t\t8166\t\t1', '8\t0\t\t8165\t\t1',
+            '9\t21\t\t8165\t\t0', '10\t12\t\t8184\t\t0', '11\t6\t5\t\t384\t',
+            '12\t5\t6\t\t384\t', '52\t5\t\t100\t\t0']
+
+    def test_uavcan_can_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the subject or service and marks the
+        frames of a multi-frame transfer.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-eframe.number', '-e_ws.col.info')
+        info = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+        assert info[1] == 'Message: 7509 (Heartbeat.1.0)'
+        assert info[6] == 'Message: 8191 (Reserved)'
+        assert info[11] == 'Service request: 384 (Access.1.0)'
+        assert info[24] == 'Service response: 409 (Write.1.X)'
+        assert info[28] == 'Message: 7509 (Heartbeat.1.0) (Multi-frame)'
+        assert info[38] == 'Service response: 408 (Read.1.X) (Multi-frame)'
+
+    def test_uavcan_can_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Reassembled multi-frame transfers (interleaved transfers, CAN
+        FD frames, a transfer ID of 31, a CRC split over the last two frames) are
+        decoded when the frames are dissected a second time: the length
+        and CRC are on the last frame, and the payload goes to the DSDL
+        dissector.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_can.multiframe.reassembled.length',
+                '-eframe.number', '-euavcan_can.multiframe.reassembled.length', '-euavcan_can.multiframe.crc')
+        assert lines == ['28\t18\t0x6118', '35\t26\t0x5743', '36\t22\t0x5a74', '38\t106\t0xe4a1',
+                         '41\t16\t0xc7d3', '44\t18\t0x95aa', '46\t8\t0x8c18']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 28 || frame.number == 44',
+                '-euavcan_dsdl.Heartbeat.uptime')
+        assert lines == ['5', '6']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 35',
+                '-euavcan_dsdl.Write.offset', '-euavcan_dsdl.primitive.array.Unstructured')
+        assert lines == ['0\t6162636465666768696a6b6c']
+        # the reassembled data is only dissected on a second pass
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_can.multiframe.crc', '-eframe.number', passes=())
+        assert lines == []
+
+    def test_uavcan_can_pnp_allocation(self, cmd_tshark, capture_file, test_env):
+        '''The allocation type of the plug and play messages follows the
+        anonymous bit of the source (fixed: it used to be always 1).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'uavcan_dsdl.pnp.allocation',
+                '-eframe.number', '-euavcan_dsdl.pnp.allocation', '-euavcan_dsdl.node.id')
+        assert lines == ['3\t0\t', '7\t0\t42', '8\t0\t65535', '9\t1\t42']
+
+    def test_uavcan_can_second_pass_reproducer(self, cmd_tshark, capture_file, test_env):
+        '''Frames 51 and 52 (fixed): a middle frame refused on the first
+        pass and a later start frame with the same transfer. The second
+        pass used to dereference NULL for frame 51.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number >= 50',
+                '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['50\tCAN', '51\tCAN', '52\tUAVCAN/CAN']
+
+    def test_uavcan_can_expert_infos(self, cmd_tshark, result_file, test_env):
+        '''Toggle bit and CRC errors, and a reassembled payload shorter
+        than the CRC (fixed: it was a Malformed Packet).'''
+        pcap = result_file('uavcan_can_experts.pcap')
+        cid = (4 << 26) | (7509 << 8) | 5
+        cid2 = (4 << 26) | (7509 << 8) | 6
+        cid3 = (4 << 26) | (7509 << 8) | 7
+        self.write_pcap(pcap, [
+            (cid, b'\x01\x02\x03\x04\x05\x06\xa1'),      # start, toggle 1
+            (cid, b'\x07\x08\x09\x0a\x0b\x0c\x21'),      # middle, toggle 1 again: toggle error
+            (cid, b'\x00\x00\x61'),                      # end with a wrong CRC
+            (cid2, b'\xa2'),                             # start without payload
+            (cid2, b'\x41\x42'),                         # end: one octet in all
+            (cid3, b'\xa3'),                             # start without payload
+            (cid3, b'\x63'),                             # end: nothing in all
+        ])
+        lines = subprocess.check_output((cmd_tshark, *self.OPTS, '-2', '-r', pcap,
+                '-Tfields', '-eframe.number', '-e_ws.expert.message'),
+                encoding='utf-8', env=test_env).splitlines()
+        msgs = {int(l.split('\t')[0]): l.split('\t')[1] for l in lines}
+        assert msgs[2] == 'Expected Toggle 0 got 1.'
+        assert msgs[3] == 'Expected Toggle 0 got 1.,Expected CRC16 28 got 0.'
+        assert msgs[5] == 'Reassembled payload too short for the CRC'
+        assert msgs[7] == 'Expected Toggle 0 got 1.,Reassembled payload too short for the CRC'
+        assert 'Exception' not in ''.join(msgs.values())
