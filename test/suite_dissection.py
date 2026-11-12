@@ -154483,3 +154483,74 @@ class TestDissectTpkt:
                 '-o', 'tpkt.desegment:FALSE', '-Y', 'frame.number in {6, 7}',
                 '-Tfields', '-eframe.number', '-e_ws.col.info')
         assert lines == ['6\tContinuation', '7\tContinuation']
+
+
+class TestDissectTplinkSmarthome:
+    '''TP-Link Smart Home Protocol (TCP and UDP port 9999, Exported PDU)
+    from the synthetic capture tplink-smarthome_coverage.pcapng.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tplink-smarthome_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tplink_clean(self, cmd_tshark, capture_file, test_env):
+        '''28 frames without malformed packets or error expert infos in
+        one and two passes; 19 are decoded as TP-Link messages.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tplink_smarthome.msg', '-Tfields', '-eframe.number')
+        assert len(lines) == 19
+
+    def test_tplink_udp_messages(self, cmd_tshark, capture_file, test_env):
+        '''UDP messages are decoded from the autokey XOR; Cmd is to port
+        9999, Rsp from it, a message with both ports is a Cmd and
+        unprintable octets are shown as dots.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 5, 6}', '-Tfields',
+                '-eframe.number', '-e_ws.col.info', '-ejson.member')
+        assert lines[0].startswith('1\tUDP Cmd: {"system":{"get_sysinfo":{}}}\t')
+        assert lines[1].startswith('2\tUDP Rsp: {"system":{"get_sysinfo":{"sw_ver":"1.5.6"')
+        assert lines[2].startswith('3\tUDP Cmd: {}')
+        assert lines[3].startswith('5\tUDP Cmd: {"system":{"set_relay_state":')
+        assert lines[4].startswith('6\tUDP Cmd: {"a":".. control characters ."}')
+
+    def test_tplink_not_tplink(self, cmd_tshark, capture_file, test_env):
+        '''UDP datagrams whose first two octets do not decode to {" or {}
+        (frames 7-9) and a TCP stream that does not start with a message
+        (frames 19, 22) are left to UDP and TCP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {7, 8, 9, 19, 22}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['7\tUDP', '8\tUDP', '9\tUDP', '19\tTCP', '22\tTCP']
+
+    def test_tplink_tcp_framing(self, cmd_tshark, capture_file, test_env):
+        '''Three messages in one segment (frame 12), a message split in
+        three segments (frames 13-15) and a message followed by the start
+        of the next (frames 16-17).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'frame.number in {12, 13, 14, 15, 16, 17}', '-Tfields',
+                '-eframe.number', '-etplink_smarthome.len', '-etcp.reassembled_in')
+        assert lines == ['12\t7,7,13\t', '13\t\t15', '14\t\t15', '15\t74\t',
+                         '16\t7\t17', '17\t74\t']
+
+    def test_tplink_exported_pdu(self, cmd_tshark, capture_file, test_env):
+        '''The tplink-smarthome-message dissector through Exported PDU:
+        port type TCP with ports gives Cmd, Rsp and, with neither port
+        9999, Msg; UDP gives a Rsp without a length field; no port type
+        (frame 23) and data that is not a message (frame 28) are declined.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 23', '-Tfields', '-eframe.number',
+                '-e_ws.col.info', '-etplink_smarthome.len')
+        assert lines[0].split('\t')[0] == '23'
+        assert [l.split('\t')[1][:8] for l in lines[1:5]] == [
+            'TCP Cmd:', 'TCP Rsp:', 'TCP Msg:', 'UDP Rsp:']
+        assert lines[1].endswith('\t29') and lines[4].endswith('\t')
+        assert lines[5].split('\t')[0] == '28'
+        assert lines[5] == '28\t\t'
