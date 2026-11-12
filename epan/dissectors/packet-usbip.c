@@ -429,7 +429,8 @@ dissect_ret_unlink(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
     if (victim) {
         proto_item *ti;
 
-        victim->ret_frame = pinfo->num;
+        if (!PINFO_FD_VISITED(pinfo))
+            victim->ret_frame = pinfo->num;
         ti = proto_tree_add_uint(tree, hf_usbip_vic_frame, NULL, 0, 0,
                                  victim->cmd_frame);
         proto_item_set_generated(ti);
@@ -460,7 +461,7 @@ static int
 usbip_dissect_op(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                  int offset)
 {
-    proto_item *ti = NULL;
+    proto_item *ti = proto_tree_get_parent(tree);
     uint32_t operation;
     int32_t status;
 
@@ -511,6 +512,7 @@ usbip_dissect_urb(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                   usbip_conv_info_t *usbip_info)
 {
     proto_item *ti = NULL;
+    proto_item *proto_ti = proto_tree_get_parent(tree);
     usbip_transaction_t *usbip_trans;
     uint32_t command;
     uint32_t devid;
@@ -549,7 +551,7 @@ usbip_dissect_urb(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
     }
 
     if (!usbip_trans) {
-        usbip_trans = wmem_new(pinfo->pool, usbip_transaction_t);
+        usbip_trans = wmem_new0(pinfo->pool, usbip_transaction_t);
         usbip_trans->cmd_frame = 0;
         usbip_trans->ret_frame = 0;
         usbip_trans->devid = 0;
@@ -621,12 +623,12 @@ usbip_dissect_urb(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
         proto_tree_add_item(tree, hf_usbip_urb_data, tvb, offset, -1, ENC_NA);
         offset = tvb_reported_length_remaining(tvb, offset);
         expert_add_info_format(
-            pinfo, ti, &ei_usbip,
+            pinfo, proto_ti, &ei_usbip,
             "Dissector for USBIP Command"
             " (%x) code not implemented, Contact"
             " Wireshark developers if you want this supported",
             command);
-        proto_item_append_text(ti, ": Undecoded");
+        proto_item_append_text(proto_ti, ": Undecoded");
         break;
     }
     return offset;
