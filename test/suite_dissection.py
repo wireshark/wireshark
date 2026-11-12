@@ -152336,3 +152336,75 @@ class TestDissectZbeeZclMeasSensing:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 151
         assert {'Attribute: AC Active Power Overload (0x0803)', 'Attribute: AC Alarms Mask (0x0800)', 'Attribute: AC Current Divisor (0x0603)', 'Attribute: AC Current Multiplier (0x0602)'} <= names
+
+
+class TestDissectZbeeZclMisc:
+    CAP = 'zbee-zcl-misc_coverage.pcap.gz'
+
+    def test_zbee_zcl_misc_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 1029
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 953, 'zbee_zcl_hvac.thermostat': 42, 'zbee_zcl_ias.zone': 34}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_misc_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2', '907']] == [
+            'ZCL Thermostat: Setpoint Raise/Lower, Seq: 1',
+            'ZCL Thermostat: Setpoint Raise/Lower, Seq: 1',
+            'ZCL IAS Zone: Zone Enroll Response, Seq: 1',
+        ]
+
+    def test_zbee_zcl_misc_commands(self, cmd_tshark, capture_file, test_env):
+        '''The cluster specific commands that are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'not frame.protocols ~ "zbee_zcl$"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        commands = {line.rsplit(', Seq: ', 1)[0] for line in stdout.splitlines()}
+        assert sorted(commands) == [
+            'ZCL IAS Zone: Unknown Command',
+            'ZCL IAS Zone: Zone Enroll Request',
+            'ZCL IAS Zone: Zone Enroll Response',
+            'ZCL IAS Zone: Zone Status Change Notification',
+            'ZCL Thermostat: Clear Weekly Schedule',
+            'ZCL Thermostat: Get Relay Status Log',
+            'ZCL Thermostat: Get Relay Status Log Response',
+            'ZCL Thermostat: Get Weekly Schedule',
+            'ZCL Thermostat: Get Weekly Schedule Response',
+            'ZCL Thermostat: Set Weekly Schedule',
+            'ZCL Thermostat: Setpoint Raise/Lower',
+            'ZCL Thermostat: Unknown Command',
+        ]
+
+    def test_zbee_zcl_misc_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (54 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 54
+        assert {'Attribute: AbsMaxCoolSetpointLimit (0x0006)', 'Attribute: AbsMaxHeatSetpointLimit (0x0004)', 'Attribute: AbsMinCoolSetpointLimit (0x0005)', 'Attribute: AbsMinHeatSetpointLimit (0x0003)'} <= names
