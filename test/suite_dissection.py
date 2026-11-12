@@ -158944,3 +158944,111 @@ class TestDissectUlp:
                     '-Y', proto, '-Tfields', '-eframe.number',
                 ), encoding='utf-8', env=test_env, timeout=120)
             assert stdout.split() == frames.split()
+
+
+class TestDissectUma:
+    '''UMA / GAN (Unlicensed Mobile Access) over TCP 14001 and the UDP, TCP
+    and RTP conversations that its IEs set up, from the synthetic capture
+    uma_coverage.pcap.gz.'''
+
+    def test_uma_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The capture decodes without malformed packets or error expert
+        infos, in one and two passes, with the same UMA decoding.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('uma_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            protocols = [p.strip() for p in stdout.splitlines()]
+            assert len(protocols) == 246
+            counts = {p: protocols.count(p) for p in set(protocols)}
+            assert counts['UMA'] == 214
+            assert counts['UMA/GPRS-LLC'] == 14
+            assert counts['UMA/SNDCP'] == 1
+            assert counts['UMA/UMA'] == 1
+            assert counts['RTP'] == 3
+            assert counts['RTCP'] == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('uma_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('uma_coverage.pcap.gz'),
+                    '-Y', 'uma', '-Tfields', '-eframe.number', '-e_ws.col.info',
+                    '-euma.urr.ie.type', '-euma.urlc.msg.type',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            outs.append(stdout)
+        assert outs[0] == outs[1]
+
+    def test_uma_classmark_ie_offsets(self, cmd_tshark, capture_file, test_env):
+        '''MS Classmark 3 and Classmark Enquiry Mask are decoded from the
+        first octet of the IE value, not from the length octet ("UMA: Fix
+        Classmark IE offsets and the User Data Rate overflow").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uma_coverage.pcap.gz'),
+                '-Y', 'frame.number in {9, 35, 41}',
+                '-Tfields', '-eframe.number', '-egsm_a.multi_bnd_sup_fields',
+                '-egsm_a.rr.cm_cng_msg_req',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        # The IEs hold 0x50 / 0x20 (multiband field 5 / 2) and the masks
+        # 0x80 / 0x00; the length octets (10, 6 and 1) would decode as 0, 0 and 0
+        assert stdout.splitlines() == [
+            '9\t5\t',
+            '35\t2\t',
+            '41\t\tTrue,False',
+        ]
+
+    def test_uma_user_data_rate(self, cmd_tshark, capture_file, test_env):
+        '''The User Data Rate is shown in bits/s, as a 64 bit value.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uma_coverage.pcap.gz'),
+                '-Y', 'frame.number in {215, 216, 217, 218, 219}',
+                '-Tfields', '-eframe.number', '-euma.urr.URLCcause',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '215\t0',
+            '216\t100000',
+            '217\t16777200',
+            '218\t16777300',
+            '219\t1677721500',
+        ]
+
+    def test_uma_conversations(self, cmd_tshark, capture_file, test_env):
+        '''IE 99/100 make UMA URLC UDP traffic to that address and port
+        (also when it arrives in an LLC PDU inside another UMA message),
+        IE 97/103 UMA over TCP and IE 104 RTP and RTCP.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uma_coverage.pcap.gz'),
+                '-Y', 'udp.dstport == 14002 || tcp.port == 14010 || rtp || rtcp',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        protos = {r[0]: r[1] for r in rows}
+        assert [protos[str(n)] for n in range(220, 226)] == [
+            'UMA/GPRS-LLC', 'UMA', 'UMA', 'UMA', 'UMA', 'UMA']
+        for n in (229, 230):
+            assert protos[str(n)] == 'UMA'
+        for n in (5, 231, 232):
+            assert protos[str(n)] == 'RTP'
+        assert protos['233'] == 'RTCP'
+        assert protos['246'] == 'UMA/UMA'
+
+    def test_uma_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A PDU split over two and over three TCP segments (the second one
+        splits the length field) and two PDUs in one segment.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('uma_coverage.pcap.gz'),
+                '-Y', 'frame.number >= 186 && frame.number <= 193',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                '-euma.li',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        rows = [r.split('\t') for r in stdout.splitlines()]
+        assert [(r[0], r[1]) for r in rows] == [
+            ('186', 'UMA'), ('187', 'TCP'), ('188', 'UMA'), ('189', 'TCP'),
+            ('190', 'TCP'), ('191', 'UMA'), ('192', 'UMA'), ('193', 'UMA')]
+        assert rows[0][2] == '2,8'
+        assert rows[2][2] == '161'
+        assert rows[5][2] == '86'
