@@ -181,7 +181,7 @@ void proto_register_uci(void);
 #define UCI_APP_CONFIG_NB_OF_ELEVATION_MEASUREMENTS 0xE5
 
 static bool gPREF_TCP_DESEGMENT = true;
-static unsigned gPREF_TCP_PORT = 7000;
+#define UCI_TCP_PORT 7000
 
 static int proto_uci;
 static dissector_handle_t handle_uci;
@@ -470,7 +470,7 @@ static const value_string mac_addressing_mode_indicator_vals[] = {
 
 static const value_string nlos_vals[] = {
     { 0, "Line of sight" },
-    { 1, "Non-line of sigt" },
+    { 1, "Non-line of sight" },
     { 0xff, "Unable to determine" },
     { 0, NULL },
 };
@@ -1801,12 +1801,7 @@ void proto_register_uci(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     module_uci = prefs_register_protocol(proto_uci,
-                                  proto_reg_handoff_uci);
-    prefs_register_uint_preference(module_uci, "tcp.port",
-        "TCP port",
-        "Select preferred TCP port",
-        10,
-        &gPREF_TCP_PORT);
+                                  NULL);
     prefs_register_bool_preference(module_uci, "tcp.desegment",
         "TCP desegment",
         "Enable desegmentation of UCI packets over TCP",
@@ -1817,6 +1812,6 @@ void proto_register_uci(void)
 
 void proto_reg_handoff_uci(void)
 {
-    dissector_add_uint("tcp.port", gPREF_TCP_PORT, handle_uci);
+    dissector_add_uint_with_preference("tcp.port", UCI_TCP_PORT, handle_uci);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_FIRA_UCI, handle_uci);
 }
