@@ -159052,3 +159052,148 @@ class TestDissectUma:
         assert rows[0][2] == '2,8'
         assert rows[2][2] == '161'
         assert rows[5][2] == '86'
+
+
+class TestDissectUmtsFp:
+    '''UMTS FP (packet-umts_fp.c) with three synthetic captures:
+    umts_fp_coverage.pcapng.gz (Exported PDU records for fp_mux and fp_hint,
+    FP over UDP found by the heuristics), umts_fp_dct2000_coverage.out.gz
+    (a DCT2000 log: FP over AAL2 with the per-frame information every
+    channel type needs) and umts_fp_pi_coverage.pcapng.gz (PCH flows and
+    the paging indication bitmap reproducers).
+
+    The FP over UDP heuristic ("fp_udp") is disabled by default.'''
+    MAIN = 'umts_fp_coverage.pcapng.gz'
+    DCT = 'umts_fp_dct2000_coverage.out.gz'
+    PI = 'umts_fp_pi_coverage.pcapng.gz'
+    HEUR = ('--enable-heuristic', 'fp_udp')
+    BAD = '_ws.malformed || _ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fp_rows(cmd_tshark, capture_file, test_env, cap, *fields, extra=(), env=None):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file(cap),
+                '-Tfields', '-eframe.number', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=env or test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_umts_fp_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets and no error expert infos in one pass, and
+        with -2 for the captures whose first datagram of every flow is
+        framed by itself (the PCH heuristic needs two datagrams, so its
+        first frame differs in the second pass).'''
+        for cap, count, passes in ((self.MAIN, 73, ((), ('-2',))),
+                                   (self.DCT, 511, ((), ('-2',))),
+                                   (self.PI, 19, ((),))):
+            for p in passes:
+                stdout = subprocess.check_output((cmd_tshark, *self.HEUR, *p,
+                        '-r', capture_file(cap), '-Y', self.BAD, '-Tfields', '-eframe.number',
+                    ), encoding='utf-8', env=test_env)
+                assert count_output(stdout) == 0, (cap, p)
+            rows = self.fp_rows(cmd_tshark, capture_file, test_env, cap, '_ws.col.protocol', extra=self.HEUR)
+            assert len(rows) == count
+
+    def test_umts_fp_two_passes_same(self, cmd_tshark, capture_file, test_env):
+        '''The protocol and info columns are the same in both passes.'''
+        for cap in (self.MAIN, self.DCT):
+            outs = []
+            for p in ((), ('-2',)):
+                outs.append(subprocess.check_output((cmd_tshark, *self.HEUR, *p,
+                        '-r', capture_file(cap), '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                    ), encoding='utf-8', env=test_env))
+            assert outs[0] == outs[1], cap
+
+    def test_umts_fp_heuristic_disabled(self, cmd_tshark, capture_file, test_env):
+        '''FP over UDP is only found with the heuristic enabled.'''
+        def udp_fp(extra):
+            rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.MAIN, 'frame.protocols',
+                                extra=extra)
+            return sorted(int(n) for n, v in rows.items() if 'udp:fp' in v[0])
+        assert udp_fp(()) == []
+        assert len(udp_fp(self.HEUR)) >= 8
+
+    def test_umts_fp_heuristic_channels(self, cmd_tshark, capture_file, test_env):
+        '''The heuristics frame DCH (DCCH over DCH), FACH, RACH, HS-DSCH and
+        E-DCH flows; the first datagram of each flow is framed by itself.'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.MAIN, 'fp.channel-type',
+                            extra=(*self.HEUR, '-Y', 'udp && fp'))
+        assert {v[0] for v in rows.values()} == {'0x01', '0x03', '0x0c', '0x0d', '0x11'}
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.PI, 'fp.channel-type',
+                            extra=(*self.HEUR, '-Y', 'udp && fp'))
+        assert {v[0] for v in rows.values()} == {'0x09'}
+
+    def test_umts_fp_dct2000_channel_types(self, cmd_tshark, capture_file, test_env):
+        '''Every FP channel type (RACH, FACH, DSCH, USCH, PCH, CPCH, BCH,
+        DCH, HS-DSCH, Iur, E-DCH, HS-DSCH common, E-DCH common) in the
+        DCT2000 log.'''
+        stdout = subprocess.check_output((cmd_tshark, '-r', capture_file(self.DCT),
+                '-Tfields', '-efp.channel-type'), encoding='utf-8', env=test_env)
+        assert set(stdout.split()) == {'0x%02x' % c for c in
+                (1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 24)}
+
+    def test_umts_fp_pch_assertion(self, cmd_tshark, capture_file, test_env):
+        '''Frame 2: fp_hint says PCH for a stream FP framed as DCH. The
+        conversation update asserted the channel type; now it is skipped.'''
+        env = dict(test_env)
+        env['WIRESHARK_ABORT_ON_DISSECTOR_BUG'] = '1'
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.MAIN,
+                            '_ws.col.protocol', 'fp.channel-type', '_ws.malformed',
+                            extra=('-Y', 'frame.number <= 2'), env=env)
+        assert rows['1'][:1] == ['RLC'] and rows['2'] == ['FP', '0x09', '']
+
+    def test_umts_fp_pi_bitmap_length(self, cmd_tshark, capture_file, test_env):
+        '''A PCH frame whose own paging indication bitmap is 18 bits (3
+        octets) leaves it in the stream state; the next PCH frame, whose
+        bitmap is 144 bits, showed it as 18 octets (heap over-read). The
+        stored length is used now (frame 4); an invalid PICH mode stores
+        no bitmap (frame 8) and nothing is shown.'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.PI,
+                            'fp.pch.relevant-pi-bitmap', 'fp.pch.relevant-pi-frame', '_ws.malformed',
+                            extra=self.HEUR)
+        assert rows['4'] == ['aabbc0', '3', '']
+        assert rows['8'] == ['', '', '']
+        assert rows['14'] == ['a041c01122', '13', '']
+        assert rows['17'] == ['a0a1a2a3a4a5a6a7a8', '16', '']
+
+    def test_umts_fp_rach_new_ie_flags(self, cmd_tshark, capture_file, test_env):
+        '''The optional IEs of an R7 FDD RACH frame depend on their own
+        flag bit (the flags used to be treated as always present).'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.DCT,
+                            'fp.rach.cell-portion-id-present', 'fp.rach.ext-propagation-delay-present',
+                            'fp.cell-portion-id', 'fp.ext-propagation-delay',
+                            extra=('-Y', 'fp.rach.cell-portion-id-present && fp.channel-type == 1'))
+        assert sorted(rows.values()) == sorted([['0', '0', '', ''], ['1', '0', '7', ''],
+                                                ['0', '1', '', '291'], ['1', '1', '7', '291'],
+                                                ['1', '1', '7', '291']])
+
+    def test_umts_fp_hsdsch_capacity_allocation(self, cmd_tshark, capture_file, test_env):
+        '''The HS-DSCH interval is 16 bits (the value times 10 is up to
+        2550) and the calculated rate uses 64 bit arithmetic.'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.DCT,
+                            'fp.hsdsch-credits', 'fp.hsdsch-interval', 'fp.hsdsch-calculated-rate',
+                            extra=('-Y', 'fp.hsdsch-calculated-rate'))
+        got = {tuple(v) for v in rows.values()}
+        assert ('50', '1500', '11200') in got
+        assert ('500', '1500', '218666') in got
+        assert ('100', '200', '168000') in got
+        assert ('1000', '200', '3280000') in got
+
+    def test_umts_fp_pusch_duration(self, cmd_tshark, capture_file, test_env):
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.DCT, 'fp.pusch-duration',
+                            extra=('-Y', 'fp.pusch-duration'))
+        assert rows and {v[0] for v in rows.values()} == {'200'}
+
+    def test_umts_fp_edch_rnti(self, cmd_tshark, capture_file, test_env):
+        '''E-DCH common frames carry the E-RNTI, which MAC-is descriptors
+        with LCHID 15 repeat.'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.DCT, 'fp.edch.e-rnti',
+                            extra=('-Y', 'fp.edch.e-rnti'))
+        assert rows and {v[0] for v in rows.values()} <= {'4660', '4660,4660'}
+
+    def test_umts_fp_pch_paging_indications(self, cmd_tshark, capture_file, test_env):
+        '''Paging indication bitmaps of 18 and 144 bits in the DCT2000 log
+        (the length comes from the outhdr).'''
+        rows = self.fp_rows(cmd_tshark, capture_file, test_env, self.DCT, 'fp.pch.pi-bitmap',
+                            extra=('-Y', 'fp.pch.pi-bitmap'))
+        assert {v[0] for v in rows.values()} == {'a041c0', '000102',
+                                                  '000102030405060708090a0b0c0d0e0f1011'}
