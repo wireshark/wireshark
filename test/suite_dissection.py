@@ -156644,3 +156644,91 @@ class TestDissectUasip:
             ['3', '0,1,2,3,4,5,6,7,8', '4,4,4,4,4,4,4,4,4'] + ['16909060'] * 9,
             ['4', '0,1,2,3,4,5,6,7,8', '1,1,1,1,1,1,1,1,1'] + ['1'] * 9,
         ]
+
+
+class TestDissectUaudp:
+    '''UAUDP (the UA/UDP encapsulation of the Alcatel-Lucent UA protocol)
+    from the synthetic capture uaudp_coverage.pcapng.gz: every opcode on the
+    registered UDP ports 32000 and 32512, Connect with every TLV, Data in
+    both directions (also over IPv6), StartSig and Exported PDU frames
+    without addresses.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('uaudp_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_uaudp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 38 frames are UAUDP, none is malformed or has a warning, in
+        one and two passes.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('_ws.col.protocol',))
+        assert rows == [['UAUDP']] * 38
+        for passes in ((), ('-2',)):
+            rows = self.fields(cmd_tshark, capture_file, test_env,
+                               '_ws.malformed || _ws.expert.severity >= warning',
+                               ('frame.number',), passes)
+            assert rows == []
+
+    def test_uaudp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names every opcode, unknown ones by value.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env,
+                           'frame.number in {1, 2, 8, 9, 10, 11, 14, 16, 17, 18, 19, 20, 24, 34}',
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['1', 'Connect'], ['2', 'Connect ACK'], ['8', 'Release'], ['9', 'Release ACK'],
+            ['10', 'Keepalive'], ['11', 'Keepalive ACK'], ['14', 'NACK'],
+            ['16', 'unknown (0x30)'], ['17', 'unknown (0xfe)'], ['18', 'StartSig'],
+            ['19', 'StartSig ACK'],
+            ['20', 'Data - UA3G Message: NOP - UA3G Message: Mute: Microphone Enable'],
+            ['24', 'Data ACK'],
+            ['34', "Data - Couldn't resolve direction. Check UAUDP Preferences."],
+        ]
+
+    def test_uaudp_connect_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Frame 1 holds every TLV type with lengths of 1 to 4 octets, frame
+        4 the same type values 4 octets long: a value of 4 octets is not
+        truncated (the TLV value fields were 8 bit before the fix).'''
+        names = ('uaudp.type', 'uaudp.length', 'uaudp.version', 'uaudp.window_size', 'uaudp.mtu',
+                 'uaudp.udp_lost', 'uaudp.udp_lost_reinit', 'uaudp.keepalive', 'uaudp.qos_ip_tos',
+                 'uaudp.qos_8021_vlid', 'uaudp.qos_8021_pri', 'uaudp.superfast_connect')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 4}',
+                           ('frame.number',) + names)
+        assert rows == [
+            ['1', '0,1,2,3,4,5,6,7,8,9', '4,2,2,1,3,2,1,2,1,1', '16909060', '258', '1500', '5', '7',
+             '30', '184', '100', '5', '1'],
+            ['4', '0,1,2,3,4,5,6,7,8,9', '4,4,4,4,4,4,4,4,4,4'] + ['16909060'] * 10,
+        ]
+
+    def test_uaudp_sequence_and_startsig(self, cmd_tshark, capture_file, test_env):
+        '''NACK and Data sequence numbers, and the StartSig reserved field
+        and file name.'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {14, 15, 20, 26, 18}',
+                           ('frame.number', 'uaudp.expseq', 'uaudp.sntseq', 'uaudp.startsig.reserved',
+                            'uaudp.startsig.filename'))
+        assert rows == [
+            ['14', '7', '', '', ''],
+            ['15', '65535', '', '', ''],
+            ['18', '', '', '010203040506', 'firmware.bin'],
+            ['20', '1', '2', '', ''],
+            ['26', '65535', '0', '', ''],
+        ]
+
+    def test_uaudp_direction(self, cmd_tshark, capture_file, test_env):
+        '''The direction of Data comes from the ports; when both ports are
+        registered the call server address (preference
+        uaudp.system_ip, IPv4 or IPv6) decides.'''
+        def directions(opts):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture_file('uaudp_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {20, 21, 27, 28, 29, 32, 33}', '-V', '-O', 'ua'),
+                encoding='utf-8', env=test_env, timeout=120)
+            return [l.split(', ')[1] for l in stdout.splitlines() if l.startswith('Universal Alcatel Protocol')]
+        s2t, t2s = 'System -> Terminal', 'Terminal -> System'
+        assert directions(()) == [s2t, t2s, t2s, t2s, t2s, t2s, t2s]
+        assert directions(('-o', 'uaudp.system_ip:192.0.2.10')) == [s2t, t2s, s2t, t2s, t2s, t2s, t2s]
+        assert directions(('-o', 'uaudp.system_ip:2001:db8::10')) == [s2t, t2s, t2s, t2s, t2s, s2t, t2s]
