@@ -52,6 +52,7 @@ static int ett_uasip_tlv;
 static expert_field ei_uasip_tlv_length;
 
 static uint8_t     proxy_ipaddr[4];
+static address     proxy_addr = ADDRESS_INIT_NONE;
 static const char *pref_proxy_ipaddr_s;
 
 static bool use_proxy_ipaddr;
@@ -294,12 +295,12 @@ static int dissect_uasip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     if (use_proxy_ipaddr)
     {
-        if (memcmp((pinfo->src).data, proxy_ipaddr, sizeof(proxy_ipaddr)) == 0)
+        if (addresses_equal(&pinfo->src, &proxy_addr))
         {
             _dissect_uasip(tvb, pinfo, tree, SYS_TO_TERM);
             return tvb_captured_length(tvb);
         }
-        else if (memcmp((pinfo->dst).data, proxy_ipaddr, sizeof(proxy_ipaddr)) == 0)
+        else if (addresses_equal(&pinfo->dst, &proxy_addr))
         {
             _dissect_uasip(tvb, pinfo, tree, TERM_TO_SYS);
             return tvb_captured_length(tvb);
@@ -332,7 +333,7 @@ void proto_register_uasip(void)
             {
                 "Version",
                 "uasip.version",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -345,7 +346,7 @@ void proto_register_uasip(void)
             {
                 "Window Size",
                 "uasip.window_size",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -358,7 +359,7 @@ void proto_register_uasip(void)
             {
                 "MTU",
                 "uasip.mtu",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -371,7 +372,7 @@ void proto_register_uasip(void)
             {
                 "UDP Lost",
                 "uasip.udp_lost",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -384,7 +385,7 @@ void proto_register_uasip(void)
             {
                 "UDP lost reinit",
                 "uasip.udp_lost_reinit",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -397,7 +398,7 @@ void proto_register_uasip(void)
             {
                 "Keepalive",
                 "uasip.keepalive",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -410,7 +411,7 @@ void proto_register_uasip(void)
             {
                 "QoS IP TOS",
                 "uasip.qos_ip_tos",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -423,7 +424,7 @@ void proto_register_uasip(void)
             {
                 "QoS 802.1 VLID",
                 "uasip.qos_8021_vlid",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -436,7 +437,7 @@ void proto_register_uasip(void)
             {
                 "QoS 802.1 PRI",
                 "uasip.qos_8021_pri",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -545,9 +546,11 @@ void proto_reg_handoff_uasip(void)
 
     use_proxy_ipaddr = false;
     memset(proxy_ipaddr, 0, sizeof(proxy_ipaddr));
+    clear_address(&proxy_addr);
 
     if (strcmp(pref_proxy_ipaddr_s, "") != 0) {
         if (str_to_ip(pref_proxy_ipaddr_s, proxy_ipaddr)) {
+            set_address(&proxy_addr, AT_IPv4, 4, proxy_ipaddr);
             use_proxy_ipaddr = true;
         } else {
             report_failure("uasip: Invalid 'Proxy IP Address': \"%s\"", pref_proxy_ipaddr_s);
