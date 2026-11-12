@@ -217,28 +217,20 @@ vector_asc_parse(wtap* wth, vector_asc_state_t* state, gint64* offset, int* err,
   state->state = Date;
   state->timestamps_type = Absolute;
 
-  bool reprocess_line = false;
-
   /* Bail if the end of the file is here and it hasn't been determined it's a Vector ASC file */
-  while (reprocess_line || !file_eof(wth->fh))
+  while (!file_eof(wth->fh))
   {
-    if (!reprocess_line)
+    seek_off = file_tell(wth->fh);
+    vector_asc_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+
+    if (file_gets(line_buffer, VECTOR_ASC_MAX_LINE_SIZE, wth->fh) == NULL)
     {
-      /* A reprocessed line keeps the offset at which it starts */
-      seek_off = file_tell(wth->fh);
-      vector_asc_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+      /* Error reading file, bail out */
+      *err = file_error(wth->fh, err_info);
+      if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+        return WTAP_OPEN_ERROR;
 
-      if (file_gets(line_buffer, VECTOR_ASC_MAX_LINE_SIZE, wth->fh) == NULL)
-      {
-        /* Error reading file, bail out */
-        *err = file_error(wth->fh, err_info);
-        if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-          return WTAP_OPEN_ERROR;
-
-        return WTAP_OPEN_NOT_MINE;
-      }
-    } else {
-      reprocess_line = false;
+      return WTAP_OPEN_NOT_MINE;
     }
 
     g_strstrip(line_buffer);
@@ -257,52 +249,51 @@ vector_asc_parse(wtap* wth, vector_asc_state_t* state, gint64* offset, int* err,
         vector_asc_parse_date(state, &line_buffer[strlen(ASC_MAGIC)]);
         state->state = Base;
         break;
-      case Base: {
+      case Base:
+        if (g_ascii_strncasecmp(line_buffer, "base ", 5) == 0) {
+          GMatchInfo *match_info;
+          GRegex *base_regex = g_regex_new(base_pattern, G_REGEX_CASELESS, 0, NULL);
+          if (g_regex_match(base_regex, line_buffer, 0, &match_info)) {
+            const gchar *base_str = g_match_info_fetch(match_info, 1);
+            const gchar *time_str = g_match_info_fetch(match_info, 3);
+
+            if (g_ascii_strcasecmp(base_str, "hex") == 0)
+              state->base = Hex;
+            else
+              state->base = Dec;
+
+            if (time_str && g_ascii_strcasecmp(time_str, "relative") == 0) {
+              state->timestamps_type = Relative;
+            }
+
+            g_free((gchar *)base_str);
+            g_free((gchar *)time_str);
+          }
+
+          g_match_info_free(match_info);
+          g_regex_unref(base_regex);
+          state->state = Version;
+          break;
+        }
         // The base line is expected after the date; like python-can, accept
         // a file without one, and process the line as the next header line
         // or a packet.
-        if (g_ascii_strncasecmp(line_buffer, "base ", 5) != 0) {
-          state->state = Version;
-          reprocess_line = true;
-          break;
-        }
-        GMatchInfo *match_info;
-        GRegex *base_regex = g_regex_new(base_pattern, G_REGEX_CASELESS, 0, NULL);
-        if (g_regex_match(base_regex, line_buffer, 0, &match_info)) {
-          const gchar *base_str = g_match_info_fetch(match_info, 1);
-          const gchar *time_str = g_match_info_fetch(match_info, 3);
-
-          if (g_ascii_strcasecmp(base_str, "hex") == 0)
-            state->base = Hex;
-          else
-            state->base = Dec;
-
-          if (time_str && g_ascii_strcasecmp(time_str, "relative") == 0) {
-            state->timestamps_type = Relative;
-          }
-
-          g_free((gchar *)base_str);
-          g_free((gchar *)time_str);
-        }
-
-        g_match_info_free(match_info);
-        g_regex_unref(base_regex);
         state->state = Version;
-        break;
-      }
+        /* FALLTHROUGH */
       case Version:
         // The base line is followed by "internal events logged" or
         // "no internal events logged", and starting with CANalyzer/CANoe v7.0
         // a version number is written after the header in form of a comment:
         // '// version <major>.<minor>.<patch>'
-        if (strncmp(line_buffer, "// version", 10) != 0 &&
-            g_ascii_strcasecmp(line_buffer, "internal events logged") != 0 &&
-            g_ascii_strcasecmp(line_buffer, "no internal events logged") != 0) {
-          // version not following the header, maybe pre 7.0 file -> reprocess the line as Packet
+        if (strncmp(line_buffer, "// version", 10) == 0 ||
+            g_ascii_strcasecmp(line_buffer, "internal events logged") == 0 ||
+            g_ascii_strcasecmp(line_buffer, "no internal events logged") == 0) {
           state->state = Packets;
-          reprocess_line = true;
+          break;
         }
-        break;
+        // version not following the header, maybe pre 7.0 file -> reprocess the line as Packet
+        state->state = Packets;
+        /* FALLTHROUGH */
       case Packets:
         /* seek until the first data packet */
         if (state->data_matcher == NULL) {
