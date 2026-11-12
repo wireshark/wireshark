@@ -276,8 +276,12 @@ void FontManager::setRegularFont(const QString &fontName)
     // Always reconcile the QApplication font (cheap no-op if already
     // current); only signal on a real change.
     applyApplicationFont();
-    if (base_regular_.toString() != prev)
+    if (base_regular_.toString() != prev) {
+        // QMacStyle gives document mode tab bars a copy of QSmallFont when
+        // it polishes them, which no font push reaches.
+        repolishWidgets();
         emit applicationFontChanged(zoomed(base_regular_));
+    }
 }
 
 void FontManager::setMonospaceFont(const QString &fontName)
