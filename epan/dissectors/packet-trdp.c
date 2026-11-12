@@ -519,8 +519,8 @@ static void XML_translate_dataset(TrdpDict* self, xmlNode* node, GError** error)
                 self->mTableDataset = newest->next; /* unqueue the newest Dataset for a sec */
                 Dataset* preExists = TrdpDict_get_Dataset(self, &newest->type);
                 if (preExists) {
-                    if (!Dataset_equals(preExists, newest, &err))
-                        g_propagate_error(error, err);
+                    /* a mismatch sets err, which is propagated below */
+                    Dataset_equals(preExists, newest, &err);
                     preExists->duplicates++;
                     Dataset_delete(newest, -1);
                     self->datasets--;
