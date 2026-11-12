@@ -152896,3 +152896,107 @@ class TestDissectZbeeZdp:
             '182\tNetwork Discovery Response, Status: Success',
             '183\tNetwork Discovery Response, Status: Reserved',
         ]
+
+
+class TestDissectZbeeZdpDiscovery:
+    CAP = 'zbee_zdp_discovery_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_zbee_zdp_discovery_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 94 frames are ZigBee ZDP messages of the discovery group and
+        none is malformed or has an error expert info, in one and two
+        passes; 49 of them are deprecated commands (a warning).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert lines == ['ZigBee ZDP'] * 94
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.zdo_command_deprecated', '-Tfields', '-eframe.number')
+        assert len(lines) == 49
+
+    def test_zbee_zdp_discovery_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of requests and responses (ZigBee 2007 and 2004).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 6, 10, 12, 16, 18, 19, 33, 35, 36, 39, 40, 43, 44, 45, 46, 47, 70, 71, 73, 75, 85, 93}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '1\tNetwork Address Request, Address: TexasInstrum_00:01:02:03:04',
+            '6\tNode Descriptor Request, Nwk Addr: 0x1201',
+            '10\tMatch Descriptor Request, Nwk Addr: 0xfffd, Profile: 0x0104',
+            '12\tMatch Descriptor Request, Nwk Addr: 0xff07, Profile: 0x0104',
+            '16\tDevice Announcement, Nwk Addr: 0x1234, Ext Addr: TexasInstrum_00:01:02:03:04',
+            "18\tSet User Descriptor Request, Nwk Addr: 0x1234, Desc: 'kitchen lamp'",
+            "19\tSet User Descriptor Request, Nwk Addr: 0x1211, Desc: 'kitchen lamp'",
+            '33\tParent Announce, # children 2 : TexasInstrum_00:01:02:03:04 ...',
+            '35\tParent Announce, # children 0 :',
+            '36\tNetwork Address Response, Status: Success, Address: TexasInstrum_00:01:02:03:04 = 0x1234',
+            '39\tNetwork Address Response, Status: Device Not Found',
+            '40\tExtended Address Response, Status: Success, Nwk Addr: 0x1234 = TexasInstrum_00:01:02:03:04',
+            '43\tNode Descriptor Response, Rev: 22, Nwk Addr: 0x1234, Status: Success',
+            '44\tNode Descriptor Response, Rev: 2, Nwk Addr: 0x0000, Status: Success',
+            '45\tNode Descriptor Response, Nwk Addr: 0x4321, Status: Success',
+            '46\tNode Descriptor Response, Rev: 22, Nwk Addr: 0x4321, Status: Success',
+            '47\tNode Descriptor Response, Nwk Addr: 0x1234, Status: No Descriptor',
+            '70\tComplex Descriptor Response, Status: Not Supported',
+            "71\tUser Descriptor Response, Nwk Addr: 0x1234, Desc: 'kitchen lamp', Status: Success",
+            '73\tUser Descriptor Response, Nwk Addr: 0x1234, Status: Reserved',
+            '75\tSet User Descriptor Confirm, Status: Success',
+            '85\tFind Node Cache Response, Cache: 0x1234, Nwk Addr: 0x1234',
+            '93\tParent Announce Response, Status: Success, # children 2 : TexasInstrum_00:01:02:03:04 ...',
+        ]
+
+    def test_zbee_zdp_discovery_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Node, simple and complex descriptors: node types and flags, the
+        application device name of the HA, ZLL and other profiles, and every
+        tag of a complex descriptor.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.complex', '-Tfields', '-eframe.number', '-ezbee_zdp.complex')
+        assert lines == [
+            '59\t<languageChar>en, ASCII</languageChar>',
+            '60\t<languageChar>\\\\x01\\\\xFF, Unknown Character Set</languageChar>',
+            '61\t<manufacturerName>Acme-42</manufacturerName>',
+            '62\t<modelName>Acme-42</modelName>',
+            '63\t<serialNumber>Acme-42</serialNumber>',
+            '64\t<deviceURL>Acme-42</deviceURL>',
+            '65\t<outliner>Acme-42</outliner>',
+            '66\t<Reserved Tag>Acme-42</Reserved Tag>',
+            '67\t<icon>FixMe</icon>',
+        ]
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {43, 46, 50, 51, 52}', '-V', '-O', 'zbee_zdp'))
+        for text in ('Type: 1 (Router)', 'Complex Descriptor: True', 'User Descriptor: True',
+                     'Fragmentation Supported: True', '868MHz BPSK Band: True',
+                     'Manufacturer Code: 0x1049', 'Stack Compliance Revision: 22',
+                     'Extended Simple Descriptor List Available: True',
+                     'Type: 3 (Reserved)',
+                     'Profile: Home Automation (0x0104)',
+                     'Profile: ZLL (0xc05e)', 'Application Device: Dimmable light (0x0100)',
+                     'Input Cluster: Basic (0x0000)'):
+            assert text in stdout
+
+    def test_zbee_zdp_discovery_lists(self, cmd_tshark, capture_file, test_env):
+        '''Associated devices, endpoints and clusters of the responses.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'zbee_zdp.assoc_device', '-Tfields', '-eframe.number',
+                '-ezbee_zdp.assoc_device_count', '-ezbee_zdp.index', '-ezbee_zdp.assoc_device')
+        assert lines == ['37\t2\t0\t0x1111,0x2222', '41\t2\t0\t0x1111,0x2222']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {55, 57, 86, 87, 89, 90}', '-Tfields', '-eframe.number',
+                '-ezbee_zdp.ep_count', '-ezbee_zdp.endpoint', '-ezbee_zdp.in_cluster',
+                '-ezbee_zdp.out_cluster')
+        assert lines == [
+            '55\t3\t1,2,242\t\t',
+            '57\t2\t1,5\t\t',
+            '86\t\t1\t0x0006,0x0008\t0x0019',
+            '87\t\t1\t0x0008\t0x0019',
+            '89\t3\t1,2,3\t\t',
+            '90\t3\t2,3\t\t',
+        ]
