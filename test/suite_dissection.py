@@ -153116,3 +153116,112 @@ class TestDissectZbeeZdpManagement:
             '61\tBeacon Survey Response',
             '69\tSecurity Challenge Response',
         ]
+
+
+class TestDissectZbncp:
+    CAP = 'zbncp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, cap, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file(cap), *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_zbncp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''428 frames of ZBOSS NCP traffic (every call id, status
+        categories, ACKs, fragments, dump headers): 426 are ZB NCP, two
+        are not recognised (a dump header of another type and a wrong
+        signature); none is malformed or has an error expert info, in one
+        and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 428
+        assert lines.count('ZB NCP') == 426
+        assert lines.count('Packet') == 2
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity == "Error"',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_zbncp_group_table(self, cmd_tshark, capture_file, test_env):
+        '''APS_GET_GROUP_TABLE response: one 16 bit item per group (it was
+        one item of group_count * 2 octets, with an expert info about an
+        unsigned integer of length 6).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 356 && frame.number <= 358', '-Tfields',
+                '-eframe.number', '-ezbncp.data.aps_group_num', '-ezbncp.data.aps_group')
+        assert lines == ['356\t3\t0x0001,0x0002,0x0003', '357\t1\t0x1234', '358\t0\t']
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number == 359', '-Tfields', '-ezbncp.data.aps_group_num',
+                '-ezbncp.data.aps_group')
+        assert lines[0].startswith('200\t0x0100,0x0101,0x0102,')
+        assert lines[0].endswith(',0x01c6,0x01c7')
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 356 && frame.number <= 359 && _ws.expert',
+                '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_zbncp_status(self, cmd_tshark, capture_file, test_env):
+        '''The status of a response by category: generic, system, MAC, NWK,
+        APS, ZDO, CBKE and an unknown category.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {300, 303, 304, 306, 309, 310, 322, 323, 331, 336, 337}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '300\tResponse, GET_ZIGBEE_ROLE, Status: OK',
+            '303\tResponse, GET_ZIGBEE_ROLE, Status: Unknown Status',
+            '304\tResponse, GET_ZIGBEE_ROLE, Status: 0x0',
+            '306\tResponse, GET_ZIGBEE_ROLE, Status: BEACON_LOSS',
+            '309\tResponse, GET_ZIGBEE_ROLE, Status: Unknown Status',
+            '310\tResponse, GET_ZIGBEE_ROLE, Status: Unknown Status',
+            '322\tResponse, GET_ZIGBEE_ROLE, NOT_SUPPORTED',
+            '323\tResponse, GET_ZIGBEE_ROLE, SECURED_LINK_KEY',
+            '331\tResponse, GET_ZIGBEE_ROLE, Status: 0x0',
+            '336\tResponse, GET_ZIGBEE_ROLE, Status: BAD_MESSAGE',
+            '337\tResponse, GET_ZIGBEE_ROLE, Status: 0x42',
+        ]
+
+    def test_zbncp_fragments_and_dump(self, cmd_tshark, capture_file, test_env):
+        '''ACKs, a first fragment names the call in the following fragment
+        (once), and the dump header sets source and destination.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number >= 339 && frame.number <= 353', '-Tfields',
+                '-eframe.number', '-e_ws.col.def_src', '-e_ws.col.def_dst', '-e_ws.col.info')
+        assert lines == [
+            '339\t\t\tACK',
+            '340\t\t\tACK',
+            '341\t\t\tRequest, GET_ZIGBEE_ROLE',
+            '342\t\t\tRequest, GET_MODULE_VERSION, first fragment',
+            '343\t\t\t, GET_MODULE_VERSION, fragment',
+            '344\t\t\t, last fragment',
+            '345\t\t\tResponse, GET_ZIGBEE_ROLE, Status: OK, first fragment',
+            '346\t\t\t, GET_ZIGBEE_ROLE, last fragment',
+            '347\t\t\t, last fragment',
+            '348\t\t\t, fragment',
+            '349\tNCP\tHOST\tIndication, GET_MODULE_VERSION',
+            '350\tHOST\tNCP\tRequest, GET_ZIGBEE_ROLE',
+            '351\tHOST\tNCP\tRequest, GET_ZIGBEE_ROLE',
+            '352\tNCP\tHOST\t, Potential RX/TX ConflictRequest, GET_ZIGBEE_ROLE',
+            '353\t\t\t',
+        ]
+
+    def test_zbncp_values(self, cmd_tshark, capture_file, test_env):
+        '''Decoded values of a version response, a reset request, an
+        authorization indication and the certificate messages.'''
+        stdout = '\n'.join(self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {1, 2, 390, 391}', '-V'))
+        for text in ('Call/evt id: GET_MODULE_VERSION (0x0001)',
+                     'FW Version: 0x152b1025', 'Stack Version: 0x0f2f0b09',
+                     'Protocol Version: 0x07130d1e',
+                     'Call/evt id: NCP_RESET (0x0002)', 'Options: Erase NVRAM (0x01)',
+                     'Authorization type: TCLK (1)',
+                     'Status code: Authorization Success (0)',
+                     'Status code: Authorization Timeout (1)'):
+            assert text in stdout
+        lines = self.fields(cmd_tshark, capture_file, test_env, self.CAP,
+                '-Y', 'frame.number in {401, 402}', '-Tfields', '-eframe.number',
+                '-ezbncp.data.cs', '-e_ws.col.info')
+        assert lines == [
+            '401\t2\tRequest, SECUR_ADD_CERT',
+            '402\t2\tResponse, SECUR_GET_CERT, Status: OK',
+        ]
