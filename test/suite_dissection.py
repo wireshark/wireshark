@@ -157860,3 +157860,109 @@ class TestDissectUdp:
         lines = self.fields(cmd_tshark, capture_file, test_env,
                 '-Y', 'udp.proc.dstpid', '-Tfields', '-eframe.number')
         assert lines == []
+
+
+class TestDissectUdpcp:
+    '''UDPCP from the synthetic capture udpcp_coverage.pcap.gz. UDPCP has
+    no default UDP port, so the capture carries the PDUs in Exported PDU
+    frames that name the "udpcp" dissector, with IPv4 addresses and UDP
+    ports (frames 18-19 have neither).'''
+
+    ERROR = '_ws.expert.severity >= 0x00800000'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udpcp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120).splitlines()
+
+    def test_udpcp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''17 of the 19 frames are UDPCP (the other two have an unknown
+        message type and a short header and are left to the data
+        dissector). None is malformed or has an error expert info, in one
+        and two passes.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 19
+        assert [p.strip() for p in lines].count('UDPCP') + \
+               [p.strip() for p in lines].count('UDPCP/XML') == 17
+        assert lines[15:17] == ['', '']
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || ' + self.ERROR, '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+
+    def test_udpcp_exported_pdu_without_conversation(self, cmd_tshark, capture_file, test_env):
+        '''Frames 18-19 name "udpcp" without addresses or ports. The
+        dissector used to look the conversation up with
+        find_conversation() and pass NULL to conversation_get_proto_data(),
+        which is a dissector bug ("Can't get proto from a NULL
+        conversation"; abort with WIRESHARK_ABORT_ON_DISSECTOR_BUG).'''
+        env = dict(test_env, WIRESHARK_ABORT_ON_DISSECTOR_BUG='1')
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, env, *passes,
+                    '-Y', 'frame.number >= 18', '-Tfields', '-eframe.number',
+                    '-eudpcp.msg-type', '-eudpcp.message-id', '-e_ws.malformed')
+            assert lines == ['18\t0x01\t1\t', '19\t0x02\t1\t']
+
+    def test_udpcp_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Three fragments (frames 4-6) and two fragments that arrive out
+        of order (12-13) are reassembled, the XML payload is handed on.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'udpcp.reassembled.length', '-Tfields', '-eframe.number',
+                '-eudpcp.reassembled.length', '-eudpcp.reassembled_in',
+                '-eudpcp.fragment.count', '-e_ws.col.protocol')
+        assert [l.strip() for l in lines] == [
+            '6\t92\t\t3\tUDPCP/XML',
+            '13\t45\t\t2\tUDPCP/XML',
+        ]
+        # the earlier fragments learn where they were reassembled on the
+        # second pass
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'udpcp.reassembled_in', '-Tfields', '-eframe.number',
+                '-eudpcp.reassembled_in')
+        assert lines == ['4\t6', '5\t6', '12\t13']
+
+    def test_udpcp_sn_and_ack_links(self, cmd_tshark, capture_file, test_env):
+        '''The links between data frames and their ACKs, and the expert
+        infos for the frames with no ACK, are created on the second pass
+        only (state is read only when the frame has been visited).'''
+        fields = ('-Tfields', '-eframe.number', '-eudpcp.ack-frame',
+                  '-eudpcp.sn-frame')
+        one = self.fields(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udpcp.ack-frame || udpcp.sn-frame', *fields)
+        assert one == []
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                          '-Y', 'udpcp.ack-frame || udpcp.sn-frame', *fields)
+        assert two == [
+            '2\t3\t', '3\t\t2', '4\t7\t', '5\t7\t', '6\t7\t', '7\t\t6',
+            '9\t10\t', '10\t\t9', '12\t14\t', '13\t14\t', '14\t\t13',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'udpcp.no-ack', '-Tfields', '-eframe.number')
+        assert lines == ['1', '8', '11', '15', '18']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'udpcp.no-sn-frame', '-Tfields', '-eframe.number')
+        assert lines == ['19']
+
+    def test_udpcp_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column: sync, unfragmented data, ACK and duplicate ACK.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {1, 2, 3, 6, 10}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert [' '.join(l.split()) for l in lines] == [
+            '1 [Data] Msg_ID= 0 [Sync] [Frag 1/1]',
+            '2 [Data] Msg_ID= 1 [Frag 1/1] Data (31 bytes)',
+            '3 [Ack] Msg_ID= 1 ACK for Msg_ID= 1',
+            '6 [Data] Msg_ID= 2 [Frag 3/3] Reassembled Data (92 bytes)',
+            '10 [Ack] Msg_ID= 4 (duplicate) ACK for Msg_ID= 4',
+        ]
+
+    def test_udpcp_checksum_and_xml(self, cmd_tshark, capture_file, test_env):
+        '''Frame 8 sets the C bit with a checksum (shown, not verified);
+        the XML payloads are dissected by the XML dissector.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {8, 2}', '-Tfields', '-eframe.number',
+                '-eudpcp.c', '-eudpcp.checksum', '-exml.tag')
+        assert lines[0].startswith('2\t0x00\t0x00000000\t')
+        assert lines[1].startswith('8\t0x01\t0x12345678')
