@@ -155296,3 +155296,49 @@ class TestDissectTrueconf:
                 '-Y', 'frame.number == 12', '-Tfields', '-e_ws.col.info',
                 '-etrueconf.host', '-etrueconf.token')
         assert lines == ['Handshake host=host.example\thost.example\tabcdefgh']
+
+
+class TestDissectTsdns:
+    # TSDNS has no default port: use Decode As on the TeamSpeak 3 DNS port
+    OPTS = ('-d', 'tcp.port==41144,tsdns')
+
+    def test_tsdns_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is TSDNS and none is malformed or has an expert
+        info, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('tsdns_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 9
+            assert protocols.count('TSDNS') == 9
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.OPTS,
+                    '-r', capture_file('tsdns_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tsdns_request_response(self, cmd_tshark, capture_file, test_env):
+        '''Requests show the domain without the trailing "\\n\\r\\r\\r\\n",
+        responses are split at the first ':' into the IP and the port
+        (the response was always flagged malformed before the fix, and a
+        port beyond 16 bits is no longer put into the 16 bit field).'''
+        stdout = subprocess.check_output((cmd_tshark, *self.OPTS,
+                '-r', capture_file('tsdns_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-etsdns.request.domain',
+                '-etsdns.response.address', '-etsdns.response.ip',
+                '-etsdns.response.port', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '1\tts.example.com\t\t\t\tRequest ts.example.com',
+            '2\t\t192.0.2.9:9987\t192.0.2.9\t9987\tResponse 192.0.2.9:9987',
+            '3\ta\t\t\t\tRequest a',
+            '4\t\t192.0.2.10:65535\t192.0.2.10\t65535\tResponse 192.0.2.10:65535',
+            '5\t\t[2001:db8::1]:9987\t[2001\t\tResponse [2001:db8::1]:9987',
+            '6\t\t192.0.2.11:abc\t192.0.2.11\t\tResponse 192.0.2.11:abc',
+            '7\t\t192.0.2.12:99999\t192.0.2.12\t\tResponse 192.0.2.12:99999',
+            '8\t\tnoport.example.net:0\tnoport.example.net\t0\tResponse noport.example.net:0',
+            '9\t\t\t\t\tRequest ',
+        ]
