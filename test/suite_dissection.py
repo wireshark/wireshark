@@ -155935,3 +155935,54 @@ class TestDissectTurnchannel:
             '15\t0x4006\t2',
             '16\t0xff10,0x4008\t2,0',
         ]
+
+
+class TestDissectTuxedo:
+    # Opcode names of opcodes 1-25
+    OPCODES = ('CALL', 'REPLY', 'FAILURE', 'CONNECT', 'DATA', 'DISCON',
+               'PREPARE', 'READY', 'COMMIT', 'DONE', 'COMPLETE', 'ROLLBACK',
+               'HEURISTIC', 'ACALL1', 'ACALL1_REPLY', 'ACALL2',
+               'ACALL2_REPLY', 'ACALL3', 'ACALL3_REPLY', 'LLE', 'LLE_REPLY',
+               'SEC_EXCHANGE', 'SEC_EXCHANGE_REPLY', 'SEC_ACALL3',
+               'SEC_ACALL3_REPLY')
+
+    def test_tuxedo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''The TCP heuristic finds the magic; later segments of the same
+        conversation are TUXEDO too; a first segment without the magic is
+        TCP. Nothing is malformed and there are no expert infos, in one and
+        two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tuxedo_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 34
+            assert protocols.count('TUXEDO') == 33
+            assert protocols.count('TCP') == 1
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('tuxedo_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_tuxedo_opcodes(self, cmd_tshark, capture_file, test_env):
+        '''Every opcode is named, unknown ones are shown in hex, a message
+        without the magic is a continuation, and both magic values work.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tuxedo_coverage.pcap.gz'),
+                '-Y', 'tuxedo && frame.number != 30',
+                '-Tfields', '-eframe.number', '-etuxedo.magic',
+                '-etuxedo.opcode', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        for i, name in enumerate(self.OPCODES):
+            assert lines[i] == '%d\t0x91039858\t0x%08x\t%s' % (i + 1, i + 1, name)
+        assert lines[25] == '26\t0x91039858\t0x00000099\tUnknown (0x99)'
+        assert lines[26] == '27\t0x91039858\t0x00000000\tUnknown (0x00)'
+        assert lines[27] == '28\t\t\tContinuation'
+        assert lines[28] == '29\t\t\tContinuation'
+        assert lines[29] == '31\t0x73903842\t0x00000001\tCALL'
+        assert lines[30] == '32\t0x73903842\t0x00000002\tREPLY'
+        assert lines[31] == '33\t\t\tContinuation'
