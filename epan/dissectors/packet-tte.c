@@ -35,6 +35,7 @@ static int hf_tte_dst_cf;
 static int hf_tte_ctid;
 static int hf_eth_src;
 static int hf_eth_type;
+static int hf_tte_trailer;
 
 /* preference value pointers */
 static uint32_t   tte_pref_ct_marker    = 0xFFFFFFFF;
@@ -119,7 +120,7 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     ethertype_data.etype = tvb_get_ntohs(tvb, TTE_MAC_LENGTH * 2);
     ethertype_data.payload_offset = TTE_HEADER_LENGTH;
     ethertype_data.fh_tree = NULL;
-    ethertype_data.trailer_id = 0;
+    ethertype_data.trailer_id = hf_tte_trailer;
     ethertype_data.fcs_len = 0;
 
     call_dissector_with_data(ethertype_handle, tvb, pinfo, tree, &ethertype_data);
@@ -142,6 +143,11 @@ proto_register_tte(void)
           { "Critical Traffic Identifier", "tte.ctid",
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_tte_trailer,
+          { "Trailer", "tte.trailer",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            "TTEthernet Trailer or Padding", HFILL }
         }
     };
 
