@@ -160669,3 +160669,138 @@ class TestDissectUsbip:
             ['58', 'USBIP', 'URB Unlink Response'],
             ['59', 'USB', 'URB Response'],
         ]
+
+
+class TestDissectUsbll:
+    '''USB 2.0 link layer (USBLL, link types 288 and 293-295) from the
+    synthetic capture usbll_coverage.pcapng.gz: token, data and handshake
+    packets, control, bulk, interrupt and isochronous transfers
+    reassembled into URBs for the USB dissector, STALL, NAK, NYET and
+    PING handling, split transactions behind a high-speed hub and Link
+    Power Management.'''
+
+    CAP = 'usbll_coverage.pcapng.gz'
+
+    @staticmethod
+    def usbll_fields(cmd_tshark, capture_file, test_env, display_filter, *fields, passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *passes,
+                '-r', capture_file('usbll_coverage.pcapng.gz'),
+                '-Y', display_filter, '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_usbll_protocols(self, cmd_tshark, capture_file, test_env):
+        '''1217 frames: 1110 USBLL, 106 USB and one USBHID frame (the
+        class request of the low-speed device); no malformed packets or
+        error expert infos in one and two passes, and the Protocol and
+        Info columns are the same in both.'''
+        columns = []
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Tfields', '-e_ws.col.protocol', '-e_ws.col.info',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            columns.append(stdout)
+        assert columns[0] == columns[1]
+        protocols = [line.split('\t')[0].strip() for line in columns[0].splitlines()]
+        assert len(protocols) == 1217
+        assert protocols.count('USBLL') == 1110
+        assert protocols.count('USB') == 106
+        assert protocols.count('USBHID') == 1
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert count_output(stdout) == 0
+
+    def test_usbll_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The high-speed device (frames 4-68): the 8 octet device
+        descriptor read at address 0, the 18 octet one and the 169 octet
+        configuration (64 + 64 + 41 octets) at address 5 are reassembled
+        from DATA packets and decoded by the USB dissector.'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'frame.number <= 60 && usb.bDescriptorType == 2 || frame.number in {13, 28}',
+                'usbll.fragment.count', 'usbll.reassembled.length', '_ws.col.info')
+        by_frame = {int(r[0]): r[1:] for r in rows}
+        assert by_frame[13] == ['1', '8', 'GET DESCRIPTOR Response DEVICE']
+        assert by_frame[28] == ['1', '18', 'GET DESCRIPTOR Response DEVICE']
+        assert by_frame[45] == ['3', '169', 'GET DESCRIPTOR Response CONFIGURATION']
+
+    def test_usbll_bulk_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Bulk IN on endpoint 0x81 of address 5: 512 + 512 + 100 octets
+        with the first packet sent twice (four fragments, 1124 octets);
+        512 octets plus a zero length packet end one transfer, a short
+        packet is a transfer of its own.'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {152, 158, 161, 172, 180, 183}',
+                'usbll.fragment.count', 'usbll.reassembled.length')
+        assert rows == [
+            ['152', '4', '1124'],
+            ['158', '2', '512'],
+            ['161', '1', '8'],
+            ['172', '3', '1028'],
+            ['180', '2', '517'],
+            ['183', '1', '10'],
+        ]
+
+    def test_usbll_stall(self, cmd_tshark, capture_file, test_env):
+        '''A STALL ends the transfer in progress: the URB is made of the
+        data transferred before it, and the last DATA packet is left out
+        when the endpoint did not acknowledge it. Frame 104 is a control
+        IN stage stalled after 64 octets, 190 a bulk IN, 208 a PING
+        STALL after NYET (the 512 octets stay in the URB).'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {104, 190, 197, 200, 203, 208}',
+                'usbll.pid', 'usbll.reassembled.length')
+        assert rows == [
+            ['104', '0x1e', '64'],
+            ['190', '0x1e', '512'],
+            ['197', '0x1e', '0'],
+            ['200', '0x1e', '0'],
+            ['203', '0x1e', '0'],
+            ['208', '0x1e', '512'],
+        ]
+
+    def test_usbll_high_bandwidth(self, cmd_tshark, capture_file, test_env):
+        '''A high-bandwidth interrupt endpoint (two packets of 1024
+        octets per microframe) ends a transfer at the total payload
+        length (frame 227: 2048 octets) or at a short packet (230).'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {227, 230}',
+                'usbll.fragment.count', 'usbll.reassembled.length')
+        assert rows == [['227', '2', '2048'], ['230', '1', '100']]
+
+    def test_usbll_lpm(self, cmd_tshark, capture_file, test_env):
+        '''EXT tokens followed by the LPM SubPID with BESL values 4, 4,
+        4, 0, 1, 2, 5, 7 and 15 (the custom field text covers the 125,
+        150, 100 * n and 1000 * (n - 5) us forms) and the reserved
+        SubPIDs.'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'usbll.lpm_besl', 'usbll.lpm_besl')
+        assert [r[1] for r in rows] == ['4', '4', '4', '0', '1', '2', '5', '7', '15']
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'usbll.subpid && !usbll.lpm_besl', 'usbll.subpid', '_ws.col.info')
+        assert [r[2] for r in rows] == [
+            'Reserved (MDATA)', 'Reserved (STALL)', 'Reserved (DATA1)', 'Reserved (NAK)',
+            'Reserved (DATA2)', 'Reserved (NYET)', 'Reserved (ACK)', 'Reserved (EXT)',
+        ]
+
+    def test_usbll_split(self, cmd_tshark, capture_file, test_env):
+        '''Control, bulk, interrupt and isochronous split transactions to
+        the full-speed device 10 behind hub 3 port 2: the device
+        descriptor (3 packets), the configuration (12 packets of 8
+        octets) and the low-speed device 11 on port 4 are reassembled
+        through the start and complete splits.'''
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {564, 702}',
+                'usbll.fragment.count', 'usbll.reassembled.length', '_ws.col.info')
+        assert rows == [
+            ['564', '3', '18', 'GET DESCRIPTOR Response DEVICE'],
+            ['702', '12', '89', 'GET DESCRIPTOR Response CONFIGURATION'],
+        ]
+        rows = self.usbll_fields(cmd_tshark, capture_file, test_env,
+                'usbll.split_hub_addr == 3 && usbll.split_et == 1')
+        assert len(rows) == 13
