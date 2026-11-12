@@ -160112,3 +160112,187 @@ class TestDissectUsbDfu:
         rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {143, 144, 148}',
                             'frame.number', '_ws.col.protocol', 'usbdfu.state')
         assert rows == ['143\tUSB DFU\t', '144\tUSB DFU\t2', '148\tUSB DFU\t4']
+
+
+class TestDissectUsbHidCoverage:
+    '''USB HID from the synthetic capture usb_hid_coverage.pcapng.gz: HID
+    class descriptors, report descriptors (every item type and usage
+    page), reports decoded with them, the class requests, and the boot
+    report dissectors reached through Exported PDU records (frames
+    1-37; Bluetooth ATT is the usual caller). Devices 3 to 8 hold the
+    descriptors the parser must refuse and the recursion and size limits
+    of "USB HID: Bound Collection nesting, report sizes and usage
+    expansion".'''
+
+    CAP = 'usb_hid_coverage.pcapng.gz'
+
+    def test_usb_hid_protocols(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets, in one and two passes; the only expert
+        infos are the two warnings of the collection nesting limit.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= Warning',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert stdout.splitlines() == [
+                '149\tCollection nesting too deep, stopping',
+                '151\tCollection nesting too deep, stopping']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env)
+        protocols = stdout.split('\n')[:-1]
+        assert len(protocols) == 267
+        assert protocols.count('USBHID') == 104
+        assert protocols.count('') == 37
+
+    def test_usb_hid_boot_reports(self, cmd_tshark, capture_file, test_env):
+        '''Boot keyboard input and output reports and boot mouse reports.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {2,3,5,6,7,8,9,10,18,20,22,28,29}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(l.split('\t') for l in stdout.splitlines())
+        assert info['2'] == ' - LEFT CTRL + a + b + CapsLock + LeftControl'
+        assert info['3'] == ' - RIGHT SHIFT + LEFT SHIFT + a + b + CapsLock + LeftControl'
+        assert info['5'] == ' - LEFT ALT'
+        assert info['6'] == ' - LEFT ALT + LEFT CTRL + a + b + c + d + e + f'
+        assert info['7'] == ' - Unknown + Unknown'
+        assert info['8'] == ' - <action key up>'
+        assert info['9'] == ' - LEDs: none'
+        assert info['10'] == ' - LEDs: NumLock'
+        assert info['18'] == ' - LEDs: NumLock, CapsLock, ScrollLock, Compose, Kana, Constant1, Constant2, Constant3'
+        assert info['20'] == ' - Button LEFT'
+        assert info['22'] == ' - Button MIDDLE'
+        assert info['28'] == (' - Button LEFT + Button RIGHT + Button MIDDLE + Button 4 + '
+                              'Button 5 + Button 6 + Button 7 + Button 8')
+        assert info['29'] == ' - Button LEFT + Button MIDDLE'
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {20,31,32}',
+                '-Tfields', '-eframe.number',
+                '-eusbhid.boot_report.mouse.x_displacement',
+                '-eusbhid.boot_report.mouse.y_displacement',
+                '-eusbhid.boot_report.mouse.scroll_wheel.horizontal',
+                '-eusbhid.boot_report.mouse.scroll_wheel.vertical',
+                '-eusbhid.data',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '20\t3\t-3\t\t\t',
+            '31\t2\t3\t-1\t1\t',
+            '32\t2\t3\t-1\t1\taabb',
+        ]
+
+    def test_usb_hid_class_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''The HID descriptor with one and two class descriptors, in the
+        configuration descriptor and as Exported PDU records (the last
+        one is not a HID descriptor).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {33,34,35,41}',
+                '-Tfields', '-eframe.number',
+                '-eusbhid.descriptor.hid.bNumDescriptors',
+                '-eusbhid.descriptor.hid.wDescriptorLength',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == ['33\t1\t52', '34\t2\t52,8', '35\t\t', '41\t2\t52,8']
+
+    def test_usb_hid_class_requests(self, cmd_tshark, capture_file, test_env):
+        '''GET_REPORT, SET_REPORT, GET_IDLE, SET_IDLE, GET_PROTOCOL and
+        SET_PROTOCOL.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {54,55,60,61,62,63,64,66,67,68,69,70}',
+                '-Tfields', '-eframe.number', '-eusbhid.setup.ReportType',
+                '-eusbhid.setup.Duration', '-eusbhid.setup.Protocol', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '54\t1\t\t\tGET_REPORT Request',
+            '55\t\t\t\tGET_REPORT Response',
+            '60\t\t\t\tGET_IDLE Request',
+            '61\t\t0\t\tGET_IDLE Response',
+            '62\t\t\t\tGET_IDLE Request',
+            '63\t\t125\t\tGET_IDLE Response',
+            '64\t\t125\t\tSET_IDLE Request',
+            '66\t\t\t\tGET_PROTOCOL Request',
+            '67\t\t\t0x0001\tGET_PROTOCOL Response',
+            '68\t\t\t\tGET_PROTOCOL Request',
+            '69\t\t\t0x0000\tGET_PROTOCOL Response',
+            '70\t\t\t0x0001\tSET_PROTOCOL Request',
+        ]
+
+    def test_usb_hid_reports(self, cmd_tshark, capture_file, test_env):
+        '''Reports decoded with the report descriptor: buttons, padding,
+        relative axes with a negative minimum, the Generic Desktop axes,
+        keys, arrays with and without a control asserted, report IDs,
+        vendor data, output reports (interrupt OUT and SET_REPORT), a
+        32 bit axis and a report with an unknown report ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'usbhid.data && frame.number in {49,51,55,81,89,99,103,105,107,109,110,112,114,117,141,143}',
+                '-Tfields', '-eframe.number', '-eusbhid.data.report_id',
+                '-eusbhid.data.button', '-eusbhid.data.axis.x', '-eusbhid.data.axis.y',
+                '-eusbhid.data.axis.vno', '-eusbhid.data.key.variable',
+                '-eusbhid.data.array.usage', '-eusbhid.data.vendor',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '49\t\tTrue,False,False\t5\t-5\t\t\t\t',
+            '51\t\tFalse,True,True\t-128\t127\t\t\t\t',
+            '55\t\tTrue,True,True\t1\t1\t\t\t\t',
+            '81\t\tFalse,True,False\t1\t1\t\t\t\t',
+            '89\t\tFalse,True,False,True\t-7\t-6\t6\t\t\t',
+            '99\t0x01\t\t\t\t\tFalse,True,False,False,False,False,False,False\tTrue,True,True,True,True,True\t',
+            '103\t0x02\t\t\t\t\t\tTrue,False\t',
+            '105\t0x02\t\t\t\t\t\tTrue,True\t',
+            '107\t0x03\t\t\t\t\t\t\t01,02,05,06',
+            '109\t0x09\t\t\t\t\t\t\t',
+            '110\t0x01\t\t\t\t\t\t\t',
+            '112\t0x03\tTrue,False,True\t\t\t\t\t\t',
+            '114\t0x01\t\t\t\t\t\t\t',
+            '117\t0x01\t\t\t\t\tFalse,False,False,False,False,False,False,True\tTrue,True,True,True,True,True\t',
+            '141\t\t\t-5\t\t\t\t\t',
+            '143\t\t\t2147483647\t\t\t\t\t',
+        ]
+
+    def test_usb_hid_report_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''The item tree of a report descriptor: usage pages and usages,
+        and the items with their values.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number == 47',
+                '-Tfields', '-eusbhid.item.global.usage', '-eusbhid.item.local.usage',
+                '-eusbhid.item.global.report_size', '-eusbhid.item.global.report_count',
+                '-eusbhid.item.global.log_min', '-eusbhid.item.global.log_max',
+                '-eusbhid.item.main.colltype',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.splitlines() == [
+            '0x0001,0x0009,0x0001\t0x0002,0x0001,0x0030,0x0031,0x0038\t1,5,8\t3,1,3\t0,-127\t1,127\t0x01,0x00']
+
+    def test_usb_hid_collection_depth(self, cmd_tshark, capture_file, test_env):
+        '''31 and 32 nested collections decode, 33 and 36 stop at the limit
+        with an expert info (frames 145-151; the 600 levels of the
+        reproducer asserted before the fix).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'frame.number in {145,147,149,151}',
+                '-Tfields', '-eframe.number', '-eusbhid.item.main.colltype', '-eusbhid.collection_depth',
+            ), encoding='utf-8', env=test_env)
+        rows = [l.split('\t') for l in stdout.splitlines()]
+        assert [r[0] for r in rows] == ['145', '147', '149', '151']
+        assert [len(r[1].split(',')) for r in rows] == [31, 32, 33, 33]
+        assert [bool(r[2]) for r in rows] == [False, False, True, True]
+
+    def test_usb_hid_refused_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Descriptors the report parser refuses (reproducers of the bit
+        width, array loop and usage memory problems among them) are
+        dissected as items but their reports stay raw data.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'usbhid.data && frame.number > 150',
+                '-Tfields', '-eframe.number', '-eusbhid.data.report_id',
+                '-eusbhid.data.button', '-eusbhid.data.axis.x',
+            ), encoding='utf-8', env=test_env)
+        rows = stdout.splitlines()
+        assert len(rows) == 28
+        assert all(r.split('\t')[1:] == ['', '', ''] for r in rows)
