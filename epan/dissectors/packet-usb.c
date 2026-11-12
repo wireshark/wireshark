@@ -2491,7 +2491,7 @@ dissect_usb_string_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
     } else {
         /* UTF-16 string */
         /* handle case of host requesting only substring */
-        uint8_t len_str = MIN(len-2, usb_trans_info->setup.wLength -2);
+        uint8_t len_str = (usb_trans_info->setup.wLength >= 2) ? MIN(len-2, usb_trans_info->setup.wLength - 2) : 0;
         proto_tree_add_item(tree, hf_usb_bString, tvb, offset, len_str, ENC_UTF_16 | ENC_LITTLE_ENDIAN);
         offset += len_str;
     }
@@ -2559,7 +2559,22 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
         alternate_setting.interfaceSubclass = tvb_get_uint8(tvb, offset+1);
         alternate_setting.interfaceProtocol = tvb_get_uint8(tvb, offset+2);
         alternate_setting.interfaceNum = interface_num;
-        wmem_array_append_one(usb_trans_info->interface_info->alt_settings, alternate_setting);
+        /* Keep one entry per bAlternateSetting (at most 256 entries) so
+         * that SET_INTERFACE does not scan an unbounded array. */
+        {
+            wmem_array_t *alts = usb_trans_info->interface_info->alt_settings;
+            unsigned alt_idx, alt_count = wmem_array_get_count(alts);
+
+            for (alt_idx = 0; alt_idx < alt_count; alt_idx++) {
+                usb_alt_setting_t *as = (usb_alt_setting_t *)wmem_array_index(alts, alt_idx);
+                if (as->altSetting == alternate_setting.altSetting) {
+                    *as = alternate_setting;
+                    break;
+                }
+            }
+            if (alt_idx == alt_count)
+                wmem_array_append_one(alts, alternate_setting);
+        }
 
         if (alt_setting == 0) {
             /* By default let's assume alternate setting 0 will be used */
@@ -5386,16 +5401,19 @@ static int freebsd_collect_frame_data(proto_tree *tree, tvbuff_t *tvb,
             tvbuff_t *chunk = tvb_new_subset_length(tvb, offset, framelen);
             proto_tree_add_item(frame_tree, hf_usb_frame_data, tvb, offset,
                                 framelen, ENC_NA);
-            if (data_frame_count == 0) {
+            if (tvb_captured_length(chunk) == 0) {
+                /* Empty members are dropped by the composite; don't count them. */
+            } else if (data_frame_count == 0) {
                 assembled = chunk;
+                data_frame_count++;
             } else {
                 if (data_frame_count == 1) {
                     composite = tvb_new_composite();
                     tvb_composite_append(composite, assembled);
                 }
                 tvb_composite_append(composite, chunk);
+                data_frame_count++;
             }
-            data_frame_count++;
             offset += WS_ROUNDUP_4(framelen);
         }
         proto_item_set_end(ti, tvb, offset);
