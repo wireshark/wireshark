@@ -158237,3 +158237,172 @@ class TestDissectUdt:
         assert stdout.splitlines() == [
             '0\t0\t0\t1', '1\t0\t0\t2', '0\t1\t0\t3',
             '1\t1\t0\t4', '0\t0\t1\t5', '1\t0\t1\t6']
+
+
+class TestDissectUdxCoverage:
+    '''UDX (the libudx transport) from the synthetic capture
+    udx_coverage.pcapng.gz. UDX has no default port and its UDP heuristic
+    is disabled, so frames 1-384 are Exported PDU frames that name the
+    udx dissector; frames 385-398 are plain UDP datagrams for the header
+    test of the heuristic (UDX_HEUR). Stream 0 is a conversation that
+    starts with server data; streams 2, 4 and 6 are multiplexed over one
+    UDP flow.'''
+
+    UDX_HEUR = ('--enable-heuristic', 'udx_udp')
+
+    @staticmethod
+    def tshark(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-2',
+                '-r', capture_file('udx_coverage.pcapng.gz'), *args),
+            encoding='utf-8', env=test_env, timeout=300)
+
+    def test_udx_cov_protocols(self, cmd_tshark, capture_file, test_env):
+        '''398 frames; the 14 datagrams are UDP unless the heuristic is on,
+        which takes 5 of them and refuses 9 whose header is not UDX. No
+        malformed packets or error expert infos, in one and two passes.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.protocol')
+        protos = out.split()
+        assert len(protos) == 398
+        assert protos.count('UDX') == 384 and protos.count('UDP') == 14
+        out = self.tshark(cmd_tshark, capture_file, test_env, *self.UDX_HEUR,
+                          '-Tfields', '-e_ws.col.protocol')
+        protos = out.split()
+        assert protos.count('UDX') == 389 and protos.count('UDP') == 9
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes, *self.UDX_HEUR,
+                    '-r', capture_file('udx_coverage.pcapng.gz'),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env, timeout=300)
+            assert count_output(stdout) == 0
+
+    def test_udx_cov_verdicts(self, cmd_tshark, capture_file, test_env):
+        '''Every kind of analysis verdict is reached.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.analysis', '-Tfields', '-e_ws.expert.message')
+        counts = {}
+        for line in out.splitlines():
+            for msg in line.split(','):
+                if msg:
+                    counts[msg.split(':')[0]] = counts.get(msg.split(':')[0], 0) + 1
+        assert counts == {
+            'Duplicate packet': 1, 'End of stream': 4,
+            'Fast retransmission': 1, 'Keepalive': 5, 'MTU probe': 2,
+            'Out-of-order packet': 5, 'Previous packet not captured': 5,
+            'Retransmission timeout': 1, 'Spurious retransmission': 1,
+            'Stream destroyed': 2, 'Tail loss probe': 6,
+            'This packet was retransmitted': 3, 'Window update': 1,
+            'Zero window probe': 1, 'Zero window': 1,
+        }
+
+    def test_udx_cov_zero_window(self, cmd_tshark, capture_file, test_env):
+        '''A heartbeat while the peer's window is closed is a probe, the
+        same bytes after it reopened are a keepalive.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number >= 38 && frame.number <= 41',
+                          '-Tfields', '-eframe.number', '-e_ws.expert.message')
+        assert out.splitlines() == [
+            '38\tZero window: the sender cannot accept more data',
+            '39\tZero window probe: sent while the peer advertised no receive window',
+            '40\tWindow update: the receive window reopened',
+            '41\tKeepalive',
+        ]
+
+    def test_udx_cov_pairing_limits(self, cmd_tshark, capture_file, test_env):
+        '''A conversation analyses at most 256 flows and a flow tries to pair
+        with its reverse at most 16 times.
+
+        Flow 600 acknowledges data that was never sent for 15 packets and
+        pairs on its 16th; flow 601 would pair on its 17th and stays
+        unpaired, as do the flows past the 256th (no stream number).'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx && !udx.stream', '-Tfields', '-eframe.number')
+        assert out.split() == ['379', '380']
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.id == 600 && udx.ack == 1',
+                          '-Tfields', '-eframe.number', '-eudx.stream',
+                          '-eudx.analysis.no_reverse')
+        paired = out.split('\t')
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.id == 601 && udx.ack == 1',
+                          '-Tfields', '-eframe.number', '-eudx.analysis.no_reverse')
+        assert out.splitlines() == ['121\t1', '122\t1']
+        assert paired[0] == '104' and paired[1] == '21'
+
+    def test_udx_cov_pairing_tie(self, cmd_tshark, capture_file, test_env):
+        '''A packet with two equally good candidates binds nothing; the
+        next packet of the flow separates them. The stream number shown is
+        the pairing state when the frame is dissected, so this needs a
+        single pass.'''
+        out = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udx_coverage.pcapng.gz'),
+                '-Y', 'udx.id == 12', '-Tfields', '-eudx.stream',
+            ), encoding='utf-8', env=test_env, timeout=300)
+        first, second = [int(x) for x in out.split()]
+        assert second < first
+
+    def test_udx_cov_streams(self, cmd_tshark, capture_file, test_env):
+        '''Streams multiplexed over one UDP flow get their own numbers; the
+        wrapped sequence numbers of stream 6 stay one stream.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.id in {176, 160}', '-Tfields', '-eudx.stream')
+        assert set(out.split()) == {'0', '2'}
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.id in {177, 161}', '-Tfields', '-eudx.stream')
+        assert set(out.split()) == {'4'}
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.id in {178, 162}', '-Tfields', '-eudx.stream',
+                          '-eudx.seq')
+        assert out.split() == ['6', '4294967294', '6', '4294967295', '6', '0',
+                               '6', '1', '6', '0', '6', '0', '6', '2']
+
+    def test_udx_cov_sack_blocks(self, cmd_tshark, capture_file, test_env):
+        '''SACK blocks: with a payload and a delimited area; as many as the
+        dissector keeps (50) when a bare packet carries more; one range.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'frame.number >= 49 && frame.number <= 52',
+                          '-Tfields', '-eframe.number', '-eudx.sack.start',
+                          '-E', 'occurrence=a')
+        rows = [r.split('\t') for r in out.splitlines()]
+        assert [len(r[1].split(',')) for r in rows] == [2, 50, 50, 1]
+        assert rows[0][1] == '0,5'
+
+    def test_udx_cov_message_and_padding(self, cmd_tshark, capture_file, test_env):
+        '''MTU probe padding is shown; MESSAGE payloads are left out of
+        Follow Stream, which holds early packets until the gap closes.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env,
+                          '-Y', 'udx.padding', '-Tfields', '-eframe.number',
+                          '-eudx.padding')
+        assert out.splitlines() == ['43\t' + '00' * 32, '44\t' + '00' * 24]
+        out = self.tshark(cmd_tshark, capture_file, test_env, '-q',
+                          '-z', 'follow,udx,ascii,2')
+        assert 'last words' in out and 'GET /index' in out
+        assert 'datagram outside' not in out and 'data message' not in out
+        out = self.tshark(cmd_tshark, capture_file, test_env, '-q',
+                          '-z', 'follow,udx,ascii,0')
+        assert ''.join(l for l in out.splitlines() if l.startswith('part')) == \
+            'part 0|part 1|part 2|part 3|part 4|part 5|part 6|'
+        assert out.count('part 2|') == 1 and out.count('part 6|') == 1
+        assert 'client reply|' in out
+
+    def test_udx_cov_taps(self, cmd_tshark, capture_file, test_env):
+        '''The conversation table counts a conversation per stream.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env, '-q',
+                          '-z', 'conv,udx')
+        assert len([l for l in out.splitlines() if '<->' in l]) == 276
+        out = self.tshark(cmd_tshark, capture_file, test_env, '-q',
+                          '-z', 'endpoints,udx')
+        assert '127.0.0.1' in out and '192.0.2.2' in out
+
+    def test_udx_cov_heuristic_header(self, cmd_tshark, capture_file, test_env):
+        '''The header test of the UDP heuristic: data, a SACK-only packet
+        and a MESSAGE are accepted, and a packet after an accepted one
+        claims the conversation. A bad magic, version or flag bits, a
+        data_offset past the datagram, a SACK area that is not a multiple
+        of 8 and a packet that is too short are refused.'''
+        out = self.tshark(cmd_tshark, capture_file, test_env, *self.UDX_HEUR,
+                          '-Y', 'frame.number >= 385', '-Tfields',
+                          '-eframe.number', '-e_ws.col.protocol')
+        rows = [r.split('\t') for r in out.splitlines()]
+        assert [r[1] for r in rows] == ['UDX', 'UDX'] + ['UDP'] * 9 + ['UDX'] * 3
