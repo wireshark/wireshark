@@ -154839,3 +154839,134 @@ class TestDissectTr:
             f'13\tFalse\t\tUDP\t{note},Linux 2.0.x fake LLC and SNAP header',
             f'14\tTrue\t2\tUDP\t{note}', '15\tTrue\t4\tUDP\t',
             '16\tFalse\t\tLLC\t', '17\tFalse\t\tLLC\t']
+
+
+class TestDissectTrdp:
+    '''TRDP (PD on UDP 17224, MD on UDP and TCP 17225) from the synthetic
+    captures trdp_coverage.pcap.gz (the shipped IEC 61375-2-3 dictionary)
+    and trdp_coverage_custom.pcap.gz (the dictionary trdp_custom.xml, which
+    the tests pass as trdp.configfile; copy it next to the captures).'''
+
+    @staticmethod
+    def run(cmd_tshark, capture_file, test_env, name, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    @staticmethod
+    def custom(capture_file):
+        return ('-o', 'trdp.configfile:' + capture_file('trdp_custom.xml'))
+
+    def test_trdp_clean(self, cmd_tshark, capture_file, test_env):
+        '''All 95 frames of the main capture are TRDP (94) or a TCP segment (1)
+        waiting for the rest of a PDU, with no malformed packets and
+        no error or warning expert infos in one and two passes; the same
+        for the custom dictionary capture.'''
+        for name, opts in (('trdp_coverage.pcap.gz', ()),
+                           ('trdp_coverage_custom.pcap.gz', self.custom(capture_file))):
+            for passes in ((), ('-2',)):
+                lines = self.run(cmd_tshark, capture_file, test_env, name,
+                        *passes, *opts,
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                        '-Tfields', '-eframe.number')
+                assert lines == []
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 95
+        assert lines.count('TRDP') == 94 and lines.count('TCP') == 1
+
+    def test_trdp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the packet type and the telegram or
+        dataset of the dictionary; a comId that is not in it has no name.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-Y', 'frame.number in {1, 2, 3, 76, 77}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == [
+            '1\tcomId:     1 PD Data    -> ETBCTRL',
+            '2\tcomId:     2 PD Reply   -> CSTINFO notification',
+            '3\tcomId:     3 PD Error   -> CSTINFOCTRL notification',
+            '76\tcomId:   132 MD Request with reply -> ETBN: train network directory request',
+            '77\tcomId: 99999 PD Data   ']
+
+    def test_trdp_dataset(self, cmd_tshark, capture_file, test_env):
+        '''The ETBCTRL dataset is decoded element by element: a variable
+        array introduced by confVehCnt, ANTIVALENT8 values and the
+        all-zero safety trailer.'''
+        text = '\n'.join(self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-Y', 'frame.number == 1', '-O', 'trdp'))
+        for expected in ('headerFcs: 0x43012cc2 [correct]', 'datasetLength: 56',
+                         'compStored: False', 'sleepRequest: True',
+                         'confVehCnt: 1', 'confVehList: CONFIRMED_VEHICLE',
+                         'trnVehNo: 50', 'vehOrient: 7',
+                         'safetyTrail: VDP_TRAILER [zero, not used]'):
+            assert expected in text
+
+    def test_trdp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''MD over TCP: two PDUs in one segment (frame 80), a PDU in two
+        segments (81-82) and the batch 37 reproducer (frames 91-92): the
+        second PDU, which starts in the first segment, is decoded as TRDP
+        although the first one has a non-zero safe sequence counter; it
+        used to be shown as SAPNI.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-2',
+                '-Y', 'frame.number in {80, 81, 82, 91, 92}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-etcp.reassembled_in',
+                '-etrdp.comid')
+        assert lines == ['80\tTRDP\t\t2,3', '81\tTCP\t82\t', '82\tTRDP\t\t31',
+                         '91\tTRDP\t92\t1', '92\tTRDP\t\t1']
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-Y', 'frame.number in {91, 92}',
+                '-Tfields', '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['91\tTRDP', '92\tTRDP']
+
+    def test_trdp_safe_sequence_counter(self, cmd_tshark, capture_file, test_env):
+        '''Without a connection in the dictionary the safe sequence counter
+        cannot be verified (frames 93-95).'''
+        text = '\n'.join(self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage.pcap.gz', '-Y', 'frame.number == 95', '-O', 'trdp'))
+        assert 'safeSequCount: 20 [cannot verify]' in text
+
+    def test_trdp_custom_dictionary(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3 of the custom capture holds every element type.'''
+        text = '\n'.join(self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage_custom.pcap.gz', *self.custom(capture_file),
+                '-Y', 'frame.number == 3', '-O', 'trdp'))
+        for expected in ('dataset: ALLTYPES', 'flag: True', 'bits: 0x11, alpha',
+                         '.... ...1 = alpha: True', 'bits2: 0x18 ( ...11... )',
+                         'anti: False', 'i8: 38', 'i16: 45', 'u16: 01.00',
+                         'u32: 41 mV (raw=16)', 'u64: 23',
+                         'uuid: 04050607-0809-0a0b-0c0d-0e0f10111213',
+                         'UINT16 (9): arr[3]', 'cnt: 2', 'UINT16 (9): vararr[2]',
+                         'INNER (0): varnest[2]', 'varnest.1',
+                         'zero: INNER [zero, not used]'):
+            assert expected in text
+
+    def test_trdp_custom_dictionary_info(self, cmd_tshark, capture_file, test_env):
+        '''The telegram names of the custom dictionary are in the Info
+        column; the shipped dictionary is still loaded.'''
+        lines = self.run(cmd_tshark, capture_file, test_env,
+                'trdp_coverage_custom.pcap.gz', *self.custom(capture_file),
+                '-Y', 'frame.number in {1, 2, 5}', '-Tfields', '-eframe.number',
+                '-e_ws.col.info')
+        assert lines == [
+            '1\tcomId:  2000 PD Data    -> All types',
+            '2\tcomId:  2000 MD Request with reply -> All types',
+            '5\tcomId:  2001 PD Data    -> Strings']
+
+    def test_trdp_conflicting_dataset(self, cmd_tshark, capture_file, test_env, tmp_path):
+        '''A dictionary with two different datasets of the same id is
+        reported as an XML error instead of crashing tshark.'''
+        xml = tmp_path / 'trdp_conflict.xml'
+        xml.write_text('<device><data-set-list>'
+                       '<data-set id="D"><element name="x" type="UINT8"/></data-set>'
+                       '<data-set id="D"><element name="x" type="UINT16"/></data-set>'
+                       '</data-set-list></device>')
+        proc = subprocess.run((cmd_tshark,
+                '-r', capture_file('trdp_coverage.pcap.gz'),
+                '-o', 'trdp.configfile:' + str(xml), '-c', '1',
+            ), capture_output=True, encoding='utf-8', env=test_env, timeout=120)
+        assert proc.returncode == 0
+        assert 'differs between' in proc.stderr
+        assert 'GError set over the top' not in proc.stderr
+        assert 'TRDP' in proc.stdout

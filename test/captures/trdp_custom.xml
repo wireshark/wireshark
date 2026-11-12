@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<device xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" host-name="custom" leader-name="custom" type="train">
+ <bus-interface-list>
+  <bus-interface network-id="1" name="custom" host-ip="192.0.2.1" leader-ip="192.0.2.2">
+   <pd-com-parameter timeout-value="100000"/>
+   <md-com-parameter confirm-timeout="1000000" reply-timeout="5000000"/>
+   <telegram com-id="2000" name="All types" data-set-id="ALLTYPES">
+    <pd-parameter cycle="100000" timeout="300000"/>
+    <md-parameter confirm-timeout="2000000" reply-timeout="3000000"/>
+    <source uri="devA.anyVeh.lCst.lClTrn.lTrn" id="1"><sdt-parameter smi1="2000" smi2="2001" udv="1"/></source>
+    <destination uri="devB.anyVeh.lCst.lClTrn.lTrn" id="2"><sdt-parameter smi1="2000" udv="1" cmthr="3"/></destination>
+   </telegram>
+   <telegram com-id="2001" name="Strings" data-set-id="STRINGS"/>
+   <telegram com-id="2002" name="Nested arrays" data-set-id="NESTEDARR"/>
+   <telegram com-id="2003" name="Little endian" data-set-id="LITTLE"/>
+   <telegram com-id="2004" name="Safe data" data-set-id="SAFE">
+    <destination uri="192.0.2.2" name="to peer"><sdt-parameter smi1="2004" udv="1"/></destination>
+    <source uri1="192.0.2.2" name="from peer"><sdt-parameter smi1="2004" smi2="2005" udv="1"/></source>
+   </telegram>
+   <telegram com-id="2005" data-set-id="1501"/>
+  </bus-interface>
+ </bus-interface-list>
+ <data-set-list>
+  <data-set id="INNER"><element name="a" type="UINT8"/><element name="b" type="INT16" scale="0.5" offset="10" unit="V"/></data-set>
+  <data-set id="ALLTYPES">
+   <element name="flag" type="BOOL8"/>
+   <element name="bits" type="BITSET8" bits="alpha,beta,gamma,delta"/>
+   <element name="bits2" type="BITSET8"/>
+   <element name="anti" type="ANTIVALENT8"/>
+   <element name="i8" type="INT8"/><element name="i16" type="INT16"/><element name="i32" type="INT32" scale="0.001" unit="s"/><element name="i64" type="INT64" offset="5"/>
+   <element name="u8" type="UINT8"/><element name="u16" type="UINT16" unit="version"/><element name="u32" type="UINT32" scale="2.5" offset="1" unit="mV"/><element name="u64" type="UINT64"/>
+   <element name="z8" type="UINT8" unit="hide0"/><element name="zi" type="INT16" unit="hide0"/>
+   <element name="r32" type="REAL32" scale="2" offset="1"/><element name="r64" type="REAL64"/>
+   <element name="t32" type="TIMEDATE32"/><element name="t48" type="TIMEDATE48"/><element name="t64" type="TIMEDATE64"/>
+   <element name="uuid" type="UUID"/>
+   <element name="inner" type="INNER"/>
+   <element name="arr" type="UINT16" array-size="3"/>
+   <element name="cnt" type="UINT8"/><element name="vararr" type="UINT16" array-size="0"/>
+   <element name="cnt2" type="UINT16"/><element name="varnest" type="INNER" array-size="0"/>
+   <element name="zero" type="INNER" unit="fold0"/>
+  </data-set>
+  <data-set id="STRINGS">
+   <element name="c8" type="CHAR8" array-size="8"/><element name="u16" type="UTF16" array-size="4"/>
+   <element name="clen" type="UINT8"/><element name="cvar" type="CHAR8" array-size="0"/>
+   <element name="ulen" type="UINT8"/><element name="uvar" type="UTF16" array-size="0"/>
+   <element name="c1" type="CHAR8"/>
+  </data-set>
+  <data-set id="NESTEDARR">
+   <element name="n" type="UINT8"/><element name="list" type="MID" array-size="0"/>
+  </data-set>
+  <data-set id="MID"><element name="m" type="UINT8"/><element name="in" type="INNER" array-size="2"/></data-set>
+  <data-set id="LITTLE">
+   <element name="a" type="UINT16_LE"/><element name="b" type="UINT32_LE"/><element name="c" type="UINT64_LE"/>
+   <element name="d" type="INT16_LE"/><element name="e" type="INT32_LE"/><element name="f" type="INT64_LE"/>
+   <element name="g" type="REAL32_LE"/><element name="h" type="REAL64_LE"/><element name="i" type="UUID_LE"/><element name="j" type="UTF16_LE" array-size="2"/>
+  </data-set>
+  <data-set id="SAFE">
+   <element name="x" type="UINT32"/><element name="trailer" type="VDP_TRAILER"/>
+  </data-set>
+  <data-set id="VDP_TRAILER">
+   <element name="reserved01" type="UINT32" unit="hide0"/><element name="reserved02" type="UINT16" unit="hide0"/>
+   <element name="userDataVersion" type="UINT16" unit="version"/><element name="safeSequCount" type="UINT32" unit="ssc"/>
+   <element name="safetyCode" type="UINT32" unit="sc32"/>
+  </data-set>
+  <data-set id="1501"><element type="UINT8"/><element type="UINT8"/></data-set>
+ </data-set-list>
+</device>
