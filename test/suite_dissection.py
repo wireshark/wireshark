@@ -157156,3 +157156,90 @@ class TestDissectUbertooth:
         assert [l.split('\t')[0] for l in lines] == ['364', '366']
         assert lines[0].split('\t')[1].split(',') == [str(f) for f in range(2402, 2434)]
         assert lines[1].split('\t')[1].split(',') == [str(f) for f in range(2434, 2450)]
+
+
+class TestDissectUbx:
+    CAP = 'ubx_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, *args):
+        '''tshark -Tfields output as a list of tab separated lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ubx_protocols(self, cmd_tshark, capture_file, test_env):
+        '''93 UBX frames (Exported PDU naming "ubx"): the message
+        dissectors, two GPS/Galileo navigation messages and the messages
+        without a dissector of their own. No frame is malformed or has an
+        expert info, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 93
+        assert protocols.count('UBX') == 7
+        assert protocols.count('UBX-RXM-SFRBX') == 11
+        assert protocols.count('GPS L1 LNAV') == 2
+        assert protocols.count('Galileo E1-B I/NAV') == 2
+        for name, count in (('ACK-ACK', 4), ('ACK-NAK', 4), ('CFG-GNSS', 4), ('CFG-SBAS', 4),
+                            ('MON-RF', 4), ('NAV-DOP', 3), ('NAV-EOE', 4), ('NAV-ODO', 3),
+                            ('NAV-POSECEF', 3), ('NAV-PVT', 6), ('NAV-RELPOSNED', 4),
+                            ('NAV-SAT', 5), ('NAV-SBAS', 4), ('NAV-TIMEGPS', 5),
+                            ('NAV-TIMEUTC', 3), ('NAV-VELECEF', 3), ('RXM-MEASX', 4),
+                            ('RXM-RAWX', 4)):
+            assert protocols.count('UBX-' + name) == count, name
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_ubx_two_pass_identical(self, cmd_tshark, capture_file, test_env):
+        '''The dissector keeps no state: the full tree is the same in one
+        and two passes.'''
+        cap = capture_file(self.CAP)
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_ubx_message_ids(self, cmd_tshark, capture_file, test_env):
+        '''Class and id of the first frames, with the ACK-ACK/NAK
+        acknowledged message, and of the messages with no dissector.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-eframe.number',
+                '-eubx.msg_class_id', '-eubx.payload_len',
+                '-eubx.ack.ack.msg_class_id', '-eubx.ack.nak.msg_class_id')
+        assert lines[0:4] == ['1\t0x0501\t2\t0x063e\t', '2\t0x0500\t2\t\t0x063e',
+                              '3\t0x0501\t2\t0x0613\t', '4\t0x0500\t2\t\t0x0613']
+        assert lines[8] == '9\t0x063e\t60\t\t'
+        assert lines[32] == '33\t0x0107\t92\t\t'
+        assert lines[85:] == ['86\t0x0a04\t8\t\t', '87\t0x0701\t8\t\t', '88\t0x0b01\t8\t\t',
+                              '89\t0x0602\t8\t\t', '90\t0xffff\t8\t\t', '91\t0x0000\t8\t\t',
+                              '92\t0x0a04\t0\t\t', '93\t0x0161\t4\t\t']
+
+    def test_ubx_nav_pvt_time(self, cmd_tshark, capture_file, test_env):
+        '''Date, time and number of satellites of the six NAV-PVT messages.'''
+        lines = self.fields(cmd_tshark, capture_file(self.CAP), test_env,
+                '-Y', 'ubx.nav.pvt.year', '-Tfields', '-eframe.number',
+                '-eubx.nav.pvt.year', '-eubx.nav.pvt.month', '-eubx.nav.pvt.day',
+                '-eubx.nav.pvt.hour', '-eubx.nav.pvt.min', '-eubx.nav.pvt.sec',
+                '-eubx.nav.pvt.numsv')
+        assert lines == ['%d\t2026\t11\t12\t5\t7\t%d\t%d' % (33 + i, 9 + i, 12 + i) for i in range(6)]
+
+    def test_ubx_rxm_rawx_and_sfrbx(self, cmd_tshark, capture_file, test_env):
+        '''RXM-RAWX measurement counts; RXM-SFRBX message versions 1 and 2
+        have different reserved/signal/channel fields, an unknown
+        version has none, and GPS and Galileo words go to their own
+        dissectors.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubx.rxm.rawx.week',
+                '-Tfields', '-eframe.number', '-eubx.rxm.rawx.nummeas', '-eubx.rxm.rawx.week')
+        assert lines == ['67\t0\t2400', '68\t1\t2400', '69\t8\t2400', '70\t20\t2400']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 71 && frame.number <= 85',
+                '-Tfields', '-eframe.number', '-eubx.rxm.sfrbx.gnssid', '-eubx.rxm.sfrbx.version',
+                '-eubx.rxm.sfrbx.numwords', '-eubx.rxm.sfrbx.sigid', '-eubx.rxm.sfrbx.chn',
+                '-eubx.rxm.sfrbx.reserved1', '-e_ws.col.protocol')
+        assert lines[0] == '71\t3\t0x01\t10\t\t\t0x00\tUBX-RXM-SFRBX'
+        assert lines[1] == '72\t3\t0x02\t10\t3\t2\t0x00\tUBX-RXM-SFRBX'
+        assert lines[10] == '81\t0\t0x01\t10\t\t\t0x00\tGPS L1 LNAV'
+        assert lines[11] == '82\t2\t0x01\t8\t\t\t0x00\tGalileo E1-B I/NAV'
+        assert lines[12] == '83\t0\t0x02\t10\t0\t0\t0x00\tGPS L1 LNAV'
+        assert lines[13] == '84\t2\t0x02\t8\t1\t0\t0x00\tGalileo E1-B I/NAV'
+        assert lines[14] == '85\t7\t0x03\t2\t\t\t\tUBX-RXM-SFRBX'
