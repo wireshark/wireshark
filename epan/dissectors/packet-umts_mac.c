@@ -83,6 +83,7 @@ static expert_field ei_mac_macis_sdu_middle;
 static expert_field ei_mac_macis_sdu_last;
 static expert_field ei_mac_macis_sdu_complete;
 static expert_field ei_mac_reserved_c_t;
+static expert_field ei_mac_macis_bad_fragment;
 
 static dissector_handle_t rlc_pcch_handle;
 static dissector_handle_t rlc_ccch_handle;
@@ -238,7 +239,7 @@ static uint16_t tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pin
         rlcinf->ueid[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,ENC_BIG_ENDIAN);
         bitoffs += 32;
     } else if (ueid_type == MAC_UEID_TYPE_CRNTI) {
-        proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, bitoffs, 16, ENC_BIG_ENDIAN);
         c_rnti = tvb_get_bits16(tvb, bitoffs, 16,ENC_BIG_ENDIAN);
         p_conv = (conversation_t *)find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
                         conversation_pt_to_conversation_type(pinfo->ptype),
@@ -676,30 +677,49 @@ static int dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     return tvb_captured_length(tvb);
 }
 
-static void init_frag(tvbuff_t * tvb, body_parts * bp, unsigned length, unsigned offset, uint32_t frame_num, uint16_t tsn, uint8_t type)
+static bool init_frag(tvbuff_t * tvb, body_parts * bp, unsigned length, unsigned offset, uint32_t frame_num, uint16_t tsn, uint8_t type)
 {
-    mac_is_fragment * frag = wmem_new(wmem_file_scope(), mac_is_fragment);
+    mac_is_fragment * frag;
+
+    /* A segment of this type is already stored for this TSN, discard the new one. */
+    switch (type) {
+        case MAC_IS_HEAD:
+            if (bp->head != NULL)
+                return false;
+            break;
+        case MAC_IS_MIDDLE:
+            if (bp->middle != NULL)
+                return false;
+            break;
+        case MAC_IS_TAIL:
+            if (bp->tail != NULL)
+                return false;
+            break;
+        default:
+            return false;
+    }
+
+    frag = wmem_new(wmem_file_scope(), mac_is_fragment);
     frag->type = type;
     frag->length = length;
     frag->data = (uint8_t *)wmem_alloc(wmem_file_scope(), length);
     frag->frame_num = frame_num;
     frag->tsn = tsn;
     frag->next = NULL;
+    /* Copy first, it can throw; only then link the fragment. */
+    tvb_memcpy(tvb, frag->data, offset, length);
     switch (type) {
         case MAC_IS_HEAD:
-            DISSECTOR_ASSERT(bp->head == NULL);
             bp->head = frag;
             break;
         case MAC_IS_MIDDLE:
-            DISSECTOR_ASSERT(bp->middle == NULL);
             bp->middle = frag;
             break;
         case MAC_IS_TAIL:
-            DISSECTOR_ASSERT(bp->tail == NULL);
             bp->tail = frag;
             break;
     }
-    tvb_memcpy(tvb, frag->data, offset, length);
+    return true;
 }
 
 static void mac_is_copy(mac_is_sdu * sdu, mac_is_fragment * frag, unsigned total_length, bool reverse)
@@ -827,9 +847,14 @@ static tvbuff_t * add_to_tree(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
 static unsigned find_head(body_parts ** body_parts_array, uint16_t * tsn)
 {
     unsigned length = 0;
+    size_t count = 0;
     *tsn = (*tsn==0)? (uint16_t)(MAX_TSN-1) : (*tsn)-1;
-    for (; body_parts_array[*tsn]->middle != NULL; *tsn = (*tsn==0)?(uint16_t)(MAX_TSN-1):(*tsn)-1)
+    for (; body_parts_array[*tsn]->middle != NULL; *tsn = (*tsn==0)?(uint16_t)(MAX_TSN-1):(*tsn)-1) {
+        /* All slots are middle segments, there is no head. */
+        if (++count >= MAX_TSN)
+            return 0;
         length += body_parts_array[*tsn]->middle->length;
+    }
     if (body_parts_array[*tsn]->head != NULL)
         return length+body_parts_array[*tsn]->head->length;
     return 0;
@@ -841,8 +866,13 @@ static unsigned find_head(body_parts ** body_parts_array, uint16_t * tsn)
 static unsigned find_tail(body_parts ** body_parts_array, uint16_t tsn)
 {
     unsigned length = 0;
-    for (tsn = (tsn+1)%MAX_TSN; body_parts_array[tsn]->middle != NULL; tsn = (tsn+1)%MAX_TSN)
+    size_t count = 0;
+    for (tsn = (tsn+1)%MAX_TSN; body_parts_array[tsn]->middle != NULL; tsn = (tsn+1)%MAX_TSN) {
+        /* All slots are middle segments, there is no tail. */
+        if (++count >= MAX_TSN)
+            return 0;
         length += body_parts_array[tsn]->middle->length;
+    }
     if (body_parts_array[tsn]->tail != NULL)
         return length+body_parts_array[tsn]->tail->length;
     return 0;
@@ -882,7 +912,10 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* Middle segment */
         if (no_sdus == 1 && ss == 3) {
             unsigned head_length, tail_length;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_MIDDLE);
+            if (!init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_MIDDLE)) {
+                expert_add_info(pinfo, NULL, &ei_mac_macis_bad_fragment);
+                return NULL;
+            }
             tail_length = find_tail(body_parts_array, tsn);
             if (tail_length > 0) {
                 head_length = find_head(body_parts_array, &tsn);
@@ -897,7 +930,10 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* If first SDU is last segment of previous. A tail. */
         else if (sdu_no == 0 && (ss & 1) == 1) {
             unsigned length = maclength;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_TAIL);
+            if (!init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_TAIL)) {
+                expert_add_info(pinfo, NULL, &ei_mac_macis_bad_fragment);
+                return NULL;
+            }
             length += find_head(body_parts_array, &tsn);
             if (length > maclength) {
                 /* tsn is now TSN of head */
@@ -907,14 +943,20 @@ static tvbuff_t * mac_is_add_fragment(tvbuff_t * tvb _U_, packet_info *pinfo, pr
         /* If last SDU is first segment of next. A head. */
         else if (sdu_no == no_sdus-1 && (ss & 2) == 2) {
             unsigned length = maclength;
-            init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_HEAD);
+            if (!init_frag(tvb, body_parts_array[tsn], maclength, offset, pinfo->num, tsn, MAC_IS_HEAD)) {
+                expert_add_info(pinfo, NULL, &ei_mac_macis_bad_fragment);
+                return NULL;
+            }
             length += find_tail(body_parts_array, tsn);
             if (length > maclength) {
                 return reassemble(tvb, body_parts_array, tsn, length, &ch, pinfo->num);
             }
         /* If our SDU is not fragmented. */
         } else {
-            DISSECTOR_ASSERT((sdu_no == 0) ? (ss&1) == 0 : ((sdu_no == no_sdus-1) ? (ss&2) == 0 : true));
+            if ((sdu_no == 0) ? (ss&1) != 0 : ((sdu_no == no_sdus-1) ? (ss&2) != 0 : false)) {
+                expert_add_info(pinfo, NULL, &ei_mac_macis_bad_fragment);
+                return NULL;
+            }
             return tvb_new_subset_length(tvb, offset, maclength);
         }
     /* If clicking on a packet. */
@@ -1041,7 +1083,7 @@ static int dissect_mac_fdd_edch_type2(tvbuff_t *tvb, packet_info *pinfo, proto_t
     ss_interpretation(tvb, macis_pdu_tree, ss, mac_is_info->number_of_mac_is_sdus, offset);
 
     /* TSN */
-    tsn = tvb_get_bits8(tvb, offset*8+2, mac_tsn_size);
+    tsn = tvb_get_bits16(tvb, offset*8+2, mac_tsn_size, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(macis_pdu_tree, hf_mac_edch_type2_tsn, tvb, offset*8+2, mac_tsn_size, ENC_BIG_ENDIAN);
 
     offset += (2+mac_tsn_size)/8;
@@ -1246,6 +1288,11 @@ static int dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
         /*Sets the proper lchid, for later layers.*/
         macinf->lchid[pos] = tvb_get_bits8(tvb,bitoffs,4)+1;
+        if (macinf->lchid[pos] == 16) {
+            /* C/T 15 is reserved, discard PDU */
+            expert_add_info(pinfo, NULL, &ei_mac_reserved_c_t);
+            return tvb_captured_length(tvb);
+        }
         macinf->fake_chid[pos] = false;
         macinf->content[pos] = lchId_type_table[macinf->lchid[pos]];    /*Lookup MAC content*/
 
@@ -1544,7 +1591,8 @@ proto_register_umts_mac(void)
         { &ei_mac_macis_sdu_middle, { "mac.macis_sdu.middle", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a middle segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
         { &ei_mac_macis_sdu_last, { "mac.macis_sdu.last", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is the last segment of a MAC-d PDU or MAC-c PDU", EXPFILL }},
         { &ei_mac_macis_sdu_complete, { "mac.macis_sdu.complete", PI_REASSEMBLE, PI_CHAT, "This MAC-is SDU is a complete MAC-d PDU or MAC-c PDU", EXPFILL }},
-        { &ei_mac_reserved_c_t, { "mac.reserved_ct", PI_PROTOCOL, PI_WARN, "C/T has a reserved value, PDU is discarded", EXPFILL }}
+        { &ei_mac_reserved_c_t, { "mac.reserved_ct", PI_PROTOCOL, PI_WARN, "C/T has a reserved value, PDU is discarded", EXPFILL }},
+        { &ei_mac_macis_bad_fragment, { "mac.macis_bad_fragment", PI_MALFORMED, PI_WARN, "Invalid or duplicate MAC-is segment, discarded", EXPFILL }}
     };
 
     expert_module_t* expert_umts_mac;
