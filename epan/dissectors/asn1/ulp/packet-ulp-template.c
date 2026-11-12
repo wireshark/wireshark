@@ -244,7 +244,7 @@ ulp_RSRQ_Range_fmt(char *s, uint32_t v)
 {
   if (v == 0) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ < -19.5dB (0)");
-  } else if (v == 64) {
+  } else if (v == 34) {
     snprintf(s, ITEM_LABEL_LENGTH, "RSRQ >= -3dB (34)");
   } else {
     snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RSRQ < %.1fdB (%u)", -20+((float)v/2), -19.5+((float)v/2), v);
