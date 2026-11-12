@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto_data.h>
+#include <epan/expert.h>
 #include "packet-usb.h"
 
 /*
@@ -419,6 +420,9 @@ void proto_reg_handoff_u3v(void);
 
 /* Define the u3v protocol */
 static int proto_u3v;
+
+static expert_field ei_u3v_writemem_short;
+static expert_module_t *expert_u3v;
 
 /* GenCP transaction tracking
  * the protocol only allows strict sequential
@@ -1407,6 +1411,12 @@ dissect_u3v_write_mem_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
     proto_item *item = NULL;
     unsigned offset = startoffset + 8;
 
+    if (length < 8) {
+        item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_scd_writemem_cmd, tvb, startoffset, length, ENC_NA);
+        expert_add_info(pinfo, item, &ei_u3v_writemem_short);
+        return;
+    }
+
     addr = tvb_get_letoh64(tvb, startoffset);
     byte_count = length - 8;
     address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
@@ -1473,7 +1483,7 @@ dissect_u3v_event_cmd(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_info 
     offset += 8;
 
     /* Data */
-    if (length > offset ) {
+    if (length > 12) {
         proto_tree_add_item(u3v_telegram_tree, hf_u3v_eventcmd_data, tvb, offset, length - 12, ENC_NA);
     }
 }
@@ -1493,7 +1503,8 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     unsigned byte_count = (length);
 
     addr = gencp_trans->address;
-    dissect_u3v_register_bases(addr, tvb, startoffset, u3v_conv_info);
+    if (!PINFO_FD_VISITED(pinfo))
+        dissect_u3v_register_bases(addr, tvb, startoffset, u3v_conv_info);
     if (have_address) {
         address_string = get_register_name_from_address(addr, pinfo->pool, &is_custom_register, u3v_conv_info);
         /* Fill in Wireshark GUI Info column */
@@ -1791,7 +1802,8 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* initialize interface class/subclass in case no descriptors have been dissected yet */
     if ( control_detected || stream_detected){
-        if (urb->conv->interfaceClass == IF_CLASS_UNKNOWN &&
+        if (!PINFO_FD_VISITED(pinfo) &&
+            urb->conv->interfaceClass == IF_CLASS_UNKNOWN &&
             urb->conv->interfaceSubclass == IF_SUBCLASS_UNKNOWN) {
             urb->conv->interfaceClass = IF_CLASS_MISCELLANEOUS;
             urb->conv->interfaceSubclass = IF_SUBCLASS_MISC_U3V;
@@ -1943,7 +1955,8 @@ dissect_u3v(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
         /* init this stream configuration */
         u3v_conv_info = (u3v_conv_info_t *)urb->conv->class_data;
-        u3v_conv_info->ep_stream = urb->endpoint;
+        if (!PINFO_FD_VISITED(pinfo))
+            u3v_conv_info->ep_stream = urb->endpoint;
 
         /* Set the protocol column */
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "U3V");
@@ -1998,8 +2011,7 @@ dissect_u3v_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         (U3V_CONTROL_PREFIX        == prefix) || (U3V_EVENT_PREFIX          == prefix) ||
         ((urb->conv->interfaceClass == IF_CLASS_MISCELLANEOUS &&
           urb->conv->interfaceSubclass == IF_SUBCLASS_MISC_U3V))) {
-        dissect_u3v(tvb, pinfo, tree, data);
-        return true;
+        return dissect_u3v(tvb, pinfo, tree, data) > 0;
     }
 
     return false;
@@ -2800,6 +2812,11 @@ static hf_register_info hf[] =
 void
 proto_register_u3v(void)
 {
+    static ei_register_info ei[] = {
+        { &ei_u3v_writemem_short, { "u3v.writemem_cmd.short", PI_MALFORMED, PI_ERROR,
+            "WRITEMEM_CMD is shorter than the 8 byte address", EXPFILL }},
+    };
+
     static int *ett[] = {
         &ett_u3v,
         &ett_u3v_cmd,
@@ -2822,6 +2839,8 @@ proto_register_u3v(void)
     proto_u3v = proto_register_protocol("USB 3 Vision", "U3V", "u3v");
     proto_register_field_array(proto_u3v, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+    expert_u3v = expert_register_protocol(proto_u3v);
+    expert_register_field_array(expert_u3v, ei, array_length(ei));
     u3v_handle = register_dissector("u3v", dissect_u3v, proto_u3v);
 }
 
