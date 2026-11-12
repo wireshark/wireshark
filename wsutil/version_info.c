@@ -316,7 +316,7 @@ get_compiled_version_info(gather_feature_func gather_compile)
 static void
 get_mem_info(GString *str)
 {
-	int64_t memsize = 0;
+	uint64_t memsize = 0;
 
 #ifdef _WIN32
 	MEMORYSTATUSEX statex;
@@ -335,8 +335,8 @@ get_mem_info(GString *str)
 			memsize = 0;
 #endif
 
-	if (memsize > 0)
-		g_string_append_printf(str, "%" PRId64 " MB of physical memory", memsize/(1024*1024));
+	if (memsize != 0)
+		g_string_append_printf(str, "%" PRIu64 " MB of physical memory", memsize/(1024*1024));
 }
 
 /*

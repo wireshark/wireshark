@@ -1487,7 +1487,11 @@ dissect_sbc_serviceactionin16 (tvbuff_t *tvb_a, packet_info *pinfo _U_,
                     try_offset += 8;
 
                     proto_tree_add_item_ret_uint(tree, hf_scsi_sbc_blocksize, try_tvb, try_offset, 4, ENC_BIG_ENDIAN, &block_len);
-                    if (G_UNLIKELY(ckd_mul(&itot_len, len, block_len))) {
+                    // Cast to work around a bug in LLVM/Clang < 20 on aarch64
+                    // and some other non-x86_64 targets
+                    // https://github.com/llvm/llvm-project/issues/16778
+                    // https://gitlab.com/wireshark/wireshark/-/work_items/21744
+                    if (G_UNLIKELY(ckd_mul(&itot_len, len, (uint64_t)block_len))) {
                         // We could also do something with 96/128 byte integers
                         // but this should be rare and we don't care about the
                         // loss of precision here.
