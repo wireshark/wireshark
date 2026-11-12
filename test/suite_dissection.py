@@ -151565,3 +151565,99 @@ class TestDissectZbeeNwkGp:
         assert outputs[0] == outputs[1]
         assert outputs[0][0] == '21\tData, GPD Src ID: 0x11223344\t10'
         assert outputs[0][-1] == '126\tData, Endpoint: 1\t10'
+
+
+class TestDissectZbeeSecurity:
+    '''ZigBee security (packet-zbee-security.c) from the synthetic capture
+    zbee_security_coverage.pcapng.gz. Secured frames carry filler octets
+    instead of ciphertext and MIC, so nothing decrypts: the capture checks
+    the security header, the extended source lookup, the key ring and the
+    relay paths. Frames: NWK security 1-16, APS security 17-26, Transport
+    Key 27-31, secured frames with keys 32-39, Relay messages 40-45, clear
+    payload 46-48, key ring cap 49-120, 121-124 secured frames after it and
+    the ZigBee Direct frames 125-137.'''
+
+    @staticmethod
+    def zbee_sec_fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('zbee_security_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_zbee_security_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed frame and no error expert info in one or two
+        passes; 137 frames.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_security_coverage.pcapng.gz'),
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert len(stdout.splitlines()) == 137
+        for passes in ((), ('-2',)):
+            lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert lines == []
+
+    def test_zbee_security_header(self, cmd_tshark, capture_file, test_env):
+        '''The security header of a NWK frame (frame 2: NWK key, extended
+        nonce, key sequence 0) and of one with the verified frame counter
+        bit (frame 3: key sequence 2); frame 4 has no extended source and
+        resolves it from the address learned in frame 2.'''
+        lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {2, 3, 4}', 'zbee.sec.key_id', 'zbee.sec.ext_nonce',
+            'zbee.sec.verified_fc', 'zbee.sec.src64', 'zbee.sec.key_seqno', 'zbee.sec.mic')
+        assert lines == [
+            '2\t0x01\tTrue\t0x00\t00:12:4b:00:aa:bb:cc:dd\t0\ta5a5a5a5',
+            '3\t0x01\tTrue\t0x01\t00:12:4b:00:aa:bb:cc:dd\t2\ta5a5a5a5',
+            '4\t0x01\tFalse\t0x00\t\t1\ta5a5a5a5',
+        ]
+
+    def test_zbee_security_expert(self, cmd_tshark, capture_file, test_env):
+        '''A secured frame from an unknown node is a note (frame 1); frames
+        cut short by the capture say so (15 and 16); every other secured
+        frame is an undecoded encrypted payload (nothing decrypts).'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zbee_security_coverage.pcapng.gz'),
+                    '-q', '-z', 'expert,note',
+                ), encoding='utf-8', env=test_env, timeout=120)
+            assert 'Extended Source: Unknown' in stdout
+        lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+            'zbee_sec.encrypted_payload_sliced')
+        assert lines == ['15', '16']
+        lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+            'zbee_sec.extended_source_unknown')
+        assert lines == ['1', '26', '132']
+
+    def test_zbee_security_keyring_cap(self, cmd_tshark, capture_file, test_env):
+        '''The key ring of a PAN holds 64 keys. Frames 49-118 add 70
+        distinct keys to the four already known (a repeated key is not
+        added again): ten keys and the retry of the last do not fit and
+        raise "Key ring is full" (11 times, first pass only; the expert
+        info is not attached to a packet tree item and is not repeated
+        with -2). Before the cap the same capture took time proportional
+        to keys times secured frames ("ZigBee Security: Cap the key
+        ring").'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_security_coverage.pcapng.gz'),
+                '-q', '-z', 'expert,warn',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert count_output(stdout, r'^\s+11\s+Protocol\s+ZigBee APS\s+Key ring is full, key not added') == 1
+        # The Transport Key frames still decode when the ring is full
+        lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {49, 118, 119}', 'zbee_aps.cmd.key')
+        assert [l.split('\t')[0] for l in lines] == ['49', '118', '119']
+        assert all(len(l.split('\t')[1]) == 32 for l in lines)
+
+    def test_zbee_security_relay(self, cmd_tshark, capture_file, test_env):
+        '''Relay Message frames carry a secured APS frame. Over ZigBee
+        Direct there is no IEEE 802.15.4 layer; the lookup of the
+        coordinator address then used an uninitialized PAN ID
+        ("ZigBee Security: Fix uninitialized address lookup"). The
+        frames decode the same in two passes.'''
+        for passes in ((), ('-2',)):
+            lines = self.zbee_sec_fields(cmd_tshark, capture_file, test_env,
+                'zbee_tlv.relay.joiner_ieee', '_ws.col.protocol', '_ws.col.info', passes=passes)
+            assert [l.split('\t')[0] for l in lines] == \
+                ['41', '42', '43', '44', '45', '129', '130', '137']
+            assert all(l.endswith('APS: Command, Relay') for l in lines)
