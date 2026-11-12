@@ -156227,3 +156227,132 @@ class TestDissectTzsp:
         assert proc.returncode == 0
         assert 'Maximum protocol layer depth' not in proc.stdout
         assert proc.stdout.count('Tazmen Sniffer Protocol') == 4
+
+
+class TestDissectU3vCoverage:
+    '''USB3 Vision (U3V) over Linux usbmon, from the synthetic capture
+    u3v_coverage.pcap.gz. Device 3 has a configuration descriptor with the
+    miscellaneous class interfaces and the U3V device info descriptor, and
+    keeps commands and acknowledgements on one endpoint (0x81), so that an
+    acknowledgement finds its command and the register base addresses are
+    learned. Device 4 has no descriptors (the usb.bulk heuristic finds it
+    from the GenCP prefix) and uses the real layout: commands on the OUT
+    endpoint, acknowledgements on the IN endpoint, a different USB
+    conversation, so the acknowledgements have no command.'''
+
+    @staticmethod
+    def rows(cmd_tshark, capture_file, test_env, fields, *args, passes=('-2',)):
+        cmd = [cmd_tshark, *passes, '-r', capture_file('u3v_coverage.pcap.gz'), '-Tfields']
+        for f in fields:
+            cmd += ['-e', f]
+        stdout = subprocess.check_output((*cmd, *args), encoding='utf-8',
+                                         env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_u3v_protocols(self, cmd_tshark, capture_file, test_env):
+        '''220 frames, 213 of them U3V; the others are USB (descriptors and
+        bulk data that is not U3V). No malformed packets or error expert
+        infos, in one and two passes.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.protocol'])
+        protos = [r[0] for r in rows]
+        assert len(protos) == 220
+        assert protos.count('U3V') == 213 and protos.count('USB') == 7
+        for passes in ((), ('-2',)):
+            rows = self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00400000',
+                    passes=passes)
+            assert rows == []
+
+    def test_u3v_info_same_in_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The register base addresses are learned from the first pass only
+        ("U3V: Fix state kept across passes and length handling"), and the
+        Info column reads the same in one and two passes.'''
+        one = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.info'], passes=())
+        two = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.info'])
+        assert one == two
+        assert len(one) == 220
+
+    def test_u3v_descriptor(self, cmd_tshark, capture_file, test_env):
+        '''The U3V device info descriptor inside the configuration.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['u3v.device_info.bLength', 'u3v.device_info.bGenCPVersion.major',
+                          'u3v.device_info.bGenCPVersion.minor',
+                          'u3v.device_info.bU3VVersion.major', 'u3v.device_info.iSerialNumber',
+                          'u3v.device_info.bmSpeedSupport'],
+                         '-Y', 'u3v.device_info_descriptor')
+        assert rows == [['20', '1', '0', '3', '7', '0x1c']] or \
+            rows == [['20', '1', '0', '3', '7', '0x0000001c']]
+
+    def test_u3v_registers(self, cmd_tshark, capture_file, test_env):
+        '''Bootstrap registers are named from the learned base addresses:
+        ABRM, SBRM (at 0x1000), SIRM (0x2000), EIRM (0x3000); other
+        addresses stay "Addr:".'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['_ws.col.info'], '-Y', 'frame.number in {4, 6, 8, 10, 14, 58, 60}')
+        assert [r[0] for r in rows] == [
+            '< READMEM_ACK [Manifest_Table_Address]', '< READMEM_ACK [SBRM_Address]',
+            '< READMEM_ACK [SIRM_Address]', '< READMEM_ACK [EIRM_Address]',
+            '< READMEM_ACK [GenCP_Version]', '< READMEM_ACK [Addr:0x0000000000000300]',
+            '< READMEM_ACK [U3V_Version]']
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['frame.number'],
+                         '-Y', 'u3v.gencp.command_id == 0x0800')
+        assert len(rows) == 78
+
+    def test_u3v_errors_and_pending(self, cmd_tshark, capture_file, test_env):
+        '''Acknowledgements with an error status are not decoded further, a
+        pending acknowledgement shows its time, and unknown commands are
+        shown with their payload.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.info'],
+                         '-Y', 'frame.number in {146, 172, 174, 176, 177, 178, 179, 180}')
+        assert [r[0] for r in rows] == [
+            '< READMEM_ACK U3V_STATUS_GENCP_INVALID_PARAMETER',
+            '< READMEM_ACK Unknown status (0x8123)',
+            '< WRITEMEM_ACK U3V_STATUS_GENCP_WRITE_PROTECT[Addr:0x0000000000020000]',
+            '< PENDING_ACK  500 ms', '< READMEM_ACK [Addr:0x0000000000030000]',
+            '> Unknown Command (0x900) ', '< Unknown Acknowledge (0x901) ',
+            '< Unknown Acknowledge (0x901) U3V_STATUS_GENCP_NOT_IMPLEMENTED']
+
+    def test_u3v_events(self, cmd_tshark, capture_file, test_env):
+        '''Event commands: standard, error and device specific ids, and the
+        event data that were dropped when the payload was 20 bytes or
+        shorter ("U3V: Fix state kept across passes and length handling").'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'u3v.cmd.event.id', 'u3v.cmd.event.errorid',
+                          'u3v.cmd.event.devicespecificid', 'u3v.cmd.event.data'],
+                         '-Y', 'u3v.gencp.command_id == 0x0c00 && frame.number < 190')
+        assert [(r[0], r[1], r[2], r[3]) for r in rows] == [
+            ('181', '0x0001', '', ''), ('182', '0x4fff', '', ''), ('183', '0x8000', '', ''),
+            ('184', '', '0x8001', ''), ('185', '', '0x8fff', ''), ('186', '', '', '0x9000'),
+            ('187', '', '', '0xffff')]
+        data = {r[0]: r[4] for r in rows}
+        assert data['182'] == '4556454e54444154'          # "EVENTDAT"
+        assert data['181'] == ''
+
+    def test_u3v_stream(self, cmd_tshark, capture_file, test_env):
+        '''Stream leaders of every payload type, payload and trailers with
+        and without the optional fields.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', '_ws.col.info'], '-Y', 'frame.number >= 189 && frame.number <= 202')
+        infos = [r[1] for r in rows]
+        assert infos[0] == 'Stream Leader  [ Block ID: 1 , Type Image]'
+        assert infos[3] == 'Stream Leader  [ Block ID: 2 , Type Image Extended Chunk]'
+        assert infos[6] == 'Stream Leader  [ Block ID: 3 , Type Chunk]'
+        assert infos[9] == 'Stream Leader  [ Block ID: 4 , Type Unknown Payload Type]'
+        assert infos[1] == 'Stream Payload'
+        rows = self.rows(cmd_tshark, capture_file, test_env,
+                         ['frame.number', 'u3v.stream.sizey', 'u3v.stream.chunk_layout_id'],
+                         '-Y', 'frame.number in {201, 202}')
+        assert rows == [['201', '480', ''], ['202', '480', '0x00001234']]
+
+    def test_u3v_real_endpoint_layout(self, cmd_tshark, capture_file, test_env):
+        '''With the commands on the OUT and the acknowledgements on the IN
+        endpoint the acknowledgement has no transaction: no register name.
+        The class is found by the usb.bulk heuristic from the prefix.'''
+        rows = self.rows(cmd_tshark, capture_file, test_env, ['_ws.col.info'],
+                         '-Y', 'frame.number >= 203 && frame.number <= 212')
+        assert [r[0] for r in rows] == [
+            '> READMEM_CMD  (0x000001D8 (8) bytes)', '< READMEM_ACK ',
+            '> READMEM_CMD  (0x00001000 (4) bytes)', '< READMEM_ACK ',
+            '> WRITEMEM_CMD [Addr:0x0000000000020000]: 4 bytes', '< WRITEMEM_ACK ',
+            '> WRITEMEM_CMD [Device_Configuration]: 8 bytes',
+            '< WRITEMEM_ACK ', '> READMEM_CMD  (0x00030000 (8) bytes)', '< PENDING_ACK  10 ms']
