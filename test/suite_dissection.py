@@ -160020,3 +160020,95 @@ class TestDissectUsbCom:
                             extra=('-o', 'usb.try_heuristics:FALSE'))
         assert [r.split('\t')[0] for r in rows] == ['142', '172']
         assert all(r.split('\t')[1] != '' for r in rows)
+
+
+class TestDissectUsbDfu:
+    '''USB DFU (packet-usb-dfu.c) from the synthetic Linux usbmon / USBPcap
+    capture usb_dfu_coverage.pcapng.gz. Frames 1-17 are a runtime
+    interface (device 2), 18-98 a DFU mode device (3) with a download,
+    status polling, an upload and every status value, 99-110 a DFU 1.0
+    functional descriptor (device 4), 111-136 devices of the usb.product
+    table (5, 7, 8) and 137-153 an Apple DFU device on USBPcap (6).'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_dfu_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_dfu_frames(self, cmd_tshark, capture_file, test_env):
+        '''102 USB DFU frames out of 153; no malformed frames and no
+        warnings or errors in one and two passes. The DFU status stage of
+        Detach, Download, Clear Status and Abort is left out of the
+        capture: the empty response is reported as an error
+        ("Unexpected response for this command").'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(rows) == 153
+        assert rows.count('USB DFU') == 102
+        assert rows.count('USB') == 51
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+
+    def test_usb_dfu_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''DFU functional descriptors: 9 octets (with bcdDFUVersion) and the
+        7 octet DFU 1.0 form.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbdfu.descriptor',
+                            'frame.number', 'usbdfu.descriptor.bmAttributes.WillDetach',
+                            'usbdfu.descriptor.bmAttributes.CanUpload',
+                            'usbdfu.descriptor.wDetachTimeOut', 'usbdfu.descriptor.wTransferSize',
+                            'usbdfu.descriptor.bcdDFUVersion')
+        assert rows == ['8\tTrue\tTrue\t255\t1024\t0x0110',
+                        '25\tTrue\tTrue\t255\t2048\t0x0110',
+                        '106\tTrue\tTrue\t255\t1024\t',
+                        '141\tTrue\tTrue\t255\t1024\t0x0110']
+
+    def test_usb_dfu_download(self, cmd_tshark, capture_file, test_env):
+        '''Download blocks 0-2 with 16 octets and the empty block 3; Detach
+        with its timeout.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbdfu.command == 1 && frame.number < 100',
+                            'frame.number', 'usbdfu.block_number', 'usbdfu.length')
+        assert rows == ['30\t0\t16', '35\t1\t16', '40\t2\t16', '45\t3\t0']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbdfu.command == 0 && frame.number < 20',
+                            'frame.number', 'usbdfu.timeout', '_ws.col.info')
+        assert rows == ['15\t1000\tSent Command: Detach Timeout=1000']
+
+    def test_usb_dfu_status(self, cmd_tshark, capture_file, test_env):
+        '''Get Status responses: poll timeouts, states and the 16 status
+        values of the table (and one outside it).'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbdfu.status && frame.number < 100',
+                            'frame.number', 'usbdfu.status', 'usbdfu.poll_timeout', 'usbdfu.state',
+                            'usbdfu.command_frame')
+        assert rows[:12] == ['14\t0x00\t0\t0\t13', '29\t0x00\t0\t2\t28', '32\t0x00\t5\t4\t31',
+                             '34\t0x00\t0\t5\t33', '37\t0x00\t6\t4\t36', '39\t0x00\t0\t5\t38',
+                             '42\t0x00\t7\t4\t41', '44\t0x00\t0\t5\t43', '47\t0x00\t20\t6\t46',
+                             '49\t0x00\t0\t7\t48', '51\t0x00\t0\t8\t50', '57\t0x00\t0\t9\t56']
+        assert rows[-1] == '94\t0x55\t1\t77\t93'
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {64, 90, 94, 97}',
+                            'frame.number', '_ws.col.info')
+        assert rows == [
+            '64\tRcvd Response: Get Status = Status: errTarget, PollTimeout: 100 ms, State: dfuError',
+            '90\tRcvd Response: Get Status = Status: errUnknown, PollTimeout: 1400 ms, State: dfuError',
+            '94\tRcvd Response: Get Status = Status: Unknown, PollTimeout: 1 ms, State: Unknown',
+            '97\tRcvd Response: Get State = Unknown']
+
+    def test_usb_dfu_upload(self, cmd_tshark, capture_file, test_env):
+        '''Upload responses show the block number of their request.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbdfu.response == 2 && frame.number < 100',
+                            'frame.number', 'usbdfu.block_number', 'usbdfu.data')
+        assert rows == ['53\t0\t1', '55\t1\t1']
+
+    def test_usb_dfu_product_table(self, cmd_tshark, capture_file, test_env):
+        '''Devices in the usb.product table (Ubertooth DFU 1d50:6001 and
+        6003, Apple 05ac:1227) get all their non-standard packets
+        dissected as DFU; a response before any DFU command is "Unknown".'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {133, 134}',
+                            'frame.number', '_ws.col.protocol', '_ws.col.info')
+        assert rows == ['133\tUSB DFU\tRcvd Response: Unknown', '134\tUSB DFU\tRcvd Response: Unknown']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {143, 144, 148}',
+                            'frame.number', '_ws.col.protocol', 'usbdfu.state')
+        assert rows == ['143\tUSB DFU\t', '144\tUSB DFU\t2', '148\tUSB DFU\t4']
