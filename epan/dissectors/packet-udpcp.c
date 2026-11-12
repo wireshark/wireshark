@@ -404,10 +404,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         conversation_t *p_conv;
         udpcp_conversation_t *p_conv_data;
 
-        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                                   conversation_pt_to_conversation_type(pinfo->ptype),
-                                   pinfo->destport, pinfo->srcport,
-                                   0 /* options */);
+        p_conv = find_or_create_conversation(pinfo);
 
         /* Look up data from conversation */
         p_conv_data = (udpcp_conversation_t *)conversation_get_proto_data(p_conv, proto_udpcp);
@@ -480,10 +477,10 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         conversation_t *p_conv;
         udpcp_conversation_t *p_conv_data;
 
-        p_conv = find_conversation(pinfo->num, &pinfo->net_dst, &pinfo->net_src,
-                                   conversation_pt_to_conversation_type(pinfo->ptype),
-                                   pinfo->destport, pinfo->srcport,
-                                   0 /* options */);
+        p_conv = find_conversation_pinfo(pinfo, 0);
+        if (!p_conv) {
+            return offset;
+        }
 
         /* Look up data from conversation */
         p_conv_data = (udpcp_conversation_t *)conversation_get_proto_data(p_conv, proto_udpcp);
@@ -514,7 +511,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 proto_tree_add_uint(udpcp_tree,  hf_udpcp_ack_frame, tvb, 0, 0, ack);
             }
             else {
-                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_ack, "No ACK seen for this data frame (message_id=%u",
+                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_ack, "No ACK seen for this data frame (message_id=%u)",
                                        message_id);
 
             }
@@ -528,7 +525,7 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 proto_tree_add_uint(udpcp_tree,  hf_udpcp_sn_frame, tvb, 0, 0, sn_frame);
             }
             else {
-                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_sn_frame, "No SN frame seen corresponding to this ACK (message_id=%u",
+                expert_add_info_format(pinfo, message_id_ti, &ei_udpcp_no_sn_frame, "No SN frame seen corresponding to this ACK (message_id=%u)",
                                        message_id);
             }
         }
