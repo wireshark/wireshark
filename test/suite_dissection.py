@@ -159915,3 +159915,108 @@ class TestDissectUsbCcid:
             '80\t0x50\t0x00\tFalse\t\t',
             '82\t0x51\t\t\t\t0x2a',
         ]
+
+
+class TestDissectUsbCom:
+    '''USB communications device class (packet-usb-com.c) from the synthetic
+    Linux usbmon / USBPcap / FreeBSD capture usb_com_coverage.pcapng.gz.
+    Frames 1-70 are a CDC ACM device (2), 71-98 ECM (3), 99-146 NCM (4),
+    147-176 MBIM (5) and 177-213 an ACM device on USBPcap and FreeBSD.'''
+
+    @staticmethod
+    def _fields(cmd_tshark, capture_file, test_env, filt, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file('usb_com_coverage.pcapng.gz'),
+                '-Y', filt, '-Tfields', *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_usb_com_frames(self, cmd_tshark, capture_file, test_env):
+        '''213 frames, 73 of them USBCOM; no malformed frames and no
+        warnings or errors in one and two passes.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame', '_ws.col.protocol')
+        assert len(rows) == 213
+        assert rows.count('USBCOM') == 73
+        assert rows.count('MBIM') == 5
+        for passes in ((), ('-2',)):
+            rows = self._fields(cmd_tshark, capture_file, test_env,
+                                '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                                'frame.number', extra=passes)
+            assert rows == []
+
+    def test_usb_com_descriptors(self, cmd_tshark, capture_file, test_env):
+        '''Functional descriptors of the four device types: ACM (header,
+        call management, ACM, union, direct line), ECM, NCM and MBIM.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {8, 78, 106, 154}',
+                            'frame.number', 'usbcom.descriptor.subtype',
+                            'usbcom.descriptor.control_interface', 'usbcom.descriptor.subordinate_interface',
+                            'usbcom.descriptor.ecm.mac_address', 'usbcom.descriptor.ecm.max_segment_size')
+        assert rows == ['8\t0x00,0x01,0x02,0x06,0x03\t0x00\t0x01\t\t',
+                        '78\t0x00,0x06,0x0f\t0x00\t0x01\t0x04\t1514',
+                        '106\t0x00,0x06,0x0f,0x1a\t0x00\t0x01\t0x04\t1514',
+                        '154\t0x00,0x06,0x1b,0x1c\t0x00\t0x01\t\t']
+
+    def test_usb_com_set_ntb_input_size(self, cmd_tshark, capture_file, test_env):
+        '''SET_NTB_INPUT_SIZE is decoded from the request (frames 125 and
+        127, 4 and 8 octet forms); it used to be looked for in the response
+        only ("USB COM: Decode the SET_NTB_INPUT_SIZE request"). GET_NTB_INPUT_SIZE
+        and GET_NTB_PARAMETERS are decoded from the responses.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'usbcom.control.set_ntb_input_size.ntb_in_max_size',
+                            'frame.number', 'usbcom.control.set_ntb_input_size.ntb_in_max_size',
+                            'usbcom.control.set_ntb_input_size.ntb_in_max_datagrams')
+        assert rows == ['125\t8192\t', '127\t8192\t16']
+        rows = self._fields(cmd_tshark, capture_file, test_env,
+                            'usbcom.control.get_ntb_input_size.ntb_in_max_size',
+                            'frame.number', 'usbcom.control.get_ntb_input_size.ntb_in_max_size',
+                            'usbcom.control.get_ntb_input_size.ntb_in_max_datagrams')
+        assert rows == ['122\t16384\t', '124\t16384\t32']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbcom.control.get_ntb_params.length',
+                            'frame.number', 'usbcom.control.get_ntb_params.ntb_in_max_size',
+                            'usbcom.control.get_ntb_params.ntb_out_max_datagrams',
+                            'usbcom.control.get_ntb_params.ntb_formats_supported.16bit',
+                            'usbcom.control.get_ntb_params.ntb_formats_supported.32bit')
+        assert rows == ['112\t16384\t32\tTrue\tTrue']
+
+    def test_usb_com_notifications(self, cmd_tshark, capture_file, test_env):
+        '''Interrupt notifications: serial state, network connection,
+        response available, connection speed change (with the bit rates) and
+        an unknown code.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number <= 60 && usbcom.interrupt.request_type',
+                            'frame.number', 'usbcom.interrupt.notification_code', '_ws.col.info',
+                            'usbcom.interrupt.conn_speed_change.dl_bitrate',
+                            'usbcom.interrupt.conn_speed_change.ul_bitrate')
+        assert rows == ['44\t0x20\tSERIAL STATE\t\t', '46\t0x00\tNETWORK CONNECTION\t\t',
+                        '48\t0x00\tNETWORK CONNECTION\t\t', '50\t0x01\tRESPONSE AVAILABLE\t\t',
+                        '52\t0x2a\tCONNECTION SPEED CHANGE\t100000000\t50000000',
+                        '54\t0x08\tAUX JACK HOOK STATE\t\t', '56\t0x77\tUnknown type 77\t\t',
+                        '58\t0x00\tNETWORK CONNECTION\t\t']
+
+    def test_usb_com_data_streams(self, cmd_tshark, capture_file, test_env):
+        '''CDC data streams are numbered per endpoint; Follow Stream shows
+        the data of stream 0 (the IN endpoint of the ACM device). ECM data is
+        Ethernet without FCS; NCM and MBIM data are NTBs with Ethernet
+        datagrams.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'usbcom.data.stream',
+                            'frame.number', 'usbcom.data.stream')
+        assert rows == ['62\t0', '66\t0', '70\t0', '93\t1', '96\t1', '192\t2', '195\t2', '210\t3', '213\t3']
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('usb_com_coverage.pcapng.gz'), '-q', '-z', 'follow,usbcom,ascii,0',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert 'Filter: usbcom.data.stream eq 0' in stdout
+        assert '+TEST0: OK' in stdout and '+TEST2: OK' in stdout
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'eth', 'frame.number')
+        assert rows == ['93', '96', '139', '142', '144']
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {142, 159, 164, 165, 168}',
+                            'frame.number', '_ws.col.info')
+        assert [r.split('\t')[0] for r in rows] == ['142', '159', '164', '165', '168']
+        assert [r.split('\t')[1].strip() for r in rows[1:]] == ['OPEN_MSG', 'OPEN_DONE', 'CLOSE_MSG', 'CLOSE_DONE']
+
+    def test_usb_com_ntb_without_heuristics(self, cmd_tshark, capture_file, test_env):
+        '''With the heuristic dissectors off the CDC data endpoint reaches the
+        COM bulk handler, which hands the NTBs of protocol 1 and 2 to MBIM.'''
+        rows = self._fields(cmd_tshark, capture_file, test_env, 'frame.number in {142, 172}',
+                            'frame.number', 'usbcom.data.stream', 'mbim.bulk.nth.signature',
+                            extra=('-o', 'usb.try_heuristics:FALSE'))
+        assert [r.split('\t')[0] for r in rows] == ['142', '172']
+        assert all(r.split('\t')[1] != '' for r in rows)
