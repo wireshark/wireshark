@@ -2278,8 +2278,16 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			 * If we weren't given an initial fragment number,
 			 * use the next expected fragment number as the fragment
 			 * number for this fragment.
+			 *
+			 * That is one past the last fragment of the sorted list.
+			 * Start looking at first_gap, the last fragment before
+			 * the first gap: the list has no gaps when the fragment
+			 * numbers are generated here, so it is the last one, and
+			 * walking the whole list for each fragment made a long
+			 * sequence quadratic.
 			 */
-			for (fd = fd_head->next; fd != NULL; fd = fd->next) {
+			fd = fd_head->first_gap ? fd_head->first_gap : fd_head->next;
+			for (; fd != NULL; fd = fd->next) {
 				if (fd->next == NULL)
 					frag_number = fd->offset + 1;
 			}
