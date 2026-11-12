@@ -1359,6 +1359,7 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *tree, urb_info_t *urb, uint8_t desc_len)
 {
     int offset_start;
+    int rest;
     int i;
     int ch;
     uint8_t controlsize;
@@ -1425,8 +1426,10 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         ch = (controlsize > 0) ? (((desc_len - 7) / (controlsize)) - 1) : 0;
         if (((7 + ((ch + 1) * controlsize)) != desc_len) || (ch < 0) || (controlsize == 0)){
             /* Report malformed packet, do not attempt further dissection */
-            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
-            offset += desc_len-offset;
+            /* tvb holds exactly this descriptor, so offset is descriptor-relative */
+            rest = (desc_len > offset) ? desc_len - offset : 0;
+            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, rest);
+            offset += rest;
             return offset-offset_start;
         }
 
@@ -1449,8 +1452,10 @@ dissect_ac_if_feature_unit(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         ch = (desc_len - 6) / 4 - 1;
         if (((6 + (ch + 1) * 4) != desc_len) || (ch < 0)) {
             /* Report malformed packet, do not attempt further dissection */
-            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, desc_len-offset);
-            offset += desc_len-offset;
+            /* tvb holds exactly this descriptor, so offset is descriptor-relative */
+            rest = (desc_len > offset) ? desc_len - offset : 0;
+            proto_tree_add_expert(tree, pinfo, &ei_usb_audio_invalid_feature_unit_length, tvb, offset, rest);
+            offset += rest;
             return offset-offset_start;
         }
 
@@ -2505,7 +2510,7 @@ get_addressed_entity_type(urb_info_t *urb)
     usb_audio_entity_t  entity = USB_AUDIO_ENTITY_UNKNOWN;
 
     if (USB_RECIPIENT(urb->usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
-        int8_t id = (urb->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
+        uint8_t id = (urb->usb_trans_info->setup.wIndex & 0xFF00) >> 8;
         entity = get_entity_type(urb, id);
     }
 
@@ -2793,7 +2798,7 @@ dissect_v2_control_cur_range(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             if (attribute_size == 0) {
                 max_n = 0;
-            } else if (urb->usb_trans_info->setup.wLength >= 2 + n * attribute_size) {
+            } else if (urb->usb_trans_info->setup.wLength >= 2 + n * 3 * attribute_size) {
                 /* Host requested enough bytes to contain all data */
                 max_n = n;
             } else if (urb->usb_trans_info->setup.wLength > 2) {
