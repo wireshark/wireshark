@@ -154380,3 +154380,106 @@ class TestDissectTnsCoverage:
                 '-Tfields', '-eframe.number', '-e_ws.expert.message')
         assert 'Header length 0 is below the minimum of 8' in stdout
         assert 'More than 100000 columns without data in one message, stopping' in stdout
+
+
+class TestDissectTpkt:
+    '''TPKT (RFC 1006, TCP port 102 and the RDP heuristic on 3389) and
+    ASCII TPKT inside MGCP (TCP 2427, 2727) from the synthetic capture
+    tpkt_coverage.pcap.gz.'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tpkt_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tpkt_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, and the protocol columns of both passes are the same.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00800000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Tfields', '-e_ws.col.protocol')
+        assert len(lines) == 36
+        counts = {p: lines.count(p) for p in set(lines)}
+        assert counts == {'COTP': 11, 'MGCP': 8, 'RDP': 4, 'TCP': 9,
+                          'TLSv1': 1, 'TPKT': 3}
+
+    def test_tpkt_several_pdus(self, cmd_tshark, capture_file, test_env):
+        '''Several TPKTs in one segment are all dissected (frame 4, and
+        frame 17 with a DT TPDU without and with EOT).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {4, 17}', '-Tfields',
+                '-eframe.number', '-etpkt.version', '-etpkt.length')
+        assert lines == ['4\t3,3,3\t11,11,13', '17\t3,3\t16,15']
+
+    def test_tpkt_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''A TPKT split in the payload (frames 5-7), in the header
+        (frames 8-9, 11, 18-21) is completed in the last segment.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                '-Y', 'tcp.reassembled_in', '-Tfields',
+                '-eframe.number', '-etcp.reassembled_in')
+        assert lines == ['5\t7', '6\t7', '8\t9', '10\t11', '18\t21',
+                         '19\t21', '20\t21']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 7', '-Tfields', '-etpkt.length')
+        assert lines == ['207']
+
+    def test_tpkt_continuation(self, cmd_tshark, capture_file, test_env):
+        '''Data that does not start with a TPKT header, and a header with
+        a length below 4, are shown as continuation data.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tpkt.continuation_data', '-Tfields',
+                '-eframe.number', '-e_ws.col.info')
+        assert lines == ['12\tContinuation', '13\tContinuation',
+                         '31\tContinuation']
+
+    def test_tpkt_rdp_fastpath(self, cmd_tshark, capture_file, test_env):
+        '''A non-TPKT segment on port 102 is passed to the RDP fast-path
+        heuristic (frames 15-16); the RDP negotiation on 3389 is
+        dissected through the TPKT heuristic (frames 22-23).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {15, 16, 22, 23}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol', '-etpkt.length')
+        assert lines == ['15\tRDP\t', '16\tRDP\t', '22\tRDP\t43', '23\tRDP\t19']
+
+    def test_tpkt_not_tpkt_on_rdp_port(self, cmd_tshark, capture_file, test_env):
+        '''A segment shorter than a header, and a length below 4, are
+        left to TCP on port 3389 (frames 24, 25).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {24, 25}', '-Tfields',
+                '-eframe.number', '-e_ws.col.protocol')
+        assert lines == ['24\tTCP', '25\tTCP']
+
+    def test_tpkt_ascii_mgcp(self, cmd_tshark, capture_file, test_env):
+        '''ASCII TPKT in MGCP: hexadecimal version, reserved and length
+        digits of both cases (frames 28-30, 34-36); a segment of fewer
+        than 8 octets (frame 33) is plain MGCP.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number >= 28 && tpkt.version', '-Tfields',
+                '-eframe.number', '-etpkt.version', '-etpkt.reserved',
+                '-etpkt.length')
+        assert lines == ['28\t3\t0\t96', '29\t3,3\t0,0\t13,13',
+                         '30\t3,3\t0,0\t45,45', '34\t10\t10\t210',
+                         '35\t10\t255\t60', '36\t15\t11\t13']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 33', '-Tfields', '-e_ws.col.protocol',
+                '-etpkt.version')
+        assert lines == ['MGCP\t']
+
+    def test_tpkt_no_desegment(self, cmd_tshark, capture_file, test_env):
+        '''Without tpkt.desegment a TPKT cut short is dissected per
+        segment: the header cut in two is malformed (frames 8, 10, 18),
+        the middle of a PDU is continuation data (frames 6, 7).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'tpkt.desegment:FALSE',
+                '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+        assert lines == ['8', '10', '18']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-o', 'tpkt.desegment:FALSE', '-Y', 'frame.number in {6, 7}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        assert lines == ['6\tContinuation', '7\tContinuation']
