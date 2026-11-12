@@ -157243,3 +157243,126 @@ class TestDissectUbx:
         assert lines[12] == '83\t0\t0x02\t10\t0\t0\t0x00\tGPS L1 LNAV'
         assert lines[13] == '84\t2\t0x02\t8\t1\t0\t0x00\tGalileo E1-B I/NAV'
         assert lines[14] == '85\t7\t0x03\t2\t\t\t\tUBX-RXM-SFRBX'
+
+
+class TestDissectUbxGalileoE1bInav:
+    CAP = 'ubx_galileo_e1b_inav_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, *args):
+        '''tshark output as a list of lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ubx_galileo_protocols(self, cmd_tshark, capture_file, test_env):
+        '''1010 Galileo E1-B I/NAV pages (UBX-RXM-SFRBX in Exported PDU, and
+        a few handed straight to "ubx_gal_inav"); none is malformed or has an
+        expert info, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 1010
+        assert protocols.count('Galileo E1-B I/NAV') == 1010
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert', '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_ubx_galileo_words(self, cmd_tshark, capture_file, test_env):
+        '''The word types with their own dissector (0, 1, 2, 3, 4 and 6) are
+        named in the Info column, the others are handed to the data
+        dissector; word 3 shows each SISA range.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number <= 45',
+                '-Tfields', '-eframe.number', '-e_ws.col.info')
+        infos = [l.split('\t', 1)[1] for l in lines]
+        assert infos[0] == 'Word 0 (Spare Word)'
+        assert infos[3] == 'Word 1 (Ephemeris (1/4))'
+        assert infos[6] == 'Word 2 (Ephemeris (2/4))'
+        assert infos[9] == 'Word 3 (Ephemeris (3/4))'
+        assert infos[12] == 'Word 4 (Ephemeris (4/4))'
+        assert infos[15] == ''      # word 5: no dissector
+        assert infos[18] == 'Word 6 (GST-UTC conversion parameters)'
+        assert infos[24] == ''      # word 8: no dissector
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gal_inav.word3.sisa_e1_e5b && frame.number >= 86 && frame.number <= 91',
+                '-Tfields', '-eframe.number', '-egal_inav.word3.sisa_e1_e5b')
+        assert lines == ['86\t10', '87\t55', '88\t80', '89\t110', '90\t130', '91\t255']
+
+    def test_ubx_galileo_sar_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''Short-RLM parts of one SVID are re-assembled in the frame that
+        completes them, in one and two passes (the two passes differed
+        before "GNSS: Fix Galileo I/NAV SAR RLM reassembly read and -2
+        display"). Frames 129-133 are the reproducer of the heap read: four
+        Short-RLM parts, then a part with the Long-RLM flag.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', 'gal_inav.sar.beacon_id', '-Tfields', '-eframe.number',
+                    '-egal_inav.sar.beacon_id', '-egal_inav.sar.msg_code')
+            assert lines == ['103\t0x01234c3456723456\t0x00000001',
+                             '107\t0x012345cdef0bcdef\t0x0000000a',
+                             '132\t0x0123451234512345\t0x00000001']
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', 'frame.number >= 129 && frame.number <= 133',
+                    '-Tfields', '-eframe.number', '-egal_inav.sar.start_bit',
+                    '-egal_inav.sar.long_rlm', '-egal_inav.sar.rlm_data')
+            assert lines == ['129\tTrue\tFalse\t0x00012345', '130\tFalse\tFalse\t0x00012345',
+                             '131\tFalse\tFalse\t0x00012345', '132\tFalse\tFalse\t0x00012345',
+                             '133\tFalse\tTrue\t0x00012345']
+
+    def test_ubx_galileo_osnma_hkroot_mack(self, cmd_tshark, capture_file, test_env):
+        '''The HKROOT and MACK messages are re-assembled from 15 pages of
+        one SVID: the 58 completed sub-frames, in one and two passes. An
+        interrupted sub-frame of 5 pages is dropped when the next page of
+        word type 2 starts a new one.'''
+        cap = capture_file(self.CAP)
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', 'gal_inav.osnma.nmas', '-Tfields', '-eframe.number')
+            assert len(lines) == 58
+            assert lines[:3] == ['155', '170', '185']
+            assert lines[-1] == '1010'
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number == 155',
+                '-V')
+        assert any('HKROOT Message (re-assembled)' in l for l in lines)
+        assert any('MACK Message (re-assembled)' in l for l in lines)
+
+    def test_ubx_galileo_osnma_dsm(self, cmd_tshark, capture_file, test_env):
+        '''DSM-KROOT (DSM ID 1, 9 blocks) and DSM-PKR (DSM ID 12, 13 then 16
+        blocks) are re-assembled from the HKROOT messages in the frame
+        that completes a block. The Key Size selects the KROOT length (KS 9
+        is reserved: no KROOT), the message ID and new public key type
+        select the layout of the PKR. The DSM is shown only in the first
+        pass: a second pass sees the final state of the DSM (see README).'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gal_inav.osnma.dsm.nb_dk',
+                '-Tfields', '-eframe.number', '-egal_inav.osnma.dsm.nb_dk',
+                '-egal_inav.osnma.dsm.ks', '-egal_inav.osnma.dsm.hf', '-egal_inav.osnma.dsm.mf')
+        assert lines == ['305\t3\t4\t0\t1', '320\t3\t0\t2\t0', '335\t3\t5\t1\t2',
+                         '350\t3\t8\t3\t1', '365\t3\t9\t0\t0']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gal_inav.osnma.dsm.kroot',
+                '-Tfields', '-eframe.number')
+        assert lines == ['305', '320', '335', '350']      # not for KS 9
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gal_inav.osnma.dsm.nb_dp',
+                '-Tfields', '-eframe.number', '-egal_inav.osnma.dsm.nb_dp',
+                '-egal_inav.osnma.dsm.mid', '-egal_inav.osnma.dsm.npkt')
+        assert lines[0] == '605\t7\t0\t1'
+        assert lines[16] == '845\t7\t15\t3'
+        assert lines[-6:] == ['935\t10\t3\t2', '950\t10\t3\t1', '965\t10\t4\t1',
+                              '980\t10\t4\t4', '995\t10\t5\t4', '1010\t10\t5\t3']
+        # the new public key is shown for NPKT 1, 3 and 4 only
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'gal_inav.osnma.dsm.npk',
+                '-Tfields', '-eframe.number')
+        assert '860' not in lines and '875' not in lines
+        assert lines[0] == '605' and lines[-1] == '1010'
+
+    def test_ubx_galileo_named_handle(self, cmd_tshark, capture_file, test_env):
+        '''Pages handed straight to "ubx_gal_inav" (frames 95-99) have no
+        SVID: the word and the OSNMA and SAR fields are shown but nothing is
+        re-assembled. Frame 99 is an alert page.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 95 && frame.number <= 99',
+                '-Tfields', '-eframe.number', '-egal_inav.type', '-egal_inav.osnma.hkroot',
+                '-egal_inav.osnma.nmas', '-egal_inav.sar.rlm_data')
+        assert lines == ['95\t0\t0x00000055\t\t0x00000777', '96\t2\t0x00000055\t\t0x00000777',
+                         '97\t4\t0x00000055\t\t0x00000777', '98\t6\t0x00000055\t\t0x00000777',
+                         '99\t\t\t\t']
