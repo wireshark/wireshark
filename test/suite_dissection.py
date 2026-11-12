@@ -152561,3 +152561,147 @@ class TestDissectZbeeZclSas:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 1
         assert {'Attribute: Maximum Duration (0x0000)'} <= names
+
+
+class TestDissectZbeeZclSe:
+    '''ZigBee Smart Energy clusters (Price, DRLC, Metering, Messaging,
+    Tunneling, Prepayment, Energy Management, Calendar, Daily Schedule,
+    Device Management, Events, MDU Pairing, Sub-GHz, Key Establishment)
+    from the synthetic capture zbee_zcl_se_coverage.pcapng.gz. The frames
+    come over ZEP on UDP 17754 (default), the long ones as linktype 230.
+    There is no security: every frame is in the clear.'''
+
+    CAPTURE = 'zbee_zcl_se_coverage.pcapng.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_zcl_se_coverage.pcapng.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_zbee_zcl_se_clusters(self, cmd_tshark, capture_file, test_env):
+        '''Every SE cluster decodes: 320 frames, no malformed packets and no
+        error expert infos in one and two passes; the one warning is the
+        deprecated Message Control of Cancel Message (frame 125).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                            '-Tfields', '-eframe.protocols')
+        assert len(lines) == 320
+        counts = {}
+        for line in lines:
+            for proto in line.split(':'):
+                counts[proto] = counts.get(proto, 0) + 1
+        assert counts['zbee_zcl'] == 320
+        assert counts['zbee_zcl_se.price'] == 57
+        assert counts['zbee_zcl_se.met'] == 41
+        assert counts['zbee_zcl_se.dm'] == 25
+        assert counts['zbee_zcl_se.calendar'] == 21
+        assert counts['zbee_zcl_se.pp'] == 19
+        assert counts['zbee_zcl_se.tun'] == 18
+        assert counts['zbee_zcl_se.ke'] == 17
+        assert counts['zbee_zcl_se.msg'] == 16
+        assert counts['zbee_zcl_se.drlc'] == 11
+        assert counts['zbee_zcl_se.daily_schedule'] == 9
+        assert counts['zbee_zcl_se.events'] == 7
+        assert counts['zbee_zcl_se.em'] == 6
+        assert counts['zbee_zcl_se.sub_ghz'] == 6
+        assert counts['zbee_zcl_se.mdu_pairing'] == 5
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= error',
+                    '-Tfields', '-eframe.number')
+            assert count_output('\n'.join(lines)) == 0
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes, '-V')
+            assert not any('Malformed Packet' in l for l in lines)
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', '_ws.expert.severity == warning', '-Tfields', '-eframe.number')
+        assert lines == ['125']
+
+    def test_zbee_zcl_se_two_passes(self, cmd_tshark, capture_file, test_env):
+        '''The info column and the SE protocol stack are the same in one
+        and two passes.'''
+        one = self.fields(cmd_tshark, capture_file, test_env,
+                          '-Tfields', '-e_ws.col.info', '-eframe.protocols')
+        two = self.fields(cmd_tshark, capture_file, test_env, '-2',
+                          '-Tfields', '-e_ws.col.info', '-eframe.protocols')
+        assert one == two
+
+    def test_zbee_zcl_se_ke_valid_to(self, cmd_tshark, capture_file, test_env):
+        '''Key Establishment suite 2 certificates: Valid To is the Valid From
+        time plus the validity, or "does not expire" (0xFFFFFFFF), which
+        used to show uninitialised stack memory in the field value (frame
+        231: a time of zero).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_se.ke.cert.valid.to', '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.ke.cert.valid.from', '-ezbee_zcl_se.ke.cert.valid.to')
+        assert lines == [
+            '230\t1970-01-01T00:01:30.000000000Z\t1971-01-01T00:01:30.000000000Z',
+            '231\t1970-01-01T00:01:30.000000000Z\t1970-01-01T00:00:00.000000000Z',
+            '232\t1970-01-01T00:01:30.000000000Z\t1971-01-01T00:01:30.000000000Z',
+            '233\t1970-01-01T00:01:30.000000000Z\t1970-01-01T00:01:30.000000000Z',
+        ]
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 231', '-V')
+        assert any('Valid To: does not expire' in line for line in lines)
+
+    def test_zbee_zcl_se_field_fixes(self, cmd_tshark, capture_file, test_env):
+        '''Byte order and epoch of fields fixed in "ZigBee ZCL SE: Initialize
+        Valid To time and fix several field decodings": Get Scheduled Events
+        Issuer Event ID (a 32 bit field; frames 67 and 68 carry 4 and 5
+        octets), Proposed Tenancy Change Control (little endian), Request
+        New Password duration (little endian) and the ZigBee UTC epoch (2000)
+        of Get Profile Response End Time and Display Message Start Time.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {67, 68}', '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.drlc.get_scheduled_events.issuer_event_id')
+        assert lines == ['67\t0x00001001', '68\t0x00001001']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control')
+        assert lines == ['203\t0x00000003', '285\t0x00000001']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_se.device_management.request_new_password.duration_in_minutes',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.device_management.request_new_password.duration_in_minutes')
+        assert lines == ['205\t30', '286\t258']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {88, 283}', '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.met.get_profile_response.end_time')
+        assert lines == ['88\t2023-06-16T11:12:00.000000000Z',
+                         '283\t2000-01-01T00:00:00.000000000Z']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number in {283, 284}', '-V')
+        assert 'End Time: Now' in ''.join(l.strip() + '\n' for l in lines)
+        assert 'Start Time: Now' in ''.join(l.strip() + '\n' for l in lines)
+
+    def test_zbee_zcl_se_tunnel(self, cmd_tshark, capture_file, test_env):
+        '''Tunneling Transfer Data is handed to the heuristic dissectors:
+        an IPv4 packet in both directions (frames 130 and 137) goes to IP,
+        a payload starting with 0x01 (frame 131) to GBCS, the rest is plain
+        data.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'ip.dst == 10.0.0.2 || gbcs_tunnel.command',
+                '-Tfields', '-eframe.number', '-egbcs_tunnel.command',
+                '-ezbee_zcl_se.tun.tunnel_id')
+        assert lines == ['130\t\t0x0102', '131\t0x01\t0x0102', '137\t\t0x0102']
+
+    def test_zbee_zcl_se_logs_and_loops(self, cmd_tshark, capture_file, test_env):
+        '''List-carrying commands decode every entry: Publish Top Up Log
+        and Publish Debt Log (prepayment), Get Profile Response intervals
+        and Tier Labels.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'zbee_zcl_se.pp.publish_top_up_log.top_up_amount || '
+                      'zbee_zcl_se.pp.publish_debt_log.amount_collected || '
+                      'zbee_zcl_se.price.tier_labels.tier_id',
+                '-Tfields', '-eframe.number',
+                '-ezbee_zcl_se.pp.publish_top_up_log.top_up_amount',
+                '-ezbee_zcl_se.pp.publish_debt_log.amount_collected',
+                '-ezbee_zcl_se.price.tier_labels.tier_id',
+                '-E', 'aggregator=,')
+        assert lines == ['51\t\t\t1,2,3', '160\t1000,2000\t\t', '161\t\t100,200\t']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'frame.number == 88', '-Tfields',
+                '-ezbee_zcl_se.met.get_profile_response.intervals',
+                '-E', 'aggregator=,')
+        assert lines == ['1,2,3']
