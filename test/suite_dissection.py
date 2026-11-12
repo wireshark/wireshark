@@ -159320,3 +159320,203 @@ class TestDissectUmtsMac:
                     '-r', capture_file(self.CAPTURE), '-V',
                 ), encoding='utf-8', env=test_env))
         assert outs[0] == outs[1]
+
+
+class TestDissectUmtsRlc:
+    CAPTURE = 'umts_rlc_coverage.pcapng.gz'
+    # RLC over UDP is a heuristic dissector that is disabled by default
+    UDP = ('--enable-heuristic', 'rlc_udp')
+
+    @staticmethod
+    def rlc_fields(cmd_tshark, capture_file, test_env, *fields, extra=('--enable-heuristic', 'rlc_udp'), passes=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra, *passes,
+                '-r', capture_file(TestDissectUmtsRlc.CAPTURE),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    @staticmethod
+    def info(row):
+        return ' '.join(row.split())
+
+    def test_umts_rlc_no_errors(self, cmd_tshark, capture_file, test_env):
+        '''2271 frames: RLC over UDP (the heuristic) and Exported PDU records
+        naming fp_hint (FP, MAC and RLC at default preferences). No
+        malformed packet and no error in one and two passes; the only
+        expert infos are the warnings for ciphered PDUs (frames 194, 195
+        by the hint, 206, 207 by an RRC SecurityModeCommand).'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 2271
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *self.UDP, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x800000',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *self.UDP, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                [str(n), 'Cannot dissect RLC frame because it is ciphered'] for n in (194, 195, 206, 207)]
+        # without the heuristic only the FP Hint frames are RLC
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE), '-Y', 'rlc',
+                '-Tfields', '-eframe.number',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.split() == ['188', '189', '190', '191', '192', '193', '194', '195', '196', '197',
+                                  '198', '203', '204', '211']
+
+    def test_umts_rlc_channel_types(self, cmd_tshark, capture_file, test_env):
+        '''TM, UM and AM on every channel type of the UDP framing: PCCH, BCCH
+        and UL CCCH (TM), DL CCCH and CTCH (UM), DCCH and PS DTCH (every mode)
+        and the unspecified channel.'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', '_ws.col.info',
+                'rlc.channel.rbid', 'rlc.channel.dir', 'rlc.channel.ueid')
+        proto = [rows[str(i)][0] for i in range(1, 18)]
+        assert proto == ['RRC', 'RRC', 'RRC', 'UDP', 'RLC',       # PCCH, BCCH, UL CCCH, PS TM, unspecified TM
+                         'RRC', 'BMC', 'RRC', 'RRC', 'UDP', 'RLC',    # DL CCCH, CTCH, DCCH UM UL/DL, PS UM, unspecified UM
+                         'RRC', 'RRC', 'UDP', 'RLC', 'RLC', 'RLC']    # DCCH AM UL/DL, PS AM, unspecified AM, default UE id, LI size
+        assert self.info(rows['1'][1]) == 'PagingType1'
+        assert self.info(rows['2'][1]) == 'SystemInformation-FACH'
+        assert self.info(rows['11'][1]) == '[RLC UM Data] SN=0'
+        assert self.info(rows['15'][1]) == '[RLC AM Data] SN=0'
+        # radio bearer id, direction (0 uplink, 1 downlink, unknown) and UE id of the channel
+        assert rows['8'][2:] == ['1', '0', '0x00001005']
+        assert rows['9'][2:] == ['1', '1', '0x00001006']
+        assert rows['12'][2:] == ['2', '0', '0x00001009']
+        assert rows['13'][2:] == ['2', '1', '0x0000100a']
+        # without a U-RNTI tag the UE id is 1
+        assert rows['16'][4] == '0x00000001'
+
+    def test_umts_rlc_um_reassembly(self, cmd_tshark, capture_file, test_env):
+        '''UM: one SDU over three PDUs (frames 23-25, reassembled in 25 and
+        handed to RRC), LI 0x7c, 0 and 0x7f, 15 bit LIs, a duplicate (22), and
+        an SDU that continues over the SN wrap (SN 127 in frame 157 and SN 0
+        in 158, after SN 0 to 126 of the same channel).'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'rlc.seq',
+                'rlc.reassembled_in', 'rlc.duplicate_of', 'rlc.reassembled_data')
+        assert [self.info(rows[str(i)][0]) for i in (23, 24, 25)] == [
+            '[RLC UM Fragment][RLC UM Fragment] SN=0', '[RLC UM Fragment][RLC UM Fragment] SN=1',
+            'AssistanceDataDelivery']
+        assert rows['25'][4] == '040b12192027'
+        assert [rows[str(i)][1] for i in (23, 24, 25)] == ['0', '1', '2']
+        assert self.info(rows['22'][0]) == '[RLC UM Fragment] [Duplicate] SN=3'
+        assert rows['22'][3] == '21'
+        assert [self.info(rows[str(i)][0]) for i in range(26, 30)] == [
+            '[RLC UM Data] SN=%d' % i for i in range(4)]
+        assert self.info(rows['157'][0]) == '[RLC UM Fragment][RLC UM Fragment] SN=127'
+        assert self.info(rows['158'][0]) == '[RLC UM Data] SN=0'
+        assert rows['158'][4] == '01080f161d242b32'
+
+    def test_umts_rlc_am(self, cmd_tshark, capture_file, test_env):
+        '''AM: a split SDU with the poll bit (frames 159-160), LIs, padding and
+        a duplicate (161-167), piggybacked STATUS (168-170) and 15 bit LIs.'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'rlc.p')
+        assert self.info(rows['159'][0]) == '[RLC AM Fragment] SN=0 (P)'
+        assert rows['159'][1] == 'True'
+        assert self.info(rows['160'][0]) == 'ActiveSetUpdateFailure'
+        assert [self.info(rows[str(i)][0]) for i in range(161, 167)] == [
+            '[RLC AM Data] SN=0', '[RLC AM Data] SN=1', '[RLC AM Fragment] SN=2',    # SN 2 is padding only
+            '[RLC AM Data] SN=3', '[RLC AM Data] SN=4', '[RLC AM Data] SN=5']
+        # piggybacked STATUS PDUs
+        assert self.info(rows['168'][0]) == 'LSN=7[RLC AM Fragment] SN=0'
+        assert self.info(rows['169'][0]) == 'WSN=100 LIST(2) - 5 9-12 LSN=20[RLC AM Fragment] SN=1'
+        assert self.info(rows['170'][0]) == ('BITMAP=( 10 12 15 17 19 21 22 24 ) RLIST=(30 47 ->48)'
+                                             '[RLC AM Fragment] SN=2')
+        assert self.info(rows['174'][0]) == 'LSN=5[RLC AM Fragment] SN=0'
+
+    def test_umts_rlc_status(self, cmd_tshark, capture_file, test_env):
+        '''STATUS control PDUs with every SUFI type, RESET and RESET-ACK
+        (frames 176-187).'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        assert [self.info(rows[str(i)][0]) for i in range(176, 188)] == [
+            '[RLC Control Frame]',
+            '[RLC Control Frame] LSN=100',
+            '[RLC Control Frame] WSN=512 LSN=101',
+            '[RLC Control Frame] LIST(3) - 10 20-25 30-45 LSN=40',
+            '[RLC Control Frame] BITMAP=( 50 51 52 53 54 55 56 57 62 63 64 65 66 67 68 69 ) LSN=60',
+            '[RLC Control Frame] RLIST=(70 88) LSN=80',
+            '[RLC Control Frame] RLIST=(90 ->101) LSN=100',
+            '[RLC Control Frame] MRW SN=111 MRW-ACK SN=112',
+            '[RLC Control Frame] MRW SN=120 SN=130 SN=140 LSN=150',
+            '[RLC Control Frame] MRW',
+            '[RLC Control Frame] RESET RSN=0 HFN=74565',
+            '[RLC Control Frame] RESET-ACK RSN=1 HFN=703710',
+        ]
+
+    def test_umts_rlc_fp_hint(self, cmd_tshark, capture_file, test_env):
+        '''At default preferences: DCH transport blocks through FP Hint (UM,
+        AM and TM, uplink and downlink, with C/T, PS DTCH with a PDU longer
+        than 126 octets and 15 bit LIs, and two TBs of different UEs in one
+        frame). The second TB of frame 211 has UE id 0 and is not
+        reassembled (it used an uninitialised channel before the fix).'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol', '_ws.col.info',
+                'rlc.channel.rbid', 'rlc.channel.ueid', extra=())
+        assert self.info(rows['188'][1]) == 'AssistanceDataDelivery'
+        assert self.info(rows['189'][1]) == 'HandoverFromUTRANCommand-GSM'
+        assert [rows[str(i)][0] for i in (190, 191, 197, 198)] == ['UDP'] * 4
+        assert self.info(rows['197'][1]) == '4000 → 4001 Len=120'
+        assert rows['198'][1].split()[-1] == 'Len=120'
+        assert rows['211'][0] == 'RLC'
+        assert rows['211'][2] == '9,9' and rows['211'][3] == '0x00002234,0x00000000'
+        assert self.info(rows['211'][1]) == '4000 → 4001 Len=8 [RLC UM Fragment] SN=0'
+
+    def test_umts_rlc_ciphered(self, cmd_tshark, capture_file, test_env):
+        '''Ciphered PDUs: by the flag of the hint (194, 195) and according to
+        an RRC SecurityModeCommand (UEA1 from SN 0 on RB 3, frames 205-210);
+        RBs 4, 250 and 31 of that UE are not ciphered (the radio bearer id
+        selects an entry of a table of 31 entries; ids from 31 on read past
+        it before the fix).'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'rlc.channel.rbid',
+                'rlc.ciphered_data')
+        for n in (194, 195, 206, 207):
+            assert self.info(rows[str(n)][0]) == '[Ciphered Data]'
+            assert rows[str(n)][2] != ''
+        assert self.info(rows['205'][0]) == 'SecurityModeCommand(cs-domain)'
+        assert [rows[str(n)][1] for n in (206, 207, 208, 209, 210)] == ['3', '3', '4', '250', '31']
+        for n in (208, 209, 210):
+            assert self.info(rows[str(n)][0]) == 'AssistanceDataDelivery'
+            assert rows[str(n)][2] == ''
+        # the same RB ids after an RRC SecurityModeComplete (frames 199-204)
+        assert [rows[str(n)][1] for n in range(199, 205)] == ['2', '250', '31', '30', '2', '31']
+        assert all(self.info(rows[str(n)][0]) == 'SecurityModeComplete' for n in range(199, 205))
+        # preferences: everything ciphered / ignore the RRC indication
+        rows2 = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                extra=(*self.UDP, '-o', 'rlc.ignore_rrc_cipher_indication:TRUE'))
+        assert self.info(rows2['206'][0]) == 'AssistanceDataDelivery'
+        rows3 = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info',
+                extra=(*self.UDP, '-o', 'rlc.ciphered_data:TRUE'))
+        assert self.info(rows3['11'][0]) == '[Ciphered Data]'
+
+    def test_umts_rlc_limits(self, cmd_tshark, capture_file, test_env):
+        '''The bounds of this batch leave normal traffic intact. Frames
+        212-1241: 1030 AM PDUs of one channel (SN 0); the history of
+        duplicates is capped at 1024 entries, every frame after the first is
+        still shown as a duplicate (on the second pass). Frames 1242-2271:
+        PDUs of 1030 channels; the reassembly tables of 1024 channels
+        (including the earlier ones) exist, so the first 984 of these frames
+        deliver their SDU and the last 46 are only fragments.'''
+        rows = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', 'rlc.duplicate_of',
+                passes=('-2',))
+        assert self.info(rows['212'][0]) == '[RLC AM Data] SN=0'
+        for n in (213, 700, 1240, 1241):
+            assert self.info(rows[str(n)][0]) == '[RLC AM Fragment] [Duplicate] SN=0'
+            assert rows[str(n)][1] == str(n - 1)
+        assert self.info(rows['1242'][0]) == '[RLC UM Data] SN=0'
+        assert self.info(rows['2225'][0]) == '[RLC UM Data] SN=0'
+        assert self.info(rows['2226'][0]) == '[RLC UM Fragment] SN=0'
+        assert self.info(rows['2271'][0]) == '[RLC UM Fragment] SN=0'
+        data = sum(1 for n in range(1242, 2272) if rows[str(n)][0].endswith('[RLC UM Data]  SN=0'))
+        assert data == 984
+
+    def test_umts_rlc_two_pass(self, cmd_tshark, capture_file, test_env):
+        '''The Info column of two passes is the same except for the AM
+        duplicates, which are only marked on the second pass.'''
+        one = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info')
+        two = self.rlc_fields(cmd_tshark, capture_file, test_env, '_ws.col.info', passes=('-2',))
+        diff = [n for n in one if one[n] != two[n]]
+        assert diff == ['167'] + [str(n) for n in range(213, 1242)]
