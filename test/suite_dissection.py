@@ -156557,3 +156557,90 @@ class TestDissectUa:
             ['160', 'Data - UA3G Message: Handset Offhook - UA3G Message: Handset Onhook'
                     ' - UA3G Message ERR: Opcode (0x19) Unknown - UA3G Message: Digital Dialed'],
         ]
+
+
+class TestDissectUasip:
+    '''UASIP (the UA/SIP variant of the UA/UDP encapsulation) from the
+    synthetic capture uasip_coverage.pcapng.gz. UASIP has no port of its own:
+    the frames are Exported PDU frames naming the "uasip" dissector (as
+    Decode As "media_type" would), some with IPv4 addresses. Every opcode,
+    Connect with every TLV and Data with and without UA messages.'''
+
+    PROXY = ('-o', 'uasip.proxy_ipaddr:192.0.2.9')
+    NOE = ('-o', 'uasip.noesip:TRUE')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, display_filter, fields, opts=()):
+        args = [cmd_tshark, *opts, '-r', capture_file('uasip_coverage.pcapng.gz')]
+        if display_filter:
+            args += ['-Y', display_filter]
+        args += ['-Tfields']
+        for f in fields:
+            args += ['-e', f]
+        stdout = subprocess.check_output(args, encoding='utf-8', env=test_env, timeout=120)
+        return [line.split('\t') for line in stdout.splitlines()]
+
+    def test_uasip_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 23 frames are UASIP inside Exported PDU, none is malformed or
+        has a warning, in one and two passes, also with the proxy address
+        and the NOE preference (a frame without addresses must not crash
+        the proxy comparison: "UASIP: Fix a NULL dereference with the proxy
+        address preference").'''
+        rows = self.fields(cmd_tshark, capture_file, test_env, None, ('frame.protocols',))
+        assert rows == [['exported_pdu:uasip']] * 23
+        for opts in ((), self.PROXY, self.PROXY + self.NOE):
+            for passes in ((), ('-2',)):
+                rows = self.fields(cmd_tshark, capture_file, test_env,
+                                   '_ws.malformed || _ws.expert.severity >= warning',
+                                   ('frame.number',), passes + opts)
+                assert rows == []
+
+    def test_uasip_info(self, cmd_tshark, capture_file, test_env):
+        '''By default the Info column shows the sequence numbers of Data; the
+        preference "noesip" makes it dissect the UA messages, using the
+        proxy address as the direction.'''
+        frames = '{1, 7, 11, 13, 14, 15, 16, 18, 19, 20, 21}'
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in ' + frames,
+                           ('frame.number', '_ws.col.info'))
+        assert rows == [
+            ['1', 'Connect'], ['7', 'Release'], ['11', 'NACK exp:7'], ['13', 'StartSig'],
+            ['14', 'unknown (0x30)'], ['15', 'DATA exp:1 snt:2'], ['16', 'ACK  exp:2 snt:2'],
+            ['18', 'DATA exp:3 snt:3'], ['19', 'DATA exp:3 snt:4'], ['20', 'DATA exp:3 snt:5'],
+            ['21', 'ACK  exp:3 snt:6'],
+        ]
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in ' + frames,
+                           ('frame.number', '_ws.col.info'), self.NOE + self.PROXY)
+        assert rows == [
+            ['1', 'Connect'], ['7', 'Release'], ['11', 'NACK'], ['13', 'StartSig'],
+            ['14', 'unknown (0x30)'],
+            ['15', "DATA - Couldn't resolve direction."], ['16', 'ACK'],
+            ['18', 'Data - UA3G Message: NOP'], ['19', 'Data - UA3G Message: Handset Offhook'],
+            ['20', "DATA - Couldn't resolve direction."], ['21', 'ACK'],
+        ]
+
+    def test_uasip_direction(self, cmd_tshark, capture_file, test_env):
+        '''Data from the proxy is system to terminal, data to the proxy
+        terminal to system; the direction is not known without addresses
+        or without the preference.'''
+        def directions(opts):
+            stdout = subprocess.check_output((cmd_tshark, *opts, '-r', capture_file('uasip_coverage.pcapng.gz'),
+                    '-Y', 'frame.number in {18, 19}', '-V', '-O', 'ua'),
+                encoding='utf-8', env=test_env, timeout=120)
+            return [l.split(', ')[1] for l in stdout.splitlines() if l.startswith('Universal Alcatel Protocol')]
+        assert directions(self.NOE + self.PROXY) == ['System -> Terminal', 'Terminal -> System']
+        assert directions(self.NOE) == []
+
+    def test_uasip_connect_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Connect with every TLV type: lengths 1 to 4, and the value
+        fields hold 4 octets (they were 8 bit fields before the fix).'''
+        names = ('uasip.type', 'uasip.length', 'uasip.version', 'uasip.window_size', 'uasip.mtu',
+                 'uasip.udp_lost', 'uasip.udp_lost_reinit', 'uasip.keepalive', 'uasip.qos_ip_tos',
+                 'uasip.qos_8021_vlid', 'uasip.qos_8021_pri')
+        rows = self.fields(cmd_tshark, capture_file, test_env, 'frame.number in {1, 3, 4}',
+                           ('frame.number',) + names)
+        assert rows == [
+            ['1', '0,1,2,3,4,5,6,7,8', '4,2,2,1,3,2,1,2,1', '16909060', '258', '1500', '5', '7',
+             '30', '184', '100', '5'],
+            ['3', '0,1,2,3,4,5,6,7,8', '4,4,4,4,4,4,4,4,4'] + ['16909060'] * 9,
+            ['4', '0,1,2,3,4,5,6,7,8', '1,1,1,1,1,1,1,1,1'] + ['1'] * 9,
+        ]
