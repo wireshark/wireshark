@@ -329,7 +329,7 @@ dissect_ubdp(tvbuff_t *ubdp_tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
           case UB_SSHD_PORT:
             if(ubdp_length == 2){
-              proto_tree_add_item(tlv_tree, hf_ubdp_dhcp_client_bound, ubdp_tvb, offset, ubdp_length, ENC_NA);
+              proto_tree_add_item(tlv_tree, hf_ubdp_sshd_port, ubdp_tvb, offset, ubdp_length, ENC_BIG_ENDIAN);
             }else{
               expert_add_info(pinfo, tlv_item, &ei_ubdp_unexpected_len);
               proto_tree_add_item(tlv_tree, hf_ubdp_generic, ubdp_tvb, offset, ubdp_length, ENC_NA);
