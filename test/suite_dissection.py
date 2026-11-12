@@ -155770,3 +155770,98 @@ class TestDissectTtl:
             assert proc.stdout.splitlines() == [
                 '69\tTTL - Segmented Message Entry\t500',
                 '70\tTTL - Segmented Message Entry\t50']
+
+
+class TestDissectTurbocell:
+    def test_turbocell_protocols(self, cmd_tshark, capture_file, test_env):
+        '''LLC/SNAP frames with the Turbocell OUI are Turbocell; aggregated
+        Ethernet frames are dissected as their own protocol. Nothing is
+        malformed and there are no expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('turbocell_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 19
+            assert protocols.count('Turbocell') == 14
+            assert protocols.count('UDP') == 5
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('turbocell_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_turbocell_header(self, cmd_tshark, capture_file, test_env):
+        '''Packet type, satellite mode and network id, counter, timestamp,
+        destination and IP of the header, including the alternate header
+        layout with its magic number (frame 5).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('turbocell_coverage.pcap.gz'),
+                '-Y', 'frame.number <= 9',
+                '-Tfields', '-eframe.number', '-eturbocell.type',
+                '-eturbocell.satmode', '-eturbocell.nwid',
+                '-eturbocell.counter', '-eturbocell.timestamp',
+                '-eturbocell.dst', '-eturbocell.ip', '-eturbocell.name',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == '1\t0x40\t0x01\t1\t4660\t43981\tff:ff:ff:ff:ff:ff\t192.0.2.100\tTestNet'
+        assert lines[1] == '2\t0x00\t0x02\t2\t1\t43981\tff:ff:ff:ff:ff:ff\t192.0.2.100\tNonPolling'
+        assert lines[2] == '3\t0x80\t0x03\t1\t4660\t43981\tff:ff:ff:ff:ff:ff\t192.0.2.100\tPolling'
+        assert lines[3] == '4\t0xa0\t0x00\t0\t4660\t43981\tff:ff:ff:ff:ff:ff\t192.0.2.100\tISP net'
+        assert lines[4] == '5\t0x40\t0x01\t5\t4660\t43981\t01:fe:23:dc:45:ba\t192.0.2.100\tAltHeader'
+        assert lines[5].startswith('6\t0x01\t0x02\t3\t')
+        assert lines[6] == '7\t0x11\t0x02\t4\t4660\t43981\tff:ff:ff:ff:ff:ff\t192.0.2.100\tMgmtNet'
+        assert lines[7].startswith('8\t0x05\t0x00\t0\t')
+        assert lines[8].startswith('9\t0x21\t0x00\t0\t')
+
+    def test_turbocell_info_and_stations(self, cmd_tshark, capture_file, test_env):
+        '''The Info column for beacons, management, data and unknown
+        packets, the network name and the station list, which stops at 32
+        stations.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('turbocell_coverage.pcap.gz'),
+                '-Y', 'turbocell',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+                '-eturbocell.station',
+            ), encoding='utf-8', env=test_env)
+        rows = {l.split('\t')[0]: l.split('\t') for l in stdout.splitlines()}
+        assert rows['1'][1].startswith('Turbocell Packet (Beacon), Network="TestNet')
+        assert rows['7'][1].startswith('Turbocell Packet (Management), Network="MgmtNet')
+        assert rows['8'][1] == 'Turbocell Packet (Unknown)'
+        assert rows['9'][1] == 'Turbocell Packet (Unknown)'
+        assert rows['11'][1] == 'Turbocell Packet (Data)'
+        assert len(rows['1'][2].split(',')) == 3
+        assert rows['2'][2] == ''
+        assert len(rows['15'][2].split(',')) == 32
+        assert len(rows['16'][2].split(',')) == 32
+        assert rows['19'][1].startswith('Turbocell Packet (Beacon), Network="A\\\\001\\\\002 ctrl\\\\177 chars')
+
+    def test_turbocell_aggregate(self, cmd_tshark, capture_file, test_env):
+        '''Aggregated frames: total length, the subframe lengths and unknown
+        nibbles, subframes dissected as Ethernet, a Turbocell beacon inside
+        an aggregate (frame 14).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('turbocell_coverage.pcap.gz'),
+                '-Y', 'turbocell_aggregate.len',
+                '-Tfields', '-eframe.number', '-eturbocell_aggregate.len',
+                '-eturbocell_aggregate.msdulen',
+                '-eturbocell_aggregate.unknown1',
+                '-eturbocell_aggregate.unknown2',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0:4] == [
+            '6\t132\t52,72\t0x7856\t0x04,0x0c',
+            '10\t154\t47,48,49\t0x7856\t0x04,0x0c,0x08',
+            '12\t73\t62\t0x7856\t0x04',
+            '13\t56\t50\t0x0000\t0x04',
+        ]
+        assert lines[-1] == '18\t274\t43,43,43,43,43,43\t0x7856\t0x04,0x0c,0x08,0x04,0x0c,0x08'
+        # frame 14: the first aggregated frame is a Turbocell beacon
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('turbocell_coverage.pcap.gz'),
+                '-Y', 'frame.number == 14',
+                '-Tfields', '-eturbocell.type', '-eturbocell.name',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '0x01,0x40\tInner'
