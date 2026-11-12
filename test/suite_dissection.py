@@ -157673,3 +157673,61 @@ class TestDissectUcp:
                            ('frame.number', 'ucp.hdr.TRN'))
         assert [r for r in rows if r[1]] == [
             ['121', '90,91'], ['122', '90,91'], ['125', '92'], ['126', '92'], ['127', '93'], ['128', '93']]
+
+
+class TestDissectUdld:
+    def test_udld_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame (LLC/SNAP, Cisco OUI, PID 0x0111) is UDLD and none is
+        malformed or has an expert info, in one and two passes. A Port ID
+        TLV that ends the packet (frame 3) used to be reported as malformed.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('udld_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 11
+            assert protocols.count('UDLD') == 11
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('udld_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_udld_header(self, cmd_tshark, capture_file, test_env):
+        '''Version, opcode and the two flag bits, and the Info column built
+        from the Device ID and Port ID TLVs.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udld_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eudld.version',
+                '-eudld.opcode', '-eudld.flags.rt', '-eudld.flags.rsy',
+                '-eudld.checksum', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.rstrip() for l in stdout.splitlines()]
+        assert lines[0:4] == [
+            '1\t1\t1\t0x00\t0x00\t0x1234\tDevice ID: SAL1234ABCD  Port ID: Gi0/1',
+            '2\t1\t2\t0x01\t0x00\t0x1234\tDevice ID: SAL5678EFGH  Port ID: Gi0/2',
+            '3\t1\t3\t0x00\t0x01\t0x1234\tDevice ID: flush-dev  Port ID: Te1/0/1',
+            '4\t7\t0\t0x01\t0x01\t0x1234',
+        ]
+        assert lines[8] == '9\t1\t1\t0x00\t0x00\t0x1234\tPort ID: Fa0/1  Device ID: dev'
+
+    def test_udld_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Every TLV type of frame 1, an unknown type, an empty Device ID,
+        a Port ID with a length that is too short (length + 3 is used) and
+        a long Device ID.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('udld_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-eudld.tlv.type',
+                '-eudld.tlv.len', '-eudld.device_id',
+                '-eudld.sent_through_interface', '-eudld.data',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert lines[0] == ('1\t0x0001,0x0002,0x0003,0x0004,0x0005,0x0006,0x0007\t16,9,16,5,5,12,8'
+                            '\tSAL1234ABCD\tGi0/1\t000000010000000200000003,0f,05,7377697463683100,deadbeef')
+        assert lines[4] == '5\t0x0099\t20\t\t\t756e6b6e6f776e20746c762064617461'
+        assert lines[5] == '6\t0x0001\t4\t\t\t'
+        assert lines[6] == '7\t0x0042\t4\t\t\t'
+        assert lines[7] == '8\t0x0002\t9\t\tGi0/3xyz\t'
+        assert lines[10] == '11\t0x0001\t105\t' + 'a' * 100 + '\t\t'
