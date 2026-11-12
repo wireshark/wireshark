@@ -462,7 +462,8 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     }
                 }
 
-                if (i == OSNMA_HKROOT_MSG_PARTS_NUM) {
+                if (i == OSNMA_HKROOT_MSG_PARTS_NUM &&
+                    osnma_hkroot_msg_parts[OSNMA_HKROOT_MSG_PARTS_NUM - 1].frame == pinfo->num) {
                     // All parts of an OSNMA HKROOT message are available in the conversation.
                     // Now dissect it.
 
@@ -559,14 +560,15 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             }
 
             // display SAR RLM if all parts are available
-            if (c != NULL && sar_rlm_parts != NULL) {
+            if (c != NULL && sar_rlm_parts != NULL && sar_rlm_parts[0].long_rlm == sar_long_rlm) {
                 for (i = 0; i < (sar_long_rlm ? SAR_LONG_RLM_PARTS_NUM : SAR_SHORT_RLM_PARTS_NUM); i++) {
                     if (sar_rlm_parts[i].frame == 0) {
                         break;
                     }
                 }
 
-                if (!sar_long_rlm && i == SAR_SHORT_RLM_PARTS_NUM) {
+                if (!sar_long_rlm && i == SAR_SHORT_RLM_PARTS_NUM &&
+                    sar_rlm_parts[SAR_SHORT_RLM_PARTS_NUM - 1].frame == pinfo->num) {
                     // All parts of a Short-RLM are available in the conversation.
                     // Now dissect it.
 
@@ -587,7 +589,8 @@ static int dissect_ubx_gal_inav(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                     proto_tree_add_item(sar_rlm_tree, hf_ubx_gal_inav_sar_beacon_id, rlm_tvb, 0, 8, ENC_BIG_ENDIAN);
                     proto_tree_add_item(sar_rlm_tree, hf_ubx_gal_inav_sar_msg_code,  rlm_tvb, 6, 4, ENC_BIG_ENDIAN);
                 }
-                else if (sar_long_rlm && i == SAR_LONG_RLM_PARTS_NUM) {
+                else if (sar_long_rlm && i == SAR_LONG_RLM_PARTS_NUM &&
+                         sar_rlm_parts[SAR_LONG_RLM_PARTS_NUM - 1].frame == pinfo->num) {
                     // All parts of a Long-RLM are available in the conversation.
                     // TODO: Now dissect it.
                 }
