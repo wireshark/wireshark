@@ -151661,3 +151661,122 @@ class TestDissectZbeeSecurity:
             assert [l.split('\t')[0] for l in lines] == \
                 ['41', '42', '43', '44', '45', '129', '130', '137']
             assert all(l.endswith('APS: Command, Relay') for l in lines)
+
+
+class TestDissectZbeeTlv:
+    '''ZigBee TLVs (packet-zbee-tlv.c) from the synthetic capture
+    zbee_tlv_coverage.pcapng.gz: ZigBee Direct over Bluetooth ATT, ZDP,
+    APS and NWK commands and beacons over IEEE 802.15.4, and the
+    zbee_tlv dissector through Exported PDU.'''
+
+    @staticmethod
+    def zbee_tlv_fields(cmd_tshark, capture_file, test_env, flt, *fields, passes=()):
+        args = [cmd_tshark, *passes, '-r', capture_file('zbee_tlv_coverage.pcapng.gz'),
+                '-Y', flt, '-Tfields', '-eframe.number']
+        args += ['-e' + f for f in fields]
+        return subprocess.check_output(args, encoding='utf-8', env=test_env,
+                                       timeout=120).splitlines()
+
+    def test_zbee_tlv_protocols(self, cmd_tshark, capture_file, test_env):
+        '''118 frames reach ZigBee Direct (42), ZDP (45), ZigBee NWK/APS
+        (18), a ZigBee IP beacon, two plain 802.15.4 beacons and four
+        Exported PDUs; no malformed frame or error expert info in one
+        and in two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_tlv_coverage.pcapng.gz'),
+                '-Tfields', '-e_ws.col.protocol',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        protocols = [p.strip() for p in stdout.splitlines()]
+        assert len(protocols) == 118
+        counts = {p: protocols.count(p) for p in set(protocols)}
+        assert counts['ZBD'] == 39
+        assert counts['ZBD/ZigBee'] + counts['ZBD/ZigBee HA'] == 3
+        assert counts['ZigBee ZDP'] == 45
+        assert counts['ZigBee'] == 18
+        assert counts['ZigBee IP'] == 1
+        assert counts['IEEE 802.15.4'] == 2
+        assert counts[''] == 4
+        for passes in ((), ('-2',)):
+            lines = self.zbee_tlv_fields(cmd_tshark, capture_file, test_env,
+                '_ws.malformed || _ws.expert.severity >= 0x00800000', passes=passes)
+            assert lines == []
+
+    def test_zbee_tlv_status_map(self, cmd_tshark, capture_file, test_env):
+        '''The Network Status Map TLV of the Commissioning Status shows
+        joined status 5, 6 and 7 as "Reserved" (frames 19-21). They
+        indexed a six entry table: "(null)" and neighbouring strings
+        before "ZigBee TLV: Fix network status map index". Joined and
+        joined (no parent) also show the open and network type.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_tlv_coverage.pcapng.gz'),
+                '-Y', 'frame.number in {16, 17, 19, 20, 21}',
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        assert stdout.splitlines() == [
+            '16\tCOMM STATUS Notification (No network) (Joining) '
+            '(Joined, Closed, Distributed) (Joined, Opened, Distributed)',
+            '17\tCOMM STATUS Notification (Joined (no parent), Closed, Centralized) '
+            '(Joined (no parent), Opened, Centralized) '
+            '(Joined (no parent), Closed, Distributed) (Leaving)',
+            '19\tCOMM STATUS Notification (Reserved)',
+            '20\tCOMM STATUS Notification (Reserved)',
+            '21\tCOMM STATUS Notification (Reserved)',
+        ]
+
+    def test_zbee_tlv_long_tlv(self, cmd_tshark, capture_file, test_env):
+        '''A TLV longer than the value its decoder reads shows the
+        surplus as a value. The total length of a TLV with a length byte
+        of 0xfe is 257 octets: in a uint8_t it wrapped to 1 and the
+        surplus was dropped (frame 45: 247 octets, frame 46: 2 octets,
+        frames 47 and 48: unknown TLVs of 253 and 254 octets).'''
+        for passes in ((), ('-2',)):
+            lines = self.zbee_tlv_fields(cmd_tshark, capture_file, test_env,
+                'frame.number in {45, 46, 47, 48}', 'zbee_tlv.value', passes=passes)
+            assert [(l.split('\t')[0], len(l.split('\t')[1]) // 2) for l in lines] == [
+                ('45', 247), ('46', 2), ('47', 253), ('48', 254)]
+
+    def test_zbee_tlv_recursion(self, cmd_tshark, capture_file, test_env):
+        '''Encapsulation TLVs nest two and three levels deep (frame 110)
+        without a warning; frame 111 has four levels, and the fourth is
+        cut off by the recursion limit with an expert info.'''
+        lines = self.zbee_tlv_fields(cmd_tshark, capture_file, test_env,
+            'zbee_tlv.max_recursion_depth_reached')
+        assert lines == ['111']
+        lines = self.zbee_tlv_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {110, 116}', 'zbee_tlv.device_eui64')
+        assert lines == ['110\t00:12:4b:00:01:02:03:04', '116\t00:12:4b:00:aa:bb:cc:dd']
+
+    def test_zbee_tlv_values(self, cmd_tshark, capture_file, test_env):
+        '''A few decoded TLVs: the EUI64 list of Clear All Bindings
+        (frame 49), the source route solicitation addresses (94), the
+        link key features (102), the relay joiner (104), the next channel
+        change of a beacon (108) and two manufacturer specific TLVs
+        through Exported PDU (115).'''
+        lines = self.zbee_tlv_fields(cmd_tshark, capture_file, test_env,
+            'frame.number in {49, 94, 102, 104, 108, 115}',
+            'zbee_tlv.count', 'zbee_tlv.device_eui64', 'zbee_tlv.nwk_addr_of_interest',
+            'zbee_tlv.lk_features', 'zbee_tlv.relay.joiner_ieee', 'zbee_tlv.next_channel',
+            'zbee_tlv.manufacturer_specific')
+        assert lines == [
+            '49\t2\t00:12:4b:00:01:02:03:04,00:12:4b:00:aa:bb:cc:dd\t\t\t\t\t',
+            '94\t\t\t0x1111,0x2222,0x3333\t\t\t\t',
+            '102\t\t\t\t0x01\t\t\t',
+            '104\t\t\t\t\t02:00:00:00:00:00:00:01\t\t',
+            '108\t\t00:12:4b:00:aa:bb:cc:dd\t\t\t\t0x0430b800\t',
+            '115\t\t00:12:4b:00:01:02:03:04,00:12:4b:00:aa:bb:cc:dd\t\t\t\t\t0x1234,0x1234',
+        ]
+
+    def test_zbee_tlv_channel_list(self, cmd_tshark, capture_file, test_env):
+        '''The channel page list of a Join request (frame 11) shows
+        channel ranges, a single channel, an empty mask and a page 5
+        mask.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zbee_tlv_coverage.pcapng.gz'),
+                '-Y', 'frame.number == 11', '-V',
+            ), encoding='utf-8', env=test_env, timeout=120)
+        lines = [l.strip() for l in stdout.splitlines()]
+        assert 'Channels: 11-13, 15-15, 20-21, 26-26' in lines
+        assert 'Channels: 25' in lines
+        assert 'Channels: None' in lines
+        assert 'Channels: 0-9' in lines
+        assert 'Channel Page: 5' in lines
