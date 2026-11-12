@@ -158696,3 +158696,63 @@ class TestDissectUftp5:
         lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 59',
                 '-euftp5.abort.message', '-euftp5.abort.flags')
         assert lines == ['transfer aborted\t0x01']
+
+
+class TestDissectUftp:
+    CAP = 'uftp_coverage.pcap.gz'
+    FUNCS = ('1 1 1 2 2 3 3 3 3 4 4 5 5 5 5 6 6 7 7 8 8 9 9 10 10 11 11 12 12 '
+             '13 13 14 14 14 14 15 16 17 17 17 17 80 80 99 99').split()
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        return subprocess.check_output((cmd_tshark, '-r', capture_file('uftp_coverage.pcap.gz'),
+                '-Tfields', *args), encoding='utf-8', env=test_env).splitlines()
+
+    def test_uftp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is UFTP and none is malformed or has an expert info,
+        in one and two passes. Frames 46 and 47 are version 4 and 5
+        packets handed on by the version 3 dissector.'''
+        assert self.fields(cmd_tshark, capture_file, test_env, '-e_ws.col.protocol') == ['UFTP'] * 47
+        assert self.fields(cmd_tshark, capture_file, test_env, '-euftp.func', '-Y', 'uftp') == self.FUNCS
+        assert self.fields(cmd_tshark, capture_file, test_env, '-eframe.number', '-Y', 'uftp4 || uftp5') == ['46', '47']
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_uftp_info(self, cmd_tshark, capture_file, test_env):
+        '''The Info column names the message and group and, where the
+        message has them, the file id, pass, section and sequence number.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-eframe.number', '-e_ws.col.info')
+        info = {int(l.split('\t')[0]): ' '.join(l.split('\t')[1].split()) for l in lines}
+        assert info[1] == 'ANNOUNCE ID=11223344'
+        assert info[12] == 'FILEINFO ID=11223344:0001'
+        assert info[20] == 'FILESEG ID=11223344:0001 Pass=1 Seq=77'
+        assert info[22] == 'DONE ID=11223344:0001 Pass=1 Section=2'
+        assert info[32] == 'HB_REQ'
+        assert info[36] == 'HB_RESP'
+        assert info[44] == 'ABORT ID=11223344'
+
+    def test_uftp_values(self, cmd_tshark, capture_file, test_env):
+        '''Announce, file information of versions 3.1 and 3.0 (the second
+        has no file timestamp), key information, status and abort.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 1',
+                '-euftp.announce.destcount', '-euftp.announce.keylen', '-euftp.announce.mtu',
+                '-euftp.announce.flags.sync')
+        assert lines == ['2\t24\t1400\tFalse']
+        lines = self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 12 || frame.number == 14',
+                '-euftp.fileinfo.name', '-euftp.fileinfo.fsize', '-euftp.fileinfo.destcount',
+                '-euftp.fileinfo.file_id')
+        assert lines == ['/data/file one.bin\t1108152157446\t2\t0x0001',
+                         '/data/link\t1108152157446\t2\t0x0003']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 16',
+                           '-euftp.keyinfo.destaddr') == ['192.0.2.2,192.0.2.3']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 22',
+                           '-euftp.dest') == ['192.0.2.2,192.0.2.3']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 24',
+                           '-euftp.status.nak_count') == ['16']
+        assert self.fields(cmd_tshark, capture_file, test_env, '-Y', 'frame.number == 44',
+                           '-euftp.abort.message', '-euftp.abort.flags') == ['transfer aborted\t0x01']
