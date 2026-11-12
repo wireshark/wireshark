@@ -151882,3 +151882,75 @@ class TestDissectZbeeZcl:
             '62\t\t2022-05-09T22:11:12.000000000Z\t',
             '496\t\t\t0x00,0x01,0x02,0x03',
         ]
+
+
+class TestDissectZbeeZclClosures:
+    CAP = 'zbee-zcl-closures_coverage.pcap.gz'
+
+    def test_zbee_zcl_closures_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 360
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 301, 'zbee_zcl_closures.door_lock': 34, 'zbee_zcl_closures.window_covering': 25}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_closures_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2', '102', '276']] == [
+            'ZCL: Report Attributes, Seq: 1',
+            'ZCL: Report Attributes, Seq: 1',
+            'ZCL Door Lock: Lock Door, Seq: 1',
+            'ZCL Window Covering: Up / Open, Seq: 1',
+        ]
+
+    def test_zbee_zcl_closures_commands(self, cmd_tshark, capture_file, test_env):
+        '''The cluster specific commands that are decoded.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Y', 'not frame.protocols ~ "zbee_zcl$"',
+                '-Tfields', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        commands = {line.rsplit(', Seq: ', 1)[0] for line in stdout.splitlines()}
+        assert sorted(commands) == [
+            'ZCL Door Lock: Lock Door',
+            'ZCL Door Lock: Lock Door Response',
+            'ZCL Door Lock: Unknown Command',
+            'ZCL Door Lock: Unlock Door',
+            'ZCL Door Lock: Unlock Door Response',
+            'ZCL Window Covering: Down / Close',
+            'ZCL Window Covering: Go to lift closed percentage',
+            'ZCL Window Covering: Go to tilt percentage',
+            'ZCL Window Covering: Stop',
+            'ZCL Window Covering: Unknown Command',
+            'ZCL Window Covering: Up / Open',
+        ]
+
+    def test_zbee_zcl_closures_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (15 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 15
+        assert {'Attribute: Actuator Enabled (0x0002)', 'Attribute: Closed Limit (0x0010)', 'Attribute: Current position lift percentage (0x0008)', 'Attribute: Current position tilt percentage (0x0009)'} <= names
