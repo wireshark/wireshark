@@ -705,7 +705,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 }
                 break;
             case SET_NTB_INPUT_SIZE:
-                if (!is_request) {
+                if (is_request) {
                     offset = dissect_usb_com_ntb_input_size(tvb, subtree, offset, true);
                 }
                 break;
