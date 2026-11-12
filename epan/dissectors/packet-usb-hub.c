@@ -239,12 +239,12 @@ dissect_usb_hub_clear_tt_buffer(packet_info *pinfo _U_, proto_tree *tree, tvbuff
 		proto_tree_add_item(subtree, hf_usb_hub_dev_addr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_usb_hub_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		item = proto_tree_add_item(tree, hf_usb_hub_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wIndex);
 		proto_tree_add_item(subtree, hf_usb_hub_tt_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		item = proto_tree_add_item(tree, hf_usb_hub_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hub_wLength);
 		proto_tree_add_item(subtree, hf_usb_hub_zero, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		/*offset += 2;*/
@@ -521,7 +521,7 @@ dissect_usb_hub_set_port_feature(packet_info *pinfo, proto_tree *tree, tvbuff_t 
 		offset += 2;
 
 		item = proto_tree_add_item(tree, hf_usb_hub_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		subtree = proto_item_add_subtree(item, ett_usb_hub_wValue);
+		subtree = proto_item_add_subtree(item, ett_usb_hub_wIndex);
 		proto_tree_add_item(subtree, hf_usb_hub_port, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 		proto_tree_add_item(subtree, hf_usb_hub_port_selector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
