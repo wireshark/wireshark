@@ -152144,3 +152144,51 @@ class TestDissectZbeeZclHa:
                  if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
         assert len(names) == 58
         assert {'Attribute: APS Decrypt Failures (0x0116)', 'Attribute: APS FC Failure (0x0113)', 'Attribute: APS RX Broadcast (0x0106)', 'Attribute: APS RX Unicast (0x0108)'} <= names
+
+
+class TestDissectZbeeZclHvac:
+    CAP = 'zbee-zcl-hvac_coverage.pcap.gz'
+
+    def test_zbee_zcl_hvac_protocols(self, cmd_tshark, capture_file, test_env):
+        '''Every frame is ZigBee ZCL (reached through the 802.15.4 and
+        ZigBee NWK/APS dissectors), the cluster dissectors get their
+        frames, and nothing is malformed or has an expert info, in one
+        and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        protocols = [line.split(':')[-1] for line in stdout.splitlines()]
+        assert len(protocols) == 669
+        assert {p: protocols.count(p) for p in set(protocols)} == {'zbee_zcl': 669}
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAP),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zbee_zcl_hvac_info(self, cmd_tshark, capture_file, test_env):
+        '''Info column of the first frames of each cluster dissector.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-Tfields', '-eframe.number', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        info = dict(line.split('\t') for line in stdout.splitlines())
+        assert [info[n] for n in ['1', '2']] == [
+            'ZCL: Report Attributes, Seq: 1',
+            'ZCL: Report Attributes, Seq: 1',
+        ]
+
+    def test_zbee_zcl_hvac_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The attribute names the cluster dissectors know (36 of
+        them are shown with their name in the capture).'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAP),
+                '-V',
+            ), encoding='utf-8', env=test_env)
+        names = {line.strip() for line in stdout.splitlines()
+                 if line.strip().startswith('Attribute: ') and '(0x' in line and 'Unknown' not in line}
+        assert len(names) == 36
+        assert {'Attribute: Alarm Mask (0x0022)', 'Attribute: Capacity (0x0013)', 'Attribute: Control Mode (0x0021)', 'Attribute: Dehumidification Cooling (0x0001)'} <= names
