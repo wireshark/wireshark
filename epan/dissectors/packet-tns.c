@@ -224,6 +224,7 @@ static int ett_sql;
 
 static expert_field ei_tns_connect_data_next_packet;
 static expert_field ei_tns_data_descriptor_size_mismatch;
+static expert_field ei_tns_data_count_too_large;
 
 #define TCP_PORT_TNS			1521 /* Not IANA registered */
 
@@ -533,8 +534,13 @@ static void dissect_tns_data_descriptor(tvbuff_t *tvb, int offset, packet_info *
 	uint32_t data_len, row_count, row_size, total_row_size = 0;
 	int orig_offset = offset;
 
-	/* We only get here after tcp_dissect_pdus(), length is guaranteed. */
-	DISSECTOR_ASSERT_CMPINT(length, >=, TNS_HDR_LEN);
+	/* For a Data Descriptor the header length is not validated by
+	 * tcp_dissect_pdus(). */
+	if (length < TNS_HDR_LEN) {
+		proto_tree_add_expert_format(tns_tree, pinfo, &ei_tns_data_count_too_large, tvb, offset, 0,
+			"Header length %u is below the minimum of %u", length, (unsigned)TNS_HDR_LEN);
+		return;
+	}
 
 	dd_tree = proto_tree_add_subtree(tns_tree, tvb, offset, -1, ett_tns_data, NULL, "Data Descriptor");
 
@@ -1801,6 +1807,7 @@ void proto_register_tns(void)
 	static ei_register_info ei[] = {
 		{ &ei_tns_connect_data_next_packet, { "tns.connect_data.next_packet", PI_REQUEST_CODE, PI_CHAT, "Long Connect Data (> 221 bytes) carried in subsequent Data packet", EXPFILL }},
 		{ &ei_tns_data_descriptor_size_mismatch, { "tns.data_descriptor.size_mismatch", PI_PROTOCOL, PI_WARN, "Data size from summing row sizes differs from size in descriptor", EXPFILL }},
+		{ &ei_tns_data_count_too_large, { "tns.data.count_too_large", PI_MALFORMED, PI_ERROR, "Count or length too large for the data", EXPFILL }},
 	};
 
 	module_t *tns_module;
