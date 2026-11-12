@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exceptions.h>
 
 #include <wiretap/tnef.h>
 
@@ -309,6 +310,11 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 
+static void tnef_free_ndr_pointer_list(void *data)
+{
+  free_ndr_pointer_list((dcerpc_info *)data);
+}
+
 static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, unsigned oem_encoding)
 {
   proto_item *item, *prop_item;
@@ -318,8 +324,8 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   int         offset, start_offset;
 
   uint8_t     drep[] = {0x10 /* LE */, /* DCE_RPC_DREP_FP_IEEE */ 0 };
-  static dcerpc_info di;
-  static dcerpc_call_value call_data;
+  dcerpc_info di = {0};
+  dcerpc_call_value call_data = {0};
 
   offset = 0;
 
@@ -327,6 +333,8 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   /* we need di->call_data->flags.NDR64 == 0 */
   di.call_data = &call_data;
   di.dcerpc_procedure_name = "";
+
+  CLEANUP_PUSH(tnef_free_ndr_pointer_list, &di);
 
   /* first the count */
   proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -337,6 +345,10 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   while(tvb_reported_length_remaining(tvb, offset) > 0 ) {
 
     start_offset = offset;
+
+    /* The pointer list only has to live for one property; nothing
+     * dissects the deferred pointers.  This also frees the previous one. */
+    init_ndr_pointer_list(&di);
 
     /* get the property tag */
 
@@ -461,6 +473,8 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     proto_item_set_len(prop_item, offset - start_offset);
   }
+
+  CLEANUP_CALL_AND_POP;
 }
 
 
