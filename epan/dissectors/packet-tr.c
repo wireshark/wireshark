@@ -211,7 +211,7 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 
 	data = tvb_get_ptr(tvb, 0, bytes);
 
-	for(x = 1; x <= bytes-1 ;x++)
+	for(x = 1; 2*x <= bytes ;x++)
 	{
 		if (memcmp(&data[0], &data[x], x) == 0)
 		{
@@ -222,10 +222,10 @@ int check_for_old_linux_tvb(tvbuff_t *tvb)
 }
 
 static
-int check_for_old_linux(const unsigned char * pd)
+int check_for_old_linux(const unsigned char * pd, int len)
 {
 	int x;
-	for(x=1;x<=18;x++)
+	for(x=1;x<=18 && 2*x <= len;x++)
 	{
 		if (memcmp(&pd[0],&pd[x],x) == 0)
 		{
@@ -256,12 +256,14 @@ capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *
 	if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN))
 		return false;
 
-	if ((x = check_for_old_linux(pd)))
+	if (fix_linux_botches && (x = check_for_old_linux(pd, len)))
 	{
 		/* Actually packet starts x bytes into what we have got but with all
 		   source routing compressed
 		*/
 		 /* pd = &pd[x]; */ offset+=x;
+		if (!BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN))
+			return false;
 	}
 
 	/* get the data */
@@ -274,7 +276,7 @@ capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *
 		this packet is source-routed */
 	source_routed = trn_shost[0] & 128;
 
-	trn_rif_bytes = pd[offset + 14] & 31;
+	trn_rif_bytes = BYTES_ARE_IN_FRAME(offset, len, TR_MIN_HEADER_LEN + 1) ? (pd[offset + 14] & 31) : 0;
 
 	if (fix_linux_botches) {
 		/* the Linux 2.0 TR code strips source-route bits in
@@ -289,9 +291,10 @@ capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *
 		 * 2.4.18 (RH 7.1, so perhaps this is a Red Hat
 		 * "improvement").
 		 */
-		if (!source_routed && trn_rif_bytes > 0) {
+		if (!source_routed && trn_rif_bytes > 0 &&
+			BYTES_ARE_IN_FRAME(offset, len, 0x11 + trn_rif_bytes)) {
 			if (pd[offset + 0x0e] != pd[offset + 0x0f]) {
-				first2_sr = pntoh16(&pd[offset + 0xe0 + trn_rif_bytes]);
+				first2_sr = pntoh16(&pd[offset + 0x0e + trn_rif_bytes]);
 				if (
 					(first2_sr == 0xaaaa &&
 					pd[offset + 0x10 + trn_rif_bytes] == 0x03) ||
@@ -318,8 +321,9 @@ capture_tr(const unsigned char *pd, int offset, int len, capture_packet_info_t *
 		 * below about LLC headers. If we're sniffing our own NIC,
 		 * we get a full RIF, sometimes with garbage
 		 */
-		if ((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
-			(!source_routed && frame_type == 1)) {
+		if (((source_routed && trn_rif_bytes == 2 && frame_type == 1) ||
+			(!source_routed && frame_type == 1)) &&
+			BYTES_ARE_IN_FRAME(offset, len, 0x28)) {
 			/* look for SNAP or IPX only */
 			if ( (pd[offset + 0x20] == 0xaa && pd[offset + 0x21] == 0xaa && pd[offset + 0x22] == 03) ||
 				 (pd[offset + 0x20] == 0xe0 && pd[offset + 0x21] == 0xe0) ) {
