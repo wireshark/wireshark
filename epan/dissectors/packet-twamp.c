@@ -280,10 +280,16 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                  * It is a design decision by TWAMP and we need that ports for identifying future UDP conversations
                  */
                 if (session->sender_address[0] == 0) {
-                    memcpy(&session->sender_address[0], pinfo->src.data, pinfo->src.len);
+                    if ((pinfo->src.type == AT_IPv4 || pinfo->src.type == AT_IPv6) && pinfo->src.data != NULL) {
+                        memcpy(&session->sender_address[0], pinfo->src.data,
+                               MIN((size_t)pinfo->src.len, sizeof(session->sender_address)));
+                    }
                 }
                 if (session->receiver_address[0] == 0) {
-                    memcpy(&session->receiver_address[0], pinfo->dst.data, pinfo->dst.len);
+                    if ((pinfo->dst.type == AT_IPv4 || pinfo->dst.type == AT_IPv6) && pinfo->dst.data != NULL) {
+                        memcpy(&session->receiver_address[0], pinfo->dst.data,
+                               MIN((size_t)pinfo->dst.len, sizeof(session->receiver_address)));
+                    }
                 }
                 session->padding = tvb_get_ntohl(tvb, 64);
                 wmem_list_append(ct->sessions, session);
