@@ -2231,8 +2231,8 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 }
 
 /* Look for a given value in a given guid dissector table and, if found,
-   call the dissector with the arguments supplied, and return true,
-   otherwise return false. */
+   call the dissector with the arguments supplied, and return the number
+   of bytes consumed, otherwise return 0. */
 int dissector_try_guid_with_data(dissector_table_t sub_dissectors,
     guid_key* guid_val, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const bool add_proto_name, void *data)
 {
