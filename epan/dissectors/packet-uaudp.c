@@ -342,7 +342,7 @@ void proto_register_uaudp(void)
             {
                 "Version",
                 "uaudp.version",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL, 0x0,
                 "UA/UDP Version",
@@ -354,7 +354,7 @@ void proto_register_uaudp(void)
             {
                 "Window Size",
                 "uaudp.window_size",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -367,7 +367,7 @@ void proto_register_uaudp(void)
             {
                 "MTU",
                 "uaudp.mtu",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -380,7 +380,7 @@ void proto_register_uaudp(void)
             {
                 "UDP Lost",
                 "uaudp.udp_lost",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -393,7 +393,7 @@ void proto_register_uaudp(void)
             {
                 "UDP lost reinit",
                 "uaudp.udp_lost_reinit",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL, 0x0,
                 "UA/UDP Lost Re-Init",
@@ -405,7 +405,7 @@ void proto_register_uaudp(void)
             {
                 "Keepalive",
                 "uaudp.keepalive",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -418,7 +418,7 @@ void proto_register_uaudp(void)
             {
                 "QoS IP TOS",
                 "uaudp.qos_ip_tos",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -431,7 +431,7 @@ void proto_register_uaudp(void)
             {
                 "QoS 802.1 VLID",
                 "uaudp.qos_8021_vlid",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -444,7 +444,7 @@ void proto_register_uaudp(void)
             {
                 "QoS 802.1 PRI",
                 "uaudp.qos_8021_pri",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
@@ -457,7 +457,7 @@ void proto_register_uaudp(void)
             {
                 "SuperFast Connect",
                 "uaudp.superfast_connect",
-                FT_UINT8,
+                FT_UINT32,
                 BASE_DEC,
                 NULL,
                 0x0,
