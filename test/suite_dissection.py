@@ -159197,3 +159197,126 @@ class TestDissectUmtsFp:
                             extra=('-Y', 'fp.pch.pi-bitmap'))
         assert {v[0] for v in rows.values()} == {'a041c0', '000102',
                                                   '000102030405060708090a0b0c0d0e0f1011'}
+
+
+class TestDissectUmtsMac:
+    CAPTURE = 'umts_mac_coverage.pcapng.gz'
+
+    @staticmethod
+    def mac_fields(cmd_tshark, capture_file, test_env, *fields, extra=()):
+        stdout = subprocess.check_output((cmd_tshark, *extra,
+                '-r', capture_file(TestDissectUmtsMac.CAPTURE),
+                '-Tfields', '-eframe.number',
+                *('-e' + f for f in fields),
+            ), encoding='utf-8', env=test_env)
+        return {l.split('\t')[0]: l.split('\t')[1:] for l in stdout.splitlines()}
+
+    def test_umts_mac_no_malformed(self, cmd_tshark, capture_file, test_env):
+        '''The capture is Exported PDU records naming fp_hint; FP, MAC,
+        RLC and RRC dissect what the hint attaches. 42 frames, no
+        malformed packet in one and two passes; the only expert infos are
+        the warnings listed here.'''
+        rows = self.mac_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol')
+        assert len(rows) == 42
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.malformed',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE),
+                    '-Y', '_ws.expert',
+                    '-Tfields', '-eframe.number', '-e_ws.expert.message',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                ['2', 'Previous PCH frame containing PI bitmap not captured (common at capture start)'],
+                ['38', 'This is a faked logical channel id!'],
+            ]
+
+    def test_umts_mac_reserved_ct(self, cmd_tshark, capture_file, test_env):
+        '''C/T 15 is reserved on RACH, FACH and HS-DSCH (frames 10, 18, 37).
+        The HS-DSCH one (frame 37) read past the logical channel tables
+        before the fix; the PDU is discarded with a warning and no logical
+        channel is shown.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(self.CAPTURE),
+                '-q', '-z', 'expert,warn,mac',
+            ), encoding='utf-8', env=test_env)
+        lines = [' '.join(l.split()) for l in stdout.splitlines()]
+        assert '3 Protocol MAC C/T has a reserved value, PDU is discarded' in lines
+        assert '3 Undecoded MAC Unimplemented FACH Content type!' in lines
+        rows = self.mac_fields(cmd_tshark, capture_file, test_env, 'mac.ct', 'mac.logical_channel_id')
+        assert rows['10'] == ['0x0f', '16']        # RACH: reported and discarded
+        assert rows['18'] == ['0x0f', '16']
+        assert rows['37'] == ['0x0f', '']          # HS-DSCH: discarded before the table lookup
+
+    def test_umts_mac_rach_fach(self, cmd_tshark, capture_file, test_env):
+        '''TCTF, UE id and C/T of the RACH and FACH frames and the logical
+        channel type they select.'''
+        rows = self.mac_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
+                'mac.tctf', 'mac.ueid_type', 'mac.ueid', 'mac.ct', 'mac.logical_channel_id',
+                'mac.logical_channel')
+        # RACH: CCCH, DCCH over UM and AM, PS DTCH, CS DTCH (not decoded further)
+        assert rows['4'] == ['RRC', '0x00', '', '', '', '', '1']
+        assert rows['5'] == ['RRC', '0x01', '0', '0x00002101', '0x00', '1', '3']
+        assert rows['6'] == ['RRC', '0x01', '0', '0x00002102', '0x01', '2', '3']
+        assert rows['7'] == ['UDP', '0x01', '0', '0x00002103', '0x08', '9', '4']
+        assert rows['8'][0] == 'MAC' and rows['8'][3:5] == ['0x00002104', '0x04']
+        # a C-RNTI (frame 9 is resolved to a U-RNTI, see below)
+        assert rows['9'][2:4] == ['1', '0x4321']
+        assert rows['17'][2:4] == ['1', '0x4322']
+        # FACH: BCCH, CCCH, CTCH, DCCH/DTCH, MTCH, MCCH, MSCH
+        assert rows['11'][1] == '0x00' and rows['11'][6] == '5'
+        assert rows['12'][1] == '0x40' and rows['12'][6] == '1'
+        assert rows['13'][0:2] == ['BMC', '0x80'] and rows['13'][6] == '2'
+        assert rows['14'] == ['RRC', '0x03', '0', '0x00003101', '0x00', '1', '3']
+        assert rows['16'] == ['UDP', '0x03', '0', '0x00003103', '0x08', '9', '4']
+        assert [rows[str(i)][1] for i in (19, 20, 21)] == ['0x06', '0x50', '0x5f']
+
+    def test_umts_mac_crnti_resolved(self, cmd_tshark, capture_file, test_env):
+        '''Frame 3 is a CellUpdateConfirm that allocates C-RNTI 0x4321 to a
+        U-RNTI; the RACH frame 9 that uses it shows the resolved U-RNTI
+        and the allocation frame. Frame 17 uses an unknown C-RNTI.'''
+        rows = self.mac_fields(cmd_tshark, capture_file, test_env,
+                'mac.resolved_urnti', 'mac.crnti_urnti_match_frame')
+        assert rows['9'][0:2] == ['0x00003200', '3']
+        assert rows['17'][0:2] == ['', '']
+
+    def test_umts_mac_dch_hsdsch(self, cmd_tshark, capture_file, test_env):
+        '''DCH with and without the C/T field (uplink and downlink), HS-DSCH
+        type 1 with C/T (every content type), without C/T (faked logical
+        channel id), several MAC-d PDUs, and HS-DSCH type 2 blocks.'''
+        rows = self.mac_fields(cmd_tshark, capture_file, test_env, '_ws.col.protocol',
+                'mac.ct', 'mac.logical_channel_id', 'mac.logical_channel', 'mac.macd_flowid')
+        # DCH: DCCH, DCCH with C/T, PS DTCH, PS DTCH with C/T, CS DTCH
+        assert [rows[str(i)][1:] for i in (22, 23, 24, 25)] == [
+            ['', '0', '3', ''], ['0x01', '0', '3', ''], ['', '0', '4', ''], ['0x08', '0', '4', '']]
+        assert rows['26'][0] == 'MAC' and rows['26'][3] == '4'
+        assert rows['27'][0:2] == ['MAC', '0x04']
+        # uplink DCH: DCCH and PS DTCH
+        assert rows['28'][1:] == ['0x02', '0', '3', '']
+        assert rows['30'][1:] == ['0x09', '0', '4', '']
+        # HS-DSCH type 1 with C/T: DCCH UM, DCCH AM, PS DTCH, CS DTCH, ...
+        assert [rows[str(i)][1:] for i in (31, 32, 33, 35, 36)] == [
+            ['0x00', '1', '3', '0'], ['0x01', '2', '3', '0'], ['0x08', '9', '4', '0'],
+            ['0x0d', '14', '4', '0'], ['0x0e', '15', '3', '0']]
+        assert rows['34'][0:2] == ['MAC', '0x04']
+        # no C/T: the fake logical channel id 1 with the warning, MACd-flow 0
+        assert rows['38'][1:] == ['', '1', '3', '0']
+        # two MAC-d PDUs in one frame: one MAC dissection each
+        assert rows['39'][1:] == ['0x01,0x08', '2,9', '3,4', '0,0']
+        # HS-DSCH type 2 (MAC-ehs): the logical channel comes from the block header
+        assert rows['40'][3] == '3'
+        assert rows['41'][3] == '3,4,4'
+        assert rows['42'][3] == '4,3'
+
+    def test_umts_mac_two_pass_same(self, cmd_tshark, capture_file, test_env):
+        '''One pass and two passes give the same tree for every frame.'''
+        outs = []
+        for passes in ((), ('-2',)):
+            outs.append(subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file(self.CAPTURE), '-V',
+                ), encoding='utf-8', env=test_env))
+        assert outs[0] == outs[1]
