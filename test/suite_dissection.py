@@ -154169,3 +154169,95 @@ class TestDissectDhcpOpt109:
                 '-e', 'dhcp.option.dhcp4o6_s46_saddr',
             ), encoding='utf-8', env=test_env)
         assert stdout.strip() == '2001:db8::1'
+
+
+class TestDissectTnef:
+    '''Transport-Neutral Encapsulation Format from the synthetic captures
+    tnef_coverage.tnef.gz (a TNEF file, read by the TNEF file reader) and
+    tnef_coverage_http.pcap.gz (application/ms-tnef over HTTP).'''
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, name, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file(name), *args,
+            ), encoding='utf-8', env=test_env, timeout=120)
+        return stdout.splitlines()
+
+    def test_tnef_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets or error expert infos in one and two
+        passes, and no GLib criticals (--log-fatal critical): the HTTP
+        capture holds MV_STRING8 properties with non-NULL pointers, which
+        used to go through a static, uninitialised NDR pointer list.'''
+        for name in ('tnef_coverage.tnef.gz', 'tnef_coverage_http.pcap.gz'):
+            for passes in ((), ('-2',)):
+                lines = self.fields(cmd_tshark, capture_file, test_env, name,
+                        *passes, '--log-fatal', 'critical',
+                        '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                        '-Tfields', '-eframe.number')
+                assert lines == []
+
+    def test_tnef_file_attributes(self, cmd_tshark, capture_file, test_env):
+        '''The file is one TNEF "packet": version, message classes,
+        priorities, OEM code pages, addresses and dates.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tnef_coverage.tnef.gz', '-Tfields', '-eframe.number',
+                '-e_ws.col.protocol', '-e_ws.col.info', '-etnef.version',
+                '-etnef.message_class', '-etnef.message_class.original',
+                '-etnef.priority', '-etnef.oem_codepage',
+                '-etnef.mapi_props.count')
+        assert lines == ['1\tTNEF\tTransport-Neutral Encapsulation Format\t'
+                         '0x00010000\tIPM.Microsoft Mail.Note\tIPM.Note\t'
+                         '1,2,3,258\t1252,1250,1251,437\t31,6']
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tnef_coverage.tnef.gz', '-Tfields',
+                '-etnef.attribute.display_name', '-etnef.attribute.email_address',
+                '-etnef.attribute.date.year', '-etnef.attribute.date.month',
+                '-etnef.attribute.date.second')
+        assert lines == ['Alice Example,Bob Example\talice@example.net,bob@example.net\t'
+                         '2026,2026,2026,2026,2026,2026,2026\t'
+                         '11,11,11,11,11,11,11\t15,15,15,15,15,15,15']
+
+    def test_tnef_code_pages(self, cmd_tshark, capture_file, test_env):
+        '''ATT_SUBJECT strings follow the OEM code page attribute before
+        them (Windows-1252, 1250 and 1251; other pages fall back).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tnef_coverage.tnef.gz', '-Tfields', '-etnef.attribute.string')
+        strings = lines[0].split(',')
+        assert strings[:3] == ['Subject 1252 äöü',
+                               'Subject 1250 äöü',
+                               'Subject 1251 дць']
+        assert strings[3].startswith('Subject 437 ')
+        assert strings[-1] == 'unknown string attribute'
+
+    def test_tnef_mapi_properties(self, cmd_tshark, capture_file, test_env):
+        '''Named properties (by id and by string, name lengths that need
+        padding) and the decoded values of the MAPI property types.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tnef_coverage.tnef.gz', '-Tfields',
+                '-etnef.attribute.tag.name.string', '-etnef.attribute.tag.name.id',
+                '-etnef.attribute.tag.kind', '-etnef.PropValue.i',
+                '-etnef.PropValue.b', '-etnef.PropValue.l',
+                '-etnef.PropValue.lpszA', '-etnef.PropValue.lpszW')
+        assert len(lines) == 1
+        f = lines[0].split('\t')
+        assert f[0] == 'Keywords,Odd,Fourlen!'
+        assert f[1] == '0x00008101'
+        assert f[2] == '0,1,1,1'
+        assert f[3] == '7,3,7'
+        assert f[4] == '1,0,1'
+        assert f[5].startswith('305419896,5')
+        assert f[6].startswith('Subject of the message,named by string')
+        assert f[7] == 'Unicode subject,Unicode subject'
+
+    def test_tnef_http(self, cmd_tshark, capture_file, test_env):
+        '''TNEF bodies in HTTP responses: the message class, the trailing
+        padding and the empty message.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                'tnef_coverage_http.pcap.gz', '-2', '-Y', 'tnef',
+                '-Tfields', '-eframe.number', '-etnef.signature',
+                '-etnef.message_class', '-etnef.attribute.string',
+                '-etnef.padding')
+        assert [l.split('\t')[0] for l in lines] == ['2', '4', '6', '8', '10', '12', '14']
+        assert lines[0] == '2\t0x223e9f78\tIPM.Note\t\t'
+        assert lines[1] == '4\t0x223e9f78\t\tplain subject\t1'
+        assert all(l.split('\t')[1] == '0x223e9f78' for l in lines)
