@@ -156946,3 +156946,80 @@ class TestDissectUavcanDsdl:
         assert [by[n][3] for n in range(50, 56)] == ['0', '21', '22', '27', '28', '38']
         assert by[56][4] == '1000'
         assert by[62][5] == '65535'
+
+
+class TestDissectUbdp:
+    CAP = 'ubdp_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, *args):
+        '''tshark output as a list of lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ubdp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''37 UBDP messages (Exported PDU naming "ubdp"; UBDP has no
+        default port). None is malformed; frames 22 and 23 (unsupported
+        versions) and 24-37 (fields with a wrong length) have a warning, in
+        one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert protocols == ['UBDP'] * 37
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed', '-Tfields', '-eframe.number')
+            assert lines == []
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.expert', '-Tfields', '-eframe.number', '-e_ws.expert.message')
+            assert lines == (['22\tBad Version Detected', '23\tBad Version Detected']
+                             + ['%d\tBad Length Field Detected' % n for n in range(24, 38)])
+
+    def test_ubdp_two_pass_identical(self, cmd_tshark, capture_file, test_env):
+        '''The dissector keeps no state: the full tree is the same in one
+        and two passes.'''
+        cap = capture_file(self.CAP)
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-V'), encoding='utf-8', env=test_env)
+        assert one == two
+
+    def test_ubdp_tlvs(self, cmd_tshark, capture_file, test_env):
+        '''Header and TLV types of the first messages; the TLV types of a
+        message with an unsupported version are not decoded.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number <= 5 || frame.number == 22',
+                '-Tfields', '-eframe.number', '-eubdp.version', '-eubdp.command', '-eubdp.size',
+                '-eubdp.type')
+        assert lines == ['1\t1\t1\t0\t', '2\t2\t1\t0\t',
+                         '3\t1\t6\t140\t1,2,3,10,11,12,13,14,15,16,18',
+                         '4\t2\t6\t168\t4,5,19,6,7,8,9,20,21,22,23,24,25,26,27,28',
+                         '5\t2\t6\t48\t23,24,11,13',
+                         '22\t0\t6\t9\t']
+
+    def test_ubdp_sshd_port(self, cmd_tshark, capture_file, test_env):
+        '''The SSHD Port TLV is shown as the SSHD Port, not as a DHCP-Client
+        Bound flag ("UBDP: Use the SSHD port field for the SSHD Port TLV").'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number == 4',
+                '-Tfields', '-eubdp.sshd_port', '-eubdp.dhcp_client', '-eubdp.dhcp_client_bound')
+        assert lines == ['22\tTrue\tFalse']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubdp.sshd_port', '-Tfields', '-eframe.number')
+        assert lines == ['4']
+
+    def test_ubdp_strings_and_models(self, cmd_tshark, capture_file, test_env):
+        '''Product, type and model names are looked up in the table of
+        Ubiquiti models (unknown ones are shown as they are); hostnames are
+        UTF-8, other strings ASCII.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 6 && frame.number <= 15',
+                '-Tfields', '-eubdp.product', '-eubdp.model')
+        assert lines == ['UP5tc: UniFi Phone-Pro\t', 'US8P150: UniFi Switch 8 POE-150W\t',
+                         'p2N: PicoStation M2\t', 'U7MP: UniFi AP-AC-Mesh-Pro\t', 'NoSuchModel\t',
+                         '\tUP5tc: UniFi Phone-Pro', '\tUS8P150: UniFi Switch 8 POE-150W',
+                         '\tp2N: PicoStation M2', '\tU7MP: UniFi AP-AC-Mesh-Pro', '\tNoSuchModel']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number == 5',
+                '-Tfields', '-eubdp.hostname', '-eubdp.ssid', '-eubdp.default', '-eubdp.locating')
+        assert lines == ['käyttäjä-日本\tguest wifi\t1\t0']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number == 3',
+                '-Tfields', '-eubdp.ip', '-eubdp.uptime', '-eubdp.system_id', '-eubdp.seq_num',
+                '-eubdp.wlan_mode', '-eubdp.web_ui')
+        assert lines == ['192.168.1.20\t86400\t0xe5a5\t77\t2\thttps://192.168.1.20:8443']
