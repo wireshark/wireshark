@@ -36,6 +36,9 @@ static dissector_handle_t ttl_in_eth_handle;
 static reassembly_table ttl_reassembly_table;
 
 static GHashTable* segmented_frames_info_ht = NULL;
+
+/* Maximum nesting of segmented messages carrying nested TTL frames */
+#define TTL_MAX_SEGMENTED_NESTING 4
 static GHashTable* address_to_master_ht;
 static GHashTable* address_to_name_ht;
 
@@ -163,6 +166,7 @@ static int hf_ttl_trace_data_entry_segment_size;
 static int hf_ttl_trace_data_entry_segment_type;
 
 static expert_field ei_ttl_entry_size_too_short;
+static expert_field ei_ttl_segmented_nesting_too_deep;
 static expert_field ei_ttl_segmented_entry_status_reserved;
 
 static int ett_ttl_trace_data_entry;
@@ -1170,11 +1174,12 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
     proto_item*     ti;
     fragment_head*  fh;
     tvbuff_t*       next_tvb = NULL;
-    uint32_t        key;
+    uint32_t        key, reasm_key;
     uint16_t        status;
     uint8_t         frame_num, seg_frame_id;
     unsigned        offset = 0;
     bool            update_col_info, more_frag;
+    unsigned        depth = p_get_proto_depth(pinfo, proto_ttl);
 
     status = tvb_get_uint16(status_tvb, TVB_STATUS_POS, ENC_LITTLE_ENDIAN);
 
@@ -1189,11 +1194,14 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
         frame_num = status & 0x000f;
         seg_frame_id = (status >> 4) & 0x000f;
         key = ((uint32_t)seg_frame_id << 16) | src;
+        /* Nested segmented messages in one frame may reuse the key: keep the
+         * reassemblies of the nesting levels apart. */
+        reasm_key = key | (depth << 20);
 
         ti = proto_tree_add_uint(tree, hf_ttl_trace_data_entry_segment_key, tvb, 0, 0, key);
         proto_item_set_generated(ti);
 
-        ttl_segmented_info_t* stored_info = p_get_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff);
+        ttl_segmented_info_t* stored_info = p_get_proto_data(wmem_file_scope(), pinfo, proto_ttl, depth);
 
         if (stored_info) {
             if (frame_num == 0) {
@@ -1208,15 +1216,15 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
             ttl_segmented_info_t* new_info = NULL;
             uint32_t segment_size, segment_type;
 
-            fh = fragment_get(&ttl_reassembly_table, pinfo, key, NULL);
+            fh = fragment_get(&ttl_reassembly_table, pinfo, reasm_key, NULL);
 
             if (frame_num == 0) {
                 // New fragment header, check if we have a reassembly in progress
                 if (fh && !(fh->flags & FD_DEFRAGMENTED)) {
                     // If we're here, we were missing fragments
-                    tvb_free(fragment_delete(&ttl_reassembly_table, pinfo, key, NULL));
+                    tvb_free(fragment_delete(&ttl_reassembly_table, pinfo, reasm_key, NULL));
                     fh = NULL;
-                    g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+                    g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(reasm_key));
                 }
 
                 proto_tree_add_item_ret_uint(tree, hf_ttl_trace_data_entry_segment_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &segment_size);
@@ -1228,12 +1236,12 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
                 new_info->full_size = segment_size;
                 new_info->type = segment_type;
 
-                g_hash_table_insert(segmented_frames_info_ht, GUINT_TO_POINTER(key), new_info);
+                g_hash_table_insert(segmented_frames_info_ht, GUINT_TO_POINTER(reasm_key), new_info);
 
                 more_frag = new_info->full_size > tvb_reported_length_remaining(tvb, offset);
             }
             else {
-                new_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+                new_info = g_hash_table_lookup(segmented_frames_info_ht, GUINT_TO_POINTER(reasm_key));
 
                 more_frag = fh && new_info && new_info->full_size > (fh->contiguous_len + tvb_reported_length_remaining(tvb, offset));
             }
@@ -1243,16 +1251,16 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
                 stored_info->full_size = new_info->full_size;
                 stored_info->type = new_info->type;
 
-                p_set_proto_data(wmem_file_scope(), pinfo, proto_ttl, 0xffffffff, stored_info);
+                p_set_proto_data(wmem_file_scope(), pinfo, proto_ttl, depth, stored_info);
             }
 
             if (!more_frag) {
                 // We have all the fragments, we don't need the entry from the segmented table anymore
-                g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(key));
+                g_hash_table_remove(segmented_frames_info_ht, GUINT_TO_POINTER(reasm_key));
             }
         }
 
-        fh = fragment_add_seq_check(&ttl_reassembly_table, tvb, offset, pinfo, key, NULL,
+        fh = fragment_add_seq_check(&ttl_reassembly_table, tvb, offset, pinfo, reasm_key, NULL,
             frame_num, tvb_reported_length_remaining(tvb, offset), more_frag);
 
         next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled TTL", fh, &ttl_fragment_items, &update_col_info, tree);
@@ -1265,7 +1273,16 @@ dissect_ttl_segmented_message_entry(tvbuff_t* tvb, packet_info* pinfo, proto_tre
             call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, parent_tree);
         }
         else if (stored_info && stored_info->type == TTL_SEGMENTED_MESSAGE_ENTRY_TYPE_NESTED_FRAME) {
-            call_dissector(ttl_over_eth ? ttl_in_eth_handle : ttl_from_file_handle, next_tvb, pinfo, parent_tree);
+            if (depth >= TTL_MAX_SEGMENTED_NESTING) {
+                expert_add_info(pinfo, root, &ei_ttl_segmented_nesting_too_deep);
+            }
+            else {
+                p_set_proto_depth(pinfo, proto_ttl, depth + 1);
+                increment_dissection_depth(pinfo);
+                call_dissector(ttl_over_eth ? ttl_in_eth_handle : ttl_from_file_handle, next_tvb, pinfo, parent_tree);
+                decrement_dissection_depth(pinfo);
+                p_set_proto_depth(pinfo, proto_ttl, depth);
+            }
         }
         else {
             call_data_dissector(next_tvb, pinfo, parent_tree);
@@ -1346,6 +1363,11 @@ dissect_ttl_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, bool ttl
     proto_tree_add_item(entry_subtree, hf_ttl_trace_data_entry_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN | ENC_TIME_USECS);
     offset += 8;
 
+    if (size < offset) {
+        expert_add_info(pinfo, root_ti, &ei_ttl_entry_size_too_short);
+        return offset;
+    }
+
     new_buf = tvb_new_subset_length(tvb, offset, size - offset);
     switch (type) {
     case TTL_BUS_DATA_ENTRY:
@@ -1382,6 +1404,12 @@ dissect_ttl_from_file(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void*
     return dissect_ttl_common(tvb, pinfo, tree, false);
 }
 
+static void ttl_cleanup(void) {
+    if (segmented_frames_info_ht) {
+        g_hash_table_remove_all(segmented_frames_info_ht);
+    }
+}
+
 static void ttl_shutdown(void) {
     g_hash_table_destroy(segmented_frames_info_ht);
     segmented_frames_info_ht = NULL;
@@ -1397,6 +1425,7 @@ proto_register_ttl(void) {
     expert_module_t* expert_ttl;
 
     register_shutdown_routine(&ttl_shutdown);
+    register_cleanup_routine(&ttl_cleanup);
 
     segmented_frames_info_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
     address_to_master_ht = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, NULL);
@@ -1660,6 +1689,9 @@ proto_register_ttl(void) {
             { "ttl.trace_data.entry_size_too_short", PI_MALFORMED, PI_ERROR,
                 "entry size is too short",
                 EXPFILL }},
+        { &ei_ttl_segmented_nesting_too_deep,
+            { "ttl.trace_data.entry.segmented_message_entry.nesting_too_deep", PI_PROTOCOL, PI_WARN,
+                "nested segmented messages too deep", EXPFILL }},
         { &ei_ttl_segmented_entry_status_reserved,
             { "ttl.trace_data.entry.segmented_message_entry.status_reserved", PI_PROTOCOL, PI_WARN,
                 "reserved value for segmented data entry status",
