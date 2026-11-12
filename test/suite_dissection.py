@@ -153732,3 +153732,141 @@ class TestDissectZmtp:
             ['47', 'zmtp', 'NULL', '', '', 'payload for a missing dissector'],
             ['49', 'zmtp', 'NULL', '', '', ''],
         ]
+
+
+class TestDissectZrtp:
+    def test_zrtp_protocols(self, cmd_tshark, capture_file, test_env):
+        '''SIP/SDP announces the RTP ports, RTP hands the ZRTP packets to
+        ZRTP; nothing is malformed, no checksum is bad and there are no
+        expert infos, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zrtp_coverage.pcap.gz'),
+                    '-Tfields', '-e_ws.col.protocol',
+                ), encoding='utf-8', env=test_env)
+            protocols = stdout.split()
+            assert len(protocols) == 58
+            assert protocols.count('ZRTP') == 54
+            assert protocols.count('SIP/SDP') == 2
+            assert protocols.count('SRTP') == 2
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zrtp_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zrtp_coverage.pcap.gz'),
+                    '-Y', 'zrtp && zrtp.checksum.status != 1',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zrtp_info(self, cmd_tshark, capture_file, test_env):
+        '''Message types and the Info column of every ZRTP packet.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zrtp_coverage.pcap.gz'),
+                '-Y', 'zrtp',
+                '-Tfields', '-eframe.number', '-ezrtp.type', '-e_ws.col.info',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert len(lines) == 54
+        by_frame = {int(l[0]): (l[1].strip(), l[2]) for l in lines}
+        assert [by_frame[n] for n in range(3, 13)] == [
+            ('Hello', 'Hello Packet'), ('HelloACK', 'HelloACK Packet'),
+            ('Hello', 'Hello Packet'), ('HelloACK', 'HelloACK Packet'),
+            ('Commit', 'Commit Packet'), ('DHPart1', 'DHPart1 Packet'),
+            ('DHPart2', 'DHPart2 Packet'), ('Confirm1', 'Confirm1 Packet'),
+            ('Confirm2', 'Confirm2 Packet'), ('Conf2ACK', 'Conf2ACK Packet'),
+        ]
+        assert [by_frame[n] for n in range(29, 35)] == [
+            ('Ping', 'Ping Packet'), ('PingACK', 'PingACK Packet'),
+            ('GoClear', 'GoClear Packet'), ('ClearACK', 'ClearACK Packet'),
+            ('SASrelay', 'SASrelay Packet'), ('RelayACK', 'RelayACK Packet'),
+        ]
+        assert by_frame[56] == ('ErrorACK', 'ErrorACK Packet')
+        assert by_frame[57] == ('Zzzz', 'Unknown ZRTP Packet')
+        assert by_frame[58] == ('Conf2ACK', 'Conf2ACK Packet')
+        # Unsupported versions
+        assert by_frame[17][1] == 'Unsupported version of ZRTP protocol'
+        assert by_frame[18][1] == 'Unsupported version of ZRTP protocol'
+        for n in (3, 5, 15, 16, 19, 20):
+            assert by_frame[n][1] == 'Hello Packet'
+
+    def test_zrtp_hello(self, cmd_tshark, capture_file, test_env):
+        '''Hello: flags, algorithm counts and the lists of algorithms,
+        including unknown names and the maximum counts.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zrtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {3,5,15,16,19}',
+                '-Tfields', '-eframe.number', '-ezrtp.version',
+                '-ezrtp.client_source_id', '-ezrtp.sigcap', '-ezrtp.mitm',
+                '-ezrtp.passive', '-ezrtp.hc', '-ezrtp.cc', '-ezrtp.ac',
+                '-ezrtp.kc', '-ezrtp.sc', '-ezrtp.hash', '-ezrtp.keya',
+            ), encoding='utf-8', env=test_env)
+        lines = [l.split('\t') for l in stdout.splitlines()]
+        assert lines[0] == ['3', '1.10', 'Test Client A   ', 'True', 'True', 'True',
+                            '4', '9', '4', '8', '2',
+                            'S256,S384,N256,N384',
+                            'DH2k,DH3k,DH4k,Prsh,EC25,EC38,EC52,Mult']
+        assert lines[1] == ['5', '1.10', 'Test Client B   ', 'True', 'False', 'False',
+                            '1', '1', '1', '1', '1', 'S256', 'DH3k']
+        assert lines[2] == ['15', '0.95', 'Test Client A   ', 'True', 'True', 'False',
+                            '0', '0', '0', '0', '0', '', '']
+        assert lines[3] == ['16', '0.85', 'Test Client A   ', 'False', 'False', 'True',
+                            '1', '1', '1', '1', '1', 'XXXX', 'WWWW']
+        assert lines[4] == ['19', '1.00', 'Test Client A   ', 'False', 'False', 'False',
+                            '15', '15', '15', '15', '15',
+                            ','.join(['S256'] * 7 + ['S384'] * 8), ','.join(['EC25'] * 15)]
+
+    def test_zrtp_commit(self, cmd_tshark, capture_file, test_env):
+        '''Commit: the DH form (hvi), multistream (nonce) and preshared
+        (nonce and key ID) forms.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zrtp_coverage.pcap.gz'),
+                '-Y', 'zrtp.type == "Commit  "',
+                '-Tfields', '-eframe.number', '-ezrtp.keya', '-ezrtp.hvi',
+                '-ezrtp.nonce', '-ezrtp.key_id', '-ezrtp.hash', '-ezrtp.cipher',
+            ), encoding='utf-8', env=test_env)
+        hvi = bytes(range(0x80, 0xa0)).hex()
+        nonce = bytes(range(0x60, 0x70)).hex()
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['7', 'DH3k', hvi, '', '', 'S256', 'AES1'],
+            ['21', 'Mult', '', nonce, '', 'S256', 'AES1'],
+            ['22', 'Prsh', '', nonce, bytes(range(0x70, 0x78)).hex(), 'N256', '2FS2'],
+            ['23', 'EC38', hvi, '', '', 'N384', 'CAM3'],
+            ['24', '????', hvi, '', '', '????', '????'],
+        ]
+
+    def test_zrtp_errors(self, cmd_tshark, capture_file, test_env):
+        '''Error codes, with names for the defined ones.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zrtp_coverage.pcap.gz'),
+                '-Y', 'zrtp.error',
+                '-Tfields', '-eframe.number', '-ezrtp.error',
+            ), encoding='utf-8', env=test_env)
+        codes = [int(l.split('\t')[1]) for l in stdout.splitlines()]
+        assert codes == [0x10, 0x20, 0x30, 0x40, 0x51, 0x52, 0x53, 0x54, 0x55,
+                         0x56, 0x61, 0x62, 0x63, 0x70, 0x80, 0x90, 0x91, 0xa0,
+                         0xb0, 0x100, 0x777]
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zrtp_coverage.pcap.gz'),
+                '-Y', 'frame.number in {45, 54, 55}',
+                '-V', '-O', 'zrtp',
+            ), encoding='utf-8', env=test_env)
+        assert 'Error: DH Error: bad pv for initiator/responder value is (1,0,p-1) (97)' in stdout
+        assert 'Error: GoClear packet received, but not allowed (256)' in stdout
+        assert 'Error: Unknown (1911)' in stdout
+
+    def test_zrtp_conf2ack_srtp(self, cmd_tshark, capture_file, test_env):
+        '''The Conf2ACK starts the SRTP streams on the media ports: the
+        RTP packets that follow are SRTP, in one and two passes.'''
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zrtp_coverage.pcap.gz'),
+                    '-Y', 'frame.number in {13, 14}',
+                    '-Tfields', '-eframe.number', '-e_ws.col.protocol',
+                    '-ertp.ssrc',
+                ), encoding='utf-8', env=test_env)
+            assert [l.split('\t') for l in stdout.splitlines()] == [
+                ['13', 'SRTP', '0x11223344'], ['14', 'SRTP', '0x55667788']]
