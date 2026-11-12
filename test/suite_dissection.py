@@ -157023,3 +157023,136 @@ class TestDissectUbdp:
                 '-Tfields', '-eubdp.ip', '-eubdp.uptime', '-eubdp.system_id', '-eubdp.seq_num',
                 '-eubdp.wlan_mode', '-eubdp.web_ui')
         assert lines == ['192.168.1.20\t86400\t0xe5a5\t77\t2\thttps://192.168.1.20:8443']
+
+
+class TestDissectUbertooth:
+    CAP = 'ubertooth_coverage.pcap.gz'
+
+    @staticmethod
+    def fields(cmd_tshark, capture, test_env, *args):
+        '''tshark output as a list of lines.'''
+        return subprocess.check_output((cmd_tshark, '-r', capture, *args),
+                encoding='utf-8', env=test_env).splitlines()
+
+    def test_ubertooth_protocols(self, cmd_tshark, capture_file, test_env):
+        '''367 usbmon frames of an Ubertooth One (1d50:6002, recognised from
+        its device descriptor): 237 commands and 123 responses, the
+        Bluetooth LE packets of Poll responses are handed to the LE
+        dissector. No frame is malformed and no Ubertooth frame has an
+        expert info, in one and two passes.'''
+        cap = capture_file(self.CAP)
+        protocols = self.fields(cmd_tshark, cap, test_env, '-Tfields', '-e_ws.col.protocol')
+        assert len(protocols) == 367
+        assert protocols.count('UBERTOOTH') == 354
+        assert protocols.count('USB') == 7
+        assert protocols.count('LE LL') == 4
+        assert protocols.count('L2CAP') == 2
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, cap, test_env, *passes,
+                    '-Y', '_ws.malformed || (_ws.expert && !btle)',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+
+    def test_ubertooth_two_pass_trees(self, cmd_tshark, capture_file, test_env):
+        '''The trees of the frames without Bluetooth LE of one and two
+        passes only differ in the "[Response in: N]" the USB dissector adds
+        to requests in a second pass.'''
+        cap = capture_file(self.CAP)
+        one = subprocess.check_output((cmd_tshark, '-r', cap, '-Y', '!btle', '-V'), encoding='utf-8', env=test_env)
+        two = subprocess.check_output((cmd_tshark, '-2', '-r', cap, '-Y', '!btle', '-V'), encoding='utf-8', env=test_env)
+        strip = lambda text: [l for l in text.splitlines() if '[Response in: ' not in l]
+        assert strip(one) == strip(two)
+
+    def test_ubertooth_commands(self, cmd_tshark, capture_file, test_env):
+        '''Info of commands that carry their argument in the setup packet
+        and responses matched to the preceding command.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 3 && frame.number <= 20',
+                '-Tfields', '-e_ws.col.info')
+        assert lines[0:5] == ['Sent Command: Set User LED - Off', 'Sent Command: Set User LED - On',
+                              'Sent Command: Set User LED - Unknown', 'Sent Command: Set Rx LED - Off',
+                              'Sent Command: Set Rx LED - On']
+        assert lines[16] == 'Sent Command: Set Modulation - Basic Rate'
+        assert lines[17] == 'Sent Command: Set Modulation - Low Energy'
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubertooth.command == 12',
+                '-Tfields', '-eframe.number', '-eubertooth.channel')
+        assert lines == ['12\t2402', '13\t2441', '14\t2480']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 118 && frame.number <= 121',
+                '-Tfields', '-e_ws.col.info')
+        assert lines == ['Sent Command: Get User LED', 'Rcvd Response: Get User LED = On',
+                         'Sent Command: Get User LED', 'Rcvd Response: Get User LED = Off']
+
+    def test_ubertooth_registers(self, cmd_tshark, capture_file, test_env):
+        '''Every CC2400 register is written (51 requests: the setup packet
+        is followed by a data stage, see README) and read (51 responses
+        matched to the register of their request); the register value
+        is decoded bit by bit.'''
+        cap = capture_file(self.CAP)
+        for expr, count in (('ubertooth.command == 58', 51), ('ubertooth.command == 53', 51),
+                            ('ubertooth.response == 53', 51)):
+            lines = self.fields(cmd_tshark, cap, test_env, '-Y', expr, '-Tfields', '-eframe.number')
+            assert len(lines) == count, expr
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubertooth.register.value.main.resetn',
+                '-Tfields', '-eframe.number', '-eubertooth.register', '-eubertooth.register.value')
+        assert lines == ['67\t0x0000\t0xa469', '211\t0x0000\t0x0d74']
+        for field in ('fsctrl.lock_status', 'fsdiv.frequency', 'agcctrl.vga_gain', 'manfidl.manfid',
+                      'pktstatus.crc_ok', 'int.fifo_threshold', 'reserved.0x2B.11_0'):
+            lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubertooth.register.value.' + field,
+                    '-Tfields', '-eframe.number')
+            assert len(lines) == 2, field
+
+    def test_ubertooth_responses(self, cmd_tshark, capture_file, test_env):
+        '''Responses with a status, strings and numbers.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env,
+                '-Y', 'ubertooth.part_number || ubertooth.firmware.compile_info || ubertooth.firmware.reversion || ubertooth.serial_number',
+                '-Tfields', '-eframe.number', '-eubertooth.part_number',
+                '-eubertooth.firmware.reversion', '-eubertooth.firmware.compile_info')
+        assert len(lines) == 5
+        assert lines[0].split('\t')[0] == '145'          # serial number
+        assert lines[1] == '149\t0x2500102b\t\t'
+        assert lines[2] == '179\t\t2012-10-R1\t'
+        assert lines[4] == '209\t\t\tubertooth 2012-10-R1 (gcc 4.8)'
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubertooth.board_id',
+                '-Tfields', '-eubertooth.board_id')
+        assert lines == ['0x00', '0x01', '0x02', '0x03', '0x04', '0x09']
+
+    def test_ubertooth_poll_le(self, cmd_tshark, capture_file, test_env):
+        '''Poll responses carry a Rx packet: Bluetooth LE advertising (with
+        the right CRC) and data packets go to the LE dissector, the LE
+        promiscuous states show access address, CRC init, hop interval and
+        increment.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 321 && frame.number <= 331 && btle',
+                '-Tfields', '-eframe.number', '-ebtle.access_address', '-e_ws.col.info')
+        assert lines == ['321\t0x8e89bed6\tADV_IND', '323\t0x8e89bed6\tADV_IND',
+                         '325\t0x5065a1b7\tConnection Parameter Update Request',
+                         '327\t0x5065a1b7\tConnection Parameter Update Request',
+                         '329\t0x5065a1b7\tControl Opcode: LL_TERMINATE_IND',
+                         '331\t0x5065a1b7\tEmpty PDU']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'btcommon.eir_ad.entry.device_name',
+                '-Tfields', '-eframe.number', '-ebtcommon.eir_ad.entry.device_name')
+        assert lines == ['321\tUB', '323\tUbertoothOne']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 345 && frame.number <= 353 && ubertooth.state',
+                '-Tfields', '-eframe.number', '-eubertooth.state')
+        assert lines == ['345\t0x00', '347\t0x01', '349\t0x02', '351\t0x03', '353\t0x09']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number == 345 || frame.number == 347 || frame.number == 351',
+                '-Tfields', '-e_ws.col.info')
+        assert lines == ['Rcvd Response: Poll LE Promiscuous - Access Address 0x8e89bed6',
+                         'Rcvd Response: Poll LE Promiscuous - CRC Init 0x563412',
+                         'Rcvd Response: Poll LE Promiscuous - Hop Increment 7']
+
+    def test_ubertooth_bulk(self, cmd_tshark, capture_file, test_env):
+        '''Rx Symbols: a bulk transfer of three Rx packets and a LE
+        promiscuous one after Rx Symbols; Spectrum Analyzer: packets of 16
+        frequency/RSSI entries.'''
+        cap = capture_file(self.CAP)
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'frame.number >= 354 && ubertooth.packet_type',
+                '-Tfields', '-eframe.number', '-eubertooth.packet_type', '-eubertooth.access_address')
+        assert lines == ['356\t0x00,0x00,0x01\t', '358\t0x05\t0x12345678', '361\t0x00\t',
+                         '364\t0x04,0x04\t', '366\t0x04\t']
+        lines = self.fields(cmd_tshark, cap, test_env, '-Y', 'ubertooth.spectrum_entry',
+                '-Tfields', '-eframe.number', '-eubertooth.spectrum_entry.frequency')
+        assert [l.split('\t')[0] for l in lines] == ['364', '366']
+        assert lines[0].split('\t')[1].split(',') == [str(f) for f in range(2402, 2434)]
+        assert lines[1].split('\t')[1].split(',') == [str(f) for f in range(2434, 2450)]
