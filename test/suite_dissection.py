@@ -154044,3 +154044,14 @@ class TestDissectZvt:
         assert [r[2] for r in rows if r[1] == 'ZVT'] == [
             'Status Information', 'Status Information', 'Print Text Block',
             'Status Information']
+
+
+class TestDissectDhcpOpt109:
+    def test_dhcp4o6_s46_saddr(self, cmd_tshark, capture_file, test_env):
+        '''DHCPv4 option 109 (OPTION_DHCP4O6_S46_SADDR) IPv6 address is decoded correctly.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('dhcpv4_opt109.pcap'),
+                '-Tfields',
+                '-e', 'dhcp.option.dhcp4o6_s46_saddr',
+            ), encoding='utf-8', env=test_env)
+        assert stdout.strip() == '2001:db8::1'

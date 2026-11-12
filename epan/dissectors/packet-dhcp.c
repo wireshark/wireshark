@@ -573,6 +573,7 @@ static int hf_dhcp_option_civic_location_ca_value;			/* 99 */
 static int hf_dhcp_option_tz_pcode;				/* 100 */
 static int hf_dhcp_option_tz_tcode;				/* 101 */
 static int hf_dhcp_option_ipv6_only_preferred_wait_time;		/* 108 */
+static int hf_dhcp_option_dhcp4o6_s46_saddr;				/* 109 */
 static int hf_dhcp_option_netinfo_parent_server_address;		/* 112 */
 static int hf_dhcp_option_netinfo_parent_server_tag;		/* 113 */
 static int hf_dhcp_option_captive_portal;				/* 114 (ex 160) */
@@ -748,6 +749,7 @@ static expert_field ei_dhcp_option_dhcp_name_service_invalid;
 static expert_field ei_dhcp_option_sip_server_address_encoding;
 static expert_field ei_dhcp_option_classless_static_route;
 static expert_field ei_dhcp_option125_enterprise_malformed;
+static expert_field ei_dhcp_option109_bad_length;
 static expert_field ei_dhcp_option_6RD_malformed;
 static expert_field ei_dhcp_option82_vi_cl_tag_unknown;
 static expert_field ei_dhcp_option_parse_err;
@@ -1571,7 +1573,7 @@ static const struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 106 */ { "Removed/unassigned",			opaque, NULL },
 /* 107 */ { "Removed/unassigned",			opaque, NULL },
 /* 108 */ { "IPv6-Only Preferred",			time_in_u_secs, &hf_dhcp_option_ipv6_only_preferred_wait_time },
-/* 109 */ { "Unassigned",				opaque, NULL },
+/* 109 */ { "OPTION_DHCP4O6_S46_SADDR",			special, NULL },
 /* 110 */ { "Removed/Unassigned",			opaque, NULL },
 /* 111 */ { "Unassigned",				opaque, NULL },
 /* 112 */ { "NetInfo Parent Server Address",		ipv4_list, &hf_dhcp_option_netinfo_parent_server_address },
@@ -3537,6 +3539,18 @@ dissect_dhcpopt_portparams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	proto_tree_add_item(tree, hf_dhcp_option_portparams_psid, tvb, 2, 2, ENC_NA);
 
 	return tvb_captured_length(tvb);
+}
+
+static int
+dissect_dhcpopt_dhcp4o6_s46_saddr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	if (tvb_reported_length(tvb) != 16) {
+		expert_add_info_format(pinfo, tree, &ei_dhcp_option109_bad_length,
+			"OPTION_DHCP4O6_S46_SADDR: length must be 16 bytes (RFC 8539)");
+		return tvb_captured_length(tvb);
+	}
+	proto_tree_add_item(tree, hf_dhcp_option_dhcp4o6_s46_saddr, tvb, 0, 16, ENC_NA);
+	return 16;
 }
 
 static int
@@ -9982,6 +9996,11 @@ proto_register_dhcp(void)
 		    FT_UINT32, BASE_CUSTOM, CF_FUNC(dhcp_time_in_u_secs_fmt), 0x0,
 		    "Option 108: IPv6-Only Preferred wait time", HFILL }},
 
+		{ &hf_dhcp_option_dhcp4o6_s46_saddr,
+		  { "DHCP4o6 S46 Source Address", "dhcp.option.dhcp4o6_s46_saddr",
+		    FT_IPv6, BASE_NONE, NULL, 0x00,
+		    "Option 109: DHCPv4-over-DHCPv6 Softwire Source Address (RFC 8539)", HFILL }},
+
 		{ &hf_dhcp_option_netinfo_parent_server_address,
 		  { "NetInfo Parent Server Address", "dhcp.option.netinfo_parent_server_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -10733,6 +10752,7 @@ proto_register_dhcp(void)
 		{ &ei_dhcp_option_sip_server_address_encoding, { "dhcp.option.sip_server_address.encoding", PI_PROTOCOL, PI_ERROR, "RFC 3361 defines only 0 and 1 for Encoding byte", EXPFILL }},
 		{ &ei_dhcp_option_classless_static_route, { "dhcp.option.classless_static.route", PI_PROTOCOL, PI_ERROR, "Mask width > 32", EXPFILL }},
 		{ &ei_dhcp_option125_enterprise_malformed, { "dhcp.option.enterprise.malformed", PI_PROTOCOL, PI_ERROR, "no room left in option for enterprise data", EXPFILL }},
+		{ &ei_dhcp_option109_bad_length, { "dhcp.option.dhcp4o6_s46_saddr.bad_length", PI_PROTOCOL, PI_WARN, "OPTION_DHCP4O6_S46_SADDR: length must be 16 bytes", EXPFILL }},
 		{ &ei_dhcp_option_6RD_malformed, { "dhcp.option.6RD.malformed", PI_PROTOCOL, PI_ERROR, "6RD: malformed option", EXPFILL }},
 		{ &ei_dhcp_option82_vi_cl_tag_unknown, { "dhcp.option.option.vi.cl.tag_unknown", PI_PROTOCOL, PI_ERROR, "Unknown tag", EXPFILL }},
 		{ &ei_dhcp_option_parse_err, { "dhcp.option.parse_err", PI_PROTOCOL, PI_ERROR, "Parse error", EXPFILL }},
@@ -10884,6 +10904,7 @@ proto_reg_handoff_dhcp(void)
 	dissector_add_uint("dhcp.option", 94, create_dissector_handle( dissect_dhcpopt_client_network_interface_id, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 97, create_dissector_handle( dissect_dhcpopt_client_identifier_uuid, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 99, create_dissector_handle( dissect_dhcpopt_civic_location, proto_dhcp ));
+	dissector_add_uint("dhcp.option", 109, create_dissector_handle( dissect_dhcpopt_dhcp4o6_s46_saddr, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 114, create_dissector_handle( dissect_dhcpopt_dhcp_captive_portal, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 117, create_dissector_handle( dissect_dhcpopt_name_server_search, proto_dhcp ));
 	dissector_add_uint("dhcp.option", 119, create_dissector_handle( dissect_dhcpopt_dhcp_domain_search, proto_dhcp ));
