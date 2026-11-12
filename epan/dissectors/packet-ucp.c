@@ -741,7 +741,7 @@ check_ucp(tvbuff_t *tvb, int *endpkt)
         *endpkt = tvb_reported_length_remaining(tvb, offset);
         return UCP_MALFORMED;
     }
-    for (; offset < (unsigned) (length - 2); offset++)
+    for (; offset + 2 < (unsigned) length; offset++)
         checksum += tvb_get_uint8(tvb, offset);
     checksum &= 0xFF;
     tmp = tvb_get_uint8(tvb, offset++);
@@ -1549,7 +1549,7 @@ add_23R(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, ucp_tap_rec_t *tap_
 
     intval = UcpHandleByte(hf_ucp_parm_ACK);
     if (intval == 'A') {
-        UcpHandleByte(hf_ucp_parm_IVR5x);
+        UcpHandleString(hf_ucp_parm_IVR5x);
         intval = UcpHandleInt(hf_ucp_parm_NPL);
         for (idx = 0; idx < intval; idx++)
             UcpHandleInt(hf_ucp_hdr_OT);
