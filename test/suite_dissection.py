@@ -153404,3 +153404,79 @@ class TestDissectZebra:
                 '-ezebra.prefix4', '-ezebra.prefix6',
             ), encoding='utf-8', env=test_env)
         assert stdout.splitlines()[0] == '0,0,1\t2,10,1\t32,128,0\t192.0.2.254\t2001:db8::fffe'
+
+
+class TestDissectZep:
+    def test_zep_protocols(self, cmd_tshark, capture_file, test_env):
+        '''All 11 frames are ZEP (v1, v2, v3 header and v2 acks) and none
+        is malformed or has an expert info, in one and two passes.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zep_coverage.pcap.gz'),
+                '-Tfields', '-e_ws.col.protocol', '-eframe.protocols',
+            ), encoding='utf-8', env=test_env)
+        lines = stdout.splitlines()
+        assert len(lines) == 11
+        assert sum(':zep' in l for l in lines) == 11
+        assert sum(l.startswith('ZEPv2') for l in lines) == 2
+        for passes in ((), ('-2',)):
+            stdout = subprocess.check_output((cmd_tshark, *passes,
+                    '-r', capture_file('zep_coverage.pcap.gz'),
+                    '-Y', '_ws.malformed || _ws.expert',
+                    '-Tfields', '-eframe.number',
+                ), encoding='utf-8', env=test_env)
+            assert count_output(stdout) == 0
+
+    def test_zep_v1_lqi_mode(self, cmd_tshark, capture_file, test_env):
+        '''ZEP v1: the LQI field is shown when the LQI/CRC mode bit is clear
+        (LQI mode) and the reserved field is the rest of the header; with
+        the bit set (CRC mode) there is no LQI field. The LQI field was
+        shown in CRC mode before the fix.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zep_coverage.pcap.gz'),
+                '-Y', 'zep.version == 1',
+                '-Tfields', '-eframe.number', '-ezep.channel_id',
+                '-ezep.lqi_mode', '-ezep.lqi', '-ezep.reserved_field',
+                '-ezep.length', '-ewpan.fcs_ok', '-ewpan.fcs',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '11', 'False', '200', '000000000000000f', '15', 'True', ''],
+            ['2', '12', 'True', '', '00000000000000000f', '15', 'True', '0x7e0f'],
+            ['3', '26', 'False', '77', '112233445566770b', '11', 'True', ''],
+        ]
+
+    def test_zep_v2(self, cmd_tshark, capture_file, test_env):
+        '''ZEP v2 (and a higher version, dissected like v2): data frames
+        with LQI/CRC mode, type 0 and acks, which carry only the sequence
+        number.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zep_coverage.pcap.gz'),
+                '-Y', 'zep.version >= 2',
+                '-Tfields', '-eframe.number', '-ezep.version', '-ezep.type',
+                '-ezep.channel_id', '-ezep.lqi_mode', '-ezep.lqi',
+                '-ezep.seqno', '-ezep.length',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['4', '2', '1', '15', 'True', '', '1', '15'],
+            ['5', '2', '1', '16', 'False', '255', '2', '15'],
+            ['6', '2', '0', '17', 'True', '', '3', '5'],
+            ['7', '2', '2', '', '', '', '1', ''],
+            ['8', '2', '2', '', '', '', '4294967294', ''],
+            ['9', '3', '1', '18', 'True', '', '4', '15'],
+            ['10', '2', '1', '19', 'True', '', '5', '15'],
+            ['11', '2', '1', '20', 'True', '', '6', '127'],
+        ]
+
+    def test_zep_next_dissector(self, cmd_tshark, capture_file, test_env):
+        '''The encapsulated frame goes to the IEEE 802.15.4 dissector; acks
+        have no payload.'''
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('zep_coverage.pcap.gz'),
+                '-Tfields', '-eframe.number', '-ewpan.frame_type',
+                '-ewpan.seq_no',
+            ), encoding='utf-8', env=test_env)
+        assert [l.split('\t') for l in stdout.splitlines()] == [
+            ['1', '0x0001', '1'], ['2', '0x0001', '2'], ['3', '0x0001', '3'],
+            ['4', '0x0001', '4'], ['5', '0x0001', '5'], ['6', '0x0002', '6'],
+            ['7', '', ''], ['8', '', ''], ['9', '0x0001', '7'],
+            ['10', '0x0001', '8'], ['11', '0x0001', '9'],
+        ]
