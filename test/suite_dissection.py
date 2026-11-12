@@ -154639,3 +154639,88 @@ class TestDissectTpm20:
                 '-etpm.handle.TPMI_RH_ENDORSEMENT',
                 '-etpm.handle.TPMI_DH_OBJECT', '-etpm.handle.TPMI_SH_AUTH_SESSION')
         assert lines == ['0x4000000b\t0x80000000\t0x03000001,0x40000009']
+
+
+class TestDissectTpncp:
+    '''TPNCP (UDP/TCP 2424, 2442) from the synthetic capture
+    tpncp_coverage.pcap.gz. The field database tpncp.dat is only loaded
+    with tpncp.load_db, so every run passes OPTS. The capture holds one
+    frame per event and per command of tpncp.dat (big endian, every
+    third also little endian), TCP with several PDUs per segment, split
+    PDUs and PDUs above one segment, and version dependent fields.'''
+
+    OPTS = ('-o', 'tpncp.load_db:TRUE')
+
+    @staticmethod
+    def fields(cmd_tshark, capture_file, test_env, *args):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('tpncp_coverage.pcap.gz'), *args,
+            ), encoding='utf-8', env=test_env, timeout=240)
+        return stdout.splitlines()
+
+    def test_tpncp_clean(self, cmd_tshark, capture_file, test_env):
+        '''No malformed packets, error or warning expert infos in one and
+        two passes; 725 events and 565 commands are decoded.'''
+        for passes in ((), ('-2',)):
+            lines = self.fields(cmd_tshark, capture_file, test_env, *passes,
+                    *self.OPTS,
+                    '-Y', '_ws.malformed || _ws.expert.severity >= 0x00600000',
+                    '-Tfields', '-eframe.number')
+            assert lines == []
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'tpncp.event_id', '-Tfields', '-eframe.number')
+        assert len(lines) == 725
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'tpncp.command_id', '-Tfields', '-eframe.number')
+        assert len(lines) == 565
+
+    def test_tpncp_passive_without_database(self, cmd_tshark, capture_file, test_env):
+        '''Without tpncp.load_db the dissector is passive.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env,
+                '-Y', 'tpncp', '-Tfields', '-eframe.number')
+        assert lines == []
+
+    def test_tpncp_events(self, cmd_tshark, capture_file, test_env):
+        '''Event 1 (error): header fields, CID and the Info column.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number == 2', '-Tfields', '-e_ws.col.info',
+                '-etpncp.version', '-etpncp.seq_number', '-etpncp.event_id',
+                '-etpncp.cid')
+        assert lines == ['EvID=acEV_ERROR(1), SeqNo=2, CID=1, Len=296, Ver=7600'
+                         '\t7600\t2\t1\t1239']
+
+    def test_tpncp_endianness(self, cmd_tshark, capture_file, test_env):
+        '''Frames 4 (big endian) and 5 (little endian) hold the same
+        event; the encoding follows the id field.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {4, 5}', '-Tfields', '-eframe.number',
+                '-etpncp.version', '-etpncp.event_id', '-etpncp.cid')
+        assert lines == ['4\t7600\t3\t', '5\t7600\t3\t']
+
+    def test_tpncp_version_dependent_fields(self, cmd_tshark, capture_file, test_env):
+        '''The DTLS fingerprint algorithm of command 1611 is only present
+        from version 7401 (frames 1349 and 1352).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'frame.number in {1349, 1352}', '-Tfields',
+                '-eframe.number', '-etpncp.version',
+                '-etpncp.channel_a_open_dtls_remote_fingerprint_alg')
+        assert lines == ['1349\t7400\t', '1352\t7600\t1590323']
+
+    def test_tpncp_special_offsets(self, cmd_tshark, capture_file, test_env):
+        '''Open channel commands with the security section behind an
+        offset, RTP state blocks behind an offset and the two channel
+        configurations of command 1611 are decoded without unknown data.'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-Y', 'tpncp.command_id in {2, 4, 610, 1611, 1615, 1618}',
+                '-Tfields', '-etpncp.command_id')
+        ids = [int(l) for l in lines]
+        for i in (2, 4, 610, 1611, 1615, 1618):
+            assert i in ids
+
+    def test_tpncp_tcp(self, cmd_tshark, capture_file, test_env):
+        '''PDUs split over TCP segments and PDUs of several segments are
+        reassembled (frame 1357 completes a 3172 octet command).'''
+        lines = self.fields(cmd_tshark, capture_file, test_env, *self.OPTS,
+                '-2', '-Y', 'frame.number in {1355, 1356, 1357}', '-Tfields',
+                '-eframe.number', '-etcp.reassembled_in', '-etpncp.command_id')
+        assert lines == ['1355\t1357\t', '1356\t1357\t', '1357\t\t1615']
