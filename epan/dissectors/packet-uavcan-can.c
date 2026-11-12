@@ -85,6 +85,7 @@ static int ett_uavcan_message;
 
 static expert_field ei_uavcan_toggle_bit_error;
 static expert_field ei_uavcan_transfer_crc_error;
+static expert_field ei_uavcan_reassembled_short;
 
 static int ett_uavcan_fragment;
 static int ett_uavcan_fragments;
@@ -208,7 +209,11 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         fragment_info = (fragment_info_t *) wmem_tree_lookup32(fragment_info_table, lookup_id);
 
-        if (!(tail_byte & START_OF_TRANSFER) && fragment_info == NULL) {
+        if (PINFO_FD_VISITED(pinfo)) {
+            /* Decide as the first pass did: only frames accepted then have proto data */
+            if (p_get_proto_data(wmem_file_scope(), pinfo, proto_uavcan, 0) == NULL)
+                return 0;
+        } else if (!(tail_byte & START_OF_TRANSFER) && fragment_info == NULL) {
             /* Lookup id doesn't exist, but not a start of transfer discard potentially a UAVCANv0 frame */
             return 0;
         }
@@ -379,6 +384,8 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             uavcan_frame_data = (struct uavcan_proto_data *) p_get_proto_data(
                 wmem_file_scope(), pinfo, proto_uavcan, 0);
+            if (uavcan_frame_data == NULL)
+                return tvb_captured_length(tvb);
 
             reassembled = fragment_get_reassembled_id(&uavcan_reassembly_table, pinfo,
                                                       uavcan_frame_data->seq_id);
@@ -405,7 +412,10 @@ dissect_uavcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                          NULL, multi_tree);
 
                 /* Parsing reassembled data */
-                if ((tail_byte & END_OF_TRANSFER) != 0) {
+                if ((tail_byte & END_OF_TRANSFER) != 0 && tvb_reported_length(reassembled_tvb) < 2) {
+                    proto_tree_add_expert(multi_tree, pinfo, &ei_uavcan_reassembled_short,
+                                          reassembled_tvb, 0, tvb_captured_length(reassembled_tvb));
+                } else if ((tail_byte & END_OF_TRANSFER) != 0) {
                     transfer_crc = proto_tree_add_item(multi_tree, hf_uavcan_packet_crc,
                                                        reassembled_tvb,
                                                        tvb_reported_length(reassembled_tvb) - 2,
@@ -618,6 +628,10 @@ proto_register_uavcan(void)
         {&ei_uavcan_transfer_crc_error,
            {"uavcan_can.transfer_crc.error",  PI_MALFORMED,   PI_ERROR,
            "Transfer CRC don't match",
+           EXPFILL}},
+        {&ei_uavcan_reassembled_short,
+           {"uavcan_can.reassembled_short",   PI_MALFORMED,   PI_ERROR,
+           "Reassembled payload too short for the CRC",
            EXPFILL}}
     };
 
