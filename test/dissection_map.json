@@ -3030,7 +3030,8 @@
    "epan/dissectors/packet-lbmc.c",
    "epan/dissectors/packet-lbmr.c",
    "epan/dissectors/packet-lbtrm.c",
-   "epan/dissectors/packet-lbttcp.c"
+   "epan/dissectors/packet-lbttcp.c",
+   "epan/dissectors/packet-pcap.c"
   ],
   "TestDissectLbmpdm": [
    "epan/dissectors/packet-lbmpdm.c",
@@ -3973,7 +3974,8 @@
    "epan/dissectors/packet-oran.c"
   ],
   "TestDissectOranCoverage": [
-   "epan/dissectors/packet-oran.c"
+   "epan/dissectors/packet-oran.c",
+   "epan/dissectors/packet-pcap.c"
   ],
   "TestDissectOsc": [
    "epan/dissectors/packet-osc.c"
@@ -5491,6 +5493,134 @@
   "TestDissectWlancap": [
    "epan/dissectors/packet-ieee80211-wlancap.c",
    "epan/dissectors/packet-ieee80211.c"
+  ],
+  "TestDissectYami": [
+   "epan/dissectors/packet-yami.c"
+  ],
+  "TestDissectYhoo": [
+   "epan/dissectors/packet-yhoo.c"
+  ],
+  "TestDissectYmsg": [
+   "epan/dissectors/packet-ymsg.c"
+  ],
+  "TestDissectYpbind": [
+   "epan/dissectors/packet-ypbind.c"
+  ],
+  "TestDissectYppasswd": [
+   "epan/dissectors/packet-yppasswd.c"
+  ],
+  "TestDissectYpserv": [
+   "epan/dissectors/packet-ypserv.c"
+  ],
+  "TestDissectYpxfr": [
+   "epan/dissectors/packet-ypxfr.c"
+  ],
+  "TestDissectZ21": [
+   "epan/dissectors/packet-z21.c"
+  ],
+  "TestDissectZ3950": [
+   "epan/dissectors/packet-z3950.c"
+  ],
+  "TestDissectZbeeAps": [
+   "epan/dissectors/packet-zbee-aps.c",
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbeeDirect": [
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-zbee-direct.c"
+  ],
+  "TestDissectZbeeNwk": [
+   "epan/dissectors/packet-zbee-aps.c",
+   "epan/dissectors/packet-zbee-nwk-gp.c",
+   "epan/dissectors/packet-zbee-nwk.c"
+  ],
+  "TestDissectZbeeNwkGp": [
+   "epan/dissectors/packet-zbee-nwk-gp.c"
+  ],
+  "TestDissectZbeeSecurity": [
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-zbee-security.c",
+   "epan/dissectors/packet-zbee-tlv.c"
+  ],
+  "TestDissectZbeeTlv": [
+   "epan/dissectors/packet-bthci_evt.c",
+   "epan/dissectors/packet-zbee-nwk.c",
+   "epan/dissectors/packet-zbee-tlv.c",
+   "epan/dissectors/packet-zbee-zcl.c",
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbeeZcl": [
+   "epan/dissectors/packet-zbee-zcl.c"
+  ],
+  "TestDissectZbeeZclClosures": [
+   "epan/dissectors/packet-zbee-zcl-closures.c"
+  ],
+  "TestDissectZbeeZclGeneral": [
+   "epan/dissectors/packet-zbee-nwk-gp.c",
+   "epan/dissectors/packet-zbee-zcl-general.c"
+  ],
+  "TestDissectZbeeZclHa": [
+   "epan/dissectors/packet-zbee-zcl-ha.c"
+  ],
+  "TestDissectZbeeZclHvac": [
+   "epan/dissectors/packet-zbee-zcl-hvac.c",
+   "epan/dissectors/packet-zbee-zcl.c"
+  ],
+  "TestDissectZbeeZclLighting": [
+   "epan/dissectors/packet-zbee-zcl-lighting.c"
+  ],
+  "TestDissectZbeeZclMeasSensing": [
+   "epan/dissectors/packet-zbee-zcl-meas-sensing.c"
+  ],
+  "TestDissectZbeeZclMisc": [
+   "epan/dissectors/packet-zbee-zcl-misc.c"
+  ],
+  "TestDissectZbeeZclProtoIface": [
+   "epan/dissectors/packet-zbee-zcl-proto-iface.c"
+  ],
+  "TestDissectZbeeZclSas": [
+   "epan/dissectors/packet-zbee-zcl-sas.c"
+  ],
+  "TestDissectZbeeZclSe": [
+   "epan/dissectors/packet-gbcs.c",
+   "epan/dissectors/packet-zbee-zcl-se.c"
+  ],
+  "TestDissectZbeeZdp": [
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbeeZdpBinding": [
+   "epan/dissectors/packet-zbee-zdp-binding.c",
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbeeZdpDiscovery": [
+   "epan/dissectors/packet-zbee-zdp-discovery.c",
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbeeZdpManagement": [
+   "epan/dissectors/packet-zbee-zdp-management.c",
+   "epan/dissectors/packet-zbee-zdp.c"
+  ],
+  "TestDissectZbncp": [
+   "epan/dissectors/packet-zbncp.c"
+  ],
+  "TestDissectZebra": [
+   "epan/dissectors/packet-zebra.c"
+  ],
+  "TestDissectZep": [
+   "epan/dissectors/packet-zep.c"
+  ],
+  "TestDissectZiop": [
+   "epan/dissectors/packet-ziop.c"
+  ],
+  "TestDissectZmtp": [
+   "epan/dissectors/packet-zmtp.c"
+  ],
+  "TestDissectZrtp": [
+   "epan/dissectors/packet-sdp.c",
+   "epan/dissectors/packet-zrtp.c"
+  ],
+  "TestDissectZvt": [
+   "epan/dissectors/packet-zvt.c"
   ]
  }
 }
