@@ -69,7 +69,8 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
     trel_tree = proto_item_add_subtree(proto_root, ett_trel);
 
     //add header subtree
-    trel_hdr_tree = proto_tree_add_subtree(trel_tree, tvb, 0, 4, ett_trel_hdr, NULL, "Header");
+    proto_item *hdr_item;
+    trel_hdr_tree = proto_tree_add_subtree(trel_tree, tvb, 0, 4, ett_trel_hdr, &hdr_item, "Header");
 
     proto_tree_add_item(trel_hdr_tree, hf_trel_version, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(trel_hdr_tree, hf_trel_rsv, tvb, offset, 1, ENC_NA);
@@ -95,6 +96,8 @@ dissect_trel(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_
         proto_tree_add_item(trel_hdr_tree, hf_trel_destination_addr, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
+
+    proto_item_set_end(hdr_item, tvb, offset);
 
     dissector_handle_t frame_handle = find_dissector("wpan_nofcs");
     tvbuff_t* payload = tvb_new_subset_remaining(tvb, offset);
