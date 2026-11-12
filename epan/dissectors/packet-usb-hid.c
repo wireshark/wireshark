@@ -15,6 +15,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include "wsutil/sign_ext.h"
 #include "wsutil/pint.h"
 #include "packet-usb.h"
@@ -40,6 +41,8 @@ static int hf_usb_hid_localitem_bTag;
 static int hf_usb_hid_longitem_bTag;
 static int hf_usb_hid_item_bDataSize;
 static int hf_usb_hid_item_bLongItemTag;
+static expert_field ei_usb_hid_collection_depth;
+
 static int hf_usb_hid_item_unk_data;
 
 static int hf_usb_hid_mainitem_bit0;
@@ -3730,6 +3733,12 @@ hid_unpack_signed(uint8_t *data, unsigned int idx, unsigned int size, int32_t *v
 }
 
 #define MAX_REPORT_DESCRIPTOR_COUNT 100000 // Arbitrary
+/* Total number of expanded usages in one report descriptor */
+#define MAX_REPORT_DESCRIPTOR_USAGES 131072
+/* Largest report field in bits (a 64 KiB report) */
+#define HID_MAX_FIELD_BITS (65535 * 8)
+/* Deepest nesting of Collection items shown in a report descriptor */
+#define HID_MAX_COLLECTION_DEPTH 32
 static bool
 parse_report_descriptor(report_descriptor_t *rdesc)
 {
@@ -3740,6 +3749,7 @@ parse_report_descriptor(report_descriptor_t *rdesc)
     uint32_t defined = 0, usage_page = 0, usage = 0, usage_min = 0, usage_max = 0;
     wmem_allocator_t *scope = wmem_file_scope();
     bool first_item = true;
+    uint64_t total_usages = 0;
 
     memset(&field, 0, sizeof(field));
     field.usages = wmem_array_new(scope, sizeof(uint32_t));
@@ -3768,6 +3778,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
                             goto err;
 
+                        /* Sizes the dissector cannot show (bit items are limited to 32 bits here) */
+                        if (field.report_size > 32 ||
+                            (uint64_t)field.report_size * field.report_count > HID_MAX_FIELD_BITS)
+                            goto err;
+
                         /* new field */
                         wmem_array_append_one(rdesc->fields_in, field);
 
@@ -3782,6 +3797,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                         field.properties = hid_unpack_value(data, i, size);
 
                         if ((defined & HID_REQUIRED_MASK) != HID_REQUIRED_MASK)
+                            goto err;
+
+                        /* Sizes the dissector cannot show (bit items are limited to 32 bits here) */
+                        if (field.report_size > 32 ||
+                            (uint64_t)field.report_size * field.report_count > HID_MAX_FIELD_BITS)
                             goto err;
 
                         /* new field */
@@ -3876,9 +3896,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                             usage |= usage_page << 16;
                         }
 
-                        if (wmem_array_get_count(field.usages) + 1 > MAX_REPORT_DESCRIPTOR_COUNT) {
+                        if (wmem_array_get_count(field.usages) + 1 > MAX_REPORT_DESCRIPTOR_COUNT ||
+                            total_usages + 1 > MAX_REPORT_DESCRIPTOR_USAGES) {
                             goto err;
                         }
+                        total_usages++;
                         wmem_array_append_one(field.usages, usage);
                         break;
 
@@ -3922,9 +3944,11 @@ parse_report_descriptor(report_descriptor_t *rdesc)
                             goto err;
                         }
 
-                        if (wmem_array_get_count(field.usages) + usage_max - usage_min >= MAX_REPORT_DESCRIPTOR_COUNT) {
+                        if (wmem_array_get_count(field.usages) + usage_max - usage_min >= MAX_REPORT_DESCRIPTOR_COUNT ||
+                            total_usages + ((uint64_t)usage_max - usage_min + 1) > MAX_REPORT_DESCRIPTOR_USAGES) {
                             goto err;
                         }
+                        total_usages += (uint64_t)usage_max - usage_min + 1;
 
                         /* min and max are inclusive */
                         wmem_array_grow(field.usages, usage_max - usage_min + 1);
@@ -4397,7 +4421,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo, proto_tree *tree, tvbu
 /* Dissector for individual HID report items.  Recursive. */
 static int
 // NOLINTNEXTLINE(misc-no-recursion)
-dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb, const struct usb_hid_global_state *global)
+dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvbuff_t *tvb, int offset, urb_info_t *urb, const struct usb_hid_global_state *global, unsigned nesting)
 {
     proto_item *subitem;
     proto_tree *tree, *subtree;
@@ -4476,8 +4500,12 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
         if (bType == USBHID_ITEMTYPE_MAIN) {
             if (bTag == USBHID_MAINITEM_TAG_COLLECTION) {
                 /* Begin collection, nest following elements under us */
+                if (nesting >= HID_MAX_COLLECTION_DEPTH) {
+                    expert_add_info(pinfo, subitem, &ei_usb_hid_collection_depth);
+                    return (int)tvb_reported_length(tvb);
+                }
                 increment_dissection_depth(pinfo);
-                offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, urb, &cur_global);
+                offset = dissect_usb_hid_report_item(pinfo, subtree, tvb, offset, urb, &cur_global, nesting + 1);
                 decrement_dissection_depth(pinfo);
                 proto_item_set_len(subitem, offset-old_offset);
             } else if (bTag == USBHID_MAINITEM_TAG_ENDCOLLECTION) {
@@ -4503,7 +4531,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     item = proto_tree_add_protocol_format(parent_tree, proto_usb_hid, tvb, offset,
                                           -1, "HID Report");
     tree = proto_item_add_subtree(item, ett_usb_hid_report);
-    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, urb, &initial_global);
+    offset = dissect_usb_hid_report_item(pinfo, tree, tvb, offset, urb, &initial_global, 0);
 
     /* only insert report descriptor the first time we parse it */
     if (!PINFO_FD_VISITED(pinfo) && urb && urb->conv) {
@@ -5986,9 +6014,17 @@ proto_register_usb_hid(void)
 
     report_descriptors = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
+    static ei_register_info ei[] = {
+        { &ei_usb_hid_collection_depth, { "usbhid.collection_depth", PI_PROTOCOL, PI_WARN,
+            "Collection nesting too deep, stopping", EXPFILL }},
+    };
+
     proto_usb_hid = proto_register_protocol("USB HID", "USBHID", "usbhid");
     proto_register_field_array(proto_usb_hid, hf, array_length(hf));
     proto_register_subtree_array(usb_hid_subtrees, array_length(usb_hid_subtrees));
+
+    expert_module_t *expert_usb_hid = expert_register_protocol(proto_usb_hid);
+    expert_register_field_array(expert_usb_hid, ei, array_length(ei));
 
     /*usb_hid_boot_keyboard_input_report_handle  =*/ register_dissector("usbhid.boot_report.keyboard.input",  dissect_usb_hid_boot_keyboard_input_report,  proto_usb_hid);
     /*usb_hid_boot_keyboard_output_report_handle =*/ register_dissector("usbhid.boot_report.keyboard.output", dissect_usb_hid_boot_keyboard_output_report, proto_usb_hid);
