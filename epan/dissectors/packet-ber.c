@@ -3748,7 +3748,7 @@ dissect_ber_GeneralizedTime(bool implicit_tag, asn1_ctx_t *actx, proto_tree *tre
      *
      * The minimum that iso8601_to_nstime() handles currently is
      * YYYYMMDDhhmm = 12 digits
-     * and the maximimum is
+     * and the maximum is
      * YYYYMMDDhhmmss.sssssssss+hhmm = 29 digits
      *
      * That doesn't handle everything that BER technically supports, but

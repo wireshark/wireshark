@@ -120,9 +120,6 @@ mctp_smbus_slave_addr(const address *addr, uint8_t *slave)
  * MCTP header.  A continuation packet may carry no payload byte. */
 #define MCTP_SMBUS_MIN_BYTE_COUNT 5
 
-/* R/W# bit: 1 = Read, 0 = Write (MCTP always uses Write) */
-static const true_false_string tfs_smbus_rw = { "Read", "Write" };
-
 /* SMBus 3.3 6.4.1.3 PEC: CRC-8 poly 0x07, MSB first, seed 0 (no in-tree helper). */
 static uint8_t
 mctp_smbus_pec(tvbuff_t *tvb, unsigned offset, unsigned len)
@@ -387,7 +384,7 @@ proto_register_mctp_smbus(void)
             "7-bit SMBus destination slave address", HFILL }},
         { &hf_mctp_smbus_rw,
           { "R/W#", "mctp.smbus.rw",
-            FT_BOOLEAN, 8, TFS(&tfs_smbus_rw), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_read_write), 0x01,
             "Read/Write direction bit (must be 0=Write for MCTP Block Write)", HFILL }},
         { &hf_mctp_smbus_command_code,
           { "Command Code", "mctp.smbus.command_code",

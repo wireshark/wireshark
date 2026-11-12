@@ -830,11 +830,6 @@ static const true_false_string tfs_tecmp_flexray_channel = {
     "A"
 };
 
-static const true_false_string tfs_tecmp_i2c_direction = {
-    "Read",
-    "Write"
-};
-
 #define TECMP_I2C_CONTROL_ACK_REPEATED_START 3
 #define TECMP_I2C_CONTROL_NACK_REPEATED_START 5
 static const value_string tecmp_i2c_control[] = {
@@ -3372,7 +3367,7 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_i2c_address_10bit,                         { "Address 10bit", "tecmp.payload.i2c_address_10bit", FT_UINT16, BASE_HEX_DEC, NULL, 0, NULL, HFILL}},
         { &hf_tecmp_payload_data_i2c_address1,                              { "Address (first part of 10bit address)", "tecmp.payload.i2c_10bit_address_first_byte", FT_UINT8, BASE_HEX_DEC, NULL, 0xfe, NULL, HFILL} },
         { &hf_tecmp_payload_data_i2c_address2,                              { "Address (last 8bit of 10bit address)", "tecmp.payload.i2c_10bit_address_second_byte", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL} },
-        { &hf_tecmp_payload_data_i2c_direction,                             { "Direction", "tecmp.payload.i2c_direction", FT_BOOLEAN, 8, TFS(&tfs_tecmp_i2c_direction), 0x01, NULL, HFILL } },
+        { &hf_tecmp_payload_data_i2c_direction,                             { "Direction", "tecmp.payload.i2c_direction", FT_BOOLEAN, 8, TFS(&tfs_read_write), 0x01, NULL, HFILL } },
         { &hf_tecmp_payload_data_i2c_control_char,                          { "Control Char", "tecmp.payload.i2c_control", FT_UINT8, BASE_HEX_DEC, VALS(tecmp_i2c_control), 0x0, NULL, HFILL} },
         { &hf_tecmp_payload_data_i2c_data_byte,                             { "Data Byte", "tecmp.payload.i2c_data", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 

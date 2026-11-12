@@ -972,8 +972,6 @@ static expert_field ei_nfs_file_system_cycle;
 
 static int nfsv4_tap;
 
-static const true_false_string tfs_read_write = { "Read", "Write" };
-
 /*
  * Bitmaps are currently used for attributes and state_protect bits.
  * Currently we don't expect more than 4 words, but future protocol

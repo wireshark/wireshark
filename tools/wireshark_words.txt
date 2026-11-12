@@ -814,6 +814,7 @@ diffie
 diffserv
 digicel
 digin
+digipeated
 digitech
 digitel
 digitizer
@@ -2878,6 +2879,7 @@ seg1a
 seg2a
 seg3a
 seglen
+segmenter
 segmenting
 segno
 selectivity

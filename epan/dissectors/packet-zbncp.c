@@ -3452,8 +3452,7 @@ dissect_zbncp_high_level_body(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
         if (ptype == ZBNCP_HIGH_LVL_PACKET_TYPE_RESPONSE)
         {
             uint8_t group_num;
-            group_num = tvb_get_uint8(tvb, offset);
-            proto_tree_add_item(zbncp_hl_body_tree, hf_zbncp_data_aps_group_num, tvb, offset++, 1, ENC_NA);
+            proto_tree_add_item_ret_uint8(zbncp_hl_body_tree, hf_zbncp_data_aps_group_num, tvb, offset++, 1, ENC_NA, &group_num);
 
             if (group_num)
             {

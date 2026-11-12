@@ -961,11 +961,6 @@ static const value_string eth_raw_sfd[] = {
     {0, NULL}
 };
 
-static const true_false_string i2c_read_write = {
-    "Read",
-    "Write"
-};
-
 static const true_false_string i2c_addr_length = {
     "10 Bit Address",
     "7 Bit Address"
@@ -4243,7 +4238,7 @@ proto_register_asam_cmp(void) {
 
         /* I2C */
         { &hf_cmp_i2c_flags,                        { "Flags", "asam-cmp.msg.i2c.flags", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-        { &hf_cmp_i2c_flag_dir,                     { "Direction", "asam-cmp.msg.i2c.flags.dir", FT_BOOLEAN, 16, TFS(&i2c_read_write), 0x0001, NULL, HFILL} },
+        { &hf_cmp_i2c_flag_dir,                     { "Direction", "asam-cmp.msg.i2c.flags.dir", FT_BOOLEAN, 16, TFS(&tfs_read_write), 0x0001, NULL, HFILL} },
         { &hf_cmp_i2c_flag_addr_len,                { "Address Length", "asam-cmp.msg.i2c.flags.addr_len", FT_BOOLEAN, 16, TFS(&i2c_addr_length), 0x0002, NULL, HFILL } },
         { &hf_cmp_i2c_flag_addr_ack,                { "Address Ack", "asam-cmp.msg.i2c.flags.addr_ack", FT_BOOLEAN, 16, TFS(&i2c_nack_ack), 0x0004, NULL, HFILL } },
         { &hf_cmp_i2c_flag_addr_err,                { "Ack Error", "asam-cmp.msg.i2c.flags.ack_err", FT_BOOLEAN, 16, TFS(&cmp_err_noerr), 0x0008, NULL, HFILL } },

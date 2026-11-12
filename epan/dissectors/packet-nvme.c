@@ -3923,12 +3923,12 @@ static void add_ctrl_tmt(char *result, uint32_t val)
         snprintf(result, ITEM_LABEL_LENGTH, "%u degrees K", val);
 }
 
-static const range_string mmas_type_tbl[] = {
-    { 0, 0, "modification not defined" },
-    { 1, 1, "no modification after sanitize completion" },
-    { 2, 2, "additional modification after sanitize completion" },
-    { 3, 3, "Reserved" },
-    { 0, 0, NULL }
+static const value_string mmas_type_tbl[] = {
+    { 0, "modification not defined" },
+    { 1, "no modification after sanitize completion" },
+    { 2, "additional modification after sanitize completion" },
+    { 3, "Reserved" },
+    { 0, NULL }
 };
 
 static void add_ctrl_pow2_bytes(char *result, uint32_t val)
@@ -6483,12 +6483,12 @@ static const range_string lockdown_scope_rvals[] = {
     { 0, 0, NULL }
 };
 
-static const range_string lockdown_contents_rvals[] = {
-    { 0x0, 0x0, "Can-be-prohibited list" },
-    { 0x1, 0x1, "Currently prohibited (Admin Submission Queue)" },
-    { 0x2, 0x2, "Currently prohibited (out-of-band Management Endpoint)" },
-    { 0x3, 0x3, "Reserved" },
-    { 0, 0, NULL }
+static const value_string lockdown_contents_vals[] = {
+    { 0x0, "Can-be-prohibited list" },
+    { 0x1, "Currently prohibited (Admin Submission Queue)" },
+    { 0x2, "Currently prohibited (out-of-band Management Endpoint)" },
+    { 0x3, "Reserved" },
+    { 0, NULL }
 };
 
 /* Get Log Page LSP values, Base 2.4 Figures 220, 232 and 309. */
@@ -12341,7 +12341,7 @@ proto_register_nvme(void)
         { &hf_nvme_lsp_rgo, { "Return Groups Only (RGO)", "nvme.cmd.get_logpage.lsp.rgo", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
         { &hf_nvme_lsp_pel_act, { "Persistent Event Log Action (ACT)", "nvme.cmd.get_logpage.lsp.pel_act", FT_UINT8, BASE_HEX, VALS(lsp_pel_act_vals), 0x03, NULL, HFILL } },
         { &hf_nvme_lsp_scope, { "Scope (SCP)", "nvme.cmd.get_logpage.lsp.scope", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(lockdown_scope_rvals), 0x0f, NULL, HFILL } },
-        { &hf_nvme_lsp_contents, { "Contents (CNTTS)", "nvme.cmd.get_logpage.lsp.contents", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(lockdown_contents_rvals), 0x30, NULL, HFILL } },
+        { &hf_nvme_lsp_contents, { "Contents (CNTTS)", "nvme.cmd.get_logpage.lsp.contents", FT_UINT8, BASE_HEX, VALS(lockdown_contents_vals), 0x30, NULL, HFILL } },
         { &hf_nvme_lsp_elpf, { "Enhanced Log Page Format (ELPF)", "nvme.cmd.get_logpage.lsp.elpf", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL } },
         { &hf_nvme_lsp_bpid, { "Boot Partition Identifier (BPID)", "nvme.cmd.get_logpage.lsp.bpid", FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL } },
         { &hf_nvme_lsp_rao, { "Return Associations Only (RAO)", "nvme.cmd.get_logpage.lsp.rao", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
@@ -16044,7 +16044,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_ctrl_sanicap[9],
             { "No-Deallocate Modifies Media After Sanitize (NODMMAS)", "nvme.cmd.identify.ctrl.sanicap.nodmmas",
-               FT_UINT32, BASE_HEX | BASE_RANGE_STRING, RVALS(mmas_type_tbl), 0xc0000000, NULL, HFILL}
+               FT_UINT32, BASE_HEX, VALS(mmas_type_tbl), 0xc0000000, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_hmminds,
             { "Host Memory Buffer Minimum Descriptor Entry Size in 4 KiB Units (HMMINDS)", "nvme.cmd.identify.ctrl.hmminds",
@@ -18647,7 +18647,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_cmd_feat_lockdown_cfila[2],
             { "Contents Selected (CS)", "nvme.cmd.get_logpage.cmd_feat_lockdown.cfila.cs",
-               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(lockdown_contents_rvals), 0x30, NULL, HFILL}
+               FT_UINT8, BASE_HEX, VALS(lockdown_contents_vals), 0x30, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_cmd_feat_lockdown_cfila[3],
             { "Reserved", "nvme.cmd.get_logpage.cmd_feat_lockdown.cfila.rsvd",
@@ -18672,7 +18672,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_lp_lockdown_enh_cfia[2],
             { "Contents Selected (CS)", "nvme.cmd.get_logpage.cmd_feat_lockdown.enh.cfia.cs",
-               FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(lockdown_contents_rvals), 0x30, NULL, HFILL}
+               FT_UINT8, BASE_HEX, VALS(lockdown_contents_vals), 0x30, NULL, HFILL}
         },
         { &hf_nvme_lp_lockdown_enh_cfia[3],
             { "Reserved", "nvme.cmd.get_logpage.cmd_feat_lockdown.enh.cfia.rsvd",
